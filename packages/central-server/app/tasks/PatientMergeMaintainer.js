@@ -14,7 +14,6 @@ import {
   mergePatientProgramRegistrations,
   mergePortalUser,
   mergePatientInvoiceInsurancePlans,
-  refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
   specificUpdateModels,
@@ -35,6 +34,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
     this.config = conf;
     this.models = context.store.models;
     this.sequelize = context.store.sequelize;
+    this.settings = context.settings;
   }
 
   checkModelsMissingSpecificUpdateCoverage() {
@@ -58,12 +58,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
     const [, result] = await model.sequelize.query(`
       UPDATE ${tableName}
       SET ${patientFieldName} = patients.merged_into_id
-      FROM patients 
-      WHERE 
-        patients.id = ${tableName}.${patientFieldName} 
+      FROM patients
+      WHERE
+        patients.id = ${tableName}.${patientFieldName}
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
-      RETURNING ${tableName}.id;
+      RETURNING ${tableName}.id, patients.id AS "mergedPatientId";
     `);
     return result.rows;
   }
@@ -88,33 +88,22 @@ export class PatientMergeMaintainer extends ScheduledTask {
     );
   }
 
-  async updateDependentRecordsForResync(merges) {
-    const encounters = merges['Encounter'] || [];
-    await refreshMultiChildRecordsForSync(this.models.Encounter, encounters);
-
-    // Patient Care Plans
-    const patientCarePlans = merges['PatientCarePlan'] || [];
-    await refreshMultiChildRecordsForSync(this.models.PatientCarePlan, patientCarePlans);
-
-    // Patient Death Data
-    const patientDeathDataRecords = merges['PatientDeathData'] || [];
-    await refreshMultiChildRecordsForSync(this.models.PatientDeathData, patientDeathDataRecords);
-  }
-
   async remergePatientRecords() {
     return this.sequelize.transaction(async () => {
       // set up an object for counting affected records
       const counts = {};
-      const merges = {};
+      const mergedPatientIds = new Set();
       const updateCounts = (name, records) => {
         const len = records && records.length;
         if (len) {
           counts[name] = len;
         }
       };
-      const updateMerges = (name, records) => {
-        if (records?.length) {
-          merges[name] = records;
+      const collectMergedPatients = records => {
+        for (const record of records ?? []) {
+          if (record.mergedPatientId) {
+            mergedPatientIds.add(record.mergedPatientId);
+          }
         }
       };
 
@@ -123,7 +112,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
         const model = this.models[modelName];
         const records = await this.mergeAllRecordsForModel(model);
         updateCounts(modelName, records);
-        updateMerges(modelName, records);
+        collectMergedPatients(records);
       }
 
       // then the model updates that need specific updates:
@@ -132,11 +121,18 @@ export class PatientMergeMaintainer extends ScheduledTask {
         if (method) {
           const records = await method.call(this);
           updateCounts(modelName, records);
-          updateMerges(modelName, records);
+          collectMergedPatients(records);
         }
       }
 
-      await this.updateDependentRecordsForResync(merges);
+      // Only patients repointed this run: tombstones legitimately stay scoped to the merged
+      // patient, so re-flagging every merged patient would re-sync them every run.
+      if (
+        mergedPatientIds.size &&
+        (await this.settings.get('patientMerge.updateDependentRecordsForResyncEnabled'))
+      ) {
+        await this.models.LocalSystemFact.flagLookupPatientsForRebuild([...mergedPatientIds]);
+      }
 
       return counts;
     });

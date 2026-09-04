@@ -2,6 +2,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
+import { ReadSettings } from '@tamanu/settings';
 
 // Postgres SQLSTATE for "could not serialize access due to concurrent update" — what the FOR KEY
 // SHARE lock in buildLookupUpsertQuery raises when a hard delete concurrent with this build
@@ -174,6 +175,107 @@ const updateLookupTableForModel = async (
   return totalCount;
 };
 
+// Flagged-patient pass: rebuilds every lookup row still scoped to a patient flagged by a merge.
+// Such rows derive their scope through other tables' joins, so the incremental pass can't see
+// them. The tick is not preserved (the rows must re-queue), and it runs as its own pass so the
+// where clause plans as a semi-join off the sync_lookup patient_id index.
+const rebuildLookupRowsForFlaggedPatientsForModel = async (
+  model,
+  config,
+  since,
+  syncLookupTick,
+  patientIds,
+) => {
+  const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
+  const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
+
+  const { tableName: table } = model;
+
+  let fromId = '';
+  let rebuiltCount = 0;
+  const attributes = model.getAttributes();
+  const { select, joins } = (await model.buildSyncLookupQueryDetails({})) || {};
+  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+
+  while (fromId != null) {
+    const [[{ maxId, count }]] = await model.sequelize.query(
+      buildLookupUpsertQuery({
+        table,
+        selectClause: select || (await buildSyncLookupSelect(model)),
+        joins,
+        useUpdatedAtByFieldSum,
+        avoidRepull,
+        whereClause: `
+          (
+            ${table}.id::text IN (
+              SELECT record_id FROM sync_lookup
+              WHERE record_type = :recordType AND patient_id IN (:patientIds)
+            )
+          )
+          ${fromId ? `AND ${table}.id > :fromId` : ''}
+        `,
+        perModelUpdateTimeoutMs,
+      }),
+      {
+        replacements: {
+          since,
+          recordType: table,
+          patientIds,
+          limit: CHUNK_SIZE,
+          fromId,
+          perModelUpdateTimeoutMs,
+          updatedAtSyncTick: syncLookupTick,
+        },
+      },
+    );
+
+    const chunkCount = Number.parseInt(count, 10); // count should always be default to '0'
+    fromId = maxId;
+    rebuiltCount += chunkCount;
+  }
+
+  return rebuiltCount;
+};
+
+const rebuildLookupRowsForFlaggedPatients = async (
+  models,
+  outgoingModels,
+  config,
+  since,
+  syncLookupTick,
+  patientIds,
+) => {
+  const [staleRecordTypes] = await models.SyncLookup.sequelize.query(
+    `SELECT DISTINCT record_type AS "recordType" FROM sync_lookup WHERE patient_id IN (:patientIds);`,
+    { replacements: { patientIds } },
+  );
+
+  const modelsByTableName = Object.fromEntries(
+    Object.values(outgoingModels).map(model => [model.tableName, model]),
+  );
+
+  let rebuiltCount = 0;
+  for (const { recordType } of staleRecordTypes) {
+    const model = modelsByTableName[recordType];
+    if (!model) continue;
+
+    rebuiltCount += await rebuildLookupRowsForFlaggedPatientsForModel(
+      model,
+      config,
+      since,
+      syncLookupTick,
+      patientIds,
+    );
+  }
+
+  log.info('updateLookupTable.rebuiltForFlaggedPatients', {
+    patientCount: patientIds.length,
+    rebuiltCount,
+  });
+
+  return rebuiltCount;
+};
+
 // Self-heal (pass 2): rebuilds rows still flagged `needs_rebuild` after the incremental pass —
 // records whose source changed without advancing the sync clock, i.e. a write made while the sync
 // tick trigger was disabled (a migration). Reuses the exact same upsert query as pass 1, scoped to
@@ -266,6 +368,12 @@ export const updateLookupTable = withConfig(
 
     let changesCount = 0;
 
+    const maxFlaggedPatientsPerBuild = await new ReadSettings(models).get(
+      'sync.maxFlaggedPatientsPerBuild',
+    );
+    const flaggedPatientIds = await models.LocalSystemFact.getLookupPatientsToRebuild();
+    const patientIdsToRebuild = flaggedPatientIds.slice(0, maxFlaggedPatientsPerBuild);
+
     for (const model of Object.values(outgoingModels)) {
       try {
         const shouldRebuildModel = await models.LocalSystemFact.isLookupRebuildingModel(
@@ -299,10 +407,41 @@ export const updateLookupTable = withConfig(
       }
     }
 
+    if (patientIdsToRebuild.length) {
+      try {
+        changesCount += await rebuildLookupRowsForFlaggedPatients(
+          models,
+          outgoingModels,
+          config,
+          since,
+          syncLookupTick,
+          patientIdsToRebuild,
+        );
+      } catch (e) {
+        if (isConcurrentHardDeleteConflict(e)) {
+          const message = `Sync lookup rebuild for flagged patients: ${HARD_DELETE_DURING_BUILD_MESSAGE}`;
+          log.warn(message);
+          throw new Error(message, { cause: e });
+        }
+        log.error('Failed to rebuild lookup rows for flagged patients');
+        log.debug(e);
+        throw new Error(`Failed to rebuild lookup rows for flagged patients: ${e.message}`, {
+          cause: e,
+        });
+      }
+      if (patientIdsToRebuild.length < flaggedPatientIds.length) {
+        log.info('updateLookupTable.deferredFlaggedPatients', {
+          deferredCount: flaggedPatientIds.length - patientIdsToRebuild.length,
+        });
+      }
+    }
+
     await debugObject.addInfo({ changesCount });
     log.info('updateLookupTable.countedAll', { count: changesCount, since });
 
-    return changesCount;
+    // cleared by the caller after commit: clearing here would write the fact row a concurrent
+    // merge appends to, aborting the whole repeatable-read build
+    return { changesCount, rebuiltPatientIds: patientIdsToRebuild };
   },
 );
 
