@@ -692,6 +692,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   InvoiceDiscount: () => ({
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
   }),
+  InvoiceInsurancePlan: () => ({
+    availableFacilities: null,
+  }),
   InvoiceInsurerPayment: () => ({
     status: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),

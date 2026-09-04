@@ -876,10 +876,18 @@ createSuggester(
   },
 );
 
+// spec: INVOICING#insurance-plans
 createSuggester(
   'invoiceInsurancePlan',
   'InvoiceInsurancePlan',
-  ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+  ({ endpoint, modelName, req }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
   {
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },

@@ -730,6 +730,33 @@ describe('Suggestions', () => {
       expect(byName).toHaveSucceeded();
       expect(byName.body.map(({ id }) => id)).not.toContain(drug.id);
     });
+
+    it('should filter invoiceInsurancePlan suggestions by availableFacilities', async () => {
+      const facility = await models.Facility.create(fake(models.Facility));
+      const otherFacility = await models.Facility.create(fake(models.Facility));
+
+      const planForThisFacility = await models.InvoiceInsurancePlan.create({
+        ...fake(models.InvoiceInsurancePlan),
+        availableFacilities: [facility.id],
+      });
+      const planForOtherFacility = await models.InvoiceInsurancePlan.create({
+        ...fake(models.InvoiceInsurancePlan),
+        availableFacilities: [otherFacility.id],
+      });
+      const planForEveryFacility = await models.InvoiceInsurancePlan.create(
+        fake(models.InvoiceInsurancePlan),
+      );
+
+      const result = await userApp
+        .get('/api/suggestions/invoiceInsurancePlan')
+        .query({ facilityId: facility.id });
+
+      expect(result).toHaveSucceeded();
+      const idArray = result.body.map(({ id }) => id);
+      expect(idArray).toContain(planForThisFacility.id);
+      expect(idArray).toContain(planForEveryFacility.id);
+      expect(idArray).not.toContain(planForOtherFacility.id);
+    });
   });
 
   describe('Order of results (via diagnoses)', () => {

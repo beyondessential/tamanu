@@ -9,6 +9,7 @@ export class InvoiceInsurancePlan extends Model {
   declare name?: string;
   declare defaultCoverage?: number;
   declare visibilityStatus: string;
+  declare availableFacilities: string[] | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -30,6 +31,11 @@ export class InvoiceInsurancePlan extends Model {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
+        },
+        availableFacilities: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+          defaultValue: null,
         },
       },
       {
