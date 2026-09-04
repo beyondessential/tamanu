@@ -144,11 +144,11 @@ export class LocalSystemFact extends Model {
   }
 
   static async flagLookupPatientsForRebuild(patientIds: string[]): Promise<void> {
-    for (const patientId of patientIds) {
-      await this.sequelize.query(`SELECT flag_lookup_patient_to_rebuild(:patientId);`, {
-        replacements: { patientId },
-      });
-    }
+    if (!patientIds.length) return;
+    await this.sequelize.query(
+      `SELECT flag_lookup_patients_to_rebuild(ARRAY[:patientIds]::text[]);`,
+      { replacements: { patientIds } },
+    );
   }
 
   static async markLookupPatientsRebuilt(patientIds: string[]): Promise<void> {
