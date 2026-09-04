@@ -207,29 +207,25 @@ export const attachRelationBackedValues = async (models, referenceDataType, rows
   const config = RELATION_BACKED_COLUMNS[referenceDataType];
   if (!config || rows.length === 0) return;
 
-  const parentIds = rows.map(row => row.id);
-  const relations = await models.ReferenceDataRelation.findAll({
-    attributes: ['referenceDataParentId', 'referenceDataId'],
-    where: {
-      type: config.relationType,
-      referenceDataParentId: { [Op.in]: parentIds },
-    },
-    include: [{ association: 'referenceData', attributes: ['id', 'name'] }],
-  });
-  const byParentId = new Map(relations.map(relation => [relation.referenceDataParentId, relation]));
-
+  const children = await models.ReferenceDataRelation.getSingleChildByParentIds(
+    rows.map(row => row.id),
+    config.relationType,
+  );
   for (const row of rows) {
-    const relation = byParentId.get(row.id);
-    row[config.idKey] = relation?.referenceDataId ?? null;
-    row[config.nameKey] = relation?.referenceData?.name ?? null;
+    const child = children.get(row.id);
+    row[config.idKey] = child?.id ?? null;
+    row[config.nameKey] = child?.name ?? null;
   }
 };
 
 // Translate a create/edit payload's relation-backed value into an at-most-one ReferenceDataRelation
-// (destroy-then-recreate). A blank value clears it. Returns whether this type has such a column.
+// (destroy-then-recreate). A blank value clears it. The field is only acted on when present in the
+// payload, so a partial update that omits it leaves the existing default untouched (matching how
+// omitted columns are left unchanged).
 export const applyRelationBackedWrite = async (models, referenceDataType, parentId, rawData) => {
   const config = RELATION_BACKED_COLUMNS[referenceDataType];
-  if (!config) return false;
+  if (!config) return;
+  if (!Object.prototype.hasOwnProperty.call(rawData, config.idKey)) return;
 
   const childId = rawData[config.idKey] || null;
   await models.ReferenceDataRelation.destroy({
@@ -255,18 +251,6 @@ export const applyRelationBackedWrite = async (models, referenceDataType, parent
       });
     }
   }
-
-  return true;
-};
-
-// Relation-backed values aren't real columns, so drop them from the column write set.
-export const stripRelationBackedKeys = (referenceDataType, data) => {
-  const config = RELATION_BACKED_COLUMNS[referenceDataType];
-  if (!config) return data;
-  const rest = { ...data };
-  delete rest[config.idKey];
-  delete rest[config.nameKey];
-  return rest;
 };
 
 export const assertValidType = type => {
@@ -281,7 +265,11 @@ export const assertValidType = type => {
 
 export const getWritableData = (columns, data, isEditMode) => {
   const writableKeys = new Set(
-    columns.filter(c => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map(c => c.key),
+    columns
+      // Relation-backed columns aren't real columns; they're written separately (see
+      // applyRelationBackedWrite), so keep them out of the column write set.
+      .filter(c => !c.readOnly && !c.isRelationBacked && !(isEditMode && c.readOnlyOnEdit))
+      .map(c => c.key),
   );
   return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
 };

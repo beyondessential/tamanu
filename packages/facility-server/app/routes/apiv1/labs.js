@@ -83,23 +83,12 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
 const attachDefaultSpecimenTypes = async (models, categories) => {
   const present = categories.filter(Boolean);
   const categoryIds = [...new Set(present.map(({ id }) => id))];
-  if (categoryIds.length === 0) return;
-
-  const relations = await models.ReferenceDataRelation.findAll({
-    attributes: ['referenceDataId', 'referenceDataParentId'],
-    where: {
-      type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
-      referenceDataParentId: { [Op.in]: categoryIds },
-    },
-  });
-  const byCategoryId = new Map(
-    relations.map(({ referenceDataParentId, referenceDataId }) => [
-      referenceDataParentId,
-      referenceDataId,
-    ]),
+  const defaults = await models.ReferenceDataRelation.getSingleChildByParentIds(
+    categoryIds,
+    REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
   );
   for (const category of present) {
-    category.defaultSpecimenTypeId = byCategoryId.get(category.id) ?? null;
+    category.defaultSpecimenTypeId = defaults.get(category.id)?.id ?? null;
   }
 };
 

@@ -475,6 +475,23 @@ describe('Reference Data Manage', () => {
       expect(await getDefault(category.id)).toBeNull();
     });
 
+    it('leaves the default untouched when a partial edit omits the field', async () => {
+      const specimenType = await createSpecimenType();
+      const category = await createCategory();
+      await models.ReferenceDataRelation.create({
+        referenceDataParentId: category.id,
+        referenceDataId: specimenType.id,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      });
+
+      // A PUT that changes another field but omits defaultSpecimenTypeId must not clear it.
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, name: 'Renamed category' });
+
+      expect((await getDefault(category.id))?.referenceDataId).toBe(specimenType.id);
+    });
+
     it('returns the default specimen type id and name in the list', async () => {
       const specimenType = await createSpecimenType();
       const category = await createCategory();

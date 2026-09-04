@@ -16,7 +16,6 @@ import {
   createMultiSelectRecords,
   attachRelationBackedValues,
   applyRelationBackedWrite,
-  stripRelationBackedKeys,
 } from './referenceDataManageUtils';
 
 export const referenceDataManageRouter = express.Router();
@@ -32,7 +31,7 @@ referenceDataManageRouter.post(
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model, referenceDataType);
-    const data = stripRelationBackedKeys(referenceDataType, getWritableData(columns, rawData, false));
+    const data = getWritableData(columns, rawData, false);
 
     try {
       if (columns.some(c => c.multiSelect)) {
@@ -75,7 +74,7 @@ referenceDataManageRouter.put(
     }
 
     const columns = await getColumnsForModel(model, referenceDataType);
-    const data = stripRelationBackedKeys(referenceDataType, getWritableData(columns, rawData, true));
+    const data = getWritableData(columns, rawData, true);
 
     await req.store.sequelize.transaction(async () => {
       await record.update(data);

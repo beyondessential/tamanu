@@ -114,6 +114,52 @@ describe('Labs', () => {
       const returned = response.body.find(labTest => labTest.id === testType.id);
       expect(returned?.category?.defaultSpecimenTypeId).toBeNull();
     });
+
+    it('exposes the category default on GET /labTestPanel', async () => {
+      const specimenType = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.SPECIMEN_TYPE,
+      });
+      const category = await createCategoryWithDefault(specimenType.id);
+      const panel = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        categoryId: category.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const response = await app.get('/api/labTestPanel');
+      expect(response).toHaveSucceeded();
+      const returned = response.body.find(labPanel => labPanel.id === panel.id);
+      expect(returned?.category?.defaultSpecimenTypeId).toBe(specimenType.id);
+    });
+
+    it('exposes the category default on GET /labRequest/:id', async () => {
+      const specimenType = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.SPECIMEN_TYPE,
+      });
+      const category = await createCategoryWithDefault(specimenType.id);
+      const createResponse = await app
+        .post('/api/labRequest')
+        .send(await randomLabRequest(models, { patientId, categoryId: category.id }));
+      expect(createResponse).toHaveSucceeded();
+
+      const response = await app.get(`/api/labRequest/${createResponse.body[0].id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.category?.defaultSpecimenTypeId).toBe(specimenType.id);
+    });
+
+    it('returns a null category default on GET /labRequest/:id when none is set', async () => {
+      const category = await createCategoryWithDefault(null);
+      const createResponse = await app
+        .post('/api/labRequest')
+        .send(await randomLabRequest(models, { patientId, categoryId: category.id }));
+      expect(createResponse).toHaveSucceeded();
+
+      const response = await app.get(`/api/labRequest/${createResponse.body[0].id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.category?.defaultSpecimenTypeId).toBeNull();
+    });
   });
 
   it('should record two lab requests with one test type each', async () => {

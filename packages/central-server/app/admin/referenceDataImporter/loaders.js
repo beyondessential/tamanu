@@ -380,6 +380,7 @@ export const labTestCategoryLoader = async (item, { models, header, pushError })
   }
 
   const specimenType = await models.ReferenceData.findOne({
+    attributes: ['id'],
     where: { id: specimenTypeId, type: REFERENCE_TYPES.SPECIMEN_TYPE },
   });
   if (!specimenType) {
