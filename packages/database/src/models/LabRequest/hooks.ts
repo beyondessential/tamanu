@@ -100,59 +100,113 @@ export const pushNotificationAfterUpdateHook = async (
   }
 };
 
-const getItemsForLabRequest = async (instance: LabRequest) => {
-  if (instance.labTestPanelRequestId) {
-    const labTestPanelRequest = await instance.sequelize.models.LabTestPanelRequest.findByPk(
-      instance.labTestPanelRequestId,
-    );
-    if (labTestPanelRequest) {
-      const panelProduct = await instance.sequelize.models.InvoiceProduct.findOne({
-        where: {
-          category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
-          sourceRecordId: labTestPanelRequest.labTestPanelId,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        },
-      });
-
-      if (panelProduct) {
-        return [{ item: labTestPanelRequest, product: panelProduct }];
-      }
-    }
-  }
-
-  const tests = await instance.getTests();
-  const testItems = [];
-  for (const test of tests) {
-    const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({
-      where: {
-        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
-        sourceRecordId: test.labTestTypeId,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-    });
-
-    if (invoiceProduct) {
-      testItems.push({ item: test, product: invoiceProduct });
-    }
-  }
-
-  return testItems;
+// Load the current invoice products for a set of source-record ids in one query, keyed by
+// source-record id, so the resolver issues two product queries per request rather than one per row.
+const findCurrentProductsBySourceId = async (
+  InvoiceProduct: any,
+  category: string,
+  sourceRecordIds: (string | undefined)[],
+): Promise<Map<string, any>> => {
+  const ids = [...new Set(sourceRecordIds.filter(Boolean))];
+  if (ids.length === 0) return new Map();
+  const products = await InvoiceProduct.findAll({
+    where: {
+      category,
+      sourceRecordId: ids,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    },
+  });
+  return new Map(products.map((product: any) => [product.sourceRecordId, product]));
 };
 
-const addToInvoice = async (instance: LabRequest) => {
-  const encounterId = instance.encounterId;
+// The single source of truth for what a lab request bills: one item per panel request whose panel
+// has a current product, plus one per individually-billable test type. All three lab invoicing
+// hooks (this model, LabTest, LabTestPanelRequest) resolve through here so the coverage and dedup
+// rules live in one place, and every run picks the same representative rows so the upsert stays
+// idempotent and removal exact.
+export const getInvoiceItemsForLabRequest = async (labRequest: LabRequest) => {
+  const { InvoiceProduct, LabTestPanelRequest, LabTest } = labRequest.sequelize.models;
+  const deterministicOrder: any = [
+    ['createdAt', 'ASC'],
+    ['id', 'ASC'],
+  ];
+  const items = [];
+
+  const panelRequests = await LabTestPanelRequest.findAll({
+    where: { labRequestId: labRequest.id },
+    order: deterministicOrder,
+  });
+  const tests = await LabTest.findAll({
+    where: { labRequestId: labRequest.id },
+    order: deterministicOrder,
+  });
+
+  const panelProductsByPanelId = await findCurrentProductsBySourceId(
+    InvoiceProduct,
+    INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+    panelRequests.map((panelRequest: any) => panelRequest.labTestPanelId),
+  );
+  const testProductsByTypeId = await findCurrentProductsBySourceId(
+    InvoiceProduct,
+    INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
+    tests.map((test: any) => test.labTestTypeId),
+  );
+
+  // Each panel request whose panel has a current invoice product bills that product once; its
+  // tests are then covered and not billed individually.
+  const billedPanelRequestIds = new Set();
+  for (const panelRequest of panelRequests) {
+    const panelProduct = panelProductsByPanelId.get(panelRequest.labTestPanelId);
+    if (panelProduct) {
+      items.push({ item: panelRequest, product: panelProduct });
+      billedPanelRequestIds.add(panelRequest.id);
+    }
+  }
+
+  // A request migrated from the single-panel structure holds exactly one panel request and
+  // unattributed tests; treat those tests as belonging to that panel so a historical request does
+  // not bill its tests on top of the panel product.
+  const inferredPanelRequestId =
+    panelRequests.length === 1 && tests.every((test: any) => !test.labTestPanelRequestId)
+      ? panelRequests[0].id
+      : null;
+
+  // Individual (loose) tests, and tests whose panel does not bill, are charged against their test
+  // type product once per request. A loose test of a type also covered by a product-bearing panel
+  // still bills separately, since its row is not attributed to that panel request.
+  const billedTestTypeIds = new Set();
+  for (const test of tests) {
+    const coveringPanelRequestId = test.labTestPanelRequestId ?? inferredPanelRequestId;
+    if (coveringPanelRequestId && billedPanelRequestIds.has(coveringPanelRequestId)) {
+      continue;
+    }
+    if (billedTestTypeIds.has(test.labTestTypeId)) {
+      continue;
+    }
+    billedTestTypeIds.add(test.labTestTypeId);
+    const testProduct = testProductsByTypeId.get(test.labTestTypeId);
+    if (testProduct) {
+      items.push({ item: test, product: testProduct });
+    }
+  }
+
+  return items;
+};
+
+export const addLabRequestToInvoice = async (labRequest: LabRequest) => {
+  const encounterId = labRequest.encounterId;
   if (!encounterId) {
     return; // No encounter for procedure, so no invoice to add to
   }
 
-  const products = await getItemsForLabRequest(instance);
+  const products = await getInvoiceItemsForLabRequest(labRequest);
   await Promise.all(
     products.map(async ({ item, product }) =>
-      instance.sequelize.models.Invoice.addItemToInvoice(
+      labRequest.sequelize.models.Invoice.addItemToInvoice(
         item,
         encounterId,
         product,
-        instance.requestedById,
+        labRequest.requestedById,
       ),
     ),
   );
@@ -164,7 +218,7 @@ const removeFromInvoice = async (instance: LabRequest) => {
     return; // No encounter for procedure, so no invoice to remove from
   }
 
-  const items = await getItemsForLabRequest(instance);
+  const items = await getInvoiceItemsForLabRequest(instance);
   await Promise.all(
     items.map(async ({ item }) =>
       instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId),
@@ -174,7 +228,7 @@ const removeFromInvoice = async (instance: LabRequest) => {
 
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: LabRequest) => {
   if (await shouldAddLabRequestToInvoice(instance)) {
-    await addToInvoice(instance);
+    await addLabRequestToInvoice(instance);
   } else if (!(await isInvoiceableLabRequest(instance))) {
     // Only remove when the request itself is no longer invoiceable (e.g. cancelled). Bundling
     // suppresses auto-adding new items but must not retro-remove one already on the invoice
@@ -189,7 +243,7 @@ const removeFromInvoiceAfterDestroyHook = async (instance: LabRequest) => {
 
 export const afterCreateHook = async (instance: LabRequest) => {
   if (await shouldAddLabRequestToInvoice(instance)) {
-    await addToInvoice(instance);
+    await addLabRequestToInvoice(instance);
   }
 };
 

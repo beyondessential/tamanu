@@ -2,18 +2,19 @@ import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
-import { Form, FormGrid, TranslatedText, useDateTime } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  FormModal,
-  SuggesterSelectField,
-} from '../../../components';
+import { Form, TranslatedText, useDateTime } from '@tamanu/ui-components';
+import { AutocompleteField, DateTimeField, FormModal } from '../../../components';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
+import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
+import {
+  SampleDetailsCell,
+  SampleDetailsContainer,
+  SampleDetailsDateTimeField,
+  SampleDetailsHeaders,
+  SampleDetailsStyledField,
+} from '../../labRequest/SampleDetailsTable';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup
@@ -48,114 +49,65 @@ const StyledModal = styled(FormModal)`
   }
 `;
 
-const StyledDateTimeField = styled(DateTimeField)`
-  .MuiInputBase-root {
-    width: 241px;
-  }
-`;
-
-const StyledField = styled(Field)`
-  .label-field {
-    margin-bottom: 31px;
-  }
-  .MuiInputBase-root.Mui-disabled {
-    background: ${Colors.background};
-  }
-  .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${Colors.softOutline};
-  }
-  .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${Colors.softOutline};
-  }
-`;
-
-const FieldContainer = styled.div`
-  position: relative;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
-  border-radius: 5px;
-  padding: 18px;
-  margin-bottom: 28px;
-`;
-
-const HorizontalLine = styled.div`
-  height: 1px;
-  background-color: ${Colors.outline};
-  position: absolute;
-  top: 61px;
-  left: 0;
-  right: 0;
-`;
-
-const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
+const LabRequestRecordSampleForm = ({ submitForm, values, setFieldValue, onClose }) => {
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
   const practitionerSuggester = useSuggester('practitioner');
   const specimenTypeSuggester = useSuggester('specimenType');
+  const labSampleSiteSuggester = useSuggester('labSampleSite');
+
+  const isSampleCollected = Boolean(values.sampleTime);
+
   return (
     <>
-      <FieldContainer data-testid="fieldcontainer-9wpy">
-        <HorizontalLine data-testid="horizontalline-3k6s" />
-        <FormGrid columns={4} data-testid="formgrid-3btd">
-          <StyledField
+      <SampleDetailsContainer $showTestColumns={false} data-testid="container-recordsample">
+        <SampleDetailsHeaders mandateSpecimenType={mandateSpecimenType} showTestColumns={false} />
+        <SampleDetailsCell data-testid="cell-collectiondatetime">
+          <SampleDetailsDateTimeField
             name="sampleTime"
-            label={
-              <TranslatedText
-                stringId="lab.modal.recordSample.sampleTime.label"
-                fallback="Date & time collected"
-                data-testid="translatedtext-qhdy"
-              />
-            }
             required
-            component={StyledDateTimeField}
-            data-testid="styledfield-dmjl"
+            component={DateTimeField}
+            onChange={({ target: { value } }) => {
+              // Clearing the collection time clears the sibling fields (matches the request form).
+              if (!value) {
+                setFieldValue('collectedById', undefined);
+                setFieldValue('specimenTypeId', undefined);
+                setFieldValue('labSampleSiteId', undefined);
+              }
+            }}
+            data-testid="styledfield-sampletime"
           />
-          <StyledField
+        </SampleDetailsCell>
+        <SampleDetailsCell data-testid="cell-collectedby">
+          <SampleDetailsStyledField
             name="collectedById"
-            label={
-              <TranslatedText
-                stringId="lab.sampleDetail.table.column.collectedBy"
-                fallback="Collected by"
-                data-testid="translatedtext-7xhj"
-              />
-            }
-            suggester={practitionerSuggester}
-            disabled={!values.sampleTime}
+            disabled={!isSampleCollected}
             component={AutocompleteField}
-            data-testid="styledfield-v88m"
+            suggester={practitionerSuggester}
+            data-testid="styledfield-collectedby"
           />
-          <StyledField
+        </SampleDetailsCell>
+        <SampleDetailsCell data-testid="cell-specimentype">
+          <SampleDetailsStyledField
             name="specimenTypeId"
-            label={
-              <TranslatedText
-                stringId="lab.sampleDetail.table.column.specimenType"
-                fallback="Specimen type"
-                data-testid="translatedtext-6d2j"
-              />
-            }
+            disabled={!isSampleCollected}
             component={AutocompleteField}
             suggester={specimenTypeSuggester}
-            disabled={!values.sampleTime}
             required={mandateSpecimenType}
-            data-testid="styledfield-0950"
+            data-testid="styledfield-specimentype"
           />
-          <StyledField
+        </SampleDetailsCell>
+        <SampleDetailsCell data-testid="cell-site">
+          <SampleDetailsStyledField
             name="labSampleSiteId"
-            label={
-              <TranslatedText
-                stringId="lab.site.label"
-                fallback="Site"
-                data-testid="translatedtext-kgvr"
-              />
-            }
-            disabled={!values.sampleTime}
-            component={SuggesterSelectField}
-            endpoint="labSampleSite"
-            data-testid="styledfield-lkqj"
+            disabled={!isSampleCollected}
+            component={AutocompleteField}
+            suggester={labSampleSiteSuggester}
+            data-testid="styledfield-site"
           />
-        </FormGrid>
-      </FieldContainer>
+        </SampleDetailsCell>
+      </SampleDetailsContainer>
       <ModalFormActionRow
         onConfirm={submitForm}
         confirmText={
@@ -176,6 +128,7 @@ export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const { getSetting } = useSettings();
     const { getCurrentDateTime } = useDateTime();
+    const { currentUser } = useAuth();
     const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
@@ -195,7 +148,19 @@ export const LabRequestRecordSampleModal = React.memo(
       <StyledModal
         open={open}
         onClose={onClose}
-        title={sampleNotCollected ? 'Record sample details' : 'Edit sample date and time'}
+        title={
+          sampleNotCollected ? (
+            <TranslatedText
+              stringId="lab.modal.recordSample.title"
+              fallback="Record sample details"
+            />
+          ) : (
+            <TranslatedText
+              stringId="lab.modal.editSample.title"
+              fallback="Edit sample date and time"
+            />
+          )
+        }
         data-testid="styledmodal-8ee1"
       >
         <Form
@@ -207,7 +172,8 @@ export const LabRequestRecordSampleModal = React.memo(
             sampleTime: labRequest.sampleTime || getCurrentDateTime(),
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
-            collectedById: labRequest.collectedById,
+            // Default the collector to the current user unless one is already recorded.
+            collectedById: labRequest.collectedById ?? currentUser?.id,
             mandateSpecimenType,
           }}
           render={props => (

@@ -422,6 +422,7 @@ describe('Encounter invoice', () => {
           fake(models.LabTestPanel, {
             name: 'General',
             code: 'GENERAL',
+            categoryId: labTestCategory.id,
           }),
         );
         labTestBloodsType = await models.LabTestType.create(
@@ -476,6 +477,7 @@ describe('Encounter invoice', () => {
           fake(models.LabTestPanel, {
             name: 'All',
             code: 'ALL',
+            categoryId: labTestCategory.id,
           }),
         );
 
@@ -523,7 +525,7 @@ describe('Encounter invoice', () => {
           encounterId: encounter.id,
           panelIds: [labTestPanelGeneral.id],
           sampleDetails: {
-            [labTestPanelGeneral.id]: {
+            [labTestCategory.id]: {
               sampleTime: new Date(),
             },
           },
@@ -547,6 +549,10 @@ describe('Encounter invoice', () => {
           userId: user.id,
         });
 
+        const labTestPanelRequest = await models.LabTestPanelRequest.findOne({
+          where: { labRequestId: labRequest.id },
+        });
+
         const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result2.body).toMatchObject({
           displayId: 'INV-123',
@@ -557,7 +563,7 @@ describe('Encounter invoice', () => {
         expect(result2.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              sourceRecordId: labRequest.labTestPanelRequestId,
+              sourceRecordId: labTestPanelRequest.id,
               sourceRecordType: 'LabTestPanelRequest',
               productId: labTestPanelGeneralProduct.id,
               orderedByUserId: user.id,
@@ -756,7 +762,7 @@ describe('Encounter invoice', () => {
             encounterId: encounter.id,
             panelIds: [labTestPanelGeneral.id],
             sampleDetails: {
-              [labTestPanelGeneral.id]: {
+              [labTestCategory.id]: {
                 sampleTime: new Date(),
               },
             },
@@ -819,7 +825,7 @@ describe('Encounter invoice', () => {
           encounterId: encounter.id,
           panelIds: [labTestPanelAll.id],
           sampleDetails: {
-            [labTestPanelAll.id]: {
+            [labTestCategory.id]: {
               sampleTime: new Date(),
             },
           },
@@ -926,7 +932,7 @@ describe('Encounter invoice', () => {
             encounterId: encounter.id,
             panelIds: [labTestPanelGeneral.id],
             sampleDetails: {
-              [labTestPanelGeneral.id]: {
+              [labTestCategory.id]: {
                 sampleTime: new Date(),
               },
             },
@@ -948,6 +954,10 @@ describe('Encounter invoice', () => {
 
           expect(labRequest2.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
 
+          const labTestPanelRequest = await models.LabTestPanelRequest.findOne({
+            where: { labRequestId: labRequest.id },
+          });
+
           // Invoice
           const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
           expect(result).toHaveSucceeded();
@@ -960,7 +970,7 @@ describe('Encounter invoice', () => {
           expect(result.body.items).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
-                sourceRecordId: labRequest.labTestPanelRequestId,
+                sourceRecordId: labTestPanelRequest.id,
                 sourceRecordType: 'LabTestPanelRequest',
                 productId: labTestPanelGeneralProduct.id,
                 orderedByUserId: user.id,
@@ -972,6 +982,166 @@ describe('Encounter invoice', () => {
         } finally {
           await models.Setting.set('features.invoicing.invoicePendingLabRequests', false);
         }
+      });
+
+      it('does not double-charge a shared test type across panels or on repeated status changes', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-DEDUP',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        // A second panel with no panel product that also contains Bloods, in the same category.
+        // Neither this panel nor 'All' bills as a bundle, so their tests bill individually — and
+        // Bloods, now on a row per panel, must be charged once.
+        const bloodsOnlyPanel = await models.LabTestPanel.create(
+          fake(models.LabTestPanel, {
+            name: 'Bloods only',
+            code: 'BLOODS-ONLY',
+            categoryId: labTestCategory.id,
+          }),
+        );
+        await models.LabTestPanelLabTestTypes.create({
+          labTestPanelId: bloodsOnlyPanel.id,
+          labTestTypeId: labTestBloodsType.id,
+        });
+
+        const {
+          body: [labRequest],
+        } = await app.post('/api/labRequest').send({
+          encounterId: encounter.id,
+          panelIds: [labTestPanelAll.id, bloodsOnlyPanel.id],
+          sampleDetails: { [labTestCategory.id]: { sampleTime: new Date() } },
+          requestedById: user.id,
+          date: new Date(),
+        });
+
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          userId: user.id,
+        });
+
+        const afterFirst = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        // Bloods (shared, charged once) + Flu (from All). Heart has no product.
+        expect(
+          afterFirst.body.items.filter(item => item.productId === labTestBloodsProduct.id),
+        ).toHaveLength(1);
+        expect(afterFirst.body.items).toHaveLength(2);
+
+        // A further status change re-resolves invoicing; the deterministic representative row keeps
+        // the upsert idempotent, so no second Bloods item appears.
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+          userId: user.id,
+        });
+        const afterSecond = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(
+          afterSecond.body.items.filter(item => item.productId === labTestBloodsProduct.id),
+        ).toHaveLength(1);
+        expect(afterSecond.body.items).toHaveLength(2);
+      });
+
+      it('does not bill a migrated single-panel request its tests on top of the panel product', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-HIST',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const {
+          body: [labRequest],
+        } = await app.post('/api/labRequest').send({
+          encounterId: encounter.id,
+          panelIds: [labTestPanelGeneral.id],
+          sampleDetails: { [labTestCategory.id]: { sampleTime: new Date() } },
+          requestedById: user.id,
+          date: new Date(),
+        });
+
+        // Reproduce a request migrated from the single-panel structure: one panel request, tests
+        // left unattributed. They should be inferred to belong to that panel, not billed on top.
+        await models.LabTest.update(
+          { labTestPanelRequestId: null },
+          { where: { labRequestId: labRequest.id } },
+        );
+
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          userId: user.id,
+        });
+
+        const panelRequest = await models.LabTestPanelRequest.findOne({
+          where: { labRequestId: labRequest.id },
+        });
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items[0]).toMatchObject({
+          sourceRecordId: panelRequest.id,
+          sourceRecordType: 'LabTestPanelRequest',
+          productId: labTestPanelGeneralProduct.id,
+        });
+      });
+
+      it('bills a loose test separately even when a panel on the request covers the same type', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-BOTH',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const {
+          body: [labRequest],
+        } = await app.post('/api/labRequest').send({
+          encounterId: encounter.id,
+          panelIds: [labTestPanelGeneral.id],
+          labTestTypeIds: [labTestBloodsType.id],
+          sampleDetails: { [labTestCategory.id]: { sampleTime: new Date() } },
+          requestedById: user.id,
+          date: new Date(),
+        });
+
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          userId: user.id,
+        });
+
+        const panelRequest = await models.LabTestPanelRequest.findOne({
+          where: { labRequestId: labRequest.id },
+        });
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        // Panel product bills once; the separately-ordered Bloods still bills its own product.
+        expect(result.body.items).toHaveLength(2);
+        expect(result.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordType: 'LabTestPanelRequest',
+              sourceRecordId: panelRequest.id,
+              productId: labTestPanelGeneralProduct.id,
+            }),
+            expect.objectContaining({
+              sourceRecordType: 'LabTest',
+              productId: labTestBloodsProduct.id,
+            }),
+          ]),
+        );
       });
     });
 

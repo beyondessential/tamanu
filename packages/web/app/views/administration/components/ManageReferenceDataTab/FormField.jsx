@@ -2,7 +2,8 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import { startCase } from 'es-toolkit/compat';
 import { TextField } from '@tamanu/ui-components';
-import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
+import { NONPATIENT_VISIBILITY_STATUS_VALUES, OTHER_REFERENCE_TYPES } from '@tamanu/constants/importable';
+import { LAB_TEST_TYPE_VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   Field,
   SelectField,
@@ -21,10 +22,15 @@ const CheckFieldWrapper = styled.div`
   padding-top: 20px;
 `;
 
-const VISIBILITY_STATUS_OPTIONS = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
-  value,
-  label: startCase(value),
-}));
+// Lab test types can also be set to "Panel only"; other reference data cannot.
+const getVisibilityStatusOptions = selectedType =>
+  (selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+    ? [...NONPATIENT_VISIBILITY_STATUS_VALUES, LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY]
+    : NONPATIENT_VISIBILITY_STATUS_VALUES
+  ).map(value => ({
+    value,
+    label: startCase(value),
+  }));
 
 const getFieldComponent = columnType => {
   switch (columnType) {
@@ -87,7 +93,7 @@ const AvailableFacilitiesFormField = memo(({ disabled }) => {
   );
 });
 
-export const FormField = memo(({ col, isEditMode }) => {
+export const FormField = memo(({ col, isEditMode, selectedType }) => {
   const disabled = isEditMode && (col.readOnly || col.readOnlyOnEdit);
 
   if (col.key === 'availableFacilities') {
@@ -123,7 +129,7 @@ export const FormField = memo(({ col, isEditMode }) => {
         name={col.key}
         label={col.key}
         component={SelectField}
-        options={VISIBILITY_STATUS_OPTIONS}
+        options={getVisibilityStatusOptions(selectedType)}
         required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
         disabled={disabled}
         data-testid={`field-form-${col.key}`}

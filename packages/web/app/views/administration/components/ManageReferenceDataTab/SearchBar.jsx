@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { SEARCHABLE_COLUMN_TYPES, NONPATIENT_VISIBILITY_STATUS_VALUES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SEARCHABLE_COLUMN_TYPES } from '@tamanu/constants';
 import { CustomisableSearchBar } from '../../../../components/SearchBar/CustomisableSearchBar';
 import { SearchField } from './SearchField';
 
@@ -19,7 +19,7 @@ const getFieldSortOrder = col => {
   return 0;
 };
 
-export const SearchBar = ({ columns, onSearch }) => {
+export const SearchBar = ({ columns, onSearch, selectedType }) => {
   const searchFields = useMemo(
     () =>
       columns
@@ -40,28 +40,19 @@ export const SearchBar = ({ columns, onSearch }) => {
   const visibleFields = searchFields.slice(0, DEFAULT_VISIBLE_FILTER_COUNT);
   const advancedFields = searchFields.slice(DEFAULT_VISIBLE_FILTER_COUNT);
 
-  const hasVisibilityStatus = useMemo(
-    () => columns.some(col => col.key === VISIBILITY_STATUS_KEY),
-    [columns],
-  );
-
   const handleSearch = useCallback(
     values => {
+      // The visibility status single-select flows through like any other filter. An empty value is
+      // omitted, so the server default applies (current, plus panelOnly for lab test types).
       const nonEmpty = {};
       for (const [key, value] of Object.entries(values)) {
-        if (key === VISIBILITY_STATUS_KEY) continue;
         if (value) {
           nonEmpty[key] = value;
         }
       }
-      if (hasVisibilityStatus) {
-        nonEmpty[VISIBILITY_STATUS_KEY] = values[VISIBILITY_STATUS_KEY]
-          ? NONPATIENT_VISIBILITY_STATUS_VALUES.join(',')
-          : VISIBILITY_STATUSES.CURRENT;
-      }
       onSearch(nonEmpty);
     },
-    [onSearch, hasVisibilityStatus],
+    [onSearch],
   );
 
   if (searchFields.length === 0) return null;
@@ -74,12 +65,12 @@ export const SearchBar = ({ columns, onSearch }) => {
       setIsExpanded={setIsExpanded}
 
       hiddenFields={advancedFields.map(col => (
-        <SearchField key={col.key} col={col} />
+        <SearchField key={col.key} col={col} selectedType={selectedType} />
       ))}
       data-testid="searchbar-refdata"
     >
       {visibleFields.map(col => (
-        <SearchField key={col.key} col={col} />
+        <SearchField key={col.key} col={col} selectedType={selectedType} />
       ))}
     </CustomisableSearchBar>
   );

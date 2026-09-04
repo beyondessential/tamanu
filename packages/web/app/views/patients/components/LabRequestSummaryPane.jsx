@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
@@ -17,9 +17,24 @@ import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/m
 import { useLabRequestNotesQuery } from '../../../api/queries';
 import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
 
 const Container = styled.div`
   padding-top: 20px;
+`;
+
+const SuccessHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+const SuccessIcon = styled(CheckCircleOutlineIcon)`
+  color: ${Colors.green};
+  font-size: 34px;
+  margin-bottom: 10px;
 `;
 
 const StyledInfoCard = styled(InfoCard)`
@@ -58,7 +73,7 @@ const Actions = styled.div`
   }
 `;
 
-const getColumns = (type) => [
+const getColumns = () => [
   {
     key: 'displayId',
     title: (
@@ -70,36 +85,6 @@ const getColumns = (type) => [
     ),
     sortable: false,
   },
-  ...(type === LAB_REQUEST_FORM_TYPES.PANEL
-    ? [
-        {
-          key: 'panelId',
-          title: (
-            <TranslatedText
-              stringId="lab.requestSummary.table.column.panel"
-              fallback="Panel"
-              data-testid="translatedtext-me7m"
-            />
-          ),
-          sortable: false,
-          accessor: ({ labTestPanelRequest }) =>
-            (labTestPanelRequest?.labTestPanel?.name && (
-              <TranslatedReferenceData
-                fallback={labTestPanelRequest.labTestPanel.name}
-                value={labTestPanelRequest.labTestPanel.id}
-                category="labTestPanel"
-                data-testid="translatedreferencedata-6okl"
-              />
-            )) || (
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                data-testid="translatedtext-zjj6"
-              />
-            ),
-        },
-      ]
-    : []),
   {
     key: 'labTestCategory',
     title: (
@@ -122,11 +107,23 @@ const getColumns = (type) => [
       '',
   },
   {
+    key: 'testsAndPanels',
+    title: (
+      <TranslatedText
+        stringId="lab.requestSummary.table.column.test"
+        fallback="Test"
+        data-testid="translatedtext-test-column"
+      />
+    ),
+    sortable: false,
+    accessor: row => getLabRequestTestAndPanelNames(row).join(', '),
+  },
+  {
     key: 'sampleDate',
     title: (
       <TranslatedText
-        stringId="lab.requestSummary.table.column.sampleDate"
-        fallback="Sample date"
+        stringId="lab.requestSummary.table.column.dateTimeCollected"
+        fallback="Date & time collected"
         data-testid="translatedtext-m30l"
       />
     ),
@@ -150,10 +147,13 @@ const MODALS = {
 };
 
 export const LabRequestSummaryPane = React.memo(
-  ({ encounter, labRequests, requestFormType, onClose }) => {
+  ({ encounter, labRequests, onClose }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
+      showIndeterminate: true,
+      // Categories whose sample is already recorded start selected; the rest are left for the user.
+      getIsRowInitiallySelected: request => Boolean(request.sampleTime),
     });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
@@ -164,18 +164,21 @@ export const LabRequestSummaryPane = React.memo(
 
     return (
       <Container data-testid="container-nnz7">
-        <Heading3 mb="12px" data-testid="heading3-en7t">
-          <TranslatedText
-            stringId="lab.requestSummary.heading"
-            fallback="Request finalised"
-            data-testid="translatedtext-puds"
-          />
-        </Heading3>
-        <BodyText mb="28px" color="textTertiary" data-testid="bodytext-1b6q">
+        <SuccessHeader data-testid="successheader-lab">
+          <SuccessIcon data-testid="successicon-lab" />
+          <Heading3 data-testid="heading3-en7t">
+            <TranslatedText
+              stringId="lab.requestSummary.finalisedHeading"
+              fallback="Your lab request has been finalised."
+              data-testid="translatedtext-puds"
+            />
+          </Heading3>
+        </SuccessHeader>
+        <FormSeparatorLine data-testid="formseparatorline-heading" />
+        <BodyText mt="20px" mb="28px" color="textTertiary" data-testid="bodytext-1b6q">
           <TranslatedText
             stringId="lab.requestSummary.instruction"
-            fallback="Your lab request has been finalised. Please select items from the list below to print
-          requests or sample labels."
+            fallback="Please select items from the list below to print sample labels or the lab request."
             data-testid="translatedtext-9d2v"
           />
         </BodyText>
@@ -258,7 +261,7 @@ export const LabRequestSummaryPane = React.memo(
           </StyledInfoCard>
           <CardTable
             headerColor={Colors.white}
-            columns={[selectableColumn, ...getColumns(requestFormType)]}
+            columns={[selectableColumn, ...getColumns()]}
             data={labRequests}
             elevated={false}
             noDataMessage={
@@ -279,8 +282,8 @@ export const LabRequestSummaryPane = React.memo(
             data-testid="outlinedbutton-skm0"
           >
             <TranslatedText
-              stringId="lab.action.printLabel"
-              fallback="Print label"
+              stringId="lab.requestSummary.action.printLabels"
+              fallback="Print labels"
               data-testid="translatedtext-z6vw"
             />
           </OutlinedButton>

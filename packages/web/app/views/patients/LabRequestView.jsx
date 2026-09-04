@@ -81,6 +81,20 @@ const LabelContainer = styled.div`
 
 const FixedTileRow = styled(TileContainer)`
   flex-shrink: 0;
+
+  // Widen the tiles a little so the sample date & time fits on one line.
+  > div {
+    min-width: 150px;
+  }
+`;
+
+// Keep the sample date & time on one line, with the specimen type beneath it.
+const SampleCollectedDate = styled.div`
+  white-space: nowrap;
+`;
+
+const SampleSpecimenType = styled.div`
+  margin-top: 2px;
 `;
 
 const HIDDEN_STATUSES = [
@@ -364,8 +378,8 @@ export const LabRequestView = () => {
             Icon={AutoAwesomeMotionIcon}
             text={
               <TranslatedText
-                stringId="lab.testCategory.label"
-                fallback="Test category"
+                stringId="lab.view.tile.category.label"
+                fallback="Category"
                 data-testid="translatedtext-4nhr"
               />
             }
@@ -461,12 +475,25 @@ export const LabRequestView = () => {
             }
             isReadOnly={areLabRequestsReadOnly}
             main={
-              <DateDisplay
-                color={labRequest.sampleTime ? 'unset' : Colors.softText}
-                date={labRequest.sampleTime}
-                timeFormat="default"
-                data-testid="datedisplay-h6el"
-              />
+              <>
+                <SampleCollectedDate>
+                  <DateDisplay
+                    color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                    date={labRequest.sampleTime}
+                    timeFormat="default"
+                    data-testid="datedisplay-h6el"
+                  />
+                </SampleCollectedDate>
+                {labRequest.sampleTime && labRequest.specimenType?.name && (
+                  <SampleSpecimenType data-testid="tile-specimentype">
+                    <TranslatedReferenceData
+                      category="specimenType"
+                      value={labRequest.specimenType.id}
+                      fallback={labRequest.specimenType.name}
+                    />
+                  </SampleSpecimenType>
+                )}
+              </>
             }
             actions={actions}
             data-testid="tile-v8kr"
@@ -588,7 +615,7 @@ export const LabRequestView = () => {
               label={
                 <TranslatedText
                   stringId="lab.resultsInterpretation.label"
-                  fallback="Results Interpretation"
+                  fallback="Results interpretation"
                   data-testid="translatedtext-resultsinterpretation"
                 />
               }

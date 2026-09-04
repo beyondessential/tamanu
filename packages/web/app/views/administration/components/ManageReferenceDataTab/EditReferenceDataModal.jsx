@@ -45,6 +45,7 @@ export const EditReferenceDataModal = ({
         onCancel={onClose}
         initialValues={record}
         isEditMode
+        selectedType={selectedType}
         data-testid="form-edit-refdata"
       />
     </FormModal>

@@ -211,7 +211,12 @@ export const ManageReferenceDataTab = () => {
       </TopRow>
       {selectedType && columns.length > 0 && (
         <>
-          <SearchBar columns={columns} onSearch={handleSearch} data-testid="searchbar-refdata" />
+          <SearchBar
+            columns={columns}
+            selectedType={selectedType}
+            onSearch={handleSearch}
+            data-testid="searchbar-refdata"
+          />
           <TableWrapper>
             <DataFetchingTable
               endpoint={ENDPOINT}

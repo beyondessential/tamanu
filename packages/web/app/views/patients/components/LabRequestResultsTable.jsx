@@ -7,7 +7,7 @@ import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
 import { RangeValidatedCell } from '../../../components/FormattedTableCell';
-import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { getCompletedDate, getMethod, renderLabResultGroupHeader } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
@@ -259,10 +259,10 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         columns={columns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         initialSort={{ order: 'asc', orderBy: 'id' }}
-        disablePagination
         elevated={false}
         refreshCount={refreshCount}
         onRowClick={handleRowClick}
+        getRowGroupHeader={renderLabResultGroupHeader}
         onDataFetched={({ data }) =>
           setShowEditedEntryLegend(data.some(row => row.editedFields?.length > 0))
         }

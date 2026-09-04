@@ -1,25 +1,36 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
+import { getEnumStringId } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   CheckField,
   DateField,
   Field,
   LocalisedField,
+  MultiAutocompleteField,
   SearchField,
   SuggesterSelectField,
-  TranslatedSelectField,
 } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
+import { useTranslation } from '../../contexts/Translation';
 import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
 const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
+
+// Terminal and published statuses aren't offered as active-request filter options.
+const EXCLUDED_STATUS_FILTER_OPTIONS = [
+  LAB_REQUEST_STATUSES.PUBLISHED,
+  LAB_REQUEST_STATUSES.DELETED,
+  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+  LAB_REQUEST_STATUSES.CANCELLED,
+  LAB_REQUEST_STATUSES.INVALIDATED,
+];
 
 const FacilityCheckbox = styled.div`
   display: flex;
@@ -44,6 +55,30 @@ export const LabRequestsSearchBar = ({ statuses }) => {
       filterByFacility: true,
     },
   });
+
+  const { getTranslation } = useTranslation();
+  const statusFilterOptions = useMemo(
+    () =>
+      Object.entries(LAB_REQUEST_STATUS_LABELS)
+        .filter(([value]) => !EXCLUDED_STATUS_FILTER_OPTIONS.includes(value))
+        .map(([value, label]) => ({
+          value,
+          label: getTranslation(getEnumStringId(value, LAB_REQUEST_STATUS_LABELS), label),
+        })),
+    [getTranslation],
+  );
+  // MultiAutocompleteField reads options through a suggester; serve the static enum locally.
+  const statusSuggester = useMemo(
+    () => ({
+      fetchSuggestions: async (search = '') =>
+        statusFilterOptions.filter(option =>
+          option.label.toLowerCase().includes((search ?? '').toLowerCase()),
+        ),
+      fetchCurrentOption: async value =>
+        statusFilterOptions.find(option => option.value === value),
+    }),
+    [statusFilterOptions],
+  );
 
   return (
     <CustomisableSearchBarWithPermissionCheck
@@ -199,8 +234,8 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         name="category"
         label={
           <TranslatedText
-            stringId="lab.testCategory.label"
-            fallback="Test category"
+            stringId="lab.category.label"
+            fallback="Category"
             data-testid="translatedtext-iate"
           />
         }
@@ -273,20 +308,9 @@ export const LabRequestsSearchBar = ({ statuses }) => {
               data-testid="translatedtext-763d"
             />
           }
-          component={TranslatedSelectField}
-          transformOptions={options =>
-            options.filter(
-              option =>
-                ![
-                  LAB_REQUEST_STATUSES.PUBLISHED,
-                  LAB_REQUEST_STATUSES.DELETED,
-                  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-                  LAB_REQUEST_STATUSES.CANCELLED,
-                  LAB_REQUEST_STATUSES.INVALIDATED,
-                ].includes(option.value),
-            )
-          }
-          enumValues={LAB_REQUEST_STATUS_LABELS}
+          component={MultiAutocompleteField}
+          suggester={statusSuggester}
+          individualChips
           size="small"
           data-testid="localisedfield-2it8"
         />

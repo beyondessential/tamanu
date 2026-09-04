@@ -83,5 +83,34 @@ describe('Lab Test Panel import', () => {
         'categoryId is a required field on labTestPanel at row 2',
       );
     });
+
+    it('should reject a panel whose test types span multiple lab test categories', async () => {
+      const { id: otherCategoryId } = await models.ReferenceData.create({
+        id: 'labTestCategory-XCAT',
+        code: 'labTestCategory-XCAT',
+        name: 'labTestCategory-XCAT',
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        visibilityStatus: 'current',
+      });
+      await models.LabTestType.create({
+        id: 'labTestType-XHEART',
+        code: 'labTestType-XHEART',
+        name: 'labTestType-XHEART',
+        labTestCategoryId: otherCategoryId,
+        visibilityStatus: 'current',
+      });
+
+      const { didntSendReason, errors } = await doImport({
+        file: 'lab-test-panel-cross-category',
+        dryRun: true,
+      });
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(
+        errors.some(error =>
+          error.message.includes('test types must all belong to one lab test category'),
+        ),
+      ).toBe(true);
+    });
   });
 });
