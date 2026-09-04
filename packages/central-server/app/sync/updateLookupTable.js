@@ -2,6 +2,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
+import { ReadSettings } from '@tamanu/settings';
 
 // Postgres SQLSTATE for "could not serialize access due to concurrent update" — what the FOR KEY
 // SHARE lock in buildLookupUpsertQuery raises when a hard delete concurrent with this build
@@ -367,11 +368,11 @@ export const updateLookupTable = withConfig(
 
     let changesCount = 0;
 
-    const { maxFlaggedPatientsPerBuild } = config.sync.lookupTable;
+    const maxFlaggedPatientsPerBuild = await new ReadSettings(models).get(
+      'sync.maxFlaggedPatientsPerBuild',
+    );
     const flaggedPatientIds = await models.LocalSystemFact.getLookupPatientsToRebuild();
-    const patientIdsToRebuild = maxFlaggedPatientsPerBuild
-      ? flaggedPatientIds.slice(0, maxFlaggedPatientsPerBuild)
-      : flaggedPatientIds;
+    const patientIdsToRebuild = flaggedPatientIds.slice(0, maxFlaggedPatientsPerBuild);
 
     for (const model of Object.values(outgoingModels)) {
       try {

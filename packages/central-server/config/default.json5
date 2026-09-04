@@ -58,9 +58,7 @@
     "lookupTable": {
       "enabled": true,
       "perModelUpdateTimeoutMs": null,
-      "avoidRepull": true,
-      // patients flagged by merges beyond this wait for the next build; null takes them all
-      "maxFlaggedPatientsPerBuild": 1000
+      "avoidRepull": true
     }
   },
   "loadshedder": {

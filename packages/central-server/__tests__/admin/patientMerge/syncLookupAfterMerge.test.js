@@ -1,7 +1,5 @@
-import config from 'config';
-
 import { fake } from '@tamanu/fake-data/fake';
-import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { CentralSyncManager } from '../../../app/sync/CentralSyncManager';
 import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
@@ -209,14 +207,9 @@ describe('Sync lookup after patient merge', () => {
     expect(await lookupPatientIdFor('prescriptions', a.prescription.id)).toBe(mergeA.id);
     expect(await lookupPatientIdFor('prescriptions', b.prescription.id)).toBe(mergeB.id);
 
-    CentralSyncManager.overrideConfig({
-      ...config,
-      sync: {
-        ...config.sync,
-        lookupTable: { ...config.sync.lookupTable, maxFlaggedPatientsPerBuild: 1 },
-      },
-    });
+    await models.Setting.set('sync.maxFlaggedPatientsPerBuild', 1, SETTINGS_SCOPES.CENTRAL);
     try {
+      // flagged in this order, and the build drains them in it
       await models.LocalSystemFact.flagLookupPatientsForRebuild([mergeA.id, mergeB.id]);
 
       await centralSyncManager.updateLookupTable();
@@ -228,7 +221,7 @@ describe('Sync lookup after patient merge', () => {
       expect(await lookupPatientIdFor('prescriptions', b.prescription.id)).toBe(keepB.id);
       expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([]);
     } finally {
-      CentralSyncManager.restoreConfig();
+      await models.Setting.set('sync.maxFlaggedPatientsPerBuild', 1000, SETTINGS_SCOPES.CENTRAL);
     }
   });
 
