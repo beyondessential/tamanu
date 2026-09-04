@@ -1,4 +1,5 @@
 import { isNaN } from 'es-toolkit/compat';
+import { Op } from 'sequelize';
 import { ReadSettings } from '@tamanu/settings';
 
 import {
@@ -16,7 +17,7 @@ import { formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fh
 import type { Models } from '../../../types/model';
 import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
+import { ADMINISTRATION_FREQUENCIES, DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants';
 
 const CATEGORY_CODE_SYSTEM = 'https://hl7.org/fhir/R4B/codesystem-medicationrequest-category.html';
 
@@ -70,6 +71,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     subject,
     encounter,
     note: note(pharmacyOrder, prescription, recorder),
+    reasonCode: await reasonCode(pharmacyOrder, models, dataDicts),
     resolved:
       requester.isResolved() &&
       recorder.isResolved() &&
@@ -236,6 +238,37 @@ function category(pharmacyOrder: PharmacyOrder) {
   }
 
   return null;
+}
+
+async function reasonCode(
+  pharmacyOrder: PharmacyOrder,
+  models: Models,
+  dataDicts: ReturnType<typeof getFhirDataDictionaries>,
+) {
+  const encounterDiagnoses = await models.EncounterDiagnosis.findAll({
+    where: {
+      encounterId: pharmacyOrder.encounterId,
+      certainty: { [Op.notIn]: DIAGNOSIS_CERTAINTIES_TO_HIDE },
+    },
+    include: ['Diagnosis'],
+  });
+
+  if (encounterDiagnoses.length === 0) {
+    return null;
+  }
+
+  return encounterDiagnoses.map(
+    encounterDiagnosis =>
+      new FhirCodeableConcept({
+        coding: [
+          new FhirCoding({
+            system: dataDicts.diagnosisCodeSystem,
+            code: encounterDiagnosis.Diagnosis?.code,
+            display: encounterDiagnosis.Diagnosis?.name,
+          }),
+        ],
+      }),
+  );
 }
 
 function note(
