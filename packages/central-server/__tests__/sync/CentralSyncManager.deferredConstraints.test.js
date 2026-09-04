@@ -132,7 +132,7 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
     });
     const newReportId = fakeUUID();
 
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
     await waitForSession(centralSyncManager, sessionId);
 
