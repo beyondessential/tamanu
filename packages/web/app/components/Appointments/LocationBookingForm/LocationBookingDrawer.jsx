@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { sub } from 'date-fns';
 
-import { trimToDate, toDateTimeString } from '@tamanu/utils/dateTime';
+import { parseDate, trimToDate, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -127,7 +127,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort, toStoredDateTime, toFacilityDateTime } = useDateTime();
+  const { formatShort, toStoredDateTime, toFacilityDateTime, getCurrentDateTime } = useDateTime();
   const isEdit = !!initialValues.id;
 
   const processedInitialValues = useMemo(() => {
@@ -202,7 +202,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         ENCOUNTER_TYPES.OBSERVATION,
         ENCOUNTER_TYPES.TRIAGE,
       ],
-      after: toDateTimeString(sub(new Date(), { months: 6 })),
+      after: toDateTimeString(sub(parseDate(getCurrentDateTime()), { months: 6 })),
       patientId: selectedPatientId,
     },
   });

@@ -151,7 +151,7 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
-  const { primaryTimeZone, facilityTimeZone } = useDateTime();
+  const { primaryTimeZone, facilityTimeZone, getFacilityNowDate } = useDateTime();
   const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== primaryTimeZone;
   const timezoneOptions = useMemo(
     () => [
@@ -249,7 +249,7 @@ export const ReportGeneratorForm = () => {
 
         const metadata = [
           ['Report Name:', reportName],
-          ['Date Generated:', format(new Date(), 'ddMMyyyy')],
+          ['Date Generated:', format(getFacilityNowDate(), 'ddMMyyyy')],
           ['User:', currentUser.email],
           ['Filters:', filterString],
           ['Timezone:', timezone],
