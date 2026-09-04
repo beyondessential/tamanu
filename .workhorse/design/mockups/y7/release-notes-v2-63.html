@@ -1,0 +1,185 @@
+<!-- previews: docs/release-notes/v2-63.md (intended state, as of commit abef322210) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu v2.63 release notes</title>
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --ink: #1c1917;
+    --ink-soft: #57534e;
+    --accent: #c2410c;
+    --rule: #e7e5e4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 48px 24px 96px;
+    background: var(--page);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .doc {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04), 0 4px 16px rgba(28, 25, 23, 0.06);
+    padding: 56px 64px 64px;
+  }
+
+  .released {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin: 0 0 20px;
+  }
+
+  .intro {
+    font-size: 17px;
+    line-height: 1.62;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 40px 0;
+  }
+
+  h1 {
+    font-size: 21px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-soft);
+    margin: 28px 0 12px;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 24px 0 12px;
+  }
+
+  h3:first-of-type { margin-top: 0; }
+
+  .group {
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+    margin: 20px 0 8px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 10px;
+    color: var(--ink-soft);
+  }
+
+  li:last-child { margin-bottom: 0; }
+
+  li b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .q { font-style: normal; }
+</style>
+</head>
+<body>
+<article class="doc">
+
+  <p class="released">Released 03-09-2026</p>
+
+  <p class="intro">Tamanu v2.63 is a small release, made up of enhancements and fixes rather than new features. Vaccination certificates can show a patient's birth certificate number, patient lists gain sortable columns, and deployments that report to DHIS2 can mark datasets complete when they are posted.</p>
+
+  <hr>
+
+  <h1><span>🔧</span> System Enhancements</h1>
+  <ul>
+    <li><b>DHIS2 dataset completion</b> - For deployments that report to DHIS2, report data is pushed as datasets and each configured dataset is marked complete when it is posted. The DHIS2 dataset is set against a report through the report admin panel.</li>
+  </ul>
+
+  <hr>
+
+  <h1><span>🐛</span> Tweaks and Bug Fixes</h1>
+
+  <h2>Desktop</h2>
+  <ul>
+    <li><b>Medications</b> - All medication preset labels load rather than only the first 25, and the 'Medication administration schedule' section is collapsed by default in the medication form.</li>
+    <li><b>Surveys and charts</b> - Large numeric answers display without being rounded.</li>
+    <li><b>Patients and dashboard</b> - The encounter refreshes after a death is recorded, and the current day's appointment and booking panes fill in even when tasking is turned off.</li>
+    <li><b>Vaccination certificates</b> - A new 'Display birth certificate number' flag under the 'Vaccinations' settings shows the patient's recorded birth certificate number in the patient details section of the certificate. It is off by default, and the field is left empty where no number has been recorded.</li>
+    <li><b>Patient lists</b> - Columns on the patient listings can now be sorted, making it quicker to find patients in long lists.</li>
+    <li><b>Imaging</b> - A new 'X-ray (Portable)' request type is available once its reference data is loaded.</li>
+  </ul>
+
+  <h2>Mobile</h2>
+  <ul>
+    <li>The vitals 'Add' tab submits correctly after a prior submission, and query performance is improved through additional database indexes and periodic refreshing of query statistics. The Android build is updated to support devices with 16 KB memory pages.</li>
+  </ul>
+
+  <h2>System</h2>
+  <ul>
+    <li><b>Reports</b> - Soft-deleted survey responses are excluded from the generic survey export.</li>
+  </ul>
+
+  <hr>
+
+  <h1><span>⚠️</span> Critical Upgrade Notes</h1>
+
+  <h3>Optional</h3>
+
+  <p class="group">Vaccination certificate birth certificate number</p>
+  <ul>
+    <li>The birth certificate number is off by default. Enable 'Display birth certificate number' under the 'Vaccinations' settings if you want it on the certificate.</li>
+    <li>The number is drawn from patient details, so it appears only for patients who have one recorded.</li>
+  </ul>
+
+  <p class="group">Portable X-ray</p>
+  <ul>
+    <li>Add 'X-ray (Portable)' to your list of imaging types via admin panel settings.</li>
+  </ul>
+
+  <hr>
+
+  <h1>Upgrade Steps and Recommended Testing</h1>
+
+  <h3>Optional</h3>
+
+  <p class="group">Vaccination certificate</p>
+  <ul>
+    <li>If enabling the birth certificate number, generate a certificate for a patient who has one recorded and confirm it appears.</li>
+  </ul>
+
+</article>
+</body>
+</html>
