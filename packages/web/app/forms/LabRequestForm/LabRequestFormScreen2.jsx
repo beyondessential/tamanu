@@ -10,7 +10,7 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 export const LabRequestFormScreen2 = ({
-  initialSamples,
+  samples,
   practitionerSuggester,
   specimenTypeSuggester,
   labSampleSiteSuggester,
@@ -24,7 +24,7 @@ export const LabRequestFormScreen2 = ({
       />
     </StyledBodyText>
     <SampleDetailsTable
-      samples={initialSamples}
+      samples={samples}
       practitionerSuggester={practitionerSuggester}
       specimenTypeSuggester={specimenTypeSuggester}
       labSampleSiteSuggester={labSampleSiteSuggester}

@@ -18,24 +18,26 @@ import { renderElementWithTranslatedText } from '../../helpers';
 const { CURRENT_USER_ID } = vi.hoisted(() => ({ CURRENT_USER_ID: 'current-user-1' }));
 
 // The real date picker and autocompletes are heavy widgets; replace them with light stubs so we
-// can drive the change handlers directly. The date stub (used for the controlled sampleTime input)
-// exposes set/clear buttons; the autocomplete stub writes to its Formik field to simulate a
-// selection.
+// can drive the change handlers directly. The date stub (for the Formik sampleTime field) exposes
+// set/clear buttons that fire the field's onChange; the autocomplete stub writes to its Formik
+// field to simulate a selection.
 vi.mock('../../../app/components/Field', async () => {
   const actual = await vi.importActual('../../../app/components/Field');
   return {
     ...actual,
-    DateTimeInput: props => (
+    DateTimeField: props => (
       <>
         <button
           type="button"
           data-testid="set-collection-time"
-          onClick={() => props.onChange({ target: { value: '2023-06-12 10:00', name: props.name } })}
+          onClick={() =>
+            props.onChange({ target: { value: '2023-06-12 10:00', name: props.field?.name } })
+          }
         />
         <button
           type="button"
           data-testid="clear-collection-time"
-          onClick={() => props.onChange({ target: { value: '', name: props.name } })}
+          onClick={() => props.onChange({ target: { value: '', name: props.field?.name } })}
         />
       </>
     ),
@@ -127,17 +129,22 @@ describe('SampleDetailsTable', () => {
     });
   });
 
-  it('drops the category entry when the collection time is cleared', async () => {
+  it('keeps the collector when the time is cleared (submit drops timeless entries)', async () => {
     const user = userEvent.setup();
     renderSampleDetails();
 
     await user.click(screen.getByTestId('set-collection-time'));
-    await waitFor(() => expect(readSampleDetails()[CATEGORY_ID]).toBeDefined());
+    await waitFor(() =>
+      expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe(CURRENT_USER_ID),
+    );
 
+    // Clearing (or an invalid mid-edit time) must not wipe the row's other values; the timeless
+    // entry is dropped at submit, not here.
     await user.click(screen.getByTestId('clear-collection-time'));
 
     await waitFor(() => {
-      expect(readSampleDetails()[CATEGORY_ID]).toBeUndefined();
+      expect(readSampleDetails()[CATEGORY_ID]?.sampleTime).toBeFalsy();
+      expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe(CURRENT_USER_ID);
     });
   });
 

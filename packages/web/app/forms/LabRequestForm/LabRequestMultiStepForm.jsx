@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import * as yup from 'yup';
 import PropTypes from 'prop-types';
 import { useDateTime } from '@tamanu/ui-components';
@@ -32,7 +32,19 @@ export const LabRequestMultiStepForm = ({
   const mandatePriority = getSetting('features.labRequest.priorityMandatory');
 
   const { currentUser } = useAuth();
-  const [initialSamples, setInitialSamples] = useState([]);
+  const [samples, setSamples] = useState([]);
+
+  // Categories with no sample time are created as "sample not collected"; the sample-details table
+  // keeps a row's other values while its time is blank/invalid, so drop those entries on submit.
+  const handleSubmit = useCallback(
+    (values, ...rest) => {
+      const sampleDetails = Object.fromEntries(
+        Object.entries(values.sampleDetails ?? {}).filter(([, details]) => details?.sampleTime),
+      );
+      return onSubmit({ ...values, sampleDetails }, ...rest);
+    },
+    [onSubmit],
+  );
 
   // The test/panel selection is required via the disabled Next button rather than a validation
   // message, so it isn't part of the schema. See LabRequestFormScreen1.js for the fields.
@@ -68,7 +80,7 @@ export const LabRequestMultiStepForm = ({
   // sampleDetails is a map keyed by categoryId; each entry holds that category's sample fields.
   const screen2ValidationSchema = yup.object().shape({
     sampleDetails: yup.object().shape(
-      initialSamples.reduce((acc, sample) => {
+      samples.reduce((acc, sample) => {
         acc[sample.categoryId] = yup.object().shape({
           specimenTypeId: mandateSpecimenType
             ? yup.string().when('sampleTime', {
@@ -92,7 +104,7 @@ export const LabRequestMultiStepForm = ({
   return (
     <MultiStepForm
       onCancel={onCancel}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       isSubmitting={isSubmitting}
       initialValues={{
         requestedById: currentUser.id,
@@ -114,7 +126,7 @@ export const LabRequestMultiStepForm = ({
           practitionerSuggester={practitionerSuggester}
           departmentSuggester={departmentSuggester}
           isPriorityMandatory={mandatePriority}
-          onSelectionChange={setInitialSamples}
+          onSelectionChange={setSamples}
           data-testid="labrequestformscreen1-cz7w"
         />
       </FormStep>
@@ -129,7 +141,7 @@ export const LabRequestMultiStepForm = ({
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}
           labSampleSiteSuggester={labSampleSiteSuggester}
-          initialSamples={initialSamples}
+          samples={samples}
           data-testid="labrequestformscreen2-jejy"
         />
       </FormStep>

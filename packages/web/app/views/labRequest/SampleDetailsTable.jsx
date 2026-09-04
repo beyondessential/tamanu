@@ -5,7 +5,7 @@ import { useFormikContext } from 'formik';
 import styled, { css } from 'styled-components';
 import { Heading4 } from '../../components';
 import { RequiredOrnament, useDateTime } from '@tamanu/ui-components';
-import { AutocompleteField, DateTimeInput, Field } from '../../components/Field';
+import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { TranslatedReferenceData } from '../../components/Translation/index.js';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -74,10 +74,6 @@ export const SampleDetailsStyledField = styled(Field)`
 `;
 
 export const SampleDetailsDateTimeField = styled(Field)`
-  width: 220px;
-`;
-
-const SampleDetailsControlledDateTime = styled(DateTimeInput)`
   width: 220px;
 `;
 
@@ -165,23 +161,16 @@ export const SampleDetailsTable = ({
               </Typography>
             </SampleDetailsCell>
             <SampleDetailsCell data-testid="cell-collectiondatetime">
-              <SampleDetailsControlledDateTime
-                name={`sampleTime-${categoryId}`}
-                value={details?.sampleTime ?? ''}
+              <SampleDetailsDateTimeField
+                name={`${categoryField}.sampleTime`}
+                component={DateTimeField}
                 max={getCurrentDateTime()}
                 onChange={({ target: { value } }) => {
-                  if (value) {
-                    // A time makes the sample "collected". Default the collector to the current
-                    // user the first time, keeping any fields already entered for this category.
-                    setFieldValue(categoryField, {
-                      ...details,
-                      sampleTime: value,
-                      collectedById: details?.collectedById ?? currentUser?.id,
-                    });
-                  } else {
-                    // Clearing the time abandons the sample: drop the whole category entry so it is
-                    // created as "sample not collected" and no stale sibling values are submitted.
-                    setFieldValue(categoryField, undefined);
+                  // The field writes sampleTime itself; here we only default the collector to the
+                  // current user the first time a time is entered. An empty or invalid time leaves
+                  // the row's other values intact — categories with no time are dropped on submit.
+                  if (value && !details?.collectedById && currentUser?.id) {
+                    setFieldValue(`${categoryField}.collectedById`, currentUser.id);
                   }
                 }}
                 data-testid="styledfield-sampletime"
