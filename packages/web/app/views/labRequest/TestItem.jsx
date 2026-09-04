@@ -15,6 +15,13 @@ const Row = styled.div`
   min-height: 30px;
 `;
 
+// A native label so clicking the checkbox's text toggles it, not just the box itself.
+const RowLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
+`;
+
 const StyledCheckbox = styled(Checkbox)`
   padding: 0;
   margin: 0 8px 0 3px;
@@ -100,16 +107,18 @@ export const SelectableTestRow = ({ id, label, checked, disabled, disabledToolti
   const row = (
     <Row data-testid={`testrow-${id}`}>
       <ExpandSpacer />
-      <StyledCheckbox
-        {...CheckboxIcons}
-        color="primary"
-        checked={checked}
-        disabled={disabled}
-        onChange={event => onChange(id, event.target.checked)}
-        name={id}
-        data-testid={`testrow-checkbox-${id}`}
-      />
-      <LabelText $disabled={disabled}>{label}</LabelText>
+      <RowLabel $disabled={disabled}>
+        <StyledCheckbox
+          {...CheckboxIcons}
+          color="primary"
+          checked={checked}
+          disabled={disabled}
+          onChange={event => onChange(id, event.target.checked)}
+          name={id}
+          data-testid={`testrow-checkbox-${id}`}
+        />
+        <LabelText $disabled={disabled}>{label}</LabelText>
+      </RowLabel>
     </Row>
   );
 
@@ -143,16 +152,18 @@ export const PanelRow = ({
       >
         {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
       </ExpandToggle>
-      <StyledCheckbox
-        {...CheckboxIcons}
-        color="primary"
-        checked={checked}
-        onChange={event => onChange(id, event.target.checked)}
-        name={id}
-        data-testid={`panelrow-checkbox-${id}`}
-      />
-      <LabelText>{label}</LabelText>
-      <CountText>{testCount}</CountText>
+      <RowLabel>
+        <StyledCheckbox
+          {...CheckboxIcons}
+          color="primary"
+          checked={checked}
+          onChange={event => onChange(id, event.target.checked)}
+          name={id}
+          data-testid={`panelrow-checkbox-${id}`}
+        />
+        <LabelText>{label}</LabelText>
+        <CountText>{testCount}</CountText>
+      </RowLabel>
     </Row>
     {expanded && children}
   </>

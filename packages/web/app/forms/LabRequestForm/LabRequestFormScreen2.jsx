@@ -16,7 +16,7 @@ export const LabRequestFormScreen2 = ({
   labSampleSiteSuggester,
 }) => (
   <div style={{ gridColumn: '1 / -1' }}>
-    <StyledBodyText mb="28px" color="textTertiary" data-testid="styledbodytext-ic37">
+    <StyledBodyText color="textTertiary" data-testid="styledbodytext-ic37">
       <TranslatedText
         stringId="lab.sampleDetails.instruction"
         fallback="Please record details for the samples that have been collected. Otherwise leave blank and click ‘Finalise’."

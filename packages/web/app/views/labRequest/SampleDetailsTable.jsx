@@ -12,10 +12,6 @@ import { SETTING_KEYS } from '@tamanu/constants';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
 
-// Columns: Category | Test | Date & time collected | Collected by | Specimen type | Site.
-// The record/edit sample modal reuses these pieces without the Category and Test columns
-// (pass `$showTestColumns={false}` here and `showTestColumns={false}` to the headers), leaving a
-// four-column grid.
 export const SampleDetailsContainer = styled.div`
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
@@ -104,7 +100,10 @@ export const SampleDetailsHeaders = ({ mandateSpecimenType, showTestColumns = tr
       />
     </HeaderCell>
     <HeaderCell data-testid="headercell-collectedby">
-      <TranslatedText stringId="lab.sampleDetail.table.column.collectedBy" fallback="Collected by" />
+      <TranslatedText
+        stringId="lab.sampleDetail.table.column.collectedBy"
+        fallback="Collected by"
+      />
     </HeaderCell>
     <HeaderCell data-testid="headercell-specimentype">
       <TranslatedText
@@ -119,9 +118,6 @@ export const SampleDetailsHeaders = ({ mandateSpecimenType, showTestColumns = tr
   </>
 );
 
-// One row per category for the new lab request workflow, all backed by the Formik `sampleDetails`
-// value (a map keyed by categoryId). There is no separate local state: the cells read and write
-// `sampleDetails` directly, so nothing needs syncing up to the parent or resetting on mount.
 export const SampleDetailsTable = ({
   samples,
   practitionerSuggester,
