@@ -42,11 +42,11 @@ const USER_INPUT_FORMATS = /** @type {const} */ ([
 ]);
 
 // Parses a string value to Date, trying explicit formats before the generic parser
-function parseValue(value, primaryFormat) {
+function parseValue(value, primaryFormat, referenceDate) {
   if (!value) return null;
   const formats = primaryFormat ? [primaryFormat, ...USER_INPUT_FORMATS] : USER_INPUT_FORMATS;
   for (const fmt of formats) {
-    const date = parse(value, fmt, new Date());
+    const date = parse(value, fmt, referenceDate);
     if (isValid(date)) return date;
   }
   try {
@@ -261,10 +261,10 @@ export const DateInput = ({
     if (!value) return null;
     if (shouldUseTimezone && toFacilityDateTime) {
       const facilityValue = toFacilityDateTime(value);
-      return facilityValue ? parseValue(facilityValue, DATETIME_LOCAL_FORMAT) : null;
+      return facilityValue ? parseValue(facilityValue, DATETIME_LOCAL_FORMAT, todayDate) : null;
     }
-    return parseValue(value, format);
-  }, [value, format, shouldUseTimezone, toFacilityDateTime]);
+    return parseValue(value, format, todayDate);
+  }, [value, format, shouldUseTimezone, toFacilityDateTime, todayDate]);
 
   const emitChange = useCallback(
     val => onChange({ target: { value: val, name } }),
@@ -328,10 +328,10 @@ export const DateInput = ({
     e => {
       const text = e.target.value?.trim();
       if (!text) return;
-      const parsed = parseValue(text, displayFormat);
+      const parsed = parseValue(text, displayFormat, todayDate);
       if (parsed) handleChange(parsed);
     },
-    [displayFormat, handleChange],
+    [displayFormat, handleChange, todayDate],
   );
 
   // min/max bounds need the same timezone conversion as the value itself
@@ -340,11 +340,11 @@ export const DateInput = ({
       if (!bound) return undefined;
       if (shouldUseTimezone && toFacilityDateTime) {
         const converted = toFacilityDateTime(bound);
-        if (converted) return parseValue(converted, DATETIME_LOCAL_FORMAT);
+        if (converted) return parseValue(converted, DATETIME_LOCAL_FORMAT, todayDate);
       }
-      return parseValue(bound, format);
+      return parseValue(bound, format, todayDate);
     },
-    [format, shouldUseTimezone, toFacilityDateTime],
+    [format, shouldUseTimezone, toFacilityDateTime, todayDate],
   );
 
   const maxDate = useMemo(() => parseDateBound(max), [parseDateBound, max]);

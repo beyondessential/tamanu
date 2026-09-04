@@ -1,20 +1,14 @@
 import Popper from '@mui/material/Popper';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { add, endOfYear, isValid, parse, startOfToday, startOfYear } from 'date-fns';
+import { add, endOfYear, isValid, parse, startOfDay, startOfYear } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
 import { ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TextInput } from './TextField';
-
-const getMaxDate = () => {
-  return endOfYear(add(new Date(), { years: 4 }));
-};
-
-const getMinDate = () => {
-  return startOfYear(add(new Date(), { years: -3 }));
-};
 
 const StyledPopper = styled(Popper)`
   font-size: 0.875rem;
@@ -117,18 +111,13 @@ const StyledDatePicker = styled(DatePicker).attrs({
   }
 `;
 
-export const MonthPicker = ({
-  defaultValue = startOfToday(),
-  minDate = getMinDate(),
-  maxDate = getMaxDate(),
-  value,
-  onChange,
-  ...props
-}) => {
+export const MonthPicker = ({ defaultValue, minDate, maxDate, value, onChange, ...props }) => {
+  const { getFacilityNowDate } = useDateTime();
   const [open, setOpen] = useState(false);
+  const facilityNow = getFacilityNowDate();
 
   const handleMonthChange = (monthString) => {
-    const parsedDateString = parse(monthString, 'MMMM yyyy', new Date());
+    const parsedDateString = parse(monthString, 'MMMM yyyy', facilityNow);
     if (isValid(parsedDateString)) onChange?.(parsedDateString);
   };
 
@@ -138,7 +127,7 @@ export const MonthPicker = ({
       onClose={() => setOpen(false)}
       yearsPerRow={4}
       monthsPerRow={4}
-      defaultValue={defaultValue}
+      defaultValue={defaultValue ?? startOfDay(facilityNow)}
       slots={{
         openPickerIcon: open ? ExpandLessIcon : ExpandMoreIcon,
         switchViewButton: ExpandLessIcon,
@@ -159,8 +148,8 @@ export const MonthPicker = ({
       onAccept={(date) => {
         if (isValid(date)) onChange?.(date);
       }}
-      minDate={minDate}
-      maxDate={maxDate}
+      minDate={minDate ?? startOfYear(add(facilityNow, { years: -3 }))}
+      maxDate={maxDate ?? endOfYear(add(facilityNow, { years: 4 }))}
       value={value}
       {...props}
     />

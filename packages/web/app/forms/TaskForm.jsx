@@ -93,9 +93,10 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime, getCurrentDate, getDayBoundaries } = useDateTime();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
+  const facilityDayStart = getDayBoundaries(getCurrentDate())?.start ?? getCurrentDate();
 
   const combinedTaskSuggester = useSuggester('multiReferenceData', combinedTaskSuggesterOptions);
 
@@ -386,7 +387,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)),
+              facilityDayStart,
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
@@ -396,7 +397,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)),
+              facilityDayStart,
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           note: yup.string(),

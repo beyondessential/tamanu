@@ -49,6 +49,8 @@ vi.mock('@tamanu/ui-components', async importOriginal => {
     ...actual,
     useDateTime: () => ({
       getCurrentDateTime: () => '2026-07-13 00:00:00',
+      getCurrentDate: () => '2026-07-13',
+      getDayBoundaries: date => ({ start: `${date} 00:00:00`, end: `${date} 23:59:59` }),
     }),
     TranslatedSelectField: ({ field }) => <div>{field?.value ?? ''}</div>,
     TextField: ({ field }) => <textarea value={field?.value ?? ''} readOnly />,
