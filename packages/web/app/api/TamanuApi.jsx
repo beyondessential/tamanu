@@ -11,6 +11,7 @@ import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { API_ERROR_TOAST, resolveApiErrorToast } from './classifyApiError';
+import { relegateSystemError } from './relegateSystemError';
 
 const {
   TOKEN,
@@ -99,6 +100,14 @@ function saveToLocalStorage({
   if (settings) {
     window?.localStorage?.setItem(SETTINGS, JSON.stringify(settings));
   }
+}
+
+// Toast relegation (see `relegateSystemError`) only applies to the regular clinical
+// client; the admin panel keeps showing a toast for every kind of API error for now.
+const ADMIN_ROUTE_PATTERN = /^\/(admin|facility-admin)(\/|$)/;
+
+function isAdminRoute() {
+  return ADMIN_ROUTE_PATTERN.test(window?.location?.pathname ?? '');
 }
 
 function clearLocalStorage() {
@@ -357,7 +366,9 @@ export class TamanuApi extends ApiClient {
         clearLocalStorage();
       } else if (showUnknownErrorToast) {
         const toastKind = resolveApiErrorToast(err, isErrorUnknown);
-        if (toastKind) {
+        if (toastKind === API_ERROR_TOAST.SERVER && !isAdminRoute()) {
+          relegateSystemError(err, endpoint);
+        } else if (toastKind) {
           notifyError(buildErrorToast(toastKind, err, endpoint));
         }
       }
