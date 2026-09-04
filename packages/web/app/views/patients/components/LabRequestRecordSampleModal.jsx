@@ -1,23 +1,20 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 import { Form, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, FormModal } from '../../../components';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
-import { TranslatedReferenceData } from '../../../components/Translation';
 import {
   SampleDetailsCell,
   SampleDetailsContainer,
   SampleDetailsDateTimeField,
   SampleDetailsHeaders,
-  SampleDetailsLabelCell,
   SampleDetailsStyledField,
-} from '../../labRequest/SampleDetailsField';
+} from '../../labRequest/SampleDetailsTable';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup
@@ -52,19 +49,7 @@ const StyledModal = styled(FormModal)`
   }
 `;
 
-const collator = new Intl.Collator();
-
-// The Test column lists the request's panel (as-is) or its individual tests, alphabetical by name.
-const getTestNames = labRequest => {
-  const panelName = labRequest.labTestPanelRequests?.[0]?.labTestPanel?.name;
-  if (panelName) return [panelName];
-  return (labRequest.tests ?? [])
-    .map(test => test.labTestType?.name)
-    .filter(Boolean)
-    .sort((a, b) => collator.compare(a, b));
-};
-
-const LabRequestRecordSampleForm = ({ submitForm, values, setFieldValue, onClose, labRequest }) => {
+const LabRequestRecordSampleForm = ({ submitForm, values, setFieldValue, onClose }) => {
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
@@ -73,30 +58,11 @@ const LabRequestRecordSampleForm = ({ submitForm, values, setFieldValue, onClose
   const labSampleSiteSuggester = useSuggester('labSampleSite');
 
   const isSampleCollected = Boolean(values.sampleTime);
-  const testNames = useMemo(() => getTestNames(labRequest), [labRequest]);
 
   return (
     <>
-      <SampleDetailsContainer data-testid="container-recordsample">
-        <SampleDetailsHeaders mandateSpecimenType={mandateSpecimenType} />
-        <SampleDetailsLabelCell data-testid="cell-category">
-          <Typography variant="subtitle1" data-testid="typography-category">
-            {labRequest.category?.name ? (
-              <TranslatedReferenceData
-                category="labTestCategory"
-                value={labRequest.category.id}
-                fallback={labRequest.category.name}
-              />
-            ) : (
-              <>&mdash;</>
-            )}
-          </Typography>
-        </SampleDetailsLabelCell>
-        <SampleDetailsCell data-testid="cell-test">
-          <Typography variant="subtitle1" data-testid="typography-test">
-            {testNames.join(', ')}
-          </Typography>
-        </SampleDetailsCell>
+      <SampleDetailsContainer $showTestColumns={false} data-testid="container-recordsample">
+        <SampleDetailsHeaders mandateSpecimenType={mandateSpecimenType} showTestColumns={false} />
         <SampleDetailsCell data-testid="cell-collectiondatetime">
           <SampleDetailsDateTimeField
             name="sampleTime"
@@ -213,7 +179,6 @@ export const LabRequestRecordSampleModal = React.memo(
           render={props => (
             <LabRequestRecordSampleForm
               {...props}
-              labRequest={labRequest}
               onClose={onClose}
               data-testid="labrequestrecordsampleform-z2w7"
             />

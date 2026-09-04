@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import * as yup from 'yup';
 import PropTypes from 'prop-types';
 import { useDateTime } from '@tamanu/ui-components';
@@ -8,10 +8,9 @@ import { useAuth } from '../../contexts/Auth';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
-import { LabRequestFormScreen3 } from './LabRequestFormScreen3';
+import { LabRequestFormScreen2 } from './LabRequestFormScreen2';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
-import { SAMPLE_DETAILS_FIELD_PREFIX } from '../../views/labRequest/SampleDetailsField';
 
 const hasSelection = values =>
   Boolean((values.labTestTypeIds?.length ?? 0) + (values.panelIds?.length ?? 0));
@@ -33,7 +32,19 @@ export const LabRequestMultiStepForm = ({
   const mandatePriority = getSetting('features.labRequest.priorityMandatory');
 
   const { currentUser } = useAuth();
-  const [initialSamples, setInitialSamples] = useState([]);
+  const [samples, setSamples] = useState([]);
+
+  // Categories with no sample time are created as "sample not collected"; the sample-details table
+  // keeps a row's other values while its time is blank/invalid, so drop those entries on submit.
+  const handleSubmit = useCallback(
+    (values, ...rest) => {
+      const sampleDetails = Object.fromEntries(
+        Object.entries(values.sampleDetails ?? {}).filter(([, details]) => details?.sampleTime),
+      );
+      return onSubmit({ ...values, sampleDetails }, ...rest);
+    },
+    [onSubmit],
+  );
 
   // The test/panel selection is required via the disabled Next button rather than a validation
   // message, so it isn't part of the schema. See LabRequestFormScreen1.js for the fields.
@@ -65,29 +76,35 @@ export const LabRequestMultiStepForm = ({
     notes: yup.string(),
   });
 
-  const screen3ValidationSchema = yup.object().shape(
-    initialSamples.reduce((acc, sample) => {
-      acc[`${SAMPLE_DETAILS_FIELD_PREFIX}specimenType-${sample.categoryId}`] = mandateSpecimenType
-        ? yup.string().when(`sampleDetails.${sample.categoryId}.sampleTime`, {
-            is: value => Boolean(value),
-            then: yup
-              .string()
-              .required()
-              .translatedLabel(
-                <TranslatedText stringId="lab.specimenType.label" fallback="Specimen type" />,
-              ),
-            otherwise: yup.string(),
-          })
-        : yup.string();
+  // Specimen type is required per category once its sample time is entered (when the feature is on).
+  // sampleDetails is a map keyed by categoryId; each entry holds that category's sample fields.
+  const screen2ValidationSchema = yup.object().shape({
+    sampleDetails: yup.object().shape(
+      samples.reduce((acc, sample) => {
+        acc[sample.categoryId] = yup.object().shape({
+          specimenTypeId: mandateSpecimenType
+            ? yup.string().when('sampleTime', {
+                is: value => Boolean(value),
+                then: yup
+                  .string()
+                  .required()
+                  .translatedLabel(
+                    <TranslatedText stringId="lab.specimenType.label" fallback="Specimen type" />,
+                  ),
+                otherwise: yup.string(),
+              })
+            : yup.string(),
+        });
 
-      return acc;
-    }, {}),
-  );
+        return acc;
+      }, {}),
+    ),
+  });
 
   return (
     <MultiStepForm
       onCancel={onCancel}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       isSubmitting={isSubmitting}
       initialValues={{
         requestedById: currentUser.id,
@@ -109,23 +126,23 @@ export const LabRequestMultiStepForm = ({
           practitionerSuggester={practitionerSuggester}
           departmentSuggester={departmentSuggester}
           isPriorityMandatory={mandatePriority}
-          onSelectionChange={setInitialSamples}
+          onSelectionChange={setSamples}
           data-testid="labrequestformscreen1-cz7w"
         />
       </FormStep>
       <FormStep
-        validationSchema={screen3ValidationSchema}
+        validationSchema={screen2ValidationSchema}
         submitButtonText={
           <TranslatedText stringId="general.action.finalise" fallback="Finalise" />
         }
         data-testid="formstep-2u2d"
       >
-        <LabRequestFormScreen3
+        <LabRequestFormScreen2
           practitionerSuggester={practitionerSuggester}
           specimenTypeSuggester={specimenTypeSuggester}
           labSampleSiteSuggester={labSampleSiteSuggester}
-          initialSamples={initialSamples}
-          data-testid="labrequestformscreen3-jejy"
+          samples={samples}
+          data-testid="labrequestformscreen2-jejy"
         />
       </FormStep>
     </MultiStepForm>
