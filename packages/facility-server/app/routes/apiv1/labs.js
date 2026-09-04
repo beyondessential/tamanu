@@ -10,6 +10,7 @@ import {
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { keyBy } from 'es-toolkit/compat';
@@ -77,6 +78,31 @@ const getEditedFieldsByLabTestId = async (db, labRequestId) => {
   );
 };
 
+// Attach each category's default specimen type (a reference-data relation) so the sample-recording
+// UI can pre-fill it. Mutates the given plain category objects in place; ignores nulls.
+const attachDefaultSpecimenTypes = async (models, categories) => {
+  const present = categories.filter(Boolean);
+  const categoryIds = [...new Set(present.map(({ id }) => id))];
+  if (categoryIds.length === 0) return;
+
+  const relations = await models.ReferenceDataRelation.findAll({
+    attributes: ['referenceDataId', 'referenceDataParentId'],
+    where: {
+      type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      referenceDataParentId: { [Op.in]: categoryIds },
+    },
+  });
+  const byCategoryId = new Map(
+    relations.map(({ referenceDataParentId, referenceDataId }) => [
+      referenceDataParentId,
+      referenceDataId,
+    ]),
+  );
+  for (const category of present) {
+    category.defaultSpecimenTypeId = byCategoryId.get(category.id) ?? null;
+  }
+};
+
 export const labRequest = express.Router();
 
 labRequest.get(
@@ -97,10 +123,12 @@ labRequest.get(
     });
 
     const latestAttachment = await labRequestRecord.getLatestAttachment();
-    res.send({
+    const response = {
       ...labRequestRecord.forResponse(),
       latestAttachment,
-    });
+    };
+    await attachDefaultSpecimenTypes(req.models, [response.category]);
+    res.send(response);
   }),
 );
 
@@ -887,7 +915,12 @@ labTestType.get(
       ],
       where,
     });
-    res.send(labTests);
+    const response = labTests.map(labTest => labTest.get({ plain: true }));
+    await attachDefaultSpecimenTypes(
+      models,
+      response.map(labTest => labTest.category),
+    );
+    res.send(response);
   }),
 );
 
@@ -943,6 +976,10 @@ labTestPanel.get('/', async (req, res) => {
       }));
     return plain;
   });
+  await attachDefaultSpecimenTypes(
+    models,
+    response.map(panel => panel.category),
+  );
   res.send(response);
 });
 

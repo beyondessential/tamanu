@@ -400,4 +400,99 @@ describe('Reference Data Manage', () => {
       expect(response).toBeForbidden();
     });
   });
+
+  describe('default specimen type (relation-backed column)', () => {
+    const LAB_TEST_CATEGORY = REFERENCE_TYPES.LAB_TEST_CATEGORY;
+
+    const createSpecimenType = () =>
+      models.ReferenceData.create({ ...fake(models.ReferenceData), type: REFERENCE_TYPES.SPECIMEN_TYPE });
+
+    const createCategory = () =>
+      models.ReferenceData.create({ ...fake(models.ReferenceData), type: LAB_TEST_CATEGORY });
+
+    const getDefault = categoryId =>
+      models.ReferenceDataRelation.findOne({
+        where: {
+          referenceDataParentId: categoryId,
+          type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+        },
+      });
+
+    it('exposes a writable id column and a read-only name column for lab test category', async () => {
+      const response = await adminApp
+        .get(COLUMNS_URL)
+        .query({ referenceDataType: LAB_TEST_CATEGORY });
+      expect(response).toHaveSucceeded();
+
+      const idCol = response.body.find(c => c.key === 'defaultSpecimenTypeId');
+      const nameCol = response.body.find(c => c.key === 'defaultSpecimenType');
+      expect(idCol).toMatchObject({ suggesterEndpoint: 'specimenType', readOnly: false });
+      expect(nameCol).toMatchObject({ readOnly: true });
+    });
+
+    it('creates the relation when a category is created with a default specimen type', async () => {
+      const specimenType = await createSpecimenType();
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: LAB_TEST_CATEGORY,
+        code: 'cat-with-default',
+        name: 'Category with default',
+        defaultSpecimenTypeId: specimenType.id,
+      });
+      expect(response).toHaveSucceeded();
+
+      const relation = await getDefault(response.body.id);
+      expect(relation?.referenceDataId).toBe(specimenType.id);
+    });
+
+    it('sets, replaces and clears the default on edit (at most one)', async () => {
+      const category = await createCategory();
+      const first = await createSpecimenType();
+      const second = await createSpecimenType();
+
+      // set
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, defaultSpecimenTypeId: first.id });
+      expect((await getDefault(category.id))?.referenceDataId).toBe(first.id);
+
+      // replace — still exactly one
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, defaultSpecimenTypeId: second.id });
+      expect((await getDefault(category.id))?.referenceDataId).toBe(second.id);
+      const count = await models.ReferenceDataRelation.count({
+        where: {
+          referenceDataParentId: category.id,
+          type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+        },
+      });
+      expect(count).toBe(1);
+
+      // clear
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, defaultSpecimenTypeId: '' });
+      expect(await getDefault(category.id)).toBeNull();
+    });
+
+    it('returns the default specimen type id and name in the list', async () => {
+      const specimenType = await createSpecimenType();
+      const category = await createCategory();
+      await models.ReferenceDataRelation.create({
+        referenceDataParentId: category.id,
+        referenceDataId: specimenType.id,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      });
+
+      const response = await adminApp
+        .get(BASE_URL)
+        .query({ referenceDataType: LAB_TEST_CATEGORY, code: category.code });
+      expect(response).toHaveSucceeded();
+      const row = response.body.data.find(r => r.id === category.id);
+      expect(row).toMatchObject({
+        defaultSpecimenTypeId: specimenType.id,
+        defaultSpecimenType: specimenType.name,
+      });
+    });
+  });
 });
