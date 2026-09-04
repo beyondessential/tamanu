@@ -325,6 +325,17 @@ export const FACILITY_MENU_ITEMS = [
         key: 'bedManagement',
         path: '/facility-admin/bed-management',
       },
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.facilityAdmin.systemErrors"
+            fallback="System errors"
+            data-testid="translatedtext-syse"
+          />
+        ),
+        key: 'systemErrors',
+        path: '/facility-admin/system-errors',
+      },
     ],
   },
 ];
