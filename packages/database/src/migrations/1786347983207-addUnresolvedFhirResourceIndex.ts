@@ -35,7 +35,9 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  // Sequelize's removeIndex doesn't schema-qualify the generated DROP INDEX statement, so it
+  // can't find (or drop) an index that lives in a non-default schema like fhir. Drop it directly.
   for (const table of TABLES) {
-    await query.removeIndex({ schema: 'fhir', tableName: table }, indexName(table));
+    await query.sequelize.query(`DROP INDEX IF EXISTS fhir."${indexName(table)}";`);
   }
 }
