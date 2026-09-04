@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { fake } from '@tamanu/fake-data/fake';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
@@ -195,10 +197,60 @@ describe('Sync lookup after patient merge', () => {
     expect(await lookupPatientIdFor('prescriptions', prescription.id)).toBe(merge.id);
   });
 
+  it('rebuilds at most the configured number of flagged patients per build, keeping the rest flagged', async () => {
+    const [keepA, mergeA] = await makeTwoPatients(models);
+    const [keepB, mergeB] = await makeTwoPatients(models);
+    const a = await makeEncounterRecords(mergeA.id);
+    const b = await makeEncounterRecords(mergeB.id);
+    await centralSyncManager.updateLookupTable();
+    await mergePatient(models, keepA.id, mergeA.id, false);
+    await mergePatient(models, keepB.id, mergeB.id, false);
+    await centralSyncManager.updateLookupTable();
+    expect(await lookupPatientIdFor('prescriptions', a.prescription.id)).toBe(mergeA.id);
+    expect(await lookupPatientIdFor('prescriptions', b.prescription.id)).toBe(mergeB.id);
+
+    CentralSyncManager.overrideConfig({
+      ...config,
+      sync: {
+        ...config.sync,
+        lookupTable: { ...config.sync.lookupTable, maxFlaggedPatientsPerBuild: 1 },
+      },
+    });
+    try {
+      await models.LocalSystemFact.flagLookupPatientsForRebuild([mergeA.id, mergeB.id]);
+
+      await centralSyncManager.updateLookupTable();
+      expect(await lookupPatientIdFor('prescriptions', a.prescription.id)).toBe(keepA.id);
+      expect(await lookupPatientIdFor('prescriptions', b.prescription.id)).toBe(mergeB.id);
+      expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([mergeB.id]);
+
+      await centralSyncManager.updateLookupTable();
+      expect(await lookupPatientIdFor('prescriptions', b.prescription.id)).toBe(keepB.id);
+      expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([]);
+    } finally {
+      CentralSyncManager.restoreConfig();
+    }
+  });
+
   describe('rebuild flag bookkeeping', () => {
     it('stores a flagged patient once however many times it is flagged', async () => {
       await models.LocalSystemFact.flagLookupPatientsForRebuild(['patient-a', 'patient-b']);
       await models.LocalSystemFact.flagLookupPatientsForRebuild(['patient-a']);
+
+      expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([
+        'patient-a',
+        'patient-b',
+      ]);
+
+      await models.LocalSystemFact.markLookupPatientsRebuilt(['patient-a', 'patient-b']);
+    });
+
+    it('stores a patient once when a single batch names it twice', async () => {
+      await models.LocalSystemFact.flagLookupPatientsForRebuild([
+        'patient-a',
+        'patient-b',
+        'patient-a',
+      ]);
 
       expect(await models.LocalSystemFact.getLookupPatientsToRebuild()).toEqual([
         'patient-a',

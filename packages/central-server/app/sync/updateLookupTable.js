@@ -367,7 +367,11 @@ export const updateLookupTable = withConfig(
 
     let changesCount = 0;
 
-    const patientIdsToRebuild = await models.LocalSystemFact.getLookupPatientsToRebuild();
+    const { maxFlaggedPatientsPerBuild } = config.sync.lookupTable;
+    const flaggedPatientIds = await models.LocalSystemFact.getLookupPatientsToRebuild();
+    const patientIdsToRebuild = maxFlaggedPatientsPerBuild
+      ? flaggedPatientIds.slice(0, maxFlaggedPatientsPerBuild)
+      : flaggedPatientIds;
 
     for (const model of Object.values(outgoingModels)) {
       try {
@@ -422,6 +426,11 @@ export const updateLookupTable = withConfig(
         log.debug(e);
         throw new Error(`Failed to rebuild lookup rows for flagged patients: ${e.message}`, {
           cause: e,
+        });
+      }
+      if (patientIdsToRebuild.length < flaggedPatientIds.length) {
+        log.info('updateLookupTable.deferredFlaggedPatients', {
+          deferredCount: flaggedPatientIds.length - patientIdsToRebuild.length,
         });
       }
     }
