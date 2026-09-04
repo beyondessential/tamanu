@@ -5,6 +5,8 @@ import {
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import {
@@ -61,6 +63,103 @@ describe('Labs', () => {
     });
     expect(createdLogs).toHaveLength(1);
     expect(createdLogs[0].status).toBe(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+  });
+
+  describe('default specimen type on category', () => {
+    const createCategoryWithDefault = async specimenTypeId => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      if (specimenTypeId) {
+        await models.ReferenceDataRelation.create({
+          referenceDataParentId: category.id,
+          referenceDataId: specimenTypeId,
+          type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+        });
+      }
+      return category;
+    };
+
+    it('exposes the category default specimen type on GET /labTestType', async () => {
+      const specimenType = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.SPECIMEN_TYPE,
+      });
+      const category = await createCategoryWithDefault(specimenType.id);
+      const testType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        isSensitive: false,
+      });
+
+      const response = await app.get('/api/labTestType');
+      expect(response).toHaveSucceeded();
+      const returned = response.body.find(labTest => labTest.id === testType.id);
+      expect(returned?.category?.defaultSpecimenTypeId).toBe(specimenType.id);
+    });
+
+    it('returns a null category default when none is set', async () => {
+      const category = await createCategoryWithDefault(null);
+      const testType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        isSensitive: false,
+      });
+
+      const response = await app.get('/api/labTestType');
+      expect(response).toHaveSucceeded();
+      const returned = response.body.find(labTest => labTest.id === testType.id);
+      expect(returned?.category?.defaultSpecimenTypeId).toBeNull();
+    });
+
+    it('exposes the category default on GET /labTestPanel', async () => {
+      const specimenType = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.SPECIMEN_TYPE,
+      });
+      const category = await createCategoryWithDefault(specimenType.id);
+      const panel = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+        categoryId: category.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const response = await app.get('/api/labTestPanel');
+      expect(response).toHaveSucceeded();
+      const returned = response.body.find(labPanel => labPanel.id === panel.id);
+      expect(returned?.category?.defaultSpecimenTypeId).toBe(specimenType.id);
+    });
+
+    it('exposes the category default on GET /labRequest/:id', async () => {
+      const specimenType = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.SPECIMEN_TYPE,
+      });
+      const category = await createCategoryWithDefault(specimenType.id);
+      const createResponse = await app
+        .post('/api/labRequest')
+        .send(await randomLabRequest(models, { patientId, categoryId: category.id }));
+      expect(createResponse).toHaveSucceeded();
+
+      const response = await app.get(`/api/labRequest/${createResponse.body[0].id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.category?.defaultSpecimenTypeId).toBe(specimenType.id);
+    });
+
+    it('returns a null category default on GET /labRequest/:id when none is set', async () => {
+      const category = await createCategoryWithDefault(null);
+      const createResponse = await app
+        .post('/api/labRequest')
+        .send(await randomLabRequest(models, { patientId, categoryId: category.id }));
+      expect(createResponse).toHaveSucceeded();
+
+      const response = await app.get(`/api/labRequest/${createResponse.body[0].id}`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.category?.defaultSpecimenTypeId).toBeNull();
+    });
   });
 
   it('should record two lab requests with one test type each', async () => {

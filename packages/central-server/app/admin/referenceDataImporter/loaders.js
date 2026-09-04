@@ -353,6 +353,64 @@ export async function labTestPanelLoader(item, { models, pushError }) {
   return rows;
 }
 
+// The labTestCategory reference_data row is created by the generic reference-data pass; this
+// second pass reads the optional defaultSpecimenType column and keeps the category's default
+// specimen type as an at-most-one ReferenceDataRelation (parent = category, child = specimen type).
+export const labTestCategoryLoader = async (item, { models, header, pushError }) => {
+  const { id: categoryId, defaultSpecimenType } = item;
+
+  // Only touch the relation when the column is present, so imports that omit it leave existing
+  // defaults untouched. The column being present with an empty cell clears the default.
+  const hasColumn = (header ?? []).some(column => column.trim() === 'defaultSpecimenType');
+  if (!hasColumn) return [];
+
+  const specimenTypeId =
+    typeof defaultSpecimenType === 'number'
+      ? `${defaultSpecimenType}`
+      : (defaultSpecimenType ?? '').trim();
+
+  if (!specimenTypeId) {
+    await models.ReferenceDataRelation.destroy({
+      where: {
+        referenceDataParentId: categoryId,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      },
+    });
+    return [];
+  }
+
+  const specimenType = await models.ReferenceData.findOne({
+    attributes: ['id'],
+    where: { id: specimenTypeId, type: REFERENCE_TYPES.SPECIMEN_TYPE },
+  });
+  if (!specimenType) {
+    pushError(
+      `Default specimen type "${specimenTypeId}" for category "${categoryId}" not found or not of type specimenType`,
+    );
+    return [];
+  }
+
+  // At most one default per category: drop any existing default that isn't the one now specified.
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: categoryId,
+      type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      referenceDataId: { [Op.ne]: specimenTypeId },
+    },
+  });
+
+  return [
+    {
+      model: 'ReferenceDataRelation',
+      values: {
+        referenceDataParentId: categoryId,
+        referenceDataId: specimenTypeId,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      },
+    },
+  ];
+};
+
 export const taskSetLoader = async (item, { models, pushError }) => {
   const { id: taskSetId, tasks: taskIdsString } = item;
   const taskIds = taskIdsString
