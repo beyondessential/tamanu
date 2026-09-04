@@ -1,7 +1,30 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 
 import { createTestDatabase, closeDatabase } from '../utilities';
 import { setFhirRefreshTriggers } from '../../src/services/setFhirRefreshTriggers';
+
+// Organization materialisation defaults to false in the settings schema, but this suite needs it
+// enabled to prove that facilities (FhirOrganization's own upstream) still gets a trigger.
+vi.mock('@tamanu/shared/utils/fhir/fhirSettings', async importOriginal => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    getFhirWorkerSettings: () => ({
+      enabled: true,
+      resourceMaterialisationEnabled: {
+        Patient: true,
+        Encounter: true,
+        Immunization: true,
+        MediciReport: true,
+        Organization: true,
+        Practitioner: true,
+        ServiceRequest: true,
+        Specimen: true,
+        MedicationRequest: true,
+      },
+    }),
+  };
+});
 
 describe('setFhirRefreshTriggers', () => {
   let database;
