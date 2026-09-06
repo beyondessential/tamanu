@@ -58,7 +58,7 @@ describe('SystemErrors', () => {
 
     expect(screen.getByRole('heading', { name: 'Send error logs' })).toBeTruthy();
     expect(screen.getByTestId('send-error-log-subtitle').textContent).toBe(
-      'Reporting 3 errors to the Tamanu support team.',
+      'Reporting 15 errors to the Tamanu support team.',
     );
 
     fireEvent.change(screen.getByLabelText('Additional information'), {

@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-components';
 
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
-import { useTableSorting } from '../../components/Table/useTableSorting';
+import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
-
-const DEFAULT_ROWS_PER_PAGE = 25;
 
 // Mock data standing in until the real store for relegated system errors is built
 // (see `relegateSystemError`) — timestamps are relative to load time so the table
@@ -16,7 +14,8 @@ const MOCK_SYSTEM_ERRORS = [
   {
     id: '1',
     timestamp: hoursAgo(0.2),
-    message: 'Something went wrong on the server. Path: patient/123. Message: Unexpected token in JSON',
+    message:
+      'Something went wrong on the server. Path: patient/123. Message: Unexpected token in JSON',
   },
   {
     id: '2',
@@ -29,6 +28,78 @@ const MOCK_SYSTEM_ERRORS = [
     timestamp: hoursAgo(9),
     message:
       'Something went wrong on the server. Path: appointments/outpatients. Message: relation "appointments" does not exist',
+  },
+  {
+    id: '4',
+    timestamp: hoursAgo(11),
+    message:
+      'Something went wrong on the server. Path: encounter/456. Message: Unexpected server error',
+  },
+  {
+    id: '5',
+    timestamp: hoursAgo(13),
+    message:
+      'Something went wrong on the server. Path: medication/789. Message: Unexpected server error',
+  },
+  {
+    id: '6',
+    timestamp: hoursAgo(15),
+    message:
+      'Something went wrong on the server. Path: imaging/orders. Message: Unexpected server error',
+  },
+  {
+    id: '7',
+    timestamp: hoursAgo(17),
+    message:
+      'Something went wrong on the server. Path: vaccine/schedule. Message: Unexpected server error',
+  },
+  {
+    id: '8',
+    timestamp: hoursAgo(19),
+    message:
+      'Something went wrong on the server. Path: invoice/234. Message: Unexpected server error',
+  },
+  {
+    id: '9',
+    timestamp: hoursAgo(21),
+    message:
+      'Something went wrong on the server. Path: programRegistry/enrol. Message: Unexpected server error',
+  },
+  {
+    id: '10',
+    timestamp: hoursAgo(23),
+    message:
+      'Something went wrong on the server. Path: patient/search. Message: Unexpected server error',
+  },
+  {
+    id: '11',
+    timestamp: hoursAgo(25),
+    message:
+      'Something went wrong on the server. Path: survey/response. Message: Unexpected server error',
+  },
+  {
+    id: '12',
+    timestamp: hoursAgo(27),
+    message:
+      'Something went wrong on the server. Path: user/tasks. Message: Unexpected server error',
+  },
+  {
+    id: '13',
+    timestamp: hoursAgo(29),
+    message:
+      'Something went wrong on the server. Path: facility/locations. Message: Unexpected server error',
+  },
+  {
+    id: '14',
+    timestamp: hoursAgo(31),
+    message:
+      'Something went wrong on the server. Path: reports/generate. Message: Unexpected server error',
+  },
+  {
+    id: '15',
+    timestamp: hoursAgo(33),
+    message:
+      'Something went wrong on the server. Path: sync/pull. Message: Unexpected server error',
   },
 ];
 
@@ -50,10 +121,17 @@ export const SystemErrors = React.memo(() => {
   const [errors] = useState(MOCK_SYSTEM_ERRORS);
   const [isSendLogModalOpen, setIsSendLogModalOpen] = useState(false);
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
-
-  const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
+  const {
+    pageData,
+    count,
+    orderBy,
+    order,
+    onChangeOrderBy,
+    page,
+    rowsPerPage,
+    onChangePage,
+    onChangeRowsPerPage,
+  } = useClientSideTableData(errors, {
     initialSortKey: 'timestamp',
     initialSortDirection: 'desc',
   });
@@ -61,16 +139,13 @@ export const SystemErrors = React.memo(() => {
   return (
     <PageContainer>
       <TopBar title={<TranslatedText stringId="systemErrors.title" fallback="System errors" />}>
-        <Button
-          color="primary"
-          onClick={() => setIsSendLogModalOpen(true)}
-        >
+        <Button color="primary" onClick={() => setIsSendLogModalOpen(true)}>
           <SendErrorLogButtonLabel count={errors.length} />
         </Button>
       </TopBar>
       <ContentPane>
         <Table
-          data={errors}
+          data={pageData}
           columns={COLUMNS}
           noDataMessage={
             <TranslatedText
@@ -79,14 +154,13 @@ export const SystemErrors = React.memo(() => {
             />
           }
           onChangeOrderBy={onChangeOrderBy}
-          customSort={customSort}
           orderBy={orderBy}
           order={order}
           page={page}
-          count={errors.length}
+          count={count}
           rowsPerPage={rowsPerPage}
-          onChangePage={setPage}
-          onChangeRowsPerPage={setRowsPerPage}
+          onChangePage={onChangePage}
+          onChangeRowsPerPage={onChangeRowsPerPage}
         />
       </ContentPane>
       <SendErrorLogModal
