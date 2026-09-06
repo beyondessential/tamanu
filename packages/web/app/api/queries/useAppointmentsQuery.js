@@ -37,7 +37,10 @@ export const useLocationBookingsQuery = (fetchOptions, useQueryOptions = {}) =>
 const useHasPastAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
   const api = useApi();
   return useQuery(
-    ['hasPastAppointments', patientId],
+    // fetchOptions carries the type (outpatient vs locationBooking) and facility, which
+    // select different results from the same endpoint, so they belong in the key —
+    // otherwise the two variants share one cache entry and whichever mounts first wins.
+    ['hasPastAppointments', patientId, fetchOptions],
     () => api.get(`appointments/hasPastAppointments/${patientId}`, fetchOptions),
     useQueryOptions,
   );

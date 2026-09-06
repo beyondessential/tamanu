@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { createTestContext } from '../utilities';
 import { settingsCache } from '@tamanu/settings';
 import { SETTINGS_SCOPES } from '@tamanu/constants';

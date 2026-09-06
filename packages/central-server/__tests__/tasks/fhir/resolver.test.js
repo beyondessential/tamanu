@@ -3,6 +3,7 @@
  * (source: @tamanu/shared/tasks). Run here in central-server so we avoid a
  * circular devDependency between shared and database.
  */
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
@@ -12,8 +13,8 @@ import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 
 // Mock out sleepAsync so we don't have to wait for the resolver's built-in delay.
-const sleepAsyncMock = jest.fn();
-jest.mock('@tamanu/utils/sleepAsync', () => ({
+const sleepAsyncMock = vi.fn();
+vi.mock('@tamanu/utils/sleepAsync', () => ({
   sleepAsync: ms => sleepAsyncMock(ms),
 }));
 

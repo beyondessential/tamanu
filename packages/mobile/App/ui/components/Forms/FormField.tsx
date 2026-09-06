@@ -1,7 +1,7 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { type ReactNode, useCallback } from 'react';
 import { Field as FormikField, useField, useFormikContext } from 'formik';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import type { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface FieldProps {
   component: ReactNode;
@@ -28,12 +28,15 @@ export const Field = ({
   const showError = status === SUBMIT_ATTEMPTED_STATUS || submitCount > 0;
   const error = showError ? meta.error : null;
 
-  const combinedOnChange = useCallback((newValue: any, selectedItem: any): any => {
-    if (onChange) {
-      onChange(newValue, selectedItem);
-    }
-    return field.onChange({ target: { name, value: newValue } });
-  }, [field.onChange, name, onChange]);
+  const combinedOnChange = useCallback(
+    (newValue: any, selectedItem: any): any => {
+      if (onChange) {
+        onChange(newValue, selectedItem);
+      }
+      return field.onChange({ target: { name, value: newValue } });
+    },
+    [field.onChange, name, onChange],
+  );
 
   return (
     <FormikField

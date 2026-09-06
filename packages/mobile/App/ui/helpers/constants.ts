@@ -17,8 +17,6 @@ export const DateFormats = {
   TIME: 'p',
 } as const;
 
-export const FilterTypeAll = 'All';
-
 export const VisitTypes = {
   HOSPITAL: 'Hospital',
   CLINIC: 'Clinic',

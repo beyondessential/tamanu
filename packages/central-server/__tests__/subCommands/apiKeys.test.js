@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import config from 'config';
 import { verifyToken } from '../../app/auth/utils';

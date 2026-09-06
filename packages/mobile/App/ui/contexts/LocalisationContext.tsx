@@ -1,7 +1,7 @@
 import React, {
   createContext,
-  PropsWithChildren,
-  ReactElement,
+  type PropsWithChildren,
+  type ReactElement,
   useContext,
   useEffect,
   useMemo,
@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { LocalisationService } from '~/services/localisation';
+import type { LocalisationService } from '~/services/localisation';
 
 interface LocalisationContextData {
   getLocalisation: (path: string) => any;
@@ -20,7 +20,7 @@ interface LocalisationContextData {
 const LocalisationContext = createContext<LocalisationContextData>({} as LocalisationContextData);
 
 const makeHelpers = (localisation: LocalisationService): LocalisationContextData => ({
-  getLocalisation: (path) => localisation.getLocalisation(path),
+  getLocalisation: path => localisation.getLocalisation(path),
   getString: (path, defaultString) => localisation.getString(path, defaultString),
   getBool: (path, defaultBool) => localisation.getBool(path, defaultBool),
 });
@@ -28,10 +28,10 @@ const makeHelpers = (localisation: LocalisationService): LocalisationContextData
 export const LocalisationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
   const backend = useContext(BackendContext);
 
-  const defaultHelpers = useMemo(() => makeHelpers(backend.localisation), [
-    backend,
-    backend.localisation,
-  ]);
+  const defaultHelpers = useMemo(
+    () => makeHelpers(backend.localisation),
+    [backend, backend.localisation],
+  );
   const [helpers, setHelpers] = useState(defaultHelpers);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { VaccineStatus } from './patient';
 import { differenceInDays, parseISO } from 'date-fns';
 import { toNumber } from 'es-toolkit/compat';
-import { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
+import type { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 
 type Threshold<T> = { threshold: T; status: VaccineStatus };
 type ParsedThresholds = Threshold<number>[];

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { SvgXml } from 'react-native-svg';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import type { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 
 export const MoreLogoIcon = memo((props: IconWithSizeProps) => {
   const xml = `

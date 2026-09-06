@@ -91,7 +91,7 @@ function PrintPrescriptionButton(props) {
   );
 }
 
-export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
+export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
@@ -223,7 +223,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
                     }
                   >
                     <AddOngoingMedicationButton
-                      disabled={disabled}
+                      disabled={readonly}
                       onClick={() => setMedicationImportModalOpen(true)}
                     />
                   </ThemedTooltip>
@@ -241,7 +241,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
                       >
                         <PrintPrescriptionButton
                           data-testid="styledtextbutton-hbja"
-                          disabled={disabled}
+                          disabled={readonly}
                           onClick={() => setPrintMedicationModalOpen(true)}
                         />
                       </ThemedTooltip>
@@ -258,7 +258,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
                         >
                           <SendToPharmacyButton
                             data-testid="styledtextbutton-uhgj"
-                            disabled={disabled}
+                            disabled={readonly}
                             onClick={() => setPharmacyOrderModalOpen(true)}
                           />
                         </ThemedTooltip>
@@ -291,7 +291,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, disabled }) => {
                 >
                   <StyledButtonWithPermissionCheck
                     onClick={handleNewPrescription}
-                    disabled={disabled || medicationSetsLoading || isEncounterDischarged}
+                    disabled={readonly || medicationSetsLoading || isEncounterDischarged}
                     verb="create"
                     noun="Medication"
                     data-testid="styledbuttonwithpermissioncheck-cagj"

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { UniqueConstraintError } from 'sequelize';
 
 import { createDummyPatient } from '@tamanu/database/demoData/patients';

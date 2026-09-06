@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
@@ -69,7 +70,7 @@ describe('CentralSyncManager.persistIncomingChanges with deferred constraints', 
     const parentId = fakeUUID();
     const childId = fakeUUID();
 
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession({ isMobile: true });
     await waitForSession(centralSyncManager, sessionId);
 

@@ -6,10 +6,13 @@ import {
   TranslatedReferenceData,
   getReferenceDataStringId,
 } from '~/ui/components/Translations/TranslatedReferenceData';
-import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
+import { TranslatedText, type TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
 import { DateFormats } from '~/ui/helpers/constants';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import useFullProgramRegistrationQuery from '~/ui/hooks/queries/useFullProgramRegistrationQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
@@ -99,7 +102,8 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
   const initConditions = Array.isArray(conditions) ? conditions : [];
   const filteredConditions = initConditions.filter(
     ({ programRegistryConditionCategory }) =>
-      programRegistryConditionCategory.code !== PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
+      programRegistryConditionCategory.code !==
+      PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR,
   );
 
   const sortedConditions = sortBy(filteredConditions, ({ programRegistryCondition }) => {
@@ -129,13 +133,11 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
       </View>
       <View style={styles.valueContainer}>
         {initConditions.length === 0 && <Text style={styles.value}>—</Text>}
-        {groupedConditions.open &&
-          groupedConditions.open.map((condition, i) => (
+        {groupedConditions.open?.map((condition, i) => (
             <TranslatedCondition key={`open-condition-${i}`} condition={condition} />
           ))}
         {needsDivider && <HorizontalLine marginBottom={10} />}
-        {groupedConditions.closed &&
-          groupedConditions.closed.map((condition, i) => (
+        {groupedConditions.closed?.map((condition, i) => (
             <TranslatedCondition key={`closed-condition-${i}`} condition={condition} />
           ))}
       </View>
@@ -149,22 +151,26 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
   const patientProgramRegistrationId =
     route.params.patientProgramRegistrationId ?? preloadedRegistration?.id;
 
-  const [fetchedRegistration, registrationError, isRegistrationLoading] = useBackendEffect(
-    async ({ models }) => {
-      if (preloadedRegistration) {
-        return preloadedRegistration;
-      }
-      return models.PatientProgramRegistration.getFullPprById(patientProgramRegistrationId);
-    },
-    [patientProgramRegistrationId, preloadedRegistration],
-  );
+  const {
+    data: fetchedRegistration,
+    error: registrationError,
+    isPending: isRegistrationLoading,
+  } = useFullProgramRegistrationQuery(patientProgramRegistrationId, {
+    enabled: !preloadedRegistration,
+  });
   const patientProgramRegistration = preloadedRegistration ?? fetchedRegistration;
 
-  const [pprCondition, conditionsError, isConditionsLoading] = useBackendEffect(
-    async ({ models }) =>
-      models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistrationId),
-    [patientProgramRegistrationId],
-  );
+  const {
+    data: pprCondition,
+    error: conditionsError,
+    isPending: isConditionsLoading,
+  } = useQuery({
+    queryKey: registrationKeys.conditions(patientProgramRegistrationId),
+    queryFn: () =>
+      Database.models.PatientProgramRegistrationCondition.findForRegistration(
+        patientProgramRegistrationId,
+      ),
+  });
 
   if ((!preloadedRegistration && isRegistrationLoading) || isConditionsLoading) {
     return <LoadingScreen />;

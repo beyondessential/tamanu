@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn, TableIndex } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, Table, TableColumn, TableIndex } from 'typeorm';
 
 const TABLE_NAME = 'translated_string';
 

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { addHours, endOfDay, isSameDay, parseISO, startOfDay, sub } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import {
@@ -78,7 +79,7 @@ describe('Outpatient discharger', () => {
   // The impact is pretty low though (some encounters will remain open a little longer)
   // so I'm just disabling it for now. Would be good to reinstate at some point but
   // probably not critical.
-  xit('Should discharge a patient that was left open at 11:58pm last night', async () => {
+  it.skip('Should discharge a patient that was left open at 11:58pm last night', async () => {
     const enc = await createEncounter({
       startDate: toDateTimeString(sub(startOfDay(new Date()), { minutes: 2 })),
     });

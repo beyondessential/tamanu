@@ -1,10 +1,10 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
-import { FetchOptions, LoginResponse, SyncRecord } from './types';
+import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,

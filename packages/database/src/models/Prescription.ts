@@ -9,6 +9,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  VISIBILITY_STATUSES,
   type DrugUnit,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -120,7 +121,7 @@ export class Prescription extends Model {
         displayPharmacyNotesInMar: DataTypes.BOOLEAN,
         quantity: DataTypes.INTEGER,
         discontinued: DataTypes.BOOLEAN,
-        discontinuedDate: DataTypes.STRING,
+        discontinuedDate: dateTimeType('discontinuedDate'),
         discontinuingReason: DataTypes.STRING,
         repeats: DataTypes.INTEGER,
       },
@@ -299,6 +300,7 @@ export class Prescription extends Model {
       where: {
         category: INVOICE_ITEMS_CATEGORIES.DRUG,
         sourceRecordId: prescription.medicationId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
 

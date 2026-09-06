@@ -14,8 +14,10 @@ export const useDispensableMedicationsQuery = (patientId, options = {}) => {
         facilityId,
       }),
     {
-      enabled: Boolean(patientId) && Boolean(facilityId) && (options.enabled ?? true),
       ...options,
+      // Spread first: a caller-supplied `enabled` narrows the query further, it never lifts the
+      // requirement for a patient and a facility to fetch for.
+      enabled: Boolean(patientId) && Boolean(facilityId) && (options.enabled ?? true),
     },
   );
 };

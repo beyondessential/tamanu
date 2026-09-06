@@ -4,7 +4,7 @@ import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
 import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '~/constants/medications';
 import { camelCase } from 'es-toolkit/compat';
-import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
+import { FrequencySuggester, type FrequencySuggestion } from '../../helpers/frequencySuggester';
 import { useTranslation } from '../../contexts/TranslationContext';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';

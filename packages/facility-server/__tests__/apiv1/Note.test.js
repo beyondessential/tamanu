@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, test } from 'vitest';
 import {
   createDummyEncounter,
   createDummyPatient,

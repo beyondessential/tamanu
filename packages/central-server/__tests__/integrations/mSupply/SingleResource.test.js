@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { testSingleResourceHandler } from '../../hl7fhir/routeHandlersTests';
 
 describe('mSupply integration - Single resource', () => {

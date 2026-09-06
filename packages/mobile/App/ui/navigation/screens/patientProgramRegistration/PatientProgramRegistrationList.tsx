@@ -1,12 +1,14 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { subject } from '@casl/ability';
+import { useQuery } from '@tanstack/react-query';
 
 import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
-import { useBackendEffect } from '~/ui/hooks/index';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -41,7 +43,7 @@ const StatusDot = styled.View<{ $registrationStatus: string }>`
   border-radius: 100px;
   height: 7px;
   width: 7px;
-  background-color: ${(props) =>
+  background-color: ${props =>
     props.$registrationStatus === 'active' ? theme.colors.SAFE : theme.colors.DISABLED_GREY};
 `;
 
@@ -67,21 +69,24 @@ const RightRowText = styled(RowText)`
 
 export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElement => {
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
   const { ability } = useAuth();
   const canReadRegistrations = ability.can('read', 'PatientProgramRegistration');
-  const [registrations, registrationError, isRegistrationLoading] = useBackendEffect(
-    async ({ models }) =>
-      await models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
+  const {
+    data: registrations,
+    error: registrationError,
+    isPending: isRegistrationLoading,
+  } = useQuery({
+    queryKey: patientKeys.registrations(selectedPatient.id),
+    queryFn: () =>
+      Database.models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
         selectedPatient.id,
       ),
-    [isFocused, selectedPatient.id],
-  );
+  });
   if (isRegistrationLoading) return <LoadingScreen />;
 
   if (registrationError) return <ErrorScreen error={registrationError} />;
 
-  const accessibleRegistries = registrations.filter((registration) =>
+  const accessibleRegistries = registrations.filter(registration =>
     ability.can('read', subject('ProgramRegistry', { id: registration.programRegistryId })),
   );
   if (accessibleRegistries.length === 0) {

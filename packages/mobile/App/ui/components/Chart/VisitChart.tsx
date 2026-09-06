@@ -1,4 +1,4 @@
-import React, { memo, ReactElement, useMemo } from 'react';
+import React, { memo, type ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
@@ -8,7 +8,7 @@ import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import { RowView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import { BarChartData } from '../../interfaces/BarChartProps';
+import type { BarChartData } from '../../interfaces/BarChartProps';
 import { TranslatedText } from '../Translations/TranslatedText';
 
 interface CustomGridProps {
@@ -18,21 +18,20 @@ interface CustomGridProps {
 
 const CustomGrid = ({ x, data }: CustomGridProps): ReactElement => (
   <G>
-    {data &&
-      data.map(
-        (_, index: number) =>
-          index % 7 === 0 && (
-            <Line
-              strokeDasharray="4, 4"
-              key={data[index].date.toString()}
-              y1="0%"
-              y2="100%"
-              x1={x && x(index) - 2}
-              x2={x && x(index) - 2}
-              stroke={theme.colors.TEXT_DARK}
-            />
-          ),
-      )}
+    {data?.map(
+      (_, index: number) =>
+        index % 7 === 0 && (
+          <Line
+            strokeDasharray="4, 4"
+            key={data[index].date.toString()}
+            y1="0%"
+            y2="100%"
+            x1={x && x(index) - 2}
+            x2={x && x(index) - 2}
+            stroke={theme.colors.TEXT_DARK}
+          />
+        ),
+    )}
   </G>
 );
 

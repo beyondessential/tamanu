@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
+import React, { type FunctionComponent, type ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   ColumnView,
@@ -11,10 +11,10 @@ import {
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { ResetPasswordForm } from '/components/Forms/ResetPasswordForm/ResetPasswordForm';
-import { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProps';
+import type { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProps';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
-import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
+import type { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';

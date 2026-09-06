@@ -23,4 +23,3 @@ export const compare = (content: string, hash: string): Promise<boolean> =>
       }
     });
   });
-

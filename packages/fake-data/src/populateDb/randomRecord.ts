@@ -1,6 +1,6 @@
 import { type Models } from '@tamanu/database';
 
-import { chance } from '../fake/index.js';
+import { chance, fake } from '../fake/index.js';
 
 // Per-round cache of record ids, keyed by model name.
 //
@@ -27,4 +27,26 @@ export const randomRecordId = async (models: Models, modelName: string): Promise
     if (ids.length > 0) idCache.set(modelName, ids);
   }
   return ids.length > 0 ? chance.pickone(ids) : null;
+};
+
+// Reference data is typed, and a column that references it expects one type: a
+// prescription's medication is a drug, a diagnosis a diagnosis. Creates a typed row when
+// the pool is empty so tally-driven rounds that skip the import step still get one.
+export const randomReferenceDataId = async (models: Models, type: string): Promise<string> => {
+  const cacheKey = `ReferenceData:${type}`;
+  let ids = idCache.get(cacheKey);
+  if (!ids) {
+    const rows = await models.ReferenceData.findAll({
+      where: { type },
+      attributes: ['id'],
+      raw: true,
+    });
+    ids = rows.map((row: { id: string }) => row.id);
+    if (ids.length > 0) idCache.set(cacheKey, ids);
+  }
+  if (ids.length === 0) {
+    const created = await models.ReferenceData.create(fake(models.ReferenceData, { type }));
+    return created.id;
+  }
+  return chance.pickone(ids);
 };

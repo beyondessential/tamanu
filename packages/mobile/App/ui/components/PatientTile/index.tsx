@@ -5,7 +5,7 @@ import { getDisplayAge } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '/helpers/user';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useSettings } from '/contexts/SettingsContext';

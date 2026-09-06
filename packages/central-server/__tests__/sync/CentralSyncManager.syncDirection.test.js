@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -23,7 +24,7 @@ describe('CentralSyncManager.addIncomingChanges syncDirection validation', () =>
   });
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
@@ -60,7 +61,7 @@ describe('CentralSyncManager.addIncomingChanges syncDirection validation', () =>
       },
     ];
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -128,7 +129,7 @@ describe('CentralSyncManager.addIncomingChanges syncDirection validation', () =>
       },
     ];
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,

@@ -1,7 +1,7 @@
-import React, { useCallback, useState, ReactElement } from 'react';
+import React, { useCallback, useState, type ReactElement } from 'react';
 import { useFormikContext } from 'formik';
 import { theme } from '/styled/theme';
-import { Button, StyledButtonProps } from '/components/Button';
+import { Button, type StyledButtonProps } from '/components/Button';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 
 interface SubmitButtonProps extends Omit<StyledButtonProps, 'onPress'> {

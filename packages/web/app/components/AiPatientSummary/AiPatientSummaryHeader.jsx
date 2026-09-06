@@ -25,7 +25,7 @@ const HeaderLeft = styled.div`
 `;
 
 const SparkleIcon = styled(Sparkles)`
-  color: ${Colors.metallicYellow};
+  color: ${Colors.secondary};
   width: 20px;
   height: 20px;
 `;

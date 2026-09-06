@@ -26,7 +26,9 @@ const StyledTextButton = styled(TextButton)`
   line-height: 18px;
   text-decoration: underline;
   color: ${Colors.darkestText};
-  .MuiButton-label {
+
+  &,
+  &:hover {
     font-weight: 400;
   }
 `;

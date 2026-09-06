@@ -134,13 +134,11 @@ describe('MobileSyncManager', () => {
     it("should call pushOutgoingChanges() with the correct 'sessionId' and 'newSyncClockTime'", async () => {
       jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
-      jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockReturnValueOnce(
-          new Promise(resolve => {
-            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick });
-          }),
-        );
+      jest.spyOn(centralServerConnection, 'startSyncSession').mockReturnValueOnce(
+        new Promise(resolve => {
+          resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick });
+        }),
+      );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();
@@ -152,13 +150,11 @@ describe('MobileSyncManager', () => {
     it("should call pullIncomingChanges() with the correct 'sessionId'", async () => {
       jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
-      jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockReturnValueOnce(
-          new Promise(resolve => {
-            resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick });
-          }),
-        );
+      jest.spyOn(centralServerConnection, 'startSyncSession').mockReturnValueOnce(
+        new Promise(resolve => {
+          resolve({ sessionId: mockSessionId, startedAtTick: mockSyncTick });
+        }),
+      );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();
@@ -194,12 +190,14 @@ describe('MobileSyncManager', () => {
       const pushSince = 2;
       const sessionId = 'test-session';
       const newSyncClockTime = 4;
-      
+
       (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
       (getSyncTick as jest.Mock).mockReturnValue(pushSince);
-      (snapshotOutgoingChanges as jest.Mock).mockReturnValueOnce(new Promise(resolve => {
-        resolve([]);
-      }));
+      (snapshotOutgoingChanges as jest.Mock).mockReturnValueOnce(
+        new Promise(resolve => {
+          resolve([]);
+        }),
+      );
 
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
@@ -210,7 +208,7 @@ describe('MobileSyncManager', () => {
       const modelsToPush = ['Patient', 'PatientAdditionalData', 'PatientDeathData'];
       const sessionId = 'test-session';
       const newSyncClockTime = 4;
-      
+
       (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
       (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => []);
 

@@ -25,6 +25,21 @@ export const atLeastOneWhenSendingToPharmacy = message => ({
   },
 });
 
+/**
+ * A dispensing quantity, shared by the prescription form and the discharge form's medication tables
+ * so the two read the same. The field can be left blank: a quantity is only demanded, and only has
+ * to be at least one, when the medication is being sent to pharmacy. A blank quantity is recorded as
+ * zero by the server. Call `translatedLabel` on the result to name the field in its error messages.
+ */
+export const dispensingQuantitySchema = requiredInlineMessage =>
+  yup
+    .number()
+    .transform(emptyToNull)
+    .integer()
+    .min(0)
+    .nullable()
+    .test(atLeastOneWhenSendingToPharmacy(requiredInlineMessage));
+
 export const yupAttemptTransformToNumber = (value, originalValue) => {
   if (originalValue === null || originalValue === undefined) return value;
   const translationValue = numeralTranslation(originalValue);

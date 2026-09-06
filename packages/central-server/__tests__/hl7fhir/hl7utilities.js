@@ -1,5 +1,6 @@
 // import hl7schema from './fhir.schema.json';
 //
+import { expect } from 'vitest';
 import { writeFileSync } from 'fs';
 
 function setupValidator() {

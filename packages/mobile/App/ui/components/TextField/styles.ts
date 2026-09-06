@@ -48,8 +48,8 @@ const StyledTextInputBase = styled(TextInput)<StyledTextInputCustomProps>`
   padding-left: ${screenPercentageToDP(3, Orientation.Width)}px;
 `;
 
-export const StyledTextInput = React.forwardRef<TextInput, StyledTextInputProps>(
-  (props, ref) => React.createElement(StyledTextInputBase, { ...props, ref }),
+export const StyledTextInput = React.forwardRef<TextInput, StyledTextInputProps>((props, ref) =>
+  React.createElement(StyledTextInputBase, { ...props, ref }),
 );
 
 StyledTextInput.displayName = 'StyledTextInput';

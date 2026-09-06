@@ -13,12 +13,10 @@ describe('<TextField />', (): void => {
       expect(getByText(nonMaskedProps.label)).not.toBe(null);
     });
     it('should change values', async (): Promise<void> => {
-      const { getByLabelText } = await render(
-        <BaseTextFieldStory {...nonMaskedProps} />,
-      );
+      const { getByLabelText } = await render(<BaseTextFieldStory {...nonMaskedProps} />);
       const input = getByLabelText(nonMaskedProps.label);
       await fireEvent.changeText(input, newValue);
-      expect(input.props['value']).toBe(newValue);
+      expect(input.props.value).toBe(newValue);
     });
   });
 });

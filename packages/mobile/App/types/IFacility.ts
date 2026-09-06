@@ -1,5 +1,5 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
 
 export interface IFacility {
   id: ID;
@@ -11,5 +11,5 @@ export interface IFacility {
   cityTown?: string;
   division?: string;
   type?: string;
-  visibilityStatus: VisibilityStatus.Current,
+  visibilityStatus: VisibilityStatus.Current;
 }

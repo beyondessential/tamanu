@@ -26,8 +26,6 @@ describe('getPatientDetailsValidation', () => {
     });
     const schema = getPatientDetailsValidation(getSetting);
 
-    await expect(
-      schema.validate({ ...basePayload, villageId: 'village-1' }),
-    ).resolves.toBeTruthy();
+    await expect(schema.validate({ ...basePayload, villageId: 'village-1' })).resolves.toBeTruthy();
   });
 });

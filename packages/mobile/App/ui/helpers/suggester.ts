@@ -1,7 +1,7 @@
-import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
+import { Brackets, type FindManyOptions, type ObjectLiteral } from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
-import { BaseModel } from '~/models/BaseModel';
+import type { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 export interface OptionType {
@@ -58,6 +58,8 @@ export interface SuggesterConfig<ModelType> {
 }
 
 export class Suggester<ModelType extends BaseModelSubclass> {
+  private static nextFilterCacheKey = 1;
+
   model: ModelType;
 
   options: SuggesterOptions<ModelType>;
@@ -66,9 +68,15 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   filter?: (entity: BaseModel) => boolean;
 
-  lastUpdatedAt: number;
-
-  cachedData: any;
+  /**
+   * HACK: {@link Suggester.filter} is a method, which is ignored when a {@link Suggester} is
+   * serialized into a TanStack Query query key. Without this, two distinct {@link Suggester}s with
+   * equivalent `model` and `options` but different `filter` would collide in the query client
+   * cache.
+   *
+   * Use `model.name`, `options`, and `filterCacheKey` to key the query.
+   */
+  filterCacheKey?: string;
 
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
@@ -78,8 +86,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     // Frontend filter applied to the data received. Use this to filter by permission
     // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
     this.filter = config.filter;
-    this.lastUpdatedAt = -Infinity;
-    this.cachedData = null;
+    this.filterCacheKey = config.filter ? `filter:${Suggester.nextFilterCacheKey++}` : undefined;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -105,7 +112,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       if (!result) return undefined;
 
       return this.formatter(result);
-    } catch (e) {
+    } catch (_e) {
       return undefined;
     }
   };
@@ -114,7 +121,6 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     search: string,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
-    const requestedAt = Date.now();
     const { where = {}, column = 'name', relations } = this.options;
     const dataType = getReferenceDataTypeFromSuggester(this);
 
@@ -167,15 +173,8 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       const data = await query.getRawMany();
 
       const filteredData = this.filter ? data.filter(this.filter) : data;
-      const formattedData = filteredData.map(this.formatter);
-
-      if (this.lastUpdatedAt < requestedAt) {
-        this.cachedData = formattedData;
-        this.lastUpdatedAt = requestedAt;
-      }
-
-      return this.cachedData;
-    } catch (e) {
+      return filteredData.map(this.formatter);
+    } catch {
       return [];
     }
   };

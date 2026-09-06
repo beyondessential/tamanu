@@ -53,7 +53,6 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm i -g '@swc/cli@^0.1.63'
       - name: Clean-install dependencies
         run: |
           npm ci \

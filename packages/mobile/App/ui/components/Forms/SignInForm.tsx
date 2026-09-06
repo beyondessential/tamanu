@@ -1,6 +1,6 @@
 import React, {
-  FunctionComponent,
-  ReactElement,
+  type FunctionComponent,
+  type ReactElement,
   useCallback,
   useEffect,
   useRef,
@@ -42,12 +42,7 @@ const ErrorBox: React.FC<ErrorBoxProps> = ({ errorMessage }) => {
       flexDirection="row"
       alignItems="center"
     >
-      <StyledText
-        color={theme.colors.TEXT_SUPER_DARK}
-        fontSize={14}
-        fontWeight={400}
-        flex={1}
-      >
+      <StyledText color={theme.colors.TEXT_SUPER_DARK} fontSize={14} fontWeight={400} flex={1}>
         {errorMessage}
       </StyledText>
     </StyledView>
@@ -69,11 +64,12 @@ const ServerInfo = __DEV__
             <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
           </StyledText>
           <StyledText color={theme.colors.WHITE}>
-            <TranslatedText stringId="general.facility.label" fallback="Facility" />: <TranslatedReferenceData
-            fallback={facilityName}
-            value={facilityId}
-            category="facility"
-          />
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />:{' '}
+            <TranslatedReferenceData
+              fallback={facilityName}
+              value={facilityId}
+              category="facility"
+            />
           </StyledText>
         </StyledView>
       );
@@ -105,7 +101,7 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
         }
       }
     },
-    [existingHost, signIn,onOutdatedVersionError, onSuccess],
+    [existingHost, signIn, onOutdatedVersionError, onSuccess],
   );
 
   useEffect(() => {

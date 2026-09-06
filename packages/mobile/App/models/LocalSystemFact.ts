@@ -7,7 +7,7 @@ import { SYNC_DIRECTIONS } from './types';
 export class LocalSystemFact extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   key: string;
 
   @Column({ nullable: false })

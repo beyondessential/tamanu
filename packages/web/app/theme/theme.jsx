@@ -58,6 +58,7 @@ const cssReset = {
   },
   ':where(td, th)': {
     padding: 0,
+    textWrap: 'balance',
   },
   ':where(th)': {
     textAlign: 'start',
@@ -159,6 +160,12 @@ const themeConfig = {
           warning: <TriangleAlert />,
           error: <CircleAlert />,
         },
+      },
+    },
+    MuiButton: {
+      defaultProps: {
+        color: 'primary',
+        variant: 'contained',
       },
     },
     MuiCard: {

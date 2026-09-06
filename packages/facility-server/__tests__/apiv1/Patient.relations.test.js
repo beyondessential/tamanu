@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, test, vi } from 'vitest';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -333,7 +334,7 @@ describe('Patient relations', () => {
       permissionApp = await baseApp.asNewRole(permissions);
 
       const patient = await models.Patient.create(await createDummyPatient(models));
-      const findAllSpy = jest.spyOn(models.Referral, 'findAll');
+      const findAllSpy = vi.spyOn(models.Referral, 'findAll');
 
       const response = await permissionApp.get(`/api/patient/${patient.id}/referrals`);
 

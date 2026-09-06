@@ -1,10 +1,9 @@
-import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
-import { ID } from './ID';
-import { IEncounter } from './IEncounter';
-import { ILabTest } from './ILabTest';
-import { IReferenceData } from './IReferenceData';
-import { IUser } from './IUser';
-import { IDepartment } from './IDepartment';
+import type { ID } from './ID';
+import type { IEncounter } from './IEncounter';
+import type { ILabTest } from './ILabTest';
+import type { IReferenceData } from './IReferenceData';
+import type { IUser } from './IUser';
+import type { IDepartment } from './IDepartment';
 
 export const LabRequestStatus = {
   RECEPTION_PENDING: 'reception_pending',
@@ -16,8 +15,6 @@ export const LabRequestStatus = {
 } as const;
 
 export type LabRequestStatus = (typeof LabRequestStatus)[keyof typeof LabRequestStatus];
-
-export const LAB_REQUEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabRequestStatus);
 
 export interface ILabRequest {
   id: ID;

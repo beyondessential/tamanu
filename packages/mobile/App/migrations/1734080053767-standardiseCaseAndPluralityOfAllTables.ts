@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, Table } from 'typeorm';
 
 export class standardiseCaseAndPluralityOfAllTables1734080053767 implements MigrationInterface {
   tableNameMap = [

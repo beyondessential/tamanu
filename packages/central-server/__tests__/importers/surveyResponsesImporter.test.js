@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { utils } from 'xlsx';
 
 import { fake } from '@tamanu/fake-data/fake';
@@ -7,7 +8,7 @@ import { importSurveyResponses } from '../../app/admin/surveyResponsesImporter/i
 import { createTestContext } from '../utilities';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 const buildWorkbook = rows => {
   const workbook = utils.book_new();

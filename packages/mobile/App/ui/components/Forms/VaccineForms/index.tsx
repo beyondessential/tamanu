@@ -1,9 +1,9 @@
-import React, { FC, useMemo } from 'react';
+import React, { type FC, useMemo } from 'react';
 import { ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { FormikProps } from 'formik';
-import { NavigationProp } from '@react-navigation/native';
+import type { FormikProps } from 'formik';
+import type { NavigationProp } from '@react-navigation/native';
 
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { RowView } from '/styled/common';
@@ -13,18 +13,20 @@ import { SubmitButton } from '../SubmitButton';
 import { theme } from '/styled/theme';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { InjectionSiteType } from '~/types';
+import type { InjectionSiteType } from '~/types';
 import { Form } from '../Form';
 import { Button } from '/components/Button';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { ErrorScreen } from '/components/ErrorScreen';
 
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { SETTING_KEYS } from '../../../../constants';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
-import { ScheduledVaccine } from '~/models/ScheduledVaccine';
+import type { ScheduledVaccine } from '~/models/ScheduledVaccine';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -86,31 +88,28 @@ export const VaccineForm = ({
 
   const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
-  const [locationAndDepartment, error, isLoading] = useBackendEffect(
-    async ({ models }) => {
+  const {
+    data: locationAndDepartment,
+    error,
+    isPending: isLoading,
+  } = useQuery({
+    queryKey: [
+      ...patientKeys.detail(patientId),
+      'vaccineFormDefaults',
+      { locationId: initialValues?.locationId, departmentId: initialValues?.departmentId },
+    ],
+    queryFn: async () => {
       if (initialValues?.locationId && initialValues?.departmentId) {
         return { locationId: initialValues.locationId, departmentId: initialValues.departmentId };
       }
-
-      const currentEncounter = await models.Encounter.getCurrentEncounterForPatient(patientId);
-
-      if (currentEncounter) {
-        return {
-          locationId: currentEncounter.locationId,
-          departmentId: currentEncounter.departmentId,
-        };
-      }
-
-      const vaccinationDefaults =
-        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) || {};
-
-      return {
-        locationId: vaccinationDefaults.locationId,
-        departmentId: vaccinationDefaults.departmentId,
-      };
+      const { models } = Database;
+      const { locationId, departmentId } =
+        (await models.Encounter.getCurrentEncounterForPatient(patientId)) ??
+        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) ??
+        {};
+      return { locationId, departmentId };
     },
-    [patientId, initialValues?.locationId, initialValues?.departmentId],
-  );
+  });
 
   if (error) {
     return <ErrorScreen error={error} />;

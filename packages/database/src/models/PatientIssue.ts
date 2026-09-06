@@ -20,7 +20,7 @@ export class PatientIssue extends Model {
     super.init(
       {
         id: primaryKey,
-        note: DataTypes.STRING,
+        note: DataTypes.TEXT,
         recordedDate: dateTimeType('recordedDate', {
           defaultValue: getCurrentDateTimeString,
           allowNull: false,

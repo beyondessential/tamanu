@@ -17,6 +17,6 @@ describe('<SearchInput />', () => {
     const { getByPlaceholderText } = await render(<BaseStory />);
     const input = getByPlaceholderText(props.placeholder);
     await fireEvent.changeText(input, searchText);
-    expect(input.props['value']).toBe(searchText);
+    expect(input.props.value).toBe(searchText);
   });
 });

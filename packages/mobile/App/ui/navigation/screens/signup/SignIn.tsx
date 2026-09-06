@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { type FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
 import {
@@ -13,7 +13,7 @@ import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
-import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
+import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
@@ -87,7 +87,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            <>
+            
               <HomeBottomLogoIcon
                 size={screenPercentageToDP(7.29, Orientation.Height)}
                 fill={theme.colors.SECONDARY_MAIN}
@@ -101,7 +101,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               >
                 tamanu
               </StyledText>
-            </>
+            
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>

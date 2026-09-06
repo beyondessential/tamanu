@@ -1,12 +1,12 @@
 import { In } from 'typeorm';
 import { chunk, groupBy, partition } from 'es-toolkit/compat';
 
-import { SyncRecord } from '../types';
+import type { SyncRecord } from '../types';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
-import { MobileSyncSettings } from '../MobileSyncManager';
+import type { MobileSyncSettings } from '../MobileSyncManager';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
-import { type TransactingModel } from './getModelsForDirection';
+import type { TransactingModel } from './getModelsForDirection';
 import { executePreparedInsert, executePreparedUpdate } from './executePreparedQuery';
 
 const forceGC = () => {

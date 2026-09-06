@@ -1,6 +1,6 @@
 import { without } from 'es-toolkit/compat';
 
-import { BaseModel } from '../../../models/BaseModel';
+import type { BaseModel } from '../../../models/BaseModel';
 
 /**
  * Extract the columns to include when exporting/importing for a model

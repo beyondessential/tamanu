@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { subject } from '@casl/ability';
 import { VITALS_DATA_ELEMENT_IDS, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 // Route handler factory for getting survey response answers with edit history
 export const fetchAnswersWithHistory = (options = {}) =>
@@ -110,7 +111,10 @@ async function getAnswersWithHistory(req, options = {}) {
         JSONB_BUILD_OBJECT(
           'newValue', lc.record_data->>'body',
           'reasonForChange', lc.reason,
-          'date', TO_CHAR(lc.logged_at, 'YYYY-MM-DD HH24:MI:SS'),
+          -- logged_at is a real UTC instant; render it in the primary timezone so it
+          -- matches the naive date_time_string convention the rest of the chart data
+          -- (and the frontend's local-time formatting) expects.
+          'date', TO_CHAR(lc.logged_at AT TIME ZONE :primaryTimeZone, 'YYYY-MM-DD HH24:MI:SS'),
           'userDisplayName', u.display_name
         )
       )) logs
@@ -169,6 +173,7 @@ async function getAnswersWithHistory(req, options = {}) {
         dateDataElement,
         surveyId,
         instanceId,
+        primaryTimeZone: getPrimaryTimeZone(),
       },
       type: QueryTypes.SELECT,
     },

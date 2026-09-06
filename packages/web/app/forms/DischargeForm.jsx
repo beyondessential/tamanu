@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { useFormikContext } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -27,6 +28,7 @@ import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicati
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { TableFormFields } from '../components/Table';
 import { Colors } from '../constants';
@@ -36,6 +38,7 @@ import { createPrescriptionHash } from '../utils/medications';
 import { foreignKey } from '../utils/validation';
 import { EncounterOverview } from './DischargeEncounterOverview';
 import {
+  IS_DISCHARGE_DRAFT_ENABLED,
   buildDischargeNote,
   buildMedicationsInitialValues,
   toDischargeDraftPayload,
@@ -185,6 +188,34 @@ const getDischargeInitialValues = ({
 };
 
 /**
+ * Keeps the form's per-medication values in step with the medications actually listed, without
+ * touching any other field. When a medication is discontinued it drops out of the list, so its
+ * entry is removed here rather than by reinitialising the whole form — which would otherwise revert
+ * the user's edits to sibling fields such as the ordering prescriber.
+ */
+const ReconcileMedicationValues = ({ medicationInitialValues }) => {
+  const { values, setFieldValue } = useFormikContext();
+  const medicationIdsKey = Object.keys(medicationInitialValues).sort().join(',');
+
+  useEffect(() => {
+    const currentValues = values.medications ?? {};
+    const reconciled = {};
+    for (const id of Object.keys(medicationInitialValues)) {
+      // Preserve the clinician's edits for medications still listed; seed defaults for new ones.
+      reconciled[id] = currentValues[id] ?? medicationInitialValues[id];
+    }
+    const currentKeys = Object.keys(currentValues);
+    const hasStaleEntry = currentKeys.some(id => !(id in reconciled));
+    if (currentKeys.length !== Object.keys(reconciled).length || hasStaleEntry) {
+      setFieldValue('medications', reconciled);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medicationIdsKey]);
+
+  return null;
+};
+
+/**
  * Medications selected to be sent to pharmacy that have already been sent recently, so the
  * clinician can be asked to confirm them before the order goes out.
  */
@@ -219,6 +250,9 @@ export const DischargeForm = ({
   const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
   const isPharmacyOrderEnabled =
     getSetting('features.pharmacyOrder.enabled') && ability.can('create', 'MedicationRequest');
+  const preselectSendToPharmacyOnDischarge =
+    isPharmacyOrderEnabled &&
+    getSetting('medications.pharmacyOrder.preselectSendToPharmacyOnDischarge');
   const alreadyOrderedConfirmationTimeout = getSetting(
     'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
   );
@@ -228,7 +262,6 @@ export const DischargeForm = ({
   const [dischargeNotesFailed, setDischargeNotesFailed] = useState(false);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
   const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
-  const [enableReinitialize, setEnableReinitialize] = useState(true);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -242,14 +275,36 @@ export const DischargeForm = ({
     d => !['error', 'disproven'].includes(d.certainty),
   );
 
-  const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
-  const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
-    encounter.patientId,
-    facilityId,
-  );
+  const { data: encounterMedications, isLoading: isLoadingEncounterMedications } =
+    useEncounterMedicationQuery(encounter.id);
+  const { data: ongoingPrescriptions, isLoading: isLoadingOngoingPrescriptions } =
+    usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
   const { data: dischargeDraftData, isFetched: isDischargeDraftFetched } =
-    useEncounterDischargeDraftQuery(encounter.id);
+    useEncounterDischargeDraftQuery(encounter.id, { enabled: IS_DISCHARGE_DRAFT_ENABLED });
   const draft = dischargeDraftData?.draft ?? null;
+
+  // The form is initialised once from data that arrives asynchronously — encounter medications,
+  // ongoing prescriptions, the saved draft, and discharge notes. Waiting for all of it before
+  // mounting means the form never needs to reinitialise later, so a medication being discontinued
+  // can't clobber the clinician's edits to fields like the ordering prescriber, and the draft is
+  // never seeded over by live data.
+  //
+  // The draft is gated on having settled rather than on having arrived: a query that ends in error
+  // never yields data, and the form still has to open. A disabled query never settles at all, so
+  // it drops out of the gate entirely while the workflow is hidden.
+  //
+  // The gate is one-way. Rendering a loader in place of the form swaps the element type at this
+  // position, which unmounts Formik and loses every edit the clinician has made; going back to
+  // loading after the form is up would re-mount it against freshly defaulted initial values.
+  const hasInitialData =
+    !isLoadingEncounterMedications &&
+    !isLoadingOngoingPrescriptions &&
+    (!IS_DISCHARGE_DRAFT_ENABLED || isDischargeDraftFetched) &&
+    dischargeNotes !== null;
+  const [isInitialDataReady, setIsInitialDataReady] = useState(false);
+  if (hasInitialData && !isInitialDataReady) {
+    setIsInitialDataReady(true);
+  }
 
   const activeMedications = (encounterMedications?.data || []).filter(
     medication => !medication.discontinued,
@@ -263,7 +318,7 @@ export const DischargeForm = ({
     encounterMedications: activeMedications,
     ongoingMedications,
     draft,
-    isPharmacyOrderEnabled,
+    preselectSendToPharmacyOnDischarge,
   });
 
   // Stock is only recorded against a facility's drug list, so the column is dropped entirely where
@@ -327,11 +382,10 @@ export const DischargeForm = ({
         setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
         setDischargeNotesFailed(false);
       } catch (e) {
-        // Settling on an empty list keeps the form usable: leaving this null would hold
-        // reinitialisation open, and initial values carry a timestamp that changes every second,
-        // so Formik would wipe the clinician's typing on every render. The failure is tracked
-        // separately because an empty list here would otherwise be indistinguishable from an
-        // admission with no planning notes, and discharging on that assumption would drop them.
+        // Settling on an empty list keeps the form usable: leaving this null would hold the form
+        // behind its loading gate for good. The failure is tracked separately because an empty
+        // list here would otherwise be indistinguishable from an admission with no planning
+        // notes, and discharging on that assumption would drop them.
         setDischargeNotes([]);
         setDischargeNotesFailed(true);
       }
@@ -351,31 +405,6 @@ export const DischargeForm = ({
     onTitleChange(<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />);
   }, [showWarningScreen, onTitleChange]);
 
-  useEffect(() => {
-    const hasEncounterMeds = Boolean(encounterMedications);
-    const hasOngoingMeds = Boolean(ongoingPrescriptions);
-    const hasNotes = Boolean(dischargeNotes);
-    // The draft has to have settled too, or the form would seed from live data and then be
-    // reinitialised out from under anything the clinician had already saved. Settled rather than
-    // present: a draft query that ends in error never yields data, and holding reinitialisation
-    // open would let the every-second timestamp in the initial values wipe their typing.
-    if (
-      enableReinitialize &&
-      hasEncounterMeds &&
-      hasOngoingMeds &&
-      hasNotes &&
-      isDischargeDraftFetched
-    ) {
-      setEnableReinitialize(false);
-    }
-  }, [
-    Boolean(encounterMedications),
-    Boolean(ongoingPrescriptions),
-    Boolean(dischargeNotes),
-    isDischargeDraftFetched,
-    enableReinitialize,
-  ]);
-
   const handleDiscontinueMedication = medication => {
     setDiscontinuedMedication(medication);
   };
@@ -394,6 +423,10 @@ export const DischargeForm = ({
     queryClient.invalidateQueries(['patient-ongoing-prescriptions', encounter.patientId]);
     queryClient.invalidateQueries(['encounterMedication', encounter.id]);
   };
+
+  if (!isInitialDataReady) {
+    return <LoadingIndicator data-testid="dischargeform-loading" />;
+  }
 
   return (
     <>
@@ -502,13 +535,14 @@ export const DischargeForm = ({
             ),
         })}
         formProps={{
-          enableReinitialize,
+          enableReinitialize: false,
           showInlineErrorsOnly: true,
           validateOnChange: true,
         }}
         data-testid="paginatedform-ghn7"
       >
         <FormGrid data-testid="formgrid-menu">
+          <ReconcileMedicationValues medicationInitialValues={medicationInitialValues} />
           <EncounterOverview
             encounter={encounter}
             currentDiagnoses={currentDiagnoses}

@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, type ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -13,7 +13,11 @@ import { SubmitButton } from '/components/Forms/SubmitButton';
 import { theme } from '/styled/theme';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useBackend } from '~/ui/hooks';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
+import { Database } from '~/infra/db';
 import { withPatient } from '~/ui/containers/Patient';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { ReferenceDataType } from '~/types';
@@ -34,13 +38,12 @@ import {
   DRUG_UNIT_LABELS,
 } from '~/constants/medications';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
-import { PatientAllergy } from '~/models/PatientAllergy';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { readConfig } from '~/services/config';
+import { getDefaultIdealTimes } from '~/ui/helpers/medicationHelpers';
 import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
-import { Prescription } from '~/models/Prescription';
+import type { Prescription } from '~/models/Prescription';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Routes } from '~/ui/helpers/routes';
 
@@ -63,11 +66,15 @@ const styles = StyleSheet.create({
   },
 });
 
+const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
+
 export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
   const { ability } = useAuth();
   const user = useSelector(authUserSelector);
-  const [patientAllergies, setPatientAllergies] = useState<PatientAllergy[]>([]);
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
@@ -78,85 +85,79 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigation.dispatch(StackActions.replace(Routes.HomeStack.HistoryVitalsStack.Index));
   }, [navigation]);
 
-  const [patientFacility] = useBackendEffect(
-    async ({ models: m }) =>
-      m.PatientFacility.findOne({
-        where: {
-          patient: { id: selectedPatient.id },
-          facility: { id: await readConfig('facilityId', '') },
-        },
-      }),
-    [],
-  );
-  const isMarkedForSync = Boolean(patientFacility);
+  const { data: isMarkedForSync } = usePatientIsMarkedForSyncQuery(selectedPatient.id);
 
-  useEffect(() => {
-    const fetchPatientAllergies = async () => {
-      try {
-        const allergies = await models.PatientAllergy.find({
-          where: { patient: { id: selectedPatient.id } },
-          relations: ['allergy'],
-        });
-        setPatientAllergies(allergies);
-      } catch (error) {
-        console.error('Error fetching patient allergies:', error);
-        setPatientAllergies([]);
+  const { data: patientAllergies } = useQuery({
+    queryKey: patientKeys.allergies(selectedPatient?.id),
+    queryFn: () =>
+      Database.models.PatientAllergy.find({
+        where: { patient: { id: selectedPatient.id } },
+        relations: ['allergy'],
+      }),
+    enabled: Boolean(selectedPatient?.id),
+  });
+
+  const queryClient = useQueryClient();
+  const { mutateAsync: prescribeMedication } = useMutation({
+    mutationFn: async (values: any) => {
+      const [encounter, referenceDrug] = await Promise.all([
+        models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
+        models.ReferenceDrug.findOne({
+          where: { referenceData: { id: values.medicationId } },
+          select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
+        }),
+      ]);
+
+      // Frequencies with no schedule ('Immediately', 'As directed') resolve to no times at all.
+      const idealTimes = getDefaultIdealTimes(
+        values.frequency,
+        frequenciesAdministrationIdealTimes,
+      ).join(',');
+      const data = {
+        ...values,
+        doseAmount: values.doseAmount || null,
+        durationValue: values.durationValue || null,
+        durationUnit: values.durationUnit || null,
+        dosingUnit: referenceDrug?.dosingUnit || null,
+        dispensingUnit: referenceDrug?.dispensingUnit || null,
+        unitConversion: referenceDrug?.unitConversion ?? 1,
+        idealTimes,
+        prescriber: values.prescriberId,
+        medication: values.medicationId,
+      };
+
+      if (values.durationValue && values.durationUnit) {
+        data.endDate = add(new Date(values.startDate), {
+          [values.durationUnit]: values.durationValue,
+        }).toISOString();
       }
-    };
 
-    if (selectedPatient?.id) {
-      fetchPatientAllergies();
-    }
-  }, [selectedPatient?.id, models.PatientAllergy]);
+      const prescription = (await models.Prescription.createAndSaveOne({
+        ...data,
+      })) as Prescription;
 
-  const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const [encounter, referenceDrug] = await Promise.all([
-      models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id),
-      models.ReferenceDrug.findOne({
-        where: { referenceData: { id: values.medicationId } },
-        select: ['id', 'dosingUnit', 'dispensingUnit', 'unitConversion'],
-      }),
-    ]);
+      await models.EncounterPrescription.createAndSaveOne({
+        encounter,
+        prescription,
+      });
 
-    const idealTimes =
-      values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-        ? ''
-        : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
-    const data = {
-      ...values,
-      doseAmount: values.doseAmount || null,
-      durationValue: values.durationValue || null,
-      durationUnit: values.durationUnit || null,
-      dosingUnit: referenceDrug?.dosingUnit || null,
-      dispensingUnit: referenceDrug?.dispensingUnit || null,
-      unitConversion: referenceDrug?.unitConversion ?? 1,
-      idealTimes,
-      prescriber: values.prescriberId,
-      medication: values.medicationId,
-    };
+      await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+        prescription,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+      queryClient.invalidateQueries({ queryKey: reportKeys.all });
+    },
+  });
 
-    if (values.durationValue && values.durationUnit) {
-      data.endDate = add(new Date(values.startDate), {
-        [values.durationUnit]: values.durationValue,
-      }).toISOString();
-    }
-
-    const prescription = (await models.Prescription.createAndSaveOne({
-      ...data,
-    })) as Prescription;
-
-    await models.EncounterPrescription.createAndSaveOne({
-      encounter,
-      prescription,
-    });
-
-    await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-      prescription,
-    );
-
-    navigateToHistory();
-  }, []);
+  const onPrescribeMedication = useCallback(
+    async (values: any): Promise<void> => {
+      await prescribeMedication(values);
+      navigateToHistory();
+    },
+    [prescribeMedication, navigateToHistory],
+  );
 
   const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = useMemo(
@@ -194,12 +195,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       }),
     [models.User],
   );
-
-  // Convert constants to dropdown options
-  const routeOptions = Object.entries(DRUG_ROUTE_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  }));
 
   const durationUnitOptions = Object.keys(MEDICATION_DURATION_UNITS_LABELS).map(value => ({
     value,
@@ -275,7 +270,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     <TranslatedText stringId="medication.allergies.label" fallback="Allergies" />
                     :{' '}
                   </StyledText>
-                  {patientAllergies.length ? (
+                  {patientAllergies !== undefined ? (
                     patientAllergies.map((allergy, index) => (
                       <Fragment key={allergy.id}>
                         <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -42,7 +43,7 @@ describe('CentralSyncManager.connectToSession', () => {
   afterAll(() => ctx.close());
 
   it('allows connecting to an existing session', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
@@ -51,7 +52,7 @@ describe('CentralSyncManager.connectToSession', () => {
   });
 
   it('throws an error if connecting to a session that has errored out', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
@@ -66,7 +67,7 @@ describe('CentralSyncManager.connectToSession', () => {
   });
 
   it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: false,
@@ -90,7 +91,7 @@ describe('CentralSyncManager.connectToSession', () => {
     // waitForSession → checkSessionReady → connectToSession, so syncSessionTimeoutMs applies
     // during polling. Use 1000ms so normal session prep stays under the limit.
     const syncSessionTimeoutMs = 1000;
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: false,
@@ -122,7 +123,7 @@ describe('CentralSyncManager.connectToSession', () => {
   });
 
   it('append error if sync session already encounters an error before', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 

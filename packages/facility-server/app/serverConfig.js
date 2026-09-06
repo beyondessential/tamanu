@@ -15,6 +15,9 @@ import { log } from '@tamanu/shared/services/logging';
 // construction (e.g. CentralServerConnection's host) need a restart to update.
 let resolved = null;
 
+// postgres undefined_table: the secret tables' migrations haven't run yet.
+const UNDEFINED_TABLE = '42P01';
+
 // Resolve sync host/credentials + facility ids once at boot: env > fact > config.
 // Pure read; facts are written by the wizard and the facility-match integrity check.
 export async function initServerConfig({ context }) {
@@ -24,7 +27,8 @@ export async function initServerConfig({ context }) {
 
   const host = env.host ?? facts.host ?? configHost();
   const email = env.email ?? facts.email ?? configValue('email');
-  const password = env.password ?? facts.password ?? configValue('password');
+  const configPassword = facts.passwordUnreadable ? null : configValue('password');
+  const password = env.password ?? facts.password ?? configPassword;
   const facilityIds = env.facilityIds ?? facts.facilityIds ?? configFacilityIds();
 
   resolved = { sync: { host, email, password }, facilityIds };
@@ -50,8 +54,8 @@ export async function initServerConfig({ context }) {
 }
 
 // Tolerant of the tables not existing yet (init runs before migrations on a fresh
-// DB) and of a missing key file — the password is read separately so a key-file
-// failure doesn't blank out the non-secret facts.
+// DB). The password is read separately so a key-file failure doesn't blank out the
+// non-secret facts.
 async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
   let host = null;
   let email = null;
@@ -68,13 +72,20 @@ async function readFacts({ LocalSystemFact, LocalSystemSecret }) {
   }
 
   let password = null;
+  // A stored password that won't decrypt (the key file is missing, or belongs to another
+  // deployment) must not fall through to the config value: retrying a stale credential
+  // locks the sync user out on central.
+  let passwordUnreadable = false;
   try {
     password = await LocalSystemSecret.get(FACT_SYNC_PASSWORD);
   } catch (error) {
-    log.warn(`initServerConfig: could not read sync password secret (${error.message})`);
+    passwordUnreadable = error.original?.code !== UNDEFINED_TABLE;
+    const message = `initServerConfig: could not read sync password secret (${error.message})`;
+    if (passwordUnreadable) log.error(message);
+    else log.warn(message);
   }
 
-  return { host, email, password, facilityIds };
+  return { host, email, password, passwordUnreadable, facilityIds };
 }
 
 export function getSyncConfig() {

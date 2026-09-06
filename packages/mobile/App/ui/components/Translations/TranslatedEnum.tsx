@@ -1,6 +1,6 @@
 import React from 'react';
 import { TranslatedText } from './TranslatedText';
-import { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
+import type { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
 import { getEnumPrefix } from './enumRegistry';
 
 interface TranslatedEnumProps extends Partial<TranslatedTextProps> {

@@ -1,15 +1,8 @@
-import React, {
-  FC,
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { type FC, type ReactElement, useCallback, useMemo } from 'react';
 import { format } from 'date-fns';
-import { FieldHelperProps, FieldInputProps, FieldMetaProps, useField } from 'formik';
+import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps, useField } from 'formik';
 import { compose } from 'redux';
+import { useQuery } from '@tanstack/react-query';
 // Containers
 import { withPatient } from '/containers/Patient';
 // Components
@@ -18,19 +11,17 @@ import { PatientSectionList } from '/components/PatientSectionList';
 import { LoadingScreen } from '/components/LoadingScreen';
 // Helpers
 import { Routes } from '/helpers/routes';
-import { useBackendEffect } from '~/ui/hooks';
 //Props
-import { ViewAllScreenProps } from '/interfaces/screens/PatientSearchStack';
+import type { ViewAllScreenProps } from '/interfaces/Screens/PatientSearchStack/ViewAllScreenProps';
 import { Button } from '/components/Button';
 import { theme } from '/styled/theme';
 import { FilterIcon } from '/components/Icons/FilterIcon';
 import { useFilterFields } from './PatientFilterScreen';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PatientFromRoute } from '~/ui/helpers/constants';
-import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
-import { BackendContext } from '~/ui/contexts/BackendContext';
-import { MobileSyncManager } from '~/services/sync/MobileSyncManager';
+import { Database } from '~/infra/db';
+import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
@@ -85,13 +76,12 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
 };
 
 const searchAndFilterPatients = async (
-  models,
-  { value: searchTerm }: FieldInputProps<any>,
+  searchTerm: string,
   filters: Record<string, string>,
 ): Promise<IPatient[]> => {
   const searchValue = searchTerm.trim();
 
-  const queryBuilder = models.Patient.getRepository().createQueryBuilder('patient');
+  const queryBuilder = Database.models.Patient.getRepository().createQueryBuilder('patient');
 
   queryBuilder.leftJoinAndSelect('patient.village', 'referenceData');
 
@@ -126,7 +116,9 @@ const searchAndFilterPatients = async (
   queryBuilder.limit(100);
 
   const patients = await queryBuilder.getMany();
-  return patients;
+  // Patient and IPatient disagree on village.visibilityStatus (string vs enum), a
+  // pre-existing model typing quirk.
+  return patients as unknown as IPatient[];
 };
 
 const Screen: FC<ViewAllScreenProps> = ({
@@ -135,10 +127,8 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
+  const search = searchField.value;
 
-  const backend = useContext(BackendContext);
-  const syncManager: MobileSyncManager = backend.syncManager;
-  const [syncEnded, setSyncEnded] = useState(false);
   // Get filters
   const filterFields: FieldProp[] = useFilterFields();
 
@@ -150,22 +140,10 @@ const Screen: FC<ViewAllScreenProps> = ({
     return [Object.fromEntries(entries), entries.length];
   }, [filterFields]);
 
-  const [list] = useBackendEffect(
-    ({ models }) => searchAndFilterPatients(models, searchField, activeFilters),
-    [searchField.value, activeFilters, syncEnded],
-  );
-
-  useEffect(() => {
-    const handler = (action: string): void => {
-      if (action === SYNC_EVENT_ACTIONS.SYNC_ENDED && list?.length === 0) {
-        setSyncEnded(true);
-      }
-    };
-    syncManager.emitter.on('*', handler);
-    return () => {
-      syncManager.emitter.off('*', handler);
-    };
-  }, [syncManager, list?.length]);
+  const { data: list } = useQuery({
+    queryKey: patientListKeys.search({ search, filters: activeFilters }),
+    queryFn: () => searchAndFilterPatients(search, activeFilters),
+  });
 
   const onNavigateToPatientHome = useCallback(patient => {
     setSelectedPatient(patient);

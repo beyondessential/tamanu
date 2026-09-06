@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { GeneralInfo } from './GeneralInfo';
 import { AdditionalInfo } from './CustomComponents/AdditionalInfo';
 import { Routes } from '~/ui/helpers/routes';

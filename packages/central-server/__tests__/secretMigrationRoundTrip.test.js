@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { cloneDeep } from 'es-toolkit/compat';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
@@ -15,12 +16,12 @@ import { createTestContext } from './utilities';
 // what the migrateSecrets unit test mocks away: the actual encrypt -> DB ->
 // decrypt round trip through the Setting model.
 const TEST_KEY_BUFFER = Buffer.alloc(32, 0xab);
-jest.mock('@tamanu/shared/utils/crypto', () => {
-  const original = jest.requireActual('@tamanu/shared/utils/crypto');
+vi.mock('@tamanu/shared/utils/crypto', async () => {
+  const original = await vi.importActual('@tamanu/shared/utils/crypto');
   return {
     ...original,
-    getSettingsPskKeyBuffer: jest.fn(async () => Buffer.alloc(32, 0xab)),
-    getConfigSecret: jest.fn(),
+    getSettingsPskKeyBuffer: vi.fn(async () => Buffer.alloc(32, 0xab)),
+    getConfigSecret: vi.fn(),
   };
 });
 

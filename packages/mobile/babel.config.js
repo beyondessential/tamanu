@@ -1,6 +1,11 @@
 module.exports = {
   presets: ['@react-native/babel-preset'],
   plugins: [
+    /**
+     * React Compiler Must run first!
+     * @see https://react.dev/learn/react-compiler/installation
+     */
+    ['babel-plugin-react-compiler', { target: '19' }],
     'babel-plugin-transform-typescript-metadata',
     '@babel/plugin-transform-export-namespace-from',
     ['@babel/plugin-proposal-decorators', { legacy: true }],
@@ -31,7 +36,5 @@ module.exports = {
         },
       },
     ],
-    // react-native-worklets/plugin must be last
-    'react-native-worklets/plugin',
   ],
 };

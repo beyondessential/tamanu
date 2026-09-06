@@ -1,6 +1,6 @@
 import { Column, Entity, RelationId, OneToMany, ManyToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 import { EncounterPrescription } from './EncounterPrescription';

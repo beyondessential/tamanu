@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Sequelize } from 'sequelize';
 
 import { createTestContext } from '../utilities';

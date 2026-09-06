@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { faithFetch } from '../../app/sync/faithFetch';
 
 const faithError = (code, name) => {
@@ -7,9 +8,9 @@ const faithError = (code, name) => {
   return error;
 };
 
-const fetch = jest.fn();
+const fetch = vi.fn();
 
-jest.mock('@passcod/faith', () => ({
+vi.mock('@passcod/faith', () => ({
   fetch: (...args) => fetch(...args),
   ERROR_CODES: { Network: 'Network', Timeout: 'Timeout', Aborted: 'Aborted' },
 }));

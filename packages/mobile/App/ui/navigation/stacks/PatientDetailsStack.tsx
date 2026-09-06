@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '~/ui/helpers/routes';
 import { PatientDetailsScreen } from '~/ui/navigation/screens/home/PatientDetails/Screen';

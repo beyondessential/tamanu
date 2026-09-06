@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -8,9 +8,11 @@ import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { withPatient } from '/containers/Patient';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { programKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Program } from '~/models/Program';
+import type { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { SurveyTypes } from '~/types';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -18,16 +20,22 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 const Screen = (): ReactElement => {
   const navigation = useNavigation();
 
-  const [programs, programsError, programsIsLoading] = useBackendEffect(async ({ models }) => {
-    return await models.Program.createQueryBuilder('program')
-      .innerJoin('program.surveys', 'survey')
-      .where('survey.surveyType = :surveyType', { surveyType: SurveyTypes.Programs })
-      .andWhere('survey.visibilityStatus = :visibilityStatus', {
-        visibilityStatus: VisibilityStatus.Current,
-      })
-      .orderBy('program.name', 'ASC')
-      .distinct(true)
-      .getMany();
+  const {
+    data: programs,
+    error: programsError,
+    isPending: programsIsLoading,
+  } = useQuery({
+    queryKey: programKeys.list(),
+    queryFn: () =>
+      Database.models.Program.createQueryBuilder('program')
+        .innerJoin('program.surveys', 'survey')
+        .where('survey.surveyType = :surveyType', { surveyType: SurveyTypes.Programs })
+        .andWhere('survey.visibilityStatus = :visibilityStatus', {
+          visibilityStatus: VisibilityStatus.Current,
+        })
+        .orderBy('program.name', 'ASC')
+        .distinct(true)
+        .getMany(),
   });
 
   if (programsIsLoading) {

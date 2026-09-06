@@ -9,8 +9,8 @@ import { SearchInput } from '~/ui/components/SearchInput';
 import { FlatList } from 'react-native';
 import { Separator } from '~/ui/components/Separator';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { useBackendEffect } from '~/ui/hooks/index';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import usePatientProgramRegistriesQuery from '~/ui/hooks/queries/usePatientProgramRegistriesQuery';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -43,15 +43,12 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
   const [searchValue, setSearchValue] = useState('');
   const { ability } = useAuth();
   const { getTranslation } = useTranslation();
-  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
 
-  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) => {
-      if (canListRegistrations === false) return [];
-      return await models.ProgramRegistry.getProgramRegistriesForPatient(selectedPatient.id);
-    },
-    [canListRegistrations, selectedPatient.id],
-  );
+  const {
+    data: programRegistries,
+    error: programRegistryError,
+    isPending: isProgramRegistryLoading,
+  } = usePatientProgramRegistriesQuery(selectedPatient.id);
 
   if (isProgramRegistryLoading) return <LoadingScreen />;
 
@@ -95,12 +92,10 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
         <SearchInput
           value={searchValue}
           onChange={(text: string) => setSearchValue(text)}
-          placeholder={
-            getTranslation(
-              'programRegistry.search.programRegistry',
-              'Search program registry...',
-            )
-          }
+          placeholder={getTranslation(
+            'programRegistry.search.programRegistry',
+            'Search program registry...',
+          )}
         />
       </StyledView>
       <StyledView marginRight={20} marginLeft={20}>

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
@@ -8,7 +9,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import - Program Registry', () => {
   let ctx;
@@ -59,7 +60,7 @@ describe('Programs import - Program Registry', () => {
       xml: true,
       dryRun: true,
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
@@ -79,7 +80,7 @@ describe('Programs import - Program Registry', () => {
       dryRun: true,
     });
 
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 0, skipped: 1, errored: 0 },
@@ -133,7 +134,7 @@ describe('Programs import - Program Registry', () => {
       xml: true,
       dryRun: true,
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
   });
 
   it('should prevent changing currentlyAtType if there is existing data', async () => {
@@ -178,7 +179,7 @@ describe('Programs import - Program Registry', () => {
       xml: true,
       dryRun: false,
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
   });
 
   it('should validate survey patient data fieldName based on registry currentlyAtType', async () => {
@@ -187,7 +188,7 @@ describe('Programs import - Program Registry', () => {
       xml: true,
       dryRun: false,
     });
-    expect(errors).not.toBeEmpty();
+    expect(errors).not.toHaveLength(0);
     expect(errors.length).toEqual(1);
     expect(errors[0].message).toEqual(
       'config: writeToPatient.fieldName=registrationCurrentlyAtFacility but program registry configured for village on Import Registry With Survey at row 3',
@@ -200,7 +201,7 @@ describe('Programs import - Program Registry', () => {
       xml: true,
       dryRun: false,
     });
-    expect(errors).not.toBeEmpty();
+    expect(errors).not.toHaveLength(0);
     expect(errors.length).toEqual(1);
     expect(errors[0].message).toEqual(
       'config: column=registrationClinicalStatus but no program registry configured on Import Registry With Survey at row 3',
@@ -214,7 +215,7 @@ describe('Programs import - Program Registry', () => {
         xml: true,
         dryRun: false,
       });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         ProgramRegistry: { created: 1, updated: 0, errored: 0 },
@@ -293,7 +294,7 @@ describe('Programs import - Program Registry', () => {
         models: {
           ...ctx.store.models,
           ProgramRegistryConditionCategory: {
-            findOne: jest.fn().mockResolvedValue(null),
+            findOne: vi.fn().mockResolvedValue(null),
           },
         },
       };
@@ -340,7 +341,7 @@ describe('Programs import - Program Registry', () => {
         models: {
           ...ctx.store.models,
           ProgramRegistryConditionCategory: {
-            findOne: jest.fn().mockImplementation(async ({ where }) => {
+            findOne: vi.fn().mockImplementation(async ({ where }) => {
               if (where.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN) {
                 return existingCategory;
               }

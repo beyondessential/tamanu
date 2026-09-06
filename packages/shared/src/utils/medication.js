@@ -1,14 +1,16 @@
 import { addDays, format, isSameDay, set } from 'date-fns';
+import { camelCase } from 'es-toolkit/compat';
+
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_FREQUENCY_DETAILS,
   DRUG_UNIT_LABELS,
   DRUG_UNIT_PLURAL_LABELS,
   DRUG_UNIT_SHORT_LABELS,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS,
 } from '@tamanu/constants';
-import { camelCase } from 'es-toolkit/compat';
 
 // One month is always treated as 30 days for dispensing quantity calculations.
 const DAYS_PER_MONTH = 30;
@@ -50,6 +52,23 @@ export const findAdministrationTimeSlotFromIdealTime = idealTime => {
     timeSlot: MEDICATION_ADMINISTRATION_TIME_SLOTS[index],
     value: idealTime,
   };
+};
+
+/**
+ * Most frequencies take their times from the `medications.defaultAdministrationTimes`
+ * @see {@link FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES})
+ * @typedef {`${number}:${number}`} PlainTimeString
+ * @param {string} frequency
+ * @param {Record<string, `PlainTimeString`[]> | undefined} configuredAdministrationTimes - The
+ *   `medications.defaultAdministrationTimes` setting.
+ * @returns {`PlainTimeString`[]} Empty for frequencies with no schedule (`Immediately`,
+ *   `As directed`) and for an unrecognised or absent frequency.
+ */
+export const getDefaultIdealTimes = (frequency, configuredAdministrationTimes) => {
+  const configured = FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(frequency)
+    ? undefined
+    : configuredAdministrationTimes?.[frequency];
+  return configured ?? ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.startTimes ?? [];
 };
 
 export const getDateFromTimeString = (time, initialDate = new Date()) => {
@@ -157,7 +176,12 @@ export const getAutocalculatedDispensingQuantity = ({
   const dosesPerDay = isImmediately ? 1 : ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.dosesPerDay;
   if (!dosesPerDay || dosesPerDay <= 0) return null;
 
-  const durationInDays = getDurationInDays({ isImmediately, isOngoing, durationValue, durationUnit });
+  const durationInDays = getDurationInDays({
+    isImmediately,
+    isOngoing,
+    durationValue,
+    durationUnit,
+  });
   if (!Number.isFinite(durationInDays) || durationInDays <= 0) return null;
 
   const conversion = Number(unitConversion) || 1;

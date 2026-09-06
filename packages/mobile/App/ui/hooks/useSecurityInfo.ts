@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { NativeModules } from 'react-native';
 import { SETTING_KEYS } from '@tamanu/constants';
 import {
-  SecurityInfoModule,
-  StorageEncryptionStatus,
+  type SecurityInfoModule,
+  type StorageEncryptionStatus,
   ENCRYPTION_STATUS,
 } from '~/types/SecurityInfo';
 import { useSettings } from '~/ui/contexts/SettingsContext';
-import { useTranslation, GetTranslationFunction } from '~/ui/contexts/TranslationContext';
+import { useTranslation, type GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useOnForeground } from '~/ui/hooks/useOnForeground';
 
@@ -26,7 +26,7 @@ async function getStorageEncryptionStatus(): Promise<StorageEncryptionStatus> {
     return {
       status: 6,
       statusText: 'UNKNOWN',
-    }
+    };
   }
 }
 
@@ -59,9 +59,7 @@ function getSecurityIssues(
     );
   }
   if (!isPasscodeCompliant) {
-    issues.push(
-      getTranslation('general.device.security.issues.passcode', 'No passcode is set'),
-    );
+    issues.push(getTranslation('general.device.security.issues.passcode', 'No passcode is set'));
   }
   return issues;
 }
@@ -76,7 +74,9 @@ export const useSecurityInfo = () => {
   const { signedIn } = useAuth();
   const isForeground = useOnForeground();
 
-  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
+  const allowUnencryptedStorage = getSetting(
+    SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE,
+  );
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
   const fetchSecurityInfo = useCallback(async () => {

@@ -9,11 +9,13 @@ import Button from '@mui/material/Button';
 import InputAdornment from '@mui/material/InputAdornment';
 import Search from '@mui/icons-material/Search';
 
+import { extractTranslationFromComponent } from '@tamanu/ui-components';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
 import { TextButton } from '../Button';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
+import { useTranslation } from '../../contexts/Translation';
 import { TextInput } from './TextField';
 
 const StyledTextInput = styled(TextInput)`
@@ -105,6 +107,7 @@ export const SearchMultiSelectInput = ({
   options = [],
   ...props
 }) => {
+  const { getTranslation } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchValue, setSearchValue] = useState('');
 
@@ -125,6 +128,12 @@ export const SearchMultiSelectInput = ({
   };
 
   const shouldShowSearch = options?.length > 10;
+  const labelText = extractTranslationFromComponent(label, getTranslation);
+  const searchPlaceholder = labelText
+    ? getTranslation('general.action.searchField', 'Search :field', {
+        replacements: { field: labelText.toLowerCase() },
+      })
+    : getTranslation('general.action.search', 'Search');
 
   return (
     <>
@@ -153,7 +162,7 @@ export const SearchMultiSelectInput = ({
                   </Icon>
                 ),
               }}
-              placeholder={`Search ${label.toLowerCase()}`}
+              placeholder={searchPlaceholder}
               style={{ paddingInlineStart: 0 }}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}

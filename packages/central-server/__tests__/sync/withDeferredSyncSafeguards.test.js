@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { withDeferredSyncSafeguards } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import config from 'config';
 import supertest from 'supertest';
 
@@ -44,7 +45,7 @@ class MockApplicationContext {
     }
 
     this.emailService = {
-      sendEmail: jest.fn().mockImplementation(() =>
+      sendEmail: vi.fn().mockImplementation(() =>
         Promise.resolve({
           status: COMMUNICATION_STATUSES.SENT,
           result: { '//': 'mailgun result not mocked' },
@@ -72,12 +73,6 @@ export async function createTestContext({
   initFhirTriggers = false,
   aiService,
 } = {}) {
-  // Matches packages/facility-server/__tests__/utilities.js
-  // do NOT time out during create context
-  // TODO: remove once the slow test setup (db recreate + full migration run)
-  // is addressed at the source.
-  jest.setTimeout(1000 * 60 * 60 * 24);
-
   const ctx = await new MockApplicationContext().init({ initFhir, initFhirTriggers });
   if (aiService) ctx.aiService = aiService;
   const { models } = ctx.store;
@@ -115,8 +110,6 @@ export async function createTestContext({
       }),
   );
   ctx.baseApp = baseApp;
-
-  jest.setTimeout(45 * 1000); // matches packages/facility-server/__tests__/utilities.js
 
   return ctx;
 }
@@ -173,9 +166,12 @@ const DEFAULT_CONFIG = {
   },
 };
 
-export const initializeCentralSyncManagerWithContext = (ctx, config) => {
-  // Have to load test function within test scope so that we can mock dependencies per test case
-  const { CentralSyncManager: TestCentralSyncManager } = require('../app/sync/CentralSyncManager');
+export const initializeCentralSyncManagerWithContext = async (ctx, config) => {
+  // Imported here rather than at the top of the file so that a test case's vi.doMock of a
+  // dependency is in place before the module graph under test is evaluated.
+  const { CentralSyncManager: TestCentralSyncManager } = await import(
+    '../app/sync/CentralSyncManager'
+  );
 
   TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 

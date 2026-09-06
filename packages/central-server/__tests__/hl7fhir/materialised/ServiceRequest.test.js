@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
+import { afterAll, beforeAll, beforeEach, describe, expect, it, test } from 'vitest';
 import { addDays, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';

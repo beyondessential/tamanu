@@ -2,7 +2,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// The @tamanu/* packages expose extensionless `source` exports (e.g.
+// The @tamanu/* packages expose extensionless exports pointing at TypeScript source (e.g.
 // `./utils/translation` -> `./src/utils/translation`). The tsx loader and the Vite dev
 // server resolve those to a real file or `/index.*`, but the production Rollup build
 // does not, so it fails on directory/extensionless targets. This Vite plugin completes

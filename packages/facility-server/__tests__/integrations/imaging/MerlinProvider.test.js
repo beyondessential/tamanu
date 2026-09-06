@@ -1,9 +1,10 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { MerlinProvider } from '../../../app/integrations/imaging/MerlinProvider';
 import { createTestContext } from '../../utilities';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 const EXTERNAL_CODE = 'EXT123';
 const PATIENT_ID_TYPE = 'AUID';
@@ -76,7 +77,7 @@ describe('MerlinProvider', () => {
     it('should request from the configured MerlinVue server for the imaging results url', async () => {
       const returnedUrl = `https://rispacs.aspen-dev.fj/MerlinVue/#!/urlgen/${EXTERNAL_CODE}`;
       global.fetch.mockResolvedValue({
-        text: jest.fn().mockResolvedValue(returnedUrl),
+        text: vi.fn().mockResolvedValue(returnedUrl),
       });
 
       const url = await provider.getUrlForResult(result);

@@ -1,4 +1,5 @@
 // Copied from https://github.com/beyondessential/tamanu-mobile/blob/dev/App/ui/components/Forms/SurveyForm/surveyCalculations.spec.ts
+import { describe, expect, it } from 'vitest';
 import { getResultValue } from '../../src/utils/fields';
 import { runCalculations } from '../../src/utils/calculations';
 

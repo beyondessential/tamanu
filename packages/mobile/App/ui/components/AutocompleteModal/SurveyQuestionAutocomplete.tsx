@@ -3,7 +3,7 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { AutocompleteModalField } from './AutocompleteModalField';
-import { SurveyScreenConfig } from '~/types';
+import type { SurveyScreenConfig } from '~/types';
 
 function getNameColumnForModel(modelName: string): string {
   switch (modelName) {

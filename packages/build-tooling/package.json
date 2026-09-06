@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/build-tooling",
-  "version": "2.63.0",
+  "version": "2.64.0",
   "description": "Build tooling for Tamanu packages",
   "main": "index.mjs",
   "type": "module",
@@ -12,12 +12,9 @@
     "concurrently": "./node_modules/.bin/concurrently",
     "dual-pkg": "./dual-pkg.mjs",
     "move-dts": "./move-dts.mjs",
-    "swc": "./node_modules/.bin/swc",
     "tsc": "./node_modules/.bin/tsc"
   },
   "dependencies": {
-    "@swc/cli": "^0.1.63",
-    "@swc/core": "^1.3.100",
     "concurrently": "^10.0.3",
     "es-toolkit": "^1.48.1",
     "glob": "^13.0.6",

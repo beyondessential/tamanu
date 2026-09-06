@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import Chance from 'chance';
 import config from 'config';
 import { NotFoundError } from '@tamanu/errors';

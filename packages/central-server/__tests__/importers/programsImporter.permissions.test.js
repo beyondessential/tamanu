@@ -1,9 +1,10 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import - Permissions', () => {
   let ctx;
@@ -70,6 +71,6 @@ describe('Programs import - Permissions', () => {
     const { didntSendReason, errors } = result.body;
 
     expect(didntSendReason).toBeUndefined();
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
   });
 });

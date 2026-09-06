@@ -10,11 +10,31 @@ Anything mutating carries its class inline; mutations still need read/write mode
 validated against the dbt source models in `database/model/`; anything not
 confirmed is marked `[unverified]`.
 
+Syntax: these are written for **bestool psql**, which is its own client rather
+than standard psql. Variables interpolate as `${name}` (not `:name` / `:'name'`),
+`\set name value` stores the value **literally** — including any quotes you type
+— and `\g`-suffix modifiers replace the trailing `;`. See
+[its README](https://github.com/beyondessential/bestool/blob/main/crates/psql/README.md)
+and its EXAMPLES.md; `\?` in-session is the exhaustive command reference.
+
 ## Output a query to a file
 
+Append `\go <path>` to a query to write its result out:
+
 ```
-\Copy (QUERY HERE) To 'C:\Tamanu\output.csv' With CSV DELIMITER ',' HEADER;
+SELECT ... \go C:\Tamanu\output.csv
 ```
+
+For CSV, Excel or SQLite, run the query under `\gz` so it isn't printed — you
+don't want a large result set dumped to the terminal first — then re-render the
+saved result into the format you want:
+
+```
+SELECT ... \gz
+\re show format=csv to=C:\Tamanu\output.csv
+```
+
+(`\re list` shows the recent results you can render this way.)
 
 Writes to the host filesystem. If the output contains patient data, treat it as
 **sensitive-data** (`../ruled-out-actions.md`) — do not copy it off the server.
@@ -82,7 +102,7 @@ Generates a second query listing every table that has rows for either encounter.
 
 SELECT 'select ''' || table_name || ''', encounter_id, count(*) from '
   || table_name
-  || ' where encounter_id in (:''e1id'', :''e2id'') group by encounter_id;'
+  || ' where encounter_id in (''${e1id}'', ''${e2id}'') group by encounter_id;'
 FROM information_schema.columns
 WHERE column_name = 'encounter_id'
   AND table_schema = 'public'
@@ -101,7 +121,8 @@ One parameterised query replaces the old fixed 2h / 24h / 30d / all-time
 variants — set the window and re-run. Larger windows are slower. **[diagnose]**
 
 ```sql
-\set window '1 day'   -- e.g. '2 hours', '1 day', '30 days'
+-- e.g. '2 hours', '1 day', '30 days'. The quotes are part of the stored value.
+\set window '1 day'
 
 WITH all_devices AS (
   SELECT DISTINCT device_id FROM sync_device_ticks WHERE device_id IS NOT NULL
@@ -113,7 +134,7 @@ recent_syncs AS (
          completed_at - start_time     AS duration,
          errors IS NOT NULL            AS has_error
   FROM sync_sessions
-  WHERE start_time >= NOW() - :'window'::interval
+  WHERE start_time >= NOW() - ${window}::interval
     AND completed_at IS NOT NULL
     AND COALESCE(parameters->>'deviceId', debug_info->>'deviceId') IS NOT NULL
 ),

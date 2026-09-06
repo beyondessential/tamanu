@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 // Navigators
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // Components
@@ -12,7 +12,6 @@ import { VitalsStack } from './VitalsStack';
 import { DiagnosisAndTreatmentTabs } from './DiagnosisAndTreatmentTabs';
 import { ReferralStack } from './ReferralStack';
 import { HistoryVitalsStack } from './HistoryVitalsStack';
-import { ExportDataScreen } from '../screens/home/ExportDataScreen';
 import { LabRequestStack } from './LabRequestStack';
 // Helpers
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
@@ -49,7 +48,6 @@ export const HomeStack = (): ReactElement => {
       <Stack.Screen name={Routes.HomeStack.ProgramStack.Index} component={ProgramStack} />
       <Stack.Screen name={Routes.HomeStack.VaccineStack.Index} component={VaccineStack} />
       <Stack.Screen name={Routes.HomeStack.HomeTabs.Index} component={HomeTabsStack} />
-      <Stack.Screen name={Routes.HomeStack.ExportDataScreen} component={ExportDataScreen} />
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.Index}
         component={RegisterPatientStack}

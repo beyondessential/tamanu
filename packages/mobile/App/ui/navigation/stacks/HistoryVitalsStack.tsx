@@ -1,12 +1,12 @@
-import React, { ReactElement, useCallback } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback } from 'react';
+import type { NavigationProp } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
 import { FullView } from '/styled/common';
 import { compose } from 'redux';
 import { HistoryVitalsTabs } from './HistoryVitalsTabs';
 import { ErrorBoundary } from '/components/ErrorBoundary';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { withPatient } from '~/ui/containers/Patient';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { joinNames } from '~/ui/helpers/user';

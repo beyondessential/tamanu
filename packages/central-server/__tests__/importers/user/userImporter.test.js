@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
@@ -7,7 +8,7 @@ import { createTestContext } from '../../utilities';
 import '../matchers';
 
 // the importer can take a little while
-jest.setTimeout(50000);
+vi.setConfig({ testTimeout: 50000 });
 
 const TEST_USER_ID = 'users-test';
 
@@ -42,7 +43,7 @@ describe('User import', () => {
       });
 
       expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         User: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       });
@@ -55,7 +56,7 @@ describe('User import', () => {
       });
 
       expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         User: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       });
@@ -75,7 +76,7 @@ describe('User import', () => {
         dryRun: false,
       });
 
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         User: { created: 0, updated: 1, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       });
@@ -110,7 +111,7 @@ describe('User import', () => {
         dryRun: false,
       });
 
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         User: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       });
@@ -137,7 +138,7 @@ describe('User import', () => {
         dryRun: false,
       });
 
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         User: { created: 0, updated: 1, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       });

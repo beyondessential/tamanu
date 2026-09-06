@@ -1,10 +1,10 @@
 // No crypto.settingsPsk in config, so getConfigSecret throws SecretNotConfigured
 // and the generate path (rather than the legacy config-seed path) is exercised.
-jest.mock('config', () => ({
-  __esModule: true,
+vi.mock('config', () => ({
   default: { get: () => undefined },
 }));
 
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
 import { log } from '../../src/services/logging';
 import {
@@ -39,7 +39,7 @@ describe('getSettingsPskKeyBuffer', () => {
   // central before its PSK is generated hits this, and reporting it as a legacy
   // config fallback would read as a deployment about to break when it isn't.
   it('does not report a config fallback when there is no config PSK', async () => {
-    const warn = jest.spyOn(log, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(log, 'warn').mockImplementation(() => {});
     setSettingsPskSource(async () => null);
 
     await expect(getSettingsPskKeyBuffer()).rejects.toThrow();
@@ -63,7 +63,7 @@ describe('getSettingsPskKeyBuffer', () => {
 
 describe('ensureSettingsPsk', () => {
   it('generates and stores a 64-hex PSK when none exists', async () => {
-    const store = { get: jest.fn().mockResolvedValue(null), setIfAbsent: jest.fn() };
+    const store = { get: vi.fn().mockResolvedValue(null), setIfAbsent: vi.fn() };
     await ensureSettingsPsk(store);
 
     expect(store.setIfAbsent).toHaveBeenCalledTimes(1);
@@ -73,7 +73,7 @@ describe('ensureSettingsPsk', () => {
   });
 
   it('is a no-op when a PSK already exists', async () => {
-    const store = { get: jest.fn().mockResolvedValue(HEX), setIfAbsent: jest.fn() };
+    const store = { get: vi.fn().mockResolvedValue(HEX), setIfAbsent: vi.fn() };
     await ensureSettingsPsk(store);
     expect(store.setIfAbsent).not.toHaveBeenCalled();
   });

@@ -16,10 +16,8 @@ const SYNC_TICK_TABLES = [
   'prescriptions',
   'procedure_survey_responses',
   'procedures',
-  'reference_drugs',
   'task_designations',
   'tasks',
-  'user_facilities',
 ] as const;
 
 /** SQLite doesn't index foreign keys automatically */
@@ -59,8 +57,6 @@ const QUERY_INDEXES = [
   ['patient_field_values', 'IDX_patient_field_values_patientId', ['patientId']],
   // Lab tests loaded per lab request
   ['lab_tests', 'IDX_lab_tests_labRequestId', ['labRequestId']],
-  // Vital edit history loaded per answer
-  ['vital_logs', 'IDX_vital_logs_answerId', ['answerId']],
   // Patient.markForSync existence check before every new encounter/PAD/PPR insert
   ['patient_facilities', 'IDX_patient_facilities_patientId', ['patientId']],
   // Report widgets aggregate encounters by deviceId over a date window

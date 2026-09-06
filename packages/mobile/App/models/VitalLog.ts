@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 import { User } from './User';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { IVitalLog } from '~/types';
+import type { IVitalLog } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
@@ -25,12 +25,12 @@ export class VitalLog extends BaseModel implements IVitalLog {
   @Column({ type: 'varchar', nullable: true })
   reasonForChange: string;
 
-  @ManyToOne(() => User, (user) => user.recordedVitalLogs)
+  @ManyToOne(() => User, user => user.recordedVitalLogs)
   recordedBy: User;
   @RelationId(({ recordedBy }) => recordedBy)
   recordedById: string;
 
-  @ManyToOne(() => SurveyResponseAnswer, (surveyResponseAnswer) => surveyResponseAnswer.vitalLogs)
+  @ManyToOne(() => SurveyResponseAnswer, surveyResponseAnswer => surveyResponseAnswer.vitalLogs)
   answer: SurveyResponseAnswer;
   @RelationId(({ answer }) => answer)
   answerId: string;

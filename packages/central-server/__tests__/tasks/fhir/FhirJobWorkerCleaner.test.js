@@ -2,6 +2,7 @@
  * Tests for FhirJobWorkerCleaner (source: @tamanu/shared/tasks).
  * Run here in central-server so we avoid a circular devDependency between shared and database.
  */
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FhirJobWorkerCleaner } from '@tamanu/shared/tasks';
 import { fakeUUID } from '@tamanu/utils/generateId';
 

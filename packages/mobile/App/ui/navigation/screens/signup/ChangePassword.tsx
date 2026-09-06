@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
+import React, { type FunctionComponent, type ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   ColumnView,
@@ -13,10 +13,10 @@ import { theme } from '/styled/theme';
 import { ChangePasswordForm } from '/components/Forms/ChangePasswordForm/ChangePasswordForm';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
-import { ChangePasswordFormModel } from '~/ui/interfaces/forms/ChangePasswordFormProps';
+import type { ChangePasswordFormModel } from '~/ui/interfaces/forms/ChangePasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
-import { ChangePasswordProps } from '/interfaces/Screens/SignUp/ChangePasswordProps';
+import type { ChangePasswordProps } from '/interfaces/Screens/SignUp/ChangePasswordProps';
 
 export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePasswordProps) => {
   const authCtx = useAuth();

@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import crypto from 'crypto';
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, sub } from 'date-fns';
@@ -189,7 +190,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         facilityId: thisFacility.id,
       });
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -276,7 +277,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         facilityId: facility2.id,
       });
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -335,7 +336,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         patientId: patient1.id,
       });
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -379,7 +380,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession({
         isMobile: true,
       });
@@ -452,7 +453,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession({
         isMobile: true,
       });
@@ -507,7 +508,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         ...models,
       };
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId: sessionIdOne } = await centralSyncManager.startSession({
         isMobile: true,
       });
@@ -743,7 +744,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           scope: SETTINGS_SCOPES.FACILITY,
         });
 
-        const centralSyncManager = initializeCentralSyncManager();
+        const centralSyncManager = await initializeCentralSyncManager();
 
         const { sessionId } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionId);
@@ -789,7 +790,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           scope: SETTINGS_SCOPES.FACILITY,
         });
 
-        const centralSyncManager = initializeCentralSyncManager();
+        const centralSyncManager = await initializeCentralSyncManager();
 
         const { sessionId } = await centralSyncManager.startSession();
         await waitForSession(centralSyncManager, sessionId);
@@ -835,7 +836,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         ...fake(models.Facility),
       });
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -949,7 +950,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -1022,7 +1023,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: {
             enabled: true,
@@ -1107,7 +1108,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: {
             enabled: true,

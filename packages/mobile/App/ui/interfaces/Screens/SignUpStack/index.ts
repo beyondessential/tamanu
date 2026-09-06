@@ -1,4 +1,4 @@
-import { RouteProp } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 
 export * from './Index';
 export * from './Intro';

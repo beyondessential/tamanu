@@ -5,7 +5,7 @@ import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
 import { deferForeignKeys } from './deferForeignKeys';
 import { checkForeignKeys } from './checkForeignKeys';
-import { IPatient, IUser } from '~/types';
+import type { IPatient, IUser } from '~/types';
 
 describe('checkForeignKeys', () => {
   let encounterId: string;

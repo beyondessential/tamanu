@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import bcrypt from 'bcrypt';
 import config from 'config';
 import * as jose from 'jose';

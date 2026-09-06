@@ -222,6 +222,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const [itemErrors, setItemErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelsForPrint, setLabelsForPrint] = useState([]);
+    const labelPrintRef = useRef(null);
     const [isDispensing, setIsDispensing] = useState(false);
     const [modifyRowIndex, setModifyRowIndex] = useState(null);
     // The dispensable list is built into local `items` once per open. In-progress edits
@@ -229,19 +230,29 @@ export const DispenseMedicationWorkflowModal = memo(
     // rebuilt from a later query refetch or a translation-load re-render — opening the modify
     // modal loads new strings/reference data, which changes the translation fn identities and
     // would otherwise re-run the build effect and wipe the just-entered modification.
-    const itemsInitialisedRef = useRef(false);
+    const [itemsInitialised, setItemsInitialised] = useState(false);
 
     const patientId = patient?.id;
 
     const {
       data: dispensableResponse,
       isLoading: isLoadingDispensables,
+      isFetching: isFetchingDispensables,
       error: dispensablesError,
     } = useDispensableMedicationsQuery(patientId, { enabled: open });
 
     const { data: facility, isLoading: isLoadingFacility } = useFacilityQuery(facilityId, {
       enabled: open,
     });
+
+    // Pending until the built list is actually in `items`. A settled response is not enough: the
+    // list is assembled in an effect, which runs after the paint that first sees the response, so
+    // treating arrived-but-unbuilt data as ready would flash an empty table for one frame. Once
+    // the list is built the table stays up, so a background refetch never pulls it out from under
+    // an in-progress edit.
+    const isDispensableListPending =
+      !itemsInitialised &&
+      (isLoadingDispensables || isFetchingDispensables || Boolean(dispensableResponse?.data));
 
     const selectedItems = items.filter(({ selected }) => selected);
     const stockColumnEnabled = items.some(
@@ -262,7 +273,7 @@ export const DispenseMedicationWorkflowModal = memo(
       setLabelsForPrint([]);
       setIsDispensing(false);
       setModifyRowIndex(null);
-      itemsInitialisedRef.current = false;
+      setItemsInitialised(false);
     }, [open]);
 
     useEffect(() => {
@@ -273,7 +284,12 @@ export const DispenseMedicationWorkflowModal = memo(
       if (!open) return;
       // Only build the working list once per open, so a refetch or translation-load re-render
       // does not discard in-progress modifications / quantity / label edits.
-      if (itemsInitialisedRef.current) return;
+      if (itemsInitialised) return;
+      // A cached response is served synchronously when the modal opens, and it can predate
+      // changes made elsewhere — cancelling a dispense from the dispensed medications list puts
+      // the request back in the dispensable list, for instance. Build from the settled response
+      // so the list isn't latched onto data the server has already moved past.
+      if (isFetchingDispensables) return;
       const { data: dispensableData } = dispensableResponse || {};
       if (!dispensableData) return;
 
@@ -300,8 +316,15 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       setItems(nextItems);
       setItemErrors({});
-      itemsInitialisedRef.current = true;
-    }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
+      setItemsInitialised(true);
+    }, [
+      open,
+      dispensableResponse,
+      isFetchingDispensables,
+      itemsInitialised,
+      getTranslation,
+      getEnumTranslation,
+    ]);
 
     const handleClose = () => {
       onClose();
@@ -537,7 +560,8 @@ export const DispenseMedicationWorkflowModal = memo(
       const ok = await performDispense();
       if (!ok) return;
 
-      print();
+      // Awaited because onClose() unmounts the frame being printed.
+      await labelPrintRef.current.print();
 
       onClose();
     };
@@ -806,7 +830,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (!name && !patientIdentifier) return null;
       const handleViewPatient = () => {
         if (!patient.id) return;
-        navigateToPatient(patient.id, { tab: PATIENT_TABS.MEDICATION });
+        navigateToPatient(patient.id, { tab: PATIENT_TABS.SUMMARY });
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
@@ -845,7 +869,10 @@ export const DispenseMedicationWorkflowModal = memo(
       <OutlinedButton
         onClick={handleDispenseWithoutLabels}
         disabled={
-          isDispensing || isLoadingFacility || isLoadingDispensables || selectedItems.length === 0
+          isDispensing ||
+          isLoadingFacility ||
+          isDispensableListPending ||
+          selectedItems.length === 0
         }
         data-testid="dispense-without-labels-button"
       >
@@ -875,7 +902,7 @@ export const DispenseMedicationWorkflowModal = memo(
             <Button
               color="primary"
               onClick={handleDispenseAndPrint}
-              disabled={isDispensing || isLoadingFacility || isLoadingDispensables}
+              disabled={isDispensing || isLoadingFacility || isDispensableListPending}
               data-testid="dispense-and-print-button"
             >
               <TranslatedText
@@ -894,7 +921,7 @@ export const DispenseMedicationWorkflowModal = memo(
           <Button
             color="primary"
             onClick={handleReview}
-            disabled={isLoadingDispensables || selectedItems.length === 0}
+            disabled={isDispensableListPending || selectedItems.length === 0}
             data-testid="dispense-review-button"
           >
             <TranslatedText
@@ -945,7 +972,7 @@ export const DispenseMedicationWorkflowModal = memo(
               </DispenseHeaderToolbarRow>
             </HeaderRow>
 
-            {isLoadingDispensables ? (
+            {isDispensableListPending ? (
               <Box p={4} textAlign="center">
                 <TranslatedText stringId="general.table.loading" fallback="Loading…" />
               </Box>
@@ -959,7 +986,9 @@ export const DispenseMedicationWorkflowModal = memo(
           </>
         )}
 
-        {step === MODAL_STEPS.REVIEW && <MedicationLabelPrintPreview labels={labelsForPrint} />}
+        {step === MODAL_STEPS.REVIEW && (
+          <MedicationLabelPrintPreview ref={labelPrintRef} labels={labelsForPrint} />
+        )}
 
         {modifyRowIndex !== null && (
           <ModifyPrescriptionModal

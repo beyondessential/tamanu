@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
 
 const tableName = 'notes';
 const columnName = 'noteTypeId';
@@ -48,9 +48,7 @@ export class addNoteTypeIdColumn1761474536816 implements MigrationInterface {
       WHERE noteTypeId IS NOT NULL
     `);
 
-    const foreignKey = tableObject.foreignKeys.find(
-      fk => fk.columnNames.indexOf(columnName) !== 0,
-    );
+    const foreignKey = tableObject.foreignKeys.find(fk => fk.columnNames.indexOf(columnName) !== 0);
     await queryRunner.dropForeignKey(tableObject, foreignKey);
     await queryRunner.dropColumn(tableObject, columnName);
   }

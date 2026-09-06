@@ -1,10 +1,10 @@
 import { Entity, OneToOne, JoinColumn, RelationId, Column, OneToMany } from 'typeorm';
 
-import { IProgramRegistry, ID } from '~/types';
+import type { IProgramRegistry, ID } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
-import { CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
+import { type CurrentlyAtType, RegistrationStatus } from '~/constants/programRegistries';
 import { Program } from './Program';
 import { PatientProgramRegistration } from './PatientProgramRegistration';
 import { ProgramRegistryClinicalStatus } from './ProgramRegistryClinicalStatus';
@@ -54,7 +54,7 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
       .andWhere('ppr.registrationStatus = :active', { active: RegistrationStatus.Active })
       .getRawMany();
 
-    const programRegistryRepository = this.getRepository();
+    const programRegistryRepository = ProgramRegistry.getRepository();
     const filteredProgramRegistries = await programRegistryRepository
       .createQueryBuilder('pr')
       .where(`pr.id NOT IN (${activeRegistrations.map(({ id }) => `'${id}'`).join(',')})`);
@@ -63,6 +63,6 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   }
 
   static async getAllProgramRegistries() {
-    return this.getRepository().find();
+    return ProgramRegistry.getRepository().find();
   }
 }

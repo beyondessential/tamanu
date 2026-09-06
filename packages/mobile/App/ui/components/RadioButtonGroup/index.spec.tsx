@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
-import { RadioButtonGroup, RadioButtonGroupProps } from './index';
+import { RadioButtonGroup, type RadioButtonGroupProps } from './index';
 
 describe('<RadioButtonGroup />', () => {
   const props: RadioButtonGroupProps = {

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ReferralScreen } from './ReferralScreen';
 import { SurveyResponseDetailsScreen } from '../screens/programs/SurveyResponseDetailsScreen';

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
@@ -55,7 +56,7 @@ describe('migrateAppointmentsToLocationGroups', () => {
   afterAll(() => ctx.close());
 
   it('migrates imaging requests to use location parents ', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     await migrateImagingRequests();
 
     const imagingRequests = await models.ImagingRequest.findAll({
@@ -70,7 +71,7 @@ describe('migrateAppointmentsToLocationGroups', () => {
   });
 
   it('skips imaging requests that have locations with no parent ', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     await migrateImagingRequests();
 
     const imagingRequests = await models.ImagingRequest.findAll({

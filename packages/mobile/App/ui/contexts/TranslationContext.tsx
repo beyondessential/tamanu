@@ -1,8 +1,8 @@
 import React, {
   createContext,
   isValidElement,
-  PropsWithChildren,
-  ReactElement,
+  type PropsWithChildren,
+  type ReactElement,
   useContext,
   useEffect,
   useState,
@@ -14,7 +14,7 @@ import { useBackend } from '../hooks';
 import { isEmpty, upperFirst } from 'es-toolkit/compat';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
-import { LanguageOption } from '~/models/TranslatedString';
+import type { LanguageOption } from '~/models/TranslatedString';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
 import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';

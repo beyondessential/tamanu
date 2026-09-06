@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { EncounterType } from '~/types';
+import type { EncounterType } from '~/types';
 import { Encounter } from './Encounter';
 import { User } from './User';
 import { Department } from './Department';

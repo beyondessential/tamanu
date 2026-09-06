@@ -76,15 +76,10 @@ const buttonCommonStyles = {
 };
 
 export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, error: formError }) => {
-  const {
-    coords,
-    error,
-    isWatching,
-    cancelWatchGeolocation,
-    requestGeolocationPermission,
-  } = useGeolocation({
-    watch: true,
-  });
+  const { coords, error, isWatching, cancelWatchGeolocation, requestGeolocationPermission } =
+    useGeolocation({
+      watch: true,
+    });
   const { getTranslation } = useTranslation();
   const [showModal, setShowModal] = useState(false);
 

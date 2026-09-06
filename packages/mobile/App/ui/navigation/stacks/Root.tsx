@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { Root } from 'popup-ui';
-import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer, type NavigationContainerRef } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PersistGate } from 'redux-persist/integration/react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -18,29 +18,29 @@ export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef>(null);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <SafeAreaProvider>
-      <Root>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <NavigationContainer ref={navigationRef}>
-              <LocalisationProvider>
-                <TranslationProvider>
-                  <AuthProvider navRef={navigationRef}>
-                    <SettingsProvider>
-                      <FacilityProvider>
-                        <DetectIdleLayer>
-                          <Core />
-                        </DetectIdleLayer>
-                      </FacilityProvider>
-                    </SettingsProvider>
-                  </AuthProvider>
-                </TranslationProvider>
-              </LocalisationProvider>
-            </NavigationContainer>
-          </PersistGate>
-        </Provider>
-      </Root>
-    </SafeAreaProvider>
+      <SafeAreaProvider>
+        <Root>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <NavigationContainer ref={navigationRef}>
+                <LocalisationProvider>
+                  <TranslationProvider>
+                    <AuthProvider navRef={navigationRef}>
+                      <SettingsProvider>
+                        <FacilityProvider>
+                          <DetectIdleLayer>
+                            <Core />
+                          </DetectIdleLayer>
+                        </FacilityProvider>
+                      </SettingsProvider>
+                    </AuthProvider>
+                  </TranslationProvider>
+                </LocalisationProvider>
+              </NavigationContainer>
+            </PersistGate>
+          </Provider>
+        </Root>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 };

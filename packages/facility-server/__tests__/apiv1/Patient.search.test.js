@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 import {
   createDummyEncounter,
@@ -8,7 +9,6 @@ import { startOfDay, subDays, subYears } from 'date-fns';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { afterAll, beforeAll } from '@jest/globals';
 
 // helper function to check we've found the intended samples
 // (we're using first name as the field that indicates which

@@ -1,5 +1,5 @@
-import { IPatient } from './IPatient';
-import { IReferenceData } from './IReferenceData';
+import type { IPatient } from './IPatient';
+import type { IReferenceData } from './IReferenceData';
 
 export interface IPatientContact {
   id: string;

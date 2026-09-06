@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../app/subCommands/migrateDataInBatches/migrateDataInBatches';
@@ -8,9 +9,9 @@ import { initDatabase } from '../../app/database';
 // initDatabase from this module. Default it to the real implementation so the test
 // context can spin up a real database, and keep the real closeDatabase for teardown;
 // the test overrides initDatabase per-case so the subCommand reuses the test store.
-jest.mock('../../app/database', () => {
-  const actual = jest.requireActual('../../app/database');
-  return { ...actual, initDatabase: jest.fn(actual.initDatabase) };
+vi.mock('../../app/database', async () => {
+  const actual = (await vi.importActual('../../app/database'));
+  return { ...actual, initDatabase: vi.fn(actual.initDatabase) };
 });
 
 const prepopulate = async (models) => {
@@ -45,7 +46,7 @@ describe('migrateAppointmentTypeReferenceData', () => {
 
   it('migrates appointment type reference data', async () => {
     await prepopulate(models);
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     initDatabase.mockResolvedValue(ctx.store);
     await migrateDataInBatches('AppointmentTypeReferenceData', {
       batchSize: 2,

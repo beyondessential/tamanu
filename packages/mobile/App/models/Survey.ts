@@ -1,10 +1,10 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
-import { PureAbility } from '@casl/ability';
+import type { PureAbility } from '@casl/ability';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
 import { VitalsDataElements } from '/helpers/constants';
-import { ISurvey, ISurveyScreenComponent, IVitalsSurvey, SurveyTypes } from '~/types';
+import { type ISurvey, type ISurveyScreenComponent, type IVitalsSurvey, SurveyTypes } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
@@ -23,7 +23,7 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: true })
   name?: string;
 
-  @ManyToOne(() => Program, (program) => program.surveys)
+  @ManyToOne(() => Program, program => program.surveys)
   program: Program;
 
   components: any;
@@ -81,7 +81,7 @@ export class Survey extends BaseModel implements ISurvey {
     const components = await vitalsSurvey.getComponents({ includeAllVitals });
 
     return {
-      dateComponent: components.find((c) => c.dataElementId === VitalsDataElements.dateRecorded),
+      dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
       components,
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,

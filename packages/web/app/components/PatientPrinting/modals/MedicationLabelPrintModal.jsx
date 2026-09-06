@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { MedicationLabelPrintPreview } from '../printouts/MedicationLabelPrintPreview';
+import { medicationLabelShape } from '../printouts/MedicationLabel';
 import { Colors } from '../../../constants';
 
 const StyledModal = styled(Modal)`
@@ -16,8 +17,10 @@ const StyledModal = styled(Modal)`
 `;
 
 export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
+  const labelPrintRef = useRef(null);
+
   const handlePrint = () => {
-    print();
+    labelPrintRef.current.print();
   };
 
   return (
@@ -37,7 +40,7 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
         />
       }
     >
-      <MedicationLabelPrintPreview labels={labels} showDescription={false} />
+      <MedicationLabelPrintPreview ref={labelPrintRef} labels={labels} showDescription={false} />
     </StyledModal>
   );
 };
@@ -45,19 +48,5 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
 MedicationLabelPrintModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  labels: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      medicationName: PropTypes.string.isRequired,
-      instructions: PropTypes.string.isRequired,
-      patientName: PropTypes.string.isRequired,
-      dispensedAt: PropTypes.string.isRequired,
-      quantity: PropTypes.number.isRequired,
-      units: PropTypes.string,
-      remainingRepeats: PropTypes.number.isRequired,
-      prescriberName: PropTypes.string.isRequired,
-      requestNumber: PropTypes.string.isRequired,
-      facilityName: PropTypes.string,
-    }),
-  ).isRequired,
+  labels: PropTypes.arrayOf(medicationLabelShape).isRequired,
 };

@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op, Transaction } from 'sequelize';
 
 import {
@@ -101,7 +102,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
   });
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.LocalSystemFact.set(FACT_LOOKUP_MODELS_TO_REBUILD, null);
     await models.SyncLookupTick.truncate({ force: true });
@@ -137,7 +138,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
   it('inserts records into sync lookup table', async () => {
     const patient1 = await models.Patient.create(fake(models.Patient));
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -185,7 +186,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
   it('updates new changes from records into sync lookup table', async () => {
     const patient1 = await models.Patient.create(fake(models.Patient));
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -275,7 +276,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
 
   it('fully rebuilds models that have been flagged for rebuild', async () => {
     const patient1 = await models.Patient.create(fake(models.Patient));
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -383,7 +384,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
 
     const historicEncounter = await createEncounter();
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -440,7 +441,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
       fake(models.ReferenceData, { id: patient1.id }), // use the same id between patient and reference_data
     );
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -542,7 +543,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
       ...models,
     };
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -610,7 +611,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
       ...models,
     };
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -662,7 +663,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
       ...models,
     };
 
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
 
     // Start the update lookup table process
     const updateLookupTablePromise = centralSyncManager.updateLookupTable();
@@ -733,7 +734,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
 
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, 6);
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -759,7 +760,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
   });
 
   it('records error thrown when updating sync_lookup in debug log', async () => {
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -768,7 +769,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
       },
     });
 
-    centralSyncManager.tickTockGlobalClock = jest.fn().mockImplementation(() => {
+    centralSyncManager.tickTockGlobalClock = vi.fn().mockImplementation(() => {
       throw new Error('Test error');
     });
 
@@ -799,7 +800,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     const enableSyncTrigger = () => models.LocalSystemFact.set(FACT_SYNC_TRIGGER_CONTROL, 'enabled');
 
     it('heals a drifted existing row while disabled, correcting data without moving its tick', async () => {
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: { enabled: true },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
@@ -835,7 +836,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     });
 
     it('produces a byte-identical row whether built normally or healed', async () => {
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: { enabled: true },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
@@ -866,7 +867,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     });
 
     it('heals a flagged row without moving its tick, even though the source tick has since advanced', async () => {
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: { enabled: true },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
@@ -935,7 +936,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     });
 
     it('deletes a flagged lookup row whose source no longer exists (delete-trigger backstop)', async () => {
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: { enabled: true },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
@@ -963,7 +964,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     });
 
     it('rebuilds via pass 1 and clears the flag when the tick has since advanced past the cursor', async () => {
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: { enabled: true },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
@@ -1005,7 +1006,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     it('aborts instead of resurrecting a row hard-deleted after the build snapshot was taken', async () => {
       const patient = await models.Patient.create(fake(models.Patient));
 
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: { enabled: true },
           maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,

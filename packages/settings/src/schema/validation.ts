@@ -3,7 +3,7 @@ import { globalSettings } from './global';
 import { centralSettings } from './central';
 import { facilitySettings } from './facility';
 import * as yup from 'yup';
-import _, { cloneDeep, isArray, mergeWith } from 'es-toolkit/compat';
+import { cloneDeep, isArray, isObject, mergeWith } from 'es-toolkit/compat';
 import { SettingsSchema } from '../types';
 import { extractDefaults, isSetting } from './utils';
 
@@ -17,31 +17,37 @@ const SCOPE_TO_SCHEMA = {
 // setting (e.g. imagingTypes) reaches its yup schema whole instead of
 // dissolving into leaf keys the schema doesn't know (and never validating).
 const flattenSettings = (obj: unknown, settingKeys: Set<string>, parentKey = '') => {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (_.isObject(value) && !Array.isArray(value) && !settingKeys.has(fullKey)) {
-      Object.assign(acc, flattenSettings(value, settingKeys, fullKey));
-    } else {
-      acc[fullKey] = value;
-    }
+      if (isObject(value) && !Array.isArray(value) && !settingKeys.has(fullKey)) {
+        Object.assign(acc, flattenSettings(value, settingKeys, fullKey));
+      } else {
+        acc[fullKey] = value;
+      }
 
-    return acc;
-  }, {} as Record<string, unknown>);
+      return acc;
+    },
+    {} as Record<string, unknown>,
+  );
 };
 
 const flattenSchema = (schema: SettingsSchema, parentKey = '') => {
-  return Object.entries(schema.properties).reduce((acc, [key, value]) => {
-    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+  return Object.entries(schema.properties).reduce(
+    (acc, [key, value]) => {
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
-    if (isSetting(value)) {
-      acc[fullKey] = value.secret ? value.type.nullable() : value.type;
-    } else {
-      Object.assign(acc, flattenSchema(value, fullKey));
-    }
+      if (isSetting(value)) {
+        acc[fullKey] = value.secret ? value.type.nullable() : value.type;
+      } else {
+        Object.assign(acc, flattenSchema(value, fullKey));
+      }
 
-    return acc;
-  }, {} as Record<string, yup.AnySchema>);
+      return acc;
+    },
+    {} as Record<string, yup.AnySchema>,
+  );
 };
 
 export const getScopedSchema = (scope: string) => {
@@ -65,9 +71,7 @@ export const validateSettings = async ({
 
   const flattenedSchema = flattenSchema(schemaValue);
   const flattenedSettings = flattenSettings(settings, new Set(Object.keys(flattenedSchema)));
-  const yupSchema = yup
-    .object()
-    .shape(flattenedSchema);
+  const yupSchema = yup.object().shape(flattenedSchema);
 
   await yupSchema.validate(flattenedSettings, { abortEarly: false, strict: true });
 };

@@ -1,10 +1,10 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { View } from 'react-native';
 
 import { RowField } from './RowField';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { VaccineDataProps } from '.';
+import type { VaccineDataProps } from '.';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { DateFormats } from '../../helpers/constants';
 import { TranslatedText } from '../Translations/TranslatedText';

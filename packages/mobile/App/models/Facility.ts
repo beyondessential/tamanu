@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { IFacility } from '../types';
+import type { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Department } from './Department';
 import { Location } from './Location';

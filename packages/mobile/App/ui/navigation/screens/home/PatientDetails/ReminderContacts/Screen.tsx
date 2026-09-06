@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { compose } from 'redux';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   CenterView,
   FullView,
@@ -18,7 +19,7 @@ import { theme } from '~/ui/styled/theme';
 import { ContactCard } from '../CustomComponents/ContactCard';
 import { ScrollView } from 'react-native-gesture-handler';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { IPatientContact } from '~/types';
+import type { IPatientContact } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Button } from '~/ui/components/Button';
@@ -27,26 +28,18 @@ import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { RemoveReminderContactModal } from './RemoveReminderContactModal';
 import { PatientContact } from '~/models/PatientContact';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
-  const {
-    reminderContactList,
-    isLoadingReminderContactList,
-    fetchReminderContactList,
-    afterAddContact,
-    isFailedContact,
-  } = useReminderContact();
+  const { reminderContactList, isLoadingReminderContactList, afterAddContact, isFailedContact } =
+    useReminderContact();
 
   const { ability } = useAuth();
   const canWriteReminderContacts = ability.can('write', 'Patient');
 
   const [selectedContact, setSelectedContact] = useState<IPatientContact>();
-
-  useEffect(() => {
-    fetchReminderContactList();
-  }, []);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -56,12 +49,18 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddReminderContact);
   }, [navigation]);
 
+  const queryClient = useQueryClient();
+  const { mutateAsync: removeReminderContact } = useMutation({
+    mutationFn: (contact: IPatientContact) =>
+      PatientContact.updateValues(contact.id, { deletedAt: new Date() }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
+    },
+  });
+
   const onRemoveReminderContact = async () => {
     if (!selectedContact) return;
-    await PatientContact.updateValues(selectedContact.id, {
-      deletedAt: new Date(),
-    });
-    await fetchReminderContactList();
+    await removeReminderContact(selectedContact);
   };
 
   const onRetryConnect = (contact: IPatientContact) => {

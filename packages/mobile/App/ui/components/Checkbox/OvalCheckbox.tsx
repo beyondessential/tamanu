@@ -1,9 +1,9 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { RowView, StyledText, StyledView, StyledViewProps } from '/styled/common';
+import { RowView, StyledText, StyledView, type StyledViewProps } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { BaseInputProps } from '/interfaces/BaseInputProps';
+import type { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';

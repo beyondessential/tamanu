@@ -2,6 +2,7 @@
  * Tests for FHIR refresh handler / allFromUpstream (source: @tamanu/shared/tasks).
  * Run here in central-server so we avoid a circular devDependency between shared and database.
  */
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { Op } from 'sequelize';
 import { JOB_PRIORITIES } from '@tamanu/constants';
 

@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
