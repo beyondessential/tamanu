@@ -44,7 +44,9 @@ export const createResource = async (store, FhirResource, data, requesterId, set
 
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    await createResource(req.store, FhirResource, req.body, req.user?.id, resolveSettings(req));
+    await req.store.sequelize.transaction(async () => {
+      await createResource(req.store, FhirResource, req.body, req.user?.id, resolveSettings(req));
+    });
 
     // in spec, we should Location: to the resource, but we don't have it yet
     // TODO: generate ID here, and return it (if resource can be materialised)

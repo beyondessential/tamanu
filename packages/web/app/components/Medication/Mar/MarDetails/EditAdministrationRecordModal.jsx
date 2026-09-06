@@ -1,11 +1,12 @@
 import { Divider } from '@material-ui/core';
 import Box from '@mui/material/Box';
+import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
@@ -15,33 +16,29 @@ import {
   FormGrid,
   NumberField,
   TextField,
-  TranslatedSelectField,
   TranslatedText,
   useDateTime,
   useSuggester,
   useTranslation,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { Colors } from '../../../constants/styles';
-import { useAuth } from '../../../contexts/Auth';
-import { useEncounter } from '../../../contexts/Encounter';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { FormModal } from '../../FormModal';
-import { WarningModal } from '../WarningModal';
+import {
+  useNotGivenInfoMarMutation,
+  useUpdateDoseMutation,
+} from '../../../../api/mutations/useMarMutation';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import { Colors } from '../../../../constants/styles';
+import { useEncounter } from '../../../../contexts/Encounter';
+import { isWithinTimeSlot } from '../../../../utils/medications';
+import { TimePickerField } from '../../../Field/TimePickerField';
+import { FormModal } from '../../../FormModal';
+import { WarningModal } from '../../WarningModal';
 import { MarInfoPane } from './MarInfoPane';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
     max-width: 670px;
   }
-`;
-
-const StatusAlert = styled.div`
-  font-size: 11px;
-  color: ${Colors.darkText};
 `;
 
 const TimeGivenTitle = styled.div`
@@ -100,69 +97,79 @@ const StyledDivider = styled(Divider)`
   grid-column: span 2;
 `;
 
-export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot }) => {
-  const { currentUser } = useAuth();
-  const { getEnumTranslation } = useTranslation();
-  const practitionerSuggester = useSuggester('practitioner');
+const DoseLabel = styled.div`
+  color: ${Colors.darkText};
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 20px;
+  margin-bottom: 16px;
+`;
+
+export const EditAdministrationRecordModal = ({
+  open,
+  onClose,
+  medication,
+  marInfo,
+  doseInfo,
+  timeSlot,
+  showDoseIndex,
+}) => {
+  const recordedBySuggester = useSuggester('practitioner');
+  const givenBySuggester = useSuggester('practitioner');
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { toStoredDateTime } = useDateTime();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
+  const { getEnumTranslation } = useTranslation();
   const [showWarningModal, setShowWarningModal] = useState('');
 
-  const initialStatus = marInfo?.status;
-  const initialPrescribedDose = medication?.isVariableDose ? '' : medication?.doseAmount;
-
-  const { mutateAsync: updateMarToNotGiven } = useNotGivenMarMutation(marInfo?.id, {
+  const { mutateAsync: updateNotGivenInfoMar } = useNotGivenInfoMarMutation(marInfo?.id, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
-      queryClient.invalidateQueries(['marDoses', marInfo?.id]);
-      onClose();
     },
   });
-  const { mutateAsync: updateMarToGiven } = useGivenMarMutation(marInfo?.id, {
+  const { mutateAsync: updateMarDose } = useUpdateDoseMutation(doseInfo?.id, {
     onSuccess: () => {
       queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
       queryClient.invalidateQueries(['marDoses', marInfo?.id]);
-      onClose();
     },
   });
 
   const handleSubmit = async values => {
-    if (values.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
-      const { reasonNotGivenId, recordedByUserId, changingStatusReason } = values;
-      await updateMarToNotGiven({
-        reasonNotGivenId,
-        recordedByUserId,
-        changingStatusReason,
-      });
-    } else {
-      const { doseAmount, givenTime, givenByUserId, recordedByUserId, changingStatusReason } =
-        values;
-      if (
-        !showWarningModal &&
-        Number(medication.doseAmount) !== Number(doseAmount) &&
-        !medication.isVariableDose
-      ) {
-        setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
-        return;
-      }
-      await updateMarToGiven({
-        dose: {
+    try {
+      if (marInfo?.status === ADMINISTRATION_STATUS.NOT_GIVEN) {
+        const { reasonNotGivenId, recordedByUserId, changingNotGivenInfoReason } = values;
+        await updateNotGivenInfoMar({
+          reasonNotGivenId,
+          recordedByUserId,
+          changingNotGivenInfoReason,
+        });
+      } else {
+        const { doseAmount, givenTime, givenByUserId, recordedByUserId, reasonForChange } = values;
+        if (
+          !showWarningModal &&
+          Number(medication?.doseAmount) !== Number(doseAmount) &&
+          !medication?.isVariableDose
+        ) {
+          setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
+          return;
+        }
+        await updateMarDose({
           doseAmount: Number(doseAmount),
           givenTime: toStoredDateTime(toDateTimeString(givenTime)),
           givenByUserId,
           recordedByUserId,
-        },
-        recordedByUserId,
-        changingStatusReason,
-      });
+          reasonForChange,
+        });
+      }
+      onClose();
+    } catch (error) {
+      toast.error(error.message);
     }
-    onClose();
   };
 
   const getValidationSchema = () => {
-    if (initialStatus === ADMINISTRATION_STATUS.NOT_GIVEN) {
+    if (marInfo?.status === ADMINISTRATION_STATUS.GIVEN) {
       return yup.object().shape({
         givenTime: yup
           .date()
@@ -183,6 +190,9 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
         recordedByUserId: yup
           .string()
           .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+        doseAmount: yup
+          .number()
+          .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
       });
     }
     return yup.object().shape({
@@ -195,65 +205,52 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
     });
   };
 
-  const getInitialValues = () => {
-    if (initialStatus === ADMINISTRATION_STATUS.GIVEN) {
-      return {
-        status: initialStatus,
-        reasonNotGivenId: '',
-        recordedByUserId: currentUser?.id,
-      };
-    }
-    return {
-      status: initialStatus,
-      recordedByUserId: currentUser?.id,
-      givenByUserId: currentUser?.id,
-      doseAmount: initialPrescribedDose,
-      givenTime: null,
-    };
-  };
-
   return (
     <StyledFormModal
       open={open}
       onClose={onClose}
       title={
-        <TranslatedText stringId="modal.mar.changeStatusModal.title" fallback="Change status" />
+        <TranslatedText
+          stringId="modal.mar.editAdministrationRecordModal.title"
+          fallback="Edit administration record"
+        />
       }
     >
-      <MarInfoPane medication={medication} marInfo={marInfo} />
-      <Box height={16} />
+      <MarInfoPane medication={medication} marInfo={marInfo} timeSlot={timeSlot} />
+      {showDoseIndex ? (
+        <DoseLabel>
+          <TranslatedText
+            stringId="modal.mar.doseIndex.label"
+            fallback="Dose :index"
+            replacements={{ index: doseInfo?.doseIndex + 1 }}
+          />
+        </DoseLabel>
+      ) : (
+        <Box height={16} />
+      )}
       <Form
         suppressErrorDialog
         onSubmit={handleSubmit}
-        initialValues={getInitialValues()}
+        initialValues={
+          marInfo?.status === ADMINISTRATION_STATUS.NOT_GIVEN
+            ? {
+                reasonNotGivenId: marInfo?.reasonNotGivenId,
+                recordedByUserId: marInfo?.recordedByUserId,
+              }
+            : {
+                doseAmount: doseInfo?.doseAmount,
+                givenTime: doseInfo?.givenTime
+                  ? new Date(toFacilityDateTime(doseInfo.givenTime))
+                  : null,
+                givenByUserId: doseInfo?.givenByUserId,
+                recordedByUserId: doseInfo?.recordedByUserId,
+              }
+        }
         validationSchema={getValidationSchema()}
-        render={({ values, setFieldValue, errors, submitForm }) => {
-          const isChangingToNotGiven =
-            initialStatus !== ADMINISTRATION_STATUS.NOT_GIVEN &&
-            values.status === ADMINISTRATION_STATUS.NOT_GIVEN;
-          const isChangingToGiven =
-            initialStatus !== ADMINISTRATION_STATUS.GIVEN &&
-            values.status === ADMINISTRATION_STATUS.GIVEN;
+        render={({ setFieldValue, errors, submitForm, dirty, values }) => {
           return (
             <FormGrid>
-              <div>
-                <Field
-                  name="status"
-                  component={TranslatedSelectField}
-                  label={<TranslatedText stringId="mar.details.status.label" fallback="Status" />}
-                  enumValues={ADMINISTRATION_STATUS_LABELS}
-                  required
-                />
-                {isChangingToNotGiven && (
-                  <StatusAlert>
-                    <TranslatedText
-                      stringId="medication.changeStatusModal.statusAlert"
-                      fallback="Changing the status to not given will remove all previously recorded doses"
-                    />
-                  </StatusAlert>
-                )}
-              </div>
-              {isChangingToNotGiven && (
+              {marInfo?.status === ADMINISTRATION_STATUS.NOT_GIVEN && (
                 <>
                   <Field
                     name="reasonNotGivenId"
@@ -271,23 +268,26 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                         fallback="Recorded by"
                       />
                     }
-                    suggester={practitionerSuggester}
+                    suggester={recordedBySuggester}
                     required
                   />
-                  <Field
-                    name="changingStatusReason"
-                    component={TextField}
-                    label={
-                      <TranslatedText
-                        stringId="mar.details.reasonForChange.label"
-                        fallback="Reason for change"
-                      />
-                    }
-                  />
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <Field
+                      name="changingNotGivenInfoReason"
+                      component={TextField}
+                      disabled={!dirty}
+                      label={
+                        <TranslatedText
+                          stringId="mar.details.reasonForChange.label"
+                          fallback="Reason for change"
+                        />
+                      }
+                    />
+                  </div>
                 </>
               )}
 
-              {isChangingToGiven && (
+              {marInfo?.status === ADMINISTRATION_STATUS.GIVEN && (
                 <>
                   <WarningModal
                     modal={showWarningModal}
@@ -315,6 +315,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                           )
                         : undefined
                     }
+                    required
                   />
                   <div>
                     <TimeGivenTitle>
@@ -353,7 +354,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                     label={
                       <TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />
                     }
-                    suggester={practitionerSuggester}
+                    suggester={givenBySuggester}
                     required
                   />
                   <Field
@@ -365,41 +366,34 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                         fallback="Recorded by"
                       />
                     }
-                    suggester={practitionerSuggester}
+                    suggester={recordedBySuggester}
                     required
                   />
-                  <Field
-                    name="changingStatusReason"
-                    component={TextField}
-                    label={
-                      <TranslatedText
-                        stringId="mar.details.reasonForChange.label"
-                        fallback="Reason for change"
-                      />
-                    }
-                  />
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <Field
+                      name="reasonForChange"
+                      component={TextField}
+                      disabled={!dirty}
+                      label={
+                        <TranslatedText
+                          stringId="mar.details.reasonForChange.label"
+                          fallback="Reason for change"
+                        />
+                      }
+                    />
+                  </div>
                 </>
               )}
               <StyledDivider />
               <ConfirmCancelRow
                 onCancel={onClose}
                 onConfirm={submitForm}
-                confirmDisabled={!(isChangingToGiven || isChangingToNotGiven)}
+                confirmDisabled={!dirty}
                 confirmText={
                   <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />
-              {showWarningModal && (
-                <WarningModal
-                  modal={showWarningModal}
-                  onClose={() => setShowWarningModal('')}
-                  onConfirm={() => {
-                    setShowWarningModal('');
-                    handleSubmit(values);
-                  }}
-                />
-              )}
             </FormGrid>
           );
         }}

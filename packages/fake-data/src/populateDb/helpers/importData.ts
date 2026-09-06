@@ -62,7 +62,19 @@ export const generateImportData = async ({
       type: REFERENCE_TYPES.DRUG,
     }),
   );
-  await ReferenceDataRelation.create(fake(ReferenceDataRelation));
+  // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
+  // bare fake(ReferenceDataRelation) leaves referenceDataId null — central allows it (nullable
+  // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
+  // insert fails). Give it a valid parent and child.
+  const parentReferenceData = await ReferenceData.create(
+    fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+  );
+  await ReferenceDataRelation.create(
+    fake(ReferenceDataRelation, {
+      referenceDataParentId: parentReferenceData.id,
+      referenceDataId: referenceData.id,
+    }),
+  );
 
   // A small, stable pool of allergy reference data for patient allergies to point at,
   // rather than each patient allergy minting its own ReferenceData: that bloats the table
@@ -117,31 +129,50 @@ export const generateImportData = async ({
   );
 
   await ProgramDataElement.create(fake(ProgramDataElement));
-  const program = await Program.create(fake(Program));
-  const programRegistry = await ProgramRegistry.create(
-    fake(ProgramRegistry, {
-      programId: program.id,
-    }),
-  );
-  await ProgramRegistryCondition.create(
-    fake(ProgramRegistryCondition, {
-      programRegistryId: programRegistry.id,
-    }),
-  );
-  await ProgramRegistryClinicalStatus.create(
-    fake(ProgramRegistryClinicalStatus, {
-      programRegistryId: programRegistry.id,
-    }),
-  );
-  // Create the 'unknown' condition category up front so createProgramRegistry can
-  // just look it up, instead of many concurrent calls racing to findOrCreate it.
-  await ProgramRegistryConditionCategory.create(
-    fake(ProgramRegistryConditionCategory, {
-      code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
-      name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN],
-      programRegistryId: programRegistry.id,
-    }),
-  );
+
+  const seedProgramRegistry = async () => {
+    const program = await Program.create(fake(Program));
+    const registry = await ProgramRegistry.create(
+      fake(ProgramRegistry, {
+        programId: program.id,
+      }),
+    );
+    await ProgramRegistryCondition.create(
+      fake(ProgramRegistryCondition, {
+        programRegistryId: registry.id,
+      }),
+    );
+    await ProgramRegistryClinicalStatus.create(
+      fake(ProgramRegistryClinicalStatus, {
+        programRegistryId: registry.id,
+      }),
+    );
+    // Create the 'unknown' condition category up front so createProgramRegistry (the
+    // tally helper) can just look it up, instead of many concurrent calls racing to
+    // findOrCreate it.
+    await ProgramRegistryConditionCategory.create(
+      fake(ProgramRegistryConditionCategory, {
+        code: PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        name: PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS[
+          PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN
+        ],
+        programRegistryId: registry.id,
+      }),
+    );
+    return registry;
+  };
+
+  // A deployment has a small, fixed set of program registries, not one per data round.
+  // Without a cap every round minted another and the Program Registry sidebar filled with
+  // dozens of entries; once the pool is full, reuse an existing one instead.
+  const PROGRAM_REGISTRY_POOL_SIZE = 8;
+  const programRegistryIds = (
+    await ProgramRegistry.findAll({ attributes: ['id'], raw: true })
+  ).map((row: { id: string }) => row.id);
+  const programRegistry =
+    programRegistryIds.length >= PROGRAM_REGISTRY_POOL_SIZE
+      ? (await ProgramRegistry.findByPk(chance.pickone(programRegistryIds)))!
+      : await seedProgramRegistry();
 
   const invoiceProduct = await InvoiceProduct.create(
     fake(InvoiceProduct, {

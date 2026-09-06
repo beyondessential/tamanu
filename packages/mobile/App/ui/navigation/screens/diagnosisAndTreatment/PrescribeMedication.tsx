@@ -39,6 +39,7 @@ import {
 } from '~/constants/medications';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getDefaultIdealTimes } from '~/ui/helpers/medicationHelpers';
 import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
@@ -107,11 +108,11 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         }),
       ]);
 
-      const idealTimes =
-        values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-        values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-          ? ''
-          : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
+      // Frequencies with no schedule ('Immediately', 'As directed') resolve to no times at all.
+      const idealTimes = getDefaultIdealTimes(
+        values.frequency,
+        frequenciesAdministrationIdealTimes,
+      ).join(',');
       const data = {
         ...values,
         doseAmount: values.doseAmount || null,
