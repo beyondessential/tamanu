@@ -5,6 +5,8 @@ import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useTableSorting } from '../../components/Table/useTableSorting';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
 
+const DEFAULT_ROWS_PER_PAGE = 25;
+
 // Mock data standing in until the real store for relegated system errors is built
 // (see `relegateSystemError`) — timestamps are relative to load time so the table
 // always shows something recent to demonstrate sorting against.
@@ -48,6 +50,9 @@ export const SystemErrors = React.memo(() => {
   const [errors] = useState(MOCK_SYSTEM_ERRORS);
   const [isSendLogModalOpen, setIsSendLogModalOpen] = useState(false);
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
+
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'timestamp',
     initialSortDirection: 'desc',
@@ -58,7 +63,6 @@ export const SystemErrors = React.memo(() => {
       <TopBar title={<TranslatedText stringId="systemErrors.title" fallback="System errors" />}>
         <Button
           color="primary"
-          variant="outlined"
           onClick={() => setIsSendLogModalOpen(true)}
         >
           <SendErrorLogButtonLabel count={errors.length} />
@@ -68,7 +72,6 @@ export const SystemErrors = React.memo(() => {
         <Table
           data={errors}
           columns={COLUMNS}
-          allowExport={false}
           noDataMessage={
             <TranslatedText
               stringId="systemErrors.table.noData"
@@ -79,6 +82,11 @@ export const SystemErrors = React.memo(() => {
           customSort={customSort}
           orderBy={orderBy}
           order={order}
+          page={page}
+          count={errors.length}
+          rowsPerPage={rowsPerPage}
+          onChangePage={setPage}
+          onChangeRowsPerPage={setRowsPerPage}
         />
       </ContentPane>
       <SendErrorLogModal
