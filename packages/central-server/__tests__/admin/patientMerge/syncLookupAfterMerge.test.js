@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { FACT_CURRENT_SYNC_TICK, SETTINGS_SCOPES } from '@tamanu/constants';
 
