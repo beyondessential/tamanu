@@ -36,6 +36,12 @@ export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
 
+// Set once a facility server has derived the split medDispenseEnabled/stockOnHandEnabled
+// settings from the legacy combined `integrations.mSupplyMed.enabled` flag, so the
+// one-off migration runs only once per server.
+export const FACT_MSUPPLY_INTEGRATION_SETTINGS_MIGRATED_FACILITY =
+  'mSupplyIntegrationSettingsMigratedFacility';
+
 // Deployment-wide pre-shared key that encrypts integration secrets in the
 // settings table. Generated on central and pulled by facilities (settings sync
 // central→facility, so a per-host key can't decrypt cross-server secrets). Held

@@ -3,6 +3,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'semver';
 import { buildVersionCompatibilityCheck } from '@tamanu/shared/utils';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 const pkgpath = join(dirname(fileURLToPath(import.meta.url)), '../../package.json');
 const pkgjson = JSON.parse(readFileSync(pkgpath, 'utf8'));
@@ -23,5 +24,34 @@ export const MIN_CLIENT_VERSION = MIN_CLIENT_OVERRIDE ?? `${major}.${minor}.0`;
 export const MAX_CLIENT_VERSION = `${major}.${minor}.999`;
 // Note that .999 is only for clarity; higher patch versions will always be allowed
 
-export const versionCompatibility = updateUrls =>
-  buildVersionCompatibilityCheck(MIN_CLIENT_VERSION, MAX_CLIENT_VERSION, updateUrls);
+// Only the desktop web app is a version-controlled client on the facility server. Any other
+// caller (third-party integrations such as SENAITE, RIS/PACS, etc.) is left unchecked, the same
+// way the central server's equivalent allow-list (VERSION_CONTROLLED_CLIENTS in
+// packages/central-server/app/middleware/versionCompatibility.js) treats unlisted clients.
+export const VERSION_CONTROLLED_CLIENTS = {
+  [SERVER_TYPES.WEBAPP]: {
+    min: MIN_CLIENT_VERSION,
+    max: MAX_CLIENT_VERSION,
+  },
+};
+
+export const versionCompatibility = updateUrls => (req, res, next) => {
+  const clientType = req.header('X-Tamanu-Client');
+
+  if (!clientType) {
+    // a thirdparty tool (or internal test suite) is using the API; ignore version checking
+    next();
+    return;
+  }
+
+  const clientInfo = VERSION_CONTROLLED_CLIENTS[clientType];
+  if (!clientInfo) {
+    // a non version controlled client; ignore version checking
+    next();
+    return;
+  }
+
+  const { min, max } = clientInfo;
+  const runCheck = buildVersionCompatibilityCheck(min, max, updateUrls);
+  runCheck(req, res, next);
+};

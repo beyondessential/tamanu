@@ -16,7 +16,7 @@ import {
 import { z } from 'zod';
 import { TASK_STATUSES, TASK_TYPES, USER_KINDS } from '@tamanu/constants';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
-import { add } from 'date-fns';
+import { add, sub } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
 import { ForbiddenError } from '@tamanu/errors';
 import { dateCustomValidation } from '@tamanu/utils/dateTime';
@@ -249,6 +249,9 @@ user.get(
     const upcomingTasksTimeFrame = await settings[req.facilityId]?.get(
       'tasking.upcomingTasksTimeFrame',
     );
+    const overdueTasksTimeFrame = await settings[req.facilityId]?.get(
+      'tasking.dashboardOverdueTasksTimeFrame',
+    );
 
     const defaultOrder = [
       ['dueTime', 'ASC'],
@@ -338,6 +341,12 @@ user.get(
         status: TASK_STATUSES.TODO,
         dueTime: {
           [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          // The floor bounds the (status, due_time) index scan; without it the
+          // scan starts at the beginning of time and grows with the site's
+          // backlog of never-actioned tasks.
+          ...(overdueTasksTimeFrame != null && {
+            [Op.gte]: toPrimaryDateTimeString(sub(new Date(), { hours: overdueTasksTimeFrame })),
+          }),
         },
         ...(highPriority && { highPriority }),
         [Op.and]: [

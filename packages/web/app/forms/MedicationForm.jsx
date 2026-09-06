@@ -16,6 +16,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MAX_REPEATS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS_LABELS,
@@ -25,6 +26,7 @@ import {
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDefaultIdealTimes,
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
@@ -344,14 +346,14 @@ function PlainTimeRangeDisplay({ start, end }) {
 }
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
-  const { getSetting } = useSettings();
   const { formatShort } = useDateTime();
-  const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
-  const { defaultTimeSlots } = useMedicationIdealTimes({ frequency: values.frequency });
+  const { defaultIdealTimes, defaultTimeSlots } = useMedicationIdealTimes({
+    frequency: values.frequency,
+  });
 
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
@@ -418,9 +420,8 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   };
 
   const getDefaultIdealTimeFromTimeSlot = (slot, index) => {
-    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
     const correspondingSlot = defaultIdealTimes
-      ?.map(findAdministrationTimeSlotFromIdealTime)
+      .map(findAdministrationTimeSlotFromIdealTime)
       .find(it => it.index === index);
     return correspondingSlot?.value || slot.startTime;
   };
@@ -467,9 +468,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const selectedTimeSlot = selectedTimeSlots?.find(s => s.index === index);
             const checked = !!selectedTimeSlot;
             const isDisabled =
-              (!checked &&
-                frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                  selectedTimeSlots?.length) ||
+              (!checked && defaultIdealTimes.length === selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -511,9 +510,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         <TranslatedText
                           stringId="medication.medicationAdministrationSchedule.disabledTooltip"
                           fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
-                          replacements={{
-                            slots: frequenciesAdministrationIdealTimes?.[values.frequency]?.length,
-                          }}
+                          replacements={{ slots: defaultIdealTimes.length }}
                         />
                       )
                     }
@@ -683,13 +680,25 @@ export const MedicationForm = ({
   if (!patient) return null;
 
   const onSubmit = async data => {
-    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
-    if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
+    const defaultIdealTimes = getDefaultIdealTimes(
+      data.frequency,
+      frequenciesAdministrationIdealTimes,
+    );
+    const hasFixedTimes = FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(data.frequency);
+    // The schedule accordion is what populates `timeSlots`, so for the frequencies where it isn't
+    // rendered the field is empty (or stale from a frequency chosen earlier) and the fixed times
+    // are the only source. It's also unpopulated until a frequency has been chosen at all.
+    const timeSlots = data.timeSlots ?? [];
+    if (
+      !isOneTimeFrequency(data.frequency) &&
+      !hasFixedTimes &&
+      timeSlots.length < defaultIdealTimes.length
+    ) {
       setIdealTimesErrorOpen(true);
       return Promise.reject();
     }
 
-    const idealTimes = data.timeSlots.map(slot => slot.value);
+    const idealTimes = hasFixedTimes ? defaultIdealTimes : timeSlots.map(slot => slot.value);
     const payload = {
       ...data,
       doseAmount: data.doseAmount || undefined,
@@ -1114,24 +1123,28 @@ export const MedicationForm = ({
                 component={TooltipTextField}
                 data-testid="medication-field-notes-5b3t"
               />
-              <Hr />
-              {values.frequency ? (
-                <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
-              ) : (
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <FieldLabel>
-                    <TranslatedText
-                      stringId="medication.medicationAdministrationSchedule.label"
-                      fallback="Medication administration schedule"
-                    />
-                  </FieldLabel>
-                  <FieldContent>
-                    <TranslatedText
-                      stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
-                      fallback="Select a frequency above to complete the medication administration schedule"
-                    />
-                  </FieldContent>
-                </div>
+              {!FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(values.frequency) && (
+                <>
+                  <Hr />
+                  {values.frequency ? (
+                    <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
+                  ) : (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <FieldLabel>
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.label"
+                          fallback="Medication administration schedule"
+                        />
+                      </FieldLabel>
+                      <FieldContent>
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
+                          fallback="Select a frequency above to complete the medication administration schedule"
+                        />
+                      </FieldContent>
+                    </div>
+                  )}
+                </>
               )}
 
               {canSendToPharmacy && (

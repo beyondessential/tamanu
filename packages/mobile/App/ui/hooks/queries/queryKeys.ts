@@ -135,3 +135,16 @@ export const settingKeys = {
   all: ['settings'] as const satisfies QueryKey,
   byKey: (key: string) => [...settingKeys.all, key] as const satisfies QueryKey,
 };
+
+// Remote queries. Unlike everything above, these hit a server over the internet rather than the
+// local database, so they aren't covered by the sync-driven cache invalidation in BackendContext.
+export const serverKeys = {
+  all: ['servers'] as const satisfies QueryKey,
+  list: () => [...serverKeys.all, 'list'] as const satisfies QueryKey,
+};
+
+export const translationKeys = {
+  all: ['translations'] as const satisfies QueryKey,
+  languageOptions: (host: string | null | undefined) =>
+    [...translationKeys.all, 'languageOptions', host] as const satisfies QueryKey,
+};

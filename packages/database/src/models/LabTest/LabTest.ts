@@ -35,7 +35,7 @@ export class LabTest extends Model {
         id: primaryKey,
         date: dateType('date', { allowNull: false, defaultValue: getCurrentDateString }),
         result: {
-          type: DataTypes.STRING,
+          type: DataTypes.TEXT,
           allowNull: false,
           defaultValue: '',
         },
