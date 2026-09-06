@@ -110,6 +110,33 @@ Changing `idb://datatrak-db` to `opfs-ahp://datatrak-db` is one line. The work i
 3. **There is no migration path.** OPFS AHP has no import from `idb://`. `dumpDataDir()` produces a gzipped tarball held in memory — on the device whose problem is memory, for the database that is too large, that is the least reliable option available. The realistic path is a fresh OPFS database, a full resync, and deleting the old IndexedDB store to reclaim its space.
 4. **Which means every user pays a full initial sync — the operation that currently fails.** That is TUP-3208 on the Tab A7, and TUP-3161 records that resync after a wipe can fail and block sync entirely. **So the sync fixes (bounded transactions, resumable cursor) must land before the filesystem switch, not after.** Getting this order wrong strands users on a database that will not rebuild.
 5. **Tune `initialPoolSize`.** It defaults to 1000 access-handle files, created and awaited at first start; measure that cost on the slow device.
-6. **Browser matrix.** Safari cannot run OPFS AHP (252 sync access handle cap, which is also why a 1000-file pool fails there); PGlite's matrix lists `idb://` as Chrome and Firefox too. DataTrak's offline mode is gated only on PWA display mode (`isWebApp()` checks `standalone`/`fullscreen`/`minimal-ui`), not on browser, and an iOS home-screen PWA reports `standalone` — so confirm what iOS users get today before narrowing anything.
+6. **Browser matrix.** Checked against the docs source: `idb://` is supported on **Chrome, Safari and Firefox**; `opfs-ahp://` on **Chrome and Firefox only**. Safari is excluded because it caps open sync access handles at 252 and a Postgres install needs over 300 files, so the pool cannot be shrunk under the cap as a workaround. The PGlite maintainers' own standing advice is "We would recommend using the IndexedDB VFS in the browser at the current time as the OPFS VFS is not supported by Safari." DataTrak's offline mode is gated only on PWA display mode (`isWebApp()` checks `standalone`/`fullscreen`/`minimal-ui`), not on browser, and an iOS home-screen PWA reports `standalone`, so iOS users are on the offline path today and `idb://` is serving them.
 
 Separately, and worth doing whichever filesystem wins: DataTrak never calls **`navigator.storage.persist()`**, so both IndexedDB and OPFS data are evictable under storage pressure. On a low-storage tablet that is silent data loss followed by a forced full resync.
+
+### Running OPFS where available and IndexedDB on Safari
+
+Viable, and it is the right shape: `idb://` is supported on Safari, so the fallback keeps iOS working rather than dropping it. Two things make it less trivial than it first looks.
+
+**Feature detection alone picks the wrong filesystem on Safari.** Safari *has* the sync access handle API — the documented failure is a *capacity* limit of 252 handles, not a missing method. So a check like `'createSyncAccessHandle' in FileSystemFileHandle.prototype` returns true on Safari and hands it the filesystem that cannot work. The selection has to be capability detection **plus** a WebKit exclusion:
+
+```ts
+// in the worker, where OPFS lives
+const hasSyncAccessHandles =
+  typeof FileSystemFileHandle !== 'undefined' &&
+  'createSyncAccessHandle' in FileSystemFileHandle.prototype;
+// Safari has the API but caps open handles at 252; Postgres needs 300+
+const isWebKit = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+const dataDir = hasSyncAccessHandles && !isWebKit
+  ? 'opfs-ahp://datatrak-db'
+  : 'idb://datatrak-db';
+```
+
+The exclusion must be **WebKit**, not "Safari": every browser on iOS is WebKit underneath, so Chrome on iOS would otherwise be handed OPFS and fail. Try-and-fall-back is the tempting alternative but is not reliable here — PGlite failures of this kind can surface as an uncatchable WASM trap (see issue #874), and a half-initialised OPFS directory would then need cleaning up before the fallback could start.
+
+**The ongoing cost is two persistence paths, not the branch itself.** Both filesystems stay in production permanently: every storage or sync bug has to be reproduced on both, `relaxedDurability` means different things on each (whole-file IndexedDB writes fire-and-forget, versus skipping `flush()` on OPFS handles), and WebKit needs its own device testing (upstream WebKit CI is already flaky, issue #1085).
+
+**What Safari users would and wouldn't get.** Worth being clear that the split is not "fast everywhere". With `relaxedDurability` the write-latency gap largely closes on IndexedDB — PGlite's own benchmarks put a small insert at 0.085 ms relaxed versus 0.058 ms in memory, against 21 ms unrelaxed. What OPFS uniquely buys is **memory**: block-level reads and writes instead of the whole database resident in WASM memory. That is the specific cause of the tab crash on the 3 GB tablet. So the honest framing is: OPFS is a memory fix, and Safari devices keep today's memory profile.
+
+That makes the split defensible if iOS field devices are higher-spec than the Android tablets, and a problem if low-end iPads are in use. **Worth answering before committing:** which devices and browsers are actually in the field, from the GA telemetry added in TUP-3052.
