@@ -76,3 +76,40 @@ Not recommended: replacing PGlite with SQLite WASM. It is also single-writer, wo
 - How large is the STRIVE PNG local dataset in rows and in on-disk bytes after initial sync? Needed to size OPFS and to decide batch sizes. Can be read from a completed sync on a desktop browser (`pg_database_size` and per-table `pg_total_relation_size`).
 - Was Chris's Tab A7 failure on `tup-3193-test-3` a tab crash or a knex timeout? The Slack thread (C01JD93J4E6, 1785382593.841499) has the detail; Linear only has Andrew's summary.
 - Should the worker also own the sync loop (fetch, parse, persist) so that the UI thread does none of it? Natural once the database is in a worker, but a larger refactor of `ClientSyncManager` and the React hooks that observe it.
+
+## Follow-up: other storage engines, and the cost of the OPFS switch
+
+### Would another engine be faster?
+
+Nothing keeps Postgres. PGlite is the only browser Postgres, so "another storage option" means another SQL dialect, and the client shares `@tupaia/database` with the server.
+
+| Option | Speed vs PGlite | Fixes the actual problem? | Cost |
+| --- | --- | --- | --- |
+| **SQLite WASM** (official `sqlite3.wasm` + OPFS VFS, or wa-sqlite) | Materially faster: about 400 KB gzipped vs PGlite's ~3.3 MB, cold start 30–80 ms vs 200–400 ms, 10 000-row bulk load under 1 s vs 3–5 s | **No.** Also one connection, one writer. The freezes come from main-thread execution and long transactions holding that one connection — SQLite reproduces both exactly | Rewrite of the offline data layer (see below) |
+| **DuckDB WASM** | Slower for this workload | No | Wrong shape: columnar analytics engine, single-row writes are its weak point, and a query over 100 MB can spike browser memory 300–500 MB — the opposite of what a 3 GB tablet needs |
+| **Raw IndexedDB / Dexie** | Fast for key lookups | No | No SQL at all: every query, the model layer and the sync engine are hand-written |
+
+The rewrite cost for SQLite is not dialect translation, it is the sync guarantees. The client schema depends on Postgres machinery with no SQLite equivalent:
+
+- `set_updated_at_sync_tick`, a **plpgsql** trigger, is the mechanism by which every local edit is stamped for sync (migration `20260113033811`, targets `['browser', 'server']`)
+- that trigger calls **`pg_try_advisory_xact_lock_shared`**, and `waitForPendingEditsUsingSyncTick` relies on those advisory locks so a push cannot miss an edit made mid-sync
+- sync persists behind **`SET CONSTRAINTS ALL DEFERRED`** against `DEFERRABLE` foreign keys (`withDeferredSyncSafeguards`), which is how self-referencing hierarchies (`entity.parent_id`) can be inserted in any order
+- `initSyncComponents` and `clearDatabase` introspect **`pg_catalog`/`information_schema`/`pg_tables`** to find tables missing sync columns or triggers
+- bulk upsert uses **`ON CONFLICT ... EXCLUDED`** (`bulkUpdateForClient`), the workaround that made pglite writes tolerable in the first place
+
+Each is a redesign, not a port, and the result is a client dialect permanently diverged from the server. TUP-2301 already weighed PGlite against SQLite WASM and chose PGlite for exactly this reason.
+
+**Recommendation:** don't swap engines. Three of the four measured causes are not "PGlite is slow" and are fixable in place. Revisit only if the worker, OPFS and bounded transactions together still leave the Tab A7 unable to cope, and treat it then as a planned rewrite rather than a swap. The cheaper version of the same idea is upgrading PGlite 0.3.15 → 0.5.x, which Chris has already tried at 0.5.5.
+
+### How straightforward is idb → OPFS?
+
+Changing `idb://datatrak-db` to `opfs-ahp://datatrak-db` is one line. The work is around it, roughly in order of risk:
+
+1. **It cannot happen before the worker lands.** OPFS AHP is worker-only ("It is only available when PGlite is run in a Web Worker"). Chris's worker branch is the prerequisite and is unmerged.
+2. **Spike upstream issue #949 first.** OPFS AHP combined with the multi-tab `PGliteWorker` throws `NoModificationAllowedError: Access Handles cannot be created if there is another open Access Handle…` on 0.4.1 and up. Open since March 2026, two independent reporters, one blocked from upgrading to 0.4 at all. Chris's branch is `PGliteWorker` on 0.5.5 — precisely that combination. If it reproduces, the options are a plain dedicated worker without leader election, staying on `idb://` with relaxed durability, or waiting upstream. **Half a day, and it decides whether the rest is worth planning.**
+3. **There is no migration path.** OPFS AHP has no import from `idb://`. `dumpDataDir()` produces a gzipped tarball held in memory — on the device whose problem is memory, for the database that is too large, that is the least reliable option available. The realistic path is a fresh OPFS database, a full resync, and deleting the old IndexedDB store to reclaim its space.
+4. **Which means every user pays a full initial sync — the operation that currently fails.** That is TUP-3208 on the Tab A7, and TUP-3161 records that resync after a wipe can fail and block sync entirely. **So the sync fixes (bounded transactions, resumable cursor) must land before the filesystem switch, not after.** Getting this order wrong strands users on a database that will not rebuild.
+5. **Tune `initialPoolSize`.** It defaults to 1000 access-handle files, created and awaited at first start; measure that cost on the slow device.
+6. **Browser matrix.** Safari cannot run OPFS AHP (252 sync access handle cap, which is also why a 1000-file pool fails there); PGlite's matrix lists `idb://` as Chrome and Firefox too. DataTrak's offline mode is gated only on PWA display mode (`isWebApp()` checks `standalone`/`fullscreen`/`minimal-ui`), not on browser, and an iOS home-screen PWA reports `standalone` — so confirm what iOS users get today before narrowing anything.
+
+Separately, and worth doing whichever filesystem wins: DataTrak never calls **`navigator.storage.persist()`**, so both IndexedDB and OPFS data are evictable under storage pressure. On a low-storage tablet that is silent data loss followed by a forced full resync.
