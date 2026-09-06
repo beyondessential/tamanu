@@ -175,6 +175,7 @@ export const fhirDataDictionariesSchema = {
     pharmacyOrderId: fhirDataDictionaryString('Pharmacy order ID system', 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html'),
     medicationCodeSystem: fhirDataDictionaryString('Medication code system', 'http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html'),
     medicationRouteCodeSystem: fhirDataDictionaryString('Medication route code system', 'http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html'),
+    diagnosisCodeSystem: fhirDataDictionaryString('Diagnosis code system', 'http://hl7.org/fhir/sid/icd-10'),
     serviceRequestImagingDisplayId: fhirDataDictionaryString('ServiceRequest imaging display ID system', 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html'),
     serviceRequestImagingId: fhirDataDictionaryString('ServiceRequest imaging ID system', 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html'),
     serviceRequestImagingTypeCodeSystem: fhirDataDictionaryString('Imaging type code system', 'http://tamanu.io/data-dictionary/imaging-type-code.html'),
