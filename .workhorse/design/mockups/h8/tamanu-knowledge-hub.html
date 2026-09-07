@@ -238,24 +238,48 @@
   /* Recent changes */
 
   .changes {
+    display: grid;
+    gap: 20px;
+  }
+
+  .change-card {
+    display: grid;
     background: var(--white);
     border: 1px solid var(--outline);
     border-radius: 5px;
     overflow: hidden;
   }
 
-  .change {
-    display: flex;
-    gap: 20px;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--soft-outline);
+  .change-card.featured { grid-template-columns: 1.15fr 1fr; }
+
+  .thumb {
+    display: grid;
+    place-items: center;
+    background: var(--primary-10);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--primary-30);
   }
 
-  .change:last-child { border-bottom: none; }
+  .change-card.featured .thumb { min-height: 288px; }
+  .change-pair .thumb { aspect-ratio: 16 / 9; }
+
+  .change-body { padding: 24px; }
+  .change-card.featured .change-body { padding: 36px; align-self: center; }
 
   .change-meta {
-    flex: 0 0 104px;
-    padding-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .change-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
   }
 
   .version {
@@ -269,16 +293,20 @@
   }
 
   .date {
-    display: block;
-    margin-top: 6px;
     font-size: 12px;
     color: var(--mid-text);
   }
 
   .change-body h3 {
-    margin: 0 0 4px;
-    font-size: 15px;
+    margin: 0 0 8px;
+    font-size: 16px;
     font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .change-card.featured .change-body h3 {
+    font-size: 22px;
+    letter-spacing: -0.2px;
   }
 
   .change-body p {
@@ -286,6 +314,8 @@
     font-size: 14px;
     color: var(--dark-text);
   }
+
+  .change-card.featured .change-body p { font-size: 15px; }
 
   /* Report an issue / request a feature */
 
@@ -627,38 +657,43 @@
     </div>
 
     <div class="changes">
-      <article class="change">
-        <div class="change-meta">
-          <span class="version">v2.63</span>
-          <span class="date">3 Sep 2026</span>
-        </div>
+      <article class="change-card featured">
+        <div class="thumb">Screenshot</div>
         <div class="change-body">
+          <div class="change-meta">
+            <span class="version">v2.63</span>
+            <span class="date">3 Sep 2026</span>
+          </div>
           <h3>Birth certificate number on vaccination certificates</h3>
           <p>Vaccination certificates can show a patient's recorded birth certificate number. Off by default, enabled under Vaccinations settings.</p>
         </div>
       </article>
 
-      <article class="change">
-        <div class="change-meta">
-          <span class="version">v2.62</span>
-          <span class="date">17 Aug 2026</span>
-        </div>
-        <div class="change-body">
-          <h3>Server configuration moves to the admin panel</h3>
-          <p>A large amount of server configuration is now editable in the admin panel rather than in config files.</p>
-        </div>
-      </article>
+      <div class="change-pair">
+        <article class="change-card">
+          <div class="thumb">Screenshot</div>
+          <div class="change-body">
+            <div class="change-meta">
+              <span class="version">v2.62</span>
+              <span class="date">17 Aug 2026</span>
+            </div>
+            <h3>Server configuration moves to the admin panel</h3>
+            <p>A large amount of server configuration is now editable in the admin panel rather than in config files.</p>
+          </div>
+        </article>
 
-      <article class="change">
-        <div class="change-meta">
-          <span class="version">v2.61</span>
-          <span class="date">10 Aug 2026</span>
-        </div>
-        <div class="change-body">
-          <h3>Automatic invoicing of encounter and bed fees</h3>
-          <p>Encounter, bed and inpatient fees are invoiced automatically, so facilities no longer add routine charges by hand.</p>
-        </div>
-      </article>
+        <article class="change-card">
+          <div class="thumb">Screenshot</div>
+          <div class="change-body">
+            <div class="change-meta">
+              <span class="version">v2.61</span>
+              <span class="date">10 Aug 2026</span>
+            </div>
+            <h3>Automatic invoicing of encounter and bed fees</h3>
+            <p>Encounter, bed and inpatient fees are invoiced automatically, so facilities no longer add routine charges by hand.</p>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 

@@ -11,7 +11,8 @@ Working notes for the knowledge hub page mockup.
   three example questions in the hero are one per audience.
 - **Version handling**: Assist asks which version the user is on only when the answer
   depends on it. No version selector in the page chrome.
-- **Recent changes are curated by hand**, not derived from release notes.
+- **Recent changes are curated by hand**, not derived from release notes. Each entry
+  carries an image, laid out as one large featured card with two smaller cards beneath.
 - **Community Q&A ships as a visible placeholder**, reserving its slot below the forms.
 - **Feature request is a three-step wizard** (about you / the problem / the request).
   The issue report stays a single page at four questions.
@@ -37,6 +38,14 @@ The choice determines three other things:
 
 Resolve before the forms are built, not after the first report arrives with a patient
 list in a screenshot.
+
+## Screenshots in recent changes must come from demo data
+
+The recent-changes entries carry screenshots on a public page. Every image must be
+captured from a demo or seeded deployment, never from a live one, and that needs to be a
+standing rule for whoever curates the section each release rather than a one-off check.
+Same exposure as the report forms, but pointed the other way: outbound rather than
+inbound, and permanently public once posted.
 
 ## Open: where the user manuals live
 
