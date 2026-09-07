@@ -74,9 +74,13 @@ for (const name of standalonePackages) {
   TEST_FULL.push({ package: name });
 }
 
+// Also test migrations against postgres 12 while one deployment still runs a
+// pg12 database. TODO: remove in 2027, once its last pg12 user is gone.
+const MIGRATIONS_PG_VERSIONS = ['12', ...POSTGRES_VERSIONS];
+
 const MIGRATIONS_FULL = [];
 for (const server of ['central-server', 'facility-server']) {
-  for (const pg of POSTGRES_VERSIONS) {
+  for (const pg of MIGRATIONS_PG_VERSIONS) {
     MIGRATIONS_FULL.push({ server, postgres: pg });
   }
 }

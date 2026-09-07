@@ -58,7 +58,7 @@ export const buildMedicationsInitialValues = ({
   encounterMedications,
   ongoingMedications,
   draft,
-  isPharmacyOrderEnabled,
+  preselectSendToPharmacyOnDischarge,
 }) => {
   const draftLinesByPrescriptionId = Object.fromEntries(
     (draft?.medications ?? []).map(line => [line.prescriptionId, line]),
@@ -84,9 +84,12 @@ export const buildMedicationsInitialValues = ({
         };
   };
 
-  // Medications prescribed during the encounter are sent to pharmacy on discharge by default; the
-  // patient's other ongoing medications are only sent when the clinician asks for them.
-  encounterMedications.forEach(medication => addMedication(medication, isPharmacyOrderEnabled));
+  // Whether encounter medications start preselected for pharmacy is a per-facility setting; the
+  // patient's other ongoing medications are never preselected, only sent when the clinician asks
+  // for them.
+  encounterMedications.forEach(medication =>
+    addMedication(medication, preselectSendToPharmacyOnDischarge),
+  );
   ongoingMedications.forEach(medication => addMedication(medication, false));
   return medicationsInitialValues;
 };

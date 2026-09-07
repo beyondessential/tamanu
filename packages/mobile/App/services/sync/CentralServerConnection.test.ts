@@ -120,7 +120,52 @@ describe('CentralServerConnection', () => {
         {
           changes: mockChanges,
         },
+        { compress: true },
       );
+    });
+
+    it('should send large push bodies as a JSON string with Content-Encoding: gzip', async () => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: {} });
+      // enough records to comfortably exceed the 1KB compression threshold
+      const mockChanges = Array.from({ length: 50 }, (_, i) => ({
+        id: `test-id-${i}`,
+        recordId: `test-record-id-${i}`,
+        recordType: 'test-type',
+        data: { id: `test-id-${i}` },
+      }));
+
+      await centralServerConnection.push(mockSessionId, mockChanges);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      const requestConfig = mockAxiosRequest.mock.calls[0][0];
+      expect(requestConfig.headers).toMatchObject({
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip',
+      });
+      // React Native's networking layer only gzips string bodies (and strips
+      // the Content-Encoding header for any other body type), so the body must
+      // go out as a pre-serialised JSON string
+      expect(typeof requestConfig.data).toBe('string');
+      expect(JSON.parse(requestConfig.data)).toEqual({ changes: mockChanges });
+    });
+
+    it('should send small push bodies as plain JSON', async () => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: {} });
+      const mockChanges = [
+        {
+          id: 'test-id-1',
+          recordId: 'test-record-id',
+          recordType: 'test-type-1',
+          data: { id: 'test-id-1' },
+        },
+      ];
+
+      await centralServerConnection.push(mockSessionId, mockChanges);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      const requestConfig = mockAxiosRequest.mock.calls[0][0];
+      expect(requestConfig.headers['Content-Encoding']).toBeUndefined();
+      expect(requestConfig.data).toEqual({ changes: mockChanges });
     });
   });
   describe('completePush', () => {
