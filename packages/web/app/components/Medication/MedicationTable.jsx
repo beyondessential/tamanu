@@ -332,9 +332,7 @@ export const EncounterMedicationTable = ({
 
   const queryClient = useQueryClient();
 
-  // The table fetches for itself rather than through react-query, so it can't see the cache
-  // invalidations the rest of the encounter uses to say the medications have changed. Refetching
-  // whenever this query lands new data picks those up, wherever they were fired from.
+  // The table fetches outside react-query, so this query is here for its invalidations, not its data.
   const { dataUpdatedAt: medicationsUpdatedAt } = useEncounterMedicationQuery(encounter.id);
 
   const canCreatePrescription = ability.can('create', 'Medication');

@@ -1,9 +1,3 @@
-/*
- * The encounter medication table fetches for itself rather than through react-query, so a change
- * made elsewhere in the encounter (the discharge form discontinuing a medication, for one) only
- * reaches it if invalidating the encounter medication query makes it refetch.
- */
-
 import * as React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
