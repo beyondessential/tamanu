@@ -15,6 +15,7 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
+import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
@@ -327,10 +328,14 @@ export const EncounterMedicationTable = ({
   const { ability } = useAuth();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
   const [medications, setMedications] = useState([]);
 
   const queryClient = useQueryClient();
+
+  // The table fetches for itself rather than through react-query, so it can't see the cache
+  // invalidations the rest of the encounter uses to say the medications have changed. Refetching
+  // whenever this query lands new data picks those up, wherever they were fired from.
+  const { dataUpdatedAt: medicationsUpdatedAt } = useEncounterMedicationQuery(encounter.id);
 
   const canCreatePrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
@@ -354,7 +359,6 @@ export const EncounterMedicationTable = ({
   };
 
   const handleRefreshTable = () => {
-    setRefreshCount(refreshCount + 1);
     queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
   };
 
@@ -401,7 +405,7 @@ export const EncounterMedicationTable = ({
         allowExport={false}
         disablePagination
         onRowClick={handleRowClick}
-        refreshCount={refreshCount}
+        refreshCount={medicationsUpdatedAt}
         onDataFetched={onMedicationsFetched}
         $noData={medications.length === 0}
         noDataMessage={
