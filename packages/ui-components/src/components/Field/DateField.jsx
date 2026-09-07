@@ -80,14 +80,6 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
 ))`
   z-index: 1500;
 
-  .MuiPickersLayout-contentWrapper {
-    max-height: 300px;
-  }
-
-  .MuiDateCalendar-root {
-    max-height: 300px;
-  }
-
   .MuiPickersCalendarHeader-root {
     margin-top: 8px;
     min-height: unset;
