@@ -1,10 +1,27 @@
+import { Op } from 'sequelize';
 import { upperFirst } from 'es-toolkit/compat';
 import {
   REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
   SUGGESTER_ENDPOINTS,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+
+// Some reference data types have a value stored as a ReferenceDataRelation (parent = this record,
+// child = another reference-data record) rather than a column. The manage UI surfaces it as a
+// synthetic suggester column (idKey, writable) plus a read-only name column (nameKey) for the
+// table; getColumnsForModel injects those, and the list/create/edit handlers translate between the
+// column and the relation. Currently just lab test category's default specimen type.
+export const RELATION_BACKED_COLUMNS = {
+  [REFERENCE_TYPES.LAB_TEST_CATEGORY]: {
+    idKey: 'defaultSpecimenTypeId',
+    nameKey: 'defaultSpecimenType',
+    relationType: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+    suggesterEndpoint: 'specimenType',
+  },
+};
 
 export const getModelForType = (models, type) => {
   if (REFERENCE_TYPE_VALUES.includes(type)) {
@@ -119,7 +136,7 @@ const getDbColumnInfo = async model => {
   return new Map(results.map(row => [row.column_name, row]));
 };
 
-export const getColumnsForModel = async model => {
+export const getColumnsForModel = async (model, referenceDataType) => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   const dbColumns = await getDbColumnInfo(model);
@@ -153,10 +170,87 @@ export const getColumnsForModel = async model => {
 
   // Slot each FK's read-only name column in immediately after its id column.
   const nameColByFk = new Map(getForeignKeyNameColumns(model).map(c => [c.fkKey, c]));
-  return baseColumns.flatMap(col => {
+  const columns = baseColumns.flatMap(col => {
     const nameCol = nameColByFk.get(col.key);
     return nameCol ? [col, nameCol] : [col];
   });
+
+  // Append the synthetic relation-backed columns (a writable suggester + a read-only name), if any.
+  const relationBacked = RELATION_BACKED_COLUMNS[referenceDataType];
+  if (!relationBacked) return columns;
+  return [
+    ...columns,
+    {
+      key: relationBacked.idKey,
+      type: 'STRING',
+      allowNull: true,
+      hasDefault: false,
+      readOnly: false,
+      readOnlyOnEdit: false,
+      suggesterEndpoint: relationBacked.suggesterEndpoint,
+      isRelationBacked: true,
+    },
+    {
+      key: relationBacked.nameKey,
+      type: 'STRING',
+      allowNull: true,
+      hasDefault: false,
+      readOnly: true,
+      isRelationBacked: true,
+    },
+  ];
+};
+
+// Populate each row's relation-backed value (child id + child name) from the ReferenceDataRelation,
+// so the manage table and edit form can display and edit it. Mutates rows in place.
+export const attachRelationBackedValues = async (models, referenceDataType, rows) => {
+  const config = RELATION_BACKED_COLUMNS[referenceDataType];
+  if (!config || rows.length === 0) return;
+
+  const children = await models.ReferenceDataRelation.getSingleChildByParentIds(
+    rows.map(row => row.id),
+    config.relationType,
+  );
+  for (const row of rows) {
+    const child = children.get(row.id);
+    row[config.idKey] = child?.id ?? null;
+    row[config.nameKey] = child?.name ?? null;
+  }
+};
+
+// Translate a create/edit payload's relation-backed value into an at-most-one ReferenceDataRelation
+// (destroy-then-recreate). A blank value clears it. The field is only acted on when present in the
+// payload, so a partial update that omits it leaves the existing default untouched (matching how
+// omitted columns are left unchanged).
+export const applyRelationBackedWrite = async (models, referenceDataType, parentId, rawData) => {
+  const config = RELATION_BACKED_COLUMNS[referenceDataType];
+  if (!config) return;
+  if (!Object.prototype.hasOwnProperty.call(rawData, config.idKey)) return;
+
+  const childId = rawData[config.idKey] || null;
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: parentId,
+      type: config.relationType,
+      ...(childId ? { referenceDataId: { [Op.ne]: childId } } : {}),
+    },
+  });
+
+  if (childId) {
+    const existing = await models.ReferenceDataRelation.findOne({
+      where: { referenceDataParentId: parentId, referenceDataId: childId, type: config.relationType },
+      paranoid: false,
+    });
+    if (existing) {
+      if (existing.deletedAt) await existing.restore();
+    } else {
+      await models.ReferenceDataRelation.create({
+        referenceDataParentId: parentId,
+        referenceDataId: childId,
+        type: config.relationType,
+      });
+    }
+  }
 };
 
 export const assertValidType = type => {
@@ -171,7 +265,11 @@ export const assertValidType = type => {
 
 export const getWritableData = (columns, data, isEditMode) => {
   const writableKeys = new Set(
-    columns.filter(c => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map(c => c.key),
+    columns
+      // Relation-backed columns aren't real columns; they're written separately (see
+      // applyRelationBackedWrite), so keep them out of the column write set.
+      .filter(c => !c.readOnly && !c.isRelationBacked && !(isEditMode && c.readOnlyOnEdit))
+      .map(c => c.key),
   );
   return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
 };

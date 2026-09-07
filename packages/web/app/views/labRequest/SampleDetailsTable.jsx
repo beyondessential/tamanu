@@ -166,11 +166,20 @@ export const SampleDetailsTable = ({
                 component={DateTimeField}
                 max={getCurrentDateTime()}
                 onChange={({ target: { value } }) => {
-                  // The field writes sampleTime itself; here we only default the collector to the
-                  // current user the first time a time is entered. An empty or invalid time leaves
-                  // the row's other values intact — categories with no time are dropped on submit.
-                  if (value && !details?.collectedById && currentUser?.id) {
+                  // The field writes sampleTime itself; here we default the collector (current user)
+                  // and the specimen type (the category's default) the first time a time is entered,
+                  // only when empty so an existing value is never overwritten. An empty or invalid
+                  // time leaves the row's other values intact — categories with no time are dropped
+                  // on submit.
+                  if (!value) return;
+                  if (!details?.collectedById && currentUser?.id) {
                     setFieldValue(`${categoryField}.collectedById`, currentUser.id);
+                  }
+                  if (!details?.specimenTypeId && sample.category?.defaultSpecimenTypeId) {
+                    setFieldValue(
+                      `${categoryField}.specimenTypeId`,
+                      sample.category.defaultSpecimenTypeId,
+                    );
                   }
                 }}
                 data-testid="styledfield-sampletime"

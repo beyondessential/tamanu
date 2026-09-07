@@ -25,10 +25,12 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
       columns
         .filter(
           col =>
-            SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
-            col.suggesterEndpoint ||
-            col.enumValues ||
-            col.key === AVAILABLE_FACILITIES_KEY,
+            // Relation-backed columns aren't real columns, so they can't be searched server-side.
+            !col.isRelationBacked &&
+            (SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
+              col.suggesterEndpoint ||
+              col.enumValues ||
+              col.key === AVAILABLE_FACILITIES_KEY),
         )
         .sort((a, b) => getFieldSortOrder(a) - getFieldSortOrder(b)),
     [columns],

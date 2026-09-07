@@ -85,6 +85,7 @@ import { SampleDetailsTable } from '../../../app/views/labRequest/SampleDetailsT
 
 const CATEGORY_ID = 'category-1';
 const COLLECTED_BY_FIELD = `sampleDetails.${CATEGORY_ID}.collectedById`;
+const DEFAULT_SPECIMEN_TYPE_ID = 'specimen-type-default';
 
 const noopSuggester = {
   fetchSuggestions: async () => [],
@@ -94,7 +95,7 @@ const noopSuggester = {
 const readSampleDetails = () =>
   JSON.parse(screen.getByTestId('formik-values').textContent).sampleDetails ?? {};
 
-const renderSampleDetails = () =>
+const renderSampleDetails = ({ defaultSpecimenTypeId } = {}) =>
   renderElementWithTranslatedText(
     <Formik initialValues={{ sampleDetails: {} }} initialStatus={{}} onSubmit={() => {}}>
       {({ values }) => (
@@ -103,7 +104,7 @@ const renderSampleDetails = () =>
             samples={[
               {
                 categoryId: CATEGORY_ID,
-                category: { id: CATEGORY_ID, name: 'Category One' },
+                category: { id: CATEGORY_ID, name: 'Category One', defaultSpecimenTypeId },
                 testNames: ['FBC'],
               },
             ]}
@@ -160,5 +161,28 @@ describe('SampleDetailsTable', () => {
     await waitFor(() => {
       expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe('explicit-collector');
     });
+  });
+
+  it("defaults the specimen type to the category's default when a sample time is entered", async () => {
+    const user = userEvent.setup();
+    renderSampleDetails({ defaultSpecimenTypeId: DEFAULT_SPECIMEN_TYPE_ID });
+
+    await user.click(screen.getByTestId('set-collection-time'));
+
+    await waitFor(() => {
+      expect(readSampleDetails()[CATEGORY_ID]?.specimenTypeId).toBe(DEFAULT_SPECIMEN_TYPE_ID);
+    });
+  });
+
+  it('leaves the specimen type blank when the category has no default', async () => {
+    const user = userEvent.setup();
+    renderSampleDetails();
+
+    await user.click(screen.getByTestId('set-collection-time'));
+
+    await waitFor(() =>
+      expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe(CURRENT_USER_ID),
+    );
+    expect(readSampleDetails()[CATEGORY_ID]?.specimenTypeId).toBeFalsy();
   });
 });
