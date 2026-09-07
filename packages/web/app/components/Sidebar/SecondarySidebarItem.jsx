@@ -28,6 +28,7 @@ const Dot = styled.div`
   background: ${(props) => props.$color};
   margin-right: 14px;
 `;
+// test
 export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => {
   const dataTestIdSuffix = path.replace(/\//g, '-');
   return (
