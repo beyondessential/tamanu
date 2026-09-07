@@ -38,8 +38,17 @@ const Wrapper = styled.div`
 const Column = styled.div`
   display: flex;
   flex-direction: column;
-  width: 50%;
+  min-width: 0;
   padding: 1rem;
+`;
+
+// The test list is wider than the selected panel, matching the design's ~62/38 split.
+const ListColumn = styled(Column)`
+  flex: 62;
+`;
+
+const SelectedColumn = styled(Column)`
+  flex: 38;
 `;
 
 const VerticalLine = styled.div`
@@ -412,7 +421,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
 
   return (
     <Wrapper data-testid="test-selector">
-      <Column data-testid="test-selector-list">
+      <ListColumn data-testid="test-selector-list">
         <Controls>
           <StyledSearchInput
             name="search"
@@ -468,9 +477,9 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
               </React.Fragment>
             ))}
         </ScrollList>
-      </Column>
+      </ListColumn>
       <VerticalLine />
-      <Column data-testid="test-selector-selected">
+      <SelectedColumn data-testid="test-selector-selected">
         <SelectedHeader>
           <SectionTitle>
             <TranslatedText
@@ -501,7 +510,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
             </React.Fragment>
           ))}
         </ScrollList>
-      </Column>
+      </SelectedColumn>
     </Wrapper>
   );
 };
