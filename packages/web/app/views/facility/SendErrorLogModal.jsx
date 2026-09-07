@@ -6,6 +6,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
+  FullWidthRow,
   TextField,
   TranslatedText,
 } from '@tamanu/ui-components';
@@ -19,9 +20,19 @@ const StyledDivider = styled(Divider)`
   margin: 20px 0;
 `;
 
+const ActionRowDivider = styled(Divider)`
+  margin: 40px 0 30px;
+`;
+
 const EmphasisedCount = styled.span`
   font-weight: 700;
   text-decoration: underline;
+`;
+
+const ReportingSubtitleText = styled(BodyText)`
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 26px;
 `;
 
 // Sends the error log to the Tamanu support team. This is a first-pass mock: it only
@@ -41,7 +52,7 @@ export const SendErrorLogButtonLabel = ({ count }) =>
   );
 
 const ReportingSubtitle = ({ count }) => (
-  <BodyText color="textSecondary" data-testid="send-error-log-subtitle">
+  <ReportingSubtitleText color="textSecondary" data-testid="send-error-log-subtitle">
     <TranslatedText stringId="systemErrors.modal.subtitle.prefix" fallback="Reporting" />{' '}
     <EmphasisedCount>{count}</EmphasisedCount>{' '}
     {count === 1 ? (
@@ -55,7 +66,7 @@ const ReportingSubtitle = ({ count }) => (
         fallback="errors to the Tamanu support team."
       />
     )}
-  </BodyText>
+  </ReportingSubtitleText>
 );
 
 export const SendErrorLogModal = ({ open, onClose, errors }) => {
@@ -75,7 +86,12 @@ export const SendErrorLogModal = ({ open, onClose, errors }) => {
   };
 
   return (
-    <FormModal open={open} onClose={onClose} title={<SendErrorLogButtonLabel count={count} />}>
+    <FormModal
+      open={open}
+      onClose={onClose}
+      title={<SendErrorLogButtonLabel count={count} />}
+      width="md"
+    >
       <ReportingSubtitle count={count} />
       <StyledDivider />
       <Form
@@ -101,11 +117,11 @@ export const SendErrorLogModal = ({ open, onClose, errors }) => {
                 }
                 component={TextField}
                 multiline
-                minRows={4}
+                minRows={3}
               />
             </FormGrid>
             <StyledDivider />
-            <BodyText color="textSecondary" mb={2}>
+            <BodyText color="textSecondary" mb={1}>
               <TranslatedText
                 stringId="systemErrors.modal.email.description"
                 fallback="Enter your email if you're okay with our support team contacting you for further information."
@@ -119,6 +135,9 @@ export const SendErrorLogModal = ({ open, onClose, errors }) => {
                 type="email"
               />
             </FormGrid>
+            <FullWidthRow data-testid="fullwidthrow-send-error-log">
+              <ActionRowDivider />
+            </FullWidthRow>
             <FormSubmitCancelRow
               onConfirm={submitForm}
               onCancel={onClose}
