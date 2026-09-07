@@ -1,3 +1,4 @@
+import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
 import { Database } from '~/infra/db';
 import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
@@ -37,6 +38,53 @@ describe('MedicationAdministrationRecord', () => {
       for (const record of records) {
         expect(record.dueAt).toMatch(ISO_9075_DATETIME);
       }
+    });
+
+    it('generates records for hourly, whose administration times are fixed', async () => {
+      const prescription = await Database.models.Prescription.createAndSaveOne({
+        date: getCurrentDateTimeString(),
+        startDate: getCurrentDateTimeString(),
+        frequency: ADMINISTRATION_FREQUENCIES.HOURLY,
+        idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.HOURLY].startTimes.join(
+          ',',
+        ),
+        dosingUnit: 'mg',
+      });
+
+      await Database.models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+        prescription,
+      );
+
+      const records = await Database.models.MedicationAdministrationRecord.find({
+        where: { prescriptionId: prescription.id },
+      });
+
+      expect(records.length).toBeGreaterThan(0);
+      for (const record of records) {
+        expect(record.dueAt).toMatch(ISO_9075_DATETIME);
+      }
+    });
+
+    // Central allows an empty idealTimes array, which arrives here as ''. That must degrade to
+    // "no records" rather than throwing part-way through.
+    it('generates no records, without throwing, when there are no administration times', async () => {
+      const prescription = await Database.models.Prescription.createAndSaveOne({
+        date: getCurrentDateTimeString(),
+        startDate: getCurrentDateTimeString(),
+        frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+        idealTimes: '',
+        dosingUnit: 'mg',
+      });
+
+      await Database.models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+        prescription,
+      );
+
+      const records = await Database.models.MedicationAdministrationRecord.find({
+        where: { prescriptionId: prescription.id },
+      });
+
+      expect(records).toHaveLength(0);
     });
   });
 });

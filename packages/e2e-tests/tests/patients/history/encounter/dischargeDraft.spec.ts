@@ -59,7 +59,11 @@ const getDischarge = async (api: APIRequestContext, encounterId: string) => {
 
 // Drafts shipped in 2.26 and were then unreachable for over a year without anything noticing,
 // because no test drove the form from saving through to resuming. These cover that loop.
-test.describe('Discharge draft', () => {
+// Skipped while the discharge draft workflow is hidden: its entry points are gated behind
+// IS_DISCHARGE_DRAFT_ENABLED in packages/web/app/forms/dischargeDraft.js, which is false pending
+// Product design on tracking edits to the discharge planning note (Workhorse card A8). The
+// coverage below is kept whole so it comes back with the flag rather than being rewritten.
+test.describe.skip('Discharge draft', () => {
   test('A part-filled discharge can be saved and resumed', async ({
     api,
     newPatient,

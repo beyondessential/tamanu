@@ -89,7 +89,6 @@ const DATE_FORMATS = {
 const TIME_FORMATS = {
   default: 'formatTime',
   withSeconds: 'formatTimeWithSeconds',
-  slot: 'formatTimeSlot',
 };
 
 const WEEKDAY_FORMATS = {
@@ -123,7 +122,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
 /**
  * TimeDisplay - Displays time only
  * @param {string|Date} date - The date/time value
- * @param {string} format - "default" | "withSeconds" | "slot"
+ * @param {string} format - "default" | "withSeconds"
  * @param {boolean} noTooltip - Disable hover tooltip
  *
  * @example
@@ -132,9 +131,6 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
  *
  * // format="withSeconds" → "9:30:00am"
  * <TimeDisplay date="2024-03-15 09:30:45" format="withSeconds" />
- *
- * // format="slot" → "9am" (hour only, for calendar slots)
- * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, ...props }) => {
@@ -172,7 +168,7 @@ export const TimeDisplay = React.memo(
  * @param {string|Date} date - The date value
  * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | "dayMonth" | null (for weekday/time only)
  * @param {string} weekdayFormat - "short" (e.g. "Fri") | "long" (e.g. "Friday") | "narrow" (e.g. "F") | null (default, hides weekday)
- * @param {string} timeFormat - "default" (e.g. "9:30am") | "withSeconds" (e.g. "9:30:00am") | "slot" (e.g. "9am") | null (default, hides time)
+ * @param {string} timeFormat - "default" (e.g. "9:30am") | "withSeconds" (e.g. "9:30:00am") | null (default, hides time)
  * @param {boolean} noTooltip - Disable hover tooltip
  *
  * @example

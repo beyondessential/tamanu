@@ -4,6 +4,8 @@ import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import { type InitOptions } from '../types/model';
 
+const MAX_STORED_ERROR_LENGTH = 5000;
+
 export class SyncSession extends Model {
   declare id: string;
   declare startTime?: Date;
@@ -89,9 +91,13 @@ export class SyncSession extends Model {
   }
 
   async markErrored(error: string) {
+    // error messages may embed raw binary (e.g. the body of a failed request);
+    // Postgres rejects NUL bytes in TEXT columns, so sanitize before persisting
+    // lest recording the error itself fail
+    const sanitized = String(error).replaceAll('\u0000', '').slice(0, MAX_STORED_ERROR_LENGTH);
     const errors = this.errors || [];
     await this.update({
-      errors: [...errors, error],
+      errors: [...errors, sanitized],
       completedAt: new Date(),
     });
   }

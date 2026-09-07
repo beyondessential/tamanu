@@ -1,38 +1,50 @@
-import { ClickAwayListener, Fade, IconButton, Paper, Popper } from '@material-ui/core';
+import { ClickAwayListener, Popper } from '@material-ui/core';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import IconButton, { iconButtonClasses } from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
-import { addHours, set } from 'date-fns';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { set } from 'date-fns';
+import React, { useId, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import * as yup from 'yup';
 
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
-import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   Button,
   Field,
   Form,
   NumberField,
+  OuterLabelFieldWrapper,
   RequiredOrnament,
+  TAMANU_COLORS,
   TranslatedEnum,
   TranslatedText,
   useDateTime,
 } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
-import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { MAR_WARNING_MODAL } from '../../../constants/medication';
-import { Colors } from '../../../constants/styles';
-import { useEncounter } from '../../../contexts/Encounter';
-import { isWithinTimeSlot } from '../../../utils/medications';
-import { TimePickerField } from '../../Field/TimePickerField';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
-import { WarningModal } from '../WarningModal';
+import {
+  useGivenMarMutation,
+  useNotGivenMarMutation,
+} from '../../../../api/mutations/useMarMutation';
+import { useSuggestionsQuery } from '../../../../api/queries/useSuggestionsQuery';
+import { MAR_WARNING_MODAL } from '../../../../constants/medication';
+import { useEncounter } from '../../../../contexts/Encounter';
+import { isWithinTimeSlot } from '../../../../utils/medications';
+import { TimePickerField } from '../../../Field/TimePickerField';
+import { NoteModalActionBlocker } from '../../../NoteModalActionBlocker';
+import { WarningModal } from '../../WarningModal';
+import { getSubSlotDueAt } from '../marTimeSlots';
 
-const StyledPaper = styled(Paper)`
-  box-shadow: 0px 8px 32px 0px #00000026;
+const StyledPaper = styled.div`
+  background-color: ${p => p.theme.palette.background.paper};
   border-radius: 5px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  box-shadow: 0 8px 32px 0 oklch(0 0 0 / 15%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-inline-size: 8rem;
+  padding: 10px;
   position: relative;
 
   &::before {
@@ -42,8 +54,7 @@ const StyledPaper = styled(Paper)`
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-block: 8px solid transparent;
     z-index: 2;
     ${p =>
       p.$placement === 'right'
@@ -64,8 +75,7 @@ const StyledPaper = styled(Paper)`
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    border-top: 9px solid transparent;
-    border-bottom: 9px solid transparent;
+    border-block: 9px solid transparent;
     z-index: 1;
     ${p =>
       p.$placement === 'right'
@@ -82,86 +92,95 @@ const StyledPaper = styled(Paper)`
   }
 `;
 
-const PopperContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 11px 14px;
-`;
-
-const StyledButton = styled(Button)`
-  color: ${p => p.$color};
-  border-color: ${p => p.$color} !important;
+const StyledForm = styled(Form)`
+  > * + * {
+    margin-block-start: 8px;
+  }
 `;
 
 const DoseContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 7px;
-  gap: 5px;
+  justify-content: center;
+  gap: 4px;
+  inline-size: 100%;
 `;
 
-const DoseButton = styled(IconButton)`
-  padding: 5px;
-  margin: -5px;
-  svg {
-    color: ${p => (p.disabled ? Colors.softText : Colors.primary)};
-    width: 14px;
-    height: 14px;
+const DoseButton = styled(IconButton).attrs({ size: 'small' })`
+  &.${iconButtonClasses.root} {
+    padding: 0;
+    color: ${p => p.theme.palette.primary.main};
+    &:disabled {
+      color: ${TAMANU_COLORS.softText};
+    }
   }
-  ${p => p.$hidden && 'opacity: 0;'}
+  svg {
+    font-size: 16px;
+  }
 `;
 
-const TimeGivenTitle = styled.div`
-  color: ${Colors.darkText};
+const ConfirmButton = styled(Button).attrs({
+  children: <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
+  fullWidth: true,
+  size: 'small',
+  variant: 'outlined',
+})`
+  block-size: 32px;
   font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 3px;
-`;
-
-const ConfirmButton = styled(Button)`
-  min-width: 95px;
-  width: 100%;
-  height: 32px;
-  font-size: 12px;
-  margin-top: 7px;
 `;
 
 const StyledNumberFieldWrapper = styled.div`
-  position: relative;
+  border-radius: ${p => p.theme.shape.borderRadius}px;
+  border: 1px solid ${p => p.theme.palette.divider};
+  display: grid;
+  font-size: 11px;
+  grid-template-columns: 1fr auto;
+  padding: 1px;
+
+  &:has(:focus-within) {
+    border-color: ${p => p.theme.palette.primary.main};
+  }
+
+  .MuiTextField-root,
+  .MuiInputBase-root,
+  .MuiInputBase-input {
+    font-size: inherit;
+    block-size: 100%;
+  }
 
   .MuiInputBase-input {
-    font-size: 11px;
-    height: 17px;
-    padding: 1px calc(${p => p.$units?.length ?? 0}ch + 5px) 1px 3px;
-    text-align: center;
-    width: 41px;
-
-    /* Remove the spinner arrows */
+    padding: 0;
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0px;
     }
+    &:is(:focus, :focus-visible) {
+      border: 0;
+      outline: 0;
+    }
+  }
+
+  .MuiOutlinedInput-notchedOutline {
+    display: none;
   }
 `;
 
 const InputSuffix = styled.span`
-  font-size: 11px;
-  position: absolute;
-  right: 3px;
-  top: 1.7px;
-  color: ${Colors.midText};
+  color: ${p => p.theme.palette.text.tertiary};
 `;
 
-const StyledTimePicker = styled(Field)`
-  margin-bottom: 7px;
+const StyledTimePicker = styled(Field).attrs({
+  component: TimePickerField,
+  format: 'hh:mmaa',
+  timeSteps: { minutes: 1 },
+})`
   .MuiInputBase-root {
+    background-color: ${p => p.theme.palette.background.paper};
+    color: ${p => p.theme.palette.text.primary};
     font-size: 12px;
     height: 32px;
     width: 100%;
-    color: ${Colors.darkestText};
-    background-color: ${Colors.white};
     .MuiButtonBase-root {
       padding: 5px;
     }
@@ -175,56 +194,53 @@ const StyledTimePicker = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.primary} !important;
+      border-color: ${p => p.theme.palette.primary.main} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.softText};
+      border-color: ${TAMANU_COLORS.softText};
     }
   }
-
-  /* Add error message styling */
-  .error-message {
-    color: ${Colors.alert};
-    font-size: 10px;
-    margin-top: 2px;
-  }
-`;
-
-const FormContainer = styled.div`
-  padding: 11px 14px;
-  width: ${p => p.$width}px;
-  min-width: 150px;
 `;
 
 const ErrorMessage = styled.div`
-  color: ${Colors.alert};
+  color: ${p => p.theme.palette.error.main};
   font-size: 12px;
-  margin: 4px 2px 2px;
   font-weight: 500;
-  line-height: 15px;
+  line-height: 1.25;
+  margin-block: 4px 2px;
+  margin-inline: 2px;
+`;
+
+const StyledButton = styled(Button).attrs({
+  color: 'inherit',
+  variant: 'outlined',
+})`
+  border-color: ${p => p.$color};
+  color: ${p => p.$color};
+  transition-property: none;
 `;
 
 const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   return (
-    <PopperContent>
+    <>
       <NoteModalActionBlocker>
-        <StyledButton onClick={onGivenClick} variant="outlined" $color={Colors.green}>
+        <StyledButton $color={TAMANU_COLORS.green} onClick={onGivenClick}>
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
       <hr aria-hidden />
       <NoteModalActionBlocker>
-        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
+        <StyledButton $color={TAMANU_COLORS.alert} onClick={onNotGivenClick}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
         </StyledButton>
       </NoteModalActionBlocker>
-    </PopperContent>
+    </>
   );
 };
 
 const ReasonScreen = ({ reasonsNotGiven, onReasonSelect, isUpdatingMarToNotGiven }) => {
   return (
-    <PopperContent>
+    <>
       {reasonsNotGiven?.data?.map(reason => (
         <Button
           key={reason.id}
@@ -235,7 +251,7 @@ const ReasonScreen = ({ reasonsNotGiven, onReasonSelect, isUpdatingMarToNotGiven
           <TranslatedText stringId={reason.name} fallback={reason.name} />
         </Button>
       ))}
-    </PopperContent>
+    </>
   );
 };
 
@@ -244,6 +260,7 @@ export const GivenScreen = ({
   timeSlot,
   selectedDate,
   marId,
+  marDueAt,
   dosingUnit,
   onClose,
   prescriptionId,
@@ -254,16 +271,9 @@ export const GivenScreen = ({
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getFacilityNowDate, toStoredDateTime } = useDateTime();
-  const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
+  const timeGivenInputId = useId();
   const [showWarningModal, setShowWarningModal] = useState(null);
-
-  // Measure the DoseContainer width when component mounts
-  useLayoutEffect(() => {
-    if (doseInputRef.current) {
-      setContainerWidth(doseInputRef.current.offsetWidth + 62);
-    }
-  }, []);
 
   const { mutateAsync: updateMarToGiven, isLoading: isUpdatingMarToGiven } = useGivenMarMutation(
     marId,
@@ -275,21 +285,7 @@ export const GivenScreen = ({
       },
     },
   );
-  const handleDecreaseDose = (doseAmount, setFieldValue) => {
-    if (doseAmount <= 0.25) return;
-    setFieldValue('doseAmount', doseAmount - 0.25);
-  };
-
-  const handleIncreaseDose = (doseAmount, setFieldValue) => {
-    if (!doseAmount) {
-      setFieldValue('doseAmount', 0.5);
-      return;
-    }
-    setFieldValue('doseAmount', doseAmount + 0.5);
-  };
-
-  const handleSubmit = async data => {
-    const { timeGiven, doseAmount } = data;
+  const handleSubmit = async ({ timeGiven, doseAmount }) => {
     if (
       Number(doseAmount) !== Number(prescriptionDoseAmount) &&
       !showWarningModal &&
@@ -304,9 +300,9 @@ export const GivenScreen = ({
       minutes: timeGiven.getMinutes(),
       seconds: timeGiven.getSeconds(),
     });
-    const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToGiven({
-      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
+      dueAt:
+        marDueAt ?? toStoredDateTime(toDateTimeString(getSubSlotDueAt(timeSlot, selectedDate))),
       prescriptionId,
       dose: {
         doseAmount,
@@ -316,7 +312,7 @@ export const GivenScreen = ({
   };
 
   return (
-    <Form
+    <StyledForm
       suppressErrorDialog
       onSubmit={handleSubmit}
       render={({ setFieldValue, values, submitForm, errors }) => (
@@ -329,51 +325,61 @@ export const GivenScreen = ({
               handleSubmit(values);
             }}
           />
-          <FormContainer $width={containerWidth}>
-            <DoseContainer>
-              <DoseButton
-                disabled={values.doseAmount <= 0.25}
-                onClick={() => handleDecreaseDose(values.doseAmount, setFieldValue)}
-                $hidden={isVariableDose}
-              >
-                <RemoveCircleOutlineIcon />
-              </DoseButton>
-              <StyledNumberFieldWrapper $units={dosingUnit} ref={doseInputRef}>
-                <Field name="doseAmount" component={NumberField} min={0.25} />
-                <InputSuffix>
-                  {dosingUnit && (
-                    <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
-                  )}
-                  <RequiredOrnament />
-                </InputSuffix>
-              </StyledNumberFieldWrapper>
-              <DoseButton
-                onClick={() => handleIncreaseDose(values.doseAmount, setFieldValue)}
-                $hidden={isVariableDose}
-              >
-                <AddCircleOutlineIcon />
-              </DoseButton>
-            </DoseContainer>
+          <DoseContainer>
+            <DoseButton
+              onClick={() => {
+                const input = doseInputRef.current;
+                input.stepDown();
+                setFieldValue('doseAmount', input.valueAsNumber);
+              }}
+              disabled={values.doseAmount <= 0.25}
+              style={isVariableDose ? { visibility: 'hidden' } : undefined}
+            >
+              <RemoveCircleOutlineIcon />
+            </DoseButton>
+            <StyledNumberFieldWrapper $units={dosingUnit}>
+              <Field
+                name="doseAmount"
+                component={NumberField}
+                min={0.25}
+                step={0.25}
+                inputRef={doseInputRef}
+              />
+              <InputSuffix>
+                {dosingUnit && (
+                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />
+                )}
+                <RequiredOrnament />
+              </InputSuffix>
+            </StyledNumberFieldWrapper>
+            <DoseButton
+              onClick={() => {
+                const input = doseInputRef.current;
+                input.stepUp();
+                setFieldValue('doseAmount', input.valueAsNumber);
+              }}
+              style={isVariableDose ? { visibility: 'hidden' } : undefined}
+            >
+              <AddCircleOutlineIcon />
+            </DoseButton>
+          </DoseContainer>
 
-            <TimeGivenTitle>
+          <OuterLabelFieldWrapper
+            label={
               <TranslatedText stringId="medication.mar.timeGiven.label" fallback="Time given" />
-              <RequiredOrnament />
-            </TimeGivenTitle>
+            }
+            htmlFor={timeGivenInputId}
+            required
+            size="small"
+          >
             <StyledTimePicker
               name="timeGiven"
-              onChange={value => {
-                setFieldValue('timeGiven', value);
-              }}
-              component={TimePickerField}
-              format="hh:mmaa"
-              timeSteps={{ minutes: 1 }}
+              onChange={value => void setFieldValue('timeGiven', value)}
               error={errors.timeGiven}
               slotProps={{
                 textField: {
-                  InputProps: {
-                    placeholder: '--:-- --',
-                  },
                   error: errors.timeGiven,
+                  id: timeGivenInputId,
                 },
                 digitalClockSectionItem: {
                   sx: { fontSize: '14px' },
@@ -381,26 +387,19 @@ export const GivenScreen = ({
               }}
             />
             {errors.timeGiven && <ErrorMessage>{errors.timeGiven}</ErrorMessage>}
+          </OuterLabelFieldWrapper>
 
-            <div>
-              <ConfirmButton
-                onClick={submitForm}
-                variant="outlined"
-                size="small"
-                disabled={!values.doseAmount || isUpdatingMarToGiven}
-                isSubmitting={isUpdatingMarToGiven}
-              >
-                <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-              </ConfirmButton>
-            </div>
-          </FormContainer>
+          <ConfirmButton
+            onClick={submitForm}
+            disabled={!values.doseAmount || isUpdatingMarToGiven}
+            isSubmitting={isUpdatingMarToGiven}
+          />
         </>
       )}
+      style={{ inlineSize: '8rem' }}
       initialValues={{
         doseAmount: Number(prescriptionDoseAmount) || '',
-        timeGiven: isPast
-          ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-          : getFacilityNowDate(),
+        timeGiven: isPast ? getSubSlotDueAt(timeSlot, selectedDate) : getFacilityNowDate(),
       }}
       validationSchema={yup.object().shape({
         doseAmount: yup
@@ -430,13 +429,14 @@ export const StatusPopper = ({
   anchorEl,
   onClose,
   timeSlot,
+  parentTimeSlot,
   selectedDate,
   marInfo,
   medication,
   isFuture,
   isPast,
 }) => {
-  const { id: marId } = marInfo || {};
+  const { id: marId, dueAt: marDueAt } = marInfo || {};
   const { doseAmount, dosingUnit, id: prescriptionId, isVariableDose } = medication || {};
   const { toStoredDateTime } = useDateTime();
 
@@ -460,11 +460,11 @@ export const StatusPopper = ({
   };
 
   const handleReasonSelect = async reasonNotGivenId => {
-    const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
+      dueAt:
+        marDueAt ?? toStoredDateTime(toDateTimeString(getSubSlotDueAt(timeSlot, selectedDate))),
       prescriptionId,
     });
 
@@ -492,6 +492,7 @@ export const StatusPopper = ({
           selectedDate={selectedDate}
           dosingUnit={dosingUnit}
           marId={marId}
+          marDueAt={marDueAt}
           onClose={onClose}
           prescriptionId={prescriptionId}
           isFuture={isFuture}
@@ -509,8 +510,9 @@ export const StatusPopper = ({
   };
 
   const placement = useMemo(() => {
-    return ['00:00', '02:00', '04:00'].includes(timeSlot.startTime) ? 'right' : 'left';
-  }, [timeSlot]);
+    const windowStart = parentTimeSlot?.startTime ?? timeSlot.startTime;
+    return ['00:00', '02:00', '04:00'].includes(windowStart) ? 'right' : 'left';
+  }, [parentTimeSlot, timeSlot]);
 
   return (
     <Popper
@@ -535,15 +537,9 @@ export const StatusPopper = ({
       }}
       style={{ zIndex: 1300 }}
     >
-      {({ TransitionProps }) => (
-        <Fade {...TransitionProps} timeout={250}>
-          <div>
-            <ClickAwayListener onClickAway={handleClose}>
-              <StyledPaper $placement={placement}>{getContent()}</StyledPaper>
-            </ClickAwayListener>
-          </div>
-        </Fade>
-      )}
+      <ClickAwayListener onClickAway={handleClose}>
+        <StyledPaper $placement={placement}>{getContent()}</StyledPaper>
+      </ClickAwayListener>
     </Popper>
   );
 };
