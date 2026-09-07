@@ -256,7 +256,7 @@ export class Invoice extends Model {
     // ON CONFLICT arbiters.
     // We use an advisory lock here to avoid concurrent creates of the same invoiceItem which would violate
     // the uniqueness constraint.
-    await this.sequelize.transaction(async () => {
+    const upsertInvoiceItem = async () => {
       const lockId = stringToStableInteger(
         `${BASE_INVOICE_ITEM_ADVISORY_KEY}:${invoice.id}:${newItem.getModelName()}:${newItem.id}`,
       );
@@ -285,7 +285,17 @@ export class Invoice extends Model {
           ...values,
         });
       }
-    });
+    };
+
+    // sequelize.transaction() always opens a new connection rather than nesting as a savepoint
+    // under an ambient CLS transaction, so calling it unconditionally here can deadlock against
+    // a caller (e.g. Procedure's updateInvoiceProductAfterUpdateHook) that is already inside a
+    // transaction touching the same invoice item row. Reuse the ambient transaction if present.
+    if (this.sequelize.isInsideTransaction()) {
+      await upsertInvoiceItem();
+    } else {
+      await this.sequelize.transaction(upsertInvoiceItem);
+    }
   }
 
   static async removeItemFromInvoice(
