@@ -37,6 +37,7 @@ export const SampleDetailsContainer = styled.div`
 
 const HeaderCell = styled(Heading4)`
   font-size: 14px;
+  font-weight: 400;
   padding: 15px 16px 15px 0px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.midText};
