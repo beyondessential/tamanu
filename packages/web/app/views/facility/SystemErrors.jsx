@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-components';
 
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
 import { Colors } from '../../constants';
+import { markSystemErrorsRead } from '../../store';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
 
 const NoDataContainer = styled.div`
@@ -35,8 +36,14 @@ export const COLUMNS = [
 ];
 
 export const SystemErrors = React.memo(() => {
+  const dispatch = useDispatch();
   const errors = useSelector(state => state.systemErrors.errors);
   const [isSendLogModalOpen, setIsSendLogModalOpen] = useState(false);
+
+  // Mark all current errors as read
+  useEffect(() => {
+    dispatch(markSystemErrorsRead());
+  }, [dispatch]);
 
   const {
     pageData,
