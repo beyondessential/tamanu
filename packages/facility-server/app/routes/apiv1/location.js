@@ -7,8 +7,33 @@ import { Op } from 'sequelize';
 export const location = express.Router();
 
 location.get('/:id', simpleGet('Location'));
-location.put('/:id', simplePut('Location'));
-location.post('/', simplePost('Location'));
+location.put(
+  '/:id',
+  simplePut('Location', {
+    allowedFields: [
+      'code',
+      'facilityId',
+      'locationGroupId',
+      'maxOccupancy',
+      'name',
+      'visibilityStatus',
+    ],
+  }),
+);
+location.post(
+  '/',
+  simplePost('Location', {
+    allowedFields: [
+      'code',
+      'facilityId',
+      'id',
+      'locationGroupId',
+      'maxOccupancy',
+      'name',
+      'visibilityStatus',
+    ],
+  }),
+);
 location.get(
   '/',
   asyncHandler(async (req, res) => {

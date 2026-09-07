@@ -16,8 +16,8 @@ import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurve
 export const program = express.Router();
 
 program.get('/:id', simpleGet('Program'));
-program.put('/:id', simplePut('Program'));
-program.post('/', simplePost('Program'));
+program.put('/:id', simplePut('Program', { allowedFields: ['code', 'name'] }));
+program.post('/', simplePost('Program', { allowedFields: ['code', 'id', 'name'] }));
 
 program.get(
   '/',

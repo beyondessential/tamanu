@@ -7,5 +7,15 @@ export const certificateNotification = express.Router();
 certificateNotification.post('/', (req, res) => {
   const { language } = req;
   req.body = { ...req.body, language }
-  return simplePost('CertificateNotification')(req, res);
+  return simplePost('CertificateNotification', {
+    allowedFields: [
+      'createdBy',
+      'facilityName',
+      'forwardAddress',
+      'language',
+      'patientId',
+      'printedDate',
+      'type',
+    ],
+  })(req, res);
 });

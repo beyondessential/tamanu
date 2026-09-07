@@ -106,9 +106,19 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
 
 const conjoiner = new Intl.ListFormat();
 
-function validatePatchAllowedFields(model, allowedFields) {
+// The database and sync layer own these, so no allowedFields option may name them and no
+// request can write them.
+const SYSTEM_MANAGED_FIELDS = ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick'];
+
+function requireAllowedFields(helperName, options) {
+  if (!options?.allowedFields || options.allowedFields.length === 0) {
+    throw new InvalidOperationError(`${helperName} requires a nonempty allowedFields option`);
+  }
+}
+
+function validateAllowedFields(helperName, model, allowedFields) {
   const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
-  for (const field of ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick']) {
+  for (const field of SYSTEM_MANAGED_FIELDS) {
     valids.delete(field);
   }
 
@@ -116,7 +126,7 @@ function validatePatchAllowedFields(model, allowedFields) {
   if (invalids.length > 0) {
     const unit = invalids.length === 1 ? 'field' : 'fields';
     throw new UsageError(
-      `simplePatch allowedFields option includes invalid ${unit} for ${model.name}: ${conjoiner.format(invalids)}. (Permitted fields: ${conjoiner.format(valids)}.)`,
+      `${helperName} allowedFields option includes invalid ${unit} for ${model.name}: ${conjoiner.format(invalids)}. (Permitted fields: ${conjoiner.format(valids)}.)`,
     );
   }
 }
@@ -149,9 +159,7 @@ async function validatePatchBody(allowedFields, req) {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePatch = (modelName, options) => {
-  if (!options?.allowedFields || options.allowedFields.length === 0) {
-    throw new InvalidOperationError('simplePatch requires a nonempty allowedFields option');
-  }
+  requireAllowedFields('simplePatch', options);
 
   return asyncHandler(async (req, res) => {
     req.checkPermission('read', modelName);
@@ -162,7 +170,9 @@ export const simplePatch = (modelName, options) => {
       params: { id },
     } = req;
 
-    if (process.env.NODE_ENV !== 'production') validatePatchAllowedFields(model, allowedFields);
+    if (process.env.NODE_ENV !== 'production') {
+      validateAllowedFields('simplePatch', model, allowedFields);
+    }
     if (req.body == null) throw new InvalidOperationError('PATCH body is required');
 
     // Optimistically assume body is valid and begin fetching object before validated
@@ -185,11 +195,31 @@ export const simplePatch = (modelName, options) => {
   });
 };
 
-export const simplePut = modelName =>
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
+/**
+ * Unlike simplePatch, which receives a hand-built delta and so rejects anything outside
+ * allowedFields, a PUT body is the whole record the client last read: it carries the id,
+ * the audit timestamps and nested association objects straight back. Those are filtered
+ * out rather than refused.
+ *
+ * @param {string} modelName
+ * @param {{ allowedFields: string[] }} options
+ */
+export const simplePut = (modelName, options) => {
+  requireAllowedFields('simplePut', options);
+
+  return asyncHandler(async (req, res) => {
+    const { allowedFields } = options;
+    const {
+      models: { [modelName]: model },
+      params,
+    } = req;
+
+    if (process.env.NODE_ENV !== 'production') {
+      validateAllowedFields('simplePut', model, allowedFields);
+    }
+
     req.checkPermission('read', modelName);
-    const object = await models[modelName].findByPk(params.id);
+    const object = await model.findByPk(params.id);
     if (!object) throw new NotFoundError(`No ${modelName} found with ID ${params.id}`);
     if (object.deletedAt)
       throw new InvalidOperationError(
@@ -198,19 +228,37 @@ export const simplePut = modelName =>
     if (Object.prototype.hasOwnProperty.call(req.body, 'deletedAt'))
       throw new InvalidOperationError('Cannot update deletedAt field');
     req.checkPermission('write', object);
-    await object.update(req.body);
+    await object.update(pick(req.body, allowedFields));
     res.send(object);
   });
+};
 
-export const simplePost = (modelName, options = {}) =>
-  asyncHandler(async (req, res) => {
-    const { models } = req;
-    const { skipPermissionCheck = false } = options;
+/**
+ * Filters the body to allowedFields rather than refusing unknown keys, for the same reason
+ * as simplePut. A client may supply the new record's id, so allowedFields needs to include
+ * it wherever that is intended.
+ *
+ * @param {string} modelName
+ * @param {{ allowedFields: string[], skipPermissionCheck?: boolean }} options
+ */
+export const simplePost = (modelName, options) => {
+  requireAllowedFields('simplePost', options);
+
+  return asyncHandler(async (req, res) => {
+    const { allowedFields, skipPermissionCheck = false } = options;
+    const {
+      models: { [modelName]: model },
+    } = req;
+
+    if (process.env.NODE_ENV !== 'production') {
+      validateAllowedFields('simplePost', model, allowedFields);
+    }
+
     if (skipPermissionCheck === false) {
       req.checkPermission('create', modelName);
     }
 
-    const existingObject = await models[modelName].findByPk(req.body.id, {
+    const existingObject = await model.findByPk(req.body.id, {
       paranoid: false,
     });
     if (existingObject) {
@@ -219,9 +267,10 @@ export const simplePost = (modelName, options = {}) =>
       );
     }
 
-    const object = await models[modelName].create(req.body);
+    const object = await model.create(pick(req.body, allowedFields));
     res.send(object);
   });
+};
 
 export const getResourceList = async (req, modelName, foreignKey = '', options = {}) => {
   const { models, params, query } = req;

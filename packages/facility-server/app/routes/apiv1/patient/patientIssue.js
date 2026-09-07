@@ -5,5 +5,13 @@ import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpe
 export const patientIssue = express.Router();
 
 patientIssue.get('/:id', simpleGet('PatientIssue'));
-patientIssue.put('/:id', simplePut('PatientIssue'));
-patientIssue.post('/', simplePost('PatientIssue'));
+patientIssue.put(
+  '/:id',
+  simplePut('PatientIssue', { allowedFields: ['note', 'recordedDate', 'type'] }),
+);
+patientIssue.post(
+  '/',
+  simplePost('PatientIssue', {
+    allowedFields: ['id', 'note', 'patientId', 'recordedDate', 'type'],
+  }),
+);

@@ -43,5 +43,17 @@ templateRoutes.get(
     additionalFilters: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   }),
 );
-templateRoutes.post('/', checkUniqueName, simplePost('Template'));
-templateRoutes.put('/:id', checkUniqueName, simplePut('Template'));
+templateRoutes.post(
+  '/',
+  checkUniqueName,
+  simplePost('Template', {
+    allowedFields: ['body', 'createdById', 'id', 'name', 'title', 'type', 'visibilityStatus'],
+  }),
+);
+templateRoutes.put(
+  '/:id',
+  checkUniqueName,
+  simplePut('Template', {
+    allowedFields: ['body', 'createdById', 'name', 'title', 'type', 'visibilityStatus'],
+  }),
+);

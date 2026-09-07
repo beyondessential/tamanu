@@ -7,8 +7,38 @@ import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpe
 export const ongoingCondition = express.Router();
 
 ongoingCondition.get('/:id', simpleGet('PatientCondition', { auditAccess: true }));
-ongoingCondition.put('/:id', simplePut('PatientCondition'));
-ongoingCondition.post('/', simplePost('PatientCondition'));
+ongoingCondition.put(
+  '/:id',
+  simplePut('PatientCondition', {
+    allowedFields: [
+      'conditionId',
+      'examinerId',
+      'note',
+      'recordedDate',
+      'resolutionDate',
+      'resolutionNote',
+      'resolutionPractitionerId',
+      'resolved',
+    ],
+  }),
+);
+ongoingCondition.post(
+  '/',
+  simplePost('PatientCondition', {
+    allowedFields: [
+      'conditionId',
+      'examinerId',
+      'id',
+      'note',
+      'patientId',
+      'recordedDate',
+      'resolutionDate',
+      'resolutionNote',
+      'resolutionPractitionerId',
+      'resolved',
+    ],
+  }),
+);
 
 ongoingCondition.delete('/:id', asyncHandler(async (req, res) => {
   const { models, params } = req;

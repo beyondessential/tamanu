@@ -90,5 +90,15 @@ referenceData.get(
 );
 
 referenceData.get('/:id', simpleGet('ReferenceData'));
-referenceData.put('/:id', simplePut('ReferenceData'));
-referenceData.post('/', simplePost('ReferenceData'));
+referenceData.put(
+  '/:id',
+  simplePut('ReferenceData', {
+    allowedFields: ['availableFacilities', 'code', 'name', 'type', 'visibilityStatus'],
+  }),
+);
+referenceData.post(
+  '/',
+  simplePost('ReferenceData', {
+    allowedFields: ['availableFacilities', 'code', 'id', 'name', 'type', 'visibilityStatus'],
+  }),
+);
