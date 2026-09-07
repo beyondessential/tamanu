@@ -1,27 +1,57 @@
 import * as React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 import { AuthContext, SettingsContext, DateTimeProvider } from '@tamanu/ui-components';
 
 import { renderElementWithTranslatedText } from '../../helpers/render';
 import { Table } from '../../../app/components';
+import { COLUMNS, SystemErrors } from '../../../app/views/facility/SystemErrors';
+import { SendErrorLogModal } from '../../../app/views/facility/SendErrorLogModal';
 
 const { notifySuccess } = vi.hoisted(() => ({ notifySuccess: vi.fn() }));
 vi.mock('../../../app/utils', () => ({ notifySuccess }));
 
-// eslint-disable-next-line import/first
-import { COLUMNS, SystemErrors } from '../../../app/views/facility/SystemErrors';
-// eslint-disable-next-line import/first
-import { SendErrorLogModal } from '../../../app/views/facility/SendErrorLogModal';
-
 const getSetting = key => (key === 'dateTimeLocale' ? 'en-AU' : undefined);
 
-const withProviders = element => (
-  <AuthContext.Provider value={{ primaryTimeZone: 'Australia/Brisbane' }}>
-    <SettingsContext.Provider value={{ getSetting }}>
-      <DateTimeProvider>{element}</DateTimeProvider>
-    </SettingsContext.Provider>
-  </AuthContext.Provider>
+// SystemErrors reads its rows from state.systemErrors.errors via useSelector, so tests
+// need their own store seeded with fixed, known rows — not the app's own seed data
+// (see store/systemErrors.js), which would make these assertions dependent on it.
+const hoursAgo = hours => new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+
+const TEST_ERRORS = [
+  {
+    id: '1',
+    timestamp: hoursAgo(0.2),
+    message: 'Something went wrong on the server. Path: patient/123. Message: Unexpected token',
+  },
+  {
+    id: '2',
+    timestamp: hoursAgo(3),
+    message: 'Something went wrong on the server. Path: labRequest/all. Message: Connection lost',
+  },
+  {
+    id: '3',
+    timestamp: hoursAgo(9),
+    message:
+      'Something went wrong on the server. Path: appointments/outpatients. Message: relation does not exist',
+  },
+];
+
+// No test in this file dispatches an action, so the store only needs to return the
+// right shape from getState() — a fixed-state reducer is enough, no need to route
+// through the real systemErrorsReducer.
+const createTestStore = errors => createStore(() => ({ systemErrors: { errors } }));
+
+const withProviders = (element, errors = TEST_ERRORS) => (
+  <Provider store={createTestStore(errors)}>
+    <AuthContext.Provider value={{ primaryTimeZone: 'Australia/Brisbane' }}>
+      <SettingsContext.Provider value={{ getSetting }}>
+        <DateTimeProvider>{element}</DateTimeProvider>
+      </SettingsContext.Provider>
+    </AuthContext.Provider>
+  </Provider>
 );
 
 describe('SystemErrors', () => {
@@ -58,7 +88,7 @@ describe('SystemErrors', () => {
 
     expect(screen.getByRole('heading', { name: 'Send error logs' })).toBeTruthy();
     expect(screen.getByTestId('send-error-log-subtitle').textContent).toBe(
-      'Reporting 15 errors to the Tamanu support team.',
+      'Reporting 3 errors to the Tamanu support team.',
     );
 
     fireEvent.change(screen.getByLabelText('Additional information'), {
