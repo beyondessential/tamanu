@@ -11,7 +11,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledModal = styled(FormModal)`
   .MuiDialog-paper {
-    max-width: 894px;
+    max-width: ${props => (props.$wide ? '1400px' : '894px')};
   }
 `;
 
@@ -31,6 +31,7 @@ const useLabRequestsQuery = labRequestIds => {
 
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
+  const [stepNumber, setStepNumber] = useState(0);
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const api = useApi();
   const { loadEncounter } = useEncounter();
@@ -59,6 +60,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   };
 
   const handleClose = async () => {
+    setStepNumber(0);
     if (newLabRequests.length > 0) {
       setNewLabRequestIds([]);
       await loadEncounter(encounter.id);
@@ -71,6 +73,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       isSubmitting={isLoading}
       onSubmit={handleSubmit}
       onCancel={handleClose}
+      onChangeStep={setStepNumber}
       encounter={encounter}
       practitionerSuggester={practitionerSuggester}
       departmentSuggester={departmentSuggester}
@@ -93,6 +96,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
 
   return (
     <StyledModal
+      $wide={!isSuccess && stepNumber === 1}
       title={
         <TranslatedText
           stringId="lab.modal.create.title"

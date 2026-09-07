@@ -24,6 +24,7 @@ export const LabRequestMultiStepForm = ({
   encounter,
   onCancel,
   onSubmit,
+  onChangeStep,
   editedObject,
 }) => {
   const { getCurrentDateTime } = useDateTime();
@@ -105,6 +106,7 @@ export const LabRequestMultiStepForm = ({
     <MultiStepForm
       onCancel={onCancel}
       onSubmit={handleSubmit}
+      onChangeStep={onChangeStep}
       isSubmitting={isSubmitting}
       initialValues={{
         requestedById: currentUser.id,
