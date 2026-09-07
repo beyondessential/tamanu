@@ -5,7 +5,7 @@ import { SampleDetailsTable } from '../../views/labRequest/SampleDetailsTable';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const StyledBodyText = styled(BodyText)`
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   white-space: pre-line;
 `;
 
@@ -16,7 +16,7 @@ export const LabRequestFormScreen2 = ({
   labSampleSiteSuggester,
 }) => (
   <div style={{ gridColumn: '1 / -1' }}>
-    <StyledBodyText color="textTertiary" data-testid="styledbodytext-ic37">
+    <StyledBodyText data-testid="styledbodytext-ic37">
       <TranslatedText
         stringId="lab.sampleDetails.instruction"
         fallback="Please record details for the samples that have been collected. Otherwise leave blank and click ‘Finalise’."

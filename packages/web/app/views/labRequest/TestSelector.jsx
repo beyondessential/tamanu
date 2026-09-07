@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { useFormikContext } from 'formik';
+import { components as reactSelectComponents } from 'react-select';
 
 import { subStrSearch } from '../../utils/subStringSearch';
 import { Colors } from '../../constants';
@@ -9,7 +10,10 @@ import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
 import { useTranslation } from '../../contexts/Translation';
-import { SearchInput, SuggesterSelectField } from '../../components/Field';
+import { SearchInput } from '../../components/Field';
+import { Select, SelectDropdownIndicator } from '../../components/Select';
+import { FilterIcon } from '../../components/Icons/FilterIcon';
+import { useSuggesterOptions } from '../../hooks';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
@@ -34,8 +38,17 @@ const Wrapper = styled.div`
 const Column = styled.div`
   display: flex;
   flex-direction: column;
-  width: 50%;
+  min-width: 0;
   padding: 1rem;
+`;
+
+// The test list is wider than the selected panel, matching the design's ~62/38 split.
+const ListColumn = styled(Column)`
+  flex: 62;
+`;
+
+const SelectedColumn = styled(Column)`
+  flex: 38;
 `;
 
 const VerticalLine = styled.div`
@@ -67,9 +80,54 @@ const StyledSearchInput = styled(SearchInput)`
   }
 `;
 
-const CategoryFilter = styled(SuggesterSelectField)`
-  width: 180px;
+const CategoryFilter = styled(Select)`
+  width: 156px;
+  flex-shrink: 0;
 `;
+
+const categoryFilterStyles = {
+  control: base => ({
+    ...base,
+    minHeight: '36px',
+    height: '36px',
+    borderColor: Colors.outline,
+    borderRadius: '3px',
+    boxShadow: 'none',
+    cursor: 'pointer',
+    '&:hover': { borderColor: Colors.outline },
+  }),
+  valueContainer: base => ({ ...base, padding: '0 2px 0 7px' }),
+  placeholder: base => ({
+    ...base,
+    margin: 0,
+    color: Colors.darkText,
+    fontSize: '14px',
+    fontWeight: 500,
+  }),
+  singleValue: base => ({ ...base, color: Colors.darkText, fontSize: '14px', fontWeight: 500 }),
+  dropdownIndicator: base => ({ ...base, padding: '0 12px 0 4px' }),
+  option: (base, state) => ({
+    ...base,
+    fontSize: '14px',
+    cursor: 'pointer',
+    color: Colors.darkestText,
+    backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
+  }),
+  menu: base => ({ ...base, marginTop: '2px', boxShadow: 'none', border: `1px solid ${Colors.outline}` }),
+  menuPortal: base => ({ ...base, zIndex: 9999 }),
+};
+
+const CategoryFilterControl = ({ children, ...props }) => (
+  <reactSelectComponents.Control {...props}>
+    <FilterIcon
+      htmlColor={Colors.darkText}
+      width={18}
+      height={12}
+      style={{ marginLeft: '14px', flexShrink: 0 }}
+    />
+    {children}
+  </reactSelectComponents.Control>
+);
 
 const ScrollList = styled.div`
   display: flex;
@@ -184,6 +242,12 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [expandedPanelIds, setExpandedPanelIds] = useState([]);
+
+  const categoryOptions = useSuggesterOptions({
+    field: { value: categoryId },
+    endpoint: 'labTestCategory',
+    baseOptions: [],
+  });
 
   const testsQuery = useQuery(
     ['labTestType', facilityId],
@@ -357,7 +421,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
 
   return (
     <Wrapper data-testid="test-selector">
-      <Column data-testid="test-selector-list">
+      <ListColumn data-testid="test-selector-list">
         <Controls>
           <StyledSearchInput
             name="search"
@@ -368,28 +432,23 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
             data-testid="test-selector-search"
           />
           <CategoryFilter
-            field={{ value: categoryId, onChange: event => setCategoryId(event.target.value) }}
-            name="categoryFilter"
-            endpoint="labTestCategory"
-            baseOptions={[
-              {
-                label: (
-                  <TranslatedText
-                    stringId="general.select.all"
-                    fallback="All"
-                    data-testid="translatedtext-category-all"
-                  />
-                ),
-                value: '',
-              },
+            classNamePrefix="react-select"
+            styles={categoryFilterStyles}
+            options={[
+              { value: '', label: getTranslation('general.select.all', 'All') },
+              ...categoryOptions,
             ]}
-            label={
-              <TranslatedText
-                stringId="lab.testSelect.categoryFilter.label"
-                fallback="Category"
-                data-testid="translatedtext-category-label"
-              />
-            }
+            value={categoryId ? categoryOptions.find(option => option.value === categoryId) ?? null : null}
+            onChange={option => setCategoryId(option?.value ?? '')}
+            placeholder={getTranslation('lab.testSelect.categoryFilter.label', 'Category')}
+            isSearchable={false}
+            isClearable={false}
+            menuPortalTarget={document.body}
+            menuPosition="fixed"
+            components={{
+              Control: CategoryFilterControl,
+              DropdownIndicator: SelectDropdownIndicator,
+            }}
             data-testid="test-selector-category-filter"
           />
         </Controls>
@@ -418,9 +477,9 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
               </React.Fragment>
             ))}
         </ScrollList>
-      </Column>
+      </ListColumn>
       <VerticalLine />
-      <Column data-testid="test-selector-selected">
+      <SelectedColumn data-testid="test-selector-selected">
         <SelectedHeader>
           <SectionTitle>
             <TranslatedText
@@ -451,7 +510,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
             </React.Fragment>
           ))}
         </ScrollList>
-      </Column>
+      </SelectedColumn>
     </Wrapper>
   );
 };
