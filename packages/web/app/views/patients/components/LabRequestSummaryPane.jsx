@@ -15,7 +15,6 @@ import {
 } from '../../../components';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useLabRequestNotesQuery } from '../../../api/queries';
-import { InfoCard, InfoCardItem } from '../../../components/InfoCard';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
 
@@ -35,14 +34,6 @@ const SuccessIcon = styled(CheckCircleOutlineIcon)`
   color: ${Colors.green};
   font-size: 34px;
   margin-bottom: 10px;
-`;
-
-const StyledInfoCard = styled(InfoCard)`
-  border-radius: 0;
-  padding: 20px;
-  & div > span {
-    font-size: 14px;
-  }
 `;
 
 const CardTable = styled(Table)`
@@ -157,7 +148,7 @@ export const LabRequestSummaryPane = React.memo(
     });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
-    const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
+    const { id } = labRequests[0];
 
     const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } =
       useLabRequestNotesQuery(id);
@@ -183,82 +174,6 @@ export const LabRequestSummaryPane = React.memo(
           />
         </BodyText>
         <Card data-testid="card-ixan">
-          <StyledInfoCard gridRowGap={10} elevated={false} data-testid="styledinfocard-bbt5">
-            <InfoCardItem
-              label={
-                <TranslatedText
-                  stringId="general.requestingClinician.label"
-                  fallback="Requesting :clinician"
-                  replacements={{
-                    clinician: (
-                      <TranslatedText
-                        stringId="general.localisedField.clinician.label.short"
-                        fallback="Clinician"
-                        casing="lower"
-                        data-testid="translatedtext-ncbb"
-                      />
-                    ),
-                  }}
-                  data-testid="translatedtext-0m7u"
-                />
-              }
-              value={requestedBy?.displayName}
-              data-testid="infocarditem-l0dj"
-            />
-            <InfoCardItem
-              label={
-                <TranslatedText
-                  stringId="general.requestDateTime.label"
-                  fallback="Request date & time"
-                  data-testid="translatedtext-1wh9"
-                />
-              }
-              value={<DateDisplay date={requestedDate} timeFormat="default" data-testid="datedisplay-uuu4" />}
-              data-testid="infocarditem-1bt0"
-            />
-            <InfoCardItem
-              label={
-                <TranslatedText
-                  stringId="general.department.label"
-                  fallback="Department"
-                  data-testid="translatedtext-ggy0"
-                />
-              }
-              value={
-                department?.name && (
-                  <TranslatedReferenceData
-                    fallback={department.name}
-                    value={department.id}
-                    category="department"
-                    data-testid="translatedreferencedata-pwxd"
-                  />
-                )
-              }
-              data-testid="infocarditem-3f51"
-            />
-            <InfoCardItem
-              label={
-                <TranslatedText
-                  stringId="lab.priority.label"
-                  fallback="Priority"
-                  data-testid="translatedtext-6qta"
-                />
-              }
-              value={
-                priority ? (
-                  <TranslatedReferenceData
-                    fallback={priority.name}
-                    value={priority.id}
-                    category={priority.type}
-                    data-testid="translatedreferencedata-dd16"
-                  />
-                ) : (
-                  '-'
-                )
-              }
-              data-testid="infocarditem-d4fk"
-            />
-          </StyledInfoCard>
           <CardTable
             headerColor={Colors.white}
             columns={[selectableColumn, ...getColumns()]}
