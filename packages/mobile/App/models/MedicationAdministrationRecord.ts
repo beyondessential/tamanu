@@ -100,7 +100,9 @@ export class MedicationAdministrationRecord extends BaseModel {
 
     // Get the first administration date for the prescription
     let firstAdministrationDate: Date | undefined;
-    const idealTimes = prescription.idealTimes?.split(',') || [];
+    // A prescription synced from central can carry an empty `idealTimes` array, which round-trips
+    // to '' here — and ''.split(',') is [''], not [], which would reach date parsing and throw.
+    const idealTimes = prescription.idealTimes?.split(',').filter(Boolean) || [];
     if (idealTimes && idealTimes.length > 0) {
       firstAdministrationDate = getFirstAdministrationDate(
         new Date(prescription.startDate),

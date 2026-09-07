@@ -14,6 +14,7 @@ export const FACT_LAST_SUCCESSFUL_SYNC_PUSH = 'lastSuccessfulSyncPush';
 export const FACT_LOOKUP_UP_TO_TICK = 'lastSuccessfulLookupTableUpdate';
 export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
 export const FACT_LOOKUP_MODELS_TO_REBUILD = 'lookupModelsToRebuild';
+export const FACT_LOOKUP_PATIENTS_TO_REBUILD = 'lookupPatientsToRebuild';
 
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
@@ -35,6 +36,12 @@ export const FACT_FACILITY_CONFIG_MIGRATED = 'facilityConfigMigratedToSettings';
 
 // mSupply integration
 export const FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT = 'mSupplyMedIntegrationEnabledAt';
+
+// Set once a facility server has derived the split medDispenseEnabled/stockOnHandEnabled
+// settings from the legacy combined `integrations.mSupplyMed.enabled` flag, so the
+// one-off migration runs only once per server.
+export const FACT_MSUPPLY_INTEGRATION_SETTINGS_MIGRATED_FACILITY =
+  'mSupplyIntegrationSettingsMigratedFacility';
 
 // Deployment-wide pre-shared key that encrypts integration secrets in the
 // settings table. Generated on central and pulled by facilities (settings sync

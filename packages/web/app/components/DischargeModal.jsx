@@ -6,7 +6,9 @@ import { PATIENT_STATUS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatient } from '../contexts/Patient';
 import { DischargeForm } from '../forms/DischargeForm';
+import { ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY } from '../api/queries/useEncounterDischargeDraftQuery';
 import { getPatientStatus } from '../utils/getPatientStatus';
+import { invalidatePatientDataQueries } from '../utils/invalidatePatientDataQueries';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { FormModal } from './FormModal';
 
@@ -78,7 +80,12 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         facilityTown: facility.cityTown,
       };
       await writeAndViewEncounter(encounter.id, data);
-      queryClient.invalidateQueries(['patientDetails', patient?.id]);
+      // The encounter is now discharged: refresh the queries that decide whether "Prepare
+      // discharge" or "Discharge summary" is shown, otherwise re-entering the encounter can still
+      // read the pre-discharge cache until something else forces a refetch.
+      invalidatePatientDataQueries(queryClient, patient?.id);
+      queryClient.invalidateQueries(['encounterDischarge', encounter.id]);
+      queryClient.invalidateQueries([ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounter.id]);
       navigateToPatient(patient?.id);
       onClose();
     },
