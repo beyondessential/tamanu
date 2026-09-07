@@ -287,6 +287,238 @@
     color: var(--dark-text);
   }
 
+  /* Report an issue / request a feature */
+
+  .support {
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 5px;
+    padding: 8px 32px 32px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--outline);
+    margin: 0 -32px 28px;
+    padding: 0 32px;
+  }
+
+  .tab {
+    padding: 14px 20px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--dark-text);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+  }
+
+  .tab:hover { color: var(--primary); }
+
+  .tab[aria-selected="true"] {
+    color: var(--primary);
+    font-weight: 500;
+    border-bottom-color: var(--primary);
+  }
+
+  .panel { display: none; max-width: 640px; }
+  .panel[data-active="true"] { display: block; }
+
+  .panel > p.intro {
+    margin: 0 0 28px;
+    font-size: 14px;
+    color: var(--dark-text);
+  }
+
+  [hidden] { display: none !important; }
+
+  /* Wizard */
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    margin: 0 0 28px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--mid-text);
+  }
+
+  .step + .step::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--outline);
+    margin: 0 16px;
+  }
+
+  .step-num {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mid-text);
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: 50%;
+  }
+
+  .step[data-state="active"] {
+    color: var(--darkest-text);
+    font-weight: 500;
+  }
+
+  .step[data-state="active"] .step-num {
+    color: var(--white);
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .step[data-state="done"] .step-num {
+    color: var(--primary);
+    background: var(--primary-10);
+    border-color: var(--primary-30);
+  }
+
+  .wizard-step { display: none; }
+  .wizard-step[data-active="true"] { display: block; }
+
+  .wizard-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--soft-outline);
+  }
+
+  .wizard-actions .submit {
+    margin-top: 0;
+    margin-left: auto;
+  }
+
+  .btn-secondary {
+    padding: 12px 24px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--dark-text);
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+  .field { margin-bottom: 20px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--darkest-text);
+  }
+
+  .field label .optional {
+    font-weight: 400;
+    color: var(--mid-text);
+  }
+
+  .field input[type="text"],
+  .field input[type="email"],
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--darkest-text);
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    outline: none;
+  }
+
+  .field textarea {
+    min-height: 88px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus { border-color: var(--primary); }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--soft-text); }
+
+  .radio-group {
+    display: flex;
+    gap: 24px;
+    padding-top: 4px;
+  }
+
+  .radio-group span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--darkest-text);
+  }
+
+  .dropzone {
+    padding: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--mid-text);
+    background: var(--bg);
+    border: 1px dashed var(--outline);
+    border-radius: 4px;
+  }
+
+  .dropzone a { font-size: 13px; }
+
+  .warning {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--dark-text);
+    border-left: 2px solid var(--secondary);
+    padding-left: 10px;
+  }
+
+  .submit {
+    margin-top: 28px;
+    padding: 12px 32px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--primary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .submit:hover { background: var(--primary-dark); }
+
   /* Community placeholder */
 
   .community {
@@ -350,6 +582,7 @@
     <nav class="header-nav">
       <a href="#release-notes">Release notes</a>
       <a href="#manuals">User manuals</a>
+      <a href="#report">Report an issue</a>
     </nav>
   </div>
 </header>
@@ -429,6 +662,138 @@
     </div>
   </section>
 
+  <section id="report">
+    <h2>Report an issue or request a feature</h2>
+
+    <div class="support">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="panel-issue">Report an issue</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-feature">Request a feature</button>
+      </div>
+
+      <form class="panel" id="panel-issue" role="tabpanel" data-active="true" onsubmit="return false">
+        <p class="intro">Tell us what went wrong and we will get back to you.</p>
+
+        <div class="field field-row">
+          <div>
+            <label for="issue-name">Name</label>
+            <input type="text" id="issue-name">
+          </div>
+          <div>
+            <label for="issue-email">Email</label>
+            <input type="email" id="issue-email">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="issue-country">Country or deployment</label>
+          <select id="issue-country">
+            <option>Select...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="issue-description">Describe the issue</label>
+          <textarea id="issue-description" placeholder="What happened, and what did you expect to happen?"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Screenshots <span class="optional">(optional)</span></label>
+          <div class="dropzone">
+            Drop files here or <a href="#">browse</a>
+          </div>
+          <p class="warning">Obscure patient details before attaching.</p>
+        </div>
+
+        <button class="submit" type="submit">Submit report</button>
+      </form>
+
+      <form class="panel" id="panel-feature" role="tabpanel" data-active="false" onsubmit="return false">
+        <p class="intro">The more context you give us, the better we can design the change.</p>
+
+        <ol class="stepper">
+          <li class="step" data-state="active"><span class="step-num">1</span> About you</li>
+          <li class="step"><span class="step-num">2</span> The problem</li>
+          <li class="step"><span class="step-num">3</span> The request</li>
+        </ol>
+
+        <div class="wizard-step" data-active="true">
+        <div class="field field-row">
+          <div>
+            <label for="feature-name">Name</label>
+            <input type="text" id="feature-name">
+          </div>
+          <div>
+            <label for="feature-email">Email</label>
+            <input type="email" id="feature-email">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="feature-country">Country or project</label>
+          <select id="feature-country">
+            <option>Select...</option>
+          </select>
+        </div>
+
+        </div>
+
+        <div class="wizard-step">
+        <div class="field">
+          <label for="feature-problem">What problem does this aim to solve?</label>
+          <textarea id="feature-problem"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="feature-impact">What effect does the current workflow have on end users?</label>
+          <textarea id="feature-impact"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="feature-workarounds">Any workarounds in place while this is pending? <span class="optional">(optional)</span></label>
+          <textarea id="feature-workarounds"></textarea>
+        </div>
+        </div>
+
+        <div class="wizard-step">
+        <div class="field">
+          <label for="feature-description">Describe the change or new feature</label>
+          <textarea id="feature-description"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Does this request involve sensitive patient data?</label>
+          <div class="radio-group">
+            <span><input type="radio" name="feature-sensitive" id="feature-sensitive-yes"><label for="feature-sensitive-yes" style="margin:0;font-weight:400">Yes</label></span>
+            <span><input type="radio" name="feature-sensitive" id="feature-sensitive-no"><label for="feature-sensitive-no" style="margin:0;font-weight:400">No</label></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="feature-stories">User stories <span class="optional">(optional)</span></label>
+          <textarea id="feature-stories" placeholder="As a [role], I want to [action], so that [outcome]"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="feature-links">Supporting forms or documentation <span class="optional">(optional)</span></label>
+          <input type="text" id="feature-links" placeholder="Paste a link">
+          <div class="dropzone" style="margin-top:8px">
+            Drop files here or <a href="#">browse</a>
+          </div>
+          <p class="warning">Obscure patient details before attaching.</p>
+        </div>
+
+        </div>
+
+        <div class="wizard-actions">
+          <button class="btn-secondary" type="button" data-wizard="back">Back</button>
+          <button class="submit" type="button" data-wizard="next">Next</button>
+          <button class="submit" type="submit" data-wizard="submit">Submit request</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
   <section class="community">
     <h2>Community Q&amp;A <span class="tag">Coming soon</span></h2>
     <p>Post a question and hear back from the Tamanu team.</p>
@@ -442,6 +807,50 @@
     <a href="#">tamanu.io</a>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(other => {
+        const selected = other === tab;
+        other.setAttribute('aria-selected', selected);
+        document.getElementById(other.getAttribute('aria-controls'))
+          .setAttribute('data-active', selected);
+      });
+    });
+  });
+
+  const featureForm = document.getElementById('panel-feature');
+  const wizardSteps = featureForm.querySelectorAll('.wizard-step');
+  const markers = featureForm.querySelectorAll('.step');
+  const backButton = featureForm.querySelector('[data-wizard="back"]');
+  const nextButton = featureForm.querySelector('[data-wizard="next"]');
+  const submitButton = featureForm.querySelector('[data-wizard="submit"]');
+  let currentStep = 0;
+
+  function renderWizard() {
+    const lastStep = wizardSteps.length - 1;
+    wizardSteps.forEach((step, index) => step.setAttribute('data-active', index === currentStep));
+    markers.forEach((marker, index) => {
+      marker.setAttribute('data-state', index === currentStep ? 'active' : index < currentStep ? 'done' : '');
+    });
+    backButton.hidden = currentStep === 0;
+    nextButton.hidden = currentStep === lastStep;
+    submitButton.hidden = currentStep !== lastStep;
+  }
+
+  backButton.addEventListener('click', () => {
+    currentStep = Math.max(0, currentStep - 1);
+    renderWizard();
+  });
+
+  nextButton.addEventListener('click', () => {
+    currentStep = Math.min(wizardSteps.length - 1, currentStep + 1);
+    renderWizard();
+  });
+
+  renderWizard();
+</script>
 
 </body>
 </html>
