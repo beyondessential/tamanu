@@ -1,5 +1,6 @@
 import React from 'react';
-import { BodyText, Heading3 } from '../../components/Typography';
+import { BodyText } from '../../components/Typography';
+import { Colors } from '../../constants';
 import {
   AutocompleteField,
   DateTimeField,
@@ -20,7 +21,7 @@ export const LabRequestFormScreen1 = ({
 }) => (
   <>
     <div style={{ gridColumn: '1 / -1' }}>
-      <BodyText mb="20px" color="textTertiary" data-testid="lab-create-instruction">
+      <BodyText mb="20px" fontWeight={500} style={{ color: Colors.darkText }} data-testid="lab-create-instruction">
         <TranslatedText
           stringId="lab.create.instruction"
           fallback="Create a new lab request by completing the details below."
@@ -78,12 +79,12 @@ export const LabRequestFormScreen1 = ({
     />
     <div style={{ gridColumn: '1 / -1' }}>
       <FormSeparatorLine />
-      <Heading3 mb="12px" data-testid="lab-testselect-heading">
+      <BodyText mb="12px" fontWeight={500} style={{ color: Colors.darkText }} data-testid="lab-testselect-heading">
         <TranslatedText
           stringId="lab.testSelect.heading"
           fallback="Select the tests you would like to request"
         />
-      </Heading3>
+      </BodyText>
       <CombinedTestSelector onSelectionChange={onSelectionChange} />
     </div>
     <div style={{ gridColumn: '1 / -1' }}>

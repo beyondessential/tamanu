@@ -11,7 +11,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledModal = styled(FormModal)`
   .MuiDialog-paper {
-    max-width: 1200px;
+    max-width: 894px;
   }
 `;
 
