@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import * as yup from 'yup';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
@@ -31,28 +33,31 @@ assetRoutes.put(
 
     const ext = (body.filename || '').split('.').slice(-1);
     const type = ASSET_MIME_TYPES[ext] || 'unknown';
-    const data = Buffer.from(body.data, 'base64');
     const { facilityId = null } = body;
 
-    const record = {
-      name,
-      data,
-      type,
-      facilityId,
-    };
-    await assetSchema.validate(record);
+    await assetSchema.validate({ name, type, data: body.data, facilityId });
+    const data = Buffer.from(body.data, 'base64');
 
     const { Asset } = req.store.models;
     const existing = await Asset.findOne({ where: { name, facilityId } });
 
     if (existing) {
       req.checkPermission('write', existing);
+    } else {
+      req.checkPermission('create', 'Asset');
+    }
+
+    // spec: ASSET
+    // The image bytes go to the blob store; the row records only the hash. A
+    // replaced legacy row drops its inline bytes as it converts to hash form.
+    const { hash } = await req.ctx.blobStore.put(Readable.from([data]), { sizeHint: data.length });
+    const record = { name, type, facilityId, hash, data: null };
+
+    if (existing) {
       await existing.update(record);
       res.send({ action: 'updated', id: existing.id, name, type });
       return;
     }
-
-    req.checkPermission('create', 'Asset');
 
     const created = await Asset.create(record);
     res.send({ action: 'created', id: created.id, name, type });

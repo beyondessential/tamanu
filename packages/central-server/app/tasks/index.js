@@ -1,6 +1,8 @@
 import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
+import { BlobAntivirusScanTask } from './BlobAntivirusScanTask';
+import { BlobIntegrityScrubTask } from './BlobIntegrityScrubTask';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
@@ -18,6 +20,7 @@ import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { SnapshotTableCleaner } from './SnapshotTableCleaner';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
 import {
+  BlobBackfillTask,
   FhirErroredJobCleaner,
   FhirJobWorkerCleaner,
   FhirMissingResources,
@@ -77,6 +80,9 @@ export async function startScheduledTasks(context) {
     AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
     ProgramRegistryPltfuFlagger,
+    BlobBackfillTask,
+    BlobIntegrityScrubTask,
+    BlobAntivirusScanTask,
     SendStatusToMetaServer,
   ];
 

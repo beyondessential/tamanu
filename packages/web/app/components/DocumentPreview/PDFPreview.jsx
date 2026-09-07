@@ -3,6 +3,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 import styled from 'styled-components';
 import { useApi } from '../../api';
+import { getAttachmentUnavailableMessage } from '../../utils';
 import { PDFPage } from './PDFPage';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -37,6 +38,7 @@ export default function PDFPreview({
 }) {
   const api = useApi();
   const [pages, setPages] = useState([]);
+  const [unavailableMessage, setUnavailableMessage] = useState(null);
 
   const scrollRef = useRef(null);
 
@@ -47,8 +49,13 @@ export default function PDFPreview({
       if (!attachmentId) {
         return;
       }
-      const { data } = await api.get(`attachment/${attachmentId}`, { base64: true });
-      const raw = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+      const response = await api.get(`attachment/${attachmentId}`, { base64: true });
+      const unavailable = getAttachmentUnavailableMessage(response);
+      setUnavailableMessage(unavailable);
+      if (unavailable) {
+        return;
+      }
+      const raw = Uint8Array.from(atob(response.data), (c) => c.charCodeAt(0));
       const loadingTask = pdfjsLib.getDocument(raw);
       loadingTask.promise.then(
         async (loadedPdf) => {
@@ -88,10 +95,11 @@ export default function PDFPreview({
 
   return (
     <PDFDocument ref={scrollRef} data-testid="pdfdocument-qcy9">
-      {pages.map((p, i) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <PDFPage page={p} key={i} parentRef={scrollRef} data-testid={`pdfpage-l9ek-${i}`} />
-      ))}
+      {unavailableMessage ??
+        pages.map((p, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <PDFPage page={p} key={i} parentRef={scrollRef} data-testid={`pdfpage-l9ek-${i}`} />
+        ))}
     </PDFDocument>
   );
 }

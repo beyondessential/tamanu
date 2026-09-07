@@ -1,10 +1,10 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
+import { createHash } from 'crypto';
+import { InvalidParameterError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
-import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 // Get the unmocked function to be able to test it
 const { uploadAttachment } = await vi.importActual('../app/utils/uploadAttachment');
 
@@ -27,66 +27,78 @@ getUploadedData.mockImplementation(async req => {
   };
 });
 
+const readAll = async stream => {
+  const chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  return Buffer.concat(chunks);
+};
+
 describe('UploadAttachment', () => {
-  const mockReq = { name: 'hello world image', type: 'image/jpeg', deviceId: 'test-device-id' };
+  let admitted;
+  let created;
+  let mockReq;
+
+  beforeEach(() => {
+    admitted = [];
+    created = [];
+    mockReq = {
+      name: 'hello world image',
+      type: 'image/jpeg',
+      deviceId: 'test-device-id',
+      blobCache: {
+        putOutbox: vi.fn(async (source, options) => {
+          const content = await readAll(source);
+          admitted.push({ content, options });
+          return {
+            hash: `sha256:${createHash('sha256').update(content).digest('hex')}`,
+            size: content.length,
+          };
+        }),
+      },
+      models: {
+        Attachment: {
+          create: vi.fn(async values => {
+            created.push(values);
+            return { id: 'attachment-id', ...values };
+          }),
+        },
+      },
+    };
+  });
 
   it('abort uploading file if its above permitted max file size', async () => {
     await expect(uploadAttachment(mockReq, 1000)).rejects.toThrow(InvalidParameterError);
-    expect(CentralServerConnection.mock.calls.length).toBe(0);
+    // spec: ATCH — nothing is admitted for a rejected upload, so an oversized
+    // file leaves no unreferenced blob in the outbox.
+    expect(mockReq.blobCache.putOutbox).not.toHaveBeenCalled();
+    expect(mockReq.models.Attachment.create).not.toHaveBeenCalled();
   });
 
-  it('abort creating document metadata if the central server fails to create attachment', async () => {
-    CentralServerConnection.mockImplementationOnce(function () {
-      return {
-        fetch: vi.fn(async (path, body) => {
-          // Make sure the parameters match what the central server expects
-          expect(path).toBe('attachment');
-          expect(body).toMatchObject({
-            method: 'POST',
-            body: {
-              type: 'image/jpeg',
-              size: 1002,
-              data: FILEDATA,
-            },
-          });
-          return {
-            error: 'Some error',
-          };
-        }),
-      };
-    });
-    await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallError);
-    expect(CentralServerConnection.mock.calls.length).toBe(1);
-    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
-  });
+  // spec: ATCH
+  it('admits the content to the outbox and records it on the attachment', async () => {
+    const result = await uploadAttachment(mockReq, 10000, { patientId: 'patient-id' });
 
-  it('successfully uploads attachment', async () => {
-    CentralServerConnection.mockImplementationOnce(function () {
-      return {
-        fetch: vi.fn(async (path, body) => {
-          // Make sure the parameters match what the central server expects
-          expect(path).toBe('attachment');
-          expect(body).toMatchObject({
-            method: 'POST',
-            body: {
-              type: 'image/jpeg',
-              size: 1002,
-              data: FILEDATA,
-            },
-          });
-          return {
-            attachmentId: '111',
-          };
-        }),
-      };
+    expect(admitted).toHaveLength(1);
+    expect(admitted[0].content).toEqual(Buffer.from(FILEDATA, 'base64'));
+
+    expect(created).toHaveLength(1);
+    expect(created[0]).toMatchObject({
+      type: 'image/jpeg',
+      hash: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
+      patientId: 'patient-id',
     });
-    const result = await uploadAttachment(mockReq);
+    expect(created[0].data).toBeUndefined();
+
     expect(result).toMatchObject({
-      attachmentId: '111',
+      attachmentId: 'attachment-id',
       type: 'image/jpeg',
       metadata: { name: 'hello world image' },
     });
-    expect(CentralServerConnection.mock.calls.length).toBe(2);
-    expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
+  });
+
+  // spec: ATCH
+  it('records the size of the bytes actually admitted', async () => {
+    await uploadAttachment(mockReq, 10000);
+    expect(created[0].size).toBe(Buffer.from(FILEDATA, 'base64').length);
   });
 });

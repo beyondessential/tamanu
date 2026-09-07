@@ -31,6 +31,7 @@
     "@react-navigation/stack": "^7.10.2",
     "@reduxjs/toolkit": "^1.2.5",
     "@sayem314/react-native-keep-awake": "^2.0.0",
+    "@tamanu/blobs": "*",
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
     "@tamanu/utils": "*",

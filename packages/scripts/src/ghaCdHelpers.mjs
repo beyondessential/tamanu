@@ -104,6 +104,10 @@ const OPTIONS = [
   // otherwise build linux/arm64 only; releases always build everything.
   { key: 'allimages', defaultValue: false, presence: true },
   { key: 'synthetic', defaultValue: false, presence: true },
+  // Put the blob store on a shared EFS volume mounted at blobStorage.root's
+  // default, rather than the pod's own disk. Off by default: the volume
+  // outlives the pods, so it holds blobs after a redeploy.
+  { key: 'blobvolume', defaultValue: false, presence: true },
   { key: 'seed-snapshot', defaultValue: false, presence: true },
 
   { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
@@ -316,6 +320,7 @@ export function configMap(deployName, imageTag, options, { appVersion } = {}) {
 
       syntheticTests: options.synthetic,
       seedSnapshot: options['seed-snapshot'],
+      sharedBlobStorage: options.blobvolume,
 
       backupsEnabled: options.backup,
       backupRetentionDays: options.backup ? options.backupretention : null,

@@ -57,6 +57,7 @@
   "workspaces": {
     "packages": [
       "packages/api-client",
+      "packages/blobs",
       "packages/build-tooling",
       "packages/central-server",
       "packages/constants",

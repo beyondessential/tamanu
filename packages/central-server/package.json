@@ -52,6 +52,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@socket.io/postgres-adapter": "^0.3.1",
     "@tamanu/api-client": "*",
+    "@tamanu/blobs": "*",
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/errors": "*",

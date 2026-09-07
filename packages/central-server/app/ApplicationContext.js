@@ -1,8 +1,17 @@
 import config from 'config';
 import { omit } from 'es-toolkit/compat';
+import ms from 'ms';
 import { Timesimp } from 'timesimp';
 
 import { ReadSettings } from '@tamanu/settings';
+import {
+  BLOB_FAULTS,
+  BlobScanner,
+  BlobScrubber,
+  BlobStore,
+  createScannerDriver,
+} from '@tamanu/database/blobStore';
+import { CENTRAL_PARITY_TIERS } from '@tamanu/blobs';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
@@ -12,6 +21,9 @@ import {
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
 
+import { CentralBlobHealer } from './blobIntegrity';
+import { quarantineBlob } from './blobServing';
+import { findUndeliverableReferences, registerBlobReferenceSource } from './blobReferences';
 import { EmailService } from './services/EmailService';
 
 import { closeDatabase, initDatabase } from './database';
@@ -21,6 +33,12 @@ import { defineSingletonTelegramBotService } from './services/TelegramBotService
 import { VERSION } from './middleware/versionCompatibility';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
+
+// spec: SCRUB
+// How long after a record syncs its blob is still expected to be on its way.
+// Push is sync-first, so every reference is briefly ahead of its bytes; only a
+// reference older than this counts as content central should already hold.
+const UNDELIVERED_REFERENCE_GRACE_MS = 24 * 60 * 60 * 1000;
 
 export const CENTRAL_SERVER_APP_TYPES = {
   API: 'api',
@@ -56,6 +74,18 @@ export class ApplicationContext {
   /**@type {ReadSettings<CentralSettingPath> | null} */
   settings = null;
 
+  /** @type {BlobStore | null} */
+  blobStore = null;
+
+  /** @type {CentralBlobHealer | null} */
+  blobHealer = null;
+
+  /** @type {BlobScrubber | null} */
+  blobScrubber = null;
+
+  /** @type {BlobScanner | null} */
+  blobScanner = null;
+
   /** @type {string | null} */
   deviceId = null;
 
@@ -84,6 +114,114 @@ export class ApplicationContext {
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
       return this;
     }
+
+    // spec: CAS, CAP
+    // No evictCache hook: central is the authoritative store, nothing is
+    // evictable, so the free-disk floor refuses new blobs directly.
+    this.blobStore = new BlobStore({
+      root: await this.settings.get('blobStorage.root'),
+      models: this.store.models,
+      getFreeDiskReserveBytes: async () =>
+        (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
+      // spec: SCRUB — a whole-blob read that fails verification heals by the
+      // same ladder the scrub uses.
+      onCorruptionDetected: async hash => {
+        await this.blobHealer?.heal({
+          hash,
+          fault: BLOB_FAULTS.CORRUPT,
+          blob: await this.store.models.Blob.findOne({ where: { hash } }),
+        });
+      },
+      // spec: FEC — every blob central holds is a durable copy, so coverage is
+      // not narrowed by tier.
+      errorCorrection: {
+        coveredTiers: CENTRAL_PARITY_TIERS,
+        getSettings: async () => {
+          const errorCorrection = await this.settings.get('blobStorage.errorCorrection');
+          return {
+            enabled: errorCorrection.enabled,
+            proportion: errorCorrection.parityPercent / 100,
+          };
+        },
+      },
+      log,
+    });
+
+    // spec: SCRUB
+    // Every copy central holds is authoritative, so the healer has no
+    // low-severity case: it records the blob corrupt and escalates, and repair
+    // arrives either opportunistically from a facility or from a backup.
+    this.blobHealer = new CentralBlobHealer({
+      blobStore: this.blobStore,
+      models: this.store.models,
+    });
+    this.blobScrubber = new BlobScrubber({
+      blobStore: this.blobStore,
+      models: this.store.models,
+      getLimits: async () => {
+        const scrub = await this.settings.get('schedules.blobIntegrityScrub');
+        return {
+          maxBlobs: scrub.maxBlobsPerPass,
+          maxBytes: scrub.maxGigabytesPerPass * 1024 ** 3,
+        };
+      },
+      heal: report => this.blobHealer.heal(report),
+      findUndeliverableReferences: async limit =>
+        await findUndeliverableReferences(this.store.sequelize, {
+          limit,
+          // A reference is only undelivered once its record has been synced
+          // long enough for the push to have happened; before that it is
+          // ordinary content-pending, since push is sync-first.
+          deliveredBefore: new Date(Date.now() - UNDELIVERED_REFERENCE_GRACE_MS),
+        }),
+      log,
+    });
+
+    // spec: AV
+    // Central scans every blob it holds and its verdict is authoritative, so an
+    // infected hash is quarantined here and pulled from here. No scanner
+    // configured means no driver, which means no pass and no verdicts: the
+    // ingest path, the serve path and the scrub all run as they would have.
+    const antivirus = await this.settings.get('blobStorage.antivirus');
+    const scannerDriver = createScannerDriver({
+      scanner: antivirus.scanner,
+      address: antivirus.address,
+      timeoutMs: ms(antivirus.timeout),
+    });
+    this.blobScanner =
+      scannerDriver &&
+      new BlobScanner({
+        blobStore: this.blobStore,
+        models: this.store.models,
+        driver: scannerDriver,
+        getLimits: async () => {
+          const scan = await this.settings.get('schedules.blobAntivirusScan');
+          const { maxScanMB } = await this.settings.get('blobStorage.antivirus');
+          return {
+            maxBlobs: scan.maxBlobsPerPass,
+            maxBytes: scan.maxGigabytesPerPass * 1024 ** 3,
+            maxScanBytes: maxScanMB * 1024 ** 2,
+          };
+        },
+        onInfected: async (hash, versions) => {
+          await quarantineBlob(this.store.models, hash, versions);
+          // spec: FEC — quarantined content is never served and never repaired.
+          await this.blobStore.discardParity(hash);
+        },
+        log,
+      });
+
+    // spec: ATCH
+    // Model and shared route code admits attachment content through this, so it
+    // reaches the store from deep in an upstream write (a FHIR DiagnosticReport's
+    // report PDF, a survey photo answer) with no request to carry it. Central is
+    // the authoritative store, so admission is direct.
+    this.store.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobStore.put(source, options);
+
+    // spec: ASSET, BLAC — assets reference blobs by hash; a facility's fetch of
+    // an asset's bytes is authorised against the referencing asset row.
+    registerBlobReferenceSource({ recordType: 'assets', hashColumn: 'hash' });
 
     await initFhirSettingsFromDb(this.settings);
     // Triggers follow the worker flag alone, not `fhir.enabled`: serving the HTTP routes and

@@ -9,6 +9,7 @@ export const NON_SYNCING_TABLES = [
   'logs.m_supply_pushes',
   'logs.fhir_writes',
   'public.ai_chat_sessions',
+  'public.blobs',
   'public.devices',
   'public.encounter_discharge_draft_medications',
   'public.encounter_discharge_drafts',
@@ -64,6 +65,9 @@ export const NON_LOGGED_TABLES = [
 
   // historical signer records retained for compliance, no sensitive data remains
   'public.signers_historical',
+
+  // local blob registry — mechanical index of on-disk content, one row per blob
+  'public.blobs',
 
   // internal configuration
   'public.local_system_facts',
