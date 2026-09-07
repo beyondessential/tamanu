@@ -3,19 +3,19 @@ import { QueryTypes } from 'sequelize';
 import type { Sequelize } from '../index';
 
 /**
- * Queries for deferrable FK constraint names in the public schema. We scope to FK
- * constraints specifically so that SET CONSTRAINTS ... DEFERRED/IMMEDIATE does not
- * inadvertently affect other deferrable constraint triggers (e.g. the changelog
- * triggers which are DEFERRABLE INITIALLY DEFERRED and should remain deferred
- * until transaction commit).
+ * Queries for deferrable foreign key and unique constraint names in the public schema.
+ * We scope to FK ('f') and unique ('u') constraints specifically so that
+ * SET CONSTRAINTS ... DEFERRED/IMMEDIATE does not inadvertently affect other deferrable
+ * constraint triggers (e.g. the changelog triggers which are DEFERRABLE INITIALLY
+ * DEFERRED and should remain deferred until transaction commit).
  */
-const getDeferrableFKConstraintNames = async (sequelize: Sequelize): Promise<string[]> => {
+const getDeferrableConstraintNames = async (sequelize: Sequelize): Promise<string[]> => {
   const results = await sequelize.query<{ conname: string }>(
     `
     SELECT c.conname
     FROM pg_constraint c
     JOIN pg_namespace n ON c.connamespace = n.oid
-    WHERE c.contype = 'f'
+    WHERE c.contype IN ('f', 'u')
       AND c.condeferrable = true -- must be DEFERRABLE
       AND NOT c.condeferred -- not DEFERRED by default (ie: IMMEDIATE)
       AND n.nspname = 'public'
@@ -33,7 +33,7 @@ export const withDeferredSyncSafeguards = async <ReturnT = unknown>(
     throw new Error('withDeferredSyncSafeguards must be called within a transaction');
   }
 
-  const constraintNames = await getDeferrableFKConstraintNames(sequelize);
+  const constraintNames = await getDeferrableConstraintNames(sequelize);
   if (constraintNames.length === 0) {
     return operation();
   }
@@ -41,19 +41,17 @@ export const withDeferredSyncSafeguards = async <ReturnT = unknown>(
   const constraintList = constraintNames.map(name => `"${name}"`).join(', ');
 
   /**
-   * Defer foreign key constraint assertions until the end of the transaction.
+   * Defer foreign key and unique constraint assertions until the end of the transaction.
    *
-   * This prevents constraint violations during data synchronization when dealing with
-   * self-referencing foreign keys (e.g., tasks.parent_task_id, invoice_payments.original_payment_id).
+   * This prevents constraint violations during data synchronization when dealing with:
+   * - self-referencing foreign keys (e.g., tasks.parent_task_id, invoice_payments.original_payment_id)
+   * - unique constraints
    *
    * Without deferral, these constraints would be checked immediately upon insertion,
-   * causing failures when parent records haven't been inserted yet. The hierarchical
-   * nature of this data makes it complicated to guarantee correct insertion order.
+   * causing failures when the batch's mid-application state is invalid even though its
+   * end state is not.
    *
-   * Only deferrable FK constraints in the public schema are targeted here. This avoids
-   * affecting changelog constraint triggers (DEFERRABLE INITIALLY DEFERRED) which should
-   * remain deferred until transaction commit.
-   * (See 1771485087000-makeSelfReferencingFKDeferrable migration for details)
+   * Only deferrable FK and unique constraints in the public schema are targeted here.
    */
   await sequelize.query(`SET CONSTRAINTS ${constraintList} DEFERRED;`);
 
