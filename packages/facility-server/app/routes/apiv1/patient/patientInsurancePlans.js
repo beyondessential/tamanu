@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { INVOICE_STATUSES } from '@tamanu/constants';
+import { INVOICE_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const patientInsurancePlans = express.Router();
 
@@ -15,7 +15,7 @@ patientInsurancePlans.get(
     req.checkPermission('read', 'Patient');
 
     const insurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
-      where: { patientId: params.id },
+      where: { patientId: params.id, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
     });
 
     res.send(insurancePlans);
