@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu knowledge hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #326699;
+    --primary-dark: #2f4358;
+    --primary-30: #c2d2e1;
+    --primary-10: #ebf0f5;
+    --secondary: #ffcc24;
+    --bg: #f3f5f7;
+    --white: #ffffff;
+    --darkest-text: #444444;
+    --dark-text: #666666;
+    --mid-text: #888888;
+    --soft-text: #b8b8b8;
+    --outline: #dedede;
+    --soft-outline: #ebebeb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--darkest-text);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .shell { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+
+  .site-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--outline);
+  }
+
+  .site-header .shell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .wordmark strong {
+    font-size: 21px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    color: var(--primary);
+  }
+
+  .wordmark span {
+    font-size: 14px;
+    color: var(--mid-text);
+    border-left: 1px solid var(--outline);
+    padding-left: 10px;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 28px;
+    font-size: 14px;
+  }
+
+  .header-nav a { color: var(--dark-text); }
+  .header-nav a:hover { color: var(--primary); text-decoration: none; }
+
+  /* Hero */
+
+  .hero {
+    background: var(--primary-10);
+    border-bottom: 1px solid var(--outline);
+    padding: 72px 0 64px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    margin: 0 0 12px;
+    font-size: 34px;
+    font-weight: 500;
+    letter-spacing: -0.4px;
+    color: var(--darkest-text);
+  }
+
+  .hero p.lede {
+    margin: 0 auto 32px;
+    max-width: 520px;
+    font-size: 16px;
+    color: var(--dark-text);
+  }
+
+  .ask {
+    display: flex;
+    gap: 8px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .ask input {
+    flex: 1;
+    height: 56px;
+    padding: 0 20px;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--darkest-text);
+    background: var(--white);
+    border: 1px solid var(--primary-30);
+    border-radius: 8px;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(50, 102, 153, 0.08);
+  }
+
+  .ask input::placeholder { color: var(--soft-text); }
+  .ask input:focus { border-color: var(--primary); }
+
+  .ask button {
+    height: 56px;
+    padding: 0 28px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .ask button:hover { background: var(--primary-dark); }
+
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px auto 0;
+    max-width: 720px;
+  }
+
+  .examples button {
+    padding: 7px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--dark-text);
+    background: var(--white);
+    border: 1px solid var(--primary-30);
+    border-radius: 100px;
+    cursor: pointer;
+  }
+
+  .examples button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .hero .note {
+    margin: 24px 0 0;
+    font-size: 13px;
+    color: var(--mid-text);
+  }
+
+  /* Sections */
+
+  main { padding: 56px 0 72px; }
+
+  section + section { margin-top: 56px; }
+
+  h2 {
+    margin: 0 0 20px;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--darkest-text);
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-head h2 { margin: 0; }
+  .section-head a { font-size: 14px; }
+
+  /* Destinations */
+
+  .destinations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .destination {
+    display: block;
+    padding: 24px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 5px;
+  }
+
+  .destination:hover {
+    border-color: var(--primary-30);
+    text-decoration: none;
+  }
+
+  .destination h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--primary);
+  }
+
+  .destination p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--dark-text);
+  }
+
+  /* Recent changes */
+
+  .changes {
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .change {
+    display: flex;
+    gap: 20px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--soft-outline);
+  }
+
+  .change:last-child { border-bottom: none; }
+
+  .change-meta {
+    flex: 0 0 104px;
+    padding-top: 2px;
+  }
+
+  .version {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--primary);
+    background: var(--primary-10);
+    border-radius: 3px;
+  }
+
+  .date {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--mid-text);
+  }
+
+  .change-body h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .change-body p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--dark-text);
+  }
+
+  /* Community placeholder */
+
+  .community {
+    padding: 32px 24px;
+    text-align: center;
+    background: transparent;
+    border: 1px dashed var(--outline);
+    border-radius: 5px;
+  }
+
+  .community h2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .tag {
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--darkest-text);
+    background: var(--secondary);
+    border-radius: 3px;
+  }
+
+  .community p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--dark-text);
+  }
+
+  /* Footer */
+
+  footer {
+    background: var(--white);
+    border-top: 1px solid var(--outline);
+    padding: 24px 0;
+  }
+
+  footer .shell {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--mid-text);
+  }
+
+  footer a { color: var(--mid-text); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="shell">
+    <div class="wordmark">
+      <strong>Tamanu</strong>
+      <span>Knowledge hub</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#release-notes">Release notes</a>
+      <a href="#manuals">User manuals</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="shell">
+    <h1>What do you need help with?</h1>
+    <p class="lede">Tamanu Assist answers questions about using, configuring and upgrading Tamanu.</p>
+
+    <form class="ask" onsubmit="return false">
+      <input type="text" placeholder="Ask Tamanu Assist" aria-label="Ask Tamanu Assist">
+      <button type="submit">Ask</button>
+    </form>
+
+    <div class="examples">
+      <button type="button">How do I record a vaccine given offsite?</button>
+      <button type="button">What changed in the latest release?</button>
+      <button type="button">How do I set up a new facility?</button>
+    </div>
+
+    <p class="note">Assist will ask which version you are on when the answer depends on it.</p>
+  </div>
+</div>
+
+<main class="shell">
+
+  <section class="destinations">
+    <a class="destination" href="#release-notes" id="release-notes">
+      <h3>Release notes</h3>
+      <p>What shipped in every version, with upgrade notes and recommended testing.</p>
+    </a>
+    <a class="destination" href="#manuals" id="manuals">
+      <h3>User manuals</h3>
+      <p>Step by step guides for clinical workflows, configuration and administration.</p>
+    </a>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Recent changes</h2>
+      <a href="#release-notes">All release notes</a>
+    </div>
+
+    <div class="changes">
+      <article class="change">
+        <div class="change-meta">
+          <span class="version">v2.63</span>
+          <span class="date">3 Sep 2026</span>
+        </div>
+        <div class="change-body">
+          <h3>Birth certificate number on vaccination certificates</h3>
+          <p>Vaccination certificates can show a patient's recorded birth certificate number. Off by default, enabled under Vaccinations settings.</p>
+        </div>
+      </article>
+
+      <article class="change">
+        <div class="change-meta">
+          <span class="version">v2.62</span>
+          <span class="date">17 Aug 2026</span>
+        </div>
+        <div class="change-body">
+          <h3>Server configuration moves to the admin panel</h3>
+          <p>A large amount of server configuration is now editable in the admin panel rather than in config files.</p>
+        </div>
+      </article>
+
+      <article class="change">
+        <div class="change-meta">
+          <span class="version">v2.61</span>
+          <span class="date">10 Aug 2026</span>
+        </div>
+        <div class="change-body">
+          <h3>Automatic invoicing of encounter and bed fees</h3>
+          <p>Encounter, bed and inpatient fees are invoiced automatically, so facilities no longer add routine charges by hand.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="community">
+    <h2>Community Q&amp;A <span class="tag">Coming soon</span></h2>
+    <p>Post a question and hear back from the Tamanu team.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="shell">
+    <span>Tamanu by Beyond Essential</span>
+    <a href="#">tamanu.io</a>
+  </div>
+</footer>
+
+</body>
+</html>
