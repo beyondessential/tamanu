@@ -1,9 +1,23 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-components';
 
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
+import { Colors } from '../../constants';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
+
+const NoDataContainer = styled.div`
+  height: 200px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${Colors.hoverGrey};
+  color: ${Colors.primary};
+`;
 
 // Mock data standing in until the real store for relegated system errors is built
 // (see `relegateSystemError`) — timestamps are relative to load time so the table
@@ -148,11 +162,14 @@ export const SystemErrors = React.memo(() => {
           data={pageData}
           columns={COLUMNS}
           noDataMessage={
-            <TranslatedText
-              stringId="systemErrors.table.noData"
-              fallback="No system errors to display"
-            />
+            <NoDataContainer data-testid="nodatacontainer-syse">
+              <TranslatedText
+                stringId="systemErrors.table.noData"
+                fallback="No system errors to display"
+              />
+            </NoDataContainer>
           }
+          statusCellStyle="&.MuiTableCell-body { padding: 20px; }"
           onChangeOrderBy={onChangeOrderBy}
           orderBy={orderBy}
           order={order}
