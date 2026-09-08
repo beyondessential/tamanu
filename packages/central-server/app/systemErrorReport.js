@@ -5,6 +5,7 @@ import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getDefaultFromAddress } from './services/mailConfig';
 
+// spec: SYSERR#sending-a-report-to-support
 export const systemErrorReport = express.Router();
 
 const schema = yup.object({

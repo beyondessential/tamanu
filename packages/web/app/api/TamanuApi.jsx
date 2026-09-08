@@ -103,8 +103,11 @@ function saveToLocalStorage({
 }
 
 // Toast relegation (see `relegateSystemError`) only applies to the regular clinical
-// client; the admin panel keeps showing a toast for every kind of API error for now.
-const ADMIN_ROUTE_PATTERN = /^\/(admin|facility-admin)(\/|$)/;
+// client; the (separate) admin panel at /admin keeps showing a toast for every kind of
+// API error for now. /facility-admin is a section of the regular clinical client (it's
+// where the System errors view itself lives, alongside Bed management and Reports), not
+// the admin panel, so it must not match here.
+const ADMIN_ROUTE_PATTERN = /^\/admin(\/|$)/;
 
 function isAdminRoute() {
   return ADMIN_ROUTE_PATTERN.test(window?.location?.pathname ?? '');

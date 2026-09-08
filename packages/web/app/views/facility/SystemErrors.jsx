@@ -6,7 +6,7 @@ import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-com
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
 import { Colors } from '../../constants';
-import { markSystemErrorsRead, removeSystemErrors } from '../../store';
+import { markSystemErrorsRead, purgeStaleSystemErrors, removeSystemErrors } from '../../store';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
 
 const NoDataContainer = styled.div`
@@ -40,8 +40,10 @@ export const SystemErrors = React.memo(() => {
   const errors = useSelector(state => state.systemErrors.errors);
   const [isSendLogModalOpen, setIsSendLogModalOpen] = useState(false);
 
-  // Mark all current errors as read
+  // Purging is only ever checked on visiting the view (no background scheduler), then
+  // whatever's left is marked read.
   useEffect(() => {
+    dispatch(purgeStaleSystemErrors());
     dispatch(markSystemErrorsRead());
   }, [dispatch]);
 

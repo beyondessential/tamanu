@@ -16,6 +16,8 @@ export function setSystemErrorHandler(nextHandler) {
  * server failure, as opposed to a specific action failing (see
  * `classifyApiError`'s `SERVER` kind). These no longer interrupt the user with
  * a toast; instead they're recorded for review in the 'System errors' view.
+ *
+ * spec: SYSERR#relegating-server-errors
  */
 export function relegateSystemError(error, endpoint) {
   const path = error?.path ?? endpoint;

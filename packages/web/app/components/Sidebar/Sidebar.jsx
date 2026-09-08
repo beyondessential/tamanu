@@ -203,6 +203,7 @@ export const Sidebar = React.memo(({ items }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
+  // spec: SYSERR#sidebar-unread-indicator
   const hasUnreadSystemErrors = useSelector(state =>
     state.systemErrors.errors.some(error => !error.isRead),
   );

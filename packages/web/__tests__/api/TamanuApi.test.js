@@ -62,16 +62,16 @@ describe('TamanuApi error toast relegation', () => {
     expect(relegateSystemError).not.toHaveBeenCalled();
   });
 
-  it('still toasts a server-kind error on the facility admin panel', async () => {
-    window.history.pushState({}, '', '/facility-admin/users');
+  it('relegates a server-kind error on facility admin, since it is part of the regular clinical client', async () => {
+    window.history.pushState({}, '', '/facility-admin/system-errors');
     rejectWith({ type: ERROR_TYPE.DATABASE, title: 'boom' });
 
     await expect(
-      api.get('facility-admin/users', {}, { showUnknownErrorToast: true }),
+      api.get('facility-admin/system-errors', {}, { showUnknownErrorToast: true }),
     ).rejects.toBeTruthy();
 
-    expect(notifyError).toHaveBeenCalledTimes(1);
-    expect(relegateSystemError).not.toHaveBeenCalled();
+    expect(relegateSystemError).toHaveBeenCalledTimes(1);
+    expect(notifyError).not.toHaveBeenCalled();
   });
 
   it('still toasts an unreachable error on the clinical client', async () => {

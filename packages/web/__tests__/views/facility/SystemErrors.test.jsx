@@ -158,6 +158,18 @@ describe('SystemErrors', () => {
     expect(notifySuccess).not.toHaveBeenCalled();
   });
 
+  it('purges errors older than 24 hours on mount, keeping fresher ones', () => {
+    const staleError = {
+      id: 'stale',
+      timestamp: hoursAgo(25),
+      message: 'Something went wrong on the server. Path: old/stale. Message: Ancient failure',
+    };
+    renderElementWithTranslatedText(withProviders(<SystemErrors />, [...TEST_ERRORS, staleError]));
+
+    expect(screen.queryByText(/Path: old\/stale/)).toBeNull();
+    expect(screen.getByText(/Path: patient\/123/)).toBeTruthy();
+  });
+
   it('sorts rows by clicking the error message column header', () => {
     renderElementWithTranslatedText(withProviders(<SystemErrors />));
 
