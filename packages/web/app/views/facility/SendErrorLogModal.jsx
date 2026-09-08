@@ -73,7 +73,7 @@ export const SendErrorLogModal = ({ open, onClose, errors, onSentSuccessfully })
       notifyError(
         <TranslatedText
           stringId="systemErrors.modal.error"
-          fallback="Failed to send error log. Please try again."
+          fallback="Failed to submit. Please try again later."
         />,
       );
       return;
