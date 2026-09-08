@@ -108,6 +108,22 @@ if (event === 'pull_request' && baseSha) {
 
   const migrationsTouched = files.some((f) => f.startsWith('packages/database/src/migrations/'));
 
+  // Umzug keys applied migrations by filename, so editing one that is already on the base
+  // branch never re-runs it: every database that has applied it keeps the old shape.
+  const editedMigrations = execSync(
+    `git diff --name-status --diff-filter=M ${baseSha}...${head} -- packages/database/src/migrations/`,
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => line.split('\t')[1]);
+
+  if (editedMigrations.length > 0) {
+    console.log(
+      `::warning::Modified existing migrations: ${editedMigrations.join(', ')}. Any database that already applied these keeps the old shape, including the RC deploy. Add a follow-up migration unless nothing has run them yet.`,
+    );
+  }
+
   console.error(`Event:              ${event}`);
   console.error(`Touched packages:   ${[...touched].sort().join(', ') || '(none)'}`);
   console.error(`Migrations touched: ${migrationsTouched}`);
