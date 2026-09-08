@@ -19,7 +19,7 @@ async function main() {
     .parse()
     .opts();
 
-  const rounds = Math.max(1, parseInt(opts.rounds));
+  const rounds = Number(opts.rounds);
 
   const db = await initDatabase({
     ...(config as any).db,

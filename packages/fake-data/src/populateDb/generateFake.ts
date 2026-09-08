@@ -9,6 +9,10 @@ export async function generateFake(
   rounds: number = 1,
   tallyFilePath?: string,
 ): Promise<void> {
+  if (!Number.isInteger(rounds) || rounds < 1) {
+    throw new Error(`rounds must be a positive integer, got ${rounds}`);
+  }
+
   console.log('Fill database with fake data', rounds, 'rounds');
   if (tallyFilePath) console.log('Using tally file:', tallyFilePath);
 
