@@ -27,10 +27,15 @@ helpers drop them.
 URL, so naming the primary key is always a mistake, while a create legitimately carries the
 id of the record it is making.
 
-That check needs the model, which is only reachable through the request, so it cannot run
-when the route is built. It runs on the first request each route serves rather than on every
-one, and only outside production, where a bad option is a failing test rather than a live
-route returning 500.
+The guard splits along what it needs to know. Whether a field is protected is a property of
+the option alone, so that half runs while the route is being built and fails at boot in every
+environment. Whether a field exists needs the model, which is only reachable through the
+request, so that half runs per request and only outside production, where a bad option is a
+failing test rather than a live route returning 500.
+
+Because `deletedAt` is protected, a PUT body carrying it is filtered rather than refused. The
+check that a *stored* record is not deleted stays; rejecting a request merely for echoing the
+key back would fire on exactly the round-tripped bodies these endpoints are built to accept.
 
 ## Fields each endpoint allows
 

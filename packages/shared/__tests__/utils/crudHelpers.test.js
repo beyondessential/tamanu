@@ -3,9 +3,9 @@ import { InvalidOperationError, UsageError } from '@tamanu/errors';
 
 import { simplePatch, simplePost, simplePut } from '../../src/utils/crudHelpers';
 
-// These guards are what stops a new call site from reintroducing mass assignment: the
-// nonempty-allowedFields check throws while routes are being registered, and the field
-// check throws the first time the route is hit outside production.
+// These guards are what stops a new call site from reintroducing mass assignment. Whether a
+// field is protected is known while the route is being built, so that half throws at boot;
+// whether it exists needs the model, so that half throws on the first request.
 
 const fakeModel = {
   name: 'Fake',
@@ -33,12 +33,14 @@ const invoke = (handler, req = {}) =>
     handler({ ...baseReq, ...req }, { send: resolve }, reject);
   });
 
+const ALL_HELPERS = [
+  ['simplePut', simplePut],
+  ['simplePost', simplePost],
+  ['simplePatch', simplePatch],
+];
+
 describe('crudHelpers allowedFields', () => {
-  describe.each([
-    ['simplePut', simplePut],
-    ['simplePost', simplePost],
-    ['simplePatch', simplePatch],
-  ])('%s', (name, helper) => {
+  describe.each(ALL_HELPERS)('%s', (name, helper) => {
     it('refuses to build a route with no allowedFields', () => {
       expect(() => helper('Fake')).toThrow(InvalidOperationError);
       expect(() => helper('Fake')).toThrow(`${name} requires a nonempty allowedFields option`);
@@ -49,16 +51,20 @@ describe('crudHelpers allowedFields', () => {
     });
 
     it.each(['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'])(
-      'rejects %s as an allowed field',
-      async field => {
-        const handler = helper('Fake', { allowedFields: [field] });
-        await expect(invoke(handler)).rejects.toThrow(UsageError);
+      'refuses to build a route allowing %s',
+      field => {
+        expect(() => helper('Fake', { allowedFields: [field] })).toThrow(UsageError);
       },
     );
 
     it('rejects a field the model does not have', async () => {
       const handler = helper('Fake', { allowedFields: ['nonexistentField'] });
       await expect(invoke(handler)).rejects.toThrow(UsageError);
+    });
+
+    it('does not blow up naming a model that is not registered', async () => {
+      const handler = helper('Missing', { allowedFields: ['name'] });
+      await expect(invoke(handler, { models: {} })).rejects.toThrow(UsageError);
     });
   });
 
@@ -68,9 +74,8 @@ describe('crudHelpers allowedFields', () => {
     ['simplePut', simplePut],
     ['simplePatch', simplePatch],
   ])('%s', (_name, helper) => {
-    it('rejects id as an allowed field', async () => {
-      const handler = helper('Fake', { allowedFields: ['id'] });
-      await expect(invoke(handler)).rejects.toThrow(UsageError);
+    it('refuses to build a route allowing id', () => {
+      expect(() => helper('Fake', { allowedFields: ['id'] })).toThrow(UsageError);
     });
   });
 

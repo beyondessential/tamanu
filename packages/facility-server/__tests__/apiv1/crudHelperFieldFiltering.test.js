@@ -39,6 +39,7 @@ describe('Crud helper field filtering', () => {
   let carePlanId;
   let locationGroupId;
   let labRequest;
+  let noPermsApp;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -53,6 +54,8 @@ describe('Crud helper field filtering', () => {
       role: 'practitioner',
     });
     clinicianId = clinician.id;
+
+    noPermsApp = await baseApp.asNewRole([]);
 
     patient = await models.Patient.create(await createDummyPatient(models));
     otherPatient = await models.Patient.create(await createDummyPatient(models));
@@ -191,6 +194,7 @@ describe('Crud helper field filtering', () => {
       }),
       persisted: () => ({ forwardAddress: 'someone@tamanu.io', language: 'fr' }),
       headers: { language: 'fr' },
+      allowsId: false,
       rejected: () => ({ labRequestId: labRequest.id }),
       rejectedPersists: () => ({ labRequestId: null }),
     },
@@ -220,6 +224,33 @@ describe('Crud helper field filtering', () => {
       expect(result).toHaveSucceeded();
       expect(await storedCreatedAtYear(testCase.subject, result.body.id)).toBeGreaterThan(2000);
     });
+
+    it('refuses a caller without create permission', async () => {
+      const result = await noPermsApp
+        .post(`/api/${testCase.endpoint}`)
+        .set(testCase.headers ?? {})
+        .send(testCase.body());
+      expect(result).toBeForbidden();
+    });
+
+    if (testCase.allowsId === false) {
+      it('generates an id rather than taking the one in the body', async () => {
+        const first = await post(testCase.body());
+        expect(first).toHaveSucceeded();
+
+        const second = await post({ ...testCase.body(), id: first.body.id });
+        expect(second).toHaveSucceeded();
+        expect(second.body.id).not.toEqual(first.body.id);
+      });
+    } else {
+      it('refuses to create a record whose id already exists', async () => {
+        const first = await post(testCase.body());
+        expect(first).toHaveSucceeded();
+
+        const second = await post({ ...testCase.body(), id: first.body.id });
+        expect(second).toHaveRequestError();
+      });
+    }
 
     if (testCase.rejected) {
       it('ignores fields outside allowedFields', async () => {
@@ -393,6 +424,16 @@ describe('Crud helper field filtering', () => {
       expect(result).toHaveSucceeded();
       await record.reload();
       expect(record.get({ plain: true })).toMatchObject(testCase.update());
+    });
+
+    it('refuses a caller without write permission', async () => {
+      const record = await testCase.create();
+
+      const result = await noPermsApp
+        .put(`/api/${testCase.endpoint}/${record.id}`)
+        .send(testCase.update());
+
+      expect(result).toBeForbidden();
     });
 
     it('ignores a client-supplied createdAt', async () => {

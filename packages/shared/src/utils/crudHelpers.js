@@ -110,37 +110,33 @@ const conjoiner = new Intl.ListFormat();
 // request can write them.
 const SYSTEM_MANAGED_FIELDS = ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick'];
 
-// A create may carry the new record's id, so simplePost can allow it. An update addresses
-// its record by URL, so naming id there is always a mistake.
-const PROTECTED_FIELDS = {
-  simplePatch: [...SYSTEM_MANAGED_FIELDS, 'id'],
-  simplePut: [...SYSTEM_MANAGED_FIELDS, 'id'],
-  simplePost: SYSTEM_MANAGED_FIELDS,
-};
+// A create may carry the new record's id. An update addresses its record by URL, so naming
+// the primary key there is always a mistake.
+const PROTECTED_ON_CREATE = SYSTEM_MANAGED_FIELDS;
+const PROTECTED_ON_UPDATE = [...SYSTEM_MANAGED_FIELDS, 'id'];
 
-function requireAllowedFields(helperName, options) {
-  if (!options?.allowedFields || options.allowedFields.length === 0) {
+// Runs while the route is being built, so a call site that forgets allowedFields or names a
+// protected field fails at boot, in every environment.
+function requireAllowedFields(helperName, protectedFields, options) {
+  const { allowedFields } = options ?? {};
+  if (!allowedFields || allowedFields.length === 0) {
     throw new InvalidOperationError(`${helperName} requires a nonempty allowedFields option`);
+  }
+
+  const named = allowedFields.filter(field => protectedFields.includes(field));
+  if (named.length > 0) {
+    const unit = named.length === 1 ? 'field' : 'fields';
+    throw new UsageError(
+      `${helperName} allowedFields option names protected ${unit}: ${conjoiner.format(named)}.`,
+    );
   }
 }
 
-// The model is only reachable through the request, so allowedFields cannot be checked when
-// the route is built. Check it on the first request the route serves instead of on all of
-// them, and leave it to development and CI, where a bad option is a failing test.
-function fieldCheckerFor(helperName, allowedFields) {
-  if (process.env.NODE_ENV === 'production') return () => {};
-
-  let checked = false;
-  return model => {
-    if (checked) return;
-    validateAllowedFields(helperName, model, allowedFields);
-    checked = true;
-  };
-}
-
-function validateAllowedFields(helperName, model, allowedFields) {
+// Whether those fields exist needs the model, which is only reachable through the request.
+// Left to development and CI, where a bad option is a failing test.
+function validateFieldsExist(helperName, modelName, protectedFields, model, allowedFields) {
   const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
-  for (const field of PROTECTED_FIELDS[helperName]) {
+  for (const field of protectedFields) {
     valids.delete(field);
   }
 
@@ -148,7 +144,7 @@ function validateAllowedFields(helperName, model, allowedFields) {
   if (invalids.length > 0) {
     const unit = invalids.length === 1 ? 'field' : 'fields';
     throw new UsageError(
-      `${helperName} allowedFields option includes invalid ${unit} for ${model.name}: ${conjoiner.format(invalids)}. (Permitted fields: ${conjoiner.format(valids)}.)`,
+      `${helperName} allowedFields option includes invalid ${unit} for ${modelName}: ${conjoiner.format(invalids)}. (Permitted fields: ${conjoiner.format(valids)}.)`,
     );
   }
 }
@@ -181,8 +177,7 @@ async function validatePatchBody(allowedFields, req) {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePatch = (modelName, options) => {
-  requireAllowedFields('simplePatch', options);
-  const checkFields = fieldCheckerFor('simplePatch', options.allowedFields);
+  requireAllowedFields('simplePatch', PROTECTED_ON_UPDATE, options);
 
   return asyncHandler(async (req, res) => {
     req.checkPermission('read', modelName);
@@ -193,7 +188,9 @@ export const simplePatch = (modelName, options) => {
       params: { id },
     } = req;
 
-    checkFields(model);
+    if (process.env.NODE_ENV !== 'production') {
+      validateFieldsExist('simplePatch', modelName, PROTECTED_ON_UPDATE, model, allowedFields);
+    }
     if (req.body == null) throw new InvalidOperationError('PATCH body is required');
 
     // Optimistically assume body is valid and begin fetching object before validated
@@ -226,8 +223,7 @@ export const simplePatch = (modelName, options) => {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePut = (modelName, options) => {
-  requireAllowedFields('simplePut', options);
-  const checkFields = fieldCheckerFor('simplePut', options.allowedFields);
+  requireAllowedFields('simplePut', PROTECTED_ON_UPDATE, options);
 
   return asyncHandler(async (req, res) => {
     const { allowedFields } = options;
@@ -236,17 +232,18 @@ export const simplePut = (modelName, options) => {
       params,
     } = req;
 
-    checkFields(model);
-
     req.checkPermission('read', modelName);
+
+    if (process.env.NODE_ENV !== 'production') {
+      validateFieldsExist('simplePut', modelName, PROTECTED_ON_UPDATE, model, allowedFields);
+    }
+
     const object = await model.findByPk(params.id);
     if (!object) throw new NotFoundError(`No ${modelName} found with ID ${params.id}`);
     if (object.deletedAt)
       throw new InvalidOperationError(
         `Cannot update deleted object with id (${params.id}), you need to restore it first`,
       );
-    if (Object.prototype.hasOwnProperty.call(req.body, 'deletedAt'))
-      throw new InvalidOperationError('Cannot update deletedAt field');
     req.checkPermission('write', object);
     await object.update(pick(req.body, allowedFields));
     res.send(object);
@@ -263,8 +260,7 @@ export const simplePut = (modelName, options) => {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePost = (modelName, options) => {
-  requireAllowedFields('simplePost', options);
-  const checkFields = fieldCheckerFor('simplePost', options.allowedFields);
+  requireAllowedFields('simplePost', PROTECTED_ON_CREATE, options);
 
   return asyncHandler(async (req, res) => {
     const { allowedFields } = options;
@@ -272,8 +268,11 @@ export const simplePost = (modelName, options) => {
       models: { [modelName]: model },
     } = req;
 
-    checkFields(model);
     req.checkPermission('create', modelName);
+
+    if (process.env.NODE_ENV !== 'production') {
+      validateFieldsExist('simplePost', modelName, PROTECTED_ON_CREATE, model, allowedFields);
+    }
 
     const values = pick(req.body, allowedFields);
     if (values.id) {
