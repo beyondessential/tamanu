@@ -1,0 +1,208 @@
+name: Migration Test
+
+# Migrate the previous minor's seed snapshot forward to this version, on a database with
+# realistic volume, and report what each migration cost. The seed image already carries
+# the central server, so this needs no image of its own.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semver version under test (e.g. 2.65.0)'
+        type: string
+        required: true
+      image:
+        description: 'Seed image ref (e.g. ghcr.io/beyondessential/tamanu-seed:2.65.0)'
+        type: string
+        required: true
+      git_sha:
+        description: 'Git SHA to tag the run with (defaults to HEAD)'
+        type: string
+        required: false
+        default: ''
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      image:
+        type: string
+        required: true
+      git_sha:
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  SEED_NAMESPACE: tamanu-seed
+
+jobs:
+  migration-test:
+    runs-on: ubuntu-latest
+    name: Migrate to ${{ inputs.version }}
+    timeout-minutes: 60
+    steps:
+      - name: Validate version format
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format '$INPUT_VERSION' — expected X.Y.Z"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Derive job name
+        id: names
+        run: |
+          SAFE_VERSION="${{ inputs.version }}"
+          SAFE_VERSION="${SAFE_VERSION//./-}"
+          JOB_NAME="migration-test-${SAFE_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "job_name=${JOB_NAME}" >> "$GITHUB_OUTPUT"
+
+      # from-snapshot: previous restores the newest snapshot below this version's minor, so
+      # the migrations meet data they have not been applied to. snapshot: "false" leaves no
+      # artefact behind: this run tests, it does not produce a fixture.
+      #
+      # The size must be at least the source snapshot's volume, or CNPG refuses the restore.
+      - name: Create migration test Job
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ inputs.version }}
+          GIT_SHA: ${{ inputs.git_sha || github.sha }}
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: ${JOB_NAME}
+            namespace: ${SEED_NAMESPACE}
+            labels:
+              pgsnap.bes.au/create: "true"
+            annotations:
+              pgsnap.bes.au/size: "5Gi"
+              pgsnap.bes.au/cpu: "2"
+              pgsnap.bes.au/memory: "4Gi"
+              pgsnap.bes.au/for-version: "${VERSION}"
+              pgsnap.bes.au/from-snapshot: "previous"
+              pgsnap.bes.au/snapshot: "false"
+              pgsnap.bes.au/git-sha: "${GIT_SHA}"
+          spec:
+            suspend: true
+            backoffLimit: 0
+            activeDeadlineSeconds: 3600
+            ttlSecondsAfterFinished: 3600
+            template:
+              spec:
+                restartPolicy: Never
+                tolerations:
+                  - key: bes.node.purpose
+                    operator: Equal
+                    value: spot-workload
+                    effect: NoSchedule
+                affinity:
+                  nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      nodeSelectorTerms:
+                        - matchExpressions:
+                            - key: bes.node.purpose
+                              operator: In
+                              values: [workload]
+                containers:
+                  - name: migrate
+                    image: ${IMAGE}
+                    envFrom:
+                      - secretRef:
+                          name: pgsnap-${JOB_NAME}
+                    args:
+                      - |
+                        export CONFIG_SYNC_DB_HOST="\$DB_HOST"
+                        export CONFIG_SYNC_DB_PORT="\$DB_PORT"
+                        export CONFIG_SYNC_DB_NAME="\$DB_NAME"
+                        export CONFIG_SYNC_DB_USERNAME="\$DB_USERNAME"
+                        export CONFIG_SYNC_DB_PASSWORD="\$DB_PASSWORD"
+                        node --import tsx app migrate
+                    resources:
+                      requests:
+                        cpu: 250m
+                        memory: 1Gi
+                        ephemeral-storage: 512Mi
+                      limits:
+                        cpu: "2"
+                        memory: 4Gi
+                        ephemeral-storage: 2Gi
+          EOF
+
+      # The Job stays suspended until the operator has restored the snapshot into a CNPG
+      # cluster that accepts connections, which took ~10 minutes for a fresh one.
+      - name: Wait for the migration to finish
+        id: wait
+        # Not the default `bash -e`: this polls for a pod that does not exist yet, so a
+        # non-zero kubectl is expected and errexit would abort the watch before it starts.
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          TIMEOUT_SECONDS: '2400'
+        run: |
+          deadline=$((SECONDS + TIMEOUT_SECONDS))
+          while (( SECONDS < deadline )); do
+            conditions=$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json 2>/dev/null | jq -r '
+              [(.status.succeeded // 0), (.status.failed // 0)] | @tsv')
+
+            if [[ -n "$conditions" ]]; then
+              read -r succeeded failed <<<"$conditions"
+              [[ "$succeeded" -gt 0 ]] && echo "outcome=succeeded" >> "$GITHUB_OUTPUT" && exit 0
+              [[ "$failed" -gt 0 ]] && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "outcome=timeout" >> "$GITHUB_OUTPUT"
+
+      - name: Report
+        if: always()
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          OUTCOME: ${{ steps.wait.outputs.outcome }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          logs=$(kubectl logs -n "$SEED_NAMESPACE" "job/$JOB_NAME" --tail=-1 2>/dev/null)
+
+          {
+            echo "## Migration test: $VERSION"
+            echo
+            echo '```'
+            echo "$logs" | grep -E 'Applying [0-9]+ migration|Migration batch timings|Migrations already up-to-date' || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "$OUTCOME" != succeeded ]]; then
+            echo "$logs" | tail -100
+            kubectl describe job "$JOB_NAME" -n "$SEED_NAMESPACE"
+            echo "::error::Migrating the previous minor's data to $VERSION $OUTCOME."
+            exit 1
+          fi
+
+          # A fixture of the same version has already had these migrations applied, so a run
+          # with nothing pending proves nothing and must not read as a pass.
+          if grep -q 'Migrations already up-to-date' <<<"$logs"; then
+            echo "::error::No migrations were pending, so this run tested nothing. Check which snapshot was restored."
+            exit 1
+          fi
+
+          echo "$logs" | grep -E 'Migration batch timings' || \
+            echo "::warning::No batch timings in the log; the image predates them."
