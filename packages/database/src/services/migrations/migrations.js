@@ -98,6 +98,18 @@ function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
   return Object.values(durationMsPerMigration).reduce((a, b) => a + b, 0);
 }
 
+// The migration test workflow parses this line out of the pod logs, so it must stay a single
+// flat JSON object on one line.
+function logMigrationSummary(log, { applied, totalMigrationsDurationMs, batchDurationMs }) {
+  log.info(
+    `TAMANU_MIGRATION_SUMMARY ${JSON.stringify({
+      applied,
+      totalMigrationsDurationMs,
+      batchDurationMs,
+    })}`,
+  );
+}
+
 // Umzug's down({ to }) INCLUDES the target in the revert. The baseline's down
 // drops all schemas, so we must not include it. Use the first post-baseline
 // migration as the revert boundary instead. Stored as a basename (no extension).
@@ -348,6 +360,12 @@ export async function migrateUpTo({
         .map(([file, ms]) => `${file} ${ms}ms`),
     });
 
+    logMigrationSummary(log, {
+      applied: batch.length,
+      totalMigrationsDurationMs,
+      batchDurationMs,
+    });
+
     await createMigrationAuditLog(sequelize, batch, 'up', {
       batchDurationMs,
       upgradeRunId,
@@ -415,6 +433,11 @@ async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
     await migrateUpTo({ log, sequelize, migrations, getDurationStats, pending, upOpts, dryRun });
   } else {
     log.info('Migrations already up-to-date.');
+    logMigrationSummary(log, {
+      applied: 0,
+      totalMigrationsDurationMs: 0,
+      batchDurationMs: 0,
+    });
   }
 
   await syncDatabaseServerVersionForMigrateUp(sequelize, options);
