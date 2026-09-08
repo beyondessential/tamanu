@@ -1,6 +1,10 @@
 import React, { type ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
-import { createStackNavigator, type StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  type StackHeaderProps,
+  TransitionPresets,
+} from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import { StackHeader } from '/components/StackHeader';
@@ -37,19 +41,22 @@ const VaccineHeaderComponent = ({
 
 const VaccineHeaderWithPatient = compose(withPatient)(VaccineHeaderComponent);
 
-const VaccineHeader = (props: StackHeaderProps): ReactElement => (
-  <VaccineHeaderWithPatient {...props} />
-);
+/**
+ * Not a redundant wrapper! The stack `header` option is called as a plain render function (where
+ * hooks aren’t allowed), not treated as a function component (where React Compiler can do its
+ * optimisations).
+ */
+function renderVaccineHeader(props: StackHeaderProps): ReactElement {
+  return <VaccineHeaderWithPatient {...props} />;
+}
 
 export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator>
       <Stack.Screen
-        options={{
-          header: VaccineHeader,
-        }}
-        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
         component={VaccineTableTabs}
+        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
+        options={{ header: renderVaccineHeader }}
       />
       <Stack.Screen
         options={{
