@@ -1,6 +1,10 @@
 import React, { type ReactElement, useCallback } from 'react';
 import { compose } from 'redux';
-import { createStackNavigator, type StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  type StackHeaderProps,
+  TransitionPresets,
+} from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import { StackHeader } from '/components/StackHeader';
@@ -37,16 +41,22 @@ const VaccineHeaderComponent = ({
 
 const VaccineHeaderWithPatient = compose(withPatient)(VaccineHeaderComponent);
 
-const VaccineHeader = (props: StackHeaderProps): ReactElement => (
-  <VaccineHeaderWithPatient {...props} />
-);
+/**
+ * The stack `header` option is called as a plain render function, not mounted as a
+ * component. React Compiler treats a PascalCase one-parameter function returning JSX as a
+ * component and inserts a `useMemoCache` call, which would violate the rules of hooks when
+ * called that way, so this helper must stay lowercase.
+ */
+function renderVaccineHeader(props: StackHeaderProps): ReactElement {
+  return <VaccineHeaderWithPatient {...props} />;
+}
 
 export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator>
       <Stack.Screen
         options={{
-          header: VaccineHeader,
+          header: renderVaccineHeader,
         }}
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
         component={VaccineTableTabs}
