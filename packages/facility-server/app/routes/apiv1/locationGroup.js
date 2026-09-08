@@ -6,19 +6,11 @@ import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const locationGroup = express.Router();
 
+const EDITABLE_FIELDS = ['code', 'facilityId', 'isBookable', 'name', 'visibilityStatus'];
+
 locationGroup.get('/:id', simpleGet('LocationGroup'));
-locationGroup.put(
-  '/:id',
-  simplePut('LocationGroup', {
-    allowedFields: ['code', 'facilityId', 'isBookable', 'name', 'visibilityStatus'],
-  }),
-);
-locationGroup.post(
-  '/',
-  simplePost('LocationGroup', {
-    allowedFields: ['code', 'facilityId', 'id', 'isBookable', 'name', 'visibilityStatus'],
-  }),
-);
+locationGroup.put('/:id', simplePut('LocationGroup', { allowedFields: EDITABLE_FIELDS }));
+locationGroup.post('/', simplePost('LocationGroup', { allowedFields: [...EDITABLE_FIELDS, 'id'] }));
 locationGroup.get(
   '/',
   asyncHandler(async (req, res) => {

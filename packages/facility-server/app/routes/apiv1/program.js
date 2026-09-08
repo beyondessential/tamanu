@@ -15,9 +15,11 @@ import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurve
 
 export const program = express.Router();
 
+const EDITABLE_FIELDS = ['code', 'name'];
+
 program.get('/:id', simpleGet('Program'));
-program.put('/:id', simplePut('Program', { allowedFields: ['code', 'name'] }));
-program.post('/', simplePost('Program', { allowedFields: ['code', 'id', 'name'] }));
+program.put('/:id', simplePut('Program', { allowedFields: EDITABLE_FIELDS }));
+program.post('/', simplePost('Program', { allowedFields: [...EDITABLE_FIELDS, 'id'] }));
 
 program.get(
   '/',

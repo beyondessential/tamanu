@@ -110,15 +110,37 @@ const conjoiner = new Intl.ListFormat();
 // request can write them.
 const SYSTEM_MANAGED_FIELDS = ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick'];
 
+// A create may carry the new record's id, so simplePost can allow it. An update addresses
+// its record by URL, so naming id there is always a mistake.
+const PROTECTED_FIELDS = {
+  simplePatch: [...SYSTEM_MANAGED_FIELDS, 'id'],
+  simplePut: [...SYSTEM_MANAGED_FIELDS, 'id'],
+  simplePost: SYSTEM_MANAGED_FIELDS,
+};
+
 function requireAllowedFields(helperName, options) {
   if (!options?.allowedFields || options.allowedFields.length === 0) {
     throw new InvalidOperationError(`${helperName} requires a nonempty allowedFields option`);
   }
 }
 
+// The model is only reachable through the request, so allowedFields cannot be checked when
+// the route is built. Check it on the first request the route serves instead of on all of
+// them, and leave it to development and CI, where a bad option is a failing test.
+function fieldCheckerFor(helperName, allowedFields) {
+  if (process.env.NODE_ENV === 'production') return () => {};
+
+  let checked = false;
+  return model => {
+    if (checked) return;
+    validateAllowedFields(helperName, model, allowedFields);
+    checked = true;
+  };
+}
+
 function validateAllowedFields(helperName, model, allowedFields) {
   const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
-  for (const field of SYSTEM_MANAGED_FIELDS) {
+  for (const field of PROTECTED_FIELDS[helperName]) {
     valids.delete(field);
   }
 
@@ -160,6 +182,7 @@ async function validatePatchBody(allowedFields, req) {
  */
 export const simplePatch = (modelName, options) => {
   requireAllowedFields('simplePatch', options);
+  const checkFields = fieldCheckerFor('simplePatch', options.allowedFields);
 
   return asyncHandler(async (req, res) => {
     req.checkPermission('read', modelName);
@@ -170,9 +193,7 @@ export const simplePatch = (modelName, options) => {
       params: { id },
     } = req;
 
-    if (process.env.NODE_ENV !== 'production') {
-      validateAllowedFields('simplePatch', model, allowedFields);
-    }
+    checkFields(model);
     if (req.body == null) throw new InvalidOperationError('PATCH body is required');
 
     // Optimistically assume body is valid and begin fetching object before validated
@@ -206,6 +227,7 @@ export const simplePatch = (modelName, options) => {
  */
 export const simplePut = (modelName, options) => {
   requireAllowedFields('simplePut', options);
+  const checkFields = fieldCheckerFor('simplePut', options.allowedFields);
 
   return asyncHandler(async (req, res) => {
     const { allowedFields } = options;
@@ -214,9 +236,7 @@ export const simplePut = (modelName, options) => {
       params,
     } = req;
 
-    if (process.env.NODE_ENV !== 'production') {
-      validateAllowedFields('simplePut', model, allowedFields);
-    }
+    checkFields(model);
 
     req.checkPermission('read', modelName);
     const object = await model.findByPk(params.id);
@@ -236,38 +256,38 @@ export const simplePut = (modelName, options) => {
 /**
  * Filters the body to allowedFields rather than refusing unknown keys, for the same reason
  * as simplePut. A client may supply the new record's id, so allowedFields needs to include
- * it wherever that is intended.
+ * it wherever that is intended; where it does not, the id is generated and a body id is
+ * ignored rather than checked for a collision.
  *
  * @param {string} modelName
- * @param {{ allowedFields: string[], skipPermissionCheck?: boolean }} options
+ * @param {{ allowedFields: string[] }} options
  */
 export const simplePost = (modelName, options) => {
   requireAllowedFields('simplePost', options);
+  const checkFields = fieldCheckerFor('simplePost', options.allowedFields);
 
   return asyncHandler(async (req, res) => {
-    const { allowedFields, skipPermissionCheck = false } = options;
+    const { allowedFields } = options;
     const {
       models: { [modelName]: model },
     } = req;
 
-    if (process.env.NODE_ENV !== 'production') {
-      validateAllowedFields('simplePost', model, allowedFields);
+    checkFields(model);
+    req.checkPermission('create', modelName);
+
+    const values = pick(req.body, allowedFields);
+    if (values.id) {
+      const existingObject = await model.findByPk(values.id, {
+        paranoid: false,
+      });
+      if (existingObject) {
+        throw new InvalidOperationError(
+          `Cannot create object with id (${values.id}), it already exists`,
+        );
+      }
     }
 
-    if (skipPermissionCheck === false) {
-      req.checkPermission('create', modelName);
-    }
-
-    const existingObject = await model.findByPk(req.body.id, {
-      paranoid: false,
-    });
-    if (existingObject) {
-      throw new InvalidOperationError(
-        `Cannot create object with id (${req.body.id}), it already exists`,
-      );
-    }
-
-    const object = await model.create(pick(req.body, allowedFields));
+    const object = await model.create(values);
     res.send(object);
   });
 };

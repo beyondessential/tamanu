@@ -90,15 +90,8 @@ referenceData.get(
 );
 
 referenceData.get('/:id', simpleGet('ReferenceData'));
-referenceData.put(
-  '/:id',
-  simplePut('ReferenceData', {
-    allowedFields: ['availableFacilities', 'code', 'name', 'type', 'visibilityStatus'],
-  }),
-);
-referenceData.post(
-  '/',
-  simplePost('ReferenceData', {
-    allowedFields: ['availableFacilities', 'code', 'id', 'name', 'type', 'visibilityStatus'],
-  }),
-);
+
+const EDITABLE_FIELDS = ['availableFacilities', 'code', 'name', 'type', 'visibilityStatus'];
+
+referenceData.put('/:id', simplePut('ReferenceData', { allowedFields: EDITABLE_FIELDS }));
+referenceData.post('/', simplePost('ReferenceData', { allowedFields: [...EDITABLE_FIELDS, 'id'] }));

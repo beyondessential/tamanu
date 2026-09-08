@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
+import { fake } from '@tamanu/fake-data/fake';
 import { REFERRAL_STATUSES } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
@@ -37,6 +38,7 @@ describe('Crud helper field filtering', () => {
   let diagnosisId;
   let carePlanId;
   let locationGroupId;
+  let labRequest;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -63,7 +65,7 @@ describe('Crud helper field filtering', () => {
       patientId: otherPatient.id,
     });
 
-    const reference = async (type) =>
+    const reference = async type =>
       (
         await models.ReferenceData.create({
           type,
@@ -74,6 +76,11 @@ describe('Crud helper field filtering', () => {
     allergyId = await reference('allergy');
     diagnosisId = await reference('diagnosis');
     carePlanId = await reference('carePlan');
+
+    labRequest = await models.LabRequest.create({
+      ...fake(models.LabRequest),
+      encounterId: encounter.id,
+    });
 
     const locationGroup = await models.LocationGroup.create({
       code: uniqueCode(),
@@ -182,7 +189,10 @@ describe('Crud helper field filtering', () => {
         forwardAddress: 'someone@tamanu.io',
         createdBy: 'Crud Helpers',
       }),
-      persisted: () => ({ forwardAddress: 'someone@tamanu.io' }),
+      persisted: () => ({ forwardAddress: 'someone@tamanu.io', language: 'fr' }),
+      headers: { language: 'fr' },
+      rejected: () => ({ labRequestId: labRequest.id }),
+      rejectedPersists: () => ({ labRequestId: null }),
     },
   ];
 
@@ -193,25 +203,27 @@ describe('Crud helper field filtering', () => {
       app = await baseApp.asNewRole(permissionsFor(testCase.subject));
     });
 
+    const post = body =>
+      app
+        .post(`/api/${testCase.endpoint}`)
+        .set(testCase.headers ?? {})
+        .send(body);
+
     it('creates a record from the body the client sends', async () => {
-      const result = await app.post(`/api/${testCase.endpoint}`).send(testCase.body());
+      const result = await post(testCase.body());
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject(testCase.persisted());
     });
 
     it('ignores a client-supplied createdAt', async () => {
-      const result = await app
-        .post(`/api/${testCase.endpoint}`)
-        .send({ ...testCase.body(), createdAt: CLIENT_SUPPLIED_CREATED_AT });
+      const result = await post({ ...testCase.body(), createdAt: CLIENT_SUPPLIED_CREATED_AT });
       expect(result).toHaveSucceeded();
       expect(await storedCreatedAtYear(testCase.subject, result.body.id)).toBeGreaterThan(2000);
     });
 
     if (testCase.rejected) {
       it('ignores fields outside allowedFields', async () => {
-        const result = await app
-          .post(`/api/${testCase.endpoint}`)
-          .send({ ...testCase.body(), ...testCase.rejected() });
+        const result = await post({ ...testCase.body(), ...testCase.rejected() });
         expect(result).toHaveSucceeded();
         if (testCase.rejectedPersists) {
           const record = await models[testCase.subject].findByPk(result.body.id);
@@ -230,7 +242,6 @@ describe('Crud helper field filtering', () => {
       create: () =>
         models.PatientAllergy.create({ patientId: patient.id, allergyId, note: 'Before' }),
       update: () => ({ note: 'After' }),
-      updated: () => ({ note: 'After' }),
       // Reassigning the record to another patient is not the endpoint's job.
       rejected: () => ({ patientId: otherPatient.id }),
       unchanged: () => ({ patientId: patient.id }),
@@ -245,7 +256,6 @@ describe('Crud helper field filtering', () => {
           note: 'Before',
         }),
       update: () => ({ note: 'After', resolved: true }),
-      updated: () => ({ note: 'After', resolved: true }),
       rejected: () => ({ patientId: otherPatient.id }),
       unchanged: () => ({ patientId: patient.id }),
     },
@@ -259,7 +269,6 @@ describe('Crud helper field filtering', () => {
           relationship: 'mother',
         }),
       update: () => ({ relationship: 'father' }),
-      updated: () => ({ relationship: 'father' }),
       rejected: () => ({ patientId: otherPatient.id }),
       unchanged: () => ({ patientId: patient.id }),
     },
@@ -268,7 +277,6 @@ describe('Crud helper field filtering', () => {
       endpoint: 'patientIssue',
       create: () => models.PatientIssue.create({ patientId: patient.id, note: 'Before' }),
       update: () => ({ note: 'After' }),
-      updated: () => ({ note: 'After' }),
       rejected: () => ({ patientId: otherPatient.id }),
       unchanged: () => ({ patientId: patient.id }),
     },
@@ -282,7 +290,6 @@ describe('Crud helper field filtering', () => {
           examinerId: clinicianId,
         }),
       update: () => ({ date: '2024-05-06 07:08:09' }),
-      updated: () => ({ date: '2024-05-06 07:08:09' }),
       rejected: () => ({ patientId: otherPatient.id }),
       unchanged: () => ({ patientId: patient.id }),
     },
@@ -296,7 +303,6 @@ describe('Crud helper field filtering', () => {
           certainty: 'suspected',
         }),
       update: () => ({ certainty: 'confirmed' }),
-      updated: () => ({ certainty: 'confirmed' }),
       rejected: () => ({ encounterId: otherEncounter.id }),
       unchanged: () => ({ encounterId: encounter.id }),
     },
@@ -305,7 +311,6 @@ describe('Crud helper field filtering', () => {
       endpoint: 'vitals',
       create: () => models.Vitals.create({ encounterId: encounter.id, temperature: 37 }),
       update: () => ({ temperature: 38.5 }),
-      updated: () => ({ temperature: 38.5 }),
       rejected: () => ({ encounterId: otherEncounter.id }),
       unchanged: () => ({ encounterId: encounter.id }),
     },
@@ -318,7 +323,6 @@ describe('Crud helper field filtering', () => {
           status: REFERRAL_STATUSES.PENDING,
         }),
       update: () => ({ status: REFERRAL_STATUSES.COMPLETED }),
-      updated: () => ({ status: REFERRAL_STATUSES.COMPLETED }),
       rejected: () => ({ initiatingEncounterId: otherEncounter.id }),
       unchanged: () => ({ initiatingEncounterId: encounter.id }),
     },
@@ -332,7 +336,6 @@ describe('Crud helper field filtering', () => {
           name: 'Before',
         }),
       update: () => ({ name: 'After' }),
-      updated: () => ({ name: 'After' }),
       rejected: () => ({ systemRequired: true }),
       unchanged: () => ({ systemRequired: false }),
     },
@@ -347,7 +350,6 @@ describe('Crud helper field filtering', () => {
           locationGroupId,
         }),
       update: () => ({ name: 'After' }),
-      updated: () => ({ name: 'After' }),
     },
     {
       subject: 'LocationGroup',
@@ -359,14 +361,12 @@ describe('Crud helper field filtering', () => {
           facilityId,
         }),
       update: () => ({ name: 'After' }),
-      updated: () => ({ name: 'After' }),
     },
     {
       subject: 'Program',
       endpoint: 'program',
       create: () => models.Program.create({ code: uniqueCode(), name: 'Before' }),
       update: () => ({ name: 'After' }),
-      updated: () => ({ name: 'After' }),
     },
   ];
 
@@ -381,13 +381,18 @@ describe('Crud helper field filtering', () => {
     // carries the id, createdAt, updatedAt and any nested association objects.
     it('accepts the whole record the client read back', async () => {
       const record = await testCase.create();
-      const roundTripped = { ...record.forResponse(), ...testCase.update() };
+      const roundTripped = {
+        ...record.forResponse(),
+        // The web spreads the fetched record into its form, associations included.
+        someAssociation: { id: 'nested-object-id', name: 'Nested object' },
+        ...testCase.update(),
+      };
 
       const result = await app.put(`/api/${testCase.endpoint}/${record.id}`).send(roundTripped);
 
       expect(result).toHaveSucceeded();
       await record.reload();
-      expect(record.get({ plain: true })).toMatchObject(testCase.updated());
+      expect(record.get({ plain: true })).toMatchObject(testCase.update());
     });
 
     it('ignores a client-supplied createdAt', async () => {
@@ -412,7 +417,7 @@ describe('Crud helper field filtering', () => {
         expect(result).toHaveSucceeded();
         await record.reload();
         expect(record.get({ plain: true })).toMatchObject({
-          ...testCase.updated(),
+          ...testCase.update(),
           ...testCase.unchanged(),
         });
       });

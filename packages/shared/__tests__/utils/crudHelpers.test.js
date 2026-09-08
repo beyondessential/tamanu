@@ -9,6 +9,8 @@ import { simplePatch, simplePost, simplePut } from '../../src/utils/crudHelpers'
 
 const fakeModel = {
   name: 'Fake',
+  findByPk: async () => null,
+  create: async values => values,
   rawAttributes: {
     id: {},
     name: {},
@@ -57,6 +59,27 @@ describe('crudHelpers allowedFields', () => {
     it('rejects a field the model does not have', async () => {
       const handler = helper('Fake', { allowedFields: ['nonexistentField'] });
       await expect(invoke(handler)).rejects.toThrow(UsageError);
+    });
+  });
+
+  // An update addresses its record by URL, so it must not be able to name the primary key.
+  // A create can, because the client may supply the id of the record it is making.
+  describe.each([
+    ['simplePut', simplePut],
+    ['simplePatch', simplePatch],
+  ])('%s', (_name, helper) => {
+    it('rejects id as an allowed field', async () => {
+      const handler = helper('Fake', { allowedFields: ['id'] });
+      await expect(invoke(handler)).rejects.toThrow(UsageError);
+    });
+  });
+
+  describe('simplePost', () => {
+    it('accepts id as an allowed field', async () => {
+      const handler = simplePost('Fake', { allowedFields: ['id'] });
+      await expect(invoke(handler, { body: { id: 'supplied-id' } })).resolves.toEqual({
+        id: 'supplied-id',
+      });
     });
   });
 });

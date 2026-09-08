@@ -20,16 +20,35 @@ omits nulls, which is the only reason the existing `deletedAt` guard does not al
 those requests. Rejecting unknown keys would break every one of those endpoints, so the
 helpers drop them.
 
+## What each helper protects
+
+`allowedFields` may never name `createdAt`, `updatedAt`, `deletedAt` or `updatedAtSyncTick`.
+`simplePut` and `simplePatch` additionally refuse `id`: an update addresses its record by
+URL, so naming the primary key is always a mistake, while a create legitimately carries the
+id of the record it is making.
+
+That check needs the model, which is only reachable through the request, so it cannot run
+when the route is built. It runs on the first request each route serves rather than on every
+one, and only outside production, where a bad option is a failing test rather than a live
+route returning 500.
+
 ## Fields each endpoint allows
 
-Each of the 25 call sites declares the fields its clients actually send: the form fields plus
-the foreign keys the caller sets, never the system-managed columns. Two deliberate
-tightenings beyond that:
+Each route file declares one `EDITABLE_FIELDS` constant holding the fields its clients send,
+and its create derives from it (`[...EDITABLE_FIELDS, 'id', 'patientId']`). The two lists
+differ only by what a create adds, so writing them out separately would let them drift
+silently: a dropped field is just ignored, with nothing to fail.
+
+Two deliberate tightenings beyond the fields clients send:
 
 - `referenceData` does not allow `systemRequired`. It flags reference data the importer
   refuses to overwrite (`importRows.js`), and no client sets it.
 - `certificateNotification` does not allow `labTestId` or `labRequestId`. Those are attached
   by the central server's notification generator, not by the posting client.
+
+`simplePost` filters the body once and checks it for a duplicate id using the filtered
+values, so an endpoint that does not allow `id` ignores a body id rather than rejecting the
+create as a collision.
 
 ## Adjacent mass assignment, not covered by this card
 

@@ -18,6 +18,8 @@ Unit tests in `packages/shared/__tests__/utils/crudHelpers.test.js`.
 - [x] Each refuses to build a route with an empty `allowedFields`
 - [x] Each rejects `createdAt`, `updatedAt`, `deletedAt` and `updatedAtSyncTick` as allowed fields
 - [x] Each rejects an allowed field the model does not have
+- [x] `simplePut` and `simplePatch` reject `id` as an allowed field
+- [x] `simplePost` accepts `id` as an allowed field and creates with the supplied id
 
 ## Endpoint behaviour
 
@@ -26,12 +28,13 @@ covering all 12 facility endpoints the helpers are mounted on.
 
 - [x] Each POST endpoint creates a record from the body its client sends
 - [x] Each POST endpoint ignores a client-supplied `createdAt`
-- [x] Each PUT endpoint accepts the whole record the client read back, and applies the edit
+- [x] Each PUT endpoint accepts the whole record the client read back, nested association objects included, and applies the edit
 - [x] Each PUT endpoint ignores a client-supplied `createdAt`
 - [x] `PUT allergy`, `ongoingCondition`, `familyHistory`, `patientIssue` and `patientCarePlan` cannot move a record to another patient
 - [x] `PUT diagnosis` and `vitals` cannot move a record to another encounter
 - [x] `PUT referral` cannot repoint the referral at another initiating encounter
 - [x] `POST` and `PUT referenceData` cannot set `systemRequired`, which the importer treats as protected
+- [x] `POST certificateNotification` stores the language the request carried, and refuses a client-supplied `labRequestId`
 
 The central-server admin template routes, in `packages/central-server/__tests__/admin/template.test.js`.
 
