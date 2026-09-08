@@ -16,13 +16,14 @@ import { FilterIcon } from '../../components/Icons/FilterIcon';
 import { useSuggesterOptions } from '../../hooks';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
-import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { TranslatedReferenceData, TranslatedText } from '../../components/Translation';
 import {
   CategoryHeader,
   MemberTestRow,
   PanelRow,
   SelectableTestRow,
+  SelectedCategoryHeader,
+  SelectedGroupCard,
   SelectedItemRow,
 } from './TestItem';
 
@@ -39,10 +40,9 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 1rem;
+  padding: 0.5rem 0.5rem 1rem;
 `;
 
-// The test list is wider than the selected panel, matching the design's ~62/38 split.
 const ListColumn = styled(Column)`
   flex: 62;
 `;
@@ -64,12 +64,12 @@ const Controls = styled.div`
 
 const StyledSearchInput = styled(SearchInput)`
   flex: 1;
+  margin-top: -2px;
+  margin-left: 5px;
   .MuiInputBase-root {
     padding-left: 0;
   }
   .MuiInputBase-input {
-    padding-top: 3px;
-    padding-bottom: 3px;
     font-size: 14px;
   }
   .MuiOutlinedInput-root {
@@ -83,6 +83,7 @@ const StyledSearchInput = styled(SearchInput)`
 const CategoryFilter = styled(Select)`
   width: 156px;
   flex-shrink: 0;
+  margin-bottom: 0.5rem;
 `;
 
 const categoryFilterStyles = {
@@ -96,7 +97,7 @@ const categoryFilterStyles = {
     cursor: 'pointer',
     '&:hover': { borderColor: Colors.outline },
   }),
-  valueContainer: base => ({ ...base, padding: '0 2px 0 7px' }),
+  valueContainer: base => ({ ...base, padding: '0 12px 0 7px' }),
   placeholder: base => ({
     ...base,
     margin: 0,
@@ -113,7 +114,12 @@ const categoryFilterStyles = {
     color: Colors.darkestText,
     backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
   }),
-  menu: base => ({ ...base, marginTop: '2px', boxShadow: 'none', border: `1px solid ${Colors.outline}` }),
+  menu: base => ({
+    ...base,
+    marginTop: '2px',
+    boxShadow: 'none',
+    border: `1px solid ${Colors.outline}`,
+  }),
   menuPortal: base => ({ ...base, zIndex: 9999 }),
 };
 
@@ -140,13 +146,13 @@ const SelectedHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 8px;
 `;
 
 const SectionTitle = styled.span`
   font-size: 15px;
   line-height: 18px;
-  font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${Colors.darkestText};
 `;
 
 const ClearAllButton = styled(TextButton)`
@@ -216,14 +222,14 @@ const referenceName = (item, category) => (
   />
 );
 
-const CategoryGroupHeader = ({ category }) => (
-  <CategoryHeader>
+const CategoryGroupHeader = ({ category, component: HeaderComponent = CategoryHeader }) => (
+  <HeaderComponent>
     {category ? (
       referenceName(category, category.type)
     ) : (
       <TranslatedText stringId="lab.testSelect.uncategorised" fallback="Uncategorised" />
     )}
-  </CategoryHeader>
+  </HeaderComponent>
 );
 
 export const CombinedTestSelector = ({ onSelectionChange }) => {
@@ -262,9 +268,10 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   const isLoading = testsQuery.isFetching || panelsQuery.isFetching;
 
   const testItems = useMemo(() => (testsQuery.data ?? []).map(buildTestItem), [testsQuery.data]);
-  const panelItems = useMemo(() => (panelsQuery.data ?? []).map(buildPanelItem), [
-    panelsQuery.data,
-  ]);
+  const panelItems = useMemo(
+    () => (panelsQuery.data ?? []).map(buildPanelItem),
+    [panelsQuery.data],
+  );
   const testsById = useMemo(
     () => Object.fromEntries(testItems.map(test => [test.id, test])),
     [testItems],
@@ -293,14 +300,14 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   }, [allItems, categoryId, search]);
 
   // While searching, the list flattens to matching rows with no category grouping.
-  const flatItems = useMemo(() => (search ? [...visibleItems].sort(byName) : null), [
-    search,
-    visibleItems,
-  ]);
-  const groupedItems = useMemo(() => (search ? null : groupByCategory(visibleItems)), [
-    search,
-    visibleItems,
-  ]);
+  const flatItems = useMemo(
+    () => (search ? [...visibleItems].sort(byName) : null),
+    [search, visibleItems],
+  );
+  const groupedItems = useMemo(
+    () => (search ? null : groupByCategory(visibleItems)),
+    [search, visibleItems],
+  );
 
   const selectedPanels = useMemo(
     () => panelIds.map(id => panelsById[id]).filter(Boolean),
@@ -438,7 +445,11 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
               { value: '', label: getTranslation('general.select.all', 'All') },
               ...categoryOptions,
             ]}
-            value={categoryId ? categoryOptions.find(option => option.value === categoryId) ?? null : null}
+            value={
+              categoryId
+                ? (categoryOptions.find(option => option.value === categoryId) ?? null)
+                : null
+            }
             onChange={option => setCategoryId(option?.value ?? '')}
             placeholder={getTranslation('lab.testSelect.categoryFilter.label', 'Category')}
             isSearchable={false}
@@ -452,7 +463,6 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
             data-testid="test-selector-category-filter"
           />
         </Controls>
-        <FormSeparatorLine />
         <ScrollList>
           {isLoading && (
             <EmptyText data-testid="test-selector-loading">
@@ -494,20 +504,22 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
             </ClearAllButton>
           )}
         </SelectedHeader>
-        <FormSeparatorLine />
         <ScrollList>
           {selectedGroups.map(group => (
-            <React.Fragment key={group.category?.id ?? 'uncategorised'}>
-              <CategoryGroupHeader category={group.category} />
+            <SelectedGroupCard key={group.category?.id ?? 'uncategorised'}>
+              <CategoryGroupHeader category={group.category} component={SelectedCategoryHeader} />
               {group.items.map(item => (
                 <SelectedItemRow
                   key={item.id}
                   id={item.id}
-                  label={referenceName(item, item.kind === 'panel' ? 'labTestPanel' : 'labTestType')}
+                  label={referenceName(
+                    item,
+                    item.kind === 'panel' ? 'labTestPanel' : 'labTestType',
+                  )}
                   onRemove={removeItem}
                 />
               ))}
-            </React.Fragment>
+            </SelectedGroupCard>
           ))}
         </ScrollList>
       </SelectedColumn>

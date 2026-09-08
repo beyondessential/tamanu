@@ -18,11 +18,15 @@ export const SampleDetailsContainer = styled.div`
   border-radius: 5px;
   display: grid;
   grid-template-columns: ${p =>
-    p.$showTestColumns === false ? 'repeat(4, 1fr)' : '150px minmax(200px, 1fr) repeat(4, 1fr)'};
+    p.$showTestColumns === false ? 'repeat(4, 1fr)' : '150px 250px repeat(4, 1fr)'};
   padding-bottom: 10px;
 
   > div:nth-last-child(-n + ${p => (p.$showTestColumns === false ? 4 : 6)}) {
     border-bottom: none;
+  }
+
+  h6 {
+    font-size: 14px;
   }
 
   ${p =>
@@ -38,7 +42,7 @@ export const SampleDetailsContainer = styled.div`
 const HeaderCell = styled(Heading4)`
   font-size: 14px;
   font-weight: 400;
-  padding: 15px 16px 15px 0px;
+  padding: 0 15px 15px 0px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.midText};
   &:first-of-type {
