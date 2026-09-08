@@ -333,12 +333,27 @@ export async function migrateUpTo({
 
   const auditBatch = async (batch, failedMigration = undefined) => {
     const durationMsPerMigration = migrationDurationsForBatch(getDurationStats(), batch);
+    const totalMigrationsDurationMs = totalMigrationsDurationMsFromMap(durationMsPerMigration);
+    const batchDurationMs = Date.now() - batchStart;
+
+    // The audit row is only readable from the database it describes, which a caller
+    // watching an upgrade or a migration test run does not have.
+    log.info('Migration batch timings', {
+      applied: batch.length,
+      totalMigrationsDurationMs,
+      batchDurationMs,
+      slowest: Object.entries(durationMsPerMigration)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([file, ms]) => `${file} ${ms}ms`),
+    });
+
     await createMigrationAuditLog(sequelize, batch, 'up', {
-      batchDurationMs: Date.now() - batchStart,
+      batchDurationMs,
       upgradeRunId,
       stats: {
         durationMsPerMigration,
-        totalMigrationsDurationMs: totalMigrationsDurationMsFromMap(durationMsPerMigration),
+        totalMigrationsDurationMs,
         ...(preSnapshot ? { preSnapshot } : {}),
         ...(failedMigration ? { failedMigration } : {}),
       },
