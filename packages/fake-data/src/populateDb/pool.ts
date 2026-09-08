@@ -12,7 +12,7 @@ export const pooled = async <T>(
   size: number = POOL_SIZE,
   where?: Record<string, unknown>,
 ): Promise<T> => {
-  const ids = (await model.findAll({ where, attributes: ['id'], raw: true })).map(
+  const ids = (await model.findAll({ where, attributes: ['id'], limit: size, raw: true })).map(
     (row: { id: string }) => row.id,
   );
   if (ids.length < size) return create();
