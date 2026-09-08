@@ -29,8 +29,9 @@ const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
     type: 'Danger',
     title: 'Something went wrong',
     button: true,
-    textBody: `Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.`,
-    buttonText: 'Ok',
+    textBody:
+      'Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.',
+    buttonText: 'OK',
     callback: () => {
       navigation.replace(resetRoute);
       Popup.hide();

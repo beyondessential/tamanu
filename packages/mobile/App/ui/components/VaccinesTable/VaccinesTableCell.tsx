@@ -90,7 +90,7 @@ export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProp
         title: 'Vaccination Warning',
         button: true,
         textBody: dueStatus.warningMessage,
-        buttonText: 'Ok',
+        buttonText: 'OK',
         callback: (): void => Popup.hide(),
         icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
       });
