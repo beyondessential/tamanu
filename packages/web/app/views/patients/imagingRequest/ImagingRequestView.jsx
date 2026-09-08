@@ -279,7 +279,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       // Only submit specific fields for update
       onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
-        if (shouldSubmitImagingResult(values, imagingRequest.status)) {
+        if (shouldSubmitImagingResult(values, imagingRequest)) {
           updatedValues.newResult = values.newResult;
         }
 
