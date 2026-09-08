@@ -42,10 +42,9 @@ const VaccineHeaderComponent = ({
 const VaccineHeaderWithPatient = compose(withPatient)(VaccineHeaderComponent);
 
 /**
- * The stack `header` option is called as a plain render function, not mounted as a
- * component. React Compiler treats a PascalCase one-parameter function returning JSX as a
- * component and inserts a `useMemoCache` call, which would violate the rules of hooks when
- * called that way, so this helper must stay lowercase.
+ * Not a redundant wrapper! The stack `header` option is called as a plain render function (where
+ * hooks aren’t allowed), not treated as a function component (where React Compiler can do its
+ * optimisations).
  */
 function renderVaccineHeader(props: StackHeaderProps): ReactElement {
   return <VaccineHeaderWithPatient {...props} />;
