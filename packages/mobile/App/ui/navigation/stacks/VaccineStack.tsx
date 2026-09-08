@@ -54,11 +54,9 @@ export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator>
       <Stack.Screen
-        options={{
-          header: renderVaccineHeader,
-        }}
-        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
         component={VaccineTableTabs}
+        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
+        options={{ header: renderVaccineHeader }}
       />
       <Stack.Screen
         options={{
