@@ -35,16 +35,29 @@ covering all 12 facility endpoints the helpers are mounted on.
 - [x] Each POST and PUT endpoint refuses a caller without the matching permission
 - [x] Each PUT endpoint accepts the whole record the client read back, nested association objects included, and applies the edit
 - [x] Each PUT endpoint ignores a client-supplied `createdAt`
+- [x] Each PUT endpoint keeps its own id when the body carries a different one
+- [x] Each PUT endpoint ignores a client-supplied `deletedAt`, whether null or a timestamp, and stays undeleted
 - [x] `PUT allergy`, `ongoingCondition`, `familyHistory`, `patientIssue` and `patientCarePlan` cannot move a record to another patient
 - [x] `PUT diagnosis` and `vitals` cannot move a record to another encounter
+- [x] `PUT location` and `locationGroup` cannot move a record to another facility
 - [x] `PUT referral` cannot repoint the referral at another initiating encounter
 - [x] `POST` and `PUT referenceData` cannot set `systemRequired`, which the importer treats as protected
 - [x] `POST certificateNotification` stores the language the request carried, and refuses a client-supplied `labRequestId`
+
+`PUT` and `POST vitals` carry every observation column the model has, and each one persists.
+The payload is checked against the model's own attributes, so adding a column fails the test
+until both the payload and the route's list are extended.
+
+- [x] `POST vitals` persists every observation field
+- [x] `PUT vitals` persists every observation field
+- [x] The payload covers every writable column on the model
 
 The central-server admin template routes, in `packages/central-server/__tests__/admin/template.test.js`.
 
 - [x] `PUT admin/template` accepts the whole template the admin panel sends back
 - [x] `POST` and `PUT admin/template` ignore a client-supplied `createdAt`
+- [x] `PUT admin/template` ignores `dateCreated`, a column outside its editable list
+- [x] `POST admin/template` refuses a body whose id already exists
 
 ## Manual verification
 

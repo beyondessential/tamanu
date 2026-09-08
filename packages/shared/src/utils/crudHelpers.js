@@ -111,13 +111,18 @@ const conjoiner = new Intl.ListFormat();
 const SYSTEM_MANAGED_FIELDS = ['createdAt', 'deletedAt', 'updatedAt', 'updatedAtSyncTick'];
 
 // A create may carry the new record's id. An update addresses its record by URL, so naming
-// the primary key there is always a mistake.
-const PROTECTED_ON_CREATE = SYSTEM_MANAGED_FIELDS;
-const PROTECTED_ON_UPDATE = [...SYSTEM_MANAGED_FIELDS, 'id'];
+// the primary key there is always a mistake. Each helper's name travels with its protected
+// list so the two cannot disagree between the two checks below.
+const CREATE_GUARD = { helperName: 'simplePost', protectedFields: SYSTEM_MANAGED_FIELDS };
+const PUT_GUARD = { helperName: 'simplePut', protectedFields: [...SYSTEM_MANAGED_FIELDS, 'id'] };
+const PATCH_GUARD = {
+  helperName: 'simplePatch',
+  protectedFields: [...SYSTEM_MANAGED_FIELDS, 'id'],
+};
 
 // Runs while the route is being built, so a call site that forgets allowedFields or names a
 // protected field fails at boot, in every environment.
-function requireAllowedFields(helperName, protectedFields, options) {
+function requireAllowedFields({ helperName, protectedFields }, options) {
   const { allowedFields } = options ?? {};
   if (!allowedFields || allowedFields.length === 0) {
     throw new InvalidOperationError(`${helperName} requires a nonempty allowedFields option`);
@@ -134,7 +139,7 @@ function requireAllowedFields(helperName, protectedFields, options) {
 
 // Whether those fields exist needs the model, which is only reachable through the request.
 // Left to development and CI, where a bad option is a failing test.
-function validateFieldsExist(helperName, modelName, protectedFields, model, allowedFields) {
+function validateFieldsExist({ helperName, protectedFields }, modelName, model, allowedFields) {
   const valids = new Set(Object.keys(model?.rawAttributes ?? {}));
   for (const field of protectedFields) {
     valids.delete(field);
@@ -177,7 +182,7 @@ async function validatePatchBody(allowedFields, req) {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePatch = (modelName, options) => {
-  requireAllowedFields('simplePatch', PROTECTED_ON_UPDATE, options);
+  requireAllowedFields(PATCH_GUARD, options);
 
   return asyncHandler(async (req, res) => {
     req.checkPermission('read', modelName);
@@ -189,7 +194,7 @@ export const simplePatch = (modelName, options) => {
     } = req;
 
     if (process.env.NODE_ENV !== 'production') {
-      validateFieldsExist('simplePatch', modelName, PROTECTED_ON_UPDATE, model, allowedFields);
+      validateFieldsExist(PATCH_GUARD, modelName, model, allowedFields);
     }
     if (req.body == null) throw new InvalidOperationError('PATCH body is required');
 
@@ -223,7 +228,7 @@ export const simplePatch = (modelName, options) => {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePut = (modelName, options) => {
-  requireAllowedFields('simplePut', PROTECTED_ON_UPDATE, options);
+  requireAllowedFields(PUT_GUARD, options);
 
   return asyncHandler(async (req, res) => {
     const { allowedFields } = options;
@@ -235,7 +240,7 @@ export const simplePut = (modelName, options) => {
     req.checkPermission('read', modelName);
 
     if (process.env.NODE_ENV !== 'production') {
-      validateFieldsExist('simplePut', modelName, PROTECTED_ON_UPDATE, model, allowedFields);
+      validateFieldsExist(PUT_GUARD, modelName, model, allowedFields);
     }
 
     const object = await model.findByPk(params.id);
@@ -260,7 +265,7 @@ export const simplePut = (modelName, options) => {
  * @param {{ allowedFields: string[] }} options
  */
 export const simplePost = (modelName, options) => {
-  requireAllowedFields('simplePost', PROTECTED_ON_CREATE, options);
+  requireAllowedFields(CREATE_GUARD, options);
 
   return asyncHandler(async (req, res) => {
     const { allowedFields } = options;
@@ -271,7 +276,7 @@ export const simplePost = (modelName, options) => {
     req.checkPermission('create', modelName);
 
     if (process.env.NODE_ENV !== 'production') {
-      validateFieldsExist('simplePost', modelName, PROTECTED_ON_CREATE, model, allowedFields);
+      validateFieldsExist(CREATE_GUARD, modelName, model, allowedFields);
     }
 
     const values = pick(req.body, allowedFields);

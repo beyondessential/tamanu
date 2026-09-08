@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 import { fake } from '@tamanu/fake-data/fake';
-import { REFERRAL_STATUSES } from '@tamanu/constants';
+import { AVPU_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -154,7 +154,7 @@ describe('Crud helper field filtering', () => {
       // systemRequired guards reference data the importer refuses to overwrite, so it
       // must not be settable over the API.
       rejected: () => ({ systemRequired: true }),
-      rejectedPersists: () => ({ systemRequired: false }),
+      unchanged: () => ({ systemRequired: false }),
     },
     {
       subject: 'Location',
@@ -194,9 +194,9 @@ describe('Crud helper field filtering', () => {
       }),
       persisted: () => ({ forwardAddress: 'someone@tamanu.io', language: 'fr' }),
       headers: { language: 'fr' },
-      allowsId: false,
+      generatesId: true,
       rejected: () => ({ labRequestId: labRequest.id }),
-      rejectedPersists: () => ({ labRequestId: null }),
+      unchanged: () => ({ labRequestId: null }),
     },
   ];
 
@@ -233,7 +233,7 @@ describe('Crud helper field filtering', () => {
       expect(result).toBeForbidden();
     });
 
-    if (testCase.allowsId === false) {
+    if (testCase.generatesId) {
       it('generates an id rather than taking the one in the body', async () => {
         const first = await post(testCase.body());
         expect(first).toHaveSucceeded();
@@ -256,9 +256,9 @@ describe('Crud helper field filtering', () => {
       it('ignores fields outside allowedFields', async () => {
         const result = await post({ ...testCase.body(), ...testCase.rejected() });
         expect(result).toHaveSucceeded();
-        if (testCase.rejectedPersists) {
+        if (testCase.unchanged) {
           const record = await models[testCase.subject].findByPk(result.body.id);
-          expect(record.get({ plain: true })).toMatchObject(testCase.rejectedPersists());
+          expect(record.get({ plain: true })).toMatchObject(testCase.unchanged());
         }
       });
     }
@@ -436,6 +436,38 @@ describe('Crud helper field filtering', () => {
       expect(result).toBeForbidden();
     });
 
+    it('keeps its own id when the body carries a different one', async () => {
+      const record = await testCase.create();
+      const other = await testCase.create();
+
+      const result = await app
+        .put(`/api/${testCase.endpoint}/${record.id}`)
+        .send({ ...testCase.update(), id: other.id });
+
+      expect(result).toHaveSucceeded();
+      const stored = await models[testCase.subject].findByPk(record.id);
+      expect(stored).not.toBeNull();
+      expect(stored.get({ plain: true })).toMatchObject(testCase.update());
+      const untouched = await models[testCase.subject].findByPk(other.id);
+      expect(untouched).not.toBeNull();
+    });
+
+    it.each([null, '2024-01-01 00:00:00'])(
+      'ignores a client-supplied deletedAt of %s',
+      async deletedAt => {
+        const record = await testCase.create();
+
+        const result = await app
+          .put(`/api/${testCase.endpoint}/${record.id}`)
+          .send({ ...testCase.update(), deletedAt });
+
+        expect(result).toHaveSucceeded();
+        const stored = await models[testCase.subject].findByPk(record.id);
+        expect(stored).not.toBeNull();
+        expect(stored.deletedAt).toBeFalsy();
+      },
+    );
+
     it('ignores a client-supplied createdAt', async () => {
       const record = await testCase.create();
 
@@ -463,5 +495,78 @@ describe('Crud helper field filtering', () => {
         });
       });
     }
+  });
+  // vitals hand-lists 23 observation columns, and the other route files list up to 10. A
+  // column left out of one of those lists is filtered out silently, so send every one and
+  // check each lands. vitals is the widest, so it is the one worth doing exhaustively.
+  describe('vitals with every observation set', () => {
+    const OBSERVATIONS = {
+      avpu: AVPU_TYPES.ALERT,
+      bloodInUrine: 'negative',
+      dateRecorded: '2024-03-04 05:06:07',
+      dbp: 81.5,
+      fastingBloodGlucose: 5.4,
+      gcs: 14,
+      heartRate: 72.5,
+      height: 174.5,
+      hemoglobin: 13.2,
+      respiratoryRate: 16.5,
+      sbp: 121.5,
+      spo2: 97.5,
+      temperature: 36.8,
+      urineBilirubin: 'negative',
+      urineGlucose: 1.5,
+      urineKetone: 'trace',
+      urineLeukocytes: 'negative',
+      urineNitrites: 'negative',
+      urinePh: 6.5,
+      urineProtein: 'negative',
+      urineSpecificGravity: 1.02,
+      urobilinogen: 0.5,
+      weight: 71.25,
+    };
+
+    let app;
+
+    beforeAll(async () => {
+      app = await baseApp.asNewRole(permissionsFor('Vitals'));
+    });
+
+    // If a column is added to the model, this fails until both the payload above and the
+    // route's own list are extended, rather than the new column silently never saving.
+    it('covers every writable column on the model', () => {
+      const owned = [
+        'id',
+        'encounterId',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+        'updatedAtSyncTick',
+      ];
+      const writable = Object.keys(models.Vitals.rawAttributes).filter(
+        field => !owned.includes(field),
+      );
+      expect(Object.keys(OBSERVATIONS).sort()).toEqual(writable.sort());
+    });
+
+    it('persists every observation on create', async () => {
+      const result = await app
+        .post('/api/vitals')
+        .send({ ...OBSERVATIONS, encounterId: encounter.id });
+
+      expect(result).toHaveSucceeded();
+      const stored = await models.Vitals.findByPk(result.body.id);
+      expect(stored.get({ plain: true })).toMatchObject(OBSERVATIONS);
+    });
+
+    it('persists every observation on update', async () => {
+      const record = await models.Vitals.create({ encounterId: encounter.id });
+
+      const result = await app.put(`/api/vitals/${record.id}`).send(OBSERVATIONS);
+
+      expect(result).toHaveSucceeded();
+      await record.reload();
+      expect(record.get({ plain: true })).toMatchObject(OBSERVATIONS);
+    });
   });
 });

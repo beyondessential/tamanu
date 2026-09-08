@@ -44,6 +44,10 @@ and its create derives from it (`[...EDITABLE_FIELDS, 'id', 'patientId']`). The 
 differ only by what a create adds, so writing them out separately would let them drift
 silently: a dropped field is just ignored, with nothing to fail.
 
+The owning foreign key is added on create only, never on update: an update addresses its
+record by URL, so it has no business moving that record to a different patient, encounter or
+facility.
+
 Two deliberate tightenings beyond the fields clients send:
 
 - `referenceData` does not allow `systemRequired`. It flags reference data the importer

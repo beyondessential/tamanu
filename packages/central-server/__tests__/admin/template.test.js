@@ -94,6 +94,43 @@ describe('Patient merge', () => {
     expect(new Date(createdTemplate.createdAt).getFullYear()).toBeGreaterThan(2000);
   });
 
+  // dateCreated is a real column deliberately left out of the route's editable list, so it
+  // is the probe for whether filtering is applied here at all.
+  it('Should ignore a field outside the editable list when editing', async () => {
+    const { Template } = models;
+
+    const template = await Template.create({
+      name: 'Sick note - filtered field',
+      type: TEMPLATE_TYPES.PATIENT_LETTER,
+    });
+    const { dateCreated } = template;
+
+    const result = await adminApp.put(`/api/admin/template/${template.id}`).send({
+      name: 'Sick note - filtered field',
+      type: TEMPLATE_TYPES.PATIENT_LETTER,
+      dateCreated: '1999-12-31',
+    });
+
+    expect(result).toHaveSucceeded();
+    await template.reload();
+    expect(template.dateCreated).toEqual(dateCreated);
+  });
+
+  it('Should refuse to create a Template whose id already exists', async () => {
+    const created = await adminApp.post('/api/admin/template').send({
+      name: 'Sick note - duplicate id',
+      type: TEMPLATE_TYPES.PATIENT_LETTER,
+    });
+    expect(created).toHaveSucceeded();
+
+    const duplicate = await adminApp.post('/api/admin/template').send({
+      id: created.body.id,
+      name: 'Sick note - duplicate id, second',
+      type: TEMPLATE_TYPES.PATIENT_LETTER,
+    });
+    expect(duplicate).toHaveRequestError();
+  });
+
   it('Should require a unique name when editing a Template', async () => {
     const { Template } = models;
 
