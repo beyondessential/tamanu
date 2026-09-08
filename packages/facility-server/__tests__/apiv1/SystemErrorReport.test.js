@@ -24,8 +24,8 @@ describe('SystemErrorReport', () => {
   afterAll(() => ctx.close());
 
   beforeEach(() => {
-    centralServer.post.mockClear();
-    centralServer.post.mockResolvedValue({ ok: 'ok' });
+    centralServer.fetch.mockClear();
+    centralServer.fetch.mockResolvedValue({ ok: 'ok' });
   });
 
   const validBody = () => ({
@@ -38,27 +38,27 @@ describe('SystemErrorReport', () => {
     const response = await app.post('/api/systemErrorReport').send(validBody());
 
     expect(response).toHaveSucceeded();
-    expect(centralServer.post).toHaveBeenCalledTimes(1);
-    const [endpoint, forwardedBody] = centralServer.post.mock.calls[0];
+    expect(centralServer.fetch).toHaveBeenCalledTimes(1);
+    const [endpoint, config] = centralServer.fetch.mock.calls[0];
     expect(endpoint).toBe('systemErrorReport');
-    expect(forwardedBody).toMatchObject({
+    expect(config.body).toMatchObject({
       ...validBody(),
       userId: app.user.id,
       recipients: ['support@bes.au'],
     });
   });
 
-  it('disables retry backoff so an unreachable central fails fast rather than blocking the modal', async () => {
+  it('disables retry backoff for both the report and an auth attempt, so an unreachable central fails fast rather than blocking the modal', async () => {
     await app.post('/api/systemErrorReport').send(validBody());
 
-    const [, , config] = centralServer.post.mock.calls[0];
-    expect(config).toMatchObject({ backoff: false });
+    const [, config] = centralServer.fetch.mock.calls[0];
+    expect(config).toMatchObject({ backoff: false, preserveBackoffForAuthAttempt: true });
   });
 
   it('does not forward any patient-identifiable information beyond the user id', async () => {
     await app.post('/api/systemErrorReport').send(validBody());
 
-    const forwardedBody = centralServer.post.mock.calls[0][1];
+    const forwardedBody = centralServer.fetch.mock.calls[0][1].body;
     expect(forwardedBody.userId).toBe(app.user.id);
     expect(forwardedBody).not.toHaveProperty('displayName');
     expect(forwardedBody).not.toHaveProperty('userEmail');
@@ -68,11 +68,11 @@ describe('SystemErrorReport', () => {
     const response = await baseApp.post('/api/systemErrorReport').send(validBody());
 
     expect(response).not.toHaveSucceeded();
-    expect(centralServer.post).not.toHaveBeenCalled();
+    expect(centralServer.fetch).not.toHaveBeenCalled();
   });
 
   it('fails if central cannot send the email', async () => {
-    centralServer.post.mockRejectedValueOnce(new Error('Email could not be sent'));
+    centralServer.fetch.mockRejectedValueOnce(new Error('Email could not be sent'));
 
     const response = await app.post('/api/systemErrorReport').send(validBody());
 

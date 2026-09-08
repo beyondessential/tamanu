@@ -3,10 +3,15 @@ import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { getDefaultFromAddress } from './services/mailConfig';
 
 // spec: SYSERR#sending-a-report-to-support
 export const systemErrorReport = express.Router();
+
+// Unlike facility-server, central-server doesn't apply this globally — routes mounted
+// directly on buildRoutes() need it themselves to use req.flagPermissionChecked().
+systemErrorReport.use(ensurePermissionCheck);
 
 const schema = yup.object({
   errors: yup
