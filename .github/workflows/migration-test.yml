@@ -200,6 +200,14 @@ jobs:
           read -r applied duration_ms <<<"$(jq -s -r '
             [([.[].applied] | add // 0), ([.[].batchDurationMs] | add // 0)] | @tsv' <<<"$summaries")"
 
+          # The operator tears the cluster down as soon as the Job finishes, so these are the
+          # only record of what the run cost.
+          mkdir -p "$RUNNER_TEMP/migration-test"
+          printf '%s\n' "$logs" > "$RUNNER_TEMP/migration-test/migrate.log"
+          printf '%s\n' "$summaries" | jq -s '.' > "$RUNNER_TEMP/migration-test/batches.json"
+          kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json \
+            > "$RUNNER_TEMP/migration-test/job.json" 2>/dev/null || true
+
           {
             echo "## Migration test: $VERSION"
             echo
@@ -233,3 +241,12 @@ jobs:
             echo "::error::No migrations were pending, so this run tested nothing. Check which snapshot was restored."
             exit 1
           fi
+
+      - name: Keep the run's timings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-test-${{ inputs.version }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/migration-test
+          retention-days: 30
+          if-no-files-found: warn
