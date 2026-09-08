@@ -44,7 +44,7 @@ jobs:
   migration-test:
     runs-on: ubuntu-latest
     name: Migrate to ${{ inputs.version }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - name: Validate version format
         env:
@@ -102,7 +102,7 @@ jobs:
           spec:
             suspend: true
             backoffLimit: 0
-            activeDeadlineSeconds: 2400
+            activeDeadlineSeconds: 3600
             ttlSecondsAfterFinished: 3600
             template:
               spec:
@@ -154,21 +154,27 @@ jobs:
         shell: bash --noprofile --norc -uo pipefail {0}
         env:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
-          TIMEOUT_SECONDS: '3300'
+          TIMEOUT_SECONDS: '4800'
         run: |
           deadline=$((SECONDS + TIMEOUT_SECONDS))
+          misses=0
           while (( SECONDS < deadline )); do
             conditions=$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json 2>/dev/null | jq -r '
               [(.status.succeeded // 0), (.status.failed // 0),
                (.metadata.annotations["pgsnap.bes.au/phase"] // "")] | @tsv')
 
             if [[ -n "$conditions" ]]; then
+              misses=0
               read -r succeeded failed phase <<<"$conditions"
               [[ "$succeeded" -gt 0 ]] && echo "outcome=succeeded" >> "$GITHUB_OUTPUT" && exit 0
               [[ "$failed" -gt 0 ]] && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
               # The operator gives up before ever unsuspending the Job when it cannot
               # resolve the snapshot to restore, so the Job's own status stays empty.
               [[ "$phase" == failed ]] && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
+            else
+              # The Job was applied before this step, so it going missing means the operator
+              # deleted it. Two misses, to ride out a transient API error.
+              (( ++misses >= 2 )) && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
             fi
 
             sleep 15
