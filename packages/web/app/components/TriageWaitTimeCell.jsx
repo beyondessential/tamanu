@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTime } from '@tamanu/ui-components';
+import { getCurrentLanguageCode, useDateTime } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 import {
   MINUTE,
@@ -13,9 +13,9 @@ import {
 
 const getDisplayedWaitTime = (triage, storedDateTimeToEpochMilliseconds) => {
   const waitTime = getTriageWaitTime(triage, storedDateTimeToEpochMilliseconds);
-  if (waitTime == null) return '—';
-  const { hours, minutes } = splitDurationHoursMinutes(waitTime);
-  return `${hours}hrs ${minutes}mins`;
+  if (waitTime == null) return <>&mdash;</>;
+  const formatter = new Intl.DurationFormat(getCurrentLanguageCode(), { style: 'short' });
+  return formatter.format(splitDurationHoursMinutes(waitTime));
 };
 
 const PlainCell = styled.div`
