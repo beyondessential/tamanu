@@ -1,5 +1,6 @@
 import { REPORT_DB_CONNECTIONS, REPORT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '../randomRecord.js';
+import { pooled } from '../pool.js';
 
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
@@ -15,19 +16,23 @@ export const createDbReport = async ({
 
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
 
-  const reportDefinition = await ReportDefinition.create(
-    fake(ReportDefinition, {
-      dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
-    }),
-  );
-  await ReportDefinitionVersion.create(
-    fake(ReportDefinitionVersion, {
-      status: REPORT_STATUSES.DRAFT,
-      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
-      reportDefinitionId: reportDefinition.id,
-      userId: resolvedUserId,
-    }),
-  );
+  // Every definition shows in the reports list, so a round reuses one once the pool is full.
+  await pooled(ReportDefinition, async () => {
+    const reportDefinition = await ReportDefinition.create(
+      fake(ReportDefinition, {
+        dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
+      }),
+    );
+    await ReportDefinitionVersion.create(
+      fake(ReportDefinitionVersion, {
+        status: REPORT_STATUSES.DRAFT,
+        queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+        reportDefinitionId: reportDefinition.id,
+        userId: resolvedUserId,
+      }),
+    );
+    return reportDefinition;
+  });
 };
 
 interface UpdateDbReportParams extends CommonParams {

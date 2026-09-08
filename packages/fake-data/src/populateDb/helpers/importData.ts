@@ -7,8 +7,9 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { chance, fake } from '../../fake/index.js';
+import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
+import { POOL_SIZE, pooled } from '../pool.js';
 
 import type {
   Department,
@@ -24,25 +25,6 @@ import type {
   Survey,
   User,
 } from '@tamanu/database';
-
-// A deployment holds a bounded set of each of these, not one per data round, and the
-// seed top-up runs again on every image bump. Once a pool is full a round reuses a row
-// rather than minting another; a model with no rows yet is always created, which is what
-// puts a type added in this version onto a database seeded before it existed.
-const POOL_SIZE = 50;
-
-const pooled = async <T>(
-  model: { findAll: Function; findByPk: Function },
-  create: () => Promise<T>,
-  size: number = POOL_SIZE,
-  where?: Record<string, unknown>,
-): Promise<T> => {
-  const ids = (await model.findAll({ where, attributes: ['id'], raw: true })).map(
-    (row: { id: string }) => row.id,
-  );
-  if (ids.length < size) return create();
-  return (await model.findByPk(chance.pickone(ids)))! as T;
-};
 
 export const generateImportData = async ({
   ReferenceData,
