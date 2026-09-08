@@ -23,7 +23,7 @@ The view lists every system error relegated during the current session in a sort
 - [ ] The view's table has two sortable columns: date & time, and error message.
 - [ ] Rows default to sorting by date & time, most recent first.
 - [ ] When there are no system errors to show, the table displays "No system errors to display" instead of rows.
-- [ ] The list of system errors is scoped to the current login session: it starts empty on login and is cleared on logout.
+- [ ] The list of system errors is scoped to the current login session: it starts empty whenever a session begins (a fresh login or an existing session being resumed, such as on a page reload) and is cleared on logout, regardless of how the previous session ended.
 
 ## Retention
 

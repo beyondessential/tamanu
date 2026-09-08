@@ -48,6 +48,13 @@ describe('SystemErrorReport', () => {
     });
   });
 
+  it('disables retry backoff so an unreachable central fails fast rather than blocking the modal', async () => {
+    await app.post('/api/systemErrorReport').send(validBody());
+
+    const [, , config] = centralServer.post.mock.calls[0];
+    expect(config).toMatchObject({ backoff: false });
+  });
+
   it('does not forward any patient-identifiable information beyond the user id', async () => {
     await app.post('/api/systemErrorReport').send(validBody());
 
