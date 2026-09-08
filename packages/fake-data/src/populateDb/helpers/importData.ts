@@ -90,16 +90,27 @@ export const generateImportData = async ({
   }
 
   const facility = await pooled(Facility, () => Facility.create(fake(Facility)), 100);
-  const locationGroup = await pooled(LocationGroup, () =>
-    LocationGroup.create(fake(LocationGroup, { facilityId: facility.id })),
+  // A round's department, location and location group all have to sit at its facility.
+  const locationGroup = await pooled(
+    LocationGroup,
+    () => LocationGroup.create(fake(LocationGroup, { facilityId: facility.id })),
+    POOL_SIZE,
+    { facilityId: facility.id },
   );
-  const location = await pooled(Location, () =>
-    Location.create(
-      fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
-    ),
+  const location = await pooled(
+    Location,
+    () =>
+      Location.create(
+        fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
+      ),
+    POOL_SIZE,
+    { facilityId: facility.id },
   );
-  const department = await pooled(Department, () =>
-    Department.create(fake(Department, { facilityId: facility.id })),
+  const department = await pooled(
+    Department,
+    () => Department.create(fake(Department, { facilityId: facility.id })),
+    POOL_SIZE,
+    { facilityId: facility.id },
   );
 
   const survey = await pooled(Survey, async () => {
