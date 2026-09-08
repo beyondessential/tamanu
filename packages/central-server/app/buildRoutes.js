@@ -12,6 +12,7 @@ import { integrationRoutes } from './integrations';
 import { adminRoutes } from './admin';
 import { suggestionsRoutes } from './suggestions';
 import { aiRoutes } from './ai';
+import { systemErrorReport } from './systemErrorReport';
 
 export const buildRoutes = ctx => {
   const routes = express.Router();
@@ -40,6 +41,7 @@ export const buildRoutes = ctx => {
   routes.use('/admin', adminRoutes);
   routes.use('/suggestions', suggestionsRoutes);
   routes.use('/ai', aiRoutes);
+  routes.use('/systemErrorReport', systemErrorReport);
 
   return routes;
 };

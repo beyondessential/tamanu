@@ -6,7 +6,7 @@ import { Button, MultilineDatetimeDisplay, TranslatedText } from '@tamanu/ui-com
 import { ContentPane, PageContainer, Table, TopBar } from '../../components';
 import { useClientSideTableData } from '../../components/Table/useClientSideTableData';
 import { Colors } from '../../constants';
-import { markSystemErrorsRead } from '../../store';
+import { markSystemErrorsRead, removeSystemErrors } from '../../store';
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
 
 const NoDataContainer = styled.div`
@@ -94,6 +94,7 @@ export const SystemErrors = React.memo(() => {
         open={isSendLogModalOpen}
         onClose={() => setIsSendLogModalOpen(false)}
         errors={errors}
+        onSentSuccessfully={sentErrors => dispatch(removeSystemErrors(sentErrors.map(e => e.id)))}
       />
     </PageContainer>
   );

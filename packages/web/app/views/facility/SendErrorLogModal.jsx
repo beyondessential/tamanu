@@ -13,8 +13,9 @@ import {
 
 import { BodyText, FormModal } from '../../components';
 import { Field } from '../../components/Field';
+import { useApi } from '../../api';
 import { useTranslation } from '../../contexts/Translation';
-import { notifySuccess } from '../../utils';
+import { notifyError, notifySuccess } from '../../utils';
 
 const StyledDivider = styled(Divider)`
   margin: 20px 0;
@@ -34,15 +35,6 @@ const ReportingSubtitleText = styled(BodyText)`
   font-weight: 500;
   margin-top: 26px;
 `;
-
-// Sends the error log to the Tamanu support team. This is a first-pass mock: it only
-// logs what would be sent, standing in until the real transport (and the store the
-// error rows come from) is built.
-async function sendErrorLog(values) {
-  // eslint-disable-next-line no-console
-  console.log('[Send error log] (mock)', values);
-  return { success: true };
-}
 
 export const SendErrorLogButtonLabel = ({ count }) =>
   count === 1 ? (
@@ -69,12 +61,25 @@ const ReportingSubtitle = ({ count }) => (
   </ReportingSubtitleText>
 );
 
-export const SendErrorLogModal = ({ open, onClose, errors }) => {
+export const SendErrorLogModal = ({ open, onClose, errors, onSentSuccessfully }) => {
+  const api = useApi();
   const { getTranslation } = useTranslation();
   const count = errors.length;
 
   const handleSubmit = async values => {
-    await sendErrorLog({ ...values, errors });
+    try {
+      await api.post('systemErrorReport', { ...values, errors });
+    } catch (error) {
+      notifyError(
+        <TranslatedText
+          stringId="systemErrors.modal.error"
+          fallback="Failed to send error log. Please try again."
+        />,
+      );
+      return;
+    }
+
+    onSentSuccessfully(errors);
     onClose();
     notifySuccess(
       count === 1 ? (

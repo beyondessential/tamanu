@@ -63,6 +63,7 @@ import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
+import { systemErrorReport } from './systemErrorReport';
 import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
@@ -316,6 +317,7 @@ export function createApiv1({ authLimiter } = {}) {
   referenceDataRoutes.use('/referenceData', referenceData);
   referenceDataRoutes.use('/reportRequest', reportRequest);
   referenceDataRoutes.use('/reports', reports);
+  referenceDataRoutes.use('/systemErrorReport', systemErrorReport);
   referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
   referenceDataRoutes.use('/suggestions', suggestions);
   referenceDataRoutes.use('/survey', survey);

@@ -7,11 +7,20 @@ import { AuthContext, SettingsContext, DateTimeProvider } from '@tamanu/ui-compo
 
 import { renderElementWithTranslatedText } from '../../helpers/render';
 import { Table } from '../../../app/components';
+import { systemErrorsReducer } from '../../../app/store/systemErrors';
 import { COLUMNS, SystemErrors } from '../../../app/views/facility/SystemErrors';
 import { SendErrorLogModal } from '../../../app/views/facility/SendErrorLogModal';
 
-const { notifySuccess } = vi.hoisted(() => ({ notifySuccess: vi.fn() }));
-vi.mock('../../../app/utils', () => ({ notifySuccess }));
+const { notifySuccess, notifyError, apiPost } = vi.hoisted(() => ({
+  notifySuccess: vi.fn(),
+  notifyError: vi.fn(),
+  apiPost: vi.fn(),
+}));
+vi.mock('../../../app/utils', () => ({ notifySuccess, notifyError }));
+vi.mock('../../../app/api', async importOriginal => ({
+  ...(await importOriginal()),
+  useApi: () => ({ post: apiPost }),
+}));
 
 const getSetting = key => (key === 'dateTimeLocale' ? 'en-AU' : undefined);
 
@@ -39,10 +48,17 @@ const TEST_ERRORS = [
   },
 ];
 
-// No test in this file dispatches an action, so the store only needs to return the
-// right shape from getState() — a fixed-state reducer is enough, no need to route
-// through the real systemErrorsReducer.
-const createTestStore = errors => createStore(() => ({ systemErrors: { errors } }));
+// Uses the real reducer (not a fixed-state stub) so the "submits successfully" test
+// can assert the submitted rows actually disappear from state once dispatched.
+// SystemErrors reads state.systemErrors.errors, so nest under that key like the app's
+// own combineReducers does.
+const createTestStore = errors =>
+  createStore(
+    (state, action) => ({
+      systemErrors: systemErrorsReducer(state.systemErrors, action),
+    }),
+    { systemErrors: { errors } },
+  );
 
 const withProviders = (element, errors = TEST_ERRORS) => (
   <Provider store={createTestStore(errors)}>
@@ -57,6 +73,8 @@ const withProviders = (element, errors = TEST_ERRORS) => (
 describe('SystemErrors', () => {
   beforeEach(() => {
     notifySuccess.mockClear();
+    notifyError.mockClear();
+    apiPost.mockReset();
   });
 
   it('lists the mock error rows with a plural send-log button', () => {
@@ -81,7 +99,8 @@ describe('SystemErrors', () => {
     expect(screen.getByText('No system errors to display')).toBeTruthy();
   });
 
-  it('opens the modal with the reporting count and submits successfully', async () => {
+  it('opens the modal with the reporting count and submits successfully, removing the submitted rows', async () => {
+    apiPost.mockResolvedValueOnce({ ok: 'ok' });
     renderElementWithTranslatedText(withProviders(<SystemErrors />));
 
     fireEvent.click(screen.getByRole('button', { name: 'Send error logs' }));
@@ -104,6 +123,39 @@ describe('SystemErrors', () => {
     await waitFor(() =>
       expect(screen.queryByRole('heading', { name: 'Send error logs' })).toBeNull(),
     );
+
+    expect(apiPost).toHaveBeenCalledWith(
+      'systemErrorReport',
+      expect.objectContaining({
+        additionalInformation: 'It keeps happening after login',
+        email: 'clinician@example.org',
+        // isRead flips true once the view mounts (see markSystemErrorsRead), so
+        // compare against that rather than the raw TEST_ERRORS fixture.
+        errors: TEST_ERRORS.map(error => ({ ...error, isRead: true })),
+      }),
+    );
+
+    // The submitted rows are removed from the table once sent.
+    expect(
+      screen.queryByText(/Something went wrong on the server\. Path: patient\/123/),
+    ).toBeNull();
+    expect(screen.getByText('No system errors to display')).toBeTruthy();
+  });
+
+  it('keeps the modal open and the rows intact if sending fails', async () => {
+    apiPost.mockRejectedValueOnce(new Error('Network error'));
+    renderElementWithTranslatedText(withProviders(<SystemErrors />));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send error logs' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Send error logs' }).slice(-1)[0]);
+
+    await waitFor(() => expect(notifyError).toHaveBeenCalledTimes(1));
+
+    expect(screen.getByRole('heading', { name: 'Send error logs' })).toBeTruthy();
+    expect(
+      screen.getByText(/Something went wrong on the server\. Path: patient\/123/),
+    ).toBeTruthy();
+    expect(notifySuccess).not.toHaveBeenCalled();
   });
 
   it('sorts rows by clicking the error message column header', () => {
