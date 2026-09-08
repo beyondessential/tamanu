@@ -186,12 +186,20 @@ jobs:
         run: |
           logs=$(kubectl logs -n "$SEED_NAMESPACE" "job/$JOB_NAME" --tail=-1 2>/dev/null)
 
+          # An upgrade migrates in several batches, each of which reports its own summary, and the
+          # log line carries the logger's own prefix and suffix around the JSON.
+          summaries=$(grep -o 'TAMANU_MIGRATION_SUMMARY {[^}]*}' <<<"$logs" | sed 's/^TAMANU_MIGRATION_SUMMARY //')
+          read -r applied duration_ms <<<"$(jq -s -r '
+            [([.[].applied] | add // 0), ([.[].batchDurationMs] | add // 0)] | @tsv' <<<"$summaries")"
+
           {
             echo "## Migration test: $VERSION"
             echo
-            echo '```'
-            echo "$logs" | grep -E 'Applying [0-9]+ migration|Migration batch timings|Migrations already up-to-date' || true
-            echo '```'
+            if [[ -n "$summaries" ]]; then
+              echo "Applied $applied migrations in ${duration_ms}ms."
+            else
+              echo "No migration summary in the log."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
           if [[ "$OUTCOME" != succeeded ]]; then
@@ -201,12 +209,15 @@ jobs:
             exit 1
           fi
 
-          # A fixture of the same version has already had these migrations applied, so a run
-          # with nothing pending proves nothing and must not read as a pass.
-          if grep -q 'Migrations already up-to-date' <<<"$logs"; then
-            echo "::error::No migrations were pending, so this run tested nothing. Check which snapshot was restored."
+          if [[ -z "$summaries" ]]; then
+            echo "$logs" | tail -100
+            echo "::error::No migration summary in the log, so the image predates the structured output or the migration never ran."
             exit 1
           fi
 
-          echo "$logs" | grep -E 'Migration batch timings' || \
-            echo "::warning::No batch timings in the log; the image predates them."
+          # A fixture of the same version has already had these migrations applied, so a run
+          # with nothing pending proves nothing and must not read as a pass.
+          if (( applied == 0 )); then
+            echo "::error::No migrations were pending, so this run tested nothing. Check which snapshot was restored."
+            exit 1
+          fi
