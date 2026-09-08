@@ -99,6 +99,16 @@ describe('SystemErrors', () => {
     expect(screen.getByText('No system errors to display')).toBeTruthy();
   });
 
+  it('disables the send-log button when there are no errors, and does not open the modal', () => {
+    renderElementWithTranslatedText(withProviders(<SystemErrors />, []));
+
+    const sendLogButton = screen.getByRole('button', { name: 'Send error logs' });
+    expect(sendLogButton.disabled).toBe(true);
+
+    fireEvent.click(sendLogButton);
+    expect(screen.queryByRole('heading', { name: 'Send error logs' })).toBeNull();
+  });
+
   it('opens the modal with the reporting count and submits successfully, removing the submitted rows', async () => {
     apiPost.mockResolvedValueOnce({ ok: 'ok' });
     renderElementWithTranslatedText(withProviders(<SystemErrors />));

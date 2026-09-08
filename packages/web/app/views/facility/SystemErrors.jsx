@@ -65,7 +65,12 @@ export const SystemErrors = React.memo(() => {
   return (
     <PageContainer>
       <TopBar title={<TranslatedText stringId="systemErrors.title" fallback="System errors" />}>
-        <Button color="primary" onClick={() => setIsSendLogModalOpen(true)}>
+        {/* spec: SYSERR#sending-a-report-to-support */}
+        <Button
+          color="primary"
+          disabled={errors.length === 0}
+          onClick={() => setIsSendLogModalOpen(true)}
+        >
           <SendErrorLogButtonLabel count={errors.length} />
         </Button>
       </TopBar>

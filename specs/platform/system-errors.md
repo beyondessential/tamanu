@@ -47,6 +47,7 @@ The System errors item in the sidebar shows a red dot while there is at least on
 A user can send some or all of the system errors currently in the table to the Tamanu support team, along with free-text notes and an optional follow-up email address. Sending removes only the rows that were included in that submission from the table; any error relegated afterwards is unaffected.
 
 - [ ] The System errors view has a "Send error log" action (singular wording for exactly one error, plural otherwise), which opens a modal reporting how many errors will be sent.
+- [ ] The "Send error log" action is disabled when the table has no system errors, since there is nothing to report.
 - [ ] The modal collects free-text additional information and an optional email address for the support team to use for follow-up; the email address, if entered, must be a valid email address.
 - [ ] Submitting sends every system error currently in the table, the additional information, the follow-up email address (if entered), and the id of the user sending the report — no other information identifying the user is included.
 - [ ] The report is emailed to the recipients configured for the reporting facility, defaulting to the Tamanu support address when the facility has not configured its own.
