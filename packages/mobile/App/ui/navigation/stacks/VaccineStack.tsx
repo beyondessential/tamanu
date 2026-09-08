@@ -3,7 +3,7 @@ import { compose } from 'redux';
 import {
   createStackNavigator,
   type StackHeaderProps,
-  TransitionPresets,
+  StackNavigationOptions,
 } from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
@@ -50,6 +50,8 @@ function renderVaccineHeader(props: StackHeaderProps): ReactElement {
   return <VaccineHeaderWithPatient {...props} />;
 }
 
+const screenOptions = { header: (): null => null } as const satisfies StackNavigationOptions;
+
 export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator>
@@ -59,20 +61,14 @@ export const VaccineStack = (): ReactElement => (
         options={{ header: renderVaccineHeader }}
       />
       <Stack.Screen
-        options={{
-          header: (): null => null,
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}
-        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
         component={NewVaccineTabs}
+        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
+        options={screenOptions}
       />
       <Stack.Screen
-        options={{
-          header: (): null => null,
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}
-        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
         component={VaccineModalScreen}
+        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
+        options={screenOptions}
       />
     </Stack.Navigator>
   </ErrorBoundary>
