@@ -189,6 +189,8 @@ jobs:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
           OUTCOME: ${{ steps.wait.outputs.outcome }}
           VERSION: ${{ inputs.version }}
+          # Above this, the upgrade is a maintenance window every deployment has to plan for.
+          SLOW_BATCH_MS: '1200000'
         run: |
           logs=$(kubectl logs -n "$SEED_NAMESPACE" "job/$JOB_NAME" --tail=-1 2>/dev/null)
 
@@ -207,6 +209,10 @@ jobs:
               echo "No migration summary in the log."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ -n "$summaries" ]] && (( duration_ms > SLOW_BATCH_MS )); then
+            echo "::warning::Migrating to $VERSION took ${duration_ms}ms, over the ${SLOW_BATCH_MS}ms mark."
+          fi
 
           if [[ "$OUTCOME" != succeeded ]]; then
             echo "$logs" | tail -100
