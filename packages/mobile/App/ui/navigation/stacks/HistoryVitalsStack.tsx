@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import type { NavigationProp } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Routes } from '/helpers/routes';
@@ -19,17 +19,13 @@ interface HistoryVitalsStackProps extends BaseAppProps {
 }
 
 const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   return (
     <ErrorBoundary>
       <FullView>
         <StackHeader
           title={<TranslatedText stringId="patient.vitals.history.title" fallback="History" />}
           subtitle={joinNames(selectedPatient)}
-          onGoBack={goBack}
+          onGoBack={navigation.goBack}
         />
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen

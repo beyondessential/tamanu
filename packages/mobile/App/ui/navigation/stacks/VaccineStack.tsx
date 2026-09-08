@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
 import {
   createStackNavigator,
@@ -22,19 +22,12 @@ type VaccineHeaderProps = StackHeaderProps & {
   selectedPatient: IPatient;
 };
 
-const VaccineHeaderComponent = ({
-  navigation,
-  selectedPatient,
-}: VaccineHeaderProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
+const VaccineHeaderComponent = ({ navigation, selectedPatient }: VaccineHeaderProps) => {
   return (
     <StackHeader
       title={<TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />}
       subtitle={joinNames(selectedPatient)}
-      onGoBack={goBack}
+      onGoBack={navigation.goBack}
     />
   );
 };

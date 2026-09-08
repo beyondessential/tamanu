@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import * as yup from 'yup';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
@@ -36,10 +36,6 @@ interface IFormValues {
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
   const { afterAddContact } = useReminderContact();
-
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
 
   const queryClient = useQueryClient();
   const { mutateAsync: createContact } = useMutation({
@@ -84,7 +80,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     <ScrollView>
       <StyledSafeAreaView>
         <StyledView paddingTop={20} paddingLeft={15} paddingRight={15} paddingBottom={20}>
-          <StyledTouchableOpacity onPress={onNavigateBack}>
+          <StyledTouchableOpacity onPress={navigation.goBack}>
             <ArrowLeftIcon
               fill={theme.colors.PRIMARY_MAIN}
               size={screenPercentageToDP(4, Orientation.Height)}
@@ -212,7 +208,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     </StyledText>
                   </Button>
                   <Button
-                    onPress={onNavigateBack}
+                    onPress={navigation.goBack}
                     backgroundColor={theme.colors.WHITE}
                     borderColor={theme.colors.PRIMARY_MAIN}
                     borderWidth={1}
