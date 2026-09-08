@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
+import { Button, ButtonRow, Modal, TranslatedText } from '@tamanu/ui-components';
 
 export const MergeErrorModal = ({ error, onClose }) => {
   const actions = (
     <ButtonRow data-testid="buttonrow-ngdk">
       <Button onClick={onClose} data-testid="button-yy9d">
-        OK
+        <TranslatedText stringId="general.action.ok" fallback="OK" />
       </Button>
     </ButtonRow>
   );

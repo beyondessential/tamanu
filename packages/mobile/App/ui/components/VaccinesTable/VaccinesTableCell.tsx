@@ -1,13 +1,14 @@
-import React, { useCallback } from 'react';
 import { Popup } from 'popup-ui';
-import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { VaccineStatusCells } from '/helpers/constants';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import React, { useCallback } from 'react';
 import type { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
+import type { VaccineStatusMessage } from '~/ui/helpers/getVaccineStatus';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { BypassWarningIcon } from './BypassWarningIcon';
-import type { VaccineStatusMessage } from '~/ui/helpers/getVaccineStatus';
+import { useTranslation } from '/contexts/TranslationContext';
+import { VaccineStatusCells } from '/helpers/constants';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { CenterView, StyledImage, StyledTouchableOpacity, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export interface VaccineTableCellData {
   administeredVaccine: IAdministeredVaccine;
@@ -60,6 +61,7 @@ export const CellContent = ({
 };
 
 export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
+  const { getTranslation } = useTranslation();
   const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
   const {
     vaccine: drug,
@@ -90,7 +92,7 @@ export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProp
         title: 'Vaccination Warning',
         button: true,
         textBody: dueStatus.warningMessage,
-        buttonText: 'Ok',
+        buttonText: getTranslation('general.action.ok', 'OK'),
         callback: (): void => Popup.hide(),
         icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
       });
@@ -98,9 +100,7 @@ export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProp
       return;
     }
 
-    if (vaccineStatus) {
-      onAdminister();
-    }
+    if (vaccineStatus) onAdminister();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
