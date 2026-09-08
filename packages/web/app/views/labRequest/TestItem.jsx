@@ -16,6 +16,7 @@ export const StyledCheckboxControl = styled(Checkbox)`
 const StyledFormControlLabel = styled(FormControlLabel)`
   padding: 0.2rem 0;
   display: flex;
+  align-items: flex-start;
   i {
     font-size: 16px;
     line-height: 18px;
@@ -37,12 +38,17 @@ const LabelText = styled.span`
   font-size: 14px;
   line-height: 18px;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: ${Colors.darkestText};
 `;
 
 const CategoryText = styled.span`
   font-size: 14px;
   line-height: 18px;
+  flex: 0 0 40%;
+  padding-left: 1rem;
+  overflow-wrap: anywhere;
   color: ${Colors.softText};
 `;
 
@@ -57,7 +63,7 @@ const RemoveIconButton = styled(IconButton)`
 
 const TestItemWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 0.2rem 0;
 `;
 
