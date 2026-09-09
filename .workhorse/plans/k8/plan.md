@@ -7,14 +7,22 @@ working doc (`.workhorse/working-docs/k8/working-doc.md`).
 ## Where the standard lives
 
 The durable standard for what a configuration guide is, where guides live and how they are authored is
-specified in `specs/administration/configuration-guides.md` (id `CFGDOC`), with a pointer added from
-`specs/administration/overview.md`. The administration area already covers settings, reference data and
-permissions, which is exactly the subject matter these guides document.
+`.agents/docs/config-guide-format.md`, a reference doc the skill cites. It carries no
+`workhorse-version` frontmatter, since that marks Workhorse-shipped docs that get smart-merged on
+release, and this one is workspace-defined.
 
-Worth knowing when implementing: no other spec in this repo describes agent tooling, so `CFGDOC` is the
-first of its kind here. It is written as product behaviour of the documentation, not as instructions to
-the skill, and the skill body should cite it rather than restate it. Authoring principles stay in
-`llm/project-rules/write-config-guides.md`; the format backbone now has a home in the spec.
+This keeps the material out of the specs tree, which here documents Tamanu product behaviour only. A
+docs-authoring skill is tooling, not product behaviour, and `.agents/docs/` is already where
+agent-facing format guidance lives alongside `spec-format.md`. The card therefore produces no spec
+changes.
+
+Division of labour between the three documentation-guidance files:
+
+- `llm/project-rules/write-config-guides.md` — authoring **principles** (audience, verify from code, no
+  repetition, Australian English). Unchanged by this card
+- `.agents/docs/config-guide-format.md` — the **format**: location, section backbone, content sources,
+  version flagging, update and publishing rules
+- The skill's `SKILL.md` — the **procedure** for a run. Cites both rather than restating them
 
 ## Follow-up: the orphan invoicing guide
 
