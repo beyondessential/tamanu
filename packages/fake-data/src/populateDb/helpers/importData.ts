@@ -9,7 +9,7 @@ import {
 } from '@tamanu/constants/programRegistry';
 import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
-import { POOL_SIZE, pooled } from '../pool.js';
+import { pooled, pooledWithChild } from '../pool.js';
 
 import type {
   Department,
@@ -71,15 +71,13 @@ export const generateImportData = async ({
       }),
     );
   };
-  const createDrug = async (): Promise<ReferenceData> => {
-    const drug = await ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }));
-    await drugRelation(drug.id);
-    return drug;
-  };
-  const referenceData = await pooled(ReferenceData, createDrug, POOL_SIZE, {
-    type: REFERENCE_TYPES.DRUG,
-  });
-  await pooled(ReferenceDataRelation, () => drugRelation(referenceData.id));
+  const referenceData = await pooledWithChild(
+    ReferenceData,
+    () => ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG })),
+    ReferenceDataRelation,
+    drugRelation,
+    { where: { type: REFERENCE_TYPES.DRUG } },
+  );
 
   // A small, stable pool of allergy reference data for patient allergies to point at,
   // rather than each patient allergy minting its own ReferenceData: that bloats the table
@@ -91,13 +89,12 @@ export const generateImportData = async ({
     });
   }
 
-  const facility = await pooled(Facility, () => Facility.create(fake(Facility)), 100);
+  const facility = await pooled(Facility, () => Facility.create(fake(Facility)), { size: 100 });
   // A round's department, location and location group all have to sit at its facility.
   const locationGroup = await pooled(
     LocationGroup,
     () => LocationGroup.create(fake(LocationGroup, { facilityId: facility.id })),
-    POOL_SIZE,
-    { facilityId: facility.id },
+    { where: { facilityId: facility.id } },
   );
   const location = await pooled(
     Location,
@@ -105,14 +102,12 @@ export const generateImportData = async ({
       Location.create(
         fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
       ),
-    POOL_SIZE,
-    { facilityId: facility.id },
+    { where: { facilityId: facility.id, locationGroupId: locationGroup.id } },
   );
   const department = await pooled(
     Department,
     () => Department.create(fake(Department, { facilityId: facility.id })),
-    POOL_SIZE,
-    { facilityId: facility.id },
+    { where: { facilityId: facility.id } },
   );
 
   const screenComponent = (surveyId: string) =>
@@ -123,12 +118,12 @@ export const generateImportData = async ({
         config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
       }),
     );
-  const survey = await pooled(Survey, async () => {
-    const created = await Survey.create(fake(Survey));
-    await screenComponent(created.id);
-    return created;
-  });
-  await pooled(SurveyScreenComponent, () => screenComponent(survey.id));
+  const survey = await pooledWithChild(
+    Survey,
+    () => Survey.create(fake(Survey)),
+    SurveyScreenComponent,
+    screenComponent,
+  );
 
   const scheduledVaccine = await pooled(ScheduledVaccine, () =>
     ScheduledVaccine.create(fake(ScheduledVaccine, { vaccineId: referenceData.id })),
@@ -170,7 +165,7 @@ export const generateImportData = async ({
 
   // The Program Registry sidebar lists every registry, so this pool stays far smaller
   // than the rest.
-  const programRegistry = await pooled(ProgramRegistry, seedProgramRegistry, 8);
+  const programRegistry = await pooled(ProgramRegistry, seedProgramRegistry, { size: 8 });
 
   const invoiceProduct = await pooled(InvoiceProduct, () =>
     InvoiceProduct.create(
