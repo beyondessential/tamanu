@@ -114,7 +114,7 @@ user.post(
   '/recently-viewed-patients/:patientId',
   asyncHandler(async (req, res) => {
     const {
-      models: { UserRecentlyViewedPatient },
+      models: { Patient, UserRecentlyViewedPatient },
       user: currentUser,
       params,
     } = req;
@@ -122,6 +122,15 @@ user.post(
     const { patientId } = params;
 
     req.checkPermission('read', 'Patient');
+
+    // Recording a recently-viewed entry is incidental bookkeeping. The patient may not
+    // be present locally (e.g. removed by a merge, or not yet arrived via sync), in which
+    // case there is nothing to record and the foreign key would reject the insert.
+    const patientExists = await Patient.count({ where: { id: patientId } });
+    if (!patientExists) {
+      res.status(204).send();
+      return;
+    }
 
     const [createdRelation] = await UserRecentlyViewedPatient.create({
       userId: currentUser.id,
