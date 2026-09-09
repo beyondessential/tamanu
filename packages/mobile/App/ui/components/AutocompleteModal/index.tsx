@@ -1,18 +1,18 @@
-import React, { type ReactElement, useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button } from 'react-native-paper';
 import type { NavigationProp } from '@react-navigation/native';
+import { useQuery, type PlaceholderDataFunction } from '@tanstack/react-query';
+import React, { useCallback, useMemo, useState, type ReactElement } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useQuery, type PlaceholderDataFunction } from '@tanstack/react-query';
-import { StyledView } from '~/ui/styled/common';
-import { theme } from '../../styled/theme';
+import { Button } from 'react-native-paper';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import type { BaseModelSubclass, Suggester, OptionType } from '../../helpers/suggester';
-import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
-import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
 import useDebouncedValue from '~/ui/hooks/useDebouncedValue';
+import { StyledView } from '~/ui/styled/common';
+import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
+import { theme } from '../../styled/theme';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 const styles = StyleSheet.create({
   container: {
