@@ -18,7 +18,9 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable sidebar + footer cluster, right card grid of Popular and category sections).
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
 - `release-notes.html` — Linear changelog: left version index, centre reverse-chronological entries. Real v2.61–2.63 content.
-- `search-overlay.html` — global search palette (typeahead results grouped by manuals / release notes), with an "Ask AI instead" hand-off in the footer.
+- `search-overlay.html` — global search palette. Incorporates AI assist directly: an "Ask AI assist"
+  card and a "Suggested questions" list sit above the document results, and clicking any of them
+  opens the Ask AI drawer. Document results grouped by manuals / release notes below.
 - `ask-ai.html` — Stripe-style Ask AI: a right-hand chat drawer, page-aware (documentation context chip), with an answer, inline source citations, and a follow-up input.
 
 Reference screenshots the user supplied: Stripe docs header (Search + Ask AI as two controls),

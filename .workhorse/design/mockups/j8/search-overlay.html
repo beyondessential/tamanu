@@ -43,12 +43,21 @@
   .p-input input::placeholder { color: var(--ink-3); }
   .p-esc { font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; background: var(--fill); }
 
-  .p-body { max-height: 62vh; overflow: auto; padding: 8px; }
+  .p-body { max-height: 64vh; overflow: auto; padding: 8px; }
 
   .group-label {
     font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3);
     font-weight: 600; padding: 12px 10px 6px;
   }
+
+  /* AI assist card at the top of search */
+  .ai-suggest { display: flex; align-items: center; gap: 12px; padding: 12px 13px; margin: 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--fill); cursor: pointer; }
+  .ai-suggest:hover { border-color: var(--ink); }
+  .ai-suggest .ic { width: 34px; height: 34px; border-radius: 8px; background: var(--ink); color: #fff; display: grid; place-items: center; flex: none; }
+  .ai-suggest .t { font-size: 14px; font-weight: 580; color: var(--ink); }
+  .ai-suggest .s { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+  .ai-suggest .go { margin-left: auto; font-size: 11px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; background: var(--bg); white-space: nowrap; }
+  .row.qrow .ic { background: var(--fill); border-color: var(--line); color: var(--ink); }
 
   .row { display: flex; align-items: center; gap: 12px; padding: 10px 10px; border-radius: 9px; cursor: pointer; }
   .row .ic {
@@ -93,6 +102,24 @@
     </div>
 
     <div class="p-body">
+      <div class="ai-suggest">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span>
+        <div><div class="t">Ask AI assist</div><div class="s">Get an instant answer to “send to pharmacy”</div></div>
+        <span class="go">Ask AI</span>
+      </div>
+
+      <div class="group-label">Suggested questions</div>
+      <div class="row qrow">
+        <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
+        <div class="txt"><div class="t">How do I send a medication to pharmacy at discharge?</div></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
+      <div class="row qrow">
+        <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
+        <div class="txt"><div class="t">Which settings enable pharmacy orders for a facility?</div></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
+
       <div class="group-label">User manuals</div>
 
       <div class="row active">
