@@ -15,7 +15,10 @@ Mockups under `.workhorse/design/mockups/j8/`:
   home / manuals / article / release notes, plus working search palette (`/` or ⌘K) and Ask AI
   drawer. The single-page files below remain as the per-surface references.
 - `home.html` — search-led landing. Top bar carries Search and a separate Ask AI control (Stripe pattern). Hero leads with a large search + Ask AI, then Linear-style icon-panel card grids (Popular, Browse).
-- `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable sidebar + footer cluster, right card grid of Popular and category sections).
+- `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable
+  sidebar + footer cluster). The browse area is a grid of **topic cards** (one per feature area,
+  keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales
+  better than one card per article when there are many manuals.
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
 - `release-notes.html` — Linear changelog: left version index, centre reverse-chronological entries. Real v2.61–2.63 content.
 - `report-issue.html` — a "Report an issue" support form: Name, Email, Country or deployment (select),

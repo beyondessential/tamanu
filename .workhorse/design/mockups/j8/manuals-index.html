@@ -59,6 +59,21 @@
   .lcard .body { padding: 15px 18px 18px; }
   .lcard h3 { font-size: 15px; margin: 0 0 6px; }
   .lcard p { font-size: 13.5px; color: var(--ink-3); margin: 0; line-height: 1.5; }
+
+  /* topic cards: a category with a few articles + view all */
+  .tgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 1180px){ .tgrid { grid-template-columns: repeat(2, 1fr); } }
+  .tcard { background: #f6f6f7; border: 1px solid transparent; border-radius: 14px; padding: 22px 22px 20px; display: flex; flex-direction: column; min-height: 214px; transition: background .12s; }
+  .tcard:hover { background: #f0f0f2; }
+  .tcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .tcard-ic { color: var(--ink); display: grid; place-items: center; flex: none; }
+  .tcard-head h3 { font-size: 17px; margin: 0; letter-spacing: -0.01em; font-weight: 640; }
+  .tcard-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 11px; }
+  .tcard-list a { font-size: 14px; color: var(--ink-3); }
+  .tcard-list a:hover { color: var(--ink); }
+  .tcard-all { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink); }
+  .tcard-all svg { transition: transform .12s; }
+  .tcard:hover .tcard-all svg { transform: translateX(3px); }
 </style>
 </head>
 <body>
@@ -108,44 +123,48 @@
     <h1>User manuals</h1>
     <p class="subtitle">Step-by-step guides for using Tamanu across clinical, administrative and configuration workflows.</p>
 
-    <div class="sec-title">Popular</div>
-    <div class="grid">
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m4 8 8-4 8 4-8 4z"/><path d="M6 10v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg></div>
-        <div class="body"><h3>Getting started</h3><p>Navigate Tamanu and find a patient.</p></div>
-      </a>
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
-        <div class="body"><h3>Recording an encounter</h3><p>Open, document and close an encounter.</p></div>
-      </a>
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 3h6v4l4 11a2 2 0 0 1-2 3H7a2 2 0 0 1-2-3L9 7z"/></svg></div>
-        <div class="body"><h3>Creating a lab request</h3><p>Order tests and track results.</p></div>
-      </a>
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="14" height="10" rx="2"/><path d="M17 11l4-2v8l-4-2z"/></svg></div>
-        <div class="body"><h3>Sending to pharmacy</h3><p>Send medications at prescribing and discharge.</p></div>
-      </a>
-    </div>
-
-    <div class="sec-title">Clinical workflows</div>
-    <div class="grid">
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg></div>
-        <div class="body"><h3>Vitals and charts</h3><p>Record vitals and read charts over time.</p></div>
-      </a>
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M4 9h5"/></svg></div>
-        <div class="body"><h3>Imaging requests</h3><p>Order imaging and view completed studies.</p></div>
-      </a>
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M14 3v6h6"/></svg></div>
-        <div class="body"><h3>Discharging a patient</h3><p>Complete a discharge and its medications.</p></div>
-      </a>
-      <a class="lcard" href="#">
-        <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg></div>
-        <div class="body"><h3>Appointments and bookings</h3><p>Schedule and manage patient bookings.</p></div>
-      </a>
+    <div class="sec-title">Browse by topic</div>
+    <div class="tgrid">
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m4 8 8-4 8 4-8 4z"/><path d="M6 10v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg></span><h3>Getting started</h3></div>
+        <ul class="tcard-list"><li><a href="#">Introduction</a></li><li><a href="#">Navigating Tamanu</a></li><li><a href="#">Finding a patient</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><h3>Clinical workflows</h3></div>
+        <ul class="tcard-list"><li><a href="#">Recording an encounter</a></li><li><a href="#">Vitals and charts</a></li><li><a href="#">Discharging a patient</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10.5 20.5 3.5 13.5a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7z"/><path d="m8 8 8 8"/></svg></span><h3>Medication</h3></div>
+        <ul class="tcard-list"><li><a href="#">Prescribing</a></li><li><a href="#">Sending to pharmacy</a></li><li><a href="#">Dispensing</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 3h6v4l4 11a2 2 0 0 1-2 3H7a2 2 0 0 1-2-3L9 7z"/></svg></span><h3>Labs &amp; imaging</h3></div>
+        <ul class="tcard-list"><li><a href="#">Lab requests</a></li><li><a href="#">Lab results</a></li><li><a href="#">Imaging requests</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg></span><h3>Scheduling</h3></div>
+        <ul class="tcard-list"><li><a href="#">Appointments</a></li><li><a href="#">Bookings</a></li><li><a href="#">Calendar views</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v6c0 4-3 7-7 8-4-1-7-4-7-8V6z"/></svg></span><h3>Immunisation</h3></div>
+        <ul class="tcard-list"><li><a href="#">Recording a vaccine</a></li><li><a href="#">Vaccination certificate</a></li><li><a href="#">Vaccine schedules</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1l2.1-2.1M17 7l2.1-2.1"/></svg></span><h3>Administration</h3></div>
+        <ul class="tcard-list"><li><a href="#">Settings</a></li><li><a href="#">Users and permissions</a></li><li><a href="#">Reference data</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><span class="tcard-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9 12h6M9 16h4"/></svg></span><h3>Programs &amp; registries</h3></div>
+        <ul class="tcard-list"><li><a href="#">Program forms</a></li><li><a href="#">Program registry</a></li><li><a href="#">Surveys</a></li></ul>
+        <a class="tcard-all" href="#">View all <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
     </div>
   </main>
 </div>
