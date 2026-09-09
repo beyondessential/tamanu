@@ -1,0 +1,183 @@
+<!-- spec: docs-hub (proposed) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tamanu docs — Home</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-page: #fbfbfb;
+    --ink: #0a0a0a;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --line: #e6e6e9;
+    --line-soft: #f1f1f3;
+    --fill: #f6f6f7;
+    --radius: 10px;
+    --maxw: 1080px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---- Top nav ---- */
+  header.nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: var(--maxw); margin: 0 auto; padding: 0 24px;
+    height: 56px; display: flex; align-items: center; gap: 28px;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 640; letter-spacing: -0.01em; font-size: 15px; }
+  .brand .mark {
+    width: 22px; height: 22px; border-radius: 6px; background: var(--ink);
+    color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 700;
+  }
+  .brand .sub { color: var(--ink-3); font-weight: 500; }
+  nav.links { display: flex; gap: 22px; font-size: 14px; color: var(--ink-2); }
+  nav.links a:hover { color: var(--ink); }
+  nav.links a.active { color: var(--ink); font-weight: 550; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .btn-ghost {
+    font-size: 13.5px; color: var(--ink-2); padding: 6px 10px; border-radius: 7px;
+    border: 1px solid var(--line); background: var(--bg);
+  }
+  .btn-ghost:hover { color: var(--ink); border-color: #d6d6da; }
+
+  /* ---- Hero ---- */
+  .hero { text-align: center; padding: 88px 24px 56px; }
+  .hero h1 {
+    font-size: 44px; line-height: 1.08; letter-spacing: -0.03em; margin: 0 0 14px; font-weight: 680;
+  }
+  .hero p.lede { font-size: 17px; color: var(--ink-3); margin: 0 auto 34px; max-width: 520px; }
+
+  .search {
+    max-width: 620px; margin: 0 auto; display: flex; align-items: center; gap: 12px;
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 12px; padding: 15px 16px; text-align: left;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.04);
+    cursor: text;
+  }
+  .search:hover { border-color: #d3d3d8; }
+  .search svg { flex: none; color: var(--ink-3); }
+  .search .ph { color: var(--ink-3); font-size: 16px; flex: 1; }
+  .search .kbd {
+    font-size: 12px; color: var(--ink-3); border: 1px solid var(--line);
+    border-radius: 6px; padding: 3px 7px; background: var(--fill);
+    font-family: inherit;
+  }
+  .hero .hint { margin-top: 14px; font-size: 13px; color: var(--ink-3); }
+  .hero .hint b { color: var(--ink-2); font-weight: 560; }
+
+  /* ---- Section cards ---- */
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 80px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card {
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px; display: flex; flex-direction: column; min-height: 148px;
+    transition: border-color .12s ease, transform .12s ease;
+  }
+  .card:hover { border-color: #d0d0d5; transform: translateY(-1px); }
+  .card .ic {
+    width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--fill); display: grid; place-items: center; margin-bottom: 16px; color: var(--ink);
+  }
+  .card h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 14px; color: var(--ink-3); }
+  .card .go { margin-top: auto; padding-top: 16px; font-size: 13px; color: var(--ink-2); font-weight: 550; display: inline-flex; align-items: center; gap: 6px; }
+  .card:hover .go { color: var(--ink); }
+
+  /* ---- Popular ---- */
+  .section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 600; margin: 48px 0 16px; }
+  .popular { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 40px; }
+  .popular a {
+    display: flex; align-items: center; gap: 10px; padding: 11px 0;
+    font-size: 14px; color: var(--ink-2); border-bottom: 1px solid var(--line-soft);
+  }
+  .popular a:hover { color: var(--ink); }
+  .popular a .dot { color: var(--ink-3); }
+
+  footer { border-top: 1px solid var(--line); }
+  .foot-inner { max-width: var(--maxw); margin: 0 auto; padding: 28px 24px; display: flex; gap: 20px; font-size: 13px; color: var(--ink-3); }
+  .foot-inner .spacer { margin-left: auto; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#"><span class="mark">T</span> Tamanu <span class="sub">docs</span></a>
+    <nav class="links">
+      <a href="#" class="active">User manuals</a>
+      <a href="#">Release notes</a>
+    </nav>
+    <div class="nav-right">
+      <a class="btn-ghost" href="#">Ask AI</a>
+      <a class="btn-ghost" href="#">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Tamanu documentation</h1>
+  <p class="lede">User manuals, release notes and reference for the Tamanu healthcare platform.</p>
+
+  <div class="search" role="button" tabindex="0">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="ph">Search the docs or ask a question</span>
+    <span class="kbd">⌘K</span>
+  </div>
+  <div class="hint">Search across user manuals and release notes, or <b>ask AI</b> for an answer.</div>
+</section>
+
+<div class="wrap">
+  <div class="cards">
+    <a class="card" href="#">
+      <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+      <h3>User manuals</h3>
+      <p>Step-by-step guides for clinical, administrative and configuration workflows.</p>
+      <span class="go">Browse manuals →</span>
+    </a>
+    <a class="card" href="#">
+      <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></span>
+      <h3>Release notes</h3>
+      <p>What changed in each version, upgrade notes and recommended testing.</p>
+      <span class="go">View release notes →</span>
+    </a>
+  </div>
+
+  <div class="section-label">Popular articles</div>
+  <div class="popular">
+    <a href="#"><span class="dot">·</span> Recording a patient encounter</a>
+    <a href="#"><span class="dot">·</span> Creating a lab request</a>
+    <a href="#"><span class="dot">·</span> Sending medications to pharmacy</a>
+    <a href="#"><span class="dot">·</span> Managing appointments and bookings</a>
+    <a href="#"><span class="dot">·</span> Configuring settings in the admin panel</a>
+    <a href="#"><span class="dot">·</span> Generating a vaccination certificate</a>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-inner">
+    <span>Tamanu</span>
+    <span>by BES</span>
+    <span class="spacer">Documentation</span>
+    <span>Release notes</span>
+    <span>GitHub</span>
+  </div>
+</footer>
+
+</body>
+</html>
