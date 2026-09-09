@@ -1,9 +1,9 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
 import {
   createStackNavigator,
   type StackHeaderProps,
-  TransitionPresets,
+  StackNavigationOptions,
 } from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
@@ -22,19 +22,12 @@ type VaccineHeaderProps = StackHeaderProps & {
   selectedPatient: IPatient;
 };
 
-const VaccineHeaderComponent = ({
-  navigation,
-  selectedPatient,
-}: VaccineHeaderProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
+const VaccineHeaderComponent = ({ navigation, selectedPatient }: VaccineHeaderProps) => {
   return (
     <StackHeader
       title={<TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />}
       subtitle={joinNames(selectedPatient)}
-      onGoBack={goBack}
+      onGoBack={navigation.goBack}
     />
   );
 };
@@ -50,6 +43,8 @@ function renderVaccineHeader(props: StackHeaderProps): ReactElement {
   return <VaccineHeaderWithPatient {...props} />;
 }
 
+const screenOptions = { header: (): null => null } as const satisfies StackNavigationOptions;
+
 export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator>
@@ -59,20 +54,14 @@ export const VaccineStack = (): ReactElement => (
         options={{ header: renderVaccineHeader }}
       />
       <Stack.Screen
-        options={{
-          header: (): null => null,
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}
-        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
         component={NewVaccineTabs}
+        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
+        options={screenOptions}
       />
       <Stack.Screen
-        options={{
-          header: (): null => null,
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}
-        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
         component={VaccineModalScreen}
+        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
+        options={screenOptions}
       />
     </Stack.Navigator>
   </ErrorBoundary>

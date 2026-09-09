@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { useSelector } from 'react-redux';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
@@ -18,16 +18,12 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   return (
     <ErrorBoundary>
       <StackHeader
         title={<TranslatedText stringId="patient.referral.title" fallback="Referral" />}
         subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
+        onGoBack={navigation.goBack}
       />
       <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
         <Tabs.Screen
