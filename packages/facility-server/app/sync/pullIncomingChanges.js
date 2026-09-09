@@ -102,7 +102,27 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
   log.info('FacilitySyncManager.pulling', { since, totalToPull });
   let totalPulled = 0; // statistics
   let records = []; // for batching writes
-  let writes = []; // ongoing write promises
+  let pendingWrite = null; // the insert running in the background, of which there is at most one
+
+  // Inserts run in the background so the stream isn't stalled waiting on the database, but only one
+  // runs at a time. With no ceiling, a stream that outruns the database starts an insert per batch
+  // and nothing stops it: the pool is finite whichever process we're in (sync gets its own under the
+  // tasks runner, and shares the API's only in the all-in-one dev server), the database behind it is
+  // shared with everything else either way, and every batch still waiting is held in memory — which
+  // is the problem streaming exists to solve, arrived at from the other side. Waiting for the
+  // previous insert before starting the next keeps the overlap that backgrounding is for (one batch
+  // inserting while the next streams), caps what we hold at two batches, and turns a failed insert
+  // into a failed pull at the next batch instead of at the final await, hours of streaming later.
+  const flushRecords = async () => {
+    if (records.length === 0) return;
+    const batch = records;
+    records = [];
+    // chain this insert onto the one before it rather than starting it alongside, and only wait here
+    // for that earlier one: the stream carries on into the next batch while this one is inserting
+    const previousWrite = pendingWrite;
+    pendingWrite = Promise.resolve(previousWrite).then(() => writeBatch(batch));
+    await previousWrite;
+  };
 
   // keep track of the record we're on so we can resume the stream on disconnect from where we left
   // off rather than the start. Only the last one is ever encoded, on the reconnect that needs it,
@@ -117,32 +137,34 @@ export const streamIncomingChanges = async (centralServer, sequelize, sessionId,
     query: { fromId: lastRecord && encodeSnapshotCursor(lastRecord) },
   });
 
-  stream: for await (const { kind, message } of centralServer.stream(endpointFn)) {
-    if (records.length >= WRITE_BATCH_SIZE) {
-      // do writes in the background while we're continuing to stream data
-      writes.push(writeBatch(records));
-      records = [];
+  try {
+    stream: for await (const { kind, message } of centralServer.stream(endpointFn)) {
+      if (records.length >= WRITE_BATCH_SIZE) {
+        await flushRecords();
+      }
+
+      handler: switch (kind) {
+        case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
+          records.push(message);
+          totalPulled += 1;
+          lastRecord = message;
+          break handler;
+        case SYNC_STREAM_MESSAGE_KIND.END:
+          log.debug(`FacilitySyncManager.pull.noMoreChanges`);
+          break stream;
+        default:
+          log.warn('FacilitySyncManager.pull.unknownMessageKind', { kind });
+      }
     }
 
-    handler: switch (kind) {
-      case SYNC_STREAM_MESSAGE_KIND.PULL_CHANGE:
-        records.push(message);
-        totalPulled += 1;
-        lastRecord = message;
-        break handler;
-      case SYNC_STREAM_MESSAGE_KIND.END:
-        log.debug(`FacilitySyncManager.pull.noMoreChanges`);
-        break stream;
-      default:
-        log.warn('FacilitySyncManager.pull.unknownMessageKind', { kind });
-    }
+    await flushRecords();
+    await pendingWrite;
+  } finally {
+    // the awaits above are what report a failed insert, but they are skipped if the stream itself
+    // throws first, and an unobserved rejection takes the process down. Settle it either way without
+    // replacing the error we're already unwinding with.
+    await Promise.allSettled([pendingWrite]);
   }
-
-  if (records.length > 0) {
-    writes.push(writeBatch(records));
-  }
-
-  await Promise.all(writes);
 
   log.info('FacilitySyncManager.pulled', { durationMs: Date.now() - start });
   return { totalPulled, totalToPull, pullUntil };
