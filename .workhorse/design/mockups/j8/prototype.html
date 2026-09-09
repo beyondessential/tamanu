@@ -249,7 +249,7 @@
       <a data-goto="manuals" data-nav="manuals">User manuals</a>
       <a data-goto="releases" data-nav="releases">Release notes</a>
     </nav>
-    <div class="nav-right">
+    <div class="nav-right" id="nav-right" hidden>
       <div class="searchbox" data-open="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> Search <span class="k">/</span></div>
       <button class="askai" data-open="ask"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg> Ask AI</button>
     </div>
@@ -621,6 +621,8 @@
   function showView(name){
     views.forEach(v=> v.hidden = v.dataset.view!==name );
     setActiveNav(name==='article' ? 'manuals' : name);
+    // Header search + Ask AI are hidden on home (the hero already has them), shown elsewhere
+    document.getElementById('nav-right').hidden = (name==='home');
     window.scrollTo(0,0);
   }
   const searchInput = document.getElementById('p-search-input');
