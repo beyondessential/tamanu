@@ -1,4 +1,10 @@
-import type { FindManyOptions, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
+import {
+  In,
+  Not,
+  type FindManyOptions,
+  type ObjectLiteral,
+  type SelectQueryBuilder,
+} from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
 import type { BaseModel } from '~/models/BaseModel';
@@ -127,7 +133,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
   ): Promise<OptionType[]> => {
     const { where = {}, relations, includeIds, excludeIds, andWhere } = this.options;
 
-    // Nothing can match, and `IN ()` isn’t valid SQL
+    // Nothing can match; skip the round-trip
     if (includeIds?.length === 0) return [];
 
     try {
@@ -148,12 +154,11 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       }
 
       if (includeIds) {
-        query = query.andWhere('entity.id IN (:...includeIds)', { includeIds });
+        query = query.andWhere({ id: In(includeIds) });
       }
 
-      // Guarded because `NOT IN ()` isn't valid SQL
-      if (excludeIds?.length) {
-        query = query.andWhere('entity.id NOT IN (:...excludeIds)', { excludeIds });
+      if (excludeIds) {
+        query = query.andWhere({ id: Not(In(excludeIds)) });
       }
 
       if (andWhere) {
