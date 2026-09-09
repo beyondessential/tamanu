@@ -89,7 +89,9 @@ The canonical section backbone, in order:
   and placed where they apply — a parenthetical in the heading (`# Sensitive medications (supported
   from v2.39 onwards)`) or a line in the specific table cell/section (`From v2.60 onwards, this column
   is superseded by dosingUnit`). Not a styled badge or blockquote.
-- *How the skill determines the version a feature landed is an open question (see below).*
+- The version itself is **derived from git history** — the skill traces when the code landed and maps
+  it to the earliest `release/X.YY` branch containing it (see `llm/project-rules/release-branches.md`)
+  — then **surfaces each derived version for the author to confirm or correct** before publishing.
 
 ### Images
 
@@ -123,6 +125,12 @@ The canonical section backbone, in order:
   their guides, and a **per-module README** listing that module's topic guides — modelled on the
   support pack's `docs/README.md`. Publishing or updating a guide updates the relevant index.
 
+### Migration scope
+
+- Which module or topic a run covers is **decided per run** by the invoker — the skill takes the
+  module as its input rather than working through a fixed migration order. Migrating the existing Slab
+  System Administration documentation is therefore a series of runs, in whatever order suits.
+
 ### Publishing
 
 - The skill authors the file(s) and opens a **reviewed pull request** — never a silent edit.
@@ -131,12 +139,12 @@ The canonical section backbone, in order:
 
 ## Open questions
 
-- [ ] **Initial migration scope.** Which modules migrate first (Medications plus what)? Seeds the tree
-      and gives real test cases.
-- [ ] **How the skill maps "module → its config".** "Infer from code each run" — what anchors the
-      search (a module name, a settings category, a permissions subject prefix)? Reference data and
-      settings aren't formally grouped by "module" in code, so the skill needs a reliable way to scope.
-      Likely resolved at Tech design rather than here.
+None outstanding at spec level. One question is deferred to Tech design:
+
+- **How the skill maps "module → its config".** Reference data and settings aren't formally grouped by
+  "module" in the codebase, so the skill needs a reliable way to scope its search from a module name —
+  a settings category, a permissions subject prefix, a curated per-module manifest, or some
+  combination. A technical-approach decision rather than a behavioural one.
 
 ## Testing notes
 
@@ -148,3 +156,9 @@ The canonical section backbone, in order:
 - Update mode: run against a guide after a known code change (e.g. a setting added) and confirm the
   skill surfaces and reflects the change.
 - Confirm the PR title passes Tamanu's conventional-commit CI check.
+- Version derivation: pick a feature with a known introduction version (e.g. sensitive medications,
+  v2.39) and confirm the skill derives it from git history and presents it for confirmation.
+- Index maintenance: publishing a second guide in a module updates both the module README and the
+  section README, rather than replacing or duplicating entries.
+- Cross-refs: a reference to a not-yet-migrated guide keeps its Slab link; a reference to a migrated
+  one resolves to a relative path.
