@@ -36,6 +36,7 @@ This card may have a plan at `.workhorse/plans/{card-id}/` — a free-form markd
 
 - Follow the design system in `.workhorse/design/design-system.md` for any UI work
 - Source visual language from the existing implementation first, then `.workhorse/design/` for current direction (`.workhorse/design/` wins on clash). Do not reference mockups from other cards unless the user explicitly asks
+- **If the card references a Figma design** (a `figma.com` URL or node-id in its description or spec) and a Figma MCP is connected, pull it through the MCP — `get_design_context` for structure and reference code, `get_screenshot` for the visual, `get_variable_defs` for design tokens — and implement against it. Map the design onto the project's existing components and design tokens rather than the tool's generated markup, which will not match the codebase's conventions
 - **Preserve unchanged aspects.** Only change the markup and styling for the feature or tweak being implemented. Leave the rest of the screen as it is — same layout, components, copy, spacing, styling — even if you think you can improve it. See "Preserving unchanged aspects" in your system prompt
 - Make the code match the acceptance criteria — each criterion should be traceable to code
 
