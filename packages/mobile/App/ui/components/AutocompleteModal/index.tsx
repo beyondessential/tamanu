@@ -1,9 +1,8 @@
 import type { NavigationProp } from '@react-navigation/native';
 import { useQuery, type PlaceholderDataFunction } from '@tanstack/react-query';
 import React, { useCallback, useMemo, useState, type ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, type FlatListProps } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Button } from 'react-native-paper';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -13,22 +12,12 @@ import { StyledView } from '~/ui/styled/common';
 import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { TranslatedText } from '../Translations/TranslatedText';
+import AutocompleteResult from './AutocompleteResult';
 
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
     flex: 1,
-  },
-  lightItemText: {
-    minHeight: 48,
-    padding: 8,
-    textAlignVertical: 'center',
-  },
-  darkItemText: {
-    backgroundColor: theme.colors.LIGHT_GREY,
-    minHeight: 48,
-    padding: 8,
-    textAlignVertical: 'center',
   },
   backButton: {
     position: 'absolute',
@@ -48,28 +37,6 @@ interface AutocompleteModalScreenProps {
     };
   };
 }
-
-interface SuggestionRowProps {
-  option: OptionType;
-  useDarkBackground: boolean;
-  onSelect: (option: OptionType) => void;
-}
-
-/**
- * Memoised so that a new search result set only re-renders the rows that actually changed, rather
- * than every visible row.
- */
-const SuggestionRow = React.memo(
-  ({ option, useDarkBackground, onSelect }: SuggestionRowProps): ReactElement => (
-    <TouchableOpacity onPress={(): void => onSelect(option)}>
-      <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
-        {option.label}
-      </Text>
-    </TouchableOpacity>
-  ),
-);
-
-const keyExtractor = (option: OptionType): string => option.value;
 
 const holdPreviousData: PlaceholderDataFunction<OptionType[]> = previousData => previousData ?? [];
 
@@ -107,14 +74,18 @@ export const AutocompleteModalScreen = ({
 
   const renderItem = useCallback(
     ({ item, index }: { item: OptionType; index: number }): ReactElement => (
-      <SuggestionRow option={item} useDarkBackground={index % 2 === 0} onSelect={onSelectItem} />
+      <AutocompleteResult
+        option={item}
+        useDarkBackground={index % 2 === 0}
+        onSelect={onSelectItem}
+      />
     ),
     [onSelectItem],
   );
 
   const flatListProps = useMemo(
-    () => ({
-      keyExtractor,
+    (): Partial<FlatListProps<OptionType>> => ({
+      keyExtractor: option => option.value,
       renderItem,
       // Select on the first tap, rather than spending it on dismissing the keyboard
       keyboardShouldPersistTaps: 'handled' as const,
