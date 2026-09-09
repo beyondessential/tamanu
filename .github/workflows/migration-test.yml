@@ -250,3 +250,21 @@ jobs:
           path: ${{ runner.temp }}/migration-test
           retention-days: 30
           if-no-files-found: warn
+
+      # Neither safety net covers a Job the operator never unsuspends: activeDeadlineSeconds does
+      # not accrue while suspended, and ttlSecondsAfterFinished only starts once a Job has finished.
+      - name: Release a job that never ran
+        if: always()
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+        run: |
+          job=$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json 2>/dev/null) || exit 0
+          [[ -n "$job" ]] || exit 0
+
+          # Anything carrying Complete or Failed is left alone, so a finished Job keeps the hour
+          # of inspection its TTL grants even if the operator suspended it again afterwards.
+          if jq -e '.spec.suspend == true and ([.status.conditions[]? | select((.type == "Complete" or .type == "Failed") and .status == "True")] | length) == 0' <<<"$job" >/dev/null; then
+            echo "Job $JOB_NAME never left suspend, releasing it and its restored cluster."
+            kubectl delete job "$JOB_NAME" -n "$SEED_NAMESPACE" --ignore-not-found
+          fi
