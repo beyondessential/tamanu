@@ -5,7 +5,7 @@ import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@ta
 import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { Button, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
@@ -13,6 +13,7 @@ import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Tran
 import { useTranslation } from '../../contexts/Translation';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
+import { LastSentCell } from './LastSentCell';
 import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
@@ -276,38 +277,20 @@ const getMedicationColumns = (
       ),
       title: <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />,
       sortable: false,
-      accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
+      accessor: ({ lastOrderedAt, isLastOrderDispensed, encounterPrescription, discontinued }) => {
         const pauseData = encounterPrescription?.pausePrescriptions?.[0];
         const isPausing = !!pauseData && !discontinued;
 
-        if (!lastOrderedAt) {
-          return (
-            <NoWrapCell
-              color={isPausing ? Colors.softText : 'inherit'}
-              fontStyle={isPausing ? 'italic' : 'normal'}
-            >
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                casing="lower"
-                data-testid="translatedtext-nc3a"
-              />
-            </NoWrapCell>
-          );
-        }
-
         return (
-          <NoWrapCell
+          <Box
             color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
-            <Box>
-              <DateDisplay date={lastOrderedAt} format="shortest" noTooltip />
-              <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={lastOrderedAt} noTooltip />
-              </Box>
-            </Box>
-          </NoWrapCell>
+            <LastSentCell
+              lastOrderedAt={lastOrderedAt}
+              isLastOrderDispensed={isLastOrderDispensed}
+            />
+          </Box>
         );
       },
     });

@@ -1,4 +1,3 @@
-import Box from '@mui/material/Box';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
@@ -15,7 +14,6 @@ import {
   OuterLabelFieldWrapper,
   RequiredOrnament,
   ThemedTooltip,
-  TimeDisplay,
   TranslatedReferenceData,
   TranslatedText,
   useTranslation,
@@ -25,6 +23,7 @@ import { Colors } from '../../constants/styles';
 import { singularize } from '../../utils';
 import { CheckInput } from '../Field';
 import { Table } from '../Table';
+import { LastSentCell } from './LastSentCell';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -87,10 +86,6 @@ const StyledTable = styled(Table)`
       }
     }
   }
-`;
-
-const NoWrapCell = styled(Box)`
-  white-space: nowrap;
 `;
 
 const TwoLineHeaderText = styled.div`
@@ -208,30 +203,9 @@ const getColumns = (
       key: COLUMN_KEYS.LAST_SENT,
       title: <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />,
       sortable: false,
-      accessor: ({ lastOrderedAt }) => {
-        if (!lastOrderedAt) {
-          return (
-            <NoWrapCell color="inherit" fontStyle="normal">
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                casing="lower"
-              />
-            </NoWrapCell>
-          );
-        }
-
-        return (
-          <NoWrapCell color="inherit" fontStyle="normal">
-            <Box>
-              <DateDisplay date={lastOrderedAt} format="shortest" />
-              <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={lastOrderedAt} />
-              </Box>
-            </Box>
-          </NoWrapCell>
-        );
-      },
+      accessor: ({ lastOrderedAt, isLastOrderDispensed }) => (
+        <LastSentCell lastOrderedAt={lastOrderedAt} isLastOrderDispensed={isLastOrderDispensed} />
+      ),
     },
     {
       key: COLUMN_KEYS.REPEATS,

@@ -12,7 +12,6 @@ import {
 } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
-  DateDisplay,
   Field,
   NumberInput,
   TranslatedReferenceData,
@@ -21,6 +20,7 @@ import {
   VisuallyHidden,
 } from '@tamanu/ui-components';
 import { CheckField } from '../components/Field';
+import { LastSentCell } from '../components/Medication/LastSentCell';
 import { Colors } from '../constants';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 import { getStockStatus } from '../utils/medications';
@@ -197,36 +197,6 @@ const DiscontinuedAccessor = ({ medication, handleDiscontinueMedication }) => (
   </DarkestText>
 );
 
-const LastSentAccessor = ({ lastOrderedAt, isLastOrderDispensed }) => {
-  if (!lastOrderedAt) {
-    return (
-      <DarkestText>
-        <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
-      </DarkestText>
-    );
-  }
-  return (
-    <Box>
-      <DarkestText>
-        <DateDisplay date={lastOrderedAt} format="shortest" />
-      </DarkestText>
-      <Box fontSize="12px" color={Colors.softText}>
-        {isLastOrderDispensed ? (
-          <TranslatedText
-            stringId="medication.pharmacyRequest.status.dispensed"
-            fallback="Dispensed"
-          />
-        ) : (
-          <TranslatedText
-            stringId="medication.pharmacyRequest.status.activeRequest"
-            fallback="Active request"
-          />
-        )}
-      </Box>
-    </Box>
-  );
-};
-
 /*
  * The discharge medication tables use fixed layout so the two of them stay aligned with each other,
  * which means any column without a declared width just takes an equal share of whatever is left.
@@ -335,7 +305,7 @@ export const MEDICATION_COLUMNS = ({
           title: (
             <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />
           ),
-          accessor: LastSentAccessor,
+          accessor: LastSentCell,
           style: { inlineSize: COLUMN_WIDTHS.lastSent },
         },
       ]
