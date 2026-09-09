@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { type RouteProp, useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '/styled/common';
@@ -68,10 +68,6 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
       },
     });
 
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   const onNavigateToSurvey = (survey: Survey): void => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails, {
       surveyId: survey.id,
@@ -81,7 +77,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
 
   return (
     <FullView>
-      <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
+      <StackHeader title={joinNames(selectedPatient)} onGoBack={navigation.goBack} />
       {error ? (
         <ErrorScreen error={error} />
       ) : (

@@ -41,10 +41,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   const [selectedContact, setSelectedContact] = useState<IPatientContact>();
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   const onNavigateAddReminderContact = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddReminderContact);
   }, [navigation]);
@@ -89,7 +85,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
       <ScrollView>
         <StyledSafeAreaView>
           <StyledView paddingTop={20} paddingLeft={15} paddingRight={15} paddingBottom={20}>
-            <StyledTouchableOpacity onPress={onNavigateBack}>
+            <StyledTouchableOpacity onPress={navigation.goBack}>
               <ArrowLeftIcon
                 fill={theme.colors.PRIMARY_MAIN}
                 size={screenPercentageToDP(4, Orientation.Height)}

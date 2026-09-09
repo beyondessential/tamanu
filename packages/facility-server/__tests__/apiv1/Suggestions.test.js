@@ -21,6 +21,7 @@ import {
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData';
 import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
@@ -729,6 +730,75 @@ describe('Suggestions', () => {
       );
       expect(byName).toHaveSucceeded();
       expect(byName.body.map(({ id }) => id)).not.toContain(drug.id);
+    });
+  });
+
+  describe('Sensitive drugs', () => {
+    disableHardcodedPermissionsForSuite();
+
+    let facility;
+    let plainDrug;
+    let sensitiveDrug;
+    let drugWithoutReferenceDrug;
+
+    const makeDrug = async (suffix, isSensitive) => {
+      const referenceData = await models.ReferenceData.create({
+        id: `drug-sensitivity-${suffix}`,
+        type: REFERENCE_TYPES.DRUG,
+        name: `Sensitivity ${suffix}`,
+        code: `sensitivity-${suffix}`,
+      });
+      if (isSensitive !== null) {
+        await models.ReferenceDrug.create({
+          referenceDataId: referenceData.id,
+          isSensitive,
+        });
+      }
+      return referenceData.id;
+    };
+
+    beforeAll(async () => {
+      facility = await models.Facility.create(fake(models.Facility));
+      plainDrug = await makeDrug('plain', false);
+      sensitiveDrug = await makeDrug('sensitive', true);
+      drugWithoutReferenceDrug = await makeDrug('no-reference-drug', null);
+    });
+
+    afterAll(async () => {
+      const referenceDataIds = [plainDrug, sensitiveDrug, drugWithoutReferenceDrug];
+      await models.ReferenceDrug.destroy({
+        where: { referenceDataId: referenceDataIds },
+        force: true,
+      });
+      await models.ReferenceData.destroy({ where: { id: referenceDataIds }, force: true });
+    });
+
+    const search = async app => {
+      const result = await app.get(
+        `/api/suggestions/drug?q=Sensitivity&facilityId=${facility.id}`,
+      );
+      expect(result).toHaveSucceeded();
+      return result.body.map(({ id }) => id);
+    };
+
+    it('suggests a drug with no reference drug record when sensitive drugs are hidden', async () => {
+      const app = await baseApp.asNewRole([
+        ['list', 'ReferenceData'],
+        ['read', 'ReferenceData'],
+      ]);
+      const ids = await search(app);
+      expect(ids).toContain(plainDrug);
+      expect(ids).toContain(drugWithoutReferenceDrug);
+      expect(ids).not.toContain(sensitiveDrug);
+    });
+
+    it('suggests sensitive drugs to a user who can create sensitive medication', async () => {
+      const app = await baseApp.asNewRole([
+        ['list', 'ReferenceData'],
+        ['read', 'ReferenceData'],
+        ['create', 'SensitiveMedication'],
+      ]);
+      expect(await search(app)).toContain(sensitiveDrug);
     });
   });
 

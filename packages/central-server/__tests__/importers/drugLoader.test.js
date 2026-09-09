@@ -271,6 +271,42 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
     getSettingSpy.mockRestore();
   });
 
+  // A drug with no ReferenceDrug record behind it exports with every drug column blank, and has
+  // to survive being imported back.
+  it('imports a row whose drug columns are all blank', async () => {
+    const headers = [
+      'id',
+      'code',
+      'name',
+      'route',
+      'dosingUnit',
+      'dispensingUnit',
+      'unitConversion',
+      'notes',
+      manualFacilityId,
+    ];
+    const rows = [{ id: 'drug-blank-1', code: 'DRUG-BLANK-1', name: 'Blank Drug' }];
+
+    const { errors } = await doImport(buildDrugWorkbookBuffer(headers, rows));
+    expect(errors).toHaveLength(0);
+
+    const referenceDrug = await models.ReferenceDrug.findOne({
+      where: { referenceDataId: 'drug-blank-1' },
+    });
+    expect(referenceDrug.route).toBeNull();
+    expect(referenceDrug.dosingUnit).toBeNull();
+    expect(referenceDrug.dispensingUnit).toBeNull();
+    expect(referenceDrug.notes).toBeNull();
+    expect(Number(referenceDrug.unitConversion)).toBe(1);
+
+    // The facility column is blank on this row, so its association is still written with no stock.
+    const stock = await models.ReferenceDrugFacility.findOne({
+      where: { referenceDrugId: referenceDrug.id, facilityId: manualFacilityId },
+    });
+    expect(stock.quantity).toBeNull();
+    expect(stock.stockStatus).toBe(DRUG_STOCK_STATUSES.UNKNOWN);
+  });
+
   // The test above can't cleanly prove drugLoaderFactory's own cache is what's doing the
   // work — ReadSettings' cache already de-dupes repeated reads of a warm bucket on its
   // own. This forces a cache invalidation strictly between two calls to the same loader
@@ -282,7 +318,7 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
 
       await drugLoader(
         { id: 'drug-cache-1', code: 'DRUG-CACHE-1', name: 'Drug 1', [sohFacilityId]: 1 },
-        { models, pushError },
+        { models, pushError, header: ['id', 'code', 'name', sohFacilityId] },
       );
 
       // Simulate an external settings change invalidating the shared cache between rows.
@@ -291,7 +327,7 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
 
       const secondRowRows = await drugLoader(
         { id: 'drug-cache-2', code: 'DRUG-CACHE-2', name: 'Drug 2', [sohFacilityId]: 1 },
-        { models, pushError },
+        { models, pushError, header: ['id', 'code', 'name', sohFacilityId] },
       );
 
       expect(getSettingSpy).not.toHaveBeenCalled();
@@ -310,7 +346,7 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
       const pushError = () => {};
       await firstImportLoader(
         { id: 'drug-cache-3', code: 'DRUG-CACHE-3', name: 'Drug 3', [sohFacilityId]: 1 },
-        { models, pushError },
+        { models, pushError, header: ['id', 'code', 'name', sohFacilityId] },
       );
 
       settingsCache.reset();
@@ -319,7 +355,7 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
       const secondImportLoader = drugLoaderFactory();
       await secondImportLoader(
         { id: 'drug-cache-4', code: 'DRUG-CACHE-4', name: 'Drug 4', [sohFacilityId]: 1 },
-        { models, pushError },
+        { models, pushError, header: ['id', 'code', 'name', sohFacilityId] },
       );
 
       expect(getSettingSpy).toHaveBeenCalled();

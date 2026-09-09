@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ButtonRow, Modal } from '@tamanu/ui-components';
+import { Button, ButtonRow, Modal, TranslatedText } from '@tamanu/ui-components';
 
 export const MergeResultModal = ({ result, onClose }) => {
   const { updates = {} } = result;
@@ -7,7 +7,7 @@ export const MergeResultModal = ({ result, onClose }) => {
   const actions = (
     <ButtonRow data-testid="buttonrow-l9vl">
       <Button onClick={onClose} data-testid="button-3gs0">
-        OK
+        <TranslatedText stringId="general.action.ok" fallback="OK" />
       </Button>
     </ButtonRow>
   );

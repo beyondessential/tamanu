@@ -578,9 +578,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   backgroundColor={theme.colors.WHITE}
                   textColor={theme.colors.PRIMARY_MAIN}
                   outline
-                  onPress={() => {
-                    navigation.goBack();
-                  }}
+                  onPress={navigation.goBack}
                   buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
                 />
               </ScrollView>

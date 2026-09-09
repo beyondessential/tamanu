@@ -28,7 +28,7 @@ export const SelectModalScreen = (props: ISelectModalScreen) => {
     callback,
     options,
     modalTitle,
-    onClickBack = () => props.navigation.goBack(),
+    onClickBack = props.navigation.goBack,
   } = props.route.params;
 
   return (

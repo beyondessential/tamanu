@@ -272,18 +272,19 @@ export const PatientProgramRegistrationConditionsField = ({
   }, [models.ProgramRegistryCondition, programRegistryId, conditions]);
 
   const addItem = (newValue: ConditionAndCategory) => {
-    onChange([...conditions, newValue]);
-    setConditions([...conditions, newValue]);
+    const next = [...conditions, newValue];
+    onChange(next);
+    setConditions(next);
   };
-  const editItem = index => (newValue: ConditionAndCategory) => {
-    const newValues = conditions.map((value, i) => (i === index ? newValue : value));
-    onChange(newValues);
-    setConditions(newValues);
+  const editItem = (index: number) => (newValue: ConditionAndCategory) => {
+    const next = conditions.map((value, i) => (i === index ? newValue : value));
+    onChange(next);
+    setConditions(next);
   };
-  const deleteItem = index => () => {
-    const newValues = conditions.slice(0, index).concat(conditions.slice(index + 1));
-    onChange(newValues);
-    setConditions(newValues);
+  const deleteItem = (index: number) => () => {
+    const next = conditions.slice(0, index).concat(conditions.slice(index + 1));
+    onChange(next);
+    setConditions(next);
   };
 
   return (

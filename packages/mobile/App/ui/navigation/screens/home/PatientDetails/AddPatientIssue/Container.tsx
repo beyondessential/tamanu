@@ -20,14 +20,6 @@ const Container = ({
 }: AddPatientIssueProps): ReactElement<AddPatientIssueProps> => {
   const { models } = useBackend();
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const navigateToDetails = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   const queryClient = useQueryClient();
   const { mutateAsync: recordPatientIssue } = useMutation({
     mutationFn: ({ note }: Partial<IPatientIssue>) =>
@@ -45,15 +37,15 @@ const Container = ({
   const onRecordPatientIssue = useCallback(
     async (values: Partial<IPatientIssue>) => {
       await recordPatientIssue(values);
-      navigateToDetails();
+      navigation.goBack();
     },
-    [recordPatientIssue, navigateToDetails],
+    [recordPatientIssue, navigation],
   );
 
   return (
     <Screen
       selectedPatient={selectedPatient}
-      onNavigateBack={onNavigateBack}
+      onNavigateBack={navigation.goBack}
       onRecordPatientIssue={onRecordPatientIssue}
     />
   );

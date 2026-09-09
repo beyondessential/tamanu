@@ -22,17 +22,13 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
       data-testid="modal-on8s"
     >
       <ul>
-        {alerts.map((a) => (
+        {alerts.map(a => (
           <li key={a.id}>{a.note}</li>
         ))}
       </ul>
       <ButtonRow data-testid="buttonrow-us9q">
         <Button variant="contained" color="primary" onClick={close} data-testid="button-3i9s">
-          <TranslatedText
-            stringId="general.action.ok"
-            fallback="OK"
-            data-testid="translatedtext-xjk1"
-          />
+          <TranslatedText stringId="general.action.ok" fallback="OK" />
         </Button>
       </ButtonRow>
     </Modal>

@@ -157,6 +157,18 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
   );
 }
 
+/**
+ * BottomTabNavigationConfig['tabBar'] expects a plain render function, not function
+ * component. React Compiler applies memoisation smarts to `MyTabBar`, which inserts a
+ * `useMemoCache` call that would violate the rules of hooks when `tabBar` is called as a
+ * plain function.
+ */
+function renderTabBar(props: BottomTabBarProps) {
+  return <MyTabBar {...props} />;
+}
+
+const screenOptions = { headerShown: false } as const;
+
 const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
   const { getTranslation } = useTranslation();
 
@@ -188,7 +200,7 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
 
   return (
     <ErrorBoundary>
-      <Tabs.Navigator tabBar={MyTabBar} screenOptions={{ headerShown: false }}>
+      <Tabs.Navigator screenOptions={screenOptions} tabBar={renderTabBar}>
         <Tabs.Screen
           options={HomeScreenOptions}
           name={Routes.HomeStack.HomeTabs.Home}

@@ -69,10 +69,6 @@ export const FrequencySearchModalScreen = ({
     [callback, navigation],
   );
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
     <View style={styles.container}>
       <Autocomplete
@@ -98,7 +94,7 @@ export const FrequencySearchModalScreen = ({
           color: theme.colors.TEXT_DARK,
         }}
       />
-      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+      <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
     </View>

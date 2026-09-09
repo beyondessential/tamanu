@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
 import { FullView } from '/styled/common';
@@ -15,10 +15,6 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 export const EditPatientScreen = ({ route }): ReactElement => {
   const { isEdit = true } = route.params;
   const navigation = useNavigation();
-  const onGoBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
@@ -31,7 +27,7 @@ export const EditPatientScreen = ({ route }): ReactElement => {
           )
         }
         subtitle={route?.params?.patientName}
-        onGoBack={onGoBack}
+        onGoBack={navigation.goBack}
       />
       <PatientPersonalInfoForm isEdit={isEdit}>
         <NameSection />
