@@ -1,6 +1,10 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
-import { createStackNavigator, type StackHeaderProps, TransitionPresets } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  type StackHeaderProps,
+  StackNavigationOptions,
+} from '@react-navigation/stack';
 import { VaccineTableTabs } from './VaccineTableTabs';
 import { NewVaccineTabs } from './NewVaccineTabs';
 import { StackHeader } from '/components/StackHeader';
@@ -18,54 +22,46 @@ type VaccineHeaderProps = StackHeaderProps & {
   selectedPatient: IPatient;
 };
 
-const VaccineHeaderComponent = ({
-  navigation,
-  selectedPatient,
-}: VaccineHeaderProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
+const VaccineHeaderComponent = ({ navigation, selectedPatient }: VaccineHeaderProps) => {
   return (
     <StackHeader
       title={<TranslatedText stringId="patient.vaccine.title" fallback="Vaccine" />}
       subtitle={joinNames(selectedPatient)}
-      onGoBack={goBack}
+      onGoBack={navigation.goBack}
     />
   );
 };
 
 const VaccineHeaderWithPatient = compose(withPatient)(VaccineHeaderComponent);
 
-const VaccineHeader = (props: StackHeaderProps): ReactElement => (
-  <VaccineHeaderWithPatient {...props} />
-);
+/**
+ * Not a redundant wrapper! The stack `header` option is called as a plain render function (where
+ * hooks aren’t allowed), not treated as a function component (where React Compiler can do its
+ * optimisations).
+ */
+function renderVaccineHeader(props: StackHeaderProps): ReactElement {
+  return <VaccineHeaderWithPatient {...props} />;
+}
+
+const screenOptions = { header: (): null => null } as const satisfies StackNavigationOptions;
 
 export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
     <Stack.Navigator>
       <Stack.Screen
-        options={{
-          header: VaccineHeader,
-        }}
-        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
         component={VaccineTableTabs}
+        name={Routes.HomeStack.VaccineStack.VaccineTabs.Index}
+        options={{ header: renderVaccineHeader }}
       />
       <Stack.Screen
-        options={{
-          header: (): null => null,
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}
-        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
         component={NewVaccineTabs}
+        name={Routes.HomeStack.VaccineStack.NewVaccineTabs.Index}
+        options={screenOptions}
       />
       <Stack.Screen
-        options={{
-          header: (): null => null,
-          ...TransitionPresets.ModalSlideFromBottomIOS,
-        }}
-        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
         component={VaccineModalScreen}
+        name={Routes.HomeStack.VaccineStack.VaccineModalScreen}
+        options={screenOptions}
       />
     </Stack.Navigator>
   </ErrorBoundary>

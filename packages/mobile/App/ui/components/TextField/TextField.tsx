@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { type KeyboardType, type ReturnKeyTypeOptions, StyleSheet, type TextInput } from 'react-native';
+import {
+  type KeyboardType,
+  type ReturnKeyTypeOptions,
+  StyleSheet,
+  type TextInput,
+} from 'react-native';
 import { InputContainer, StyledTextInput } from './styles';
 import { TextFieldLabel } from './TextFieldLabel';
 import { StyledView } from '/styled/common';
@@ -8,7 +13,10 @@ import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
+import {
+  type TranslatedTextElement,
+  getTranslatedTextFallback,
+} from '../Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;
@@ -83,12 +91,13 @@ export const TextField = React.memo(
     const defaultRef: RefObject<any> = useRef(null);
     const ref = inputRef || defaultRef;
     const onFocusInput = useCallback((): void => {
-      if (onFocus) onFocus();
+      onFocus?.();
       setFocus(true);
-    }, [setFocus, onFocus]);
+    }, [onFocus]);
     const onBlurInput = useCallback((): void => {
+      onBlur?.();
       setFocus(false);
-    }, [setFocus, onBlur]);
+    }, [onBlur]);
 
     const inputHeight = useMemo(() => {
       if (!label) return '100%';

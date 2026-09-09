@@ -433,7 +433,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
         ({ recordId }) => recordId !== SYSTEM_USER_UUID,
       );
-      
+
       expect(outgoingChanges.length).toBe(3);
       expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
         [facility, program, survey].map(r => r.id).sort(),
@@ -991,6 +991,8 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
   });
 
   describe('resolves duplicated display IDs', () => {
+    const PUSHED_CHANGELOG_DEVICE_ID = 'test-device-id';
+
     it("appends 'duplicate' to existing patient and to-be-synced patient when the display IDs are duplicated", async () => {
       // Set up data pre sync
       const CURRENT_SYNC_TICK = '10';
@@ -1013,6 +1015,22 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
         displayId: duplicatedDisplayId,
       };
 
+      // Facilities attach changelog to every record they push, so the snapshot row that the
+      // dedup hook rewrites always carries an array here
+      const pushedChangelogRecords = [1, 2].map(n => ({
+        tableOid: 1234,
+        tableSchema: 'public',
+        tableName: 'patients',
+        loggedAt: new Date(),
+        recordCreatedAt: new Date(),
+        recordUpdatedAt: new Date(),
+        updatedByUserId: SYSTEM_USER_UUID,
+        recordId: toBeSyncedPatientData.id,
+        recordData: { display_id: duplicatedDisplayId, first_name: `Patient ${n}` },
+        deviceId: PUSHED_CHANGELOG_DEVICE_ID,
+        version: '1.0.0',
+      }));
+
       const changes = [
         {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
@@ -1020,6 +1038,7 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           recordType: 'patients',
           recordId: toBeSyncedPatientData.id,
           data: toBeSyncedPatientData,
+          changelogRecords: pushedChangelogRecords,
         },
       ];
 
@@ -1077,6 +1096,20 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
 
       // Check if pulled down synced patient also has displayId appended with _duplicate_2
       expect(returnedSyncedPatient.data.displayId).toBe(`${duplicatedDisplayId}_duplicate_2`);
+
+      // The hook rewrites this snapshot row, which has to round-trip the changelog it carries
+      // back through the json column rather than mangling it
+      const persistedChangelogRecords = await sequelize.query(
+        'SELECT * FROM logs.changes WHERE record_id = :recordId AND device_id = :deviceId;',
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: {
+            recordId: toBeSyncedPatientData.id,
+            deviceId: PUSHED_CHANGELOG_DEVICE_ID,
+          },
+        },
+      );
+      expect(persistedChangelogRecords).toHaveLength(pushedChangelogRecords.length);
     });
 
     it("does not append 'duplicate' to existing patient that is being updated", async () => {
