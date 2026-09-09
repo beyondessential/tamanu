@@ -212,7 +212,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.orderBy('entity_display_label', 'ASC');
       }
 
-      query = query.limit(25);
+      query = query.limit(12);
 
       const data = await query.getRawMany();
 
