@@ -185,7 +185,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Add visibility status filtering if the model has a visibilityStatus column
       const hasVisibilityStatus = this.model
         .getRepository()
-        .metadata.columns.find(col => col.propertyName === 'visibilityStatus');
+        .metadata.columns.some(col => col.propertyName === 'visibilityStatus');
       if (hasVisibilityStatus) {
         query = query.andWhere('entity.visibilityStatus = :visibilityStatus', {
           visibilityStatus: VisibilityStatus.Current,
@@ -195,7 +195,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Machine accounts (device sync users) never belong in suggestions
       const hasKind = this.model
         .getRepository()
-        .metadata.columns.find(col => col.propertyName === 'kind');
+        .metadata.columns.some(col => col.propertyName === 'kind');
       if (hasKind) {
         query = query.andWhere('entity.kind != :syncKind', { syncKind: USER_KINDS.SYNC });
       }
