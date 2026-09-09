@@ -4,6 +4,28 @@ Notes on how the config-guide authoring skill mines Tamanu's configuration surfa
 codebase, and how it scopes that search to a single module. Behaviour is specified in the card's
 working doc (`.workhorse/working-docs/k8/working-doc.md`).
 
+## Where the standard lives
+
+The durable standard for what a configuration guide is, where guides live and how they are authored is
+specified in `specs/administration/configuration-guides.md` (id `CFGDOC`), with a pointer added from
+`specs/administration/overview.md`. The administration area already covers settings, reference data and
+permissions, which is exactly the subject matter these guides document.
+
+Worth knowing when implementing: no other spec in this repo describes agent tooling, so `CFGDOC` is the
+first of its kind here. It is written as product behaviour of the documentation, not as instructions to
+the skill, and the skill body should cite it rather than restate it. Authoring principles stay in
+`llm/project-rules/write-config-guides.md`; the format backbone now has a home in the spec.
+
+## Follow-up: the orphan invoicing guide
+
+`specs/invoicing/configuration-guide.md` is an actual configuration guide sitting in the specs tree. It
+is the only file under `specs/` with no frontmatter, and it follows the numbered config-guide house
+style rather than the spec format. It belongs in
+`docs/user-manuals/system-administration/invoicing/` under the convention this card establishes.
+
+Deliberately out of scope for this card. It makes an obvious early target once the skill exists, and a
+good real-world exercise of update mode against a guide nobody generated.
+
 ## Sources of truth in code
 
 The guide's three code-derived sections each have a clean, machine-readable home. This is better than
