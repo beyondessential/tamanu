@@ -61,11 +61,13 @@ const getTranslationJoinParams = (dataType: string, language: string) => ({
   languageSuffix: `;${language}`,
 });
 
+type FilterPredicate<T> = Parameters<Array<T>['filter']>[0];
+
 export interface SuggesterConfig<ModelType> {
   model: ModelType;
   options: SuggesterOptions<ModelType>;
   formatter?: (entity: BaseModel) => OptionType;
-  filter?: (entity: BaseModel) => boolean;
+  filter?: FilterPredicate<ModelType>;
 }
 
 export class Suggester<ModelType extends BaseModelSubclass> {
@@ -77,7 +79,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
   formatter: (entity: BaseModel) => OptionType;
 
-  filter?: (entity: BaseModel) => boolean;
+  filter?: FilterPredicate<ModelType>;
 
   /**
    * HACK: {@link Suggester.filter} is a method, which is ignored when a {@link Suggester} is
