@@ -16,6 +16,7 @@ export * from './encounters.js';
 export * from './facts.js';
 export * from './fhir.js';
 export * from './forms.js';
+export * from './idempotency.js';
 export * from './imaging.js';
 export * from './importable.js';
 export * from './invoices.js';

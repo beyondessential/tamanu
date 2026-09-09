@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Linking, TouchableHighlight } from 'react-native';
 import { getUniqueId } from 'react-native-device-info';
@@ -6,7 +6,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import styled from 'styled-components';
 
 import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
@@ -114,7 +114,7 @@ export const MoreScreen = (): ReactElement => {
     authCtx.signOut();
   }, []);
 
-  setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
+  useStatusBarStyle('dark-content', theme.colors.BACKGROUND_GREY);
 
   return (
     <FullView>

@@ -8,6 +8,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MAX_REPEATS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
@@ -24,9 +25,9 @@ import {
   Field,
   Form,
   FormGrid,
+  MultilineTextField,
   NumberField,
   OutlinedButton,
-  TextField,
   TimeDisplay,
   TimeRangeDisplay,
   TranslatedEnum,
@@ -41,6 +42,7 @@ import { Colors } from '../../constants/styles';
 import { useAuth } from '../../contexts/Auth';
 import { useEncounter } from '../../contexts/Encounter';
 import { singularize } from '../../utils';
+import { getDisplayedPharmacyNote } from '../../utils/medications';
 import { preventInvalidRepeatsInput } from '../../utils/utils';
 import { CheckField } from '../Field';
 import { FormModal } from '../FormModal';
@@ -48,6 +50,7 @@ import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { MedicationResumeModal } from './MedicationResumeModal';
+import { PrescriptionChangeHistoryModal } from './PrescriptionChangeHistoryModal';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -95,6 +98,19 @@ const PausedText = styled(Box)`
   color: ${Colors.primary};
 `;
 
+const ChangeLogLink = styled.a`
+  color: ${Colors.primary};
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export const MedicationDetails = ({
   initialMedication,
   onClose,
@@ -115,7 +131,10 @@ export const MedicationDetails = ({
   const [openDiscontinueModal, setOpenDiscontinueModal] = useState(false);
   const [openPauseModal, setOpenPauseModal] = useState(false);
   const [openResumeModal, setOpenResumeModal] = useState(false);
+  const [showChangeHistoryModal, setShowChangeHistoryModal] = useState(false);
   const [medication, setMedication] = useState(initialMedication);
+
+  const { modifiedPharmacyNote } = getDisplayedPharmacyNote(medication);
 
   const { data, refetch: refetchPauseData } = usePausePrescriptionQuery(
     {
@@ -277,8 +296,10 @@ export const MedicationDetails = ({
         formType={FORM_TYPES.EDIT_FORM}
         validationSchema={validationSchema}
         initialValues={{
-          pharmacyNotes: medication.pharmacyNotes,
-          displayPharmacyNotesInMar: medication.displayPharmacyNotesInMar,
+          pharmacyNotes: modifiedPharmacyNote ?? medication.pharmacyNotes,
+          displayPharmacyNotesInMar: modifiedPharmacyNote
+            ? medication.latestModifiedDispense.displayPharmacyNotesInMar
+            : medication.displayPharmacyNotesInMar,
           repeats: medication.repeats ?? 0,
         }}
         render={values => (
@@ -286,7 +307,7 @@ export const MedicationDetails = ({
             <Container>
               {medication.discontinued && (
                 <>
-                  <DiscontinuedText>
+                  <DiscontinuedText data-testid="medicationdetails-discontinued-status">
                     <TranslatedText
                       stringId="medication.details.medicationDiscontinued"
                       fallback="Medication discontinued"
@@ -454,7 +475,7 @@ export const MedicationDetails = ({
                           fallback="Pharmacy notes"
                         />
                       }
-                      component={TextField}
+                      component={MultilineTextField}
                       disabled={
                         !canCreateMedicationPharmacyNote ||
                         (!canUpdateMedicationPharmacyNote && values.pharmacyNotes) ||
@@ -466,71 +487,90 @@ export const MedicationDetails = ({
                   </NoteModalActionBlocker>
                 </div>
                 {!medication.discontinued && !isPausing && !isOngoingPrescription && (
-                  <div style={{ gridColumn: '1/-1', marginTop: '-12px' }}>
-                    <NoteModalActionBlocker>
-                      <Field
-                        name="displayPharmacyNotesInMar"
-                        label={
-                          <MidText color={`${Colors.darkText} !important`}>
-                            <TranslatedText
-                              stringId="medication.details.displayInMarInstructions"
-                              fallback="Display pharmacy notes on MAR"
-                            />
-                          </MidText>
-                        }
-                        component={CheckField}
-                        disabled={!canCreateMedicationPharmacyNote}
-                      />
-                    </NoteModalActionBlocker>
+                  <div style={{ gridColumn: '1/-1', marginTop: '-16px' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <NoteModalActionBlocker>
+                        <Field
+                          name="displayPharmacyNotesInMar"
+                          label={
+                            <MidText color={`${Colors.darkText} !important`}>
+                              <TranslatedText
+                                stringId="medication.details.displayInMarInstructions"
+                                fallback="Display pharmacy notes on MAR"
+                              />
+                            </MidText>
+                          }
+                          component={CheckField}
+                          disabled={
+                            !canCreateMedicationPharmacyNote || Boolean(modifiedPharmacyNote)
+                          }
+                        />
+                      </NoteModalActionBlocker>
+                      {modifiedPharmacyNote && (
+                        <ChangeLogLink onClick={() => setShowChangeHistoryModal(true)}>
+                          <TranslatedText
+                            stringId="medication.mar.viewChange"
+                            fallback="View change"
+                          />
+                        </ChangeLogLink>
+                      )}
+                    </Box>
                   </div>
                 )}
               </FormGrid>
-              <Box mt={2.5} display={'flex'} sx={{ gap: '20px' }}>
-                <Box flex={1}>
-                  <DarkestText color={`${Colors.darkText} !important`}>
-                    <TranslatedText
-                      stringId="medication.details.medicationAdministrationSchedule"
-                      fallback="Medication administration schedule"
-                    />
-                  </DarkestText>
-                  <DetailsContainer mt={0.5} display={'flex'}>
-                    <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                      {medication?.idealTimes
-                        ?.toSorted((a, b) => {
-                          const timeA = getDateFromTimeString(a);
-                          const timeB = getDateFromTimeString(b);
-                          return timeA - timeB;
-                        })
-                        .map(time => {
-                          const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
-                          return (
-                            <DarkestText key={time}>
-                              <TimeRangeDisplay
-                                range={{
-                                  start: getDateFromTimeString(slot.startTime),
-                                  end: getDateFromTimeString(slot.endTime),
-                                }}
-                              />
-                            </DarkestText>
-                          );
-                        })}
-                    </Box>
-                    <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                      {medication?.idealTimes
-                        ?.toSorted((a, b) => {
-                          const timeA = getDateFromTimeString(a);
-                          const timeB = getDateFromTimeString(b);
-                          return timeA - timeB;
-                        })
-                        .map(time => (
-                          <MidText key={time}>
-                            <TimeDisplay date={getDateFromTimeString(time)} noTooltip />
-                          </MidText>
-                        ))}
-                    </Box>
-                  </DetailsContainer>
-                </Box>
-                <Box flex={1}>
+              <Box mt={2.5} display={'grid'} gridTemplateColumns={'1fr 1fr'} sx={{ gap: '20px' }}>
+                {!FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(medication.frequency) && (
+                  <Box>
+                    <DarkestText color={`${Colors.darkText} !important`}>
+                      <TranslatedText
+                        stringId="medication.details.medicationAdministrationSchedule"
+                        fallback="Medication administration schedule"
+                      />
+                    </DarkestText>
+                    <DetailsContainer mt={0.5} display={'flex'}>
+                      <Box
+                        display={'flex'}
+                        flexDirection={'column'}
+                        mr={2.5}
+                        style={{ gap: '16px' }}
+                      >
+                        {medication?.idealTimes
+                          ?.toSorted((a, b) => {
+                            const timeA = getDateFromTimeString(a);
+                            const timeB = getDateFromTimeString(b);
+                            return timeA - timeB;
+                          })
+                          .map(time => {
+                            const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
+                            return (
+                              <DarkestText key={time}>
+                                <TimeRangeDisplay
+                                  range={{
+                                    start: getDateFromTimeString(slot.startTime),
+                                    end: getDateFromTimeString(slot.endTime),
+                                  }}
+                                />
+                              </DarkestText>
+                            );
+                          })}
+                      </Box>
+                      <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
+                        {medication?.idealTimes
+                          ?.toSorted((a, b) => {
+                            const timeA = getDateFromTimeString(a);
+                            const timeB = getDateFromTimeString(b);
+                            return timeA - timeB;
+                          })
+                          .map(time => (
+                            <MidText key={time}>
+                              <TimeDisplay date={getDateFromTimeString(time)} noTooltip />
+                            </MidText>
+                          ))}
+                      </Box>
+                    </DetailsContainer>
+                  </Box>
+                )}
+                <Box>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
                     {encounter && !isOngoingPrescription ? (
                       <TranslatedText
@@ -584,7 +624,10 @@ export const MedicationDetails = ({
                     <Box display={'flex'} style={{ gap: '10px' }}>
                       {canDiscontinueMedication && (
                         <NoteModalActionBlocker>
-                          <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
+                          <OutlinedButton
+                            data-testid="medicationdetails-discontinue-button"
+                            onClick={() => setOpenDiscontinueModal(true)}
+                          >
                             <TranslatedText
                               stringId="medication.details.discontinue"
                               fallback="Discontinue"
@@ -663,6 +706,12 @@ export const MedicationDetails = ({
                 onClose={() => setOpenResumeModal(false)}
               />
             )}
+
+            <PrescriptionChangeHistoryModal
+              open={showChangeHistoryModal}
+              dispenseId={medication.latestModifiedDispense?.id}
+              onClose={() => setShowChangeHistoryModal(false)}
+            />
           </>
         )}
       />

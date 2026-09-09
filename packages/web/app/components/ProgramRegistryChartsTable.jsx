@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
@@ -7,6 +6,7 @@ import PropTypes from 'prop-types';
 
 import { Colors } from '../constants';
 import { DynamicColumnTable, Table } from './Table';
+import { usePatient } from '../contexts/Patient';
 import { useProgramRegistryPatientChartsQuery } from '../api/queries/useProgramRegistryPatientChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { useChartsTableColumns } from './VitalsAndChartsTableColumns';
@@ -45,7 +45,7 @@ export const ProgramRegistryChartsTable = React.memo(({
   isPatientRemoved = false,
 }) => {
   const { ability } = useAuth();
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
   const { data, recordedDates, error, isLoading } = useProgramRegistryPatientChartsQuery(
     patientId,
     selectedSurveyId,

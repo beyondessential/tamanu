@@ -5,13 +5,11 @@ import { persistCombineReducers } from 'redux-persist';
 
 import { authReducer } from './auth';
 import { imagingRequestReducer } from './imagingRequest';
-import { patientReducer } from './patient';
 import { specialModalsReducer } from './specialModals';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 export const createReducers = () => ({
   auth: authReducer,
-  patient: patientReducer,
   imagingRequest: imagingRequestReducer,
   specialModals: specialModalsReducer,
 });

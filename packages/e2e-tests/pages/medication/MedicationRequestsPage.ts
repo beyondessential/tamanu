@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { constructFacilityUrl } from '@utils/navigation';
 import { DispenseMedicationModal } from './DispenseMedicationModal';
@@ -14,8 +14,12 @@ export class MedicationRequestsPage extends BasePage {
     await this.page.goto(constructFacilityUrl('/medication/active'));
   }
 
+  rowForPatient(patientDisplayId: string): Locator {
+    return this.page.getByRole('row').filter({ hasText: patientDisplayId });
+  }
+
   async clickRowForPatient(patientDisplayId: string): Promise<DispenseMedicationModal> {
-    const row = this.page.getByRole('row').filter({ hasText: patientDisplayId });
+    const row = this.rowForPatient(patientDisplayId);
     await row.waitFor({ state: 'visible' });
     await row.click();
     if (!this.dispenseMedicationModal) {

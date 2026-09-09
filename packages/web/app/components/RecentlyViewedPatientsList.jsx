@@ -11,7 +11,6 @@ import Typography, { typographyClasses } from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown as ExpandMore } from 'lucide-react';
 import React, { useCallback, useId, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
@@ -25,7 +24,6 @@ import {
   useApi,
   VisuallyHidden,
 } from '@tamanu/ui-components';
-import { reloadPatient } from '../store/patient';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 /** @satisfies {Partial<Record<EncounterType, CssColor>> & { default: CssColor }} */
@@ -233,7 +231,6 @@ export const RecentlyViewedPatientsList = ({
   const [pageIndex, setPageIndex] = useState(0);
   const collapseId = useId();
 
-  const dispatch = useDispatch();
   const api = useApi();
 
   const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(
@@ -245,11 +242,10 @@ export const RecentlyViewedPatientsList = ({
   const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
-    async patientId => {
-      await dispatch(reloadPatient(patientId));
+    patientId => {
       navigateToPatient(patientId);
     },
-    [dispatch, navigateToPatient],
+    [navigateToPatient],
   );
 
   if (!recentlyViewedPatients?.length) {

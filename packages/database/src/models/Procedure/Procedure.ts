@@ -123,7 +123,7 @@ export class Procedure extends Model {
 
   forResponse() {
     const procedureResponse = super.forResponse();
-    const assistantClinicians = this.dataValues?.AssistantClinicians;
+    const assistantClinicians = this.dataValues?.assistantClinicians;
     if (!assistantClinicians) {
       return procedureResponse;
     }

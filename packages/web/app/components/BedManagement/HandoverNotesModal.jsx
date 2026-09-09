@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
 import { useDateTime } from '@tamanu/ui-components';
@@ -31,19 +31,12 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
 
   const {
     data: { data: handoverNotes = [], locationGroup = {} } = {},
-    refetch: refetchHandoverNotes,
     isFetching: isFetchingHandoverNotes,
   } = useQuery(
-    ['locationGroupHandoverNotes', facilityId],
-    () => areaId && api.get(`locationGroup/${areaId}/handoverNotes`, { facilityId }),
-    { enabled: !!areaId },
+    ['locationGroupHandoverNotes', facilityId, areaId],
+    async () => await api.get(`locationGroup/${areaId}/handoverNotes`, { facilityId }),
+    { enabled: Boolean(areaId) },
   );
-
-  useEffect(() => {
-    if (areaId) {
-      refetchHandoverNotes();
-    }
-  }, [refetchHandoverNotes, areaId]);
 
   const isLoading = isFetchingCertificate || isFetchingHandoverNotes;
 

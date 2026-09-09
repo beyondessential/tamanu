@@ -137,9 +137,11 @@ function getValuesByCode(components, valuesById) {
 
 export function getActiveActionComponents(components, originalValues) {
   const values = getValuesByCode(components, originalValues);
-  return components
-    .filter(c => ACTION_DATA_ELEMENT_TYPES.includes(c.dataElement.type))
-    .filter(c => checkVisibilityCriteria(c, components, values));
+  return components.filter(
+    c =>
+      ACTION_DATA_ELEMENT_TYPES.includes(c.dataElement.type) &&
+      checkVisibilityCriteria(c, components, values),
+  );
 }
 
 export function getResultValue(components, originalValues, specialValues) {

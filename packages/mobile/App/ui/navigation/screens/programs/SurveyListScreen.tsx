@@ -1,6 +1,6 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
-import { RouteProp, useNavigation } from '@react-navigation/native';
+import { type RouteProp, useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '/styled/common';
 import { compose } from 'redux';
 import { theme } from '/styled/theme';
@@ -9,11 +9,14 @@ import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
 import { withPatient } from '/containers/Patient';
-import { IPatient, SurveyTypes } from '~/types';
+import { type IPatient, SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { Survey } from '~/models/Survey';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import type { Survey } from '~/models/Survey';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -36,36 +39,34 @@ type SurveyListScreenProps = {
 const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement => {
   const navigation = useNavigation();
   const { programId, programName } = route.params;
-  const { ability } = useAuth();
+  const { ability, user } = useAuth();
 
-  const [filteredSurveys, error] = useBackendEffect(
-    async ({ models }: { models: any }) => {
-      const allSurveys = await models.Survey.find({
-        relations: ['program'],
-        where: {
-          surveyType: SurveyTypes.Programs,
-          program: { id: programId },
-          visibilityStatus: VisibilityStatus.Current,
-        },
-        order: {
-          name: 'ASC',
-        },
-      });
+  const { data: filteredSurveys, error, isPending: isLoading } =
+    // `ability` is based on signed-in user anyway; encoded in query key as `user.id`
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    useQuery({
+      queryKey: surveyKeys.list({
+        patientId: selectedPatient?.id,
+        programId,
+        userId: user?.id,
+      }),
+      queryFn: async () => {
+        const { models } = Database;
+        const allSurveys = await models.Survey.find({
+          relations: ['program'],
+          where: {
+            surveyType: SurveyTypes.Programs,
+            program: { id: programId },
+            visibilityStatus: VisibilityStatus.Current,
+          },
+          order: { name: 'ASC' },
+        });
 
-      const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
+        const filteredByAbility = allSurveys.filter((s: Survey) => s.shouldShowInList(ability));
 
-      return getProgramSurveysWithFormVisibility(
-        models,
-        filteredByAbility,
-        selectedPatient?.id,
-      );
-    },
-    [programId, selectedPatient?.id, ability],
-  );
-
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
+        return getProgramSurveysWithFormVisibility(models, filteredByAbility, selectedPatient?.id);
+      },
+    });
 
   const onNavigateToSurvey = (survey: Survey): void => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails, {
@@ -76,7 +77,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
 
   return (
     <FullView>
-      <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
+      <StackHeader title={joinNames(selectedPatient)} onGoBack={navigation.goBack} />
       {error ? (
         <ErrorScreen error={error} />
       ) : (
@@ -96,28 +97,32 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
             </StyledText>
           </StyledView>
           <Separator />
-          <FlatList
-            style={{
-              flex: 1,
-              width: '100%',
-              height: '100%',
-              backgroundColor: theme.colors.BACKGROUND_GREY,
-              paddingTop: 5,
-            }}
-            showsVerticalScrollIndicator={false}
-            data={filteredSurveys}
-            keyExtractor={(item): string => item.id}
-            renderItem={({ item }): ReactElement => (
-              <MenuOptionButton
-                key={item.id}
-                title={item.name}
-                onPress={(): void => onNavigateToSurvey(item)}
-                textProps={{ fontWeight: 400, color: theme.colors.TEXT_SUPER_DARK }}
-                arrowForwardIconProps={{ size: 16, fill: theme.colors.TEXT_DARK }}
-              />
-            )}
-            ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
-          />
+          {isLoading || !filteredSurveys ? (
+            <LoadingScreen />
+          ) : (
+            <FlatList
+              style={{
+                flex: 1,
+                width: '100%',
+                height: '100%',
+                backgroundColor: theme.colors.BACKGROUND_GREY,
+                paddingTop: 5,
+              }}
+              showsVerticalScrollIndicator={false}
+              data={filteredSurveys}
+              keyExtractor={(item): string => item.id}
+              renderItem={({ item }): ReactElement => (
+                <MenuOptionButton
+                  key={item.id}
+                  title={item.name}
+                  onPress={(): void => onNavigateToSurvey(item)}
+                  textProps={{ fontWeight: 400, color: theme.colors.TEXT_SUPER_DARK }}
+                  arrowForwardIconProps={{ size: 16, fill: theme.colors.TEXT_DARK }}
+                />
+              )}
+              ItemSeparatorComponent={() => <Separator paddingLeft="5%" width="95%" />}
+            />
+          )}
         </FullView>
       )}
     </FullView>

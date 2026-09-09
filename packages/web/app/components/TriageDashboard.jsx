@@ -9,19 +9,18 @@ import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
+import { getTriageWaitTime, splitDurationHoursMinutes } from '../utils/triageWaitTime';
 
-const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => {
+export const getAverageWaitTime = (categoryData, storedDateTimeToEpochMilliseconds) => {
   if (categoryData.length === 0) {
     return 0;
   }
 
-  const now = Date.now();
-  const triageTimes = categoryData
-    .map(triage => triage.triageTime)
-    .map(storedDateTimeToEpochMilliseconds)
+  const waitTimes = categoryData
+    .map(triage => getTriageWaitTime(triage, storedDateTimeToEpochMilliseconds))
     .filter(time => time != null);
-  const summedWaitTime = triageTimes.reduce((prev, curr) => prev + Math.round(now - curr), 0);
-  return summedWaitTime / triageTimes.length;
+  const summedWaitTime = waitTimes.reduce((prev, curr) => prev + curr, 0);
+  return summedWaitTime / waitTimes.length;
 };
 
 const useTriageData = storedDateTimeToEpochMilliseconds => {
@@ -59,9 +58,6 @@ const useTriageData = storedDateTimeToEpochMilliseconds => {
   });
 };
 
-const MINUTE = 60 * 1000;
-const HOUR = 60 * MINUTE;
-
 const Row = styled.div`
   display: flex;
   align-items: center;
@@ -82,8 +78,7 @@ const FooterTime = styled(FooterLabel)`
 `;
 
 const CardFooter = ({ averageWaitTime, color }) => {
-  const hours = Math.floor(averageWaitTime / HOUR);
-  const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
+  const { hours, minutes } = splitDurationHoursMinutes(averageWaitTime);
   const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
   const averageHrs = pluralise(hours, 'hr');
   const averageMins = pluralise(minutes, 'min');

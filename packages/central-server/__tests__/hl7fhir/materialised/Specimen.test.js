@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { formatRFC7231 } from 'date-fns';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';

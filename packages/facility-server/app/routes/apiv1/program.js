@@ -15,9 +15,11 @@ import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurve
 
 export const program = express.Router();
 
+const EDITABLE_FIELDS = ['code', 'name'];
+
 program.get('/:id', simpleGet('Program'));
-program.put('/:id', simplePut('Program'));
-program.post('/', simplePost('Program'));
+program.put('/:id', simplePut('Program', { allowedFields: EDITABLE_FIELDS }));
+program.post('/', simplePost('Program', { allowedFields: [...EDITABLE_FIELDS, 'id'] }));
 
 program.get(
   '/',
@@ -40,9 +42,9 @@ program.get(
     // Don't include programs that don't have any permitted survey to submit
     const canSubmit = survey => ability.can('submit', survey);
     const hasAnySurveys = programRecord => programRecord.surveys.some(canSubmit);
-    const filteredRecords = records
-      .filter(record => ability.can('list', record))
-      .filter(hasAnySurveys);
+    const filteredRecords = records.filter(
+      record => ability.can('list', record) && hasAnySurveys(record),
+    );
     const data = filteredRecords.map(x => x.forResponse());
 
     res.send({

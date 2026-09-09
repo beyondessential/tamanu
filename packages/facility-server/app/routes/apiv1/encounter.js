@@ -8,7 +8,6 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
-  DOCUMENT_SOURCES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   CHARTING_DATA_ELEMENT_IDS,
@@ -25,7 +24,7 @@ import {
   paginatedGetList,
   softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
-import { add } from 'date-fns';
+import { add, sub } from 'date-fns';
 import { z } from 'zod';
 import {
   deleteChartInstance,
@@ -36,6 +35,7 @@ import {
 import { keyBy } from 'es-toolkit/compat';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
+import { createDocumentMetadata } from '../../utils/createDocumentMetadata';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 import { getLabRequestList } from '../../routeHandlers/labs';
@@ -45,8 +45,19 @@ import {
   deleteSurveyResponse,
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
+import {
+  checkPharmacyOrderPermission,
+  checkSensitiveMedicationPermission,
+  createPharmacyOrder,
+} from '../../utils/medication';
 import { validate } from '../../utils/validate';
+import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
+import {
+  discardDischargeDraft,
+  getDischargeDraft,
+  saveDischargeDraft,
+} from './encounterDischargeDraft';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -171,9 +182,10 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const prescriptions = req.body.medications || {};
+        const prescriptions = DISCHARGE_MEDICATIONS_SCHEMA.parse(req.body.medications ?? {});
+        const pharmacyOrderLines = [];
         for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
-          const { quantity, repeats } = prescriptionValues;
+          const { quantity, repeats, sendToPharmacy } = prescriptionValues;
           const prescription = await models.Prescription.findByPk(prescriptionId, {
             include: [
               {
@@ -198,8 +210,22 @@ encounter.put(
             { isSelectedForDischarge: true },
             { where: { encounterId: id, prescriptionId: prescription.id } },
           );
+
+          const isEncounterPrescription = prescription.encounterPrescription?.encounterId === id;
+          if (sendToPharmacy) {
+            pharmacyOrderLines.push({
+              prescriptionId: prescription.id,
+              quantity,
+              repeats,
+              medicationId: prescription.medicationId,
+              // Lines taken from the patient's other ongoing medications point back at the ongoing
+              // prescription as well, so its last-sent date resolves from the patient view too.
+              ongoingPrescriptionId: isEncounterPrescription ? null : prescription.id,
+            });
+          }
+
           // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
-          if (prescription.isOngoing && prescription.encounterPrescription?.encounterId === id) {
+          if (prescription.isOngoing && isEncounterPrescription) {
             const existingPatientOngoingPrescription =
               await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
                 encounterObject.patientId,
@@ -212,6 +238,33 @@ encounter.put(
               prescriptionId: prescription.id,
             });
           }
+        }
+
+        // Placed inside the discharge transaction so a patient is never discharged with the order
+        // half-written, nor an order left behind by a discharge that failed.
+        if (pharmacyOrderLines.length > 0) {
+          await checkPharmacyOrderPermission(
+            req,
+            pharmacyOrderLines.map(line => line.medicationId),
+          );
+
+          const { orderingClinicianId } = req.body.pharmacyOrder ?? {};
+          if (!orderingClinicianId) {
+            throw new InvalidParameterError(
+              'A pharmacy order placed from a discharge must have an ordering prescriber.',
+            );
+          }
+
+          await createPharmacyOrder({
+            models,
+            encounterId: id,
+            facilityId: req.facilityId,
+            orderingClinicianId,
+            // Anything ordered as part of a discharge is an outpatient/discharge prescription,
+            // whatever the facility's default prescription type is.
+            isDischargePrescription: true,
+            lines: pharmacyOrderLines,
+          });
         }
       }
 
@@ -255,6 +308,10 @@ encounter.put(
   }),
 );
 
+encounter.get('/:id/dischargeDraft', getDischargeDraft);
+encounter.put('/:id/dischargeDraft', saveDischargeDraft);
+encounter.delete('/:id/dischargeDraft', discardDischargeDraft);
+
 encounter.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
@@ -286,16 +343,13 @@ encounter.post(
     }
 
     // Create file on the central server
-    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
-    const documentMetadataObject = await models.DocumentMetadata.create({
-      ...metadata,
-      attachmentId,
-      type,
-      encounterId: params.id,
-      documentUploadedAt: getCurrentDateTimeString(),
-      source: DOCUMENT_SOURCES.UPLOADED,
-    });
+    const documentMetadataObject = await createDocumentMetadata(
+      req,
+      { encounterId: params.id },
+      uploaded,
+    );
 
     res.send(documentMetadataObject);
   }),
@@ -328,35 +382,24 @@ encounter.post(
       attributes: ['id', 'medicationId', 'quantity'],
     });
 
-    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+    await checkSensitiveMedicationPermission(
       prescriptionRecords.map(p => p.medicationId),
+      req,
+      'read',
     );
 
-    if (hasSensitive) {
-      req.checkPermission('read', 'SensitiveMedication');
-    }
-
-    const result = await db.transaction(async () => {
-      const pharmacyOrder = await models.PharmacyOrder.create({
-        orderingClinicianId,
+    const result = await db.transaction(() =>
+      createPharmacyOrder({
+        models,
         encounterId: id,
+        facilityId,
+        orderingClinicianId,
         comments,
         isDischargePrescription,
-        date: date || getCurrentDateTimeString(),
-        facilityId,
-      });
-
-      await models.PharmacyOrderPrescription.bulkCreate(
-        pharmacyOrderPrescriptions.map(prescription => ({
-          pharmacyOrderId: pharmacyOrder.id,
-          prescriptionId: prescription.prescriptionId,
-          quantity: prescription.quantity,
-          repeats: prescription.repeats,
-        })),
-      );
-
-      return pharmacyOrder;
-    });
+        date,
+        lines: pharmacyOrderPrescriptions,
+      }),
+    );
 
     res.send(result);
   }),
@@ -459,6 +502,16 @@ encounterRelations.get(
             model: models.ReferenceDrug,
             as: 'referenceDrug',
             attributes: ['referenceDataId', 'isSensitive'],
+            include: facilityId
+              ? [
+                  {
+                    model: models.ReferenceDrugFacility,
+                    as: 'facilities',
+                    where: { facilityId },
+                    required: false,
+                  },
+                ]
+              : [],
           },
         },
       ],
@@ -528,46 +581,33 @@ encounterRelations.get(
     let responseData = prescriptions.map(p => p.forResponse());
     if (responseData.length > 0) {
       const prescriptionIds = responseData.map(p => p.id);
+      // The newest pharmacy order per prescription, and whether that request has been dispensed,
+      // so the medication tables can show a last-sent date with the state of the request.
       const [lastOrderedRows] = await db.query(
         `
-        SELECT pop.prescription_id, max(po.date) AS last_ordered_at
+        SELECT DISTINCT ON (pop.prescription_id)
+          pop.prescription_id,
+          po.date AS last_ordered_at,
+          pop.is_completed
         FROM pharmacy_order_prescriptions pop
         INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
         WHERE pop.prescription_id IN (:prescriptionIds)
           AND pop.deleted_at IS NULL
           AND po.deleted_at IS NULL
-        GROUP BY pop.prescription_id
+        ORDER BY pop.prescription_id, po.date DESC, pop.created_at DESC
       `,
         { replacements: { prescriptionIds } },
       );
       const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
-      // The most recent pharmacy-modified fill per prescription, so the MAR can show the
-      // modification's pharmacy note and a "View change" link. The original prescription is
-      // never altered by dispensing modifications; the modified details live on the dispense.
-      const [latestModifiedDispenseRows] = await db.query(
-        `
-        SELECT DISTINCT ON (pop.prescription_id)
-          pop.prescription_id,
-          md.id,
-          md.pharmacy_notes AS "pharmacyNotes",
-          md.display_pharmacy_notes_in_mar AS "displayPharmacyNotesInMar",
-          md.modified_at AS "modifiedAt"
-        FROM medication_dispenses md
-        INNER JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id
-        WHERE pop.prescription_id IN (:prescriptionIds)
-          AND md.modified_at IS NOT NULL
-          AND md.deleted_at IS NULL
-          AND pop.deleted_at IS NULL
-        ORDER BY pop.prescription_id, md.dispensed_at DESC
-      `,
-        { replacements: { prescriptionIds } },
+      const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId(
+        prescriptionIds,
       );
-      const latestModifiedDispenses = keyBy(latestModifiedDispenseRows, 'prescription_id');
 
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
+        isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
         latestModifiedDispense: latestModifiedDispenses[p.id] ?? null,
       }));
     }
@@ -927,12 +967,18 @@ encounterRelations.get(
     const upcomingTasksTimeFrame = await settings[facilityId].get(
       'tasking.upcomingTasksTimeFrame',
     );
+    const overdueTasksTimeFrame = await settings[facilityId].get(
+      'tasking.encounterOverdueTasksTimeFrame',
+    );
     const baseQueryOptions = {
       where: {
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
           [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          ...(overdueTasksTimeFrame != null && {
+            [Op.gte]: toPrimaryDateTimeString(sub(new Date(), { hours: overdueTasksTimeFrame })),
+          }),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,

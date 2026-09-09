@@ -1,4 +1,5 @@
-import { randomRecordId } from '../randomRecord.js';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
@@ -17,7 +18,15 @@ export const createTask = async ({
 
   const resolvedEncounterId = encounterId || (await randomRecordId(models, 'Encounter'));
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
-  const resolvedRefDataId = referenceDataId || (await randomRecordId(models, 'ReferenceData'));
+  const resolvedNotCompletedReasonId =
+    referenceDataId ||
+    (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON));
+  const resolvedDeletionReasonId =
+    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_DELETION_REASON));
+  const resolvedDesignationId =
+    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.DESIGNATION));
+  const resolvedTemplateRefDataId =
+    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_TEMPLATE));
 
   const task = await Task.create(
     fake(Task, {
@@ -25,35 +34,35 @@ export const createTask = async ({
       requestedByUserId: resolvedUserId,
       completedByUserId: resolvedUserId,
       notCompletedByUserId: resolvedUserId,
-      notCompletedReasonId: resolvedRefDataId,
+      notCompletedReasonId: resolvedNotCompletedReasonId,
       todoByUserId: resolvedUserId,
       deletedByUserId: resolvedUserId,
-      deletedReasonId: resolvedRefDataId,
+      deletedReasonId: resolvedDeletionReasonId,
     }),
   );
   await TaskDesignation.create(
     fake(TaskDesignation, {
       taskId: task.id,
-      designationId: resolvedRefDataId,
+      designationId: resolvedDesignationId,
     }),
   );
 
   const [taskTemplate] = await TaskTemplate.findOrCreate({
-    where: { referenceDataId: resolvedRefDataId },
-    defaults: fake(TaskTemplate, { referenceDataId: resolvedRefDataId }),
+    where: { referenceDataId: resolvedTemplateRefDataId },
+    defaults: fake(TaskTemplate, { referenceDataId: resolvedTemplateRefDataId }),
   });
   await TaskTemplateDesignation.findOrCreate({
-    where: { taskTemplateId: taskTemplate.id, designationId: resolvedRefDataId },
+    where: { taskTemplateId: taskTemplate.id, designationId: resolvedDesignationId },
     defaults: fake(TaskTemplateDesignation, {
       taskTemplateId: taskTemplate.id,
-      designationId: resolvedRefDataId,
+      designationId: resolvedDesignationId,
     }),
   });
   await UserDesignation.findOrCreate({
-    where: { userId: resolvedUserId, designationId: resolvedRefDataId },
+    where: { userId: resolvedUserId, designationId: resolvedDesignationId },
     defaults: fake(UserDesignation, {
       userId: resolvedUserId,
-      designationId: resolvedRefDataId,
+      designationId: resolvedDesignationId,
     }),
   });
 };

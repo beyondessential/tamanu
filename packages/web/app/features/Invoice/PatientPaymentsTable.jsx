@@ -38,11 +38,11 @@ const TableContainer = styled.div`
 
     th {
       &:nth-child(1) {
-        width: 80px;
+        width: 100px;
       }
 
       &:nth-child(2) {
-        // intentionally empty to take up remaining space
+        // intentionally empty to take up remaining space (method column)
       }
 
       &:nth-child(3) {

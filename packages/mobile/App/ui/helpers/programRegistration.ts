@@ -14,4 +14,5 @@ interface RegistrationConditionEntry {
  */
 export const getCompleteRegistrationConditions = <T extends RegistrationConditionEntry>(
   conditions?: T[] | null,
-): T[] => (conditions ?? []).filter(entry => Boolean(entry?.condition?.value && entry?.category?.value));
+): T[] =>
+  (conditions ?? []).filter(entry => Boolean(entry?.condition?.value && entry?.category?.value));

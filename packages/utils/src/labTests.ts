@@ -36,20 +36,38 @@ interface GetReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
   getTranslation: getTranslation;
 }
 
-export const getReferenceRange = ({
+interface ResolveReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
+  labTestType?: T;
+  labTest?: LabTestReferenceRangeOverride | null;
+  sex?: SexValue | null;
+}
+
+type ResolvedReferenceRange = {
+  min: number | null;
+  max: number | null;
+  rangeText: string | null;
+};
+
+// Single source of truth for a lab test's effective reference range. It applies the
+// override priority (per-test numeric override → per-test text → sex-based type range →
+// type text) and merges partial numeric overrides with the type defaults. Both the
+// displayed reference string (getReferenceRange) and the out-of-range highlight
+// (getLabTestValidationCriteria) build on this so they can never disagree.
+const resolveLabTestReferenceRange = ({
   labTestType,
   labTest,
   sex,
-  getTranslation,
-}: GetReferenceRangeProps) => {
-  if (!labTestType) return '';
+}: ResolveReferenceRangeProps): ResolvedReferenceRange => {
+  const empty: ResolvedReferenceRange = { min: null, max: null, rangeText: null };
+  if (!labTestType) return empty;
 
   const overrideMax = labTest?.referenceRangeMax;
   const overrideMin = labTest?.referenceRangeMin;
   const hasNumericOverride = !isNil(overrideMax) || !isNil(overrideMin);
 
-  // Priority 2: per-test text override, only when there are no per-test numeric overrides
-  if (!hasNumericOverride && labTest?.referenceRangeText) return labTest.referenceRangeText;
+  // Per-test text override, only when there are no per-test numeric overrides
+  if (!hasNumericOverride && labTest?.referenceRangeText)
+    return { ...empty, rangeText: labTest.referenceRangeText };
 
   const { defaultMax, defaultMin } =
     sex === SEX_VALUES.MALE
@@ -62,15 +80,93 @@ export const getReferenceRange = ({
   const hasMax = !isNil(max);
   const hasMin = !isNil(min);
 
+  if (hasMin || hasMax)
+    return { min: hasMin ? min! : null, max: hasMax ? max! : null, rangeText: null };
+  if (labTestType.rangeText) return { ...empty, rangeText: labTestType.rangeText };
+  return empty;
+};
+
+export const getReferenceRange = ({
+  labTestType,
+  labTest,
+  sex,
+  getTranslation,
+}: GetReferenceRangeProps) => {
+  if (!labTestType) return '';
+
+  const { min, max, rangeText } = resolveLabTestReferenceRange({ labTestType, labTest, sex });
+  const hasMax = !isNil(max);
+  const hasMin = !isNil(min);
+
   if (hasMin && hasMax)
     return getTranslation('general.fallback.range', ':min–:max', { replacements: { min, max } });
   if (hasMin)
     return getTranslation('general.fallback.greaterThan', '>:min', { replacements: { min } });
   if (hasMax)
     return getTranslation('general.fallback.lessThan', '<:max', { replacements: { max } });
-  if (labTestType.rangeText) return labTestType.rangeText;
+  if (rangeText) return rangeText;
   return getTranslation('general.fallback.notApplicable', 'N/A', { casing: 'lower' });
 };
+
+export type LabTestValidationCriteria = {
+  normalRange: { min?: number | null; max?: number | null } | null;
+  rangeText: string | null;
+};
+
+// Derives the criteria a results cell uses to flag an out-of-range value, from the same
+// resolved range as the displayed reference string. A numeric bound (either side) yields a
+// normalRange; otherwise a qualitative rangeText is compared against the result.
+export const getLabTestValidationCriteria = ({
+  labTestType,
+  labTest,
+  sex,
+}: ResolveReferenceRangeProps): LabTestValidationCriteria => {
+  if (!labTestType) return { normalRange: null, rangeText: null };
+
+  const { min, max, rangeText } = resolveLabTestReferenceRange({ labTestType, labTest, sex });
+  const hasMax = !isNil(max);
+  const hasMin = !isNil(min);
+
+  if (hasMin || hasMax) {
+    return {
+      normalRange: { min: hasMin ? min : undefined, max: hasMax ? max : undefined },
+      rangeText: null,
+    };
+  }
+  return { normalRange: null, rangeText };
+};
+
+// Sex-keyed range shape returned by the patient lab-results endpoint, where the type range
+// is already resolved per sex rather than exposed as flat maleMin/femaleMin fields.
+export type NormalRangesBySex = {
+  male?: { min?: number | null; max?: number | null } | null;
+  female?: { min?: number | null; max?: number | null } | null;
+};
+
+// Adapter for that endpoint shape: keeps the mapping to LabTestTypeLike in one place so the
+// patient results table doesn't hand-assemble a synthetic labTestType at the call site.
+export const getLabTestValidationCriteriaFromNormalRanges = ({
+  normalRanges,
+  rangeText,
+  labTest,
+  sex,
+}: {
+  normalRanges?: NormalRangesBySex | null;
+  rangeText?: string | null;
+  labTest?: LabTestReferenceRangeOverride | null;
+  sex?: SexValue | null;
+}): LabTestValidationCriteria =>
+  getLabTestValidationCriteria({
+    labTestType: {
+      maleMin: normalRanges?.male?.min,
+      maleMax: normalRanges?.male?.max,
+      femaleMin: normalRanges?.female?.min,
+      femaleMax: normalRanges?.female?.max,
+      rangeText,
+    },
+    labTest,
+    sex,
+  });
 
 export const getReferenceRangeWithUnit = ({
   labTestType,

@@ -86,6 +86,7 @@ const PaymentsSection = styled.div`
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 8px;
+  margin-block-start: 20px;
 
   @media (min-width: 1600px) {
     grid-template-columns: 1fr 360px;
@@ -112,6 +113,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const allItemsAreApproved = invoice.items.every(item => item.approved);
+  const someItemsAreApproved = invoice.items.some(item => item.approved);
   const zeroItems = invoice.items.length === 0;
 
   const handleAllApprovals = approved => {
@@ -119,6 +121,39 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   };
 
   const ACTIONS = [
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.markAllAsApproved"
+          fallback="Mark all as approved"
+          data-testid="translatedtext-95jh"
+        />
+      ),
+      onClick: () => handleAllApprovals(true),
+      hidden: allItemsAreApproved || isCancelled,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.removeAllApprovals"
+          fallback="Remove all approvals"
+          data-testid="translatedtext-k3ds"
+        />
+      ),
+      onClick: () => handleAllApprovals(false),
+      hidden: !someItemsAreApproved || isCancelled || zeroItems,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.printInvoice"
+          fallback="Print invoice"
+          data-testid="translatedtext-31yh"
+        />
+      ),
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT),
+      hidden: !isInProgress,
+    },
     {
       label: (
         <TranslatedText
@@ -140,39 +175,6 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
       ),
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
       hidden: !deletable,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.removeAllApprovals"
-          fallback="Remove all approvals"
-          data-testid="translatedtext-k3ds"
-        />
-      ),
-      onClick: () => handleAllApprovals(false),
-      hidden: !allItemsAreApproved || isCancelled || zeroItems,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.markAllAsApproved"
-          fallback="Mark all as approved"
-          data-testid="translatedtext-95jh"
-        />
-      ),
-      onClick: () => handleAllApprovals(true),
-      hidden: allItemsAreApproved || isCancelled,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.printInvoice"
-          fallback="Print invoice"
-          data-testid="translatedtext-31yh"
-        />
-      ),
-      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT),
-      hidden: !isInProgress,
     },
   ];
 

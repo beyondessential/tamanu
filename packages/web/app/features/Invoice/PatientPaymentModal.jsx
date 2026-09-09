@@ -75,6 +75,21 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
       .string()
       .required(<TranslatedText stringId="general.required" fallback="Required" />)
       .test(
+        'is-not-zero',
+        <TranslatedText
+          stringId="invoice.payment.validation.zeroAmount"
+          fallback="Amount must be greater than 0"
+          data-testid="translatedtext-6xjc"
+        />,
+        function (value) {
+          try {
+            return !new Decimal(value).isZero();
+          } catch {
+            return false;
+          }
+        },
+      )
+      .test(
         'is-valid-amount',
         <TranslatedText
           stringId="invoice.payment.validation.exceedAmount"
@@ -96,13 +111,24 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
       ),
   });
 
+const isZeroAmount = amount => {
+  if (amount === '' || amount === null || amount === undefined) return false;
+  try {
+    return new Decimal(amount).isZero();
+  } catch {
+    return false;
+  }
+};
+
 // Calculates the patient's remaining balance after applying the payment amount
-const calculateDisplayedBalance = ({
+export const calculateDisplayedBalance = ({
   patientPaymentRemainingBalance,
   amount,
   paymentRecord = {},
 }) => {
-  if (!amount) return patientPaymentRemainingBalance;
+  if (amount === '' || amount === null || amount === undefined) {
+    return patientPaymentRemainingBalance;
+  }
 
   const decimalRemaining = new Decimal(patientPaymentRemainingBalance);
   const isEditMode = !!paymentRecord.id;
@@ -153,7 +179,10 @@ export const PatientPaymentModal = ({
     <StyledModal
       title={
         isEditMode ? (
-          <TranslatedText stringId="invoice.modal.editPayment.title" fallback="Edit payment" />
+          <TranslatedText
+            stringId="invoice.modal.editPatientPayments.title"
+            fallback="Edit patient payments"
+          />
         ) : (
           <TranslatedText stringId="invoice.modal.recordPayment.title" fallback="Record payment" />
         )
@@ -237,7 +266,7 @@ export const PatientPaymentModal = ({
                   </span>
                 </Total>
               </Header>
-              <PaymentFormCard $isEditMode={isEditMode}>
+              <PaymentFormCard>
                 <LabelRow>
                   <Label>
                     <TranslatedText stringId="invoice.modal.date" fallback="Date" />
@@ -270,15 +299,14 @@ export const PatientPaymentModal = ({
                     min={0}
                     data-testid="field-773f"
                   />
-                  {!isEditMode && (
-                    <PayBalanceButton onClick={handlePayBalance}>
-                      <TranslatedText stringId="invoice.modal.payBalance" fallback="Pay balance" />
-                    </PayBalanceButton>
-                  )}
+                  <PayBalanceButton onClick={handlePayBalance}>
+                    <TranslatedText stringId="invoice.modal.payBalance" fallback="Pay balance" />
+                  </PayBalanceButton>
                 </FormFields>
               </PaymentFormCard>
               <ModalFormActionRow
                 onCancel={onClose}
+                confirmDisabled={isZeroAmount(amount)}
                 confirmText={
                   isEditMode ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

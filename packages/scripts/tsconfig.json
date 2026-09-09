@@ -17,5 +17,5 @@
     "verbatimModuleSyntax": false
   },
   "extends": "../../common.tsconfig.json",
-  "include": ["src/**/*.ts", "src/**/*.js"]
+  "include": ["src/**/*.ts", "src/**/*.mts", "src/**/*.js"]
 }

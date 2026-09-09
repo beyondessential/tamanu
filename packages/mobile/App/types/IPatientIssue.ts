@@ -1,4 +1,4 @@
-import { IPatient } from './IPatient';
+import type { IPatient } from './IPatient';
 
 export interface IPatientIssue {
   id: string;

@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { ENCOUNTER_TYPES, REFERRAL_STATUSES } from '@tamanu/constants';
-import { useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../api';
+import { invalidatePatientDataQueries } from '../utils';
 
 import { FormModal } from './FormModal';
-import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -47,7 +47,7 @@ export const CheckInModal = React.memo(
   }) => {
     const { createEncounter } = useEncounter();
     const api = useApi();
-    const dispatch = useDispatch();
+    const queryClient = useQueryClient();
     const { facilityId } = useAuth();
 
     const onCreateEncounter = useCallback(
@@ -67,9 +67,9 @@ export const CheckInModal = React.memo(
 
         onClose();
 
-        dispatch(reloadPatient(patientId));
+        invalidatePatientDataQueries(queryClient, patientId);
       },
-      [dispatch, patientId, api, createEncounter, onSubmitEncounter, onClose, referral, facilityId],
+      [queryClient, patientId, api, createEncounter, onSubmitEncounter, onClose, referral, facilityId],
     );
     return (
       <FormModal

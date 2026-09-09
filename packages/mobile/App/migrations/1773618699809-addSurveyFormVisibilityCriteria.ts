@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 export class addSurveyFormVisibilityCriteria1773618699809 implements MigrationInterface {

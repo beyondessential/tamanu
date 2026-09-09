@@ -15,10 +15,14 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
 
-  const filterAndSortDiagnoses = (isPrimary) =>
+  const filterAndSortDiagnoses = isPrimary =>
     diagnoses
-      .filter((diagnosis) => diagnosis.isPrimary === isPrimary)
-      .filter(({ certainty }) => certainty === DIAGNOSIS_CERTAINTY.CONFIRMED)
+      .filter(
+        diagnosis =>
+          diagnosis.isPrimary === isPrimary &&
+          diagnosis.certainty === DIAGNOSIS_CERTAINTY.CONFIRMED,
+      )
+
       .sort((a, b) => a.diagnosis.name.localeCompare(b.diagnosis.name));
 
   const primaryDiagnoses = filterAndSortDiagnoses(true);
@@ -62,7 +66,7 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
             {getTranslation('encounter.primaryDiagnoses.label', 'Primary diagnoses')}:{' '}
           </P>
           <View style={{ marginVertical: 3 }}>
-            {primaryDiagnoses.map((diagnosis) => (
+            {primaryDiagnoses.map(diagnosis => (
               <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
                 {diagnosis.diagnosis.name}
               </P>
@@ -76,7 +80,7 @@ export const InvoiceEncounterDetails = ({ encounter }) => {
             {getTranslation('encounter.secondaryDiagnoses.label', 'Secondary diagnoses')}:{' '}
           </P>
           <View style={{ marginVertical: 3 }}>
-            {secondaryDiagnoses.map((diagnosis) => (
+            {secondaryDiagnoses.map(diagnosis => (
               <P key={diagnosis.id} style={{ marginVertical: 0 }} fontSize={9}>
                 {diagnosis.diagnosis.name}
               </P>

@@ -35,7 +35,8 @@
       },
       "imagingTypes": {
         "orthopantomography": { "label": "Orthopantomography" },
-        "xRay": { "label": "X-Ray" },
+        "xRay": { "label": "X-ray" },
+        "xRayPortable": { "label": "X-ray (portable)" },
         "ctScan": { "label": "CT Scan" },
         "ultrasound": { "label": "Ultrasound" },
         "mri": { "label": "MRI" },

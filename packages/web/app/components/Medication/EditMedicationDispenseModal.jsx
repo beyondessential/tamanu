@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -92,7 +92,7 @@ export const EditMedicationDispenseModal = memo(
     const { facilityId } = useAuth();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { presetLabelSuggester, presetLabelsList, hasPresetLabels } = usePresetLabelsQuery({
+    const { presetLabelSuggester, hasPresetLabels } = usePresetLabelsQuery({
       enabled: open,
       facilityId,
     });
@@ -115,6 +115,7 @@ export const EditMedicationDispenseModal = memo(
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelForPrint, setLabelForPrint] = useState(null);
+    const labelPrintRef = useRef(null);
 
     const { data: facility, isLoading: isLoadingFacility } = useFacilityQuery(facilityId, {
       enabled: open,
@@ -170,8 +171,8 @@ export const EditMedicationDispenseModal = memo(
     };
 
     // Functional setters so a quick preset-then-type doesn't lose the typing.
-    const handlePresetLabelChange = ({ target: { value: presetId } }) => {
-      const nextLabelText = resolvePresetLabelText(presetId, presetLabelsList, defaultLabelText);
+    const handlePresetLabelChange = ({ target: { value: presetId, presetName } }) => {
+      const nextLabelText = resolvePresetLabelText(presetId, presetName, defaultLabelText);
       setItem(prev => ({
         ...prev,
         medicationPresetLabelId: presetId || null,
@@ -248,7 +249,8 @@ export const EditMedicationDispenseModal = memo(
 
       if (onConfirm) onConfirm();
 
-      print();
+      // Awaited because onClose() unmounts the frame being printed.
+      await labelPrintRef.current.print();
 
       // Close dispense modal
       onClose();
@@ -522,7 +524,7 @@ export const EditMedicationDispenseModal = memo(
         )}
 
         {step === MODAL_STEPS.REVIEW && labelForPrint && (
-          <MedicationLabelPrintPreview labels={[labelForPrint]} />
+          <MedicationLabelPrintPreview ref={labelPrintRef} labels={[labelForPrint]} />
         )}
       </StyledModal>
     );

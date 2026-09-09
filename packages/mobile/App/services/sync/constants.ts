@@ -1,5 +1,3 @@
-export const QUERY_BATCH_SIZE = 10000;
-
 export const SYNC_SESSION_DIRECTION = {
   INCOMING: 'incoming',
   OUTGOING: 'outgoing',

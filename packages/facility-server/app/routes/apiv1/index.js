@@ -3,6 +3,8 @@ import express from 'express';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+import { createRequestIdempotencyMiddleware } from '@tamanu/database/utils/requestIdempotency';
+import { IDEMPOTENCY_EXCLUDED_PATHS } from './idempotencyPolicy';
 import { suggestions } from '@tamanu/shared/services/suggestions';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
@@ -168,6 +170,17 @@ export function createApiv1({ authLimiter } = {}) {
   apiv1.use(constructPermission);
 
   apiv1.use(attachAuditUserToDbSession);
+
+  // Idempotency for mutating requests that carry an `Idempotency-Key` header, so a
+  // client can durably retry after a dropped connection without duplicating
+  // records. Everything registered from here down is covered; the exclusions and
+  // the reason for each live in ./idempotencyPolicy, which the policy test holds
+  // to the routes actually registered (see specs/platform/request-idempotency.md).
+  apiv1.use(
+    createRequestIdempotencyMiddleware({
+      excludePaths: IDEMPOTENCY_EXCLUDED_PATHS,
+    }),
+  );
 
   apiv1.delete(
     '/admin/settings/cache',

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { addDays } from 'date-fns';
@@ -7,10 +8,10 @@ import { createTestContext } from '../utilities';
 import { GenerateRepeatingTasks } from '../../app/tasks/GenerateRepeatingTasks';
 
 // Mock config for the task
-jest.mock('config', () => ({
-  ...jest.requireActual('config'),
-  schedules: {
-    ...jest.requireActual('config').schedules,
+vi.mock('config', async () => {
+  const actual = await vi.importActual('config');
+  const schedules = {
+    ...actual.default.schedules,
     generateRepeatingTasks: {
       schedule: '0 1 * * *',
       batchSize: 2,
@@ -18,12 +19,13 @@ jest.mock('config', () => ({
       enabled: true,
       jitterTime: 0,
     },
-  },
-}));
+  };
+  return { ...actual, schedules, default: { ...actual.default, schedules } };
+});
 
 // Mock sleepAsync to speed up tests
-jest.mock('@tamanu/utils/sleepAsync', () => ({
-  sleepAsync: jest.fn().mockResolvedValue(undefined),
+vi.mock('@tamanu/utils/sleepAsync', () => ({
+  sleepAsync: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('GenerateRepeatingTasks', () => {
@@ -63,8 +65,8 @@ describe('GenerateRepeatingTasks', () => {
     await models.Task.destroy({ where: {}, force: true });
 
     // Reset mocks
-    jest.clearAllMocks();
-    jest.spyOn(models.Task, 'generateRepeatingTasks').mockImplementation(async () => {});
+    vi.clearAllMocks();
+    vi.spyOn(models.Task, 'generateRepeatingTasks').mockImplementation(async () => {});
 
     task = new GenerateRepeatingTasks(ctx);
   });

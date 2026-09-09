@@ -98,8 +98,15 @@ export const facilitySettings = {
         mSupplyMed: {
           description: 'mSupplyMed settings',
           properties: {
-            enabled: {
-              description: 'Enable the mSupplyMed integration',
+            medDispenseEnabled: {
+              description:
+                'Enable pushing dispensed medications to mSupply (mSupplyMedIntegrationProcessor)',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            stockOnHandEnabled: {
+              description:
+                'Whether mSupply is the source of truth for stock on hand at this facility. When enabled, MSupplyStockOnHandProcessor pulls stock levels from mSupply, and the reference data importer will not overwrite drug stock levels for this facility.',
               type: yup.boolean(),
               defaultValue: false,
             },
@@ -214,6 +221,22 @@ export const facilitySettings = {
           batchingProperties(100, 50),
         ),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *', enabled: false }),
+        // Enabled even where the FHIR worker is not: a facility that once ran one
+        // has rows to prune, and where none ever ran there is nothing to match.
+        fhirJobWorkerCleaner: scheduledTaskSchema({ schedule: '37 2 * * *' }),
+        fhirErroredJobCleaner: scheduledTaskSchema(
+          { schedule: '52 2 * * *' },
+          {
+            retentionDays: {
+              name: 'Retention',
+              description: 'Delete FHIR jobs that errored longer ago than this',
+              type: yup.number().integer().positive(),
+              defaultValue: 7,
+              unit: 'days',
+            },
+            ...batchingProperties(1000, 100),
+          },
+        ),
         sendStatusToMetaServer: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
         timeSync: scheduledTaskSchema({ schedule: '0 * * * *', enabled: false }),
         mSupplyMedIntegrationProcessor: scheduledTaskSchema(
@@ -224,6 +247,7 @@ export const facilitySettings = {
           schedule: '0 * * * *',
           enabled: false,
         }),
+        cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
       },
     },
     sync: {
@@ -250,9 +274,23 @@ export const facilitySettings = {
       properties: {
         upcomingTasksTimeFrame: {
           description: 'How far ahead to include upcoming (not-yet-due) tasks in task lists',
-          type: yup.number().positive(),
+          type: yup.number().integer().positive(),
           unit: 'hours',
           defaultValue: 8,
+        },
+        dashboardOverdueTasksTimeFrame: {
+          description:
+            'How far back to include overdue tasks on the dashboard task list. Tasks overdue by longer than this stop appearing there. Unset means no limit',
+          type: yup.number().integer().positive().nullable(),
+          unit: 'hours',
+          defaultValue: null,
+        },
+        encounterOverdueTasksTimeFrame: {
+          description:
+            "How far back to include overdue tasks on an encounter's task list. Tasks overdue by longer than this stop appearing there. Unset means no limit",
+          type: yup.number().integer().positive().nullable(),
+          unit: 'hours',
+          defaultValue: null,
         },
       },
     },
@@ -284,6 +322,13 @@ export const facilitySettings = {
                   label: 'Inpatient',
                 },
               ],
+            },
+            preselectSendToPharmacyOnDischarge: {
+              name: 'Preselect send to pharmacy when preparing discharge',
+              description:
+                'Preselect the "Send to pharmacy" checkbox for encounter medications in the discharge modal.',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },

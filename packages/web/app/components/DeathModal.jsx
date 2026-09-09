@@ -1,18 +1,17 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { reloadPatient } from '../store/patient';
+import { usePatient } from '../contexts/Patient';
 import { FormModal } from './FormModal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { invalidatePatientDataQueries } from '../utils';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
-  const dispatch = useDispatch();
   const { navigateToPatient } = usePatientNavigation();
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
   const queryClient = useQueryClient();
   const diagnosisSuggester = useSuggester('diagnosis');
   const practitionerSuggester = useSuggester('practitioner');
@@ -21,12 +20,16 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const recordPatientDeath = async (data) => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/death`, data);
-    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
+    // Recording death auto-discharges the active encounter, so refresh the current-encounter query
+    // (and the rest of the patient data) alongside the death summary, not just patientDetails.
+    await invalidatePatientDataQueries(queryClient, patientId);
+    queryClient.invalidateQueries(['patientDeathSummary', patientId]);
 
     onClose();
-    await dispatch(reloadPatient(patientId));
     navigateToPatient(patientId);
   };
+
+  if (!patient) return null;
 
   return (
     <FormModal

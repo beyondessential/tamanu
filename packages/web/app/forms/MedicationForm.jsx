@@ -8,7 +8,6 @@ import { capitalize } from 'es-toolkit/compat';
 import { useFormikContext } from 'formik';
 import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -17,13 +16,17 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MAX_REPEATS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
+  PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
+  getDefaultIdealTimes,
   getDrugUnitLabel,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
@@ -52,7 +55,13 @@ import {
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import useDispensingUnit from '../api/queries/useDispensingUnit';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { BodyText, CheckField, CheckInput, SmallBodyText } from '../components';
+import {
+  BodyText,
+  CheckField,
+  CheckInput,
+  SmallBodyText,
+  TranslatedRadioField,
+} from '../components';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { FrequencySearchField } from '../components/Medication/FrequencySearchInput';
 import { DispensingQuantityAutocalculator } from '../components/Medication/DispensingQuantityAutocalculator';
@@ -62,13 +71,19 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
+import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
 import {
   preventInvalidNumber,
   preventInvalidRepeatsInput,
   validateDecimalPlaces,
 } from '../utils/utils';
-import { foreignKey } from '../utils/validation';
+import { dispensingQuantitySchema, foreignKey } from '../utils/validation';
+
+const requiredInlineMessage = (
+  <TranslatedText stringId="validation.required.inline" fallback="*Required" />
+);
 
 const validationSchema = yup.object().shape({
   // medicationId, doseAmount, frequency, route, durationValue, durationUnit
@@ -85,9 +100,21 @@ const validationSchema = yup.object().shape({
   prescriberId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
-  quantity: yup.number().integer(),
+  sendToPharmacy: yup.boolean().optional(),
+  prescriptionType: yup.string().oneOf(Object.values(PHARMACY_PRESCRIPTION_TYPES)).optional(),
+  // Only mandatory when the prescription is being sent to pharmacy; shared with the discharge
+  // form's medication tables so the two read the same.
+  quantity: dispensingQuantitySchema(requiredInlineMessage),
   patientWeight: yup.number().positive(),
 });
+
+const PRESCRIPTION_TYPE_DISPLAY_ORDER = [
+  PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+  PHARMACY_PRESCRIPTION_TYPES.INPATIENT,
+];
+
+const orderPrescriptionTypeOptions = options =>
+  PRESCRIPTION_TYPE_DISPLAY_ORDER.map(type => options.find(option => option.value === type));
 
 const StyledPatientAllergiesWarning = styled(PatientAllergiesWarning)`
   margin-block-end: 1em;
@@ -319,14 +346,14 @@ function PlainTimeRangeDisplay({ start, end }) {
 }
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
-  const { getSetting } = useSettings();
   const { formatShort } = useDateTime();
-  const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
   const selectedTimeSlots = values.timeSlots;
 
-  const { defaultTimeSlots } = useMedicationIdealTimes({ frequency: values.frequency });
+  const { defaultIdealTimes, defaultTimeSlots } = useMedicationIdealTimes({
+    frequency: values.frequency,
+  });
 
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
@@ -393,16 +420,15 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   };
 
   const getDefaultIdealTimeFromTimeSlot = (slot, index) => {
-    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
     const correspondingSlot = defaultIdealTimes
-      ?.map(findAdministrationTimeSlotFromIdealTime)
+      .map(findAdministrationTimeSlotFromIdealTime)
       .find(it => it.index === index);
     return correspondingSlot?.value || slot.startTime;
   };
 
   return (
     <StyledAccordion
-      defaultExpanded={!isOneTimeFrequency(values.frequency)}
+      defaultExpanded={false}
       data-testid="medication-accordion-medicationAdministration-5m2w"
     >
       <StyledAccordionSummary>
@@ -442,9 +468,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const selectedTimeSlot = selectedTimeSlots?.find(s => s.index === index);
             const checked = !!selectedTimeSlot;
             const isDisabled =
-              (!checked &&
-                frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                  selectedTimeSlots?.length) ||
+              (!checked && defaultIdealTimes.length === selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -486,9 +510,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         <TranslatedText
                           stringId="medication.medicationAdministrationSchedule.disabledTooltip"
                           fallback="Only :slots administration times can be selected based on the frequency. Please deselect a time in order to select another."
-                          replacements={{
-                            slots: frequenciesAdministrationIdealTimes?.[values.frequency]?.length,
-                          }}
+                          replacements={{ slots: defaultIdealTimes.length }}
                         />
                       )
                     }
@@ -594,7 +616,7 @@ export const MedicationForm = ({
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const queryClient = useQueryClient();
-  const { loadEncounter } = useEncounter();
+  const { encounter, loadEncounter } = useEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
@@ -608,10 +630,21 @@ export const MedicationForm = ({
     enabled: isEditing,
   });
 
-  const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
+  const { patient } = usePatient();
+  const age = getAgeDurationFromDate(patient?.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
+
+  // Ongoing medications and medication sets are prescribed outside an encounter, and are sent to
+  // pharmacy through their own flows.
+  const canSendToPharmacy =
+    Boolean(encounterId) &&
+    getSetting('features.pharmacyOrder.enabled') &&
+    ability.can('create', 'MedicationRequest');
+  const defaultPrescriptionType = getDefaultPrescriptionType(
+    getSetting('medications.pharmacyOrder.defaultPrescriptionType'),
+    encounter?.encounterType,
+  );
 
   const [submittedMedication, setSubmittedMedication] = useState(null);
   const [printModalOpen, setPrintModalOpen] = useState();
@@ -644,14 +677,28 @@ export const MedicationForm = ({
     })();
   }, [awaitingPrint, submittedMedication]);
 
+  if (!patient) return null;
+
   const onSubmit = async data => {
-    const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
-    if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
+    const defaultIdealTimes = getDefaultIdealTimes(
+      data.frequency,
+      frequenciesAdministrationIdealTimes,
+    );
+    const hasFixedTimes = FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(data.frequency);
+    // The schedule accordion is what populates `timeSlots`, so for the frequencies where it isn't
+    // rendered the field is empty (or stale from a frequency chosen earlier) and the fixed times
+    // are the only source. It's also unpopulated until a frequency has been chosen at all.
+    const timeSlots = data.timeSlots ?? [];
+    if (
+      !isOneTimeFrequency(data.frequency) &&
+      !hasFixedTimes &&
+      timeSlots.length < defaultIdealTimes.length
+    ) {
       setIdealTimesErrorOpen(true);
       return Promise.reject();
     }
 
-    const idealTimes = data.timeSlots.map(slot => slot.value);
+    const idealTimes = hasFixedTimes ? defaultIdealTimes : timeSlots.map(slot => slot.value);
     const payload = {
       ...data,
       doseAmount: data.doseAmount || undefined,
@@ -710,6 +757,7 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTime(),
       isOngoing: isOngoingPrescription,
+      sendToPharmacy: false,
       repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
       ...editingMedication,
@@ -1075,24 +1123,87 @@ export const MedicationForm = ({
                 component={TooltipTextField}
                 data-testid="medication-field-notes-5b3t"
               />
-              <Hr />
-              {values.frequency ? (
-                <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
-              ) : (
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <FieldLabel>
-                    <TranslatedText
-                      stringId="medication.medicationAdministrationSchedule.label"
-                      fallback="Medication administration schedule"
-                    />
-                  </FieldLabel>
-                  <FieldContent>
-                    <TranslatedText
-                      stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
-                      fallback="Select a frequency above to complete the medication administration schedule"
-                    />
-                  </FieldContent>
-                </div>
+              {!FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(values.frequency) && (
+                <>
+                  <Hr />
+                  {values.frequency ? (
+                    <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
+                  ) : (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <FieldLabel>
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.label"
+                          fallback="Medication administration schedule"
+                        />
+                      </FieldLabel>
+                      <FieldContent>
+                        <TranslatedText
+                          stringId="medication.medicationAdministrationSchedule.noFrequencySelected"
+                          fallback="Select a frequency above to complete the medication administration schedule"
+                        />
+                      </FieldContent>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {canSendToPharmacy && (
+                <>
+                  <Hr />
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <FieldLabel>
+                      <TranslatedText
+                        stringId="medication.sendToPharmacy.label"
+                        fallback="Send to pharmacy"
+                      />
+                    </FieldLabel>
+                    <FieldContent>
+                      <TranslatedText
+                        stringId="medication.sendToPharmacy.description"
+                        fallback="Selecting this will send the order to pharmacy to be dispensed to the patient"
+                      />
+                    </FieldContent>
+                  </div>
+                  <Field
+                    name="sendToPharmacy"
+                    label={
+                      <BodyText>
+                        <TranslatedText
+                          stringId="medication.sendToPharmacy.label"
+                          fallback="Send to pharmacy"
+                        />
+                      </BodyText>
+                    }
+                    component={StyledCheckField}
+                    onChange={(_, isChecked) =>
+                      setFieldValue(
+                        'prescriptionType',
+                        isChecked ? defaultPrescriptionType : undefined,
+                      )
+                    }
+                    $isChecked={values.sendToPharmacy}
+                    data-testid="medication-field-sendToPharmacy-6r4d"
+                  />
+                  {values.sendToPharmacy && (
+                    <FullWidthFieldWrapper>
+                      <Field
+                        name="prescriptionType"
+                        label={
+                          <TranslatedText
+                            stringId="medication.prescriptionType.label"
+                            fallback="Prescription type"
+                          />
+                        }
+                        component={TranslatedRadioField}
+                        enumValues={PHARMACY_PRESCRIPTION_TYPE_LABELS}
+                        transformOptions={orderPrescriptionTypeOptions}
+                        fullWidth
+                        required
+                        data-testid="medication-field-prescriptionType-2m9k"
+                      />
+                    </FullWidthFieldWrapper>
+                  )}
+                </>
               )}
 
               <Hr />
@@ -1104,7 +1215,8 @@ export const MedicationForm = ({
                     fallback="Dispensing quantity"
                   />
                 }
-                min={0}
+                min={values.sendToPharmacy ? 1 : 0}
+                required={values.sendToPharmacy}
                 component={NumberField}
                 onInput={preventInvalidNumber}
                 unit={

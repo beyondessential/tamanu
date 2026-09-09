@@ -261,6 +261,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
       title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
+      width: '160px',
       accessor: (row, i) => (
         <AccessorField
           id={row.id}

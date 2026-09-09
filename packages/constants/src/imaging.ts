@@ -38,6 +38,7 @@ export const IMAGING_TYPES = {
   ULTRASOUND: 'ultrasound',
   VASCULAR_STUDY: 'vascularStudy',
   X_RAY: 'xRay',
+  X_RAY_PORTABLE: 'xRayPortable',
 };
 
 export const IMAGING_TYPES_VALUES = Object.values(IMAGING_TYPES);

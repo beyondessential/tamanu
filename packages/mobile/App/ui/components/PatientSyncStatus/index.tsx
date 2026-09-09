@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
-import { useBackendEffect } from '../../hooks';
-import { readConfig } from '~/services/config';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { SyncStatusModal } from './SyncStatusModal';
 import { SyncStatusIcon } from './SyncStatusIcon';
-import { IPatient } from '~/types';
-import { useRefreshCount } from '~/ui/hooks/useRefreshCount';
+import type { IPatient } from '~/types';
 
 interface PatientSyncStatusProps {
   selectedPatient: IPatient;
@@ -14,29 +14,22 @@ interface PatientSyncStatusProps {
 
 export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
-  const [refreshCount, updateRefreshCount] = useRefreshCount();
-  const [patientFacility, , isLoading] = useBackendEffect(
-    async ({ models: m }) =>
-      m.PatientFacility.findOne({
-        where: {
-          patient: { id: selectedPatient.id },
-          facility: { id: await readConfig('facilityId', '') },
-        },
-      }),
-    [refreshCount],
+  const queryClient = useQueryClient();
+  const { data: isMarkedForSync, isPending: isLoading } = usePatientIsMarkedForSyncQuery(
+    selectedPatient.id,
   );
 
   if (isLoading) {
     return <StyledView flex={1} />;
   }
 
-  const isMarkedForSync = Boolean(patientFacility);
-
   return (
     <>
       <SyncStatusModal
         open={isOpen}
-        onSyncPatient={updateRefreshCount}
+        onSyncPatient={() =>
+          queryClient.invalidateQueries({ queryKey: patientKeys.syncStatus(selectedPatient.id) })
+        }
         onClose={() => setIsOpen(false)}
         selectedPatient={selectedPatient}
         isMarkedForSync={isMarkedForSync}

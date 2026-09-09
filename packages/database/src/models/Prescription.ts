@@ -1,4 +1,5 @@
 import { DataTypes, Op } from 'sequelize';
+import { keyBy } from 'es-toolkit/compat';
 import {
   type DrugUnit,
   NOTIFICATION_TYPES,
@@ -8,6 +9,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  VISIBILITY_STATUSES,
   type DrugUnit,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -16,6 +18,13 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
 import { isInpatientFeeBundled } from '../utils/isInpatientFeeBundled';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+
+export interface LatestModifiedDispense {
+  id: string;
+  pharmacyNotes: string | null;
+  displayPharmacyNotesInMar: boolean;
+  modifiedAt: string;
+}
 
 // Earliest time the encounter was an admission, from its history: the initial snapshot if it was
 // created as an admission, or the admit-in-place transition otherwise. Null if never an admission.
@@ -112,7 +121,7 @@ export class Prescription extends Model {
         displayPharmacyNotesInMar: DataTypes.BOOLEAN,
         quantity: DataTypes.INTEGER,
         discontinued: DataTypes.BOOLEAN,
-        discontinuedDate: DataTypes.STRING,
+        discontinuedDate: dateTimeType('discontinuedDate'),
         discontinuingReason: DataTypes.STRING,
         repeats: DataTypes.INTEGER,
       },
@@ -202,6 +211,35 @@ export class Prescription extends Model {
     return ['medication', 'prescriber', 'discontinuingClinician'];
   }
 
+  static async getLatestModifiedDispensesByPrescriptionId(
+    prescriptionIds: string[],
+  ): Promise<Record<string, LatestModifiedDispense>> {
+    if (!prescriptionIds.length) return {};
+
+    const [rows] = await this.sequelize!.query(
+      `
+      SELECT DISTINCT ON (pop.prescription_id)
+        pop.prescription_id,
+        md.id,
+        md.pharmacy_notes AS "pharmacyNotes",
+        md.display_pharmacy_notes_in_mar AS "displayPharmacyNotesInMar",
+        md.modified_at AS "modifiedAt"
+      FROM medication_dispenses md
+      INNER JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id
+      WHERE pop.prescription_id IN (:prescriptionIds)
+        AND md.modified_at IS NOT NULL
+        AND md.deleted_at IS NULL
+        AND pop.deleted_at IS NULL
+      ORDER BY pop.prescription_id, md.dispensed_at DESC
+      `,
+      { replacements: { prescriptionIds } },
+    );
+    return keyBy(
+      rows as (LatestModifiedDispense & { prescription_id: string })[],
+      'prescription_id',
+    );
+  }
+
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
       return null;
@@ -262,6 +300,7 @@ export class Prescription extends Model {
       where: {
         category: INVOICE_ITEMS_CATEGORIES.DRUG,
         sourceRecordId: prescription.medicationId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
 

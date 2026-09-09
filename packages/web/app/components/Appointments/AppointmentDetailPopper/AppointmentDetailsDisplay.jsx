@@ -2,7 +2,6 @@ import HighPriorityIcon from '@mui/icons-material/PriorityHigh';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
@@ -12,7 +11,6 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
 import { LimitedLinesCell } from '../../FormattedTableCell';
 import { useTranslation } from '../../../contexts/Translation';
-import { reloadPatient } from '../../../store';
 import { useEncounter } from '../../../contexts/Encounter';
 
 const AppointmentDetailsContainer = styled('div')`
@@ -59,7 +57,6 @@ const LinkedEncounter = ({ encounter, isOvernight }) => {
   const { formatShort } = useDateTime();
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
 
   const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
@@ -81,10 +78,7 @@ const LinkedEncounter = ({ encounter, isOvernight }) => {
 
   const handleClick = async (e) => {
     e.preventDefault();
-    await Promise.all([
-      dispatch(reloadPatient(encounter.patientId)),
-      loadEncounter(encounter.id),
-    ]);
+    await loadEncounter(encounter.id);
     navigate((encounterPath));
   };
 

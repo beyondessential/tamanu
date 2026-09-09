@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useApi } from '../../api';
+import { usePatient } from '../../contexts/Patient';
 import { Suggester } from '../../utils/suggester';
 import { PANE_SECTION_IDS } from './paneSections';
 
@@ -35,29 +35,29 @@ const getSuggesters = (id, items) => {
 export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, items }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const patient = useSelector((state) => state.patient);
-  
+  const { patient } = usePatient();
+
   const onSubmit = useCallback(
     async (data) => {
       if (data.id) {
         // don't need to include patientId as the existing record will already have it
         await api.put(`${endpoint}/${data.id}`, data);
       } else {
-        await api.post(endpoint, { ...data, patientId: patient.id });
+        await api.post(endpoint, { ...data, patientId: patient?.id });
       }
 
-      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient.id]);
+      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
       onClose();
     },
-    [api, endpoint, onClose, patient.id, id, queryClient],
+    [api, endpoint, onClose, patient?.id, id, queryClient],
   );
 
   const onDelete = useCallback(
     async () => {
-      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient.id]);
+      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
       onClose();
     },
-    [queryClient, id, patient.id, onClose],
+    [queryClient, id, patient?.id, onClose],
   );
 
   const suggesters = useMemo(

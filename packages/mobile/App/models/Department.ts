@@ -1,5 +1,5 @@
 import { Column, OneToMany, RelationId, Entity, ManyToOne } from 'typeorm';
-import { IDepartment } from '../types';
+import type { IDepartment } from '../types';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { AdministeredVaccine } from './AdministeredVaccine';
@@ -25,6 +25,6 @@ export class Department extends BaseModel implements IDepartment {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.department)
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.department)
   administeredVaccines: AdministeredVaccine[];
 }

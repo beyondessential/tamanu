@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useFormikContext } from 'formik';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 
 import { StyledView } from '/styled/common';
 import { Field } from './Forms/FormField';

@@ -7,6 +7,7 @@ export function getQueryToFindUpstreamIds(models: Models, table: string, id: str
     Prescription,
     ReferenceData,
     Encounter,
+    EncounterDiagnosis,
     Facility,
     Location,
     Patient,
@@ -87,6 +88,31 @@ export function getQueryToFindUpstreamIds(models: Models, table: string, id: str
                 as: 'encounter',
                 required: true,
                 where: { id },
+              },
+            ],
+          },
+        ],
+      };
+    case EncounterDiagnosis.tableName:
+      return {
+        include: [
+          {
+            model: PharmacyOrder,
+            as: 'pharmacyOrder',
+            required: true,
+            include: [
+              {
+                model: Encounter,
+                as: 'encounter',
+                required: true,
+                include: [
+                  {
+                    model: EncounterDiagnosis,
+                    as: 'diagnoses',
+                    required: true,
+                    where: { id },
+                  },
+                ],
               },
             ],
           },

@@ -48,7 +48,6 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
     departmentId: department.id,
     locationId: location.id,
     userId: user.id,
-    referenceDataId: referenceData.id,
   });
 
   await Promise.all([
@@ -57,7 +56,6 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       departmentId: department.id,
       userId: user.id,
       encounterId: encounter.id,
-      referenceDataId: referenceData.id,
       patientId: patient.id,
       labTestTypeId: labTestType.id,
     }),
@@ -78,7 +76,6 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       models,
       encounterId: encounter.id,
       userId: user.id,
-      referenceDataId: referenceData.id,
       productId: invoiceProduct.id,
     }),
     createImagingRequest({
@@ -97,7 +94,6 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       models,
       encounterId: encounter.id,
       userId: user.id,
-      referenceDataId: referenceData.id,
     }),
     createPatientCommunication({ models, patientId: patient.id }),
     createMedication({

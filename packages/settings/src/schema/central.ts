@@ -241,6 +241,13 @@ export const centralSettings = {
       description: 'Settings related to sync',
       highRisk: true,
       properties: {
+        maxFlaggedPatientsPerBuild: {
+          name: 'Max flagged patients per lookup build',
+          description:
+            'How many patients flagged by a merge one sync lookup build re-derives. The rest stay flagged for the next build, so a deploy onto a long merge history heals over several builds rather than one long one.',
+          type: yup.number().integer().min(1),
+          defaultValue: 1000,
+        },
         streaming: {
           properties: {
             enabled: {
@@ -885,6 +892,20 @@ export const centralSettings = {
           enabled: false,
         }),
         fhirMissingResources: scheduledTaskSchema({ schedule: '48 1 * * *' }),
+        fhirJobWorkerCleaner: scheduledTaskSchema({ schedule: '37 2 * * *' }),
+        fhirErroredJobCleaner: scheduledTaskSchema(
+          { schedule: '52 2 * * *' },
+          {
+            retentionDays: {
+              name: 'Retention',
+              description: 'Delete FHIR jobs that errored longer ago than this',
+              type: yup.number().integer().positive(),
+              defaultValue: 7,
+              unit: 'days',
+            },
+            ...batchingProperties(1000, 100),
+          },
+        ),
         plannedMoveTimeout: scheduledTaskSchema(
           { schedule: '0 * * * *' },
           {

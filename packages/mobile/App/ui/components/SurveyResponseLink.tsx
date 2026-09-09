@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';

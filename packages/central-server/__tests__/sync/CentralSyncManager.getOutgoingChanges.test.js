@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -23,7 +24,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
   });
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
@@ -46,7 +47,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
 
   it('returns all the outgoing changes', async () => {
     const facility = await models.Facility.create(fake(models.Facility));
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
@@ -69,7 +70,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     const facility1 = await models.Facility.create(fake(models.Facility));
     const facility2 = await models.Facility.create(fake(models.Facility));
     const facility3 = await models.Facility.create(fake(models.Facility));
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
@@ -158,7 +159,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     patientProgramRegistration.date = '2025-04-22';
     await patientProgramRegistration.save();
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -230,7 +231,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     patientProgramRegistration.date = '2025-04-22';
     await patientProgramRegistration.save();
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -340,7 +341,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     patientProgramRegistration.date = '2025-04-22 00:00:00';
     await patientProgramRegistration.save();
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -427,7 +428,7 @@ describe('CentralSyncManager.getOutgoingChanges', () => {
     patientProgramRegistration.date = '2025-04-22 00:00:00';
     await patientProgramRegistration.save();
 
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,

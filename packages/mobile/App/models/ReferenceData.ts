@@ -1,6 +1,6 @@
-import { Column, Entity, ManyToOne, OneToMany, Like, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IReferenceData, ReferenceDataType, ReferenceDataRelationType } from '~/types';
+import { type IReferenceData, type ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
@@ -22,24 +22,13 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  @OneToMany(() => RefDataRelation, (entity) => entity.referenceDataParent)
+  @OneToMany(() => RefDataRelation, entity => entity.referenceDataParent)
   public children: RefDataRelation[];
-  @OneToMany(() => RefDataRelation, (entity) => entity.referenceData)
+  @OneToMany(() => RefDataRelation, entity => entity.referenceData)
   public parents: RefDataRelation[];
 
-  @OneToOne(() => ReferenceDrug, (referenceDrug) => referenceDrug.referenceData) // Inverse side
+  @OneToOne(() => ReferenceDrug, referenceDrug => referenceDrug.referenceData) // Inverse side
   referenceDrug?: ReferenceDrug;
-
-  static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
-    const repo = this.getRepository();
-
-    return repo.findOne({
-      where: {
-        type: referenceDataType,
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    });
-  }
 
   // ----------------------------------
   // Reference data hierarchy utilities
@@ -67,10 +56,10 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     },
     relationType = ReferenceDataRelationType.AddressHierarchy,
   ) {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     let recordWithParents = await repo.findOne({
-      where: (qb) => {
+      where: qb => {
         qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
           .where('parents_type = :relationType', {
             relationType,
@@ -85,7 +74,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       // the other option would be to write the query in raw sql but then it wouldn't be possible
       // to use an object for the where parameter
       recordWithParents = await repo.findOne({
-        where: (qb) => {
+        where: qb => {
           qb.leftJoinAndSelect('ReferenceData.parents', 'parents')
             .where({ visibilityStatus: VisibilityStatus.Current })
             .andWhere(where);
@@ -105,28 +94,10 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     }
     return ReferenceData.getParentRecursive(parentId, [], relationType);
   }
-  static async searchDataByType(
-    referenceDataType: ReferenceDataType,
-    searchTerm: string,
-    limit = 10,
-  ): Promise<ReferenceData[]> {
-    const repo = this.getRepository();
-
-    return repo.find({
-      where: {
-        name: Like(`%${searchTerm}%`),
-        type: referenceDataType,
-        visibilityStatus: VisibilityStatus.Current,
-      },
-      skip: 0,
-      take: limit,
-    });
-  }
-
   static async getSelectOptionsForType(
     referenceDataType: ReferenceDataType,
   ): Promise<{ label: string; value: string }[]> {
-    const repo = this.getRepository();
+    const repo = ReferenceData.getRepository();
 
     const results = await repo.find({
       where: {
@@ -135,7 +106,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       },
     });
 
-    return results.map((r) => ({ label: r.name, value: r.id }));
+    return results.map(r => ({ label: r.name, value: r.id }));
   }
 }
 

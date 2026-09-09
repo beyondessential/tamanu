@@ -34,6 +34,20 @@ function normalizeStoredVersion(stored: string | null | undefined): string | nul
   return semver.valid(stored);
 }
 
+const UNDEFINED_TABLE = '42P01';
+
+// checkOnly callers run before migrations, so on a fresh install local_system_facts does not
+// exist yet. That is an unversioned database, not an incompatible one.
+async function readStoredVersion(models: Models, tolerateMissingTable: boolean) {
+  try {
+    return await models.LocalSystemFact.get(FACT_CURRENT_VERSION);
+  } catch (err) {
+    const code = (err as { parent?: { code?: string } })?.parent?.code;
+    if (tolerateMissingTable && code === UNDEFINED_TABLE) return null;
+    throw err;
+  }
+}
+
 function resolveServerVersion(serverVersion?: string): string {
   const globalServerInfo = (
     globalThis as typeof globalThis & {
@@ -86,7 +100,7 @@ export async function syncDatabaseServerVersion({
 
   const resolvedServerVersion = resolveServerVersion(serverVersion);
   const { LocalSystemFact } = models;
-  const stored = normalizeStoredVersion(await LocalSystemFact.get(FACT_CURRENT_VERSION));
+  const stored = normalizeStoredVersion(await readStoredVersion(models, checkOnly));
 
   if (!stored) {
     if (!checkOnly) {

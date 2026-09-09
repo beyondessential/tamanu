@@ -1,7 +1,7 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 
 import { compose } from 'redux';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
 import { getGender, joinNames } from '~/ui/helpers/user';
@@ -25,7 +25,9 @@ import { Button } from '~/ui/components/Button';
 import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { settingKeys } from '~/ui/hooks/queries/queryKeys';
 import { SETTING_KEYS } from '~/constants';
 import { useSettings } from '/contexts/SettingsContext';
 
@@ -33,13 +35,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
 
-  const [isReminderContactEnabled] = useBackendEffect(async ({ models }) => {
-    return await models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
-  }, []);
-
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+  const { data: isReminderContactEnabled } = useQuery({
+    queryKey: settingKeys.byKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
+    queryFn: () => Database.models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
+  });
 
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
@@ -62,7 +61,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
           paddingLeft={15}
           paddingBottom={20}
         >
-          <StyledTouchableOpacity onPress={onNavigateBack}>
+          <StyledTouchableOpacity onPress={navigation.goBack}>
             <ArrowLeftIcon size={screenPercentageToDP(3, Orientation.Height)} />
           </StyledTouchableOpacity>
           <StyledView marginLeft={15}>

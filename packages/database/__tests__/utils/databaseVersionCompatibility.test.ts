@@ -128,6 +128,40 @@ describe('syncDatabaseServerVersion', () => {
     expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
   });
 
+  it('tolerates a missing local_system_facts table in checkOnly mode', async () => {
+    models.LocalSystemFact.get = vi.fn(async () => {
+      throw Object.assign(new Error('relation "local_system_facts" does not exist'), {
+        parent: { code: '42P01' },
+      });
+    });
+
+    await syncDatabaseServerVersion({ models, serverVersion: '2.44.0', checkOnly: true });
+
+    expect(models.LocalSystemFact.set).not.toHaveBeenCalled();
+  });
+
+  it('rethrows a missing local_system_facts table outside checkOnly mode', async () => {
+    models.LocalSystemFact.get = vi.fn(async () => {
+      throw Object.assign(new Error('relation "local_system_facts" does not exist'), {
+        parent: { code: '42P01' },
+      });
+    });
+
+    await expect(syncDatabaseServerVersion({ models, serverVersion: '2.44.0' })).rejects.toThrow(
+      'relation "local_system_facts" does not exist',
+    );
+  });
+
+  it('rethrows other database errors in checkOnly mode', async () => {
+    models.LocalSystemFact.get = vi.fn(async () => {
+      throw Object.assign(new Error('permission denied'), { parent: { code: '42501' } });
+    });
+
+    await expect(
+      syncDatabaseServerVersion({ models, serverVersion: '2.44.0', checkOnly: true }),
+    ).rejects.toThrow('permission denied');
+  });
+
   it('does not write in checkOnly mode when the stored version is older', async () => {
     storedValue = '2.43.0';
 

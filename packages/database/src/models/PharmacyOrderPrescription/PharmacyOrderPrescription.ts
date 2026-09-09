@@ -5,11 +5,7 @@ import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 import type { MedicationDispense } from '../MedicationDispense';
 import type { PharmacyOrder } from '../PharmacyOrder';
-import {
-  buildEncounterPatientIdSelect,
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../../sync';
+import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../../sync';
 import {
   afterCreateHook,
   afterUpdateHook,
@@ -120,9 +116,6 @@ export class PharmacyOrderPrescription extends Model {
   }
 
   static async buildSyncLookupQueryDetails() {
-    return {
-      select: await buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'pharmacy_orders', 'encounters']),
-    };
+    return buildEncounterLinkedLookupFilter(this, ['pharmacy_orders', 'encounters']);
   }
 }

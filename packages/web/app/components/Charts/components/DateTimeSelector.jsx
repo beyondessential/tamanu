@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'es-toolkit/compat';
-import { addDays, parseISO, startOfDay } from 'date-fns';
+import { addDays, parseISO, startOfDay, subYears } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   useDateTime,
   SelectInput as SelectInputComponent,
   DateInput as DateInputComponent,
+  TranslatedText,
 } from '@tamanu/ui-components';
 
 import { Y_AXIS_WIDTH } from '../constants';
@@ -29,28 +30,49 @@ const DateInput = styled(DateInputComponent)`
 const CUSTOM_DATE = 'Custom Date';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
+// Ordered from smallest to largest range, with custom date last
 const OPTIONS = [
   {
     value: 'Last 24 hours',
-    label: 'Last 24 hours',
+    label: <TranslatedText stringId="chart.dateRange.option.last24Hours" fallback="Last 24 hours" />,
     getDefaultStartDate: getNow => addDays(getNow(), -1),
   },
   {
     value: 'Last 48 hours',
-    label: 'Last 48 hours',
+    label: <TranslatedText stringId="chart.dateRange.option.last48Hours" fallback="Last 48 hours" />,
     getDefaultStartDate: getNow => addDays(getNow(), -2),
   },
   {
+    value: 'Last 7 days',
+    label: <TranslatedText stringId="chart.dateRange.option.last7Days" fallback="Last 7 days" />,
+    getDefaultStartDate: getNow => addDays(getNow(), -7),
+  },
+  {
+    value: 'Last 30 days',
+    label: <TranslatedText stringId="chart.dateRange.option.last30Days" fallback="Last 30 days" />,
+    getDefaultStartDate: getNow => addDays(getNow(), -30),
+  },
+  {
+    value: 'Last year',
+    label: <TranslatedText stringId="chart.dateRange.option.lastYear" fallback="Last year" />,
+    getDefaultStartDate: getNow => subYears(getNow(), 1),
+    isProgramRegistryOnly: true,
+  },
+  {
     value: CUSTOM_DATE,
-    label: 'Custom Date',
+    label: <TranslatedText stringId="chart.dateRange.option.customDate" fallback="Custom Date" />,
     getDefaultStartDate: getNow => startOfDay(getNow()),
     getDefaultEndDate: getNow => addDays(startOfDay(getNow()), 1),
   },
 ];
 
 export const DateTimeSelector = props => {
-  const { dateRange, setDateRange } = props;
+  const { dateRange, setDateRange, showProgramRegistryOptions = false } = props;
   const [startDateString] = dateRange;
+
+  const options = showProgramRegistryOptions
+    ? OPTIONS
+    : OPTIONS.filter(option => !option.isProgramRegistryOnly);
 
   const { getCurrentDateTime } = useDateTime();
   const getNow = useCallback(() => parseISO(getCurrentDateTime()), [getCurrentDateTime]);
@@ -79,7 +101,7 @@ export const DateTimeSelector = props => {
   return (
     <Wrapper data-testid="wrapper-onhu">
       <SelectInput
-        options={OPTIONS}
+        options={options}
         value={value}
         isClearable={false}
         onChange={v => {

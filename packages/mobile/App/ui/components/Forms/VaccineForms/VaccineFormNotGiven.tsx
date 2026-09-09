@@ -9,12 +9,12 @@ import {
   RecordedByField,
   VaccineLocationField,
 } from './VaccineCommonFields';
-import { VaccineFormProps } from './types';
+import type { VaccineFormProps } from './types';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { parseISO } from 'date-fns';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { useSelector } from 'react-redux';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 
 export const VaccineFormNotGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { selectedPatient } = useSelector(

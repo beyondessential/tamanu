@@ -16,6 +16,7 @@ export const LabRequestFormScreen1 = ({
   values,
   practitionerSuggester,
   departmentSuggester,
+  isPriorityMandatory,
 }) => {
   return (
     <>
@@ -94,6 +95,7 @@ export const LabRequestFormScreen1 = ({
             data-testid="translatedtext-8z93"
           />
         }
+        required={isPriorityMandatory}
         component={SuggesterSelectField}
         endpoint="labTestPriority"
         data-testid="field-lma4"

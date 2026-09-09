@@ -84,6 +84,7 @@ export const SendToPatientModal = ({ patient }) => {
       <EmailAddressConfirmationForm
         onSubmit={handleSubmit}
         onCancel={onClose}
+        defaultEmail={patient?.email}
         renderButtons={submitForm => (
           <ModalGenericButtonRow>
             <FormSubmitCancelRow

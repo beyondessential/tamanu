@@ -14,7 +14,7 @@
     "strict": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "verbatimModuleSyntax": true,
-    "lib": ["es2021"]
+    "lib": ["es2025"]
   },
   "extends": "../../common.tsconfig.json",
   "include": ["src/**/*.ts", "__test__/**/*.test.ts"],

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
@@ -30,9 +31,11 @@ describe('PatientSummary', () => {
     const mockAiContent = 'This is a generated patient summary.';
 
     beforeEach(() => {
-      CentralServerConnection.mockImplementation(() => ({
-        fetch: jest.fn(async () => ({ content: mockAiContent })),
-      }));
+      CentralServerConnection.mockImplementation(function () {
+        return {
+          fetch: vi.fn(async () => ({ content: mockAiContent })),
+        };
+      });
     });
 
     it('should generate a summary and persist an AiDocument', async () => {

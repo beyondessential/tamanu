@@ -3,6 +3,7 @@ If your PR is red because of this test you probably need to add
 a migration that registers a trigger for database tables.
 */
 
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
@@ -43,7 +44,21 @@ expect.extend({
 // If for some reason we don't want to add triggers to a specific table
 // this would be the place to add them.
 const versioningTablesToIgnore = ['non_fhir_medici_report'];
-const refreshTablesToIgnore = [];
+// Reference data (and reference-data-like config/master data) tables stay listed as upstreams
+// (they still feed resource builds triggered by other tables), but must not queue a
+// rematerialisation on their own, so they never get a fhir_refresh trigger. See
+// setFhirRefreshTriggers.js — keep this list in sync with REFERENCE_DATA_MODELS there.
+const refreshTablesToIgnore = [
+  'reference_data',
+  'departments',
+  'locations',
+  'location_groups',
+  'lab_test_types',
+  'lab_test_panels',
+  'scheduled_vaccines',
+  'imaging_area_external_codes',
+  'imaging_type_external_codes',
+];
 
 describe('databaseTriggers', () => {
   let ctx;

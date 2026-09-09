@@ -1,4 +1,4 @@
-import { beforeAll, describe, it } from '@jest/globals';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -80,7 +80,7 @@ const MAX_CONCURRENT_SESSIONS = 1;
         ),
       );
 
-      const { CentralSyncManager } = require('../../app/sync/CentralSyncManager');
+      const { CentralSyncManager } = await import('../../app/sync/CentralSyncManager');
       CentralSyncManager.overrideConfig({
         sync: {
           awaitPreparation: true,
@@ -214,7 +214,7 @@ const MAX_CONCURRENT_SESSIONS = 1;
     it('Should prevent exceeding maxConcurrentSessions when many syncs are requested at once', async () => {
       const sessions = ['A', 'B', 'C'];
       const originalGenerateDbUuid = models.SyncSession.generateDbUuid.bind(models.SyncSession);
-      const generateDbUuidSpy = jest
+      const generateDbUuidSpy = vi
         .spyOn(models.SyncSession, 'generateDbUuid')
         .mockImplementation(async () => {
           await sleepAsync(2000);

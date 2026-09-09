@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { type FunctionComponent } from 'react';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
@@ -10,7 +10,6 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacilityScreen';
-import { MultiSelectModalScreen } from '~/ui/components/MultiSelectModal';
 import { SelectModalScreen } from '~/ui/components/SelectModal';
 import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal';
 import { SecurityScreen } from '~/ui/navigation/screens/signup/SecurityScreen';
@@ -30,7 +29,8 @@ function getSignInFlowRoute(signedIn: boolean, facilityId?: string): string {
 export const Core: FunctionComponent<any> = () => {
   const { signedIn } = useAuth();
   const { facilityId } = useFacility();
-  const { isLoading, hasCompletedInitialCheck, securityIssues, fetchSecurityInfo } = useSecurityInfo();
+  const { isLoading, hasCompletedInitialCheck, securityIssues, fetchSecurityInfo } =
+    useSecurityInfo();
   const shouldBlockForInitialLoading = isLoading && !hasCompletedInitialCheck;
 
   if (shouldBlockForInitialLoading || securityIssues.length > 0) {
@@ -48,9 +48,11 @@ export const Core: FunctionComponent<any> = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
       <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
-      <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
       <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
-      <Stack.Screen name={Routes.Forms.FrequencySearchModal} component={FrequencySearchModalScreen} />
+      <Stack.Screen
+        component={FrequencySearchModalScreen}
+        name={Routes.Forms.FrequencySearchModal}
+      />
       <Stack.Screen
         name={Routes.SignUpStack.Index}
         component={SignUpStack}

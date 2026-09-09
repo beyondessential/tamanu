@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { BackendContext } from './BackendContext';
-import { SettingsService } from '~/services/settings';
+import type { SettingsService } from '~/services/settings';
 
 interface SettingsContextData {
   getSetting<T>(key: string): T | undefined;

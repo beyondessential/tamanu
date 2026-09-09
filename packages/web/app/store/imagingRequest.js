@@ -1,5 +1,3 @@
-import { reloadPatient } from './patient';
-
 // actions
 const IMAGING_LOAD_START = 'IMAGING_LOAD_START';
 const IMAGING_LOAD_ERROR = 'IMAGING_LOAD_ERROR';
@@ -13,14 +11,6 @@ export const reloadImagingRequest =
     dispatch({ type: IMAGING_LOAD_START, id });
     try {
       const imagingRequest = await api.get(`imagingRequest/${id}`, { facilityId });
-
-      const encounter = imagingRequest.encounters?.[0];
-      if (encounter) {
-        const patient = encounter.patient[0];
-        if (patient) {
-          dispatch(reloadPatient(patient.id));
-        }
-      }
 
       dispatch({ type: IMAGING_LOAD_FINISH, imagingRequest });
     } catch (e) {

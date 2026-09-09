@@ -40,7 +40,11 @@ bestool tamanu psql -W         # read/write (mutations take their own class)
 bestool tamanu psql -U postgres
 ```
 
-See `../sops/connect-psql.md` for in-session helpers.
+See `../sops/connect-psql.md` for in-session helpers. bestool psql is its own
+client, not standard psql — read
+[its README](https://github.com/beyondessential/bestool/blob/main/crates/psql/README.md)
+for the syntax that differs (read-only default, `COMMIT;` in write mode,
+`${name}` interpolation, `\g`-suffix modifiers) before writing non-trivial SQL.
 
 ## Config
 

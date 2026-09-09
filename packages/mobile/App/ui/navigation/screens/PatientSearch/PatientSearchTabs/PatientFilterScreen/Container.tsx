@@ -1,7 +1,7 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement, useCallback } from 'react';
 import { Screen } from './Screen';
 import { Routes } from '/helpers/routes';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { useFilterFields } from './hooks';
 
 const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
@@ -10,9 +10,7 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
   const fields = useFilterFields();
 
   const onNavigateBack = useCallback(() => {
-    navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-    );
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
   }, [navigation]);
 
   const onSubmit = useCallback(() => {
@@ -41,13 +39,7 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
     });
   }, [fields]);
 
-  return (
-    <Screen
-      onCancel={onNavigateBack}
-      onSubmit={onSubmit}
-      onClear={onClearFilters}
-    />
-  );
+  return <Screen onCancel={onNavigateBack} onClear={onClearFilters} onSubmit={onSubmit} />;
 };
 
 export const PatientFilterScreen = Container;

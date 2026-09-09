@@ -1,5 +1,5 @@
-import { BaseModel } from '~/models/BaseModel';
-import { LocalSystemFact } from '~/models/LocalSystemFact';
+import type { BaseModel } from '~/models/BaseModel';
+import type { LocalSystemFact } from '~/models/LocalSystemFact';
 
 export const getSyncTick = async (
   models: Record<string, typeof BaseModel>,

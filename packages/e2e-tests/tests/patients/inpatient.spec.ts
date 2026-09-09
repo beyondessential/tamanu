@@ -100,5 +100,41 @@ test.describe('inpatient table tests', () => {
       await inpatientsPage.patientTable.waitForTableToLoad();
       await inpatientsPage.validateSortOrder(true, 'sex');
     });
+
+    test('Sort table by Area in ascending order', async ({
+      inpatientsPage,
+      newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
+    }) => {
+      await inpatientsPage.sortByArea();
+      await inpatientsPage.patientTable.waitForTableToLoad();
+      await inpatientsPage.validateSortOrder(true, 'locationGroupName');
+    });
+
+    test('Sort table by Location in ascending order', async ({
+      inpatientsPage,
+      newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
+    }) => {
+      await inpatientsPage.sortByLocation();
+      await inpatientsPage.patientTable.waitForTableToLoad();
+      await inpatientsPage.validateSortOrder(true, 'locationName');
+    });
+
+    test('Sort table by Department in ascending order', async ({
+      inpatientsPage,
+      newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
+    }) => {
+      await inpatientsPage.sortByDepartment();
+      await inpatientsPage.patientTable.waitForTableToLoad();
+      await inpatientsPage.validateSortOrder(true, 'departmentName');
+    });
+
+    test('Sort table by Clinician in ascending order', async ({
+      inpatientsPage,
+      newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
+    }) => {
+      await inpatientsPage.sortByClinician();
+      await inpatientsPage.patientTable.waitForTableToLoad();
+      await inpatientsPage.validateSortOrder(true, 'clinician');
+    });
   });
 });

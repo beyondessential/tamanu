@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import {
   setHardcodedPermissionsUseForTestsOnly,
@@ -25,7 +26,7 @@ describe('AI Encounter Summary (central-server)', () => {
 
     beforeAll(async () => {
       mockAiService = {
-        invoke: jest.fn(async () => ({ content: 'Generated encounter summary.' })),
+        invoke: vi.fn(async () => ({ content: 'Generated encounter summary.' })),
       };
       setHardcodedPermissionsUseForTestsOnly(true);
       ctx = await createTestContext({ aiService: mockAiService });
@@ -42,7 +43,8 @@ describe('AI Encounter Summary (central-server)', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body).toEqual({ content: 'Generated encounter summary.' });
-      expect(mockAiService.invoke).toHaveBeenCalled();
+      const [, userMessage] = mockAiService.invoke.mock.calls.at(-1);
+      expect(userMessage).toContain('encounter-001');
     });
 
     it('should include edit feedback in the AI prompt when provided', async () => {
@@ -55,8 +57,8 @@ describe('AI Encounter Summary (central-server)', () => {
         .send({ encounterData, editFeedback });
 
       expect(result).toHaveSucceeded();
-      const invokedMessage = mockAiService.invoke.mock.calls.at(-1)[1];
-      expect(invokedMessage).toContain('Corrected encounter summary');
+      const [, userMessage] = mockAiService.invoke.mock.calls.at(-1);
+      expect(userMessage).toContain('Corrected encounter summary');
     });
 
     describe('with db-defined permissions', () => {

@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FACT_SETTINGS_PSK } from '@tamanu/constants';
 import { getSettingsPskKeyBuffer, setSettingsPskSource } from '@tamanu/shared/utils/crypto';
 
@@ -8,13 +9,13 @@ const STALE_PSK = 'cd'.repeat(32);
 
 const makeArgs = (secrets = {}) => {
   const secretStore = new Map(Object.entries(secrets));
-  const fetch = jest.fn();
+  const fetch = vi.fn();
   return {
     args: {
       models: {
         LocalSystemSecret: {
-          get: jest.fn(async key => secretStore.get(key) ?? null),
-          setIfAbsent: jest.fn(async (key, value) => {
+          get: vi.fn(async key => secretStore.get(key) ?? null),
+          setIfAbsent: vi.fn(async (key, value) => {
             if (!secretStore.has(key)) secretStore.set(key, value);
           }),
         },

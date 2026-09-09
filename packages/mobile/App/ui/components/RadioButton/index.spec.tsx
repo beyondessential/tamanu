@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
-import { RadioButton, RadioOptionProps } from '.';
+import { RadioButton, type RadioOptionProps } from '.';
 
 describe('<RadioButton />', () => {
   const props: RadioOptionProps = {

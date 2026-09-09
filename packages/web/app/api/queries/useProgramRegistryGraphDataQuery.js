@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { isErrorUnknownAllow404s, useApi } from '../index';
+import { useApi } from '../index';
 import { transformVitalDataToChartData } from './useGraphDataQuery';
 
 export const useProgramRegistryGraphDataQuery = (patientId, dataElementId, dateRange) => {
@@ -22,7 +22,6 @@ export const useProgramRegistryGraphDataQuery = (patientId, dataElementId, dateR
       api.get(
         `programRegistry/patient/${patientId}/graphData/${directory}/${dataElementId}`,
         { startDate, endDate },
-        { isErrorUnknown: isErrorUnknownAllow404s },
       ),
     {
       enabled: Boolean(patientId) && Boolean(startDate) && Boolean(endDate),

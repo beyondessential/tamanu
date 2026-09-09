@@ -1,8 +1,6 @@
 {
   "extends": "../../common.tsconfig.json",
-  "include": [
-    "src/**/*.ts",
-  ],
+  "include": ["src/**/*.ts"],
   "compilerOptions": {
     "baseUrl": "./src",
     "strict": false,
@@ -14,7 +12,8 @@
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "skipLibCheck": true,
-    "target": "es2020",
+    "lib": ["es2025", "ESNext.Collection", "ESNext.Temporal"],
+    "target": "es2025",
     "incremental": true
   }
 }

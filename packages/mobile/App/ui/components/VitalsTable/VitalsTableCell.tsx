@@ -3,7 +3,7 @@ import { isNumber } from 'es-toolkit/compat';
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { ISurveyResponseAnswer, SurveyScreenConfig } from '~/types';
+import type { ISurveyResponseAnswer, SurveyScreenConfig } from '~/types';
 import { RequiredIndicator } from '../RequiredIndicator';
 
 interface VitalsTableCellProps {

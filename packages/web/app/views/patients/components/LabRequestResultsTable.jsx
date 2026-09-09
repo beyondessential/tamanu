@@ -1,9 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { getReferenceRange } from '@tamanu/utils/labTests';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
+import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
+import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
+import { RangeValidatedCell } from '../../../components/FormattedTableCell';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
@@ -27,10 +30,18 @@ const ResultCell = styled.span`
   display: inline-block;
 `;
 
+const ValueWithEditedMarker = ({ value, isEdited }) => (
+  <>
+    {value}
+    {isEdited && <EditedOrnament />}
+  </>
+);
+
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const { getTranslation } = useTranslation();
   const [modalLabTestId, setModalLabTestId] = useState();
   const [modalOpen, setModalOpen] = useState(false);
+  const [showEditedEntryLegend, setShowEditedEntryLegend] = useState(false);
 
   const handleRowClick = row => {
     setModalLabTestId(row.id);
@@ -67,33 +78,73 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'result',
-        accessor: ({ labTestType, result, secondaryResult }) => {
-          const { options, id: labTestTypeId, supportsSecondaryResults } = labTestType;
+        accessor: row => {
+          const { labTestType, result, secondaryResult, editedFields = [] } = row;
+          const {
+            options,
+            id: labTestTypeId,
+            supportsSecondaryResults,
+            unit,
+            resultType,
+          } = labTestType;
+          // This cell surfaces the result and, on hover, the secondary result, so an edit to
+          // either one marks it.
+          const isEdited =
+            editedFields.includes('result') || editedFields.includes('secondaryResult');
+          const hasSecondaryResult = Boolean(supportsSecondaryResults && secondaryResult);
+          const secondaryResultTooltip = getTranslation(
+            'lab.results.tooltip.secondaryResult',
+            'Secondary result: :secondaryResult',
+            { replacements: { secondaryResult } },
+          );
 
-          const resultText =
-            options && options.length > 0 ? (
-              <TranslatedOption
-                value={result}
-                referenceDataId={labTestTypeId}
-                referenceDataCategory="labTestType"
-              />
-            ) : (
-              result
+          // Only numeric results are range-checked. Option and free-text results are shown
+          // verbatim — free-text must not pass through numeric formatting — and never flagged.
+          if (resultType !== LAB_TEST_RESULT_TYPES.NUMBER) {
+            const displayResult =
+              options && options.length > 0 ? (
+                <TranslatedOption
+                  value={result}
+                  referenceDataId={labTestTypeId}
+                  referenceDataCategory="labTestType"
+                />
+              ) : (
+                result || '–'
+              );
+            return (
+              <ResultCell>
+                <ConditionalTooltip visible={hasSecondaryResult} title={secondaryResultTooltip}>
+                  {displayResult}
+                  {isEdited && <EditedOrnament />}
+                </ConditionalTooltip>
+              </ResultCell>
             );
+          }
 
-          return (
-            <ResultCell>
-              <ConditionalTooltip
-                visible={supportsSecondaryResults && !!secondaryResult}
-                title={getTranslation(
-                  'lab.results.tooltip.secondaryResult',
-                  'Secondary result: :secondaryResult',
-                  { replacements: { secondaryResult } },
-                )}
-              >
-                {resultText || '–'}
-              </ConditionalTooltip>
-            </ResultCell>
+          // Where a numeric result also carries a secondary result, its tooltip takes over
+          // from the out-of-range tooltip; the highlight still shows either way.
+          const resultCell = (
+            <RangeValidatedCell
+              value={result}
+              config={{ unit, rounding: null }}
+              validationCriteria={getLabTestValidationCriteria({
+                labTestType,
+                labTest: row,
+                sex: patient.sex,
+              })}
+              hideUnitSuffix
+              disableTooltip={hasSecondaryResult}
+              isEdited={isEdited}
+              data-testid="rangevalidatedcell-labrequest"
+            />
+          );
+
+          return hasSecondaryResult ? (
+            <ConditionalTooltip visible title={secondaryResultTooltip}>
+              {resultCell}
+            </ConditionalTooltip>
+          ) : (
+            resultCell
           );
         },
         sortable: false,
@@ -139,7 +190,12 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'labTestMethod',
-        accessor: row => (row.labTestMethod ? getMethod(row) : '–'),
+        accessor: row => (
+          <ValueWithEditedMarker
+            value={row.labTestMethod ? getMethod(row) : '–'}
+            isEdited={row.editedFields?.includes('labTestMethodId')}
+          />
+        ),
         sortable: false,
       },
       {
@@ -151,7 +207,12 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'laboratoryOfficer',
-        accessor: row => row.laboratoryOfficer || '–',
+        accessor: row => (
+          <ValueWithEditedMarker
+            value={row.laboratoryOfficer || '–'}
+            isEdited={row.editedFields?.includes('laboratoryOfficer')}
+          />
+        ),
         sortable: false,
       },
       {
@@ -163,7 +224,12 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'verification',
-        accessor: row => row.verification || '–',
+        accessor: row => (
+          <ValueWithEditedMarker
+            value={row.verification || '–'}
+            isEdited={row.editedFields?.includes('verification')}
+          />
+        ),
         sortable: false,
       },
       {
@@ -175,7 +241,12 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'completedDate',
-        accessor: row => (row.completedDate ? getCompletedDate(row) : '–'),
+        accessor: row => (
+          <ValueWithEditedMarker
+            value={row.completedDate ? getCompletedDate(row) : '–'}
+            isEdited={row.editedFields?.includes('completedDate')}
+          />
+        ),
         sortable: false,
       },
     ],
@@ -192,9 +263,13 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         elevated={false}
         refreshCount={refreshCount}
         onRowClick={handleRowClick}
+        onDataFetched={({ data }) =>
+          setShowEditedEntryLegend(data.some(row => row.editedFields?.length > 0))
+        }
         data-testid="styleddatafetchingtable-brdm"
         allowExport={false}
       />
+      {showEditedEntryLegend && <EditedEntryLegend data-testid="editedentrylegend-labrequest" />}
       <LabTestResultModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

@@ -1,12 +1,10 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
 import { DateDisplay } from '@tamanu/ui-components';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
-import { reloadPatient } from '../store';
 import { TranslatedReferenceData, TranslatedSex, TranslatedText } from './Translation';
 import { DataFetchingTableWithPermissionCheck } from './Table/DataFetchingTable';
 import { useSettings } from '../contexts/Settings';
@@ -160,12 +158,10 @@ export const TriageTable = React.memo(({ searchParameters = {} }) => {
   const { facilityId } = useAuth();
   const { loadEncounter } = useEncounter();
   const { category } = useParams();
-  const dispatch = useDispatch();
   const columns = useColumns();
   const navigate = useNavigate();
 
   const viewEncounter = async triage => {
-    await dispatch(reloadPatient(triage.patientId));
     await loadEncounter(triage.encounterId);
     navigate(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`);
   };

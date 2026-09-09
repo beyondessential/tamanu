@@ -1,7 +1,7 @@
-import { ID } from './ID';
-import { ILabRequest } from './ILabRequest';
-import { ILabTestType } from './ILabTestType';
-import { IReferenceData } from './IReferenceData';
+import type { ID } from './ID';
+import type { ILabRequest } from './ILabRequest';
+import type { ILabTestType } from './ILabTestType';
+import type { IReferenceData } from './IReferenceData';
 
 export interface ILabTest {
   id: ID;

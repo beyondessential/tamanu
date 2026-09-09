@@ -8,6 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
+import { faithFetch } from './faithFetch';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
@@ -32,6 +33,10 @@ export class CentralServerConnection extends TamanuApi {
         backoff: true,
       },
     });
+
+    if (process.env.TAMANU_DISABLE_FAITH_FETCH !== 'true') {
+      this.fetchImplementation = faithFetch;
+    }
   }
 
   async fetch(endpoint, options = {}, upOptions = null) {

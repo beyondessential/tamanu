@@ -15,10 +15,7 @@ export const SyncStatusIcon = ({ isMarkedForSync }: SyncStatusIconProps) => {
       paddingTop={screenPercentageToDP(0.8, Orientation.Height)}
       paddingRight={screenPercentageToDP(1.6, Orientation.Width)}
     >
-      <CurrentStatusIcon
-        size={screenPercentageToDP(4.86, Orientation.Height)}
-        fill="white"
-      />
+      <CurrentStatusIcon size={screenPercentageToDP(4.86, Orientation.Height)} fill="white" />
     </StyledView>
   );
-}
+};

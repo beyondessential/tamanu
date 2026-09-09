@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
@@ -643,7 +644,7 @@ describe('ProgramRegistry', () => {
     });
   });
 
-  describe.only('Getting linked charts (GET /api/programRegistry/:id/linkedCharts)', () => {
+  describe('Getting linked charts (GET /api/programRegistry/:id/linkedCharts)', () => {
     let programRegistryId;
     let patient;
     let historicalSimpleChart;

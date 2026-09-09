@@ -96,8 +96,11 @@ export const InfoPaneList = ({
   const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
   const { adding, editKey } = addEditState;
   const api = useApi();
-  const { data, error } = useQuery([`infoPaneListItem-${paneId}`, patient.id], () =>
-    api.get(getEndpoint),
+  const { data, error } = useQuery(
+    [`infoPaneListItem-${paneId}`, patient.id],
+    () => api.get(getEndpoint),
+    // getEndpoint interpolates patient.id, which is null until the patient is loaded into the store
+    { enabled: Boolean(patient.id) },
   );
 
   const isIssuesPane = paneId === PANE_SECTION_IDS.ISSUES;

@@ -1,5 +1,5 @@
-import React, { ReactElement, ReactNode } from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import React, { type ReactElement, type ReactNode } from 'react';
+import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 

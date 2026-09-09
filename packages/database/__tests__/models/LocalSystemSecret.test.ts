@@ -41,6 +41,15 @@ describe('LocalSystemSecret', () => {
     expect(await models.LocalSystemSecret.get(FACT_DEVICE_KEY)).toBe('first');
   });
 
+  it('mints and stores a device key when none is held', async () => {
+    const deviceKey = await models.LocalSystemSecret.getDeviceKey();
+    expect(deviceKey.privateKeyPem()).toContain('BEGIN');
+    expect(isEncryptedSecret(await rawValue(FACT_DEVICE_KEY))).toBe(true);
+
+    const reread = await models.LocalSystemSecret.getDeviceKey();
+    expect(reread.privateKeyPem()).toBe(deviceKey.privateKeyPem());
+  });
+
   it('self-heals a legacy plaintext value on read', async () => {
     // Simulate a row moved from local_system_facts before encryption was
     // mandatory by writing plaintext straight to the column.

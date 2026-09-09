@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   VERSION_COMPATIBILITY_ERRORS,
   VERSION_MAXIMUM_PROBLEM_KEY,
@@ -7,9 +8,9 @@ import { ClientIncompatibleError } from '@tamanu/errors';
 import { buildVersionCompatibilityCheck } from '../../src/utils/buildVersionCompatibilityCheck';
 import { log } from '../../src/services/logging';
 
-jest.mock('../../src/services/logging', () => ({
+vi.mock('../../src/services/logging', () => ({
   log: {
-    error: jest.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -21,20 +22,20 @@ function makeReq(headers = {}) {
 
 function makeRes() {
   return {
-    setHeader: jest.fn(),
+    setHeader: vi.fn(),
   };
 }
 
 describe('buildVersionCompatibilityCheck', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('sets min/max headers when configured', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq();
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     check(req, res, next);
 
@@ -46,7 +47,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({});
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     check(req, res, next);
 
@@ -58,7 +59,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({ 'X-Version': '1.5.0' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     check(req, res, next);
 
@@ -70,7 +71,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
 
     for (const version of ['1.0.0', '2.0.0']) {
-      const next = jest.fn();
+      const next = vi.fn();
       check(makeReq({ 'X-Version': version }), makeRes(), next);
       expect(next).toHaveBeenCalledWith();
     }
@@ -80,7 +81,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({ 'X-Version': '0.9.9' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     expect(() => check(req, res, next)).toThrow(ClientIncompatibleError);
     expect(next).not.toHaveBeenCalled();
@@ -90,7 +91,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({ 'X-Version': '0.9.9' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     try {
       check(req, res, next);
@@ -108,7 +109,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({ 'X-Version': '2.1.0' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     expect(() => check(req, res, next)).toThrow(ClientIncompatibleError);
     expect(next).not.toHaveBeenCalled();
@@ -118,7 +119,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({ 'X-Version': '2.1.0' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     try {
       check(req, res, next);
@@ -135,7 +136,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', '2.0.0');
     const req = makeReq({ 'X-Version': '2.0.1' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     check(req, res, next);
 
@@ -154,7 +155,7 @@ describe('buildVersionCompatibilityCheck', () => {
       'X-Tamanu-Client': 'Tamanu Mobile',
     });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     try {
       check(req, res, next);
@@ -169,7 +170,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck(undefined, '2.0.0');
     const req = makeReq({ 'X-Version': '0.0.1' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     check(req, res, next);
 
@@ -180,7 +181,7 @@ describe('buildVersionCompatibilityCheck', () => {
     const check = buildVersionCompatibilityCheck('1.0.0', undefined);
     const req = makeReq({ 'X-Version': '99.0.0' });
     const res = makeRes();
-    const next = jest.fn();
+    const next = vi.fn();
 
     check(req, res, next);
 

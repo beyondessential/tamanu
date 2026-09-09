@@ -54,7 +54,11 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
       printable
       onPrint={() => printPDF('test-certificate')}
       additionalActions={
-        <EmailButton onEmail={createCovidTestCertNotification} data-testid="emailbutton-16lj" />
+        <EmailButton
+          onEmail={createCovidTestCertNotification}
+          email={patient.email}
+          data-testid="emailbutton-16lj"
+        />
       }
       data-testid="modal-4kfs"
     >

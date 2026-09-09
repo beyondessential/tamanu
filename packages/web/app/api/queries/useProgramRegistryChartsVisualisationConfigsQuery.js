@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
+import { combineQueries, useApi } from '../index';
 import { usePatientDataQuery } from './usePatientDataQuery';
 import { useSurveyQuery } from './useSurveyQuery';
 import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
@@ -13,11 +13,7 @@ export const useProgramRegistryChartsVisualisationConfigsQuery = (patientId, cha
   const chartDataQuery = useQuery(
     ['programRegistryPatientCharts', patientId, chartSurveyId],
     () =>
-      api.get(
-        `programRegistry/patient/${patientId}/charts/${chartSurveyId}`,
-        { rowsPerPage: 1 },
-        { isErrorUnknown: isErrorUnknownAllow404s },
-      ),
+      api.get(`programRegistry/patient/${patientId}/charts/${chartSurveyId}`, { rowsPerPage: 1 }),
     { enabled: Boolean(patientId) && Boolean(chartSurveyId) },
   );
 

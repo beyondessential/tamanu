@@ -1,7 +1,7 @@
 import React from 'react';
 import { NumberInput } from './NumberField';
 
-export const PriceField = ({ field, ...props }) => {
+export const PriceField = ({ field, step = '0.01', ...props }) => {
   const handleInput = e => {
     const value = e.target.value;
     // If value is negative just return empty
@@ -23,7 +23,7 @@ export const PriceField = ({ field, ...props }) => {
       name={field.name}
       onChange={field.onChange}
       onInput={handleInput}
-      step="0.01"
+      step={step}
       min={0}
       max={999999}
       {...props}

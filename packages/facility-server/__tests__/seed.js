@@ -59,7 +59,7 @@ export const testVillages = splitIds(`
 `).map((x) => ({ ...x, type: 'village' }));
 
 export const testImagingTypes = splitIds(`
-  X-Ray
+  X-ray
   CT Scan
   Ultrasound
 `).map((x) => ({ ...x, type: 'imagingType' }));

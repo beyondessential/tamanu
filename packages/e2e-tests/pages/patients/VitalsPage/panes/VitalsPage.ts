@@ -22,6 +22,16 @@ export class VitalsPage {
   }
 
   /**
+   * Opens the chart modal for a single measure row (e.g. "Temperature (°C)"),
+   * rather than the "Vitals" column header button which opens every
+   * graphed measure's chart at once.
+   */
+  async openChartForMeasure(measureLabel: string) {
+    const row = this.tableRows.filter({ hasText: measureLabel });
+    await row.getByRole('button', { name: 'Show chart' }).click();
+  }
+
+  /**
    * Get the values of the latest vital record
    * @returns A record of the vital values
    */

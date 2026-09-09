@@ -1,15 +1,16 @@
-import React, { ReactElement } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
+import { useQuery } from '@tanstack/react-query';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { PatientHistoryAccordion } from '~/ui/components/PatientHistoryAccordion';
 import { theme } from '/styled/theme';
 import { NOTE_TYPES } from '~/ui/helpers/constants';
-import { useBackendEffect } from '~/ui/hooks';
+import { Database } from '~/infra/db';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { IDiagnosis, INote } from '~/types';
+import type { IDiagnosis, INote } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
@@ -50,11 +51,10 @@ const visitsHistoryRows = {
 };
 
 const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
-  const isFocused = useIsFocused();
-  const [data, error] = useBackendEffect(
-    ({ models }) => models.Encounter.getForPatient(selectedPatient.id),
-    [isFocused, selectedPatient.id],
-  );
+  const { data, error } = useQuery({
+    queryKey: patientKeys.encounters(selectedPatient.id),
+    queryFn: () => Database.models.Encounter.getForPatient(selectedPatient.id),
+  });
 
   if (error) return <ErrorScreen error={error} />;
 

@@ -1,4 +1,4 @@
-import InfoIcon from '@mui/icons-material/Info';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -18,12 +18,11 @@ const OuterLabel = styled.label`
 
 const IconWrapper = styled.div`
   float: right;
-  padding-top: 3px;
 `;
 
-const StyledInfoIcon = styled(InfoIcon)`
-  width: 20px;
-  height: 20px;
+const StyledInfoIcon = styled(HelpOutlineIcon)`
+  width: 16.25px;
+  height: 16.25px;
   color: ${TAMANU_COLORS.midText};
 `;
 

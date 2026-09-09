@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { type ReactNode, useState } from 'react';
 import Modal from 'react-native-modal';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';

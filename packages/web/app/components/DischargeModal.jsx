@@ -1,12 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useSettings, useSuggester } from '@tamanu/ui-components';
 import { PATIENT_STATUS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { DischargeForm } from '../forms/DischargeForm';
-import { reloadPatient } from '../store/patient';
+import { ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY } from '../api/queries/useEncounterDischargeDraftQuery';
 import { getPatientStatus } from '../utils/getPatientStatus';
+import { invalidatePatientDataQueries } from '../utils/invalidatePatientDataQueries';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { FormModal } from './FormModal';
 
@@ -15,9 +17,9 @@ const DISCHARGE_DISPOSITION_FOR_INPATIENTS_ONLY = 'IN-';
 const DISCHARGE_DISPOSITION_FOR_OUTPATIENTS_ONLY = 'OP-';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const { navigateToPatient } = usePatientNavigation();
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
   const { getSetting } = useSettings();
   const allowFilterDischargeDisposition = getSetting('features.filterDischargeDispositions');
   const { encounter, writeAndViewEncounter } = useEncounter();
@@ -70,24 +72,35 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   const handleDischarge = useCallback(
     async (data) => {
-      if (!data.dischargeDraft) {
-        // add facility details to discharge details
-        data.discharge = {
-          ...data.discharge,
-          facilityName: facility.name,
-          facilityAddress: facility.streetAddress,
-          facilityTown: facility.cityTown,
-        };
-      }
+      // add facility details to discharge details
+      data.discharge = {
+        ...data.discharge,
+        facilityName: facility.name,
+        facilityAddress: facility.streetAddress,
+        facilityTown: facility.cityTown,
+      };
       await writeAndViewEncounter(encounter.id, data);
-      await dispatch(reloadPatient(patient.id));
-      if (!data.dischargeDraft) {
-        navigateToPatient(patient.id);
-      }
+      // The encounter is now discharged: refresh the queries that decide whether "Prepare
+      // discharge" or "Discharge summary" is shown, otherwise re-entering the encounter can still
+      // read the pre-discharge cache until something else forces a refetch.
+      invalidatePatientDataQueries(queryClient, patient?.id);
+      queryClient.invalidateQueries(['encounterDischarge', encounter.id]);
+      queryClient.invalidateQueries([ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounter.id]);
+      navigateToPatient(patient?.id);
       onClose();
     },
-    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose, navigateToPatient],
+    [
+      writeAndViewEncounter,
+      encounter.id,
+      queryClient,
+      patient?.id,
+      onClose,
+      navigateToPatient,
+      facility,
+    ],
   );
+
+  if (!patient) return null;
 
   return (
     <FormModal
@@ -96,7 +109,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       onClose={onClose}
       cornerExitButton={false}
       data-testid="formmodal-ti1m"
-      width="md"
+      width="lg"
     >
       <DischargeForm
         onSubmit={handleDischarge}

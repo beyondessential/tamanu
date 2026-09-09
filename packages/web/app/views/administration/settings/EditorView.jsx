@@ -23,6 +23,7 @@ import { Category } from './components/Category';
 import { SettingsSubmitContext } from './components/SettingsSubmitContext';
 import { filterSettingsSchema } from './filterSettingsSchema';
 import { formatSettingName } from './formatSettingName';
+import { parseJsonEditedSettings } from './parseJsonEditedSettings';
 import { readUrlParam, writeUrlParams } from './urlState';
 import { notifyValidationErrors } from './notifyValidationErrors';
 
@@ -106,24 +107,6 @@ const countSettings = schema =>
     0,
   );
 
-
-const recursiveJsonParse = obj => {
-  if (typeof obj !== 'object') return obj;
-  if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    try {
-      const parsed = JSON.parse(value);
-      if (typeof parsed === 'object') {
-        acc[key] = parsed;
-      } else {
-        acc[key] = value;
-      }
-    } catch {
-      acc[key] = recursiveJsonParse(value);
-    }
-    return acc;
-  }, {});
-};
 
 // Group any top-level settings under a synthetic category; it's not offered
 // in the category dropdown but shown whenever no category is selected. Copies
@@ -360,8 +343,7 @@ export const EditorView = memo(
       : undefined;
 
     const saveSettings = async event => {
-      // Need to parse json string objects stored in keys
-      const parsedSettings = recursiveJsonParse(values.settings);
+      const parsedSettings = parseJsonEditedSettings(values.settings, getScopedSchema(scope));
       delete parsedSettings.uncategorised;
       const submittedValues = { ...values, settings: parsedSettings };
       setValues(submittedValues);

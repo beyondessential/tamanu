@@ -12,7 +12,7 @@ import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import Chance from 'chance';
 import * as React from 'react';
-import { assert, describe, it, vi } from 'vitest';
+import { assert, describe, expect, it, vi } from 'vitest';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
 import * as fileSystemAccess from '../../../app/utils/fileSystemAccess';

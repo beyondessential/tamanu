@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   Form,
@@ -26,6 +27,20 @@ import { invoiceFormSchema } from './invoiceFormSchema';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { isZeroedBedFeeItem } from '../../../utils/invoice';
 
+// The table stays border-collapsed so the row-separator borders render; a border-radius on a
+// collapsed table is ignored, so the rounded outer border lives on TableWrapper, which clips the
+// square table corners with overflow: hidden. The edit-mode product dropdown portals out, so it
+// isn't affected by the clipping.
+const TableWrapper = styled.div`
+  ${p =>
+    p.$bordered &&
+    css`
+      border: 1px solid ${Colors.outline};
+      border-radius: 3px;
+      overflow: hidden;
+    `}
+`;
+
 const Table = styled.table`
   background-color: ${p => p.theme.palette.background.paper};
   border-radius: ${p => p.theme.shape.borderRadius}px;
@@ -46,10 +61,16 @@ const Table = styled.table`
 
 const AddButton = styled(TextButton).attrs({ startIcon: <Plus /> })`
   font-size: inherit;
+  font-weight: 500;
+  color: ${Colors.primary};
   .MuiButton-startIcon {
     font-size: inherit;
     margin-inline-end: 4px;
     width: 18px;
+  }
+  &:hover {
+    color: ${Colors.primary};
+    text-decoration: underline;
   }
 `;
 
@@ -81,7 +102,14 @@ const FormFooter = styled(({ children, ...props }) => (
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
-  id: crypto.randomUUID(),
+  /**
+   * `crypto.randomUUID` requires a secure context, but Tamanu is sometimes accessed via a literal
+   * IP address over a LAN (e.g. Iti) using HTTP. (HTTPS not yet supported in this scenario.) Hence
+   * using `uuid`, which prefers `crypto.randomUUID` but falls back to `crypto.getRandomValues` as
+   * needed. Saves users from getting crash with “crypto.randomUUID is not a function”.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
+   */
+  id: uuidv4(),
   quantity: 1,
   orderDate: getCurrentDate(),
   orderedByUserId,
@@ -161,7 +189,15 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: isAddForm ? inProgressItems : [...(invoice.items ?? []), ...inProgressItems],
+        // Tag already-saved lines so validation keeps their product/ordered-by required: clearing a
+        // field on an existing line must block save (see invoiceFormSchema) rather than silently drop
+        // the line. Blank add-rows stay untagged so they remain discardable on save.
+        invoiceItems: isAddForm
+          ? inProgressItems
+          : [
+              ...(invoice.items ?? []).map(item => ({ ...item, isExistingItem: true })),
+              ...inProgressItems,
+            ],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
@@ -172,58 +208,63 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
       validationSchema={invoiceFormSchema}
       render={({ submitForm, values }) => (
         <>
-          <Table>
-            <FieldArray name="invoiceItems">
-              {formArrayMethods => (
-                <>
-                  <InvoiceItemHeader cellWidths={cellWidths} isEditing={isAddForm || isEditForm} />
-                  <tbody>
-                    {values.invoiceItems?.map((item, index) => {
-                      // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
-                      // and the save payload are unchanged.
-                      if (isZeroedBedFeeItem(item)) return null;
-                      return (
-                        <InvoiceItemRow
-                          cellWidths={cellWidths}
-                          encounterId={invoice.encounterId}
-                          formArrayMethods={formArrayMethods}
-                          index={index}
-                          isCancelled={isCancelled}
-                          isEditing={isAddForm || isEditForm}
-                          isFinalised={isFinalised}
-                          item={item}
-                          key={item.id}
-                          onUpdateApproval={updateItemApproval}
-                          onUpdateInvoice={handleUpdateItem}
-                          priceListId={invoice.priceList?.id}
-                        />
-                      );
-                    })}
-                  </tbody>
-                  {editable && (isReadOnlyForm || isAddForm) && (
-                    <FormFooter>
-                      <AddButton
-                        onClick={() => {
-                          if (isReadOnlyForm) {
-                            setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
-                          } else {
-                            formArrayMethods.push(
-                              getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
-                            );
-                          }
-                        }}
-                      >
-                        <TranslatedText
-                          stringId="invoice.form.action.addItem"
-                          fallback="Add item"
-                        />
-                      </AddButton>
-                    </FormFooter>
-                  )}
-                </>
-              )}
-            </FieldArray>
-          </Table>
+          <TableWrapper $bordered={isEditForm || isAddForm}>
+            <Table>
+              <FieldArray name="invoiceItems">
+                {formArrayMethods => (
+                  <>
+                    <InvoiceItemHeader
+                      cellWidths={cellWidths}
+                      isEditing={isAddForm || isEditForm}
+                    />
+                    <tbody>
+                      {values.invoiceItems?.map((item, index) => {
+                        // Hide bed-fee lines zeroed by a ward move; kept in the array so their index
+                        // and the save payload are unchanged.
+                        if (isZeroedBedFeeItem(item)) return null;
+                        return (
+                          <InvoiceItemRow
+                            cellWidths={cellWidths}
+                            encounterId={invoice.encounterId}
+                            formArrayMethods={formArrayMethods}
+                            index={index}
+                            isCancelled={isCancelled}
+                            isEditing={isAddForm || isEditForm}
+                            isFinalised={isFinalised}
+                            item={item}
+                            key={item.id}
+                            onUpdateApproval={updateItemApproval}
+                            onUpdateInvoice={handleUpdateItem}
+                            priceListId={invoice.priceList?.id}
+                          />
+                        );
+                      })}
+                    </tbody>
+                    {editable && (isReadOnlyForm || isAddForm) && (
+                      <FormFooter>
+                        <AddButton
+                          onClick={() => {
+                            if (isReadOnlyForm) {
+                              setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                            } else {
+                              formArrayMethods.push(
+                                getDefaultRow(getCurrentDate, invoice.encounter?.examinerId),
+                              );
+                            }
+                          }}
+                        >
+                          <TranslatedText
+                            stringId="invoice.form.action.addItem"
+                            fallback="Add item"
+                          />
+                        </AddButton>
+                      </FormFooter>
+                    )}
+                  </>
+                )}
+              </FieldArray>
+            </Table>
+          </TableWrapper>
           {editable && (isEditForm || isAddForm) && (
             <EditModalFooter>
               <FormCancelButton

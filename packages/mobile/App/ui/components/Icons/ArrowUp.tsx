@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { SvgXml } from 'react-native-svg';
 
 export const ArrowUpIcon = (props): ReactElement => {

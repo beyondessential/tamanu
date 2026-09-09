@@ -4,7 +4,7 @@ import { makeDummySurvey, mockDummyPatient, mockDummyUser } from '/root/tests/he
 import { fake } from '/root/tests/helpers/fake';
 import * as dateHelpers from '/helpers/date';
 import { Database } from '~/infra/db';
-import { IPatientAdditionalData } from '~/types';
+import type { IPatientAdditionalData } from '~/types';
 
 describe('getFormInitialValues()', () => {
   const mockUser = mockDummyUser();

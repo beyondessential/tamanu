@@ -1,0 +1,59 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: encounter_discharge_draft_medications
+        description: "{{ doc('table__encounter_discharge_draft_medications') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers: []
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in encounter_discharge_draft_medications."
+            data_tests:
+              - unique
+              - not_null
+          - name: discharge_draft_id
+            data_type: uuid
+            description: "{{ doc('encounter_discharge_draft_medications__discharge_draft_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'encounter_discharge_drafts')
+                    field: id
+          - name: prescription_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_discharge_draft_medications__prescription_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'prescriptions')
+                    field: id
+          - name: quantity
+            data_type: integer
+            description: "{{ doc('encounter_discharge_draft_medications__quantity') }}"
+          - name: repeats
+            data_type: integer
+            description: "{{ doc('encounter_discharge_draft_medications__repeats') }}"
+          - name: send_to_pharmacy
+            data_type: boolean
+            description: "{{ doc('encounter_discharge_draft_medications__send_to_pharmacy') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in encounter_discharge_draft_medications."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in encounter_discharge_draft_medications."
+            data_tests:
+              - not_null

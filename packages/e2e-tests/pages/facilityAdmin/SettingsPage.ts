@@ -82,4 +82,14 @@ export class SettingsPage extends BasePage {
   async resetToDefault(setting: Locator): Promise<void> {
     await setting.getByTestId('defaultsettingbutton-4vbq').click();
   }
+
+  // plain string settings render a TextInput; enum strings render a select instead
+  textInput(setting: Locator): Locator {
+    return setting.getByTestId('styledtextinput-fpam').locator('input');
+  }
+
+  async save(): Promise<void> {
+    await this.page.getByTestId('button-s1z4').click();
+    await this.page.getByText('Settings saved').waitFor();
+  }
 }

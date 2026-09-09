@@ -1,9 +1,9 @@
+import { describe, expect, it, vi } from 'vitest';
 import * as fc from 'fast-check';
-import { describe, expect, it } from '@jest/globals';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 
-const makeLimitConfig = config => ({ sync: { dynamicLimiter: config } });
+const makeLimitConfig = config => ({ default: { sync: { dynamicLimiter: config } } });
 const limitConfig = fc.record({
   initialLimit: fc.integer({ min: 1, max: 1000 }),
   minLimit: fc.integer({ min: 1, max: 999 }),
@@ -22,20 +22,20 @@ describe('pushOutgoingChanges', () => {
             fc.array(fc.constant('change'), { minLength: 1 }),
             limitConfig,
             async (changes, config) => {
-              jest.doMock('config', () => makeLimitConfig(config));
+              vi.doMock('config', () => makeLimitConfig(config));
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
-              const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+              const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
               const centralServer = {
-                push: jest.fn().mockImplementation(async () => {}),
-                completePush: jest.fn().mockImplementation(async () => true),
+                push: vi.fn().mockImplementation(async () => {}),
+                completePush: vi.fn().mockImplementation(async () => true),
               };
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
               expect(centralServer.push).toHaveBeenCalled();
             },
           )
           .beforeEach(() => {
-            jest.resetModules();
+            vi.resetModules();
           }),
       );
     }),
@@ -51,20 +51,20 @@ describe('pushOutgoingChanges', () => {
               .tuple(fc.array(fc.constant('change'), { minLength: 1 }), limitConfig)
               .filter(([changes, config]) => changes.length > config.initialLimit),
             async ([changes, config]) => {
-              jest.doMock('config', () => makeLimitConfig(config));
+              vi.doMock('config', () => makeLimitConfig(config));
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
-              const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+              const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
               const centralServer = {
-                push: jest.fn().mockImplementation(async () => {}),
-                completePush: jest.fn().mockImplementation(async () => true),
+                push: vi.fn().mockImplementation(async () => {}),
+                completePush: vi.fn().mockImplementation(async () => true),
               };
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
               expect(centralServer.push.mock.calls.length).toBeGreaterThanOrEqual(2);
             },
           )
           .beforeEach(() => {
-            jest.resetModules();
+            vi.resetModules();
           }),
       );
     }),
@@ -79,13 +79,13 @@ describe('pushOutgoingChanges', () => {
             fc.array(fc.constant('change'), { minLength: 1 }),
             limitConfig,
             async (changes, config) => {
-              jest.doMock('config', () => makeLimitConfig(config));
+              vi.doMock('config', () => makeLimitConfig(config));
               // Have to load test function within test scope so that we can mock config per test case
               // https://jestjs.io/docs/jest-object#jestdomockmodulename-factory-options
-              const { pushOutgoingChanges } = require('../../app/sync/pushOutgoingChanges');
+              const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
               const centralServer = {
-                push: jest.fn().mockImplementation(async () => {}),
-                completePush: jest.fn().mockImplementation(async () => true),
+                push: vi.fn().mockImplementation(async () => {}),
+                completePush: vi.fn().mockImplementation(async () => true),
               };
               await pushOutgoingChanges(centralServer, 'sessionId', changes);
               expect(centralServer.push.mock.calls.flatMap(([, page]) => page).length).toEqual(
@@ -94,7 +94,7 @@ describe('pushOutgoingChanges', () => {
             },
           )
           .beforeEach(() => {
-            jest.resetModules();
+            vi.resetModules();
           }),
       );
     }),

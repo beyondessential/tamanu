@@ -25,20 +25,21 @@ const SIGNATURE_EXPORT = /** @type {const} */ ({
   UNSIGNED: 'Unsigned',
 });
 
-// Uncomment deleted_at checks once Tan-1421 is complete, see https://linear.app/bes/issue/TAN-1456/update-existing-sql-reports-to-support-deleted-at
 const query = `
 with
 	answers_and_results as (
 		select
 			response_id,
 			data_element_id,
-			body
+			body,
+			deleted_at
 		from survey_response_answers sra
 		union all
 		select
 			id,
 			'Result',
-			result_text
+			result_text,
+			deleted_at
 		from survey_responses sr
 	),
 	responses_with_answers as (
@@ -49,7 +50,7 @@ with
 			) "answers"
 		from answers_and_results aar
 		where body <> '' -- Doesn't really matter, just could save some memory
-		--and aar.deleted_at is null
+		and aar.deleted_at is null
 		and data_element_id is not null
 		group by response_id
 	)
@@ -72,11 +73,11 @@ left join reference_data vil on vil.id = p.village_id
 join surveys s on s.id = sr.survey_id
 where p.id != '${TEST_PATIENT_ID}'
 AND sr.survey_id  = :survey_id
+and sr.deleted_at is null
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
 and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
 order by sr.end_time desc
---and sr.deleted_at is null
 `;
 
 /**

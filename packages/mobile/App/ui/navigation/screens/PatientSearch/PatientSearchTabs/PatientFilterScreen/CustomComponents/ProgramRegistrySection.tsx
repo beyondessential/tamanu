@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { type ReactElement, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/core';
 import { subject } from '@casl/ability';
 
@@ -8,7 +8,10 @@ import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
 import { Suggester } from '~/ui/helpers/suggester';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Dropdown } from '~/ui/components/Dropdown';
@@ -34,23 +37,27 @@ export const ProgramRegistrySection = (): ReactElement => {
             visibilityStatus: VisibilityStatus.Current,
           },
         },
-        filter: ({ entity_id }) => ability.can('read', subject('ProgramRegistry', { id: entity_id })),
+        filter: ({ entity_id }) =>
+          ability.can('read', subject('ProgramRegistry', { id: entity_id })),
       }),
     [models.ProgramRegistry, ability],
   );
 
-  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) => {
-      const rawData = await models.ProgramRegistry.getAllProgramRegistries();
-      return rawData.map(({ name, id }) => ({
+  const {
+    data: programRegistries,
+    error: programRegistryError,
+    isPending: isProgramRegistryLoading,
+  } = useQuery({
+    queryKey: programRegistryKeys.list(),
+    queryFn: () => Database.models.ProgramRegistry.getAllProgramRegistries(),
+    select: registries =>
+      registries.map(({ name, id }) => ({
         label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
         value: id,
-      }));
-    },
-    [],
-  );
+      })),
+  });
 
-  if (isProgramRegistryLoading || programRegistryError) return;
+  if (isProgramRegistryLoading || programRegistryError || !programRegistries) return;
 
   const doesRegistryCountExceedThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
 

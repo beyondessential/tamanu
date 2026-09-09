@@ -1,17 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
+import { combineQueries, useApi } from '../index';
 import { useVitalsSurveyQuery } from './useVitalsSurveyQuery';
 import { getDatesAndRecords } from './useEncounterChartsQuery';
 
 export const useVitalsQuery = (encounterId) => {
   const api = useApi();
   const vitalsQuery = useQuery(['encounterVitals', encounterId], () =>
-    api.get(
-      `encounter/${encounterId}/vitals`,
-      { rowsPerPage: 50 },
-      { isErrorUnknown: isErrorUnknownAllow404s },
-    ),
+    api.get(`encounter/${encounterId}/vitals`, { rowsPerPage: 50 }),
   );
   const surveyQuery = useVitalsSurveyQuery();
 

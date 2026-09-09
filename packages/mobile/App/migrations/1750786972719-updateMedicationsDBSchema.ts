@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
 
 const PRESCRIPTIONS_TABLE = 'prescriptions';
 const ENCOUNTER_PRESCRIPTIONS_TABLE = 'encounter_prescriptions';

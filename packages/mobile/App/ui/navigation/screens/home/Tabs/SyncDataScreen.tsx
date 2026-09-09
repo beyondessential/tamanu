@@ -1,13 +1,11 @@
-import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import React, { type ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
-import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../../helpers/screen';
 import { BackendContext } from '../../../../contexts/BackendContext';
-import {
-  SYNC_EVENT_ACTIONS,
-} from '../../../../../services/sync';
+import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
@@ -33,7 +31,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
   const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
 
-  setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
+  useStatusBarStyle('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
     syncManager.triggerUrgentSync();

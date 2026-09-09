@@ -679,6 +679,7 @@ patientRoute.get(
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
+        isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
       }));
     }
 

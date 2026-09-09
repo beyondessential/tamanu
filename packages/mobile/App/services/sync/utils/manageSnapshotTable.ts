@@ -1,6 +1,6 @@
 import { Database } from '~/infra/db';
 import { chunk } from 'es-toolkit/compat';
-import { SyncRecord } from '../types';
+import type { SyncRecord } from '../types';
 
 export const insertSnapshotRecords = async (
   records: Record<string, any>[],
@@ -18,9 +18,7 @@ export const getSnapshotBatchIds = async (): Promise<number[]> => {
   return result.map(row => row.id);
 };
 
-export const getSnapshotBatchesByIds = async (
-  batchIds: number[],
-): Promise<SyncRecord[]> => {
+export const getSnapshotBatchesByIds = async (batchIds: number[]): Promise<SyncRecord[]> => {
   if (batchIds.length === 0) {
     return [];
   }

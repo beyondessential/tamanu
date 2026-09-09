@@ -1,6 +1,6 @@
-import { ID } from './ID';
-import { IEncounter } from './IEncounter';
-import { ISurveyResponse } from './ISurveyResponse';
+import type { ID } from './ID';
+import type { IEncounter } from './IEncounter';
+import type { ISurveyResponse } from './ISurveyResponse';
 
 export interface IReferral {
   id: ID;

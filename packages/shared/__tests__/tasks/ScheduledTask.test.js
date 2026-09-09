@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { addMilliseconds, addHours, addDays, addMonths, isWithinInterval } from 'date-fns';
 
 import { ScheduledTask } from '../../src/tasks/ScheduledTask';
@@ -39,24 +40,23 @@ class TestQueuedScheduledTask extends TestScheduledTask {
 }
 
 const systemTime = new Date('2020-01-01T00:00:00.000Z');
-jest.useFakeTimers().setSystemTime(systemTime);
+vi.useFakeTimers().setSystemTime(systemTime);
 
-jest.mock('@tamanu/utils/sleepAsync', () => {
+vi.mock('@tamanu/utils/sleepAsync', () => {
   return {
-    __esModule: true,
     sleepAsync: (ms) => {
       // Update the Date.now() whenever we sleep to mock the jitter behaviour
-      jest.useFakeTimers().setSystemTime(addMilliseconds(systemTime, ms));
+      vi.useFakeTimers().setSystemTime(addMilliseconds(systemTime, ms));
     },
   };
 });
-jest.mock('shortid', () => () => 'test-task-id');
+vi.mock('shortid', () => ({ default: () => 'test-task-id' }));
 
 describe('ScheduledTask', () => {
   beforeAll(() => {});
 
   afterEach(() => {
-    jest.useFakeTimers().setSystemTime(systemTime);
+    vi.useFakeTimers().setSystemTime(systemTime);
   });
 
   it('Should run a task on a schedule', () => {

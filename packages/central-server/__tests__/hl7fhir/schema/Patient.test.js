@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 import {

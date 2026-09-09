@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 
-import { IPatientFieldDefinitionCategory } from '~/types';
+import type { IPatientFieldDefinitionCategory } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 

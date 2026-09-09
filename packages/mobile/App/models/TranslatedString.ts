@@ -45,11 +45,11 @@ export class TranslatedString extends BaseModel {
 
   static async getLanguageOptions(): Promise<LanguageOption[]> {
     const [languageNameKeys, countryCodeKeys] = await Promise.all([
-      this.getRepository().find({
+      TranslatedString.getRepository().find({
         where: { stringId: LANGUAGE_NAME_STRING_ID },
         select: ['language', 'text'],
       }),
-      this.getRepository().find({
+      TranslatedString.getRepository().find({
         where: { stringId: COUNTRY_CODE_STRING_ID },
         select: ['language', 'text'],
       }),
@@ -67,7 +67,7 @@ export class TranslatedString extends BaseModel {
   }
 
   static async getForLanguage(language: string): Promise<{ [key: string]: string }> {
-    const translatedStrings = await this.getRepository().find({
+    const translatedStrings = await TranslatedString.getRepository().find({
       where: {
         language,
       },

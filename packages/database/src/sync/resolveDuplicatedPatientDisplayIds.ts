@@ -19,24 +19,24 @@ export const resolveDuplicatedPatientDisplayIds = async (
   PatientModel: typeof Patient,
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
-  const nonDeletedChanges = changes.filter((c) => !c.isDeleted);
-  const patientDisplayIds = nonDeletedChanges.map((c) => c.data.displayId);
-  const patientIds = nonDeletedChanges.map((c) => c.data.id);
+  const nonDeletedChanges = changes.filter(c => !c.isDeleted);
+  const patientDisplayIds = nonDeletedChanges.map(c => c.data.displayId);
+  const patientIds = nonDeletedChanges.map(c => c.data.id);
 
   // Find existing patients that have the same displayIDs and are not the same with the incoming patients
   const existingPatientsWithDuplicatedDisplayIds = await PatientModel.findAll({
     where: { displayId: { [Op.in]: patientDisplayIds }, id: { [Op.notIn]: patientIds } },
     raw: true, // Return plain objects instead of Sequelize models
   });
-  const existingDisplayIds = existingPatientsWithDuplicatedDisplayIds.map((p) => p.displayId);
-  const duplicatedDisplayIds = patientDisplayIds.filter((displayId) =>
-    existingDisplayIds.includes(displayId),
+  const existingDisplayIds = new Set(
+    existingPatientsWithDuplicatedDisplayIds.map(p => p.displayId),
   );
+  const duplicatedDisplayIds = new Set(patientDisplayIds).intersection(existingDisplayIds);
 
-  if (duplicatedDisplayIds.length > 0) {
+  if (duplicatedDisplayIds.size > 0) {
     // Create a new incoming snapshot change for the existing patient's display ID and append '_duplicate_1'
     const updatedExistingPatientSnapshotRecords = existingPatientsWithDuplicatedDisplayIds.map(
-      (r) => ({
+      r => ({
         direction: SYNC_SESSION_DIRECTION.INCOMING,
         isDeleted: !!r.deletedAt,
         recordType: PatientModel.tableName,
@@ -47,8 +47,8 @@ export const resolveDuplicatedPatientDisplayIds = async (
 
     // Update the to-be-synced patient's display ID to append '_duplicate_2'
     const updatedIncomingPatientSnapshotRecords = changes
-      .filter((c) => !c.isDeleted && duplicatedDisplayIds.includes(c.data.displayId))
-      .map((c) => ({
+      .filter(c => !c.isDeleted && duplicatedDisplayIds.has(c.data.displayId))
+      .map(c => ({
         ...c,
         data: { ...c.data, displayId: `${c.data.displayId}_duplicate_2` },
       }));

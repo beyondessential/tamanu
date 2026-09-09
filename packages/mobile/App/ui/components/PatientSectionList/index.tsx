@@ -1,6 +1,6 @@
-import React, { RefObject, useMemo, useRef } from 'react';
+import React, { type RefObject, useMemo, useRef } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { PatientTile } from '../PatientTile';
 import { groupEntriesByLetter } from '/helpers/list';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

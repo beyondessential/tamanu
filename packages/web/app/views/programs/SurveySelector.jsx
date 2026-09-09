@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Button, TextButton, ButtonRow, SelectInput } from '@tamanu/ui-components';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
@@ -7,6 +6,7 @@ import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
 import { useAuth } from '../../contexts/Auth.jsx';
+import { usePatient } from '../../contexts/Patient';
 import { Colors } from '../../constants/styles';
 
 const StyledButtonRow = styled(ButtonRow)`
@@ -25,7 +25,8 @@ const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
   const { ability } = useAuth();
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
-  const isDeceased = useSelector(state => Boolean(state.patient?.dateOfDeath));
+  const { patient } = usePatient();
+  const isDeceased = Boolean(patient?.dateOfDeath);
   const canAssignPortalForm = ability?.can('create', 'PatientPortalForm');
 
   if (!isPatientPortalEnabled || !canAssignPortalForm || isDeceased) {

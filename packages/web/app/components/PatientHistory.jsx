@@ -241,7 +241,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
   );
 };
 
-export const PatientHistory = ({ patient, onItemClick }) => {
+export const PatientHistory = ({ patient, onItemClick, refreshCount: externalRefreshCount = 0 }) => {
   const { patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
@@ -249,6 +249,14 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
   const translationContext = useTranslation();
+
+  // Recording or reverting a death auto-discharges (or leaves) the active encounter on the server;
+  // the table fetches from an endpoint, so refetch it when the patient's death status changes.
+  const [prevDateOfDeath, setPrevDateOfDeath] = useState(patient.dateOfDeath);
+  if (patient.dateOfDeath !== prevDateOfDeath) {
+    setPrevDateOfDeath(patient.dateOfDeath);
+    updateRefreshCount();
+  }
 
   const actions = [
     {
@@ -370,7 +378,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         }
         endpoint={`patient/${patient.id}/encounters`}
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
-        refreshCount={refreshCount}
+        refreshCount={refreshCount + externalRefreshCount}
         TableHeader={
           <Box display="flex" alignItems="center" justifyContent="space-between">
             <EncounterHistoryHeading data-testid="heading4-ssa1">

@@ -1,5 +1,6 @@
-import React, { ReactElement, ReactNode, useCallback } from 'react';
+import React, { type ReactElement, type ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateId, generateIdFromPattern } from '@tamanu/utils';
 import { compose } from 'redux';
 import { Formik } from 'formik';
@@ -8,9 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
 import { SubmitSection } from './SubmitSection';
-import {
-  getConfiguredPatientAdditionalDataFields,
-} from '~/ui/helpers/patient';
+import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
@@ -18,7 +17,7 @@ import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import {
-  CustomPatientFieldValues,
+  type CustomPatientFieldValues,
   usePatientAdditionalData,
 } from '~/ui/hooks/usePatientAdditionalData';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -27,10 +26,7 @@ import { PatientFieldValue } from '~/models/PatientFieldValue';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-
-export type FormSection = {
-  scrollToField: (fieldName: string) => () => void;
-};
+import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingView: { flex: 1 },
@@ -44,7 +40,7 @@ const getPatientInitialValues = (
   patientAdditionalData: PatientAdditionalData,
   customPatientFieldValues: CustomPatientFieldValues,
   getSetting: <T>(key: string) => T,
-): {} => {
+) => {
   if (!isEdit || !patient) {
     return {};
   }
@@ -87,8 +83,50 @@ const getPatientInitialValues = (
   );
 };
 
-const containsAdditionalData = (values) =>
-  ALL_ADDITIONAL_DATA_FIELDS.some((fieldName) => Object.keys(values).includes(fieldName));
+const ADDITIONAL_DATA_FIELD_SET = new Set<string>(ALL_ADDITIONAL_DATA_FIELDS);
+function containsAdditionalData(values: Record<string, unknown>): boolean {
+  return Object.keys(values).some(key => ADDITIONAL_DATA_FIELD_SET.has(key));
+}
+
+async function createOrUpdateOtherPatientData(values, patientId) {
+  if (containsAdditionalData(values)) {
+    await PatientAdditionalData.updateForPatient(patientId, values);
+  }
+
+  const customPatientFieldDefinitionIds = new Set(
+    (
+      await PatientFieldDefinition.findVisible<PatientFieldDefinition>({
+        select: ['id'],
+      })
+    ).map(definition => definition.id),
+  );
+
+  // Update any custom field definitions contained in this form
+  const customValuesToUpdate = Object.keys(values).filter(key =>
+    customPatientFieldDefinitionIds.has(key),
+  );
+
+  await Promise.all(
+    customValuesToUpdate.map(definitionId =>
+      PatientFieldValue.updateOrCreateForPatientAndDefinition(
+        patientId,
+        definitionId,
+        values[definitionId],
+      ),
+    ),
+  );
+}
+
+class PartialPatientSaveError extends Error {
+  constructor(cause?: unknown) {
+    super(
+      cause instanceof Error
+        ? cause.message
+        : 'Patient record was saved, but a later registration step failed.',
+    );
+    this.name = 'PartialPatientSaveError';
+  }
+}
 
 const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }): ReactElement => {
   const navigation = useNavigation();
@@ -98,89 +136,76 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
 
-  const createOrUpdateOtherPatientData = useCallback(async (values, patientId) => {
-    const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
-      relations: ['category'],
-      order: {
-        // Nested ordering only works with typeorm version > 0.3.0
-        // category: { name: 'DESC' },
-        name: 'DESC',
-      },
-    });
+  const queryClient = useQueryClient();
 
-    if (containsAdditionalData(values)) {
-      await PatientAdditionalData.updateForPatient(patientId, values);
-    }
+  const { mutateAsync: createPatient } = useMutation({
+    mutationFn: async (values: any) => {
+      // submit form to server for new patient
+      const { dateOfBirth, ...otherValues } = values;
+      const pattern = getSetting<string>('patientDisplayIdPattern');
+      const newPatient = await Patient.createAndSaveOne<Patient>({
+        ...otherValues,
+        dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
+        displayId: pattern ? generateIdFromPattern(pattern) : generateId(),
+      });
 
-    // Update any custom field definitions contained in this form
-    const customValuesToUpdate = Object.keys(values).filter((key) =>
-      customPatientFieldDefinitions.map(({ id }) => id).includes(key),
-    );
+      try {
+        await createOrUpdateOtherPatientData(values, newPatient.id);
+        await Patient.markForSync(newPatient.id);
+      } catch (error) {
+        throw new PartialPatientSaveError(error);
+      }
 
-    await Promise.all(
-      customValuesToUpdate.map((definitionId) =>
-        PatientFieldValue.updateOrCreateForPatientAndDefinition(
-          patientId,
-          definitionId,
-          values[definitionId],
-        ),
-      ),
-    );
-  }, []);
+      // Reload instance to get the complete village fields
+      // (related fields won't display all info otherwise)
+      return Patient.findOne({ where: { id: newPatient.id } });
+    },
+    onSuccess: (reloadedPatient: Patient) => {
+      queryClient.invalidateQueries({ queryKey: patientListKeys.all });
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(reloadedPatient.id) });
+    },
+    onError: (error: Error) => {
+      if (error instanceof PartialPatientSaveError) {
+        // The patient record was already created; a later step (additional data
+        // or sync flagging) failed. Do NOT invite a retry — calling
+        // createAndSaveOne again would create a duplicate patient.
+        Alert.alert(
+          getTranslation('patient.register.error.partialSaveTitle', 'Registration incomplete'),
+          getTranslation(
+            'patient.register.error.partialSaveMessage',
+            'The patient record was saved, but registration didn’t fully complete. Open the patient to check their details — do not register them again.',
+          ),
+        );
+      } else {
+        // Nothing was persisted, so a retry is safe.
+        Alert.alert(
+          getTranslation('patient.register.error.createFailedTitle', 'Unable to create patient'),
+          getTranslation(
+            'patient.register.error.createFailedMessage',
+            'Something went wrong while saving the patient. Please try again.',
+          ),
+        );
+      }
+    },
+  });
 
   const onCreateNewPatient = useCallback(
     async (values, { resetForm }) => {
-      // Declared outside the try so the catch can tell whether the patient record
-      // was already persisted before a later step failed.
-      let newPatient = null;
+      let reloadedPatient: Patient;
       try {
-        // submit form to server for new patient
-        const { dateOfBirth, ...otherValues } = values;
-        const pattern = getSetting<string>('patientDisplayIdPattern');
-        newPatient = await Patient.createAndSaveOne<Patient>({
-          ...otherValues,
-          dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),
-          displayId: pattern ? generateIdFromPattern(pattern) : generateId(),
-        });
-
-        await createOrUpdateOtherPatientData(values, newPatient.id);
-        await Patient.markForSync(newPatient.id);
-
-        // Reload instance to get the complete village fields
-        // (related fields won't display all info otherwise)
-        const reloadedPatient = await Patient.findOne({ where: { id: newPatient.id } });
-        setSelectedPatient(reloadedPatient);
-        resetForm();
-        navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
-      } catch (error) {
-        if (newPatient) {
-          // The patient record was already created; a later step (additional data
-          // or sync flagging) failed. Do NOT invite a retry — calling
-          // createAndSaveOne again would create a duplicate patient.
-          Alert.alert(
-            getTranslation('patient.register.error.partialSaveTitle', 'Registration incomplete'),
-            getTranslation(
-              'patient.register.error.partialSaveMessage',
-              'The patient record was saved, but registration didn’t fully complete. Open the patient to check their details — do not register them again.',
-            ),
-          );
-        } else {
-          // Nothing was persisted, so a retry is safe.
-          Alert.alert(
-            getTranslation('patient.register.error.createFailedTitle', 'Unable to create patient'),
-            getTranslation(
-              'patient.register.error.createFailedMessage',
-              'Something went wrong while saving the patient. Please try again.',
-            ),
-          );
-        }
+        reloadedPatient = await createPatient(values);
+      } catch {
+        return; // Alerts are shown by the mutation's onError handler.
       }
+      setSelectedPatient(reloadedPatient);
+      resetForm();
+      navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
     },
-    [navigation, setSelectedPatient, createOrUpdateOtherPatientData, getSetting, getTranslation],
+    [navigation, setSelectedPatient, createPatient],
   );
 
-  const onEditPatient = useCallback(
-    async (values) => {
+  const { mutateAsync: editPatient } = useMutation({
+    mutationFn: async (values: any) => {
       // Update patient values (helper function uses .save()
       // so it will mark the record for upload).
       const { dateOfBirth, ...otherValues } = values;
@@ -195,15 +220,22 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
       const editedPatient = await Patient.findOne({ where: { id: selectedPatient.id } });
-
-      // Mark patient for sync and update redux state
       await Patient.markForSync(editedPatient.id);
+      return editedPatient;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientListKeys.all });
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+    },
+  });
 
+  const onEditPatient = useCallback(
+    async values => {
+      const editedPatient = await editPatient(values);
       setSelectedPatient(editedPatient);
-
       navigation.goBack();
     },
-    [navigation, selectedPatient, setSelectedPatient, createOrUpdateOtherPatientData],
+    [navigation, setSelectedPatient, editPatient],
   );
 
   return loading ? (

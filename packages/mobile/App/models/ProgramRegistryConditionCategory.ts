@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, RelationId, Column } from 'typeorm';
 
-import { ID, IProgramRegistry, IProgramRegistryConditionCategory } from '~/types';
+import type { ID, IProgramRegistry, IProgramRegistryConditionCategory } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';

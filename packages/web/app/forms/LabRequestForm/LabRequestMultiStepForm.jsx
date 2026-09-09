@@ -4,7 +4,7 @@ import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { foreignKey } from '../../utils/validation';
+import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useDateTime } from '@tamanu/ui-components';
 
 import { FormStep, MultiStepForm } from '../MultiStepForm';
@@ -31,6 +31,7 @@ export const LabRequestMultiStepForm = ({
   const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+  const mandatePriority = getSetting('features.labRequest.priorityMandatory');
 
   const { getTranslation } = useTranslation();
   const { currentUser } = useAuth();
@@ -76,6 +77,13 @@ export const LabRequestMultiStepForm = ({
           data-testid="translatedtext-xm3y"
         />,
       ),
+    labTestPriorityId: (mandatePriority ? foreignKey() : optionalForeignKey()).translatedLabel(
+      <TranslatedText
+        stringId="lab.priority.label"
+        fallback="Priority"
+        data-testid="translatedtext-p8sh"
+      />,
+    ),
   });
 
   const screen2ValidationSchema = yup.object().shape({
@@ -161,6 +169,7 @@ export const LabRequestMultiStepForm = ({
         <LabRequestFormScreen1
           practitionerSuggester={practitionerSuggester}
           departmentSuggester={departmentSuggester}
+          isPriorityMandatory={mandatePriority}
           data-testid="labrequestformscreen1-cz7w"
         />
       </FormStep>

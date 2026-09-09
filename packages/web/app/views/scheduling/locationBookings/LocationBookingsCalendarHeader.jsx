@@ -38,10 +38,6 @@ const GoToThisWeekButton = styled(Button).attrs({ variant: 'text' })`
     text-decoration-line: underline;
     text-decoration-thickness: from-font;
   }
-
-  .MuiButton-label {
-    display: contents;
-  }
 `;
 
 const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`

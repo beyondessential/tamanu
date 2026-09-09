@@ -1,9 +1,9 @@
-import { ID } from './ID';
-import { IDiagnosis } from './IDiagnosis';
-import { IPatient } from './IPatient';
-import { IUser } from './IUser';
-import { IDepartment } from './IDepartment';
-import { ILocation } from './ILocation';
+import type { ID } from './ID';
+import type { IDiagnosis } from './IDiagnosis';
+import type { IPatient } from './IPatient';
+import type { IUser } from './IUser';
+import type { IDepartment } from './IDepartment';
+import type { ILocation } from './ILocation';
 
 export const EncounterType = {
   Admission: 'admission',

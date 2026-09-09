@@ -56,6 +56,20 @@ export const defineWebsocketService = injector => {
         where: { id: payload.newId },
         include: [
           {
+            attributes: ['id'],
+            model: injector.models.Encounter,
+            as: 'encounter',
+            required: false,
+            include: [
+              {
+                attributes: ['facilityId'],
+                model: injector.models.Location,
+                as: 'location',
+                required: false,
+              },
+            ],
+          },
+          {
             model: injector.models.ReferenceData,
             as: 'designations',
             required: false,
@@ -76,13 +90,25 @@ export const defineWebsocketService = injector => {
           designation.designationUsers.map(user => user.id),
         ) ?? [],
       );
+      const facilityId = task?.encounter?.location?.facilityId;
 
-      if (userIds.size === 0) {
-        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`, task);
-      } else {
+      if (userIds.size > 0) {
         for (const userId of userIds) {
           socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:${userId}`, task);
         }
+      } else if (facilityId) {
+        // An undesignated task shows on every clinician's dashboard at its own facility and
+        // on nobody else's, so the facility is as wide as this fan-out needs to be.
+        // Broadcasting to every connected client made one task change invalidate every
+        // dashboard on the deployment, and tasks change constantly.
+        socketServer.emit(
+          `${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:facility:${facilityId}`,
+          task,
+        );
+      } else {
+        // The task, its encounter or that encounter's location has gone, so we can't tell
+        // which dashboards care. Tell all of them rather than dropping the update.
+        socketServer.emit(`${WS_EVENTS.CLINICIAN_DASHBOARD_TASKS_UPDATE}:all`, task);
       }
     }
     if (payload.table === 'appointments') {

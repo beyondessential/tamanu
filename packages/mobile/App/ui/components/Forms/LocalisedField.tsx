@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { Field, FieldProps } from './FormField';
+import { Field, type FieldProps } from './FormField';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
 type LocalisedFieldProps = FieldProps & {

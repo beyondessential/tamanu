@@ -4,11 +4,7 @@ import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export const ScheduledVaccine = memo(
-  ({
-    size = screenPercentageToDP(3.64, Orientation.Height),
-  }: {
-    size: number;
-  }) => (
+  ({ size = screenPercentageToDP(3.64, Orientation.Height) }: { size: number }) => (
     <StyledView
       borderRadius={50}
       height={size}

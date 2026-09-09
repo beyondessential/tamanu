@@ -1,13 +1,13 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { type ReactElement, useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
+import type { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
 
 const styles = StyleSheet.create({
   container: {
@@ -69,10 +69,6 @@ export const FrequencySearchModalScreen = ({
     [callback, navigation],
   );
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
     <View style={styles.container}>
       <Autocomplete
@@ -98,7 +94,7 @@ export const FrequencySearchModalScreen = ({
           color: theme.colors.TEXT_DARK,
         }}
       />
-      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+      <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
     </View>

@@ -7,12 +7,12 @@ import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
-import { IPatient, IPatientAdditionalData } from '~/types';
+import type { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
 import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
-import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
+import { NullableReferenceDataRelation, type ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
 import { PatientContact } from './PatientContact';
@@ -55,19 +55,19 @@ export class Patient extends BaseModel implements IPatient {
   @IdRelation()
   villageId?: string | null;
 
-  @OneToMany(() => PatientAdditionalData, (additionalData) => additionalData.patient)
+  @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
   additionalData: IPatientAdditionalData;
 
-  @OneToMany(() => Encounter, (encounter) => encounter.patient)
+  @OneToMany(() => Encounter, encounter => encounter.patient)
   encounters: Encounter[];
 
-  @OneToMany(() => PatientIssue, (issue) => issue.patient)
+  @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[];
 
-  @OneToMany(() => PatientSecondaryId, (secondaryId) => secondaryId.patient)
+  @OneToMany(() => PatientSecondaryId, secondaryId => secondaryId.patient)
   secondaryIds: PatientSecondaryId[];
 
-  @OneToMany(() => PatientContact, (contact) => contact.patient)
+  @OneToMany(() => PatientContact, contact => contact.patient)
   contacts: PatientContact[];
 
   @OneToMany(
@@ -76,7 +76,7 @@ export class Patient extends BaseModel implements IPatient {
   )
   patientOngoingPrescriptions: PatientOngoingPrescription[];
 
-  @OneToMany(() => PatientAllergy, (allergy) => allergy.patient)
+  @OneToMany(() => PatientAllergy, allergy => allergy.patient)
   allergies: PatientAllergy[];
 
   static async markForSync(patientId: string): Promise<void> {
@@ -94,20 +94,20 @@ export class Patient extends BaseModel implements IPatient {
     const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
     if (patientIds.length === 0) return [];
 
-    const list = await this.getRepository().find({ where: { id: In(patientIds) } });
+    const list = await Patient.getRepository().find({ where: { id: In(patientIds) } });
 
     return (
       patientIds
         // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-        .map((storedId) => list.find(({ id }) => id === storedId))
+        .map(storedId => list.find(({ id }) => id === storedId))
         // filter removes patients who couldn't be found (which occurs when a patient was deleted)
-        .filter((patient) => !!patient)
+        .filter(patient => !!patient)
     );
   }
 
   static async getRecentVisitors(surveyId: string): Promise<any[]> {
     const deviceId = getUniqueId();
-    const repo = this.getRepository();
+    const repo = Patient.getRepository();
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
     const thirtyYearsAgo = subYears(new Date(), 30);
 
@@ -118,7 +118,7 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) =>
+        subQuery =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
@@ -146,7 +146,7 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) =>
+        subQuery =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
@@ -168,7 +168,7 @@ export class Patient extends BaseModel implements IPatient {
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) =>
+        subQuery =>
           subQuery
             .select('surveyResponse.id', 'id')
             .addSelect('surveyResponse.encounterId', 'encounterId')
@@ -188,7 +188,7 @@ export class Patient extends BaseModel implements IPatient {
 
   static async getReferralList(): Promise<any[]> {
     const deviceId = getUniqueId();
-    const repo = this.getRepository();
+    const repo = Patient.getRepository();
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
     const query = repo
@@ -206,7 +206,7 @@ export class Patient extends BaseModel implements IPatient {
   }
 
   static async getVitals(patientId: string): Promise<any> {
-    const repo = this.getRepository();
+    const repo = Patient.getRepository();
     const results = await repo.query(
       `
       SELECT
@@ -229,20 +229,18 @@ export class Patient extends BaseModel implements IPatient {
       WHERE encounters.patientId = $1
         AND answer.body IS NOT NULL
         AND answer.deletedAt IS NULL
-      ORDER BY answer.createdAt desc LIMIT $2
+      ORDER BY answer.createdAt desc LIMIT 500
     `,
-      [patientId, 500],
+      [patientId],
     );
 
     const library = groupBy(results, 'responseId');
 
-    const data = Object.keys(library).reduce((state, key) => {
+    const data = Object.keys(library).reduce((acc, key) => {
       const records = library[key];
-      const newKey = records.find((x) => x.dataElementId === VitalsDataElements.dateRecorded);
-      if (newKey) {
-        return { ...state, [newKey.body]: records };
-      }
-      return state;
+      const newKey = records.find(x => x.dataElementId === VitalsDataElements.dateRecorded);
+      if (newKey !== undefined) acc[newKey.body] = records;
+      return acc;
     }, {});
 
     const columns = Object.keys(data).sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());

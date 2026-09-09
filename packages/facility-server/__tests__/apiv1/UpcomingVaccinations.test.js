@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { subDays } from 'date-fns';
 import { createTestContext } from '../utilities';
@@ -10,9 +11,9 @@ import { fake } from '@tamanu/fake-data/fake';
 import { RefreshUpcomingVaccinations } from '../../app/tasks/RefreshMaterializedView';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-jest.mock('@tamanu/utils/dateTime', () => ({
-  ...jest.requireActual('@tamanu/utils/dateTime'),
-  getCurrentISO8601DateString: jest.fn(() => '2021-01-01 00:00:00.000Z'),
+vi.mock('@tamanu/utils/dateTime', async () => ({
+  ...(await vi.importActual('@tamanu/utils/dateTime')),
+  getCurrentISO8601DateString: vi.fn(() => '2021-01-01 00:00:00.000Z'),
 }));
 
 const createPatient = async (models, overrides) => {
@@ -144,7 +145,7 @@ describe('Upcoming vaccinations', () => {
   });
 
   afterAll(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     await ctx.close();
   });
 

@@ -1,6 +1,6 @@
 import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
 import Divider from '@mui/material/Divider';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { INJECTION_SITE_LABELS, VACCINE_CATEGORIES } from '@tamanu/constants';
@@ -207,17 +207,13 @@ export const ConsentGivenByField = () => (
 );
 
 export const AdministeredVaccineScheduleField = ({ schedules }) => {
-  const [scheduleOptions, setScheduledOptions] = useState([]);
-  useEffect(() => {
-    const options =
-      schedules?.map(s => ({
-        value: s.scheduledVaccineId,
-        label: s.doseLabel,
-        icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
-        disabled: s.administered,
-      })) || [];
-    setScheduledOptions(options);
-  }, [schedules]);
+  const scheduleOptions =
+    schedules?.map(s => ({
+      value: s.scheduledVaccineId,
+      label: s.doseLabel,
+      icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
+      disabled: s.administered,
+    })) || [];
 
   return (
     scheduleOptions.length > 0 && (

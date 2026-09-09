@@ -159,7 +159,7 @@ const addRecordChangeTrigger: MigrationHook = {
       log.info(`Adding changelog trigger to ${schema}.${table}`);
       await sequelize.query(`
       CREATE CONSTRAINT TRIGGER record_${table}_changelog
-      AFTER INSERT OR UPDATE ON "${schema}"."${table}"
+      AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}"
       DEFERRABLE INITIALLY DEFERRED
       FOR EACH ROW
       EXECUTE FUNCTION logs.record_change();

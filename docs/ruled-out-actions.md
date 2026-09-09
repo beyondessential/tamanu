@@ -77,8 +77,10 @@ These actions may be read-only, but they touch PII or secrets. Tag them with the
 **sensitive-data** flag on top of their normal class, and prefer the safer
 alternative.
 
-- **Copying `caddy/server.log` (or any patient-data log) to a laptop** — PII
-  egress. Prefer grep-in-place on the server and redact before sharing. See
+- **Copying a Caddy access log (or any patient-data log) to a laptop** — PII
+  egress. That is `/var/log/caddy/access.log` on Linux and
+  `C:\caddy\logs\server.log` on Windows; request URIs can carry patient
+  identifiers. Prefer grep-in-place on the server and redact before sharing. See
   `sops/read-logs.md` for reading logs without exfiltrating them. If a raw log
   must leave the server, that is a decision for a lead, not a default.
 - **Mailgun API-key generation** — secret creation (also ruled-out above).

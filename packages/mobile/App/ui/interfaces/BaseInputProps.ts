@@ -1,5 +1,5 @@
 export interface BaseInputProps {
-    label?: '' | string;
-    error?: '' | string;
-    required?: boolean;
+  label?: '' | string;
+  error?: '' | string;
+  required?: boolean;
 }

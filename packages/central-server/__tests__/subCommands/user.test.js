@@ -1,4 +1,6 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import bcrypt from 'bcrypt';
+import readSync from 'read';
 
 import { chance, fake } from '@tamanu/fake-data/fake';
 
@@ -6,9 +8,7 @@ import { createTestContext } from '../utilities';
 import { changePassword } from '../../app/subCommands/user';
 
 // mock 'read' and provide implementation
-jest.mock('read');
-
-const readSync = require('read');
+vi.mock('read');
 
 readSync.mockImplementation((options, cb) => {
   cb(null, 'DefaultPassword');

@@ -3,12 +3,10 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
 import React, { useCallback } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { reloadPatient } from '../../../store';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
 import { AppointmentStatusSelector } from './AppointmentStatusSelector';
 import { ControlsRow } from './ControlsRow';
@@ -51,16 +49,14 @@ export const AppointmentDetailPopper = ({
   preventOverflowPadding = {},
 }) => {
   const { ability } = useAuth();
-  const dispatch = useDispatch();
   const patientId = appointment.patient.id;
 
   const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id);
   const navigate = useNavigate();
 
-  const handlePatientDetailsClick = useCallback(async () => {
-    await dispatch(reloadPatient(patientId));
+  const handlePatientDetailsClick = useCallback(() => {
     navigate(`/patients/all/${patientId}`);
-  }, [dispatch, patientId, navigate]);
+  }, [patientId, navigate]);
 
   const handleClickAway = e => {
     if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;

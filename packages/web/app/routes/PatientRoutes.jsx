@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router';
+import { Routes, Route, useMatch } from 'react-router';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
@@ -18,8 +18,10 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useAuth } from '../contexts/Auth';
 import { PatientSearchParametersProvider } from '../contexts/PatientViewSearchParameters';
+import { PatientProvider } from '../contexts/Patient';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import {
   PatientNavigation,
@@ -96,7 +98,7 @@ export const usePatientRoutes = () => {
     ...(canAccessMar
       ? [
           {
-            path: 'encounter/:encounterId/mar/view',
+            path: 'encounter/:encounterId/mar/view/:date?',
             component: MarView,
             breadcrumbs: [
               <EncounterBreadcrumb key="encounter" />,
@@ -185,31 +187,33 @@ const PatientPaneInner = styled.div`
 
 export const PatientRoutes = () => {
   const patientRoutes = usePatientRoutes();
-  const location = useLocation();
-  const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
+  const isMarView = Boolean(useMatch(`${PATIENT_PATHS.MAR}/view/:date?`));
+  const backgroundColor = isMarView ? Colors.white : 'initial';
 
   return (
-    <PatientSearchParametersProvider>
-      <NoteModal />
-      <TwoColumnDisplay>
-        <PatientInfoPane />
-        {/* Using contain:size along with overflow: auto here allows sticky navigation section
+    <PatientProvider>
+      <PatientSearchParametersProvider>
+        <NoteModal />
+        <TwoColumnDisplay>
+          <PatientInfoPane />
+          {/* Using contain:size along with overflow: auto here allows sticky navigation section
     to have correct scrollable behavior in relation to the patient info pane and switch components */}
-        <PatientPane $backgroundColor={backgroundColor}>
-          <PatientPaneInner>
-            <PatientNavigation patientRoutes={patientRoutes} />
-            <Routes>
-              {patientRoutes.map(route => {
-                const Element = route.component && React.createElement(route.component);
-                if (route.index) {
-                  return <Route key="route-index" index element={Element} />;
-                }
-                return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
-              })}
-            </Routes>
-          </PatientPaneInner>
-        </PatientPane>
-      </TwoColumnDisplay>
-    </PatientSearchParametersProvider>
+          <PatientPane $backgroundColor={backgroundColor}>
+            <PatientPaneInner>
+              <PatientNavigation patientRoutes={patientRoutes} />
+              <Routes>
+                {patientRoutes.map(route => {
+                  const Element = route.component && React.createElement(route.component);
+                  if (route.index) {
+                    return <Route key="route-index" index element={Element} />;
+                  }
+                  return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
+                })}
+              </Routes>
+            </PatientPaneInner>
+          </PatientPane>
+        </TwoColumnDisplay>
+      </PatientSearchParametersProvider>
+    </PatientProvider>
   );
 };

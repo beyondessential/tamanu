@@ -39,7 +39,7 @@ export const sortResourcesInDependencyOrder = resources => {
   return sorted;
 };
 
-export async function resolver(_, { log, models }) {
+export async function resolver(_, { log, models, settings }) {
   await sleepAsync(3000); // sleep for 3 seconds to allow materialisation jobs to complete
 
   const materialisableResources = resourcesThatCanDo(
@@ -51,7 +51,7 @@ export async function resolver(_, { log, models }) {
   // bulk update) would otherwise sit in 'Started' forever: its worker keeps
   // heartbeating, so no other worker reclaims the job and it never errors. Bound
   // each record's lock waits so the job fails (and retries) instead of stalling.
-  const lockTimeoutMs = ms(await models.Setting.get('fhir.worker.resolverLockTimeout'));
+  const lockTimeoutMs = ms(await settings.get('fhir.worker.resolverLockTimeout'));
 
   log.debug('Starting resolve');
   // Resources are resolved in dependency order so referenced resources are

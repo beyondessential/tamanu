@@ -10,3 +10,5 @@ export { entireResource } from './fhir/refresh/entireResource';
 export { fromUpstream } from './fhir/refresh/fromUpstream';
 export { resolver } from './fhir/resolver';
 export { FhirMissingResources } from './fhir/FhirMissingResources';
+export { FhirJobWorkerCleaner } from './fhir/FhirJobWorkerCleaner';
+export { FhirErroredJobCleaner } from './fhir/FhirErroredJobCleaner';

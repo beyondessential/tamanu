@@ -2,10 +2,12 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { initDatabase } from '../database';
 import { makeVaccineCertificate } from '../utils/makePatientCertificate';
+import { ReadSettings } from '@tamanu/settings';
 
 export const generateCertificate = async ({ patientId }) => {
   const store = await initDatabase({ testMode: false });
   const { Patient } = store.models;
+  const settings = new ReadSettings(store.models);
 
   try {
     const patient = await Patient.findByPk(patientId);
@@ -15,6 +17,7 @@ export const generateCertificate = async ({ patientId }) => {
       printedBy: 'Admin',
       printedDate: null,
       models: store.models,
+      settings,
     });
     log.info(`Certificate output: `, pdf);
   } catch (error) {

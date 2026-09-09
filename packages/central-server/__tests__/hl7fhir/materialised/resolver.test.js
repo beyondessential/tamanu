@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
@@ -10,9 +11,9 @@ import { mergePatient } from '../../../app/admin/patientMerge/mergePatient';
 const INTEGRATION_ROUTE = 'fhir/mat';
 
 // Mock out sleepAsync so that we don't have to wait for the unresolved resource timeout
-const sleepAsyncMock = jest.fn();
+const sleepAsyncMock = vi.fn();
 
-jest.mock('@tamanu/utils/sleepAsync', () => ({
+vi.mock('@tamanu/utils/sleepAsync', () => ({
   sleepAsync: ms => sleepAsyncMock(ms),
 }));
 
@@ -269,9 +270,9 @@ describe(`FHIR reference resolution`, () => {
           transaction: blockingTransaction,
         });
 
-        await expect(
-          FhirServiceRequest.resolveUpstreams({ lockTimeoutMs: 100 }),
-        ).rejects.toThrow(/lock timeout/i);
+        await expect(FhirServiceRequest.resolveUpstreams({ lockTimeoutMs: 100 })).rejects.toThrow(
+          /lock timeout/i,
+        );
       } finally {
         await blockingTransaction.rollback();
       }

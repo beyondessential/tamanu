@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { fakeReferenceData } from '@tamanu/fake-data/fake';

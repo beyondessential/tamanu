@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './CustomComponents/PatientSection';
 import { getGender } from '~/ui/helpers/user';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { ALL_ADDITIONAL_DATA_FIELDS } from '/helpers/additionalData';
 import { getFieldData, PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
@@ -46,9 +46,9 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
-  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter((fieldName) =>
+  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter(fieldName =>
     getSetting<boolean>(`fields.${fieldName}.requiredPatientData`),
-  ).map((fieldName) => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
+  ).map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;
   }

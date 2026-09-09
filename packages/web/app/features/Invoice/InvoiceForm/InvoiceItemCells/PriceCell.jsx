@@ -21,7 +21,7 @@ const Container = styled.div`
   align-self: stretch;
 
   .MuiTextField-root {
-    max-width: 80px;
+    max-width: 110px;
   }
 `;
 
@@ -45,6 +45,15 @@ const RowName = styled.div`
 
 const RowValue = styled.div`
   min-width: 60px;
+`;
+
+// MUI's Tooltip attaches its ref and hover handlers to a single child element, so
+// the reason rows need a real element to wrap them — a fragment cannot hold the ref.
+const DiscountRows = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: stretch;
 `;
 
 const calculateCoverageValue = (discountedPrice, coverageValue) => {
@@ -88,7 +97,7 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
       title={discountReason}
       open={discountReason ? undefined : false}
     >
-      <>
+      <DiscountRows>
         <Row>
           <RowName>Item {text}</RowName>
           <RowValue>
@@ -101,7 +110,7 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
             <Price price={discountedPrice} />
           </RowValue>
         </Row>
-      </>
+      </DiscountRows>
     </ThemedTooltip>
   );
 };
@@ -151,6 +160,7 @@ export const PriceCell = ({
                 <StyledField
                   name={`invoiceItems.${index}.manualEntryPrice`}
                   component={PriceField}
+                  step={1}
                   required
                   data-testid="field-05x9"
                 />

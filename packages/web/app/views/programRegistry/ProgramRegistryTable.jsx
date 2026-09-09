@@ -1,10 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { DateDisplay } from '@tamanu/ui-components';
-import { reloadPatient } from '../../store';
 import { MenuButton, SearchTable } from '../../components';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
@@ -225,12 +223,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
 
   useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 
-  const dispatch = useDispatch();
-  const selectRegistration = async registration => {
+  const selectRegistration = registration => {
     const { patient, programRegistry } = registration;
-    if (patient.id) {
-      await dispatch(reloadPatient(patient.id));
-    }
     navigate(
       `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
     );

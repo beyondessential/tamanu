@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactElement, useCallback } from 'react';
+import React, { type FunctionComponent, type ReactElement, useCallback } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,

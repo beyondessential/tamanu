@@ -1,6 +1,5 @@
 import React from 'react';
 import * as Yup from 'yup';
-import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { TextField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
@@ -10,14 +9,13 @@ import { Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EmailAddressConfirmationForm = React.memo(
-  ({ onCancel, onSubmit, emailOverride, renderButtons }) => {
+  ({ onCancel, onSubmit, defaultEmail, renderButtons }) => {
     const { getTranslation } = useTranslation();
-    const patient = useSelector(state => state.patient);
 
     return (
       <Form
         onSubmit={onSubmit}
-        initialValues={{ email: emailOverride || patient.email }}
+        initialValues={{ email: defaultEmail }}
         enableReinitialize
         validationSchema={Yup.object().shape({
           email: Yup.string()
@@ -80,6 +78,6 @@ export const EmailAddressConfirmationForm = React.memo(
 EmailAddressConfirmationForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  emailOverride: PropTypes.string,
+  defaultEmail: PropTypes.string,
   renderButtons: PropTypes.func,
 };

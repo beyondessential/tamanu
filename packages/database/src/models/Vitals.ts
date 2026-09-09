@@ -2,11 +2,8 @@ import { DataTypes } from 'sequelize';
 import { AVPU_OPTIONS, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 const AVPU_VALUES = AVPU_OPTIONS.map((x) => x.value);
@@ -102,9 +99,6 @@ export class Vitals extends Model {
   }
 
   static async buildSyncLookupQueryDetails() {
-    return {
-      select: await buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-    };
+    return buildEncounterLinkedLookupFilter(this);
   }
 }

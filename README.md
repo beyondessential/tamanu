@@ -31,12 +31,6 @@ $ pyenv global 2.7.18
 Put eval "$(pyenv init --path)" in ~/.zprofile (or ~/.bash_profile or ~/.zshrc)
 ```
 
-Enable corepack (once):
-
-```bash
-$ corepack enable
-```
-
 Install dependencies with npm:
 
 ```bash

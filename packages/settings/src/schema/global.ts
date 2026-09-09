@@ -4,6 +4,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   type AdministrationFrequency,
   BROWSER_SUPPORT_POLICIES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
   PLATFORM_SUPPORT_POLICIES,
@@ -260,7 +261,7 @@ export const globalSettings = {
     imagingTypes: {
       name: 'Imaging types',
       description:
-        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-Ray" } })',
+        'Display labels for enabled imaging types, keyed by the IMAGING_TYPES constants (e.g. { "xRay": { "label": "X-ray" } })',
       type: yup
         .object()
         .test(
@@ -733,6 +734,19 @@ export const globalSettings = {
               name: 'Lab results printout',
               description:
                 'Enable lab results printout (print results button and interim report option)',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            priorityMandatory: {
+              name: 'Lab request priority mandatory',
+              description: 'Require a priority to be selected when creating a lab request',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            priorityEditable: {
+              name: 'Lab request priority editable',
+              description:
+                'Allow lab request priority to be edited after the request has been created. When disabled, the option to edit priority is never offered.',
               type: yup.boolean(),
               defaultValue: true,
             },
@@ -1957,8 +1971,8 @@ export const globalSettings = {
       editor: SETTING_EDITORS.OBJECT_LIST,
     },
     upcomingVaccinations: {
-      name: 'Upcoming vaccinations',
-      description: 'Settings related to upcoming vaccinations',
+      name: 'Vaccinations',
+      description: 'Settings related to vaccinations',
       exposedToWeb: true,
       properties: {
         ageLimit: {
@@ -1972,6 +1986,12 @@ export const globalSettings = {
           description: '_',
           type: thresholdsSchema,
           defaultValue: thresholdsDefault,
+        },
+        displayBirthCertificateNumber: {
+          name: 'Display birth certificate number',
+          description: 'Display the birth certificate number on the vaccination certificate',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },
@@ -2127,6 +2147,16 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
+            [ADMINISTRATION_FREQUENCIES.HOURLY]: {
+              description: ADMINISTRATION_FREQUENCIES.HOURLY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.HALF_HOURLY]: {
+              description: ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
             [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
               description: ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY,
               type: yup.boolean(),
@@ -2166,8 +2196,11 @@ export const globalSettings = {
               frequency =>
                 !(
                   [
+                    // Not true frequencies
                     ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
                     ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                    // So frequent, not meaningful to customise
+                    ...FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
                   ] as AdministrationFrequency[]
                 ).includes(frequency),
             ),

@@ -1,17 +1,17 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 
 import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
 import { ErrorScreen } from '../../../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
 import {
-  CustomPatientFieldValues,
+  type CustomPatientFieldValues,
   usePatientAdditionalData,
 } from '~/ui/hooks/usePatientAdditionalData';
 import { mapValues } from 'es-toolkit/compat';
-import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { Patient } from '~/models/Patient';
-import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import type { Patient } from '~/models/Patient';
+import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface AdditionalInfoProps {
@@ -43,7 +43,7 @@ export const AdditionalInfo = ({
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -64,15 +64,16 @@ export const AdditionalInfo = ({
   const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
-    const fields = dataFields || displayFields;
-    const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
+  const additionalSections = dataSections.map(
+    ({ title, dataFields, fields: displayFields, sectionKey }) => {
+      const fields = dataFields || displayFields;
+      const onEditCallback = (): void =>
+        onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
       const fieldsWithData = fields.map(field => {
         if (field === 'villageId' || field.name === 'villageId') {
           return ['villageId', patient.village?.name];
-        } else if (Object.keys(customDataById).includes(field)) {
+        } else if (field in customDataById) {
           return [field, customDataById[field]];
         } else {
           return [field, getPadFieldData(patientAdditionalData, field)];
@@ -85,7 +86,8 @@ export const AdditionalInfo = ({
 
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues, null);
+    const onEditCallback = (): void =>
+      onEdit(null, title, true, fields, customPatientFieldValues, null);
     const mappedFields = fields.map(field => {
       const { id, name } = field;
       const [customFieldValue] = customPatientFieldValues[id] || [];
@@ -101,7 +103,7 @@ export const AdditionalInfo = ({
       {sections.map(({ title, fields, onEditCallback }, i) => {
         return (
           <PatientSection
-            key={'additional-info-section-' + i}
+            key={`additional-info-section-${i}`}
             title={title}
             onEdit={isEditable ? onEditCallback : undefined}
             isClosable

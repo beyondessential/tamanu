@@ -137,7 +137,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             />
           ),
           key: 'createdAt',
-          accessor: ({ updatedAt }) => formatShortDateTime(updatedAt),
+          accessor: ({ createdAt }) => formatShortDateTime(createdAt),
         },
         {
           title: (

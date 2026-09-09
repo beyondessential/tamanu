@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { deleteRedundantLocalCopies } from '../../app/sync/deleteRedundantLocalCopies';
@@ -15,12 +16,12 @@ describe('deleteRedundantLocalCopies', () => {
       TestPushThenDeleteModel: {
         tableName: 'testPushThenDeleteTable',
         syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
-        destroy: jest.fn(),
+        destroy: vi.fn(),
       },
       TestPushModel: {
         tableName: 'testPushTable',
         syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
-        destroy: jest.fn(),
+        destroy: vi.fn(),
       },
     };
 

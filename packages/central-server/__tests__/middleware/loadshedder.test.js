@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { RateLimitedError } from '@tamanu/errors';
 
 import { QueueManager, RequestQueue } from '../../app/middleware/loadshedder';

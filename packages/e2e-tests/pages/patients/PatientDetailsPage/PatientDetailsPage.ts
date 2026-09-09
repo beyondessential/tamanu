@@ -11,6 +11,7 @@ import { BasePatientPage } from '../BasePatientPage';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
+import { PatientMedicationPane } from '../MedicationsPage/panes/PatientMedicationPane';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
@@ -30,7 +31,10 @@ import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
+  readonly dischargeDraftTag: Locator;
+  readonly dischargeSummaryButton: Locator;
   readonly vaccineTab: Locator;
+  readonly patientMedicationTab: Locator;
   readonly procedureTab: Locator;
   readonly invoicingTab: Locator;
   readonly healthIdText: Locator;
@@ -44,6 +48,7 @@ export class PatientDetailsPage extends BasePatientPage {
   notesPane?: NotesPane;
   patientDetailsTabPage?: PatientDetailsTabPage;
   encounterMedicationPane?: EncounterMedicationPane;
+  patientMedicationPane?: PatientMedicationPane;
   documentsPane?: DocumentsPane;
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
@@ -132,7 +137,15 @@ export class PatientDetailsPage extends BasePatientPage {
       name: 'Prepare discharge',
       exact: true,
     });
+    // Shown beside the discharge action when the logged-in clinician has a saved draft waiting.
+    this.dischargeDraftTag = this.page.getByTestId('dischargedrafttag-p3wq');
+    // A discharged encounter offers its summary in place of the discharge action.
+    this.dischargeSummaryButton = this.page.getByRole('button', {
+      name: 'Discharge summary',
+      exact: true,
+    });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.patientMedicationTab = this.page.getByTestId('tab-medication');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
@@ -269,7 +282,13 @@ export class PatientDetailsPage extends BasePatientPage {
     this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.invoicingTab = this.page.getByTestId('styledtab-ccs8-invoicing');
-    this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    // Scoped to the Encounter history section's own container: 'styledtablebody-a0jz' is a
+    // generic styled-component testid that a within-encounter Tasks table also happens to use,
+    // so an unscoped match can silently grab that table's (non-interactive) row instead.
+    this.encountersList = this.page
+      .getByTestId('contentpane-n51k')
+      .getByTestId('styledtablebody-a0jz')
+      .locator('tr');
     this.departmentLabel = this.page
       .getByTestId('cardlabel-0v8z')
       .filter({ hasText: 'Department' })
@@ -442,12 +461,26 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.encounterMedicationPane;
   }
 
+  async navigateToPatientMedicationTab(): Promise<PatientMedicationPane> {
+    await this.patientMedicationTab.click();
+    if (!this.patientMedicationPane) {
+      this.patientMedicationPane = new PatientMedicationPane(this.page);
+    }
+    await this.patientMedicationPane.waitForPaneToLoad();
+    return this.patientMedicationPane;
+  }
+
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
   }
 
   async navigateToFirstEncounter() {
     await this.encountersList.first().waitFor({ state: 'visible' });
+    // Immediately after returning to this tab (e.g. from finalising a discharge), the row can be
+    // present and visible a beat before its click handler is wired up by React's commit — no
+    // observable signal distinguishes that instant from "ready", so a short, fixed wait is the
+    // pragmatic guard against silently clicking a not-yet-interactive row.
+    await this.page.waitForTimeout(300);
     await this.encountersList.first().click();
   }
 

@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { RowField } from './RowField';
-import { VaccineDataProps } from '.';
+import type { VaccineDataProps } from '.';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';

@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   SERVER_TYPES,
   VERSION_COMPATIBILITY_ERRORS,
@@ -16,7 +17,7 @@ import {
 } from '@tamanu/errors';
 import * as jose from 'jose';
 
-const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
+const { CentralServerConnection } = (await vi.importActual('../../app/sync/CentralServerConnection'));
 
 const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -41,6 +42,19 @@ const fakeProblem = error => {
   const problem = Problem.fromError(error);
   return fakeResponse({ status: problem.status, ok: false }, problem.toJSON(), problem.headers);
 };
+// A reverse proxy answering for the central server with its own error page, so the
+// body is HTML rather than a problem document.
+const fakeGatewayFailure = status =>
+  Promise.resolve({
+    status,
+    ok: false,
+    json: () => Promise.reject(new Error('Unexpected token < in JSON at position 0')),
+    text: () => Promise.resolve(`<!doctype html><title>${status}</title><h1>${status}</h1>`),
+    headers: {
+      get: key => ({ 'content-type': 'text/html; charset=utf-8' })[key.toLowerCase()],
+      has: () => false,
+    },
+  });
 
 describe('CentralServerConnection', () => {
   // Create a valid JWT token for testing
@@ -129,7 +143,7 @@ describe('CentralServerConnection', () => {
     let fetch;
     let centralServer;
     beforeEach(() => {
-      fetch = jest.spyOn(global, 'fetch');
+      fetch = vi.spyOn(global, 'fetch');
       centralServer = new CentralServerConnection({ deviceId: 'test' });
       centralServer.fetchImplementation = fetch;
     });
@@ -198,6 +212,16 @@ describe('CentralServerConnection', () => {
       await expect(centralServer.connect()).rejects.toBeProblemOfType(ERROR_TYPE.REMOTE);
     });
 
+    it('throws a RemoteCallError if the error body is not a problem document', async () => {
+      // A gateway error page is the remote misbehaving, not a validation failure:
+      // keeping it as a remote error (with its real status) is what lets callers
+      // tell it apart from a problem the request itself caused.
+      fetch.mockReturnValueOnce(fakeGatewayFailure(502));
+      const problem = await centralServer.connect().catch(err => err);
+      expect(problem).toBeProblemOfType(ERROR_TYPE.REMOTE);
+      expect(problem.status).toBe(502);
+    });
+
     it('retrieves server settings', async () => {
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
       expect((await centralServer.loginData()).settings).toMatchObject({
@@ -224,8 +248,8 @@ describe('CentralServerConnection', () => {
     });
 
     it('times out requests', async () => {
-      jest.setTimeout(2000); // fail quickly
-      jest.useFakeTimers();
+      vi.setConfig({ testTimeout: 2000 }); // fail quickly
+      vi.useFakeTimers();
       fetch.mockReturnValue(
         Promise.reject(
           new (class extends Error {
@@ -236,7 +260,7 @@ describe('CentralServerConnection', () => {
         ),
       );
       const connectPromise = centralServer.connect();
-      jest.runAllTimers();
+      vi.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });

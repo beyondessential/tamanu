@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
 import { WS_EVENTS } from '@tamanu/constants';
 
 import {
@@ -20,7 +19,6 @@ import {
 } from '../../features/ImmunisationsTable/accessors';
 import { usePatientNavigation } from '../../utils/usePatientNavigation.js';
 import { PATIENT_TABS } from '../../constants/patientPaths.js';
-import { reloadPatient } from '../../store/index.js';
 import { UpdateStatsDisplay } from '../../components/Table/UpdateStatsDisplay.jsx';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery.js';
 
@@ -104,7 +102,6 @@ const COLUMNS = [
 
 export const ImmunisationsView = () => {
   const [refreshCount, setRefreshCount] = useState(0);
-  const dispatch = useDispatch();
 
   // listen to any updates on the root collection, i.e. the first segment of the endpoint
   // updates at the root level indicate anything below needs to be re-fetched
@@ -116,8 +113,7 @@ export const ImmunisationsView = () => {
 
   const [searchParameters, setSearchParameters] = useState({});
   const { navigateToPatient } = usePatientNavigation();
-  const onRowClick = async (patient) => {
-    await dispatch(reloadPatient(patient.id));
+  const onRowClick = (patient) => {
     navigateToPatient(patient.id, { tab: PATIENT_TABS.VACCINES });
   };
 

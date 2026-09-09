@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native';
+import { type NativeScrollEvent, type NativeSyntheticEvent, ScrollView, View } from 'react-native';
 import { StyledView } from '/styled/common';
 
 export type TableHeader = {

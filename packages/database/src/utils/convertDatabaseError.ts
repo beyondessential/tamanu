@@ -9,6 +9,11 @@ import {
 import * as sequelize from 'sequelize';
 
 export function convertDatabaseError(error: sequelize.BaseError): BaseError {
+  // UniqueConstraintError extends ValidationError, so it has to be tested first.
+  if (error instanceof sequelize.UniqueConstraintError) {
+    return new DatabaseDuplicateError(error.message).withCause(error);
+  }
+
   if (error instanceof sequelize.ValidationError) {
     return new DatabaseValidationError(error.message).withCause(error).withExtraData({
       validations: error.errors.map(err => err.validatorName),
@@ -31,10 +36,6 @@ export function convertDatabaseError(error: sequelize.BaseError): BaseError {
     return new DatabaseRelationError(error.message).withCause(error).withExtraData({
       relation: error.index,
     });
-  }
-
-  if (error instanceof sequelize.UniqueConstraintError) {
-    return new DatabaseDuplicateError(error.message).withCause(error);
   }
 
   return new DatabaseError(error.message).withCause(error);

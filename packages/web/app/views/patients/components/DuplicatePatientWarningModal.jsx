@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
 
 import { OutlinedButton, ButtonRow, Modal, TranslatedText } from '@tamanu/ui-components';
 import { Heading4, LargeBodyText, Table } from '../../../components';
@@ -15,7 +14,6 @@ import {
   village,
 } from '../columns';
 import { ConfirmRowDivider } from '../../../components/ConfirmRowDivider';
-import { reloadPatient } from '../../../store';
 
 const LeftAlignedButton = styled(OutlinedButton)`
   margin-right: auto;
@@ -44,7 +42,6 @@ export const DuplicatePatientWarningModal = ({
   data,
 }) => {
   const { navigateToPatient } = usePatientNavigation();
-  const dispatch = useDispatch();
 
   const { proposedPatient, potentialDuplicates } = data;
 
@@ -93,7 +90,6 @@ export const DuplicatePatientWarningModal = ({
         data={potentialDuplicates}
         elevated={false}
         onRowClick={row => {
-          dispatch(reloadPatient(row.id));
           navigateToPatient(row.id);
         }}
       />

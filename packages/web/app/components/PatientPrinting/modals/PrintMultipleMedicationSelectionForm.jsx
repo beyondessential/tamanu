@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { intersectionBy } from 'es-toolkit/compat';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { MAX_REPEATS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
@@ -27,6 +26,7 @@ import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { MAX_AGE_TO_RECORD_WEIGHT } from '../../../constants';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+import { usePatient } from '../../../contexts/Patient';
 import { preventInvalidRepeatsInput, singularize } from '../../../utils';
 import { Table, useSelectableColumn } from '../../Table';
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
@@ -222,8 +222,8 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     selectAllOnInit: true,
   });
 
-  const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
+  const { patient } = usePatient();
+  const age = getAgeDurationFromDate(patient?.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
 
   useEffect(() => {

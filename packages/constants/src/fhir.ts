@@ -256,6 +256,7 @@ export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
   EMER: 'emergency',
   HH: 'home health',
   VR: 'virtual',
+  FLD: 'field',
 };
 
 export const FHIR_ENCOUNTER_CLASS_CODE = Object.fromEntries(

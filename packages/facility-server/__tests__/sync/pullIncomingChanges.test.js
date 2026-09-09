@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it, vi } from 'vitest';
 
 import { SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
 import { encodeSnapshotCursor } from '@tamanu/database/sync';
@@ -22,8 +22,8 @@ describe('pullIncomingChanges', () => {
     // central server reports records to pull, but the pull query returns an empty page
     // (reachable when totalToPull diverges from the dependency-ordered pull query)
     const centralServer = {
-      initiatePull: jest.fn().mockResolvedValue({ totalToPull: 10, pullUntil: 42 }),
-      pull: jest.fn().mockResolvedValue([]),
+      initiatePull: vi.fn().mockResolvedValue({ totalToPull: 10, pullUntil: 42 }),
+      pull: vi.fn().mockResolvedValue([]),
     };
     const sequelize = {};
 

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { Routes } from '/helpers/routes';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { VisitsScreen } from '../screens/historyvitals/tabs/VisitsScreen';

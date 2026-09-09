@@ -40,9 +40,12 @@ export function buildEncounterLinkedLookupJoins(
   ]);
 }
 
-export async function buildEncounterLinkedLookupFilter(model: typeof Model) {
+export async function buildEncounterLinkedLookupFilter(
+  model: typeof Model,
+  joinsToEncounters?: JoinConfig[],
+) {
   return {
     select: await buildEncounterLinkedLookupSelect(model),
-    joins: buildEncounterLinkedLookupJoins(model),
+    joins: buildEncounterLinkedLookupJoins(model, joinsToEncounters),
   };
 }

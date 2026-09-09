@@ -33,10 +33,8 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId, patientId);
-  const {
-    data: insurancePlans = [],
-    isLoading: isLoadingInsurancePlans,
-  } = usePatientInsurancePlansQuery({ patientId });
+  const { data: insurancePlans = [], isLoading: isLoadingInsurancePlans } =
+    usePatientInsurancePlansQuery({ patientId });
   const { navigateToPatient } = usePatientNavigation();
   const onChange = ({ target }) => {
     const value = typeof target.value === 'string' ? JSON.parse(target.value) : target.value;

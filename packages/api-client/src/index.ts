@@ -1,4 +1,6 @@
 export { TamanuApi } from './TamanuApi';
+export { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
+export type { RetryBackoffOptions } from './fetchWithRetryBackoff';
 export {
   buildTokenStorageKeyMaterial,
   packPersistedToken,

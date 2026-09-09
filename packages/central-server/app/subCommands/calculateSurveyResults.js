@@ -65,9 +65,11 @@ const calculateSurveyResult = async (store, surveyResponseId, surveyComponents) 
   );
 
   const answerByCode = getAnswerByCode(answerRows);
-  const visibleResultComponents = surveyComponents
-    .filter(component => component.type === 'Result')
-    .filter(component => checkVisibilityCriteria(component, surveyComponents, answerByCode));
+  const visibleResultComponents = surveyComponents.filter(
+    component =>
+      component.type === 'Result' &&
+      checkVisibilityCriteria(component, surveyComponents, answerByCode),
+  );
 
   // use the last visible component in the array
   const finalResultComponent = visibleResultComponents[visibleResultComponents.length - 1];

@@ -10,7 +10,6 @@ import {
   NotFoundError,
   RemoteUnreachableError,
   UnknownError,
-  ValidationError,
 } from './errors';
 
 export function isRecoverable(error: Error) {
@@ -118,15 +117,26 @@ interface Logger {
   warn: (message: string, ...args: any[]) => void;
 }
 
+/**
+ * A body we can't read is the remote misbehaving, not the caller sending
+ * something invalid, so keep the response's own status: a reverse proxy serving
+ * an HTML 502 page has to stay a server error rather than looking like a
+ * validation failure the caller could fix. Mirrors the empty-body and
+ * unrecognised-shape branches of `readResponse`.
+ */
+function unreadableBody(response: Response, detail: string, cause: Error): Problem {
+  const problem = new Problem(ERROR_TYPE.REMOTE, 'Server error', response.status, detail);
+  problem.cause = cause;
+  return problem;
+}
+
 async function readResponse(response: Response, logger: Logger = console): Promise<Problem> {
   let data;
   try {
     data = await response.text();
   } catch (err) {
     logger.warn('readResponseError: Error decoding text', err);
-    return Problem.fromError(
-      new ValidationError('Invalid text encoding in response').withCause(err as Error),
-    );
+    return unreadableBody(response, 'Invalid text encoding in response', err as Error);
   }
 
   if (data.length === 0) {
@@ -138,9 +148,7 @@ async function readResponse(response: Response, logger: Logger = console): Promi
     json = JSON.parse(data);
   } catch (err) {
     logger.warn('readResponseError: Error parsing JSON', err);
-    return Problem.fromError(
-      new ValidationError('Invalid JSON in response').withCause(err as Error),
-    );
+    return unreadableBody(response, 'Invalid JSON in response', err as Error);
   }
 
   const problem = Problem.fromJSON(json);

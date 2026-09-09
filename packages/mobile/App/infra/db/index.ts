@@ -1,18 +1,18 @@
-import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite'
+import {
+  type Connection,
+  type ConnectionOptions,
+  createConnection,
+  getConnectionManager,
+} from 'typeorm';
+import { typeORMDriver } from 'react-native-quick-sqlite';
 import { DevSettings } from 'react-native';
 
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
+import getCacheSizeKiB from './cacheSize';
 
-const LOG_LEVELS = __DEV__
-  ? [
-      'error' as const,
-      // 'query' as const,
-      'schema' as const,
-    ]
-  : [];
+const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
 
 const CONNECTION_CONFIG = {
   type: 'react-native',
@@ -34,6 +34,11 @@ const TEST_CONNECTION_CONFIG = {
   entities: MODELS_ARRAY,
 } as const;
 
+export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
+
+/** 90 minutes */
+const PLANNER_STATS_REFRESH_INTERVAL_MS = 5_400_000;
+
 const getConnectionConfig = (): ConnectionOptions => {
   const isJest = process.env.JEST_WORKER_ID !== undefined;
   if (isJest) {
@@ -43,6 +48,8 @@ const getConnectionConfig = (): ConnectionOptions => {
 };
 
 class DatabaseHelper {
+  private isAnalyzing = false;
+
   client: Connection = null;
 
   models = MODELS_MAP;
@@ -50,7 +57,7 @@ class DatabaseHelper {
   syncError = null;
 
   constructor() {
-    MODELS_ARRAY.forEach(m => m.injectAllModels(this.models));
+    for (const m of MODELS_ARRAY) m.injectAllModels(this.models);
   }
 
   async forceSync(): Promise<any> {
@@ -123,12 +130,76 @@ class DatabaseHelper {
     try {
       await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
       await this.client.query(`PRAGMA synchronous = 2;`);
-      await this.client.query(`PRAGMA cache_size = -2000;`); // 2MB cache
+      const cacheSizeKiB = await getCacheSizeKiB();
+      await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
       await this.client.query(`PRAGMA locking_mode = NORMAL;`);
       await this.client.query(`PRAGMA temp_store = 0;`);
-      console.log('Applied default pragma settings');
+      console.log(`Applied default pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying default pragma settings:', e);
+    }
+  }
+
+  /**
+   * With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
+   * which would take care of running ANALYZE as needed. Our version of `react-native-quick-sqlite`
+   * gives us SQLite 3.39.
+   * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
+   * @returns Whether the refresh succeeded
+   */
+  private async refreshQueryPlannerStats(): Promise<boolean> {
+    const start = performance.now();
+    try {
+      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none.
+      // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
+      await this.client.query('PRAGMA analysis_limit = 400;');
+      await this.client.query('ANALYZE;');
+      console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
+      return true;
+    } catch (e) {
+      console.error(`Approximate ANALYZE failed after ${performance.now() - start}ms:`, e);
+      return false;
+    }
+  }
+
+  /**
+   * Throttles to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   * opportunistically without repeatedly taking ANALYZE’s write lock.
+   */
+  async requestQueryPlannerStatsRefresh(): Promise<void> {
+    // Prevent background → foreground → background cycle from causing overlapping calls
+    if (this.isAnalyzing) return;
+    this.isAnalyzing = true;
+    try {
+      const fact = await this.models.LocalSystemFact.findOne({
+        select: ['value'],
+        where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+      });
+      const lastRefresh = Number.parseInt(fact?.value, 10);
+      if (
+        Number.isFinite(lastRefresh) &&
+        Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
+      ) {
+        return;
+      }
+
+      const succeeded = await this.refreshQueryPlannerStats();
+      if (!succeeded) return;
+
+      // Upsert; `key` has no unique index, so ON CONFLICT isn’t available
+      const value = Date.now().toString();
+      const { affected } = await this.models.LocalSystemFact.update(
+        { key: PLANNER_STATS_REFRESHED_AT_KEY },
+        { value },
+      );
+      if (!affected) {
+        await this.models.LocalSystemFact.insert({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
+      }
+    } catch (e) {
+      // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
+      console.error('Error checking/recording query planner stats refresh:', e);
+    } finally {
+      this.isAnalyzing = false;
     }
   }
 
@@ -137,16 +208,16 @@ class DatabaseHelper {
   async setUnsafePragma(): Promise<void> {
     try {
       // Disables rollback journal - no transaction rollback or crash recovery
-      await this.client.query(`PRAGMA journal_mode = OFF;`); 
+      await this.client.query('PRAGMA journal_mode = OFF;');
       // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
-      await this.client.query(`PRAGMA synchronous = 0;`); 
-      // Sets page cache to 1M pages (~1GB with default 1KB pages)
-      await this.client.query(`PRAGMA cache_size = 1000000;`); 
+      await this.client.query('PRAGMA synchronous = 0;');
+      const cacheSizeKiB = await getCacheSizeKiB(true);
+      await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
       // Locks database exclusively - prevents other processes from accessing
-      await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); 
+      await this.client.query('PRAGMA locking_mode = EXCLUSIVE;');
       // Stores temporary tables, indices, and views in RAM instead of disk
-      await this.client.query(`PRAGMA temp_store = MEMORY;`); 
-      console.log('Applied unsafe pragma settings');
+      await this.client.query('PRAGMA temp_store = MEMORY;');
+      console.log(`Applied unsafe pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying unsafe pragma settings:', e);
     }

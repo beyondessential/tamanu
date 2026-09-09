@@ -10,32 +10,21 @@ const REQUIRED_MESSAGE = (
   />
 );
 
-// Invoice item rows are autofilled with date, quantity and ordered-by clinician. A row only counts
-// as intentionally edited once the user sets a product or a manual price; ordered-by is excluded
-// because it's prefilled. != null keeps legitimate falsy values like manualEntryPrice=0 as input.
-const hasUserEnteredData = ({ productId, manualEntryPrice }) =>
-  productId != null || manualEntryPrice != null;
-
+// Every invoice line needs a product and an ordered-by clinician, on both the add and edit paths.
+// This also keeps an already-saved line from being cleared to delete it: blanking either field
+// fails validation, so the line has to go through the Delete action instead.
 export const invoiceFormSchema = yup.object({
   invoiceItems: yup.array(
     yup.object().shape({
       orderDate: yup.string().required(REQUIRED_MESSAGE),
-      productId: yup.string().when('manualEntryPrice', {
-        is: manualEntryPrice => hasUserEnteredData({ manualEntryPrice }),
-        then: schema => schema.required(REQUIRED_MESSAGE),
-        otherwise: schema => schema.nullable(),
-      }),
-      orderedByUserId: yup.string().when(['productId', 'manualEntryPrice'], {
-        is: (productId, manualEntryPrice) =>
-          hasUserEnteredData({ productId, manualEntryPrice }),
-        then: schema => schema.required(REQUIRED_MESSAGE),
-        otherwise: schema => schema.nullable(),
-      }),
+      productId: yup.string().required(REQUIRED_MESSAGE),
+      orderedByUserId: yup.string().required(REQUIRED_MESSAGE),
       quantity: yup
         .number()
         .transform((value, originalValue) => (originalValue === '' ? undefined : value))
         .required(REQUIRED_MESSAGE),
       manualEntryPrice: yup.number().nullable(),
+      isExistingItem: yup.boolean(),
     }),
   ),
 });

@@ -92,7 +92,7 @@ export const TasksPane = React.memo(({ encounter }) => {
       statuses.push(TASK_STATUSES.NON_COMPLETED);
     }
 
-    setSearchParameters({ ...searchParameters, statuses });
+    setSearchParameters(prev => ({ ...prev, statuses }));
   }, [showCompleted, showNotCompleted]);
 
   return (

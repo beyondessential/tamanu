@@ -17,8 +17,9 @@ This provides a system which is robust against restarts and failures without req
 daemon to track and manage worker state, nor persistent connections from the workers (which is how
 Gearman works).
 
-The function `job_worker_garbage_collect()` should be called occasionally (e.g. once a day) to clean
-out the table of dead workers.
+The function `job_worker_garbage_collect()` cleans dead workers out of the table. The
+`FhirJobWorkerCleaner` scheduled task calls it daily; anything else driving the queue should call it
+about as often.
 
 Worker management is done via SQL functions: `job_worker_register()`, `job_worker_heartbeat()`,
 `job_worker_deregister()`, `job_worker_garbage_collect()`. Additionally there's the querying
@@ -33,11 +34,12 @@ When the worker registered itself.
 {% enddocs %}
 
 {% docs fhir__job_workers__updated_at %}
-Always set to `created_at`.
+When the worker last heartbeated; set to `created_at` on registration.
 {% enddocs %}
 
 {% docs fhir__job_workers__deleted_at %}
-Unused: deregistered and dead workers are hard-deleted instead.
+When the worker left the registry: set on deregistration, and on garbage collection for a worker that
+stopped heartbeating without deregistering.
 {% enddocs %}
 
 {% docs fhir__job_workers__metadata %}

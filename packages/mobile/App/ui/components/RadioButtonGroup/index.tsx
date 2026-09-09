@@ -1,7 +1,7 @@
-import React, { FC, useEffect } from 'react';
+import React, { type FC, useEffect } from 'react';
 import { RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { RadioButton, RadioOption } from '../RadioButton';
+import { RadioButton, type RadioOption } from '../RadioButton';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
 

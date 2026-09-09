@@ -20,6 +20,7 @@ import { AutocompleteField, Field } from '..';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { useEncounter } from '../../contexts/Encounter';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -45,6 +46,7 @@ const validationSchema = yup.object().shape({
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
   const { getCurrentDateTime } = useDateTime();
   const api = useApi();
+  const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
   const { encounter, loadEncounter } = useEncounter();
 
@@ -77,7 +79,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
         onSubmit={onSubmit}
         onSuccess={onClose}
         formType={FORM_TYPES.CREATE_FORM}
-        initialValues={{}}
+        initialValues={{ discontinuingClinicianId: currentUser?.id }}
         validationSchema={validationSchema}
         render={({ submitForm }) => (
           <>

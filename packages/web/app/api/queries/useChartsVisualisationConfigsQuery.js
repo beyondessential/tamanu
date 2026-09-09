@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEncounter } from '../../contexts/Encounter';
-import { combineQueries, isErrorUnknownAllow404s, useApi } from '../index';
+import { combineQueries, useApi } from '../index';
 import { usePatientDataQuery } from './usePatientDataQuery';
 import { useSurveyQuery } from './useSurveyQuery';
 import { useChartData } from '../../contexts/ChartData';
@@ -18,12 +18,7 @@ export const useChartsVisualisationConfigsQuery = () => {
   // Fetch chart data to determine which historical questions have data
   const chartDataQuery = useQuery(
     ['encounterCharts', encounter?.id, selectedChartTypeId],
-    () =>
-      api.get(
-        `encounter/${encounter?.id}/charts/${selectedChartTypeId}`,
-        { rowsPerPage: 1 },
-        { isErrorUnknown: isErrorUnknownAllow404s },
-      ),
+    () => api.get(`encounter/${encounter?.id}/charts/${selectedChartTypeId}`, { rowsPerPage: 1 }),
     { enabled: Boolean(encounter?.id) && Boolean(selectedChartTypeId) },
   );
 

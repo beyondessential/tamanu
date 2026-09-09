@@ -17,9 +17,7 @@ export class FrequencySuggester {
       return null;
     }
     // Find the suggestion object that matches the given value (ID)
-    const selectedSuggestion = this.suggestions.find(
-      suggestion => suggestion.value === value,
-    );
+    const selectedSuggestion = this.suggestions.find(suggestion => suggestion.value === value);
     return selectedSuggestion || null;
   };
 
@@ -44,7 +42,7 @@ export class FrequencySuggester {
     return this.suggestions
       .map(suggestion => ({
         ...suggestion,
-        matchType: getMatchType(suggestion.label, suggestion.synonyms)
+        matchType: getMatchType(suggestion.label, suggestion.synonyms),
       }))
       .filter(suggestion => suggestion.matchType < 4) // Remove non-matches
       .sort((a, b) => {
