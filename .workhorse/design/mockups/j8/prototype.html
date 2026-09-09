@@ -38,6 +38,7 @@
   .sec-title { font-size:18px; letter-spacing:-0.01em; font-weight:620; margin:44px 0 18px; }
   .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
   .grid.two { grid-template-columns:repeat(2,1fr); }
+  .grid.three { grid-template-columns:repeat(3,1fr); }
   @media (max-width:1180px){ .grid{ grid-template-columns:repeat(2,1fr);} }
   .lcard { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; transition:border-color .12s, transform .12s; cursor:pointer; }
   .lcard:hover { border-color:#cfcfd4; transform:translateY(-1px); }
@@ -156,6 +157,29 @@
   .simple li { margin-bottom:8px; }
   .simple li strong { color:var(--ink); font-weight:620; }
 
+  /* ---------- report an issue ---------- */
+  main.report { max-width:760px; margin:0 auto; padding:48px 24px 110px; min-width:0; }
+  .report h1 { font-size:32px; letter-spacing:-0.025em; margin:0 0 10px; font-weight:680; }
+  .report .subtitle { font-size:16px; color:var(--ink-3); margin:0 0 34px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:640px){ .form-row{ grid-template-columns:1fr; } }
+  .field { margin-bottom:22px; }
+  .field > label { display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:var(--ink); }
+  .field label .opt { color:var(--ink-3); font-weight:400; }
+  .inp { width:100%; border:1px solid var(--line); border-radius:8px; padding:11px 13px; font:inherit; font-size:14px; color:var(--ink); background:var(--bg); outline:none; }
+  .inp:hover { border-color:#d3d3d8; }
+  .inp:focus { border-color:var(--ink); box-shadow:0 0 0 3px rgba(0,0,0,0.04); }
+  select.inp { appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round'><path d='m4 6 4 4 4-4'/></svg>"); background-repeat:no-repeat; background-position:right 13px center; padding-right:36px; color:var(--ink-3); }
+  textarea.inp { min-height:132px; resize:vertical; line-height:1.5; }
+  .dropzone { border:1.5px dashed #d6d6da; border-radius:10px; background:var(--fill); padding:32px; text-align:center; color:var(--ink-3); font-size:14px; cursor:pointer; }
+  .dropzone:hover { border-color:var(--ink-4); }
+  .dropzone .browse { color:var(--ink); font-weight:600; text-decoration:underline; }
+  .note { display:flex; gap:10px; border-left:3px solid var(--ink); background:var(--fill); border-radius:0 8px 8px 0; padding:10px 14px; font-size:13.5px; color:var(--ink-2); margin-top:12px; }
+  .form-actions { margin-top:28px; display:flex; gap:12px; align-items:center; }
+  .btn-primary { background:var(--ink); color:#fff; border:none; border-radius:9px; padding:12px 20px; font:inherit; font-size:14px; font-weight:560; cursor:pointer; }
+  .btn-primary:hover { opacity:0.88; }
+  .form-note { font-size:12.5px; color:var(--ink-4); }
+
   /* ---------- scrim ---------- */
   #scrim { position:fixed; inset:0; background:rgba(20,20,22,0.28); z-index:40; }
 
@@ -248,6 +272,7 @@
     <nav class="links">
       <a data-goto="manuals" data-nav="manuals">User manuals</a>
       <a data-goto="releases" data-nav="releases">Release notes</a>
+      <a data-goto="report" data-nav="report">Report an issue</a>
     </nav>
     <div class="nav-right" id="nav-right" hidden>
       <div class="searchbox" data-open="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> Search <span class="k">/</span></div>
@@ -278,9 +303,10 @@
       <div class="lcard" data-goto="article"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="14" height="10" rx="2"/><path d="M17 11l4-2v8l-4-2z"/></svg></div><div class="body"><h3>Sending to pharmacy</h3><p>Send medications at prescribing and at discharge.</p></div></div>
     </div>
     <div class="sec-title">Browse</div>
-    <div class="grid two">
+    <div class="grid three">
       <div class="lcard" data-goto="manuals"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></div><div class="body"><h3>User manuals</h3><p>Step-by-step guides for clinical, administrative and configuration workflows.</p></div></div>
       <div class="lcard" data-goto="releases"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></div><div class="body"><h3>Release notes</h3><p>What changed in each version, with upgrade notes and recommended testing.</p></div></div>
+      <div class="lcard" data-goto="report"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4 3 17a2 2 0 0 0 1.7 3h14.6a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/></svg></div><div class="body"><h3>Report an issue</h3><p>Something not working as expected? Send us the details and we'll investigate.</p></div></div>
     </div>
   </div>
 </section>
@@ -307,7 +333,7 @@
       <div class="side-foot">
         <a class="active" data-goto="manuals"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8"/></svg> User manuals</a>
         <a data-goto="releases"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/></svg> Release notes</a>
-        <a><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Contact support</a>
+        <a data-goto="report"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4 3 17a2 2 0 0 0 1.7 3h14.6a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/></svg> Report an issue</a>
       </div>
     </aside>
     <div class="m-index">
@@ -456,6 +482,58 @@
       </section>
     </main>
   </div>
+</section>
+
+<!-- ============ VIEW: REPORT AN ISSUE ============ -->
+<section data-view="report" hidden>
+  <main class="report">
+    <h1>Report an issue</h1>
+    <p class="subtitle">Tell us what went wrong and we'll look into it. Fields marked optional can be left blank.</p>
+
+    <form onsubmit="return false">
+      <div class="form-row">
+        <div class="field">
+          <label for="r-name">Name</label>
+          <input class="inp" id="r-name" type="text" />
+        </div>
+        <div class="field">
+          <label for="r-email">Email</label>
+          <input class="inp" id="r-email" type="email" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="r-deployment">Country or deployment</label>
+        <select class="inp" id="r-deployment">
+          <option value="" selected>Select...</option>
+          <option>Fiji</option>
+          <option>Samoa</option>
+          <option>Tonga</option>
+          <option>Vanuatu</option>
+          <option>Kiribati</option>
+          <option>Nauru</option>
+          <option>Solomon Islands</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="r-desc">Describe the issue</label>
+        <textarea class="inp" id="r-desc" placeholder="What happened, and what did you expect to happen?"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Screenshots <span class="opt">(optional)</span></label>
+        <div class="dropzone">Drop files here or <span class="browse">browse</span></div>
+        <div class="note">Obscure patient details before attaching.</div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" type="submit">Submit report</button>
+        <span class="form-note">We may follow up by email.</span>
+      </div>
+    </form>
+  </main>
 </section>
 
 <!-- ============ OVERLAYS ============ -->

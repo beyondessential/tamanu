@@ -18,6 +18,11 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable sidebar + footer cluster, right card grid of Popular and category sections).
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
 - `release-notes.html` — Linear changelog: left version index, centre reverse-chronological entries. Real v2.61–2.63 content.
+- `report-issue.html` — a "Report an issue" support form: Name, Email, Country or deployment (select),
+  Describe the issue (textarea), Screenshots drop zone (optional) with a "obscure patient details"
+  warning, and a Submit button. Reachable from the top nav, a home Browse card, and the manuals
+  sidebar. Rendered in the mono palette (the reference's amber warning and blue link kept monochrome
+  for now).
 - `search-overlay.html` — global search palette. An "Ask AI assist" card sits at the top and always
   opens the Ask AI drawer. With nothing typed, the body shows a single **Popular** list: the top five
   most-accessed items across both user manuals and release notes. Once the user types, it switches to
@@ -36,9 +41,8 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 ## Decisions taken
 
 - **Deployment: standalone public docs site**, independent of the Tamanu app.
-- **Hub scope: user manuals + release notes only** for now. API reference and the operational
-  docs (`docs/runbooks`, `docs/sops`, `docs/reference`) stay out of the hub. Drop "API" from the
-  top nav in the next revision.
+- **Hub scope: user manuals, release notes, and a Report an issue support form.** API reference and
+  the operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) stay out of the hub.
 - Black-and-white palette, Inter typeface, subtle 1px borders, generous whitespace.
 - Shared top bar (Search + separate Ask AI control) and Linear left-sidebar pattern across pages.
 - **Search and Ask AI are two distinct controls** (Stripe pattern), not one combined bar.
