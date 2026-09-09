@@ -34,6 +34,46 @@ style rather than the spec format. It belongs in
 Deliberately out of scope for this card. It makes an obvious early target once the skill exists, and a
 good real-world exercise of update mode against a guide nobody generated.
 
+## Medications migration: gaps and corrections
+
+The Medications guide has been migrated to
+`docs/user-manuals/system-administration/medications/configuration-guide.md`, with the section and
+module READMEs seeded. Authoring it against code surfaced real drift, which is the first evidence that
+the code-derived approach earns its keep.
+
+**Corrected in the migrated guide** (facts the guide already documented, which the code contradicts):
+
+- **Units.** The published list holds about 31 units; the code has 57. Missing were `Ampule`,
+  `Applicator`, `Bag`, `Blister Pack`, `Bottle`, `Box`, `Can`, `Canister`, `Carton`, `Cartridge`,
+  `Each`, `Inhaler`, `Jar`, `Kit`, `Million units`, `Pack`, `Package`, `Pen`, `Roll`, `Sachet`,
+  `Syringe`, `Tin`, `Tray`, `Tube`
+- **Routes.** `intraocular` and `intravitreal` were absent
+- **Frequencies.** `Hourly` and `Half-hourly` were absent, and both have fixed administration times
+- **Drug columns.** The `units` column is gone entirely, not merely superseded by `dosingUnit`.
+  `availableFacilities` and `systemRequired` were undocumented
+- **Medication Set `type`.** Documented as `MedicationSet`; the actual value is `medicationSet`
+- **Medication Template.** `dosingUnit` is required and `units` no longer exists. Undocumented rules:
+  a duration cannot be set when frequency is `Immediately` or the medication is ongoing, and
+  `doseAmount` is required unless the dose is variable
+- **Medication Set templates cell** is authoritative, so removing a template from the cell removes it
+  from the set. Not previously stated
+
+**Reported, not added** (configuration absent from the guide, for a decision on whether it belongs):
+
+- Settings: `medications.dispensing.prescriptionLabelSize` (width/height),
+  `medications.dispensing.autoDeleteTimeframeHours`,
+  `medicationAdministrationRecord.upcomingRecordsShouldBeGeneratedTimeFrame`,
+  `features.pharmacyOrder.*` (`enabled`, `medicationAlreadyOrderedConfirmationTimeout`,
+  `sendViaMSupply`), facility `medications.pharmacyOrder.preselectSendToPharmacyOnDischarge`,
+  facility `medications.medicationDispensing.automaticEncounterLocationId` / `...DepartmentId`,
+  `layouts.patientTabs.medication` and `layouts.sidebar.medication.*`, and the central schedules
+  `generateMedicationAdministrationRecords`, `medicationDiscontinuer`, `autoDeleteMedicationRequests`
+- Reference data types: `medicationDispenseModifyReason`, `medicationPresetLabel`
+- Permission subjects: `MedicationDispense`, `MedicationRequest`
+
+Several of these look like Dispensing module territory rather than omissions from this guide, which is
+exactly the editorial call the author confirmation step exists to make.
+
 ## Sources of truth in code
 
 The guide's three code-derived sections each have a clean, machine-readable home. This is better than
