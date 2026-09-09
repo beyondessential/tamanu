@@ -125,7 +125,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, setFieldValue, onClose
 };
 
 export const LabRequestRecordSampleModal = React.memo(
-  ({ updateLabReq, labRequest, open, onClose }) => {
+  ({ updateLabReq, labRequest, open, onClose, onSampleRecorded }) => {
     const { getSetting } = useSettings();
     const { getCurrentDateTime } = useDateTime();
     const { currentUser } = useAuth();
@@ -141,7 +141,13 @@ export const LabRequestRecordSampleModal = React.memo(
           specimenCollected: true,
         }),
       });
-      onClose();
+      // A fresh collection hands off to the view (which may auto-print the sample label); editing
+      // the date/time of an already-collected sample just closes.
+      if (sampleNotCollected && onSampleRecorded) {
+        onSampleRecorded();
+      } else {
+        onClose();
+      }
     };
 
     return (

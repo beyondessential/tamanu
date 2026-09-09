@@ -1480,16 +1480,6 @@ export const globalSettings = {
       description: 'Custom dimensions for PDFs',
       exposedToWeb: true,
       properties: {
-        labRequestPrintLabel: {
-          description: 'Lab request label with basic info + barcode',
-          properties: {
-            width: {
-              type: yup.number().min(0),
-              defaultValue: 50.8,
-              unit: 'mm',
-            },
-          },
-        },
         stickerLabelPage: {
           description: 'The multiple ID labels printout on the patient view',
           properties: {
