@@ -21,14 +21,17 @@ export async function generateFake(
   while (done < rounds && errs < Math.max(10, rounds / 10)) {
     try {
       if (tallyFilePath) {
-        done += 1; // with tally, we don't want to retry errors
         await populateDbFromTallyFile(models, tallyFilePath);
+        done += 1;
       } else {
         await generateEachDataType(models);
         done += 1;
       }
       process.stdout.write('.');
     } catch (err) {
+      // A tally round is not retried, so swallowing its failure would leave the run
+      // reporting success on a database it never wrote to.
+      if (tallyFilePath) throw err;
       console.error(err);
       process.stdout.write('!');
       errs += 1;

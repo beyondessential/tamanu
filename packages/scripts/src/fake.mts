@@ -35,9 +35,11 @@ async function main() {
   }
 }
 
-if (process.env.NODE_CONFIG_DIR) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+if (!process.env.NODE_CONFIG_DIR) {
+  throw new Error('NODE_CONFIG_DIR must be set');
 }
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
