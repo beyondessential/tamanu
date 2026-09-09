@@ -17,22 +17,24 @@ export const createDbReport = async ({
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
 
   // Every definition shows in the reports list, so a round reuses one once the pool is full.
-  await pooled(ReportDefinition, async () => {
-    const reportDefinition = await ReportDefinition.create(
+  const reportDefinition = await pooled(ReportDefinition, () =>
+    ReportDefinition.create(
       fake(ReportDefinition, {
         dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
       }),
-    );
-    await ReportDefinitionVersion.create(
+    ),
+  );
+
+  await pooled(ReportDefinitionVersion, () =>
+    ReportDefinitionVersion.create(
       fake(ReportDefinitionVersion, {
         status: REPORT_STATUSES.DRAFT,
         queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
         reportDefinitionId: reportDefinition.id,
         userId: resolvedUserId,
       }),
-    );
-    return reportDefinition;
-  });
+    ),
+  );
 };
 
 interface UpdateDbReportParams extends CommonParams {
