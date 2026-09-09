@@ -20,12 +20,14 @@ Mockups under `.workhorse/design/mockups/j8/`:
   keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales
   better than one card per article when there are many manuals.
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
-- `release-notes.html` — Linear changelog: left version index, centre reverse-chronological entries. Real v2.61–2.63 content.
+- `release-notes.html` — Linear changelog, master-detail: the left version list is the contents,
+  and the reader clicks a version to view that release's notes on their own (one release shown at a
+  time, latest selected by default — no endless scroll). Real v2.61–2.63 content.
 - `report-issue.html` — a "Report an issue" support form: Name, Email, Country or deployment (select),
   Describe the issue (textarea), Screenshots drop zone (optional) with a "obscure patient details"
-  warning, and a Submit button. Reachable from the top nav, a home Browse card, and the manuals
-  sidebar. Rendered in the mono palette (the reference's amber warning and blue link kept monochrome
-  for now).
+  warning, and a Submit button. Reachable from the top nav and the manuals sidebar (kept out of the
+  home Browse row, which stays User manuals + Release notes). Rendered in the mono palette (the
+  reference's amber warning and blue link kept monochrome for now).
 - `search-overlay.html` — global search palette. An "Ask AI assist" card sits at the top and always
   opens the Ask AI drawer. With nothing typed, the body shows a single **Popular** list: the top five
   most-accessed items across both user manuals and release notes. Once the user types, it switches to

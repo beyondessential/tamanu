@@ -97,9 +97,9 @@
 <div class="layout">
   <aside class="side">
     <div class="grp-label">Versions</div>
-    <a class="ver active" href="#v263">v2.63 <span class="d">Sep 2026</span></a>
-    <a class="ver" href="#v262">v2.62 <span class="d">Aug 2026</span></a>
-    <a class="ver" href="#v261">v2.61 <span class="d">Aug 2026</span></a>
+    <a class="ver active" data-release="v263">v2.63 <span class="d">Sep 2026</span></a>
+    <a class="ver" data-release="v262">v2.62 <span class="d">Aug 2026</span></a>
+    <a class="ver" data-release="v261">v2.61 <span class="d">Aug 2026</span></a>
     <a class="ver" href="#">v2.60 <span class="d">Jul 2026</span></a>
     <a class="ver" href="#">v2.59 <span class="d">Jul 2026</span></a>
     <a class="ver" href="#">v2.58 <span class="d">Jun 2026</span></a>
@@ -132,7 +132,7 @@
     </section>
 
     <!-- v2.62 -->
-    <section class="release" id="v262">
+    <section class="release" id="v262" hidden>
       <div class="rel-head">
         <span class="verbadge">v2.62</span>
         <span class="reldate">Released 17 August 2026</span>
@@ -169,7 +169,7 @@
     </section>
 
     <!-- v2.61 -->
-    <section class="release" id="v261">
+    <section class="release" id="v261" hidden>
       <div class="rel-head">
         <span class="verbadge">v2.61</span>
         <span class="reldate">Released 10 August 2026</span>
@@ -186,5 +186,16 @@
   </main>
 </div>
 
+<script>
+  // Show one release at a time; the version list is the contents to click through
+  function selectRelease(id){
+    document.querySelectorAll('section.release').forEach(s=> s.hidden = s.id!==id );
+    document.querySelectorAll('.side-v .ver').forEach(a=> a.classList.toggle('active', a.dataset.release===id) );
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.side-v .ver[data-release]').forEach(a=>{
+    a.addEventListener('click', (e)=>{ e.preventDefault(); selectRelease(a.dataset.release); });
+  });
+</script>
 </body>
 </html>

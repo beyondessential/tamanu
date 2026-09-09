@@ -318,10 +318,9 @@
       <div class="lcard" data-goto="article"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="14" height="10" rx="2"/><path d="M17 11l4-2v8l-4-2z"/></svg></div><div class="body"><h3>Sending to pharmacy</h3><p>Send medications at prescribing and at discharge.</p></div></div>
     </div>
     <div class="sec-title">Browse</div>
-    <div class="grid three">
+    <div class="grid two">
       <div class="lcard" data-goto="manuals"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></div><div class="body"><h3>User manuals</h3><p>Step-by-step guides for clinical, administrative and configuration workflows.</p></div></div>
       <div class="lcard" data-goto="releases"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></div><div class="body"><h3>Release notes</h3><p>What changed in each version, with upgrade notes and recommended testing.</p></div></div>
-      <div class="lcard" data-goto="report"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4 3 17a2 2 0 0 0 1.7 3h14.6a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/></svg></div><div class="body"><h3>Report an issue</h3><p>Something not working as expected? Send us the details and we'll investigate.</p></div></div>
     </div>
   </div>
 </section>
@@ -467,9 +466,9 @@
   <div class="layout2">
     <aside class="side side-v">
       <div class="grp-label">Versions</div>
-      <a class="ver active" data-scroll="v263">v2.63 <span class="d">Sep 2026</span></a>
-      <a class="ver" data-scroll="v262">v2.62 <span class="d">Aug 2026</span></a>
-      <a class="ver" data-scroll="v261">v2.61 <span class="d">Aug 2026</span></a>
+      <a class="ver active" data-release="v263">v2.63 <span class="d">Sep 2026</span></a>
+      <a class="ver" data-release="v262">v2.62 <span class="d">Aug 2026</span></a>
+      <a class="ver" data-release="v261">v2.61 <span class="d">Aug 2026</span></a>
       <a class="ver">v2.60 <span class="d">Jul 2026</span></a>
       <a class="ver">v2.59 <span class="d">Jul 2026</span></a>
     </aside>
@@ -490,7 +489,7 @@
         </ul>
       </section>
 
-      <section class="release" id="v262">
+      <section class="release" id="v262" hidden>
         <div class="rel-head"><span class="verbadge">v2.62</span><span class="reldate">Released 17 August 2026</span></div>
         <h2>Configuration moves into the admin panel</h2>
         <p class="summary">A modest release. A large amount of server configuration moves into the admin panel, the ‘Send to pharmacy’ workflow extends to discharge and prescribing, and lab requests gain out-of-range result flags.</p>
@@ -514,7 +513,7 @@
         </ul>
       </section>
 
-      <section class="release" id="v261">
+      <section class="release" id="v261" hidden>
         <div class="rel-head"><span class="verbadge">v2.61</span><span class="reldate">Released 10 August 2026</span></div>
         <h2>Automatic encounter, bed and inpatient fees</h2>
         <p class="summary">Automatic invoicing of encounter, bed and inpatient fees, so facilities no longer add routine charges by hand, plus a substantial set of medication improvements.</p>
@@ -785,11 +784,22 @@
   }
   function closeOverlays(){ scrim.hidden=true; search.hidden=true; drawer.hidden=true; }
 
+  // Release notes: show one release at a time, chosen from the contents list
+  function selectRelease(id){
+    document.querySelectorAll('section.release').forEach(s=> s.hidden = s.id!==id );
+    document.querySelectorAll('.side-v .ver').forEach(a=> a.classList.toggle('active', a.dataset.release===id) );
+    const main = document.querySelector('.releases'); if (main) main.scrollTop = 0;
+    window.scrollTo(0,0);
+  }
+
   document.addEventListener('click', (e)=>{
     const goto = e.target.closest('[data-goto]');
+    const release = e.target.closest('[data-release]');
     const scroll = e.target.closest('[data-scroll]');
     const open = e.target.closest('[data-open]');
     const close = e.target.closest('[data-close]');
+
+    if (release){ e.preventDefault(); selectRelease(release.dataset.release); return; }
 
     if (open){
       e.preventDefault();
