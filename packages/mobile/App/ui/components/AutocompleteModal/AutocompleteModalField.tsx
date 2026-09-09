@@ -1,19 +1,19 @@
-import React, { type ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { StyledText, StyledView } from '/styled/common';
-import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
+import React, { type ReactElement } from 'react';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
-import { Routes } from '~/ui/helpers/routes';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
-import { RequiredIndicator } from '../RequiredIndicator';
-import { type TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { RequiredIndicator } from '../RequiredIndicator';
+import { type TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
+import autocompleteQueryOptions from './currentOptionQuery';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { StyledText, StyledView } from '/styled/common';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -54,43 +54,20 @@ export const AutocompleteModalField = ({
   const queryClient = useQueryClient();
   const { language } = useTranslation();
 
-  /**
-   * Helper so the optimistic update in {@link openModal} to avoid query key drift. Otherwise we
-   * unnecessarily query the database.
-   */
-  const getCurrentOptionKey = useCallback(
-    (optionValue: string | undefined) =>
-      suggestionKeys.currentOption(suggester?.model?.name, {
-        options: suggester?.options,
-        value: optionValue,
-        language,
-      }),
-    [suggester, language],
-  );
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: (selectedItem: OptionType): void => {
+        onChange(selectedItem.value, selectedItem);
+        // Optimistic update for immediate UI feedback
+        queryClient.setQueryData(
+          autocompleteQueryOptions(suggester, selectedItem.value, language).queryKey,
+          selectedItem,
+        );
+      },
+      suggester,
+    });
 
-  const openModal = useCallback(
-    (): void =>
-      navigation.navigate(modalRoute, {
-        callback: (selectedItem: OptionType): void => {
-          onChange(selectedItem.value, selectedItem);
-          // Optimistic update for immediate UI feedback
-          queryClient.setQueryData<OptionType>(
-            getCurrentOptionKey(selectedItem.value),
-            selectedItem,
-          );
-        },
-        suggester,
-      }),
-    [getCurrentOptionKey, modalRoute, navigation, onChange, queryClient, suggester],
-  );
-
-  // getCurrentOptionKey folds `language` into the key; the lint rule can't see through the helper
-  // eslint-disable-next-line @tanstack/query/exhaustive-deps
-  const { data: currentOption } = useQuery<OptionType | null>({
-    queryKey: getCurrentOptionKey(value),
-    queryFn: async () => (await suggester.fetchCurrentOption(value, language)) ?? null,
-    enabled: Boolean(suggester && value),
-  });
+  const { data: currentOption } = useQuery(autocompleteQueryOptions(suggester, value, language));
 
   const label = currentOption?.label ?? null;
 
