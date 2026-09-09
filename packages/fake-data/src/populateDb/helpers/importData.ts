@@ -58,26 +58,28 @@ export const generateImportData = async ({
   user: User;
   programRegistry: ProgramRegistry;
 }> => {
-  const createDrug = async (): Promise<ReferenceData> => {
-    const drug = await ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }));
-    // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
-    // bare fake(ReferenceDataRelation) leaves referenceDataId null: central allows it (nullable
-    // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
-    // insert fails). Give it a valid parent and child.
-    const parent = await ReferenceData.create(
-      fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }),
-    );
-    await ReferenceDataRelation.create(
+  // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
+  // bare fake(ReferenceDataRelation) leaves referenceDataId null: central allows it (nullable
+  // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
+  // insert fails). Give it a valid parent and child.
+  const drugRelation = async (childId: string) => {
+    const parent = await ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }));
+    return ReferenceDataRelation.create(
       fake(ReferenceDataRelation, {
         referenceDataParentId: parent.id,
-        referenceDataId: drug.id,
+        referenceDataId: childId,
       }),
     );
+  };
+  const createDrug = async (): Promise<ReferenceData> => {
+    const drug = await ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }));
+    await drugRelation(drug.id);
     return drug;
   };
   const referenceData = await pooled(ReferenceData, createDrug, POOL_SIZE, {
     type: REFERENCE_TYPES.DRUG,
   });
+  await pooled(ReferenceDataRelation, () => drugRelation(referenceData.id));
 
   // A small, stable pool of allergy reference data for patient allergies to point at,
   // rather than each patient allergy minting its own ReferenceData: that bloats the table
@@ -113,17 +115,20 @@ export const generateImportData = async ({
     { facilityId: facility.id },
   );
 
-  const survey = await pooled(Survey, async () => {
-    const created = await Survey.create(fake(Survey));
-    await SurveyScreenComponent.create(
+  const screenComponent = (surveyId: string) =>
+    SurveyScreenComponent.create(
       fake(SurveyScreenComponent, {
-        surveyId: created.id,
+        surveyId,
         option: '{"foo":"bar"}',
         config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
       }),
     );
+  const survey = await pooled(Survey, async () => {
+    const created = await Survey.create(fake(Survey));
+    await screenComponent(created.id);
     return created;
   });
+  await pooled(SurveyScreenComponent, () => screenComponent(survey.id));
 
   const scheduledVaccine = await pooled(ScheduledVaccine, () =>
     ScheduledVaccine.create(fake(ScheduledVaccine, { vaccineId: referenceData.id })),
