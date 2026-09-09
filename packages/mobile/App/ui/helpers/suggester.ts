@@ -16,6 +16,7 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
   relations?: Array<string>;
+  includeIds?: string[];
   excludeIds?: string[];
   /**
    * Extra predicate AND-ed into the query, for conditions `where` can't express — a comparison
@@ -52,45 +53,24 @@ const getTranslationJoinParams = (dataType: string, language: string) => ({
   language,
 });
 
-type FilterPredicate<T> = Parameters<Array<T>['filter']>[0];
-
 export interface SuggesterConfig<ModelType> {
   model: ModelType;
   options: SuggesterOptions<ModelType>;
   formatter?: (entity: BaseModel) => OptionType;
-  filter?: FilterPredicate<ModelType>;
 }
 
 export class Suggester<ModelType extends BaseModelSubclass> {
-  private static nextFilterCacheKey = 1;
-
   model: ModelType;
 
   options: SuggesterOptions<ModelType>;
 
   formatter: (entity: BaseModel) => OptionType;
 
-  filter?: FilterPredicate<ModelType>;
-
-  /**
-   * HACK: {@link Suggester.filter} is a method, which is ignored when a {@link Suggester} is
-   * serialized into a TanStack Query query key. Without this, two distinct {@link Suggester}s with
-   * equivalent `model` and `options` but different `filter` would collide in the query client
-   * cache.
-   *
-   * Use `model.name`, `options`, and `filterCacheKey` to key the query.
-   */
-  filterCacheKey?: string;
-
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
     this.options = config.options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
     this.formatter = config.formatter || defaultFormatter;
-    // Frontend filter applied to the data received. Use this to filter by permission
-    // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
-    this.filter = config.filter;
-    this.filterCacheKey = config.filter ? `filter:${Suggester.nextFilterCacheKey++}` : undefined;
   }
 
   async fetch(options): Promise<BaseModel[]> {
@@ -145,7 +125,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     search: string,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
-    const { where = {}, relations, excludeIds, andWhere } = this.options;
+    const { where = {}, relations, includeIds, excludeIds, andWhere } = this.options;
+
+    // Nothing can match, and `IN ()` isn’t valid SQL
+    if (includeIds?.length === 0) return [];
 
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
@@ -162,6 +145,10 @@ export class Suggester<ModelType extends BaseModelSubclass> {
 
       for (const [key, value] of Object.entries(where)) {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
+      }
+
+      if (includeIds) {
+        query = query.andWhere('entity.id IN (:...includeIds)', { includeIds });
       }
 
       // Guarded because `NOT IN ()` isn't valid SQL
@@ -204,9 +191,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       query = query.limit(12);
 
       const data = await query.getRawMany();
-
-      const filteredData = this.filter ? data.filter(this.filter) : data;
-      return filteredData.map(this.formatter);
+      return data.map(this.formatter);
     } catch {
       return [];
     }
