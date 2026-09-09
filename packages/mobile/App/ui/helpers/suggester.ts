@@ -202,7 +202,17 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.andWhere('entity.kind != :syncKind', { syncKind: USER_KINDS.SYNC });
       }
 
-      query = query.orderBy('entity_display_label', 'ASC').limit(25);
+      // Rank prefix matches first, then other substring matches
+      if (search) {
+        query = query
+          .orderBy('entity_display_label LIKE :prefixSearch', 'DESC')
+          .setParameter('prefixSearch', `${search}%`)
+          .addOrderBy('entity_display_label', 'ASC');
+      } else {
+        query = query.orderBy('entity_display_label', 'ASC');
+      }
+
+      query = query.limit(25);
 
       const data = await query.getRawMany();
 
