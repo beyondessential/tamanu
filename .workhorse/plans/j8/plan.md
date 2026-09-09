@@ -21,7 +21,7 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `search-overlay.html` — global search palette. Incorporates AI assist directly: an "Ask AI assist"
   card and a "Suggested questions" list sit above the document results, and clicking any of them
   opens the Ask AI drawer. Document results grouped by manuals / release notes below.
-- `ask-ai.html` — Stripe-style Ask AI: a right-hand chat drawer, page-aware (documentation context chip), with an answer, inline source citations, and a follow-up input.
+- `ask-ai.html` — Stripe-style Ask AI: a right-hand chat drawer, page-aware (documentation context chip), with an answer, inline source citations, and a follow-up input. In the prototype the drawer carries the search query: opened from Ask AI assist it shows the typed question and its answer, or an empty chat state when nothing was typed.
 
 Reference screenshots the user supplied: Stripe docs header (Search + Ask AI as two controls),
 Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follow these.

@@ -42,6 +42,8 @@
   }
   .p-input input::placeholder { color: var(--ink-3); }
   .p-esc { font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; background: var(--fill); }
+  .p-x { border: none; background: transparent; color: var(--ink-3); cursor: pointer; padding: 5px; border-radius: 7px; display: grid; place-items: center; flex: none; }
+  .p-x:hover { background: var(--fill); color: var(--ink); }
 
   .p-body { max-height: 64vh; overflow: auto; padding: 8px; }
 
@@ -97,8 +99,8 @@
   <div class="palette">
     <div class="p-input">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input value="send to pharmacy" autofocus />
-      <span class="p-esc">esc</span>
+      <input id="p-search-input" value="send to pharmacy" autofocus />
+      <button class="p-x" aria-label="Close search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
 
     <div class="p-body">
@@ -109,6 +111,11 @@
       </div>
 
       <div class="group-label">Suggested questions</div>
+      <div class="row qrow echo">
+        <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
+        <div class="txt"><div class="t" id="echo-q">send to pharmacy</div></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
       <div class="row qrow">
         <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
         <div class="txt"><div class="t">How do I send a medication to pharmacy at discharge?</div></div>
@@ -168,5 +175,18 @@
       <span class="spacer">Tamanu docs</span>
     </div>
   </div>
+  <script>
+    const si = document.getElementById('p-search-input');
+    const sub = document.querySelector('.ai-suggest .s');
+    const eq = document.getElementById('echo-q');
+    const erow = document.querySelector('.qrow.echo');
+    function upd(){
+      const q = si.value.trim();
+      sub.textContent = q ? `Get an instant answer to “${q}”` : 'Get an instant answer from the manuals and release notes';
+      if (q){ eq.textContent = q; erow.hidden = false; } else { erow.hidden = true; }
+    }
+    si.addEventListener('input', upd); upd();
+    document.querySelector('.p-x').addEventListener('click', ()=>{ si.value=''; upd(); si.focus(); });
+  </script>
 </body>
 </html>

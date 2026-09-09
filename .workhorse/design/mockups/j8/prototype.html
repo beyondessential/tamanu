@@ -167,6 +167,9 @@
   .p-input input { border:none; outline:none; font:inherit; font-size:16px; color:var(--ink); flex:1; background:transparent; }
   .p-input input::placeholder { color:var(--ink-3); }
   .p-esc { font-size:11px; color:var(--ink-3); border:1px solid var(--line); border-radius:6px; padding:3px 6px; background:var(--fill); cursor:pointer; }
+  .p-x { border:none; background:transparent; color:var(--ink-3); cursor:pointer; padding:5px; border-radius:7px; display:grid; place-items:center; flex:none; }
+  .p-x:hover { background:var(--fill); color:var(--ink); }
+  .qrow.echo .t { color:var(--ink); }
   .p-body { max-height:64vh; overflow:auto; padding:8px; }
   .group-label { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-3); font-weight:600; padding:12px 10px 6px; }
 
@@ -203,6 +206,9 @@
   .d-head .tools button:hover { background:var(--fill); color:var(--ink); }
   .disclaimer { text-align:center; font-size:12.5px; color:var(--ink-4); padding:14px 40px; border-bottom:1px solid var(--line-soft); }
   .d-body { flex:1; overflow:auto; padding:20px 18px; display:flex; flex-direction:column; gap:18px; }
+  .d-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; color:var(--ink-3); padding:24px; }
+  .d-empty-ic { width:52px; height:52px; border-radius:12px; border:1px solid var(--line); background:var(--fill); display:grid; place-items:center; color:var(--ink); }
+  .d-empty p { margin:0; font-size:14px; max-width:260px; line-height:1.55; }
   .msg.user { align-self:flex-end; max-width:84%; background:var(--fill-2); border:1px solid var(--line); border-radius:12px; padding:10px 13px; font-size:14px; color:var(--ink); }
   .msg.ai .who { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-3); font-weight:560; margin-bottom:8px; }
   .msg.ai .content { font-size:14px; color:var(--ink-2); }
@@ -460,22 +466,27 @@
     <div class="p-input">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="p-search-input" placeholder="Search the docs" value="send to pharmacy" />
-      <span class="p-esc" data-close>esc</span>
+      <button class="p-x" data-close aria-label="Close search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="p-body">
-      <div class="ai-suggest" data-open="ask">
+      <div class="ai-suggest" data-open="ask" data-use-query>
         <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span>
-        <div><div class="t">Ask AI assist</div><div class="s">Get an instant answer to “send to pharmacy”</div></div>
+        <div><div class="t">Ask AI assist</div><div class="s" id="ai-sub">Get an instant answer from the manuals and release notes</div></div>
         <span class="go">Ask AI</span>
       </div>
 
       <div class="group-label">Suggested questions</div>
-      <div class="prow qrow" data-open="ask">
+      <div class="prow qrow echo" data-open="ask" data-use-query hidden>
+        <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
+        <div><div class="t" id="echo-q"></div></div>
+        <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+      </div>
+      <div class="prow qrow" data-open="ask" data-q="How do I send a medication to pharmacy at discharge?">
         <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
         <div><div class="t">How do I send a medication to pharmacy at discharge?</div></div>
         <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
-      <div class="prow qrow" data-open="ask">
+      <div class="prow qrow" data-open="ask" data-q="Which settings enable pharmacy orders for a facility?">
         <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
         <div><div class="t">Which settings enable pharmacy orders for a facility?</div></div>
         <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
@@ -507,7 +518,7 @@
     <div class="p-foot">
       <span><span class="k">↑</span><span class="k">↓</span> to navigate</span>
       <span><span class="k">↵</span> to open</span>
-      <button class="ask-handoff" data-open="ask"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg> Ask AI instead</button>
+      <button class="ask-handoff" data-open="ask" data-use-query><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg> Ask AI instead</button>
       <span class="spacer">Tamanu docs</span>
     </div>
   </div>
@@ -524,7 +535,12 @@
   </div>
   <div class="disclaimer">Responses are generated using AI and may contain mistakes.</div>
   <div class="d-body">
-    <div class="msg user">How do I send a medication to pharmacy at discharge?</div>
+    <div id="drawer-empty" class="d-empty" hidden>
+      <div class="d-empty-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></div>
+      <p>Ask a question about Tamanu and get an answer drawn from the user manuals and release notes.</p>
+    </div>
+    <div id="drawer-answer">
+    <div class="msg user" id="drawer-question">How do I send a medication to pharmacy at discharge?</div>
     <div class="msg ai">
       <div class="who"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg> Answer</div>
       <div class="content">
@@ -549,6 +565,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
   <div class="d-foot">
@@ -576,8 +593,38 @@
     setActiveNav(name==='article' ? 'manuals' : name);
     window.scrollTo(0,0);
   }
-  function openSearch(){ closeOverlays(); scrim.hidden=false; search.hidden=false; const i=document.getElementById('p-search-input'); setTimeout(()=>{i.focus(); i.select();},0); }
-  function openAsk(){ closeOverlays(); scrim.hidden=false; drawer.hidden=false; }
+  const searchInput = document.getElementById('p-search-input');
+  const aiSub = document.getElementById('ai-sub');
+  const echoRow = document.querySelector('.qrow.echo');
+  const echoQ = document.getElementById('echo-q');
+  const drawerEmpty = document.getElementById('drawer-empty');
+  const drawerAnswer = document.getElementById('drawer-answer');
+  const drawerQuestion = document.getElementById('drawer-question');
+  const drawerInput = drawer.querySelector('.inputrow input');
+
+  // Reflect the typed search term into the AI assist card and the first suggested question
+  function updateEcho(){
+    const q = searchInput.value.trim();
+    aiSub.textContent = q ? `Get an instant answer to “${q}”` : 'Get an instant answer from the manuals and release notes';
+    if (q){ echoQ.textContent = q; echoRow.hidden = false; }
+    else { echoRow.hidden = true; }
+  }
+  searchInput.addEventListener('input', updateEcho);
+
+  function openSearch(){ closeOverlays(); scrim.hidden=false; search.hidden=false; updateEcho(); setTimeout(()=>{ searchInput.focus(); searchInput.select(); },0); }
+  function openAsk(query){
+    closeOverlays(); scrim.hidden=false; drawer.hidden=false;
+    const q = (query||'').trim();
+    if (q){
+      drawerAnswer.hidden=false; drawerEmpty.hidden=true;
+      drawerQuestion.textContent = q;
+      drawerInput.placeholder = 'Ask a follow-up question';
+    } else {
+      drawerAnswer.hidden=true; drawerEmpty.hidden=false;
+      drawerInput.placeholder = 'Ask a question about Tamanu';
+      setTimeout(()=>drawerInput.focus(),0);
+    }
+  }
   function closeOverlays(){ scrim.hidden=true; search.hidden=true; drawer.hidden=true; }
 
   document.addEventListener('click', (e)=>{
@@ -586,7 +633,17 @@
     const open = e.target.closest('[data-open]');
     const close = e.target.closest('[data-close]');
 
-    if (open){ e.preventDefault(); open.dataset.open==='search'?openSearch():openAsk(); return; }
+    if (open){
+      e.preventDefault();
+      if (open.dataset.open==='search'){ openSearch(); }
+      else {
+        let q = '';
+        if (open.dataset.q) q = open.dataset.q;
+        else if (open.hasAttribute('data-use-query')) q = searchInput.value;
+        openAsk(q);
+      }
+      return;
+    }
     if (close){ e.preventDefault(); closeOverlays(); return; }
     if (goto){ e.preventDefault(); closeOverlays(); showView(goto.dataset.goto); return; }
     if (scroll){ e.preventDefault(); const el=document.getElementById(scroll.dataset.scroll); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); return; }
