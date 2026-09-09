@@ -17,28 +17,24 @@ import { TranslatedText } from '../Translations/TranslatedText';
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    backgroundColor: theme.colors.BACKGROUND_GREY,
     flex: 1,
-    justifyContent: 'space-between',
   },
   lightItemText: {
-    color: theme.colors.TEXT_DARK,
-    backgroundColor: theme.colors.WHITE,
-    padding: 12,
+    minHeight: 48,
+    padding: 8,
+    textAlignVertical: 'center',
   },
   darkItemText: {
-    color: theme.colors.TEXT_DARK,
     backgroundColor: theme.colors.LIGHT_GREY,
-    padding: 12,
+    minHeight: 48,
+    padding: 8,
+    textAlignVertical: 'center',
   },
   backButton: {
     position: 'absolute',
-    bottom: 0,
+    insetBlockEnd: 0,
     width: '100%',
     borderRadius: 0,
-  },
-  searchInput: {
-    color: theme.colors.TEXT_DARK,
   },
 });
 
@@ -143,7 +139,6 @@ export const AutocompleteModalScreen = ({
         onChangeText={setSearchTerm}
         autoFocus
         flatListProps={flatListProps}
-        style={styles.searchInput}
       />
       <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
