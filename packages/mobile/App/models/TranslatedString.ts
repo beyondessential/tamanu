@@ -1,5 +1,5 @@
 import { COUNTRY_CODE_STRING_ID, LANGUAGE_NAME_STRING_ID } from '@tamanu/constants';
-import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column } from 'typeorm';
+import { BeforeInsert, Entity, Index, PrimaryColumn, BeforeUpdate, Column } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -10,6 +10,7 @@ export type LanguageOption = {
 };
 
 @Entity('translated_strings')
+@Index('stringId_language_unique', ['stringId', 'language'], { unique: true })
 export class TranslatedString extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
