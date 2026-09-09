@@ -3,26 +3,27 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
 import { useDateTime } from '@tamanu/ui-components';
+import { getAgeDurationFromDate } from '@tamanu/utils/date';
+
+export const LAB_LABEL_DIMENSIONS = { width: 40, height: 28 };
+const { width: LABEL_WIDTH_MM, height: LABEL_HEIGHT_MM } = LAB_LABEL_DIMENSIONS;
 
 const Container = styled.div`
   position: relative;
   background: white;
   font-size: 0;
-
-  @media print {
-    width: ${(props) => props.$printWidth}mm;
-    height: ${(props) => props.$printWidth / 2}mm;
-  }
+  width: ${LABEL_WIDTH_MM}mm;
+  height: ${LABEL_HEIGHT_MM}mm;
 `;
 
 const FlexContainer = styled.div`
   // Note: percentage padding is based on the dimensions of the parent element
   padding: 5%;
   display: flex;
+  flex-direction: column;
 `;
 
 const TextContainer = styled.div`
-  width: 70%;
   svg {
     width: 100%;
   }
@@ -43,86 +44,62 @@ const TextContainer = styled.div`
 `;
 
 const Item = ({ label, value, x, y }) => (
-  <>
-    <text className="label" x={x} y={y}>
-      {label}: <tspan className="value">{value}</tspan>
-    </text>
-  </>
+  <text className="label" x={x} y={y}>
+    {label}: <tspan className="value">{value}</tspan>
+  </text>
 );
 
 const BarcodeContainer = styled.div`
-  margin: 0 auto 0;
-  transform: rotate(270deg);
-  padding-top: 1%;
-  width: 30%;
+  width: 100%;
   svg {
     width: 100%;
-    height: 100%;
+    height: auto;
   }
 
   svg text {
     // react-barcode api doesn't support font weights
     font-weight: 500 !important;
-    // react-barcode sometimes slices off the bottom of the text
-    transform: translateY(-1px);
   }
 `;
 
 /**
- * The labels needs to scale based on a configurable width for printing which is
- * why the whole component is made with svgs
+ * The label is a fixed 40 × 28 mm; the text block is built with SVG so it scales
+ * cleanly to the label width when printing.
  */
-export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
-  const { formatShort } = useDateTime();
-  const {
-    patientId,
-    patientName,
-    patientDateOfBirth,
-    testId,
-    labCategory,
-    date,
-    specimenType = null,
-  } = data;
+export const LabRequestPrintLabel = React.memo(({ data }) => {
+  const { formatShort, formatShortDateTime } = useDateTime();
+  const { patientName, patientDateOfBirth, patientId, requestId, date, collectedBy } = data;
+  const ageDuration = getAgeDurationFromDate(patientDateOfBirth);
+  const dateOfBirth = patientDateOfBirth
+    ? `${formatShort(patientDateOfBirth)}${ageDuration ? ` (${ageDuration.years} years)` : ''}`
+    : '';
   return (
-    <Container $printWidth={printWidth} data-testid="container-gx0i">
+    <Container data-testid="container-gx0i">
       <FlexContainer data-testid="flexcontainer-24kt">
         <TextContainer data-testid="textcontainer-8y44">
-          <svg viewBox="0 0 200 120">
-            <Item x="0" y="15" label="Patient Name" value={patientName} data-testid="item-asx7" />
-            <Item x="0" y="30" label="Patient ID" value={patientId} data-testid="item-r5xk" />
+          <svg viewBox="0 0 200 92">
+            <Item x="0" y="12" label="Patient name" value={patientName} data-testid="item-asx7" />
+            <Item x="0" y="27" label="DOB" value={dateOfBirth} data-testid="item-krnm" />
+            <Item x="0" y="42" label="Patient ID" value={patientId} data-testid="item-r5xk" />
+            <Item x="0" y="57" label="Request ID" value={requestId} data-testid="item-vcco" />
             <Item
               x="0"
-              y="45"
-              label="DOB"
-              value={formatShort(patientDateOfBirth)}
-              data-testid="item-krnm"
-            />
-            <Item x="0" y="60" label="Test ID" value={testId} data-testid="item-vcco" />
-            <Item
-              x="0"
-              y="75"
+              y="72"
               label="Date collected"
-              value={formatShort(date)}
+              value={formatShortDateTime(date)}
               data-testid="item-nxfc"
             />
-            <Item x="0" y="90" label="Lab category" value={labCategory} data-testid="item-l6d8" />
-            <Item
-              x="0"
-              y="105"
-              label="Specimen type"
-              value={specimenType}
-              data-testid="item-og2q"
-            />
+            <Item x="0" y="87" label="Collected by" value={collectedBy} data-testid="item-cby9" />
           </svg>
         </TextContainer>
         <BarcodeContainer data-testid="barcodecontainer-yq9a">
           <Barcode
-            value={testId}
+            value={requestId}
             width={2}
-            height={57}
+            height={40}
             margin={0}
             font="Roboto"
-            fontSize={24}
+            fontSize={16}
             data-testid="barcode-s8j3"
           />
         </BarcodeContainer>
@@ -133,15 +110,11 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
 
 LabRequestPrintLabel.propTypes = {
   data: PropTypes.shape({
-    patientId: PropTypes.string,
-    testId: PropTypes.string,
+    patientName: PropTypes.string,
     patientDateOfBirth: PropTypes.string,
+    patientId: PropTypes.string,
+    requestId: PropTypes.string,
     date: PropTypes.string,
-    labCategory: PropTypes.string,
+    collectedBy: PropTypes.string,
   }).isRequired,
-  printWidth: PropTypes.number, // width for printing in mm
-};
-
-LabRequestPrintLabel.defaultProps = {
-  printWidth: '185',
 };

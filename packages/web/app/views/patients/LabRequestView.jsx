@@ -238,6 +238,18 @@ export const LabRequestView = () => {
     await updateLabRequest(labRequest.id, data);
   };
 
+  const autoPrintLabel = getSetting('labs.autoPrintSampleLabel');
+  const handleSampleRecorded = () => {
+    // A sample was just recorded. With auto-print on, swap the still-open record-sample modal
+    // straight to the label print screen — changing the modal id rather than closing avoids the
+    // close animation clearing the modal before it reopens. Otherwise just close.
+    if (autoPrintLabel) {
+      setModalId(MODAL_IDS.LABEL_PRINT);
+    } else {
+      closeModal();
+    }
+  };
+
   const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
@@ -632,6 +644,7 @@ export const LabRequestView = () => {
           labRequest={labRequest}
           patient={patient}
           updateLabReq={updateLabReq}
+          onSampleRecorded={handleSampleRecorded}
           refreshLabTestTable={handleRefreshLabTestTable}
           open={modalOpen}
           onClose={closeModal}
