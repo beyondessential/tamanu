@@ -108,16 +108,18 @@ if (event === 'pull_request' && baseSha) {
 
   const migrationsTouched = files.some((f) => f.startsWith('packages/database/src/migrations/'));
 
-  // Umzug keys applied migrations by filename: editing one already on the base branch never
-  // re-runs it, renaming one re-runs it everywhere the old name was applied, and deleting one
-  // leaves an orphan row behind.
+  // Umzug keys applied migrations by filename, so an edit never re-runs, a rename re-runs under
+  // the new name on databases that applied the old one, and a delete orphans its SequelizeMeta row.
   const changedMigrations = execSync(
     `git diff --name-status --diff-filter=MRD ${baseSha}...${head} -- packages/database/src/migrations/`,
     { encoding: 'utf8' },
   )
     .split('\n')
     .filter(Boolean)
-    .map((line) => line.split('\t').at(-1));
+    .map((line) => {
+      const [status, ...paths] = line.split('\t');
+      return status.startsWith('R') ? paths.join(' -> ') : paths.at(-1);
+    });
 
   if (changedMigrations.length > 0) {
     console.log(
