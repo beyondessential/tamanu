@@ -130,9 +130,11 @@ export const AutocompleteModalScreen = ({
 
   return (
     <View style={styles.container}>
-      {modalTitle && <EmptyStackHeader title={modalTitle} onGoBack={navigation.goBack} />}
       {modalTitle && (
-        <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
+        <>
+          <EmptyStackHeader title={modalTitle} onGoBack={navigation.goBack} />
+          <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1} />
+        </>
       )}
       <Autocomplete
         placeholder={getTranslation('general.placeholder.search...', 'Search…')}
