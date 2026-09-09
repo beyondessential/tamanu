@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type AutocompleteModalScreenProps = {
+interface AutocompleteModalScreenProps {
   navigation: NavigationProp<any>;
   route: {
     params: {
@@ -51,7 +51,7 @@ type AutocompleteModalScreenProps = {
       modalTitle?: string;
     };
   };
-};
+}
 
 interface SuggestionRowProps {
   option: OptionType;
