@@ -5,19 +5,17 @@ id: MANUAL
 # End user manuals
 
 Task-based guides that show a clinician or administrator how to carry out a piece of
-work in Tamanu. They are written for the person using the product, not for the person
-configuring or building it, and they live in the Tamanu repository alongside the code
-they describe.
-
-Configuration and setup material for project managers is a separate concern and stays
-out of the manuals.
+work in Tamanu. They are written for the person using the product, and they live in the
+Tamanu repository alongside the code they describe.
 
 ## Location and structure
 
 - [ ] Manuals live under `docs/user-manuals/`.
 - [ ] The first level below that is the platform: `desktop/` and `mobile/`.
 - [ ] The second level is the module, one folder per module, named for the part of the
-      product a user would recognise.
+      product a user would recognise. The name the product's own navigation gives that
+      area is the starting point, and an author departs from it where a clearer name
+      serves the reader better.
 - [ ] A module folder holds one file per guide.
 - [ ] Each level carries an index page listing what sits beneath it: the manuals root
       lists the platforms, a platform lists its modules, and a module lists its guides.
@@ -39,6 +37,27 @@ out of the manuals.
 - [ ] A guide's title names the action from the reader's point of view.
 - [ ] A guide opens by saying what the action achieves and where in the product the
       reader starts from.
+- [ ] Where a reader needs something in hand before starting, or needs to know something
+      that would otherwise interrupt the steps, the guide says so under its own heading
+      before the steps begin. A guide with nothing to state there goes straight to the
+      steps.
+- [ ] A guide covering a task whose errors readers commonly meet closes by naming those
+      errors and what to do about each. A task whose errors are rare or obscure ends at
+      its outcome.
+
+## Scope
+
+Guides describe how the product works, which is the same wherever Tamanu runs. How a
+particular site has been set up is configuration, and belongs to the configuration
+guides.
+
+- [ ] A guide describes the product's mechanics rather than a site's configuration, so
+      that it holds true at every deployment.
+- [ ] Where a form's content is configured per site, the guide covers finding the form,
+      selecting it, completing it, and submitting it, and leaves the form's own fields
+      alone.
+- [ ] Behaviour that a site can switch on or off is described the same way as any other,
+      without qualifying whether a given reader has it available.
 
 ## Instructional steps
 
@@ -69,11 +88,14 @@ The writing carries no assumed knowledge of Tamanu's internals.
 - [ ] A screenshot that has not been captured appears as a visible placeholder line
       describing the shot the guide needs, so that an unfilled slot is apparent to a
       reader and to whoever fills it.
+- [ ] Every placeholder takes the same form, a bolded `[Screenshot: ...]` whose text
+      describes the shot, so that outstanding screenshots across the whole manual are
+      found by searching for one string.
 - [ ] Screenshots sit where a visual helps the reader, typically on reaching a new screen
       or at a step that words describe poorly, rather than at a fixed rate per step.
 
 ## Accuracy
 
-- [ ] A guide describes the product as it currently ships, naming the labels, fields, and
+- [ ] A guide describes the product as it currently ships, naming the buttons, tabs, and
       screens the reader actually encounters.
 - [ ] A guide is verified against the running product before it is published.
