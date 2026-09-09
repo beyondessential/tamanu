@@ -47,15 +47,6 @@ const defaultFormatter = (record): OptionType => ({
   value: record.entity_id,
 });
 
-/**
- * `translated_strings.id` is generated as `${stringId};${language}`, and is the table's primary key.
- * Matching on it lets SQLite satisfy the join from an index; matching on `stringId` and `language`
- * separately is equivalent but unindexed, which costs a scan of the whole translations table for
- * every suggestion query.
- */
-const TRANSLATION_JOIN_CONDITION =
-  'translation.id = :stringIdPrefix || entity.id || :languageSuffix';
-
 const getTranslationJoinParams = (dataType: string, language: string) => ({
   stringIdPrefix: `refData.${dataType}.`,
   languageSuffix: `;${language}`,
@@ -124,7 +115,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       .leftJoin(
         'translated_strings',
         'translation',
-        TRANSLATION_JOIN_CONDITION,
+        'translation.id = :stringIdPrefix || entity.id || :languageSuffix',
         getTranslationJoinParams(dataType, language),
       )
       .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
