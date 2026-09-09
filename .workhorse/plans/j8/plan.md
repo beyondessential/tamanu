@@ -18,10 +18,12 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable sidebar + footer cluster, right card grid of Popular and category sections).
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
 - `release-notes.html` — Linear changelog: left version index, centre reverse-chronological entries. Real v2.61–2.63 content.
-- `search-overlay.html` — global search palette. Incorporates AI assist directly: an "Ask AI assist"
-  card and a "Suggested questions" list sit above the document results, and clicking any of them
-  opens the Ask AI drawer. Document results grouped by manuals / release notes below.
-- `ask-ai.html` — Stripe-style Ask AI: a right-hand chat drawer, page-aware (documentation context chip), with an answer, inline source citations, and a follow-up input. In the prototype the drawer carries the search query: opened from Ask AI assist it shows the typed question and its answer, or an empty chat state when nothing was typed.
+- `search-overlay.html` — global search palette. An "Ask AI assist" card sits at the top and always
+  opens the Ask AI drawer. With nothing typed, the body shows a single **Popular** list: the top five
+  most-accessed items across both user manuals and release notes. Once the user types, it switches to
+  the query view: a suggested question echoing the typed term, then document results grouped by
+  manuals / release notes.
+- `ask-ai.html` — Stripe-style Ask AI: a right-hand chat drawer with an answer, inline source citations, and a follow-up input. In the prototype the drawer carries the search query: opened from Ask AI assist it shows the typed question and its answer, or an empty chat state when nothing was typed.
 
 Reference screenshots the user supplied: Stripe docs header (Search + Ask AI as two controls),
 Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follow these.

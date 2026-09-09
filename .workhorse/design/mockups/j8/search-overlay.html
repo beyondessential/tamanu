@@ -99,7 +99,7 @@
   <div class="palette">
     <div class="p-input">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="p-search-input" value="send to pharmacy" autofocus />
+      <input id="p-search-input" value="" placeholder="Search the docs" autofocus />
       <button class="p-x" aria-label="Close search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
 
@@ -110,6 +110,36 @@
         <span class="go">Ask AI</span>
       </div>
 
+      <div id="p-empty">
+        <div class="group-label">Popular</div>
+        <div class="row">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+          <div class="txt"><div class="t">Sending medications to pharmacy</div><div class="s crumb">User manual · Medication</div></div>
+          <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+        </div>
+        <div class="row">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+          <div class="txt"><div class="t">Recording an encounter</div><div class="s crumb">User manual · Clinical workflows</div></div>
+          <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+        </div>
+        <div class="row">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/></svg></span>
+          <div class="txt"><div class="t">Configuration managed in the admin panel</div><div class="s crumb">Release notes · v2.62</div></div>
+          <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+        </div>
+        <div class="row">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+          <div class="txt"><div class="t">Creating a lab request</div><div class="s crumb">User manual · Labs</div></div>
+          <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+        </div>
+        <div class="row">
+          <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/></svg></span>
+          <div class="txt"><div class="t">Automatic encounter, bed and inpatient fees</div><div class="s crumb">Release notes · v2.61</div></div>
+          <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+        </div>
+      </div>
+
+      <div id="p-results" hidden>
       <div class="group-label">Suggested questions</div>
       <div class="row qrow echo">
         <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg></span>
@@ -166,6 +196,7 @@
         </div>
         <span class="pill">Aug 2026</span>
       </div>
+      </div>
     </div>
 
     <div class="p-foot">
@@ -180,10 +211,14 @@
     const sub = document.querySelector('.ai-suggest .s');
     const eq = document.getElementById('echo-q');
     const erow = document.querySelector('.qrow.echo');
+    const pEmpty = document.getElementById('p-empty');
+    const pResults = document.getElementById('p-results');
     function upd(){
       const q = si.value.trim();
       sub.textContent = q ? `Get an instant answer to “${q}”` : 'Get an instant answer from the manuals and release notes';
       if (q){ eq.textContent = q; erow.hidden = false; } else { erow.hidden = true; }
+      pEmpty.hidden = Boolean(q);
+      pResults.hidden = !q;
     }
     si.addEventListener('input', upd); upd();
     document.querySelector('.p-x').addEventListener('click', ()=>{ si.value=''; upd(); si.focus(); });
