@@ -168,7 +168,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
           column: 'name',
           relations: ['referenceDrug'],
           where: { type: ReferenceDataType.Drug },
-          // A drug with no reference_drugs row joins to NULL, and isn't sensitive
+          // A drug with no reference_drugs row joins to NULL, and isn’t sensitive
           andWhere: canCreateSensitiveMedication
             ? undefined
             : { sql: 'COALESCE(referenceDrug.isSensitive, 0) = 0' },

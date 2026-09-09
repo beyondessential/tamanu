@@ -1,5 +1,5 @@
 import { COUNTRY_CODE_STRING_ID, LANGUAGE_NAME_STRING_ID } from '@tamanu/constants';
-import { BeforeInsert, Entity, Index, PrimaryColumn, BeforeUpdate, Column } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
