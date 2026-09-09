@@ -140,7 +140,7 @@ export const AutocompleteModalScreen = ({
         autoFocus
         flatListProps={flatListProps}
       />
-      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+      <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
     </View>
