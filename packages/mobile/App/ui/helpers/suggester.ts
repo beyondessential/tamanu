@@ -49,7 +49,7 @@ const defaultFormatter = (record): OptionType => ({
 
 const getTranslationJoinParams = (dataType: string, language: string) => ({
   stringIdPrefix: `refData.${dataType}.`,
-  languageSuffix: `;${language}`,
+  language,
 });
 
 type FilterPredicate<T> = Parameters<Array<T>['filter']>[0];
@@ -115,7 +115,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       .leftJoin(
         'translated_strings',
         'translation',
-        'translation.id = :stringIdPrefix || entity.id || :languageSuffix',
+        'translation.stringId = :stringIdPrefix || entity.id AND translation.language = :language',
         getTranslationJoinParams(dataType, language),
       )
       .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
