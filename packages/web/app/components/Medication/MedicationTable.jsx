@@ -268,6 +268,8 @@ export const EncounterMedicationTable = ({
   const canCreatePrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
 
+  // Consumes the one-time openMedicationId deep-link param on mount only
+  // must not re-run when navigate() rewrites the URL below.
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const openMedicationId = searchParams.get('openMedicationId');
@@ -279,6 +281,7 @@ export const EncounterMedicationTable = ({
         { replace: true },
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInitialMedication = async id => {
