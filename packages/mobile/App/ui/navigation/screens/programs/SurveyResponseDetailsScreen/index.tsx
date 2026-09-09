@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '../../../../styled/common';
@@ -172,10 +172,6 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const navigation = useNavigation();
   const { surveyResponseId } = route.params;
 
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   const { data: surveyResponse, error } = useFullSurveyResponseQuery(surveyResponseId);
 
   if (error) {
@@ -230,7 +226,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
       <StackHeader
         subtitle={survey.name}
         title={`${patient.firstName} ${patient.lastName}`}
-        onGoBack={goBack}
+        onGoBack={navigation.goBack}
       />
       <ScrollView>{answerItems}</ScrollView>
     </FullView>

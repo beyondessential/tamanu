@@ -51,10 +51,6 @@ export const NewVaccineTabComponent = ({
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
 
-  const onPressCancel = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   const user = useSelector(authUserSelector);
 
   const { models } = useBackend();
@@ -188,7 +184,7 @@ export const NewVaccineTabComponent = ({
     <StyledSafeAreaView flex={1}>
       <VaccineForm
         onSubmit={recordVaccination}
-        onCancel={onPressCancel}
+        onCancel={navigation.goBack}
         patientId={selectedPatient.id}
         initialValues={{
           ...vaccineObject,
