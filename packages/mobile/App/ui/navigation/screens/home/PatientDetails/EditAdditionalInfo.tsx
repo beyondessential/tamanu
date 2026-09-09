@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { StatusBar } from 'react-native';
 import { FullView } from '/styled/common';
 import { StackHeader } from '~/ui/components/StackHeader';
@@ -23,10 +23,6 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
   // JSON.parse will break if it doesn't get a JSON object
   const additionalData = additionalDataJSON && JSON.parse(additionalDataJSON);
 
-  const onGoBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
       <StatusBar barStyle="light-content" />
@@ -38,7 +34,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
           />
         }
         subtitle={patientName}
-        onGoBack={onGoBack}
+        onGoBack={navigation.goBack}
       />
       <PatientSectionHeader name={sectionTitle} />
       <PatientAdditionalDataForm

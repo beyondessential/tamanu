@@ -586,6 +586,21 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
+const DRUG_COLUMNS = [
+  'id',
+  'code',
+  'name',
+  'visibilityStatus',
+  'systemRequired',
+  'availableFacilities',
+  'route',
+  'dosingUnit',
+  'dispensingUnit',
+  'unitConversion',
+  'notes',
+  'isSensitive',
+];
+
 // The set of facilities where mSupply is the stock-on-hand source of truth is fixed for
 // the duration of one import. A factory instance (see dependencies.js's `get loader()`,
 // which creates one per import) resolves each facility's flag once via this cache and
@@ -607,8 +622,7 @@ async function getStockOnHandEnabled(models, facilityId, stockOnHandEnabledByFac
   return stockOnHandEnabledByFacilityId.get(facilityId);
 }
 
-async function drugLoader(item, { models, pushError }, stockOnHandEnabledByFacilityId) {
-  /* eslint-disable no-unused-vars */
+async function drugLoader(item, { models, pushError, header }, stockOnHandEnabledByFacilityId) {
   const {
     id: drugId,
     route,
@@ -617,14 +631,7 @@ async function drugLoader(item, { models, pushError }, stockOnHandEnabledByFacil
     unitConversion = 1,
     notes,
     isSensitive = false,
-    name,
-    visibilityStatus,
-    code,
-    systemRequired,
-    availableFacilities,
-    ...rest
   } = item;
-  /* eslint-enable no-unused-vars */
   const rows = [];
 
   const validDrugUnits = Object.values(DRUG_UNITS);
@@ -660,10 +667,14 @@ async function drugLoader(item, { models, pushError }, stockOnHandEnabledByFacil
     values: newDrug,
   });
 
+  // Every column that isn't a drug field is a facility's stock level. Taken from the header rather
+  // than from the row, so a facility whose cell is blank still gets its association written.
+  const facilityIdsToImport = header
+    .map(column => column.trim())
+    .filter(column => column && !DRUG_COLUMNS.includes(column));
   const facilitiesData = Object.fromEntries(
-    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
+    facilityIdsToImport.map(facilityId => [facilityId, item[facilityId]]),
   );
-  const facilityIdsToImport = Object.keys(facilitiesData);
   const facilitiesToImport = await models.Facility.findAll({
     attributes: ['id'],
     where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },

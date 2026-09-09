@@ -50,7 +50,7 @@ export const PatientProgramRegistrationDetailsStack = ({ navigation, route }: Ba
               category="programRegistry"
             />
           }
-          onGoBack={() => navigation.goBack()}
+          onGoBack={navigation.goBack}
           status={
             <PatientProgramRegistryRegistrationStatus
               registrationStatus={registration.registrationStatus}

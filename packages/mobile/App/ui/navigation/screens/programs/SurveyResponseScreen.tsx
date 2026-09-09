@@ -253,8 +253,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
             >
               <TranslatedText
                 stringId="program.survey.exit.text"
-                fallback="Are you sure you want to exit the form? You will lose any information currently
-              entered."
+                fallback="Are you sure you want to exit the form? You will lose any information currently entered."
               />
             </Text>
             <RowView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>

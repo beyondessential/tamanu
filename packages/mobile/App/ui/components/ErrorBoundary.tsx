@@ -1,10 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import { Popup } from 'popup-ui';
 import React from 'react';
 import { View } from 'react-native';
 import { theme } from '~/ui/styled/theme';
-import { Popup } from 'popup-ui';
-import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from '/contexts/TranslationContext';
 import { Routes } from '/helpers/routes';
-import type { StackNavigationProp } from '@react-navigation/stack';
 
 interface ErrorComponentProps {
   error: string;
@@ -24,13 +25,15 @@ interface ErrorBoundaryState {
 
 const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
   const navigation = useNavigation<StackNavigationProp<any>>();
+  const { getTranslation } = useTranslation();
 
   Popup.show({
     type: 'Danger',
     title: 'Something went wrong',
     button: true,
-    textBody: `Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.`,
-    buttonText: 'Ok',
+    textBody:
+      'Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.',
+    buttonText: getTranslation('general.action.ok', 'OK'),
     callback: () => {
       navigation.replace(resetRoute);
       Popup.hide();

@@ -1,6 +1,5 @@
 import { Dimensions, PixelRatio, Platform, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 
 // Inline replacements for react-native-responsive-screen (uses removed Dimensions.removeEventListener API)
 let screenWidth = Dimensions.get('window').width;
@@ -67,13 +66,11 @@ export const calculateDropdownPosition = (
   return initialPosition;
 };
 
-export const setStatusBar = (
+export const useStatusBarStyle = (
   barStyle: 'light-content' | 'dark-content',
   backgroundColor: string,
 ): void =>
-  useFocusEffect(
-    useCallback(() => {
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
-      StatusBar.setBarStyle(barStyle);
-    }, []),
-  );
+  useFocusEffect(() => {
+    if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
+    StatusBar.setBarStyle(barStyle);
+  });

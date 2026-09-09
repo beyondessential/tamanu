@@ -40,6 +40,7 @@ One of:
 - `verified`
 - `published`
 - `cancelled`
+- `rejected`
 - `invalidated`
 - `deleted`
 - `sample-not-collected`

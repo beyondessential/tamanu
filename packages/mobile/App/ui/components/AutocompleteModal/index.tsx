@@ -83,20 +83,9 @@ export const AutocompleteModalScreen = ({
     [callback, navigation],
   );
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
     <View style={styles.container}>
-      {modalTitle && (
-        <EmptyStackHeader
-          title={modalTitle}
-          onGoBack={() => {
-            navigation.goBack();
-          }}
-        />
-      )}
+      {modalTitle && <EmptyStackHeader title={modalTitle} onGoBack={navigation.goBack} />}
       {modalTitle && (
         <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
       )}
@@ -123,7 +112,7 @@ export const AutocompleteModalScreen = ({
           color: theme.colors.TEXT_DARK,
         }}
       />
-      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+      <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
     </View>

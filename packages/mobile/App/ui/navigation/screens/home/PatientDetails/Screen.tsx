@@ -40,10 +40,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     queryFn: () => Database.models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
   });
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   const onEditPatientIssues = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
   }, [navigation]);
@@ -65,7 +61,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
           paddingLeft={15}
           paddingBottom={20}
         >
-          <StyledTouchableOpacity onPress={onNavigateBack}>
+          <StyledTouchableOpacity onPress={navigation.goBack}>
             <ArrowLeftIcon size={screenPercentageToDP(3, Orientation.Height)} />
           </StyledTouchableOpacity>
           <StyledView marginLeft={15}>

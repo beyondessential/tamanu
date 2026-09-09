@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import type { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
@@ -20,12 +20,9 @@ type NewProgramEntryTabsProps = {
 };
 
 const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
   return (
     <FullView>
-      <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
+      <StackHeader title={joinNames(selectedPatient)} onGoBack={navigation.goBack} />
       <Tabs.Navigator screenOptions={{ headerShown: false }}>
         <Tabs.Screen
           options={{

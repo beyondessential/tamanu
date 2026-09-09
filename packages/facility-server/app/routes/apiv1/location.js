@@ -6,9 +6,14 @@ import { Op } from 'sequelize';
 
 export const location = express.Router();
 
+const EDITABLE_FIELDS = ['code', 'locationGroupId', 'maxOccupancy', 'name', 'visibilityStatus'];
+
 location.get('/:id', simpleGet('Location'));
-location.put('/:id', simplePut('Location'));
-location.post('/', simplePost('Location'));
+location.put('/:id', simplePut('Location', { allowedFields: EDITABLE_FIELDS }));
+location.post(
+  '/',
+  simplePost('Location', { allowedFields: [...EDITABLE_FIELDS, 'facilityId', 'id'] }),
+);
 location.get(
   '/',
   asyncHandler(async (req, res) => {
