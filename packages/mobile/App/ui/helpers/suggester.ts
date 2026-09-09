@@ -159,10 +159,8 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
 
-      if (relations) {
-        relations.forEach(relation => {
-          query = query.leftJoinAndSelect(`entity.${relation}`, relation);
-        });
+      for (const relation of relations ?? []) {
+        query = query.leftJoinAndSelect(`entity.${relation}`, relation);
       }
 
       query = this.selectDisplayLabel(query, language);
@@ -171,9 +169,9 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.andWhere('entity_display_label LIKE :search', { search: `%${search}%` });
       }
 
-      Object.entries(where).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(where)) {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
-      });
+      }
 
       // Guarded because `NOT IN ()` isn't valid SQL
       if (excludeIds?.length) {
