@@ -189,6 +189,7 @@ jobs:
           JOB_NAME: ${{ steps.names.outputs.job_name }}
           OUTCOME: ${{ steps.wait.outputs.outcome }}
           VERSION: ${{ inputs.version }}
+          GIT_SHA: ${{ inputs.git_sha || github.sha }}
           # Above this, the upgrade is a maintenance window every deployment has to plan for.
           SLOW_BATCH_MS: '1200000'
         run: |
@@ -197,14 +198,39 @@ jobs:
           # An upgrade migrates in several batches, each of which reports its own summary, and the
           # log line carries the logger's own prefix and suffix around the JSON.
           summaries=$(grep -o 'TAMANU_MIGRATION_SUMMARY {[^}]*}' <<<"$logs" | sed 's/^TAMANU_MIGRATION_SUMMARY //')
-          read -r applied duration_ms <<<"$(jq -s -r '
-            [([.[].applied] | add // 0), ([.[].batchDurationMs] | add // 0)] | @tsv' <<<"$summaries")"
+          read -r applied duration_ms baselined db_bytes db_rows <<<"$(jq -s -r '
+            [([.[].applied] | add // 0),
+             ([.[].batchDurationMs] | add // 0),
+             (any(.[]; .baselineApplied == true)),
+             ([.[].databaseSizeBytes | numbers] | max // -1),
+             ([.[].estimatedRowsTotal | numbers] | max // -1)] | @tsv' <<<"$summaries")"
+
+          # Every migration's own cost, so a reader can see which one blocks writes rather than
+          # only the batch total.
+          timings=$(grep -o 'TAMANU_MIGRATION_TIMINGS \[[^]]*\]' <<<"$logs" | sed 's/^TAMANU_MIGRATION_TIMINGS //')
+
+          # A migration that carried on after failing part of its work reports it against its own
+          # step, and the run still passes, so it has to be surfaced here or it reaches nobody.
+          degraded=$(grep -oE 'step=(upgrade|migration)/[^ ]+' <<<"$(grep -F 'error:' <<<"$logs")" | sort -u)
 
           # The operator tears the cluster down as soon as the Job finishes, so these are the
           # only record of what the run cost.
           mkdir -p "$RUNNER_TEMP/migration-test"
           printf '%s\n' "$logs" > "$RUNNER_TEMP/migration-test/migrate.log"
           printf '%s\n' "$summaries" | jq -s '.' > "$RUNNER_TEMP/migration-test/batches.json"
+          printf '%s\n' "$timings" | jq -s 'add // [] | map(split(" ") | {migration: .[0], durationMs: (.[1] | tonumber)})' \
+            > "$RUNNER_TEMP/migration-test/migrations.json"
+          jq -n --arg version "$VERSION" --arg gitSha "$GIT_SHA" --arg outcome "$OUTCOME" \
+            --argjson applied "$applied" --argjson durationMs "$duration_ms" \
+            --argjson baselineApplied "$baselined" --argjson databaseSizeBytes "$db_bytes" \
+            --argjson estimatedRowsTotal "$db_rows" \
+            --arg degraded "$degraded" \
+            '{version: $version, gitSha: $gitSha, outcome: $outcome, applied: $applied,
+              durationMs: $durationMs, baselineApplied: $baselineApplied,
+              databaseSizeBytes: (if $databaseSizeBytes < 0 then null else $databaseSizeBytes end),
+              estimatedRowsTotal: (if $estimatedRowsTotal < 0 then null else $estimatedRowsTotal end),
+              degradedMigrations: ($degraded | split("\n") | map(select(length > 0)))}' \
+            > "$RUNNER_TEMP/migration-test/run.json"
           kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json \
             > "$RUNNER_TEMP/migration-test/job.json" 2>/dev/null || true
 
@@ -213,10 +239,22 @@ jobs:
             echo
             if [[ -n "$summaries" ]]; then
               echo "Applied $applied migrations in ${duration_ms}ms."
+              if (( db_rows >= 0 )); then
+                echo "Against $db_rows estimated rows, $db_bytes bytes."
+              fi
+              if [[ -n "$degraded" ]]; then
+                echo
+                echo "Migrations that reported a failure and carried on:"
+                printf '%s\n' "$degraded" | sed 's/^/- /'
+              fi
             else
               echo "No migration summary in the log."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ -n "$degraded" ]]; then
+            echo "::warning::Some migrations reported a failure and carried on: $(tr '\n' ' ' <<<"$degraded")"
+          fi
 
           if [[ -n "$summaries" ]] && (( duration_ms > SLOW_BATCH_MS )); then
             echo "::warning::Migrating to $VERSION took ${duration_ms}ms, over the ${SLOW_BATCH_MS}ms mark."
@@ -239,6 +277,13 @@ jobs:
           # with nothing pending proves nothing and must not read as a pass.
           if (( applied == 0 )); then
             echo "::error::No migrations were pending, so this run tested nothing. Check which snapshot was restored."
+            exit 1
+          fi
+
+          # The baseline only runs where there is no schema at all, so it means no snapshot was
+          # restored and the timings above are DDL against empty tables.
+          if [[ "$baselined" == true ]]; then
+            echo "::error::The baseline ran, so this migrated an empty database rather than the previous minor's data."
             exit 1
           fi
 
