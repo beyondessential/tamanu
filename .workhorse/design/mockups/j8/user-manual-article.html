@@ -33,11 +33,14 @@
   .brand .sub { color: var(--ink-3); font-weight: 500; }
   nav.top { display: flex; gap: 20px; font-size: 14px; color: var(--ink-2); }
   nav.top a.active { color: var(--ink); font-weight: 550; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
   .nav-search {
-    margin-left: auto; width: 260px; display: flex; align-items: center; gap: 9px;
-    border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; color: var(--ink-3); font-size: 13.5px; background: var(--bg);
+    width: 200px; display: flex; align-items: center; gap: 9px;
+    border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; color: var(--ink-3); font-size: 13.5px; background: var(--bg); cursor: text;
   }
   .nav-search .kbd { margin-left: auto; font-size: 11px; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; background: var(--fill); }
+  .askai { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #cfcfd4; border-radius: 8px; padding: 7px 12px; font-size: 13.5px; font-weight: 540; color: var(--ink); background: var(--bg); cursor: pointer; }
+  .askai:hover { border-color: var(--ink); }
 
   .layout { display: grid; grid-template-columns: var(--sidebar-w) minmax(0,1fr) var(--toc-w); max-width: 1280px; margin: 0 auto; }
 
@@ -99,10 +102,13 @@
       <a href="#" class="active">User manuals</a>
       <a href="#">Release notes</a>
     </nav>
-    <div class="nav-search">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      Search or ask AI
-      <span class="kbd">⌘K</span>
+    <div class="nav-right">
+      <div class="nav-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search
+        <span class="kbd">/</span>
+      </div>
+      <button class="askai"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg> Ask AI</button>
     </div>
   </div>
 </header>

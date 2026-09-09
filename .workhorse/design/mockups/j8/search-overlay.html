@@ -78,6 +78,8 @@
   .p-foot { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
   .p-foot .k { border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; background: var(--fill); margin-right: 5px; }
   .p-foot .spacer { margin-left: auto; }
+  .ask-handoff { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); background: var(--bg); border-radius: 7px; padding: 4px 9px; cursor: pointer; }
+  .ask-handoff:hover { border-color: var(--ink); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -91,16 +93,6 @@
     </div>
 
     <div class="p-body">
-      <!-- Ask AI leads -->
-      <div class="row ai">
-        <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>
-        <div class="txt">
-          <div class="t">Ask AI: “send to pharmacy”</div>
-          <div class="s">Get an answer drawn from the manuals and release notes</div>
-        </div>
-        <span class="badge">Enter</span>
-      </div>
-
       <div class="group-label">User manuals</div>
 
       <div class="row active">
@@ -145,7 +137,8 @@
     <div class="p-foot">
       <span><span class="k">↑</span><span class="k">↓</span> to navigate</span>
       <span><span class="k">↵</span> to open</span>
-      <span class="spacer">Search by Tamanu docs</span>
+      <button class="ask-handoff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg> Ask AI instead</button>
+      <span class="spacer">Tamanu docs</span>
     </div>
   </div>
 </body>

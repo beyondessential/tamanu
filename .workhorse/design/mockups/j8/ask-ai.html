@@ -1,0 +1,146 @@
+<!-- spec: docs-hub (proposed) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tamanu docs — Ask AI</title>
+<style>
+  :root {
+    --bg: #ffffff; --ink: #0a0a0a; --ink-2: #3f3f46; --ink-3: #71717a; --ink-4: #a1a1aa;
+    --line: #e6e6e9; --line-soft: #f1f1f3; --fill: #f6f6f7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.55; }
+
+  /* faint docs page behind the drawer */
+  .backdrop { position: fixed; inset: 0; background: #ffffff; padding: 40px 56px; }
+  .backdrop .ln { height: 12px; background: #f1f1f3; border-radius: 6px; margin: 0 0 14px; }
+  .backdrop .ln.h { height: 26px; width: 320px; background: #ededf0; margin-bottom: 22px; }
+  .backdrop .ln.s { width: 62%; }
+  .backdrop::after { content: ""; position: fixed; inset: 0; background: rgba(20,20,22,0.28); }
+
+  /* drawer */
+  .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 430px; max-width: 92vw; background: var(--bg); border-left: 1px solid var(--line); box-shadow: -12px 0 40px rgba(0,0,0,0.12); display: flex; flex-direction: column; z-index: 5; }
+
+  .d-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .d-head .title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14.5px; }
+  .d-head .title svg { color: var(--ink); }
+  .d-head .caret { color: var(--ink-4); }
+  .d-head .tools { margin-left: auto; display: flex; gap: 6px; color: var(--ink-3); }
+  .d-head .tools button { border: none; background: transparent; padding: 6px; border-radius: 7px; color: inherit; cursor: pointer; display: grid; place-items: center; }
+  .d-head .tools button:hover { background: var(--fill); color: var(--ink); }
+
+  .disclaimer { text-align: center; font-size: 12.5px; color: var(--ink-4); padding: 14px 40px; border-bottom: 1px solid var(--line-soft); }
+
+  .d-body { flex: 1; overflow: auto; padding: 20px 18px; display: flex; flex-direction: column; gap: 18px; }
+
+  .msg.user { align-self: flex-end; max-width: 84%; background: var(--fill); border: 1px solid var(--line); border-radius: 12px; padding: 10px 13px; font-size: 14px; color: var(--ink); }
+
+  .msg.ai .who { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-3); font-weight: 560; margin-bottom: 8px; }
+  .msg.ai .who svg { color: var(--ink); }
+  .msg.ai .content { font-size: 14px; color: var(--ink-2); }
+  .msg.ai .content p { margin: 0 0 12px; }
+  .msg.ai .content strong { color: var(--ink); font-weight: 620; }
+  .msg.ai .content ul { margin: 0 0 12px; padding-left: 18px; }
+  .msg.ai .content li { margin-bottom: 6px; }
+  .msg.ai .content .cite { font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; vertical-align: 1px; }
+
+  .sources { margin-top: 4px; }
+  .sources .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-4); font-weight: 640; margin-bottom: 8px; }
+  .src { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; margin-bottom: 8px; }
+  .src:hover { border-color: #cfcfd4; }
+  .src .ic { width: 26px; height: 26px; flex: none; border-radius: 6px; background: var(--fill); border: 1px solid var(--line); display: grid; place-items: center; color: var(--ink-2); }
+  .src .t { font-size: 13px; color: var(--ink); }
+  .src .s { font-size: 11.5px; color: var(--ink-3); }
+  .src .arrow { margin-left: auto; color: var(--ink-4); }
+
+  .feedback { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--ink-4); }
+  .feedback button { border: 1px solid var(--line); background: var(--bg); border-radius: 7px; padding: 5px 8px; color: inherit; cursor: pointer; display: grid; place-items: center; }
+  .feedback button:hover { border-color: #cfcfd4; color: var(--ink-2); }
+
+  /* footer input */
+  .d-foot { border-top: 1px solid var(--line); padding: 12px 14px 14px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); background: var(--fill); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; }
+  .chip svg { color: var(--ink-3); }
+  .chip .x { margin-left: auto; color: var(--ink-4); cursor: pointer; }
+  .inputrow { display: flex; align-items: center; gap: 8px; border: 1px solid var(--ink); border-radius: 12px; padding: 10px 12px; }
+  .inputrow input { flex: 1; border: none; outline: none; font: inherit; font-size: 14px; background: transparent; }
+  .inputrow input::placeholder { color: var(--ink-4); }
+  .send { width: 28px; height: 28px; border-radius: 999px; background: var(--ink); color: #fff; border: none; display: grid; place-items: center; cursor: pointer; }
+  .tip { font-size: 11.5px; color: var(--ink-4); margin-top: 10px; text-align: center; }
+  .tip .k { border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; background: var(--fill); }
+</style>
+</head>
+<body>
+
+<div class="backdrop">
+  <div class="ln h"></div>
+  <div class="ln"></div><div class="ln"></div><div class="ln s"></div>
+  <div class="ln" style="margin-top:26px"></div><div class="ln"></div><div class="ln s"></div>
+</div>
+
+<aside class="drawer">
+  <div class="d-head">
+    <div class="title">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>
+      New chat <span class="caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+    </div>
+    <div class="tools">
+      <button title="New chat"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button title="Expand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+      <button title="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+
+  <div class="disclaimer">Responses are generated using AI and may contain mistakes.</div>
+
+  <div class="d-body">
+    <div class="msg user">How do I send a medication to pharmacy at discharge?</div>
+
+    <div class="msg ai">
+      <div class="who"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg> Answer</div>
+      <div class="content">
+        <p>At discharge, the patient's encounter medications are ticked to send to pharmacy by default, so routine discharge medications go through without extra steps. <span class="cite">1</span></p>
+        <ul>
+          <li>On the <strong>Discharge</strong> modal, use the <strong>Send to pharmacy</strong> column. It is ticked for encounter medications and unticked for other ongoing medications.</li>
+          <li>Fill in a <strong>Dispensing quantity</strong> for each medication being sent.</li>
+          <li>Stock on hand and the last request sent are shown while you decide. <span class="cite">2</span></li>
+        </ul>
+        <p>The pharmacy fields appear only where the pharmacy order setting is enabled for your facility.</p>
+
+        <div class="sources">
+          <div class="lbl">Sources</div>
+          <a class="src" href="#">
+            <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+            <span><span class="t">Sending medications to pharmacy</span><br><span class="s">User manuals · Medication</span></span>
+            <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+          </a>
+          <a class="src" href="#">
+            <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/></svg></span>
+            <span><span class="t">‘Send to pharmacy’ from discharge and prescribing</span><br><span class="s">Release notes · v2.62</span></span>
+            <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
+          </a>
+        </div>
+
+        <div class="feedback">
+          <button title="Copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+          <button title="Helpful"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H7"/></svg></button>
+          <button title="Not helpful"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 13V4h3v9zM17 13l-4 8a2 2 0 0 1-2-2v-4H6a2 2 0 0 1-2-2l2-7a2 2 0 0 1 2-1h9"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-foot">
+    <div class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg> Tamanu documentation <span class="x">✕</span></div>
+    <div class="inputrow">
+      <input placeholder="Ask a follow-up question" />
+      <button class="send"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </div>
+    <div class="tip">New chat with <span class="k">⌘</span> <span class="k">E</span></div>
+  </div>
+</aside>
+
+</body>
+</html>
