@@ -166,10 +166,8 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         model: ReferenceData,
         options: {
           column: 'name',
-          where: {
-            type: ReferenceDataType.Drug,
-          },
           relations: ['referenceDrug'],
+          where: { type: ReferenceDataType.Drug },
           // A drug with no reference_drugs row joins to NULL, and isn't sensitive
           andWhere: canCreateSensitiveMedication
             ? undefined
