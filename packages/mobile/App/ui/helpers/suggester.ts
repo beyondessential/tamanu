@@ -153,17 +153,9 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
       }
 
-      if (includeIds) {
-        query = query.andWhere({ id: In(includeIds) });
-      }
-
-      if (excludeIds) {
-        query = query.andWhere({ id: Not(In(excludeIds)) });
-      }
-
-      if (andWhere) {
-        query = query.andWhere(andWhere.sql, andWhere.parameters);
-      }
+      if (includeIds) query = query.andWhere({ id: In(includeIds) });
+      if (excludeIds) query = query.andWhere({ id: Not(In(excludeIds)) });
+      if (andWhere) query = query.andWhere(andWhere.sql, andWhere.parameters);
 
       // Add visibility status filtering if the model has a visibilityStatus column
       const hasVisibilityStatus = this.model
