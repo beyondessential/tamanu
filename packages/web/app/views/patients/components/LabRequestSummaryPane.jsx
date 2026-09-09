@@ -136,6 +136,7 @@ const getColumns = () => [
 const MODALS = {
   PRINT: 'print',
   LABEL_PRINT: 'labelPrint',
+  AUTO_LABEL_PRINT: 'autoLabelPrint',
 };
 
 export const LabRequestSummaryPane = React.memo(
@@ -146,14 +147,19 @@ export const LabRequestSummaryPane = React.memo(
     const autoPrintLabel =
       Boolean(getSetting('labs.autoPrintSampleLabel')) &&
       labRequests.every(request => Boolean(request.sampleTime));
-    const [isOpen, setIsOpen] = useState(autoPrintLabel ? MODALS.LABEL_PRINT : false);
+    const [isOpen, setIsOpen] = useState(autoPrintLabel ? MODALS.AUTO_LABEL_PRINT : false);
+    // The auto-print screen prints every request and closing it ends the finalise flow; the manual
+    // "Print labels" button prints the table's selection and returns to the summary.
+    const isAutoLabelPrint = isOpen === MODALS.AUTO_LABEL_PRINT;
     const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
       columnKey: 'selected',
       showIndeterminate: true,
       // Categories whose sample is already recorded start selected; the rest are left for the user.
       getIsRowInitiallySelected: request => Boolean(request.sampleTime),
-      // A sample that has not been recorded cannot be printed, so its row is not selectable.
+      // A sample that has not been recorded cannot be printed, so its row is not selectable —
+      // for the per-row checkbox and for the select-all control.
       getIsRowDisabled: (selectedKeys, row) => !row.sampleTime,
+      getRowsFilterer: () => request => Boolean(request.sampleTime),
     });
     const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
     // All the lab requests were made in a batch and have the same details
@@ -212,9 +218,10 @@ export const LabRequestSummaryPane = React.memo(
             />
           </OutlinedButton>
           <LabRequestPrintLabelModal
-            labRequests={autoPrintLabel ? labRequests : selectedRows}
-            open={isOpen === MODALS.LABEL_PRINT}
-            onClose={autoPrintLabel ? onClose : () => setIsOpen(false)}
+            labRequests={isAutoLabelPrint ? labRequests : selectedRows}
+            open={isOpen === MODALS.LABEL_PRINT || isAutoLabelPrint}
+            onClose={isAutoLabelPrint ? onClose : () => setIsOpen(false)}
+            selectable={isAutoLabelPrint}
             data-testid="labrequestprintlabelmodal-n8hs"
           />
           <OutlinedButton

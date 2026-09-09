@@ -47,6 +47,13 @@ describe('LabRequestPrintLabel', () => {
     expect(labelText()).toMatch(/01\/01\/1990 \(\d+ years\)/);
   });
 
+  it('omits age when the date of birth is unknown', () => {
+    renderLabel({ ...LABEL_DATA, patientDateOfBirth: null });
+    const text = labelText();
+    expect(text).not.toContain('years');
+    expect(text).not.toContain('NaN');
+  });
+
   it('shows the date collected with date and time', () => {
     renderLabel();
     expect(labelText()).toContain('01/01/2026');

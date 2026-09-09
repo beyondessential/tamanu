@@ -360,6 +360,7 @@ export const facilitySettings = {
     labs: {
       name: 'Labs',
       description: 'Settings related to lab requests',
+      exposedToWeb: true,
       properties: {
         autoPrintSampleLabel: {
           name: 'Auto-print sample label',

@@ -48,7 +48,7 @@ const toLabelData = (patient, lab) => ({
   collectedBy: lab.collectedBy?.displayName,
 });
 
-export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
+export const LabRequestPrintLabelModal = ({ open, onClose, labRequests, selectable = false }) => {
   const { patient } = usePatient();
   const frameRef = useRef(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set(labRequests.map(lab => lab.id)));
@@ -70,8 +70,8 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
       return next;
     });
 
-  const selectedLabels = labRequests
-    .filter(lab => selectedIds.has(lab.id))
+  // Without selection the caller has already chosen what to print; otherwise print the ticked rows.
+  const printedLabels = (selectable ? labRequests.filter(lab => selectedIds.has(lab.id)) : labRequests)
     .map(lab => toLabelData(patient, lab));
 
   const handlePrint = async () => {
@@ -89,7 +89,7 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
         <ConfirmCancelRow
           onCancel={onClose}
           onConfirm={handlePrint}
-          confirmDisabled={selectedIds.size === 0}
+          confirmDisabled={printedLabels.length === 0}
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
           confirmText={<TranslatedText stringId="lab.action.printLabels" fallback="Print labels" />}
         />
@@ -98,19 +98,21 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
       <List>
         {labRequests.map(lab => (
           <Row key={lab.id}>
-            <CheckInput
-              value={selectedIds.has(lab.id)}
-              name={`select-${lab.id}`}
-              onChange={() => toggle(lab.id)}
-              data-testid={`labelselect-${lab.id}`}
-            />
+            {selectable && (
+              <CheckInput
+                value={selectedIds.has(lab.id)}
+                name={`select-${lab.id}`}
+                onChange={() => toggle(lab.id)}
+                data-testid={`labelselect-${lab.id}`}
+              />
+            )}
             <PreviewCard>
               <LabRequestPrintLabel data={toLabelData(patient, lab)} />
             </PreviewCard>
           </Row>
         ))}
       </List>
-      <LabRequestLabelPrintFrame ref={frameRef} labels={selectedLabels} />
+      <LabRequestLabelPrintFrame ref={frameRef} labels={printedLabels} />
     </StyledModal>
   );
 };
@@ -119,4 +121,6 @@ LabRequestPrintLabelModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   labRequests: PropTypes.array.isRequired,
+  // When true, each label carries a checkbox and only the ticked ones print (the auto-print screen).
+  selectable: PropTypes.bool,
 };

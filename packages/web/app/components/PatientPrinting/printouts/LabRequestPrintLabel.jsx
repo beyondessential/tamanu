@@ -69,20 +69,17 @@ const BarcodeContainer = styled.div`
 export const LabRequestPrintLabel = React.memo(({ data }) => {
   const { formatShort, formatShortDateTime } = useDateTime();
   const { patientName, patientDateOfBirth, patientId, requestId, date, collectedBy } = data;
-  const age = getAgeDurationFromDate(patientDateOfBirth)?.years ?? 0;
+  const ageDuration = getAgeDurationFromDate(patientDateOfBirth);
+  const dateOfBirth = patientDateOfBirth
+    ? `${formatShort(patientDateOfBirth)}${ageDuration ? ` (${ageDuration.years} years)` : ''}`
+    : '';
   return (
     <Container data-testid="container-gx0i">
       <FlexContainer data-testid="flexcontainer-24kt">
         <TextContainer data-testid="textcontainer-8y44">
           <svg viewBox="0 0 200 92">
             <Item x="0" y="12" label="Patient name" value={patientName} data-testid="item-asx7" />
-            <Item
-              x="0"
-              y="27"
-              label="DOB"
-              value={`${formatShort(patientDateOfBirth)} (${age} years)`}
-              data-testid="item-krnm"
-            />
+            <Item x="0" y="27" label="DOB" value={dateOfBirth} data-testid="item-krnm" />
             <Item x="0" y="42" label="Patient ID" value={patientId} data-testid="item-r5xk" />
             <Item x="0" y="57" label="Request ID" value={requestId} data-testid="item-vcco" />
             <Item

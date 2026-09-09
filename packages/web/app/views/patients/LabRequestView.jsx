@@ -240,8 +240,9 @@ export const LabRequestView = () => {
 
   const autoPrintLabel = getSetting('labs.autoPrintSampleLabel');
   const handleSampleRecorded = () => {
-    // Swap the open record-sample modal straight to the label print screen rather than closing
-    // first, which would let the close animation clear the modal before it reopened.
+    // A sample was just recorded. With auto-print on, swap the still-open record-sample modal
+    // straight to the label print screen — changing the modal id rather than closing avoids the
+    // close animation clearing the modal before it reopens. Otherwise just close.
     if (autoPrintLabel) {
       setModalId(MODAL_IDS.LABEL_PRINT);
     } else {

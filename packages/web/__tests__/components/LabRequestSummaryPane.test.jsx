@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -67,6 +67,15 @@ describe('LabRequestSummaryPane', () => {
     expect(collected.checked).toBe(true);
     expect(uncollected.disabled).toBe(true);
     expect(uncollected.checked).toBe(false);
+  });
+
+  it('select-all never selects a row without a recorded sample', () => {
+    renderPane({ labRequests: [recorded('COLL01'), notCollected('UNCOLL1')] });
+    const selectAll = () => screen.getAllByRole('checkbox')[0];
+    const uncollected = () => screen.getAllByRole('checkbox')[2];
+    fireEvent.click(selectAll()); // the recorded row starts selected, so this clears it
+    fireEvent.click(selectAll()); // and this re-selects every recorded row
+    expect(uncollected().checked).toBe(false);
   });
 
   it('auto-opens the label print screen when enabled and every sample is recorded', () => {
