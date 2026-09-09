@@ -122,9 +122,12 @@ overloaded.
 - [x] Component test for `LabRequestPrintLabel`: renders the six fields in order,
       barcode value equals the request display ID, and no Lab category / Specimen
       type fields.
-- [ ] Web test for the summary pane: uncollected rows are not selectable;
-      collected rows start selected.
-- [ ] Web/e2e (`packages/e2e-tests`, labRequests area): with the setting on and
-      all samples recorded, finalising shows the auto-print label screen; with it
-      off, the standard finalise screen shows. (Physical printer verification is
-      manual — see the card's testing note.)
+- [x] Web test for the summary pane: uncollected rows are not selectable;
+      collected rows start selected; the label screen auto-opens (with every
+      request) only when the setting is on and every sample is recorded.
+- [ ] Browser e2e for the auto-print path is deferred: it needs the facility
+      setting toggled mid-flow (heavy/flaky in `packages/e2e-tests`), and the
+      physical label print is a manual printer check (card testing note). The
+      setting-off flow is already covered by the existing labRequest e2e specs,
+      and the auto-print trigger is covered by the summary-pane component test
+      above.
