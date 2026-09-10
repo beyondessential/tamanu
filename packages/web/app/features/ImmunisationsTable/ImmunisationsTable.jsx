@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 import styled from 'styled-components';
 import { TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -35,7 +36,9 @@ const TableHeaderCheckbox = styled(CheckInput)`
   }
 `;
 
-const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
+const INCLUDE_NOT_GIVEN_PARAM = 'includeNotGiven';
+
+const TableHeader = ({ includeNotGiven, onToggleIncludeNotGiven }) => {
   return (
     <Container>
       <Title>
@@ -49,7 +52,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
           />
         }
         value={includeNotGiven}
-        onClick={() => setIncludeNotGiven(!includeNotGiven)}
+        onClick={onToggleIncludeNotGiven}
         data-testid="notgivencheckbox-mz3p"
       />
     </Container>
@@ -59,8 +62,25 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
 const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.doseLabel;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, refreshCount, 'data-testid': dataTestId}) => {
-    const [includeNotGiven, setIncludeNotGiven] = useState(false);
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, 'data-testid': dataTestId}) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const includeNotGiven = searchParams.get(INCLUDE_NOT_GIVEN_PARAM) === 'true';
+
+    // The pane remounts this table to refresh it, so the filter can't live in component state
+    const onToggleIncludeNotGiven = useCallback(() => {
+      setSearchParams(
+        prev => {
+          const next = new URLSearchParams(prev);
+          if (next.get(INCLUDE_NOT_GIVEN_PARAM) === 'true') {
+            next.delete(INCLUDE_NOT_GIVEN_PARAM);
+          } else {
+            next.set(INCLUDE_NOT_GIVEN_PARAM, 'true');
+          }
+          return next;
+        },
+        { replace: true },
+      );
+    }, [setSearchParams]);
 
     const COLUMNS = useMemo(
       () => [
@@ -116,7 +136,6 @@ export const ImmunisationsTable = React.memo(
         endpoint={`patient/${patient.id}/administeredVaccines`}
         initialSort={{ orderBy: 'date', order: 'desc' }}
         fetchOptions={{ includeNotGiven }}
-        refreshCount={refreshCount}
         columns={COLUMNS}
         noDataMessage={
           <TranslatedText stringId="vaccine.table.noDataMessage" fallback="No vaccinations found" />
@@ -126,7 +145,7 @@ export const ImmunisationsTable = React.memo(
           !viewOnly && (
             <TableHeader
               includeNotGiven={includeNotGiven}
-              setIncludeNotGiven={setIncludeNotGiven}
+              onToggleIncludeNotGiven={onToggleIncludeNotGiven}
             />
           )
         }

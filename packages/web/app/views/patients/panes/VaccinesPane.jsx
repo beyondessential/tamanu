@@ -182,7 +182,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             </ButtonWithPermissionCheck>
           </NoteModalActionBlocker>
         </TableButtonRow>
-        {/* Lazy loading appends rows on refetch, so the schedule table has to remount to refresh */}
+        {/* Keyed on vaccineRefreshCount so a record, edit or delete remounts them for a clean refetch */}
         <TableWrapper data-testid="tablewrapper-rbs7">
           {hideUpcomingVaccines ? (
               <Button onClick={handleShowUpcomingVaccines}>
@@ -201,7 +201,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
           )}
         </TableWrapper>
         <ImmunisationsTable
-          refreshCount={vaccineRefreshCount}
+          key={vaccineRefreshCount}
           patient={patient}
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}
