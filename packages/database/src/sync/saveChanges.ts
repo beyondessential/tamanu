@@ -9,14 +9,19 @@ const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
 // We use hooks: false in all transactions here to avoid triggering side effects that may violate other records in the sync payload
 
-// Soft deletes and restores must write updated_at_sync_tick in the same statement as deleted_at.
-// Records pulled from central carry SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER (-1), which the
-// set_updated_at_sync_tick trigger stores as LAST_UPDATED_ELSEWHERE (-999) so the row is never
-// pushed back. A paranoid destroy()/restore() leaves the column out of the SET clause, so the
-// trigger sees the row's existing tick instead and stamps the current one — the facility then
-// echoes central's own delete straight back to it.
-// Incoming records on the central server carry no tick, so the column is omitted there and the
-// trigger stamps the current tick as usual (the change still has to reach other devices).
+/**
+ * Soft deletes and restores must write `updated_at_sync_tick` in the same statement as
+ * `deleted_at`.
+ *
+ * Records pulled from central carry `SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER` (-1), which the
+ * `set_updated_at_sync_tick` trigger stores as `LAST_UPDATED_ELSEWHERE` (-999) so the record isn’t
+ * needlessly pushed back. (A paranoid `destroy()`/`restore()` leaves the column out of the `SET`
+ * clause, so the trigger sees the row’s existing tick instead and stamps the current one. The
+ * facility then echoes central’s own delete straight back to it.)
+ *
+ * Incoming records on the central server carry no tick, so the column is omitted there and the
+ * trigger stamps the current tick as usual (the change still has to reach other devices).
+ */
 const setDeletedAt = async (
   model: typeof Model,
   records: Record<string, any>[],
