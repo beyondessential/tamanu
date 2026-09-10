@@ -46,6 +46,9 @@ Tamanu repository alongside the code they describe.
 - [ ] A guide covering a task whose errors readers commonly meet closes by naming those
       errors and what to do about each. A task whose errors are rare or obscure ends at
       its outcome.
+- [ ] Each error is headed by the message the product shows, word for word, so a reader
+      matches what is on their screen against the list at a glance. What caused it and
+      how to get past it follow underneath.
 
 ## Scope
 

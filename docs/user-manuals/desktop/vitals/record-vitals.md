@@ -42,10 +42,14 @@ pointer on it to see the normal range.
 
 ## If something goes wrong
 
-**At least one recording must be entered.** You selected **Record** without entering any
-measurements. Enter at least one reading, then try again.
+**At least one recording must be entered.**
+You selected **Record** without entering any measurements. Enter at least one reading,
+then try again.
 
-**\*Required** appears under a field. Fill that field in before you record.
+**\*Required**
+This appears under a field that has to be filled in before you can record. Fill it in,
+then select **Record** again.
 
-**Permission required.** Your account cannot record vitals. Contact your system
-administrator.
+**Permission required.**
+Your account cannot record vitals. Contact your system administrator if you believe you
+should be able to.
