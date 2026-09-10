@@ -1,0 +1,257 @@
+<!-- spec: documentation/user-manuals.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Record a set of vitals</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f8f7f4;
+    color: #1c1917;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    flex: 0 0 260px;
+    background: #ffffff;
+    border-right: 1px solid #e7e5e4;
+    padding: 24px 0;
+  }
+  .brand {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #e7e5e4;
+    margin-bottom: 16px;
+  }
+  .brand-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 12px; color: #78716c; margin-top: 2px; }
+  .nav-group { padding: 0 12px; margin-bottom: 4px; }
+  .nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a8a29e;
+    padding: 12px 8px 4px;
+  }
+  .nav-item {
+    display: block;
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: #57534e;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .nav-item:hover { background: #f5f5f4; color: #1c1917; }
+  .nav-item.module { font-weight: 500; color: #1c1917; }
+  .nav-sub { padding-left: 12px; border-left: 1px solid #e7e5e4; margin-left: 8px; }
+  .nav-item.current {
+    background: #fff7ed;
+    color: #c2410c;
+    font-weight: 500;
+  }
+  .nav-empty { font-size: 13px; color: #a8a29e; padding: 6px 8px; font-style: italic; }
+
+  /* Content */
+  .content { flex: 1; display: flex; justify-content: center; padding: 40px 32px 80px; }
+  .page { max-width: 720px; width: 100%; }
+  .crumbs { font-size: 13px; color: #78716c; margin-bottom: 12px; }
+  .crumbs a { color: #78716c; text-decoration: none; }
+  .crumbs a:hover { color: #c2410c; }
+  .crumbs .sep { margin: 0 6px; color: #d6d3d1; }
+
+  h1 { font-size: 30px; line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 12px; }
+  h2 {
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    margin: 36px 0 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e7e5e4;
+  }
+  .lede { color: #57534e; margin: 0 0 24px; }
+
+  ol { padding-left: 0; margin: 0; list-style: none; counter-reset: step; }
+  ol > li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 22px;
+  }
+  ol > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 1px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e7e5e4;
+    color: #c2410c;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-main { font-weight: 500; }
+  .step-note { color: #57534e; margin-top: 6px; }
+
+  .shot {
+    margin: 16px 0;
+    font-weight: 700;
+  }
+  .shot-hint {
+    display: block;
+    font-weight: 400;
+    font-size: 12px;
+    color: #a8a29e;
+    margin-top: 2px;
+  }
+
+  .errors dt { font-weight: 600; margin-top: 16px; }
+  .errors dd { margin: 4px 0 0; color: #57534e; }
+  .errors dt:first-child { margin-top: 0; }
+
+  /* Annotation, not part of the page */
+  .annotation {
+    margin-top: 56px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border: 1px dashed #d6d3d1;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #78716c;
+  }
+  .annotation b { color: #57534e; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-title">Tamanu user manuals</div>
+      <div class="brand-sub">Guides for everyday use</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Desktop</div>
+      <a class="nav-item module" href="#">Vitals</a>
+      <div class="nav-sub">
+        <a class="nav-item current" href="#">Record a set of vitals</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Mobile</div>
+      <div class="nav-empty">No guides yet</div>
+    </div>
+  </nav>
+
+  <main class="content">
+    <article class="page">
+
+      <div class="crumbs">
+        <a href="#">Desktop</a><span class="sep">/</span><a href="#">Vitals</a>
+      </div>
+
+      <h1>Record a set of vitals</h1>
+
+      <p class="lede">
+        Record a patient's observations against the encounter they are admitted under.
+        Start from the patient's encounter.
+      </p>
+
+      <p class="shot">
+        [Screenshot: the encounter view with the Vitals tab visible]
+        <span class="shot-hint">Placeholder, rendered as it appears in the markdown</span>
+      </p>
+
+      <h2>Steps</h2>
+
+      <ol>
+        <li>
+          <div class="step-main">Open the <b>Vitals</b> tab.</div>
+          <div class="step-note">
+            The table lists every set of vitals already recorded for this encounter. If
+            none have been recorded yet, it shows <b>No data found</b>.
+          </div>
+        </li>
+
+        <li>
+          <div class="step-main">Select <b>Record vitals</b>.</div>
+          <div class="step-note">The <b>Record vitals</b> window opens.</div>
+          <p class="shot">[Screenshot: the Record vitals window, showing the empty form]</p>
+        </li>
+
+        <li>
+          <div class="step-main">Check <b>Date recorded</b>.</div>
+          <div class="step-note">
+            This is filled in with the current date and time. Change it if the
+            observations were taken earlier.
+          </div>
+        </li>
+
+        <li>
+          <div class="step-main">Enter the measurements you have taken.</div>
+          <div class="step-note">
+            Fill in only the fields you have readings for and leave the rest blank. Some
+            fields work themselves out from other measurements and cannot be typed into.
+          </div>
+        </li>
+
+        <li>
+          <div class="step-main">Select <b>Record</b>.</div>
+        </li>
+      </ol>
+
+      <h2>What you should see</h2>
+
+      <p>
+        The window closes and your readings appear as a new column at the left of the
+        table. The most recent set of vitals is always the first column.
+      </p>
+      <p>
+        A reading outside the normal range for the patient's age is highlighted. Rest your
+        pointer on it to see the normal range.
+      </p>
+
+      <p class="shot">[Screenshot: the vitals table with the newly recorded column highlighted]</p>
+
+      <h2>If something goes wrong</h2>
+
+      <dl class="errors">
+        <dt>At least one recording must be entered.</dt>
+        <dd>
+          You selected <b>Record</b> without entering any measurements. Enter at least one
+          reading, then try again.
+        </dd>
+
+        <dt>*Required appears under a field.</dt>
+        <dd>Fill that field in before you record.</dd>
+
+        <dt>Permission required.</dt>
+        <dd>Your account cannot record vitals. Contact your system administrator.</dd>
+      </dl>
+
+      <div class="annotation">
+        <b>About this mockup.</b> It shows the exemplar guide as a reader would meet it,
+        to test whether the format holds up: numbered steps with one action each, on-screen
+        labels in bold, and screenshot placeholders left visible. The site chrome around it
+        illustrates how the index structure reads as navigation. It is not a proposal to
+        build a site on this card.
+      </div>
+
+    </article>
+  </main>
+
+</div>
+</body>
+</html>
