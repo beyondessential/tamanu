@@ -28,7 +28,7 @@ describe('saveChangesForModel', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, String(CURRENT_SYNC_TICK));
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK.toString());
   });
 
   afterEach(async () => {
