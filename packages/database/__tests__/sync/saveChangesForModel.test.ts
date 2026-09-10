@@ -80,7 +80,7 @@ describe('saveChangesForModel', () => {
       expect(newRecordInDb).toBeDefined();
       expect(newRecordInDb.text).toEqual(newRecord.text);
       expect(newRecordInDb.deletedAt).not.toBeNull();
-      expect(Number(newRecordInDb.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+      expect(Number.parseInt(newRecordInDb.updatedAtSyncTick, 10)).toBe(CURRENT_SYNC_TICK);
     });
   });
 
@@ -165,7 +165,7 @@ describe('saveChangesForModel', () => {
       expect(updatedRecordInDb.text).toBe(newRecord.text);
       // on central the delete is a change that still has to reach other devices, so it is stamped
       // with the current tick like any other write
-      expect(Number(updatedRecordInDb.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+      expect(Number.parseInt(updatedRecordInDb.updatedAtSyncTick, 10)).toBe(CURRENT_SYNC_TICK);
     });
   });
 
