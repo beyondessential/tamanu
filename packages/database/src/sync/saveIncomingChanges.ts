@@ -43,8 +43,7 @@ export const saveChangesForModel = async (
   };
 
   // split changes into creates and updates; soft deletes and restores ride along on the update
-  const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
-  const idsForIncomingRecords = incomingRecords.map(r => r.id);
+  const idsForIncomingRecords = changes.filter(c => c.data.id).map(c => c.data.id);
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
