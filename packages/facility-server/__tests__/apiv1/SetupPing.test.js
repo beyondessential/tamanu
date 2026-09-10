@@ -27,4 +27,12 @@ describe('public/ping on an unconfigured server', () => {
     expect(result.body.setupRequired).toBe(true);
     expect(result.body.declaredFacilityIds).toEqual(['balwyn', 'kerang', 'lake-charm']);
   });
+
+  it('withholds them from a source that could not run setup anyway', async () => {
+    const result = await baseApp.get('/api/public/ping').set('X-Forwarded-For', '8.8.8.8');
+
+    expect(result.status).toBe(200);
+    expect(result.body.setupRequired).toBe(true);
+    expect(result.body).not.toHaveProperty('declaredFacilityIds');
+  });
 });

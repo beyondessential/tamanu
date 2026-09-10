@@ -62,6 +62,36 @@ test.describe('facility setup wizard', () => {
     });
   });
 
+  test('prefills the facility ids the server declares and submits them', async ({ page }) => {
+    const wizard = new SetupWizardPage(page);
+
+    // Registered after the beforeEach stub, so this one matches first.
+    await page.route('**/api/public/ping', route =>
+      route.fulfill({ json: { setupRequired: true, declaredFacilityIds: ['balwyn', 'kerang'] } }),
+    );
+
+    let submitted: Record<string, unknown> | undefined;
+    await page.route('**/api/public/setup/sync', async route => {
+      submitted = route.request().postDataJSON();
+      await route.fulfill({ json: { success: true } });
+    });
+
+    await wizard.goto();
+    await expect(wizard.heading).toBeVisible();
+
+    // One row per declared facility, so the operator confirms rather than retypes.
+    await expect(wizard.facilityId(0)).toHaveValue('balwyn');
+    await expect(wizard.facilityId(1)).toHaveValue('kerang');
+
+    await wizard.host.fill('https://central.example');
+    await wizard.email.fill('admin@tamanu.io');
+    await wizard.password.fill('secret');
+    await wizard.submit.click();
+
+    await expect.poll(() => submitted).toBeTruthy();
+    expect(submitted).toMatchObject({ facilityIds: ['balwyn', 'kerang'] });
+  });
+
   test('keeps the error banner and entered values after a failed submit', async ({ page }) => {
     const wizard = new SetupWizardPage(page);
 
