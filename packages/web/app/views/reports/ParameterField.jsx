@@ -100,7 +100,13 @@ const ParameterMultiselectField = ({ name, ...props }) => (
 );
 
 const ParameterCheckboxField = ({ name, ...props }) => (
-  <Field component={CheckField} name={name} {...props} data-testid="field-c9nk" />
+  <Field
+    component={CheckField}
+    name={name}
+    style={{ alignSelf: 'center' }}
+    {...props}
+    data-testid="field-c9nk"
+  />
 );
 
 const EmptyField = styled.div``;
