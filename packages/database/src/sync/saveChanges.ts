@@ -22,7 +22,7 @@ const setDeletedAt = async (
   records: Record<string, any>[],
   deletedAt: Date | null,
 ) => {
-  const recordsBySyncTick = groupBy(records, r => String(r.updatedAtSyncTick));
+  const recordsBySyncTick = groupBy(records, r => r.updatedAtSyncTick.toString());
   for (const group of Object.values(recordsBySyncTick)) {
     const { updatedAtSyncTick } = group[0];
     await model.update(
