@@ -18,7 +18,7 @@ const bodySchema = z.object({
 const syncUserEmail = deviceId =>
   `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}@sync.tamanu`;
 
-const rotate = async (user, { displayName, password }) => {
+const rotateSyncUserCredentials = async (user, { displayName, password }) => {
   user.set({ displayName, role: 'admin', kind: USER_KINDS.SYNC });
   await user.setPassword(password);
   return user.save();
@@ -50,7 +50,7 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   await sequelize.transaction(async () => {
     const existing = await User.findOne({ where: { email } });
     const syncUser = existing
-      ? await rotate(existing, { displayName, password })
+      ? await rotateSyncUserCredentials(existing, { displayName, password })
       : await User.create({
           email,
           displayName,

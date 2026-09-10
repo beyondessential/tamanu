@@ -19,7 +19,6 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { useApi } from '../api';
-import { useCheckServerAliveQuery } from '../api/queries/useCheckServerAliveQuery';
 import { BodyText, LogoDark } from '../components';
 import { Colors } from '../constants';
 import { splashImages } from '../constants/images';
@@ -140,10 +139,6 @@ export const SetupWizardView = () => {
   const queryClient = useQueryClient();
   const { getTranslation } = useTranslation();
   const [errorMessage, setErrorMessage] = useState(null);
-  // Config declares which facilities this server is meant to serve, and the boot
-  // integrity check refuses to start if the recorded set isn't a subset of it.
-  const { data: serverStatus } = useCheckServerAliveQuery();
-  const declaredFacilityIds = serverStatus?.declaredFacilityIds ?? [];
 
   const handleSubmit = async values => {
     setErrorMessage(null);
@@ -191,7 +186,7 @@ export const SetupWizardView = () => {
               host: '',
               email: '',
               password: '',
-              facilityIds: declaredFacilityIds.length ? declaredFacilityIds : [''],
+              facilityIds: [''],
             }}
             render={({ values }) => {
               return (
