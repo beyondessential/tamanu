@@ -61,7 +61,7 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
 export const saveUpdates = async (
   model: typeof Model,
   incomingRecords: PublicSchemaRecord[],
-  idToExistingRecord: Record<number, any>,
+  idToExistingRecord: Record<number, PublicSchemaRecord>,
   isCentralServer: boolean,
 ) => {
   const recordsToSave = isCentralServer
