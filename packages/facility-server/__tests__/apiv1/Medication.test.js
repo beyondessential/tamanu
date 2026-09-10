@@ -1814,6 +1814,132 @@ describe('Medication', () => {
     });
   });
 
+  // Separate from GET /:id/ongoing-prescriptions above: the send-to-pharmacy modal's ongoing mode
+  // needs the request a user should act on next, not simply the most recent one — the earliest
+  // still-active request, or the latest dispensed one if none are active. Cancelled (soft-deleted)
+  // requests are excluded from consideration entirely.
+  describe('GET /api/patient/:id/ongoing-prescriptions/pharmacy-request-status', () => {
+    const orderOn = async (ongoingPrescription, date, { isCompleted = false, cancelled = false } = {}) => {
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: getCurrentDateTimeString(),
+        }),
+      );
+      const pharmacyOrder = await models.PharmacyOrder.create(
+        fake(models.PharmacyOrder, {
+          orderingClinicianId: app.user.id,
+          encounterId: encounter.id,
+          date,
+          facilityId,
+        }),
+      );
+      const orderPrescription = await models.PharmacyOrderPrescription.create({
+        ...fake(models.PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: ongoingPrescription.id,
+          ongoingPrescriptionId: ongoingPrescription.id,
+          quantity: 10,
+          isCompleted,
+        }),
+        id: crypto.randomUUID(),
+      });
+      if (cancelled) {
+        await orderPrescription.destroy();
+      }
+      return orderPrescription;
+    };
+
+    const fetchStatus = async (patientId, prescriptionId) => {
+      const result = await app.get(
+        `/api/patient/${patientId}/ongoing-prescriptions/pharmacy-request-status?prescriptionIds=${prescriptionId}`,
+      );
+      expect(result).toHaveSucceeded();
+      return result.body.data[prescriptionId];
+    };
+
+    it('reports null for an ongoing prescription with no pharmacy requests', async () => {
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+      });
+
+      const status = await fetchStatus(patient.id, ongoingPrescription.id);
+
+      expect(status).toEqual({ date: null, isCompleted: null });
+    });
+
+    it('reports null when every request has been cancelled', async () => {
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+      });
+      await orderOn(ongoingPrescription, '2024-10-01 09:00:00', { cancelled: true });
+
+      const status = await fetchStatus(patient.id, ongoingPrescription.id);
+
+      expect(status).toEqual({ date: null, isCompleted: null });
+    });
+
+    it('picks the earliest active request over later active and dispensed requests', async () => {
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+      });
+      await orderOn(ongoingPrescription, '2024-10-20 09:00:00', { isCompleted: true });
+      await orderOn(ongoingPrescription, '2024-10-05 09:00:00');
+      await orderOn(ongoingPrescription, '2024-10-10 09:00:00');
+
+      const status = await fetchStatus(patient.id, ongoingPrescription.id);
+
+      expect(status).toEqual({ date: '2024-10-05 09:00:00', isCompleted: false });
+    });
+
+    it('ignores cancelled requests when picking the earliest active request', async () => {
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+      });
+      await orderOn(ongoingPrescription, '2024-10-01 09:00:00', { cancelled: true });
+      await orderOn(ongoingPrescription, '2024-10-10 09:00:00');
+
+      const status = await fetchStatus(patient.id, ongoingPrescription.id);
+
+      expect(status).toEqual({ date: '2024-10-10 09:00:00', isCompleted: false });
+    });
+
+    it('falls back to the latest dispensed request when every non-cancelled request has been dispensed', async () => {
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+      });
+      await orderOn(ongoingPrescription, '2024-10-01 09:00:00', { isCompleted: true });
+      await orderOn(ongoingPrescription, '2024-10-10 09:00:00', { isCompleted: true });
+      await orderOn(ongoingPrescription, '2024-10-20 09:00:00', { cancelled: true });
+
+      const status = await fetchStatus(patient.id, ongoingPrescription.id);
+
+      expect(status).toEqual({ date: '2024-10-10 09:00:00', isCompleted: true });
+    });
+
+    it('rejects a prescription id that is not an ongoing prescription for this patient', async () => {
+      const otherPatient = await models.Patient.create(fake(models.Patient));
+      const otherPrescription = await createOngoingPrescription({
+        patientId: otherPatient.id,
+        prescriberId: app.user.id,
+      });
+
+      const result = await app.get(
+        `/api/patient/${patient.id}/ongoing-prescriptions/pharmacy-request-status?prescriptionIds=${otherPrescription.id}`,
+      );
+
+      expect(result).toHaveRequestError();
+    });
+  });
+
   describe('GET /api/medication/dispensable-medications', () => {
     // Builds an outstanding (not-yet-dispensed) pharmacy order prescription for the patient, with
     // the prescription fields the dispensing autocalculation relies on set to known values.

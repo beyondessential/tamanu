@@ -49,6 +49,7 @@ import {
   checkPharmacyOrderPermission,
   checkSensitiveMedicationPermission,
   createPharmacyOrder,
+  getDisplayedPharmacyRequest,
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
@@ -613,6 +614,62 @@ encounterRelations.get(
     }
 
     res.send({ count, data: responseData });
+  }),
+);
+
+const pharmacyRequestStatusQuerySchema = z
+  .object({
+    // Existence/ownership is checked against EncounterPrescription below, so this only needs to
+    // reject an empty list, not enforce UUID shape.
+    prescriptionIds: z.preprocess(
+      value => (typeof value === 'string' ? value.split(',') : value),
+      z.array(z.string().min(1)).min(1),
+    ),
+  })
+  .strip();
+
+// Separate from GET /:id/medications: the encounter medication table and the send-to-pharmacy modal
+// need to know which single request (out of a medication's full pharmacy history) to surface, using
+// a different selection rule than the "latest request" one the discharge modal still relies on.
+encounterRelations.get(
+  '/:id/medications/pharmacy-request-status',
+  asyncHandler(async (req, res) => {
+    const { models, params, query, db } = req;
+    const { EncounterPrescription } = models;
+
+    const { prescriptionIds } = await pharmacyRequestStatusQuerySchema.parseAsync(query);
+
+    req.checkPermission('list', 'Medication');
+
+    const linkedCount = await EncounterPrescription.count({
+      where: {
+        encounterId: params.id,
+        prescriptionId: { [Op.in]: prescriptionIds },
+      },
+    });
+    if (linkedCount !== prescriptionIds.length) {
+      throw new InvalidOperationError(
+        'One or more prescriptions are not associated with this encounter',
+      );
+    }
+
+    const displayedRequests = await getDisplayedPharmacyRequest(
+      db,
+      'prescription_id',
+      prescriptionIds,
+    );
+
+    res.send({
+      data: Object.fromEntries(
+        prescriptionIds.map(prescriptionId => [
+          prescriptionId,
+          {
+            date: displayedRequests[prescriptionId]?.date ?? null,
+            isCompleted: displayedRequests[prescriptionId]?.is_completed ?? null,
+          },
+        ]),
+      ),
+    });
   }),
 );
 

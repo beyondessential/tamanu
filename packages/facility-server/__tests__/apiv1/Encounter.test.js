@@ -1649,6 +1649,161 @@ describe('Encounter', () => {
       });
     });
 
+    // Separate from GET /:id/medications above: the encounter medication table and the
+    // send-to-pharmacy modal need the request a user should act on next, not simply the most
+    // recent one — the earliest still-active request, or the latest dispensed one if none are
+    // active. Cancelled (soft-deleted) requests are excluded from consideration entirely.
+    describe('pharmacyOrder pharmacy-request-status', () => {
+      let pharmacyRequestEncounter = null;
+      let pharmacyRequestPrescription = null;
+
+      beforeAll(async () => {
+        pharmacyRequestEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'pharmacy request status test',
+        });
+
+        const testMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'Pharmacyrequeststatuszol',
+          code: 'pharmacyrequeststatus',
+        });
+
+        pharmacyRequestPrescription = await models.Prescription.create(
+          fake(models.Prescription, {
+            patientId: patient.id,
+            prescriberId: app.user.id,
+            medicationId: testMedication.id,
+          }),
+        );
+
+        await models.EncounterPrescription.create({
+          encounterId: pharmacyRequestEncounter.id,
+          prescriptionId: pharmacyRequestPrescription.id,
+        });
+      });
+
+      afterEach(async () => {
+        await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+        await models.PharmacyOrder.truncate({ cascade: true, force: true });
+      });
+
+      const orderPharmacyRequest = async ({ date, isCompleted = false, cancelled = false }) => {
+        const order = await app
+          .post(`/api/encounter/${pharmacyRequestEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date,
+            facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: pharmacyRequestPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(order).toHaveSucceeded();
+
+        const [orderPrescription] = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: order.body.id },
+        });
+        if (isCompleted) {
+          await orderPrescription.update({ isCompleted: true });
+        }
+        if (cancelled) {
+          await orderPrescription.destroy();
+        }
+        return orderPrescription;
+      };
+
+      const fetchStatus = async prescriptionId => {
+        const result = await app.get(
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications/pharmacy-request-status?prescriptionIds=${prescriptionId}`,
+        );
+        expect(result).toHaveSucceeded();
+        return result.body.data[prescriptionId];
+      };
+
+      it('reports null for a prescription never sent to pharmacy', async () => {
+        const status = await fetchStatus(pharmacyRequestPrescription.id);
+
+        expect(status).toEqual({ date: null, isCompleted: null });
+      });
+
+      it('reports null when every request has been cancelled', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
+
+        const status = await fetchStatus(pharmacyRequestPrescription.id);
+
+        expect(status).toEqual({ date: null, isCompleted: null });
+      });
+
+      it('reports the single request when there is only one', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00' });
+
+        const status = await fetchStatus(pharmacyRequestPrescription.id);
+
+        expect(status).toEqual({ date: '2020-01-01 09:00:00', isCompleted: false });
+      });
+
+      it('picks the earliest active request over later active and dispensed requests', async () => {
+        await orderPharmacyRequest({ date: '2020-01-20 09:00:00', isCompleted: true });
+        await orderPharmacyRequest({ date: '2020-01-05 09:00:00' });
+        await orderPharmacyRequest({ date: '2020-01-10 09:00:00' });
+
+        const status = await fetchStatus(pharmacyRequestPrescription.id);
+
+        expect(status).toEqual({ date: '2020-01-05 09:00:00', isCompleted: false });
+      });
+
+      it('ignores cancelled requests when picking the earliest active request', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
+        await orderPharmacyRequest({ date: '2020-01-10 09:00:00' });
+
+        const status = await fetchStatus(pharmacyRequestPrescription.id);
+
+        expect(status).toEqual({ date: '2020-01-10 09:00:00', isCompleted: false });
+      });
+
+      it('falls back to the latest dispensed request when every non-cancelled request has been dispensed', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00', isCompleted: true });
+        await orderPharmacyRequest({ date: '2020-01-10 09:00:00', isCompleted: true });
+        // A later, cancelled active request must not win over the latest genuine dispensed one.
+        await orderPharmacyRequest({ date: '2020-01-20 09:00:00', cancelled: true });
+
+        const status = await fetchStatus(pharmacyRequestPrescription.id);
+
+        expect(status).toEqual({ date: '2020-01-10 09:00:00', isCompleted: true });
+      });
+
+      it('rejects a prescription id that does not belong to the requested encounter', async () => {
+        const otherPatient = await models.Patient.create(fake(models.Patient));
+        const otherEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: otherPatient.id,
+        });
+        const otherPrescription = await models.Prescription.create(
+          fake(models.Prescription, { patientId: otherPatient.id, prescriberId: app.user.id }),
+        );
+        await models.EncounterPrescription.create({
+          encounterId: otherEncounter.id,
+          prescriptionId: otherPrescription.id,
+        });
+
+        const result = await app.get(
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications/pharmacy-request-status?prescriptionIds=${otherPrescription.id}`,
+        );
+
+        expect(result).toHaveRequestError();
+      });
+
+      it('rejects a request with no prescriptionIds', async () => {
+        const result = await app.get(
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications/pharmacy-request-status`,
+        );
+
+        expect(result).toHaveRequestError();
+      });
+    });
+
     describe('discharge pharmacy orders', () => {
       let dischargeMedication = null;
 

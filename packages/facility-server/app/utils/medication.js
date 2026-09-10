@@ -150,3 +150,62 @@ export async function getLastOrderedAtForOngoingPrescriptions(
 
   return keyBy(rows, 'ongoing_prescription_id');
 }
+
+// The only two columns getDisplayedPharmacyRequest is ever allowed to join pharmacy_order_prescriptions
+// on — kept as an allowlist since the column name can't be a bound query replacement.
+const PHARMACY_REQUEST_JOIN_COLUMNS = ['prescription_id', 'ongoing_prescription_id'];
+
+/**
+ * Returns, for each id in `ids`, the single pharmacy request to surface out of its full
+ * (non-cancelled) request history: the earliest request that hasn't been dispensed yet, so staff
+ * see the one still awaiting action; if every request has already been dispensed, the most recent
+ * one instead.
+ *
+ * The ORDER BY groups each id's requests into active-first-then-dispensed (via
+ * `pop.is_completed ASC`), then breaks ties within whichever group DISTINCT ON actually lands on:
+ * ascending date within the active group (earliest active wins), or descending date within the
+ * dispensed group (latest dispensed wins, and only reached when there's no active request at all).
+ *
+ * @param {Object} db - Sequelize db instance
+ * @param {'prescription_id' | 'ongoing_prescription_id'} joinColumn - Which
+ * pharmacy_order_prescriptions column `ids` are matched against: 'prescription_id' for
+ * encounter-scoped prescriptions, 'ongoing_prescription_id' for ongoing prescriptions (see
+ * getLastOrderedAtForOngoingPrescriptions for why that column exists).
+ * @param {string[]} ids - IDs to look up, matched against `joinColumn`
+ * @param {Object} [options] - Optional query options
+ * @param {Object} [options.transaction] - Sequelize transaction
+ * @returns {Promise<Object>} Map of id to { [joinColumn]: id, date, is_completed }
+ */
+export async function getDisplayedPharmacyRequest(db, joinColumn, ids, options = {}) {
+  if (!ids?.length) {
+    return {};
+  }
+  if (!PHARMACY_REQUEST_JOIN_COLUMNS.includes(joinColumn)) {
+    throw new Error(`Invalid pharmacy request join column: ${joinColumn}`);
+  }
+
+  const [rows] = await db.query(
+    `
+    SELECT DISTINCT ON (pop.${joinColumn})
+      pop.${joinColumn},
+      po.date,
+      pop.is_completed
+    FROM pharmacy_order_prescriptions pop
+    INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
+      AND po.deleted_at IS NULL
+    WHERE pop.${joinColumn} IN (:ids)
+      AND pop.deleted_at IS NULL
+    ORDER BY
+      pop.${joinColumn},
+      pop.is_completed ASC,
+      (CASE WHEN pop.is_completed THEN po.date END) DESC,
+      (CASE WHEN NOT pop.is_completed THEN po.date END) ASC
+  `,
+    {
+      replacements: { ids },
+      ...options,
+    },
+  );
+
+  return keyBy(rows, joinColumn);
+}
