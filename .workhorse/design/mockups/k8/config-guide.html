@@ -1,0 +1,412 @@
+<!-- format: .agents/docs/config-guide-format.md -->
+<!-- source: docs/user-manuals/system-administration/medications/configuration-guide.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Medications configuration guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --text: #1c1917;
+    --text-2: #57534e;
+    --text-3: #78716c;
+    --line: #e7e5e4;
+    --line-2: #d6d3d1;
+    --accent: #c2410c;
+    --accent-soft: #fef6f2;
+    --code-bg: #f5f4f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: Inter, -apple-system, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Breadcrumb bar */
+  .bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 32px;
+    font-size: 13px;
+    color: var(--text-3);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .bar code { background: none; padding: 0; color: var(--text-3); font-size: 12.5px; }
+  .bar .here { color: var(--text-2); font-weight: 500; }
+
+  .shell { display: flex; gap: 40px; max-width: 1180px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  /* Table of contents */
+  nav {
+    width: 210px;
+    flex: none;
+    position: sticky;
+    top: 76px;
+    align-self: start;
+    font-size: 13.5px;
+  }
+  nav .label {
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+  nav a { display: block; padding: 5px 0 5px 12px; color: var(--text-2); text-decoration: none; border-left: 2px solid var(--line); }
+  nav a:hover { color: var(--accent); }
+  nav a.on { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+  nav a.sub { padding-left: 24px; font-size: 13px; color: var(--text-3); }
+
+  /* Document */
+  article {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 44px 52px 56px;
+    box-shadow: 0 1px 2px rgba(28,25,23,.04);
+    min-width: 0;
+  }
+  .lead { font-size: 16px; color: var(--text-2); margin: 0 0 18px; }
+  h1 { font-size: 25px; font-weight: 700; letter-spacing: -.015em; margin: 40px 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  h1:first-of-type { margin-top: 30px; }
+  h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; margin: 32px 0 10px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 8px; }
+  p { margin: 0 0 14px; }
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  li::marker { color: var(--text-3); }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px;
+  }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+  .muted { color: var(--text-2); }
+
+  /* Version flag, inline in heading */
+  .ver { font-size: 13px; font-weight: 500; color: var(--accent); background: var(--accent-soft); border: 1px solid #fbd9c8; border-radius: 4px; padding: 2px 7px; vertical-align: middle; margin-left: 6px; white-space: nowrap; }
+
+  /* Field label pairs, e.g. Tab name */
+  .field { font-style: italic; font-weight: 600; font-size: 13.5px; color: var(--text-2); margin: 18px 0 6px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 13.5px; }
+  th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--line-2);
+    padding: 8px 12px 8px 0;
+    vertical-align: bottom;
+  }
+  td { border-bottom: 1px solid var(--line); padding: 10px 12px 10px 0; vertical-align: top; color: var(--text-2); }
+  td:first-child { color: var(--text); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; white-space: nowrap; width: 1%; padding-right: 24px; }
+  td.plain:first-child { font-family: inherit; font-size: 13.5px; white-space: normal; }
+  .req { color: var(--accent); font-weight: 700; }
+  tr:last-child td { border-bottom: 0; }
+
+  /* Settings block */
+  .setting { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 14px 0 18px; background: #fdfcfb; }
+  .setting dl { display: grid; grid-template-columns: 116px 1fr; gap: 6px 16px; margin: 0; font-size: 13.5px; }
+  .setting dt { font-weight: 600; color: var(--text-3); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+  .setting dd { margin: 0; color: var(--text); }
+
+  /* Screenshot placeholder */
+  .shot {
+    border: 1.5px dashed var(--line-2);
+    border-radius: 8px;
+    background: repeating-linear-gradient(45deg, #fbfaf9, #fbfaf9 10px, #f5f4f2 10px, #f5f4f2 20px);
+    padding: 22px;
+    margin: 16px 0 18px;
+    text-align: center;
+  }
+  .shot .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); border: 1px solid var(--line-2); background: var(--surface); border-radius: 4px; padding: 3px 8px; margin-bottom: 8px; }
+  .shot .cap { font-size: 13px; color: var(--text-2); margin: 0; }
+
+  /* Permission list */
+  .perm { margin: 0 0 16px; }
+  .perm > li { list-style: none; margin-bottom: 12px; }
+  .perm > li > .head { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: var(--text); }
+  .perm .verb { color: var(--accent); font-weight: 600; }
+  .perm ul { margin: 6px 0 0; padding-left: 18px; }
+  .perm ul li { font-size: 13.5px; color: var(--text-2); }
+
+  /* Callout */
+  .note { border: 1px solid var(--line); background: var(--code-bg); border-radius: 8px; padding: 12px 16px; font-size: 13.5px; color: var(--text-2); margin: 0 0 16px; }
+  .note strong { color: var(--text); }
+
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; overflow-x: auto; font-size: 12.5px; margin: 0 0 16px; }
+  pre code { background: none; border: 0; padding: 0; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 16px; }
+  .chips span { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; color: var(--text-2); }
+  .chips .more { border-style: dashed; color: var(--text-3); }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <code>docs / user-manuals / system-administration / medications / <span class="here">configuration-guide.md</span></code>
+</div>
+
+<div class="shell">
+
+  <nav>
+    <div class="label">On this page</div>
+    <a href="#ref" class="on">Reference Data Types</a>
+    <a href="#ref" class="sub">Drug</a>
+    <a href="#ref" class="sub">Medication Sets</a>
+    <a href="#ref" class="sub">Medication Not Given Reason</a>
+    <a href="#hard">Hard coded fields</a>
+    <a href="#hard" class="sub">Units</a>
+    <a href="#hard" class="sub">Route of administration</a>
+    <a href="#hard" class="sub">Frequency</a>
+    <a href="#settings">Settings</a>
+    <a href="#sensitive">Sensitive medications</a>
+    <a href="#auto">Automated workflows</a>
+    <a href="#task">Medication due task</a>
+    <a href="#perms">Permissions</a>
+  </nav>
+
+  <article>
+
+    <p class="lead">This configuration guide steps system administrators through the set up of the Tamanu
+    Medications Module. If it is your first time implementing the Medications Module or digitising
+    medication workflows in your clinical setting, read the Medications Module Implementation Guide
+    first.</p>
+
+    <p class="muted">The Medications Module is not recommended for the following medications or clinical
+    settings, whose orders and administration should remain on paper:</p>
+
+    <ul class="muted">
+      <li>IV infusion medications</li>
+      <li>Anaesthesia medications</li>
+      <li>Complex oncology protocols</li>
+      <li>Dialysis</li>
+      <li>ICU, PICU and NICU</li>
+    </ul>
+
+    <hr>
+
+    <h1 id="ref">Reference Data Types</h1>
+
+    <p>Reference data is configured through the reference data import spreadsheet, downloaded from and
+    uploaded to your Tamanu system. See the Tamanu Reference Data Manual for how importing works.</p>
+
+    <h2>Drug</h2>
+
+    <p>The <code>Drug</code> reference data type configures the medication list available when
+    prescribing.</p>
+
+    <div class="shot">
+      <div class="tag">Screenshot needed</div>
+      <p class="cap">The Medications field in the new prescription form, showing drugs reference data
+      populating the dropdown.</p>
+    </div>
+
+    <div class="note"><strong>Note:</strong> for a deployment where mSupply is also in use, the drugs
+    list should be copied from the mSupply essential medicines list.</div>
+
+    <p>Default values can be set per medication for <code>route</code>, <code>dosingUnit</code>,
+    <code>dispensingUnit</code> and <code>notes</code>. When that medication is selected for
+    prescription the defaults populate automatically, which speeds up creating prescriptions.</p>
+
+    <div class="field">Tab name</div>
+    <p><code>Drug</code></p>
+
+    <div class="field">Columns</div>
+    <p class="muted" style="font-size:13.5px">Where <span class="req">*</span> is a required field.</p>
+
+    <table>
+      <thead><tr><th>Column name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id <span class="req">*</span></td><td>Unique id for the drug. Letters, numbers and hyphens only.</td></tr>
+        <tr><td>code <span class="req">*</span></td><td>Unique code for the drug. Letters, numbers, hyphens, full stops and forward slashes only.</td></tr>
+        <tr><td>name <span class="req">*</span></td><td>Name for the drug, up to 255 characters. This is the medication name displayed in Tamanu.</td></tr>
+        <tr><td>dosingUnit</td><td>The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under Units.</td></tr>
+        <tr><td>dispensingUnit</td><td>The unit pharmacy dispenses the medication in, used for invoicing. Defaults to the dosing unit if not set.</td></tr>
+        <tr><td>unitConversion</td><td>Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set.</td></tr>
+        <tr><td>route</td><td>The pathway through which the medication enters the body. If no default is set, the user selects the route when prescribing.</td></tr>
+        <tr><td>isSensitive</td><td>Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank.</td></tr>
+        <tr><td>visibilityStatus</td><td><code>current</code> for drugs available for prescription, or <code>historical</code> for drugs that should not be prescribed. Defaults to <code>current</code> if blank.</td></tr>
+        <tr><td>facilityId</td><td>To record stock levels per facility, add the relevant facility id as a column header.</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h1 id="hard">Hard coded fields</h1>
+
+    <p>The following fields are hard coded in Tamanu and cannot be configured. To request a new value,
+    make a request to your system administrator or Tamanu project manager.</p>
+
+    <h2>Units</h2>
+    <p class="muted">Used for <code>dosingUnit</code> and <code>dispensingUnit</code>. Input the value
+    exactly as shown.</p>
+    <div class="chips">
+      <span>%</span><span>Ampule</span><span>Applicator</span><span>Bag</span><span>Blister Pack</span>
+      <span>Bottle</span><span>Box</span><span>Can</span><span>Canister</span><span>Capsule</span>
+      <span>Carton</span><span>Cartridge</span><span>Disc</span><span>Douche</span><span>Drop</span>
+      <span>Each</span><span>FFU</span><span>g</span><span>Inhaler</span><span>IU</span>
+      <span>Million units</span><span>mg</span><span>mL</span><span>Tablet</span><span>Vial</span>
+      <span class="more">and 32 more</span>
+    </div>
+
+    <h2>Route of administration</h2>
+    <table>
+      <thead><tr><th>Value</th><th>Displays as</th></tr></thead>
+      <tbody>
+        <tr><td>intramuscular</td><td class="plain">IM</td></tr>
+        <tr><td>intravenous</td><td class="plain">IV</td></tr>
+        <tr><td>subcutaneous</td><td class="plain">S/C</td></tr>
+        <tr><td>oral</td><td class="plain">Oral</td></tr>
+        <tr><td>intraocular</td><td class="plain">Intraocular</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Frequency</h2>
+    <p class="muted">The selected frequency determines the default administration schedule, which can be
+    edited when prescribing.</p>
+    <table>
+      <thead><tr><th>Frequency</th><th>Default administration times</th><th>Doses per day</th></tr></thead>
+      <tbody>
+        <tr><td class="plain">Daily in the morning</td><td>06:00</td><td>1</td></tr>
+        <tr><td class="plain">Two times daily</td><td>06:00, 18:00</td><td>2</td></tr>
+        <tr><td class="plain">Every 4 hours</td><td>02:00, 06:00, 10:00, 14:00, 18:00, 22:00</td><td>6</td></tr>
+        <tr><td class="plain">Half-hourly</td><td>every half hour</td><td>48</td></tr>
+        <tr><td class="plain">Immediately</td><td>not scheduled</td><td>one-time</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h1 id="settings">Settings</h1>
+
+    <p>Settings are managed in the Settings admin panel.</p>
+
+    <h2>Pharmacy orders</h2>
+
+    <div class="setting">
+      <dl>
+        <dt>Scope</dt><dd>Facility (single facility)</dd>
+        <dt>Category</dt><dd>Medication</dd>
+        <dt>Sub-category</dt><dd>Pharmacy orders</dd>
+        <dt>Setting</dt><dd>Default prescription type</dd>
+      </dl>
+    </div>
+
+    <p>Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
+    supply on discharge and invoicing. The options are:</p>
+    <ul>
+      <li><strong>Existing encounter type</strong>: the script type follows the encounter type. This is the default</li>
+      <li><strong>Outpatient/Discharge</strong></li>
+      <li><strong>Inpatient</strong></li>
+    </ul>
+
+    <h2>Default administration schedule</h2>
+
+    <div class="setting">
+      <dl>
+        <dt>Scope</dt><dd>Global (All Facilities/Servers)</dd>
+        <dt>Category</dt><dd>Medications</dd>
+        <dt>Sub-category</dt><dd>Default administration times</dd>
+        <dt>Setting</dt><dd>For each frequency, set the ideal administration times in the JSON editor</dd>
+      </dl>
+    </div>
+
+    <p class="muted">Times must be in 24-hour format and written in double quotation marks. Where a
+    frequency has multiple doses in a day, separate each time with a comma:</p>
+
+<pre><code>[
+  "02:00",
+  "06:00",
+  "10:00",
+  "14:00",
+  "18:00",
+  "22:00"
+]</code></pre>
+
+    <div class="shot">
+      <div class="tag">Screenshot needed</div>
+      <p class="cap">The default administration times setting.</p>
+    </div>
+
+    <hr>
+
+    <h1 id="sensitive">Sensitive medications <span class="ver">supported from v2.39 onwards</span></h1>
+
+    <p>This feature flags a medication as sensitive, so that only users with the required permissions can
+    view and interact with it.</p>
+
+    <div class="note">Use this feature rarely, as medication information is critical for safe care.</div>
+
+    <p>To configure a medication as sensitive:</p>
+    <ul>
+      <li>Set the medication as sensitive in the <code>Drug</code> reference data</li>
+      <li>Configure sensitive medication permissions for the required roles</li>
+    </ul>
+
+    <hr>
+
+    <h1 id="perms">Permissions</h1>
+
+    <p>See the Permissions Module configuration guide for more detail on Tamanu permissions.</p>
+
+    <h2>Prescriptions and ongoing medications</h2>
+    <p class="muted">Required to prescribe a medication and manage the ongoing medications list:</p>
+
+    <ul class="perm">
+      <li>
+        <div class="head"><span class="verb">list</span> for <strong>Medication</strong></div>
+        <ul>
+          <li>View a list of medications at the encounter level</li>
+          <li>View the ongoing medications list and last encounter discharge medications</li>
+          <li>View prescription details from any of the above views</li>
+        </ul>
+      </li>
+      <li>
+        <div class="head"><span class="verb">read</span> for <strong>Medication</strong></div>
+        <ul><li>Print a prescription</li></ul>
+      </li>
+      <li>
+        <div class="head"><span class="verb">write</span> for <strong>Medication</strong></div>
+        <ul>
+          <li>Pause and resume a medication</li>
+          <li>Discontinue a medication, including through the discharge workflow</li>
+          <li>Set discharge quantity and repeats for a medication</li>
+        </ul>
+      </li>
+      <li>
+        <div class="head"><span class="verb">create</span> for <strong>Medication</strong></div>
+        <ul>
+          <li>Create a new prescription through an encounter</li>
+          <li>Add existing ongoing medications to an encounter</li>
+          <li>Create a new ongoing medication record through the patient-level ongoing medications table</li>
+        </ul>
+      </li>
+    </ul>
+
+  </article>
+
+</div>
+
+</body>
+</html>
