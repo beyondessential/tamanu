@@ -62,7 +62,7 @@ export const saveChangesForModel = async (
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  existingRecords.forEach(existing => {
+  for (const existing of existingRecords) {
     // compares incoming and existing records by id
     const incoming = idToIncomingRecord[existing.id];
     idsForUpdate.add(existing.id);
@@ -76,7 +76,7 @@ export const saveChangesForModel = async (
     }
 
     // If incoming is deleted AND existing is already deleted, nothing to do
-  });
+  }
 
   /**
    * A new record is inserted immediately soft-deleted if any copy of it in the payload is deleted .
@@ -103,6 +103,7 @@ export const saveChangesForModel = async (
     const deletedAt = getDeletedAt(data.id);
     return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
   };
+
   const recordsForCreate = changes
     .filter(c => idToExistingRecord[c.data.id] === undefined)
     .map(c => toRecordToWrite(c.data));
