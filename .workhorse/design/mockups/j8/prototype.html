@@ -172,6 +172,19 @@
   .simple li { margin-bottom:8px; }
   .simple li strong { color:var(--ink); font-weight:620; }
 
+  /* full release-note prose (rendered faithfully from the source markdown) */
+  .rn { margin-top:8px; }
+  .rn-hr { border:0; border-top:1px solid var(--line); margin:26px 0; }
+  .rn h2.rn-sec { font-size:19px; margin:26px 0 6px; font-weight:660; letter-spacing:-0.01em; }
+  .rn h3.rn-sub { font-size:12.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-3); font-weight:650; margin:22px 0 4px; }
+  .rn h4.rn-feat { font-size:17px; margin:22px 0 8px; font-weight:640; letter-spacing:-0.01em; }
+  .rn p { color:var(--ink-2); margin:0 0 14px; font-size:14.5px; line-height:1.6; }
+  .rn .rn-lead { font-weight:640; color:var(--ink); margin:16px 0 6px; font-size:13.5px; }
+  .rn ul { margin:0 0 14px; padding-left:20px; }
+  .rn li { color:var(--ink-2); margin-bottom:8px; font-size:14.5px; line-height:1.55; }
+  .rn li strong, .rn p strong { color:var(--ink); font-weight:620; }
+  .rn .slab { color:var(--ink-3); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; }
+
   /* ---------- report an issue ---------- */
   main.report { max-width:760px; margin:0 auto; padding:48px 24px 110px; min-width:0; }
   .report h1 { font-size:32px; letter-spacing:-0.025em; margin:0 0 10px; font-weight:680; }
@@ -466,61 +479,363 @@
   <div class="layout2">
     <aside class="side side-v">
       <div class="grp-label">Versions</div>
-      <a class="ver active" data-release="v263">v2.63 <span class="d">Sep 2026</span></a>
-      <a class="ver" data-release="v262">v2.62 <span class="d">Aug 2026</span></a>
-      <a class="ver" data-release="v261">v2.61 <span class="d">Aug 2026</span></a>
-      <a class="ver">v2.60 <span class="d">Jul 2026</span></a>
-      <a class="ver">v2.59 <span class="d">Jul 2026</span></a>
+      <a class="ver active" data-release="v263">v2.63 <span class="d">03-09-2026</span></a>
+      <a class="ver" data-release="v262">v2.62 <span class="d">17-08-2026</span></a>
+      <a class="ver" data-release="v261">v2.61 <span class="d">10-08-2026</span></a>
     </aside>
     <main class="releases">
       <h1>Release notes</h1>
       <p class="intro">What changed in each version of Tamanu, with upgrade notes and recommended testing. Sourced from the release notes in GitHub.</p>
 
       <section class="release" id="v263">
-        <div class="rel-head"><span class="verbadge">v2.63</span><span class="reldate">Released 3 September 2026</span></div>
-        <p class="summary">A small release of enhancements and fixes. Vaccination certificates can show a patient's birth certificate number, patient lists gain sortable columns, and deployments that report to DHIS2 can mark datasets complete when they are posted.</p>
-        <div class="cat"><span>System enhancements</span><span class="rule"></span></div>
-        <ul class="simple"><li><strong>DHIS2 dataset completion</strong> — Each configured dataset is marked complete when it is posted, set against a report through the report admin panel.</li></ul>
-        <div class="cat"><span>Tweaks and bug fixes</span><span class="rule"></span></div>
-        <ul class="simple">
-          <li><strong>Patient lists</strong> — Additional columns, including Area and Location, can now be sorted.</li>
-          <li><strong>Vaccination certificates</strong> — A new ‘Display birth certificate number’ flag shows the patient's recorded number. Off by default.</li>
-          <li><strong>Imaging</strong> — ‘X-ray (Portable)’ is added as an imaging type.</li>
-        </ul>
+        <div class="rel-head"><span class="verbadge">v2.63</span><span class="reldate">Released 03-09-2026</span></div>
+        <p class="summary">Tamanu v2.63 is a small release, made up of enhancements and fixes rather than new features. Vaccination certificates can show a patient's birth certificate number, patient lists gain sortable columns, and deployments that report to DHIS2 can mark datasets complete when they are posted.</p>
+        <div class="rn">
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🔧 System Enhancements</h2>
+          <ul>
+            <li><strong>DHIS2 dataset completion</strong> - For deployments that report to DHIS2, report data is pushed as datasets and each configured dataset is marked complete when it is posted. The DHIS2 dataset is set against a report through the report admin panel.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🐛 Tweaks and Bug Fixes</h2>
+          <h3 class="rn-sub">Desktop</h3>
+          <ul>
+            <li><strong>Medications</strong> - All medication preset labels load rather than only the first 25, and the 'Medication administration schedule' section is collapsed by default in the medication form.</li>
+            <li><strong>Surveys and charts</strong> - Large numeric answers display without being rounded.</li>
+            <li><strong>Patients and dashboard</strong> - The encounter refreshes after a death is recorded, and the current day's appointment and booking panes fill in even when tasking is turned off.</li>
+            <li><strong>Vaccination certificates</strong> - A new 'Display birth certificate number' flag under the 'Vaccinations' settings shows the patient's recorded birth certificate number in the patient details section of the certificate. It is off by default, and the field is left empty where no number has been recorded.</li>
+            <li><strong>Patient lists</strong> - Additional columns on the patient listings, including Area and Location, can now be sorted, making it easier to find patients in a long list and organise a working patient list.</li>
+            <li><strong>Imaging</strong> - 'X-ray (Portable)' is added as an imaging type.</li>
+          </ul>
+          <h3 class="rn-sub">Mobile</h3>
+          <ul>
+            <li>The vitals 'Add' tab submits correctly after a prior submission, and query performance is improved through additional database indexes and periodic refreshing of query statistics. The Android build is updated to support devices with 16 KB memory pages.</li>
+          </ul>
+          <h3 class="rn-sub">System</h3>
+          <ul>
+            <li><strong>Reports</strong> - Soft-deleted survey responses are excluded from the generic survey export.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">⚠️ Critical Upgrade Notes</h2>
+          <h3 class="rn-sub">Optional</h3>
+          <p class="rn-lead">Vaccination certificate birth certificate number</p>
+          <ul>
+            <li>The birth certificate number is off by default. Enable 'Display birth certificate number' under the 'Vaccinations' settings if you want it on the certificate.</li>
+            <li>The number is drawn from patient details, so it appears only for patients who have one recorded.</li>
+          </ul>
+          <p class="rn-lead">Portable X-ray</p>
+          <ul>
+            <li>Add 'X-ray (Portable)' to your list of imaging types via admin panel settings.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">Upgrade Steps and Recommended Testing</h2>
+          <h3 class="rn-sub">Optional</h3>
+          <p class="rn-lead">Vaccination certificate</p>
+          <ul>
+            <li>If enabling the birth certificate number, generate a certificate for a patient who has one recorded and confirm it appears.</li>
+          </ul>
+        </div>
       </section>
 
       <section class="release" id="v262" hidden>
-        <div class="rel-head"><span class="verbadge">v2.62</span><span class="reldate">Released 17 August 2026</span></div>
-        <h2>Configuration moves into the admin panel</h2>
-        <p class="summary">A modest release. A large amount of server configuration moves into the admin panel, the ‘Send to pharmacy’ workflow extends to discharge and prescribing, and lab requests gain out-of-range result flags.</p>
-        <div class="cat"><span>Major features and changes</span><span class="rule"></span></div>
-        <div class="feature">
-          <h3>Configuration managed in the admin panel</h3>
-          <p>Configuration that previously lived in files on each server is now database-backed settings, editable in the admin panel with validation and per-facility overrides.</p>
-          <ul class="keys">
-            <li><strong>Editable without server access</strong> — Mail, scheduled tasks, integrations, localisation and reporting are managed in the admin panel.</li>
-            <li><strong>Applied without a restart</strong> — A saved setting takes effect on the next read.</li>
+        <div class="rel-head"><span class="verbadge">v2.62</span><span class="reldate">Released 17-08-2026</span></div>
+        <p class="summary">Tamanu v2.62 is a modest release. Its main change is administrative: a large amount of server configuration moves into the admin panel. Clinically, the 'Send to pharmacy' workflow extends to discharge and prescribing, and lab requests gain out-of-range result flags.</p>
+        <div class="rn">
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🌟 Major Features and Changes</h2>
+          <h3 class="rn-sub">System Administration</h3>
+          <h4 class="rn-feat">Configuration Managed in the Admin Panel</h4>
+          <p>Configuration that previously lived in files on each server is now database-backed settings, editable in the admin panel with validation and per-facility overrides. Existing values migrate automatically during the upgrade, so nothing needs re-entering and behaviour does not change.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>Editable without server access</strong> - Mail, scheduled tasks, integrations, localisation, reporting and rate limiting are managed in the admin panel.</li>
+            <li><strong>Carried across on upgrade</strong> - Existing configuration migrates automatically, and a value already set in settings is never overwritten.</li>
+            <li><strong>Applied without a restart</strong> - A saved setting takes effect on the next read, and the few that need a restart are marked.</li>
+            <li><strong>High-risk settings protected</strong> - Changing one now requires full administrative permission, enforced by the server.</li>
+            <li><strong>Integration credentials encrypted</strong> - Secrets use one deployment-wide key, generated by central and distributed to facilities over sync, so no key needs placing on a server by hand.</li>
+          </ul>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <h3 class="rn-sub">Tamanu Desktop</h3>
+          <h4 class="rn-feat">'Send to Pharmacy' from Discharge and Prescribing</h4>
+          <p>Medications can now be sent to pharmacy at the two points where prescribing happens: writing a new prescription, and discharging a patient. At discharge the patient's encounter medications are ticked to send by default, with stock and previous requests visible while deciding.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>At discharge</strong> - A 'Send to pharmacy' column on the 'Discharge' modal, ticked for encounter medications and unticked for other ongoing medications.</li>
+            <li><strong>When prescribing</strong> - A 'Send to pharmacy' option on the 'New prescription' modal, off by default.</li>
+            <li><strong>Dispensing quantity required</strong> - 'Discharge qty' becomes 'Dispensing qty' and must be filled in.</li>
+            <li><strong>Stock and history in view</strong> - Columns show stock, when a request was last sent, and whether it is still active or already dispensed.</li>
+          </ul>
+          <p>The pharmacy fields appear only where the pharmacy order setting is enabled.</p>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🔧 System Enhancements</h2>
+          <ul>
+            <li><strong>Lab request result flags</strong> - An individual 'Lab request' now highlights numeric results outside their reference range, matching the patient-level results table, with a tooltip naming the bound breached. Fields edited after entry carry an asterisk and a legend below the table.</li>
+            <li><strong>Lab request priority</strong> - Two settings control whether a priority must be chosen when a request is created, and whether it can be changed afterwards. Both default to current behaviour.</li>
+            <li><strong>Vitals and charting time ranges</strong> - Last 7 days, last 30 days and last year are available at the encounter level and for program registry charts.</li>
+            <li><strong>Sync lookup self-healing</strong> - The central sync lookup table now repairs rows whose source changed without advancing the sync clock, which is what happens during a migration. Healed rows keep their sync tick, so facilities do not re-download records they already hold.</li>
+            <li><strong>Hard deletes in the audit changelog</strong> - A permanently removed row is now recorded as it stood before removal and marked as a hard delete. Changelog writing and its attachment to sync are also more memory-efficient.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🐛 Tweaks and Bug Fixes</h2>
+          <h3 class="rn-sub">Desktop</h3>
+          <ul>
+            <li><strong>Invoicing</strong> - 'Details' and 'Ordered by' are now required on every line, so clearing 'Details' no longer silently deletes it. The reason for a discount or mark-up is visible on the item row, and a stale sliding fee discount no longer survives a change of family size.</li>
+            <li><strong>Medications</strong> - The 'View patient' link opens the 'Patient summary' tab, the dispensed medication popup shows the medication actually dispensed, and 'Discontinued by' defaults to the current user.</li>
+            <li><strong>Charts</strong> - Edit-history timestamps display in local time.</li>
+            <li><strong>Scheduling</strong> - A booking running past midnight shows a date on both ends of its range, so a multi-day stay reads the same on every day it covers.</li>
+            <li><strong>Patient documents</strong> - Double-clicking 'Add' no longer creates duplicates.</li>
+            <li><strong>Admin panel</strong> - Fixes to the 'View default settings' modal and to several report and settings editor issues.</li>
+          </ul>
+          <h3 class="rn-sub">Mobile</h3>
+          <ul>
+            <li>Dates before 1970 can be entered, the administered vaccine table refreshes after an edit, program form lists load faster, and sync session errors are reported to central.</li>
+          </ul>
+          <h3 class="rn-sub">System</h3>
+          <ul>
+            <li><strong>Sync</strong> - An unreachable sync process is reported as such rather than a generic fetch failure, and facilities record their sync credentials without needing central reachable.</li>
+            <li><strong>Reports</strong> - Central refuses report writes when reporting schemas fail to initialise.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">⚠️ Critical Upgrade Notes</h2>
+          <h3 class="rn-sub">Required</h3>
+          <p class="rn-lead">Configuration moved into settings</p>
+          <ul>
+            <li>Existing configuration migrates automatically. Review the settings in the admin panel afterwards to confirm they came across as expected.</li>
+            <li>Changing a high-risk setting now requires full administrative permission. Confirm the right people hold it.</li>
+            <li>Configuration files are still read as a fallback, so do not remove them as part of this upgrade.</li>
+          </ul>
+          <p class="rn-lead">Sync lookup rebuild</p>
+          <ul>
+            <li>The central upgrade now performs a full sync lookup rebuild as its final step and will not complete while the table is inconsistent. Allow extra time for large databases.</li>
+          </ul>
+          <h3 class="rn-sub">Optional</h3>
+          <p class="rn-lead">'Send to pharmacy'</p>
+          <ul>
+            <li>The pharmacy fields appear only where the pharmacy order setting is enabled. Decide whether your deployment adopts this workflow.</li>
+          </ul>
+          <p class="rn-lead">Lab requests</p>
+          <ul>
+            <li>Two settings control priority handling, and both ship set to preserve current behaviour. Change them only if you want a priority to be required when a request is created, or locked once it has been submitted.</li>
+            <li>Out-of-range flags rely on reference ranges configured against lab test types. Tests without a range are not flagged.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">Upgrade Steps and Recommended Testing</h2>
+          <h3 class="rn-sub">Required</h3>
+          <ul>
+            <li>Spot-check migrated settings against your previous configuration, particularly mail, integrations and scheduled tasks.</li>
+            <li>Rehearse the upgrade against a copy of a production-sized database. The sync lookup rebuild runs as the final step and adds to the window.</li>
+          </ul>
+          <h3 class="rn-sub">Optional</h3>
+          <ul>
+            <li>If adopting 'Send to pharmacy', discharge a patient with both encounter and ongoing medications and confirm the right ones are ticked to send.</li>
+          </ul>
+          <h3 class="rn-sub">General</h3>
+          <ul>
+            <li>Confirm existing workflows still behave as expected.</li>
           </ul>
         </div>
-        <div class="feature">
-          <h3>‘Send to pharmacy’ from discharge and prescribing</h3>
-          <p>Medications can now be sent to pharmacy at the two points where prescribing happens. At discharge the patient's encounter medications are ticked to send by default.</p>
-        </div>
-        <div class="cat"><span>Critical upgrade notes</span><span class="rule"></span></div>
-        <ul class="simple">
-          <li><strong>Configuration moved into settings</strong> — Existing configuration migrates automatically. Configuration files are still read as a fallback, so do not remove them.</li>
-          <li><strong>Sync lookup rebuild</strong> — The central upgrade performs a full sync lookup rebuild as its final step. Allow extra time for large databases.</li>
-        </ul>
       </section>
 
       <section class="release" id="v261" hidden>
-        <div class="rel-head"><span class="verbadge">v2.61</span><span class="reldate">Released 10 August 2026</span></div>
-        <h2>Automatic encounter, bed and inpatient fees</h2>
-        <p class="summary">Automatic invoicing of encounter, bed and inpatient fees, so facilities no longer add routine charges by hand, plus a substantial set of medication improvements.</p>
-        <div class="cat"><span>Major features and changes</span><span class="rule"></span></div>
-        <div class="feature">
-          <h3>Automatic encounter, bed and inpatient fees</h3>
-          <p>Routine charges are now added to invoices automatically as care happens. An outpatient or emergency fee is applied when a visit starts, and admitted patients accrue a bed fee for each night.</p>
+        <div class="rel-head"><span class="verbadge">v2.61</span><span class="reldate">Released 10-08-2026</span></div>
+        <p class="summary">Tamanu v2.61 brings automatic invoicing of encounter, bed and inpatient fees, so facilities no longer add routine charges by hand. It also delivers a substantial set of medication improvements: pharmacy can now modify a prescription at the point of dispensing, and dispensing quantities can be calculated automatically from the prescription. Encounter notes gain search and filtering, and the 'Emergency patients' board gains filters and a clinician column.</p>
+        <div class="rn">
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🌟 Major Features and Changes</h2>
+          <h3 class="rn-sub">Tamanu Desktop</h3>
+          <h4 class="rn-feat">Automatic Encounter, Bed and Inpatient Fees</h4>
+          <p>Routine charges are now added to invoices automatically as care happens. An outpatient or emergency fee is applied when a visit starts, admitted patients accrue a bed fee for each night, and facilities that bundle clinical items into their admission fee can stop those items being billed twice. Every amount comes from the existing price list system, so there is one pricing mechanism to learn and a facility manages a single price list.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>Outpatient and emergency fees</strong> - A fee is added once when the encounter starts, with the amount chosen by the time of day: standard hours, weekday after hours, or weekend. Emergency encounters (triage, active ED, and emergency short stay) are charged their own set of fees.</li>
+            <li><strong>Separate emergency hours</strong> - The emergency in-hours window is configured separately from the outpatient window, so a state can run different ED hours. A facility that does not distinguish weekend ED care can leave the weekend product unpriced and it falls back to the after-hours rate.</li>
+            <li><strong>Per-night bed fee</strong> - Admitted patients are charged the first night on admission, then one night per overnight check while they remain admitted. Each chargeable bed or ward is priced individually, so rates can differ between ICU and a general ward. The invoice shows one line per location with the number of nights as the quantity.</li>
+            <li><strong>Walk-in pharmacy fee</strong> - A dedicated flat fee for walk-in pharmacy dispensing visits. Charging pharmacy is opt-in: price the product and the fee applies, leave it unpriced and no fee line appears.</li>
+            <li><strong>Inpatient fee bundling</strong> - Facilities can nominate which categories (imaging, lab, medications) are covered by the admission fee and should not be itemised separately on an admission invoice. Outpatient and emergency encounters continue to invoice every category, and procedures always invoice separately.</li>
+            <li><strong>Fees behave like manual items</strong> - A cashier can adjust or remove an automatic fee, for example on a public holiday, and a removed fee is not re-added on a later re-run or sync.</li>
+          </ul>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <p class="rn-lead">Keen to implement automatic encounter fees?</p>
+          <p>Please reach out to your Tamanu system administrator/project manager to discuss implementation. This feature requires reference data and price list setup before it can be enabled.</p>
+          <hr class="rn-hr">
+          <h4 class="rn-feat">Prescription Modification at Dispensing</h4>
+          <p>Pharmacy can now change the details of a prescription while dispensing it, without sending it back to the prescriber. Where the exact stock is not on hand, pharmacy can dispense an available strength or formulation and record what was actually given, along with a reason. The original prescription is left intact and the prescriber is notified of the change, so the clinical record reflects both what was ordered and what the patient received.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>Modify prescription during dispensing</strong> - A 'Modify prescription' option on the 'Dispense medication' modal opens the prescription for editing, including changing to or from a variable dose.</li>
+            <li><strong>Reason for modification captured</strong> - Every modification records a reason from a configurable list, along with the user who made it.</li>
+            <li><strong>Original prescription preserved</strong> - Changes apply to the dispensing record only, so the prescriber's original intent remains on the record.</li>
+            <li><strong>Prescriber notified</strong> - A pharmacy note is added to the original prescription and the prescriber receives a notification on their clinician dashboard, where they can see what changed.</li>
+            <li><strong>Modified medications flagged</strong> - Modified items are marked with an asterisk in the dispensed medication tables, with a 'View modify history' option showing the original and current prescription side by side.</li>
+            <li><strong>Visible on the MAR</strong> - The pharmacy note and a 'View change' action appear on the medication administration record.</li>
+          </ul>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <hr class="rn-hr">
+          <h4 class="rn-feat">Medication Dispensing Quantity Autocalculation</h4>
+          <p>Tamanu can now work out the dispensing quantity from the dose, frequency and duration of a prescription, so the quantity no longer has to be counted out by hand. The calculated figure is a starting point rather than a lock, and pharmacy or the prescriber can overwrite it before finalising. This removes a common source of arithmetic error between prescribing and dispensing.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>Automatic quantity on prescribing</strong> - The dispensing quantity fills in from dose, frequency and duration as the prescription is written.</li>
+            <li><strong>Expressed in dispensing units</strong> - Quantities are given in the units the medication is handed out in, such as packs or bottles, using each drug's conversion factor.</li>
+            <li><strong>Ongoing medications default to a month</strong> - Medications marked ongoing calculate a 30 day supply, and one month always counts as 30 days.</li>
+            <li><strong>Manual entry is respected</strong> - Once a user enters their own quantity, later edits to the prescription no longer overwrite it. Changing the medication resets the calculation.</li>
+            <li><strong>Left blank where it cannot be inferred</strong> - A variable dose, an 'As directed' frequency, a duration in hours, or no duration on a non-ongoing medication all leave the field empty for manual entry.</li>
+            <li><strong>Covers medication sets and dispensing edits</strong> - Quantities are calculated for each drug in a medication set, and recalculated when a prescription is modified during dispensing.</li>
+          </ul>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <hr class="rn-hr">
+          <h4 class="rn-feat">Encounter Notes Search and Filters</h4>
+          <p>Clinical notes on an encounter can now be searched and filtered instead of scrolled through. A clinician looking for earlier notes on a specific topic can type a word or phrase and narrow by note type, author, or date range. This was raised by rehabilitation clinicians who needed to compare a patient's progress notes over time without reading the whole history.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>Free text search of note content</strong> - Type a word or phrase to show only notes containing it.</li>
+            <li><strong>Results update as you type</strong> - There is no search button. The free text box applies after a short pause and the other filters apply immediately.</li>
+            <li><strong>Filter by note type and author</strong> - The author filter matches whoever wrote the note and anyone who later edited it, including edits made on behalf of another user.</li>
+            <li><strong>Date range in 'Advanced search'</strong> - Set a from date, a to date, or just one. An open-ended boundary returns everything up to today or back to the first note.</li>
+            <li><strong>Treatment plan stays pinned</strong> - Newest first ordering is preserved and the 'Treatment plan' note remains at the top when it matches the filters.</li>
+            <li><strong>One-click clear</strong> - A 'Clear' action resets every filter at once.</li>
+          </ul>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <hr class="rn-hr">
+          <h4 class="rn-feat">'Emergency Patients' Board Enhancements</h4>
+          <p>The 'Emergency patients' board gains search filters and a clinician column, so emergency department staff can cut a long waiting list down to the patients they are responsible for. Several display changes make the board easier to read at a glance. This addresses feedback that clinicians were avoiding moving patients into active ED care because acuity became less visible once they did.</p>
+          <p class="rn-lead">Key features</p>
+          <ul>
+            <li><strong>Search and clinician filter</strong> - Filter the board by patient ID, first name or last name, or narrow it to one clinician's patients.</li>
+            <li><strong>Advanced filters</strong> - Filter by triage category, area and location. Triage category options come from the deployment's own configured categories, and a location can only be chosen once its area is selected.</li>
+            <li><strong>Filters persist across navigation</strong> - Leaving the board and returning keeps your filters, matching the other patient listing pages.</li>
+            <li><strong>Clinician column</strong> - A sortable clinician column, with a tooltip where the name is too long to display in full.</li>
+            <li><strong>Clearer display</strong> - Grey tiles for patients already seen now state whether they moved to 'Active ED' or 'Emerg. short stay', and the sex column shows M, F or O rather than the full word.</li>
+            <li><strong>Refreshed default triage colours</strong> - The Urgent, Non-urgent and Deceased categories use new default colours with better contrast, and remain fully configurable.</li>
+          </ul>
+          <p class="rn-lead">Supporting documentation</p>
+          <ul>
+            <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🔧 System Enhancements</h2>
+          <h4 class="rn-feat">Reference Data Search in the Admin Panel</h4>
+          <p>Searching reference data by ID in the admin panel now matches on the ID rather than the record name, so administrators can find a record using the identifier they already have.</p>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">🐛 Tweaks and Bug Fixes</h2>
+          <h3 class="rn-sub">Desktop</h3>
+          <ul>
+            <li><strong>Invoicing</strong> - Payment corrections, including the total due when a payment is edited to $0 and refunds netted out of the remaining balance on printed invoices.</li>
+            <li><strong>Medications</strong> - Dispensing corrections across labels, pharmacy notes and preset label loading. Administration records can no longer be edited after discharge.</li>
+            <li><strong>Tasks</strong> - Text size, column width and alignment corrections across the task tables.</li>
+            <li><strong>Labs</strong> - Historical categories and panels a patient has results for are now shown, plus fixes to results entry and display.</li>
+            <li><strong>Patients and encounters</strong> - Fixed duplicate patient creation, triage wait time calculation, and 'Place of death' on certificates for deaths outside a facility. 'Record death' now requires patient write access.</li>
+            <li><strong>Forms, charts and programs</strong> - Corrections to question rendering, validation and changelog display in the 'Charts' tab and program registries.</li>
+            <li><strong>Reports and imaging</strong> - Report parameters clear correctly, load failures show a readable message, and saving an imaging request no longer creates a blank result.</li>
+            <li><strong>General</strong> - More reliable table loading and error states, correct handling of special characters in translation search, and accessibility improvements to buttons and required-field markers.</li>
+          </ul>
+          <h3 class="rn-sub">Mobile</h3>
+          <ul>
+            <li><strong>Dates and times</strong> - Dates before 1970 can now be entered, and midday, midnight and day boundaries display in the correct local time.</li>
+            <li><strong>Surveys and program registration</strong> - Submissions roll back on error rather than saving partial data, and registration date and mandatory field handling are corrected.</li>
+            <li><strong>Performance</strong> - Program form lists load faster.</li>
+            <li><strong>Authentication and sync</strong> - Offline login and sign-out behaviour corrected, along with several sync data integrity fixes.</li>
+          </ul>
+          <h3 class="rn-sub">System</h3>
+          <ul>
+            <li><strong>Sync</strong> - Large sync batches no longer exhaust memory during the persist phase, sensitive facility data no longer reaches other facilities, and sync is no longer blocked when creating a new facility.</li>
+            <li><strong>FHIR</strong> - Survey response encounters are now materialised, and several job processing issues are resolved.</li>
+            <li><strong>Central and facility servers</strong> - Reliability improvements to scheduled tasks, report generation and bookings, plus tighter permission enforcement on sensitive labs.</li>
+            <li><strong>Settings and data</strong> - Timezone handling corrections and faster, more resilient database migrations.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">⚠️ Critical Upgrade Notes</h2>
+          <h3 class="rn-sub">Required</h3>
+          <p class="rn-lead">'Emergency patients' board</p>
+          <ul>
+            <li>Default triage category colours have changed for Urgent, Non-urgent and Deceased. Deployments on the defaults will see the board change colour after upgrade; those that have customised their triage colours are unaffected. Review and customise if your states expect the previous colours.</li>
+          </ul>
+          <p class="rn-lead">Prescription modification at dispensing</p>
+          <ul>
+            <li>Set up the modification reason list with the reasons your pharmacy teams should choose from. Pharmacy cannot record a modification until this exists.</li>
+            <li>Review which staff can dispense medications, as that permission now also allows modifying a prescription during dispensing.</li>
+          </ul>
+          <h3 class="rn-sub">Optional</h3>
+          <p class="rn-lead">Automatic encounter fees</p>
+          <ul>
+            <li>Invoicing remains off by default. Decide whether your deployment adopts encounter fees this release.</li>
+            <li>If adopting, plan the reference data and price list work with your project manager: the encounter fee products, an optional walk-in pharmacy fee, and a bed fee product for each chargeable location. See the configuration guide for the setup.</li>
+            <li>Decide the per-facility settings each state needs: the standard-hours windows for outpatient and emergency, the overnight bed fee check time, and which item categories are bundled into the inpatient fee.</li>
+          </ul>
+          <p class="rn-lead">Medication dispensing quantity autocalculation</p>
+          <ul>
+            <li>Off by default. Decide whether to enable it per deployment.</li>
+            <li>Before enabling, check that the dispensing unit conversion is filled in on your medication reference data. Where it is left unset, quantities calculate in dosing units rather than packs or bottles.</li>
+          </ul>
+          <hr class="rn-hr">
+          <h2 class="rn-sec">Upgrade Steps and Recommended Testing</h2>
+          <h3 class="rn-sub">Required</h3>
+          <p class="rn-lead">Prescription modification at dispensing</p>
+          <ul>
+            <li>Configure the modification reason reference data and confirm the options suit your pharmacy team.</li>
+            <li>Test the full workflow: modify a prescription during dispensing, confirm the original prescription is unchanged, and confirm the prescriber receives the pharmacy note notification.</li>
+            <li>Confirm the modified item is flagged in the dispensed medication tables and that 'View modify history' shows the original and current details.</li>
+            <li>If your deployment uses the mSupply integration, verify it sends the medication that was actually dispensed rather than the original prescription.</li>
+          </ul>
+          <p class="rn-lead">'Emergency patients' board</p>
+          <ul>
+            <li>Review the refreshed triage colours on the 'Emergency patients' board and confirm they suit your deployment, or customise them to keep your existing colours.</li>
+          </ul>
+          <h3 class="rn-sub">Optional</h3>
+          <p class="rn-lead">Automatic encounter fees</p>
+          <ul>
+            <li>Test in a non-production environment first. Fee behaviour depends on reference data and price lists being set up correctly.</li>
+            <li>Confirm the correct fee is applied for an outpatient visit in standard hours, after hours, and on a weekend, and likewise for an emergency encounter.</li>
+            <li>Confirm a patient admitted from ED keeps the ED fee and is also charged the first bed-fee night on the same invoice.</li>
+            <li>Admit a patient across several nights and confirm the invoice shows one line per location with the correct number of nights.</li>
+            <li>Where inpatient bundling is configured, confirm bundled items do not appear on an admission invoice but still appear on outpatient and emergency invoices, and that discharge medications are still billed.</li>
+            <li>Confirm a cashier can adjust or remove an automatic fee, and that it is not re-added on a later sync.</li>
+          </ul>
+          <p class="rn-lead">Medication dispensing quantity autocalculation</p>
+          <ul>
+            <li>Fill in the dispensing unit conversion for your medication reference data, then confirm calculated quantities come out in packs or bottles as expected.</li>
+            <li>Confirm a manually entered quantity is not overwritten by later edits to the prescription.</li>
+            <li>Confirm the quantity is left blank for a variable dose, an 'As directed' frequency, and a duration in hours.</li>
+          </ul>
+          <p class="rn-lead">Encounter notes search</p>
+          <ul>
+            <li>Test free text search, note type, author and date range filters against a patient with a long note history.</li>
+            <li>Confirm the treatment plan stays at the top of the list when it matches the filters.</li>
+          </ul>
+          <h3 class="rn-sub">General</h3>
+          <ul>
+            <li>Test all bug fixes mentioned in the release notes.</li>
+            <li>Verify that existing workflows continue to function as expected.</li>
+          </ul>
         </div>
       </section>
     </main>

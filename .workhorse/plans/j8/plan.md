@@ -22,7 +22,10 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
 - `release-notes.html` — Linear changelog, master-detail: the left version list is the contents,
   and the reader clicks a version to view that release's notes on their own (one release shown at a
-  time, latest selected by default — no endless scroll). Real v2.61–2.63 content.
+  time, latest selected by default — no endless scroll). Content is the **full verbatim** text of
+  `docs/release-notes/v2-61..63.md` — every section (features, enhancements, fixes, critical upgrade
+  notes, upgrade steps), the real `DD-MM-YYYY` dates, and the `[SLAB_LINK_PLACEHOLDER]` links. The
+  sidebar lists only the versions that exist in the repo.
 - `report-issue.html` — a "Report an issue" support form: Name, Email, Country or deployment (select),
   Describe the issue (textarea), Screenshots drop zone (optional) with a "obscure patient details"
   warning, and a Submit button. Reachable from the top nav and the manuals sidebar (kept out of the
@@ -40,7 +43,7 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 
 ## Content sources
 
-- **Release notes** come from `docs/release-notes/*.md` in the GitHub repo (currently v2-61, v2-62, v2-63). Format: a `Released DD-MM-YYYY` line, a summary paragraph, then emoji-prefixed category headings (Major features, System enhancements, Tweaks and bug fixes, Critical upgrade notes, Upgrade steps).
+- **Release notes** come from `docs/release-notes/*.md` in the GitHub repo (currently v2-61, v2-62, v2-63). Format: a `Released DD-MM-YYYY` line, a summary paragraph, then emoji-prefixed category headings (Major features, System enhancements, Tweaks and bug fixes, Critical upgrade notes, Upgrade steps). The mockup reproduces these by hand; the **real hub must parse the markdown at build/runtime** rather than carrying transcribed copies (the earlier mockup diverged because it was hand-summarised, not pulled). The worktree's copies were confirmed identical to `origin/main`.
 - **User manuals** — source not yet decided. Some feature docs today live in Slab (release notes reference `[SLAB_LINK_PLACEHOLDER]`). Need to decide where manual content is authored and how it reaches the hub.
 
 ## Decisions taken
