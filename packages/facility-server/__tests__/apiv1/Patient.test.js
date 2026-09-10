@@ -15,6 +15,7 @@ import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -135,6 +136,48 @@ describe('Patient', () => {
     expect(result.body.data[0]).toMatchObject({
       id: dischargedMedication.id,
       medication: expect.any(Object),
+    });
+  });
+
+  // Least-privilege coverage for the discharge listing, which filters on
+  // medication.referenceDrug.is_sensitive for users without `list SensitiveMedication`.
+  // Unlike the ongoing-prescriptions and encounter listings, this query neither paginates nor
+  // nests a facility include under referenceDrug, so it does not reach the Sequelize subquery
+  // path that turns a duplicated medication association into a missing FROM-clause entry. This
+  // case therefore guards the endpoint for these users rather than reproducing that failure.
+  describe('discharge medications least-privilege access', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('returns discharge medications for a user without list SensitiveMedication', async () => {
+      const localPatient = await models.Patient.create(await createDummyPatient(models));
+      const admission = await models.Encounter.create({
+        ...(await createDummyEncounter(models, { current: true })),
+        patientId: localPatient.id,
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        endDate: toDateTimeString(new Date()),
+      });
+      const drug = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      );
+      await models.ReferenceDrug.create(
+        fake(models.ReferenceDrug, { referenceDataId: drug.id, isSensitive: false }),
+      );
+      const prescription = await models.Prescription.create(
+        await createDummyPrescription(models, { medicationId: drug.id }),
+      );
+      await models.EncounterPrescription.create({
+        encounterId: admission.id,
+        prescriptionId: prescription.id,
+        isSelectedForDischarge: true,
+      });
+      const limitedApp = await baseApp.asNewRole([['list', 'Medication']]);
+
+      const result = await limitedApp.get(
+        `/api/patient/${localPatient.id}/last-inpatient-discharge-medications`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.find(p => p.id === prescription.id)).toBeDefined();
     });
   });
 
