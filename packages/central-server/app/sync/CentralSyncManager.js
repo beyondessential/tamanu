@@ -724,7 +724,7 @@ export class CentralSyncManager {
 
     try {
       // commit the changes to the db
-      const persistedAtSyncTick = await sequelize.transaction(async () => {
+      await sequelize.transaction(async () => {
         // currently we do not create audit logs on mobile devices
         // so we rely on sync process to create audit logs
         if (!isMobile) {
@@ -754,18 +754,23 @@ export class CentralSyncManager {
           { direction: SYNC_SESSION_DIRECTION.INCOMING },
         );
 
+        // record which device these changes came from, in the same transaction as the changes
+        // themselves: the sync lookup build attributes rows to their pusher by joining on this
+        // tick (pushed_by_device_id), which is what stops the pull filter serving a device its own
+        // changes back. If this row were written after the commit, a crash in between would leave
+        // the persisted rows unattributed for good and the device would repull everything it had
+        // just pushed.
+        await models.SyncDeviceTick.create({
+          deviceId,
+          persistedAtSyncTick: tock,
+        });
+
         // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
         // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
         // (specifically won't be removed by removeEchoedChanges())
         await this.tickTockGlobalClock();
-
-        return tock;
       });
 
-      await models.SyncDeviceTick.create({
-        deviceId,
-        persistedAtSyncTick,
-      });
       await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
 
       // mark for repull any records that were modified by an incoming sync hook
