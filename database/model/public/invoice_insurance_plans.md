@@ -13,3 +13,7 @@ Human-readable name of the insurance contract.
 {% docs invoice_insurance_plans__default_coverage %}
 The default coverage (in percentage) of the insurance contract.
 {% enddocs %}
+
+{% docs invoice_insurance_plans__available_facilities %}
+JSON array of facility IDs where this insurance plan is available. If null, the insurance plan is available at all facilities.
+{% enddocs %}
