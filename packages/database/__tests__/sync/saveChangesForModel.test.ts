@@ -15,9 +15,11 @@ vitest.mock('../../src/sync/saveChanges', async () => ({
 vitest.spyOn(saveChangeModules, 'saveCreates');
 vitest.spyOn(saveChangeModules, 'saveUpdates');
 
-// the sync tick the set_updated_at_sync_tick trigger stamps on any write that does not carry the
-// INCOMING_FROM_CENTRAL_SERVER sentinel
-const CURRENT_SYNC_TICK = 42;
+/**
+ * the sync tick the set_updated_at_sync_tick trigger stamps on any write that does not carry the
+ * INCOMING_FROM_CENTRAL_SERVER sentinel
+ */
+const currentSyncTick = 42;
 
 describe('saveChangesForModel', () => {
   let models;
@@ -28,7 +30,7 @@ describe('saveChangesForModel', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK.toString());
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, currentSyncTick.toString());
   });
 
   afterEach(async () => {
@@ -80,7 +82,7 @@ describe('saveChangesForModel', () => {
       expect(newRecordInDb).toBeDefined();
       expect(newRecordInDb.text).toEqual(newRecord.text);
       expect(newRecordInDb.deletedAt).not.toBeNull();
-      expect(Number.parseInt(newRecordInDb.updatedAtSyncTick, 10)).toBe(CURRENT_SYNC_TICK);
+      expect(Number.parseInt(newRecordInDb.updatedAtSyncTick, 10)).toBe(currentSyncTick);
     });
   });
 
@@ -165,7 +167,7 @@ describe('saveChangesForModel', () => {
       expect(updatedRecordInDb.text).toBe(newRecord.text);
       // on central the delete is a change that still has to reach other devices, so it is stamped
       // with the current tick like any other write
-      expect(Number.parseInt(updatedRecordInDb.updatedAtSyncTick, 10)).toBe(CURRENT_SYNC_TICK);
+      expect(Number.parseInt(updatedRecordInDb.updatedAtSyncTick, 10)).toBe(currentSyncTick);
     });
   });
 
@@ -253,7 +255,7 @@ describe('saveChangesForModel', () => {
             placeOfBirth: 'There',
             updatedAtByField: {
               ...pushedAdditionalData.updatedAtByField,
-              place_of_birth: CURRENT_SYNC_TICK + 1,
+              place_of_birth: currentSyncTick + 1,
             },
           },
           isDeleted: true,
@@ -267,7 +269,7 @@ describe('saveChangesForModel', () => {
       });
       expect(deleted.deletedAt).not.toBeNull();
       expect(deleted.placeOfBirth).toBe('There');
-      expect(Number(deleted.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+      expect(Number.parseInt(deleted.updatedAtSyncTick, 10)).toBe(currentSyncTick);
 
       await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
       await models.Patient.destroy({ where: { id: patient.id }, force: true });
@@ -285,14 +287,16 @@ describe('saveChangesForModel', () => {
       updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
     });
     const expectNotPushable = record =>
-      expect(Number(record.updatedAtSyncTick)).toBe(SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE);
+      expect(Number.parseInt(record.updatedAtSyncTick, 10)).toBe(
+        SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+      );
 
     it('marks a pulled delete as last updated elsewhere', async () => {
       const existingRecord = await models.SurveyScreenComponent.create({
         id: 'existing_record_id',
         text: 'historical',
       });
-      expect(Number(existingRecord.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+      expect(Number.parseInt(existingRecord.updatedAtSyncTick, 10)).toBe(currentSyncTick);
       const changes = [
         { data: incomingFromCentral({ id: existingRecord.id, text: 'current' }), isDeleted: true },
       ];
