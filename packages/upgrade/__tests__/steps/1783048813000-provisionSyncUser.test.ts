@@ -85,6 +85,19 @@ describe('1783048813000-provisionSyncUser', () => {
     expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['facility-a']));
   });
 
+  it('prefers TAMANU_FACILITY_IDS over config, the way the server resolves them', async () => {
+    process.env.TAMANU_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
+    try {
+      const { args, factStore } = makeArgs();
+
+      await recordStep.run(args);
+
+      expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['env-a', 'env-b']));
+    } finally {
+      delete process.env.TAMANU_FACILITY_IDS;
+    }
+  });
+
   it('is the only step left — the swap to a dedicated user rides a sync session', () => {
     expect(STEPS).toHaveLength(1);
   });

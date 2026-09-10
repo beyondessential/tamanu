@@ -43,7 +43,7 @@ const initWith = m => initServerConfig({ context: { models: m.models } });
 describe('serverConfig', () => {
   afterEach(() => {
     delete process.env.SYNC_URL;
-    delete process.env.SYNC_FACILITY_IDS;
+    delete process.env.TAMANU_FACILITY_IDS;
   });
 
   it('resolves the sync connection and facility ids from facts + secret', async () => {
@@ -67,9 +67,9 @@ describe('serverConfig', () => {
     expect(isServerConfigured()).toBe(true);
   });
 
-  it('lets SYNC_URL / SYNC_FACILITY_IDS env take precedence over facts (no fact writes)', async () => {
+  it('lets SYNC_URL / TAMANU_FACILITY_IDS env take precedence over facts (no fact writes)', async () => {
     process.env.SYNC_URL = 'https://env-user%40x.io:env-pw@env.example.com';
-    process.env.SYNC_FACILITY_IDS = 'env-a, env-b';
+    process.env.TAMANU_FACILITY_IDS = 'env-a, env-b';
     const m = makeModels({
       facts: {
         [FACT_CENTRAL_HOST]: 'https://fact.example.com',
@@ -92,8 +92,8 @@ describe('serverConfig', () => {
     expect(m.secretStore.get(FACT_SYNC_PASSWORD)).toBe('fact-pw');
   });
 
-  it('trims and dedupes SYNC_FACILITY_IDS', async () => {
-    process.env.SYNC_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
+  it('trims and dedupes TAMANU_FACILITY_IDS', async () => {
+    process.env.TAMANU_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
     await initWith(makeModels());
     expect(getServerFacilityIds()).toEqual(['env-a', 'env-b']);
   });

@@ -11,7 +11,7 @@ const SETUP_POLL_INTERVAL_MS = 30_000;
 
 export const SYNC_NOT_CONFIGURED_WARNING =
   'Facility server has no sync host/facilities configured; sync is disabled until setup ' +
-  'is completed (SYNC_URL / SYNC_FACILITY_IDS env or the setup wizard).';
+  'is completed (SYNC_URL / TAMANU_FACILITY_IDS env or the setup wizard).';
 
 // Wire up the sync runtime when configured, else warn and leave it disabled (a
 // fresh server still boots to serve the wizard). Returns whether it was set up.

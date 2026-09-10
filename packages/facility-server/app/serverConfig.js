@@ -7,7 +7,7 @@ import {
   FACT_FACILITY_IDS,
 } from '@tamanu/constants';
 import { parseSyncUrl } from '@tamanu/database/services/syncConnectionConfig';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { facilityIdsFromEnv, selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
 // Cached holder. initServerConfig re-runs refresh it (so isServerConfigured()
@@ -140,15 +140,7 @@ function parseEnv() {
     result.email = parsed.email ?? null;
     result.password = parsed.password ?? null;
   }
-  if (process.env.SYNC_FACILITY_IDS) {
-    result.facilityIds = [
-      ...new Set(
-        process.env.SYNC_FACILITY_IDS.split(',')
-          .map(id => id.trim())
-          .filter(Boolean),
-      ),
-    ];
-  }
+  result.facilityIds = facilityIdsFromEnv() ?? null;
   return result;
 }
 
