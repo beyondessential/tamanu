@@ -7,6 +7,8 @@ import {
   FACT_LAST_SUCCESSFUL_SYNC_PUSH
 } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
+import { dropSnapshotTable, getModelsForPush, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
+import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges';
 
 
 
@@ -193,5 +195,65 @@ describe('FacilitySyncManager integration', () => {
     );
     expect(pushedChangelogIds).toContain('push-kept');
     expect(pushedChangelogIds).not.toContain('push-removed');
+  });
+  // Regression: a facility used to stamp deletes and restores pulled from central with a live sync
+  // tick (destroy()/restore() left updated_at_sync_tick out of the statement), so a bulk delete on
+  // central was echoed straight back to it by every facility that pulled it.
+  describe('records persisted from a central pull are never pushed back', () => {
+    const SESSION_ID = 'test-session-sync';
+    const patientData = () =>
+      fake(models.Patient, { id: 'patient-1', displayId: 'SYNC001', firstName: 'Pulled' });
+
+    const pullOneRecord = async record => {
+      mockCentralServer.initiatePull.mockResolvedValueOnce({ totalToPull: 1, pullUntil: 200 });
+      mockCentralServer.pull.mockResolvedValueOnce([
+        { id: '1', recordType: 'patients', recordId: 'patient-1', ...record },
+      ]);
+      await syncManager.pullChanges(SESSION_ID);
+    };
+
+    const outgoingPatientIds = async () => {
+      const changes = await snapshotOutgoingChanges(sequelize, getModelsForPush(models), 0);
+      return changes.filter(change => change.recordType === 'patients').map(c => c.recordId);
+    };
+
+    const expectNotPushable = record =>
+      expect(Number(record.updatedAtSyncTick)).toBe(SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE);
+
+    beforeEach(async () => {
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '0');
+    });
+
+    afterEach(async () => {
+      await dropSnapshotTable(sequelize, SESSION_ID);
+    });
+
+    it('does not push a pulled delete back to central', async () => {
+      const data = patientData();
+      await models.Patient.create(data);
+      // a local write is pushable until central has seen it
+      expect(await outgoingPatientIds()).toContain('patient-1');
+
+      await pullOneRecord({ isDeleted: true, data: { ...data, updatedAtSyncTick: -1 } });
+
+      const patient = await models.Patient.findByPk('patient-1', { paranoid: false });
+      expect(patient.deletedAt).not.toBeNull();
+      expectNotPushable(patient);
+      expect(await outgoingPatientIds()).not.toContain('patient-1');
+    });
+
+    it('does not push a pulled restore back to central', async () => {
+      const data = patientData();
+      const created = await models.Patient.create(data);
+      await created.destroy();
+
+      await pullOneRecord({ isDeleted: false, data: { ...data, updatedAtSyncTick: -1 } });
+
+      const patient = await models.Patient.findByPk('patient-1');
+      expect(patient).not.toBeNull();
+      expect(patient.deletedAt).toBeNull();
+      expectNotPushable(patient);
+      expect(await outgoingPatientIds()).not.toContain('patient-1');
+    });
   });
 });

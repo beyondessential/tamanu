@@ -1,12 +1,36 @@
-import { Op } from 'sequelize';
 import config from 'config';
+import { groupBy } from 'es-toolkit';
+import { Op } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
-import { mergeRecord } from './mergeRecord';
 import type { Model } from '../models/Model';
+import { mergeRecord } from './mergeRecord';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
 // We use hooks: false in all transactions here to avoid triggering side effects that may violate other records in the sync payload
+
+// Soft deletes and restores must write updated_at_sync_tick in the same statement as deleted_at.
+// Records pulled from central carry SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER (-1), which the
+// set_updated_at_sync_tick trigger stores as LAST_UPDATED_ELSEWHERE (-999) so the row is never
+// pushed back. A paranoid destroy()/restore() leaves the column out of the SET clause, so the
+// trigger sees the row's existing tick instead and stamps the current one — the facility then
+// echoes central's own delete straight back to it.
+// Incoming records on the central server carry no tick, so the column is omitted there and the
+// trigger stamps the current tick as usual (the change still has to reach other devices).
+const setDeletedAt = async (
+  model: typeof Model,
+  records: Record<string, any>[],
+  deletedAt: Date | null,
+) => {
+  const recordsBySyncTick = groupBy(records, r => String(r.updatedAtSyncTick));
+  for (const group of Object.values(recordsBySyncTick)) {
+    const { updatedAtSyncTick } = group[0];
+    await model.update(
+      { deletedAt, ...(updatedAtSyncTick !== undefined && { updatedAtSyncTick }) },
+      { where: { id: { [Op.in]: group.map(r => r.id) } }, paranoid: false, hooks: false },
+    );
+  }
+};
 
 export const saveCreates = async (model: typeof Model, records: Record<string, any>[]) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
@@ -14,23 +38,23 @@ export const saveCreates = async (model: typeof Model, records: Record<string, a
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
-  const idsForSoftDeleted = records.filter(row => row.isDeleted).map(row => row.id);
+  const idsForSoftDeleted = new Set(records.filter(row => row.isDeleted).map(row => row.id));
 
   for (const record of records) {
-    const data = { ...record };
-    delete data.isDeleted;
+    const { isDeleted: _isDeleted, ...data } = record;
 
     if (!idsAdded.has(data.id)) {
-      deduplicated.push(data);
+      // soft deleted records are inserted already deleted, so deleted_at and updated_at_sync_tick
+      // land in the same statement (see setDeletedAt)
+      deduplicated.push(
+        idsForSoftDeleted.has(data.id)
+          ? { ...data, deletedAt: data.deletedAt ?? new Date() }
+          : data,
+      );
       idsAdded.add(data.id);
     }
   }
   await model.bulkCreate(deduplicated, { hooks: false });
-
-  // To create soft deleted records, we need to first create them, then destroy them
-  if (idsForSoftDeleted.length > 0) {
-    await model.destroy({ where: { id: { [Op.in]: idsForSoftDeleted } }, hooks: false });
-  }
 };
 
 export const saveUpdates = async (
@@ -61,14 +85,10 @@ export const saveUpdates = async (
   });
 };
 
-// model.update cannot update deleted_at field, so we need to do update (in case there are still any new changes even if it is being deleted) and destroy
+// saveUpdates has already written any field changes for these records, so this only sets deleted_at
 export const saveDeletes = async (model: typeof Model, recordsForDelete: Record<string, any>[]) => {
   if (recordsForDelete.length === 0) return;
-
-  await model.destroy({
-    where: { id: { [Op.in]: recordsForDelete.map(r => r.id) } },
-    hooks: false,
-  });
+  await setDeletedAt(model, recordsForDelete, new Date());
 };
 
 export const saveRestores = async (
@@ -76,8 +96,5 @@ export const saveRestores = async (
   recordsForRestore: Record<string, any>[],
 ) => {
   if (recordsForRestore.length === 0) return;
-  await model.restore({
-    where: { id: { [Op.in]: recordsForRestore.map(r => r.id) } },
-    hooks: false,
-  });
+  await setDeletedAt(model, recordsForRestore, null);
 };
