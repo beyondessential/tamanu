@@ -72,10 +72,8 @@ export const saveChangesForModel = async (
     if (!existing.deletedAt && incoming?.isDeleted) {
       idsForDelete.add(existing.id);
     }
-    if (existing.deletedAt && incoming?.isDeleted) {
-      // don't do anything related to deletion if incoming record
-      // is deleted and existing record is already deleted
-    }
+
+    // If incoming is deleted AND existing is already deleted, nothing to do
   });
 
   /**
