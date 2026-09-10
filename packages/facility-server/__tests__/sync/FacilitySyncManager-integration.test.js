@@ -43,11 +43,11 @@ describe('FacilitySyncManager integration', () => {
         {
           id: '1',
           recordType: 'patients',
-          recordId: 'patient-1',
+          recordId: 'sync-integration-patient-1',
           isDeleted: false,
           data: {
             ...fake(models.Patient, {
-              id: 'patient-1',
+              id: 'sync-integration-patient-1',
               displayId: 'SYNC001',
               firstName: 'Test',
               lastName: 'Patient1'
@@ -58,11 +58,11 @@ describe('FacilitySyncManager integration', () => {
         {
           id: '2',
           recordType: 'patients',
-          recordId: 'patient-2',
+          recordId: 'sync-integration-patient-2',
           isDeleted: false,
           data: {
             ...fake(models.Patient, {
-              id: 'patient-2',
+              id: 'sync-integration-patient-2',
               displayId: 'SYNC002',
               firstName: 'Test',
               lastName: 'Patient2'
@@ -73,11 +73,11 @@ describe('FacilitySyncManager integration', () => {
         {
           id: '3',
           recordType: 'facilities',
-          recordId: 'facility-1',
+          recordId: 'sync-integration-facility',
           isDeleted: false,
           data: {
             ...fake(models.Facility, {
-              id: 'facility-1',
+              id: 'sync-integration-facility',
               code: 'TESTSYNC',
               name: 'Test Sync Facility'
             }),
@@ -99,13 +99,13 @@ describe('FacilitySyncManager integration', () => {
 
   afterEach(async () => {
     await models.Patient.destroy({
-      where: { id: ['patient-1', 'patient-2', 'push-kept', 'push-removed'] },
+      where: { id: ['sync-integration-patient-1', 'sync-integration-patient-2', 'push-kept', 'push-removed'] },
       force: true
     });
-    await models.Setting.destroy({ where: { facilityId: 'facility-1' }, force: true });
-    await models.Facility.destroy({ where: { id: 'facility-1' }, force: true });
+    await models.Setting.destroy({ where: { facilityId: 'sync-integration-facility' }, force: true });
+    await models.Facility.destroy({ where: { id: 'sync-integration-facility' }, force: true });
     await sequelize.query(
-      "DELETE FROM logs.changes WHERE record_id IN ('patient-1', 'patient-2', 'facility-1', 'push-kept', 'push-removed')"
+      "DELETE FROM logs.changes WHERE record_id IN ('sync-integration-patient-1', 'sync-integration-patient-2', 'sync-integration-facility', 'push-kept', 'push-removed')"
     );
   });
 
@@ -138,9 +138,9 @@ describe('FacilitySyncManager integration', () => {
 
     // Verify all records were synced correctly
     const [syncedPatient1, syncedPatient2, syncedFacility] = await Promise.all([
-      models.Patient.findByPk('patient-1'),
-      models.Patient.findByPk('patient-2'),
-      models.Facility.findByPk('facility-1')
+      models.Patient.findByPk('sync-integration-patient-1'),
+      models.Patient.findByPk('sync-integration-patient-2'),
+      models.Facility.findByPk('sync-integration-facility')
     ]);
 
     expect(syncedPatient1).toMatchObject({
@@ -161,7 +161,7 @@ describe('FacilitySyncManager integration', () => {
     });
 
     const syncAuditLogs = await sequelize.query(
-      "SELECT * FROM logs.changes WHERE record_id IN ('patient-1', 'patient-2', 'facility-1')",
+      "SELECT * FROM logs.changes WHERE record_id IN ('sync-integration-patient-1', 'sync-integration-patient-2', 'sync-integration-facility')",
       { type: sequelize.QueryTypes.SELECT }
     );
     expect(syncAuditLogs).toHaveLength(0);
@@ -201,17 +201,30 @@ describe('FacilitySyncManager integration', () => {
   // central was echoed straight back to it by every facility that pulled it.
   describe('records persisted from a central pull are never pushed back', () => {
     const SESSION_ID = 'test-session-sync';
+    const PATIENT_ID = 'sync-integration-pulled-patient';
     const patientData = () =>
-      fake(models.Patient, { id: 'patient-1', displayId: 'SYNC001', firstName: 'Pulled' });
+      fake(models.Patient, { id: PATIENT_ID, displayId: 'SYNCPULL', firstName: 'Pulled' });
+    const removePatient = async () => {
+      await models.Patient.destroy({ where: { id: PATIENT_ID }, force: true });
+      await sequelize.query('DELETE FROM logs.changes WHERE record_id = :id', {
+        replacements: { id: PATIENT_ID },
+      });
+    };
 
     const pullOneRecord = async record => {
+      // central only sends records it has already received from this facility, so the local write
+      // set up by the test sits below the push watermark by the time the pull arrives (otherwise
+      // assertIfPulledRecordsUpdatedAfterPushSnapshot rightly aborts the sync to push it first)
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '100');
       mockCentralServer.initiatePull.mockResolvedValueOnce({ totalToPull: 1, pullUntil: 200 });
       mockCentralServer.pull.mockResolvedValueOnce([
-        { id: '1', recordType: 'patients', recordId: 'patient-1', ...record },
+        { id: '1', recordType: 'patients', recordId: PATIENT_ID, ...record },
       ]);
       await syncManager.pullChanges(SESSION_ID);
     };
 
+    // snapshot from the beginning of time so the check is about the row's own tick, not the
+    // watermark
     const outgoingPatientIds = async () => {
       const changes = await snapshotOutgoingChanges(sequelize, getModelsForPush(models), 0);
       return changes.filter(change => change.recordType === 'patients').map(c => c.recordId);
@@ -221,25 +234,26 @@ describe('FacilitySyncManager integration', () => {
       expect(Number(record.updatedAtSyncTick)).toBe(SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE);
 
     beforeEach(async () => {
-      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '0');
+      await removePatient(); // in case an earlier run died before cleaning up
     });
 
     afterEach(async () => {
       await dropSnapshotTable(sequelize, SESSION_ID);
+      await removePatient();
     });
 
     it('does not push a pulled delete back to central', async () => {
       const data = patientData();
       await models.Patient.create(data);
       // a local write is pushable until central has seen it
-      expect(await outgoingPatientIds()).toContain('patient-1');
+      expect(await outgoingPatientIds()).toContain(PATIENT_ID);
 
       await pullOneRecord({ isDeleted: true, data: { ...data, updatedAtSyncTick: -1 } });
 
-      const patient = await models.Patient.findByPk('patient-1', { paranoid: false });
+      const patient = await models.Patient.findByPk(PATIENT_ID, { paranoid: false });
       expect(patient.deletedAt).not.toBeNull();
       expectNotPushable(patient);
-      expect(await outgoingPatientIds()).not.toContain('patient-1');
+      expect(await outgoingPatientIds()).not.toContain(PATIENT_ID);
     });
 
     it('does not push a pulled restore back to central', async () => {
@@ -249,11 +263,11 @@ describe('FacilitySyncManager integration', () => {
 
       await pullOneRecord({ isDeleted: false, data: { ...data, updatedAtSyncTick: -1 } });
 
-      const patient = await models.Patient.findByPk('patient-1');
+      const patient = await models.Patient.findByPk(PATIENT_ID);
       expect(patient).not.toBeNull();
       expect(patient.deletedAt).toBeNull();
       expectNotPushable(patient);
-      expect(await outgoingPatientIds()).not.toContain('patient-1');
+      expect(await outgoingPatientIds()).not.toContain(PATIENT_ID);
     });
   });
 });
