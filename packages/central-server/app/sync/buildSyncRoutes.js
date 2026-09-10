@@ -338,6 +338,18 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // read-only push status for a client resuming after a crash: unlike the endpoints above this
+  // works on a completed or errored session, since that is exactly when a client needs to know
+  // whether its previous session's push actually persisted before it re-pushes everything
+  syncRoutes.get(
+    '/:sessionId/push/status',
+    asyncHandler(async (req, res) => {
+      const { params, device } = req;
+      const status = await syncManager.getPushStatus(params.sessionId, device.id);
+      res.json(status);
+    }),
+  );
+
   // check if push is complete, so client can poll while server asynchronously persists changes
   syncRoutes.get(
     '/:sessionId/push/complete',

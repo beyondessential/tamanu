@@ -1,3 +1,4 @@
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import { trace } from '@opentelemetry/api';
 import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
@@ -769,21 +770,25 @@ export class CentralSyncManager {
         // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
         // (specifically won't be removed by removeEchoedChanges())
         await this.tickTockGlobalClock();
+
+        // These used to run after the persist transaction committed, alongside marking the session
+        // persisted. A crash in that window left the changes committed but the session never marked
+        // persistCompletedAt, so the client treated the whole push as failed and re-pushed every
+        // record on the next session. Running them inside the transaction makes "committed" and
+        // "acknowledged" the same event. The session update is last: connectToSession touches the
+        // sync_sessions row on every client poll, so holding its row lock for the whole persist
+        // would stall those polls.
+        await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+
+        // mark for repull any records that were modified by an incoming sync hook
+        await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
+
+        // mark persisted so that client polling "completePush" can stop
+        await models.SyncSession.update(
+          { persistCompletedAt: new Date() },
+          { where: { id: sessionId } },
+        );
       });
-
-      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
-
-      // mark for repull any records that were modified by an incoming sync hook
-      await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
-
-      // mark persisted so that client polling "completePush" can stop
-      await models.SyncSession.update(
-        { persistCompletedAt: new Date() },
-        { where: { id: sessionId } },
-      );
-
-      // WARNING: if you are adding another db call here, you need to either move the
-      // persistCompletedAt lower down, or change the check in checkPushComplete
     } catch (error) {
       log.error('CentralSyncManager.persistIncomingChanges encountered an error', error);
       await models.SyncSession.markSessionErrored(sessionId, error.message);
@@ -875,6 +880,23 @@ export class CentralSyncManager {
       tablesToInclude,
       session.parameters.isMobile,
     ).finally(unmarkSessionAsProcessing);
+  }
+
+  // Read-only lookup of whether a session's push finished persisting, for a client resuming after a
+  // crash. Unlike connectToSession this does not throw for completed or errored sessions — the
+  // client needs the answer precisely when its previous session is no longer active. Scoped to the
+  // device that owns the session so one device can't probe another's sessions.
+  async getPushStatus(sessionId, deviceId) {
+    const session = await this.store.sequelize.models.SyncSession.findOne({
+      where: { id: sessionId },
+    });
+    if (!session) {
+      throw new NotFoundError(`Sync session '${sessionId}' not found`);
+    }
+    if (session.parameters?.deviceId !== deviceId) {
+      throw new ForbiddenError('Cannot read the push status of another device\'s sync session');
+    }
+    return { persistCompletedAt: session.persistCompletedAt ?? null };
   }
 
   async checkPushComplete(sessionId) {

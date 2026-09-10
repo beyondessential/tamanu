@@ -4,6 +4,7 @@ import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+  FACT_PENDING_PUSH,
 } from '@tamanu/constants/facts';
 import {
   createSnapshotTable,
@@ -11,12 +12,14 @@ import {
   dropSnapshotTable,
   getModelsForPush,
   getModelsForPull,
+  getModelsForDirections,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { getSyncConfig } from '../serverConfig';
 
@@ -212,7 +215,51 @@ export class FacilitySyncManager {
     return { queued: false, ran: true };
   }
 
+  // If a previous push committed on central but this facility died before advancing its push
+  // watermark, the pending-push fact still names that session. Ask central whether it persisted:
+  // if it did, advance the watermark to the tick that push covered (and clean up any
+  // push-then-delete local copies that a normal push would have removed) instead of re-pushing the
+  // entire payload — the failure mode that turned one bulk delete into a multi-day re-push loop.
+  // Any inconclusive answer (not yet persisted, session gone, network error) just falls through to
+  // a normal push, which is safe because central upserts on push.
+  async recoverPreviousPushIfPersisted() {
+    const pending = await this.models.LocalSystemFact.get(FACT_PENDING_PUSH);
+    if (!pending) return;
+
+    let recovered = false;
+    try {
+      const { sessionId, syncTick } = JSON.parse(pending);
+      const { persistCompletedAt } = await this.centralServer.getPushStatus(sessionId);
+      if (persistCompletedAt) {
+        const thenDeleteModels = getModelsForDirections(this.models, [
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
+        ]);
+        const pushSince =
+          (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
+        const alreadyPushed = await snapshotOutgoingChanges(
+          this.sequelize,
+          thenDeleteModels,
+          pushSince,
+        );
+        await deleteRedundantLocalCopies(thenDeleteModels, alreadyPushed);
+        await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, syncTick);
+        recovered = true;
+        log.info('FacilitySyncManager.recoveredPreviousPush', { sessionId, syncTick });
+      } else {
+        log.info('FacilitySyncManager.previousPushNotPersisted', { sessionId });
+      }
+    } catch (error) {
+      log.warn('FacilitySyncManager.recoverPreviousPushFailed', { error: error.message });
+    } finally {
+      // whether we recovered or are about to re-push, the pending marker has served its purpose
+      await this.models.LocalSystemFact.set(FACT_PENDING_PUSH, '');
+    }
+    return recovered;
+  }
+
   async pushChanges(sessionId, newSyncClockTime) {
+    await this.recoverPreviousPushIfPersisted();
+
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncClockTime = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
@@ -249,11 +296,18 @@ export class FacilitySyncManager {
           minSourceTick: pushSince,
         },
       );
+      // record the in-flight push so we can recover it if we die after central persists it but
+      // before the watermark advances below (see recoverPreviousPushIfPersisted)
+      await this.models.LocalSystemFact.set(
+        FACT_PENDING_PUSH,
+        JSON.stringify({ sessionId, syncTick: currentSyncClockTime }),
+      );
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);
       await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
     }
 
     await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);
+    await this.models.LocalSystemFact.set(FACT_PENDING_PUSH, '');
     log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 

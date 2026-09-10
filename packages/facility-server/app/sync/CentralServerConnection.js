@@ -227,6 +227,13 @@ export class CentralServerConnection extends TamanuApi {
     await this.pollUntilTrue(`sync/${sessionId}/push/complete`);
   }
 
+  // Ask central whether a previous session's push finished persisting. Returns
+  // { persistCompletedAt } — a plain fetch (not pollUntilOk), because a null persistCompletedAt is
+  // a valid answer meaning "not persisted", which the caller must be able to see rather than poll on.
+  async getPushStatus(sessionId) {
+    return this.fetch(`sync/${sessionId}/push/status`, { method: 'GET' });
+  }
+
   async whoami() {
     return this.fetch('whoami');
   }

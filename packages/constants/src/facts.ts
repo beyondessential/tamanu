@@ -12,6 +12,11 @@ export const FACT_CURRENT_SYNC_TICK = 'currentSyncTick';
 export const FACT_LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
 export const FACT_LAST_SUCCESSFUL_SYNC_PUSH = 'lastSuccessfulSyncPush';
 export const FACT_LOOKUP_UP_TO_TICK = 'lastSuccessfulLookupTableUpdate';
+// Set while a push is in flight to central: { sessionId, syncTick } as JSON. If the process dies
+// after central commits the push but before the watermark advances, the next session reads this,
+// asks central whether that session persisted, and advances the watermark instead of re-pushing
+// the whole payload.
+export const FACT_PENDING_PUSH = 'pendingPush';
 export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
 export const FACT_LOOKUP_MODELS_TO_REBUILD = 'lookupModelsToRebuild';
 export const FACT_LOOKUP_PATIENTS_TO_REBUILD = 'lookupPatientsToRebuild';

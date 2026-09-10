@@ -5,12 +5,14 @@ import {
   FACT_FACILITY_IDS,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
+  FACT_PENDING_PUSH,
   FACT_SETTINGS_PSK,
 } from '@tamanu/constants/facts';
 import { USER_KINDS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 
 describe('FacilitySyncManager', () => {
@@ -392,4 +394,98 @@ describe('FacilitySyncManager', () => {
       );
     });
   });
+  describe('crash-safe push acknowledgement', () => {
+    const SESSION_ID = 'pending-session';
+
+    const makeManager = centralServer =>
+      new FacilitySyncManager({ models, sequelize: ctx.sequelize, centralServer });
+
+    beforeEach(async () => {
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '10');
+      await models.LocalSystemFact.set(FACT_PENDING_PUSH, '');
+    });
+
+    it('records a pending push around the push and clears it afterwards', async () => {
+      const pendingWhilePushing = [];
+      const centralServer = {
+        streaming: () => false,
+        getPushStatus: vi.fn(),
+        push: vi.fn(async () => {
+          pendingWhilePushing.push(await models.LocalSystemFact.get(FACT_PENDING_PUSH));
+        }),
+        completePush: vi.fn(),
+      };
+      const syncManager = makeManager(centralServer);
+      // one real outgoing change (stamped above the push watermark) so the push branch runs
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '500');
+      await models.Patient.create(fake(models.Patient, { id: 'push-me' }));
+
+      await syncManager.pushChanges(SESSION_ID, 999);
+
+      expect(pendingWhilePushing).toHaveLength(1);
+      expect(JSON.parse(pendingWhilePushing[0])).toMatchObject({ sessionId: SESSION_ID });
+      // cleared once the watermark advances
+      expect(await models.LocalSystemFact.get(FACT_PENDING_PUSH)).toBe('');
+      await models.Patient.destroy({ where: { id: 'push-me' }, force: true });
+    });
+
+    it('advances the watermark from a persisted previous push instead of re-pushing', async () => {
+      await models.LocalSystemFact.set(
+        FACT_PENDING_PUSH,
+        JSON.stringify({ sessionId: SESSION_ID, syncTick: '77' }),
+      );
+      const centralServer = {
+        streaming: () => false,
+        getPushStatus: vi.fn().mockResolvedValue({ persistCompletedAt: new Date().toISOString() }),
+        push: vi.fn(),
+        completePush: vi.fn(),
+      };
+      const syncManager = makeManager(centralServer);
+
+      const recovered = await syncManager.recoverPreviousPushIfPersisted();
+
+      expect(recovered).toBe(true);
+      expect(centralServer.getPushStatus).toHaveBeenCalledWith(SESSION_ID);
+      expect(await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)).toBe('77');
+      expect(await models.LocalSystemFact.get(FACT_PENDING_PUSH)).toBe('');
+    });
+
+    it('does not advance the watermark when central has not persisted the previous push', async () => {
+      await models.LocalSystemFact.set(
+        FACT_PENDING_PUSH,
+        JSON.stringify({ sessionId: SESSION_ID, syncTick: '77' }),
+      );
+      const centralServer = {
+        streaming: () => false,
+        getPushStatus: vi.fn().mockResolvedValue({ persistCompletedAt: null }),
+      };
+      const syncManager = makeManager(centralServer);
+
+      const recovered = await syncManager.recoverPreviousPushIfPersisted();
+
+      expect(recovered).toBe(false);
+      expect(await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)).toBe('10');
+      // marker cleared so the normal push path re-pushes
+      expect(await models.LocalSystemFact.get(FACT_PENDING_PUSH)).toBe('');
+    });
+
+    it('falls through to a normal re-push if central cannot be reached', async () => {
+      await models.LocalSystemFact.set(
+        FACT_PENDING_PUSH,
+        JSON.stringify({ sessionId: SESSION_ID, syncTick: '77' }),
+      );
+      const centralServer = {
+        streaming: () => false,
+        getPushStatus: vi.fn().mockRejectedValue(new Error('network down')),
+      };
+      const syncManager = makeManager(centralServer);
+
+      const recovered = await syncManager.recoverPreviousPushIfPersisted();
+
+      expect(recovered).toBeFalsy();
+      expect(await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)).toBe('10');
+      expect(await models.LocalSystemFact.get(FACT_PENDING_PUSH)).toBe('');
+    });
+  });
+
 });
