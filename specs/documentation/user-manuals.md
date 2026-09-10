@@ -56,8 +56,13 @@ guides.
 - [ ] Where a form's content is configured per site, the guide covers finding the form,
       selecting it, completing it, and submitting it, and leaves the form's own fields
       alone.
-- [ ] Behaviour that a site can switch on or off is described the same way as any other,
-      without qualifying whether a given reader has it available.
+- [ ] A guide covering an action that a site can switch on or off notes that the action
+      depends on how the reader's site is set up, so a reader who cannot find it knows
+      why.
+- [ ] Where an action may be unavailable to a reader, whether because their site has not
+      enabled it or because their account lacks the permission, the guide tells them to
+      contact their system administrator if they believe they should be able to carry it
+      out.
 
 ## Instructional steps
 
