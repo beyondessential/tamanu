@@ -1,10 +1,11 @@
 import { INVOICE_ITEMS_CATEGORIES, INVOICE_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
-import { saveChangesForModel } from '../../src/sync';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
+import { saveChangesForModel, SYNC_TICK_FLAGS } from '../../src/sync';
 import * as saveChangeModules from '../../src/sync/saveChanges';
 import { closeDatabase, createTestDatabase } from '../utilities';
-import { describe, expect, it, vitest, beforeAll, afterEach, afterAll } from 'vitest';
+import { describe, expect, it, vitest, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
 
 vitest.mock('../../src/sync/saveChanges', async () => ({
   __esModule: true,
@@ -16,12 +17,20 @@ vitest.spyOn(saveChangeModules, 'saveUpdates');
 vitest.spyOn(saveChangeModules, 'saveDeletes');
 vitest.spyOn(saveChangeModules, 'saveRestores');
 
+// the sync tick the set_updated_at_sync_tick trigger stamps on any write that does not carry the
+// INCOMING_FROM_CENTRAL_SERVER sentinel
+const CURRENT_SYNC_TICK = 42;
+
 describe('saveChangesForModel', () => {
   let models;
 
   beforeAll(async () => {
     const database = await createTestDatabase();
     models = database.models;
+  });
+
+  beforeEach(async () => {
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, String(CURRENT_SYNC_TICK));
   });
 
   afterEach(async () => {
@@ -76,6 +85,8 @@ describe('saveChangesForModel', () => {
       });
       expect(newRecordInDb).toBeDefined();
       expect(newRecordInDb.text).toEqual(newRecord.text);
+      expect(newRecordInDb.deletedAt).not.toBeNull();
+      expect(Number(newRecordInDb.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
     });
   });
 
@@ -150,8 +161,11 @@ describe('saveChangesForModel', () => {
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
-      expect(updatedRecordInDb.deletedAt).toBeDefined();
+      expect(updatedRecordInDb.deletedAt).not.toBeNull();
       expect(updatedRecordInDb.text).toBe(newRecord.text);
+      // on central the delete is a change that still has to reach other devices, so it is stamped
+      // with the current tick like any other write
+      expect(Number(updatedRecordInDb.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
     });
   });
 
@@ -201,6 +215,93 @@ describe('saveChangesForModel', () => {
       });
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
+    });
+  });
+
+  // Records pulled from central are marked with INCOMING_FROM_CENTRAL_SERVER (-1), which the
+  // set_updated_at_sync_tick trigger stores as LAST_UPDATED_ELSEWHERE (-999) so the facility never
+  // pushes them back. The tick has to be written in the same statement as deleted_at — a paranoid
+  // destroy()/restore() leaves it out, and the trigger then stamps the current tick instead, which
+  // made facilities echo every bulk delete on central straight back to it.
+  describe('sync tick of records persisted from a central pull (facility server)', () => {
+    const incomingFromCentral = data => ({
+      ...data,
+      updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+    });
+    const expectNotPushable = record =>
+      expect(Number(record.updatedAtSyncTick)).toBe(SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE);
+
+    it('marks a pulled delete as last updated elsewhere', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      expect(Number(existingRecord.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+      const changes = [
+        { data: incomingFromCentral({ id: existingRecord.id, text: 'current' }), isDeleted: true },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      const deletedRecord = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
+        paranoid: false,
+      });
+      expect(deletedRecord.deletedAt).not.toBeNull();
+      expect(deletedRecord.text).toBe('current');
+      expectNotPushable(deletedRecord);
+    });
+
+    it('marks a pulled restore as last updated elsewhere', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      await existingRecord.destroy();
+      const changes = [
+        { data: incomingFromCentral({ id: existingRecord.id, text: 'current' }), isDeleted: false },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      const restoredRecord = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(restoredRecord).not.toBeNull();
+      expect(restoredRecord.deletedAt).toBeNull();
+      expect(restoredRecord.text).toBe('current');
+      expectNotPushable(restoredRecord);
+    });
+
+    it('marks a pulled soft-deleted create as last updated elsewhere', async () => {
+      const changes = [
+        {
+          data: incomingFromCentral({ id: 'new_record_id', text: 'new_record_name' }),
+          isDeleted: true,
+        },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      const newRecord = await models.SurveyScreenComponent.findByPk('new_record_id', {
+        paranoid: false,
+      });
+      expect(newRecord).not.toBeNull();
+      expect(newRecord.deletedAt).not.toBeNull();
+      expectNotPushable(newRecord);
+    });
+
+    it('marks a pulled update as last updated elsewhere', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      const changes = [
+        { data: incomingFromCentral({ id: existingRecord.id, text: 'current' }), isDeleted: false },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      const updatedRecord = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(updatedRecord.text).toBe('current');
+      expectNotPushable(updatedRecord);
     });
   });
 
