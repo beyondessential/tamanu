@@ -4,7 +4,7 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
-import { ForbiddenError, NotFoundError } from '@tamanu/errors';
+import { ForbiddenError } from '@tamanu/errors';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -184,7 +184,10 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   ]);
 
   const modalProps = {
-    title: discharge ? (
+    // An end date is what makes this an encounter record rather than a progress record; the
+    // discharge record itself may be absent (see useEncounterDischargeQuery).
+    // spec: DSCHV#encounter-record
+    title: encounter.endDate ? (
       <TranslatedText
         stringId="patient.modal.print.encounterRecord.title"
         fallback="Encounter record"
@@ -216,28 +219,15 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       );
     }
 
-    // Some old discharged encounters do not have discharge record
-    // It is a data issue and we don't want to it to break the entire Encounter Summary
-    const hasOnlyDischargeNotFoundError =
-      allQueries.errors.length === 1 &&
-      dischargeQuery.isError &&
-      dischargeQuery.error instanceof NotFoundError;
-
-    if (!hasOnlyDischargeNotFoundError) {
-      // If this next bit ever shows up it means it's a bug - show some detail
-      return (
-        <Modal {...modalProps} data-testid="modal-hoyx">
-          <p>An unexpected error occurred. Please contact your system administrator.</p>
-          <p>Error details:</p>
-          <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
-          <ModalActionRow
-            onConfirm={onClose}
-            confirmText="Close"
-            data-testid="modalactionrow-db91"
-          />
-        </Modal>
-      );
-    }
+    // If this next bit ever shows up it means it's a bug - show some detail
+    return (
+      <Modal {...modalProps} data-testid="modal-hoyx">
+        <p>An unexpected error occurred. Please contact your system administrator.</p>
+        <p>Error details:</p>
+        <pre>{JSON.stringify(allQueries.errors, null, 2)}</pre>
+        <ModalActionRow onConfirm={onClose} confirmText="Close" data-testid="modalactionrow-db91" />
+      </Modal>
+    );
   }
 
   // Filter and sort diagnoses: remove error/cancelled diagnosis, sort by whether it is primary and then date
