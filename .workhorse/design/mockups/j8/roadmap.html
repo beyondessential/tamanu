@@ -1,5 +1,5 @@
 <!-- spec: docs-hub (proposed) -->
-<!-- Placeholder roadmap items — real content to be pulled from https://www.bes.au/tamanu-roadmap/ -->
+<!-- Roadmap content from https://www.bes.au/tamanu-roadmap/ ; layout after the Microsoft 365 roadmap "Latest announcements" area -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +16,7 @@
   a { color:inherit; text-decoration:none; }
 
   header.nav { position:sticky; top:0; z-index:20; background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
-  .nav-inner { max-width:1120px; margin:0 auto; padding:0 24px; height:58px; display:flex; align-items:center; gap:24px; }
+  .nav-inner { max-width:1160px; margin:0 auto; padding:0 24px; height:58px; display:flex; align-items:center; gap:24px; }
   .brand { display:flex; align-items:center; gap:9px; font-weight:620; letter-spacing:-0.01em; font-size:15px; }
   .brand .mark { width:22px; height:22px; border-radius:999px; background:var(--ink); -webkit-mask:radial-gradient(circle at 50% 50%, transparent 39%, #000 40%); mask:radial-gradient(circle at 50% 50%, transparent 39%, #000 40%); }
   .brand .sub { color:var(--ink-3); font-weight:500; }
@@ -28,37 +28,50 @@
   .askai { display:inline-flex; align-items:center; gap:7px; border:1px solid #cfcfd4; border-radius:8px; padding:7px 12px; font-size:13.5px; font-weight:540; color:var(--ink); background:var(--bg); cursor:pointer; }
   .askai:hover { border-color:var(--ink); }
 
-  main.roadmap { max-width:900px; margin:0 auto; padding:44px 24px 100px; }
+  main.roadmap { max-width:1160px; margin:0 auto; padding:44px 24px 80px; }
   .roadmap h1 { font-size:32px; letter-spacing:-0.025em; margin:0 0 10px; font-weight:680; }
-  .roadmap .subtitle { font-size:16px; color:var(--ink-3); margin:0 0 26px; }
-  .rm-toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
-  .rm-search { flex:1; min-width:220px; display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:10px 13px; color:var(--ink-3); }
-  .rm-search input { border:none; outline:none; font:inherit; font-size:14px; flex:1; background:transparent; color:var(--ink); }
-  .rm-chips { display:flex; gap:8px; flex-wrap:wrap; }
-  .rm-chip { border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:7px 13px; font-size:13px; color:var(--ink-2); cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
-  .rm-chip:hover { border-color:#cfcfd4; }
-  .rm-chip.active { border-color:var(--ink); background:var(--ink); color:#fff; }
-  .rm-chip .dot { width:8px; height:8px; border-radius:999px; }
-  .dot.planned { border:1.5px solid var(--ink-4); }
-  .dot.dev { background:var(--ink-3); }
-  .dot.released { background:var(--ink); }
-  .rm-count { font-size:13px; color:var(--ink-3); margin:8px 2px 16px; }
-  .rm-list { display:flex; flex-direction:column; gap:12px; }
-  .rm-card { border:1px solid var(--line); border-radius:12px; padding:18px 20px; cursor:pointer; transition:border-color .12s; }
-  .rm-card:hover { border-color:#cfcfd4; }
-  .rm-card .top { display:flex; align-items:center; gap:12px; }
-  .rm-status { border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:12px; font-weight:600; color:var(--ink-2); display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
-  .rm-status .dot { width:8px; height:8px; border-radius:999px; }
-  .rm-card h3 { font-size:16px; margin:0; font-weight:620; letter-spacing:-0.005em; }
-  .rm-card .chevron { margin-left:auto; color:var(--ink-4); transition:transform .15s; flex:none; }
-  .rm-card.open .chevron { transform:rotate(180deg); }
-  .rm-card p.desc { margin:10px 0 12px; color:var(--ink-2); font-size:14px; line-height:1.55; }
-  .rm-meta { display:flex; flex-wrap:wrap; gap:8px 16px; font-size:12.5px; color:var(--ink-3); }
-  .rm-meta span b { color:var(--ink-2); font-weight:600; margin-right:4px; }
-  .rm-detail { margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft); color:var(--ink-2); font-size:14px; line-height:1.6; display:none; }
-  .rm-card.open .rm-detail { display:block; }
-  .rm-detail a { color:var(--ink); font-weight:600; text-decoration:underline; }
-  .rm-empty { text-align:center; color:var(--ink-3); font-size:14px; padding:44px 0; display:none; }
+  .roadmap .subtitle { font-size:16px; color:var(--ink-3); margin:0 0 6px; max-width:640px; }
+  .rmx-legend { display:flex; gap:18px; align-items:center; margin:16px 0 4px; font-size:12.5px; color:var(--ink-3); }
+  .rmx-legend .item { display:inline-flex; align-items:center; gap:7px; }
+  .rmx-legend .mk { width:15px; height:15px; border-radius:999px; }
+  .rmx-legend .mk.done { background:var(--ink); }
+  .rmx-legend .mk.planned { border:1.5px dashed var(--ink-4); }
+
+  .rmx-nav { display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-top:12px; }
+  .rmx-nav button { width:40px; height:40px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--ink); display:grid; place-items:center; cursor:pointer; }
+  .rmx-nav button:hover { border-color:var(--ink); }
+
+  .rmx-scroll { overflow-x:auto; overflow-y:hidden; padding:8px 0 4px; scroll-behavior:smooth; }
+  .rmx-track { width:max-content; display:flex; flex-direction:column; }
+  .rmx-row { display:flex; }
+  .rmx-cell { width:344px; flex:none; padding:0 12px; display:flex; }
+  .rmx-row.top .rmx-cell { align-items:flex-end; }
+  .rmx-row.bottom .rmx-cell { align-items:flex-start; }
+  .rmx-row.axis .rmx-cell { height:62px; align-items:center; justify-content:center; position:relative; padding:0; }
+  .rmx-row.axis .rmx-cell::before { content:""; position:absolute; left:0; right:0; top:50%; height:2px; background:var(--line); transform:translateY(-1px); }
+  .rmx-marker { width:30px; height:30px; border-radius:999px; background:#fff; display:grid; place-items:center; position:relative; z-index:1; }
+  .rmx-marker.done { background:var(--ink); color:#fff; border:2px solid var(--ink); }
+  .rmx-marker.planned { border:2px dashed var(--ink-4); color:var(--ink-4); background:#fff; }
+
+  .rmx-card { width:100%; background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:0 1px 2px rgba(0,0,0,0.03), 0 10px 26px rgba(0,0,0,0.05); display:flex; flex-direction:column; }
+  .rmx-card-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .rmx-period { font-size:14px; font-weight:700; letter-spacing:0.02em; color:var(--ink); text-transform:uppercase; }
+  .rmx-badge { margin-left:auto; font-size:11px; font-weight:600; border:1px solid var(--line); border-radius:999px; padding:2px 9px; color:var(--ink-2); display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+  .rmx-badge .d { width:7px; height:7px; border-radius:999px; }
+  .rmx-badge.done .d { background:var(--ink); }
+  .rmx-badge.planned .d { border:1.5px dashed var(--ink-4); }
+  .rmx-items { list-style:none; padding:0; margin:0 0 14px; }
+  .rmx-items li { display:flex; gap:10px; padding:11px 0; font-size:13.5px; line-height:1.5; color:var(--ink-2); border-bottom:1px solid var(--line-soft); }
+  .rmx-items li:first-child { padding-top:2px; }
+  .rmx-items li:last-child { border-bottom:0; padding-bottom:2px; }
+  .rmx-items .ic { width:7px; height:7px; margin-top:6px; border-radius:999px; background:var(--ink-4); flex:none; }
+  .rmx-items strong { color:var(--ink); font-weight:640; }
+  .rmx-details { margin-top:auto; display:inline-flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; }
+  .rmx-details .db { width:26px; height:26px; border-radius:7px; background:var(--ink); color:#fff; display:grid; place-items:center; flex:none; }
+
+  .rmx-disclaimer { margin-top:30px; padding-top:18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-3); line-height:1.6; max-width:720px; }
+  .rmx-disclaimer b { color:var(--ink-2); font-weight:600; }
+  .rmx-disclaimer p { margin:0 0 8px; }
 </style>
 </head>
 <body>
@@ -81,137 +94,121 @@
 
 <main class="roadmap">
   <h1>Roadmap</h1>
-  <p class="subtitle">What's planned, in development and recently released across Tamanu. Filter by status or search for a feature.</p>
+  <p class="subtitle">A best-estimate view of major developments in Tamanu, from recently released to planned. Move along the timeline to see each release.</p>
 
-  <div class="rm-toolbar">
-    <div class="rm-search">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" placeholder="Search the roadmap" />
-    </div>
-    <div class="rm-chips">
-      <button class="rm-chip active" data-status="all">All</button>
-      <button class="rm-chip" data-status="planned"><span class="dot planned"></span> Planned</button>
-      <button class="rm-chip" data-status="dev"><span class="dot dev"></span> In development</button>
-      <button class="rm-chip" data-status="released"><span class="dot released"></span> Released</button>
-    </div>
-  </div>
-  <div class="rm-count"></div>
-
-  <div class="rm-list">
-    <div class="rm-card" data-status="dev" data-text="offline-first patient search on mobile mobile">
-      <div class="top">
-        <span class="rm-status"><span class="dot dev"></span> In development</span>
-        <h3>Offline-first patient search on mobile</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Search and open patient records on the mobile app while offline, syncing changes when a connection returns.</p>
-      <div class="rm-meta"><span><b>Category</b>Mobile</span><span><b>Platform</b>Mobile</span><span><b>Target</b>v2.65</span><span><b>Updated</b>05-09-2026</span><span><b>ID</b>TAM-2101</span></div>
-      <div class="rm-detail">Outreach teams often work without connectivity. This brings the local patient cache to search so a clinician can find and view a patient offline, with edits queued for the next sync.</div>
-    </div>
-
-    <div class="rm-card" data-status="dev" data-text="fhir medicationdispense resource central">
-      <div class="top">
-        <span class="rm-status"><span class="dot dev"></span> In development</span>
-        <h3>FHIR MedicationDispense resource</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Expose dispensed medications as a materialised FHIR MedicationDispense resource for external systems.</p>
-      <div class="rm-meta"><span><b>Category</b>FHIR</span><span><b>Platform</b>Central</span><span><b>Target</b>v2.65</span><span><b>Updated</b>04-09-2026</span><span><b>ID</b>TAM-2075</span></div>
-      <div class="rm-detail">Completes the medication FHIR surface so integrated pharmacy and reporting systems can read what was dispensed, not only what was prescribed.</div>
-    </div>
-
-    <div class="rm-card" data-status="planned" data-text="configurable discharge summary templates encounters desktop">
-      <div class="top">
-        <span class="rm-status"><span class="dot planned"></span> Planned</span>
-        <h3>Configurable discharge summary templates</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Let deployments define the layout and included sections of the discharge summary document.</p>
-      <div class="rm-meta"><span><b>Category</b>Encounters</span><span><b>Platform</b>Desktop</span><span><b>Target</b>v2.66</span><span><b>Updated</b>02-09-2026</span><span><b>ID</b>TAM-2088</span></div>
-      <div class="rm-detail">Facilities have different discharge document requirements. This adds a configurable template so the summary reflects each deployment's format without a code change.</div>
-    </div>
-
-    <div class="rm-card" data-status="planned" data-text="bulk appointment rescheduling scheduling desktop">
-      <div class="top">
-        <span class="rm-status"><span class="dot planned"></span> Planned</span>
-        <h3>Bulk appointment rescheduling</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Move or cancel a whole clinic's appointments at once when a session is rescheduled.</p>
-      <div class="rm-meta"><span><b>Category</b>Scheduling</span><span><b>Platform</b>Desktop</span><span><b>Target</b>v2.67</span><span><b>Updated</b>01-09-2026</span><span><b>ID</b>TAM-2110</span></div>
-      <div class="rm-detail">When a clinician is away or a room closes, staff currently reschedule each booking by hand. This adds a bulk action to move or cancel a session's appointments together.</div>
-    </div>
-
-    <div class="rm-card" data-status="planned" data-text="program registry dashboards programs desktop">
-      <div class="top">
-        <span class="rm-status"><span class="dot planned"></span> Planned</span>
-        <h3>Program registry dashboards</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Summary dashboards for a program registry cohort, showing status counts and trends over time.</p>
-      <div class="rm-meta"><span><b>Category</b>Programs</span><span><b>Platform</b>Desktop</span><span><b>Target</b>Q1 2027</span><span><b>Updated</b>28-08-2026</span><span><b>ID</b>TAM-2044</span></div>
-      <div class="rm-detail">Gives program coordinators an at-a-glance view of a registry cohort rather than exporting to a report each time.</div>
-    </div>
-
-    <div class="rm-card" data-status="released" data-text="send to pharmacy from discharge and prescribing medication desktop">
-      <div class="top">
-        <span class="rm-status"><span class="dot released"></span> Released</span>
-        <h3>‘Send to pharmacy’ from discharge and prescribing</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Send medications to pharmacy at prescribing and at discharge, with encounter medications ticked by default.</p>
-      <div class="rm-meta"><span><b>Category</b>Medication</span><span><b>Platform</b>Desktop</span><span><b>Released</b>v2.62</span><span><b>Updated</b>17-08-2026</span><span><b>ID</b>TAM-1975</span></div>
-      <div class="rm-detail">Released in v2.62. <a href="#">View in release notes →</a></div>
-    </div>
-
-    <div class="rm-card" data-status="released" data-text="automatic encounter bed and inpatient fees invoicing desktop">
-      <div class="top">
-        <span class="rm-status"><span class="dot released"></span> Released</span>
-        <h3>Automatic encounter, bed and inpatient fees</h3>
-        <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
-      </div>
-      <p class="desc">Routine encounter, bed and inpatient charges are added to invoices automatically as care happens.</p>
-      <div class="rm-meta"><span><b>Category</b>Invoicing</span><span><b>Platform</b>Desktop</span><span><b>Released</b>v2.61</span><span><b>Updated</b>10-08-2026</span><span><b>ID</b>TAM-1990</span></div>
-      <div class="rm-detail">Released in v2.61. <a href="#">View in release notes →</a></div>
-    </div>
+  <div class="rmx-legend">
+    <span class="item"><span class="mk done"></span> Released</span>
+    <span class="item"><span class="mk planned"></span> Planned</span>
   </div>
 
-  <div class="rm-empty">No roadmap items match your search.</div>
+  <div class="rmx-nav">
+    <button class="rmx-prev" aria-label="Earlier"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="rmx-next" aria-label="Later"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+  </div>
+
+  <div class="rmx-scroll">
+    <div class="rmx-track">
+      <div class="rmx-row top">
+        <div class="rmx-cell">
+          <div class="rmx-card">
+            <div class="rmx-card-head"><span class="rmx-period">V2.24 · Jan 25</span><span class="rmx-badge done"><span class="d"></span> Released</span></div>
+            <ul class="rmx-items">
+              <li><span class="ic"></span><span>Improved <strong>scheduling and appointments module</strong>, including ability to book rooms and other locations</span></li>
+              <li><span class="ic"></span><span><strong>Clinician dashboard</strong>, new landing experience for users</span></li>
+            </ul>
+            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
+          </div>
+        </div>
+        <div class="rmx-cell"></div>
+        <div class="rmx-cell">
+          <div class="rmx-card">
+            <div class="rmx-card-head"><span class="rmx-period">V2.40 · Sept 25</span><span class="rmx-badge done"><span class="d"></span> Released</span></div>
+            <ul class="rmx-items">
+              <li><span class="ic"></span><span><strong>Medication charts</strong>, including medication administration record and improvements to the 'ongoing medications' module</span></li>
+              <li><span class="ic"></span><span><strong>Desktop charting</strong> to support speciality-specific documentation as well as standard clinical assessments such as wound management and pain assessments</span></li>
+              <li><span class="ic"></span><span>Inclusion of 'Form' features into the <strong>procedures workflow</strong> allowing virtually any data to be collected against a procedure in configurable form fields</span></li>
+            </ul>
+            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
+          </div>
+        </div>
+        <div class="rmx-cell"></div>
+        <div class="rmx-cell">
+          <div class="rmx-card">
+            <div class="rmx-card-head"><span class="rmx-period">Jan – Mar 2026</span><span class="rmx-badge planned"><span class="d"></span> Planned</span></div>
+            <ul class="rmx-items">
+              <li><span class="ic"></span><span>Enhancements to the <strong>invoicing module</strong> to support automated invoice generation, and more flexible and adaptable pricing structures</span></li>
+              <li><span class="ic"></span><span><strong>Medication dispensing</strong>, ability to send medication orders to pharmacy and track dispensing</span></li>
+              <li><span class="ic"></span><span>Expansion of FHIR API to <strong>send prescriptions to mSupply</strong></span></li>
+              <li><span class="ic"></span><span>Expansion of FHIR API to <strong>receive lab results directly to Tamanu from</strong> SENAITE</span></li>
+            </ul>
+            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
+          </div>
+        </div>
+        <div class="rmx-cell"></div>
+      </div>
+
+      <div class="rmx-row axis">
+        <div class="rmx-cell"><span class="rmx-marker done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+        <div class="rmx-cell"><span class="rmx-marker done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+        <div class="rmx-cell"><span class="rmx-marker done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+        <div class="rmx-cell"><span class="rmx-marker planned"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+        <div class="rmx-cell"><span class="rmx-marker planned"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+        <div class="rmx-cell"><span class="rmx-marker planned"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+      </div>
+
+      <div class="rmx-row bottom">
+        <div class="rmx-cell"></div>
+        <div class="rmx-cell">
+          <div class="rmx-card">
+            <div class="rmx-card-head"><span class="rmx-period">V2.34 · Jun 25</span><span class="rmx-badge done"><span class="d"></span> Released</span></div>
+            <ul class="rmx-items">
+              <li><span class="ic"></span><span>Enhancements to <strong>auditability capabilities</strong></span></li>
+              <li><span class="ic"></span><span>Enhancements to <strong>program registries</strong> to capture <strong>condition categories</strong></span></li>
+              <li><span class="ic"></span><span><strong>Intelligent patient duplicate detection</strong> on new patient creation</span></li>
+            </ul>
+            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
+          </div>
+        </div>
+        <div class="rmx-cell"></div>
+        <div class="rmx-cell">
+          <div class="rmx-card">
+            <div class="rmx-card-head"><span class="rmx-period">Oct – Dec 2025</span><span class="rmx-badge planned"><span class="d"></span> Planned</span></div>
+            <ul class="rmx-items">
+              <li><span class="ic"></span><span>Secure <strong>Patient Portal</strong> pulling all of a patient's key health information into one place, additionally supports patient form completion and reminders</span></li>
+              <li><span class="ic"></span><span>Enhancements to <strong>location bookings</strong> to support a daily view and allocation of surgical lists</span></li>
+              <li><span class="ic"></span><span>Ability to <strong>link a chart to a program registry</strong> enabling viewing chart entries across encounters</span></li>
+              <li><span class="ic"></span><span>Enhancements to streamline the <strong>encounter management</strong> workflow</span></li>
+            </ul>
+            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
+          </div>
+        </div>
+        <div class="rmx-cell"></div>
+        <div class="rmx-cell">
+          <div class="rmx-card">
+            <div class="rmx-card-head"><span class="rmx-period">Apr – Jun 2026</span><span class="rmx-badge planned"><span class="d"></span> Planned</span></div>
+            <ul class="rmx-items">
+              <li><span class="ic"></span><span>Customisable <strong>Early Warning Score (EWS)</strong> for identification of patients at risk of clinical deterioration</span></li>
+              <li><span class="ic"></span><span>Enhancements to <strong>program forms</strong> to edit a program response</span></li>
+              <li><span class="ic"></span><span><strong>Admin panel</strong> enhancements to streamline Tamanu configuration including an interface to manage permissions</span></li>
+            </ul>
+            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rmx-disclaimer">
+    <p><b>Disclaimer.</b> The presented roadmap is a dynamic plan intended to communicate the 'best estimate' for planned features in Tamanu and is subject to change. It focuses on major developments including new features and major enhancements — it does not include all new features, performance improvements, regular maintenance or bug fixes.</p>
+    <p>Please continue to liaise with your respective project managers or contact support@tamanu.io for specific release plans and dates.</p>
+  </div>
 </main>
 
 <script>
-  const view = document.querySelector('main.roadmap');
-  const rmSearch = view.querySelector('.rm-search input');
-  const chips = Array.from(view.querySelectorAll('.rm-chip'));
-  const cards = Array.from(view.querySelectorAll('.rm-card'));
-  const count = view.querySelector('.rm-count');
-  const empty = view.querySelector('.rm-empty');
-  let status = 'all';
-  function apply(){
-    const q = rmSearch.value.trim().toLowerCase();
-    let n = 0;
-    cards.forEach(c=>{
-      const okStatus = status==='all' || c.dataset.status===status;
-      const okText = !q || c.dataset.text.includes(q);
-      const show = okStatus && okText;
-      c.hidden = !show;
-      if (show) n++;
-    });
-    count.textContent = n + (n===1 ? ' item' : ' items');
-    empty.style.display = n ? 'none' : 'block';
-  }
-  rmSearch.addEventListener('input', apply);
-  chips.forEach(ch=> ch.addEventListener('click', ()=>{
-    chips.forEach(x=> x.classList.remove('active'));
-    ch.classList.add('active');
-    status = ch.dataset.status;
-    apply();
-  }));
-  cards.forEach(c=> c.addEventListener('click', (e)=>{
-    if (e.target.closest('a')) return;
-    c.classList.toggle('open');
-  }));
-  apply();
+  const scroll = document.querySelector('.rmx-scroll');
+  const step = 704;
+  document.querySelector('.rmx-prev').addEventListener('click', ()=> scroll.scrollBy({ left:-step, behavior:'smooth' }));
+  document.querySelector('.rmx-next').addEventListener('click', ()=> scroll.scrollBy({ left: step, behavior:'smooth' }));
 </script>
 </body>
 </html>

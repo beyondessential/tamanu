@@ -26,12 +26,12 @@ Mockups under `.workhorse/design/mockups/j8/`:
   `docs/release-notes/v2-61..63.md` — every section (features, enhancements, fixes, critical upgrade
   notes, upgrade steps), the real `DD-MM-YYYY` dates, and the `[SLAB_LINK_PLACEHOLDER]` links. The
   sidebar lists only the versions that exist in the repo.
-- `roadmap.html` — a Roadmap section modelled on the Microsoft 365 roadmap "Announcements" area:
-  an interactive feed of feature cards with a text search and status filter chips (All / Planned /
-  In development / Released), each card carrying a status pill, description, metadata (Category,
-  Platform, Target/Released, Updated, ID) and expandable detail. Reachable from the top nav.
-  **Content is placeholder** — the real items come from https://www.bes.au/tamanu-roadmap/, which
-  needs an agent with web access to pull (this environment cannot fetch URLs).
+- `roadmap.html` — a Roadmap section built as a **horizontal timeline** after the Microsoft 365
+  roadmap "Latest announcements" area: period cards zig-zag above and below a central axis of status
+  markers (Released = filled, Planned = dashed), with prev/next navigation and a "View details"
+  button per card. Content is the **real Tamanu roadmap** (from https://www.bes.au/tamanu-roadmap/):
+  V2.24 Jan 25, V2.34 Jun 25, V2.40 Sept 25 (released), then Oct–Dec 2025, Jan–Mar 2026, Apr–Jun 2026
+  (planned), plus the roadmap disclaimer. Reachable from the top nav.
 - `report-issue.html` — a "Report an issue" support form: Name, Email, Country or deployment (select),
   Describe the issue (textarea), Screenshots drop zone (optional) with a "obscure patient details"
   warning, and a Submit button. Reachable from the top nav and the manuals sidebar (kept out of the
@@ -50,9 +50,10 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 ## Content sources
 
 - **Release notes** come from `docs/release-notes/*.md` in the GitHub repo (currently v2-61, v2-62, v2-63). Format: a `Released DD-MM-YYYY` line, a summary paragraph, then emoji-prefixed category headings (Major features, System enhancements, Tweaks and bug fixes, Critical upgrade notes, Upgrade steps). The mockup reproduces these by hand; the **real hub must parse the markdown at build/runtime** rather than carrying transcribed copies (the earlier mockup diverged because it was hand-summarised, not pulled). The worktree's copies were confirmed identical to `origin/main`.
-- **Roadmap** — content lives at https://www.bes.au/tamanu-roadmap/. The mockup uses placeholder
-  items; the real feed must be sourced from there (needs web access to pull, then a decision on
-  whether it is fetched live or mirrored into the repo).
+- **Roadmap** — content lives at https://www.bes.au/tamanu-roadmap/ and is now transcribed into the
+  mockup (the user supplied it). Decision still open: whether the real hub fetches it live from
+  bes.au or mirrors it into the repo, and how "View details" resolves (a per-release detail, or a
+  link into release notes for shipped items).
 - **User manuals** — source not yet decided. Some feature docs today live in Slab (release notes reference `[SLAB_LINK_PLACEHOLDER]`). Need to decide where manual content is authored and how it reaches the hub.
 
 ## Decisions taken
