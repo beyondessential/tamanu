@@ -14,8 +14,6 @@ vitest.mock('../../src/sync/saveChanges', async () => ({
 
 vitest.spyOn(saveChangeModules, 'saveCreates');
 vitest.spyOn(saveChangeModules, 'saveUpdates');
-vitest.spyOn(saveChangeModules, 'saveDeletes');
-vitest.spyOn(saveChangeModules, 'saveRestores');
 
 // the sync tick the set_updated_at_sync_tick trigger stamps on any write that does not carry the
 // INCOMING_FROM_CENTRAL_SERVER sentinel
@@ -56,8 +54,6 @@ describe('saveChangesForModel', () => {
         { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
       ]);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
 
       const newRecordInDb = await models.SurveyScreenComponent.findByPk('new_record_id');
       expect(newRecordInDb).toBeDefined();
@@ -77,8 +73,6 @@ describe('saveChangesForModel', () => {
         { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
       ]);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
 
       const newRecordInDb = await models.SurveyScreenComponent.findByPk(newRecord.id, {
         paranoid: false,
@@ -108,8 +102,6 @@ describe('saveChangesForModel', () => {
         expect.anything(),
         true,
       );
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
@@ -129,18 +121,61 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      // no restore decision, so deleted_at is left alone
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [newRecord],
+        expect.anything(),
+        true,
+      );
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
       expect(updatedRecordInDb).toBeDefined();
+      expect(updatedRecordInDb.deletedAt).not.toBeNull();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
     });
   });
 
-  describe('saveDeletes', () => {
-    it('should update record, then delete record in saveDeletes()', async () => {
+  // On central, saveUpdates merges the incoming record with the existing one field by field using
+  // updated_at_by_field. deleted_at isn’t tracked there, so left to the merge the existing (null)
+  // value would win and the delete would be silently dropped — the caller’s decision has to win.
+  describe('soft deletes on central for models with updated_at_by_field', () => {
+    it('soft deletes the record even though the field-wise merge would keep it', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const additionalData = await models.PatientAdditionalData.create(
+        fake(models.PatientAdditionalData, { patientId: patient.id, placeOfBirth: 'Here' }),
+      );
+      await additionalData.reload();
+      const {
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        deletedAt: _deletedAt,
+        updatedAtSyncTick: _tick,
+        ...pushedAdditionalData
+      } = additionalData.get({ plain: true });
+      // the field-wise merge only runs when both sides carry updated_at_by_field
+      expect(pushedAdditionalData.updatedAtByField).toBeTruthy();
+      const changes = [
+        { data: { ...pushedAdditionalData, placeOfBirth: 'There' }, isDeleted: true },
+      ];
+
+      await saveChangesForModel(models.PatientAdditionalData, changes, true, log);
+
+      const deleted = await models.PatientAdditionalData.findByPk(additionalData.id, {
+        paranoid: false,
+      });
+      expect(deleted.deletedAt).not.toBeNull();
+      expect(deleted.placeOfBirth).toBe('There');
+      expect(Number(deleted.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+
+      await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
+      await models.Patient.destroy({ where: { id: patient.id }, force: true });
+    });
+  });
+
+  describe('soft deletes', () => {
+    it('should update and soft delete the record in a single write', async () => {
       // setup test data
       const existingRecord = await models.SurveyScreenComponent.create({
         id: 'existing_record_id',
@@ -153,11 +188,13 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledWith(models.SurveyScreenComponent, [
-        newRecord,
-      ]);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      // the delete rides along on the update, so deleted_at and the tick land in one statement
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [{ ...newRecord, deletedAt: expect.any(Date) }],
+        expect.anything(),
+        true,
+      );
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
@@ -184,11 +221,12 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(1);
-      expect(saveChangeModules.saveRestores).toBeCalledWith(models.SurveyScreenComponent, [
-        newRecord,
-      ]);
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [{ ...newRecord, deletedAt: null }],
+        expect.anything(),
+        false,
+      );
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
@@ -208,13 +246,56 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      // no restore decision, so deleted_at is left alone
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [newRecord],
+        expect.anything(),
+        true,
+      );
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
       expect(updatedRecordInDb).toBeDefined();
+      expect(updatedRecordInDb.deletedAt).not.toBeNull();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
+    });
+  });
+
+  // On central, saveUpdates merges the incoming record with the existing one field by field using
+  // updated_at_by_field. deleted_at isn’t tracked there, so left to the merge the existing (null)
+  // value would win and the delete would be silently dropped — the caller’s decision has to win.
+  describe('soft deletes on central for models with updated_at_by_field', () => {
+    it('soft deletes the record even though the field-wise merge would keep it', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const additionalData = await models.PatientAdditionalData.create(
+        fake(models.PatientAdditionalData, { patientId: patient.id, placeOfBirth: 'Here' }),
+      );
+      await additionalData.reload();
+      const {
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        deletedAt: _deletedAt,
+        updatedAtSyncTick: _tick,
+        ...pushedAdditionalData
+      } = additionalData.get({ plain: true });
+      // the field-wise merge only runs when both sides carry updated_at_by_field
+      expect(pushedAdditionalData.updatedAtByField).toBeTruthy();
+      const changes = [
+        { data: { ...pushedAdditionalData, placeOfBirth: 'There' }, isDeleted: true },
+      ];
+
+      await saveChangesForModel(models.PatientAdditionalData, changes, true, log);
+
+      const deleted = await models.PatientAdditionalData.findByPk(additionalData.id, {
+        paranoid: false,
+      });
+      expect(deleted.deletedAt).not.toBeNull();
+      expect(deleted.placeOfBirth).toBe('There');
+      expect(Number(deleted.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
+
+      await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
+      await models.Patient.destroy({ where: { id: patient.id }, force: true });
     });
   });
 

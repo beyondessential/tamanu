@@ -1,6 +1,4 @@
 import config from 'config';
-import { groupBy } from 'es-toolkit';
-import { Op } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 import type { Model } from '../models/Model';
 import { mergeRecord } from './mergeRecord';
@@ -20,8 +18,8 @@ type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
 } & T;
 
 /**
- * Soft deletes and restores must write `updated_at_sync_tick` in the same statement as
- * `deleted_at`.
+ * Soft deletes, restores and field changes all land in the one write per record, so `deleted_at`
+ * is always written in the same statement as `updated_at_sync_tick`.
  *
  * Records pulled from central carry `SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER` (-1), which the
  * `set_updated_at_sync_tick` trigger stores as `LAST_UPDATED_ELSEWHERE` (-999) so the record isn’t
@@ -32,26 +30,6 @@ type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
  * Incoming records on the central server carry no tick, so the column is omitted there and the
  * trigger stamps the current tick as usual (the change still has to reach other devices).
  */
-const setDeletedAt = async (
-  model: typeof Model,
-  records: PublicSchemaRecord[],
-  deletedAt: Date | null,
-) => {
-  const recordsBySyncTick = groupBy(records, r => r.updatedAtSyncTick);
-  for (const group of Object.values(recordsBySyncTick)) {
-    const { updatedAtSyncTick } = group[0];
-    const values: Partial<PublicSchemaRecord> = { deletedAt };
-    if (updatedAtSyncTick !== undefined) values.updatedAtSyncTick = updatedAtSyncTick;
-    await model.update(values, {
-      hooks: false,
-      paranoid: false,
-      where: {
-        id: { [Op.in]: group.map(r => r.id) },
-      },
-    });
-  }
-};
-
 export const saveCreates = async (model: typeof Model, records: PublicSchemaRecord[]) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
@@ -66,7 +44,7 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
 
     if (!idsAdded.has(data.id)) {
       // soft deleted records are inserted already deleted, so deleted_at and updated_at_sync_tick
-      // land in the same statement (see setDeletedAt)
+      // land in the same statement
       deduplicated.push(
         idsSoftDeleted.has(data.id) ? { ...data, deletedAt: data.deletedAt ?? now } : data,
       );
@@ -76,6 +54,11 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
   await model.bulkCreate(deduplicated, { hooks: false });
 };
 
+/**
+ * Writes every existing record in the payload, including its `deletedAt` when the caller has
+ * decided the record is being soft deleted (`Date`) or restored (`null`). A record without a
+ * `deletedAt` key leaves that column alone.
+ */
 export const saveUpdates = async (
   model: typeof Model,
   incomingRecords: PublicSchemaRecord[],
@@ -85,8 +68,13 @@ export const saveUpdates = async (
   const recordsToSave = isCentralServer
     ? // on the central server, merge the records coming in from different clients
       incomingRecords.map(incoming => {
-        const existing = idToExistingRecord[incoming.id];
-        return mergeRecord(existing, incoming);
+        // deleted_at is not tracked in updated_at_by_field, so the field-wise merge can’t
+        // arbitrate it (it would keep the existing value, and record a bogus deleted_at entry in
+        // updated_at_by_field). Keep it out of the merge; the delete/restore decision made from
+        // isDeleted vs existing state in saveChangesForModel wins.
+        const { deletedAt, ...incomingFields } = incoming;
+        const merged = mergeRecord(idToExistingRecord[incoming.id], incomingFields);
+        return 'deletedAt' in incoming ? { ...merged, deletedAt } : merged;
       })
     : // on the facility server, trust the resolved central server version
       incomingRecords;
@@ -102,18 +90,4 @@ export const saveUpdates = async (
     const { id, ...values } = r;
     return model.update(values, { where: { id }, paranoid: false, hooks: false });
   });
-};
-
-// saveUpdates has already written any field changes for these records, so this only sets deleted_at
-export const saveDeletes = async (model: typeof Model, recordsForDelete: PublicSchemaRecord[]) => {
-  if (recordsForDelete.length === 0) return;
-  await setDeletedAt(model, recordsForDelete, new Date());
-};
-
-export const saveRestores = async (
-  model: typeof Model,
-  recordsForRestore: PublicSchemaRecord[],
-) => {
-  if (recordsForRestore.length === 0) return;
-  await setDeletedAt(model, recordsForRestore, null);
 };
