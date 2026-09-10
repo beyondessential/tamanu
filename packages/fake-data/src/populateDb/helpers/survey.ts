@@ -12,11 +12,23 @@ export const createSurveyResponse = async ({
   encounterId,
   surveyId,
 }: CreateSurveyResponseParams): Promise<void> => {
-  const { SurveyResponse } = models;
-  await SurveyResponse.create(
+  const { SurveyResponse, SurveyResponseAnswer, SurveyScreenComponent } = models;
+  const resolvedSurveyId = surveyId || (await randomRecordId(models, 'Survey'));
+  const response = await SurveyResponse.create(
     fake(SurveyResponse, {
-      surveyId: surveyId || (await randomRecordId(models, 'Survey')),
+      surveyId: resolvedSurveyId,
       encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
     }),
   );
+
+  const components = await SurveyScreenComponent.findAll({
+    where: { surveyId: resolvedSurveyId },
+    attributes: ['dataElementId'],
+  });
+  for (const { dataElementId } of components) {
+    if (!dataElementId) continue;
+    await SurveyResponseAnswer.create(
+      fake(SurveyResponseAnswer, { responseId: response.id, dataElementId }),
+    );
+  }
 };

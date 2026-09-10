@@ -110,14 +110,17 @@ export const generateImportData = async ({
     { where: { facilityId: facility.id } },
   );
 
-  const screenComponent = (surveyId: string) =>
-    SurveyScreenComponent.create(
+  const screenComponent = async (surveyId: string) => {
+    const dataElement = await ProgramDataElement.create(fake(ProgramDataElement));
+    return SurveyScreenComponent.create(
       fake(SurveyScreenComponent, {
         surveyId,
+        dataElementId: dataElement.id,
         option: '{"foo":"bar"}',
         config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
       }),
     );
+  };
   const survey = await pooledWithChild(
     Survey,
     () => Survey.create(fake(Survey)),
@@ -128,8 +131,6 @@ export const generateImportData = async ({
   const scheduledVaccine = await pooled(ScheduledVaccine, () =>
     ScheduledVaccine.create(fake(ScheduledVaccine, { vaccineId: referenceData.id })),
   );
-
-  await pooled(ProgramDataElement, () => ProgramDataElement.create(fake(ProgramDataElement)));
 
   const seedProgramRegistry = async () => {
     const program = await Program.create(fake(Program));
