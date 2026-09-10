@@ -18,7 +18,7 @@ const bodySchema = z.object({
 const syncUserEmail = deviceId =>
   `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}@sync.tamanu`;
 
-const rotateSyncUserCredentials = async (user, { displayName, password }) => {
+const reprovisionSyncUser = async (user, { displayName, password }) => {
   user.set({ displayName, role: 'admin', kind: USER_KINDS.SYNC });
   await user.setPassword(password);
   return user.save();
@@ -48,9 +48,17 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   // One transaction: the password is rotated here, so a half-applied provision would
   // leave the facility unable to log in with either the old or the new credential.
   await sequelize.transaction(async () => {
+    // Both writes below are find-then-create, and a retried or double-submitted
+    // wizard request provisions the same device twice. The account name is derived
+    // from the device, so one lock serialises both.
+    await sequelize.query(
+      `SELECT pg_advisory_xact_lock(hashtext('tamanu:sync-credentials:' || $deviceId));`,
+      { bind: { deviceId } },
+    );
+
     const existing = await User.findOne({ where: { email } });
     const syncUser = existing
-      ? await rotateSyncUserCredentials(existing, { displayName, password })
+      ? await reprovisionSyncUser(existing, { displayName, password })
       : await User.create({
           email,
           displayName,

@@ -70,6 +70,18 @@ describe('Admin sync credentials', () => {
     expect(device.registeredById).toBe(syncUser.id);
   });
 
+  it('survives concurrent provisioning of the same new device', async () => {
+    const app = await baseApp.asRole('admin');
+    const send = () =>
+      app.post(ENDPOINT).send({ deviceId: 'device-cred-race', facilityIds: ['facility-cred-a'] });
+
+    const results = await Promise.all([send(), send()]);
+
+    for (const result of results) expect(result).toHaveSucceeded();
+    const device = await models.Device.findByPk('device-cred-race');
+    expect(device.scopes).toEqual([DEVICE_SCOPES.SYNC_CLIENT]);
+  });
+
   it('provisions a dedicated sync user for an admin and returns its credentials', async () => {
     const app = await baseApp.asRole('admin');
     const result = await app
