@@ -42,6 +42,7 @@ export const presetLabelFormatter = ({ id, code, name }) => ({
 export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const StyledInstructionsTextInput = styled(TextInput)`
+  min-inline-size: 13rem;
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
   }
@@ -54,6 +55,7 @@ const StyledInstructionsTextInput = styled(TextInput)`
 // minRows height and clips longer content. The read-only path renders a styled
 // div instead, sized to its content, so wrapped lines stay visible.
 const ReadOnlyInstructions = styled.div`
+  min-inline-size: 8rem;
   background: ${TAMANU_COLORS.background};
   border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
