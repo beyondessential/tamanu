@@ -42,13 +42,11 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
 
   for (const record of records) {
     const { isDeleted: _, ...data } = record;
-
     if (!idsAdded.has(data.id)) {
-      // soft deleted records are inserted already deleted, so deleted_at and updated_at_sync_tick
-      // land in the same statement
-      deduplicated.push(
-        idsSoftDeleted.has(data.id) ? { ...data, deletedAt: fn('now') } : data,
-      );
+      // Insert soft-deleted records with `deleted_at` & `updated_at_sync_tick` landing in this
+      // INSERT. (A separate `saveDeletes` step risks needlessly bumping `updated_at_sync_tick`,
+      // which would cause facility to needlessly re-push the record.)
+      deduplicated.push(idsSoftDeleted.has(data.id) ? { ...data, deletedAt: fn('now') } : data);
       idsAdded.add(data.id);
     }
   }
