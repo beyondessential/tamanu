@@ -17,9 +17,11 @@ Tamanu repository alongside the code they describe.
       area is the starting point, and an author departs from it where a clearer name
       serves the reader better.
 - [ ] A module folder holds one file per guide.
-- [ ] Each level carries an index page listing what sits beneath it: the manuals root
+- [ ] Each level carries an `index.md` listing what sits beneath it: the manuals root
       lists the platforms, a platform lists its modules, and a module lists its guides.
 - [ ] An index entry names its target by the guide's or module's title and links to it.
+- [ ] A module's index lists its guides in the order a reader would carry the tasks out,
+      so that reading down the list follows the work rather than the alphabet.
 
 ## Platforms
 
