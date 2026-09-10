@@ -43,20 +43,21 @@ export const saveChangesForModel = async (
     return sanitized;
   };
 
+  /**
+   * Follow the same pattern for incoming records
+   * @see https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
+   */
+  const safeChanges = changes.filter(change => change.data.id);
+
   // split changes into creates and updates; soft deletes and restores ride along on the update
-  const idsForIncomingRecords = changes.filter(c => c.data.id).map(c => c.data.id);
+  const idsForIncomingRecords = safeChanges.map(c => c.data.id);
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
   const idToExistingRecord = keyBy(existingRecords, record => record.id);
-  const idToIncomingRecord = keyBy(
-    // follow the same pattern for incoming records
-    // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-    changes.filter(change => change.data.id),
-    change => change.data.id,
-  );
+  const idToIncomingRecord = keyBy(safeChanges, change => change.data.id);
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
