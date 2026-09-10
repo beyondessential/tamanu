@@ -26,8 +26,17 @@ const setDeletedAt = async (
   for (const group of Object.values(recordsBySyncTick)) {
     const { updatedAtSyncTick } = group[0];
     await model.update(
-      { deletedAt, ...(updatedAtSyncTick !== undefined && { updatedAtSyncTick }) },
-      { where: { id: { [Op.in]: group.map(r => r.id) } }, paranoid: false, hooks: false },
+      {
+        deletedAt,
+        ...(updatedAtSyncTick !== undefined && { updatedAtSyncTick }),
+      },
+      {
+        hooks: false,
+        paranoid: false,
+        where: {
+          id: { [Op.in]: group.map(r => r.id) },
+        },
+      },
     );
   }
 };
