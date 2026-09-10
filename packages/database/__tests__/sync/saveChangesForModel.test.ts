@@ -137,43 +137,6 @@ describe('saveChangesForModel', () => {
     });
   });
 
-  // On central, saveUpdates merges the incoming record with the existing one field by field using
-  // updated_at_by_field. deleted_at isn’t tracked there, so left to the merge the existing (null)
-  // value would win and the delete would be silently dropped — the caller’s decision has to win.
-  describe('soft deletes on central for models with updated_at_by_field', () => {
-    it('soft deletes the record even though the field-wise merge would keep it', async () => {
-      const patient = await models.Patient.create(fake(models.Patient));
-      const additionalData = await models.PatientAdditionalData.create(
-        fake(models.PatientAdditionalData, { patientId: patient.id, placeOfBirth: 'Here' }),
-      );
-      await additionalData.reload();
-      const {
-        createdAt: _createdAt,
-        updatedAt: _updatedAt,
-        deletedAt: _deletedAt,
-        updatedAtSyncTick: _tick,
-        ...pushedAdditionalData
-      } = additionalData.get({ plain: true });
-      // the field-wise merge only runs when both sides carry updated_at_by_field
-      expect(pushedAdditionalData.updatedAtByField).toBeTruthy();
-      const changes = [
-        { data: { ...pushedAdditionalData, placeOfBirth: 'There' }, isDeleted: true },
-      ];
-
-      await saveChangesForModel(models.PatientAdditionalData, changes, true, log);
-
-      const deleted = await models.PatientAdditionalData.findByPk(additionalData.id, {
-        paranoid: false,
-      });
-      expect(deleted.deletedAt).not.toBeNull();
-      expect(deleted.placeOfBirth).toBe('There');
-      expect(Number(deleted.updatedAtSyncTick)).toBe(CURRENT_SYNC_TICK);
-
-      await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
-      await models.Patient.destroy({ where: { id: patient.id }, force: true });
-    });
-  });
-
   describe('soft deletes', () => {
     it('should update and soft delete the record in a single write', async () => {
       // setup test data
@@ -281,8 +244,20 @@ describe('saveChangesForModel', () => {
       } = additionalData.get({ plain: true });
       // the field-wise merge only runs when both sides carry updated_at_by_field
       expect(pushedAdditionalData.updatedAtByField).toBeTruthy();
+      // a newer per-field tick so the field change wins the merge too; deleted_at has no such
+      // tick, which is exactly why it needs the override under test
       const changes = [
-        { data: { ...pushedAdditionalData, placeOfBirth: 'There' }, isDeleted: true },
+        {
+          data: {
+            ...pushedAdditionalData,
+            placeOfBirth: 'There',
+            updatedAtByField: {
+              ...pushedAdditionalData.updatedAtByField,
+              place_of_birth: CURRENT_SYNC_TICK + 1,
+            },
+          },
+          isDeleted: true,
+        },
       ];
 
       await saveChangesForModel(models.PatientAdditionalData, changes, true, log);
