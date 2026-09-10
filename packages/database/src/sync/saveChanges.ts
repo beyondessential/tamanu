@@ -1,4 +1,5 @@
 import config from 'config';
+import { fn, Utils } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 import type { Model } from '../models/Model';
 import { mergeRecord } from './mergeRecord';
@@ -13,7 +14,8 @@ type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
   createdAt: Date | null;
   /** Non-nullable in most tables */
   updatedAt: Date | null;
-  deletedAt: Date | null;
+  /** A `Fn` when the write itself stamps the time, e.g. `fn('now')` */
+  deletedAt: Date | Utils.Fn | null;
   updatedAtSyncTick: string;
 } & T;
 
@@ -37,7 +39,6 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
   const deduplicated = [];
   const idsAdded = new Set();
   const idsSoftDeleted = new Set(records.filter(row => row.isDeleted).map(row => row.id));
-  const now = new Date();
 
   for (const record of records) {
     const { isDeleted: _, ...data } = record;
@@ -46,7 +47,7 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
       // soft deleted records are inserted already deleted, so deleted_at and updated_at_sync_tick
       // land in the same statement
       deduplicated.push(
-        idsSoftDeleted.has(data.id) ? { ...data, deletedAt: data.deletedAt ?? now } : data,
+        idsSoftDeleted.has(data.id) ? { ...data, deletedAt: fn('now') } : data,
       );
       idsAdded.add(data.id);
     }
