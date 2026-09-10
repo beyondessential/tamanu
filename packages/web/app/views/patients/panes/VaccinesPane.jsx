@@ -50,6 +50,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [isDeleteAdministeredModalOpen, setIsDeleteAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
+  const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
   const queryClient = useQueryClient();
   const [vaccineRefreshCount, updateVaccineRefreshCount] = useRefreshCount();
@@ -203,6 +204,8 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
         <ImmunisationsTable
           key={vaccineRefreshCount}
           patient={patient}
+          includeNotGiven={includeNotGiven}
+          setIncludeNotGiven={setIncludeNotGiven}
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}
           onItemDeleteClick={id => handleOpenDeleteModal(id)}
