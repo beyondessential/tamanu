@@ -1,5 +1,5 @@
 import config from 'config';
-import { Sequelize } from 'sequelize';
+import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging/log';
@@ -77,7 +77,7 @@ export const saveChangesForModel = async (
   // same statement as the rest of the record (see saveUpdates); records with no decision leave
   // deleted_at untouched
   const deletedAtFor = (id: string) => {
-    if (idsForDelete.has(id)) return new Date();
+    if (idsForDelete.has(id)) return fn('now');
     if (idsForRestore.has(id)) return null;
     return undefined;
   };

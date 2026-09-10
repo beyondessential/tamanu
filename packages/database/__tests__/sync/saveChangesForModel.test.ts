@@ -191,7 +191,7 @@ describe('saveChangesForModel', () => {
       // the delete rides along on the update, so deleted_at and the tick land in one statement
       expect(saveChangeModules.saveUpdates).toBeCalledWith(
         models.SurveyScreenComponent,
-        [{ ...newRecord, deletedAt: expect.any(Date) }],
+        [{ ...newRecord, deletedAt: expect.objectContaining({ fn: 'now' }) }],
         expect.anything(),
         true,
       );
