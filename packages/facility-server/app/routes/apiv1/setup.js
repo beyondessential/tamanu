@@ -4,6 +4,7 @@ import ipaddr from 'ipaddr.js';
 
 import { TamanuApi } from '@tamanu/api-client';
 import {
+  DEVICE_SCOPES,
   SERVER_TYPES,
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
@@ -100,7 +101,12 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
 
   let loginResult;
   try {
-    loginResult = await probe.login(email, password, { scopes: [], backoff: { maxAttempts: 1 } });
+    // Central pins a device's scopes at first registration and refuses a later
+    // login asking for more, and this is the device the sync process uses.
+    loginResult = await probe.login(email, password, {
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      backoff: { maxAttempts: 1 },
+    });
   } catch (error) {
     // Generic message, no host/password logged — don't leak which hosts respond.
     log.warn(`Sync setup validation failed: ${error.type ?? error.name}`);
