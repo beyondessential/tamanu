@@ -58,7 +58,8 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
   // because it has a lab request attached
   const deduplicated = [];
   const idsAdded = new Set();
-  const idsForSoftDeleted = new Set(records.filter(row => row.isDeleted).map(row => row.id));
+  const idsSoftDeleted = new Set(records.filter(row => row.isDeleted).map(row => row.id));
+  const now = new Date();
 
   for (const record of records) {
     const { isDeleted: _isDeleted, ...data } = record;
@@ -67,9 +68,7 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
       // soft deleted records are inserted already deleted, so deleted_at and updated_at_sync_tick
       // land in the same statement (see setDeletedAt)
       deduplicated.push(
-        idsForSoftDeleted.has(data.id)
-          ? { ...data, deletedAt: data.deletedAt ?? new Date() }
-          : data,
+        idsSoftDeleted.has(data.id) ? { ...data, deletedAt: data.deletedAt ?? now } : data,
       );
       idsAdded.add(data.id);
     }
