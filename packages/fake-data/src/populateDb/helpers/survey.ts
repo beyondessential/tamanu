@@ -12,7 +12,8 @@ export const createSurveyResponse = async ({
   encounterId,
   surveyId,
 }: CreateSurveyResponseParams): Promise<void> => {
-  const { SurveyResponse, SurveyResponseAnswer, SurveyScreenComponent } = models;
+  const { ProgramDataElement, SurveyResponse, SurveyResponseAnswer, SurveyScreenComponent } =
+    models;
   const resolvedSurveyId = surveyId || (await randomRecordId(models, 'Survey'));
   const response = await SurveyResponse.create(
     fake(SurveyResponse, {
@@ -23,12 +24,18 @@ export const createSurveyResponse = async ({
 
   const components = await SurveyScreenComponent.findAll({
     where: { surveyId: resolvedSurveyId },
-    attributes: ['dataElementId'],
   });
-  for (const { dataElementId } of components) {
-    if (!dataElementId) continue;
+  for (const component of components) {
+    // Older seeds carry components with no data element, which leaves nothing to answer.
+    if (!component.dataElementId) {
+      const dataElement = await ProgramDataElement.create(fake(ProgramDataElement));
+      await component.update({ dataElementId: dataElement.id });
+    }
     await SurveyResponseAnswer.create(
-      fake(SurveyResponseAnswer, { responseId: response.id, dataElementId }),
+      fake(SurveyResponseAnswer, {
+        responseId: response.id,
+        dataElementId: component.dataElementId,
+      }),
     );
   }
 };
