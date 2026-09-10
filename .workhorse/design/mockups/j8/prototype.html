@@ -208,6 +208,40 @@
   .btn-primary:hover { opacity:0.88; }
   .form-note { font-size:12.5px; color:var(--ink-4); }
 
+  /* ---------- roadmap ---------- */
+  main.roadmap { max-width:900px; margin:0 auto; padding:44px 24px 100px; }
+  .roadmap h1 { font-size:32px; letter-spacing:-0.025em; margin:0 0 10px; font-weight:680; }
+  .roadmap .subtitle { font-size:16px; color:var(--ink-3); margin:0 0 26px; }
+  .rm-toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+  .rm-search { flex:1; min-width:220px; display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:10px 13px; color:var(--ink-3); }
+  .rm-search input { border:none; outline:none; font:inherit; font-size:14px; flex:1; background:transparent; color:var(--ink); }
+  .rm-chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .rm-chip { border:1px solid var(--line); background:var(--bg); border-radius:999px; padding:7px 13px; font-size:13px; color:var(--ink-2); cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
+  .rm-chip:hover { border-color:#cfcfd4; }
+  .rm-chip.active { border-color:var(--ink); background:var(--ink); color:#fff; }
+  .rm-chip .dot { width:8px; height:8px; border-radius:999px; }
+  .rm-chip.active .dot { filter:invert(1) grayscale(1) brightness(2); }
+  .dot.planned { border:1.5px solid var(--ink-4); }
+  .dot.dev { background:var(--ink-3); }
+  .dot.released { background:var(--ink); }
+  .rm-count { font-size:13px; color:var(--ink-3); margin:8px 2px 16px; }
+  .rm-list { display:flex; flex-direction:column; gap:12px; }
+  .rm-card { border:1px solid var(--line); border-radius:12px; padding:18px 20px; cursor:pointer; transition:border-color .12s; }
+  .rm-card:hover { border-color:#cfcfd4; }
+  .rm-card .top { display:flex; align-items:center; gap:12px; }
+  .rm-status { border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:12px; font-weight:600; color:var(--ink-2); display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
+  .rm-status .dot { width:8px; height:8px; border-radius:999px; }
+  .rm-card h3 { font-size:16px; margin:0; font-weight:620; letter-spacing:-0.005em; }
+  .rm-card .chevron { margin-left:auto; color:var(--ink-4); transition:transform .15s; flex:none; }
+  .rm-card.open .chevron { transform:rotate(180deg); }
+  .rm-card p.desc { margin:10px 0 12px; color:var(--ink-2); font-size:14px; line-height:1.55; }
+  .rm-meta { display:flex; flex-wrap:wrap; gap:8px 16px; font-size:12.5px; color:var(--ink-3); }
+  .rm-meta span b { color:var(--ink-2); font-weight:600; margin-right:4px; }
+  .rm-detail { margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft); color:var(--ink-2); font-size:14px; line-height:1.6; display:none; }
+  .rm-card.open .rm-detail { display:block; }
+  .rm-detail a { color:var(--ink); font-weight:600; text-decoration:underline; }
+  .rm-empty { text-align:center; color:var(--ink-3); font-size:14px; padding:44px 0; display:none; }
+
   /* ---------- scrim ---------- */
   #scrim { position:fixed; inset:0; background:rgba(20,20,22,0.28); z-index:40; }
 
@@ -300,6 +334,7 @@
     <nav class="links">
       <a data-goto="manuals" data-nav="manuals">User manuals</a>
       <a data-goto="releases" data-nav="releases">Release notes</a>
+      <a data-goto="roadmap" data-nav="roadmap">Roadmap</a>
       <a data-goto="report" data-nav="report">Report an issue</a>
     </nav>
     <div class="nav-right" id="nav-right" hidden>
@@ -894,6 +929,109 @@
   </main>
 </section>
 
+<!-- ============ VIEW: ROADMAP ============ -->
+<section data-view="roadmap" hidden>
+  <main class="roadmap">
+    <h1>Roadmap</h1>
+    <p class="subtitle">What's planned, in development and recently released across Tamanu. Filter by status or search for a feature.</p>
+
+    <div class="rm-toolbar">
+      <div class="rm-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search the roadmap" />
+      </div>
+      <div class="rm-chips">
+        <button class="rm-chip active" data-status="all">All</button>
+        <button class="rm-chip" data-status="planned"><span class="dot planned"></span> Planned</button>
+        <button class="rm-chip" data-status="dev"><span class="dot dev"></span> In development</button>
+        <button class="rm-chip" data-status="released"><span class="dot released"></span> Released</button>
+      </div>
+    </div>
+    <div class="rm-count"></div>
+
+    <div class="rm-list">
+      <div class="rm-card" data-status="dev" data-text="offline-first patient search on mobile find patients without a connection mobile">
+        <div class="top">
+          <span class="rm-status"><span class="dot dev"></span> In development</span>
+          <h3>Offline-first patient search on mobile</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Search and open patient records on the mobile app while offline, syncing changes when a connection returns.</p>
+        <div class="rm-meta"><span><b>Category</b>Mobile</span><span><b>Platform</b>Mobile</span><span><b>Target</b>v2.65</span><span><b>Updated</b>05-09-2026</span><span><b>ID</b>TAM-2101</span></div>
+        <div class="rm-detail">Outreach teams often work without connectivity. This brings the local patient cache to search so a clinician can find and view a patient offline, with edits queued for the next sync.</div>
+      </div>
+
+      <div class="rm-card" data-status="dev" data-text="fhir medicationdispense resource dispensed medications external systems central">
+        <div class="top">
+          <span class="rm-status"><span class="dot dev"></span> In development</span>
+          <h3>FHIR MedicationDispense resource</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Expose dispensed medications as a materialised FHIR MedicationDispense resource for external systems.</p>
+        <div class="rm-meta"><span><b>Category</b>FHIR</span><span><b>Platform</b>Central</span><span><b>Target</b>v2.65</span><span><b>Updated</b>04-09-2026</span><span><b>ID</b>TAM-2075</span></div>
+        <div class="rm-detail">Completes the medication FHIR surface so integrated pharmacy and reporting systems can read what was dispensed, not only what was prescribed.</div>
+      </div>
+
+      <div class="rm-card" data-status="planned" data-text="configurable discharge summary templates encounters desktop">
+        <div class="top">
+          <span class="rm-status"><span class="dot planned"></span> Planned</span>
+          <h3>Configurable discharge summary templates</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Let deployments define the layout and included sections of the discharge summary document.</p>
+        <div class="rm-meta"><span><b>Category</b>Encounters</span><span><b>Platform</b>Desktop</span><span><b>Target</b>v2.66</span><span><b>Updated</b>02-09-2026</span><span><b>ID</b>TAM-2088</span></div>
+        <div class="rm-detail">Facilities have different discharge document requirements. This adds a configurable template so the summary reflects each deployment's format without a code change.</div>
+      </div>
+
+      <div class="rm-card" data-status="planned" data-text="bulk appointment rescheduling scheduling desktop move clinic">
+        <div class="top">
+          <span class="rm-status"><span class="dot planned"></span> Planned</span>
+          <h3>Bulk appointment rescheduling</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Move or cancel a whole clinic's appointments at once when a session is rescheduled.</p>
+        <div class="rm-meta"><span><b>Category</b>Scheduling</span><span><b>Platform</b>Desktop</span><span><b>Target</b>v2.67</span><span><b>Updated</b>01-09-2026</span><span><b>ID</b>TAM-2110</span></div>
+        <div class="rm-detail">When a clinician is away or a room closes, staff currently reschedule each booking by hand. This adds a bulk action to move or cancel a session's appointments together.</div>
+      </div>
+
+      <div class="rm-card" data-status="planned" data-text="program registry dashboards programs desktop cohort">
+        <div class="top">
+          <span class="rm-status"><span class="dot planned"></span> Planned</span>
+          <h3>Program registry dashboards</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Summary dashboards for a program registry cohort, showing status counts and trends over time.</p>
+        <div class="rm-meta"><span><b>Category</b>Programs</span><span><b>Platform</b>Desktop</span><span><b>Target</b>Q1 2027</span><span><b>Updated</b>28-08-2026</span><span><b>ID</b>TAM-2044</span></div>
+        <div class="rm-detail">Gives program coordinators an at-a-glance view of a registry cohort rather than exporting to a report each time.</div>
+      </div>
+
+      <div class="rm-card" data-status="released" data-text="send to pharmacy from discharge and prescribing medication desktop">
+        <div class="top">
+          <span class="rm-status"><span class="dot released"></span> Released</span>
+          <h3>‘Send to pharmacy’ from discharge and prescribing</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Send medications to pharmacy at prescribing and at discharge, with encounter medications ticked by default.</p>
+        <div class="rm-meta"><span><b>Category</b>Medication</span><span><b>Platform</b>Desktop</span><span><b>Released</b>v2.62</span><span><b>Updated</b>17-08-2026</span><span><b>ID</b>TAM-1975</span></div>
+        <div class="rm-detail">Released in v2.62. <a data-goto="releases">View in release notes →</a></div>
+      </div>
+
+      <div class="rm-card" data-status="released" data-text="automatic encounter bed and inpatient fees invoicing desktop">
+        <div class="top">
+          <span class="rm-status"><span class="dot released"></span> Released</span>
+          <h3>Automatic encounter, bed and inpatient fees</h3>
+          <span class="chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+        </div>
+        <p class="desc">Routine encounter, bed and inpatient charges are added to invoices automatically as care happens.</p>
+        <div class="rm-meta"><span><b>Category</b>Invoicing</span><span><b>Platform</b>Desktop</span><span><b>Released</b>v2.61</span><span><b>Updated</b>10-08-2026</span><span><b>ID</b>TAM-1990</span></div>
+        <div class="rm-detail">Released in v2.61. <a data-goto="releases">View in release notes →</a></div>
+      </div>
+    </div>
+
+    <div class="rm-empty">No roadmap items match your search.</div>
+  </main>
+</section>
+
 <!-- ============ OVERLAYS ============ -->
 <div id="scrim" hidden></div>
 
@@ -1140,6 +1278,43 @@
     if (e.key==='Escape'){ closeOverlays(); }
     if ((e.key==='/'||(e.key==='k'&&(e.metaKey||e.ctrlKey))) && !typing){ e.preventDefault(); openSearch(); }
   });
+
+  // Roadmap: status filter chips, text search, and expandable cards
+  (function(){
+    const view = document.querySelector('[data-view="roadmap"]');
+    if (!view) return;
+    const rmSearch = view.querySelector('.rm-search input');
+    const chips = Array.from(view.querySelectorAll('.rm-chip'));
+    const cards = Array.from(view.querySelectorAll('.rm-card'));
+    const count = view.querySelector('.rm-count');
+    const empty = view.querySelector('.rm-empty');
+    let status = 'all';
+    function apply(){
+      const q = rmSearch.value.trim().toLowerCase();
+      let n = 0;
+      cards.forEach(c=>{
+        const okStatus = status==='all' || c.dataset.status===status;
+        const okText = !q || c.dataset.text.includes(q);
+        const show = okStatus && okText;
+        c.hidden = !show;
+        if (show) n++;
+      });
+      count.textContent = n + (n===1 ? ' item' : ' items');
+      empty.style.display = n ? 'none' : 'block';
+    }
+    rmSearch.addEventListener('input', apply);
+    chips.forEach(ch=> ch.addEventListener('click', ()=>{
+      chips.forEach(x=> x.classList.remove('active'));
+      ch.classList.add('active');
+      status = ch.dataset.status;
+      apply();
+    }));
+    cards.forEach(c=> c.addEventListener('click', (e)=>{
+      if (e.target.closest('[data-goto]')) return; // let a link navigate instead of toggling
+      c.classList.toggle('open');
+    }));
+    apply();
+  })();
 </script>
 </body>
 </html>
