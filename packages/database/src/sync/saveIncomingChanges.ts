@@ -104,12 +104,13 @@ export const saveChangesForModel = async (
     return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
   };
 
-  const recordsForCreate = changes
-    .filter(c => idToExistingRecord[c.data.id] === undefined)
-    .map(c => toRecordToWrite(c.data));
-  const recordsForUpdate = changes
-    .filter(c => idsForUpdate.has(c.data.id))
-    .map(c => toRecordToWrite(c.data));
+  const recordsForCreate: Record<string, any>[] = [];
+  const recordsForUpdate: Record<string, any>[] = [];
+  for (const { data } of changes) {
+    const record = toRecordToWrite(data);
+    if (idToExistingRecord[data.id] === undefined) recordsForCreate.push(record);
+    if (idsForUpdate.has(data.id)) recordsForUpdate.push(record);
+  }
 
   // run each import process
   log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });
