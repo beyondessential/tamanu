@@ -14,7 +14,12 @@ import {
 import { log } from '@tamanu/shared/services/logging';
 import { clearSettingsPskCache } from '@tamanu/shared/utils/crypto';
 
-import { getDeclaredFacilityIds, isServerConfigured, initServerConfig } from '../../serverConfig';
+import {
+  getDeclaredFacilityIds,
+  getDeclaredHost,
+  isServerConfigured,
+  initServerConfig,
+} from '../../serverConfig';
 import { version } from '../../serverInfo';
 
 // POST /public/setup/sync is unauthenticated (a fresh server has no users), so it's
@@ -88,10 +93,19 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))];
   const normalisedHost = new URL(host).origin;
 
-  // The boot integrity check refuses to start unless the recorded facilities are a
-  // subset of the declared ones, so anything else configures a server that runs now
-  // and won't restart. Names only what was rejected, never the declared set: this
-  // endpoint is unauthenticated.
+  // The boot integrity check refuses to start unless the recorded host matches the
+  // declared one and the recorded facilities are a subset of the declared ones, so
+  // anything else configures a server that runs now and won't restart. Names only
+  // what was rejected, never what was declared: this endpoint is unauthenticated.
+  const declaredHost = getDeclaredHost();
+  if (declaredHost && declaredHost !== normalisedHost) {
+    return res.status(422).send({
+      error: {
+        name: 'Central server not configured on this server',
+        message: 'This server is configured to sync with a different central server.',
+      },
+    });
+  }
   const declaredFacilityIds = getDeclaredFacilityIds();
   const undeclared = declaredFacilityIds?.length
     ? uniqueFacilityIds.filter(facilityId => !declaredFacilityIds.includes(facilityId))
