@@ -9,6 +9,16 @@ const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
 // We use hooks: false in all transactions here to avoid triggering side effects that may violate other records in the sync payload
 
+type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
+  id: string;
+  /** Non-nullable in most tables */
+  createdAt: Date | null;
+  /** Non-nullable in most tables */
+  updatedAt: Date | null;
+  deletedAt: Date | null;
+  updatedAtSyncTick: string;
+} & T;
+
 /**
  * Soft deletes and restores must write `updated_at_sync_tick` in the same statement as
  * `deleted_at`.
@@ -24,29 +34,25 @@ const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
  */
 const setDeletedAt = async (
   model: typeof Model,
-  records: Record<string, any>[],
+  records: PublicSchemaRecord[],
   deletedAt: Date | null,
 ) => {
-  const recordsBySyncTick = groupBy(records, r => r.updatedAtSyncTick.toString());
+  const recordsBySyncTick = groupBy(records, r => r.updatedAtSyncTick);
   for (const group of Object.values(recordsBySyncTick)) {
     const { updatedAtSyncTick } = group[0];
-    await model.update(
-      {
-        deletedAt,
-        ...(updatedAtSyncTick !== undefined && { updatedAtSyncTick }),
+    const values: Partial<PublicSchemaRecord> = { deletedAt };
+    if (updatedAtSyncTick !== undefined) values.updatedAtSyncTick = updatedAtSyncTick;
+    await model.update(values, {
+      hooks: false,
+      paranoid: false,
+      where: {
+        id: { [Op.in]: group.map(r => r.id) },
       },
-      {
-        hooks: false,
-        paranoid: false,
-        where: {
-          id: { [Op.in]: group.map(r => r.id) },
-        },
-      },
-    );
+    });
   }
 };
 
-export const saveCreates = async (model: typeof Model, records: Record<string, any>[]) => {
+export const saveCreates = async (model: typeof Model, records: PublicSchemaRecord[]) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
@@ -73,7 +79,7 @@ export const saveCreates = async (model: typeof Model, records: Record<string, a
 
 export const saveUpdates = async (
   model: typeof Model,
-  incomingRecords: Record<string, any>[],
+  incomingRecords: PublicSchemaRecord[],
   idToExistingRecord: Record<number, any>,
   isCentralServer: boolean,
 ) => {
@@ -100,14 +106,14 @@ export const saveUpdates = async (
 };
 
 // saveUpdates has already written any field changes for these records, so this only sets deleted_at
-export const saveDeletes = async (model: typeof Model, recordsForDelete: Record<string, any>[]) => {
+export const saveDeletes = async (model: typeof Model, recordsForDelete: PublicSchemaRecord[]) => {
   if (recordsForDelete.length === 0) return;
   await setDeletedAt(model, recordsForDelete, new Date());
 };
 
 export const saveRestores = async (
   model: typeof Model,
-  recordsForRestore: Record<string, any>[],
+  recordsForRestore: PublicSchemaRecord[],
 ) => {
   if (recordsForRestore.length === 0) return;
   await setDeletedAt(model, recordsForRestore, null);
