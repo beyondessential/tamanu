@@ -8,7 +8,7 @@ import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { SYNC_SESSION_DIRECTION } from './constants';
-import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
+import { saveCreates, saveUpdates } from './saveChanges';
 import type { Models } from '../types/model';
 import type { Model } from '../models/Model';
 import type { ModelSanitizeArgs, RecordType } from '../types/sync';
@@ -29,7 +29,7 @@ export const saveChangesForModel = async (
       ? model.sanitizeForCentralServer(d, sanitizeContext)
       : model.sanitizeForFacilityServer(d, sanitizeContext);
 
-  // split changes into create, update, delete
+  // split changes into creates and updates; soft deletes and restores ride along on the update
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
   // add all records that already exist in the db to the list to be updated
@@ -73,23 +73,20 @@ export const saveChangesForModel = async (
       // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
       return { ...sanitizeData(data), isDeleted };
     });
+  // the soft delete / restore decision travels with the update so deleted_at is written in the
+  // same statement as the rest of the record (see saveUpdates); records with no decision leave
+  // deleted_at untouched
+  const deletedAtFor = (id: string) => {
+    if (idsForDelete.has(id)) return new Date();
+    if (idsForRestore.has(id)) return null;
+    return undefined;
+  };
   const recordsForUpdate = changes
     .filter(r => idsForUpdate.has(r.data.id))
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const recordsForRestore = changes
-    .filter(r => idsForRestore.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const recordsForDelete = changes
-    .filter(r => idsForDelete.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
+      const deletedAt = deletedAtFor(data.id);
+      return deletedAt === undefined ? sanitizeData(data) : { ...sanitizeData(data), deletedAt };
     });
 
   // run each import process
@@ -100,23 +97,11 @@ export const saveChangesForModel = async (
 
   log.debug('Sync: saveIncomingChanges: Updating existing records', {
     count: recordsForUpdate.length,
+    deleting: idsForDelete.size,
+    restoring: idsForRestore.size,
   });
   if (recordsForUpdate.length > 0) {
     await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
-  }
-
-  log.debug('Sync: saveIncomingChanges: Soft deleting old records', {
-    count: recordsForDelete.length,
-  });
-  if (recordsForDelete.length > 0) {
-    await saveDeletes(model, recordsForDelete);
-  }
-
-  log.debug('Sync: saveIncomingChanges: Restoring deleted records', {
-    count: recordsForRestore.length,
-  });
-  if (recordsForRestore.length > 0) {
-    await saveRestores(model, recordsForRestore);
   }
 };
 
