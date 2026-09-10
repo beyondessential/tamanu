@@ -137,6 +137,11 @@ jobs:
                         export CONFIG_SYNC_DB_USERNAME="\$DB_USERNAME"
                         export CONFIG_SYNC_DB_PASSWORD="\$DB_PASSWORD"
                         node --import tsx app migrate
+                        # The operator only honours `snapshot: "false"` once ops#299 is
+                        # deployed, so until then this run leaves a snapshot behind carrying
+                        # secrets only the seed image's key reads. Scrub as the seed build
+                        # does, so anything restoring it can still be migrated.
+                        node --import tsx ../scripts/src/scrubSeedSecrets.mts
                     resources:
                       requests:
                         cpu: 250m
