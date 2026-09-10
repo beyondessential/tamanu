@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
-import { USER_KINDS, FACT_SETTINGS_PSK } from '@tamanu/constants';
+import { DEVICE_SCOPES, USER_KINDS, FACT_SETTINGS_PSK } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { ensureSettingsPsk } from '@tamanu/shared/utils/crypto';
@@ -27,7 +27,7 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   const { deviceId, facilityIds } = bodySchema.parse(req.body);
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))].sort();
 
-  const { User, LocalSystemSecret } = req.store.models;
+  const { Device, User, LocalSystemSecret } = req.store.models;
 
   const email = syncUserEmail(deviceId);
   // Summarise rather than listing every id so the display name stays short for
@@ -39,12 +39,30 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   const password = crypto.randomBytes(24).toString('base64url');
 
   const existing = await User.findOne({ where: { email } });
+  let syncUser;
   if (existing) {
     existing.set({ displayName, role: 'admin', kind: USER_KINDS.SYNC });
     await existing.setPassword(password);
-    await existing.save();
+    syncUser = await existing.save();
   } else {
-    await User.create({ email, displayName, role: 'admin', kind: USER_KINDS.SYNC, password });
+    syncUser = await User.create({
+      email,
+      displayName,
+      role: 'admin',
+      kind: USER_KINDS.SYNC,
+      password,
+    });
+  }
+
+  // The caller's probe login already registered this device under whichever admin
+  // it validated, with no scopes. Sync then logs in as the user minted above asking
+  // for sync_client, and central refuses a device asking for more than it holds.
+  const scopes = [DEVICE_SCOPES.SYNC_CLIENT];
+  const device = await Device.findByPk(deviceId);
+  if (device) {
+    await device.update({ registeredById: syncUser.id, scopes });
+  } else {
+    await Device.create({ id: deviceId, registeredById: syncUser.id, scopes });
   }
 
   // Hand the facility the deployment-wide settings PSK so secrets central

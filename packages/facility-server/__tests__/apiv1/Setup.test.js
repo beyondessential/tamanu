@@ -26,6 +26,11 @@ describe('Setup endpoints', () => {
     expect(result.body.setupRequired).toBe(false);
   });
 
+  it('GET /public/ping does not publish the declared facilities once configured', async () => {
+    const result = await baseApp.get('/api/public/ping');
+    expect(result.body).not.toHaveProperty('declaredFacilityIds');
+  });
+
   it('POST /public/setup/sync refuses a configured server (409)', async () => {
     const password = 'sup3r-secret-pw';
     const result = await baseApp.post('/api/public/setup/sync').send({

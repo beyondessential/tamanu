@@ -56,7 +56,7 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { setupSyncHandler } from './setup';
-import { isServerConfigured } from '../../serverConfig';
+import { getDeclaredFacilityIds, isServerConfigured } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -104,7 +104,15 @@ export function createApiv1({ authLimiter } = {}) {
       req.flagPermissionChecked();
       // setupRequired drives the first-run setup wizard, folded into the alive
       // check the web app already makes rather than a separate endpoint/request.
-      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
+      const setupRequired = !isServerConfigured();
+      // Prefills the wizard, and only while it can be reached: this endpoint is
+      // unauthenticated, so a configured server shouldn't publish them.
+      const declared = setupRequired ? getDeclaredFacilityIds() : null;
+      return res.send({
+        ok: 'ok',
+        setupRequired,
+        ...(declared?.length ? { declaredFacilityIds: declared } : {}),
+      });
     }),
   );
 
