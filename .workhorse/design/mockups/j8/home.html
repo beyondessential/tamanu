@@ -62,6 +62,7 @@
   .sec-title { font-size: 18px; letter-spacing: -0.01em; font-weight: 620; margin: 40px 0 18px; }
   .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .grid.two { grid-template-columns: repeat(2, 1fr); }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
 
   .lcard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; transition: border-color .12s ease, transform .12s ease; }
   .lcard:hover { border-color: #cfcfd4; transform: translateY(-1px); }
@@ -123,7 +124,7 @@
   </div>
 
   <div class="sec-title">Browse</div>
-  <div class="grid two">
+  <div class="grid three">
     <a class="lcard" href="#">
       <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></div>
       <div class="body"><h3>User manuals</h3><p>Step-by-step guides for clinical, administrative and configuration workflows.</p></div>
@@ -131,6 +132,10 @@
     <a class="lcard" href="#">
       <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></div>
       <div class="body"><h3>Release notes</h3><p>What changed in each version, with upgrade notes and recommended testing.</p></div>
+    </a>
+    <a class="lcard" href="#">
+      <div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h13l-2.5 4L17 12H4"/></svg></div>
+      <div class="body"><h3>Roadmap</h3><p>What's planned, in development and recently released across Tamanu.</p></div>
     </a>
   </div>
 </div>
