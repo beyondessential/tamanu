@@ -1,0 +1,192 @@
+<!-- spec: documentation/user-manuals.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Record a set of vitals, as the document renders</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f6f8fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #1f2328;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  /* Repo file chrome */
+  .filebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    font-size: 14px;
+  }
+  .path { color: #59636e; }
+  .path b { color: #1f2328; font-weight: 600; }
+  .filebar .sep { color: #d1d9e0; }
+
+  .file {
+    background: #ffffff;
+    border: 1px solid #d1d9e0;
+    border-radius: 0 0 6px 6px;
+    padding: 32px 40px 40px;
+  }
+
+  /* GitHub markdown rendering */
+  .md h1 {
+    font-size: 2em;
+    font-weight: 600;
+    margin: 0 0 16px;
+    padding-bottom: .3em;
+    border-bottom: 1px solid #d1d9e0;
+  }
+  .md h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin: 24px 0 16px;
+    padding-bottom: .3em;
+    border-bottom: 1px solid #d1d9e0;
+  }
+  .md p { margin: 0 0 16px; }
+  .md ol { padding-left: 2em; margin: 0 0 16px; }
+  .md ol > li { margin-bottom: 4px; }
+  .md ol > li > p { margin: 8px 0; }
+  .md strong { font-weight: 600; }
+
+  .flag { background: #fff8c5; box-shadow: 0 0 0 2px #fff8c5; border-radius: 2px; }
+
+  .note {
+    margin-top: 24px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border: 1px solid #d1d9e0;
+    border-left: 4px solid #bf8700;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #59636e;
+  }
+  .note b { color: #1f2328; }
+  .note code {
+    background: #eff1f3;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: #1f2328;
+  }
+  .note-title { display: block; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="filebar">
+    <span class="path">
+      docs <span class="sep">/</span> user-manuals <span class="sep">/</span> desktop
+      <span class="sep">/</span> vitals <span class="sep">/</span>
+      <b>record-vitals.md</b>
+    </span>
+  </div>
+
+  <div class="file">
+    <div class="md">
+
+      <h1>Record a set of vitals</h1>
+
+      <p>
+        Record a patient's observations against the encounter they are admitted under.
+        Start from the patient's encounter.
+      </p>
+
+      <p><strong>[Screenshot: the encounter view with the Vitals tab visible]</strong></p>
+
+      <h2>Steps</h2>
+
+      <ol>
+        <li>
+          <p>Open the <strong>Vitals</strong> tab.</p>
+          <p>
+            The table lists every set of vitals already recorded for this encounter. If
+            none have been recorded yet, it shows <strong>No data found</strong>.
+          </p>
+        </li>
+        <li>
+          <p>Select <strong>Record vitals</strong>.</p>
+          <p>The <strong>Record vitals</strong> window opens.</p>
+          <p><strong>[Screenshot: the Record vitals window, showing the empty form]</strong></p>
+        </li>
+        <li>
+          <p>Check <strong>Date recorded</strong>.</p>
+          <p>
+            This is filled in with the current date and time. Change it if the
+            observations were taken earlier.
+          </p>
+        </li>
+        <li>
+          <p>Enter the measurements you have taken.</p>
+          <p>
+            Fill in only the fields you have readings for and leave the rest blank. Some
+            fields work themselves out from other measurements and cannot be typed into.
+          </p>
+        </li>
+        <li>
+          <p>Select <strong>Record</strong>.</p>
+        </li>
+      </ol>
+
+      <h2>What you should see</h2>
+
+      <p>
+        The window closes and your readings appear as a new column at the left of the
+        table. The most recent set of vitals is always the first column.
+      </p>
+      <p>
+        A reading outside the normal range for the patient's age is highlighted. Rest your
+        pointer on it to see the normal range.
+      </p>
+
+      <p><strong>[Screenshot: the vitals table with the newly recorded column highlighted]</strong></p>
+
+      <h2>If something goes wrong</h2>
+
+      <p class="flag">
+        <strong>At least one recording must be entered.</strong>
+        You selected <strong>Record</strong> without entering any measurements. Enter at
+        least one reading, then try again.
+      </p>
+
+      <p class="flag">
+        <strong>*Required</strong>
+        This appears under a field that has to be filled in before you can record. Fill it
+        in, then select <strong>Record</strong> again.
+      </p>
+
+      <p class="flag">
+        <strong>Permission required.</strong>
+        Your account cannot record vitals. Contact your system administrator if you
+        believe you should be able to.
+      </p>
+
+    </div>
+  </div>
+
+  <div class="note">
+    <b class="note-title">Highlighted above: the error list does not render as written.</b>
+    In the markdown each error message sits on its own line above its explanation, but a
+    single newline inside a paragraph renders as a space, so the two collapse into one
+    run of text. The message stops being a scannable heading, which is what the error
+    convention depends on. Fixing it needs the message and its explanation to be separate
+    blocks, either by making each message a <code>###</code> heading or by putting a blank
+    line between them.
+  </div>
+
+</div>
+</body>
+</html>
