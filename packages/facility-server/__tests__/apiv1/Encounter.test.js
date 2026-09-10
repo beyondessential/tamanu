@@ -1647,6 +1647,65 @@ describe('Encounter', () => {
         expect(result.body.data[0].lastOrderedAt).toEqual('2020-01-15 14:30:00');
         expect(result.body.data[0].isLastOrderDispensed).toBe(false);
       });
+
+      // A cancelled request is soft-deleted, so it must not count as the last-sent one even when
+      // it is the most recent request on the prescription.
+      it('skips a cancelled request in favour of the newest surviving one', async () => {
+        const survivingOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date: '2020-01-01 09:00:00',
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(survivingOrder).toHaveSucceeded();
+
+        const cancelledOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date: '2020-01-10 09:00:00',
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(cancelledOrder).toHaveSucceeded();
+        const [cancelledOrderPrescription] = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: cancelledOrder.body.id },
+        });
+        await cancelledOrderPrescription.destroy();
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].lastOrderedAt).toEqual('2020-01-01 09:00:00');
+        expect(result.body.data[0].isLastOrderDispensed).toBe(false);
+      });
+
+      it('should report no last-sent state when every request has been cancelled', async () => {
+        const order = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(order).toHaveSucceeded();
+        const [orderPrescription] = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: order.body.id },
+        });
+        await orderPrescription.destroy();
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].lastOrderedAt).toBeFalsy();
+        expect(result.body.data[0].isLastOrderDispensed).toBeNull();
+      });
     });
 
     // Separate from GET /:id/medications above: the encounter medication table and the
@@ -1711,7 +1770,6 @@ describe('Encounter', () => {
         if (cancelled) {
           await orderPrescription.destroy();
         }
-        return orderPrescription;
       };
 
       const fetchStatus = async prescriptionId => {
@@ -1722,13 +1780,13 @@ describe('Encounter', () => {
         return result.body.data[prescriptionId];
       };
 
-      it('reports null for a prescription never sent to pharmacy', async () => {
+      it('reports nothing for a prescription never sent to pharmacy', async () => {
         const status = await fetchStatus(pharmacyRequestPrescription.id);
 
         expect(status).toEqual({ date: null, isCompleted: null });
       });
 
-      it('reports null when every request has been cancelled', async () => {
+      it('reports nothing when every request has been cancelled', async () => {
         await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
 
         const status = await fetchStatus(pharmacyRequestPrescription.id);
@@ -1763,7 +1821,7 @@ describe('Encounter', () => {
         expect(status).toEqual({ date: '2020-01-10 09:00:00', isCompleted: false });
       });
 
-      it('falls back to the latest dispensed request when every non-cancelled request has been dispensed', async () => {
+      it('falls back to the latest dispensed request when every surviving request has been dispensed', async () => {
         await orderPharmacyRequest({ date: '2020-01-01 09:00:00', isCompleted: true });
         await orderPharmacyRequest({ date: '2020-01-10 09:00:00', isCompleted: true });
         // A later, cancelled active request must not win over the latest genuine dispensed one.

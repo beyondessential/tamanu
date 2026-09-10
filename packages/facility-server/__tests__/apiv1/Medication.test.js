@@ -1812,6 +1812,17 @@ describe('Medication', () => {
       expect(row.lastOrderedAt).toBe('2024-10-22 09:00:00');
       expect(row.isLastOrderDispensed).toBe(false);
     });
+
+    it('reports no last-sent state when the only request has been cancelled', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      const orderPrescription = await sendToPharmacy(arranged);
+      await orderPrescription.destroy();
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeFalsy();
+      expect(row.isLastOrderDispensed).toBeNull();
+    });
   });
 
   // Separate from GET /:id/ongoing-prescriptions above: the send-to-pharmacy modal's ongoing mode
@@ -1819,7 +1830,11 @@ describe('Medication', () => {
   // still-active request, or the latest dispensed one if none are active. Cancelled (soft-deleted)
   // requests are excluded from consideration entirely.
   describe('GET /api/patient/:id/ongoing-prescriptions/pharmacy-request-status', () => {
-    const orderOn = async (ongoingPrescription, date, { isCompleted = false, cancelled = false } = {}) => {
+    const orderOn = async (
+      ongoingPrescription,
+      date,
+      { isCompleted = false, cancelled = false } = {},
+    ) => {
       const encounter = await models.Encounter.create(
         fake(models.Encounter, {
           patientId: patient.id,
@@ -1850,7 +1865,6 @@ describe('Medication', () => {
       if (cancelled) {
         await orderPrescription.destroy();
       }
-      return orderPrescription;
     };
 
     const fetchStatus = async (patientId, prescriptionId) => {
@@ -1861,7 +1875,7 @@ describe('Medication', () => {
       return result.body.data[prescriptionId];
     };
 
-    it('reports null for an ongoing prescription with no pharmacy requests', async () => {
+    it('reports nothing for an ongoing prescription with no pharmacy requests', async () => {
       const ongoingPrescription = await createOngoingPrescription({
         patientId: patient.id,
         prescriberId: app.user.id,
@@ -1872,7 +1886,7 @@ describe('Medication', () => {
       expect(status).toEqual({ date: null, isCompleted: null });
     });
 
-    it('reports null when every request has been cancelled', async () => {
+    it('reports nothing when every request has been cancelled', async () => {
       const ongoingPrescription = await createOngoingPrescription({
         patientId: patient.id,
         prescriberId: app.user.id,
@@ -1911,7 +1925,7 @@ describe('Medication', () => {
       expect(status).toEqual({ date: '2024-10-10 09:00:00', isCompleted: false });
     });
 
-    it('falls back to the latest dispensed request when every non-cancelled request has been dispensed', async () => {
+    it('falls back to the latest dispensed request when every surviving request has been dispensed', async () => {
       const ongoingPrescription = await createOngoingPrescription({
         patientId: patient.id,
         prescriberId: app.user.id,
