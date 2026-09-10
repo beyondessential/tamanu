@@ -519,6 +519,7 @@ export class CentralSyncManager {
       );
 
       // query settings table and return true if any facility has set syncAllLabRequests to true
+      /** @type {[{ syncAllLabRequests: boolean }]} */
       const [{ syncAllLabRequests }] = await sequelize.query(
         `
         SELECT EXISTS (
