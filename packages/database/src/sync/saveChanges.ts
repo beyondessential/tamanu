@@ -41,8 +41,8 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
   const idsSoftDeleted = new Set(records.filter(row => row.isDeleted).map(row => row.id));
 
   for (const record of records) {
-    const { isDeleted: _, ...data } = record;
-    if (!idsAdded.has(data.id)) {
+    if (!idsAdded.has(record.id)) {
+      const { isDeleted: _, ...data } = record;
       // Insert soft-deleted records with `deleted_at` & `updated_at_sync_tick` landing in this
       // INSERT. (A separate `saveDeletes` step risks needlessly bumping `updated_at_sync_tick`,
       // which would cause facility to needlessly re-push the record.)
