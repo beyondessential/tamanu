@@ -51,9 +51,9 @@ export const saveChangesForModel = async (
     r.get({ plain: true }),
   );
   const idToExistingRecord = keyBy(existingRecords, record => record.id);
-  // follow the same pattern for incoming records
-  // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
   const idToIncomingRecord = keyBy(
+    // follow the same pattern for incoming records
+    // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
     changes.filter(change => change.data.id),
     change => change.data.id,
   );
@@ -157,7 +157,7 @@ const saveChangesForModelInBatches = async (
       persistedCacheBatchSize,
       recordType,
     );
-    fromId = batchRecords[batchRecords.length - 1]?.id;
+    fromId = batchRecords.at(-1)?.id;
 
     try {
       log.info('Sync: Persisting cache to table', {
