@@ -1,4 +1,5 @@
 import config from 'config';
+import { keyBy } from 'es-toolkit';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -49,11 +50,12 @@ export const saveChangesForModel = async (
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
-  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  const idToExistingRecord = keyBy(existingRecords, record => record.id);
   // follow the same pattern for incoming records
   // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-  const idToIncomingRecord = Object.fromEntries(
-    changes.filter(c => c.data.id).map(e => [e.data.id, e]),
+  const idToIncomingRecord = keyBy(
+    changes.filter(change => change.data.id),
+    change => change.data.id,
   );
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
