@@ -1,9 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_SYNC_PASSWORD } from '@tamanu/constants';
+import {
+  FACT_CENTRAL_HOST,
+  FACT_FACILITY_IDS,
+  FACT_SYNC_EMAIL,
+  FACT_SYNC_PASSWORD,
+} from '@tamanu/constants';
 import { STEPS } from '../../src/steps/1783048813000-provisionSyncUser.js';
 
 vi.mock('config', () => ({
   default: {
+    serverFacilityId: 'facility-a',
     sync: {
       host: 'https://central.example.com/',
       email: 'legacy@sync.tamanu',
@@ -69,6 +75,14 @@ describe('1783048813000-provisionSyncUser', () => {
     expect(factStore.get(FACT_CENTRAL_HOST)).toBe('https://central.example.com');
     expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
     expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
+  });
+
+  it('records the facility ids, so the boot check need not reach central to stamp them', async () => {
+    const { args, factStore } = makeArgs();
+
+    await recordStep.run(args);
+
+    expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['facility-a']));
   });
 
   it('is the only step left — the swap to a dedicated user rides a sync session', () => {

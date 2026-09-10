@@ -1,5 +1,11 @@
 import config from 'config';
-import { FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_SYNC_PASSWORD } from '@tamanu/constants';
+import {
+  FACT_CENTRAL_HOST,
+  FACT_FACILITY_IDS,
+  FACT_SYNC_EMAIL,
+  FACT_SYNC_PASSWORD,
+} from '@tamanu/constants';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { END, type Steps, type StepArgs } from '../step.js';
 
 interface LegacySyncConfig {
@@ -27,12 +33,19 @@ export const STEPS: Steps = [
     async run({ sequelize, models: { LocalSystemFact, LocalSystemSecret }, log }: StepArgs) {
       const { host: legacyHost, email, password } = legacySyncConfig();
       const host = new URL(legacyHost!.trim()).origin;
+      const facilityIds = selectFacilityIds(config);
 
       await sequelize.transaction(async () => {
         await LocalSystemFact.set(FACT_CENTRAL_HOST, host);
         await LocalSystemFact.set(FACT_SYNC_EMAIL, email!);
         // Encrypted at rest, out of local_system_facts and the raw reporting role.
         await LocalSystemSecret.set(FACT_SYNC_PASSWORD, password!);
+        // Without this fact the boot integrity check logs in to central to stamp it,
+        // so a bad credential leaves the server unable to start; convergeSyncUser
+        // needs it too.
+        if (facilityIds?.length) {
+          await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(facilityIds));
+        }
       });
       log.info('provisionSyncUser: legacy sync credentials recorded to facts');
     },
