@@ -40,7 +40,7 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
   const now = new Date();
 
   for (const record of records) {
-    const { isDeleted: _isDeleted, ...data } = record;
+    const { isDeleted: _, ...data } = record;
 
     if (!idsAdded.has(data.id)) {
       // soft deleted records are inserted already deleted, so deleted_at and updated_at_sync_tick
