@@ -9,6 +9,7 @@ import {
 } from '@tamanu/constants/programRegistry';
 import { chance, fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
+import { createReferenceData } from './referenceData.js';
 
 import type {
   Department,
@@ -28,6 +29,7 @@ import type {
 export const generateImportData = async ({
   ReferenceData,
   ReferenceDataRelation,
+  ReferenceDrug,
   Facility,
   LocationGroup,
   Location,
@@ -57,17 +59,17 @@ export const generateImportData = async ({
   user: User;
   programRegistry: ProgramRegistry;
 }> => {
-  const referenceData = await ReferenceData.create(
-    fake(ReferenceData, {
-      type: REFERENCE_TYPES.DRUG,
-    }),
+  const referenceData = await createReferenceData(
+    { ReferenceData, ReferenceDrug },
+    REFERENCE_TYPES.DRUG,
   );
   // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
   // bare fake(ReferenceDataRelation) leaves referenceDataId null — central allows it (nullable
   // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
   // insert fails). Give it a valid parent and child.
-  const parentReferenceData = await ReferenceData.create(
-    fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+  const parentReferenceData = await createReferenceData(
+    { ReferenceData, ReferenceDrug },
+    REFERENCE_TYPES.DRUG,
   );
   await ReferenceDataRelation.create(
     fake(ReferenceDataRelation, {
