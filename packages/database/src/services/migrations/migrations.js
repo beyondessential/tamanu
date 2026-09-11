@@ -134,7 +134,8 @@ function logMigrationSummary(
 }
 
 // Every migration's cost, slowest first. The audit row holds the same map, but only the
-// database being migrated can read it, and a test run tears that database down.
+// database being migrated can read it, and a caller watching an upgrade or a migration
+// test run does not have it.
 function logMigrationTimings(log, durationMsPerMigration) {
   const timings = Object.entries(durationMsPerMigration)
     .sort(([, a], [, b]) => b - a)
@@ -386,18 +387,6 @@ export async function migrateUpTo({
     const durationMsPerMigration = migrationDurationsForBatch(getDurationStats(), batch);
     const totalMigrationsDurationMs = totalMigrationsDurationMsFromMap(durationMsPerMigration);
     const batchDurationMs = Date.now() - batchStart;
-
-    // The audit row is only readable from the database it describes, which a caller
-    // watching an upgrade or a migration test run does not have.
-    log.info('Migration batch timings', {
-      applied: batch.length,
-      totalMigrationsDurationMs,
-      batchDurationMs,
-      slowest: Object.entries(durationMsPerMigration)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3)
-        .map(([file, ms]) => `${file} ${ms}ms`),
-    });
 
     logMigrationSummary(log, {
       applied: batch.length,
