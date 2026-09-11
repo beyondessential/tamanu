@@ -59,7 +59,7 @@ describe('fake-data createSurveyResponse', () => {
     );
   });
 
-  it('gives a component without a data element one, then answers it', async () => {
+  it('leaves a component without a data element alone', async () => {
     const bare = await models.Survey.create(fake(models.Survey));
     const component = await models.SurveyScreenComponent.create(
       fake(models.SurveyScreenComponent, { surveyId: bare.id }),
@@ -69,8 +69,7 @@ describe('fake-data createSurveyResponse', () => {
     await createSurveyResponse({ models, encounterId: encounter.id, surveyId: bare.id });
 
     await component.reload();
-    expect(component.dataElementId).toBeTruthy();
-    const answers = await answersFor(bare.id);
-    expect(answers.map(a => a.dataElementId)).toEqual([component.dataElementId]);
+    expect(component.dataElementId).toBeNull();
+    expect(await answersFor(bare.id)).toEqual([]);
   });
 });
