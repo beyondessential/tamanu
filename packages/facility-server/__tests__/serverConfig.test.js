@@ -40,10 +40,14 @@ const makeModels = ({ facts = {}, secrets = {}, secretError = null } = {}) => {
 
 const initWith = m => initServerConfig({ context: { models: m.models } });
 
+// what the facility test config declares
+const configFacilityIds = ['balwyn', 'kerang', 'lake-charm'];
+
 describe('serverConfig', () => {
   afterEach(() => {
     delete process.env.SYNC_URL;
     delete process.env.TAMANU_FACILITY_IDS;
+    delete process.env.SYNC_FACILITY_IDS;
   });
 
   it('resolves the sync connection and facility ids from facts + secret', async () => {
@@ -96,6 +100,15 @@ describe('serverConfig', () => {
     process.env.TAMANU_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
     await initWith(makeModels());
     expect(getServerFacilityIds()).toEqual(['env-a', 'env-b']);
+  });
+
+  it('ignores the superseded SYNC_FACILITY_IDS name', async () => {
+    process.env.SYNC_FACILITY_IDS = 'old-a,old-b';
+    await initWith(makeModels());
+
+    // resolution falls through to config, as though the variable were unset
+    expect(getServerFacilityIds()).not.toContain('old-a');
+    expect(getServerFacilityIds()).toEqual(configFacilityIds);
   });
 
   it('rejects a malformed SYNC_URL with a clear error', async () => {

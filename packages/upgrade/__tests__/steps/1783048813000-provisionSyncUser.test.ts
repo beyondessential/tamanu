@@ -5,6 +5,7 @@ import {
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
 } from '@tamanu/constants';
+import config from 'config';
 import { STEPS } from '../../src/steps/1783048813000-provisionSyncUser.js';
 
 vi.mock('config', () => ({
@@ -95,6 +96,22 @@ describe('1783048813000-provisionSyncUser', () => {
       expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['env-a', 'env-b']));
     } finally {
       delete process.env.TAMANU_FACILITY_IDS;
+    }
+  });
+
+  it('records the other facts and no facility ids when config declares none', async () => {
+    const declared = (config as any).serverFacilityId;
+    delete (config as any).serverFacilityId;
+    try {
+      const { args, factStore, secretStore } = makeArgs();
+
+      await recordStep.run(args);
+
+      expect(factStore.has(FACT_FACILITY_IDS)).toBe(false);
+      expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
+      expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
+    } finally {
+      (config as any).serverFacilityId = declared;
     }
   });
 
