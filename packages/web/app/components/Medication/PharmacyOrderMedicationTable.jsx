@@ -203,8 +203,8 @@ const getColumns = (
       key: COLUMN_KEYS.LAST_SENT,
       title: <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />,
       sortable: false,
-      accessor: ({ lastOrderedAt, isLastOrderDispensed }) => (
-        <LastSentCell lastOrderedAt={lastOrderedAt} isLastOrderDispensed={isLastOrderDispensed} />
+      accessor: ({ pharmacyRequestAt, isPharmacyRequestDispensed }) => (
+        <LastSentCell sentAt={pharmacyRequestAt} isDispensed={isPharmacyRequestDispensed} />
       ),
     },
     {

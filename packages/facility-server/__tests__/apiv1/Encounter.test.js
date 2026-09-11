@@ -1708,11 +1708,10 @@ describe('Encounter', () => {
       });
     });
 
-    // Separate from GET /:id/medications above: the encounter medication table and the
-    // send-to-pharmacy modal need the request a user should act on next, not simply the most
-    // recent one — the earliest still-active request, or the latest dispensed one if none are
-    // active. Cancelled (soft-deleted) requests are excluded from consideration entirely.
-    describe('pharmacyOrder pharmacy-request-status', () => {
+    // pharmacyRequestAt/isPharmacyRequestDispensed sit alongside lastOrderedAt on the same rows and
+    // answer a different question: which request should a user act on next (the earliest still
+    // awaiting dispense, else the latest dispensed one), ignoring cancelled requests entirely.
+    describe('pharmacyOrder pharmacy request status', () => {
       let pharmacyRequestEncounter = null;
       let pharmacyRequestPrescription = null;
 
@@ -1772,34 +1771,42 @@ describe('Encounter', () => {
         }
       };
 
-      const fetchStatus = async prescriptionId => {
+      const fetchPharmacyRequest = async () => {
         const result = await app.get(
-          `/api/encounter/${pharmacyRequestEncounter.id}/medications/pharmacy-request-status?prescriptionIds=${prescriptionId}`,
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications`,
         );
         expect(result).toHaveSucceeded();
-        return result.body.data[prescriptionId];
+        const row = result.body.data.find(p => p.id === pharmacyRequestPrescription.id);
+        expect(row).toBeDefined();
+        return {
+          pharmacyRequestAt: row.pharmacyRequestAt,
+          isPharmacyRequestDispensed: row.isPharmacyRequestDispensed,
+        };
       };
 
       it('reports nothing for a prescription never sent to pharmacy', async () => {
-        const status = await fetchStatus(pharmacyRequestPrescription.id);
+        const status = await fetchPharmacyRequest();
 
-        expect(status).toEqual({ date: null, isCompleted: null });
+        expect(status).toEqual({ pharmacyRequestAt: null, isPharmacyRequestDispensed: null });
       });
 
       it('reports nothing when every request has been cancelled', async () => {
         await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
 
-        const status = await fetchStatus(pharmacyRequestPrescription.id);
+        const status = await fetchPharmacyRequest();
 
-        expect(status).toEqual({ date: null, isCompleted: null });
+        expect(status).toEqual({ pharmacyRequestAt: null, isPharmacyRequestDispensed: null });
       });
 
       it('reports the single request when there is only one', async () => {
         await orderPharmacyRequest({ date: '2020-01-01 09:00:00' });
 
-        const status = await fetchStatus(pharmacyRequestPrescription.id);
+        const status = await fetchPharmacyRequest();
 
-        expect(status).toEqual({ date: '2020-01-01 09:00:00', isCompleted: false });
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-01 09:00:00',
+          isPharmacyRequestDispensed: false,
+        });
       });
 
       it('picks the earliest active request over later active and dispensed requests', async () => {
@@ -1807,18 +1814,24 @@ describe('Encounter', () => {
         await orderPharmacyRequest({ date: '2020-01-05 09:00:00' });
         await orderPharmacyRequest({ date: '2020-01-10 09:00:00' });
 
-        const status = await fetchStatus(pharmacyRequestPrescription.id);
+        const status = await fetchPharmacyRequest();
 
-        expect(status).toEqual({ date: '2020-01-05 09:00:00', isCompleted: false });
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-05 09:00:00',
+          isPharmacyRequestDispensed: false,
+        });
       });
 
       it('ignores cancelled requests when picking the earliest active request', async () => {
         await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
         await orderPharmacyRequest({ date: '2020-01-10 09:00:00' });
 
-        const status = await fetchStatus(pharmacyRequestPrescription.id);
+        const status = await fetchPharmacyRequest();
 
-        expect(status).toEqual({ date: '2020-01-10 09:00:00', isCompleted: false });
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-10 09:00:00',
+          isPharmacyRequestDispensed: false,
+        });
       });
 
       it('falls back to the latest dispensed request when every surviving request has been dispensed', async () => {
@@ -1827,38 +1840,30 @@ describe('Encounter', () => {
         // A later, cancelled active request must not win over the latest genuine dispensed one.
         await orderPharmacyRequest({ date: '2020-01-20 09:00:00', cancelled: true });
 
-        const status = await fetchStatus(pharmacyRequestPrescription.id);
+        const status = await fetchPharmacyRequest();
 
-        expect(status).toEqual({ date: '2020-01-10 09:00:00', isCompleted: true });
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-10 09:00:00',
+          isPharmacyRequestDispensed: true,
+        });
       });
 
-      it('rejects a prescription id that does not belong to the requested encounter', async () => {
-        const otherPatient = await models.Patient.create(fake(models.Patient));
-        const otherEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          patientId: otherPatient.id,
-        });
-        const otherPrescription = await models.Prescription.create(
-          fake(models.Prescription, { patientId: otherPatient.id, prescriberId: app.user.id }),
-        );
-        await models.EncounterPrescription.create({
-          encounterId: otherEncounter.id,
-          prescriptionId: otherPrescription.id,
-        });
+      // The two rules disagree here, which is the whole reason both fields exist: the column
+      // surfaces the older outstanding request, while the recency check follows the newest send.
+      it('reports a different request to lastOrderedAt when an older request is still outstanding', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00' });
+        await orderPharmacyRequest({ date: '2020-01-20 09:00:00', isCompleted: true });
 
         const result = await app.get(
-          `/api/encounter/${pharmacyRequestEncounter.id}/medications/pharmacy-request-status?prescriptionIds=${otherPrescription.id}`,
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications`,
         );
+        expect(result).toHaveSucceeded();
+        const row = result.body.data.find(p => p.id === pharmacyRequestPrescription.id);
 
-        expect(result).toHaveRequestError();
-      });
-
-      it('rejects a request with no prescriptionIds', async () => {
-        const result = await app.get(
-          `/api/encounter/${pharmacyRequestEncounter.id}/medications/pharmacy-request-status`,
-        );
-
-        expect(result).toHaveRequestError();
+        expect(row.pharmacyRequestAt).toEqual('2020-01-01 09:00:00');
+        expect(row.isPharmacyRequestDispensed).toBe(false);
+        expect(row.lastOrderedAt).toEqual('2020-01-20 09:00:00');
+        expect(row.isLastOrderDispensed).toBe(true);
       });
     });
 

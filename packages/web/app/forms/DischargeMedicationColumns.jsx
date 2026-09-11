@@ -305,7 +305,9 @@ export const MEDICATION_COLUMNS = ({
           title: (
             <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />
           ),
-          accessor: LastSentCell,
+          accessor: ({ lastOrderedAt, isLastOrderDispensed }) => (
+            <LastSentCell sentAt={lastOrderedAt} isDispensed={isLastOrderDispensed} />
+          ),
           style: { inlineSize: COLUMN_WIDTHS.lastSent },
         },
       ]

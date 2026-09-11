@@ -3,17 +3,11 @@ import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'es-toolkit/compat';
 import { isBefore } from 'date-fns';
-import { z } from 'zod';
 import {
   createPatientSchema,
   updatePatientSchema,
 } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
-import {
-  NotFoundError,
-  InvalidParameterError,
-  InvalidOperationError,
-  ValidationError,
-} from '@tamanu/errors';
+import { NotFoundError, InvalidParameterError, ValidationError } from '@tamanu/errors';
 import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
@@ -685,71 +679,25 @@ patientRoute.get(
         ongoingPrescriptionIds,
       );
 
+      // Which single request to surface in a "last sent" column: the earliest one still awaiting
+      // dispense, else the most recent dispensed one. Distinct from lastOrderedAt above, which
+      // answers "when was this last sent" for recency checks — see getDisplayedPharmacyRequest.
+      const pharmacyRequests = await getDisplayedPharmacyRequest(
+        db,
+        'ongoing_prescription_id',
+        ongoingPrescriptionIds,
+      );
+
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
         isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
+        pharmacyRequestAt: pharmacyRequests[p.id]?.date ?? null,
+        isPharmacyRequestDispensed: pharmacyRequests[p.id]?.is_completed ?? null,
       }));
     }
 
     res.json({ data: responseData, count });
-  }),
-);
-
-const pharmacyRequestStatusQuerySchema = z
-  .object({
-    // Existence/ownership is checked against PatientOngoingPrescription below, so this only needs
-    // to reject an empty list, not enforce UUID shape.
-    prescriptionIds: z.preprocess(
-      value => (typeof value === 'string' ? value.split(',') : value),
-      z.array(z.string().min(1)).min(1),
-    ),
-  })
-  .strip();
-
-// Separate from GET /:id/ongoing-prescriptions: the send-to-pharmacy modal's ongoing mode needs to
-// know which single request (out of a medication's full pharmacy history) to surface, using a
-// different selection rule than the "latest request" one the discharge modal still relies on.
-patientRoute.get(
-  '/:id/ongoing-prescriptions/pharmacy-request-status',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Medication');
-
-    const { models, params, query, db } = req;
-    const patientId = params.id;
-    const { PatientOngoingPrescription } = models;
-
-    const { prescriptionIds } = await pharmacyRequestStatusQuerySchema.parseAsync(query);
-
-    const linkedCount = await PatientOngoingPrescription.count({
-      where: {
-        patientId,
-        prescriptionId: { [Op.in]: prescriptionIds },
-      },
-    });
-    if (linkedCount !== prescriptionIds.length) {
-      throw new InvalidOperationError(
-        'One or more prescriptions are not ongoing prescriptions for this patient',
-      );
-    }
-
-    const displayedRequests = await getDisplayedPharmacyRequest(
-      db,
-      'ongoing_prescription_id',
-      prescriptionIds,
-    );
-
-    res.json({
-      data: Object.fromEntries(
-        prescriptionIds.map(prescriptionId => [
-          prescriptionId,
-          {
-            date: displayedRequests[prescriptionId]?.date ?? null,
-            isCompleted: displayedRequests[prescriptionId]?.is_completed ?? null,
-          },
-        ]),
-      ),
-    });
   }),
 );
 

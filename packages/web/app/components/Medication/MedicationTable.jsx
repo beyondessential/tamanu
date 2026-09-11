@@ -226,19 +226,19 @@ const getMedicationColumns = (
 
   if (isPharmacyOrdersEnabled) {
     columns.push({
-      key: 'lastOrderedAt',
+      key: 'pharmacyRequestAt',
       tooltip: (
         <Box width="60px" fontWeight={400}>
           <TranslatedText
-            stringId="medication.table.lastOrdered.tooltip"
-            fallback="Date item was last sent to pharmacy"
+            stringId="medication.table.pharmacyRequest.tooltip"
+            fallback="Date item was sent to pharmacy"
           />
         </Box>
       ),
-      title: <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />,
+      title: <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />,
       sortable: false,
-      accessor: ({ lastOrderedAt, isLastOrderDispensed }) => (
-        <LastSentCell lastOrderedAt={lastOrderedAt} isLastOrderDispensed={isLastOrderDispensed} />
+      accessor: ({ pharmacyRequestAt, isPharmacyRequestDispensed }) => (
+        <LastSentCell sentAt={pharmacyRequestAt} isDispensed={isPharmacyRequestDispensed} />
       ),
     });
   }

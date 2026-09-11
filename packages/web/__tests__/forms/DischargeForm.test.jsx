@@ -32,10 +32,17 @@ const columnKeys = columns => columns.map(column => column.key);
 
 const accessorFor = (columns, key) => columns.find(column => column.key === key).accessor;
 
-/** Every `stringId` in an element tree, so a cell's copy can be asserted without a render. */
+/**
+ * Every `stringId` in an element tree, so a cell's copy can be asserted without a render. Function
+ * components are called rather than descended into, since their copy lives in what they return —
+ * a cell built by composing components would otherwise look empty.
+ */
 const collectStringIds = node => {
   if (Array.isArray(node)) return node.flatMap(collectStringIds);
   if (!node || typeof node !== 'object' || !node.props) return [];
+  if (typeof node.type === 'function' && !node.props.stringId) {
+    return collectStringIds(node.type(node.props));
+  }
   const { stringId, children } = node.props;
   return [...(stringId ? [stringId] : []), ...collectStringIds(children)];
 };
