@@ -33,18 +33,17 @@ const TEST_ERRORS = [
   {
     id: '1',
     timestamp: hoursAgo(0.2),
-    message: 'Something went wrong on the server. Path: patient/123. Message: Unexpected token',
+    message: 'patient/123: Unexpected token',
   },
   {
     id: '2',
     timestamp: hoursAgo(3),
-    message: 'Something went wrong on the server. Path: labRequest/all. Message: Connection lost',
+    message: 'labRequest/all: Connection lost',
   },
   {
     id: '3',
     timestamp: hoursAgo(9),
-    message:
-      'Something went wrong on the server. Path: appointments/outpatients. Message: relation does not exist',
+    message: 'appointments/outpatients: relation does not exist',
   },
 ];
 
@@ -81,13 +80,9 @@ describe('SystemErrors', () => {
     renderElementWithTranslatedText(withProviders(<SystemErrors />));
 
     expect(screen.getByText('System errors')).toBeTruthy();
-    expect(screen.getByText(/Something went wrong on the server\. Path: patient\/123/)).toBeTruthy();
-    expect(
-      screen.getByText(/Something went wrong on the server\. Path: labRequest\/all/),
-    ).toBeTruthy();
-    expect(
-      screen.getByText(/Something went wrong on the server\. Path: appointments\/outpatients/),
-    ).toBeTruthy();
+    expect(screen.getByText('patient/123: Unexpected token')).toBeTruthy();
+    expect(screen.getByText('labRequest/all: Connection lost')).toBeTruthy();
+    expect(screen.getByText('appointments/outpatients: relation does not exist')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Send error logs' })).toBeTruthy();
   });
 
@@ -146,9 +141,7 @@ describe('SystemErrors', () => {
     );
 
     // The submitted rows are removed from the table once sent.
-    expect(
-      screen.queryByText(/Something went wrong on the server\. Path: patient\/123/),
-    ).toBeNull();
+    expect(screen.queryByText('patient/123: Unexpected token')).toBeNull();
     expect(screen.getByText('No system errors to display')).toBeTruthy();
   });
 
@@ -162,9 +155,7 @@ describe('SystemErrors', () => {
     await waitFor(() => expect(notifyError).toHaveBeenCalledTimes(1));
 
     expect(screen.getByRole('heading', { name: 'Send error logs' })).toBeTruthy();
-    expect(
-      screen.getByText(/Something went wrong on the server\. Path: patient\/123/),
-    ).toBeTruthy();
+    expect(screen.getByText('patient/123: Unexpected token')).toBeTruthy();
     expect(notifySuccess).not.toHaveBeenCalled();
   });
 
@@ -172,29 +163,29 @@ describe('SystemErrors', () => {
     const staleError = {
       id: 'stale',
       timestamp: hoursAgo(25),
-      message: 'Something went wrong on the server. Path: old/stale. Message: Ancient failure',
+      message: 'old/stale: Ancient failure',
     };
     renderElementWithTranslatedText(withProviders(<SystemErrors />, [...TEST_ERRORS, staleError]));
 
-    expect(screen.queryByText(/Path: old\/stale/)).toBeNull();
-    expect(screen.getByText(/Path: patient\/123/)).toBeTruthy();
+    expect(screen.queryByText('old/stale: Ancient failure')).toBeNull();
+    expect(screen.getByText('patient/123: Unexpected token')).toBeTruthy();
   });
 
   it('sorts rows by clicking the error message column header', () => {
     renderElementWithTranslatedText(withProviders(<SystemErrors />));
 
     const messageCellsOrder = () =>
-      screen.getAllByText(/Something went wrong on the server\./).map(el => el.textContent);
+      screen.getAllByText(/Unexpected token|Connection lost|relation does not exist/).map(el => el.textContent);
 
     // Default: sorted by timestamp desc, so the most recent row (patient/123) leads.
-    expect(messageCellsOrder()[0]).toMatch(/patient\/123/);
+    expect(messageCellsOrder()[0]).toBe('patient/123: Unexpected token');
 
     // First click on a different column sorts desc by it; second click flips to asc,
     // which puts "appointments/..." first alphabetically — a change from the default.
     fireEvent.click(screen.getByText('Error message'));
     fireEvent.click(screen.getByText('Error message'));
 
-    expect(messageCellsOrder()[0]).toMatch(/appointments\/outpatients/);
+    expect(messageCellsOrder()[0]).toBe('appointments/outpatients: relation does not exist');
   });
 });
 

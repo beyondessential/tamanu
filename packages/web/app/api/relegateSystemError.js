@@ -23,7 +23,8 @@ export function setSystemErrorHandler(nextHandler) {
  */
 export function relegateSystemError(error, endpoint) {
   const path = error?.path ?? endpoint;
-  const message = `Something went wrong on the server. Path: ${path}. Message: ${error?.title ?? error?.message ?? 'Unknown error'}`;
+  const detail = error?.title ?? error?.message ?? 'Unknown error';
+  const message = `${path}: ${detail}`;
 
   if (handler) {
     handler({ id: uuidv4(), timestamp: new Date().toISOString(), message });
