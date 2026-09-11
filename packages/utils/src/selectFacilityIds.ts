@@ -10,3 +10,18 @@ export const selectFacilityIds = (config: {
   }
   return serverFacilityId ? [serverFacilityId] : serverFacilityIds;
 };
+
+// Deploys are moving off config for this, so anything resolving facility ids has to
+// read the env var first.
+export const facilityIdsFromEnv = (): string[] | undefined => {
+  const declared = process.env.TAMANU_FACILITY_IDS;
+  if (!declared) return undefined;
+  return [
+    ...new Set(
+      declared
+        .split(',')
+        .map(id => id.trim())
+        .filter(Boolean),
+    ),
+  ];
+};

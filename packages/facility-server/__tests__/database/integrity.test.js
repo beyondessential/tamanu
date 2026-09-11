@@ -18,12 +18,12 @@ describe('performDatabaseIntegrityChecks', () => {
     originalHost = await LocalSystemFact.get(FACT_CENTRAL_HOST);
     originalFacilityIds = await LocalSystemFact.get(FACT_FACILITY_IDS);
     process.env.SYNC_URL = DECLARED_HOST;
-    process.env.SYNC_FACILITY_IDS = 'facility-a,facility-b';
+    process.env.TAMANU_FACILITY_IDS = 'facility-a,facility-b';
   });
 
   afterAll(async () => {
     delete process.env.SYNC_URL;
-    delete process.env.SYNC_FACILITY_IDS;
+    delete process.env.TAMANU_FACILITY_IDS;
     await LocalSystemFact.set(FACT_CENTRAL_HOST, originalHost);
     await LocalSystemFact.set(FACT_FACILITY_IDS, originalFacilityIds);
     await ctx.close();

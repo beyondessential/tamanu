@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
-import { USER_KINDS, FACT_SETTINGS_PSK } from '@tamanu/constants';
+import { DEVICE_SCOPES, USER_KINDS, FACT_SETTINGS_PSK } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { ensureSettingsPsk } from '@tamanu/shared/utils/crypto';
@@ -18,6 +18,12 @@ const bodySchema = z.object({
 const syncUserEmail = deviceId =>
   `sync.${crypto.createHash('sha256').update(deviceId).digest('hex').slice(0, 32)}@sync.tamanu`;
 
+const reprovisionSyncUser = async (user, { displayName, password }) => {
+  user.set({ displayName, role: 'admin', kind: USER_KINDS.SYNC });
+  await user.setPassword(password);
+  return user.save();
+};
+
 // Provision (or rotate) a dedicated sync user and return its credentials, for a
 // facility's setup wizard. Mirrors the sync users the `provision` subcommand
 // makes. Gated on manage:all — only a central super-admin may mint these.
@@ -27,7 +33,8 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
   const { deviceId, facilityIds } = bodySchema.parse(req.body);
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))].sort();
 
-  const { User, LocalSystemSecret } = req.store.models;
+  const { Device, User, LocalSystemSecret } = req.store.models;
+  const { sequelize } = req.store;
 
   const email = syncUserEmail(deviceId);
   // Summarise rather than listing every id so the display name stays short for
@@ -38,14 +45,39 @@ export const provisionSyncCredentials = asyncHandler(async (req, res) => {
       : `System: ${uniqueFacilityIds.join(', ')} sync`;
   const password = crypto.randomBytes(24).toString('base64url');
 
-  const existing = await User.findOne({ where: { email } });
-  if (existing) {
-    existing.set({ displayName, role: 'admin', kind: USER_KINDS.SYNC });
-    await existing.setPassword(password);
-    await existing.save();
-  } else {
-    await User.create({ email, displayName, role: 'admin', kind: USER_KINDS.SYNC, password });
-  }
+  // One transaction: the password is rotated here, so a half-applied provision would
+  // leave the facility unable to log in with either the old or the new credential.
+  await sequelize.transaction(async () => {
+    // Both writes below are find-then-create, and a retried or double-submitted
+    // wizard request provisions the same device twice. The account name is derived
+    // from the device, so one lock serialises both.
+    await sequelize.query(
+      `SELECT pg_advisory_xact_lock(hashtext('tamanu:sync-credentials:' || $deviceId));`,
+      { bind: { deviceId } },
+    );
+
+    const existing = await User.findOne({ where: { email } });
+    const syncUser = existing
+      ? await reprovisionSyncUser(existing, { displayName, password })
+      : await User.create({
+          email,
+          displayName,
+          role: 'admin',
+          kind: USER_KINDS.SYNC,
+          password,
+        });
+
+    // The caller's probe login already registered this device under whichever admin
+    // it validated, with no scopes. Sync then logs in as the user minted above asking
+    // for sync_client, and central refuses a device asking for more than it holds.
+    const scopes = [DEVICE_SCOPES.SYNC_CLIENT];
+    const device = await Device.findByPk(deviceId);
+    if (device) {
+      await device.update({ registeredById: syncUser.id, scopes });
+    } else {
+      await Device.create({ id: deviceId, registeredById: syncUser.id, scopes });
+    }
+  });
 
   // Hand the facility the deployment-wide settings PSK so secrets central
   // encrypts into synced settings are decryptable there. Generated here if this

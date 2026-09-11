@@ -78,7 +78,7 @@ headlessly with the `setupSync` subcommand, then run the initial sync before fir
 ```bash
 npm run --workspace @tamanu/facility-server start upgrade
 SYNC_URL='http://facility-1%40tamanu.io:facility-1@localhost:3000' \
-  SYNC_FACILITY_IDS='facility-1' \
+  TAMANU_FACILITY_IDS='facility-1' \
   npm run --workspace @tamanu/facility-server start setupSync
 npm run --workspace @tamanu/facility-server start sync
 ```
