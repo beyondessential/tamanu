@@ -54,4 +54,29 @@ describe('DELETE tasks', () => {
     const remaining = await models.Task.findAll({ where: { id: taskIds } });
     expect(remaining).toHaveLength(0);
   });
+
+  it('rejects an unauthenticated request', async () => {
+    const task = await createTodoTask('Unauthenticated');
+
+    const response = await ctx.baseApp.delete('/api/tasks').send({
+      taskIds: [task.id],
+      deletedByUserId: app.user.id,
+      deletedTime: getCurrentDateTimeString(),
+    });
+    expect(response).toHaveRequestError();
+    expect(await models.Task.findByPk(task.id)).not.toBeNull();
+  });
+
+  it('forbids a user without the delete permission', async () => {
+    const task = await createTodoTask('Forbidden');
+    const readOnlyApp = await ctx.baseApp.asNewRole([['read', 'Tasking']]);
+
+    const response = await readOnlyApp.delete('/api/tasks').send({
+      taskIds: [task.id],
+      deletedByUserId: readOnlyApp.user.id,
+      deletedTime: getCurrentDateTimeString(),
+    });
+    expect(response).toBeForbidden();
+    expect(await models.Task.findByPk(task.id)).not.toBeNull();
+  });
 });
