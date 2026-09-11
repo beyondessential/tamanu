@@ -25,6 +25,7 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirSpecimen,
+  fakeTestTypes,
 } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -343,6 +344,118 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
       // regression EPI-403
       expect(response.body.subject).not.toHaveProperty('identifier');
+    });
+
+    it('fetches a service request by materialised ID (lab request with multiple panels)', async () => {
+      // arrange — a request holding two panels plus a loose individual test, all in one category.
+      // This shape only exists under the per-category model and exercises the panel/test fan-out in
+      // orderDetail (and the separate:true guard against the two has-manys multiplying rows).
+      const {
+        FhirServiceRequest,
+        LabTestPanel,
+        LabTestPanelRequest,
+        LabTestPanelLabTestTypes,
+        LabTest,
+        LabTestType,
+      } = ctx.store.models;
+
+      const {
+        labRequest,
+        labTestPanel: firstPanel,
+        panelTestTypes: firstPanelTests,
+        category,
+      } = await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
+
+      // a second panel on the same request (same category)
+      const secondPanel = await LabTestPanel.create({ ...fake(LabTestPanel), categoryId: category.id });
+      const secondPanelTests = await fakeTestTypes(3, LabTestType, category.id);
+      await Promise.all(
+        secondPanelTests.map(testType =>
+          LabTestPanelLabTestTypes.create({
+            labTestPanelId: secondPanel.id,
+            labTestTypeId: testType.id,
+          }),
+        ),
+      );
+      const secondPanelRequest = await LabTestPanelRequest.create({
+        ...fake(LabTestPanelRequest),
+        labTestPanelId: secondPanel.id,
+        encounterId: resources.encounter.id,
+        labRequestId: labRequest.id,
+      });
+      await Promise.all(
+        secondPanelTests.map(testType =>
+          LabTest.create({
+            labRequestId: labRequest.id,
+            labTestTypeId: testType.id,
+            labTestPanelRequestId: secondPanelRequest.id,
+          }),
+        ),
+      );
+
+      // a loose individual test with no panel attribution
+      const [looseTestType] = await fakeTestTypes(1, LabTestType, category.id);
+      await LabTest.create({ labRequestId: labRequest.id, labTestTypeId: looseTestType.id });
+
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      // act
+      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`);
+
+      // assert
+      expect(response).toHaveSucceeded();
+
+      // code is the shared category — not either individual panel
+      expect(response.body.code).toMatchObject({
+        text: category.name,
+        coding: [
+          {
+            code: category.code,
+            display: category.name,
+            system: 'http://tamanu.io/data-dictionary/lab-test-category-code.html',
+          },
+        ],
+      });
+
+      // both panels appear in orderDetail under the panel code systems
+      for (const panel of [firstPanel, secondPanel]) {
+        const panelDetail = response.body.orderDetail.find(detail => detail.text === panel.name);
+        expect(panelDetail).toBeDefined();
+        expect(panelDetail.coding).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://www.senaite.com/profileCodes.html',
+              code: panel.code,
+              display: panel.name,
+            }),
+            expect.objectContaining({
+              system: 'http://loinc.org',
+              code: panel.externalCode,
+              display: panel.name,
+            }),
+          ]),
+        );
+      }
+
+      // every test — both panels' members and the loose test — appears under the test code system
+      const allTests = [...firstPanelTests, ...secondPanelTests, looseTestType];
+      for (const test of allTests) {
+        const testDetail = response.body.orderDetail.find(detail => detail.text === test.name);
+        expect(testDetail).toBeDefined();
+        expect(testDetail.coding).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://www.senaite.com/testCodes.html',
+              code: test.code,
+              display: test.name,
+            }),
+          ]),
+        );
+      }
+
+      // exactly the two panels plus every test — no duplication from joining the two has-manys
+      expect(response.body.orderDetail).toHaveLength(2 + allTests.length);
     });
 
     it('fetches a service request by materialised ID (lab request with unpanelled tests)', async () => {

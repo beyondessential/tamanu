@@ -77,6 +77,10 @@ export class LabTest extends Model {
   }
 
   static initRelations(models: Models) {
+    // A test always belongs directly to its request, and — if it's a panel member — also to its
+    // panel request. The direct labRequestId is kept on every test (not just loose ones) so "all
+    // tests of a request" stays a single indexed lookup; the two links are kept consistent by
+    // createWithTests.
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
       as: 'labRequest',
