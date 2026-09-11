@@ -6,9 +6,11 @@ import { closeDatabase, initDatabase } from '../../database';
 const ALLOW_FAKE_DATA = 'TAMANU_ALLOW_FAKE_DATA';
 
 export const generateSeed = async ({ rounds }) => {
-  if (process.env.NODE_ENV === 'production' && process.env[ALLOW_FAKE_DATA] !== 'true') {
+  // Fail closed: a shell on a deployment carries no NODE_ENV, so anything keyed off it
+  // would let this write fake patients into a live clinical database by default.
+  if (process.env[ALLOW_FAKE_DATA] !== 'true') {
     throw new Error(
-      `generate seed writes fake clinical data, so under NODE_ENV=production it runs only with ${ALLOW_FAKE_DATA}=true`,
+      `generate seed writes fake clinical data, so it runs only with ${ALLOW_FAKE_DATA}=true`,
     );
   }
 
