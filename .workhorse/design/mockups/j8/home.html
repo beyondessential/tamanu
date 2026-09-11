@@ -72,9 +72,19 @@
   .lcard h3 { font-size: 15px; margin: 0 0 6px; letter-spacing: -0.005em; }
   .lcard p { font-size: 13.5px; color: var(--ink-3); margin: 0; line-height: 1.5; }
 
-  footer { border-top: 1px solid var(--line); margin-top: 40px; }
-  .foot-inner { max-width: var(--maxw); margin: 0 auto; padding: 28px 24px; display: flex; gap: 20px; font-size: 13px; color: var(--ink-3); }
-  .foot-inner .spacer { margin-left: auto; }
+  footer.site { border-top: 1px solid var(--line); margin-top: 48px; }
+  .foot-inner { max-width: var(--maxw); margin: 0 auto; padding: 44px 24px 24px; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 32px; }
+  .foot-brand .fb { display: flex; align-items: center; gap: 9px; font-weight: 620; font-size: 15px; margin-bottom: 12px; }
+  .foot-brand .fb .mark { width: 22px; height: 22px; border-radius: 999px; background: var(--ink); -webkit-mask: radial-gradient(circle at 50% 50%, transparent 39%, #000 40%); mask: radial-gradient(circle at 50% 50%, transparent 39%, #000 40%); }
+  .foot-brand .fb .sub { color: var(--ink-3); font-weight: 500; }
+  .foot-brand p { font-size: 13px; color: var(--ink-3); margin: 0; max-width: 280px; line-height: 1.6; }
+  .foot-col h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 650; margin: 0 0 6px; }
+  .foot-col .cap { font-size: 12px; color: var(--ink-4); margin: 0 0 12px; line-height: 1.5; }
+  .foot-col a { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--ink-2); padding: 6px 0; }
+  .foot-col a:hover { color: var(--ink); }
+  .foot-col a .ext { color: var(--ink-4); flex: none; }
+  .foot-col a:hover .ext { color: var(--ink-2); }
+  .foot-bar { max-width: var(--maxw); margin: 0 auto; padding: 18px 24px 34px; border-top: 1px solid var(--line-soft); font-size: 12px; color: var(--ink-4); }
 </style>
 </head>
 <body>
@@ -140,14 +150,29 @@
   </div>
 </div>
 
-<footer>
+<footer class="site">
   <div class="foot-inner">
-    <span>Tamanu</span>
-    <span>by BES</span>
-    <span class="spacer">User manuals</span>
-    <span>Release notes</span>
-    <span>GitHub</span>
+    <div class="foot-brand">
+      <div class="fb"><span class="mark"></span> Tamanu <span class="sub">Docs</span></div>
+      <p>Documentation for the Tamanu healthcare platform.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Documentation</h4>
+      <a href="#">User manuals</a>
+      <a href="#">Release notes</a>
+      <a href="#">Roadmap</a>
+      <a href="#">Report an issue</a>
+    </div>
+    <div class="foot-col">
+      <h4>Related products</h4>
+      <p class="cap">Separate products in the wider ecosystem.</p>
+      <a href="#">Tupaia <span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span></a>
+      <a href="#">Senaite <span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span></a>
+      <a href="#">Senaite: Animal Health <span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span></a>
+      <a href="#">mSupply <span class="ext"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span></a>
+    </div>
   </div>
+  <div class="foot-bar">Tamanu by BES</div>
 </footer>
 
 </body>

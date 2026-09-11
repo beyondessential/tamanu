@@ -66,6 +66,11 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 - **Search and Ask AI are two distinct controls** (Stripe pattern), not one combined bar.
 - **Ask AI is a page-aware chat drawer** (Stripe pattern), reached from the Ask AI control or a
   hand-off in the search palette. This resolves the earlier "Ask AI surface" question.
+- **Partner/sibling products live in the footer**, in a "Related products" group with external-link
+  arrows and a "separate products" caption — Tupaia, Senaite, Senaite: Animal Health, mSupply. Kept
+  out of the top nav and Browse so they don't read as Tamanu sections, since they are wholly separate
+  products with only occasional crossover users. Real URLs still to be added (currently `#`), and the
+  "Senaite: Animal Health" spelling to be confirmed (user wrote "Senate").
 
 ## Open questions
 
