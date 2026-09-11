@@ -4,7 +4,11 @@ import { pathToFileURL } from 'node:url';
 import Umzug from 'umzug';
 import { QueryTypes } from 'sequelize';
 import { runPostMigration, runPreMigration } from './hooks';
-import { createMigrationAuditLog, tryGatherPreMigrationDbSnapshot } from '../../utils/audit';
+import {
+  createMigrationAuditLog,
+  sanitiseMigrationError,
+  tryGatherPreMigrationDbSnapshot,
+} from '../../utils/audit';
 import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
@@ -331,7 +335,7 @@ export async function migrateUpTo({
   // batch started distinguishes the migrations it applies from theirs.
   const executedBefore = new Set((await migrations.executed()).map(({ file }) => file));
 
-  const auditBatch = async (batch, failedMigration = undefined) => {
+  const auditBatch = async (batch, failedMigration = undefined, failure = undefined) => {
     const durationMsPerMigration = migrationDurationsForBatch(getDurationStats(), batch);
     await createMigrationAuditLog(sequelize, batch, 'up', {
       batchDurationMs: Date.now() - batchStart,
@@ -341,13 +345,14 @@ export async function migrateUpTo({
         totalMigrationsDurationMs: totalMigrationsDurationMsFromMap(durationMsPerMigration),
         ...(preSnapshot ? { preSnapshot } : {}),
         ...(failedMigration ? { failedMigration } : {}),
+        ...(failure ? { error: sanitiseMigrationError(failure) } : {}),
       },
     });
   };
 
-  const applied = await migrations.up(upOpts).catch(async (error) => {
-    await auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch });
-    throw error;
+  const applied = await migrations.up(upOpts).catch(async (failure) => {
+    await auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch, failure });
+    throw failure;
   });
 
   log.info('Applied migrations successfully');
@@ -371,13 +376,13 @@ export async function migrateUpTo({
  * still not executed is where it stopped. Timings for the migrations that did apply are only
  * in memory, so this is the one chance to record them.
  */
-async function auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch }) {
+async function auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch, failure }) {
   try {
     const executedAfter = await migrations.executed();
     const executedAfterFiles = new Set(executedAfter.map(({ file }) => file));
     const applied = executedAfter.filter(({ file }) => !executedBefore.has(file));
     const failedMigration = pending.find(({ file }) => !executedAfterFiles.has(file))?.file;
-    await auditBatch(applied, failedMigration);
+    await auditBatch(applied, failedMigration, failure);
     log.info(`Recorded failed migration batch, stopped at ${failedMigration}`);
   } catch (error) {
     // Must not replace the migration failure the caller is about to throw.
