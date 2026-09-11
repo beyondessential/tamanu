@@ -13,7 +13,15 @@ const PaginatorWrapper = 'td';
 const FooterContent = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding-left: 20px;
+`;
+
+const RightAlignedContent = styled.div`
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
+  margin-left: auto;
 `;
 
 const StyledPagination = styled(Pagination)`
@@ -110,6 +118,7 @@ export const Paginator = React.memo(
     onPageChange,
     onRowsPerPageChange,
     rowsPerPageOptions,
+    leftContent,
   }) => {
     const wasLastItemEllipses = useRef(false);
     const classes = useStyles();
@@ -128,124 +137,127 @@ export const Paginator = React.memo(
     return (
       <PaginatorWrapper colSpan={colSpan} data-testid="paginatorwrapper-l9c5">
         <FooterContent data-testid="footercontent-yb09">
-          <PageRecordCount data-testid="pagerecordcount-m8ne">
-            {isDataInTable && (
-              <TranslatedText
-                stringId="general.table.pageRecordCount"
-                fallback=":lowerRange–:upperRange of :count"
-                replacements={{
-                  lowerRange: numberFormatter.format(lowerRange),
-                  upperRange: numberFormatter.format(upperRange),
-                  count: numberFormatter.format(count),
-                }}
-                data-testid="translatedtext-yhs4"
-              />
-            )}
-          </PageRecordCount>
-          <StyledSelectField
-            label={
-              <TranslatedText
-                stringId="general.table.rowsPerPage"
-                fallback="Rows per page"
-                data-testid="translatedtext-rylc"
-              />
-            }
-            onChange={onRowsPerPageChange}
-            value={rowsPerPage || rowsPerPageOptions[0]}
-            IconComponent={ChevronIcon}
-            MenuProps={{ classes: { paper: classes.selectMenu } }}
-            disabled={!isDataInTable}
-            data-testid="styledselectfield-lunn"
-          >
-            {rowsPerPageOptions.map(option => (
-              <StyledMenuItem
-                key={option}
-                value={option}
-                data-testid={`styledmenuitem-fkrw-${option.value}`}
-              >
-                {option}
-              </StyledMenuItem>
-            ))}
-          </StyledSelectField>
-          <StyledPagination
-            size="small"
-            count={numberOfPages}
-            page={selectedPageNumber}
-            variant="outlined"
-            onChange={onPageChange}
-            renderItem={item => {
-              // Set custom icons for navigation buttons
-              if (item.type === 'previous') {
-                return (
-                  <PaginationItem
-                    {...item}
-                    disabled={selectedPageNumber === 1 || !isDataInTable}
-                    component={PreviousButton}
-                    data-testid={`paginationitem-hcui`}
-                  />
-                );
+          {leftContent}
+          <RightAlignedContent data-testid="rightalignedcontent-t3nx">
+            <PageRecordCount data-testid="pagerecordcount-m8ne">
+              {isDataInTable && (
+                <TranslatedText
+                  stringId="general.table.pageRecordCount"
+                  fallback=":lowerRange–:upperRange of :count"
+                  replacements={{
+                    lowerRange: numberFormatter.format(lowerRange),
+                    upperRange: numberFormatter.format(upperRange),
+                    count: numberFormatter.format(count),
+                  }}
+                  data-testid="translatedtext-yhs4"
+                />
+              )}
+            </PageRecordCount>
+            <StyledSelectField
+              label={
+                <TranslatedText
+                  stringId="general.table.rowsPerPage"
+                  fallback="Rows per page"
+                  data-testid="translatedtext-rylc"
+                />
               }
-              if (item.type === 'next') {
-                return (
-                  <PaginationItem
-                    {...item}
-                    disabled={selectedPageNumber === numberOfPages || !isDataInTable}
-                    component={NextButton}
-                    data-testid={`paginationitem-d791`}
-                  />
-                );
-              }
+              onChange={onRowsPerPageChange}
+              value={rowsPerPage || rowsPerPageOptions[0]}
+              IconComponent={ChevronIcon}
+              MenuProps={{ classes: { paper: classes.selectMenu } }}
+              disabled={!isDataInTable}
+              data-testid="styledselectfield-lunn"
+            >
+              {rowsPerPageOptions.map(option => (
+                <StyledMenuItem
+                  key={option}
+                  value={option}
+                  data-testid={`styledmenuitem-fkrw-${option.value}`}
+                >
+                  {option}
+                </StyledMenuItem>
+              ))}
+            </StyledSelectField>
+            <StyledPagination
+              size="small"
+              count={numberOfPages}
+              page={selectedPageNumber}
+              variant="outlined"
+              onChange={onPageChange}
+              renderItem={item => {
+                // Set custom icons for navigation buttons
+                if (item.type === 'previous') {
+                  return (
+                    <PaginationItem
+                      {...item}
+                      disabled={selectedPageNumber === 1 || !isDataInTable}
+                      component={PreviousButton}
+                      data-testid={`paginationitem-hcui`}
+                    />
+                  );
+                }
+                if (item.type === 'next') {
+                  return (
+                    <PaginationItem
+                      {...item}
+                      disabled={selectedPageNumber === numberOfPages || !isDataInTable}
+                      component={NextButton}
+                      data-testid={`paginationitem-d791`}
+                    />
+                  );
+                }
 
-              // We needed some custom logic for what page numbers to show that couldnt be done through the built in boundaryCount and siblingcount props
-              // so I needed to create a set of conditions to determine what page numbers to show and when to show ellipses.
-              const pageNumber = item.page;
+                // We needed some custom logic for what page numbers to show that couldnt be done through the built in boundaryCount and siblingcount props
+                // so I needed to create a set of conditions to determine what page numbers to show and when to show ellipses.
+                const pageNumber = item.page;
 
-              // The standard range for showing page numbers except for the first and last page which
-              // we override above is the current page +/- 1
-              const standardRange =
-                selectedPageNumber >= pageNumber - 1 && selectedPageNumber <= pageNumber + 1;
-              // When we are on the first page, we want to show the first 3 pages and the last page however and when
-              // we are on the last page we want to show the last 3 pages and the first page.
-              const startRange = selectedPageNumber === 1 && pageNumber <= 3;
-              const endRange =
-                selectedPageNumber === numberOfPages && pageNumber >= numberOfPages - 2;
+                // The standard range for showing page numbers except for the first and last page which
+                // we override above is the current page +/- 1
+                const standardRange =
+                  selectedPageNumber >= pageNumber - 1 && selectedPageNumber <= pageNumber + 1;
+                // When we are on the first page, we want to show the first 3 pages and the last page however and when
+                // we are on the last page we want to show the last 3 pages and the first page.
+                const startRange = selectedPageNumber === 1 && pageNumber <= 3;
+                const endRange =
+                  selectedPageNumber === numberOfPages && pageNumber >= numberOfPages - 2;
 
-              const isInRange = standardRange || startRange || endRange;
+                const isInRange = standardRange || startRange || endRange;
 
-              // We always want to show the first or last page
-              const isEndPage = pageNumber === 1 || pageNumber === numberOfPages;
+                // We always want to show the first or last page
+                const isEndPage = pageNumber === 1 || pageNumber === numberOfPages;
 
-              // We dont want to include any ellipsis as we make our own in this custom logic
-              const isEllipses = item.type === 'start-ellipsis' || item.type === 'end-ellipsis';
+                // We dont want to include any ellipsis as we make our own in this custom logic
+                const isEllipses = item.type === 'start-ellipsis' || item.type === 'end-ellipsis';
 
-              // Conditionally show the page number button if it falls within the defined ranges above
-              if ((isInRange || isEndPage) && !isEllipses) {
-                wasLastItemEllipses.current = false;
-                return (
-                  <PaginationItem
-                    {...item}
-                    selected={item.page === selectedPageNumber}
-                    data-testid={`paginationitem-c5vg`}
-                  />
-                );
-              }
-              // If the item falls out of the defined range and is not the first or last page, show an ellipses
-              // however we only want to show one ellipses in a row so we need to keep track of the last item
-              // and dont show if one was rendered before in the list
-              if (!wasLastItemEllipses.current) {
-                wasLastItemEllipses.current = true;
-                return (
-                  <PaginationItem
-                    size="small"
-                    type="start-ellipsis"
-                    data-testid="paginationitem-2vck"
-                  />
-                );
-              }
-              return null;
-            }}
-            data-testid="styledpagination-fbr1"
-          />
+                // Conditionally show the page number button if it falls within the defined ranges above
+                if ((isInRange || isEndPage) && !isEllipses) {
+                  wasLastItemEllipses.current = false;
+                  return (
+                    <PaginationItem
+                      {...item}
+                      selected={item.page === selectedPageNumber}
+                      data-testid={`paginationitem-c5vg`}
+                    />
+                  );
+                }
+                // If the item falls out of the defined range and is not the first or last page, show an ellipses
+                // however we only want to show one ellipses in a row so we need to keep track of the last item
+                // and dont show if one was rendered before in the list
+                if (!wasLastItemEllipses.current) {
+                  wasLastItemEllipses.current = true;
+                  return (
+                    <PaginationItem
+                      size="small"
+                      type="start-ellipsis"
+                      data-testid="paginationitem-2vck"
+                    />
+                  );
+                }
+                return null;
+              }}
+              data-testid="styledpagination-fbr1"
+            />
+          </RightAlignedContent>
         </FooterContent>
       </PaginatorWrapper>
     );

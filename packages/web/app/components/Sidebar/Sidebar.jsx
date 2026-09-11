@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
@@ -19,6 +20,7 @@ import { useApi } from '../../api';
 import { KebabMenu } from './KebabMenu';
 import { ImpersonationPopover } from './ImpersonationSelector';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { ThemedTooltip } from '../Tooltip';
 
 const Container = styled.div`
   display: flex;
@@ -139,6 +141,22 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
+// Shown in place of the (otherwise hidden-while-retracted) System errors child row so
+// unread errors stay visible even with the sidebar collapsed, per the read/unread rule
+// in store/systemErrors.js.
+const RetractedUnreadDot = styled.button`
+  all: unset;
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: ${Colors.alert};
+  margin: 6px auto 11px;
+  cursor: pointer;
+`;
+
+const SYSTEM_ERRORS_ITEM_KEY = 'systemErrors';
+
 const getInitials = string =>
   string
     .match(/\b(\w)/g)
@@ -187,6 +205,10 @@ export const Sidebar = React.memo(({ items }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
+  // spec: SYSERR#sidebar-unread-indicator
+  const hasUnreadSystemErrors = useSelector(state =>
+    state.systemErrors.errors.some(error => !error.isRead),
+  );
   const extendSidebar = () => setIsRetracted(false);
 
   // Expand the section matching the current route so navigating in from elsewhere
@@ -327,36 +349,77 @@ export const Sidebar = React.memo(({ items }) => {
             );
           }
 
+          const systemErrorsItem = item.children.find(
+            child => child.key === SYSTEM_ERRORS_ITEM_KEY,
+          );
+
           if (isRetracted) {
             return (
-              <PrimarySidebarItem
-                key={item.path}
-                {...commonProps}
-                data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`}
-              />
+              <React.Fragment key={item.path}>
+                <PrimarySidebarItem
+                  {...commonProps}
+                  data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`}
+                />
+                {systemErrorsItem && hasUnreadSystemErrors && (
+                  <ThemedTooltip title={systemErrorsItem.label} placement="top-end">
+                    <RetractedUnreadDot
+                      type="button"
+                      onClick={() => {
+                        extendSidebar();
+                        setSelectedParentItem(item.key);
+                        onPathChanged(systemErrorsItem.path);
+                      }}
+                      data-testid="retractedunreaddot-syse"
+                    />
+                  </ThemedTooltip>
+                )}
+              </React.Fragment>
             );
           }
+          const isSectionOpen = selectedParentItem === item.key;
+          const showSystemErrorsOutsideSection =
+            !isSectionOpen && systemErrorsItem && hasUnreadSystemErrors;
+
           return (
-            <PrimarySidebarItem
-              key={item.path}
-              {...commonProps}
-              data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
-            >
-              {item.children.map(child => (
-                <NoteModalActionBlocker key={child.path} isNavigationBlock>
+            <React.Fragment key={item.path}>
+              <PrimarySidebarItem
+                {...commonProps}
+                data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
+              >
+                {item.children.map(child => (
+                  <NoteModalActionBlocker key={child.path} isNavigationBlock>
+                    <SecondarySidebarItem
+                      key={child.path}
+                      path={child.path}
+                      isCurrent={currentPath.includes(child.path)}
+                      color={child.color}
+                      overlaidColor={
+                        child.key === SYSTEM_ERRORS_ITEM_KEY && hasUnreadSystemErrors
+                          ? Colors.alert
+                          : undefined
+                      }
+                      label={child.label}
+                      disabled={!permissionCheck(child, item)}
+                      onClick={() => onPathChanged(child.path)}
+                      data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                    />
+                  </NoteModalActionBlocker>
+                ))}
+              </PrimarySidebarItem>
+              {showSystemErrorsOutsideSection && (
+                <NoteModalActionBlocker isNavigationBlock>
                   <SecondarySidebarItem
-                    key={child.path}
-                    path={child.path}
-                    isCurrent={currentPath.includes(child.path)}
-                    color={child.color}
-                    label={child.label}
-                    disabled={!permissionCheck(child, item)}
-                    onClick={() => onPathChanged(child.path)}
-                    data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                    path={systemErrorsItem.path}
+                    isCurrent={currentPath.includes(systemErrorsItem.path)}
+                    overlaidColor={Colors.alert}
+                    label={systemErrorsItem.label}
+                    disabled={!permissionCheck(systemErrorsItem, item)}
+                    onClick={() => onPathChanged(systemErrorsItem.path)}
+                    data-testid="secondarysidebaritem-syse-outside"
                   />
                 </NoteModalActionBlocker>
-              ))}
-            </PrimarySidebarItem>
+              )}
+            </React.Fragment>
           );
         })}
       </List>

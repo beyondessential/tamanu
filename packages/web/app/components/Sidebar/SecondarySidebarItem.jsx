@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ListItem, ListItemText } from '@material-ui/core';
 
 const SecondaryListItem = styled(ListItem)`
+  position: relative;
   margin-bottom: 2px;
   padding: 2px 0 2px 48px;
   border-radius: 4px;
@@ -28,7 +29,24 @@ const Dot = styled.div`
   background: ${(props) => props.$color};
   margin-right: 14px;
 `;
-export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => {
+
+const OverlaidDot = styled(Dot)`
+  position: absolute;
+  left: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 0;
+`;
+
+export const SecondarySidebarItem = ({
+  path,
+  label,
+  isCurrent,
+  disabled,
+  onClick,
+  color,
+  overlaidColor,
+}) => {
   const dataTestIdSuffix = path.replace(/\//g, '-');
   return (
     <SecondaryListItem
@@ -41,6 +59,7 @@ export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick
       data-testid={`secondarylistitem${dataTestIdSuffix}`}
     >
       {color && <Dot $color={color} />}
+      {overlaidColor && <OverlaidDot $color={overlaidColor} data-testid="overlaiddot-syse" />}
       <SecondaryItemText
         disableTypography
         primary={label}

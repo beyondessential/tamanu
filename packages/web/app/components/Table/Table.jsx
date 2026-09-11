@@ -506,7 +506,20 @@ class TableComponent extends React.Component {
     );
   }
 
-  renderPaginator() {
+  renderExportButton() {
+    const { exportName, columns, data, ExportButton } = this.props;
+    return (
+      <DownloadDataButton
+        exportName={exportName}
+        columns={columns}
+        data={data}
+        ExportButton={ExportButton}
+        data-testid="downloaddatabutton-w1c5"
+      />
+    );
+  }
+
+  renderPaginator(leftContent) {
     const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
       <Paginator
@@ -517,35 +530,32 @@ class TableComponent extends React.Component {
         rowsPerPage={rowsPerPage}
         onPageChange={this.handleChangePage}
         onRowsPerPageChange={this.handleChangeRowsPerPage}
+        leftContent={leftContent}
         data-testid="paginator-vq9f"
       />
     );
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } =
-      this.props;
+    const { page, lazyLoading, columns, allowExport, count } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {
       return null;
     }
 
+    const showPaginator = page !== null && !lazyLoading;
+
     return (
       <StyledTableFooter data-testid="styledtablefooter-7pgn">
         <StyledTableRow $lazyLoading={lazyLoading} data-testid="styledtablerow-oomc">
-          {allowExport ? (
-            <TableCell colSpan={page !== null ? 2 : columns.length} data-testid="tablecell-zqda">
-              <DownloadDataButton
-                exportName={exportName}
-                columns={columns}
-                data={data}
-                ExportButton={ExportButton}
-                data-testid="downloaddatabutton-w1c5"
-              />
+          {showPaginator ? (
+            this.renderPaginator(allowExport ? this.renderExportButton() : null)
+          ) : allowExport ? (
+            <TableCell colSpan={columns.length} data-testid="tablecell-zqda">
+              {this.renderExportButton()}
             </TableCell>
           ) : null}
-          {page !== null && !lazyLoading && this.renderPaginator()}
         </StyledTableRow>
       </StyledTableFooter>
     );
