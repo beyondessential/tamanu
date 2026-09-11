@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "@tamanu/build-tooling": "*",
-    "@tamanu/fake-data": "*",
     "@types/node-telegram-bot-api": "^0.64.6",
     "chai": "^4.1.2",
     "concurrently": "^9.2.1",
@@ -55,6 +54,7 @@
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/errors": "*",
+    "@tamanu/fake-data": "*",
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "@tamanu/upgrade": "*",

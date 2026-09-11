@@ -7,8 +7,9 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { chance, fake } from '../../fake/index.js';
+import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
+import { pooled, pooledWithChild } from '../pool.js';
 import { createReferenceData } from './referenceData.js';
 
 import type {
@@ -59,23 +60,27 @@ export const generateImportData = async ({
   user: User;
   programRegistry: ProgramRegistry;
 }> => {
-  const referenceData = await createReferenceData(
-    { ReferenceData, ReferenceDrug },
-    REFERENCE_TYPES.DRUG,
-  );
   // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
-  // bare fake(ReferenceDataRelation) leaves referenceDataId null — central allows it (nullable
+  // bare fake(ReferenceDataRelation) leaves referenceDataId null: central allows it (nullable
   // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
   // insert fails). Give it a valid parent and child.
-  const parentReferenceData = await createReferenceData(
-    { ReferenceData, ReferenceDrug },
-    REFERENCE_TYPES.DRUG,
-  );
-  await ReferenceDataRelation.create(
-    fake(ReferenceDataRelation, {
-      referenceDataParentId: parentReferenceData.id,
-      referenceDataId: referenceData.id,
-    }),
+  const createDrug = () =>
+    createReferenceData({ ReferenceData, ReferenceDrug }, REFERENCE_TYPES.DRUG);
+  const drugRelation = async (childId: string) => {
+    const parent = await createDrug();
+    return ReferenceDataRelation.create(
+      fake(ReferenceDataRelation, {
+        referenceDataParentId: parent.id,
+        referenceDataId: childId,
+      }),
+    );
+  };
+  const referenceData = await pooledWithChild(
+    ReferenceData,
+    createDrug,
+    ReferenceDataRelation,
+    drugRelation,
+    { childKey: 'referenceDataId', where: { type: REFERENCE_TYPES.DRUG } },
   );
 
   // A small, stable pool of allergy reference data for patient allergies to point at,
@@ -88,49 +93,49 @@ export const generateImportData = async ({
     });
   }
 
-  // A deployment has at most a few hundred facilities, not one per data round, so once
-  // the pool is full each round reuses one instead of minting another.
-  const FACILITY_POOL_SIZE = 100;
-  const facilityIds = (await Facility.findAll({ attributes: ['id'], raw: true })).map(
-    (row: { id: string }) => row.id,
+  const facility = await pooled(Facility, () => Facility.create(fake(Facility)), { size: 100 });
+  // A round's department, location and location group all have to sit at its facility.
+  const locationGroup = await pooled(
+    LocationGroup,
+    () => LocationGroup.create(fake(LocationGroup, { facilityId: facility.id })),
+    { where: { facilityId: facility.id } },
   );
-  const facility =
-    facilityIds.length >= FACILITY_POOL_SIZE
-      ? (await Facility.findByPk(chance.pickone(facilityIds)))!
-      : await Facility.create(fake(Facility));
-  const locationGroup = await LocationGroup.create(
-    fake(LocationGroup, {
-      facilityId: facility.id,
-    }),
+  const location = await pooled(
+    Location,
+    () =>
+      Location.create(
+        fake(Location, { facilityId: facility.id, locationGroupId: locationGroup.id }),
+      ),
+    { where: { facilityId: facility.id, locationGroupId: locationGroup.id } },
   );
-  const location = await Location.create(
-    fake(Location, {
-      facilityId: facility.id,
-      locationGroupId: locationGroup.id,
-    }),
-  );
-  const department = await Department.create(
-    fake(Department, {
-      facilityId: facility.id,
-    }),
+  const department = await pooled(
+    Department,
+    () => Department.create(fake(Department, { facilityId: facility.id })),
+    { where: { facilityId: facility.id } },
   );
 
-  const survey = await Survey.create(fake(Survey));
-  await SurveyScreenComponent.create(
-    fake(SurveyScreenComponent, {
-      surveyId: survey.id,
-      option: '{"foo":"bar"}',
-      config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
-    }),
+  const screenComponent = async (surveyId: string) => {
+    const dataElement = await ProgramDataElement.create(fake(ProgramDataElement));
+    return SurveyScreenComponent.create(
+      fake(SurveyScreenComponent, {
+        surveyId,
+        dataElementId: dataElement.id,
+        option: '{"foo":"bar"}',
+        config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
+      }),
+    );
+  };
+  const survey = await pooledWithChild(
+    Survey,
+    () => Survey.create(fake(Survey)),
+    SurveyScreenComponent,
+    screenComponent,
+    { childKey: 'surveyId' },
   );
 
-  const scheduledVaccine = await ScheduledVaccine.create(
-    fake(ScheduledVaccine, {
-      vaccineId: referenceData.id,
-    }),
+  const scheduledVaccine = await pooled(ScheduledVaccine, () =>
+    ScheduledVaccine.create(fake(ScheduledVaccine, { vaccineId: referenceData.id })),
   );
-
-  await ProgramDataElement.create(fake(ProgramDataElement));
 
   const seedProgramRegistry = async () => {
     const program = await Program.create(fake(Program));
@@ -164,33 +169,25 @@ export const generateImportData = async ({
     return registry;
   };
 
-  // A deployment has a small, fixed set of program registries, not one per data round.
-  // Without a cap every round minted another and the Program Registry sidebar filled with
-  // dozens of entries; once the pool is full, reuse an existing one instead.
-  const PROGRAM_REGISTRY_POOL_SIZE = 8;
-  const programRegistryIds = (
-    await ProgramRegistry.findAll({ attributes: ['id'], raw: true })
-  ).map((row: { id: string }) => row.id);
-  const programRegistry =
-    programRegistryIds.length >= PROGRAM_REGISTRY_POOL_SIZE
-      ? (await ProgramRegistry.findByPk(chance.pickone(programRegistryIds)))!
-      : await seedProgramRegistry();
+  // The Program Registry sidebar lists every registry, so this pool stays far smaller
+  // than the rest.
+  const programRegistry = await pooled(ProgramRegistry, seedProgramRegistry, { size: 8 });
 
-  const invoiceProduct = await InvoiceProduct.create(
-    fake(InvoiceProduct, {
-      category: INVOICE_ITEMS_CATEGORIES.DRUG,
-      sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
-      sourceRecordId: referenceData.id,
-    }),
+  const invoiceProduct = await pooled(InvoiceProduct, () =>
+    InvoiceProduct.create(
+      fake(InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+        sourceRecordId: referenceData.id,
+      }),
+    ),
   );
 
-  const labTestType = await LabTestType.create(
-    fake(LabTestType, {
-      labTestCategoryId: referenceData.id,
-    }),
+  const labTestType = await pooled(LabTestType, () =>
+    LabTestType.create(fake(LabTestType, { labTestCategoryId: referenceData.id })),
   );
 
-  const user = await User.create(fake(User));
+  const user = await pooled(User, () => User.create(fake(User)));
 
   return {
     referenceData,

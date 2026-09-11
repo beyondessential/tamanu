@@ -108,6 +108,25 @@ if (event === 'pull_request' && baseSha) {
 
   const migrationsTouched = files.some((f) => f.startsWith('packages/database/src/migrations/'));
 
+  // Umzug keys applied migrations by filename, so an edit never re-runs, a rename re-runs under
+  // the new name on databases that applied the old one, and a delete orphans its SequelizeMeta row.
+  const changedMigrations = execSync(
+    `git diff --name-status --diff-filter=MRD ${baseSha}...${head} -- packages/database/src/migrations/`,
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => {
+      const [status, ...paths] = line.split('\t');
+      return status.startsWith('R') ? paths.join(' -> ') : paths.at(-1);
+    });
+
+  if (changedMigrations.length > 0) {
+    console.log(
+      `::warning::Changed existing migrations: ${changedMigrations.join(', ')}. Any database that already applied these keeps the old shape, including the RC deploy. Add a follow-up migration unless nothing has run them yet.`,
+    );
+  }
+
   console.error(`Event:              ${event}`);
   console.error(`Touched packages:   ${[...touched].sort().join(', ') || '(none)'}`);
   console.error(`Migrations touched: ${migrationsTouched}`);

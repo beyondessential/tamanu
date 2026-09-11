@@ -31,7 +31,7 @@ class DryRunRollback extends Error {
  */
 export async function runInRollbackTransaction(sequelize, fn) {
   try {
-    await sequelize.transaction(async (outerTransaction) => {
+    await sequelize.transaction(async outerTransaction => {
       // Throwing rolls the transaction back; the sentinel carries fn's result back out.
       throw new DryRunRollback(await fn(outerTransaction));
     });
@@ -94,8 +94,53 @@ function migrationDurationsForBatch(durationStats, batchMigrations) {
   return out;
 }
 
+const BASELINE_MIGRATION = '000_baseline';
+
+function estimatedRowsTotal(preSnapshot) {
+  if (!preSnapshot?.tableRowEstimates) return null;
+  return preSnapshot.tableRowEstimates.reduce(
+    (sum, { estimatedRowCount }) => sum + estimatedRowCount,
+    0,
+  );
+}
+
 function totalMigrationsDurationMsFromMap(durationMsPerMigration) {
   return Object.values(durationMsPerMigration).reduce((a, b) => a + b, 0);
+}
+
+// The migration test workflow parses these lines out of the pod logs with a brace-delimited
+// regex, so neither may contain a nested object.
+function logMigrationSummary(
+  log,
+  {
+    applied,
+    totalMigrationsDurationMs,
+    batchDurationMs,
+    baselineApplied,
+    databaseSizeBytes,
+    estimatedRowsTotal,
+  },
+) {
+  log.info(
+    `TAMANU_MIGRATION_SUMMARY ${JSON.stringify({
+      applied,
+      totalMigrationsDurationMs,
+      batchDurationMs,
+      baselineApplied,
+      databaseSizeBytes,
+      estimatedRowsTotal,
+    })}`,
+  );
+}
+
+// Every migration's cost, slowest first. The audit row holds the same map, but only the
+// database being migrated can read it, and a caller watching an upgrade or a migration
+// test run does not have it.
+function logMigrationTimings(log, durationMsPerMigration) {
+  const timings = Object.entries(durationMsPerMigration)
+    .sort(([, a], [, b]) => b - a)
+    .map(([file, ms]) => `${file} ${ms}`);
+  log.info(`TAMANU_MIGRATION_TIMINGS ${JSON.stringify(timings)}`);
 }
 
 // Umzug's down({ to }) INCLUDES the target in the revert. The baseline's down
@@ -199,49 +244,54 @@ export async function createMigrationInterface(log, sequelize, options = {}) {
       // In a dry run, nest each migration as a SAVEPOINT under the outer dry-run
       // transaction (Sequelize only nests when the parent is passed explicitly); otherwise
       // each migration runs in its own top-level transaction as usual.
-      wrap: (updown) => (...args) => {
-        const transactionArgs = dryRun ? [{ transaction: parentTransaction }] : [];
-        return sequelize.transaction(...transactionArgs, async () => {
-          // Flush the previous migration's deferred audit triggers before this one's DDL,
-          // mimicking the per-migration COMMIT that a real run would have done by now.
-          if (dryRun) {
-            await flushDeferredConstraints(sequelize);
-          }
+      wrap:
+        updown =>
+        (...args) => {
+          const transactionArgs = dryRun ? [{ transaction: parentTransaction }] : [];
+          return sequelize.transaction(...transactionArgs, async () => {
+            // Flush the previous migration's deferred audit triggers before this one's DDL,
+            // mimicking the per-migration COMMIT that a real run would have done by now.
+            if (dryRun) {
+              await flushDeferredConstraints(sequelize);
+            }
 
-          const isMigrationContextAvailable = await checkIsMigrationContextAvailable(sequelize);
-          if (!isMigrationContextAvailable) {
+            const isMigrationContextAvailable = await checkIsMigrationContextAvailable(sequelize);
+            if (!isMigrationContextAvailable) {
+              try {
+                return await updown(...args);
+              } catch (error) {
+                throw enhancePendingTriggerError(error, wrapContext.migrationName);
+              }
+            }
+
+            // Create migration context object
+            const migrationContext = {
+              direction: wrapContext.direction,
+              migrationName: wrapContext.migrationName,
+              serverType: global?.serverInfo?.serverType || 'unknown',
+            };
+
+            // Set the migration context as a transaction variable
+            await sequelize.setTransactionVar(
+              AUDIT_MIGRATION_CONTEXT_KEY,
+              JSON.stringify(migrationContext),
+            );
+
             try {
               return await updown(...args);
             } catch (error) {
               throw enhancePendingTriggerError(error, wrapContext.migrationName);
+            } finally {
+              try {
+                await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+              } catch {
+                // Transaction already aborted; rollback will clean up.
+              }
             }
-          }
+          });
+        },
 
-          // Create migration context object
-          const migrationContext = {
-            direction: wrapContext.direction,
-            migrationName: wrapContext.migrationName,
-            serverType: global?.serverInfo?.serverType || 'unknown',
-          };
-
-          // Set the migration context as a transaction variable
-          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
-
-          try {
-            return await updown(...args);
-          } catch (error) {
-            throw enhancePendingTriggerError(error, wrapContext.migrationName);
-          } finally {
-            try {
-              await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
-            } catch {
-              // Transaction already aborted; rollback will clean up.
-            }
-          }
-        });
-      },
-
-      customResolver: async (sqlPath) => {
+      customResolver: async sqlPath => {
         // umzug hands us an absolute filesystem path, but ESM only imports file:// URLs: on
         // Windows a bare `C:\…` is read as a URL with scheme `c:` and rejected outright.
         const migrationImport = await import(pathToFileURL(sqlPath).href);
@@ -264,22 +314,22 @@ export async function createMigrationInterface(log, sequelize, options = {}) {
     },
   });
 
-  umzug.on('migrating', (name) => {
+  umzug.on('migrating', name => {
     wrapContext.direction = 'up';
     wrapContext.migrationName = name;
     log.info(`Applying migration: ${name}`);
     durationStats[name] = Date.now();
   });
-  umzug.on('migrated', (name) => {
+  umzug.on('migrated', name => {
     durationStats[name] = Date.now() - durationStats[name];
   });
-  umzug.on('reverting', (name) => {
+  umzug.on('reverting', name => {
     wrapContext.direction = 'down';
     wrapContext.migrationName = name;
     log.info(`Reverting migration: ${name}`);
     durationStats[name] = Date.now();
   });
-  umzug.on('reverted', (name) => {
+  umzug.on('reverted', name => {
     durationStats[name] = Date.now() - durationStats[name];
   });
 
@@ -295,7 +345,9 @@ export async function createMigrationInterface(log, sequelize, options = {}) {
         `DELETE FROM "SequelizeMeta" WHERE name IN (${orphaned.map((_, i) => `$${i + 1}`).join(',')})`,
         { bind: orphaned },
       );
-      log.info(`Removed ${orphaned.length} orphaned entries from SequelizeMeta (squashed into baseline)`);
+      log.info(
+        `Removed ${orphaned.length} orphaned entries from SequelizeMeta (squashed into baseline)`,
+      );
     }
     return originalDown(...args);
   };
@@ -333,19 +385,35 @@ export async function migrateUpTo({
 
   const auditBatch = async (batch, failedMigration = undefined) => {
     const durationMsPerMigration = migrationDurationsForBatch(getDurationStats(), batch);
+    const totalMigrationsDurationMs = totalMigrationsDurationMsFromMap(durationMsPerMigration);
+    const batchDurationMs = Date.now() - batchStart;
+
+    logMigrationSummary(log, {
+      applied: batch.length,
+      totalMigrationsDurationMs,
+      batchDurationMs,
+      // A baseline in the batch means the database had no schema, so the timings below
+      // measure DDL against empty tables rather than an upgrade of real data.
+      baselineApplied: batch.some(({ file }) => file?.startsWith(BASELINE_MIGRATION)),
+      databaseSizeBytes: preSnapshot?.databaseSizeBytes ?? null,
+      estimatedRowsTotal: estimatedRowsTotal(preSnapshot),
+    });
+
+    logMigrationTimings(log, durationMsPerMigration);
+
     await createMigrationAuditLog(sequelize, batch, 'up', {
-      batchDurationMs: Date.now() - batchStart,
+      batchDurationMs,
       upgradeRunId,
       stats: {
         durationMsPerMigration,
-        totalMigrationsDurationMs: totalMigrationsDurationMsFromMap(durationMsPerMigration),
+        totalMigrationsDurationMs,
         ...(preSnapshot ? { preSnapshot } : {}),
         ...(failedMigration ? { failedMigration } : {}),
       },
     });
   };
 
-  const applied = await migrations.up(upOpts).catch(async (error) => {
+  const applied = await migrations.up(upOpts).catch(async error => {
     await auditFailedBatch({ log, migrations, pending, executedBefore, auditBatch });
     throw error;
   });
@@ -400,6 +468,14 @@ async function migrateUp(log, sequelize, upOpts = undefined, options = {}) {
     await migrateUpTo({ log, sequelize, migrations, getDurationStats, pending, upOpts, dryRun });
   } else {
     log.info('Migrations already up-to-date.');
+    logMigrationSummary(log, {
+      applied: 0,
+      totalMigrationsDurationMs: 0,
+      batchDurationMs: 0,
+      baselineApplied: false,
+      databaseSizeBytes: null,
+      estimatedRowsTotal: null,
+    });
   }
 
   await syncDatabaseServerVersionForMigrateUp(sequelize, options);
@@ -535,7 +611,7 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
       '--dry-run',
       'Apply migrations in a transaction then roll back, without committing any changes',
     )
-    .action((options) => migrateCallback('up', { dryRun: Boolean(options.dryRun) }));
+    .action(options => migrateCallback('up', { dryRun: Boolean(options.dryRun) }));
 
   migrateCommand
     .command('down')
@@ -556,7 +632,7 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
       '--dry-run',
       'Run the down and up in a transaction then roll back, without committing any changes',
     )
-    .action((options) => migrateCallback('redoLatest', { dryRun: Boolean(options.dryRun) }));
+    .action(options => migrateCallback('redoLatest', { dryRun: Boolean(options.dryRun) }));
 
   return migrateCommand;
 }
