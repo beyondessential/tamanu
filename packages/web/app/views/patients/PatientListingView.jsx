@@ -13,9 +13,8 @@ import {
   TopBar,
 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
-import { Button, ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { NewPatientModal } from './components';
-import { relegateSystemError } from '../../api/relegateSystemError';
 import {
   clinician,
   culturalName,
@@ -175,45 +174,6 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
   );
 };
 
-// Temp: manually adds errors to debug
-const DEBUG_ENDPOINTS = [
-  'patient/123',
-  'labRequest/all',
-  'appointments/outpatients',
-  'encounter/456',
-  'medication/789',
-  'imaging/orders',
-];
-
-const DEBUG_MESSAGES = [
-  'Unexpected token in JSON',
-  'Connection terminated unexpectedly',
-  'relation "appointments" does not exist',
-  'Unexpected server error',
-];
-
-const randomFrom = list => list[Math.floor(Math.random() * list.length)];
-
-const DebugAddSystemErrorButton = () => {
-  const handleClick = () => {
-    relegateSystemError(
-      { title: randomFrom(DEBUG_MESSAGES) },
-      randomFrom(DEBUG_ENDPOINTS),
-    );
-  };
-
-  return (
-    <Button
-      variant="outlined"
-      color="primary"
-      onClick={handleClick}
-      data-testid="debugaddsystemerrorbutton-syse"
-    >
-      Add system error (debug)
-    </Button>
-  );
-};
-
 export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
 
@@ -231,7 +191,6 @@ export const PatientListingView = ({ onViewPatient }) => {
         }
         data-testid="topbar-asng"
       >
-        <DebugAddSystemErrorButton />
         <NewPatientButton onCreateNewPatient={onViewPatient} data-testid="newpatientbutton-dnh4" />
       </TopBar>
       <RecentlyViewedPatientsList data-testid="recentlyviewedpatientslist-oe2h" />
