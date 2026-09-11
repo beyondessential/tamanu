@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { TamanuApi as ApiClient } from '@tamanu/api-client';
 import { ERROR_TYPE } from '@tamanu/errors';
+import { TamanuApi } from '../../app/api/TamanuApi';
 
-const { notifyError, relegateSystemError } = vi.hoisted(() => ({
+const { notifyError } = vi.hoisted(() => ({
   notifyError: vi.fn(),
-  relegateSystemError: vi.fn(),
 }));
 
 vi.mock('../../app/utils', () => ({
@@ -12,21 +12,18 @@ vi.mock('../../app/utils', () => ({
   notifyError,
 }));
 
-vi.mock('../../app/api/relegateSystemError', () => ({ relegateSystemError }));
-
-// eslint-disable-next-line import/first
-import { TamanuApi } from '../../app/api/TamanuApi';
-
 describe('TamanuApi error toast relegation', () => {
   let api;
   let fetchSpy;
+  let systemErrorHandler;
 
   beforeEach(() => {
     window.history.pushState({}, '', '/patient/123');
     api = new TamanuApi('test-version');
+    systemErrorHandler = vi.fn();
+    api.setSystemErrorHandler(systemErrorHandler);
     fetchSpy = vi.spyOn(ApiClient.prototype, 'fetch');
     notifyError.mockClear();
-    relegateSystemError.mockClear();
   });
 
   afterEach(() => {
@@ -42,10 +39,9 @@ describe('TamanuApi error toast relegation', () => {
       api.get('patient/123', {}, { showUnknownErrorToast: true }),
     ).rejects.toBeTruthy();
 
-    expect(relegateSystemError).toHaveBeenCalledTimes(1);
-    expect(relegateSystemError).toHaveBeenCalledWith(
-      expect.objectContaining({ type: ERROR_TYPE.DATABASE }),
-      'patient/123',
+    expect(systemErrorHandler).toHaveBeenCalledTimes(1);
+    expect(systemErrorHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'patient/123: boom' }),
     );
     expect(notifyError).not.toHaveBeenCalled();
   });
@@ -59,7 +55,7 @@ describe('TamanuApi error toast relegation', () => {
     ).rejects.toBeTruthy();
 
     expect(notifyError).toHaveBeenCalledTimes(1);
-    expect(relegateSystemError).not.toHaveBeenCalled();
+    expect(systemErrorHandler).not.toHaveBeenCalled();
   });
 
   it('relegates a server-kind error on facility admin, since it is part of the regular clinical client', async () => {
@@ -70,7 +66,7 @@ describe('TamanuApi error toast relegation', () => {
       api.get('facility-admin/system-errors', {}, { showUnknownErrorToast: true }),
     ).rejects.toBeTruthy();
 
-    expect(relegateSystemError).toHaveBeenCalledTimes(1);
+    expect(systemErrorHandler).toHaveBeenCalledTimes(1);
     expect(notifyError).not.toHaveBeenCalled();
   });
 
@@ -82,7 +78,7 @@ describe('TamanuApi error toast relegation', () => {
     ).rejects.toBeTruthy();
 
     expect(notifyError).toHaveBeenCalledTimes(1);
-    expect(relegateSystemError).not.toHaveBeenCalled();
+    expect(systemErrorHandler).not.toHaveBeenCalled();
   });
 
   it('still toasts an edit-conflict error on the clinical client', async () => {
@@ -93,7 +89,7 @@ describe('TamanuApi error toast relegation', () => {
     ).rejects.toBeTruthy();
 
     expect(notifyError).toHaveBeenCalledTimes(1);
-    expect(relegateSystemError).not.toHaveBeenCalled();
+    expect(systemErrorHandler).not.toHaveBeenCalled();
   });
 
   it('does nothing when showUnknownErrorToast is false', async () => {
@@ -104,6 +100,6 @@ describe('TamanuApi error toast relegation', () => {
     ).rejects.toBeTruthy();
 
     expect(notifyError).not.toHaveBeenCalled();
-    expect(relegateSystemError).not.toHaveBeenCalled();
+    expect(systemErrorHandler).not.toHaveBeenCalled();
   });
 });

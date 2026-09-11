@@ -11,7 +11,7 @@ import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { API_ERROR_TOAST, resolveApiErrorToast } from './classifyApiError';
-import { relegateSystemError } from './relegateSystemError';
+import { buildSystemError } from './relegateSystemError';
 
 const {
   TOKEN,
@@ -102,7 +102,7 @@ function saveToLocalStorage({
   }
 }
 
-// Toast relegation (see `relegateSystemError`) only applies to the regular clinical
+// Toast relegation (see `systemErrorHandler`) only applies to the regular clinical
 // client; the (separate) admin panel at /admin keeps showing a toast for every kind of
 // API error for now. /facility-admin is a section of the regular clinical client (it's
 // where the System errors view itself lives, alongside Bed management and Reports), not
@@ -217,6 +217,10 @@ export class TamanuApi extends ApiClient {
       config.headers.set('date-time-locale', Intl.DateTimeFormat().resolvedOptions().locale);
       return config;
     });
+  }
+
+  setSystemErrorHandler(handler) {
+    this.systemErrorHandler = handler;
   }
 
   async setToken(token, refreshToken = null) {
@@ -370,7 +374,7 @@ export class TamanuApi extends ApiClient {
       } else if (showUnknownErrorToast) {
         const toastKind = resolveApiErrorToast(err, isErrorUnknown);
         if (toastKind === API_ERROR_TOAST.SERVER && !isAdminRoute()) {
-          relegateSystemError(err, endpoint);
+          this.systemErrorHandler?.(buildSystemError(err, endpoint));
         } else if (toastKind) {
           notifyError(buildErrorToast(toastKind, err, endpoint));
         }

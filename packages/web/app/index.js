@@ -6,7 +6,6 @@ import BugsnagPluginReact from '@bugsnag/plugin-react';
 
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
-import { setSystemErrorHandler } from './api/relegateSystemError';
 import { registerYup } from './utils/errorMessages';
 import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { addSystemError, authFailure, initStore, restoreSession, versionIncompatible } from './store';
@@ -67,7 +66,7 @@ async function start() {
     store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
   });
 
-  setSystemErrorHandler(error => {
+  API.setSystemErrorHandler(error => {
     store.dispatch(addSystemError(error));
   });
 
