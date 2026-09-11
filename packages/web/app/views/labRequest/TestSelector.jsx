@@ -30,10 +30,10 @@ import {
 const Wrapper = styled.div`
   display: flex;
   width: 100%;
-  height: 359px;
+  // Floor keeps the laptop layout; grow on taller viewports (the modal scrolls if it overflows)
+  height: clamp(359px, 100vh - 540px, 500px);
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  background: ${Colors.white};
 `;
 
 const Column = styled.div`
@@ -44,11 +44,13 @@ const Column = styled.div`
 `;
 
 const ListColumn = styled(Column)`
+  background: ${Colors.white};
   flex: 62;
 `;
 
 const SelectedColumn = styled(Column)`
   flex: 38;
+  background: ${Colors.background2};
 `;
 
 const VerticalLine = styled.div`
@@ -60,11 +62,13 @@ const Controls = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-right: 1.3rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const StyledSearchInput = styled(SearchInput)`
   flex: 1;
-  margin-top: -2px;
   margin-left: 5px;
   .MuiInputBase-root {
     padding-left: 0;
@@ -72,18 +76,18 @@ const StyledSearchInput = styled(SearchInput)`
   .MuiInputBase-input {
     font-size: 14px;
   }
-  .MuiOutlinedInput-root {
-    .MuiOutlinedInput-notchedOutline,
-    &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
+  .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+    border: none;
+  }
+  // Outrank TextField's focus-outline rule, which is higher specificity than a plain selector here
+  && .MuiOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline {
+    border: none;
   }
 `;
 
 const CategoryFilter = styled(Select)`
   width: 156px;
   flex-shrink: 0;
-  margin-bottom: 0.5rem;
 `;
 
 const categoryFilterStyles = {
@@ -146,7 +150,10 @@ const SelectedHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 8px;
+  padding-bottom: 12px;
   margin-bottom: 8px;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const SectionTitle = styled.span`
@@ -161,7 +168,8 @@ const ClearAllButton = styled(TextButton)`
   font-weight: 400;
   text-transform: none;
   text-decoration: underline;
-  color: ${({ theme }) => theme.palette.primary.main};
+  color: ${Colors.darkestText};
+
   &:hover {
     text-decoration: underline;
   }

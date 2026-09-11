@@ -34,7 +34,7 @@ export const SampleDetailsContainer = styled.div`
     css`
       // No Category column to provide the left inset, so give the first column one to match.
       > div:nth-child(4n + 1) {
-        padding-left: 32px;
+        padding-left: 20px;
       }
     `}
 `;
@@ -45,8 +45,10 @@ const HeaderCell = styled(Heading4)`
   padding: 0 15px 15px 0px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.midText};
+  margin: 18px 0 10px;
+
   &:first-of-type {
-    padding-left: 32px;
+    padding-left: 20px;
   }
 `;
 
@@ -62,7 +64,7 @@ export const SampleDetailsCell = styled.div`
 `;
 
 export const SampleDetailsLabelCell = styled(SampleDetailsCell)`
-  padding-left: 32px;
+  padding-left: 20px;
 `;
 
 export const SampleDetailsStyledField = styled(Field)`

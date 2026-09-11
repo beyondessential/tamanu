@@ -92,6 +92,7 @@ export const LabRequestFormScreen1 = ({
     <div style={{ gridColumn: '1 / -1' }}>
       <FormSeparatorLine />
       <BodyText
+        mt="12px"
         mb="12px"
         fontWeight={500}
         style={{ color: Colors.darkText }}
@@ -99,7 +100,7 @@ export const LabRequestFormScreen1 = ({
       >
         <TranslatedText
           stringId="lab.testSelect.heading"
-          fallback="Select the tests you would like to request"
+          fallback="Select the tests you would like to request."
         />
       </BodyText>
       <CombinedTestSelector onSelectionChange={onSelectionChange} />
