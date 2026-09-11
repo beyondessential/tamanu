@@ -20,10 +20,21 @@ export const pooled = async <M extends Model>(
   create: () => Promise<M>,
   { size = POOL_SIZE, where }: PoolOptions<M> = {},
 ): Promise<M> => {
-  const rows = await model.findAll({ where, limit: size });
-  if (rows.length < size) return create();
-  return chance.pickone(rows);
+  const ids = (await model.findAll({
+    where,
+    attributes: ['id'],
+    raw: true,
+    limit: size,
+  })) as unknown as Array<{ id: string }>;
+  if (ids.length < size) return create();
+  return (await model.findByPk(chance.pickone(ids).id)) as M;
 };
+
+export interface ChildPoolOptions<P extends Model, C extends Model> extends PoolOptions<P> {
+  // The child's foreign key to its parent. Without it the child pool counts every child
+  // row in the database, so one full parent's children stop any other parent gaining one.
+  childKey: string & keyof Attributes<C>;
+}
 
 // A parent that is unusable without a child: a report definition with no version cannot be
 // listed, a survey with no screen component has nothing to answer. The child is created with
@@ -34,17 +45,23 @@ export const pooledWithChild = async <P extends Model & { id: string }, C extend
   createParent: () => Promise<P>,
   child: ModelStatic<C>,
   createChild: (parentId: string) => Promise<C>,
-  options: PoolOptions<P> = {},
+  { childKey, ...options }: ChildPoolOptions<P, C>,
 ): Promise<P> => {
+  let minted = false;
   const row = await pooled(
     parent,
     async () => {
+      minted = true;
       const created = await createParent();
       await createChild(created.id);
       return created;
     },
     options,
   );
-  await pooled(child, () => createChild(row.id));
+  if (minted) return row;
+
+  await pooled(child, () => createChild(row.id), {
+    where: { [childKey]: row.id } as WhereOptions<Attributes<C>>,
+  });
   return row;
 };

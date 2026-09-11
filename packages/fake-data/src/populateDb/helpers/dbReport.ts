@@ -37,6 +37,7 @@ export const createDbReport = async ({
       ),
     ReportDefinitionVersion,
     version,
+    { childKey: 'reportDefinitionId' },
   );
 };
 

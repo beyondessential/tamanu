@@ -80,7 +80,7 @@ export const generateImportData = async ({
     createDrug,
     ReferenceDataRelation,
     drugRelation,
-    { where: { type: REFERENCE_TYPES.DRUG } },
+    { childKey: 'referenceDataId', where: { type: REFERENCE_TYPES.DRUG } },
   );
 
   // A small, stable pool of allergy reference data for patient allergies to point at,
@@ -130,6 +130,7 @@ export const generateImportData = async ({
     () => Survey.create(fake(Survey)),
     SurveyScreenComponent,
     screenComponent,
+    { childKey: 'surveyId' },
   );
 
   const scheduledVaccine = await pooled(ScheduledVaccine, () =>
