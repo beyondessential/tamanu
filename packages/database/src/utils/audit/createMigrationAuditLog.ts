@@ -1,6 +1,7 @@
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Migration } from 'umzug';
 import type { PreMigrationDbSnapshot } from './gatherPreMigrationDbSnapshot';
+import type { MigrationErrorSummary } from './sanitiseMigrationError';
 
 export type MigrationLogStats = {
   /** Duration (ms) per migration file in this batch. */
@@ -15,6 +16,7 @@ export type MigrationLogStats = {
    * those that applied before it.
    */
   failedMigration?: string;
+  error?: MigrationErrorSummary;
 };
 
 export type CreateMigrationAuditLogOptions = {

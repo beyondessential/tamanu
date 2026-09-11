@@ -83,6 +83,48 @@ describe('migration batch auditing', () => {
     expect(batch.stats.durationMsPerMigration).toEqual({ 'c.ts': 3000 });
   });
 
+  it('records a sanitised cause for the failure', async () => {
+    const executed: { file: string }[] = [];
+    const original = Object.assign(new Error('invalid input syntax for type integer: "abc"'), {
+      code: '22P02',
+      detail: 'Failing row contains (alice@example.org, 1990-05-15).',
+      table: 'reference_drugs',
+      column: 'dose_unit_id',
+    });
+    const migrations = {
+      up: async () => {
+        executed.push({ file: 'a.ts' });
+        throw Object.assign(new Error(original.message), {
+          name: 'SequelizeDatabaseError',
+          original,
+          parent: original,
+        });
+      },
+      executed: async () => [...executed],
+    };
+
+    await expect(
+      migrateUpTo({
+        log,
+        sequelize,
+        pending,
+        migrations,
+        getDurationStats: () => ({}),
+      }),
+    ).rejects.toThrow('invalid input syntax');
+
+    const batch = await latestBatch();
+    expect(batch.stats.failedMigration).toBe('b.ts');
+    expect(batch.stats.error).toEqual({
+      code: '22P02',
+      message: 'invalid input syntax for type integer: "…"',
+      table: 'reference_drugs',
+      column: 'dose_unit_id',
+    });
+    expect(JSON.stringify(batch.stats)).not.toContain('Failing row contains');
+    expect(JSON.stringify(batch.stats)).not.toContain('alice@example.org');
+  });
+
   it('records no failure on a batch that completes', async () => {
     const migrations = {
       up: async () => pending,
@@ -100,6 +142,7 @@ describe('migration batch auditing', () => {
     const batch = await latestBatch();
     expect(batch.migrations).toEqual(['a.ts', 'b.ts', 'c.ts']);
     expect(batch.stats.failedMigration).toBeUndefined();
+    expect(batch.stats.error).toBeUndefined();
   });
 
   it('throws the migration error even when the batch cannot be recorded', async () => {
