@@ -34,7 +34,7 @@ describe('SystemErrorReport', () => {
     email: 'clinician@example.org',
   });
 
-  it('forwards the report to central with the resolved user id and default recipients', async () => {
+  it('forwards the report to central with the resolved user id and facility id', async () => {
     const response = await app.post('/api/systemErrorReport').send(validBody());
 
     expect(response).toHaveSucceeded();
@@ -44,7 +44,7 @@ describe('SystemErrorReport', () => {
     expect(config.body).toMatchObject({
       ...validBody(),
       userId: app.user.id,
-      recipients: ['support@bes.au'],
+      facilityId: 'balwyn',
     });
   });
 

@@ -10,15 +10,14 @@ systemErrorReport.post(
     // Any logged-in user can report a system error; there's no specific ability to check.
     req.flagPermissionChecked();
 
-    const { deviceId, user, facilityId, settings, body } = req;
-    const { recipients } = await settings[facilityId].get('systemErrorReport');
+    const { deviceId, user, facilityId, body } = req;
 
     const centralServer = new CentralServerConnection({ deviceId });
     // .fetch() (not .post()) so backoff:false also reaches the login attempt via
     // preserveBackoffForAuthAttempt — otherwise an unreachable central blocks on a long login retry.
     const response = await centralServer.fetch('systemErrorReport', {
       method: 'POST',
-      body: { ...body, userId: user.id, recipients },
+      body: { ...body, userId: user.id, facilityId },
       retryAuth: true,
       backoff: false,
       preserveBackoffForAuthAttempt: true,

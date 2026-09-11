@@ -2,8 +2,10 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { AuthPermissionError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+import { ReadSettings } from '@tamanu/settings';
 import { getDefaultFromAddress } from './services/mailConfig';
 
 // spec: SYSERR#sending-a-report-to-support
@@ -29,10 +31,7 @@ const schema = yup.object({
     .email('Must enter a valid email')
     .nullable(),
   userId: yup.string().required(),
-  recipients: yup
-    .array(yup.string().email().required())
-    .min(1)
-    .required(),
+  facilityId: yup.string().required(),
 });
 
 systemErrorReport.post(
@@ -40,10 +39,18 @@ systemErrorReport.post(
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
 
-    const { body, settings } = req;
+    const { body, settings, models, user } = req;
     await schema.validate(body);
 
-    const { errors, additionalInformation, email, userId, recipients } = body;
+    const { errors, additionalInformation, email, userId, facilityId } = body;
+
+    const userInstance = await models.User.findByPk(user.id);
+    const hasAccess = await userInstance.canAccessFacility(facilityId);
+    if (!hasAccess) {
+      throw new AuthPermissionError('User does not have access to this facility');
+    }
+
+    const { recipients } = await new ReadSettings(models, facilityId).get('systemErrorReport');
 
     const emailText = buildEmailText({ errors, additionalInformation, email, userId });
 

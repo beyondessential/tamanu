@@ -1,20 +1,37 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from './utilities';
 
 describe('systemErrorReport', () => {
   let ctx;
   let baseApp;
   let emailService;
+  let models;
   let app;
   let user;
+  let facility;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     emailService = ctx.emailService;
+    models = ctx.store.models;
     app = await baseApp.asRole('practitioner');
     user = app.user;
+
+    await models.Setting.set('auth.restrictUsersToFacilities', true);
+
+    facility = await models.Facility.create(fake(models.Facility));
+    await models.UserFacility.create({ facilityId: facility.id, userId: user.id });
+    await user.reload({ include: 'facilities' });
+
+    await models.Setting.set(
+      'systemErrorReport.recipients',
+      ['support@bes.au'],
+      SETTINGS_SCOPES.FACILITY,
+      facility.id,
+    );
   });
 
   afterAll(() => ctx.close());
@@ -30,10 +47,10 @@ describe('systemErrorReport', () => {
     additionalInformation: 'It keeps happening after login',
     email: 'clinician@example.org',
     userId: user.id,
-    recipients: ['support@bes.au'],
+    facilityId: facility.id,
   });
 
-  it('sends an email to the configured recipients', async () => {
+  it('sends an email to the recipients configured for the facility', async () => {
     const response = await app.post('/api/systemErrorReport').send(validBody());
 
     expect(response).toHaveSucceeded();
@@ -46,13 +63,34 @@ describe('systemErrorReport', () => {
     expect(email.text).toContain('Something went wrong on the server.');
   });
 
-  it('joins multiple recipients', async () => {
-    const response = await app
-      .post('/api/systemErrorReport')
-      .send({ ...validBody(), recipients: ['support@bes.au', 'ops@bes.au'] });
+  it('joins multiple recipients configured for the facility', async () => {
+    await models.Setting.set(
+      'systemErrorReport.recipients',
+      ['support@bes.au', 'ops@bes.au'],
+      SETTINGS_SCOPES.FACILITY,
+      facility.id,
+    );
+
+    const response = await app.post('/api/systemErrorReport').send(validBody());
 
     expect(response).toHaveSucceeded();
     expect(emailService.sendEmail.mock.calls[0][0].to).toBe('support@bes.au, ops@bes.au');
+
+    await models.Setting.set(
+      'systemErrorReport.recipients',
+      ['support@bes.au'],
+      SETTINGS_SCOPES.FACILITY,
+      facility.id,
+    );
+  });
+
+  it('ignores a client-supplied recipients list and uses the facility setting instead', async () => {
+    const response = await app
+      .post('/api/systemErrorReport')
+      .send({ ...validBody(), recipients: ['attacker@example.org'] });
+
+    expect(response).toHaveSucceeded();
+    expect(emailService.sendEmail.mock.calls[0][0].to).toBe('support@bes.au');
   });
 
   it('does not include the follow-up email in the body when not provided', async () => {
@@ -73,10 +111,21 @@ describe('systemErrorReport', () => {
     expect(emailService.sendEmail).not.toHaveBeenCalled();
   });
 
-  it('rejects a request with no recipients', async () => {
+  it('rejects a request with no facilityId', async () => {
     const response = await app
       .post('/api/systemErrorReport')
-      .send({ ...validBody(), recipients: [] });
+      .send({ ...validBody(), facilityId: undefined });
+
+    expect(response).toHaveRequestError();
+    expect(emailService.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('rejects a request for a facility the user does not have access to', async () => {
+    const otherFacility = await models.Facility.create(fake(models.Facility));
+
+    const response = await app
+      .post('/api/systemErrorReport')
+      .send({ ...validBody(), facilityId: otherFacility.id });
 
     expect(response).toHaveRequestError();
     expect(emailService.sendEmail).not.toHaveBeenCalled();
