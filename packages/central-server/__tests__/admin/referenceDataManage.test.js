@@ -8,7 +8,38 @@ import {
   MANAGEABLE_REFERENCE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
+import {
+  SATELLITE_REGISTRY,
+  getSatelliteColumnKeys,
+  getColumnsForModel,
+} from '../../app/admin/referenceDataManageUtils';
 import { createTestContext } from '../utilities';
+
+// Satellite columns that are NOT yet surfaced in the Manage table, listed individually (per
+// type + column) rather than as a blanket type-level skip. This is deliberate: a NEWLY added
+// satellite column on one of these types is not on the list, so the guardrail below will fail
+// until it is either surfaced in Manage or explicitly added here. Wiring these two satellites
+// up to Manage (with the provisioning/importer parity that entails) is tracked in TAM-7046
+// (https://linear.app/bes/issue/TAM-7046).
+const MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS = new Set([
+  // taskTemplate -> TaskTemplate (task_templates); known follow-up, TAM-7046.
+  'taskTemplate.frequencyValue',
+  'taskTemplate.frequencyUnit',
+  'taskTemplate.highPriority',
+  // medicationTemplate -> ReferenceMedicationTemplate; known follow-up, TAM-7046.
+  'medicationTemplate.medicationId',
+  'medicationTemplate.isOngoing',
+  'medicationTemplate.isPrn',
+  'medicationTemplate.isVariableDose',
+  'medicationTemplate.doseAmount',
+  'medicationTemplate.dosingUnit',
+  'medicationTemplate.frequency',
+  'medicationTemplate.route',
+  'medicationTemplate.durationValue',
+  'medicationTemplate.durationUnit',
+  'medicationTemplate.notes',
+  'medicationTemplate.dischargeQuantity',
+]);
 
 const BASE_URL = '/api/admin/referenceData/manage';
 const COLUMNS_URL = `${BASE_URL}/columns`;
@@ -111,6 +142,64 @@ describe('Reference Data Manage', () => {
         referenceDataType: PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING,
       });
       expect(response).toHaveRequestError();
+    });
+
+    // A reference type whose columns are split across a 1:1 "satellite" table (a hasOne on
+    // ReferenceData keyed by referenceDataId, e.g. reference_drugs) resolves to the base
+    // ReferenceData model, so the satellite's columns only reach the Manage table when joined
+    // explicitly. This guardrail asserts that every satellite column of every satellite-backed
+    // manageable type is EITHER surfaced by the /columns endpoint OR explicitly allowlisted as a
+    // known follow-up — mirroring validateFullReferenceDataImport's allowlist-and-throw style and
+    // the selfReferencingFkDeferrability test's "enumerate everything, else fail" shape. It would
+    // have caught dosingUnit/dispensingUnit/unitConversion being added to reference_drugs without
+    // being wired into Manage.
+    it('surfaces every satellite column in the Manage columns, or lists it on the exclusion allowlist', async () => {
+      // Structurally discover satellite associations from the model layer: a hasOne on
+      // ReferenceData keyed by referenceDataId. The registry that drives the Manage join must
+      // cover exactly these, so a NEW satellite type cannot be added without being registered.
+      const discoveredAliases = Object.values(models.ReferenceData.associations)
+        .filter(
+          assoc => assoc.associationType === 'HasOne' && assoc.foreignKey === 'referenceDataId',
+        )
+        .map(assoc => assoc.as)
+        .sort();
+      expect(discoveredAliases).toEqual(
+        Object.values(SATELLITE_REGISTRY)
+          .map(entry => entry.as)
+          .sort(),
+      );
+
+      const missing = [];
+      for (const [type, { as: alias }] of Object.entries(SATELLITE_REGISTRY)) {
+        expect(MANAGEABLE_REFERENCE_DATA_TYPES).toContain(type);
+
+        const satelliteModel = models.ReferenceData.associations[alias].target;
+        const satelliteColumnKeys = getSatelliteColumnKeys(satelliteModel);
+        expect(satelliteColumnKeys.length).toBeGreaterThan(0);
+
+        const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: type });
+        expect(response).toHaveSucceeded();
+        const surfacedKeys = new Set(response.body.map(col => col.key));
+
+        for (const columnKey of satelliteColumnKeys) {
+          const isSurfaced = surfacedKeys.has(columnKey);
+          const isAllowlisted = MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS.has(`${type}.${columnKey}`);
+          if (!isSurfaced && !isAllowlisted) {
+            missing.push(`${type}.${columnKey}`);
+          }
+        }
+      }
+
+      if (missing.length > 0) {
+        throw new Error(
+          `Satellite reference-data columns are neither surfaced in the Manage table nor allowlisted:\n` +
+            `${missing.map(key => `  ${key}`).join('\n')}\n\n` +
+            `Either surface them (join the satellite in packages/central-server/app/admin/` +
+            `referenceDataManageUtils.js by setting enabled: true for the type in SATELLITE_REGISTRY), ` +
+            `or, if intentionally deferred, add each to MANAGE_TABLE_EXCLUDED_SATELLITE_COLUMNS in this ` +
+            `test with a note referencing the follow-up card.`,
+        );
+      }
     });
   });
 
@@ -377,6 +466,395 @@ describe('Reference Data Manage', () => {
     it('should forbid access without permission', async () => {
       const response = await noPermissionApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
+    });
+  });
+
+  // End-to-end coverage for the drug satellite (ReferenceDrug / reference_drugs): its columns must
+  // display in /columns, save on create, upsert on update, list as flat row values, and be filterable
+  // — the parity the Manage table was missing for satellite-backed reference data (TAM-7046).
+  describe('drug satellite (ReferenceDrug) columns', () => {
+    const SATELLITE_KEYS = [
+      'route',
+      'dosingUnit',
+      'dispensingUnit',
+      'unitConversion',
+      'notes',
+      'isSensitive',
+    ];
+
+    it('surfaces the ReferenceDrug satellite columns in GET /columns for drug', async () => {
+      const response = await adminApp
+        .get(COLUMNS_URL)
+        .query({ referenceDataType: REFERENCE_TYPES.DRUG });
+      expect(response).toHaveSucceeded();
+
+      const byKey = new Map(response.body.map(col => [col.key, col]));
+      for (const key of SATELLITE_KEYS) {
+        expect(byKey.get(key)).toMatchObject({ key, isSatellite: true, readOnly: false });
+      }
+      // typed so the web renders the right field/table cell (number input, Yes/No)
+      expect(byKey.get('unitConversion').type).toBe('DECIMAL');
+      expect(byKey.get('isSensitive').type).toBe('BOOLEAN');
+    });
+
+    it('persists satellite fields to reference_drugs on create', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'sat-create-code',
+        name: 'Satellite Create Drug',
+        route: 'oral',
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        unitConversion: 2,
+        notes: 'take with food',
+        isSensitive: true,
+      });
+      expect(response).toHaveSucceeded();
+
+      const satellite = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(satellite).toBeTruthy();
+      expect(satellite).toMatchObject({
+        route: 'oral',
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        notes: 'take with food',
+        isSensitive: true,
+      });
+      expect(Number(satellite.unitConversion)).toBe(2);
+
+      // the single-record create response flattens the just-saved satellite fields (parity with the
+      // list route), so a client refreshing this row after save sees them
+      expect(response.body).toMatchObject({
+        route: 'oral',
+        dosingUnit: 'mg',
+        dispensingUnit: 'tablet',
+        notes: 'take with food',
+        isSensitive: true,
+      });
+      expect(Number(response.body.unitConversion)).toBe(2);
+    });
+
+    it('upserts the satellite row on update without creating duplicates', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      // first update creates the satellite row (none existed yet)
+      const first = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        name: 'Updated Satellite Drug',
+        route: 'iv',
+        dosingUnit: 'mL',
+        isSensitive: true,
+      });
+      expect(first).toHaveSucceeded();
+      // the update response flattens the saved satellite fields too (parity with the list route)
+      expect(first.body).toMatchObject({ route: 'iv', dosingUnit: 'mL', isSensitive: true });
+
+      const satellite = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: record.id },
+      });
+      expect(satellite).toMatchObject({ route: 'iv', dosingUnit: 'mL', isSensitive: true });
+
+      // second update mutates the same satellite row rather than inserting another
+      const second = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        route: 'oral',
+      });
+      expect(second).toHaveSucceeded();
+      // the response reflects the merged satellite row: the new route plus fields the earlier update
+      // set and this one omitted
+      expect(second.body).toMatchObject({ route: 'oral', dosingUnit: 'mL', isSensitive: true });
+
+      const count = await models.ReferenceDrug.count({ where: { referenceDataId: record.id } });
+      expect(count).toBe(1);
+      await satellite.reload();
+      expect(satellite.route).toBe('oral');
+      // upsert merges: fields set by the earlier update are preserved when the later update omits
+      // them, rather than being reset to their column defaults
+      expect(satellite.dosingUnit).toBe('mL');
+      expect(satellite.isSensitive).toBe(true);
+    });
+
+    it('flattens satellite values onto the listed row and can filter on them', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'sat-list-code',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      await models.ReferenceDrug.create({
+        referenceDataId: record.id,
+        route: 'sublingual-unique',
+        dosingUnit: 'mcg',
+        isSensitive: true,
+      });
+
+      // satellite column search resolves via the joined association ($alias.column$)
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        route: 'sublingual-unique',
+      });
+      expect(response).toHaveSucceeded();
+
+      const row = response.body.data.find(r => r.id === record.id);
+      expect(row).toBeTruthy();
+      expect(row).toMatchObject({ route: 'sublingual-unique', dosingUnit: 'mcg', isSensitive: true });
+      // the nested association object is flattened away, not returned raw
+      expect(row).not.toHaveProperty('referenceDrug');
+      expect(response.body.data.every(r => r.route === 'sublingual-unique')).toBe(true);
+      // count must reflect the satellite-column filter too (the count query only joins the
+      // satellite when a filter references it — see countInclude), not the unfiltered total
+      expect(response.body.count).toBe(1);
+    });
+
+    it('lists a drug with no satellite row, returning satellite columns as null', async () => {
+      // A pre-existing drug may have no reference_drugs row; the satellite is left-joined, so it
+      // must still list with its satellite columns null rather than erroring or being dropped.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'sat-none-code',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'sat-none-code',
+      });
+      expect(response).toHaveSucceeded();
+
+      const row = response.body.data.find(r => r.id === record.id);
+      expect(row).toBeTruthy();
+      for (const key of SATELLITE_KEYS) {
+        expect(row[key]).toBeNull();
+      }
+      expect(row).not.toHaveProperty('referenceDrug');
+    });
+
+    it('does not create a satellite row when no satellite fields are provided on create', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'sat-empty-create-code',
+        name: 'No Satellite Drug',
+      });
+      expect(response).toHaveSucceeded();
+
+      const satellite = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(satellite).toBeNull();
+    });
+
+    it('leaves a pre-existing satellite row unchanged when updating with no satellite fields', async () => {
+      // The empty-satellite guard also protects the update path: an update carrying no satellite
+      // fields must not touch (or wipe) an existing reference_drugs row.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      const satellite = await models.ReferenceDrug.create({
+        referenceDataId: record.id,
+        route: 'oral',
+        dosingUnit: 'mg',
+        isSensitive: true,
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        name: 'Renamed With No Satellite Fields',
+      });
+      expect(response).toHaveSucceeded();
+
+      const count = await models.ReferenceDrug.count({ where: { referenceDataId: record.id } });
+      expect(count).toBe(1);
+      await satellite.reload();
+      expect(satellite).toMatchObject({ route: 'oral', dosingUnit: 'mg', isSensitive: true });
+    });
+
+    // Filtering by satellite columns whose camelCase attribute key differs from its snake_case DB
+    // column (isSensitive→is_sensitive, unitConversion→unit_conversion, dosingUnit→dosing_unit).
+    // The `$alias.column$` search path is not run through Sequelize's attribute→field mapping, so it
+    // must use the real DB column name; using the camelCase key made Postgres throw "column
+    // referenceDrug.isSensitive does not exist" (HTTP 500). BOOLEAN and DECIMAL columns are compared
+    // to the raw string query value, which Postgres coerces from the untyped literal.
+    describe('filtering by typed and camelCase satellite columns', () => {
+      const CODE_PREFIX = 'sat-filter-';
+      let sensitiveId;
+      let plainId;
+
+      beforeAll(async () => {
+        const createDrug = async (codeSuffix, drugFields) => {
+          const record = await models.ReferenceData.create({
+            ...fake(models.ReferenceData),
+            type: REFERENCE_TYPES.DRUG,
+            code: `${CODE_PREFIX}${codeSuffix}`,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          });
+          await models.ReferenceDrug.create({ referenceDataId: record.id, ...drugFields });
+          return record.id;
+        };
+        sensitiveId = await createDrug('sensitive', {
+          isSensitive: true,
+          unitConversion: 5.5,
+          dosingUnit: 'grams-unique',
+        });
+        plainId = await createDrug('plain', {
+          isSensitive: false,
+          unitConversion: 1.0,
+          dosingUnit: 'mg',
+        });
+      });
+
+      it('filters by a BOOLEAN satellite column (isSensitive=true) without erroring', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          isSensitive: 'true',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toContain(sensitiveId);
+        expect(ids).not.toContain(plainId);
+        expect(response.body.count).toBe(1);
+      });
+
+      it('filters by a BOOLEAN satellite column (isSensitive=false)', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          isSensitive: 'false',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toContain(plainId);
+        expect(ids).not.toContain(sensitiveId);
+      });
+
+      it('filters by a DECIMAL satellite column (unitConversion) via a numeric string param', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          unitConversion: '5.5',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toEqual([sensitiveId]);
+        expect(response.body.count).toBe(1);
+      });
+
+      it('filters by a camelCase STRING satellite column (dosingUnit) via iLike', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          dosingUnit: 'grams-unique',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+        const ids = response.body.data.map(r => r.id);
+        expect(ids).toEqual([sensitiveId]);
+        expect(response.body.count).toBe(1);
+      });
+    });
+
+    // Satellite columns are sortable: Sequelize can ORDER BY a column on the eagerly-included 1:1
+    // association. These assert ascending/descending order by `route` and that a drug with no
+    // satellite row (null route) sorts without erroring.
+    describe('sorting by a satellite column', () => {
+      const CODE_PREFIX = 'sat-sort-';
+
+      beforeAll(async () => {
+        const createDrugWithRoute = async (code, route) => {
+          const record = await models.ReferenceData.create({
+            ...fake(models.ReferenceData),
+            type: REFERENCE_TYPES.DRUG,
+            code,
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          });
+          await models.ReferenceDrug.create({ referenceDataId: record.id, route });
+        };
+        await createDrugWithRoute(`${CODE_PREFIX}b`, 'bravo-route');
+        await createDrugWithRoute(`${CODE_PREFIX}a`, 'alpha-route');
+        await createDrugWithRoute(`${CODE_PREFIX}c`, 'charlie-route');
+        // a drug with no reference_drugs row → null route; it must still list and sort
+        await models.ReferenceData.create({
+          ...fake(models.ReferenceData),
+          type: REFERENCE_TYPES.DRUG,
+          code: `${CODE_PREFIX}none`,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      });
+
+      it('sorts ascending by the satellite route column, tolerating a null satellite row', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          orderBy: 'route',
+          order: 'ASC',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+
+        const routes = response.body.data.map(r => r.route);
+        expect(routes.filter(route => route != null)).toEqual([
+          'alpha-route',
+          'bravo-route',
+          'charlie-route',
+        ]);
+        // the satellite-less drug still lists with a null route, proving nulls don't error
+        expect(routes).toContain(null);
+      });
+
+      it('sorts descending by the satellite route column', async () => {
+        const response = await adminApp.get(BASE_URL).query({
+          referenceDataType: REFERENCE_TYPES.DRUG,
+          code: CODE_PREFIX,
+          orderBy: 'route',
+          order: 'DESC',
+          rowsPerPage: 100,
+        });
+        expect(response).toHaveSucceeded();
+
+        const routes = response.body.data.map(r => r.route);
+        expect(routes.filter(route => route != null)).toEqual([
+          'charlie-route',
+          'bravo-route',
+          'alpha-route',
+        ]);
+      });
+    });
+  });
+
+  // getSatelliteColumns hardcodes readOnly:false and skips FK-suggester/name-companion detection,
+  // which is only valid for satellites with plain data columns (ReferenceDrug). A satellite carrying
+  // a BelongsTo (FK) association other than its referenceDataId back-link must fail loudly at
+  // column-build time rather than silently emitting wrong descriptors.
+  describe('FK-bearing satellite guardrail', () => {
+    it('throws when building columns for an enabled satellite with a foreign-key association', async () => {
+      // ReferenceMedicationTemplate has a real FK (medicationId) plus the referenceDataId link — a
+      // stand-in for a hypothetical FK-bearing enabled satellite (medicationTemplate, deferred).
+      const fkBearingSatellite = {
+        as: 'medicationTemplate',
+        model: models.ReferenceMedicationTemplate,
+      };
+      await expect(
+        getColumnsForModel(models.ReferenceData, fkBearingSatellite),
+      ).rejects.toThrow(/BelongsTo association/);
+    });
+
+    it('does not throw for the drug satellite, whose only BelongsTo is the referenceDataId link', async () => {
+      const drugSatellite = { as: 'referenceDrug', model: models.ReferenceDrug };
+      await expect(
+        getColumnsForModel(models.ReferenceData, drugSatellite),
+      ).resolves.toBeInstanceOf(Array);
     });
   });
 });

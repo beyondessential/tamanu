@@ -121,12 +121,15 @@ export const ManageReferenceDataTab = () => {
     const cols = columns.map(col => {
       const column = {
         key: col.key,
+        // FK name columns hold an association's name with no sortable DB column on this model;
+        // satellite columns live on a joined 1:1 table the backend can still ORDER BY, so they sort.
         title: col.key,
-        // FK name columns are computed from an association, not a sortable DB column on this model
         sortable: !col.isFkName,
       };
       if (col.type === 'BOOLEAN') {
-        column.accessor = row => (row[col.key] ? 'Yes' : 'No');
+        // null/undefined means "no data" (e.g. a drug with no satellite row), not false — render it
+        // blank rather than "No" so a missing value isn't misread as an explicit false.
+        column.accessor = row => (row[col.key] == null ? '' : row[col.key] ? 'Yes' : 'No');
       }
       return column;
     });
