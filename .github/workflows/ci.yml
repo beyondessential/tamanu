@@ -264,6 +264,8 @@ jobs:
         run: .github/scripts/test-facility-offline.sh stop-and-print
       - name: Start a facility server again without a central one
         run: .github/scripts/test-facility-offline.sh facility-start-again
+      - name: Boot a never-started facility server without a central one
+        run: .github/scripts/test-facility-offline.sh first-boot
 
   test-package-lock:
     needs: node_modules_cache

@@ -24,7 +24,7 @@ export const writeSyncConfig = async (context, { host, email, password, facility
   }
 
   if (!host || !email || !password || !facilityIds?.length) {
-    throw new Error('setupSync needs SYNC_URL (with credentials) and SYNC_FACILITY_IDS to be set.');
+    throw new Error('setupSync needs SYNC_URL (with credentials) and TAMANU_FACILITY_IDS to be set.');
   }
 
   await context.sequelize.transaction(async () => {
@@ -38,7 +38,7 @@ export const writeSyncConfig = async (context, { host, email, password, facility
   return true;
 };
 
-// Resolves the sync config (from SYNC_URL + SYNC_FACILITY_IDS) and persists it, so
+// Resolves the sync config (from SYNC_URL + TAMANU_FACILITY_IDS) and persists it, so
 // an automated deploy can configure the server without the setup wizard — the
 // deploy already knows the details. Must run in-process (not raw SQL) for the
 // encrypted password.

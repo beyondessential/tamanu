@@ -10,6 +10,7 @@ import {
 import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 import { pooled, pooledWithChild } from '../pool.js';
+import { createReferenceData } from './referenceData.js';
 
 import type {
   Department,
@@ -29,6 +30,7 @@ import type {
 export const generateImportData = async ({
   ReferenceData,
   ReferenceDataRelation,
+  ReferenceDrug,
   Facility,
   LocationGroup,
   Location,
@@ -62,8 +64,10 @@ export const generateImportData = async ({
   // bare fake(ReferenceDataRelation) leaves referenceDataId null: central allows it (nullable
   // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
   // insert fails). Give it a valid parent and child.
+  const createDrug = () =>
+    createReferenceData({ ReferenceData, ReferenceDrug }, REFERENCE_TYPES.DRUG);
   const drugRelation = async (childId: string) => {
-    const parent = await ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG }));
+    const parent = await createDrug();
     return ReferenceDataRelation.create(
       fake(ReferenceDataRelation, {
         referenceDataParentId: parent.id,
@@ -73,7 +77,7 @@ export const generateImportData = async ({
   };
   const referenceData = await pooledWithChild(
     ReferenceData,
-    () => ReferenceData.create(fake(ReferenceData, { type: REFERENCE_TYPES.DRUG })),
+    createDrug,
     ReferenceDataRelation,
     drugRelation,
     { where: { type: REFERENCE_TYPES.DRUG } },

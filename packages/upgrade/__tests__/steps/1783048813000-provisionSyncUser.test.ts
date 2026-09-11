@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FACT_CENTRAL_HOST, FACT_SYNC_EMAIL, FACT_SYNC_PASSWORD } from '@tamanu/constants';
+import {
+  FACT_CENTRAL_HOST,
+  FACT_FACILITY_IDS,
+  FACT_SYNC_EMAIL,
+  FACT_SYNC_PASSWORD,
+} from '@tamanu/constants';
+import config from 'config';
 import { STEPS } from '../../src/steps/1783048813000-provisionSyncUser.js';
 
 vi.mock('config', () => ({
   default: {
+    serverFacilityId: 'facility-a',
     sync: {
       host: 'https://central.example.com/',
       email: 'legacy@sync.tamanu',
@@ -69,6 +76,43 @@ describe('1783048813000-provisionSyncUser', () => {
     expect(factStore.get(FACT_CENTRAL_HOST)).toBe('https://central.example.com');
     expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
     expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
+  });
+
+  it('records the facility ids, so the boot check need not reach central to stamp them', async () => {
+    const { args, factStore } = makeArgs();
+
+    await recordStep.run(args);
+
+    expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['facility-a']));
+  });
+
+  it('prefers TAMANU_FACILITY_IDS over config, the way the server resolves them', async () => {
+    process.env.TAMANU_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
+    try {
+      const { args, factStore } = makeArgs();
+
+      await recordStep.run(args);
+
+      expect(factStore.get(FACT_FACILITY_IDS)).toBe(JSON.stringify(['env-a', 'env-b']));
+    } finally {
+      delete process.env.TAMANU_FACILITY_IDS;
+    }
+  });
+
+  it('records the other facts and no facility ids when config declares none', async () => {
+    const declared = (config as any).serverFacilityId;
+    delete (config as any).serverFacilityId;
+    try {
+      const { args, factStore, secretStore } = makeArgs();
+
+      await recordStep.run(args);
+
+      expect(factStore.has(FACT_FACILITY_IDS)).toBe(false);
+      expect(factStore.get(FACT_SYNC_EMAIL)).toBe(LEGACY_EMAIL);
+      expect(secretStore.get(FACT_SYNC_PASSWORD)).toBe('legacy-password');
+    } finally {
+      (config as any).serverFacilityId = declared;
+    }
   });
 
   it('is the only step left — the swap to a dedicated user rides a sync session', () => {
