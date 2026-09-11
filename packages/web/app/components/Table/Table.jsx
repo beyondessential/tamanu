@@ -255,7 +255,7 @@ const GroupHeaderCell = styled(StyledTableCell)`
     padding: 10px 20px;
   }
   background: ${Colors.background};
-  font-weight: 500;
+  font-weight: 400;
   color: ${Colors.darkestText};
   cursor: default;
 `;
