@@ -46,6 +46,6 @@ labRequestLog.get(
       include: [{ association: 'updatedBy', attributes: ['displayName'] }],
     });
 
-    res.send(publishedLog);
+    res.json(publishedLog);
   }),
 );
