@@ -250,6 +250,16 @@ const StatusTableCell = styled(StyledTableCell)`
   ${props => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
+const GroupHeaderCell = styled(StyledTableCell)`
+  &.MuiTableCell-body {
+    padding: 10px 20px;
+  }
+  background: ${Colors.background};
+  font-weight: 500;
+  color: ${Colors.darkestText};
+  cursor: default;
+`;
+
 const Row = React.memo(
   ({
     rowIndex,
@@ -447,6 +457,7 @@ class TableComponent extends React.Component {
       onMouseEnterRow,
       onMouseLeaveRow,
       getRowTooltip,
+      getRowGroupHeader,
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -469,24 +480,34 @@ class TableComponent extends React.Component {
         {Array.isArray(sortedData) &&
           sortedData.map((rowData, rowIndex) => {
             const key = rowData[rowIdKey] || rowData[columns[0].key];
+            const groupHeader = getRowGroupHeader?.(
+              rowData,
+              rowIndex === 0 ? undefined : sortedData[rowIndex - 1],
+            );
             return (
-              <Row
-                rowIndex={rowIndex}
-                data={rowData}
-                key={key}
-                columns={columns}
-                onClick={onRowClick}
-                cellOnChange={cellOnChange}
-                refreshTable={refreshTable}
-                rowStyle={rowStyle}
-                lazyLoading={lazyLoading}
-                cellStyle={cellStyle}
-                onClickRow={onClickRow}
-                onMouseEnter={onMouseEnterRow}
-                onMouseLeave={onMouseLeaveRow}
-                getRowTooltip={getRowTooltip}
-                data-testid="row-1kia"
-              />
+              <React.Fragment key={key}>
+                {groupHeader != null && (
+                  <TableRow data-testid="table-group-header-row">
+                    <GroupHeaderCell colSpan={columns.length}>{groupHeader}</GroupHeaderCell>
+                  </TableRow>
+                )}
+                <Row
+                  rowIndex={rowIndex}
+                  data={rowData}
+                  columns={columns}
+                  onClick={onRowClick}
+                  cellOnChange={cellOnChange}
+                  refreshTable={refreshTable}
+                  rowStyle={rowStyle}
+                  lazyLoading={lazyLoading}
+                  cellStyle={cellStyle}
+                  onClickRow={onClickRow}
+                  onMouseEnter={onMouseEnterRow}
+                  onMouseLeave={onMouseLeaveRow}
+                  getRowTooltip={getRowTooltip}
+                  data-testid="row-1kia"
+                />
+              </React.Fragment>
             );
           })}
         {isLoadingMore && (
@@ -661,6 +682,7 @@ TableComponent.propTypes = {
   noDataBackgroundColor: PropTypes.string,
   isBodyScrollable: PropTypes.bool,
   getRowTooltip: PropTypes.func,
+  getRowGroupHeader: PropTypes.func,
   ExportButton: PropTypes.func,
 };
 
@@ -696,6 +718,7 @@ TableComponent.defaultProps = {
   noDataBackgroundColor: Colors.white,
   isBodyScrollable: false,
   getRowTooltip: null,
+  getRowGroupHeader: null,
 };
 
 export const Table = React.forwardRef(

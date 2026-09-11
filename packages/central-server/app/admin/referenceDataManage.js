@@ -1,7 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
-import { SEARCHABLE_COLUMN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  SEARCHABLE_COLUMN_TYPES,
+  VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
@@ -9,6 +14,8 @@ import {
   assertValidType,
   getWritableData,
   createMultiSelectRecords,
+  attachRelationBackedValues,
+  applyRelationBackedWrite,
 } from './referenceDataManageUtils';
 
 export const referenceDataManageRouter = express.Router();
@@ -23,7 +30,7 @@ referenceDataManageRouter.post(
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model);
+    const columns = await getColumnsForModel(model, referenceDataType);
     const data = getWritableData(columns, rawData, false);
 
     try {
@@ -32,7 +39,11 @@ referenceDataManageRouter.post(
         return res.send(records);
       }
 
-      const record = await model.create({ ...typeFilter, ...data });
+      const record = await req.store.sequelize.transaction(async () => {
+        const created = await model.create({ ...typeFilter, ...data });
+        await applyRelationBackedWrite(req.store.models, referenceDataType, created.id, rawData);
+        return created;
+      });
       res.send(record.forResponse());
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
@@ -62,10 +73,13 @@ referenceDataManageRouter.put(
       throw new InvalidOperationError(`Record with id "${id}" not found`);
     }
 
-    const columns = await getColumnsForModel(model);
+    const columns = await getColumnsForModel(model, referenceDataType);
     const data = getWritableData(columns, rawData, true);
 
-    await record.update(data);
+    await req.store.sequelize.transaction(async () => {
+      await record.update(data);
+      await applyRelationBackedWrite(req.store.models, referenceDataType, record.id, rawData);
+    });
     res.send(record.forResponse());
   }),
 );
@@ -95,7 +109,7 @@ referenceDataManageRouter.get(
     const { referenceDataType } = req.query;
     assertValidType(referenceDataType);
     const { model } = getModelForType(req.store.models, referenceDataType);
-    res.send(await getColumnsForModel(model));
+    res.send(await getColumnsForModel(model, referenceDataType));
   }),
 );
 
@@ -118,7 +132,13 @@ referenceDataManageRouter.get(
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model);
+    const columns = await getColumnsForModel(model, referenceDataType);
+
+    // Relation-backed columns aren't real columns on the model, so they can't be searched or
+    // ordered by the generic query below; they're populated after the fact (see attachRelationBackedValues).
+    const relationBackedKeys = new Set(
+      columns.filter(c => c.isRelationBacked).map(c => c.key),
+    );
 
     // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
     // The list query eager-loads those associations so the name can be displayed in the row.
@@ -161,6 +181,7 @@ referenceDataManageRouter.get(
 
     for (const [key, value] of Object.entries(filters)) {
       if (!value) continue;
+      if (relationBackedKeys.has(key)) continue;
       if (key === 'availableFacilities') {
         const facilityIds = Array.isArray(value) ? value : value.split(',');
         searchWhere.availableFacilities = { [Op.contains]: facilityIds };
@@ -181,10 +202,15 @@ referenceDataManageRouter.get(
       }
     }
 
-    // Default to current records when model has visibilityStatus and no filter was sent
+    // Default to current records when model has visibilityStatus and no filter was sent.
+    // Lab test types also surface panelOnly so they can be managed here (they can't be ordered
+    // individually, but their integration codes still need editing).
     const hasVisibilityStatus = columns.some(c => c.key === 'visibilityStatus');
     if (hasVisibilityStatus && !searchWhere.visibilityStatus) {
-      searchWhere.visibilityStatus = VISIBILITY_STATUSES.CURRENT;
+      searchWhere.visibilityStatus =
+        referenceDataType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+          ? [VISIBILITY_STATUSES.CURRENT, LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY]
+          : VISIBILITY_STATUSES.CURRENT;
     }
 
     const where = { ...typeFilter, ...searchWhere };
@@ -208,15 +234,15 @@ referenceDataManageRouter.get(
       offset: Number(page) * Number(rowsPerPage),
     });
 
-    res.send({
-      count,
-      data: data.map(record => {
-        const row = record.forResponse();
-        for (const c of fkNameColumns) {
-          row[c.key] = record[c.key]?.name ?? null;
-        }
-        return row;
-      }),
+    const rows = data.map(record => {
+      const row = record.forResponse();
+      for (const c of fkNameColumns) {
+        row[c.key] = record[c.key]?.name ?? null;
+      }
+      return row;
     });
+    await attachRelationBackedValues(req.store.models, referenceDataType, rows);
+
+    res.send({ count, data: rows });
   }),
 );

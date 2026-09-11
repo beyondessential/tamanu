@@ -4,6 +4,7 @@ import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
 import { TableCellTag } from '../components/Tag';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../components/Translation';
+import { ThemedTooltip } from '../components/Tooltip';
 
 export const StatusDisplay = React.memo(({ status }) => {
   const { background, color } = LAB_REQUEST_STATUS_CONFIG[status];
@@ -46,13 +47,69 @@ export const getRequestedBy = ({ requestedBy }) =>
 export const getPatientName = row => <PatientNameDisplay patient={row} />;
 export const getPatientDisplayId = ({ patientDisplayId }) => patientDisplayId || 'Unknown';
 export const getStatus = ({ status }) => <StatusDisplay status={status} />;
-export const getPanelType = ({ labTestPanelId, labTestPanelName }) => (
-  <TranslatedReferenceData
-    value={labTestPanelId}
-    fallback={labTestPanelName}
-    category="labTestPanel"
-  />
-);
+export const getPanelType = ({ labTestPanelId, labTestPanelName }) => {
+  // A request spanning several panels has no single panel id, so render the aggregated panel
+  // names directly — TranslatedReferenceData only emits its fallback when a reference id is present.
+  if (!labTestPanelId) return labTestPanelName ?? '';
+  return (
+    <TranslatedReferenceData
+      value={labTestPanelId}
+      fallback={labTestPanelName}
+      category="labTestPanel"
+    />
+  );
+};
+const INDIVIDUAL_TESTS_GROUP_KEY = 'individual';
+
+// A lab result row belongs to its panel (keyed by the panel request's panel id) or to the
+// individual-tests group when it carries no panel — reflex and individually-ordered tests both
+// land here.
+export const getLabResultGroupKey = ({ labTestPanel }) =>
+  labTestPanel?.id ?? INDIVIDUAL_TESTS_GROUP_KEY;
+
+// A group header shows above the first row of a group, and above the first row of a page (where
+// there is no previous row within the page) so a panel's header repeats and grouping stays legible
+// across pagination.
+export const shouldShowLabResultGroupHeader = (row, previousRow) =>
+  !previousRow || getLabResultGroupKey(previousRow) !== getLabResultGroupKey(row);
+
+// Panels lead, each under its name; the loose/reflex tests follow under one "Individual tests"
+// heading. Returns null when the row continues its group, so the header shows only above the
+// first row of each group. Shared by the lab request view results table and the results entry
+// modal so both surfaces group identically.
+export const renderLabResultGroupHeader = (row, previousRow) => {
+  if (!shouldShowLabResultGroupHeader(row, previousRow)) return null;
+  return row.labTestPanel ? (
+    <TranslatedReferenceData
+      value={row.labTestPanel.id}
+      fallback={row.labTestPanel.name}
+      category="labTestPanel"
+      data-testid="labresult-group-header-panel"
+    />
+  ) : (
+    <TranslatedText
+      stringId="lab.results.individualTests.label"
+      fallback="Individual tests"
+      data-testid="labresult-group-header-individual"
+    />
+  );
+};
+
+// The tests and panels a lab request holds, as a single alphabetical list of names: each panel by
+// its name, plus the individual tests not attributed to a panel (a panel's own member tests are
+// represented by the panel, so they are not listed again). Plain names, matching how the sample
+// details step lists a category's tests.
+export const getLabRequestTestAndPanelNames = ({ labTestPanelRequests, tests } = {}) => {
+  const panelNames = (labTestPanelRequests ?? [])
+    .map(panelRequest => panelRequest.labTestPanel?.name)
+    .filter(Boolean);
+  const individualTestNames = (tests ?? [])
+    .filter(test => !test.labTestPanelRequestId)
+    .map(test => test.labTestType?.name)
+    .filter(Boolean);
+  return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
+};
+
 export const getRequestType = ({ categoryName, categoryId, category }) => {
   if (category) {
     return (
@@ -73,6 +130,19 @@ export const getRequestType = ({ categoryName, categoryId, category }) => {
     );
   }
   return <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
+};
+
+// The category cell on the lab request listings, with the request's tests and panels shown on
+// hover. testsAndPanelNames is supplied by the list endpoints (a comma-separated, alphabetical
+// list); with none present the plain category is rendered.
+export const getRequestTypeWithTestsTooltip = row => {
+  const category = getRequestType(row);
+  if (!row.testsAndPanelNames) return category;
+  return (
+    <ThemedTooltip title={row.testsAndPanelNames}>
+      <span>{category}</span>
+    </ThemedTooltip>
+  );
 };
 export const getPriority = ({ priorityName, priorityId, priority }) =>
   priorityName || priority ? (

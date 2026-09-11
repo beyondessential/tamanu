@@ -19,7 +19,14 @@ const buildValidationSchema = (columns, isEditMode) => {
   return yup.object().shape(shape);
 };
 
-export const ReferenceDataForm = ({ columns, onSubmit, onCancel, initialValues, isEditMode }) => {
+export const ReferenceDataForm = ({
+  columns,
+  onSubmit,
+  onCancel,
+  initialValues,
+  isEditMode,
+  selectedType,
+}) => {
   const validationSchema = useMemo(() => buildValidationSchema(columns, isEditMode), [columns, isEditMode]);
   const renderForm = useCallback(
     ({ submitForm }) => (
@@ -27,7 +34,7 @@ export const ReferenceDataForm = ({ columns, onSubmit, onCancel, initialValues, 
         {columns
           .filter(col => !col.readOnly)
           .map(col => (
-            <FormField key={col.key} col={col} isEditMode={isEditMode} />
+            <FormField key={col.key} col={col} isEditMode={isEditMode} selectedType={selectedType} />
           ))}
         <ModalFormActionRow
           confirmText={
@@ -43,7 +50,7 @@ export const ReferenceDataForm = ({ columns, onSubmit, onCancel, initialValues, 
         />
       </FormGrid>
     ),
-    [columns, isEditMode, onCancel],
+    [columns, isEditMode, onCancel, selectedType],
   );
 
   return (

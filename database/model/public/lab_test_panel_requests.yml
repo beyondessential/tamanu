@@ -54,6 +54,14 @@ sources:
                   arguments:
                     to: source('tamanu', 'encounters')
                     field: id
+          - name: lab_request_id
+            data_type: character varying(255)
+            description: "{{ doc('lab_test_panel_requests__lab_request_id') }}"
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'lab_requests')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_test_panel_requests."

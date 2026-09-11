@@ -38,6 +38,7 @@ export const AddReferenceDataModal = ({ open, onClose, columns, selectedType, on
         onCancel={onClose}
         initialValues={DEFAULT_VALUES}
         isEditMode={false}
+        selectedType={selectedType}
         data-testid="form-add-refdata"
       />
     </FormModal>

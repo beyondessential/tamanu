@@ -281,39 +281,48 @@ export function shouldForceRematerialise(
 }
 
 function labCode(upstream: LabRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
-  const { labTestPanelRequest } = upstream;
+  const { category } = upstream;
 
-  // ServiceRequests may not have a panel
-  if (!labTestPanelRequest) {
+  // A request grouped without a category (a legacy category-less panel) has no code.
+  if (!category) {
     return null;
   }
-  const { externalCode, name, code } = labTestPanelRequest.labTestPanel || {};
   return generateCodings(
-    code,
-    externalCode,
-    name,
-    dataDicts.serviceRequestLabPanelCodeSystem,
-    dataDicts.serviceRequestLabPanelExternalCodeSystem,
+    category.code,
+    undefined,
+    category.name,
+    dataDicts.serviceRequestLabCategoryCodeSystem,
   );
 }
 
-function labOrderDetails({ tests }: LabRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
-  if (tests.length) {
-    return tests.map(({ labTestType }) => {
-      if (!labTestType) throw new Exception('Received a null test');
+function labOrderDetails(upstream: LabRequest, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
+  // Both the panels and the individual tests appear in orderDetail, each drawn from its own code
+  // system so the two can be told apart.
+  const panelCodings = (upstream.labTestPanelRequests ?? []).map(({ labTestPanel }) => {
+    const { externalCode, code, name } = labTestPanel ?? {};
+    return generateCodings(
+      code,
+      externalCode,
+      name,
+      dataDicts.serviceRequestLabPanelCodeSystem,
+      dataDicts.serviceRequestLabPanelExternalCodeSystem,
+    );
+  });
 
-      const { externalCode, code, name } = labTestType;
+  const testCodings = (upstream.tests ?? []).map(({ labTestType }) => {
+    if (!labTestType) throw new Exception('Received a null test');
 
-      return generateCodings(
-        code,
-        externalCode,
-        name,
-        dataDicts.serviceRequestLabTestCodeSystem,
-        dataDicts.serviceRequestLabTestExternalCodeSystem,
-      );
-    });
-  }
-  return [];
+    const { externalCode, code, name } = labTestType;
+    return generateCodings(
+      code,
+      externalCode,
+      name,
+      dataDicts.serviceRequestLabTestCodeSystem,
+      dataDicts.serviceRequestLabTestExternalCodeSystem,
+    );
+  });
+
+  return [...panelCodings, ...testCodings].filter(Boolean);
 }
 
 function labAnnotations(upstream: LabRequest) {

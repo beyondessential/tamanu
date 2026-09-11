@@ -11,6 +11,7 @@ import { InvoiceInsurancePlanItemExporter } from './InvoiceInsurancePlanItemExpo
 import { InvoicePriceListChargingExporter } from './InvoicePriceListChargingExporter';
 import { InvoicePriceListItemExporter } from './InvoicePriceListItemExporter';
 import { InvoiceProductExporter } from './InvoiceProductExporter';
+import { LabTestCategoryExporter } from './LabTestCategoryExporter';
 import { LabTestPanelExporter } from './LabTestPanelExporter';
 import { MedicationSetExporter } from './MedicationSetExporter';
 import { MedicationTemplateExporter } from './MedicationTemplateExporter';
@@ -28,6 +29,7 @@ const CustomExportersByDataType = {
   permission: PermissionExporter,
   patient: PatientExporter,
   administeredVaccine: AdministeredVaccineExporter,
+  [REFERENCE_TYPES.LAB_TEST_CATEGORY]: LabTestCategoryExporter,
   labTestPanel: LabTestPanelExporter,
   patientFieldDefinition: PatientFieldDefinitionExporter,
   translatedString: TranslatedStringExporter,

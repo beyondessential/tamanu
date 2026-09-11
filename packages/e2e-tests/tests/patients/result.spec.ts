@@ -20,7 +20,7 @@ test.describe('Results', () => {
 
     // ALT is a numeric test with reference range 5–40 (both sexes), so 80 is always out of range.
     await labRequestPane.newLabRequestButton.click();
-    await labRequestModal.individualModal.createBasicIndividualLabRequest(['ALT']);
+    await labRequestModal.createBasicIndividualLabRequest(['ALT']);
     await labRequestPane.waitForTableToLoad();
     await labRequestPane.clickFirstRow();
 

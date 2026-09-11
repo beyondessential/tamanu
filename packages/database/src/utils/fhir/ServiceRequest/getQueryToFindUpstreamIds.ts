@@ -197,7 +197,7 @@ export function fromLabRequests(models: Models, table: string, id: string) {
         include: [
           {
             model: LabTestPanelRequest,
-            as: 'labTestPanelRequest',
+            as: 'labTestPanelRequests',
             required: true,
             where: { id },
           },
@@ -208,7 +208,7 @@ export function fromLabRequests(models: Models, table: string, id: string) {
         include: [
           {
             model: LabTestPanelRequest,
-            as: 'labTestPanelRequest',
+            as: 'labTestPanelRequests',
             required: true,
             include: [
               {

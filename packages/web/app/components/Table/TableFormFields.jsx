@@ -51,6 +51,13 @@ const StyledTableDataCell = styled(TableCell)`
   padding: 1.5%;
 `;
 
+const GroupHeaderCell = styled(TableCell)`
+  padding: 10px 20px;
+  background: ${Colors.background};
+  font-weight: 500;
+  color: ${Colors.darkestText};
+`;
+
 const StyledTableFooter = styled(TableFooter)`
   background: ${Colors.background};
   width: 100%;
@@ -84,7 +91,7 @@ Formik's Field component and provide a special naming scheme to avoid
 namespace collisions.
 */
 export const TableFormFields = React.memo(
-  ({ columns, data, className = '', pagination = false, ...props }) => {
+  ({ columns, data, className = '', pagination = false, getRowGroupHeader, ...props }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(
       pagination ? ROWS_PER_PAGE_OPTIONS[0] : data.length,
@@ -143,18 +150,31 @@ export const TableFormFields = React.memo(
             </StyledTableHead>
             <TableBody data-testid="tablebody-l659">
               {displayRows && displayRows.length > 0 ? (
-                displayRows.map((rowData, i) => (
-                  <TableRow key={rowData.id || i} data-testid={`tablerow-r1a3-${i}`}>
-                    {columns.map(({ key, accessor }) => (
-                      <StyledTableDataCell
-                        key={key}
-                        data-testid={`styledtabledatacell-bsji-${i}-${key}`}
-                      >
-                        {accessor(rowData, i)}
-                      </StyledTableDataCell>
-                    ))}
-                  </TableRow>
-                ))
+                displayRows.map((rowData, i) => {
+                  const groupHeader = getRowGroupHeader?.(
+                    rowData,
+                    i === 0 ? undefined : displayRows[i - 1],
+                  );
+                  return (
+                    <React.Fragment key={rowData.id || i}>
+                      {groupHeader != null && (
+                        <TableRow data-testid={`tableformfields-group-header-row-${i}`}>
+                          <GroupHeaderCell colSpan={columns.length}>{groupHeader}</GroupHeaderCell>
+                        </TableRow>
+                      )}
+                      <TableRow data-testid={`tablerow-r1a3-${i}`}>
+                        {columns.map(({ key, accessor }) => (
+                          <StyledTableDataCell
+                            key={key}
+                            data-testid={`styledtabledatacell-bsji-${i}-${key}`}
+                          >
+                            {accessor(rowData, i)}
+                          </StyledTableDataCell>
+                        ))}
+                      </TableRow>
+                    </React.Fragment>
+                  );
+                })
               ) : (
                 <TableRow data-testid="tablerow-d2it">
                   <NoDataTableCell colSpan={columns.length} data-testid="nodatatablecell-2yp7">
@@ -202,4 +222,7 @@ TableFormFields.propTypes = {
     }),
   ).isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  /** Optional. Given (row, previousRow), returns a node to render as a full-width group
+   * header before that row, or null/undefined for no header. Mirrors the shared Table prop. */
+  getRowGroupHeader: PropTypes.func,
 };

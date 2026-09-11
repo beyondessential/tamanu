@@ -93,6 +93,7 @@ import { addUserKind1783118255000 } from './1783118255000-addUserKind';
 import { addDosingAndDispensingUnitColumns1779900000001 } from './1779900000001-addDosingAndDispensingUnitColumns';
 import { addProgramFormQueryIndexes1785739800000 } from './1785739800000-addProgramFormQueryIndexes';
 import { addHotPathQueryIndexes1786664141000 } from './1786664141000-addHotPathQueryIndexes';
+import { addPanelRequestAttributionToLabTests1786664200000 } from './1786664200000-addPanelRequestAttributionToLabTests';
 import { removeZeroBenefitIndexes1787214563000 } from './1787214563000-removeZeroBenefitIndexes';
 import { dropLegacyNoteTables1787220453000 } from './1787220453000-dropLegacyNoteTables';
 import { dedupeLocalSystemFacts1787706000000 } from './1787706000000-dedupeLocalSystemFacts';
@@ -193,6 +194,7 @@ export const migrationList = [
   addDosingAndDispensingUnitColumns1779900000001,
   addProgramFormQueryIndexes1785739800000,
   addHotPathQueryIndexes1786664141000,
+  addPanelRequestAttributionToLabTests1786664200000,
   removeZeroBenefitIndexes1787214563000,
   dropLegacyNoteTables1787220453000,
   dedupeLocalSystemFacts1787706000000,

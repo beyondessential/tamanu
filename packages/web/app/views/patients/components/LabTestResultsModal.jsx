@@ -24,6 +24,7 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
+import { renderLabResultGroupHeader } from '../../../utils/lab';
 import { SuggesterSelectField } from '../../../components/Field';
 import { FormModal } from '../../../components/FormModal';
 import { TableFormFields } from '../../../components/Table';
@@ -392,7 +393,7 @@ const ResultsForm = ({
           <StyledSmallBodyText data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
-              fallback="Please record test results, other test result details and any relevant notes."
+              fallback="Please record the test results below."
             />
           </StyledSmallBodyText>
         </div>
@@ -401,6 +402,7 @@ const ResultsForm = ({
         <StyledTableFormFields
           columns={columns}
           data={labTestResults?.data}
+          getRowGroupHeader={renderLabResultGroupHeader}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
@@ -411,7 +413,12 @@ const ResultsForm = ({
           disabled={areLabTestResultsReadOnly}
           rows={6}
           name="resultsInterpretation"
-          label="Results Interpretation"
+          label={
+            <TranslatedText
+              stringId="lab.resultsInterpretation.label"
+              fallback="Results interpretation"
+            />
+          }
           data-testid="field-resultsinterpretation"
         />
       </InterpretationFieldSection>

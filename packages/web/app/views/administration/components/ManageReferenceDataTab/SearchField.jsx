@@ -1,10 +1,14 @@
 import React, { useMemo } from 'react';
 
-import styled from 'styled-components';
+import { startCase } from 'es-toolkit/compat';
 import { useTranslation } from '@tamanu/ui-components';
 import {
+  NONPATIENT_VISIBILITY_STATUS_VALUES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants';
+import {
   AutocompleteField,
-  CheckField,
   Field,
   MultiAutocompleteField,
   SearchField as SearchTextField,
@@ -25,12 +29,12 @@ const BOOLEAN_SEARCH_OPTIONS = [
   { value: 'false', label: 'No' },
 ];
 
-const CentredCheckContainer = styled.div`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding-top: 20px;
-`;
+// Lab test types can also be filtered by "Panel only"; other reference data cannot.
+const getVisibilityStatusOptions = selectedType =>
+  (selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+    ? [...NONPATIENT_VISIBILITY_STATUS_VALUES, LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY]
+    : NONPATIENT_VISIBILITY_STATUS_VALUES
+  ).map(value => ({ value, label: startCase(value) }));
 
 const AvailableFacilitiesSearchField = () => {
   const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { noLimit: true } });
@@ -84,25 +88,25 @@ const NameSuggesterSearchField = ({ col }) => {
   );
 };
 
-export const SearchField = ({ col }) => {
+export const SearchField = ({ col, selectedType }) => {
   const { getTranslation } = useTranslation();
 
   if (col.key === VISIBILITY_STATUS_KEY) {
     return (
-      <CentredCheckContainer>
-        <Field
-          component={CheckField}
-          name="visibilityStatus"
-          label={
-            <TranslatedText
-              stringId="admin.referenceData.includeHistorical"
-              fallback="Include historical"
-              data-testid="translatedtext-include-historical"
-            />
-          }
-          data-testid="searchfield-includeHistorical"
-        />
-      </CentredCheckContainer>
+      <Field
+        component={SelectField}
+        name={VISIBILITY_STATUS_KEY}
+        label={
+          <TranslatedText
+            stringId="admin.referenceData.visibilityStatus.label"
+            fallback="Visibility status"
+            data-testid="translatedtext-visibility-status"
+          />
+        }
+        options={getVisibilityStatusOptions(selectedType)}
+        size="small"
+        data-testid="searchfield-visibilityStatus"
+      />
     );
   }
   if (col.key === AVAILABLE_FACILITIES_KEY) {
