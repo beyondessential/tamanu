@@ -31,16 +31,16 @@ with
 		select
 			response_id,
 			data_element_id,
-			body,
-			deleted_at
+			body
 		from survey_response_answers sra
+		where sra.deleted_at is null
 		union all
 		select
 			id,
 			'Result',
-			result_text,
-			deleted_at
+			result_text
 		from survey_responses sr
+		where CASE WHEN :include_deleted_responses THEN true ELSE sr.deleted_at is null END
 	),
 	responses_with_answers as (
 		select
@@ -50,7 +50,6 @@ with
 			) "answers"
 		from answers_and_results aar
 		where body <> '' -- Doesn't really matter, just could save some memory
-		and aar.deleted_at is null
 		and data_element_id is not null
 		group by response_id
 	)
@@ -73,7 +72,7 @@ left join reference_data vil on vil.id = p.village_id
 join surveys s on s.id = sr.survey_id
 where p.id != '${TEST_PATIENT_ID}'
 AND sr.survey_id  = :survey_id
-and sr.deleted_at is null
+and CASE WHEN :include_deleted_responses THEN true ELSE sr.deleted_at is null END
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
 and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
@@ -95,7 +94,7 @@ order by sr.end_time desc
  * },
  */
 const getData = async (sequelize, parameters) => {
-  const { surveyId, fromDate, toDate, village } = parameters;
+  const { surveyId, fromDate, toDate, village, includeDeletedResponses } = parameters;
 
   const queryFromDate = toDateTimeString(
     startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
@@ -109,6 +108,7 @@ const getData = async (sequelize, parameters) => {
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
       village_id: village ?? null,
+      include_deleted_responses: Boolean(includeDeletedResponses),
     },
   });
 };
