@@ -116,7 +116,7 @@ taskRoutes.delete(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Tasking');
-    const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.query);
+    const { taskIds, ...deletedInfo } = await taskDeletionInputSchema.parseAsync(req.body);
 
     //validate deleted reason
     if (deletedInfo.deletedReasonId) {
