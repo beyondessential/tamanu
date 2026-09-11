@@ -1,6 +1,8 @@
+import { REFERENCE_TYPES } from '@tamanu/constants';
 import { type Models } from '@tamanu/database';
 
 import { chance, fake } from '../fake/index.js';
+import { createDrug } from './helpers/drug.js';
 
 // Per-round cache of record ids, keyed by model name.
 //
@@ -45,7 +47,10 @@ export const randomReferenceDataId = async (models: Models, type: string): Promi
     if (ids.length > 0) idCache.set(cacheKey, ids);
   }
   if (ids.length === 0) {
-    const created = await models.ReferenceData.create(fake(models.ReferenceData, { type }));
+    const created =
+      type === REFERENCE_TYPES.DRUG
+        ? await createDrug(models)
+        : await models.ReferenceData.create(fake(models.ReferenceData, { type }));
     return created.id;
   }
   return chance.pickone(ids);
