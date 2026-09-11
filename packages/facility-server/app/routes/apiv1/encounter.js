@@ -519,7 +519,7 @@ encounterRelations.get(
 
     // Add medicationAdministrationRecords with condition for same day
     if (marDate) {
-      req.checkPermission('list', 'MedicationAdministration');
+      req.checkListOrReadPermission('MedicationAdministration');
 
       const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
       const primaryTimeZone = getPrimaryTimeZone();
