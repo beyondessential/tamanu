@@ -126,6 +126,11 @@ jobs:
                     # The version tag is mutable, so a node that already pulled it once would
                     # otherwise run whatever it cached rather than the image just built.
                     imagePullPolicy: Always
+                    env:
+                      # The console logger colourises the level, so "error" and its colon are
+                      # not adjacent bytes and the report step's scan for them finds nothing.
+                      - name: NO_COLOR
+                        value: "1"
                     envFrom:
                       - secretRef:
                           name: pgsnap-${JOB_NAME}
