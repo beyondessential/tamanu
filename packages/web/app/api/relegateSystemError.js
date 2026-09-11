@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 let handler = null;
 
 /**
@@ -24,7 +26,7 @@ export function relegateSystemError(error, endpoint) {
   const message = `Something went wrong on the server. Path: ${path}. Message: ${error?.title ?? error?.message ?? 'Unknown error'}`;
 
   if (handler) {
-    handler({ id: crypto.randomUUID(), timestamp: new Date().toISOString(), message });
+    handler({ id: uuidv4(), timestamp: new Date().toISOString(), message });
   } else {
     // eslint-disable-next-line no-console
     console.error('[System error] relegated (no handler registered):', { endpoint, error });
