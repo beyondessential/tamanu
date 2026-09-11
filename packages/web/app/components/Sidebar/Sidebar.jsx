@@ -155,6 +155,8 @@ const RetractedUnreadDot = styled.button`
   cursor: pointer;
 `;
 
+const SYSTEM_ERRORS_ITEM_KEY = 'systemErrors';
+
 const getInitials = string =>
   string
     .match(/\b(\w)/g)
@@ -347,8 +349,11 @@ export const Sidebar = React.memo(({ items }) => {
             );
           }
 
+          const systemErrorsItem = item.children.find(
+            child => child.key === SYSTEM_ERRORS_ITEM_KEY,
+          );
+
           if (isRetracted) {
-            const systemErrorsItem = item.children.find(child => child.key === 'systemErrors');
             return (
               <React.Fragment key={item.path}>
                 <PrimarySidebarItem
@@ -372,7 +377,6 @@ export const Sidebar = React.memo(({ items }) => {
             );
           }
           const isSectionOpen = selectedParentItem === item.key;
-          const systemErrorsItem = item.children.find(child => child.key === 'systemErrors');
           const showSystemErrorsOutsideSection =
             !isSectionOpen && systemErrorsItem && hasUnreadSystemErrors;
 
@@ -390,7 +394,7 @@ export const Sidebar = React.memo(({ items }) => {
                       isCurrent={currentPath.includes(child.path)}
                       color={child.color}
                       overlaidColor={
-                        child.key === 'systemErrors' && hasUnreadSystemErrors
+                        child.key === SYSTEM_ERRORS_ITEM_KEY && hasUnreadSystemErrors
                           ? Colors.alert
                           : undefined
                       }
