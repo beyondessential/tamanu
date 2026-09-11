@@ -83,6 +83,10 @@ export const LabRequestMultiStepForm = ({
     sampleDetails: yup.object().shape(
       samples.reduce((acc, sample) => {
         acc[sample.categoryId] = yup.object().shape({
+          // specimenTypeId's `.when()` references sampleTime, so it must be a declared field here —
+          // yup adds an undeclared `.when()` sibling as a graph node and then crashes computing the
+          // object's default (which it does when the category has no sample time entered).
+          sampleTime: yup.string().nullable(),
           specimenTypeId: mandateSpecimenType
             ? yup.string().when('sampleTime', {
                 is: value => Boolean(value),
