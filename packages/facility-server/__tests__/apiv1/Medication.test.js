@@ -73,8 +73,12 @@ describe('Medication', () => {
     return { medication, referenceDrug };
   };
 
-  const createPharmacyOrderWithPrescription = async ({ patientId, repeats = 1 }) => {
-    const { medication } = await createDrug();
+  const createPharmacyOrderWithPrescription = async ({
+    patientId,
+    repeats = 1,
+    medication,
+  } = {}) => {
+    medication ??= (await createDrug()).medication;
     const encounter = await models.Encounter.create(
       fake(models.Encounter, {
         patientId,
@@ -112,6 +116,7 @@ describe('Medication', () => {
         prescriptionId: prescription.id,
         quantity: 10,
         repeats,
+        isCompleted: false,
       }),
       id: crypto.randomUUID(),
     });
@@ -1983,6 +1988,69 @@ describe('Medication', () => {
 
         expect(result).toBeForbidden();
       });
+    });
+  });
+
+  describe('drugs without a reference drug record', () => {
+    const createBareDrug = () =>
+      models.ReferenceData.create(fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }));
+
+    beforeEach(async () => {
+      // An unrelated unavailable drug, so the facility's unavailable-stock subquery is non-empty.
+      const { referenceDrug } = await createDrug();
+      await models.ReferenceDrugFacility.create({
+        referenceDrugId: referenceDrug.id,
+        facilityId,
+        stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+      });
+    });
+
+    it('lists the request in active requests', async () => {
+      const medication = await createBareDrug();
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        medication,
+      });
+
+      const result = await app.get(`/api/medication/medication-requests?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+      const row = result.body.data.find(r => r.id === pharmacyOrderPrescription.id);
+      expect(row?.prescription.medication.id).toBe(medication.id);
+    });
+
+    it('lists the request as dispensable', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const medication = await createBareDrug();
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: localPatient.id,
+        medication,
+      });
+
+      const result = await app.get(
+        `/api/medication/dispensable-medications?patientId=${localPatient.id}&facilityId=${facilityId}`,
+      );
+      expect(result).toHaveSucceeded();
+      const row = result.body.data.find(r => r.id === pharmacyOrderPrescription.id);
+      expect(row?.prescription.medication.id).toBe(medication.id);
+    });
+
+    it('lists the dispense in dispensed medications', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        medication: await createBareDrug(),
+      });
+      const dispense = await models.MedicationDispense.create(
+        fake(models.MedicationDispense, {
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          quantity: 5,
+          dispensedByUserId: app.user.id,
+          dispensedAt: getCurrentDateTimeString(),
+        }),
+      );
+
+      const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(row => row.id)).toContain(dispense.id);
     });
   });
 

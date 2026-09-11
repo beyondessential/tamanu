@@ -1751,6 +1751,21 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
   },
 });
 
+// NULL NOT IN (...) is never true, so a drug with no reference_drugs row needs the IS NULL arm.
+const referenceDrugNotUnavailable = () => ({
+  [Op.or]: [
+    Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), { [Op.is]: null }),
+    Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
+      [Op.notIn]: Sequelize.literal(`(
+        SELECT reference_drug_id
+        FROM reference_drug_facilities
+        WHERE facility_id = :facilityId
+        AND stock_status = :stockStatus
+      )`),
+    }),
+  ],
+});
+
 medication.get(
   '/medication-requests',
   asyncHandler(async (req, res) => {
@@ -1915,7 +1930,7 @@ medication.get(
                 model: models.ReferenceDrug,
                 as: 'referenceDrug',
                 attributes: ['id', 'isSensitive'],
-                required: true,
+                required: false,
                 include: {
                   model: models.ReferenceDrugFacility,
                   as: 'facilities',
@@ -1950,19 +1965,12 @@ medication.get(
           ...(!canViewSensitiveMedications
             ? [
                 {
-                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                  '$prescription.medication.referenceDrug.is_sensitive$': { [Op.not]: true },
                 },
               ]
             : []),
           { isCompleted: false },
-          Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
-            [Op.notIn]: Sequelize.literal(`(
-                SELECT reference_drug_id
-                FROM reference_drug_facilities
-                WHERE facility_id = :facilityId
-                AND stock_status = :stockStatus
-              )`),
-          }),
+          referenceDrugNotUnavailable(),
         ],
       },
       order: buildOrder(),
@@ -2127,7 +2135,7 @@ medication.get(
                     model: models.ReferenceDrug,
                     as: 'referenceDrug',
                     attributes: ['id', 'isSensitive'],
-                    required: true,
+                    required: false,
                   },
                 },
                 {
@@ -2201,14 +2209,12 @@ medication.get(
                 // Both the originally prescribed and the actually dispensed medication must be
                 // non-sensitive, so a substitution to a sensitive drug stays hidden too.
                 {
-                  '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$': false,
+                  '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$':
+                    {
+                      [Op.not]: true,
+                    },
                 },
-                {
-                  [Op.or]: [
-                    { '$medication.referenceDrug.is_sensitive$': false },
-                    { medicationId: null },
-                  ],
-                },
+                { '$medication.referenceDrug.is_sensitive$': { [Op.not]: true } },
               ]
             : []),
         ],
@@ -2520,7 +2526,7 @@ medication.get(
                   model: models.ReferenceDrug,
                   as: 'referenceDrug',
                   attributes: ['id', 'isSensitive'],
-                  required: true,
+                  required: false,
                   include: [
                     {
                       model: models.ReferenceDrugFacility,
@@ -2551,18 +2557,11 @@ medication.get(
           ...(!canViewSensitiveMedications
             ? [
                 {
-                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                  '$prescription.medication.referenceDrug.is_sensitive$': { [Op.not]: true },
                 },
               ]
             : []),
-          Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
-            [Op.notIn]: Sequelize.literal(`(
-                SELECT reference_drug_id
-                FROM reference_drug_facilities
-                WHERE facility_id = :facilityId
-                AND stock_status = :stockStatus
-              )`),
-          }),
+          referenceDrugNotUnavailable(),
         ],
       },
       order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
