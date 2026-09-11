@@ -20,12 +20,13 @@ const schema = yup.object({
     .array(
       yup.object({
         timestamp: yup.string().required(),
-        message: yup.string().required(),
+        message: yup.string().max(1000).required(),
       }),
     )
     .min(1)
+    .max(500)
     .required(),
-  additionalInformation: yup.string(),
+  additionalInformation: yup.string().max(5000),
   email: yup
     .string()
     .email('Must enter a valid email')
