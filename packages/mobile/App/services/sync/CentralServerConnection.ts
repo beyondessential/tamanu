@@ -53,7 +53,7 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
-    return new OutdatedVersionError(problem.extra.get('updateUrl'));
+    return new OutdatedVersionError(problem.extra.get('update-url'));
   }
 
   console.error('Response had non-OK value', problem);

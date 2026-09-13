@@ -429,15 +429,14 @@ describe('CentralServerConnection', () => {
             status: 400,
             type: ERROR_TYPE.CLIENT_INCOMPATIBLE,
             title: 'Client incompatible',
-            extra: {
-              updateUrl: mockUpdateUrl,
-            },
+            'update-url': mockUpdateUrl,
           },
         },
       });
-      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
-        new OutdatedVersionError(mockUpdateUrl),
-      );
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+        message: new OutdatedVersionError(mockUpdateUrl).message,
+        updateUrl: mockUpdateUrl,
+      });
     });
   });
 });
