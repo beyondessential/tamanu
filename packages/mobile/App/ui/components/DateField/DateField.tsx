@@ -15,8 +15,7 @@ import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
 // Spinner mode ignores colorAccent from styles.xml — set button colours explicitly.
 // See https://github.com/react-native-datetimepicker/datetimepicker/issues/543
-const ANDROID_PICKER_BUTTON_COLOR = '#326699';
-const pickerButtonProps = { textColor: ANDROID_PICKER_BUTTON_COLOR } as const;
+const pickerButtonProps = { textColor: '#326699' } as const;
 
 /**
  * Android snaps back to epoch when given `maximumDate` without `minimumDate`. Fall back to earliest
