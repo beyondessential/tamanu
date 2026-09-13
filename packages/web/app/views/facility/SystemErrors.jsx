@@ -10,7 +10,7 @@ import { markSystemErrorsRead, purgeStaleSystemErrors, removeSystemErrors } from
 import { SendErrorLogButtonLabel, SendErrorLogModal } from './SendErrorLogModal';
 
 const NoDataContainer = styled.div`
-  height: 200px;
+  height: 500px;
   font-size: 14px;
   font-weight: 500;
   border-radius: 3px;
