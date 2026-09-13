@@ -1804,7 +1804,10 @@ describe('Medication', () => {
         id: crypto.randomUUID(),
       });
       if (cancelled) {
-        await orderPrescription.destroy();
+        const deleteResult = await app.delete(
+          `/api/medication/medication-requests/${orderPrescription.id}`,
+        );
+        expect(deleteResult).toHaveSucceeded();
       }
     };
 
@@ -1823,7 +1826,10 @@ describe('Medication', () => {
     it('reports no last-sent state when the only request has been cancelled', async () => {
       const arranged = await arrangeOngoingPrescription();
       const orderPrescription = await sendToPharmacy(arranged);
-      await orderPrescription.destroy();
+      const deleteResult = await app.delete(
+        `/api/medication/medication-requests/${orderPrescription.id}`,
+      );
+      expect(deleteResult).toHaveSucceeded();
 
       const row = await fetchOngoingPrescription(arranged);
 

@@ -1677,7 +1677,10 @@ describe('Encounter', () => {
         const [cancelledOrderPrescription] = await models.PharmacyOrderPrescription.findAll({
           where: { pharmacyOrderId: cancelledOrder.body.id },
         });
-        await cancelledOrderPrescription.destroy();
+        const deleteResult = await app.delete(
+          `/api/medication/medication-requests/${cancelledOrderPrescription.id}`,
+        );
+        expect(deleteResult).toHaveSucceeded();
 
         const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
@@ -1699,7 +1702,10 @@ describe('Encounter', () => {
         const [orderPrescription] = await models.PharmacyOrderPrescription.findAll({
           where: { pharmacyOrderId: order.body.id },
         });
-        await orderPrescription.destroy();
+        const deleteResult = await app.delete(
+          `/api/medication/medication-requests/${orderPrescription.id}`,
+        );
+        expect(deleteResult).toHaveSucceeded();
 
         const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
@@ -1767,7 +1773,10 @@ describe('Encounter', () => {
           await orderPrescription.update({ isCompleted: true });
         }
         if (cancelled) {
-          await orderPrescription.destroy();
+          const deleteResult = await app.delete(
+            `/api/medication/medication-requests/${orderPrescription.id}`,
+          );
+          expect(deleteResult).toHaveSucceeded();
         }
       };
 
