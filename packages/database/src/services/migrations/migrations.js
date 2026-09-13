@@ -6,7 +6,7 @@ import { QueryTypes } from 'sequelize';
 import { runPostMigration, runPreMigration } from './hooks';
 import {
   createMigrationAuditLog,
-  sanitiseMigrationError,
+  migrationErrorSummary,
   tryGatherPreMigrationDbSnapshot,
 } from '../../utils/audit';
 import { syncDatabaseServerVersion } from '../../utils/databaseVersionCompatibility';
@@ -413,7 +413,7 @@ export async function migrateUpTo({
         totalMigrationsDurationMs,
         ...(preSnapshot ? { preSnapshot } : {}),
         ...(failedMigration ? { failedMigration } : {}),
-        ...(failure ? { error: sanitiseMigrationError(failure) } : {}),
+        ...(failure ? { error: migrationErrorSummary(failure) } : {}),
       },
     });
   };
