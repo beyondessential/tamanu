@@ -21,7 +21,6 @@ export class EncounterMedicationPane extends BasePatientPane {
   readonly routeSortHeader!: Locator;
   readonly dateSortHeader!: Locator;
   readonly prescriberSortHeader!: Locator;
-  readonly lastOrderedHeader!: Locator;
   readonly lastSentHeader!: Locator;
 
   constructor(page: Page) {
@@ -41,7 +40,6 @@ export class EncounterMedicationPane extends BasePatientPane {
       routeSortHeader: 'tablesortlabel-0qxx-route',
       dateSortHeader: 'tablesortlabel-0qxx-date',
       prescriberSortHeader: 'tablesortlabel-0qxx-prescriber.displayName',
-      lastOrderedHeader: 'tablelabel-0eff-lastOrderedAt',
       lastSentHeader: 'tablelabel-0eff-pharmacyRequestAt',
     } as const;
 
