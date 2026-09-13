@@ -38,7 +38,8 @@ const ENGINE_ERRORS = new Set([
 const blankQuotedLiterals = (message: string) =>
   message.replace(/"[^"]*"/g, '"…"').replace(/'[^']*'/g, "'…'");
 
-const shorten = (message: string) => blankQuotedLiterals(message).slice(0, MAX_MESSAGE_LENGTH);
+const shorten = (message: string) =>
+  [...blankQuotedLiterals(message)].slice(0, MAX_MESSAGE_LENGTH).join('');
 
 const postgresFields = (error: MigrationFailure): PostgresErrorFields | undefined =>
   [error.original, error.parent, error].find(candidate => SQLSTATE.test(candidate?.code ?? ''));
@@ -59,9 +60,12 @@ export const sanitiseMigrationError = (error: MigrationFailure): MigrationErrorS
     };
   }
 
-  if (ENGINE_ERRORS.has(error.name)) {
-    return { name: error.name, message: shorten(error.message) };
+  // Migration code can throw a string or a bare object, which names nothing.
+  const name = error?.name ?? 'UnknownError';
+
+  if (ENGINE_ERRORS.has(name)) {
+    return { name, message: shorten(error.message) };
   }
 
-  return { name: error.name };
+  return { name };
 };

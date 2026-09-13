@@ -108,4 +108,18 @@ describe('sanitiseMigrationError', () => {
 
     expect(summary).toEqual({ name: 'Error' });
   });
+
+  it('truncates on a character boundary', () => {
+    const summary = sanitiseMigrationError(
+      databaseError({ message: '\u{1F600}'.repeat(600), code: '42601' }),
+    );
+
+    // A codepoint cut in half would leave a lone surrogate here.
+    expect(summary.message).toBe('\u{1F600}'.repeat(500));
+  });
+
+  it('names what it can when migration code throws something that is not an Error', () => {
+    expect(sanitiseMigrationError('boom' as never)).toEqual({ name: 'UnknownError' });
+    expect(sanitiseMigrationError({ nope: true } as never)).toEqual({ name: 'UnknownError' });
+  });
 });
