@@ -36,6 +36,10 @@ test.describe('Send a new prescription to pharmacy', () => {
     // The prescription lands on the encounter's medication table...
     await expect(medicationPane.tableBody).toContainText(medicationName);
 
+    // ...with the Last sent column showing the new request is awaiting action.
+    const lastSentCell = medicationPane.lastSentCellForMedication(medicationName);
+    await expect(lastSentCell).toContainText('Active request');
+
     // ...and the pharmacy request is waiting on the worklist, as an inpatient prescription.
     await medicationRequestsPage.goto();
     const row = medicationRequestsPage.rowForPatient(newPatient.displayId);
@@ -63,6 +67,10 @@ test.describe('Send a new prescription to pharmacy', () => {
     await prescriptionModal.finalise();
 
     await expect(medicationPane.tableBody).toContainText(medicationName);
+
+    // With nothing sent to pharmacy, the Last sent column has no request to show.
+    const lastSentCell = medicationPane.lastSentCellForMedication(medicationName);
+    await expect(lastSentCell).toContainText('n/a');
 
     await medicationRequestsPage.goto();
     await expect(medicationRequestsPage.rowForPatient(newPatient.displayId)).toBeHidden();
