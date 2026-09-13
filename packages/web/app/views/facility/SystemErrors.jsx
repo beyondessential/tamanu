@@ -66,13 +66,11 @@ export const SystemErrors = React.memo(() => {
     <PageContainer>
       <TopBar title={<TranslatedText stringId="systemErrors.title" fallback="System errors" />}>
         {/* spec: SYSERR#sending-a-report-to-support */}
-        <Button
-          color="primary"
-          disabled={errors.length === 0}
-          onClick={() => setIsSendLogModalOpen(true)}
-        >
-          <SendErrorLogButtonLabel count={errors.length} />
-        </Button>
+        {errors.length > 0 && (
+          <Button color="primary" onClick={() => setIsSendLogModalOpen(true)}>
+            <SendErrorLogButtonLabel count={errors.length} />
+          </Button>
+        )}
       </TopBar>
       <ContentPane>
         <Table
