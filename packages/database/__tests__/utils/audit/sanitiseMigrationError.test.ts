@@ -59,9 +59,25 @@ describe('sanitiseMigrationError', () => {
     );
   });
 
-  it('names the class of an error that did not come from the database', () => {
+  it('caps a database message at 500 characters', () => {
     const summary = sanitiseMigrationError(
-      new TypeError("Cannot read properties of undefined (reading 'referenceDataId')"),
+      databaseError({ message: 'x'.repeat(900), code: '42601' }),
+    );
+
+    expect(summary.message).toHaveLength(500);
+  });
+
+  it('keeps only the class of an error thrown by migration code', () => {
+    // A migration author's own message is arbitrary prose, so none of it is copied.
+    const summary = sanitiseMigrationError(
+      new Error('Patient alice@example.org already has a dosing unit'),
+    );
+    expect(summary).toEqual({ name: 'Error' });
+  });
+
+  it('keeps an engine-written message, which names identifiers rather than values', () => {
+    const summary = sanitiseMigrationError(
+      new TypeError("Cannot read properties of undefined (reading 'units')"),
     );
 
     expect(summary).toEqual({
@@ -70,9 +86,26 @@ describe('sanitiseMigrationError', () => {
     });
   });
 
-  it('caps the message at 500 characters', () => {
-    const summary = sanitiseMigrationError(new Error('x'.repeat(900)));
+  it('reads a postgres error thrown without a sequelize wrapper', () => {
+    const summary = sanitiseMigrationError(
+      Object.assign(new Error('relation "reference_drugs" does not exist'), {
+        code: '42P01',
+        table: 'reference_drugs',
+      }),
+    );
 
-    expect(summary.message).toHaveLength(500);
+    expect(summary).toEqual({
+      code: '42P01',
+      message: 'relation "…" does not exist',
+      table: 'reference_drugs',
+    });
+  });
+
+  it('does not mistake a node error code for a sqlstate', () => {
+    const summary = sanitiseMigrationError(
+      Object.assign(new Error('connect ECONNREFUSED 10.0.0.1:5432'), { code: 'ECONNREFUSED' }),
+    );
+
+    expect(summary).toEqual({ name: 'Error' });
   });
 });
