@@ -119,9 +119,10 @@ const LanguageOptions = ({
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const { languageOptions, languageOptionsStatus, setLanguage } = useTranslation();
 
-  const onNavigateToSignIn = useCallback(() => {
-    navigation.navigate(Routes.SignUpStack.SignIn);
-  }, []);
+  const onNavigateToSignIn = useCallback(
+    () => void navigation.navigate(Routes.SignUpStack.SignIn),
+    [navigation],
+  );
 
   const handleChangeLanguage = (value: string) => {
     setLanguage(value);
