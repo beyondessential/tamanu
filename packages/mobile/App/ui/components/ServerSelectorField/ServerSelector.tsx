@@ -10,7 +10,7 @@ import useServersQuery from '~/ui/hooks/queries/useServersQuery';
 
 export const ServerSelector = ({ onChange, label, value, error }): ReactElement => {
   const netInfo = useNetInfo();
-  const { setLanguage, setHost } = useTranslation();
+  const { setHost } = useTranslation();
   const { data: options, isError } = useServersQuery({
     enabled: netInfo.isInternetReachable === true,
   });
@@ -18,9 +18,6 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   const updateHost = value => {
     onChange(value);
     setHost(value);
-    if (!value) {
-      setLanguage('en');
-    }
   };
 
   if (!netInfo.isInternetReachable) {
