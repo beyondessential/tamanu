@@ -1,5 +1,5 @@
 import React, { type ReactElement, useCallback } from 'react';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
+import { ToastAndroid } from 'react-native';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { compose } from 'redux';
@@ -120,6 +120,7 @@ export const DumbAddLabRequestScreen = ({
       });
     },
     onSuccess: () => {
+      ToastAndroid.show('Lab request submitted', ToastAndroid.SHORT);
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
       queryClient.invalidateQueries({ queryKey: reportKeys.all });
     },
@@ -127,11 +128,6 @@ export const DumbAddLabRequestScreen = ({
 
   const recordLabRequest = useCallback(
     async (values: LabRequestFormData): Promise<void> => {
-      showMessage({
-        message: 'Submitting lab request',
-        type: 'default',
-        backgroundColor: theme.colors.BRIGHT_BLUE,
-      });
       await submitLabRequest(values);
       navigateToHistory();
     },
@@ -149,7 +145,6 @@ export const DumbAddLabRequestScreen = ({
 
   return (
     <StyledSafeAreaView flex={1}>
-      <FlashMessage position="top" />
       <FullView
         background={theme.colors.BACKGROUND_GREY}
         paddingBottom={screenPercentageToDP(4.86, Orientation.Height)}

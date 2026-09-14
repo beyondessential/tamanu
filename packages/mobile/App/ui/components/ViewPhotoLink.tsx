@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Dimensions, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
 import CameraRoll from '@react-native-camera-roll/camera-roll';
 import Modal from 'react-native-modal';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { useBackend } from '~/ui/hooks';
 import { theme } from '/styled/theme';
 import { StyledImage, StyledText, StyledView } from '/styled/common';
@@ -94,11 +93,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
             await CameraRoll.save(`file://${filePath}`, { type: 'photo' });
             await deleteFileInDocuments(fileName);
 
-            showMessage({
-              message: 'Image saved',
-              type: 'default',
-              backgroundColor: theme.colors.BRIGHT_BLUE,
-            });
+            ToastAndroid.show('Image saved', ToastAndroid.SHORT);
           },
           style: 'default',
         },
@@ -127,7 +122,6 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         )}
         {errorMessage && <Message color={theme.colors.ALERT} message={errorMessage} />}
         {loading && <Message color={theme.colors.BRIGHT_BLUE} message="Loading image..." />}
-        <FlashMessage position="top" />
       </Modal>
     </View>
   );
