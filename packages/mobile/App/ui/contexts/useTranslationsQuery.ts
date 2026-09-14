@@ -5,10 +5,9 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query';
 import { isEmptyObject } from 'es-toolkit';
-
 import { Database } from '~/infra/db';
-import { fetchJson } from './fetchJson';
-import { translationKeys } from './queryKeys';
+import { fetchJson } from '../hooks/queries/fetchJson';
+import { translationKeys } from '../hooks/queries/queryKeys';
 
 export interface Translations {
   [stringId: string]: string;

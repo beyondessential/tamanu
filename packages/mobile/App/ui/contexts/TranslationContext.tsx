@@ -19,7 +19,7 @@ import { registerYup } from '../helpers/yupMethods';
 import useLanguageOptionsQuery, {
   useLocalLanguageOptionsQuery,
 } from '../hooks/queries/useLanguageOptionsQuery';
-import useTranslationsQuery, { type Translations } from '../hooks/queries/useTranslationsQuery';
+import useTranslationsQuery, { type Translations } from './useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
