@@ -179,8 +179,7 @@ const resolveLanguageOptionsStatus = (
 
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [storedLanguage, setStoredLanguage] = useState<string | null>(null);
-  const [isLanguageRestored, setIsLanguageRestored] = useState(false);
+  const [storedLanguage, setStoredLanguage] = useState<string | null | undefined>(undefined);
   const [host, setHost] = useState<string | null>(null);
 
   const remoteLanguageOptionsQuery = useLanguageOptionsQuery(host);
@@ -192,7 +191,8 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     localLanguageOptionsQuery,
   );
   // Hold off until the stored language is known, so the first option isn't briefly shown instead
-  const language = isLanguageRestored ? resolveLanguage(storedLanguage, languageOptions) : null;
+  const language =
+    storedLanguage === undefined ? null : resolveLanguage(storedLanguage, languageOptions);
   const { data: translations } = useTranslationsQuery(language, host);
 
   const setLanguage = useCallback((languageCode: string) => {
@@ -206,9 +206,7 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
 
   useEffect(() => {
     const restoreLanguage = async () => {
-      const languageCode = await readConfig('language');
-      setStoredLanguage(languageCode ?? null);
-      setIsLanguageRestored(true);
+      setStoredLanguage(await readConfig('language'));
     };
     restoreLanguage();
   }, []);
