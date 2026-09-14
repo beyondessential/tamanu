@@ -60,18 +60,6 @@
     margin-bottom: 16px;
   }
 
-  .version-pill {
-    display: inline-block;
-    background: var(--accent-soft);
-    color: var(--accent);
-    border: 1px solid var(--accent-border);
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-
   .released {
     font-size: 13px;
     color: var(--text-muted);
@@ -267,7 +255,6 @@
 
   <div class="masthead">
     <div class="eyebrow">
-      <span class="version-pill">Tamanu v2.64</span>
       <span class="released">Released 10-09-2026</span>
     </div>
     <h1>Tamanu v2.64 release notes</h1>
@@ -289,10 +276,8 @@
       <p class="feature-title">Hourly and half-hourly medication frequencies</p>
       <p>
         The medication frequency list gains 'Hourly' and 'Half-hourly', supporting closely
-        monitored regimes that previously had to be recorded as a series of separate
-        orders. An hourly prescription generates 24 doses a day and a half-hourly
-        prescription 48, and both feed the automatic dispensing quantity calculation. The
-        medication administration record has been reworked to hold that many doses.
+        monitored regimes. The medication administration record has been reworked to hold
+        the resulting volume of doses.
       </p>
 
       <p class="label">Key features</p>
@@ -300,7 +285,6 @@
         <li><strong>Two new frequencies</strong> - 'Hourly' and 'Half-hourly' can be selected when prescribing, and are found by the usual shorthand searches. Both are switched on by default, and either can be turned off in the frequency list.</li>
         <li><strong>Individual dose slots on the record</strong> - The medication administration record keeps its twelve two-hour columns, and each column is now divided into separate dose slots: two for an hourly medication, four for a half-hourly one. Each slot is recorded against individually, with its own status and tooltip, so every dose is captured rather than one per column.</li>
         <li><strong>Simplified prescribing</strong> - The 'Medication administration schedule' section does not appear for these two frequencies, since their administration times are fixed. It returns if the frequency is changed to any other option.</li>
-        <li><strong>Easier navigation of the record</strong> - The day being viewed is held in the page address, so the browser's back button steps back through the days viewed and a particular day can be bookmarked or shared. 'Previous day' and 'Next day' controls step through the encounter, stopping at its start and end dates.</li>
         <li><strong>Accessibility and presentation</strong> - The record is now navigable by keyboard and readable by screen readers, which announce the current time slot. Column widths, headings, icons and empty states have been brought into line with the design.</li>
       </ul>
 
@@ -369,15 +353,8 @@
     <div class="group">
       <p class="platform">Desktop</p>
       <ul>
-        <li><strong>Medications</strong> - The medication administration record no longer fails for a drug recorded without a dosing unit. Printed medication labels use a dedicated print frame with a fixed page size and a wider dispensed label field. A medication discontinued from the discharge modal appears struck through, drugs without a matching reference record can be selected when prescribing, and a drug reference data export can be re-imported without error. Duplicate record entries after editing an hourly or half-hourly prescription are resolved.</li>
-        <li><strong>Labs</strong> - The interim results printout works before any result has been published, and long test category names no longer collide with test names on the printout.</li>
-        <li><strong>Imaging</strong> - A completion time is recorded when an imaging request is completed.</li>
-        <li><strong>Tasking and dashboard</strong> - New tasks are saved before the dashboard responds, bulk task deletion works reliably, dashboard tasks filter correctly by designation, and a single task change no longer refreshes every clinician's dashboard.</li>
-        <li><strong>Patients and encounters</strong> - Fixed a freeze when opening certain encounters. Saving patient details now confirms success, longer patient issue notes can be recorded, and the encounter refreshes once a death is recorded.</li>
         <li><strong>Vaccinations</strong> - The include not given filter is kept when a vaccine record is edited.</li>
         <li><strong>Dates</strong> - Date defaults and limits follow the facility timezone rather than the server's.</li>
-        <li><strong>Invoicing and surveys</strong> - Fixed an error when adding an invoice item, and a rare crash when the survey 'Complete' button is clicked.</li>
-        <li><strong>AI summaries</strong> - Refinements to patient and encounter summary wording and presentation.</li>
       </ul>
     </div>
 
@@ -393,8 +370,6 @@
       <p class="platform">System</p>
       <ul>
         <li><strong>Sync</strong> - Duplicate patient invoice insurance plan records are resolved, and merged patients are correctly flagged so their sync records rebuild.</li>
-        <li><strong>Integrations</strong> - Fixed an issue where part of a failed data exchange bundle could be saved instead of being rolled back in full.</li>
-        <li><strong>Facility servers</strong> - Unrecognised clients are exempt from the client version check, so an unknown client is no longer blocked outright.</li>
       </ul>
     </div>
   </section>
@@ -412,8 +387,8 @@
       <div class="upgrade-item">
         <p class="name">Send to pharmacy on discharge</p>
         <ul>
-          <li>Encounter medications are no longer ticked for 'Send to pharmacy' automatically on the discharge modal. If your teams rely on that, turn on 'Preselect send to pharmacy when preparing discharge' for each facility to restore it.</li>
-          <li>If you take no action, staff will need to tick medications individually at discharge.</li>
+          <li>Encounter medications are no longer selected for 'Send to pharmacy' automatically on the discharge modal. If your teams rely on that, turn on 'Preselect send to pharmacy when preparing discharge' for each facility to restore it.</li>
+          <li>If you take no action, staff will need to select medications individually at discharge.</li>
         </ul>
       </div>
 
@@ -429,7 +404,7 @@
       <div class="upgrade-item">
         <p class="name">Medication frequencies</p>
         <ul>
-          <li>'Hourly' and 'Half-hourly' are switched on by default and will appear in the frequency list as soon as you upgrade. Turn them off in the frequency list if your deployment does not want them offered.</li>
+          <li>'Hourly' and 'Half-hourly' are enabled by default and will appear in the frequency list as soon as you upgrade. Disable them in the frequency list if your deployment does not want them offered.</li>
           <li>Brief prescribing and nursing staff that the administration schedule section does not appear for these two frequencies, and that their administration times are fixed rather than configurable.</li>
         </ul>
       </div>
@@ -487,7 +462,6 @@
         <p class="name">General</p>
         <ul>
           <li>Open the vitals and charts tables on your longest-running admissions and confirm they load rather than hang.</li>
-          <li>Verify that existing workflows continue to function as expected.</li>
         </ul>
       </div>
     </div>
