@@ -12,9 +12,10 @@ import { QueryInterface } from 'sequelize';
 // facility is created, so an operator who wants two facilities in one network stands up a new
 // facility enrolled in it.
 export async function up(query: QueryInterface): Promise<void> {
+  // Facility codes admit . and /, which the reference data import rejects in an id, so strip them.
   await query.sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)
-    SELECT 'sensitiveNetwork-' || code, code, name
+    SELECT 'sensitiveNetwork-' || regexp_replace(code, '[^A-Za-z0-9-]', '', 'g'), code, name
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL;
