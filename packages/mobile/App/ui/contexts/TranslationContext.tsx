@@ -173,6 +173,9 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
       setIsLanguageRestored(true);
     };
     restoreLanguage();
+  }, []);
+
+  useEffect(() => {
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(prev => !prev));
   }, []);
