@@ -147,7 +147,8 @@ export const translationKeys = {
     [...translationKeys.all, 'languageOptions', 'local'] as const satisfies QueryKey,
 };
 
-/** Remote queries. Unlike everything above, these hit a server over the internet rather than the
+/**
+ * Remote queries. Unlike everything above, these hit a server over the internet rather than the
  * local database, so they aren't covered by the sync-driven cache invalidation in BackendContext.
  */
 export const serverKeys = {
