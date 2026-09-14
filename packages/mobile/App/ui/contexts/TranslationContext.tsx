@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { DevSettings } from 'react-native';
@@ -15,7 +16,7 @@ import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
 import { registerYup } from '../helpers/yupMethods';
 import useLanguageOptionsQuery from '../hooks/queries/useLanguageOptionsQuery';
-import useTranslationsQuery from '../hooks/queries/useTranslationsQuery';
+import useTranslationsQuery, { type Translations } from '../hooks/queries/useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -94,6 +95,35 @@ const applyCasing = (text: string, casing: Casing) => {
   throw new Error(`applyCasing called with unhandled value: ${casing}`);
 };
 
+interface Translator extends Pick<
+  TranslationContextData,
+  'getTranslation' | 'getEnumTranslation' | 'getReferenceDataTranslation'
+> {}
+
+const createTranslator = (translations: Translations | undefined): Translator => {
+  const getTranslation: GetTranslationFunction = (stringId, fallback, translationOptions) => {
+    const translation = translations?.[stringId] ?? fallback;
+    return replaceStringVariables(translation, translationOptions, translations);
+  };
+
+  const getEnumTranslation = (enumValues: Record<string, string>, value: string) => {
+    const fallback = enumValues[value];
+    if (fallback === undefined) return getTranslation('general.fallback.unknown', 'Unknown');
+    const stringId = getEnumStringId(value, enumValues);
+    return getTranslation(stringId, fallback);
+  };
+
+  const getReferenceDataTranslation = ({
+    value,
+    category,
+    fallback,
+    placeholder,
+  }: TranslatedReferenceDataProps) =>
+    value ? getTranslation(getReferenceDataStringId(value, category), fallback) : placeholder;
+
+  return { getTranslation, getEnumTranslation, getReferenceDataTranslation };
+};
+
 const TranslationContext = createContext<TranslationContextData>({
   debugMode: false,
   language: 'en',
@@ -106,7 +136,7 @@ const TranslationContext = createContext<TranslationContextData>({
   setHost: () => {},
   getEnumTranslation: () => '',
   getReferenceDataTranslation: () => '',
-} as TranslationContextData);
+} as const);
 
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
@@ -130,37 +160,9 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     setLanguage(languageOptions[0].languageCode);
   }, [isLanguageRestored, language, languageOptions, setLanguage]);
 
-  const getTranslation = (
-    stringId: string,
-    fallback?: string,
-    translationOptions?: TranslationOptions,
-  ) => {
-    const translation = translations?.[stringId] ?? fallback;
-    return replaceStringVariables(translation, translationOptions, translations);
-  };
+  const translator = useMemo(() => createTranslator(translations), [translations]);
 
-  const getEnumTranslation = (enumValues: Record<string, string>, value: string) => {
-    const fallback = enumValues[value];
-    if (fallback === undefined) return getTranslation('general.fallback.unknown', 'Unknown');
-
-    const stringId = getEnumStringId(value, enumValues);
-    return getTranslation(stringId, fallback);
-  };
-
-  const getReferenceDataTranslation = ({
-    value,
-    category,
-    fallback,
-    placeholder,
-  }: TranslatedReferenceDataProps) => {
-    return value
-      ? getTranslation(getReferenceDataStringId(value, category), fallback)
-      : placeholder;
-  };
-
-  useEffect(() => {
-    registerYup(translations);
-  }, [translations]);
+  useEffect(() => void registerYup(translations), [translations]);
 
   useEffect(() => {
     const restoreLanguage = async () => {
@@ -177,14 +179,12 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     <TranslationContext.Provider
       value={{
         debugMode: isDebugMode,
+        host,
         language,
         languageOptions,
-        getTranslation,
-        setLanguage,
-        host,
         setHost,
-        getEnumTranslation,
-        getReferenceDataTranslation,
+        setLanguage,
+        ...translator,
       }}
     >
       {children}
