@@ -19,7 +19,8 @@ import { compressibleRequestBody } from './utils/compressibleRequestBody';
 import { CentralConnectionStatus } from '~/types';
 
 type PullMetadataResponse = {
-  totalToPull: number;
+  /** A Postgres `count(*)` is a bigint, which arrives serialised as a string */
+  totalToPull: string;
   pullUntil: number;
 };
 
@@ -267,7 +268,11 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get<PullMetadataResponse>(`sync/${sessionId}/pull/metadata`, {});
+    const { totalToPull, pullUntil } = await this.get<PullMetadataResponse>(
+      `sync/${sessionId}/pull/metadata`,
+      {},
+    );
+    return { totalToPull: Number.parseInt(totalToPull, 10), pullUntil };
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {

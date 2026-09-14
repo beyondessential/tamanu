@@ -452,6 +452,14 @@ export class MobileSyncManager {
 
   async pullIncrementalSync(pullParams: PullParams): Promise<void> {
     const { recordTotal, pullUntil } = pullParams;
+
+    if (recordTotal === 0) {
+      // Nothing to save, so don't stage a snapshot or open the (write-locking) save transaction.
+      // The pull cursor still has to advance, otherwise the next session re-asks from the old tick.
+      await Database.client.transaction(entityManager => this.postPull(entityManager, pullUntil));
+      return;
+    }
+
     const { maxRecordsPerSnapshotBatch = 1000 } = this.syncSettings;
     const processStreamedDataFunction = async (records: any) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
