@@ -18,16 +18,16 @@ import { callWithBackoff, sleepAsync } from './utils';
 import { compressibleRequestBody } from './utils/compressibleRequestBody';
 import { CentralConnectionStatus } from '~/types';
 
-type PullMetadataResponse = {
+interface PullMetadataResponse {
   /** A Postgres `count(*)` is a bigint, which arrives serialised as a string */
   totalToPull: string;
   pullUntil: number;
-};
+}
 
-type RefreshResponse = {
+interface RefreshResponse {
   token?: string;
   refreshToken?: string;
-};
+}
 
 const API_PREFIX = 'api';
 
