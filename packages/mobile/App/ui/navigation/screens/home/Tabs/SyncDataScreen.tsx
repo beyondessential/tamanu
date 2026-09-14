@@ -232,18 +232,10 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
               >
                 <TranslatedText
                   stringId="sync.message.syncSummary"
-                  fallback="pulled :pullCount :pullChange, pushed :pushCount :pushChange"
+                  fallback=":pushCount&nbsp;pushed, :pullCount&nbsp;pulled"
                   replacements={{
-                    pullCount: lastSyncPulledRecordsCount,
-                    pullChange:
-                      lastSyncPulledRecordsCount === 1
-                        ? changeTranslation
-                        : changePluralTranslation,
-                    pushCount: lastSyncPushedRecordsCount,
-                    pushChange:
-                      lastSyncPushedRecordsCount === 1
-                        ? changeTranslation
-                        : changePluralTranslation,
+                    pushCount: lastSyncPushedRecordsCount.toLocaleString(),
+                    pullCount: lastSyncPulledRecordsCount.toLocaleString(),
                   }}
                 />
               </StyledText>

@@ -336,7 +336,7 @@ export class MobileSyncManager {
         outgoingChanges,
         this.syncSettings,
         (total, pushedRecords) =>
-          this.updateProgress(total, pushedRecords, 'Pushing all new changes...'),
+          this.updateProgress(total, pushedRecords, 'Pushing all new changes…'),
       );
     }
 
@@ -412,7 +412,11 @@ export class MobileSyncManager {
     let totalSaved = 0;
     const progressCallback = (incrementalSaved: number) => {
       totalSaved += Number(incrementalSaved);
-      this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
+      this.updateProgress(
+        recordTotal,
+        totalSaved,
+        `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
+      );
     };
 
     const { useUnsafeSchemaForInitialSync = false } = this.syncSettings;
@@ -468,7 +472,11 @@ export class MobileSyncManager {
     let pullTotal = 0;
     const pullProgressCallback = (incrementalPulled: number) => {
       pullTotal += Number(incrementalPulled);
-      this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
+      this.updateProgress(
+        recordTotal,
+        pullTotal,
+        `Pulling changes (${pullTotal.toLocaleString()} / ${recordTotal.toLocaleString()})`,
+      );
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
@@ -483,7 +491,11 @@ export class MobileSyncManager {
     let totalSaved = 0;
     const saveProgressCallback = (incrementalSaved: number) => {
       totalSaved += Number(incrementalSaved);
-      this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
+      this.updateProgress(
+        recordTotal,
+        totalSaved,
+        `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
+      );
     };
     await Database.client.transaction(async transactionEntityManager => {
       try {
