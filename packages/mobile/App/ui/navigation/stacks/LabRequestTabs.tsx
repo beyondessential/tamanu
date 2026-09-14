@@ -1,14 +1,14 @@
+import type { NavigationProp } from '@react-navigation/native';
 import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
-import type { NavigationProp } from '@react-navigation/native';
-import { Routes } from '/helpers/routes';
+import type { IPatient } from '~/types';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { withPatient } from '~/ui/containers/Patient';
+import { joinNames } from '~/ui/helpers/user';
+import { AddLabRequestScreen, ViewHistoryScreen } from '../screens/labRequests/tabs';
 import { StackHeader } from '/components/StackHeader';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
-import { AddLabRequestScreen, ViewHistoryScreen } from '../screens/labRequests/tabs';
-import { withPatient } from '~/ui/containers/Patient';
-import type { IPatient } from '~/types';
-import { joinNames } from '~/ui/helpers/user';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Routes } from '/helpers/routes';
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;

@@ -1,17 +1,17 @@
-import React, { type ReactElement } from 'react';
 import type { NavigationProp } from '@react-navigation/native';
-import { Routes } from '/helpers/routes';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
+import type { IPatient } from '~/types';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { AddIllnessScreen } from '../screens/diagnosisAndTreatment/AddIllnessDetails';
+import { PrescribeMedicationScreen } from '../screens/diagnosisAndTreatment/PrescribeMedication';
 import { StackHeader } from '/components/StackHeader';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import type { IPatient } from '~/types';
+import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { AddIllnessScreen } from '../screens/diagnosisAndTreatment/AddIllnessDetails';
-import { PrescribeMedicationScreen } from '../screens/diagnosisAndTreatment/PrescribeMedication';
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 type DiagnosisAndTreatmentTabsProps = {
   navigation: NavigationProp<any>;

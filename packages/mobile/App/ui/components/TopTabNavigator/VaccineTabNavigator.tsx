@@ -1,15 +1,15 @@
+import type { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
 import React, { type ComponentType, type FunctionComponent, type ReactElement } from 'react';
 import { Dimensions } from 'react-native';
-import type { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
-import { theme } from '/styled/theme';
-import { StyledText, StyledView } from '/styled/common';
 import * as Icons from '../Icons';
-import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
 import type { VaccineDataProps } from '../VaccineCard';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { TopTabNavigator, TopTabScreen } from './index';
 import { VaccineStatus } from '/helpers/patient';
 import { Routes } from '/helpers/routes';
-import { TopTabNavigator, TopTabScreen } from './index';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const tabIconSize = screenPercentageToDP(2.5, Orientation.Height);
 

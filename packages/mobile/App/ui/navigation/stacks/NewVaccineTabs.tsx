@@ -1,18 +1,16 @@
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { type ReactElement } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { NavigationProp, RouteProp } from '@react-navigation/native';
-
 import type { IPatient } from '~/types';
-
-import { theme } from '/styled/theme';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { CenterView } from '../../styled/common';
 import { NewVaccineTab } from '../screens/vaccine/newVaccineTabs/NewVaccineTab';
-import { VaccineTabNavigator } from '/components/TopTabNavigator/VaccineTabNavigator';
-import { FullView, RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { ArrowLeftIcon } from '/components/Icons';
+import { VaccineTabNavigator } from '/components/TopTabNavigator/VaccineTabNavigator';
 import type { VaccineDataProps } from '/components/VaccineCard';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { CenterView } from '../../styled/common';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { FullView, RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 type NewVaccineHeaderProps = {
   navigation: NavigationProp<any>;

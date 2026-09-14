@@ -1,9 +1,12 @@
+import type { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
 import React, { useEffect } from 'react';
 import Orientation from 'react-native-orientation-locker';
-import { Routes } from '/helpers/routes';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Routes } from '/helpers/routes';
+
+const screenOptions = { swipeEnabled: false } as const satisfies MaterialTopTabNavigationOptions;
 
 export const VaccineTableTabs = () => {
   useEffect(() => {
@@ -12,7 +15,7 @@ export const VaccineTableTabs = () => {
   }, []);
 
   return (
-    <TopTabNavigator screenOptions={{ swipeEnabled: false }}>
+    <TopTabNavigator screenOptions={screenOptions}>
       <TopTabScreen
         options={{
           tabBarLabel: () => (

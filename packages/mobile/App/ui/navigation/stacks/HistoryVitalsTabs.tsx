@@ -1,9 +1,9 @@
 import React, { type ReactElement } from 'react';
-import { Routes } from '/helpers/routes';
-import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
-import { VisitsScreen } from '../screens/historyvitals/tabs/VisitsScreen';
-import { VaccinesScreen } from '../screens/historyvitals/tabs/VaccinesScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { VaccinesScreen } from '../screens/historyvitals/tabs/VaccinesScreen';
+import { VisitsScreen } from '../screens/historyvitals/tabs/VisitsScreen';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
+import { Routes } from '/helpers/routes';
 
 export const HistoryVitalsTabs = (): ReactElement => (
   <TopTabNavigator>

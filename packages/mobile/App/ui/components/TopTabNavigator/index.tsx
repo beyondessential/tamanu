@@ -1,8 +1,8 @@
-import React, { type ComponentProps, type ReactElement } from 'react';
 import {
   createMaterialTopTabNavigator,
   type MaterialTopTabNavigationOptions,
 } from '@react-navigation/material-top-tabs';
+import React, { type ComponentProps, type ReactElement } from 'react';
 import { theme } from '/styled/theme';
 
 const MaterialTopTabs = createMaterialTopTabNavigator();
