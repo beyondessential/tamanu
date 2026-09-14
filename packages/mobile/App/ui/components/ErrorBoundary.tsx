@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import { Popup } from 'popup-ui';
-import React from 'react';
-import { View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Alert, View } from 'react-native';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '/contexts/TranslationContext';
 import { Routes } from '/helpers/routes';
@@ -17,6 +16,7 @@ type ErrorComponentType = React.FC<ErrorComponentProps> | React.ComponentType<Er
 interface ErrorBoundaryProps {
   resetRoute?: string;
   errorComponent?: ErrorComponentType;
+  children?: React.ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -27,18 +27,22 @@ const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
   const navigation = useNavigation<StackNavigationProp<any>>();
   const { getTranslation } = useTranslation();
 
-  Popup.show({
-    type: 'Danger',
-    title: 'Something went wrong',
-    button: true,
-    textBody:
-      'Sorry, it looks like an error has occurred. If this continues to happen, please let your IT admin know.',
-    buttonText: getTranslation('general.action.ok', 'OK'),
-    callback: () => {
-      navigation.replace(resetRoute);
-      Popup.hide();
-    },
-  });
+  useEffect(() => {
+    Alert.alert(
+      getTranslation('general.error.unexpected.title', 'Something went wrong'),
+      getTranslation(
+        'general.error.unexpected.text',
+        'If this continues to happen, please contact your system administrator',
+      ),
+      [
+        {
+          text: getTranslation('general.action.goHome', 'Go home'),
+          onPress: () => navigation.replace(resetRoute),
+        },
+      ],
+      { cancelable: false },
+    );
+  }, [getTranslation, navigation, resetRoute]);
 
   return <View style={{ backgroundColor: theme.colors.BACKGROUND_GREY }} />;
 };
