@@ -20,12 +20,12 @@ const IMAGE_RESIZE_OPTIONS = {
   maxWidth: 1920,
   maxHeight: 1920,
   quality: 20,
-};
+} as const;
 
 const IMAGE_SOURCE_TYPES = {
   CAMERA: 'camera',
   LIBRARY: 'library',
-};
+} as const;
 
 export interface PhotoProps extends BaseInputProps {
   onChange: Function;
