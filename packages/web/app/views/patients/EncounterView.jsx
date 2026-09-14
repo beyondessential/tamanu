@@ -7,7 +7,6 @@ import { useEncounter } from '../../contexts/Encounter';
 import { usePatient } from '../../contexts/Patient';
 import { useSyncedTabSearchParam } from '../../utils/useSyncedTabSearchParam';
 import { ContentPane, EncounterTopBar } from '../../components';
-import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import {
@@ -23,8 +22,9 @@ import {
   VitalsPane,
   ChartsPane,
   TasksPane,
+  DiagnosisPane,
 } from './panes';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { Colors } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceDataQuery } from '../../api/queries';
@@ -38,9 +38,19 @@ import { isEqual } from 'es-toolkit/compat';
 import { ChartDataProvider } from '../../contexts/ChartData';
 import { PlannedMoveActions } from './components/PlannedMoveActions';
 
-const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
-
 const TABS = [
+  {
+    label: <TranslatedText stringId="encounter.tabs.diagnosis" fallback="Diagnosis" />,
+    key: ENCOUNTER_TAB_NAMES.DIAGNOSIS,
+    render: props => (
+      <EncounterPaneWithPermissionCheck
+        permissionNoun="EncounterDiagnosis"
+        data-testid="encounterpanewithpermissioncheck-diagnosis"
+      >
+        <DiagnosisPane {...props} data-testid="diagnosispane-jm2a" />
+      </EncounterPaneWithPermissionCheck>
+    ),
+  },
   {
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="Tasks" />,
     key: ENCOUNTER_TAB_NAMES.TASKS,
@@ -284,12 +294,6 @@ export const EncounterView = () => {
         data-testid="encounterinfopane-nabb"
       />
       {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
-      <DiagnosisView
-        encounter={encounter}
-        isTriage={getIsTriage(encounter)}
-        readOnly={disabled}
-        data-testid="diagnosisview-7r50"
-      />
       <ContentPane data-testid="contentpane-nv12">
         <StyledTabDisplayDraggable
           tabs={visibleTabs}
