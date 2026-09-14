@@ -77,6 +77,10 @@ const CategoryHeaderRow = styled.div`
   border-top: 1px solid ${Colors.outline};
   margin-bottom: 2px;
   margin-right: 5px;
+  // The search field's bottom border already separates the list; skip the doubled line
+  &:first-child {
+    border-top: none;
+  }
 `;
 
 const MemberRow = styled.div`
@@ -96,7 +100,6 @@ export const SelectedGroupCard = styled.div`
   background: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  overflow: hidden;
   & + & {
     margin-top: 8px;
   }
@@ -106,7 +109,6 @@ const SelectedCategoryHeaderRow = styled.div`
   font-size: 11px;
   line-height: 15px;
   color: ${Colors.midText};
-  background: ${Colors.background2};
   padding: 5px 8px;
   border-bottom: 1px solid ${Colors.outline};
 `;
