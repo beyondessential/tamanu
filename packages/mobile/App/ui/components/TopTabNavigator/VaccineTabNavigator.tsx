@@ -13,15 +13,15 @@ import { TopTabNavigator, TopTabScreen } from './index';
 
 const tabIconSize = screenPercentageToDP(2.5, Orientation.Height);
 
-type VaccineTab = {
+interface VaccineTab {
   name: string;
   title: string;
   status: VaccineStatus;
   color: string;
   icon: FunctionComponent<IconWithSizeProps>;
-};
+}
 
-const VACCINE_TABS: VaccineTab[] = [
+const VACCINE_TABS = [
   {
     name: Routes.HomeStack.VaccineStack.NewVaccineTabs.GivenOnTimeTab,
     title: 'Given',
@@ -36,7 +36,7 @@ const VACCINE_TABS: VaccineTab[] = [
     color: theme.colors.PRIMARY_MAIN,
     icon: Icons.NotGivenIcon,
   },
-];
+] as const satisfies VaccineTab[];
 
 const VaccineTabLabel = ({
   tab: { title, color, icon: Icon },
@@ -44,7 +44,7 @@ const VaccineTabLabel = ({
 }: {
   tab: VaccineTab;
   focused: boolean;
-}): ReactElement => (
+}) => (
   <StyledView
     height={screenPercentageToDP(7.36, Orientation.Height)}
     alignItems="center"
@@ -64,23 +64,18 @@ const VaccineTabLabel = ({
   </StyledView>
 );
 
-/**
- * The tab bar takes its indicator and tint colours from the focused screen's options, so each tab
- * colours the indicator to match itself.
- */
 const getTabScreenOptions = (tab: VaccineTab): MaterialTopTabNavigationOptions => ({
   tabBarActiveTintColor: tab.color,
   tabBarIndicatorStyle: {
-    height: 5,
     backgroundColor: tab.color,
   },
   tabBarLabel: ({ focused }) => <VaccineTabLabel tab={tab} focused={focused} />,
 });
 
-const navigatorScreenOptions: MaterialTopTabNavigationOptions = {
+const navigatorScreenOptions = {
+  swipeEnabled: true,
   tabBarStyle: { backgroundColor: theme.colors.WHITE },
-  tabBarInactiveTintColor: theme.colors.TEXT_SOFT,
-};
+} as const satisfies MaterialTopTabNavigationOptions;
 
 const initialLayout = { width: Dimensions.get('window').width };
 
