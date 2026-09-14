@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react';
-import { Dimensions, Text } from 'react-native';
+import { Alert, Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
-import { Popup } from 'popup-ui';
 import { useMutation } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
+import useCanUploadAttachmentQuery from './useCanUploadAttachmentQuery';
 import { StyledImage, StyledView, StyledText } from '/styled/common';
 import {
   getImageFromPhotoLibrary,
@@ -15,6 +15,7 @@ import { deleteFileInDocuments } from '/helpers/file';
 import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { Button } from '~/ui/components/Button';
 import { theme } from '~/ui/styled/theme';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const IMAGE_RESIZE_OPTIONS = {
   maxWidth: 1920,
@@ -87,8 +88,7 @@ const UploadPhotoComponent = ({
   loading,
 }: UploadPhotoComponentProps) => (
   <StyledView marginTop={5}>
-    {loading && <LoadingPlaceholder />}
-    {imageData && <UploadedImage imageData={imageData} />}
+    {loading ? <LoadingPlaceholder /> : imageData && <UploadedImage imageData={imageData} />}
     {!imageData && errorMessage && <Text>{`Error loading image: ${errorMessage}`}</Text>}
     <StyledText fontWeight="500" color={theme.colors.TEXT_SUPER_DARK} marginTop={10}>
       {imageData ? 'Change photo' : 'Upload photo'}
@@ -113,7 +113,9 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [imageData, setImageData] = useState(null);
   const [imagePath, setImagePath] = useState(null);
-  const { models, centralServer } = useBackend();
+  const { models } = useBackend();
+  const { getTranslation } = useTranslation();
+  const { refetch: checkCanUploadAttachment } = useCanUploadAttachmentQuery();
 
   // No queries read attachments from the local database (they're synced up and
   // deleted), so these mutations have nothing to invalidate.
@@ -152,54 +154,58 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       try {
         if (imageType === IMAGE_SOURCE_TYPES.CAMERA) image = await getImageFromCamera();
         if (imageType === IMAGE_SOURCE_TYPES.LIBRARY) image = await getImageFromPhotoLibrary();
-        if (!image) {
-          // in case user cancel selecting image
-          return;
-        }
+        if (!image) return; // in case user cancel selecting image
       } catch (error) {
         await removePhotoCallback();
         setErrorMessage(error.message);
         return;
       }
 
-      setImageData(null);
       setLoading(true);
+      try {
+        // image-picker produces quite expensive files so
+        // always delete them straight away to save storage
+        await deleteFileInDocuments(image.uri.replace('file://', ''));
 
-      // image-picker produces quite expensive files so
-      // always delete them straight away to save storage
-      await deleteFileInDocuments(image.uri.replace('file://', ''));
+        // Make sure the central server has enough space to store a new attachment, before
+        // discarding the previous photo or writing a resized copy to disk
+        const { data: canUploadAttachment, error: canUploadAttachmentError } =
+          await checkCanUploadAttachment();
+        if (canUploadAttachmentError) throw canUploadAttachmentError;
 
-      // Remove previous photo when selecting a new photo
-      await removeAttachment(value, imagePath);
+        if (!canUploadAttachment) {
+          Alert.alert(
+            getTranslation('attachment.upload.insufficientStorage.title', 'Can’t submit photo'),
+            getTranslation(
+              'attachment.upload.insufficientStorage.text',
+              'The server doesn’t have enough storage space for new photos. Please speak to your system administrator.',
+            ),
+          );
+          return;
+        }
 
-      const { path, size } = await resizeImage(imageToBase64URI(image.base64), {
-        outputPath: RNFS.DocumentDirectoryPath,
-        rotation: 0,
-        ...IMAGE_RESIZE_OPTIONS,
-      });
+        // Remove previous photo when selecting a new photo
+        setImageData(null);
+        await removeAttachment(value, imagePath);
 
-      // Make sure the central server has enough space to store a new attachment
-      const { canUploadAttachment } = await centralServer.get('health/canUploadAttachment', {});
-
-      if (!canUploadAttachment) {
-        Popup.show({
-          type: 'Warning',
-          title: 'Not enough storage space to upload file',
-          textBody:
-            'The server has limited storage space remaining. To protect performance, you are currently unable to upload images. Please speak to your system administrator to increase your central server hard drive space.',
-          callback: (): void => Popup.hide(),
+        const { path, size } = await resizeImage(imageToBase64URI(image.base64), {
+          outputPath: RNFS.DocumentDirectoryPath,
+          rotation: 0,
+          ...IMAGE_RESIZE_OPTIONS,
         });
-        return;
+
+        const { id } = await createAttachment({ filePath: path, size });
+
+        onChange(id);
+        setImagePath(path);
+        setImageData(image.base64);
+      } catch (error) {
+        setErrorMessage(error.message);
+      } finally {
+        setLoading(false);
       }
-
-      const { id } = await createAttachment({ filePath: path, size });
-
-      onChange(id);
-      setImagePath(path);
-      setImageData(image.base64);
-      setLoading(false);
     },
-    [value, imagePath],
+    [value, imagePath, getTranslation, checkCanUploadAttachment],
   );
 
   return (
