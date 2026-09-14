@@ -137,8 +137,13 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
 
   const removeAttachment = useCallback(
     async (value, imagePath) => {
-      if (value) await deleteAttachment(value);
-      if (imagePath) await deleteFileInDocuments(imagePath);
+      try {
+        if (value) await deleteAttachment(value);
+        if (imagePath) await deleteFileInDocuments(imagePath);
+      } catch (error) {
+        // We don’t really care about this error; we don’t need the previous selection anyway
+        console.warn(`Failed to clean up previous photo: ${error.message}`);
+      }
     },
     [deleteAttachment],
   );
