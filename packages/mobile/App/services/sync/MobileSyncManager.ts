@@ -24,7 +24,6 @@ import { SETTING_KEYS } from '~/constants/settings';
 import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
-import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
 import type { TransactingModel } from './utils/getModelsForDirection';
 import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
@@ -432,15 +431,16 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
+        // Foreign keys are deferred for the whole transaction, so save order doesn't matter
+        const modelsToSave = Object.values(incomingModels) as TransactingModel[];
         const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
+          await saveChangesFromMemory(records, modelsToSave, this.syncSettings, progressCallback);
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
         await checkForeignKeys(
           transactionEntityManager,
-          sortedModels.map(model => model.getTableName()),
+          modelsToSave.map(model => model.getTableName()),
         );
         await this.postPull(transactionEntityManager, pullUntil);
       });
@@ -505,11 +505,12 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
-        await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
+        // Foreign keys are deferred for the whole transaction, so save order doesn't matter
+        const modelsToSave = Object.values(incomingModels) as TransactingModel[];
+        await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
         await checkForeignKeys(
           transactionEntityManager,
-          sortedModels.map(model => model.getTableName()),
+          modelsToSave.map(model => model.getTableName()),
         );
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
