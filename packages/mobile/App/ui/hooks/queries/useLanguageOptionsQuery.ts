@@ -68,29 +68,34 @@ const fetchRemoteLanguageOptions = async (host: string): Promise<LanguageOption[
     await fetchJson<LanguageOptionsResponse>(`${host}/api/public/translation/languageOptions`),
   );
 
-const fetchLanguageOptions = async (host: string | null | undefined): Promise<LanguageOption[]> => {
-  if (host) {
-    // The selected server's language list is authoritative
-    try {
-      return await fetchRemoteLanguageOptions(host);
-    } catch {
-      // Server unreachable — fall back to whatever has synced down
-    }
-  }
-  return Database.models.TranslatedString.getLanguageOptions();
-};
-
+/** The languages offered by the selected server. Authoritative whenever it can be reached. */
 export default function useLanguageOptionsQuery(
   host: string | null | undefined,
   useQueryOptions: Omit<UseQueryOptions<LanguageOption[]>, 'queryKey' | 'queryFn'> = {},
 ): UseQueryResult<LanguageOption[]> {
+  const { enabled = true, ...rest } = useQueryOptions;
   return useQuery({
     queryKey: translationKeys.languageOptions(host),
-    queryFn: () => fetchLanguageOptions(host),
+    queryFn: () => fetchRemoteLanguageOptions(host),
+    enabled: enabled && Boolean(host),
     refetchOnReconnect: true,
     retry: 2,
     select: collapseDefaultLanguage,
     staleTime: 60_000,
+    ...rest,
+  });
+}
+
+/** The languages that have synced down to this device. Serves as a fallback when no server is
+ * selected or the selected server can’t be reached.
+ */
+export function useLocalLanguageOptionsQuery(
+  useQueryOptions: Omit<UseQueryOptions<LanguageOption[]>, 'queryKey' | 'queryFn'> = {},
+): UseQueryResult<LanguageOption[]> {
+  return useQuery({
+    queryKey: translationKeys.localLanguageOptions(),
+    queryFn: () => Database.models.TranslatedString.getLanguageOptions(),
+    select: collapseDefaultLanguage,
     ...useQueryOptions,
   });
 }

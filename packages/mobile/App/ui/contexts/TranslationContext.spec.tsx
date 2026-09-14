@@ -4,7 +4,9 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { TranslationProvider, useTranslation } from './TranslationContext';
-import useLanguageOptionsQuery from '../hooks/queries/useLanguageOptionsQuery';
+import useLanguageOptionsQuery, {
+  useLocalLanguageOptionsQuery,
+} from '../hooks/queries/useLanguageOptionsQuery';
 import { Database } from '~/infra/db';
 import { readConfig, writeConfig } from '~/services/config';
 
@@ -124,9 +126,62 @@ describe('TranslationProvider', () => {
     await waitFor(() => expect(result.current.language).toBe(ENGLISH_LANGUAGE_CODE));
     expect(mockWriteConfig).not.toHaveBeenCalled();
   });
+
+  it('falls back to the first available language, without persisting it, when the stored one is unavailable', async () => {
+    mockReadConfig.mockResolvedValue('xx');
+    mockGetLanguageOptions.mockResolvedValue([
+      { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
+      { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
+    ]);
+
+    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+
+    await waitFor(() => expect(result.current.language).toBe('fr'));
+    expect(mockGetForLanguage).toHaveBeenCalledWith('fr');
+    expect(mockWriteConfig).not.toHaveBeenCalled();
+  });
+
+  it('shows the locally synced languages when the selected server is unreachable, without touching the stored language', async () => {
+    mockReadConfig.mockResolvedValue('fr');
+    mockGetLanguageOptions.mockResolvedValue([
+      { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
+    ]);
+    mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+
+    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    await waitFor(() => expect(result.current.languageOptions).toHaveLength(1));
+
+    await act(() => result.current.setHost('https://central.example'));
+
+    await waitFor(() =>
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://central.example/api/public/translation/languageOptions',
+      ),
+    );
+    // Only the synced-down English is on offer, so it is shown — but the stored French survives
+    expect(result.current.languageOptions).toEqual([
+      { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
+    ]);
+    expect(result.current.language).toBe(ENGLISH_LANGUAGE_CODE);
+    expect(mockWriteConfig).not.toHaveBeenCalled();
+  });
+
+  it('keeps the stored language when it is one of the available options', async () => {
+    mockReadConfig.mockResolvedValue('fr');
+    mockGetLanguageOptions.mockResolvedValue([
+      { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
+      { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
+    ]);
+
+    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+
+    await waitFor(() => expect(result.current.languageOptions).toHaveLength(2));
+    expect(result.current.language).toBe('fr');
+    expect(mockWriteConfig).not.toHaveBeenCalled();
+  });
 });
 
-describe('useLanguageOptionsQuery', () => {
+describe('useLocalLanguageOptionsQuery', () => {
   it('returns local language options, hiding the default language when a custom English exists', async () => {
     mockGetLanguageOptions.mockResolvedValue([
       { label: 'English (default)', languageCode: DEFAULT_LANGUAGE_CODE, countryCode: '' },
@@ -134,7 +189,7 @@ describe('useLanguageOptionsQuery', () => {
       { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
     ]);
 
-    const { result } = await renderHook(() => useLanguageOptionsQuery(null), {
+    const { result } = await renderHook(() => useLocalLanguageOptionsQuery(), {
       wrapper: createQueryClientWrapper(),
     });
 
@@ -144,6 +199,28 @@ describe('useLanguageOptionsQuery', () => {
       { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
     ]);
     expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('returns an empty list when nothing is synced', async () => {
+    const { result } = await renderHook(() => useLocalLanguageOptionsQuery(), {
+      wrapper: createQueryClientWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toEqual([]);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+});
+
+describe('useLanguageOptionsQuery', () => {
+  it('does nothing when no host is set', async () => {
+    const { result } = await renderHook(() => useLanguageOptionsQuery(null), {
+      wrapper: createQueryClientWrapper(),
+    });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(mockGetLanguageOptions).not.toHaveBeenCalled();
   });
 
   it('fetches the selected server’s language options when a host is set', async () => {
@@ -169,13 +246,16 @@ describe('useLanguageOptionsQuery', () => {
     );
   });
 
-  it('returns an empty list when nothing is synced and no host is set', async () => {
-    const { result } = await renderHook(() => useLanguageOptionsQuery(null), {
-      wrapper: createQueryClientWrapper(),
-    });
+  it('surfaces a failed fetch as an error rather than substituting the local list', async () => {
+    mockFetch.mockRejectedValue(new TypeError('Network request failed'));
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([]);
-    expect(mockFetch).not.toHaveBeenCalled();
+    const { result } = await renderHook(
+      () => useLanguageOptionsQuery('https://central.example', { retry: false }),
+      { wrapper: createQueryClientWrapper() },
+    );
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.data).toBeUndefined();
+    expect(mockGetLanguageOptions).not.toHaveBeenCalled();
   });
 });

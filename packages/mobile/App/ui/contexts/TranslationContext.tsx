@@ -15,7 +15,9 @@ import { readConfig, writeConfig } from '~/services/config';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
 import { registerYup } from '../helpers/yupMethods';
-import useLanguageOptionsQuery from '../hooks/queries/useLanguageOptionsQuery';
+import useLanguageOptionsQuery, {
+  useLocalLanguageOptionsQuery,
+} from '../hooks/queries/useLanguageOptionsQuery';
 import useTranslationsQuery, { type Translations } from '../hooks/queries/useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
@@ -140,29 +142,40 @@ const TranslationContext = createContext<TranslationContextData>({
   getReferenceDataTranslation: () => '',
 } as const);
 
+/**
+ * The stored choice wins while it is one of the available options (or while the options are
+ * unknown). Otherwise fall back to the first option — e.g. a fresh install, or a language removed
+ * by a later sync. The fallback is derived, never persisted: the options list may be a partial or
+ * stale local snapshot (no host yet, server unreachable), which must not clobber the stored choice.
+ */
+const resolveLanguage = (
+  storedLanguage: string | null,
+  languageOptions: LanguageOption[] | undefined,
+): string | null => {
+  if (!languageOptions?.length) return storedLanguage;
+  if (languageOptions.some(({ languageCode }) => languageCode === storedLanguage)) {
+    return storedLanguage;
+  }
+  return languageOptions[0].languageCode;
+};
+
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
-  const [language, setLanguageState] = useState<string | null>(null);
+  const [storedLanguage, setStoredLanguage] = useState<string | null>(null);
   const [isLanguageRestored, setIsLanguageRestored] = useState(false);
   const [host, setHost] = useState<string | null>(null);
 
+  const { data: remoteLanguageOptions } = useLanguageOptionsQuery(host);
+  const { data: localLanguageOptions } = useLocalLanguageOptionsQuery();
+  const languageOptions = remoteLanguageOptions ?? localLanguageOptions;
+  // Hold off until the stored language is known, so the first option isn't briefly shown instead
+  const language = isLanguageRestored ? resolveLanguage(storedLanguage, languageOptions) : null;
   const { data: translations } = useTranslationsQuery(language, host);
-  const { data: languageOptions } = useLanguageOptionsQuery(host);
 
   const setLanguage = useCallback((languageCode: string) => {
-    setLanguageState(languageCode);
+    setStoredLanguage(languageCode);
     void writeConfig('language', languageCode);
   }, []);
-
-  /**
-   * Keep the selected language one of the available options, defaulting to the first when
-   * nothing valid is stored — e.g. a fresh install, or a language removed by a later sync
-   */
-  useEffect(() => {
-    if (!isLanguageRestored || !languageOptions?.length) return;
-    if (language && languageOptions.some(({ languageCode }) => languageCode === language)) return;
-    setLanguage(languageOptions[0].languageCode);
-  }, [isLanguageRestored, language, languageOptions, setLanguage]);
 
   const translator = useMemo(() => createTranslator(translations), [translations]);
 
@@ -171,7 +184,7 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
   useEffect(() => {
     const restoreLanguage = async () => {
       const languageCode = await readConfig('language');
-      setLanguageState(languageCode ?? null);
+      setStoredLanguage(languageCode ?? null);
       setIsLanguageRestored(true);
     };
     restoreLanguage();
@@ -182,21 +195,20 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(prev => !prev));
   }, []);
 
-  return (
-    <TranslationContext.Provider
-      value={{
-        debugMode: isDebugMode,
-        host,
-        language,
-        languageOptions,
-        setHost,
-        setLanguage,
-        ...translator,
-      }}
-    >
-      {children}
-    </TranslationContext.Provider>
+  const value = useMemo<TranslationContextData>(
+    () => ({
+      debugMode: isDebugMode,
+      host,
+      language,
+      languageOptions,
+      setHost,
+      setLanguage,
+      ...translator,
+    }),
+    [host, isDebugMode, language, languageOptions, setLanguage, translator],
   );
+
+  return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
 };
 
 export const useTranslation = (): TranslationContextData => useContext(TranslationContext);

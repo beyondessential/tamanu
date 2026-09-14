@@ -143,6 +143,8 @@ export const translationKeys = {
     [...translationKeys.all, 'forLanguage', languageCode, host] as const satisfies QueryKey,
   languageOptions: (host: string | null | undefined) =>
     [...translationKeys.all, 'languageOptions', host] as const satisfies QueryKey,
+  localLanguageOptions: () =>
+    [...translationKeys.all, 'languageOptions', 'local'] as const satisfies QueryKey,
 };
 
 /** Remote queries. Unlike everything above, these hit a server over the internet rather than the
