@@ -138,10 +138,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const removeAttachment = useCallback(
     async (value, imagePath) => {
       if (value) await deleteAttachment(value);
-      if (imagePath) {
-        await deleteFileInDocuments(imagePath);
-        setImagePath(null);
-      }
+      if (imagePath) await deleteFileInDocuments(imagePath);
     },
     [deleteAttachment],
   );
@@ -149,6 +146,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
     setImageData(null);
+    setImagePath(null);
     await removeAttachment(value, imagePath);
   }, [value, imagePath]);
 
@@ -188,10 +186,6 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
           return;
         }
 
-        // Remove previous photo when selecting a new photo
-        setImageData(null);
-        await removeAttachment(value, imagePath);
-
         const { path, size } = await resizeImage(imageToBase64URI(image.base64), {
           outputPath: RNFS.DocumentDirectoryPath,
           rotation: 0,
@@ -203,6 +197,10 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         onChange(id);
         setImagePath(path);
         setImageData(image.base64);
+
+        // Only discard the previous photo once the new one is safely stored, so a failure
+        // above leaves the form still pointing at a photo that exists
+        await removeAttachment(value, imagePath);
       } catch (error) {
         setErrorMessage(error.message);
       } finally {
