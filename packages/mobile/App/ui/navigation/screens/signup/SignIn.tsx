@@ -1,6 +1,6 @@
-import React, { type FunctionComponent, useCallback, useState } from 'react';
+import React, { type FunctionComponent, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
+import { Alert, KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
 import {
   FullView,
   RowView,
@@ -15,43 +15,37 @@ import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
 import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { SupportCentreButton } from './SupportCentreButton';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-
-interface ModalContent {
-  message: string;
-  buttonPrompt?: string;
-  buttonUrl?: string;
-}
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import type { OutdatedVersionError } from '~/services/error';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
+  const { getTranslation } = useTranslation();
 
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
     navigation.navigate(Routes.SignUpStack.ResetPassword);
   }, []);
 
-  const onChangeModalVisibility = useCallback((isVisible: boolean) => {
-    setModalVisible(isVisible);
-  }, []);
-
-  const showErrorModal = useCallback((content: ModalContent) => {
-    setModalContent(content);
-    onChangeModalVisibility(true);
-  }, []);
-
-  const onFollowPrompt = useCallback(() => {
-    Linking.openURL(modalContent.buttonUrl);
-  }, [modalContent.buttonUrl]);
+  const showOutdatedVersionAlert = useCallback(
+    (error: OutdatedVersionError) => {
+      console.log(error);
+      Alert.alert(getTranslation('login.outdatedVersion.title', 'Update required'), error.message, [
+        { text: getTranslation('general.action.dismiss', 'Dismiss'), style: 'cancel' },
+        {
+          text: getTranslation('general.action.update', 'Update'),
+          onPress: () => Linking.openURL(error.updateUrl),
+        },
+      ]);
+    },
+    [getTranslation],
+  );
 
   const { facilityId } = useFacility();
   const { getLocalisation } = useLocalisation();
@@ -62,13 +56,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   return (
     <FullView background={theme.colors.PRIMARY_MAIN} justifyContent="space-between">
       <StatusBar barStyle="light-content" />
-      <ModalInfo
-        onVisibilityChange={onChangeModalVisibility}
-        message={modalContent.message}
-        buttonPrompt={modalContent.buttonPrompt}
-        onFollowPrompt={onFollowPrompt}
-        isVisible={modalVisible}
-      />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
           <RowView width="100%" justifyContent="flex-end" position="absolute" top={0}>
@@ -87,21 +74,19 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            
-              <HomeBottomLogoIcon
-                size={screenPercentageToDP(7.29, Orientation.Height)}
-                fill={theme.colors.SECONDARY_MAIN}
-              />
-              <StyledText
-                marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
-                fontSize="40"
-                color={theme.colors.WHITE}
-                fontWeight="bold"
-                verticalAlign="center"
-              >
-                tamanu
-              </StyledText>
-            
+            <HomeBottomLogoIcon
+              size={screenPercentageToDP(7.29, Orientation.Height)}
+              fill={theme.colors.SECONDARY_MAIN}
+            />
+            <StyledText
+              marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
+              fontSize="40"
+              color={theme.colors.WHITE}
+              fontWeight="bold"
+              verticalAlign="center"
+            >
+              tamanu
+            </StyledText>
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
@@ -115,13 +100,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledView>
           <SignInForm
-            onOutdatedVersionError={(error: Error): void => {
-              showErrorModal({
-                message: error.message,
-                buttonPrompt: 'Update',
-                buttonUrl: error.updateUrl,
-              });
-            }}
+            onOutdatedVersionError={showOutdatedVersionAlert}
             onSuccess={(): void => {
               if (!facilityId) {
                 navigation.navigate(Routes.SignUpStack.SelectFacility);
