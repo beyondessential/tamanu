@@ -20,7 +20,9 @@ import useTranslationsQuery, { type Translations } from '../hooks/queries/useTra
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
-type Replacements = { [key: string]: any };
+interface Replacements {
+  [key: string]: any;
+}
 
 export type GetTranslationFunction = (
   stringId: string,
