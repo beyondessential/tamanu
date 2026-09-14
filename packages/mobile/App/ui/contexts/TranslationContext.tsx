@@ -1,4 +1,4 @@
-import { upperFirst } from 'es-toolkit/compat';
+import { upperFirst } from 'es-toolkit';
 import React, {
   createContext,
   isValidElement,
