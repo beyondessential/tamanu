@@ -170,9 +170,7 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     };
     restoreLanguage();
     if (!__DEV__) return;
-    DevSettings.addMenuItem('Toggle translation highlighting', () =>
-      setIsDebugMode(oldDebugValue => !oldDebugValue),
-    );
+    DevSettings.addMenuItem('Toggle translation highlighting', () => setIsDebugMode(prev => !prev));
   }, []);
 
   return (
