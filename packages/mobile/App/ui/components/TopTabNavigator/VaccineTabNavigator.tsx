@@ -13,12 +13,12 @@ import { theme } from '/styled/theme';
 
 const tabIconSize = screenPercentageToDP(2.5, Orientation.Height);
 
-type VaccineTabLabelProps = {
-  title: string;
+interface VaccineTabLabelProps {
   color: string;
-  icon: FunctionComponent<IconWithSizeProps>;
   focused: boolean;
-};
+  icon: FunctionComponent<IconWithSizeProps>;
+  title: string;
+}
 
 const VaccineTabLabel = ({
   title,
