@@ -8,7 +8,6 @@ import { theme } from '/styled/theme';
 const MaterialTopTabs = createMaterialTopTabNavigator();
 
 const defaultScreenOptions: MaterialTopTabNavigationOptions = {
-  swipeEnabled: false,
   tabBarStyle: { height: 50 },
   tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
   tabBarInactiveTintColor: theme.colors.TEXT_MID,

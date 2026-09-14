@@ -12,7 +12,7 @@ export const VaccineTableTabs = () => {
   }, []);
 
   return (
-    <TopTabNavigator>
+    <TopTabNavigator screenOptions={{ swipeEnabled: false }}>
       <TopTabScreen
         options={{
           tabBarLabel: () => (

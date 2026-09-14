@@ -54,7 +54,6 @@ const getTabScreenOptions = (
 });
 
 const navigatorScreenOptions = {
-  swipeEnabled: true,
   tabBarStyle: { backgroundColor: theme.colors.WHITE },
   tabBarInactiveTintColor: theme.colors.TEXT_SOFT,
 } as const satisfies MaterialTopTabNavigationOptions;
