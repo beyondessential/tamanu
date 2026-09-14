@@ -36,7 +36,7 @@ const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
       ),
       [
         {
-          text: getTranslation('general.action.goHome', 'Go home'),
+          text: getTranslation('general.action.ok', 'OK'),
           onPress: () => navigation.replace(resetRoute),
         },
       ],
