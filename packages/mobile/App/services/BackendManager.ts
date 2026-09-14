@@ -1,14 +1,13 @@
-import { AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
-
+import { AppState, type AppStateStatus, type NativeEventSubscription } from 'react-native';
 import { Database } from '../infra/db';
-import { CentralServerConnection, MobileSyncManager } from './sync';
-import { readConfig } from './config';
+import type { MODELS_MAP } from '../models/modelsMap';
 import { AuthService } from './auth';
+import { readConfig } from './config';
 import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
-import type { MODELS_MAP } from '../models/modelsMap';
 import { SettingsService } from './settings';
+import { CentralServerConnection, MobileSyncManager } from './sync';
 
 const SYNC_PERIOD_MINUTES = 5;
 

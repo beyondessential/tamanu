@@ -1,16 +1,14 @@
+import type { NavigationProp } from '@react-navigation/native';
 import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
-import type { NavigationProp } from '@react-navigation/native';
-import { Routes } from '/helpers/routes';
-import { StackHeader } from '/components/StackHeader';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { AddLabRequestScreen, ViewHistoryScreen } from '../screens/labRequests/tabs';
-import { withPatient } from '~/ui/containers/Patient';
 import type { IPatient } from '~/types';
-import { joinNames } from '~/ui/helpers/user';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-
-const Tabs = createTopTabNavigator();
+import { withPatient } from '~/ui/containers/Patient';
+import { joinNames } from '~/ui/helpers/user';
+import { AddLabRequestScreen, ViewHistoryScreen } from '../screens/labRequests/tabs';
+import { StackHeader } from '/components/StackHeader';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
+import { Routes } from '/helpers/routes';
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
@@ -30,8 +28,8 @@ const DumbLabRequestTabs = ({
         subtitle={getPatientName(selectedPatient)}
         onGoBack={navigation.goBack}
       />
-      <Tabs.Navigator swipeEnabled={false} lazy screenOptions={{ headerShown: false }}>
-        <Tabs.Screen
+      <TopTabNavigator screenOptions={{ lazy: true }}>
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="patient.test.newTest.title" fallback="New test" />
@@ -40,7 +38,7 @@ const DumbLabRequestTabs = ({
           name={Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest}
           component={AddLabRequestScreen}
         />
-        <Tabs.Screen
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText
@@ -52,7 +50,7 @@ const DumbLabRequestTabs = ({
           name={Routes.HomeStack.LabRequestStack.LabRequestTabs.ViewHistory}
           component={ViewHistoryScreen}
         />
-      </Tabs.Navigator>
+      </TopTabNavigator>
     </>
   );
 };

@@ -59,7 +59,7 @@ interface FormFieldsProps {
   patient: IPatient;
   encounter?: { encounterType?: string };
   isSubmitting: boolean;
-  onCancel?: () => Promise<void>;
+  onCancel?: () => void;
   onGoBack?: () => void;
   currentScreenIndex: number;
   setCurrentScreenIndex: (index: number) => void;

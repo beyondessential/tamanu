@@ -116,6 +116,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-on-pr: false
           upsert: true
+          refresh: true
           config-map: ${{ steps.config.outputs.pulumi }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

@@ -190,3 +190,18 @@ jobs:
       image: ${{ needs.build-seed-image.outputs.image }}
       git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
 
+
+  # Unlike the snapshot above, this one is meant to fail loudly: it migrates the previous
+  # minor's data forward to the version just cut, which is the rehearsal every deployment
+  # will run for real. The branch is already cut by then, so a failure blocks nothing.
+  migration-test:
+    needs: [run, build-seed-image]
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/migration-test.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.run.outputs.version }}
+      image: ${{ needs.build-seed-image.outputs.image }}
+      git_sha: ${{ needs.build-seed-image.outputs.git_sha }}
