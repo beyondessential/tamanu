@@ -80,7 +80,6 @@ export default function useLanguageOptionsQuery(
     enabled: enabled && Boolean(host),
     refetchOnReconnect: true,
     retry: 2,
-    select: collapseDefaultLanguage,
     staleTime: 60_000,
     ...rest,
   });
@@ -93,10 +92,12 @@ export default function useLanguageOptionsQuery(
 export function useLocalLanguageOptionsQuery(
   useQueryOptions: Omit<UseQueryOptions<LanguageOption[]>, 'queryKey' | 'queryFn'> = {},
 ): UseQueryResult<LanguageOption[]> {
+  const { enabled = true, ...rest } = useQueryOptions;
   return useQuery({
     queryKey: translationKeys.localLanguageOptions(),
     queryFn: () => Database.models.TranslatedString.getLanguageOptions(),
+    enabled,
     select: collapseDefaultLanguage,
-    ...useQueryOptions,
+    ...rest,
   });
 }
