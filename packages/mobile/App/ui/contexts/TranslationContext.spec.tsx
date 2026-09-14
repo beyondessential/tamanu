@@ -70,7 +70,9 @@ describe('TranslationProvider', () => {
   it('serves translations from the local database when they exist', async () => {
     mockGetForLanguage.mockResolvedValue({ 'login.heading': 'Kia ora' });
 
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
 
     await waitFor(() =>
       expect(result.current.getTranslation('login.heading', 'Welcome')).toBe('Kia ora'),
@@ -85,7 +87,9 @@ describe('TranslationProvider', () => {
       json: async () => ({ 'login.heading': 'Bula' }),
     });
 
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
     await waitFor(() => expect(result.current.language).toBe(ENGLISH_LANGUAGE_CODE));
 
     await act(() => result.current.setHost('https://central.example'));
@@ -97,7 +101,9 @@ describe('TranslationProvider', () => {
   });
 
   it('serves fallbacks when the local database is empty and no host is set', async () => {
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
 
     await waitFor(() => expect(mockGetForLanguage).toHaveBeenCalled());
     expect(result.current.getTranslation('login.heading', 'Welcome')).toBe('Welcome');
@@ -109,7 +115,9 @@ describe('TranslationProvider', () => {
       languageCode === 'fr' ? { 'login.heading': 'Bonjour' } : {},
     );
 
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
     await waitFor(() => expect(result.current.language).toBe(ENGLISH_LANGUAGE_CODE));
 
     await act(() => result.current.setLanguage('fr'));
@@ -121,7 +129,9 @@ describe('TranslationProvider', () => {
   });
 
   it('does not rewrite the language config when only restoring it', async () => {
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
 
     await waitFor(() => expect(result.current.language).toBe(ENGLISH_LANGUAGE_CODE));
     expect(mockWriteConfig).not.toHaveBeenCalled();
@@ -134,7 +144,9 @@ describe('TranslationProvider', () => {
       { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
     ]);
 
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
 
     await waitFor(() => expect(result.current.language).toBe('fr'));
     expect(mockGetForLanguage).toHaveBeenCalledWith('fr');
@@ -148,7 +160,9 @@ describe('TranslationProvider', () => {
     ]);
     mockFetch.mockRejectedValue(new TypeError('Network request failed'));
 
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
     await waitFor(() => expect(result.current.languageOptions).toHaveLength(1));
 
     await act(() => result.current.setHost('https://central.example'));
@@ -166,6 +180,50 @@ describe('TranslationProvider', () => {
     expect(mockWriteConfig).not.toHaveBeenCalled();
   });
 
+  it('reports the language options as pending until a source answers', async () => {
+    let resolveLanguageOptions: (options: unknown[]) => void;
+    mockGetLanguageOptions.mockReturnValue(
+      new Promise(resolve => {
+        resolveLanguageOptions = resolve;
+      }),
+    );
+
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
+
+    expect(result.current.languageOptionsStatus).toBe('pending');
+
+    await act(async () => {
+      resolveLanguageOptions([
+        { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
+      ]);
+    });
+
+    await waitFor(() => expect(result.current.languageOptionsStatus).toBe('success'));
+  });
+
+  it('distinguishes an empty language list from a failure to load one', async () => {
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.languageOptionsStatus).toBe('success'));
+    expect(result.current.languageOptions).toEqual([]);
+  });
+
+  it('reports an error when neither the server nor the local database can offer a list', async () => {
+    mockGetLanguageOptions.mockRejectedValue(new Error('no such table'));
+    mockFetch.mockRejectedValue(new TypeError('Network request failed'));
+
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.languageOptionsStatus).toBe('error'));
+    expect(result.current.languageOptions).toBeUndefined();
+  });
+
   it('keeps the stored language when it is one of the available options', async () => {
     mockReadConfig.mockResolvedValue('fr');
     mockGetLanguageOptions.mockResolvedValue([
@@ -173,7 +231,9 @@ describe('TranslationProvider', () => {
       { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
     ]);
 
-    const { result } = await renderHook(() => useTranslation(), { wrapper: createProviderWrapper() });
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
 
     await waitFor(() => expect(result.current.languageOptions).toHaveLength(2));
     expect(result.current.language).toBe('fr');

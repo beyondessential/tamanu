@@ -1,5 +1,6 @@
+import type { QueryStatus } from '@tanstack/react-query';
 import React, { type FunctionComponent, type ReactElement, useCallback } from 'react';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -18,6 +19,7 @@ import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
 import { Separator } from '~/ui/components/Separator';
 import { isISO31661Alpha2 } from 'validator';
 import CountryFlag from 'react-native-country-flag';
+import type { LanguageOption } from '~/models/TranslatedString';
 
 const StyledSeparator = () => (
   <Separator
@@ -71,8 +73,51 @@ const LanguageOptionButton = ({
 
 export default LanguageOptionButton;
 
+interface LanguageOptionsProps {
+  languageOptions: LanguageOption[] | undefined;
+  languageOptionsStatus: QueryStatus;
+  onSelectLanguage: (value: string) => void;
+}
+
+const LanguageOptions = ({
+  languageOptions,
+  languageOptionsStatus,
+  onSelectLanguage,
+}: LanguageOptionsProps): ReactElement => {
+  if (languageOptionsStatus === 'pending') {
+    return <ActivityIndicator size="large" color={theme.colors.PRIMARY_MAIN} />;
+  }
+
+  if (!languageOptions?.length) {
+    return (
+      <StyledText
+        color={theme.colors.TEXT_MID}
+        fontSize={screenPercentageToDP(2, Orientation.Height)}
+        paddingLeft={screenPercentageToDP(1.86, Orientation.Width)}
+      >
+        No languages are available yet. They arrive once this device syncs with a server.
+      </StyledText>
+    );
+  }
+
+  return (
+    <>
+      <FlatList
+        data={languageOptions}
+        keyExtractor={(item): string => item.languageCode}
+        renderItem={({ item }): ReactElement => (
+          <LanguageOptionButton onPress={onSelectLanguage} {...item} />
+        )}
+        ItemSeparatorComponent={StyledSeparator}
+        scrollEnabled={true}
+      />
+      <StyledSeparator />
+    </>
+  );
+};
+
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
-  const { languageOptions, setLanguage } = useTranslation();
+  const { languageOptions, languageOptionsStatus, setLanguage } = useTranslation();
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
@@ -83,7 +128,7 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
     onNavigateToSignIn();
   };
 
-  if (!languageOptions?.length) {
+  if (languageOptionsStatus === 'error') {
     return <ErrorScreen error={{ message: 'Problem loading language list' }} />;
   }
 
@@ -121,16 +166,11 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             marginBottom={screenPercentageToDP(4, Orientation.Height)}
             maxHeight={screenPercentageToDP(70, Orientation.Height)}
           >
-            <FlatList
-              data={languageOptions}
-              keyExtractor={(item): string => item.languageCode}
-              renderItem={({ item }): ReactElement => (
-                <LanguageOptionButton onPress={handleChangeLanguage} {...item} />
-              )}
-              ItemSeparatorComponent={StyledSeparator}
-              scrollEnabled={true}
+            <LanguageOptions
+              languageOptions={languageOptions}
+              languageOptionsStatus={languageOptionsStatus}
+              onSelectLanguage={handleChangeLanguage}
             />
-            {languageOptions && <StyledSeparator />}
           </StyledView>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
