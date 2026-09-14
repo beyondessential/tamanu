@@ -48,6 +48,7 @@ export class TranslatedString extends BaseModel {
       TranslatedString.getRepository().find({
         where: { stringId: LANGUAGE_NAME_STRING_ID },
         select: ['language', 'text'],
+        order: { language: 'ASC' },
       }),
       TranslatedString.getRepository().find({
         where: { stringId: COUNTRY_CODE_STRING_ID },

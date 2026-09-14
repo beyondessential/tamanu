@@ -137,11 +137,28 @@ describe('TranslationProvider', () => {
     expect(mockWriteConfig).not.toHaveBeenCalled();
   });
 
-  it('falls back to the first available language, without persisting it, when the stored one is unavailable', async () => {
+  it('falls back to English, without persisting it, when the stored language is unavailable', async () => {
+    // The fallback must not depend on where English sits in the list
     mockReadConfig.mockResolvedValue('xx');
     mockGetLanguageOptions.mockResolvedValue([
       { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
       { label: 'English', languageCode: ENGLISH_LANGUAGE_CODE, countryCode: 'gb' },
+    ]);
+
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.language).toBe(ENGLISH_LANGUAGE_CODE));
+    expect(mockGetForLanguage).toHaveBeenCalledWith(ENGLISH_LANGUAGE_CODE);
+    expect(mockWriteConfig).not.toHaveBeenCalled();
+  });
+
+  it('falls back to the first available language when the stored one is unavailable and English is not offered', async () => {
+    mockReadConfig.mockResolvedValue('xx');
+    mockGetLanguageOptions.mockResolvedValue([
+      { label: 'Français', languageCode: 'fr', countryCode: 'fr' },
+      { label: 'Te reo Māori', languageCode: 'mi', countryCode: 'nz' },
     ]);
 
     const { result } = await renderHook(() => useTranslation(), {

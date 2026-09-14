@@ -1,3 +1,4 @@
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import type { QueryStatus, UseQueryResult } from '@tanstack/react-query';
 import { upperFirst } from 'es-toolkit';
 import React, {
@@ -145,21 +146,15 @@ const TranslationContext = createContext<TranslationContextData>({
   getReferenceDataTranslation: () => '',
 } as const);
 
-/**
- * The stored choice wins while it is one of the available options (or while the options are
- * unknown). Otherwise fall back to the first option — e.g. a fresh install, or a language removed
- * by a later sync. The fallback is derived, never persisted: the options list may be a partial or
- * stale local snapshot (no host yet, server unreachable), which must not clobber the stored choice.
- */
 const resolveLanguage = (
   storedLanguage: string | null,
   languageOptions: LanguageOption[] | undefined,
 ): string | null => {
   if (!languageOptions?.length) return storedLanguage;
-  if (languageOptions.some(({ languageCode }) => languageCode === storedLanguage)) {
-    return storedLanguage;
-  }
-  return languageOptions[0].languageCode;
+  const languageCodes = languageOptions.map(option => option.languageCode);
+  if (languageCodes.includes(storedLanguage)) return storedLanguage;
+  if (languageCodes.includes(ENGLISH_LANGUAGE_CODE)) return ENGLISH_LANGUAGE_CODE;
+  return languageCodes[0];
 };
 
 /**
