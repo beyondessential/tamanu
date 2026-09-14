@@ -13,38 +13,19 @@ import { TopTabNavigator, TopTabScreen } from './index';
 
 const tabIconSize = screenPercentageToDP(2.5, Orientation.Height);
 
-interface VaccineTab {
-  name: string;
+type VaccineTabLabelProps = {
   title: string;
-  status: VaccineStatus;
   color: string;
   icon: FunctionComponent<IconWithSizeProps>;
-}
-
-const VACCINE_TABS = [
-  {
-    name: Routes.HomeStack.VaccineStack.NewVaccineTabs.GivenOnTimeTab,
-    title: 'Given',
-    status: VaccineStatus.GIVEN,
-    color: theme.colors.SAFE,
-    icon: Icons.GivenOnTimeIcon,
-  },
-  {
-    name: Routes.HomeStack.VaccineStack.NewVaccineTabs.NotTakeTab,
-    title: 'Not given',
-    status: VaccineStatus.NOT_GIVEN,
-    color: theme.colors.PRIMARY_MAIN,
-    icon: Icons.NotGivenIcon,
-  },
-] as const satisfies VaccineTab[];
+  focused: boolean;
+};
 
 const VaccineTabLabel = ({
-  tab: { title, color, icon: Icon },
+  title,
+  color,
+  icon: Icon,
   focused,
-}: {
-  tab: VaccineTab;
-  focused: boolean;
-}) => (
+}: VaccineTabLabelProps): ReactElement => (
   <StyledView
     height={screenPercentageToDP(7.36, Orientation.Height)}
     alignItems="center"
@@ -64,17 +45,18 @@ const VaccineTabLabel = ({
   </StyledView>
 );
 
-const getTabScreenOptions = (tab: VaccineTab): MaterialTopTabNavigationOptions => ({
-  tabBarActiveTintColor: tab.color,
-  tabBarIndicatorStyle: {
-    backgroundColor: tab.color,
-  },
-  tabBarLabel: ({ focused }) => <VaccineTabLabel tab={tab} focused={focused} />,
+const getTabScreenOptions = (
+  label: Omit<VaccineTabLabelProps, 'focused'>,
+): MaterialTopTabNavigationOptions => ({
+  tabBarActiveTintColor: label.color,
+  tabBarIndicatorStyle: { backgroundColor: label.color },
+  tabBarLabel: ({ focused }) => <VaccineTabLabel {...label} focused={focused} />,
 });
 
 const navigatorScreenOptions = {
   swipeEnabled: true,
   tabBarStyle: { backgroundColor: theme.colors.WHITE },
+  tabBarInactiveTintColor: theme.colors.TEXT_SOFT,
 } as const satisfies MaterialTopTabNavigationOptions;
 
 const initialLayout = { width: Dimensions.get('window').width };
@@ -87,24 +69,35 @@ interface VaccineTabNavigatorProps {
 export const VaccineTabNavigator = ({
   vaccine,
   component,
-}: VaccineTabNavigatorProps): ReactElement => {
-  const initialTab = VACCINE_TABS.find(tab => tab.status === vaccine.status) ?? VACCINE_TABS[0];
-
-  return (
-    <TopTabNavigator
-      initialRouteName={initialTab.name}
-      initialLayout={initialLayout}
-      screenOptions={navigatorScreenOptions}
-    >
-      {VACCINE_TABS.map(tab => (
-        <TopTabScreen
-          key={tab.name}
-          name={tab.name}
-          component={component}
-          initialParams={{ vaccine, status: tab.status }}
-          options={getTabScreenOptions(tab)}
-        />
-      ))}
-    </TopTabNavigator>
-  );
-};
+}: VaccineTabNavigatorProps): ReactElement => (
+  <TopTabNavigator
+    initialRouteName={
+      vaccine.status === VaccineStatus.NOT_GIVEN
+        ? Routes.HomeStack.VaccineStack.NewVaccineTabs.NotTakeTab
+        : Routes.HomeStack.VaccineStack.NewVaccineTabs.GivenOnTimeTab
+    }
+    initialLayout={initialLayout}
+    screenOptions={navigatorScreenOptions}
+  >
+    <TopTabScreen
+      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.GivenOnTimeTab}
+      component={component}
+      initialParams={{ vaccine, status: VaccineStatus.GIVEN }}
+      options={getTabScreenOptions({
+        title: 'Given',
+        color: theme.colors.SAFE,
+        icon: Icons.GivenOnTimeIcon,
+      })}
+    />
+    <TopTabScreen
+      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.NotTakeTab}
+      component={component}
+      initialParams={{ vaccine, status: VaccineStatus.NOT_GIVEN }}
+      options={getTabScreenOptions({
+        title: 'Not given',
+        color: theme.colors.PRIMARY_MAIN,
+        icon: Icons.NotGivenIcon,
+      })}
+    />
+  </TopTabNavigator>
+);
