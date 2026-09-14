@@ -88,6 +88,20 @@ describe('CentralServerConnection', () => {
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
   });
+  describe('initiatePull', () => {
+    it('coerces the pull count to a number, since the server sends a bigint count as a string', async () => {
+      jest.spyOn(centralServerConnection, 'post').mockResolvedValue(undefined);
+      jest.spyOn(centralServerConnection, 'pollUntilTrue').mockResolvedValue(true);
+      jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValue({ totalToPull: '0', pullUntil: 999 });
+
+      const metadata = await centralServerConnection.initiatePull(mockSessionId, 100, [], []);
+
+      expect(metadata).toEqual({ totalToPull: 0, pullUntil: 999 });
+    });
+  });
+
   describe('pull', () => {
     it('should call get with correct parameters', async () => {
       const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
