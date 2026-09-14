@@ -99,7 +99,7 @@ const applyCasing = (text: string, casing: Casing) => {
 
 interface Translator extends Pick<
   TranslationContextData,
-  'getTranslation' | 'getEnumTranslation' | 'getReferenceDataTranslation'
+  'getEnumTranslation' | 'getReferenceDataTranslation' | 'getTranslation'
 > {}
 
 const createTranslator = (translations: Translations | undefined): Translator => {
