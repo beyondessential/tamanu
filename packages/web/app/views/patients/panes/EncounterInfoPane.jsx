@@ -7,7 +7,12 @@ import {
   TextButton,
   TranslatedEnum,
 } from '../../../components';
-import { differenceInMinutes, formatDuration, intervalToDuration } from 'date-fns';
+import {
+  differenceInCalendarDays,
+  differenceInMinutes,
+  formatDuration,
+  intervalToDuration,
+} from 'date-fns';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
@@ -190,7 +195,8 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
   } else if (totalMinutes < 1440) {
     formattedDuration = formatDuration(duration, { format: ['hours'] });
   } else {
-    formattedDuration = formatDuration(duration, { format: ['days'] });
+    const totalDays = differenceInCalendarDays(endMs, startMs);
+    formattedDuration = formatDuration({ days: totalDays }, { format: ['days'] });
   }
 
   if (!formattedDuration) return null;
