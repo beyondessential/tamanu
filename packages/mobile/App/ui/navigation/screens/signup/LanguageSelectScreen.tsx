@@ -95,7 +95,7 @@ const LanguageOptions = ({
         fontSize={screenPercentageToDP(2, Orientation.Height)}
         paddingLeft={screenPercentageToDP(1.86, Orientation.Width)}
       >
-        No languages are available yet. They arrive once this device syncs with a server.
+        No languages currently available
       </StyledText>
     );
   }
