@@ -86,10 +86,13 @@ test.describe('Send a new prescription to pharmacy', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toContainText('Send to pharmacy');
 
-    const prescriptionRow = dialog.locator('tr').filter({ hasText: medicationName });
-    await prescriptionRow.getByTestId('prescription-checkbox').click();
+    // Only the one prescription created above is on this encounter, so selecting everything
+    // selects it — matches the pattern in medication.spec.ts's "Send prescription to pharmacy".
+    const prescriptionCheckbox = page.getByTestId('select-all-checkbox-controlcheck').first();
+    await prescriptionCheckbox.waitFor({ state: 'visible' });
+    await prescriptionCheckbox.click();
 
-    const quantityInput = prescriptionRow.getByTestId('textinput-rxbh').locator('input');
+    const quantityInput = page.getByTestId('textinput-rxbh').locator('input').first();
     await expect(quantityInput).toHaveValue('12');
 
     await page.getByRole('button', { name: 'Send' }).click();
