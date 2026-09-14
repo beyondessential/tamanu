@@ -38,7 +38,17 @@ const buttonCommonStyles = {
   alignSelf: 'flex-end',
 };
 
-export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, error: formError }) => {
+export const SurveyGeolocationField = ({
+  error: formError,
+  onChange,
+  setDisableSubmit,
+  value,
+}: {
+  error: any;
+  onChange: (value: any) => void;
+  setDisableSubmit: React.Dispatch<React.SetStateAction<boolean>>;
+  value: any;
+}) => {
   const { coords, error, isWatching, cancelWatchGeolocation, requestGeolocationPermission } =
     useGeolocation({
       watch: true,
@@ -47,25 +57,24 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, erro
 
   const tempValue = useMemo(() => {
     if (!coords) return '';
-    // {}: a hack to remove the empty space
-    return getTranslation('program.survey.geolocate.value', ':lat, :long (:accuracy{}m accuracy)', {
-      replacements: {
-        lat: coords.latitude.toFixed(6),
-        long: coords.longitude.toFixed(6),
-        accuracy: coords.accuracy,
+
+    return getTranslation(
+      'program.survey.geolocate.value',
+      ':lat, :long (:accuracy\u{00A0}m accuracy)',
+      {
+        replacements: {
+          lat: coords.latitude.toFixed(6),
+          long: coords.longitude.toFixed(6),
+          accuracy: coords.accuracy.toLocaleString(),
+        },
       },
-    }).replace('{}', '');
-  }, [coords]);
+    );
+  }, [coords, getTranslation]);
 
   useEffect(() => {
     setDisableSubmit(isWatching);
-  }, [isWatching]);
-
-  useEffect(() => {
-    return () => {
-      setDisableSubmit(false);
-    };
-  }, []);
+    return () => void setDisableSubmit(false);
+  }, [isWatching, setDisableSubmit]);
 
   const handleRemoveLocation = () => {
     onChange('');
