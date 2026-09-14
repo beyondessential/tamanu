@@ -1,7 +1,8 @@
 <!-- Mockup: published rendering of the Tamanu v2.64 release notes -->
 <!-- Content sourced from origin/release/2.63...origin/release/2.64 (merge base b42ebe561a), -->
 <!-- the v2.64.0 tag (10-09-2026), Linear v2.64.0 label, and Workhorse cards G7/R7/K7/L7/N7/A8. -->
-<!-- Format follows docs/release-notes/v2-63.md and the canonical v2-44 example. -->
+<!-- Feature detail verified against commits 8f3c58708d, 1adff91a81, 87a2bdf753, -->
+<!-- 8448908c35, c2028b30e2, e5001f0df1. Format follows docs/release-notes/v2-63.md. -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -236,6 +237,22 @@
     font-style: italic;
   }
 
+  /* Behaviour-change callout */
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 14px;
+    color: #7c2d12;
+  }
+
   footer {
     margin-top: 64px;
     padding-top: 20px;
@@ -255,11 +272,11 @@
     </div>
     <h1>Tamanu v2.64 release notes</h1>
     <p class="lede">
-      Tamanu v2.64 is a moderate release. It adds hourly and half-hourly medication
-      frequencies across prescribing and the medication administration record, makes
-      Open mSupply the source of truth for stock on hand where that integration is
-      live, and carries substantial performance work on long-stay encounters and on
-      Tamanu Mobile.
+      Tamanu v2.64 adds hourly and half-hourly medication frequencies across prescribing
+      and the medication administration record, and makes Open mSupply the authority on
+      stock on hand where that integration is live. It also carries substantial
+      performance work on long-stay encounters and on Tamanu Mobile. Two changes alter
+      existing behaviour on upgrade, so the upgrade notes below are worth reading in full.
     </p>
   </div>
 
@@ -271,18 +288,20 @@
     <div class="feature">
       <p class="feature-title">Hourly and half-hourly medication frequencies</p>
       <p>
-        The medication frequency list gains 'Hourly' and 'Half-hourly' options, supporting
-        closely monitored regimes that previously had to be recorded as a series of
-        separate orders. Both prescribing and the medication administration record
-        accommodate the higher volume of doses these frequencies produce.
+        The medication frequency list gains 'Hourly' and 'Half-hourly', supporting closely
+        monitored regimes that previously had to be recorded as a series of separate
+        orders. An hourly prescription generates 24 doses a day and a half-hourly
+        prescription 48, and both feed the automatic dispensing quantity calculation. The
+        medication administration record has been reworked to hold that many doses.
       </p>
 
       <p class="label">Key features</p>
       <ul>
-        <li><strong>New frequency options</strong> - 'Hourly' and 'Half-hourly' can be selected when prescribing a medication, alongside the existing frequencies.</li>
-        <li><strong>Simplified prescribing</strong> - The 'Medication administration schedule' section is hidden in the 'New prescription' modal when either frequency is selected, and reappears if the frequency is changed to any other option.</li>
-        <li><strong>Medication administration record</strong> - The record displays hourly and half-hourly medications so that a full day of doses remains readable, rather than overflowing the standard layout.</li>
-        <li><strong>Configurable administration times</strong> - Default administration times can be set for the new frequencies through the admin panel settings, as for every other frequency.</li>
+        <li><strong>Two new frequencies</strong> - 'Hourly' and 'Half-hourly' can be selected when prescribing, and are found by the usual shorthand searches. Both are switched on by default, and either can be turned off in the frequency list.</li>
+        <li><strong>Individual dose slots on the record</strong> - The medication administration record keeps its twelve two-hour columns, and each column is now divided into separate dose slots: two for an hourly medication, four for a half-hourly one. Each slot is recorded against individually, with its own status and tooltip, so every dose is captured rather than one per column.</li>
+        <li><strong>Simplified prescribing</strong> - The 'Medication administration schedule' section does not appear for these two frequencies, since their administration times are fixed. It returns if the frequency is changed to any other option.</li>
+        <li><strong>Easier navigation of the record</strong> - The day being viewed is held in the page address, so the browser's back button steps back through the days viewed and a particular day can be bookmarked or shared. 'Previous day' and 'Next day' controls step through the encounter, stopping at its start and end dates.</li>
+        <li><strong>Accessibility and presentation</strong> - The record is now navigable by keyboard and readable by screen readers, which announce the current time slot. Column widths, headings, icons and empty states have been brought into line with the design.</li>
       </ul>
 
       <div class="docs">
@@ -302,24 +321,29 @@
     <div class="feature">
       <p class="feature-title">Open mSupply stock on hand</p>
       <p>
-        Where a deployment receives stock data from Open mSupply, mSupply is now treated as
-        the source of truth for stock on hand. Stock levels carried in the drug reference
-        data import are ignored, so a routine drug reference data re-import no longer
-        overwrites live stock levels. Teams no longer need to strip the stock columns out
-        of the spreadsheet before every import, and prescribers no longer see incorrect
-        stock levels while waiting for the next mSupply sync.
+        Where a deployment receives stock data from Open mSupply, mSupply can now be set as
+        the authority on stock on hand. Stock levels carried in the drug reference data
+        import are then ignored for that facility, so a routine re-import no longer
+        overwrites live stock figures, and a sync from central can no longer overwrite them
+        either. Teams no longer need to strip the stock columns out of the spreadsheet
+        before every import, and prescribers no longer see incorrect stock levels while
+        waiting for the next mSupply sync.
+      </p>
+      <p>
+        The single mSupply switch is replaced by two independent ones, so pushing dispensed
+        medications to mSupply and taking stock on hand from mSupply can be turned on
+        separately per facility. Existing settings are converted automatically on upgrade.
       </p>
     </div>
 
     <div class="group">
       <ul>
         <li>
-          <strong>Preselect send to pharmacy on discharge</strong> - A new facility-level
-          setting, 'Preselect send to pharmacy when preparing discharge', preselects the
-          'Send to pharmacy' checkbox for every medication under 'Encounter medications'
-          on the discharge modal. It is off by default. Medications under 'Other ongoing
-          medications' are never preselected, and the standard send to pharmacy workflow
-          is unchanged.
+          <strong>Preselect send to pharmacy on discharge</strong> - Whether encounter
+          medications arrive with 'Send to pharmacy' already ticked on the discharge modal
+          is now a facility-level choice, through the new 'Preselect send to pharmacy when
+          preparing discharge' setting. Medications under 'Other ongoing medications' are
+          never preselected, and the standard send to pharmacy workflow is unchanged.
         </li>
         <li>
           <strong>Performance on high-volume encounters</strong> - The vitals and charts
@@ -330,9 +354,10 @@
         </li>
         <li>
           <strong>Encounter diagnosis on shared medication orders</strong> - Medication
-          orders shared with external systems now carry the encounter diagnosis as the
-          reason for the order, giving receiving systems the clinical context behind a
-          prescription.
+          orders shared with external systems carry the encounter's diagnoses as the
+          clinical reason for the order, so receiving pharmacy and national systems get the
+          indication without a separate lookup. Diagnoses marked disproven or entered in
+          error are excluded.
         </li>
       </ul>
     </div>
@@ -344,7 +369,7 @@
     <div class="group">
       <p class="platform">Desktop</p>
       <ul>
-        <li><strong>Medications</strong> - The medication administration record no longer fails for a drug recorded without a dosing unit. Printed medication labels use a dedicated print frame with a fixed page size and a wider dispensed label field. A medication discontinued from the discharge modal appears struck through, drugs without a matching reference record can be selected when prescribing, and a drug reference data export can be re-imported without error.</li>
+        <li><strong>Medications</strong> - The medication administration record no longer fails for a drug recorded without a dosing unit. Printed medication labels use a dedicated print frame with a fixed page size and a wider dispensed label field. A medication discontinued from the discharge modal appears struck through, drugs without a matching reference record can be selected when prescribing, and a drug reference data export can be re-imported without error. Duplicate record entries after editing an hourly or half-hourly prescription are resolved.</li>
         <li><strong>Labs</strong> - The interim results printout works before any result has been published, and long test category names no longer collide with test names on the printout.</li>
         <li><strong>Imaging</strong> - A completion time is recorded when an imaging request is completed.</li>
         <li><strong>Tasking and dashboard</strong> - New tasks are saved before the dashboard responds, bulk task deletion works reliably, dashboard tasks filter correctly by designation, and a single task change no longer refreshes every clinician's dashboard.</li>
@@ -360,7 +385,7 @@
       <p class="platform">Mobile</p>
       <ul>
         <li><strong>Performance</strong> - A broad performance pass covering screen rendering, how data is loaded and cached, database indexes, and a larger cache for incremental sync. Screens are more responsive and sync completes faster, particularly on lower-end devices.</li>
-        <li><strong>Fixes</strong> - The vitals 'Add' tab submits correctly after a previous submission, the last sync pulled count is accurate, a race condition during batch record inserts is resolved, and a flashing indicator on overflowing content is removed.</li>
+        <li><strong>Fixes</strong> - The vitals 'Add' tab submits correctly after a previous submission, the last sync pulled count is accurate, a race condition during batch record inserts is resolved, and a flashing indicator on overflowing content is removed. A synced prescription with no administration times no longer fails when its first administration date is generated.</li>
       </ul>
     </div>
 
@@ -379,29 +404,40 @@
 
     <div class="group">
       <span class="required-tag">Required</span>
+
+      <div class="callout">
+        <p><strong>Two changes alter existing behaviour on upgrade:</strong> medications are no longer preselected for pharmacy on discharge, and the mSupply integration switch has been replaced. Both are covered below.</p>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Send to pharmacy on discharge</p>
+        <ul>
+          <li>Encounter medications are no longer ticked for 'Send to pharmacy' automatically on the discharge modal. If your teams rely on that, turn on 'Preselect send to pharmacy when preparing discharge' for each facility to restore it.</li>
+          <li>If you take no action, staff will need to tick medications individually at discharge.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Open mSupply integration</p>
+        <ul>
+          <li>The single mSupply switch has been replaced by two: one for pushing dispensed medications, one for taking stock on hand from mSupply. Existing settings are converted automatically, so behaviour is preserved without administrator action.</li>
+          <li>Check both switches at each mSupply facility after upgrading, particularly any facility that has not synced recently, as the conversion reaches a facility through sync.</li>
+          <li>Administrators who previously set the old switch will need to use the two new ones from now on.</li>
+        </ul>
+      </div>
+
       <div class="upgrade-item">
         <p class="name">Medication frequencies</p>
         <ul>
-          <li>Review the default administration times for 'Hourly' and 'Half-hourly' and set them to suit your deployment before staff begin prescribing with them.</li>
-          <li>Brief prescribing and nursing staff that the 'Medication administration schedule' section does not appear for these two frequencies, so they are not expecting to set one.</li>
+          <li>'Hourly' and 'Half-hourly' are switched on by default and will appear in the frequency list as soon as you upgrade. Turn them off in the frequency list if your deployment does not want them offered.</li>
+          <li>Brief prescribing and nursing staff that the administration schedule section does not appear for these two frequencies, and that their administration times are fixed rather than configurable.</li>
         </ul>
       </div>
-    </div>
 
-    <div class="group">
-      <span class="optional-tag">Optional</span>
       <div class="upgrade-item">
-        <p class="name">Open mSupply stock on hand</p>
+        <p class="name">Shared medication orders</p>
         <ul>
-          <li>If you receive stock data from Open mSupply, no action is required. You can stop deleting the stock columns from the drug reference data spreadsheet before re-importing it.</li>
-          <li>If you set stock on hand manually and do not use mSupply, nothing changes for you.</li>
-        </ul>
-      </div>
-      <div class="upgrade-item">
-        <p class="name">Preselect send to pharmacy on discharge</p>
-        <ul>
-          <li>This setting is off by default. Decide whether preselecting suits your discharge workflow and enable it per facility if so.</li>
-          <li>If you leave it off, the discharge modal behaves exactly as it does today.</li>
+          <li>Encounter diagnoses are added to outbound medication orders for all deployments, with no opt-in. The upgrade includes a database change, and existing medication orders are regenerated, so allow for additional processing time in the upgrade window.</li>
         </ul>
       </div>
     </div>
@@ -412,29 +448,41 @@
 
     <div class="group">
       <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">Send to pharmacy on discharge</p>
+        <ul>
+          <li>Open the discharge modal for a patient with encounter medications and confirm the preselection matches what you decided, whether on or off.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Open mSupply integration</p>
+        <ul>
+          <li>Confirm both new switches carry the values you expect at every mSupply facility.</li>
+          <li>Re-import your drug reference data and confirm stock levels from mSupply are retained.</li>
+        </ul>
+      </div>
+
       <div class="upgrade-item">
         <p class="name">Medication frequencies</p>
         <ul>
-          <li>Prescribe a medication with each new frequency and confirm the administration schedule section is hidden, then change the frequency and confirm it returns.</li>
-          <li>Open the medication administration record for an hourly medication and confirm a full day of doses is readable and can be recorded against.</li>
+          <li>Prescribe a medication at each new frequency and confirm the administration schedule section is hidden, then change the frequency and confirm it returns.</li>
+          <li>Open the medication administration record for an hourly medication, confirm each column shows separate dose slots, and record a dose against an individual slot.</li>
         </ul>
       </div>
     </div>
 
     <div class="group">
       <span class="optional-tag">Optional</span>
+
       <div class="upgrade-item">
-        <p class="name">Open mSupply stock on hand</p>
+        <p class="name">Shared medication orders</p>
         <ul>
-          <li>Re-import your drug reference data and confirm stock levels from mSupply are retained.</li>
+          <li>If you exchange medication orders with an external system, confirm a new order carries the encounter diagnosis as expected.</li>
         </ul>
       </div>
-      <div class="upgrade-item">
-        <p class="name">Preselect send to pharmacy on discharge</p>
-        <ul>
-          <li>If enabling, confirm encounter medications are preselected on the discharge modal and other ongoing medications are not.</li>
-        </ul>
-      </div>
+
       <div class="upgrade-item">
         <p class="name">General</p>
         <ul>
