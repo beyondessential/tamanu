@@ -85,15 +85,20 @@ const prepareChangesForModels = (
   return modelChanges;
 };
 
+/**
+ * @returns The names of the tables that received rows
+ */
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
   models: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
-): Promise<void> => {
+): Promise<Set<string>> => {
   const { maxRecordsPerInsertBatch = 2000 } = syncSettings;
   const modelChanges = prepareChangesForModels(records, models);
+  const touchedTables = new Set<string>();
   for (const { model, records } of modelChanges) {
+    touchedTables.add(model.getTableName());
     if (model.name === 'User') {
       await saveChangesForModel(model, records, syncSettings, progressCallback);
     } else {
@@ -105,20 +110,27 @@ export const saveChangesFromMemory = async (
       );
     }
   }
+  return touchedTables;
 };
 
+/**
+ * @returns The names of the tables that received rows
+ */
 export const saveChangesFromSnapshot = async (
   models: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
-): Promise<void> => {
+): Promise<Set<string>> => {
   const { maxBatchesToKeepInMemory = 5 } = syncSettings;
   const batchIds = await getSnapshotBatchIds();
+  const touchedTables = new Set<string>();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
     const modelChanges = prepareChangesForModels(batchRecords, models);
     for (const { model, records } of modelChanges) {
+      touchedTables.add(model.getTableName());
       await saveChangesForModel(model, records, syncSettings, progressCallback);
     }
   }
+  return touchedTables;
 };

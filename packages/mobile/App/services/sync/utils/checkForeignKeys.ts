@@ -16,19 +16,22 @@ interface ForeignKeyViolation {
  * fault. Running foreign_key_check before commit, while the rows are still present, lets us map
  * each violation back to its record id and throw a descriptive error instead.
  *
- * Must be called inside the sync transaction, after saving and before commit.
+ * Must be called inside the sync transaction, after saving and before commit. Pass only the
+ * tables that actually received rows: `PRAGMA foreign_key_check("table")` rescans every row of
+ * that table, and the argument-less form rescans the whole database, so the cost is proportional
+ * to the tables checked rather than to the number of round trips.
  */
 export const checkForeignKeys = async (
   entityManager: EntityManager,
   tableNames: string[],
 ): Promise<void> => {
-  // A single argument-less foreign_key_check scans every table in one round-trip; filtering the
-  // result to the synced tables is far cheaper than issuing one PRAGMA per model (20-30+ awaits).
-  const allViolations: ForeignKeyViolation[] = await entityManager.query(
-    'PRAGMA foreign_key_check;',
-  );
-  const syncedTables = new Set(tableNames);
-  const relevantViolations = allViolations.filter(({ table }) => syncedTables.has(table));
+  const relevantViolations: ForeignKeyViolation[] = [];
+  for (const table of tableNames) {
+    const violations: ForeignKeyViolation[] = await entityManager.query(
+      `PRAGMA foreign_key_check("${table}");`,
+    );
+    relevantViolations.push(...violations);
+  }
   if (!relevantViolations.length) return;
 
   // Resolve rowids to record ids one query per table (rather than one per violation) to avoid an

@@ -433,15 +433,19 @@ export class MobileSyncManager {
         );
         // Foreign keys are deferred for the whole transaction, so save order doesn't matter
         const modelsToSave = Object.values(incomingModels) as TransactingModel[];
+        const touchedTables = new Set<string>();
         const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, modelsToSave, this.syncSettings, progressCallback);
+          const touchedInBatch = await saveChangesFromMemory(
+            records,
+            modelsToSave,
+            this.syncSettings,
+            progressCallback,
+          );
+          for (const table of touchedInBatch) touchedTables.add(table);
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
-        await checkForeignKeys(
-          transactionEntityManager,
-          modelsToSave.map(model => model.getTableName()),
-        );
+        await checkForeignKeys(transactionEntityManager, [...touchedTables]);
         await this.postPull(transactionEntityManager, pullUntil);
       });
     } catch (err) {
@@ -507,11 +511,12 @@ export class MobileSyncManager {
         );
         // Foreign keys are deferred for the whole transaction, so save order doesn't matter
         const modelsToSave = Object.values(incomingModels) as TransactingModel[];
-        await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
-        await checkForeignKeys(
-          transactionEntityManager,
-          modelsToSave.map(model => model.getTableName()),
+        const touchedTables = await saveChangesFromSnapshot(
+          modelsToSave,
+          this.syncSettings,
+          saveProgressCallback,
         );
+        await checkForeignKeys(transactionEntityManager, [...touchedTables]);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
         console.error(

@@ -58,4 +58,20 @@ describe('checkForeignKeys', () => {
       }),
     ).rejects.toThrow(childId);
   });
+
+  it('ignores violations in tables that are not listed', async () => {
+    let scopedCheckPassed = false;
+    await expect(
+      Database.client.transaction(async em => {
+        await deferForeignKeys(em);
+        const repo = em.getRepository(Task);
+        await repo.save(fakeTask(encounterId, requestedByUserId, { parentTaskId: uuidv4() }));
+        // Only `patients` is checked, so the dangling task is not reported here...
+        await checkForeignKeys(em, ['patients']);
+        scopedCheckPassed = true;
+      }),
+      // ...but SQLite still catches the deferred violation at COMMIT
+    ).rejects.toThrow('FOREIGN KEY constraint failed');
+    expect(scopedCheckPassed).toBe(true);
+  });
 });
