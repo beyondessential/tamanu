@@ -1,8 +1,10 @@
+import type { QueryStatus } from '@tanstack/react-query';
 import React, { type FunctionComponent, type ReactElement, useCallback } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, StatusBar } from 'react-native';
 import CountryFlag from 'react-native-country-flag';
 import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
 import { isISO31661Alpha2 } from 'validator';
+import type { LanguageOption } from '~/models/TranslatedString';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { Separator } from '~/ui/components/Separator';
@@ -71,6 +73,49 @@ const LanguageOptionButton = ({
 
 export default LanguageOptionButton;
 
+interface LanguageOptionsProps {
+  languageOptions: LanguageOption[] | undefined;
+  languageOptionsStatus: QueryStatus;
+  onSelectLanguage: (value: string) => void;
+}
+
+const LanguageOptions = ({
+  languageOptions,
+  languageOptionsStatus,
+  onSelectLanguage,
+}: LanguageOptionsProps): ReactElement => {
+  if (languageOptionsStatus === 'pending') {
+    return <ActivityIndicator size="large" color={theme.colors.PRIMARY_MAIN} />;
+  }
+
+  if (!languageOptions?.length) {
+    return (
+      <StyledText
+        color={theme.colors.TEXT_MID}
+        fontSize={screenPercentageToDP(2, Orientation.Height)}
+        paddingLeft={screenPercentageToDP(1.86, Orientation.Width)}
+      >
+        No languages currently available
+      </StyledText>
+    );
+  }
+
+  return (
+    <>
+      <FlatList
+        data={languageOptions}
+        keyExtractor={(item): string => item.languageCode}
+        renderItem={({ item }): ReactElement => (
+          <LanguageOptionButton onPress={onSelectLanguage} {...item} />
+        )}
+        ItemSeparatorComponent={StyledSeparator}
+        scrollEnabled={true}
+      />
+      <StyledSeparator />
+    </>
+  );
+};
+
 export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => {
   const { languageOptions, languageOptionsStatus, setLanguage } = useTranslation();
 
@@ -122,22 +167,11 @@ export const LanguageSelectScreen: FunctionComponent<any> = ({ navigation }) => 
             marginBottom={screenPercentageToDP(4, Orientation.Height)}
             maxHeight={screenPercentageToDP(70, Orientation.Height)}
           >
-            {languageOptionsStatus === 'pending' ? (
-              <ActivityIndicator size="large" color={theme.colors.PRIMARY_MAIN} />
-            ) : (
-              <>
-                <FlatList
-                  data={languageOptions}
-                  keyExtractor={(item): string => item.languageCode}
-                  renderItem={({ item }): ReactElement => (
-                    <LanguageOptionButton onPress={handleChangeLanguage} {...item} />
-                  )}
-                  ItemSeparatorComponent={StyledSeparator}
-                  scrollEnabled={true}
-                />
-                <StyledSeparator />
-              </>
-            )}
+            <LanguageOptions
+              languageOptions={languageOptions}
+              languageOptionsStatus={languageOptionsStatus}
+              onSelectLanguage={handleChangeLanguage}
+            />
           </StyledView>
         </KeyboardAvoidingView>
       </StyledSafeAreaView>

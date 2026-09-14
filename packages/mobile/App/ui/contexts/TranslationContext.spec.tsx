@@ -203,6 +203,15 @@ describe('TranslationProvider', () => {
     await waitFor(() => expect(result.current.languageOptionsStatus).toBe('success'));
   });
 
+  it('distinguishes an empty language list from a failure to load one', async () => {
+    const { result } = await renderHook(() => useTranslation(), {
+      wrapper: createProviderWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.languageOptionsStatus).toBe('success'));
+    expect(result.current.languageOptions).toEqual([]);
+  });
+
   it('reports an error when neither the server nor the local database can offer a list', async () => {
     mockGetLanguageOptions.mockRejectedValue(new Error('no such table'));
     mockFetch.mockRejectedValue(new TypeError('Network request failed'));
