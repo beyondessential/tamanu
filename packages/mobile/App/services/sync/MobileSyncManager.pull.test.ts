@@ -10,8 +10,8 @@ jest.mock('./utils', () => ({
 }));
 
 jest.mock('./utils/saveIncomingChanges', () => ({
-  saveChangesFromMemory: jest.fn().mockResolvedValue(undefined),
-  saveChangesFromSnapshot: jest.fn().mockResolvedValue(undefined),
+  saveChangesFromMemory: jest.fn().mockResolvedValue(new Set(['patients'])),
+  saveChangesFromSnapshot: jest.fn().mockResolvedValue(new Set(['patients'])),
 }));
 
 jest.mock('./utils/manageSnapshotTable', () => ({
@@ -62,6 +62,7 @@ const { createSnapshotTable, insertSnapshotRecords } = jest.requireMock(
   './utils/manageSnapshotTable',
 );
 const { pullRecordsInBatches } = jest.requireMock('./utils/pullRecordsInBatches');
+const { checkForeignKeys } = jest.requireMock('./utils/checkForeignKeys');
 const { Database } = jest.requireMock('../../infra/db');
 
 const makeCentral = () => ({
@@ -136,6 +137,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
     expect(createSnapshotTable).not.toHaveBeenCalled();
     expect(insertSnapshotRecords).not.toHaveBeenCalled();
+    expect(checkForeignKeys).toHaveBeenCalledWith(expect.anything(), ['patients']);
   });
 
   it('incremental sync saves from snapshot', async () => {
@@ -165,6 +167,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(insertSnapshotRecords).toHaveBeenCalled();
     expect(saveChangesFromSnapshot).toHaveBeenCalled();
     expect(saveChangesFromMemory).not.toHaveBeenCalled();
+    expect(checkForeignKeys).toHaveBeenCalledWith(expect.anything(), ['patients']);
   });
 
   it('incremental sync with nothing to pull skips the snapshot and save, but still advances the pull cursor', async () => {
