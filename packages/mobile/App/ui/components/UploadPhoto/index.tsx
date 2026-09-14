@@ -115,7 +115,11 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [imagePath, setImagePath] = useState(null);
   const { models } = useBackend();
   const { getTranslation } = useTranslation();
-  const { refetch: checkCanUploadAttachment } = useCanUploadAttachmentQuery();
+  /**
+   * Only checked on demand when a photo is picked; nothing to gain from fetching on mount. Yes,
+   * this is weird and there are better solutions; but this commit preserves existing behaviour.
+   */
+  const { refetch: checkCanUploadAttachment } = useCanUploadAttachmentQuery({ enabled: false });
 
   // No queries read attachments from the local database (they're synced up and
   // deleted), so these mutations have nothing to invalidate.
