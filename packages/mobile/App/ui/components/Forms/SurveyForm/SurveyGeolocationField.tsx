@@ -1,21 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useGeolocation } from '~/hooks/useGeolocation';
 import { TextField } from '../../TextField/TextField';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import {
-  CenterView,
-  RowView,
-  StyledText,
-  StyledTouchableOpacity,
-  StyledView,
-} from '~/ui/styled/common';
-import { ActivityIndicator, Dimensions, Text } from 'react-native';
+import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
+import { ActivityIndicator, Alert } from 'react-native';
 import { Button } from '../../Button';
 import { theme } from '~/ui/styled/theme';
 import { Geolocate } from '../../Icons/Geolocate';
 import styled from 'styled-components';
 import { CrossIcon } from '../../Icons';
-import Modal from 'react-native-modal';
 import { RECOMMENDED_ACCURACY } from '~/constants/comms';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -28,36 +21,6 @@ const EndAdornmentContainer = styled(StyledView)`
   right: ${screenPercentageToDP('1', Orientation.Height)}px;
   bottom: ${screenPercentageToDP('2', Orientation.Height)}px;
   min-height: ${screenPercentageToDP('2.8', Orientation.Height)}px;
-`;
-
-const ModalContainer = styled(CenterView)`
-  background-color: ${theme.colors.BACKGROUND_GREY};
-  border-radius: 5;
-  max-height: ${screenPercentageToDP('24', Orientation.Height)}px;
-  width: ${screenPercentageToDP('66', Orientation.Width)}px;
-  padding: 20px;
-  margin-left: ${screenPercentageToDP('10', Orientation.Width)}px;
-  position: relative;
-`;
-
-const ModalTitle = styled(Text)`
-  font-size: ${screenPercentageToDP('1.45', Orientation.Height)}px;
-  color: ${theme.colors.BLACK};
-  font-weight: bold;
-  margin-bottom: 10;
-`;
-
-const ModalDescription = styled(Text)`
-  font-size: ${screenPercentageToDP('1.45', Orientation.Height)}px;
-  text-align: center;
-  color: ${theme.colors.BLACK};
-  margin-bottom: 4;
-`;
-
-const ModalCloseButton = styled(StyledTouchableOpacity)`
-  position: absolute;
-  top: ${screenPercentageToDP('1.6', Orientation.Height)}px;
-  right: ${screenPercentageToDP('1.6', Orientation.Height)}px;
 `;
 
 const RequestGeolocationArea = styled(StyledTouchableOpacity)`
@@ -81,7 +44,6 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, erro
       watch: true,
     });
   const { getTranslation } = useTranslation();
-  const [showModal, setShowModal] = useState(false);
 
   const tempValue = useMemo(() => {
     if (!coords) return '';
@@ -105,21 +67,35 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, erro
     };
   }, []);
 
-  const onOpenModal = () => setShowModal(true);
-  const onCloseModal = () => setShowModal(false);
-
-  const onClickRemoveLocation = () => {
-    if (value) {
-      onOpenModal();
-    } else {
-      cancelWatchGeolocation();
-    }
-  };
-
   const handleRemoveLocation = () => {
     onChange('');
     cancelWatchGeolocation();
-    onCloseModal();
+  };
+
+  const confirmRemoveLocation = () => {
+    Alert.alert(
+      getTranslation('program.survey.geolocate.removeLocation.title', 'Remove tagged location?'),
+      getTranslation(
+        'program.survey.geolocate.removeLocation.description',
+        'Are you sure you want to remove the currently selected location?',
+      ),
+      [
+        { text: getTranslation('general.action.keep', 'Keep'), style: 'cancel' },
+        {
+          text: getTranslation('general.action.remove', 'Remove'),
+          style: 'destructive',
+          onPress: handleRemoveLocation,
+        },
+      ],
+    );
+  };
+
+  const onClickRemoveLocation = () => {
+    if (value) {
+      confirmRemoveLocation();
+    } else {
+      cancelWatchGeolocation();
+    }
   };
 
   const handleSaveLocation = () => {
@@ -265,56 +241,6 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, erro
           )}
         </StyledView>
       </StyledView>
-      <Modal
-        isVisible={showModal}
-        onBackdropPress={onCloseModal}
-        deviceHeight={Dimensions.get('window').height}
-      >
-        <ModalContainer>
-          <ModalTitle>
-            <TranslatedText
-              stringId="program.survey.geolocate.removeLocation.title"
-              fallback="Remove tagged location?"
-            />
-          </ModalTitle>
-          <ModalDescription>
-            <TranslatedText
-              stringId="program.survey.geolocate.removeLocation.description"
-              fallback="Are you sure you want to remove the currently selected location?"
-            />
-          </ModalDescription>
-          <ModalCloseButton onPress={onCloseModal}>
-            <CrossIcon
-              size={screenPercentageToDP('1.6', Orientation.Height)}
-              fill={theme.colors.TEXT_SUPER_DARK}
-            />
-          </ModalCloseButton>
-          <RowView
-            flexDirection="row"
-            justifyContent="center"
-            gap={screenPercentageToDP('1.5', Orientation.Height)}
-            width="95%"
-            marginTop={10}
-          >
-            <Button
-              outline
-              borderColor={theme.colors.PRIMARY_MAIN}
-              borderWidth={0.1}
-              buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-              width={screenPercentageToDP('12', Orientation.Height)}
-              onPress={onCloseModal}
-              {...buttonCommonStyles}
-            />
-            <Button
-              buttonText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
-              backgroundColor={theme.colors.PRIMARY_MAIN}
-              width={screenPercentageToDP('12', Orientation.Height)}
-              onPress={handleRemoveLocation}
-              {...buttonCommonStyles}
-            />
-          </RowView>
-        </ModalContainer>
-      </Modal>
     </>
   );
 };
