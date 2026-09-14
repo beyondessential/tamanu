@@ -21,6 +21,12 @@ import { Task } from '../Task';
 import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
 import { afterCreateHook, afterUpdateHook } from './hooks';
 
+const PRESCRIPTION_WITH_DUE_TASKS = {
+  frequency: {
+    [Op.notIn]: [...FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS],
+  },
+};
+
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
   declare status?: string;
@@ -312,11 +318,7 @@ export class MedicationAdministrationRecord extends Model {
           as: 'prescription',
           attributes: ['id'],
           required: true,
-          where: {
-            frequency: {
-              [Op.notIn]: [...FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS],
-            },
-          },
+          where: PRESCRIPTION_WITH_DUE_TASKS,
           include: [
             {
               model: EncounterPrescription,
@@ -439,11 +441,7 @@ export class MedicationAdministrationRecord extends Model {
             as: 'prescription',
             attributes: ['id'],
             required: true,
-            where: {
-              frequency: {
-                [Op.notIn]: [...FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS],
-              },
-            },
+            where: PRESCRIPTION_WITH_DUE_TASKS,
             include: [
               {
                 model: EncounterPrescription,
