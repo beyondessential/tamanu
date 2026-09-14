@@ -1,5 +1,5 @@
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-import type { QueryStatus, UseQueryResult } from '@tanstack/react-query';
+import type { QueryStatus } from '@tanstack/react-query';
 import { upperFirst } from 'es-toolkit';
 import React, {
   createContext,
@@ -17,9 +17,7 @@ import { readConfig, writeConfig } from '~/services/config';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
 import { registerYup } from '../helpers/yupMethods';
-import useLanguageOptionsQuery, {
-  useLocalLanguageOptionsQuery,
-} from '../hooks/queries/useLanguageOptionsQuery';
+import { useLanguageOptions } from '../hooks/queries/useLanguageOptionsQuery';
 import useTranslationsQuery, { type Translations } from './useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
@@ -157,36 +155,12 @@ const resolveLanguage = (
   return languageCodes[0];
 };
 
-/**
- * Consumers only need to know whether there is a list to offer yet, so the two sources collapse to
- * one status. An empty list while either source is still in flight stays `pending` — a device with
- * nothing synced would otherwise flash an empty state before the server answers — and `error` is
- * reserved for there being nothing left to wait for.
- */
-const resolveLanguageOptionsStatus = (
-  languageOptions: LanguageOption[] | undefined,
-  remoteQuery: UseQueryResult<LanguageOption[]>,
-  localQuery: UseQueryResult<LanguageOption[]>,
-): QueryStatus => {
-  if (languageOptions?.length) return 'success';
-  if (remoteQuery.isLoading || localQuery.isLoading) return 'pending';
-  if (remoteQuery.isError || localQuery.isError) return 'error';
-  return 'success';
-};
-
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [storedLanguage, setStoredLanguage] = useState<string | null | undefined>(undefined);
   const [host, setHost] = useState<string | null>(null);
 
-  const remoteLanguageOptionsQuery = useLanguageOptionsQuery(host);
-  const localLanguageOptionsQuery = useLocalLanguageOptionsQuery();
-  const languageOptions = remoteLanguageOptionsQuery.data ?? localLanguageOptionsQuery.data;
-  const languageOptionsStatus = resolveLanguageOptionsStatus(
-    languageOptions,
-    remoteLanguageOptionsQuery,
-    localLanguageOptionsQuery,
-  );
+  const { languageOptions, status: languageOptionsStatus } = useLanguageOptions(host);
   // Hold off until the stored language is known, so the first option isn't briefly shown instead
   const language =
     storedLanguage === undefined ? null : resolveLanguage(storedLanguage, languageOptions);

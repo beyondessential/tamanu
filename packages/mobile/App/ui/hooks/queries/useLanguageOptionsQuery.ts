@@ -1,4 +1,9 @@
-import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
+import {
+  useQuery,
+  type QueryStatus,
+  type UseQueryOptions,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 import { keyBy, mapValues, uniq } from 'es-toolkit';
 
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
@@ -100,4 +105,32 @@ export function useLocalLanguageOptionsQuery(
     select: collapseDefaultLanguage,
     ...rest,
   });
+}
+
+/**
+ * Consumers only need to know whether there is a list to offer yet, so the two sources collapse to
+ * one status. An empty list while either source is still in flight stays `pending` — a device with
+ * nothing synced would otherwise flash an empty state before the server answers — and `error` is
+ * reserved for there being nothing left to wait for.
+ */
+function resolveStatus(
+  languageOptions: LanguageOption[] | undefined,
+  remoteQuery: UseQueryResult<LanguageOption[]>,
+  localQuery: UseQueryResult<LanguageOption[]>,
+): QueryStatus {
+  if (languageOptions?.length) return 'success';
+  if (remoteQuery.isLoading || localQuery.isLoading) return 'pending';
+  if (remoteQuery.isError || localQuery.isError) return 'error';
+  return 'success';
+}
+
+/** The languages to offer, reconciling the selected server’s list with what’s synced locally. */
+export function useLanguageOptions(host: string | null | undefined): {
+  languageOptions: LanguageOption[] | undefined;
+  status: QueryStatus;
+} {
+  const remoteQuery = useLanguageOptionsQuery(host);
+  const localQuery = useLocalLanguageOptionsQuery();
+  const languageOptions = remoteQuery.data ?? localQuery.data;
+  return { languageOptions, status: resolveStatus(languageOptions, remoteQuery, localQuery) };
 }
