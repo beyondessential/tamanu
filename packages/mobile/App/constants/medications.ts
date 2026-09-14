@@ -134,6 +134,12 @@ export const ADMINISTRATION_FREQUENCIES = {
   TWICE_DAILY_AM_AND_MIDDAY: 'Twice daily - AM and midday',
 } as const;
 
+/** A due task per dose is unusable at these frequencies, so none are generated. */
+export const FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS: ReadonlySet<string> = new Set([
+  ADMINISTRATION_FREQUENCIES.HOURLY,
+  ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
+]);
+
 export const MEDICATION_DURATION_UNITS_LABELS = {
   [MEDICATION_DURATION_UNITS.HOURS!]: 'hour (s)',
   [MEDICATION_DURATION_UNITS.DAYS!]: 'day (s)',
