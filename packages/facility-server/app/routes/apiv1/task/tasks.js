@@ -310,7 +310,7 @@ taskRoutes.post(
     const { models, db } = req;
     const { Task, TaskDesignation } = models;
 
-    await db.transaction(async () => {
+    const createdTasks = await db.transaction(async () => {
       const tasksData = tasks.map((task) => {
         const designations = task.designationIds.map((designation) => ({
           id: designation,
@@ -328,7 +328,7 @@ taskRoutes.post(
         };
       });
 
-      const createdTasks = await Task.bulkCreate(tasksData);
+      const created = await Task.bulkCreate(tasksData);
 
       const taskDesignationAssociations = tasksData.flatMap((task) => {
         return task.designations.map((designation) => ({
@@ -347,7 +347,9 @@ taskRoutes.post(
         await Task.generateRepeatingTasks(tasksData, upcomingTasksShouldBeGeneratedTimeFrame);
       }
 
-      res.send(createdTasks);
+      return created;
     });
+
+    res.send(createdTasks);
   }),
 );
