@@ -152,8 +152,10 @@ export const TranslationProvider = ({ children }: Readonly<{ children: React.Rea
     void writeConfig('language', languageCode);
   }, []);
 
-  // Keep the selected language one of the available options, defaulting to the first when
-  // nothing valid is stored — e.g. a fresh install, or a language removed by a later sync
+  /**
+   * Keep the selected language one of the available options, defaulting to the first when
+   * nothing valid is stored — e.g. a fresh install, or a language removed by a later sync
+   */
   useEffect(() => {
     if (!isLanguageRestored || !languageOptions?.length) return;
     if (language && languageOptions.some(({ languageCode }) => languageCode === language)) return;
