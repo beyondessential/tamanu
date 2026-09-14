@@ -42,7 +42,10 @@ export default {
     needs: ['user', 'patientFieldDefinition'],
   },
 
-  facility: {},
+  sensitiveNetwork: {},
+  facility: {
+    needs: ['sensitiveNetwork'],
+  },
   department: {
     needs: ['facility'],
   },

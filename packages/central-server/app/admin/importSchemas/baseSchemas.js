@@ -124,6 +124,11 @@ export const User = Base.shape({
     .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
+export const SensitiveNetwork = Base.shape({
+  code: fieldTypes.code.required(),
+  name: fieldTypes.name.required(),
+});
+
 export const Facility = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
@@ -134,6 +139,12 @@ export const Facility = Base.shape({
   division: yup.string(),
   type: yup.string(),
   visibilityStatus,
+  // An empty cell means "no instruction", not "remove this facility from its network". The key has
+  // to be absent from the cast output for that to hold: importRows normalises undefined to null and
+  // writes it, and the Facility model refuses a membership change. A blank cell is already absent
+  // (sheet_to_json is called without defval), but an explicit empty string survives as '', so
+  // transform it back to undefined. Deliberately no default, for the same reason.
+  sensitiveNetworkId: yup.string().transform(value => (value === '' ? undefined : value)),
 });
 
 export const Department = Base.shape({
