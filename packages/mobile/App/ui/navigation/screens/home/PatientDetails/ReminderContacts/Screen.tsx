@@ -1,10 +1,23 @@
-import React, { useCallback, useState } from 'react';
-import { compose } from 'redux';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useCallback } from 'react';
+import { Alert } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { compose } from 'redux';
+import { PatientContact } from '~/models/PatientContact';
+import { type IPatientContact, ReferenceDataType } from '~/types';
+import { Button } from '~/ui/components/Button';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
+import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { withPatient } from '~/ui/containers/Patient';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   CenterView,
@@ -17,46 +30,53 @@ import {
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { ContactCard } from '../CustomComponents/ContactCard';
-import { ScrollView } from 'react-native-gesture-handler';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import type { IPatientContact } from '~/types';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { Button } from '~/ui/components/Button';
-import { Routes } from '~/ui/helpers/routes';
-import { PlusIcon } from '~/ui/components/Icons/PlusIcon';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { RemoveReminderContactModal } from './RemoveReminderContactModal';
-import { PatientContact } from '~/models/PatientContact';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getReferenceDataTranslation } = useTranslation();
   const { reminderContactList, isLoadingReminderContactList, afterAddContact, isFailedContact } =
     useReminderContact();
 
   const { ability } = useAuth();
   const canWriteReminderContacts = ability.can('write', 'Patient');
 
-  const [selectedContact, setSelectedContact] = useState<IPatientContact>();
-
   const onNavigateAddReminderContact = useCallback(() => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddReminderContact);
   }, [navigation]);
 
   const queryClient = useQueryClient();
-  const { mutateAsync: removeReminderContact } = useMutation({
+  const { mutate: removeReminderContact } = useMutation({
     mutationFn: (contact: IPatientContact) =>
       PatientContact.updateValues(contact.id, { deletedAt: new Date() }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
     },
+    onError: error => {
+      console.error('Delete contact failed: ', error);
+    },
   });
 
-  const onRemoveReminderContact = async () => {
-    if (!selectedContact) return;
-    await removeReminderContact(selectedContact);
+  const confirmRemoveReminderContact = (contact: IPatientContact) => {
+    const relationship = getReferenceDataTranslation({
+      category: ReferenceDataType.ContactRelationship,
+      value: contact.relationship?.id,
+      fallback: contact.relationship?.name,
+    });
+    Alert.alert(
+      getTranslation('patient.details.removeReminderContact.title', 'Remove reminder contact?'),
+      getTranslation(
+        'patient.details.removeReminderContact.confirmation.withNameAndRelationship',
+        ':contactName (:relationship)\n\nYou can add them again at any time',
+        { replacements: { contactName: contact.name, relationship } },
+      ),
+      [
+        { text: getTranslation('general.action.keep', 'Keep'), style: 'cancel' },
+        {
+          text: getTranslation('patient.details.removeReminderContact.action.remove', 'Remove'),
+          style: 'destructive',
+          onPress: () => removeReminderContact(contact),
+        },
+      ],
+    );
   };
 
   const onRetryConnect = (contact: IPatientContact) => {
@@ -163,7 +183,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                       )}
                       {canWriteReminderContacts && (
                         <Button
-                          onPress={() => setSelectedContact(x)}
+                          onPress={() => confirmRemoveReminderContact(x)}
                           height={screenPercentageToDP(4, Orientation.Height)}
                           marginRight={8}
                           paddingTop={4}
@@ -188,15 +208,6 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                   </StyledView>
                 ))}
               </>
-            )}
-            {selectedContact && (
-              <RemoveReminderContactModal
-                open
-                onClose={() => setSelectedContact(undefined)}
-                onRemoveReminderContact={onRemoveReminderContact}
-              >
-                <ContactCard {...selectedContact} />
-              </RemoveReminderContactModal>
             )}
             {canWriteReminderContacts && !isLoadingReminderContactList && (
               <Button
