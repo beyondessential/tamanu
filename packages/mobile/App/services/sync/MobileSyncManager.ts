@@ -27,8 +27,7 @@ import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveInco
 
 import type { TransactingModel } from './utils/getModelsForDirection';
 import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { deferForeignKeys } from './utils/deferForeignKeys';
-import { checkForeignKeys } from './utils/checkForeignKeys';
+import { runSyncSaveTransaction } from './utils/runSyncSaveTransaction';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -424,8 +423,7 @@ export class MobileSyncManager {
     }
 
     try {
-      await Database.client.transaction(async transactionEntityManager => {
-        await deferForeignKeys(transactionEntityManager);
+      await runSyncSaveTransaction(async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -445,8 +443,8 @@ export class MobileSyncManager {
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
-        await checkForeignKeys(transactionEntityManager, [...touchedTables]);
         await this.postPull(transactionEntityManager, pullUntil);
+        return touchedTables;
       });
     } catch (err) {
       console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
@@ -501,9 +499,8 @@ export class MobileSyncManager {
         `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
       );
     };
-    await Database.client.transaction(async transactionEntityManager => {
-      try {
-        await deferForeignKeys(transactionEntityManager);
+    try {
+      await runSyncSaveTransaction(async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -516,16 +513,13 @@ export class MobileSyncManager {
           this.syncSettings,
           saveProgressCallback,
         );
-        await checkForeignKeys(transactionEntityManager, [...touchedTables]);
         await this.postPull(transactionEntityManager, pullUntil);
-      } catch (err) {
-        console.error(
-          'MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync',
-          err,
-        );
-        throw err;
-      }
-    });
+        return touchedTables;
+      });
+    } catch (err) {
+      console.error('MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync', err);
+      throw err;
+    }
   }
 
   async postPull(entityManager: EntityManager, pullUntil: number) {
