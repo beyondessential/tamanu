@@ -1,0 +1,454 @@
+<!-- Mockup: published rendering of the Tamanu v2.64 release notes -->
+<!-- Content sourced from origin/release/2.63...origin/release/2.64 (merge base b42ebe561a), -->
+<!-- the v2.64.0 tag (10-09-2026), Linear v2.64.0 label, and Workhorse cards G7/R7/K7/L7/N7/A8. -->
+<!-- Format follows docs/release-notes/v2-63.md and the canonical v2-44 example. -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu v2.64 release notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --text: #1c1917;
+    --text-secondary: #57534e;
+    --text-muted: #78716c;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --accent: #c2410c;
+    --accent-soft: #fff7ed;
+    --accent-border: #fed7aa;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* Masthead */
+  .masthead {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .version-pill {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .released {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* Section rhythm */
+  section { margin-top: 48px; }
+
+  h2 {
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h2 .marker { margin-right: 8px; }
+
+  h3 {
+    margin: 32px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  h3:first-of-type { margin-top: 0; }
+
+  /* Feature cards */
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .feature-title {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .feature p {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+  }
+
+  .label {
+    margin: 20px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+  }
+
+  li:last-child { margin-bottom: 0; }
+
+  li strong, p strong { color: var(--text); font-weight: 600; }
+
+  li ul { margin-top: 8px; }
+
+  /* Plain grouped list (enhancements, fixes) */
+  .group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .group > ul > li { margin-bottom: 12px; }
+
+  .platform {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Documentation placeholders */
+  .docs {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .placeholder {
+    display: inline-block;
+    background: #fafaf9;
+    border: 1px dashed var(--border-strong);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* Upgrade notes */
+  .required-tag, .optional-tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .required-tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+
+  .optional-tag {
+    background: #f5f5f4;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+  }
+
+  .upgrade-item {
+    margin-bottom: 20px;
+  }
+
+  .upgrade-item:last-child { margin-bottom: 0; }
+
+  .upgrade-item .name {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-strong);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">
+      <span class="version-pill">Tamanu v2.64</span>
+      <span class="released">Released 10-09-2026</span>
+    </div>
+    <h1>Tamanu v2.64 release notes</h1>
+    <p class="lede">
+      Tamanu v2.64 is a moderate release. It adds hourly and half-hourly medication
+      frequencies across prescribing and the medication administration record, makes
+      Open mSupply the source of truth for stock on hand where that integration is
+      live, and carries substantial performance work on long-stay encounters and on
+      Tamanu Mobile.
+    </p>
+  </div>
+
+  <section>
+    <h2><span class="marker">🌟</span>Major Features and Changes</h2>
+
+    <h3>Tamanu Desktop</h3>
+
+    <div class="feature">
+      <p class="feature-title">Hourly and half-hourly medication frequencies</p>
+      <p>
+        The medication frequency list gains 'Hourly' and 'Half-hourly' options, supporting
+        closely monitored regimes that previously had to be recorded as a series of
+        separate orders. Both prescribing and the medication administration record
+        accommodate the higher volume of doses these frequencies produce.
+      </p>
+
+      <p class="label">Key features</p>
+      <ul>
+        <li><strong>New frequency options</strong> - 'Hourly' and 'Half-hourly' can be selected when prescribing a medication, alongside the existing frequencies.</li>
+        <li><strong>Simplified prescribing</strong> - The 'Medication administration schedule' section is hidden in the 'New prescription' modal when either frequency is selected, and reappears if the frequency is changed to any other option.</li>
+        <li><strong>Medication administration record</strong> - The record displays hourly and half-hourly medications so that a full day of doses remains readable, rather than overflowing the standard layout.</li>
+        <li><strong>Configurable administration times</strong> - Default administration times can be set for the new frequencies through the admin panel settings, as for every other frequency.</li>
+      </ul>
+
+      <div class="docs">
+        <p class="label" style="margin-top:0">Supporting documentation</p>
+        <ul>
+          <li>Feature overview - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+          <li>Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+          <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🔧</span>System Enhancements</h2>
+
+    <div class="feature">
+      <p class="feature-title">Open mSupply stock on hand</p>
+      <p>
+        Where a deployment receives stock data from Open mSupply, mSupply is now treated as
+        the source of truth for stock on hand. Stock levels carried in the drug reference
+        data import are ignored, so a routine drug reference data re-import no longer
+        overwrites live stock levels. Teams no longer need to strip the stock columns out
+        of the spreadsheet before every import, and prescribers no longer see incorrect
+        stock levels while waiting for the next mSupply sync.
+      </p>
+    </div>
+
+    <div class="group">
+      <ul>
+        <li>
+          <strong>Preselect send to pharmacy on discharge</strong> - A new facility-level
+          setting, 'Preselect send to pharmacy when preparing discharge', preselects the
+          'Send to pharmacy' checkbox for every medication under 'Encounter medications'
+          on the discharge modal. It is off by default. Medications under 'Other ongoing
+          medications' are never preselected, and the standard send to pharmacy workflow
+          is unchanged.
+        </li>
+        <li>
+          <strong>Performance on high-volume encounters</strong> - The vitals and charts
+          tables load reliably on long-stay admissions with very large numbers of recorded
+          observations, where they could previously hang until server load dropped. Patient
+          lab results and survey response history load faster on the same deployments, and
+          routine database housekeeping is tuned so it keeps up on busy facility servers.
+        </li>
+        <li>
+          <strong>Encounter diagnosis on shared medication orders</strong> - Medication
+          orders shared with external systems now carry the encounter diagnosis as the
+          reason for the order, giving receiving systems the clinical context behind a
+          prescription.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🐛</span>Tweaks and Bug Fixes</h2>
+
+    <div class="group">
+      <p class="platform">Desktop</p>
+      <ul>
+        <li><strong>Medications</strong> - The medication administration record no longer fails for a drug recorded without a dosing unit. Printed medication labels use a dedicated print frame with a fixed page size and a wider dispensed label field. A medication discontinued from the discharge modal appears struck through, drugs without a matching reference record can be selected when prescribing, and a drug reference data export can be re-imported without error.</li>
+        <li><strong>Labs</strong> - The interim results printout works before any result has been published, and long test category names no longer collide with test names on the printout.</li>
+        <li><strong>Imaging</strong> - A completion time is recorded when an imaging request is completed.</li>
+        <li><strong>Tasking and dashboard</strong> - New tasks are saved before the dashboard responds, bulk task deletion works reliably, dashboard tasks filter correctly by designation, and a single task change no longer refreshes every clinician's dashboard.</li>
+        <li><strong>Patients and encounters</strong> - Fixed a freeze when opening certain encounters. Saving patient details now confirms success, longer patient issue notes can be recorded, and the encounter refreshes once a death is recorded.</li>
+        <li><strong>Vaccinations</strong> - The include not given filter is kept when a vaccine record is edited.</li>
+        <li><strong>Dates</strong> - Date defaults and limits follow the facility timezone rather than the server's.</li>
+        <li><strong>Invoicing and surveys</strong> - Fixed an error when adding an invoice item, and a rare crash when the survey 'Complete' button is clicked.</li>
+        <li><strong>AI summaries</strong> - Refinements to patient and encounter summary wording and presentation.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">Mobile</p>
+      <ul>
+        <li><strong>Performance</strong> - A broad performance pass covering screen rendering, how data is loaded and cached, database indexes, and a larger cache for incremental sync. Screens are more responsive and sync completes faster, particularly on lower-end devices.</li>
+        <li><strong>Fixes</strong> - The vitals 'Add' tab submits correctly after a previous submission, the last sync pulled count is accurate, a race condition during batch record inserts is resolved, and a flashing indicator on overflowing content is removed.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">System</p>
+      <ul>
+        <li><strong>Sync</strong> - Duplicate patient invoice insurance plan records are resolved, and merged patients are correctly flagged so their sync records rebuild.</li>
+        <li><strong>Integrations</strong> - Fixed an issue where part of a failed data exchange bundle could be saved instead of being rolled back in full.</li>
+        <li><strong>Facility servers</strong> - Unrecognised clients are exempt from the client version check, so an unknown client is no longer blocked outright.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">⚠️</span>Critical Upgrade Notes</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+      <div class="upgrade-item">
+        <p class="name">Medication frequencies</p>
+        <ul>
+          <li>Review the default administration times for 'Hourly' and 'Half-hourly' and set them to suit your deployment before staff begin prescribing with them.</li>
+          <li>Brief prescribing and nursing staff that the 'Medication administration schedule' section does not appear for these two frequencies, so they are not expecting to set one.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+      <div class="upgrade-item">
+        <p class="name">Open mSupply stock on hand</p>
+        <ul>
+          <li>If you receive stock data from Open mSupply, no action is required. You can stop deleting the stock columns from the drug reference data spreadsheet before re-importing it.</li>
+          <li>If you set stock on hand manually and do not use mSupply, nothing changes for you.</li>
+        </ul>
+      </div>
+      <div class="upgrade-item">
+        <p class="name">Preselect send to pharmacy on discharge</p>
+        <ul>
+          <li>This setting is off by default. Decide whether preselecting suits your discharge workflow and enable it per facility if so.</li>
+          <li>If you leave it off, the discharge modal behaves exactly as it does today.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Upgrade Steps and Recommended Testing</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+      <div class="upgrade-item">
+        <p class="name">Medication frequencies</p>
+        <ul>
+          <li>Prescribe a medication with each new frequency and confirm the administration schedule section is hidden, then change the frequency and confirm it returns.</li>
+          <li>Open the medication administration record for an hourly medication and confirm a full day of doses is readable and can be recorded against.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+      <div class="upgrade-item">
+        <p class="name">Open mSupply stock on hand</p>
+        <ul>
+          <li>Re-import your drug reference data and confirm stock levels from mSupply are retained.</li>
+        </ul>
+      </div>
+      <div class="upgrade-item">
+        <p class="name">Preselect send to pharmacy on discharge</p>
+        <ul>
+          <li>If enabling, confirm encounter medications are preselected on the discharge modal and other ongoing medications are not.</li>
+        </ul>
+      </div>
+      <div class="upgrade-item">
+        <p class="name">General</p>
+        <ul>
+          <li>Open the vitals and charts tables on your longest-running admissions and confirm they load rather than hang.</li>
+          <li>Verify that existing workflows continue to function as expected.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Mockup for card M8. Supporting documentation links are placeholders awaiting real Slab URLs.
+  </footer>
+
+</div>
+</body>
+</html>
