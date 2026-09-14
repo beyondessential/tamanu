@@ -89,7 +89,7 @@ const UploadPhotoComponent = ({
 }: UploadPhotoComponentProps) => (
   <StyledView marginTop={5}>
     {loading ? <LoadingPlaceholder /> : imageData && <UploadedImage imageData={imageData} />}
-    {!imageData && errorMessage && <Text>{`Error loading image: ${errorMessage}`}</Text>}
+    {errorMessage && <Text>Error loading image: {errorMessage}</Text>}
     <StyledText fontWeight="500" color={theme.colors.TEXT_SUPER_DARK} marginTop={10}>
       {imageData ? 'Change photo' : 'Upload photo'}
     </StyledText>
@@ -163,6 +163,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         return;
       }
 
+      setErrorMessage(null);
       setLoading(true);
       try {
         // image-picker produces quite expensive files so
