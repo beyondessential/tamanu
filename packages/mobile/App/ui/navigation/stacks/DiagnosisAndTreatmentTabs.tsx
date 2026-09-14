@@ -3,7 +3,7 @@ import type { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { compose } from 'redux';
 import { StackHeader } from '/components/StackHeader';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
 import type { IPatient } from '~/types';
 import { joinNames } from '/helpers/user';
@@ -12,8 +12,6 @@ import { AddIllnessScreen } from '../screens/diagnosisAndTreatment/AddIllnessDet
 import { PrescribeMedicationScreen } from '../screens/diagnosisAndTreatment/PrescribeMedication';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-
-const Tabs = createTopTabNavigator();
 
 type DiagnosisAndTreatmentTabsProps = {
   navigation: NavigationProp<any>;
@@ -37,8 +35,8 @@ const TabNavigator = ({
           subtitle={joinNames(selectedPatient)}
           onGoBack={navigation.goBack}
         />
-        <Tabs.Navigator screenOptions={{ headerShown: false }}>
-          <Tabs.Screen
+        <TopTabNavigator>
+          <TopTabScreen
             options={{
               tabBarLabel: () => (
                 <TranslatedText
@@ -50,7 +48,7 @@ const TabNavigator = ({
             name={Routes.HomeStack.DiagnosisAndTreatmentTabs.AddIllnessScreen}
             component={AddIllnessScreen}
           />
-          <Tabs.Screen
+          <TopTabScreen
             options={{
               tabBarLabel: () => (
                 <TranslatedText
@@ -62,7 +60,7 @@ const TabNavigator = ({
             name={Routes.HomeStack.DiagnosisAndTreatmentTabs.PrescribeMedication}
             component={PrescribeMedicationScreen}
           />
-        </Tabs.Navigator>
+        </TopTabNavigator>
       </FullView>
     </ErrorBoundary>
   );

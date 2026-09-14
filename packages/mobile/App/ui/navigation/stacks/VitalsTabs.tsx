@@ -3,14 +3,12 @@ import { compose } from 'redux';
 import type { NavigationProp } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
 import { withPatient } from '~/ui/containers/Patient';
 import type { IPatient } from '~/types';
 import { joinNames } from '~/ui/helpers/user';
 import { TranslatedText } from '/components/Translations/TranslatedText';
-
-const Tabs = createTopTabNavigator();
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
@@ -30,8 +28,8 @@ const DumbVitalsTabs = ({
         subtitle={getPatientName(selectedPatient)}
         onGoBack={navigation.goBack}
       />
-      <Tabs.Navigator swipeEnabled={false} lazy screenOptions={{ headerShown: false }}>
-        <Tabs.Screen
+      <TopTabNavigator screenOptions={{ lazy: true }}>
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="patient.vitals.heading.addVitals" fallback="Add Vitals" />
@@ -40,7 +38,7 @@ const DumbVitalsTabs = ({
           name={Routes.HomeStack.VitalsStack.VitalsTabs.AddDetails}
           component={AddVitalsScreen}
         />
-        <Tabs.Screen
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="patient.vitals.heading.history" fallback="History" />
@@ -49,7 +47,7 @@ const DumbVitalsTabs = ({
           name={Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory}
           component={ViewHistoryScreen}
         />
-      </Tabs.Navigator>
+      </TopTabNavigator>
     </>
   );
 };

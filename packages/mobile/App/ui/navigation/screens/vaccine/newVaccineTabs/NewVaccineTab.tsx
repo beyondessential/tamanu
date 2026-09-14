@@ -1,8 +1,6 @@
-import React, { type FC, type ReactElement, useCallback } from 'react';
-import { StackActions, useNavigation } from '@react-navigation/native';
+import React, { type ReactElement, useCallback } from 'react';
+import { type RouteProp, StackActions, useNavigation } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Route } from 'react-native-tab-view';
-import type { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { formatISO9075, parseISO } from 'date-fns';
@@ -22,12 +20,18 @@ import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { VaccineCategory } from '../../../../helpers/patient';
 import type { AdministeredVaccine } from '~/models/AdministeredVaccine';
 
+type NewVaccineTabRouteProps = RouteProp<
+  {
+    NewVaccineTab: {
+      vaccine: VaccineDataProps;
+      status: VaccineStatus;
+    };
+  },
+  'NewVaccineTab'
+>;
+
 type NewVaccineTabProps = {
-  route: Route & {
-    icon: FC<SvgProps>;
-    color?: string;
-    vaccine: VaccineDataProps;
-  };
+  route: NewVaccineTabRouteProps;
   selectedPatient: IPatient;
 };
 
@@ -47,7 +51,7 @@ export const NewVaccineTabComponent = ({
   route,
   selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
-  const { vaccine } = route;
+  const { vaccine, status } = route.params;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
 
@@ -190,7 +194,7 @@ export const NewVaccineTabComponent = ({
           ...vaccineObject,
           date: vaccineObject.date ? parseISO(vaccineObject.date) : null,
         }}
-        status={route.key as VaccineStatus}
+        status={status}
       />
     </StyledSafeAreaView>
   );
