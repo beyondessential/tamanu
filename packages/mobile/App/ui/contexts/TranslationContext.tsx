@@ -24,7 +24,7 @@ import useTranslationsQuery, { type Translations } from './useTranslationsQuery'
 export type Casing = 'lower' | 'upper' | 'sentence';
 
 interface Replacements {
-  [key: string]: string;
+  [key: string]: string | number | ReactElement<TranslatedTextProps>;
 }
 
 export type GetTranslationFunction = (
