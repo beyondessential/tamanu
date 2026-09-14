@@ -107,7 +107,9 @@ test.describe('Send a new prescription to pharmacy', () => {
     // shows the request awaiting action, not merely the most recent one.
     await expect(lastSentCell).toContainText('Active request');
     await lastSentCell.hover();
-    await expect(page.getByTestId('tooltip-b4e8')).toHaveText(originalTooltipText);
+    const tooltip = page.getByTestId('tooltip-b4e8');
+    await expect(tooltip).toBeVisible();
+    await expect.poll(() => tooltip.innerText()).toBe(originalTooltipText);
   });
 
   test('Prescribing without Send to pharmacy raises no request', async ({
