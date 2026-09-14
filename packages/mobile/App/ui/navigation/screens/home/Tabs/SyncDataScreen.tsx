@@ -10,13 +10,11 @@ import { Button } from '../../../../components/Button';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useTranslation } from '/contexts/TranslationContext';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext) as BackendContext;
   const syncManager = backend.syncManager;
-  const { getTranslation } = useTranslation();
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
   const [hasError, setHasError] = useState(false);
@@ -110,12 +108,6 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   }, []);
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
-
-  const changeTranslation = getTranslation('sync.message.syncSummary.change', 'change');
-  const changePluralTranslation = getTranslation(
-    'sync.message.syncSummary.changePlural',
-    'changes',
-  );
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
