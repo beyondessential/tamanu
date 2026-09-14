@@ -439,7 +439,7 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
-encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
+encounterRelations.get('/:id/diagnoses', paginatedGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {

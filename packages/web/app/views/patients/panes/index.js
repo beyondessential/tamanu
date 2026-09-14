@@ -18,3 +18,4 @@ export { VitalsPane } from './VitalsPane';
 export { ChartsPane } from './ChartsPane';
 export { PatientResultsPane } from './PatientResultsPane';
 export { TasksPane } from './TasksPane';
+export { DiagnosisPane } from './DiagnosisPane';
