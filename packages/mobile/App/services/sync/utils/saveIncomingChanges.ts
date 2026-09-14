@@ -87,12 +87,12 @@ const prepareChangesForModels = (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  sortedModels: TransactingModel[],
+  models: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
   const { maxRecordsPerInsertBatch = 2000 } = syncSettings;
-  const modelChanges = prepareChangesForModels(records, sortedModels);
+  const modelChanges = prepareChangesForModels(records, models);
   for (const { model, records } of modelChanges) {
     if (model.name === 'User') {
       await saveChangesForModel(model, records, syncSettings, progressCallback);
@@ -108,7 +108,7 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  sortedModels: TransactingModel[],
+  models: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
@@ -116,7 +116,7 @@ export const saveChangesFromSnapshot = async (
   const batchIds = await getSnapshotBatchIds();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
-    const modelChanges = prepareChangesForModels(batchRecords, sortedModels);
+    const modelChanges = prepareChangesForModels(batchRecords, models);
     for (const { model, records } of modelChanges) {
       await saveChangesForModel(model, records, syncSettings, progressCallback);
     }
