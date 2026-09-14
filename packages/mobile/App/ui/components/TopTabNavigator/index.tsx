@@ -7,8 +7,7 @@ import { theme } from '/styled/theme';
 
 const MaterialTopTabs = createMaterialTopTabNavigator();
 
-const defaultScreenOptions: MaterialTopTabNavigationOptions = {
-  tabBarStyle: { height: 50 },
+const defaultScreenOptions = {
   tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
   tabBarInactiveTintColor: theme.colors.TEXT_MID,
   tabBarIndicatorStyle: {
@@ -18,7 +17,7 @@ const defaultScreenOptions: MaterialTopTabNavigationOptions = {
     fontWeight: '500',
     textTransform: 'none',
   },
-};
+} as const satisfies MaterialTopTabNavigationOptions;
 
 // React Navigation only makes `id` optional under `strictNullChecks`, which this package has
 // turned off. None of our tab navigators are looked up by ID, so relax it here.
