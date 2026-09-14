@@ -1,3 +1,4 @@
+import { upperFirst } from 'es-toolkit/compat';
 import React, {
   createContext,
   isValidElement,
@@ -8,14 +9,13 @@ import React, {
   useState,
 } from 'react';
 import { DevSettings } from 'react-native';
-import { upperFirst } from 'es-toolkit/compat';
-import { registerYup } from '../helpers/yupMethods';
-import { readConfig, writeConfig } from '~/services/config';
 import type { LanguageOption } from '~/models/TranslatedString';
+import { readConfig, writeConfig } from '~/services/config';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
+import { registerYup } from '../helpers/yupMethods';
 import useLanguageOptionsQuery from '../hooks/queries/useLanguageOptionsQuery';
-import useTranslationsQuery, { type Translations } from '../hooks/queries/useTranslationsQuery';
+import useTranslationsQuery from '../hooks/queries/useTranslationsQuery';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
