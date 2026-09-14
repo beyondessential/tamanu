@@ -86,7 +86,8 @@ export default function useLanguageOptionsQuery(
   });
 }
 
-/** The languages that have synced down to this device. Serves as a fallback when no server is
+/**
+ * The languages that have synced down to this device. Serves as a fallback when no server is
  * selected or the selected server can’t be reached.
  */
 export function useLocalLanguageOptionsQuery(
