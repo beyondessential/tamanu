@@ -70,6 +70,7 @@ export const VaccineTabNavigator = ({
   component,
 }: VaccineTabNavigatorProps): ReactElement => (
   <TopTabNavigator
+    backBehavior="none"
     initialRouteName={
       vaccine.status === VaccineStatus.NOT_GIVEN
         ? Routes.HomeStack.VaccineStack.NewVaccineTabs.NotTakeTab
