@@ -1,25 +1,25 @@
 import type { QueryStatus } from '@tanstack/react-query';
 import React, { type FunctionComponent, type ReactElement, useCallback } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, StatusBar } from 'react-native';
-import {
-  StyledView,
-  StyledSafeAreaView,
-  FullView,
-  StyledTouchableOpacity,
-  StyledText,
-  RowView,
-} from '/styled/common';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { Routes } from '/helpers/routes';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { ArrowLeftIcon } from '~/ui/components/Icons';
-import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
-import { Separator } from '~/ui/components/Separator';
-import { isISO31661Alpha2 } from 'validator';
 import CountryFlag from 'react-native-country-flag';
+import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import { isISO31661Alpha2 } from 'validator';
 import type { LanguageOption } from '~/models/TranslatedString';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { ArrowLeftIcon } from '~/ui/components/Icons';
+import { Separator } from '~/ui/components/Separator';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import {
+  FullView,
+  RowView,
+  StyledSafeAreaView,
+  StyledText,
+  StyledTouchableOpacity,
+  StyledView,
+} from '/styled/common';
+import { theme } from '/styled/theme';
 
 const StyledSeparator = () => (
   <Separator
