@@ -12,10 +12,10 @@ import { FullView } from '/styled/common';
 import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-type NewProgramEntryTabsProps = {
+interface NewProgramEntryTabsProps {
   navigation: NavigationProp<any>;
   selectedPatient: IPatient;
-};
+}
 
 const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps): ReactElement => {
   return (
