@@ -164,19 +164,17 @@ const resolveLanguage = (
 
 /**
  * Consumers only need to know whether there is a list to offer yet, so the two sources collapse to
- * one status. An empty list while either source is still in flight stays `pending` — a device with
- * nothing synced would otherwise flash an empty state before the server answers — and `error` is
- * reserved for there being nothing left to wait for.
+ * one status: either one of them produced a list, or one is still in flight, or there is nothing
+ * left to wait for.
  */
 const resolveLanguageOptionsStatus = (
   languageOptions: LanguageOption[] | undefined,
   remoteQuery: UseQueryResult<LanguageOption[]>,
   localQuery: UseQueryResult<LanguageOption[]>,
 ): QueryStatus => {
-  if (languageOptions?.length) return 'success';
+  if (languageOptions) return 'success';
   if (remoteQuery.isLoading || localQuery.isLoading) return 'pending';
-  if (remoteQuery.isError || localQuery.isError) return 'error';
-  return 'success';
+  return 'error';
 };
 
 export const TranslationProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
