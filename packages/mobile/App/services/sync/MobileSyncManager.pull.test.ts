@@ -24,8 +24,15 @@ jest.mock('./utils/pullRecordsInBatches', () => ({
   pullRecordsInBatches: jest.fn(),
 }));
 
-jest.mock('./utils/checkForeignKeys', () => ({
-  checkForeignKeys: jest.fn(async () => true),
+jest.mock('./utils/runSyncSaveTransaction', () => ({
+  runSyncSaveTransaction: jest.fn(async (work: any) => {
+    const entityManager = {
+      queryRunner: { isTransactionActive: true },
+      getRepository: jest.fn(() => mockLocalSystemFactRepo),
+      query: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    return work(entityManager);
+  }),
 }));
 
 // Referenced lazily from the `transaction` mock below, so it's safe despite jest hoisting
@@ -62,7 +69,7 @@ const { createSnapshotTable, insertSnapshotRecords } = jest.requireMock(
   './utils/manageSnapshotTable',
 );
 const { pullRecordsInBatches } = jest.requireMock('./utils/pullRecordsInBatches');
-const { checkForeignKeys } = jest.requireMock('./utils/checkForeignKeys');
+const { runSyncSaveTransaction } = jest.requireMock('./utils/runSyncSaveTransaction');
 const { Database } = jest.requireMock('../../infra/db');
 
 const makeCentral = () => ({
@@ -137,7 +144,10 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
     expect(createSnapshotTable).not.toHaveBeenCalled();
     expect(insertSnapshotRecords).not.toHaveBeenCalled();
-    expect(checkForeignKeys).toHaveBeenCalledWith(expect.anything(), ['patients']);
+    // The save work resolves to the touched tables, for the commit-failure diagnostic
+    await expect(runSyncSaveTransaction.mock.results[0].value).resolves.toEqual(
+      new Set(['patients']),
+    );
   });
 
   it('incremental sync saves from snapshot', async () => {
@@ -167,7 +177,9 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(insertSnapshotRecords).toHaveBeenCalled();
     expect(saveChangesFromSnapshot).toHaveBeenCalled();
     expect(saveChangesFromMemory).not.toHaveBeenCalled();
-    expect(checkForeignKeys).toHaveBeenCalledWith(expect.anything(), ['patients']);
+    await expect(runSyncSaveTransaction.mock.results[0].value).resolves.toEqual(
+      new Set(['patients']),
+    );
   });
 
   it('incremental sync with nothing to pull skips the snapshot and save, but still advances the pull cursor', async () => {
@@ -188,6 +200,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
     expect(saveChangesFromMemory).not.toHaveBeenCalled();
 
+    expect(runSyncSaveTransaction).not.toHaveBeenCalled();
     expect(Database.client.transaction).toHaveBeenCalledTimes(1);
     expect(mockLocalSystemFactRepo.delete).toHaveBeenCalledWith({ key: 'tablesForFullResync' });
     expect(mockLocalSystemFactRepo.insert).toHaveBeenCalledWith({
