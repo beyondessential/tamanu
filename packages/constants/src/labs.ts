@@ -97,6 +97,9 @@ export const LAB_REQUEST_FORM_TYPES = {
 export const LAB_TEST_TYPE_VISIBILITY_STATUSES = {
   ...VISIBILITY_STATUSES,
   PANEL_ONLY: 'panelOnly',
+  // Exists in reference data only so a LIMS can attach reflex results to a request; never ordered
+  // as an individual test or added to a panel.
+  REFLEX_TEST: 'reflexTest',
 };
 
 // These are the status groupings for the versions of lab request table that filter by different statuses
