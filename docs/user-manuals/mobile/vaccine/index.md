@@ -1,4 +1,4 @@
-# Vaccine
+# 7. Vaccine
 
 Recording vaccines given to a patient.
 

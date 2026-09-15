@@ -28,9 +28,24 @@ Tamanu repository alongside the code they describe.
       so that reading down the list follows the work rather than the alphabet.
 - [ ] A module whose guides are yet to be written says so on its index, so a reader who
       arrives there learns the area is known rather than meeting a blank page.
+- [ ] A guide opens with a link back to its module's index, placed above the title so a
+      reader can climb back out from where they entered.
 - [ ] A guide closes with links to the guides before and after it in its module's order,
       letting a reader work straight through a module. The first and last guide each
       carry the one link that applies.
+
+## Numbering
+
+Modules and guides are numbered so that a trainer, a support officer, or a colleague can
+cite a piece of the manual by number rather than by describing where it sits.
+
+- [ ] Modules are numbered in the order their platform's index lists them, and each
+      platform numbers from one.
+- [ ] A guide takes its module's number followed by its own position in that module, so
+      the sixth module's guides are 6.1, 6.2, and so on.
+- [ ] Numbers appear in page titles and in the entries that link to them, and nowhere
+      else. Folders and files carry unnumbered names, so renumbering a module leaves
+      every link between pages intact.
 
 ## Platforms
 

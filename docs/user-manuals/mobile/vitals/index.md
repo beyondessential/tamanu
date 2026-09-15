@@ -1,4 +1,4 @@
-# Vitals
+# 3. Vitals
 
 Recording and reviewing a patient's observations.
 

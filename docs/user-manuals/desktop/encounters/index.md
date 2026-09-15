@@ -1,4 +1,4 @@
-# Encounters
+# 4. Encounters
 
 Admitting, moving, and discharging patients.
 

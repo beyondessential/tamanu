@@ -1,6 +1,6 @@
-# Dashboard
+# 2. Dashboard
 
-The overview a clinician lands on after signing in.
+The overview you land on after signing in.
 
 ## Guides
 

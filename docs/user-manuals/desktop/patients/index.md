@@ -1,4 +1,4 @@
-# Patients
+# 3. Patients
 
 Finding, registering, and managing patient records.
 

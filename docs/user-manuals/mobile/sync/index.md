@@ -1,4 +1,4 @@
-# Sync
+# 12. Sync
 
 Syncing the device with the central server.
 

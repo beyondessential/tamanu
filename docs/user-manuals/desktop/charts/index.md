@@ -1,4 +1,4 @@
-# Charts
+# 7. Charts
 
 Recording and reviewing charted clinical data.
 

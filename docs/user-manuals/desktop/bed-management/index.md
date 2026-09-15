@@ -1,4 +1,4 @@
-# Bed management
+# 20. Bed management
 
 Beds and locations across the facility.
 

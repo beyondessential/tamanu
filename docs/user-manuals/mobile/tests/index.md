@@ -1,4 +1,4 @@
-# Tests
+# 8. Tests
 
 Requesting lab tests and viewing request history.
 

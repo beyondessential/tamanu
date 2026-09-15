@@ -60,6 +60,8 @@
   .md ol > li > p { margin: 8px 0; }
   .md ul > li { margin-bottom: 8px; }
   .md strong { font-weight: 600; }
+  .md a, .backlink { color: #0969da; text-decoration: none; }
+  .md a:hover { text-decoration: underline; }
 
   .flag { background: #fff8c5; box-shadow: 0 0 0 2px #fff8c5; border-radius: 2px; }
 
@@ -99,7 +101,9 @@
   <div class="file">
     <div class="md">
 
-      <h1>Record a set of vitals</h1>
+      <p><a class="backlink" href="#">← Vitals</a></p>
+
+      <h1>6.1 Record a set of vitals</h1>
 
       <p>
         Record a patient's observations against the encounter they are admitted under.
@@ -179,9 +183,11 @@
   <div class="note">
     <b class="note-title">How this document renders in the repository.</b>
     This is <code>record-vitals.md</code> as a reader meets it on GitHub, which is where
-    the manuals live. The errors are a bullet list, each item opening with the product's
-    own wording in bold so a reader can match it against what is on their screen, with
-    the cause and the fix following in the same item.
+    the manuals live. Vitals is the sixth Desktop module, so this guide is 6.1; the number
+    lives in the title only, leaving the file named <code>record-vitals.md</code> so links
+    survive renumbering. The link above the title climbs back to the module index. The
+    errors are a bullet list, each item opening with the product's own wording in bold so
+    a reader can match it against what is on their screen.
   </div>
 
 </div>

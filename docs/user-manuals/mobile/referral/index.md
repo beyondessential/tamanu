@@ -1,4 +1,4 @@
-# Referral
+# 6. Referral
 
 Referring a patient and viewing referrals.
 

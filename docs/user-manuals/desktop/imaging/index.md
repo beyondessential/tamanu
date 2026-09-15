@@ -1,4 +1,4 @@
-# Imaging
+# 13. Imaging
 
 Requesting imaging and reading results.
 

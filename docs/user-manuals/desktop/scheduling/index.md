@@ -1,4 +1,4 @@
-# Scheduling
+# 5. Scheduling
 
 Outpatient appointments and location bookings.
 

@@ -1,4 +1,4 @@
-# Labs
+# 12. Labs
 
 Requesting lab tests and reading results.
 
