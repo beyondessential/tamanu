@@ -55,9 +55,10 @@
     border-bottom: 1px solid #d1d9e0;
   }
   .md p { margin: 0 0 16px; }
-  .md ol { padding-left: 2em; margin: 0 0 16px; }
-  .md ol > li { margin-bottom: 4px; }
+  .md ol, .md ul { padding-left: 2em; margin: 0 0 16px; }
+  .md ol > li, .md ul > li { margin-bottom: 4px; }
   .md ol > li > p { margin: 8px 0; }
+  .md ul > li { margin-bottom: 8px; }
   .md strong { font-weight: 600; }
 
   .flag { background: #fff8c5; box-shadow: 0 0 0 2px #fff8c5; border-radius: 2px; }
@@ -156,26 +157,21 @@
 
       <h2>If something goes wrong</h2>
 
-      <p><strong>At least one recording must be entered.</strong></p>
-
-      <p>
-        You selected <strong>Record</strong> without entering any measurements. Enter at
-        least one reading, then try again.
-      </p>
-
-      <p><strong>*Required</strong></p>
-
-      <p>
-        This appears under a field that has to be filled in before you can record. Fill it
-        in, then select <strong>Record</strong> again.
-      </p>
-
-      <p><strong>Permission required.</strong></p>
-
-      <p>
-        Your account cannot record vitals. Contact your system administrator if you
-        believe you should be able to.
-      </p>
+      <ul>
+        <li>
+          <strong>At least one recording must be entered.</strong> You selected
+          <strong>Record</strong> without entering any measurements. Enter at least one
+          reading, then try again.
+        </li>
+        <li>
+          <strong>*Required</strong> This appears under a field that has to be filled in
+          before you can record. Fill it in, then select <strong>Record</strong> again.
+        </li>
+        <li>
+          <strong>Permission required.</strong> Your account cannot record vitals. Contact
+          your system administrator if you believe you should be able to.
+        </li>
+      </ul>
 
     </div>
   </div>
@@ -183,10 +179,9 @@
   <div class="note">
     <b class="note-title">How this document renders in the repository.</b>
     This is <code>record-vitals.md</code> as a reader meets it on GitHub, which is where
-    the manuals live. Each error message sits in its own paragraph, separated from its
-    explanation by a blank line in the markdown, so the message stays scannable against
-    what is on the reader's screen. Written without that blank line the two collapse into
-    a single run of text and the message stops reading as a heading.
+    the manuals live. The errors are a bullet list, each item opening with the product's
+    own wording in bold so a reader can match it against what is on their screen, with
+    the cause and the fix following in the same item.
   </div>
 
 </div>

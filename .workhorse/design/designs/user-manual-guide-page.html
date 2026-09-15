@@ -115,9 +115,10 @@
     margin-top: 2px;
   }
 
-  .errors dt { font-weight: 600; margin-top: 18px; }
-  .errors dd { margin: 4px 0 0; color: #57534e; }
-  .errors dt:first-child { margin-top: 0; }
+  .errors { padding-left: 20px; margin: 0; color: #57534e; }
+  .errors li { margin-bottom: 12px; }
+  .errors li::marker { color: #a8a29e; }
+  .errors b { color: #1c1917; }
 
   /* Annotation, not part of the page */
   .annotation {
@@ -227,34 +228,29 @@
 
       <h2>If something goes wrong</h2>
 
-      <dl class="errors">
-        <dt>At least one recording must be entered.</dt>
-        <dd>
-          You selected <b>Record</b> without entering any measurements. Enter at least one
-          reading, then try again.
-        </dd>
-
-        <dt>*Required</dt>
-        <dd>
-          This appears under a field that has to be filled in before you can record. Fill
-          it in, then select <b>Record</b> again.
-        </dd>
-
-        <dt>Permission required.</dt>
-        <dd>
-          Your account cannot record vitals. Contact your system administrator if you
-          believe you should be able to.
-        </dd>
-      </dl>
+      <ul class="errors">
+        <li>
+          <b>At least one recording must be entered.</b> You selected <b>Record</b>
+          without entering any measurements. Enter at least one reading, then try again.
+        </li>
+        <li>
+          <b>*Required</b> This appears under a field that has to be filled in before you
+          can record. Fill it in, then select <b>Record</b> again.
+        </li>
+        <li>
+          <b>Permission required.</b> Your account cannot record vitals. Contact your
+          system administrator if you believe you should be able to.
+        </li>
+      </ul>
 
       <div class="annotation">
         <b>Reference: what a user manual guide looks like.</b> This is the worked example
         behind the End user manuals spec, showing a guide as a reader meets it. Note the
         conventions it demonstrates: numbered steps carrying one action each, on-screen
         labels in bold, screenshot placeholders left visible until a shot is captured, and
-        an error list headed by the product's own wording. The site chrome shows how the
-        index structure reads as navigation, and is illustrative rather than a design for
-        a documentation site.
+        an error list whose items open with the product's own wording. The site chrome
+        shows how the index structure reads as navigation, and is illustrative rather than
+        a design for a documentation site.
       </div>
 
     </article>
