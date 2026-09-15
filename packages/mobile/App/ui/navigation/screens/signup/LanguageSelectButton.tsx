@@ -1,15 +1,14 @@
-import React, { type ReactElement, useCallback } from 'react';
-import styled from 'styled-components';
-
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { StyledText, StyledView, StyledTouchableOpacity } from '~/ui/styled/common';
-import { Routes } from '~/ui/helpers/routes';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
 import type { NavigationProp } from '@react-navigation/native';
-import { isISO31661Alpha2 } from 'validator';
+import React, { type ReactElement } from 'react';
 import CountryFlag from 'react-native-country-flag';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import styled from 'styled-components';
+import { isISO31661Alpha2 } from 'validator';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
+import { theme } from '~/ui/styled/theme';
 
 const ButtonContainer = styled(StyledView)`
   display: flex;
@@ -25,13 +24,11 @@ type LanguageSelectButtonProps = {
 export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps): ReactElement => {
   const { language, languageOptions } = useTranslation();
 
-  const onNavigateToLanguageSelect = useCallback(() => {
-    navigation.navigate(Routes.SignUpStack.LanguageSelect);
-  }, []);
+  if (!languageOptions || languageOptions.length <= 1) return null;
 
-  if (!languageOptions || languageOptions.length <= 1) {
-    return null;
-  }
+  const onNavigateToLanguageSelect = () => {
+    navigation.navigate(Routes.SignUpStack.LanguageSelect);
+  };
 
   const languageOption = languageOptions.find(o => o.languageCode === language);
 
@@ -41,9 +38,8 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
         borderColor="white"
         borderBottomWidth={1}
         width={screenPercentageToDP(30, Orientation.Width)}
-        marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
       >
-        <StyledText fontSize={11} color={theme.colors.TEXT_SOFT}>
+        <StyledText fontSize={12} color={theme.colors.TEXT_SOFT}>
           Language
         </StyledText>
 
