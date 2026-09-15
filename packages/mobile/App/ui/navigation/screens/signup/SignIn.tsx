@@ -51,7 +51,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const { getLocalisation } = useLocalisation();
 
   const supportCentreUrl = getLocalisation('supportDeskUrl');
-  const isSupportUrlLoaded = !!supportCentreUrl;
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN} justifyContent="space-between">
@@ -137,7 +136,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
       >
         <LanguageSelectButton navigation={navigation} />
-        {isSupportUrlLoaded && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
+        {supportCentreUrl && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}
       </StyledView>
     </FullView>
   );
