@@ -1,20 +1,20 @@
-import React, { type ReactElement } from 'react';
-import { compose } from 'redux';
 import {
   createStackNavigator,
   type StackHeaderProps,
-  StackNavigationOptions,
+  type StackNavigationOptions,
 } from '@react-navigation/stack';
-import { VaccineTableTabs } from './VaccineTableTabs';
-import { NewVaccineTabs } from './NewVaccineTabs';
-import { StackHeader } from '/components/StackHeader';
-import { Routes } from '/helpers/routes';
-import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
-import { withPatient } from '~/ui/containers/Patient';
+import React, { type ReactElement } from 'react';
+import { compose } from 'redux';
+import type { IPatient } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { withPatient } from '~/ui/containers/Patient';
+import { VaccineModalScreen } from '../screens/vaccine/VaccineModalScreen';
+import { NewVaccineTabs } from './NewVaccineTabs';
+import { VaccineTableTabs } from './VaccineTableTabs';
+import { StackHeader } from '/components/StackHeader';
+import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
-import type { IPatient } from '~/types';
 
 const Stack = createStackNavigator();
 

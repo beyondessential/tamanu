@@ -100,6 +100,7 @@ export class TranslatedString extends Model {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
+      order: [['language', 'ASC']],
     });
 
     const languageNames = await TranslatedString.findAll({

@@ -1,19 +1,23 @@
-import React, { type ReactElement, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { Dimensions, Text } from 'react-native';
-import Modal from 'react-native-modal';
-import { useNavigation } from '@react-navigation/native';
 import { subject } from '@casl/ability';
-
-import { CenterView, FullView, RowView } from '~/ui/styled/common';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
-import { Routes } from '/helpers/routes';
-import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
-
+import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { type ReactElement, useCallback } from 'react';
+import { Alert } from 'react-native';
+import { useSelector } from 'react-redux';
+
 import { Database } from '~/infra/db';
+import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
+import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { StackHeader } from '~/ui/components/StackHeader';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { joinNames } from '~/ui/helpers/user';
+import { useBackend } from '~/ui/hooks';
 import {
   patientKeys,
   registrationKeys,
@@ -21,28 +25,12 @@ import {
   surveyKeys,
 } from '~/ui/hooks/queries/queryKeys';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
-import { useBackend } from '~/ui/hooks';
-import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import type { PatientStateProps } from '~/ui/store/ducks/patient';
-import { joinNames } from '~/ui/helpers/user';
-import { StackHeader } from '~/ui/components/StackHeader';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { theme } from '~/ui/styled/theme';
-import { Button } from '~/ui/components/Button';
-import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
-
-const buttonSharedStyles = {
-  width: screenPercentageToDP('25', Orientation.Width),
-  height: screenPercentageToDP('4.6', Orientation.Height),
-  fontSize: 12,
-  fontWeight: 500,
-};
+import { FullView } from '~/ui/styled/common';
+import { Routes } from '/helpers/routes';
+import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 
 export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
   const { surveyId, surveyType } = route.params;
@@ -55,8 +43,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const { ability } = useAuth();
   const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
   const { currentScreenIndex, onNavigatePrevious, setCurrentScreenIndex } = useCurrentScreen();
-
-  const [showModal, setShowModal] = useState(false);
+  const { getTranslation } = useTranslation();
 
   const {
     data: survey,
@@ -162,21 +149,29 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     [submitSurveyResponse, isReferral, navigation],
   );
 
-  const closeModalCallback = useCallback(async () => {
-    setShowModal(false);
-  }, []);
-  const openExitModal = useCallback(async () => {
-    setShowModal(true);
-  }, []);
-  const onExit = () => {
-    closeModalCallback();
-    navigation.goBack();
+  const confirmExit = () => {
+    Alert.alert(
+      getTranslation('program.survey.exit.heading', 'Exit form?'),
+      getTranslation('program.survey.exit.text', 'You will lose any information currently entered'),
+      [
+        {
+          text: getTranslation('program.survey.action.stayOnPage', 'Stay on page'),
+          style: 'cancel',
+        },
+        {
+          text: getTranslation('general.action.exit', 'Exit'),
+          style: 'destructive',
+          onPress: () => navigation.goBack(),
+        },
+      ],
+    );
   };
+
   const onGoBack = () => {
     if (currentScreenIndex > 0) {
       onNavigatePrevious();
     } else {
-      openExitModal();
+      confirmExit();
     }
   };
 
@@ -211,74 +206,11 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
           patientProgramRegistration={patientProgramRegistration}
           components={components}
           onSubmit={onSubmit}
-          onCancel={openExitModal}
+          onCancel={confirmExit}
           setCurrentScreenIndex={setCurrentScreenIndex}
           currentScreenIndex={currentScreenIndex}
           onGoBack={onGoBack}
         />
-
-        <Modal
-          isVisible={showModal}
-          onBackdropPress={closeModalCallback}
-          backdropOpacity={1}
-          backdropColor="#a5a5a5"
-          deviceHeight={Dimensions.get('window').height}
-        >
-          <CenterView
-            style={{
-              backgroundColor: theme.colors.BACKGROUND_GREY,
-              borderRadius: 5,
-              maxHeight: screenPercentageToDP('24', Orientation.Height),
-              width: screenPercentageToDP('66', Orientation.Width),
-              padding: 20,
-              marginLeft: screenPercentageToDP('10', Orientation.Width),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 12,
-                color: theme.colors.BLACK,
-                fontWeight: 'bold',
-                marginBottom: 10,
-              }}
-            >
-              <TranslatedText stringId="program.survey.exit.heading" fallback="Exit form?" />
-            </Text>
-            <Text
-              style={{
-                fontSize: 12,
-                textAlign: 'center',
-                color: theme.colors.BLACK,
-              }}
-            >
-              <TranslatedText
-                stringId="program.survey.exit.text"
-                fallback="Are you sure you want to exit the form? You will lose any information currently entered."
-              />
-            </Text>
-            <RowView flexDirection="row" justifyContent="space-between" width="95%" marginTop={10}>
-              <Button
-                outline
-                borderColor={theme.colors.MAIN_SUPER_DARK}
-                borderWidth={0.1}
-                buttonText={
-                  <TranslatedText
-                    stringId="program.survey.action.stayOnPage"
-                    fallback="Stay on page"
-                  />
-                }
-                onPress={closeModalCallback}
-                {...buttonSharedStyles}
-              />
-              <Button
-                buttonText={<TranslatedText stringId="general.action.exit" fallback="Exit" />}
-                onPress={onExit}
-                {...buttonSharedStyles}
-                backgroundColor={theme.colors.PRIMARY_MAIN}
-              />
-            </RowView>
-          </CenterView>
-        </Modal>
       </FullView>
     </ErrorBoundary>
   );
