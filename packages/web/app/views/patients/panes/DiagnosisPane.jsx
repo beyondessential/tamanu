@@ -6,6 +6,7 @@ import { Button, TextButton } from '../../../components/Button';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { DiagnosisModal } from '../../../components/DiagnosisModal';
 import { DiagnosisTable } from '../../../components/DiagnosisTable';
+import { SyndromicSurveillanceModal } from '../../../components/SyndromicSurveillanceModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
@@ -57,11 +58,12 @@ const HARDCODED_SYMPTOM_COUNT = 3;
 
 const SyndromicSurveillanceStatus = ({
   state = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED,
+  onOpenModal,
   'data-testid': dataTestId,
 }) => {
   if (state === SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED) {
     return (
-      <SyndromicSurveillanceTextButton $isPrimary data-testid={dataTestId}>
+      <SyndromicSurveillanceTextButton $isPrimary onClick={onOpenModal} data-testid={dataTestId}>
         <TranslatedText
           stringId="encounter.syndromicSurveillance.label"
           fallback="Syndromic surveillance"
@@ -97,7 +99,10 @@ const SyndromicSurveillanceStatus = ({
           )}
         </BoldText>
       </span>
-      <SyndromicSurveillanceTextButton data-testid="textbutton-syndromic-surveillance-viewedit">
+      <SyndromicSurveillanceTextButton
+        onClick={onOpenModal}
+        data-testid="textbutton-syndromic-surveillance-viewedit"
+      >
         <TranslatedText
           stringId="general.action.viewEdit"
           fallback="View/Edit"
@@ -113,6 +118,7 @@ const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterT
 export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
   const [editedDiagnosis, setEditedDiagnosis] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [isSyndromicSurveillanceModalOpen, setIsSyndromicSurveillanceModalOpen] = useState(false);
 
   const refreshDiagnosisTable = useCallback(() => {
     setRefreshCount(prev => prev + 1);
@@ -129,9 +135,15 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         onSaved={refreshDiagnosisTable}
         data-testid="diagnosismodal-pane"
       />
+      <SyndromicSurveillanceModal
+        open={isSyndromicSurveillanceModalOpen}
+        onClose={() => setIsSyndromicSurveillanceModalOpen(false)}
+        data-testid="syndromicsurveillancemodal-pane"
+      />
       <ActionRow data-testid="actionrow-diagnosis">
         <SyndromicSurveillanceStatus
           state={SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED}
+          onOpenModal={() => setIsSyndromicSurveillanceModalOpen(true)}
           data-testid="syndromicsurveillancestatus-diagnosis"
         />
         <NoteModalActionBlocker>
