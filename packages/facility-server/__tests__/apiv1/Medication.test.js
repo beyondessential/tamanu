@@ -1769,9 +1769,13 @@ describe('Medication', () => {
       expect(row.isLastOrderDispensed).toBe(true);
     });
 
-    it('follows the most recent order when the prescription has been sent more than once', async () => {
-      const arranged = await arrangeOngoingPrescription();
-      const { localPatient, ongoingPrescription } = arranged;
+    // Built directly so the order dates are explicit and distinct — sends through the endpoint
+    // would land in the same second and leave the ordering between them up to a tiebreak.
+    const orderOn = async (
+      { localPatient, ongoingPrescription },
+      date,
+      { isCompleted = false, cancelled = false } = {},
+    ) => {
       const encounter = await models.Encounter.create(
         fake(models.Encounter, {
           patientId: localPatient.id,
@@ -1781,36 +1785,130 @@ describe('Medication', () => {
           endDate: getCurrentDateTimeString(),
         }),
       );
-      // Built directly so the order dates are explicit and distinct — two sends through the endpoint
-      // would land in the same second and leave which one is "most recent" up to a tiebreak.
-      const orderOn = async (date, isCompleted) => {
-        const pharmacyOrder = await models.PharmacyOrder.create(
-          fake(models.PharmacyOrder, {
-            orderingClinicianId: app.user.id,
-            encounterId: encounter.id,
-            date,
-            facilityId,
-          }),
+      const pharmacyOrder = await models.PharmacyOrder.create(
+        fake(models.PharmacyOrder, {
+          orderingClinicianId: app.user.id,
+          encounterId: encounter.id,
+          date,
+          facilityId,
+        }),
+      );
+      const orderPrescription = await models.PharmacyOrderPrescription.create({
+        ...fake(models.PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: ongoingPrescription.id,
+          ongoingPrescriptionId: ongoingPrescription.id,
+          quantity: 10,
+          isCompleted,
+        }),
+        id: crypto.randomUUID(),
+      });
+      if (cancelled) {
+        const deleteResult = await app.delete(
+          `/api/medication/medication-requests/${orderPrescription.id}`,
         );
-        await models.PharmacyOrderPrescription.create({
-          ...fake(models.PharmacyOrderPrescription, {
-            pharmacyOrderId: pharmacyOrder.id,
-            prescriptionId: ongoingPrescription.id,
-            ongoingPrescriptionId: ongoingPrescription.id,
-            quantity: 10,
-            isCompleted,
-          }),
-          id: crypto.randomUUID(),
-        });
-      };
-      await orderOn('2024-10-20 09:00:00', true);
-      await orderOn('2024-10-22 09:00:00', false);
+        expect(deleteResult).toHaveSucceeded();
+      }
+    };
+
+    it('follows the most recent order when the prescription has been sent more than once', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      await orderOn(arranged, '2024-10-20 09:00:00', { isCompleted: true });
+      await orderOn(arranged, '2024-10-22 09:00:00');
 
       const row = await fetchOngoingPrescription(arranged);
 
       // The newest order is still outstanding, so an earlier dispensed one must not win.
       expect(row.lastOrderedAt).toBe('2024-10-22 09:00:00');
       expect(row.isLastOrderDispensed).toBe(false);
+    });
+
+    it('reports no last-sent state when the only request has been cancelled', async () => {
+      const arranged = await arrangeOngoingPrescription();
+      const orderPrescription = await sendToPharmacy(arranged);
+      const deleteResult = await app.delete(
+        `/api/medication/medication-requests/${orderPrescription.id}`,
+      );
+      expect(deleteResult).toHaveSucceeded();
+
+      const row = await fetchOngoingPrescription(arranged);
+
+      expect(row.lastOrderedAt).toBeFalsy();
+      expect(row.isLastOrderDispensed).toBeNull();
+    });
+
+    // pharmacyRequestAt/isPharmacyRequestDispensed sit alongside lastOrderedAt on the same rows and
+    // answer a different question: which request should a user act on next (the earliest still
+    // awaiting dispense, else the latest dispensed one), ignoring cancelled requests entirely.
+    describe('pharmacy request status', () => {
+      it('reports nothing for a prescription never sent to pharmacy', async () => {
+        const arranged = await arrangeOngoingPrescription();
+
+        const row = await fetchOngoingPrescription(arranged);
+
+        expect(row.pharmacyRequestAt).toBeNull();
+        expect(row.isPharmacyRequestDispensed).toBeNull();
+      });
+
+      it('reports nothing when every request has been cancelled', async () => {
+        const arranged = await arrangeOngoingPrescription();
+        await orderOn(arranged, '2024-10-01 09:00:00', { cancelled: true });
+
+        const row = await fetchOngoingPrescription(arranged);
+
+        expect(row.pharmacyRequestAt).toBeNull();
+        expect(row.isPharmacyRequestDispensed).toBeNull();
+      });
+
+      it('picks the earliest active request over later active and dispensed requests', async () => {
+        const arranged = await arrangeOngoingPrescription();
+        await orderOn(arranged, '2024-10-20 09:00:00', { isCompleted: true });
+        await orderOn(arranged, '2024-10-05 09:00:00');
+        await orderOn(arranged, '2024-10-10 09:00:00');
+
+        const row = await fetchOngoingPrescription(arranged);
+
+        expect(row.pharmacyRequestAt).toBe('2024-10-05 09:00:00');
+        expect(row.isPharmacyRequestDispensed).toBe(false);
+      });
+
+      it('ignores cancelled requests when picking the earliest active request', async () => {
+        const arranged = await arrangeOngoingPrescription();
+        await orderOn(arranged, '2024-10-01 09:00:00', { cancelled: true });
+        await orderOn(arranged, '2024-10-10 09:00:00');
+
+        const row = await fetchOngoingPrescription(arranged);
+
+        expect(row.pharmacyRequestAt).toBe('2024-10-10 09:00:00');
+        expect(row.isPharmacyRequestDispensed).toBe(false);
+      });
+
+      it('falls back to the latest dispensed request when every surviving request has been dispensed', async () => {
+        const arranged = await arrangeOngoingPrescription();
+        await orderOn(arranged, '2024-10-01 09:00:00', { isCompleted: true });
+        await orderOn(arranged, '2024-10-10 09:00:00', { isCompleted: true });
+        await orderOn(arranged, '2024-10-20 09:00:00', { cancelled: true });
+
+        const row = await fetchOngoingPrescription(arranged);
+
+        expect(row.pharmacyRequestAt).toBe('2024-10-10 09:00:00');
+        expect(row.isPharmacyRequestDispensed).toBe(true);
+      });
+
+      // The two rules disagree here, which is the whole reason both fields exist: the column
+      // surfaces the older outstanding request, while the recency check follows the newest send.
+      it('reports a different request to lastOrderedAt when an older request is still outstanding', async () => {
+        const arranged = await arrangeOngoingPrescription();
+        await orderOn(arranged, '2024-10-01 09:00:00');
+        await orderOn(arranged, '2024-10-20 09:00:00', { isCompleted: true });
+
+        const row = await fetchOngoingPrescription(arranged);
+
+        expect(row.pharmacyRequestAt).toBe('2024-10-01 09:00:00');
+        expect(row.isPharmacyRequestDispensed).toBe(false);
+        expect(row.lastOrderedAt).toBe('2024-10-20 09:00:00');
+        expect(row.isLastOrderDispensed).toBe(true);
+      });
     });
   });
 

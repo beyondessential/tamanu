@@ -49,6 +49,7 @@ import {
   checkPharmacyOrderPermission,
   checkSensitiveMedicationPermission,
   createPharmacyOrder,
+  getDisplayedPharmacyRequest,
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
@@ -600,6 +601,15 @@ encounterRelations.get(
       );
       const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
+      // Which single request to surface in a "last sent" column: the earliest one still awaiting
+      // dispense, else the most recent dispensed one. Distinct from lastOrderedAt above, which
+      // answers "when was this last sent" for recency checks — see getDisplayedPharmacyRequest.
+      const pharmacyRequests = await getDisplayedPharmacyRequest(
+        db,
+        'prescription_id',
+        prescriptionIds,
+      );
+
       const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId(
         prescriptionIds,
       );
@@ -608,6 +618,8 @@ encounterRelations.get(
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
         isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
+        pharmacyRequestAt: pharmacyRequests[p.id]?.date ?? null,
+        isPharmacyRequestDispensed: pharmacyRequests[p.id]?.is_completed ?? null,
         latestModifiedDispense: latestModifiedDispenses[p.id] ?? null,
       }));
     }
