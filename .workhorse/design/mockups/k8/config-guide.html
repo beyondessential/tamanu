@@ -83,10 +83,10 @@
   hr { border: 0; border-top: 1px solid var(--line); margin: 38px 0; }
   .muted { color: var(--text-2); }
 
-  /* Version flag, inline in heading */
+  /* Version flag, inline in heading. Informational, so it takes the note-blue tones */
   .ver {
     font-size: 13px; font-weight: 500; vertical-align: middle; margin-left: 8px; white-space: nowrap;
-    color: var(--metallic-yellow); background: #FFF8E1; border: 1px solid #F0DFA6;
+    color: var(--blue); background: var(--very-light-blue); border: 1px solid #CFE3F8;
     border-radius: 4px; padding: 2px 8px;
   }
 
@@ -425,8 +425,8 @@
 
     <h1>Sensitive medications <span class="ver">supported from v2.39 onwards</span></h1>
 
-    <div class="note warn">
-      <span class="ico">!</span>
+    <div class="note info">
+      <span class="ico">i</span>
       <span class="hd">Version</span>
       <p>Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm
       your deployment version before configuring this.</p>
