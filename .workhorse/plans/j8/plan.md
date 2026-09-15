@@ -95,16 +95,16 @@ light display type, and a dark capsule around the search.
 - Each mockup carries the same appended `Tamanu brand layer` block at the end of its stylesheet, so
   the branding can be tuned in one place per file and the original neutral rules stay readable
   underneath.
-- **Page rhythm alternates band backgrounds** so no two dark sections touch: white hero, white
-  Popular, navy Popular topics, gold Browse, navy footer.
-- **The search sits in a navy capsule** holding a white pill input, a gold Ask AI pill and a row of
-  quick-link chips. This is the hub's signature element, taken from the black capsule on the Figma
-  help centre home.
-- **Cards have no border or divider** — a flat colour thumbnail with a large icon, then a small
-  uppercase tag pill, title and description beneath.
-- **A gold announcement bar** runs above the top bar on every page, carrying the current release.
+- **The search sits in a navy capsule** holding a white pill input and a gold Ask AI pill. This is
+  the hub's signature element, taken from the black capsule on the Figma help centre home.
+- **Cards have no border or divider** — a flat colour thumbnail with a large icon, then title and
+  description beneath.
 - **Display type is large and light** (hero 60px at weight 550, section headings 32px), not small and
   bold. Tracking is tight.
+- **The styling layer adds no content.** An earlier pass introduced a Popular topics section, card
+  tag pills, hero quick-link chips and a release announcement bar; all were removed and the home
+  page returned to its original structure (hero, Popular, Browse). Colour work must not change what
+  the page offers.
 - Typeface is unchanged. The Tamanu web app uses Roboto; the docs hub stays on Inter as a separate
   surface. Worth confirming — Figma's own help centre leans on a distinctive grotesque, and Inter is
   the closest thing already in the mockups.
