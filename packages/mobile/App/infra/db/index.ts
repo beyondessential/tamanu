@@ -199,12 +199,12 @@ class DatabaseHelper {
         }
       }
 
-      const shoudFullyAnalyze = !hasEverFullyAnalysed;
+      const shouldFullyAnalyze = !hasEverFullyAnalysed;
 
-      const succeeded = await this.refreshQueryPlannerStats(shoudFullyAnalyze);
+      const succeeded = await this.refreshQueryPlannerStats(shouldFullyAnalyze);
       if (!succeeded) return;
 
-      const keys = shoudFullyAnalyze
+      const keys = shouldFullyAnalyze
         ? [PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]
         : [PLANNER_STATS_REFRESHED_AT_KEY];
       const value = Date.now().toString();
