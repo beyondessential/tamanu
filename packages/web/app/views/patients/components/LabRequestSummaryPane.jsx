@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
@@ -9,10 +8,10 @@ import {
   BodyText,
   DateDisplay,
   FormSeparatorLine,
-  Heading3,
   Table,
   useSelectableColumn,
 } from '../../../components';
+import { LabRequestFinalisedHeader } from '../../../components/PatientPrinting/LabRequestFinalisedHeader';
 import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { useSettings } from '../../../contexts/Settings';
 import { useLabRequestNotesQuery } from '../../../api/queries';
@@ -21,24 +20,6 @@ import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
 
 const Container = styled.div`
   padding-top: 20px;
-`;
-
-const SuccessHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 10px;
-
-  h3 {
-    font-size: 1rem;
-  }
-`;
-
-const SuccessIcon = styled(CheckCircleOutlineIcon)`
-  color: #47ca80;
-  font-size: 24px;
-  margin-bottom: 10px;
 `;
 
 const CardTable = styled(Table)`
@@ -155,7 +136,15 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
   const autoPrintLabel =
     Boolean(getSetting('labs.autoPrintSampleLabel')) &&
     labRequests.every(request => Boolean(request.sampleTime));
-  const [isOpen, setIsOpen] = useState(autoPrintLabel ? MODALS.AUTO_LABEL_PRINT : false);
+  const [isOpen, setIsOpen] = useState(false);
+  // Present the sample-label print screen the first time the setting and recorded samples allow it,
+  // even if the setting or lab requests resolve after the first render. Adjusting state during render
+  // (rather than in an Effect) opens it before paint, so the standard finalise screen never flashes.
+  const [hasAutoPrinted, setHasAutoPrinted] = useState(false);
+  if (autoPrintLabel && !hasAutoPrinted) {
+    setHasAutoPrinted(true);
+    setIsOpen(MODALS.AUTO_LABEL_PRINT);
+  }
   // The auto-print screen prints every request and closing it ends the finalise flow; the manual
   // "Print labels" button prints the table's selection and returns to the summary.
   const isAutoLabelPrint = isOpen === MODALS.AUTO_LABEL_PRINT;
@@ -178,22 +167,12 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
 
   return (
     <Container data-testid="container-nnz7">
-      <SuccessHeader data-testid="successheader-lab">
-        <SuccessIcon data-testid="successicon-lab" />
-        <Heading3 data-testid="heading3-en7t">
-          <TranslatedText
-            stringId="lab.requestSummary.finalisedHeading"
-            fallback="Your lab request has been finalised."
-            data-testid="translatedtext-puds"
-          />
-        </Heading3>
-      </SuccessHeader>
-      <FormSeparatorLine data-testid="formseparatorline-heading" />
-      <BodyText mt="20px" mb="28px" data-testid="bodytext-1b6q">
+      <LabRequestFinalisedHeader />
+      <FormSeparatorLine />
+      <BodyText mt="20px" mb="28px">
         <TranslatedText
           stringId="lab.requestSummary.instruction"
           fallback="Please select items from the list below to print sample labels or the lab request."
-          data-testid="translatedtext-9d2v"
         />
       </BodyText>
       <Card data-testid="card-ixan">
@@ -229,7 +208,6 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
           labRequests={isAutoLabelPrint ? labRequests : selectedRows}
           open={isOpen === MODALS.LABEL_PRINT || isAutoLabelPrint}
           onClose={isAutoLabelPrint ? onClose : () => setIsOpen(false)}
-          selectable={isAutoLabelPrint}
           data-testid="labrequestprintlabelmodal-n8hs"
         />
         <OutlinedButton

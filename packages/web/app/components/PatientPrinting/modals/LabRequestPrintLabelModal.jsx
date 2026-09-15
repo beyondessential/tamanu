@@ -4,7 +4,9 @@ import styled from 'styled-components';
 import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { LabRequestLabelPrintFrame } from '../printouts/LabRequestLabelPrintFrame';
+import { LabRequestFinalisedHeader } from '../LabRequestFinalisedHeader';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
+import { BodyText, FormSeparatorLine } from '../..';
 import { CheckInput } from '../../Field';
 import { Colors } from '../../../constants';
 import { usePatient } from '../../../contexts/Patient';
@@ -34,9 +36,17 @@ const Row = styled.div`
 `;
 
 const PreviewCard = styled.div`
+  display: flex;
+  align-items: center;
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
-  padding: 24px 40px;
+  padding: 24px 30px 24px 20px;
+`;
+
+const Instruction = styled(BodyText)`
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: center;
 `;
 
 const toLabelData = (patient, lab) => ({
@@ -48,7 +58,12 @@ const toLabelData = (patient, lab) => ({
   collectedBy: lab.collectedBy?.displayName,
 });
 
-export const LabRequestPrintLabelModal = ({ open, onClose, labRequests, selectable = false }) => {
+export const LabRequestPrintLabelModal = ({
+  open,
+  onClose,
+  labRequests,
+  showFinalisedHeader = true,
+}) => {
   const { patient } = usePatient();
   const frameRef = useRef(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set(labRequests.map(lab => lab.id)));
@@ -70,8 +85,8 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests, selectab
       return next;
     });
 
-  // Without selection the caller has already chosen what to print; otherwise print the ticked rows.
-  const printedLabels = (selectable ? labRequests.filter(lab => selectedIds.has(lab.id)) : labRequests)
+  const printedLabels = labRequests
+    .filter(lab => selectedIds.has(lab.id))
     .map(lab => toLabelData(patient, lab));
 
   const handlePrint = async () => {
@@ -95,19 +110,29 @@ export const LabRequestPrintLabelModal = ({ open, onClose, labRequests, selectab
         />
       }
     >
+      {showFinalisedHeader && (
+        <>
+          <LabRequestFinalisedHeader />
+          <FormSeparatorLine />
+        </>
+      )}
+      <Instruction>
+        <TranslatedText
+          stringId="lab.requestSummary.instruction"
+          fallback="Please select items from the list below to print sample labels or the lab request."
+        />
+      </Instruction>
       <List>
         {labRequests.map(lab => (
           <Row key={lab.id}>
-            {selectable && (
+            <PreviewCard>
               <CheckInput
                 value={selectedIds.has(lab.id)}
                 name={`select-${lab.id}`}
                 onChange={() => toggle(lab.id)}
                 data-testid={`labelselect-${lab.id}`}
               />
-            )}
-            <PreviewCard>
-              <LabRequestPrintLabel data={toLabelData(patient, lab)} />
+              <LabRequestPrintLabel data={toLabelData(patient, lab)} variant="preview" />
             </PreviewCard>
           </Row>
         ))}
@@ -121,6 +146,5 @@ LabRequestPrintLabelModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   labRequests: PropTypes.array.isRequired,
-  // When true, each label carries a checkbox and only the ticked ones print (the auto-print screen).
-  selectable: PropTypes.bool,
+  showFinalisedHeader: PropTypes.bool,
 };
