@@ -1,0 +1,15 @@
+{
+  "sheetName": "Syndromic Surveillance Symptoms",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "syndromicsurveillancesymptoms-noSyndrome",
+      "code": "noSyndrome",
+      "name": "No syndrome"
+    }
+  ]
+}

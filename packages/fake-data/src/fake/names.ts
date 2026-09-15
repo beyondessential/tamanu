@@ -444,6 +444,16 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Upper Valley',
     'Lower Valley',
   ],
+  [REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM]: [
+    'Fever',
+    'Cough',
+    'Diarrhoea',
+    'Rash',
+    'Vomiting',
+    'Difficulty breathing',
+    'Jaundice',
+    'Conjunctivitis',
+  ],
   [REFERENCE_TYPES.TASK_DELETION_REASON]: [
     'Entered in error',
     'Duplicate task',

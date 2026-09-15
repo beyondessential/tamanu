@@ -9,6 +9,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REGISTRATION_STATUSES,
+  SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -575,6 +576,41 @@ describe('Suggestions', () => {
     });
   });
 
+  describe('syndromicSurveillanceSymptom', () => {
+    it('should pin the "no syndrome" symptom first, then list the rest alphabetically', async () => {
+      await models.ReferenceData.destroy({
+        where: { type: REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM },
+        force: true,
+      });
+
+      await models.ReferenceData.create({
+        id: SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
+        type: REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM,
+        code: 'noSyndrome',
+        name: 'No syndrome',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      for (const name of ['Zebra fever', 'Apple rash', 'Mango cough']) {
+        await models.ReferenceData.create({
+          id: `syndromicsurveillancesymptoms-${name}`,
+          type: REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM,
+          code: name,
+          name,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      }
+
+      const result = await userApp.get('/api/suggestions/syndromicSurveillanceSymptom/list');
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ name }) => name)).toEqual([
+        'No syndrome',
+        'Apple rash',
+        'Mango cough',
+        'Zebra fever',
+      ]);
+    });
+  });
+
   describe('General functionality (via diagnoses)', () => {
     const limit = 25;
 
@@ -774,9 +810,7 @@ describe('Suggestions', () => {
     });
 
     const search = async app => {
-      const result = await app.get(
-        `/api/suggestions/drug?q=Sensitivity&facilityId=${facility.id}`,
-      );
+      const result = await app.get(`/api/suggestions/drug?q=Sensitivity&facilityId=${facility.id}`);
       expect(result).toHaveSucceeded();
       return result.body.map(({ id }) => id);
     };
@@ -1141,7 +1175,12 @@ describe('Suggestions', () => {
       });
 
       // Create subdivisions with names that would be out of order if not sorted
-      const subdivisionNames = ['Zebra District', 'Alpha District', 'Mike District', 'Charlie District'];
+      const subdivisionNames = [
+        'Zebra District',
+        'Alpha District',
+        'Mike District',
+        'Charlie District',
+      ];
       for (const name of subdivisionNames) {
         const subdivision = await models.ReferenceData.create({
           id: `sort-test-${name.toLowerCase().replace(' ', '-')}`,
@@ -1169,7 +1208,12 @@ describe('Suggestions', () => {
 
       // Results should be sorted alphabetically
       const returnedNames = body.map(item => item.name);
-      const expectedOrder = ['Alpha District', 'Charlie District', 'Mike District', 'Zebra District'];
+      const expectedOrder = [
+        'Alpha District',
+        'Charlie District',
+        'Mike District',
+        'Zebra District',
+      ];
       expect(returnedNames).toEqual(expectedOrder);
     });
 
