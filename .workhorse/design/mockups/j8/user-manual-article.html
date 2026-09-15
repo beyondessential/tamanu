@@ -117,26 +117,15 @@
   .brand .mark::after { content:none; }
   .brand .sub, .foot-brand .fb .sub { color:var(--brand); font-weight:600; }
   header.nav { border-bottom-color:var(--brand-30); }
-  header.nav::after { content:""; position:absolute; left:0; right:0; bottom:-3px; height:3px;
-    background:linear-gradient(90deg, var(--brand) 0%, var(--brand-link) 46%, var(--gold) 100%); }
   nav.links a.active { color:var(--brand); font-weight:600; }
   .searchbox:hover { border-color:var(--brand-30); }
   .searchbox svg { color:var(--brand); }
-  .askai { background:var(--brand); border-color:var(--brand); color:#fff;
-    box-shadow:0 1px 2px rgba(47,67,88,.18); }
-  .askai:hover { background:var(--brand-dark); border-color:var(--brand-dark); }
   .askai svg { color:#fff; }
 
   /* ---- hero ---- */
-  .hero { background:
-      radial-gradient(880px 320px at 50% -70px, rgba(255,204,36,.22), transparent 62%),
-      linear-gradient(180deg, var(--brand-10) 0%, var(--brand-05) 52%, #fff 100%); }
-  .hero h1 { color:var(--brand-dark); }
   .big-search { border-color:#DCE5EE; box-shadow:0 1px 2px rgba(47,67,88,.06), 0 10px 30px rgba(47,67,88,.09); }
   .big-search:hover { border-color:var(--brand-30); }
   .big-search svg { color:var(--brand); }
-  .big-ai { background:var(--brand); border-color:var(--brand); color:#fff; }
-  .big-ai:hover { background:var(--brand-dark); border-color:var(--brand-dark); }
 
   /* ---- coloured category cards (rotating accent) ---- */
   .lcard, .tcard { --a:var(--brand); --a-10:var(--brand-10); }
@@ -147,8 +136,6 @@
   .grid .lcard:nth-child(6n+6), .tgrid .tcard:nth-child(6n+6) { --a:var(--brand-link); --a-10:#E8F1FC; }
   .lcard .panel { background:var(--a-10); border-bottom-color:color-mix(in srgb, var(--a) 18%, transparent); }
   .lcard .panel svg { color:var(--a); }
-  .lcard:hover { border-color:color-mix(in srgb, var(--a) 40%, transparent);
-    box-shadow:0 6px 20px rgba(47,67,88,.08); }
   .tcard { background:var(--a-10); }
   .tcard:hover { background:color-mix(in srgb, var(--a) 9%, #fff);
     border-color:color-mix(in srgb, var(--a) 30%, transparent); }
@@ -202,8 +189,6 @@
   .dropzone:hover { border-color:var(--brand-30); background:var(--brand-05); }
   .dropzone .browse { color:var(--brand); }
   .note { border-left-color:var(--gold); background:var(--gold-10); color:var(--brand-dark); }
-  .btn-primary { background:var(--brand); }
-  .btn-primary:hover { background:var(--brand-dark); opacity:1; }
 
   /* ---- search palette ---- */
   .p-input svg { color:var(--brand); }
@@ -237,16 +222,119 @@
   .row.ai { background:var(--brand-05); border-color:var(--brand-30); }
 
   /* ---- footer ---- */
-  footer.site { background:var(--brand-05); border-top:none;
-    box-shadow:inset 0 3px 0 0 transparent; position:relative; }
-  footer.site::before { content:""; position:absolute; left:0; right:0; top:0; height:3px;
-    background:linear-gradient(90deg, var(--brand) 0%, var(--brand-link) 46%, var(--gold) 100%); }
   .foot-col a:hover { color:var(--brand); }
   .foot-col a:hover .ext { color:var(--brand); }
+
+  /* ======================= modern pass =======================
+     Closer to the Figma help centre: white page punctuated by
+     full-bleed bands, borderless cards over flat colour thumbnails,
+     big light display type, pill search in a dark capsule.
+     =========================================================== */
+  :root { --logo-light:url("data:image/svg+xml;utf8,%3Csvg height='26' viewBox='0 0 26 26' width='26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-rule='evenodd'%3E%3Cpath d='m11.9286 4.19361h2.1464v2.22371h2.1467v2.22371h-2.1467v2.22367h-2.1464v-2.22367h-2.14637v-2.22371h2.14637z' fill='%23fff' fill-rule='evenodd'/%3E%3Cpath d='m7.25029 7.39756c0 1.57705.5842 3.18244 1.69648 4.47964.99884 1.1652 2.15583 2.3206 3.31273 3.4763l.7429.7428.7432-.7428c1.1566-1.1557 2.3136-2.3111 3.3124-3.4763 1.1123-1.2972 1.6965-2.90289 1.6965-4.47964 0-1.49029-.5299-2.95896-1.6392-4.10826-1.1352-1.1764-2.6242-1.76491-4.1129-1.76491s-2.9774.58851-4.11294 1.76491c-1.10904 1.1493-1.63917 2.61797-1.63917 4.10826zm5.75211 10.83144c-1.7177-1.7801-3.62747-3.5596-5.15321-5.3392-2.67329-3.11753-2.84637-7.72965 0-10.67826 2.84611-2.948607 7.46031-2.948607 10.30671 0 2.8461 2.94861 2.673 7.56043 0 10.67826-1.5264 1.7796-3.4359 3.5591-5.1535 5.3392z' fill='%23ffcc24' fill-rule='evenodd'/%3E%3Cpath d='m14.8666 21.3525-.7173-.8437c.6118.0256 1.1822-.5215 1.7802-.0316.8881.7276 1.8167 1.2488 3.8444 1.6285.3353.0627-.1855.4789-1.8814.3364-1.4264-.1197.1138.3139-1.6794.1419-.6233-.06-.2897.0901.8496.3129.571.1118.3694.6287-2.7339.4299-2.1052-.1345-2.5037-.0593-5.26808.0615-.92832.0405-2.4094-.3885-.86867-.7109.84898-.1775-2.06851-.3662-2.06851-.6052 0-.2457 1.437-.5523 2.07615-.7529 1.20397-.3782 2.19961-.9496 2.65041-1.3095 1.5992-1.2768 1.9697.2838 4.0165 1.3427z' fill='%23fff'/%3E%3Cg fill='%23ffcc24' fill-rule='evenodd'%3E%3Cpath d='m23.9665 22.4069c1.2874.3626 2.0335.7934 2.0335 1.2555 0 1.2912-5.8206 2.3376-13 2.3376-7.17971 0-13-1.0464-13-2.3376 0-.4621.746417-.8929 2.03355-1.2555-.6518.2481-1.01472.5227-1.01472.8113 0 1.1113 5.36421 2.0121 11.98117 2.0121 6.617 0 11.9812-.9008 11.9812-2.0121 0-.2886-.3627-.5632-1.0147-.8113z'/%3E%3Cpath d='m21.7738 22.2699c1.0298.2405 1.6266.5261 1.6266.832 0 .8556-4.6566 1.5491-10.4005 1.5491-5.74389 0-10.40078-.6935-10.40078-1.5491 0-.3059.59714-.5915 1.62713-.832-.52161.1647-.81195.3464-.81195.5379 0 .7365 4.29162 1.3332 9.5856 1.3332 5.294 0 9.5856-.5967 9.5856-1.3332 0-.1915-.2906-.3732-.8117-.5379z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); --band-soft:#FDF4DE; }
+
+  /* ---- announcement bar ---- */
+  .announce { background:var(--gold); color:var(--brand-dark); font-size:13px; font-weight:550;
+    text-align:center; padding:10px 24px; letter-spacing:-0.005em; }
+  .announce a { text-decoration:underline; text-underline-offset:3px; font-weight:640; margin-left:8px; }
+
+  /* ---- top bar: quieter, so the page carries the colour ---- */
+  header.nav { border-bottom-color:var(--line); }
+  .askai { background:var(--brand-dark); border-color:var(--brand-dark); border-radius:8px; font-weight:600; }
+  .askai:hover { background:#1F2D3A; border-color:#1F2D3A; }
+
+  /* ---- hero: white, big and light, with a dark search capsule ---- */
+  .hero { background:#fff; padding:92px 24px 76px; }
+  .hero h1 { font-size:60px; font-weight:550; letter-spacing:-0.035em; color:var(--ink); margin-bottom:18px; }
+  .hero p.lede { font-size:18px; max-width:560px; margin-bottom:44px; }
+  .hero-search { max-width:780px; background:var(--brand-dark); border-radius:26px;
+    padding:14px; gap:12px; flex-wrap:wrap; }
+  .big-search { border:none; border-radius:999px; padding:17px 22px; box-shadow:none; }
+  .big-search:hover { border:none; }
+  .big-search .ph { font-size:16px; }
+  .big-search .k { border-color:var(--line); }
+  .big-ai { background:var(--gold); border:none; border-radius:999px; color:var(--brand-dark);
+    font-weight:640; padding:0 22px; }
+  .big-ai:hover { background:#fff; }
+  .hero-chips { width:100%; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:2px 4px 2px; }
+  .hero-chips a { font-size:13px; font-weight:520; color:#fff; border:1px solid rgba(255,255,255,.3);
+    border-radius:8px; padding:7px 14px; cursor:pointer; }
+  .hero-chips a:hover { background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.65); }
+
+  /* ---- section rhythm ---- */
+  .sec-title { font-size:32px; font-weight:580; letter-spacing:-0.03em; margin:60px 0 24px; }
+  .wrap > .sec-title:first-child { margin-top:0; }
+  .wrap { padding:56px 24px 72px; }
+  .band .wrap { padding:68px 24px 76px; }
+  .band-soft { background:var(--band-soft); }
+  .band-dark { background:var(--brand-dark); color:#fff; }
+  .band-dark .sec-title { color:#fff; }
+
+  /* ---- cards: no border, flat colour thumbnail, text beneath ---- */
+  .lcard { border:none; border-radius:0; background:transparent; overflow:visible; }
+  .lcard:hover { border:none; box-shadow:none; transform:none; }
+  .lcard .panel { border-bottom:none; border-radius:10px; min-height:152px; padding:20px;
+    display:flex; align-items:flex-end; transition:background .12s ease; }
+  .lcard:hover .panel { background:color-mix(in srgb, var(--a) 17%, #fff); }
+  .lcard .panel svg { width:34px; height:34px; }
+  .lcard .body { padding:14px 2px 0; }
+  .lcard h3 { font-size:17px; font-weight:600; letter-spacing:-0.015em; margin-bottom:5px; }
+  .lcard p { font-size:14px; }
+  .tag { display:inline-block; font-size:10.5px; font-weight:660; text-transform:uppercase;
+    letter-spacing:0.07em; padding:4px 9px; border-radius:6px; background:var(--a-10);
+    color:var(--a); margin-bottom:10px; }
+  /* Browse sits on the gold band, so skip the amber accent there */
+  .grid.browse .lcard:nth-child(1) { --a:var(--brand); --a-10:var(--brand-10); }
+  .grid.browse .lcard:nth-child(2) { --a:var(--c-purple); --a-10:var(--c-purple-10); }
+  .grid.browse .lcard:nth-child(3) { --a:var(--c-green); --a-10:var(--c-green-10); }
+  .grid.browse .lcard .panel { background:var(--a-10); }
+
+  /* ---- dashed quick-link chips on the dark band ---- */
+  .chipgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:860px){ .chipgrid{ grid-template-columns:repeat(2,1fr);} }
+  .chipgrid a { display:flex; align-items:center; justify-content:center; gap:10px;
+    border:1px dashed rgba(255,255,255,.38); border-radius:10px; padding:17px 18px;
+    font-size:14.5px; font-weight:540; color:#fff; cursor:pointer; }
+  .chipgrid a:hover { border-color:var(--gold); color:var(--gold); }
+  .chipgrid a svg { flex:none; opacity:.75; }
+  .chipgrid a:hover svg { opacity:1; }
+
+  /* ---- topic cards ---- */
+  .tcard { border:none; border-radius:16px; padding:26px 24px 24px; }
+  .tcard-head h3 { font-size:19px; font-weight:620; letter-spacing:-0.02em; }
+  .tcard-list a { font-size:14.5px; }
+  .tcard-all { text-decoration:underline; text-underline-offset:4px; font-weight:620; }
+  .tcard-all svg { display:none; }
+
+  /* ---- content pages: same type scale, softer containers ---- */
+  .m-index h1, .article h1, .releases > h1, .roadmap h1, .report h1 {
+    font-size:44px; font-weight:560; letter-spacing:-0.035em; }
+  .article h1 { font-size:38px; }
+  .article h2, .release h2 { font-weight:600; letter-spacing:-0.025em; }
+  .callout { border-radius:12px; }
+  .rmx-card { border-radius:16px; }
+  .verbadge { border-radius:8px; }
+  .palette { border-radius:18px; }
+  .inp, .dropzone { border-radius:10px; }
+  .btn-primary { background:var(--brand-dark); border-radius:8px; }
+  .btn-primary:hover { background:#1F2D3A; }
+  .feedback .b { border-radius:8px; }
+
+  /* ---- dark footer ---- */
+  footer.site { background:var(--brand-dark); border-top:none; margin-top:0; }
+  .foot-brand .fb { color:#fff; }
+  footer.site .foot-brand .fb .mark { background:var(--logo-light) center/contain no-repeat; }
+  .foot-brand .fb .sub { color:var(--gold); }
+  .foot-brand p, .foot-col .cap { color:rgba(255,255,255,.55); }
+  .foot-col h4 { color:rgba(255,255,255,.55); }
+  .foot-col a { color:rgba(255,255,255,.8); }
+  .foot-col a:hover, .foot-col a:hover .ext { color:var(--gold); }
+  .foot-col a .ext { color:rgba(255,255,255,.4); }
+  .foot-bar { color:rgba(255,255,255,.45); border-top-color:rgba(255,255,255,.14); }
 </style>
 </head>
 <body>
 
+<div class="announce">Tamanu v2.63 is out<a href="#">See what changed</a></div>
 <header class="nav">
   <div class="nav-inner">
     <a class="brand" href="#"><span class="mark"></span> Tamanu <span class="sub">Docs</span></a>

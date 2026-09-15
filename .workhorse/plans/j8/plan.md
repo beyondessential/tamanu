@@ -76,8 +76,9 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 
 ## Branding
 
-Modelled on the Figma help centre: a mostly white page where colour arrives through category tiles,
-accents and a brand mark, rather than through large blocks of colour.
+Modelled on the Figma help centre (help.figma.com), read from the live site rather than from memory:
+a white page broken up by full-bleed colour bands, borderless cards over flat colour thumbnails, big
+light display type, and a dark capsule around the search.
 
 - **Palette is the real Tamanu one**, taken from `packages/ui-components/src/constants/colors.js`
   (itself mirroring the Tamanu Figma colour library): primary blue `#326699` and gold `#FFCC24` as
@@ -94,8 +95,19 @@ accents and a brand mark, rather than through large blocks of colour.
 - Each mockup carries the same appended `Tamanu brand layer` block at the end of its stylesheet, so
   the branding can be tuned in one place per file and the original neutral rules stay readable
   underneath.
+- **Page rhythm alternates band backgrounds** so no two dark sections touch: white hero, white
+  Popular, navy Popular topics, gold Browse, navy footer.
+- **The search sits in a navy capsule** holding a white pill input, a gold Ask AI pill and a row of
+  quick-link chips. This is the hub's signature element, taken from the black capsule on the Figma
+  help centre home.
+- **Cards have no border or divider** — a flat colour thumbnail with a large icon, then a small
+  uppercase tag pill, title and description beneath.
+- **A gold announcement bar** runs above the top bar on every page, carrying the current release.
+- **Display type is large and light** (hero 60px at weight 550, section headings 32px), not small and
+  bold. Tracking is tight.
 - Typeface is unchanged. The Tamanu web app uses Roboto; the docs hub stays on Inter as a separate
-  surface. Worth confirming.
+  surface. Worth confirming — Figma's own help centre leans on a distinctive grotesque, and Inter is
+  the closest thing already in the mockups.
 
 ## Open questions
 
