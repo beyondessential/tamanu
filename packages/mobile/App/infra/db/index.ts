@@ -3,6 +3,7 @@ import {
   type ConnectionOptions,
   createConnection,
   getConnectionManager,
+  In,
 } from 'typeorm';
 import { typeORMDriver } from 'react-native-quick-sqlite';
 import { DevSettings } from 'react-native';
@@ -35,6 +36,7 @@ const TEST_CONNECTION_CONFIG = {
 } as const;
 
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
+export const PLANNER_STATS_FULLY_ANALYSED_AT_KEY = 'plannerStatsFullyAnalysedAt';
 
 /** 90 minutes */
 const PLANNER_STATS_REFRESH_INTERVAL_MS = 5_400_000;
@@ -144,57 +146,81 @@ class DatabaseHelper {
    * With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
    * which would take care of running ANALYZE as needed. Our version of `react-native-quick-sqlite`
    * gives us SQLite 3.39.
+   *
+   * `analysis_limit` is connection-scoped and both modes share this connection, so each mode has
+   * to set it explicitly rather than relying on the pragma’s default.
+   *
    * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
+   * @param isFull Scan every index in full (accurate but slow) rather than sampling it
    * @returns Whether the refresh succeeded
    */
-  private async refreshQueryPlannerStats(): Promise<boolean> {
+  private async refreshQueryPlannerStats(isFull: boolean): Promise<boolean> {
     const start = performance.now();
+    const label = isFull ? 'Full' : 'Approximate';
     try {
-      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none.
+      // A full scan of every index is slow, but an “approximate ANALYZE” is better than none.
       // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
-      await this.client.query('PRAGMA analysis_limit = 400;');
+      await this.client.query(`PRAGMA analysis_limit = ${isFull ? 0 : 400};`);
       await this.client.query('ANALYZE;');
-      console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
+      console.log(`${label} ANALYZE done in ${performance.now() - start}ms`);
       return true;
     } catch (e) {
-      console.error(`Approximate ANALYZE failed after ${performance.now() - start}ms:`, e);
+      console.error(`${label} ANALYZE failed after ${performance.now() - start}ms:`, e);
       return false;
     }
   }
 
   /**
-   * Throttles to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   * Runs a full ANALYZE the first time it’s ever called on a device, then approximate ones
+   * thereafter, throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS} so this can be called
    * opportunistically without repeatedly taking ANALYZE’s write lock.
+   *
+   * The one full run gives the planner an accurate baseline, which no client has ever had: sampled
+   * stats alone are enough to keep the planner up to date, but not to get it right in the first
+   * place. It’s gated on {@link PLANNER_STATS_FULLY_ANALYSED_AT_KEY} rather than on the initial
+   * sync that normally triggers it, so devices already past initial sync get one too, and so a
+   * failed attempt is retried by whichever caller comes next.
    */
   async requestQueryPlannerStatsRefresh(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
     if (this.isAnalyzing) return;
     this.isAnalyzing = true;
     try {
-      const fact = await this.models.LocalSystemFact.findOne({
-        select: ['value'],
-        where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+      const facts = await this.models.LocalSystemFact.find({
+        select: ['key', 'value'],
+        where: { key: In([PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]) },
       });
-      const lastRefresh = Number.parseInt(fact?.value, 10);
-      if (
-        Number.isFinite(lastRefresh) &&
-        Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
-      ) {
-        return;
+      const hasEverFullyAnalysed = facts.some(
+        ({ key }) => key === PLANNER_STATS_FULLY_ANALYSED_AT_KEY,
+      );
+
+      // A pending full run isn’t throttled: it’s a one-off, and a recent approximate run is
+      // precisely the stopgap it’s meant to replace
+      if (hasEverFullyAnalysed) {
+        const lastRefresh = Number.parseInt(
+          facts.find(({ key }) => key === PLANNER_STATS_REFRESHED_AT_KEY)?.value,
+          10,
+        );
+        if (
+          Number.isFinite(lastRefresh) &&
+          Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
+        ) {
+          return;
+        }
       }
 
-      const succeeded = await this.refreshQueryPlannerStats();
+      const isFull = !hasEverFullyAnalysed;
+      const succeeded = await this.refreshQueryPlannerStats(isFull);
       if (!succeeded) return;
 
-      // Upsert; `key` has no unique index, so ON CONFLICT isn’t available
       const value = Date.now().toString();
-      const { affected } = await this.models.LocalSystemFact.update(
-        { key: PLANNER_STATS_REFRESHED_AT_KEY },
-        { value },
+      const keys = isFull
+        ? [PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]
+        : [PLANNER_STATS_REFRESHED_AT_KEY];
+      await this.models.LocalSystemFact.upsert(
+        keys.map(key => ({ key, value })),
+        ['key'],
       );
-      if (!affected) {
-        await this.models.LocalSystemFact.insert({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
-      }
     } catch (e) {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);

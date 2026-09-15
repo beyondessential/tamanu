@@ -1,3 +1,4 @@
+import { Database } from '../../infra/db';
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
@@ -29,6 +30,7 @@ jest.mock('../../infra/db', () => ({
       transaction: jest.fn(),
       query: jest.fn(),
     },
+    requestQueryPlannerStatsRefresh: jest.fn(),
   },
 }));
 
@@ -161,6 +163,40 @@ describe('MobileSyncManager', () => {
 
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
+    });
+
+    it('should refresh query planner stats after an initial sync', async () => {
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
+      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
+      (getSyncTick as jest.Mock).mockResolvedValueOnce(-1);
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockImplementationOnce(
+          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+        );
+      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
+
+      await mobileSyncManager.runSync();
+
+      expect(mobileSyncManager.isInitialSync).toBe(true);
+      expect(Database.requestQueryPlannerStatsRefresh).toBeCalledTimes(1);
+    });
+
+    it('should not refresh query planner stats after an incremental sync', async () => {
+      jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
+      jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
+      (getSyncTick as jest.Mock).mockResolvedValueOnce(mockSyncTick);
+      jest
+        .spyOn(centralServerConnection, 'startSyncSession')
+        .mockImplementationOnce(
+          jest.fn(async () => ({ sessionId: mockSessionId, startedAtTick: mockSyncTick })),
+        );
+      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
+
+      await mobileSyncManager.runSync();
+
+      expect(mobileSyncManager.isInitialSync).toBe(false);
+      expect(Database.requestQueryPlannerStatsRefresh).not.toBeCalled();
     });
 
     it('should report the sync error to central when a step fails', async () => {

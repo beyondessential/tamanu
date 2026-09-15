@@ -60,9 +60,12 @@ export class BackendManager {
   }
 
   /**
-   * - Run approximate ANALYZE when app gets backgrounded to mitigate user-facing latency.
+   * - Run ANALYZE when app gets backgrounded to mitigate user-facing latency.
    * - No queries should run so ANALYZE’s write lock should cause no visible latency. (Unless app is
    *   frozen and resumed at next launch, at which point user may see a little delay.)
+   * - Usually approximate and quick. On a device that has never had a full ANALYZE — i.e. one that
+   *   completed its initial sync before that became part of the sync — this is where the one-off
+   *   full run happens instead, so the delay above can be minutes rather than seconds.
    * - Fire-and-forget. ANALYZE is transactional; recovery is automatic if OS kills app.
    */
   onAppStateChange(next: AppStateStatus): void {

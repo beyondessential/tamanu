@@ -45,6 +45,7 @@ jest.mock('../../infra/db', () => ({
     models: {} as any,
     setUnsafePragma: jest.fn().mockResolvedValue(undefined),
     setDefaultPragma: jest.fn().mockResolvedValue(undefined),
+    requestQueryPlannerStatsRefresh: jest.fn().mockResolvedValue(undefined),
     client: {
       transaction: jest.fn(async (cb: any) => {
         const entityManager = {
@@ -140,6 +141,13 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
     expect(createSnapshotTable).not.toHaveBeenCalled();
     expect(insertSnapshotRecords).not.toHaveBeenCalled();
+
+    // ANALYZE has to run after the safe pragmas are back, or a crash mid-ANALYZE could corrupt
+    // the database rather than merely leaving the sync to be redone
+    expect(Database.requestQueryPlannerStatsRefresh).toHaveBeenCalledTimes(1);
+    expect((Database.setDefaultPragma as jest.Mock).mock.invocationCallOrder[0]).toBeLessThan(
+      (Database.requestQueryPlannerStatsRefresh as jest.Mock).mock.invocationCallOrder[0],
+    );
   });
 
   it('incremental sync saves from snapshot', async () => {

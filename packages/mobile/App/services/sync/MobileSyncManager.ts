@@ -41,8 +41,9 @@ const STAGE_MAX_PROGRESS_INCREMENTAL: StageMaxProgress = {
   3: 100,
 };
 const STAGE_MAX_PROGRESS_INITIAL: StageMaxProgress = {
-  1: 33,
-  2: 100,
+  1: 30,
+  2: 90,
+  3: 100,
 };
 
 type SyncOptions = {
@@ -279,6 +280,22 @@ export class MobileSyncManager {
 
     // clear persisted cache from this session
     await dropSnapshotTable();
+
+    if (this.isInitialSync) {
+      // Give the query planner an accurate baseline before the device is ever used. Runs here
+      // rather than earlier because `pullInitialSync()` has by now restored the safe pragmas, so
+      // ANALYZE is journalled; because `isSyncing` is still set, so the sync timer can’t collide
+      // with ANALYZE’s write lock; and because the pull cursor is already committed, so a slow or
+      // failed ANALYZE can’t cost the device its sync progress.
+      this.setSyncStage(3);
+      this.setProgress(
+        this.progressMaxByStage[this.syncStage - 1],
+        'Optimising database, please wait...',
+      );
+      // Swallows its own errors: stale `sqlite_stat1` is a performance problem, not a correctness
+      // one, and must never fail an otherwise successful sync
+      await Database.requestQueryPlannerStatsRefresh();
+    }
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');
