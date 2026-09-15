@@ -161,4 +161,130 @@ describe('SurveyResponse', () => {
       expect(results.map(r => r.id)).toEqual([response.id]);
     });
   });
+
+  describe('getFullResponse', () => {
+    let patient;
+    let survey;
+    let encounter;
+    let screenComponentIndex = 0;
+
+    const createQuestion = async ({
+      name,
+      type = FieldTypes.TEXT,
+      defaultText = '',
+    }: {
+      name: string;
+      type?: string;
+      defaultText?: string;
+    }): Promise<any> => {
+      const dataElement: any = await Database.models.ProgramDataElement.createAndSaveOne({
+        ...fake(Database.models.ProgramDataElement),
+        name,
+        type,
+        defaultText,
+      });
+      await Database.models.SurveyScreenComponent.createAndSaveOne({
+        ...fake(Database.models.SurveyScreenComponent),
+        survey: survey.id,
+        dataElement: dataElement.id,
+        screenIndex: 0,
+        componentIndex: (screenComponentIndex += 1),
+      });
+      return dataElement;
+    };
+
+    const createResponseWithAnswers = async (
+      answerBodiesByDataElementId: Record<string, string>,
+    ): Promise<any> => {
+      const response: any = await Database.models.SurveyResponse.createAndSaveOne({
+        encounter: encounter.id,
+        survey: survey.id,
+        startTime: '2024-02-01 00:00:00',
+        endTime: '2024-02-01 00:00:00',
+      });
+      for (const [dataElementId, body] of Object.entries(answerBodiesByDataElementId)) {
+        await Database.models.SurveyResponseAnswer.createAndSaveOne({
+          response: response.id,
+          dataElement: dataElementId,
+          body,
+        });
+      }
+      return response;
+    };
+
+    beforeAll(async () => {
+      const user = await Database.models.User.createAndSaveOne(fakeUser());
+      patient = await Database.models.Patient.createAndSaveOne(fakePatient());
+      survey = await Database.models.Survey.createAndSaveOne(fakeSurvey());
+
+      const record: any = fakeEncounter();
+      record.patient = patient;
+      record.examiner = user;
+      await Database.models.Encounter.insert(record);
+      encounter = record;
+    });
+
+    afterEach(async () => {
+      await Database.models.SurveyResponseAnswer.clear();
+      await Database.models.SurveyResponse.clear();
+    });
+
+    it('pairs each answered question with its answer', async () => {
+      const question = await createQuestion({ name: 'Favourite colour' });
+      const response = await createResponseWithAnswers({ [question.id]: 'Blue' });
+
+      const { answeredQuestions } = await Database.models.SurveyResponse.getFullResponse(
+        response.id,
+      );
+
+      const answered = answeredQuestions.find(
+        ({ question: q }) => q.dataElement.id === question.id,
+      );
+      expect(answered.answer).toBe('Blue');
+    });
+
+    it('keeps a display text question that has no answer', async () => {
+      const question = await createQuestion({
+        name: 'Section heading',
+        type: FieldTypes.DISPLAY_TEXT,
+        defaultText: 'Read this first',
+      });
+      const response = await createResponseWithAnswers({});
+
+      const { answeredQuestions } = await Database.models.SurveyResponse.getFullResponse(
+        response.id,
+      );
+
+      const answered = answeredQuestions.find(
+        ({ question: q }) => q.dataElement.id === question.id,
+      );
+      expect(answered.answer).toBeNull();
+    });
+
+    it('drops a question whose answer is empty', async () => {
+      const question = await createQuestion({ name: 'Left blank' });
+      const response = await createResponseWithAnswers({ [question.id]: '' });
+
+      const { answeredQuestions } = await Database.models.SurveyResponse.getFullResponse(
+        response.id,
+      );
+
+      expect(answeredQuestions.some(({ question: q }) => q.dataElement.id === question.id)).toBe(
+        false,
+      );
+    });
+
+    it('drops a question with no data element name', async () => {
+      const question = await createQuestion({ name: '' });
+      const response = await createResponseWithAnswers({ [question.id]: 'Answered' });
+
+      const { answeredQuestions } = await Database.models.SurveyResponse.getFullResponse(
+        response.id,
+      );
+
+      expect(answeredQuestions.some(({ question: q }) => q.dataElement.id === question.id)).toBe(
+        false,
+      );
+    });
+  });
 });

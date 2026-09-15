@@ -4,7 +4,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { StyledText } from '~/ui/styled/common';
 import { Database } from '~/infra/db';
 import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
-import { getDisplayNameForModel } from '~/ui/helpers/fields';
+import { getPatientDataDisplayValue } from '~/ui/helpers/fields';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
 
@@ -86,27 +86,17 @@ export const PatientDataDisplayField = ({
     enabled: Boolean(value && modelName && !options),
   });
 
-  const getDisplayValue = () => {
-    if (!value) return '';
-
-    // Custom fields (and fields with no configured location) display the raw value
-    if (!config?.column || !modelName) return value;
-
-    // Standard fields with options translate the value
-    if (options) return getEnumTranslation(options, value) || value;
-
-    if (!association) return '';
-
-    return association.targetModel
-      ? getDisplayNameForModel({
-          modelName: association.targetModel,
-          record: association.data,
-          getReferenceDataTranslation,
-          getEnumTranslation,
-          locale,
-        })
-      : association.data;
-  };
-
-  return <StyledText>{getDisplayValue()}</StyledText>;
+  return (
+    <StyledText>
+      {getPatientDataDisplayValue({
+        value,
+        column: config?.column,
+        record: association?.data,
+        targetModelName: association?.targetModel,
+        getReferenceDataTranslation,
+        getEnumTranslation,
+        locale,
+      })}
+    </StyledText>
+  );
 };

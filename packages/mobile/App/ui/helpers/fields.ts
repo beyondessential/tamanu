@@ -299,3 +299,43 @@ export function getDisplayNameForModel({
     }
   }
 }
+
+/**
+ * Renders a PatientData answer: a custom or unlocated field shows its raw value, a field with
+ * configured options shows the translated option label, and a field pointing at another record
+ * shows that record's display name. `record` is the already-resolved referenced record and
+ * `targetModelName` the model it belongs to; both are absent when the column holds a plain value
+ * or the record could not be found.
+ */
+export function getPatientDataDisplayValue({
+  value,
+  column,
+  record,
+  targetModelName,
+  getReferenceDataTranslation,
+  getEnumTranslation,
+  locale,
+}: {
+  value: string;
+  column?: string;
+  record?: any;
+  targetModelName?: string | null;
+  getReferenceDataTranslation: (data: any) => string;
+  getEnumTranslation: (options: any, value: string) => string;
+  locale?: string;
+}): string {
+  if (!value) return '';
+
+  const [modelName, , options] = (column && PATIENT_DATA_FIELD_LOCATIONS[column]) ?? [];
+  if (!modelName) return value;
+  if (options) return getEnumTranslation(options, value);
+  if (!record || !targetModelName) return value;
+
+  return getDisplayNameForModel({
+    modelName: targetModelName,
+    record,
+    getReferenceDataTranslation,
+    getEnumTranslation,
+    locale,
+  });
+}
