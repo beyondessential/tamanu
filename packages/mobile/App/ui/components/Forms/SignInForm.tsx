@@ -134,9 +134,9 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
     >
       {({ handleSubmit }): ReactElement => (
         <StyledView
-          marginTop={screenPercentageToDP(3.7, Orientation.Height)}
-          marginRight={screenPercentageToDP(2.43, Orientation.Width)}
-          marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
+          marginTop={theme.spacing.space200}
+          marginRight={theme.spacing.space150}
+          marginLeft={theme.spacing.space150}
         >
           <StyledView justifyContent="space-around">
             {existingHost ? (
@@ -187,10 +187,9 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
             />
           </StyledView>
           <SubmitButton
-            marginTop={existingHost ? 20 : 10}
+            marginTop={theme.spacing.space100}
             backgroundColor={theme.colors.SECONDARY_MAIN}
             textColor={theme.colors.TEXT_SUPER_DARK}
-            fontSize={screenPercentageToDP('1.94', Orientation.Height)}
             fontWeight={500}
             buttonText={<TranslatedText stringId="auth.action.login" fallback="Log in" />}
           />

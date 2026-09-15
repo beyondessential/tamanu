@@ -28,10 +28,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);
   const { getTranslation } = useTranslation();
 
-  const onNavigateToForgotPassword = useCallback(() => {
-    console.log('onNavigateToForgotPassword...');
+  const onNavigateToForgotPassword = () => {
     navigation.navigate(Routes.SignUpStack.ResetPassword);
-  }, []);
+  };
 
   const showOutdatedVersionAlert = useCallback(
     (error: OutdatedVersionError) => {
@@ -70,16 +69,16 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </RowView>
           <StyledView
             style={{ flexDirection: 'row', justifyContent: 'center' }}
-            marginTop={screenPercentageToDP(5.29, Orientation.Height)}
-            marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
+            marginTop={theme.spacing.space600}
+            marginBottom={theme.spacing.space450}
           >
             <LogoV2Icon height={48} fill={theme.colors.WHITE} />
           </StyledView>
-          <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
-            <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
+          <StyledView marginLeft={theme.spacing.space150} marginRight={theme.spacing.space150}>
+            <StyledText fontSize={30} fontWeight="bold" color={theme.colors.WHITE}>
               <TranslatedText stringId="login.heading.login" fallback="Log in" />
             </StyledText>
-            <StyledText fontSize={14} color={theme.colors.WHITE}>
+            <StyledText fontSize={14} color={theme.colors.WHITE} marginTop={theme.spacing.space50}>
               <TranslatedText
                 stringId="login.subTitle"
                 fallback="Enter your details below to log in"
@@ -104,10 +103,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             <StyledText
               width="100%"
               textAlign="center"
-              marginTop={screenPercentageToDP(2.43, Orientation.Height)}
-              fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+              marginTop={16}
+              fontSize={12}
               color={theme.colors.WHITE}
-              textDecorationLine="underline"
             >
               <TranslatedText stringId="login.action.forgotPassword" fallback="Forgot password?" />
             </StyledText>
@@ -120,8 +118,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
         alignItems="flex-end"
         display="flex"
         paddingBottom={screenPercentageToDP(5, Orientation.Width)}
-        paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-        paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
+        paddingLeft={theme.spacing.space150}
+        paddingRight={theme.spacing.space150}
       >
         <LanguageSelectButton navigation={navigation} />
         {supportCentreUrl && <SupportCentreButton supportCentreUrl={supportCentreUrl} />}

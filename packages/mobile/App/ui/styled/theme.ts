@@ -28,4 +28,25 @@ export const theme = {
     DISABLED_GREY: '#D3D3D3',
     BLACK: '#000',
   },
-};
+  /** @see https://m3.material.io/styles/spacing/tokens */
+  spacing: {
+    space0: 0,
+    space25: 2,
+    space50: 4,
+    space75: 6,
+    space100: 8,
+    space125: 10,
+    space150: 12,
+    space175: 14,
+    space200: 16,
+    space250: 20,
+    space300: 24,
+    space400: 32,
+    space450: 36,
+    space500: 40,
+    space600: 48,
+    space700: 56,
+    space800: 64,
+    space900: 72,
+  },
+} as const;
