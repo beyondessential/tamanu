@@ -166,20 +166,18 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         model: ReferenceData,
         options: {
           column: 'name',
-          where: {
-            type: ReferenceDataType.Drug,
-          },
           relations: ['referenceDrug'],
+          where: { type: ReferenceDataType.Drug },
+          // A drug with no reference_drugs row joins to NULL, and isn’t sensitive
+          andWhere: canCreateSensitiveMedication
+            ? undefined
+            : { sql: 'COALESCE(referenceDrug.isSensitive, 0) = 0' },
         },
         formatter: (record: any) => ({
           label: record.entity_display_label,
           value: record.entity_id,
           ...record,
         }),
-        filter: (data: any) => {
-          const isSensitive = data.referenceDrug_isSensitive;
-          return !isSensitive || canCreateSensitiveMedication;
-        },
       }),
     [canCreateSensitiveMedication],
   );
