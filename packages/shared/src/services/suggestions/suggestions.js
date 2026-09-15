@@ -523,8 +523,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       }
 
       if (typeName === REFERENCE_TYPES.DRUG && !canCreateSensitiveMedication) {
-        // is_sensitive is NULL for a drug with no reference_drugs row, which isn't sensitive.
-        baseWhere['$referenceDrug.is_sensitive$'] = { [Op.not]: true };
+        baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
       if (typeName === REFERENCE_TYPES.DRUG) {
