@@ -13,7 +13,7 @@ export const SupportCentreButton = ({ supportCentreUrl }: SupportCentreButtonPro
   return (
     <StyledTouchableOpacity
       onPress={(): Promise<void> => Linking.openURL(supportCentreUrl)}
-      marginLeft="auto" // Aligns to the right
+      marginLeft="auto"
     >
       <RowView alignItems="center">
         <StyledText fontSize={12} color={theme.colors.WHITE} textDecorationLine="underline">

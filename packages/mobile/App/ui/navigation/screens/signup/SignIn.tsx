@@ -1,6 +1,19 @@
 import React, { type FunctionComponent, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { Alert, KeyboardAvoidingView, Linking, StatusBar } from 'react-native';
+import { useSelector } from 'react-redux';
+import type { OutdatedVersionError } from '~/services/error';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useFacility } from '~/ui/contexts/FacilityContext';
+import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { LanguageSelectButton } from './LanguageSelectButton';
+import { SupportCentreButton } from './SupportCentreButton';
+import { SignInForm } from '/components/Forms/SignInForm';
+import { CrossIcon, LogoV2Icon } from '/components/Icons';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { authSelector } from '/helpers/selectors';
+import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import {
   FullView,
   RowView,
@@ -9,20 +22,7 @@ import {
   StyledTouchableOpacity,
   StyledView,
 } from '/styled/common';
-import { CrossIcon, LogoV2Icon } from '/components/Icons';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
-import { SignInForm } from '/components/Forms/SignInForm';
-import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
-import { Routes } from '/helpers/routes';
-import { authSelector } from '/helpers/selectors';
-import { useFacility } from '~/ui/contexts/FacilityContext';
-import { LanguageSelectButton } from './LanguageSelectButton';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { SupportCentreButton } from './SupportCentreButton';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import type { OutdatedVersionError } from '~/services/error';
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);

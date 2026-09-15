@@ -1,3 +1,4 @@
+import { getLoginErrorMessage } from '@tamanu/errors';
 import React, {
   type FunctionComponent,
   type ReactElement,
@@ -7,22 +8,20 @@ import React, {
   useState,
 } from 'react';
 import * as Yup from 'yup';
-import { StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
+import { OutdatedVersionError } from '~/services/error';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { ServerSelector } from '../ServerSelectorField/ServerSelector';
+import { TextField } from '../TextField/TextField';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { TranslatedText } from '../Translations/TranslatedText';
 import { Form } from './Form';
 import { Field } from './FormField';
-import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';
-import { ServerSelector } from '../ServerSelectorField/ServerSelector';
-import { TranslatedText } from '../Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
-import { OutdatedVersionError } from '~/services/error';
-import { getLoginErrorMessage } from '@tamanu/errors';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 // ErrorBox Component
 interface ErrorBoxProps {
