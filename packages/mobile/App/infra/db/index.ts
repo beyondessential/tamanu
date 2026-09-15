@@ -186,8 +186,6 @@ class DatabaseHelper {
         this.models.LocalSystemFact.existsBy({ key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY }),
       ]);
 
-      // A pending full run isn’t throttled: it’s a one-off, and a recent approximate run is
-      // precisely the stopgap it’s meant to replace
       if (hasEverFullyAnalysed) {
         const lastRefresh = Number.parseInt(lastRefreshFact.value, 10);
         if (
