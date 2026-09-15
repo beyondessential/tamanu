@@ -181,13 +181,10 @@ class DatabaseHelper {
 
     this.isAnalyzing = true;
     try {
-      const [lastRefreshFact, fullyAnalysedFact] = await Promise.all([
+      const [lastRefreshFact, hasEverFullyAnalysed] = await Promise.all([
         this.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } }),
-        this.models.LocalSystemFact.findOne({
-          where: { key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY },
-        }),
+        this.models.LocalSystemFact.existsBy({ key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY }),
       ]);
-      const hasEverFullyAnalysed = fullyAnalysedFact !== null;
 
       // A pending full run isn’t throttled: it’s a one-off, and a recent approximate run is
       // precisely the stopgap it’s meant to replace
