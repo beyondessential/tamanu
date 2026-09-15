@@ -34,21 +34,24 @@ import { checkForeignKeys } from './utils/checkForeignKeys';
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-type StageMaxProgress = Record<number, number>;
-const STAGE_MAX_PROGRESS_INCREMENTAL: StageMaxProgress = {
-  1: 33,
-  2: 66,
-  3: 100,
-};
-const STAGE_MAX_PROGRESS_INITIAL: StageMaxProgress = {
+
+const STAGE_MAX_PROGRESS_INITIAL = {
   1: 30,
   2: 90,
   3: 100,
-};
+} as const;
 
-type SyncOptions = {
+const STAGE_MAX_PROGRESS_INCREMENTAL = {
+  1: 33,
+  2: 66,
+  3: 100,
+} as const;
+
+type StageMaxProgress = typeof STAGE_MAX_PROGRESS_INITIAL | typeof STAGE_MAX_PROGRESS_INCREMENTAL;
+
+interface SyncOptions {
   urgent: boolean;
-};
+}
 
 export type MobileSyncSettings = {
   maxBatchesToKeepInMemory: number;
@@ -69,7 +72,7 @@ export interface PullParams {
 }
 
 export class MobileSyncManager {
-  progressMaxByStage = STAGE_MAX_PROGRESS_INCREMENTAL;
+  progressMaxByStage: StageMaxProgress = STAGE_MAX_PROGRESS_INCREMENTAL;
 
   isInitialSync = false;
 
