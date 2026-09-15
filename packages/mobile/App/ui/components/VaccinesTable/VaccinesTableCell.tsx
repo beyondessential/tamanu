@@ -1,9 +1,8 @@
-import { Popup } from 'popup-ui';
 import React, { useCallback } from 'react';
+import { Alert } from 'react-native';
 import type { IAdministeredVaccine, IPatient, IScheduledVaccine } from '~/types';
 import type { VaccineStatusMessage } from '~/ui/helpers/getVaccineStatus';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { BypassWarningIcon } from './BypassWarningIcon';
 import { useTranslation } from '/contexts/TranslationContext';
 import { VaccineStatusCells } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
@@ -81,28 +80,28 @@ export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProp
       doseLabel,
       administeredVaccine,
     });
-    Popup.hide();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const onPressItem = useCallback(() => {
     if (cellStatus !== VaccineStatus.GIVEN && dueStatus.warningMessage) {
-      Popup.show({
-        type: 'Warning',
-        title: 'Vaccination Warning',
-        button: true,
-        textBody: dueStatus.warningMessage,
-        buttonText: getTranslation('general.action.ok', 'OK'),
-        callback: (): void => Popup.hide(),
-        icon: <BypassWarningIcon onBypassWarning={onAdminister} />,
-      });
-
+      Alert.alert(
+        getTranslation('vaccine.warning.title', 'Administer vaccine?'),
+        dueStatus.warningMessage,
+        [
+          { text: getTranslation('general.action.dismiss', 'Dismiss'), style: 'cancel' },
+          {
+            text: getTranslation('vaccine.action.administerAnyway', 'Administer anyway'),
+            style: 'destructive',
+            onPress: onAdminister,
+          },
+        ],
+      );
       return;
     }
 
     if (vaccineStatus) onAdminister();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [cellStatus, dueStatus.warningMessage, getTranslation, onAdminister, vaccineStatus]);
 
   return (
     <StyledTouchableOpacity onPress={onPressItem}>
