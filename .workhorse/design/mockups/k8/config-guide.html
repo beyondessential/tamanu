@@ -136,6 +136,10 @@
   /* Note boxes */
   .note { border-radius: 8px; padding: 13px 16px 13px 44px; font-size: 13.5px; margin: 0 0 18px; position: relative; }
   .note p:last-child { margin-bottom: 0; }
+  .note ul { margin: 8px 0 0; padding-left: 18px; }
+  .note ul li { margin-bottom: 3px; }
+  .note ul li:last-child { margin-bottom: 0; }
+  .note ul li::marker { color: currentColor; opacity: .5; }
   .note .ico {
     position: absolute; left: 15px; top: 13px;
     width: 18px; height: 18px; border-radius: 50%;
@@ -209,16 +213,19 @@
     medication workflows in your clinical setting, read the Medications Module Implementation Guide
     first.</p>
 
-    <p class="muted">The Medications Module is not recommended for the following medications or clinical
-    settings, whose orders and administration should remain on paper:</p>
-
-    <ul class="muted">
-      <li>IV infusion medications</li>
-      <li>Anaesthesia medications</li>
-      <li>Complex oncology protocols</li>
-      <li>Dialysis</li>
-      <li>ICU, PICU and NICU</li>
-    </ul>
+    <div class="note warn">
+      <span class="ico">!</span>
+      <span class="hd">Not recommended for</span>
+      <p>The Medications Module is not recommended for the following medications or clinical settings,
+      whose orders and administration should remain on paper:</p>
+      <ul>
+        <li>IV infusion medications</li>
+        <li>Anaesthesia medications</li>
+        <li>Complex oncology protocols</li>
+        <li>Dialysis</li>
+        <li>ICU, PICU and NICU</li>
+      </ul>
+    </div>
 
     <hr>
 
