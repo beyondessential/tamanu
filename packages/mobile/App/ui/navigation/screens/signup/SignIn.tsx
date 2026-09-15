@@ -72,7 +72,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             marginTop={theme.spacing.space600}
             marginBottom={theme.spacing.space450}
           >
-            <LogoV2Icon height={48} fill={theme.colors.WHITE} />
+            <LogoV2Icon width={198} height={48} fill={theme.colors.WHITE} />
           </StyledView>
           <StyledView marginLeft={theme.spacing.space150} marginRight={theme.spacing.space150}>
             <StyledText fontSize={30} fontWeight="bold" color={theme.colors.WHITE}>
