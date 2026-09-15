@@ -1,6 +1,11 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm';
 
-import { EncounterType, type ICreateSurveyResponse, type ISurveyResponse } from '~/types';
+import {
+  EncounterType,
+  type ICreateSurveyResponse,
+  type ISurveyResponse,
+  type ISurveyScreenComponent,
+} from '~/types';
 
 import {
   FieldTypes,
@@ -109,6 +114,38 @@ async function writeToPatientFields(
   }
 }
 
+export type AnsweredQuestion = {
+  question: ISurveyScreenComponent;
+  answer: string | null;
+};
+
+/**
+ * Pairs a survey's questions with the answers recorded against them, keeping only the rows the
+ * response details screen displays. Lives here rather than in the screen so that the questions
+ * batched for record resolution are exactly the questions rendered.
+ */
+const pairQuestionsWithAnswers = (
+  questions: ISurveyScreenComponent[],
+  answers: SurveyResponseAnswer[],
+): AnsweredQuestion[] => {
+  // Keyed on the foreign key rather than the loaded relation: a soft-deleted data element still
+  // has a question (getComponents passes withDeleted) but its relation would not load.
+  const answerBodiesByDataElementId = new Map(
+    answers.map(answer => [answer.dataElementId, answer.body] as const),
+  );
+
+  return questions
+    .filter(question => question.dataElement.name)
+    .map(question => ({
+      question,
+      answer: answerBodiesByDataElementId.get(question.dataElement.id) ?? null,
+    }))
+    .filter(
+      ({ question, answer }) =>
+        (answer !== null && answer !== '') || question.dataElement.type === FieldTypes.DISPLAY_TEXT,
+    );
+};
+
 @Entity('survey_responses')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -160,13 +197,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       where: {
         response: { id: response.id },
       },
-      relations: ['dataElement'],
     });
 
     return {
       ...response,
-      questions: [...questions],
-      answers: [...answers],
+      answeredQuestions: pairQuestionsWithAnswers(questions, answers),
     };
   }
 

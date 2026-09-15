@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { renderAnswer } from '~/ui/navigation/screens/programs/SurveyResponseDetailsScreen';
+import { resolveAnswerDisplayRecords } from '~/utils/resolveAnswerDisplayRecords';
 import { Text } from 'react-native';
 
 export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
@@ -21,14 +22,23 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
         source,
       );
 
-      if (!answer) return { answer: null, sourceQuestion: null };
+      if (!answer) return { answer: null, sourceQuestion: null, answerDisplayRecords: null };
 
       const dataElement = await models.ProgramDataElement.findOne({
         where: { id: answer.dataElementId },
         relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
       });
+      const sourceQuestion = dataElement.surveyScreenComponent;
 
-      return { answer, sourceQuestion: dataElement.surveyScreenComponent };
+      const answerDisplayRecords = await resolveAnswerDisplayRecords(models, [
+        {
+          type: sourceQuestion.dataElement.type,
+          config: sourceQuestion.config ?? null,
+          answer: answer.body,
+        },
+      ]);
+
+      return { answer, sourceQuestion, answerDisplayRecords };
     },
   });
   const answerBody = data?.answer?.body ?? '';
@@ -43,8 +53,9 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
       {sourceQuestion ? (
         renderAnswer({
           type: sourceQuestion.dataElement.type,
-          config: sourceQuestion.config,
+          config: sourceQuestion.config ?? null,
           answer: answerBody,
+          answerDisplayRecords: data.answerDisplayRecords,
         })
       ) : (
         <Text>{answerBody}</Text>

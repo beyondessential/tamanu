@@ -8,66 +8,84 @@ import type { ISurveyScreenComponent } from '~/types';
 import { StackHeader } from '../../../../components/StackHeader';
 import { formatPlainTime, formatStringDateForDisplay } from '../../../../helpers/date';
 import { DateFormats } from '../../../../helpers/constants';
-import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
+import {
+  FieldTypes,
+  getDisplayNameForModel,
+  getPatientDataDisplayValue,
+} from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
-import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
-import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { suggestionKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
-import { PatientDataDisplayField } from '~/ui/components/PatientDataDisplayField/PatientDataDisplayField';
+import useFullSurveyResponseQuery from './useFullSurveyResponseQuery';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
 import { Routes } from '~/ui/helpers/routes';
+import {
+  getPatientDataTargetModelName,
+  type AnswerDisplayRecords,
+} from '~/utils/resolveAnswerDisplayRecords';
 
-const useFullSurveyResponseQuery = (surveyResponseId: string) =>
-  useQuery({
-    queryKey: surveyKeys.fullResponse(surveyResponseId),
-    queryFn: () => Database.models.SurveyResponse.getFullResponse(surveyResponseId),
-  });
-
-const SurveyLinkAnswer = ({ answer }): ReactElement => {
-  const { data: surveyResponse, error } = useFullSurveyResponseQuery(answer);
-  if (error) {
-    return <StyledText>{error.message}</StyledText>;
-  }
-  return (
-    <SurveyResponseLink
-      surveyResponse={surveyResponse}
-      detailsRouteName={Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen}
-    />
-  );
+type RenderAnswerProps = {
+  type: string;
+  config: string | null;
+  answer: string;
+  answerDisplayRecords: AnswerDisplayRecords;
 };
 
-const AutocompleteAnswer = ({ config, answer }): ReactElement => {
+const parseConfig = (config: string | null): Record<string, any> => {
+  if (!config) return {};
+  try {
+    return JSON.parse(config);
+  } catch {
+    return {};
+  }
+};
+
+const SurveyLinkAnswer = ({ surveyResponse }): ReactElement => (
+  <SurveyResponseLink
+    surveyResponse={surveyResponse}
+    detailsRouteName={Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen}
+  />
+);
+
+const AutocompleteAnswer = ({ modelName, record, answer }): ReactElement => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { locale } = useDateFormatter();
-  const parsedConfig = JSON.parse(config);
-  const { data: record, error } = useQuery({
-    queryKey: suggestionKeys.currentOption(parsedConfig.source, { id: answer }),
-    queryFn: () => {
-      const repo = Database.models[parsedConfig.source].getRepository();
-      return repo.findOne({ where: { id: answer } });
-    },
-  });
+
   if (!record) {
     return <StyledText>{answer}</StyledText>;
   }
-  if (error) {
-    console.error(error);
-    return <StyledText>{error.message}</StyledText>;
-  }
+
   const displayName = getDisplayNameForModel({
-    modelName: parsedConfig.source,
-    record: record,
+    modelName,
+    record,
     getReferenceDataTranslation,
     getEnumTranslation,
     locale,
   });
 
   return <StyledText color={theme.colors.TEXT_DARK}>{displayName}</StyledText>;
+};
+
+const PatientDataAnswer = ({ column, record, targetModelName, answer }): ReactElement => {
+  const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const { locale } = useDateFormatter();
+
+  return (
+    <StyledText>
+      {getPatientDataDisplayValue({
+        value: answer,
+        column,
+        record,
+        targetModelName,
+        getReferenceDataTranslation,
+        getEnumTranslation,
+        locale,
+      })}
+    </StyledText>
+  );
 };
 
 function getAnswerText(type, answer, locale?: string): string | number {
@@ -115,28 +133,78 @@ const TextAnswer = ({ type, answer }): ReactElement => {
   );
 };
 
-export const renderAnswer = ({ type, config, answer }): ReactElement => {
-  if (!answer) return answer;
+/**
+ * `answerDisplayRecords` holds every referenced record, resolved in one batch by the caller's
+ * query. A lookup that misses means the record was deleted or has not synced yet, so the raw
+ * answer is shown.
+ */
+export const renderAnswer = ({
+  type,
+  config,
+  answer,
+  answerDisplayRecords,
+}: RenderAnswerProps): ReactElement => {
+  if (!answer) return null;
+
+  const { recordsByModelNameAndId, sourceQuestionsByDataElementCode, linkedSurveyResponsesById } =
+    answerDisplayRecords;
 
   switch (type) {
     case FieldTypes.RESULT:
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
-    case FieldTypes.PATIENT_DATA:
-      return <PatientDataDisplayField value={answer} config={JSON.parse(config)} />;
-    case FieldTypes.AUTOCOMPLETE:
-      return <AutocompleteAnswer config={config} answer={answer} />;
-    case FieldTypes.SURVEY_ANSWER:
-      return <SurveyAnswerResult config={config} answer={answer} />;
+    case FieldTypes.PATIENT_DATA: {
+      const { column } = parseConfig(config);
+      const targetModelName = getPatientDataTargetModelName(Database.models, column);
+      return (
+        <PatientDataAnswer
+          column={column}
+          record={recordsByModelNameAndId[targetModelName]?.[answer]}
+          targetModelName={targetModelName}
+          answer={answer}
+        />
+      );
+    }
+    case FieldTypes.AUTOCOMPLETE: {
+      const { source } = parseConfig(config);
+      return (
+        <AutocompleteAnswer
+          modelName={source}
+          record={recordsByModelNameAndId[source]?.[answer]}
+          answer={answer}
+        />
+      );
+    }
+    case FieldTypes.SURVEY_ANSWER: {
+      const { source, Source } = parseConfig(config);
+      const sourceQuestion = sourceQuestionsByDataElementCode[source ?? Source];
+      if (!sourceQuestion) return <StyledText>{answer}</StyledText>;
+      return renderAnswer({
+        type: sourceQuestion.dataElement.type,
+        config: sourceQuestion.config ?? null,
+        answer,
+        answerDisplayRecords,
+      });
+    }
     case FieldTypes.SURVEY_LINK:
-      return <SurveyLinkAnswer answer={answer} />;
+      return <SurveyLinkAnswer surveyResponse={linkedSurveyResponsesById[answer]} />;
     default:
       return <TextAnswer type={type} answer={answer} />;
   }
 };
 
-const AnswerItem = ({ question, answer, index }): ReactElement => (
+const AnswerItem = ({
+  question,
+  answer,
+  answerDisplayRecords,
+  index,
+}: {
+  question: ISurveyScreenComponent;
+  answer: string | null;
+  answerDisplayRecords: AnswerDisplayRecords;
+  index: number;
+}): ReactElement => (
   <StyledView
     minHeight={40}
     maxWidth="100%"
@@ -161,7 +229,12 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
           {question.dataElement.name}
         </StyledText>
         <StyledView alignItems="flex-start" width="100%" marginTop={4}>
-          {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
+          {renderAnswer({
+            type: question.dataElement.type,
+            config: question.config ?? null,
+            answer,
+            answerDisplayRecords,
+          })}
         </StyledView>
       </>
     )}
@@ -183,43 +256,8 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
     return <LoadingScreen />;
   }
 
-  const { encounter, survey, questions, answers } = surveyResponse;
+  const { encounter, survey, answeredQuestions, answerDisplayRecords } = surveyResponse;
   const { patient } = encounter;
-
-  const answersByDataElementId = new Map(answers.map(a => [a.dataElement.id, a.body] as const));
-  const attachAnswer = <T extends ISurveyScreenComponent>(
-    q: T,
-  ): { answer: string | null; question: T } => {
-    return {
-      question: q,
-      answer: answersByDataElementId.get(q.dataElement.id) ?? null,
-    };
-  };
-
-  const questionToAnswerItem = ({
-    question,
-    answer,
-  }: {
-    answer: string | null;
-    question: ISurveyScreenComponent;
-  }): ReactElement => (
-    <AnswerItem
-      key={question.id}
-      index={question.dataElement.id}
-      question={question}
-      answer={answer}
-    />
-  );
-
-  const answerItems = questions
-    .filter(q => q.dataElement.name)
-    .map(attachAnswer)
-    .filter(
-      q =>
-        (q.answer != null && q.answer !== '') ||
-        q.question.dataElement.type === FieldTypes.DISPLAY_TEXT,
-    )
-    .map(questionToAnswerItem);
 
   return (
     <FullView>
@@ -228,7 +266,17 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
         title={`${patient.firstName} ${patient.lastName}`}
         onGoBack={navigation.goBack}
       />
-      <ScrollView>{answerItems}</ScrollView>
+      <ScrollView>
+        {answeredQuestions.map(({ question, answer }, index) => (
+          <AnswerItem
+            key={question.id}
+            index={index}
+            question={question}
+            answer={answer}
+            answerDisplayRecords={answerDisplayRecords}
+          />
+        ))}
+      </ScrollView>
     </FullView>
   );
 };
