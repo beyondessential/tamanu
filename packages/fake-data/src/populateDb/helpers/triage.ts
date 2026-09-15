@@ -8,12 +8,6 @@ import { fake, chance } from '../../fake/index.js';
 import { createEncounter } from './encounter.js';
 import type { CommonParams } from './common.js';
 
-// Share of seeded triages that have already been closed. The rest stay open so the
-// emergency department list has something in it: `GET /triage` only lists triages
-// whose encounter is still open (`encounters.end_date IS NULL`), so seeding every
-// triage as closed leaves that view empty no matter how many rows exist.
-const CLOSED_LIKELIHOOD = 70;
-
 interface CreateTriageParams extends CommonParams {
   patientId?: string;
   practitionerId?: string;
@@ -53,13 +47,11 @@ export const createTriage = async ({
   const arrivalTime = toDateTimeString(
     subMinutes(triageTime, chance.integer({ min: 1, max: 120 })),
   );
-  // An open triage has no closed time, and its encounter is still running.
-  const isClosed = chance.bool({ likelihood: CLOSED_LIKELIHOOD });
   // Closing an encounter stamps the same timestamp onto its triage (see
   // `Encounter.closeTriage`), so the two must match.
-  const closedTime = isClosed
-    ? toDateTimeString(addMinutes(triageTime, chance.integer({ min: 20, max: 24 * 60 })))
-    : null;
+  const closedTime = toDateTimeString(
+    addMinutes(triageTime, chance.integer({ min: 20, max: 24 * 60 })),
+  );
 
   // A triage always creates its own encounter (see `Triage.create`), so a triage
   // encounter never has more than one triage on it. Seed a dedicated encounter
@@ -81,7 +73,7 @@ export const createTriage = async ({
     // Every path that closes an encounter writes a discharge alongside it (see
     // `Encounter.onDischarge` and `dischargeOutpatientEncounters`), so a closed
     // encounter without one is a state the app can't produce.
-    isDischarged: isClosed,
+    isDischarged: true,
     // `POST /triage` records no diagnoses, and exactly one note — the triage score,
     // added below. `createEncounter` would otherwise throw in a handful of random
     // ones each, inflating the seed well past the Note tally it is driven by.
