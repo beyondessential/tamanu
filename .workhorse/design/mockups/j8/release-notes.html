@@ -294,6 +294,12 @@
   .foot-col a:hover, .foot-col a:hover .ext { color:var(--gold); }
   .foot-col a .ext { color:rgba(255,255,255,.4); }
   .foot-bar { color:rgba(255,255,255,.45); border-top-color:rgba(255,255,255,.14); }
+
+  /* ---- sticky top bar: solid rather than translucent, and it lifts once the
+         page scrolls beneath it, so the pinning is legible on a white page ---- */
+  header.nav { background:var(--bg); -webkit-backdrop-filter:none; backdrop-filter:none;
+    transition:box-shadow .15s ease; }
+  header.nav.scrolled { box-shadow:0 1px 2px rgba(47,67,88,.07), 0 8px 20px rgba(47,67,88,.06); }
 </style>
 </head>
 <body>
@@ -692,6 +698,16 @@
   document.querySelectorAll('.side-v .ver[data-release]').forEach(a=>{
     a.addEventListener('click', (e)=>{ e.preventDefault(); selectRelease(a.dataset.release); });
   });
+</script>
+<script>
+  // lift the sticky top bar once the page scrolls under it
+  (function () {
+    var nav = document.querySelector('header.nav');
+    if (!nav) return;
+    var sync = function () { nav.classList.toggle('scrolled', window.scrollY > 4); };
+    sync();
+    addEventListener('scroll', sync, { passive: true });
+  })();
 </script>
 </body>
 </html>

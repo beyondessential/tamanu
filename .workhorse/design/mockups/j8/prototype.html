@@ -579,6 +579,12 @@
     letter-spacing:0.07em; color:var(--a); margin-bottom:5px; }
   .pcard h3 { font-size:15px; font-weight:600; letter-spacing:-0.01em; margin:0 0 4px; line-height:1.35; }
   .pcard p { font-size:13px; color:var(--ink-3); margin:0; }
+
+  /* ---- sticky top bar: solid rather than translucent, and it lifts once the
+         page scrolls beneath it, so the pinning is legible on a white page ---- */
+  header.nav { background:var(--bg); -webkit-backdrop-filter:none; backdrop-filter:none;
+    transition:box-shadow .15s ease; }
+  header.nav.scrolled { box-shadow:0 1px 2px rgba(47,67,88,.07), 0 8px 20px rgba(47,67,88,.06); }
 </style>
 </head>
 <body>
@@ -1603,6 +1609,16 @@
     const step = 704; // roughly two columns
     view.querySelector('.rmx-prev').addEventListener('click', ()=> scroll.scrollBy({ left:-step, behavior:'smooth' }));
     view.querySelector('.rmx-next').addEventListener('click', ()=> scroll.scrollBy({ left: step, behavior:'smooth' }));
+  })();
+</script>
+<script>
+  // lift the sticky top bar once the page scrolls under it
+  (function () {
+    var nav = document.querySelector('header.nav');
+    if (!nav) return;
+    var sync = function () { nav.classList.toggle('scrolled', window.scrollY > 4); };
+    sync();
+    addEventListener('scroll', sync, { passive: true });
   })();
 </script>
 </body>
