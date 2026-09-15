@@ -24,14 +24,19 @@ export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
-    systemErrorReport: {
-      description: 'Where submitted system error logs are emailed for this facility',
+    systemAdmin: {
+      name: 'System admin',
       properties: {
-        recipients: {
-          name: 'System error report recipients',
-          description: 'Email addresses that receive error logs submitted from this facility',
-          type: yup.array(yup.string().email().required()),
-          defaultValue: ['support@bes.au'],
+        support: {
+          name: 'Support',
+          properties: {
+            recipients: {
+              name: 'System error report recipients',
+              description: 'Email addresses that receive error logs submitted from this facility',
+              type: yup.array(yup.string().email().required()),
+              defaultValue: ['support@bes.au'],
+            },
+          },
         },
       },
     },

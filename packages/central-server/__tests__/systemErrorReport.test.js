@@ -27,7 +27,7 @@ describe('systemErrorReport', () => {
     await user.reload({ include: 'facilities' });
 
     await models.Setting.set(
-      'systemErrorReport.recipients',
+      'systemAdmin.support.recipients',
       ['support@bes.au'],
       SETTINGS_SCOPES.FACILITY,
       facility.id,
@@ -65,7 +65,7 @@ describe('systemErrorReport', () => {
 
   it('joins multiple recipients configured for the facility', async () => {
     await models.Setting.set(
-      'systemErrorReport.recipients',
+      'systemAdmin.support.recipients',
       ['support@bes.au', 'ops@bes.au'],
       SETTINGS_SCOPES.FACILITY,
       facility.id,
@@ -77,7 +77,7 @@ describe('systemErrorReport', () => {
     expect(emailService.sendEmail.mock.calls[0][0].to).toBe('support@bes.au, ops@bes.au');
 
     await models.Setting.set(
-      'systemErrorReport.recipients',
+      'systemAdmin.support.recipients',
       ['support@bes.au'],
       SETTINGS_SCOPES.FACILITY,
       facility.id,

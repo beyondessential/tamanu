@@ -51,7 +51,9 @@ systemErrorReport.post(
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const { recipients } = await new ReadSettings(models, facilityId).get('systemErrorReport');
+    const recipients = await new ReadSettings(models, facilityId).get(
+      'systemAdmin.support.recipients',
+    );
 
     const emailText = buildEmailText({ errors, additionalInformation, email, userId });
 
