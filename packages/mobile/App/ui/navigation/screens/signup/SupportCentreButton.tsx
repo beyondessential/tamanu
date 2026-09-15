@@ -6,9 +6,9 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { RowView, StyledText, StyledTouchableOpacity } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
-type SupportCentreButtonProps = {
+interface SupportCentreButtonProps {
   supportCentreUrl: string;
-};
+}
 
 export const SupportCentreButton = ({ supportCentreUrl }: SupportCentreButtonProps) => {
   return (
@@ -17,17 +17,13 @@ export const SupportCentreButton = ({ supportCentreUrl }: SupportCentreButtonPro
       marginLeft="auto" // Aligns to the right
     >
       <RowView alignItems="center">
-        <StyledText
-          fontSize={screenPercentageToDP('1.28', Orientation.Height)}
-          color={theme.colors.WHITE}
-          textDecorationLine="underline"
-        >
+        <StyledText fontSize={12} color={theme.colors.WHITE} textDecorationLine="underline">
           <TranslatedText stringId="externalLink.supportCentre" fallback="Support centre" />
         </StyledText>
         <LaunchIcon
-          size={screenPercentageToDP('1.57', Orientation.Height)}
+          size={12}
           fill={theme.colors.WHITE}
-          style={{ marginLeft: screenPercentageToDP('0.72', Orientation.Width) }}
+          style={{ marginLeft: theme.spacing.space50 }}
         />
       </RowView>
     </StyledTouchableOpacity>
