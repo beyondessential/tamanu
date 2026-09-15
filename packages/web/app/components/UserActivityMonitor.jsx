@@ -3,19 +3,16 @@
  * TODO: Build actual modals: WAITM-598
  */
 
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useIdleTimer } from 'react-idle-timer';
 import Typography from '@material-ui/core/Typography';
+import React, { useEffect, useState } from 'react';
+import { useIdleTimer } from 'react-idle-timer';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { useSettings } from '../contexts/Settings';
+import { Modal, TranslatedText, useSettings } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
-import { TranslatedText } from './Translation/TranslatedText';
-
 import { ModalActionRow } from './ModalActionRow';
-import { Modal } from './Modal';
 
 const WarningModalContainer = styled.div`
   padding-block: 2rem;
