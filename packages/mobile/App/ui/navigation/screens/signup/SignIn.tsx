@@ -9,7 +9,7 @@ import {
   StyledTouchableOpacity,
   StyledView,
 } from '/styled/common';
-import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
+import { CrossIcon, LogoV2Icon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { SignInForm } from '/components/Forms/SignInForm';
@@ -73,19 +73,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            <HomeBottomLogoIcon
-              size={screenPercentageToDP(7.29, Orientation.Height)}
-              fill={theme.colors.SECONDARY_MAIN}
-            />
-            <StyledText
-              marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
-              fontSize="40"
-              color={theme.colors.WHITE}
-              fontWeight="bold"
-              verticalAlign="center"
-            >
-              tamanu
-            </StyledText>
+            <LogoV2Icon height={48} fill={theme.colors.WHITE} />
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
