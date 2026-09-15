@@ -90,7 +90,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
-              <TranslatedText stringId="login.heading.login" fallback="Log in" />
+              <TranslatedText stringId="auth.action.login" fallback="Log in" />
             </StyledText>
             <StyledText fontSize={14} color={theme.colors.WHITE}>
               <TranslatedText

@@ -75,13 +75,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
             data-testid="translatedtext-stay-logged-in"
           />
         }
-        cancelText={
-          <TranslatedText
-            stringId="auth.action.logout"
-            fallback="Log out"
-            data-testid="translatedtext-logout"
-          />
-        }
+        cancelText={<TranslatedText stringId="auth.action.logout" fallback="Log out" />}
         onConfirm={onStayLoggedIn}
         onCancel={onTimeout}
         data-testid="modalactionrow-39hf"
@@ -97,8 +91,12 @@ export const UserActivityMonitor = () => {
   const { getSetting } = useSettings();
 
   // Can't fetch localisation prior to login so add defaults
-  const { enabled = false, timeoutDuration = 0, warningPromptDuration = 0, refreshInterval = 0 } =
-    getSetting('features.idleTimeout') || {};
+  const {
+    enabled = false,
+    timeoutDuration = 0,
+    warningPromptDuration = 0,
+    refreshInterval = 0,
+  } = getSetting('features.idleTimeout') || {};
 
   const onIdle = () => {
     // TODO: WAITM-598 Replace this full logout with a login modal

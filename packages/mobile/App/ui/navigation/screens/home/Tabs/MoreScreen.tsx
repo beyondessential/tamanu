@@ -152,7 +152,7 @@ export const MoreScreen = (): ReactElement => {
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
-          buttonText={<TranslatedText stringId="auth.action.signOut" fallback="Sign out" />}
+          buttonText={<TranslatedText stringId="auth.action.logout" fallback="Log out" />}
           onPress={signOut}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}
