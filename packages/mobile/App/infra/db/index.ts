@@ -1,16 +1,15 @@
+import { DevSettings } from 'react-native';
+import { typeORMDriver } from 'react-native-quick-sqlite';
 import {
   type Connection,
   type ConnectionOptions,
   createConnection,
   getConnectionManager,
-  In,
 } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite';
-import { DevSettings } from 'react-native';
 
+import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 import getCacheSizeKiB from './cacheSize';
 
 const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
@@ -188,21 +187,18 @@ class DatabaseHelper {
 
     this.isAnalyzing = true;
     try {
-      const facts = await this.models.LocalSystemFact.find({
-        select: ['key', 'value'],
-        where: { key: In([PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]) },
-      });
-      const hasEverFullyAnalysed = facts.some(
-        ({ key }) => key === PLANNER_STATS_FULLY_ANALYSED_AT_KEY,
-      );
+      const [lastRefreshFact, fullyAnalysedFact] = await Promise.all([
+        this.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } }),
+        this.models.LocalSystemFact.findOne({
+          where: { key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY },
+        }),
+      ]);
+      const hasEverFullyAnalysed = fullyAnalysedFact !== null;
 
       // A pending full run isn’t throttled: it’s a one-off, and a recent approximate run is
       // precisely the stopgap it’s meant to replace
       if (hasEverFullyAnalysed) {
-        const lastRefresh = Number.parseInt(
-          facts.find(({ key }) => key === PLANNER_STATS_REFRESHED_AT_KEY)?.value,
-          10,
-        );
+        const lastRefresh = Number.parseInt(lastRefreshFact.value, 10);
         if (
           Number.isFinite(lastRefresh) &&
           Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
@@ -216,10 +212,10 @@ class DatabaseHelper {
       const succeeded = await this.refreshQueryPlannerStats(shoudFullyAnalyze);
       if (!succeeded) return;
 
-      const value = Date.now().toString();
       const keys = shoudFullyAnalyze
         ? [PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]
         : [PLANNER_STATS_REFRESHED_AT_KEY];
+      const value = Date.now().toString();
       await this.models.LocalSystemFact.upsert(
         keys.map(key => ({ key, value })),
         ['key'],
