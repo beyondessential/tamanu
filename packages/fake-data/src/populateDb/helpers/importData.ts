@@ -114,9 +114,11 @@ export const generateImportData = async ({
   );
 
   const survey = await Survey.create(fake(Survey));
+  const programDataElement = await ProgramDataElement.create(fake(ProgramDataElement));
   await SurveyScreenComponent.create(
     fake(SurveyScreenComponent, {
       surveyId: survey.id,
+      dataElementId: programDataElement.id,
       option: '{"foo":"bar"}',
       config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
     }),
@@ -127,8 +129,6 @@ export const generateImportData = async ({
       vaccineId: referenceData.id,
     }),
   );
-
-  await ProgramDataElement.create(fake(ProgramDataElement));
 
   const seedProgramRegistry = async () => {
     const program = await Program.create(fake(Program));
