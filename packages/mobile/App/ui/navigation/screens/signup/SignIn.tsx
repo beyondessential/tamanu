@@ -9,7 +9,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { SupportCentreButton } from './SupportCentreButton';
 import { SignInForm } from '/components/Forms/SignInForm';
-import { HomeBottomLogoIcon } from '/components/Icons';
+import { LogoV2Icon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { authSelector } from '/helpers/selectors';
@@ -62,19 +62,10 @@ export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProp
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            <HomeBottomLogoIcon
-              size={screenPercentageToDP(7.29, Orientation.Height)}
-              fill={theme.colors.SECONDARY_MAIN}
+            <LogoV2Icon
+              height={screenPercentageToDP(7.29, Orientation.Height)}
+              fill={theme.colors.WHITE}
             />
-            <StyledText
-              marginLeft={screenPercentageToDP(0.5, Orientation.Height)}
-              fontSize="40"
-              color={theme.colors.WHITE}
-              fontWeight="bold"
-              verticalAlign="center"
-            >
-              tamanu
-            </StyledText>
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
             <StyledText fontSize={30} fontWeight="bold" marginBottom={5} color={theme.colors.WHITE}>
