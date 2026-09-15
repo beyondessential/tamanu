@@ -431,8 +431,11 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        // Foreign keys are deferred for the whole transaction, so save order doesn't matter
-        const modelsToSave = Object.values(incomingModels) as TransactingModel[];
+        /**
+         * @privateRemarks Foreign key checks are deferred for the whole transaction, so these
+         * models don’t need to be topologically ordered.
+         */
+        const modelsToSave = Object.values(incomingModels);
         const processStreamedDataFunction = async (records: any) => {
           await saveChangesFromMemory(records, modelsToSave, this.syncSettings, progressCallback);
         };
@@ -505,8 +508,11 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        // Foreign keys are deferred for the whole transaction, so save order doesn't matter
-        const modelsToSave = Object.values(incomingModels) as TransactingModel[];
+        /**
+         * @privateRemarks Foreign key checks are deferred for the whole transaction, so these
+         * models don’t need to be topologically ordered.
+         */
+        const modelsToSave = Object.values(incomingModels);
         await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
         await checkForeignKeys(
           transactionEntityManager,
