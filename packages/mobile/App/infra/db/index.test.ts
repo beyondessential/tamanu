@@ -6,21 +6,23 @@ import {
 
 const NINETY_MIN_MS = 5_400_000;
 
-const getFact = (key: string) => Database.models.LocalSystemFact.findOne({ where: { key } });
+const getFact = async (key: string) => {
+  return await Database.models.LocalSystemFact.findOne({ where: { key } });
+};
 
-const getRefreshedAtFact = () => getFact(PLANNER_STATS_REFRESHED_AT_KEY);
+const getRefreshedAtFact = async () => await getFact(PLANNER_STATS_REFRESHED_AT_KEY);
 
-const getFullyAnalysedAtFact = () => getFact(PLANNER_STATS_FULLY_ANALYSED_AT_KEY);
+const getFullyAnalysedAtFact = async () => await getFact(PLANNER_STATS_FULLY_ANALYSED_AT_KEY);
 
-const setFact = (key: string, value: string) =>
-  Database.models.LocalSystemFact.createAndSaveOne({ key, value });
+const setFact = async (key: string, value: string) => {
+  return await Database.models.LocalSystemFact.createAndSaveOne({ key, value });
+};
 
 const didRunAnalyze = (querySpy: jest.SpyInstance) =>
   querySpy.mock.calls.some(
     ([sql]) => typeof sql === 'string' && sql.toUpperCase().includes('ANALYZE'),
   );
 
-/** `analysis_limit = 0` means no limit, i.e. a full scan of every index */
 const didRunFullAnalyze = (querySpy: jest.SpyInstance) =>
   querySpy.mock.calls.some(
     ([sql]) => typeof sql === 'string' && sql.includes('PRAGMA analysis_limit = 0;'),
