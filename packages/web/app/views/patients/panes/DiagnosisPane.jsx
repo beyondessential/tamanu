@@ -21,7 +21,7 @@ const ActionRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0;
+  padding: 6px 0;
 `;
 
 const SyndromicSurveillanceRow = styled.div`
