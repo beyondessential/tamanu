@@ -55,6 +55,26 @@ import {
   orderingPrescriberLabel,
   OrderingPrescriberField,
 } from './DischargeMedicationColumns';
+import {
+  SyndromicSurveillanceFields,
+  SYNDROMIC_SURVEILLANCE_INITIAL_VALUES,
+} from './SyndromicSurveillanceFields';
+
+const SyndromicSurveillanceDivider = styled(Divider)`
+  margin: 0 auto;
+`;
+
+const SyndromicSurveillanceSectionTitle = styled.h4`
+  font-size: 18px;
+  font-weight: 500;
+  margin-block: 0 8px;
+`;
+
+const SyndromicSurveillanceIntroText = styled.p`
+  font-size: 14px;
+  margin-block: 0 20px;
+  color: ${Colors.midText};
+`;
 
 const MedicationContainer = styled(Box)`
   border: 1px solid ${Colors.outline};
@@ -184,6 +204,7 @@ const getDischargeInitialValues = ({
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
+    ...SYNDROMIC_SURVEILLANCE_INITIAL_VALUES,
   };
 };
 
@@ -349,7 +370,9 @@ export const DischargeForm = ({
   const handleSaveDraft = useCallback(
     async values => {
       try {
-        await saveDraft(toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }));
+        await saveDraft(
+          toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }),
+        );
       } catch (error) {
         toast.error(
           <TranslatedText
@@ -642,6 +665,27 @@ export const DischargeForm = ({
               <EncounterSummaryContent encounterId={encounter.id} />
             </div>
           )}
+          <SyndromicSurveillanceDivider
+            style={{ gridColumn: '1 / -1' }}
+            data-testid="divider-syndromic-surveillance-section"
+          />
+          <div style={{ gridColumn: '1 / -1' }}>
+            <SyndromicSurveillanceSectionTitle data-testid="sectiontitle-syndromic-surveillance">
+              <TranslatedText
+                stringId="encounter.syndromicSurveillance.label"
+                fallback="Syndromic surveillance"
+                data-testid="translatedtext-syndromic-surveillance-section-title"
+              />
+            </SyndromicSurveillanceSectionTitle>
+            <SyndromicSurveillanceIntroText data-testid="introtext-syndromic-surveillance-section">
+              <TranslatedText
+                stringId="discharge.syndromicSurveillance.intro"
+                fallback="Please complete the below for syndromic surveillance"
+                data-testid="translatedtext-syndromic-surveillance-section-intro"
+              />
+            </SyndromicSurveillanceIntroText>
+            <SyndromicSurveillanceFields data-testid="syndromicsurveillancefields-discharge" />
+          </div>
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
             data-testid="divider-lj2w"
