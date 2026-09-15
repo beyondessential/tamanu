@@ -40,70 +40,82 @@ const IntroText = styled.p`
   margin: 0;
 `;
 
+const INITIAL_SYMPTOMS = MOCK_SYMPTOM_OPTIONS.reduce(
+  (values, option) => ({ ...values, [option.value]: false }),
+  {},
+);
+
 export const SyndromicSurveillanceForm = React.memo(({ onCancel, onSave }) => (
   <Form
     onSubmit={onSave}
     initialValues={{
       noSyndrome: false,
+      symptoms: INITIAL_SYMPTOMS,
     }}
     formType={FORM_TYPES.CREATE_FORM}
-    render={({ submitForm }) => (
-      <FormContent data-testid="formcontent-syndromic-surveillance">
-        <FormGrid columns={1} data-testid="formgrid-syndromic-surveillance">
-          <WhiteBox data-testid="whitebox-syndromic-surveillance">
-            <IntroText data-testid="introtext-syndromic-surveillance">
-              <TranslatedText
-                stringId="syndromicSurveillance.modal.intro"
-                fallback="Select all patient symptoms that apply for syndromic surveillance"
-                data-testid="translatedtext-syndromic-surveillance-intro"
-              />
-            </IntroText>
-            <Divider data-testid="divider-syndromic-surveillance-intro" />
-            <Field
-              name="noSyndrome"
-              label={
+    render={({ submitForm, values }) => {
+      const isAnySymptomChecked = Object.values(values.symptoms).some(Boolean);
+
+      return (
+        <FormContent data-testid="formcontent-syndromic-surveillance">
+          <FormGrid columns={1} data-testid="formgrid-syndromic-surveillance">
+            <WhiteBox data-testid="whitebox-syndromic-surveillance">
+              <IntroText data-testid="introtext-syndromic-surveillance">
                 <TranslatedText
-                  stringId="syndromicSurveillance.modal.noSyndrome.label"
-                  fallback="No syndrome (Patient was asked and none apply)"
-                  data-testid="translatedtext-no-syndrome"
+                  stringId="syndromicSurveillance.modal.intro"
+                  fallback="Select all patient symptoms that apply for syndromic surveillance"
+                  data-testid="translatedtext-syndromic-surveillance-intro"
+                />
+              </IntroText>
+              <Divider data-testid="divider-syndromic-surveillance-intro" />
+              <Field
+                name="noSyndrome"
+                label={
+                  <TranslatedText
+                    stringId="syndromicSurveillance.modal.noSyndrome.label"
+                    fallback="No syndrome (Patient was asked and none apply)"
+                    data-testid="translatedtext-no-syndrome"
+                  />
+                }
+                component={CheckField}
+                disabled={isAnySymptomChecked}
+                data-testid="field-no-syndrome"
+              />
+              <Divider data-testid="divider-syndromic-surveillance-symptoms" />
+              {MOCK_SYMPTOM_OPTIONS.map(option => (
+                <Field
+                  key={option.value}
+                  name={`symptoms.${option.value}`}
+                  label={option.label}
+                  component={CheckField}
+                  disabled={values.noSyndrome}
+                  data-testid={`field-symptom-${option.value}`}
+                />
+              ))}
+            </WhiteBox>
+            <ModalFormActionRow
+              onConfirm={submitForm}
+              onCancel={onCancel}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.confirm"
+                  fallback="Confirm"
+                  data-testid="translatedtext-confirm"
                 />
               }
-              component={CheckField}
-              data-testid="field-no-syndrome"
+              cancelText={
+                <TranslatedText
+                  stringId="general.action.cancel"
+                  fallback="Cancel"
+                  data-testid="translatedtext-cancel"
+                />
+              }
+              data-testid="modalformactionrow-syndromic-surveillance"
             />
-            <Divider data-testid="divider-syndromic-surveillance-symptoms" />
-            {MOCK_SYMPTOM_OPTIONS.map(option => (
-              <Field
-                key={option.value}
-                name={`symptoms.${option.value}`}
-                label={option.label}
-                component={CheckField}
-                data-testid={`field-symptom-${option.value}`}
-              />
-            ))}
-          </WhiteBox>
-          <ModalFormActionRow
-            onConfirm={submitForm}
-            onCancel={onCancel}
-            confirmText={
-              <TranslatedText
-                stringId="general.action.confirm"
-                fallback="Confirm"
-                data-testid="translatedtext-confirm"
-              />
-            }
-            cancelText={
-              <TranslatedText
-                stringId="general.action.cancel"
-                fallback="Cancel"
-                data-testid="translatedtext-cancel"
-              />
-            }
-            data-testid="modalformactionrow-syndromic-surveillance"
-          />
-        </FormGrid>
-      </FormContent>
-    )}
+          </FormGrid>
+        </FormContent>
+      );
+    }}
     data-testid="form-syndromic-surveillance"
   />
 ));

@@ -6,6 +6,9 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 const SyndromicSurveillanceModalComponent = ({ open, onClose, ...props }) => {
   const onSave = data => {
+    // TODO: the "no syndrome" vs symptoms mutual exclusivity is only enforced client-side
+    // (disabled checkboxes); once this submits to a real endpoint, validate server-side too,
+    // since a user could bypass the UI and submit both.
     // eslint-disable-next-line no-console
     console.log(data);
     onClose();
