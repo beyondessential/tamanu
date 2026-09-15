@@ -103,7 +103,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             <StyledText
               width="100%"
               textAlign="center"
-              marginTop={16}
+              marginTop={theme.spacing.space200}
               fontSize={12}
               color={theme.colors.WHITE}
             >

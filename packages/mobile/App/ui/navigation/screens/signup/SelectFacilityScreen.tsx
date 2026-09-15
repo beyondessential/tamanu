@@ -31,8 +31,8 @@ import { theme } from '/styled/theme';
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: theme.spacing.space150,
-    marginTop: screenPercentageToDP(7.29, Orientation.Height),
-    marginBottom: screenPercentageToDP(14.7, Orientation.Height),
+    marginTop: theme.spacing.space600,
+    marginBottom: theme.spacing.space300,
   },
   header: {
     alignItems: 'center',
@@ -93,7 +93,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
       onSubmit={onSubmit}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
-        <StyledView marginTop={screenPercentageToDP(14.7, Orientation.Height)}>
+        <StyledView marginTop={theme.spacing.space900}>
           <StyledView justifyContent="space-around">
             <Field
               name="facilityId"
@@ -141,14 +141,10 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
 
   useEffect(() => {
     // if we already have a facility id, immediately navigate onward to the home screen
-    if (facilityId) {
-      navigation.replace(Routes.HomeStack.Index);
-    }
+    if (facilityId) navigation.replace(Routes.HomeStack.Index);
   }, [facilityId, navigation]);
 
-  if (facilityId) {
-    return null;
-  }
+  if (facilityId) return null;
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -156,10 +152,7 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
       <StyledSafeAreaView>
         <View style={styles.content}>
           <View style={styles.header}>
-            <HomeBottomLogoIcon
-              size={screenPercentageToDP(7.29, Orientation.Height)}
-              fill={theme.colors.SECONDARY_MAIN}
-            />
+            <HomeBottomLogoIcon size={47} fill={theme.colors.SECONDARY_MAIN} />
             <StyledText
               marginTop={theme.spacing.space200}
               fontSize={16}
@@ -178,8 +171,8 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
             <StyledText
               width="100%"
               textAlign="center"
-              marginTop={screenPercentageToDP('2.43', Orientation.Height)}
-              marginBottom={screenPercentageToDP('4.86', Orientation.Height)}
+              marginTop={theme.spacing.space200}
+              marginBottom={theme.spacing.space200}
               fontSize={12}
               color={theme.colors.SECONDARY_MAIN}
             >
