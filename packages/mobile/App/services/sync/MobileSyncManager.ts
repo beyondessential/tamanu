@@ -283,15 +283,14 @@ export class MobileSyncManager {
     await dropSnapshotTable();
 
     if (this.isInitialSync) {
-      // Give the query planner an accurate baseline before the device is ever used. Runs here
-      // rather than earlier because `pullInitialSync()` has by now restored the safe pragmas, so
-      // ANALYZE is journalled; because `isSyncing` is still set, so the sync timer can’t collide
-      // with ANALYZE’s write lock; and because the pull cursor is already committed, so a slow or
-      // failed ANALYZE can’t cost the device its sync progress.
+      // Give query planner an accurate baseline before the database gets actively used. Runs here
+      // rather than earlier because:
+      // - `pullInitialSync()` has by now restored the safe pragmas, so ANALYZE is journalled;
+      // - `isSyncing` is still set, so the sync timer can’t collide with ANALYZE’s write lock; and
+      // - pull cursor is already committed, so a slow or failed ANALYZE can’t cost this client its
+      //   sync progress.
       this.setSyncStage(3);
       this.setProgress(this.progressMaxByStage[this.syncStage - 1], 'Optimising database…');
-      // Swallows its own errors: stale `sqlite_stat1` is a performance problem, not a correctness
-      // one, and must never fail an otherwise successful sync
       await Database.requestQueryPlannerStatsRefresh();
     }
 
