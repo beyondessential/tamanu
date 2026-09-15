@@ -656,7 +656,6 @@ export const MedicationForm = ({
   const [frequencyChanged, setFrequencyChanged] = useState(0);
   const [selectedDrug, setSelectedDrug] = useState(null);
   const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
-  const drugStockStatus = selectedDrug?.facilities?.[0]?.stockStatus;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -881,7 +880,7 @@ export const MedicationForm = ({
                         />
                       </SmallBodyText>
                     )}
-                    {!isOngoingPrescription && !!drugStockStatus && (
+                    {!isOngoingPrescription && !!values.medicationId && (
                       <StockLevelContainer>
                         {getStockLevelIcon()}
                         {getStockLevelContent()}
