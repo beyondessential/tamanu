@@ -93,9 +93,9 @@ export const UserActivityMonitor = () => {
   // Can't fetch localisation prior to login so add defaults
   const {
     enabled = false,
+    refreshInterval = 0,
     timeoutDuration = 0,
     warningPromptDuration = 0,
-    refreshInterval = 0,
   } = getSetting('features.idleTimeout') || {};
 
   const onIdle = () => {
