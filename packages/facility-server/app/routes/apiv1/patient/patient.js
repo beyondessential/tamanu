@@ -609,7 +609,10 @@ patientRoute.get(
     const baseQuery = {
       where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        // medication is included explicitly below with its referenceDrug nested include
+        ...Prescription.getListReferenceAssociations().filter(
+          association => association !== 'medication',
+        ),
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
@@ -655,6 +658,10 @@ patientRoute.get(
             ]
           : [...orderBy.split('.'), order.toUpperCase()],
       ],
+      // The sensitive-medication filter references the nested medication->referenceDrug join.
+      // Applying a limit would otherwise make Sequelize emit that join inside a subquery while
+      // leaving the WHERE outside it, and Postgres reports a missing FROM-clause entry.
+      subQuery: false,
       ...(page && rowsPerPage
         ? {
             limit: rowsPerPage,
@@ -732,7 +739,10 @@ patientRoute.get(
     const dischargeMedications = await Prescription.findAll({
       where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        // medication is included explicitly below with its referenceDrug nested include
+        ...Prescription.getListReferenceAssociations().filter(
+          association => association !== 'medication',
+        ),
         {
           model: EncounterPrescription,
           as: 'encounterPrescription',
