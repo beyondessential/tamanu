@@ -1,88 +1,144 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Box } from '@material-ui/core';
-import { Modal } from '../../Modal';
+import styled from 'styled-components';
+import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
+import { LabRequestLabelPrintFrame } from '../printouts/LabRequestLabelPrintFrame';
+import { LabRequestFinalisedHeader } from '../LabRequestFinalisedHeader';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
-import { TranslatedText, TranslatedReferenceData } from '../../Translation';
-import { useSettings } from '../../../contexts/Settings';
+import { BodyText, FormSeparatorLine } from '../..';
+import { CheckInput } from '../../Field';
+import { Colors } from '../../../constants';
 import { usePatient } from '../../../contexts/Patient';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 250px;
-  padding-top: 10px;
-
-  @media print {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-
-    > div {
-      margin: 15px;
-    }
+const StyledModal = styled(Modal)`
+  .MuiDialogActions-root {
+    position: sticky;
+    bottom: 0;
+    background: ${Colors.background};
+    border-top: 1px solid ${Colors.outline};
+    padding: 10px 40px 20px 40px;
   }
 `;
 
-export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
+const List = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-top: 10px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+const PreviewCard = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  padding: 24px 30px 24px 20px;
+`;
+
+const Instruction = styled(BodyText)`
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+`;
+
+const toLabelData = (patient, lab) => ({
+  patientName: getPatientNameAsString(patient),
+  requestId: lab.displayId,
+  patientId: patient.displayId,
+  patientDateOfBirth: patient.dateOfBirth,
+  date: lab.sampleTime,
+  collectedBy: lab.collectedBy?.displayName,
+});
+
+export const LabRequestPrintLabelModal = ({
+  open,
+  onClose,
+  labRequests,
+  showFinalisedHeader = false,
+}) => {
   const { patient } = usePatient();
-  const { getSetting } = useSettings();
-  const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
+  const frameRef = useRef(null);
+  const [selectedIds, setSelectedIds] = useState(() => new Set(labRequests.map(lab => lab.id)));
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  // Re-select every label each time the screen is opened, without an Effect.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) setSelectedIds(new Set(labRequests.map(lab => lab.id)));
+  }
 
   if (!patient) return null;
 
+  const toggle = id =>
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const printedLabels = labRequests
+    .filter(lab => selectedIds.has(lab.id))
+    .map(lab => toLabelData(patient, lab));
+
+  const handlePrint = async () => {
+    await frameRef.current.print();
+    onClose();
+  };
+
   return (
-    <Modal
-      title={
-        <TranslatedText
-          stringId="lab.modal.printLabel.title"
-          fallback="Print label"
-          data-testid="translatedtext-4d9s"
-        />
-      }
+    <StyledModal
+      title={<TranslatedText stringId="lab.modal.printLabel.title" fallback="Print label" />}
       width="md"
       open={open}
       onClose={onClose}
-      printable
-      data-testid="modal-5no3"
+      actions={
+        <ConfirmCancelRow
+          onCancel={onClose}
+          onConfirm={handlePrint}
+          confirmDisabled={printedLabels.length === 0}
+          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+          confirmText={<TranslatedText stringId="lab.action.printLabels" fallback="Print labels" />}
+        />
+      }
     >
-      <Container data-testid="container-78hf">
-        {labRequests.map((lab, index) => (
-          <Box key={lab.displayId} mb={3} data-testid={`box-ldhb-${index}`}>
-            <LabRequestPrintLabel
-              printWidth={labelWidth}
-              data={{
-                patientName: getPatientNameAsString(patient),
-                testId: lab.displayId,
-                patientId: patient.displayId,
-                patientDateOfBirth: patient.dateOfBirth,
-                date: lab.sampleTime,
-                labCategory: lab.category && (
-                  <TranslatedReferenceData
-                    fallback={lab.category.name}
-                    value={lab.category.id}
-                    category={lab.category.type}
-                    data-testid={`translatedreferencedata-hcy8-${index}`}
-                  />
-                ),
-                specimenType: lab.specimenType && (
-                  <TranslatedReferenceData
-                    fallback={lab.specimenType.name}
-                    value={lab.specimenType.id}
-                    category={lab.specimenType.type}
-                    data-testid={`translatedreferencedata-guo4-${index}`}
-                  />
-                ),
-              }}
-              data-testid={`labrequestprintlabel-xrxn-${index}`}
-            />
-          </Box>
+      {showFinalisedHeader && (
+        <>
+          <LabRequestFinalisedHeader />
+          <FormSeparatorLine />
+        </>
+      )}
+      <Instruction>
+        <TranslatedText
+          stringId="lab.modal.printLabel.instruction"
+          fallback="Please select the sample labels below to print."
+        />
+      </Instruction>
+      <List>
+        {labRequests.map(lab => (
+          <Row key={lab.id}>
+            <PreviewCard>
+              <CheckInput
+                value={selectedIds.has(lab.id)}
+                name={`select-${lab.id}`}
+                onChange={() => toggle(lab.id)}
+                data-testid={`labelselect-${lab.id}`}
+              />
+              <LabRequestPrintLabel data={toLabelData(patient, lab)} variant="preview" />
+            </PreviewCard>
+          </Row>
         ))}
-      </Container>
-    </Modal>
+      </List>
+      <LabRequestLabelPrintFrame ref={frameRef} labels={printedLabels} />
+    </StyledModal>
   );
 };
 
@@ -90,4 +146,7 @@ LabRequestPrintLabelModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   labRequests: PropTypes.array.isRequired,
+  // Opt in from the new-request finalise flow only; other flows (e.g. the lab request view) are not
+  // a finalisation and must not show the "finalised" confirmation.
+  showFinalisedHeader: PropTypes.bool,
 };

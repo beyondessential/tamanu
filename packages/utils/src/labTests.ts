@@ -1,4 +1,4 @@
-import { SEX_VALUES } from '@tamanu/constants';
+import { FHIR_QUANTITY_COMPARATOR, SEX_VALUES } from '@tamanu/constants';
 import { isNil } from 'es-toolkit/compat';
 
 // These types are structurally compatible with the Database models but defined here
@@ -184,4 +184,32 @@ export const getReferenceRangeWithUnit = ({
   )
     return referenceRange;
   return `${referenceRange} ${unit}`;
+};
+
+export type LabTestResultComparator =
+  (typeof FHIR_QUANTITY_COMPARATOR)[keyof typeof FHIR_QUANTITY_COMPARATOR];
+
+export type ParsedLabTestResult = {
+  comparator: LabTestResultComparator | null;
+  value: number | null;
+};
+
+// A result outside an analyser's detection limit arrives with a comparator prefix, e.g.
+// "< 0.3". Splits it into the comparator and numeric value so reference-range flagging can run
+// on the number while the raw string is still displayed. A plain numeric result yields a null
+// comparator; a non-numeric result (free text, select option) yields a null value.
+const COMPARATOR_RESULT_PATTERN = /^(<=|>=|<|>)\s*(-?\d*\.?\d+)$/;
+
+export const parseLabTestResult = (result: unknown): ParsedLabTestResult => {
+  if (typeof result === 'number')
+    return { comparator: null, value: Number.isFinite(result) ? result : null };
+  if (typeof result !== 'string') return { comparator: null, value: null };
+
+  const match = result.trim().match(COMPARATOR_RESULT_PATTERN);
+  if (match) {
+    return { comparator: match[1] as LabTestResultComparator, value: Number.parseFloat(match[2]) };
+  }
+
+  const value = Number.parseFloat(result);
+  return { comparator: null, value: Number.isNaN(value) ? null : value };
 };

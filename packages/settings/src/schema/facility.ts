@@ -357,6 +357,20 @@ export const facilitySettings = {
         },
       },
     },
+    labs: {
+      name: 'Labs',
+      description: 'Settings related to lab requests',
+      exposedToWeb: true,
+      properties: {
+        autoPrintSampleLabel: {
+          name: 'Auto-print sample label',
+          description:
+            'Automatically present the sample label print screen once all samples in a lab request have been recorded as collected.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     invoicing: {
       name: 'Invoicing',
       description: 'Settings for automatically adding fees to invoices',

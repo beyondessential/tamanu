@@ -249,6 +249,15 @@ export const FHIR_OBSERVATION_STATUS = {
   AMENDED: 'amended',
 };
 
+// http://hl7.org/fhir/ValueSet/quantity-comparator — how a measured value relates to
+// the stated value, e.g. a result below an analyser's detection limit arrives as `< 0.3`.
+export const FHIR_QUANTITY_COMPARATOR = {
+  LESS_THAN: '<',
+  LESS_THAN_OR_EQUAL: '<=',
+  GREATER_THAN_OR_EQUAL: '>=',
+  GREATER_THAN: '>',
+};
+
 export const FHIR_ENCOUNTER_CLASS_DISPLAY = {
   IMP: 'inpatient encounter',
   AMB: 'ambulatory encounter',

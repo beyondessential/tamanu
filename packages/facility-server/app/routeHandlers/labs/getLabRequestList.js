@@ -32,6 +32,21 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
       return labRequest.tests.every(test => test.labTestType.isSensitive === false);
     });
 
+    // Each request's panels + individual (non-panel) tests, for the Category cell tooltip. Built
+    // from the associations the list query already loaded, so it adds no query.
+    for (const labRequest of permittedLabRequests) {
+      const panelNames = (labRequest.labTestPanelRequests ?? [])
+        .map(panelRequest => panelRequest.labTestPanel?.name)
+        .filter(Boolean);
+      const individualTestNames = (labRequest.tests ?? [])
+        .filter(test => !test.labTestPanelRequestId)
+        .map(test => test.labTestType?.name)
+        .filter(Boolean);
+      labRequest.testsAndPanelNames = [...panelNames, ...individualTestNames]
+        .sort((a, b) => a.localeCompare(b))
+        .join(', ');
+    }
+
     /**
      * Have to select associated note pages of lab request separately here.
      * This is because Sequelize has a bug that association scope field is not snake cased when underscored = true,
