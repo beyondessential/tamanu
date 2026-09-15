@@ -17,7 +17,6 @@ import { FacilitySelectField } from './FacilitySelectField';
 import { Button } from '/components/Button';
 import { HomeBottomLogoIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import {
   FullView,
