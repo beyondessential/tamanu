@@ -155,3 +155,6 @@ export const serverKeys = {
   all: ['servers'] as const satisfies QueryKey,
   list: () => [...serverKeys.all, 'list'] as const satisfies QueryKey,
 };
+
+/** Whether the central server has enough free disk space to accept a new attachment. */
+export const canUploadAttachmentKey = ['canUploadAttachment'] as const satisfies QueryKey;
