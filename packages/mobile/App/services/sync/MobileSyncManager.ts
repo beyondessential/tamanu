@@ -288,10 +288,7 @@ export class MobileSyncManager {
       // with ANALYZE’s write lock; and because the pull cursor is already committed, so a slow or
       // failed ANALYZE can’t cost the device its sync progress.
       this.setSyncStage(3);
-      this.setProgress(
-        this.progressMaxByStage[this.syncStage - 1],
-        'Optimising database, please wait...',
-      );
+      this.setProgress(this.progressMaxByStage[this.syncStage - 1], 'Optimising database…');
       // Swallows its own errors: stale `sqlite_stat1` is a performance problem, not a correctness
       // one, and must never fail an otherwise successful sync
       await Database.requestQueryPlannerStatsRefresh();
