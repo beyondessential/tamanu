@@ -208,6 +208,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
           labRequests={isAutoLabelPrint ? labRequests : selectedRows}
           open={isOpen === MODALS.LABEL_PRINT || isAutoLabelPrint}
           onClose={isAutoLabelPrint ? onClose : () => setIsOpen(false)}
+          showFinalisedHeader
           data-testid="labrequestprintlabelmodal-n8hs"
         />
         <OutlinedButton

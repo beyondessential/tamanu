@@ -62,7 +62,7 @@ export const LabRequestPrintLabelModal = ({
   open,
   onClose,
   labRequests,
-  showFinalisedHeader = true,
+  showFinalisedHeader = false,
 }) => {
   const { patient } = usePatient();
   const frameRef = useRef(null);
@@ -118,8 +118,8 @@ export const LabRequestPrintLabelModal = ({
       )}
       <Instruction>
         <TranslatedText
-          stringId="lab.requestSummary.instruction"
-          fallback="Please select items from the list below to print sample labels or the lab request."
+          stringId="lab.modal.printLabel.instruction"
+          fallback="Please select the sample labels below to print."
         />
       </Instruction>
       <List>
@@ -146,5 +146,7 @@ LabRequestPrintLabelModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   labRequests: PropTypes.array.isRequired,
+  // Opt in from the new-request finalise flow only; other flows (e.g. the lab request view) are not
+  // a finalisation and must not show the "finalised" confirmation.
   showFinalisedHeader: PropTypes.bool,
 };
