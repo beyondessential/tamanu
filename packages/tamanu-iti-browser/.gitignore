@@ -1,0 +1,6 @@
+.tmp/
+*.pem
+*.key
+*.crt
+*.srl
+state.json
