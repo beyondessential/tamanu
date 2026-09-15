@@ -172,14 +172,8 @@ class DatabaseHelper {
 
   /**
    * Runs a full ANALYZE the first time it’s ever called on a device, then approximate ones
-   * thereafter, throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS} so this can be called
+   * thereafter. Throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS} so this can be called
    * opportunistically without repeatedly taking ANALYZE’s write lock.
-   *
-   * The one full run gives the planner an accurate baseline, which no client has ever had: sampled
-   * stats alone are enough to keep the planner up to date, but not to get it right in the first
-   * place. It’s gated on {@link PLANNER_STATS_FULLY_ANALYSED_AT_KEY} rather than on the initial
-   * sync that normally triggers it, so devices already past initial sync get one too, and so a
-   * failed attempt is retried by whichever caller comes next.
    */
   async requestQueryPlannerStatsRefresh(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
