@@ -1,4 +1,4 @@
-# 16. Immunisation
+# 7. Immunisations
 
 Recording vaccines and using the immunisation register.
 

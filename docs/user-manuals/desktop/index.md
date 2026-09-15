@@ -4,24 +4,26 @@ Guides to using Tamanu on a computer.
 
 ## Modules
 
-- [1. Access](access/index.md): Signing in, signing out, and changing your language.
-- [2. Dashboard](dashboard/index.md): The overview you land on after signing in.
-- [3. Patients](patients/index.md): Finding, registering, and managing patient records.
-- [4. Encounters](encounters/index.md): Admitting, moving, and discharging patients.
+- [1. Accessing Tamanu Desktop](accessing-tamanu/index.md): Signing in, signing out, and changing your language.
+- [2. Navigating Tamanu](navigating-tamanu/index.md): Finding your way around: the sidebar, search, and how the screens fit together.
+- [3. Clinician Dashboard](clinician-dashboard/index.md): The overview you land on after signing in.
+- [4. Patients](patients/index.md): Finding, registering, and managing patient records.
 - [5. Scheduling](scheduling/index.md): Outpatient appointments and location bookings.
-- [6. Vitals](vitals/index.md): Recording and reviewing a patient's observations during an encounter.
-- [7. Charts](charts/index.md): Recording and reviewing charted clinical data.
-- [8. Tasks](tasks/index.md): Clinical tasks raised and completed during an encounter.
-- [9. Notes](notes/index.md): Written clinical notes on an encounter.
-- [10. Procedures](procedures/index.md): Procedures carried out during an encounter.
-- [11. Medication](medication/index.md): Prescribing, dispensing, and administering medication.
-- [12. Labs](labs/index.md): Requesting lab tests and reading results.
-- [13. Imaging](imaging/index.md): Requesting imaging and reading results.
+- [6. Program Registries](program-registries/index.md): Enrolling patients in program registries and tracking them.
+- [7. Immunisations](immunisations/index.md): Recording vaccines and using the immunisation register.
+- [8. Encounters](encounters/index.md): Admitting a patient and moving them between locations.
+- [9. Bed Management](bed-management/index.md): Beds and locations across the facility.
+- [10. Diagnoses](diagnoses/index.md): Recording and managing a patient's diagnoses.
+- [11. Vitals](vitals/index.md): Recording and reviewing a patient's observations during an encounter.
+- [12. Charts](charts/index.md): Recording and reviewing charted clinical data.
+- [13. Notes](notes/index.md): Written clinical notes on an encounter.
 - [14. Forms](forms/index.md): Completing program forms and surveys for a patient.
-- [15. Referrals](referrals/index.md): Referring a patient and tracking referrals.
-- [16. Immunisation](immunisation/index.md): Recording vaccines and using the immunisation register.
-- [17. Documents](documents/index.md): Files attached to a patient or an encounter.
-- [18. Invoicing](invoicing/index.md): Invoices raised against an encounter.
-- [19. Program registry](program-registry/index.md): Enrolling patients in program registries and tracking them.
-- [20. Bed management](bed-management/index.md): Beds and locations across the facility.
-- [21. Reports](reports/index.md): Running facility reports.
+- [15. Tasks](tasks/index.md): Clinical tasks raised and completed during an encounter.
+- [16. Medications](medications/index.md): Prescribing, dispensing, and administering medication.
+- [17. Procedures](procedures/index.md): Procedures carried out during an encounter.
+- [18. Labs](labs/index.md): Requesting lab tests and reading results.
+- [19. Imaging](imaging/index.md): Requesting imaging and reading results.
+- [20. Referrals](referrals/index.md): Referring a patient and tracking referrals.
+- [21. Discharge](discharge/index.md): Discharging a patient and completing the discharge summary.
+- [22. Invoicing](invoicing/index.md): Invoices raised against an encounter.
+- [23. Reports](reports/index.md): Running facility reports.

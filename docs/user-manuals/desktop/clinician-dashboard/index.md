@@ -1,4 +1,4 @@
-# 2. Dashboard
+# 3. Clinician Dashboard
 
 The overview you land on after signing in.
 

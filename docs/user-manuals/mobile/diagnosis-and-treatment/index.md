@@ -1,4 +1,4 @@
-# 4. Diagnosis and treatment
+# 5. Diagnosis and treatment
 
 Recording a diagnosis and prescribing medication.
 

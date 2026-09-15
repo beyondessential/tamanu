@@ -1,4 +1,4 @@
-# 2. Patients
+# 3. Patients
 
 Finding patients, registering them, and viewing their details.
 

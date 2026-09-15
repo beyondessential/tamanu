@@ -1,4 +1,4 @@
-# 18. Invoicing
+# 22. Invoicing
 
 Invoices raised against an encounter.
 

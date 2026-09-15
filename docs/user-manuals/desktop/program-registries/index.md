@@ -1,4 +1,4 @@
-# 19. Program registry
+# 6. Program Registries
 
 Enrolling patients in program registries and tracking them.
 

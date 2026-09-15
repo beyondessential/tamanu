@@ -1,4 +1,4 @@
-# 1. Access
+# 1. Accessing Tamanu Desktop
 
 Signing in, signing out, and changing your language.
 

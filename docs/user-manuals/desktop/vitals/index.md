@@ -1,7 +1,7 @@
-# 6. Vitals
+# 11. Vitals
 
 Recording and reviewing a patient's observations during an encounter.
 
 ## Guides
 
-- [6.1 Record a set of vitals](record-vitals.md)
+- [11.1 Record a set of vitals](record-vitals.md)
