@@ -150,17 +150,18 @@ class DatabaseHelper {
    * `analysis_limit` is connection-scoped and both modes share this connection, so each mode has
    * to set it explicitly rather than relying on the pragma’s default.
    *
+   *
    * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
-   * @param isFull Scan every index in full (accurate but slow) rather than sampling it
+   * @param full Scan every index in full (accurate but slow) rather than sampling it
    * @returns Whether the refresh succeeded
    */
-  private async refreshQueryPlannerStats(isFull: boolean): Promise<boolean> {
+  private async refreshQueryPlannerStats(full: boolean): Promise<boolean> {
     const start = performance.now();
-    const label = isFull ? 'Full' : 'Approximate';
+    const label = full ? 'Full' : 'Approximate';
     try {
-      // A full scan of every index is slow, but an “approximate ANALYZE” is better than none.
-      // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
-      await this.client.query(`PRAGMA analysis_limit = ${isFull ? 0 : 400};`);
+      // A full scan of every index is slow, but an “approximate ANALYZE” is better than none. (In
+      // my testing, full ANALYZE with 5M synced records takes ~2 min.)
+      await this.client.query(`PRAGMA analysis_limit = ${full ? 0 : 400};`);
       await this.client.query('ANALYZE;');
       console.log(`${label} ANALYZE done in ${performance.now() - start}ms`);
       return true;
@@ -184,6 +185,7 @@ class DatabaseHelper {
   async requestQueryPlannerStatsRefresh(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
     if (this.isAnalyzing) return;
+
     this.isAnalyzing = true;
     try {
       const facts = await this.models.LocalSystemFact.find({
@@ -209,12 +211,13 @@ class DatabaseHelper {
         }
       }
 
-      const isFull = !hasEverFullyAnalysed;
-      const succeeded = await this.refreshQueryPlannerStats(isFull);
+      const shoudFullyAnalyze = !hasEverFullyAnalysed;
+
+      const succeeded = await this.refreshQueryPlannerStats(shoudFullyAnalyze);
       if (!succeeded) return;
 
       const value = Date.now().toString();
-      const keys = isFull
+      const keys = shoudFullyAnalyze
         ? [PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]
         : [PLANNER_STATS_REFRESHED_AT_KEY];
       await this.models.LocalSystemFact.upsert(
