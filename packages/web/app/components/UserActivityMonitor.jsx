@@ -18,8 +18,7 @@ import { ModalActionRow } from './ModalActionRow';
 import { Modal } from './Modal';
 
 const WarningModalContainer = styled.div`
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+  padding-block: 2rem;
 `;
 
 const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }) => {
