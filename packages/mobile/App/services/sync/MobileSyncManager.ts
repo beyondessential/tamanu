@@ -1,53 +1,55 @@
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
-
+import { SETTING_KEYS } from '~/constants/settings';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
+import { SYNC_DIRECTIONS } from '../../models/types';
+import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
+import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTransactingModelsForDirection,
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
-  getTransactingModelsForDirection,
 } from './utils';
+import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
+import { checkForeignKeys } from './utils/checkForeignKeys';
+import { deferForeignKeys } from './utils/deferForeignKeys';
+import type { TransactingModel } from './utils/getModelsForDirection';
 import {
-  dropSnapshotTable,
   createSnapshotTable,
+  dropSnapshotTable,
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
-import { SYNC_DIRECTIONS } from '../../models/types';
-import { SYNC_EVENT_ACTIONS } from './types';
-import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
-import { SETTING_KEYS } from '~/constants/settings';
-import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
+import { saveChangesFromMemory, saveChangesFromSnapshot } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
-
-import type { TransactingModel } from './utils/getModelsForDirection';
-import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { deferForeignKeys } from './utils/deferForeignKeys';
-import { checkForeignKeys } from './utils/checkForeignKeys';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
  */
-type StageMaxProgress = Record<number, number>;
-const STAGE_MAX_PROGRESS_INCREMENTAL: StageMaxProgress = {
+
+const STAGE_MAX_PROGRESS_INITIAL = {
+  1: 30,
+  2: 90,
+  3: 100,
+} as const;
+
+const STAGE_MAX_PROGRESS_INCREMENTAL = {
   1: 33,
   2: 66,
   3: 100,
-};
-const STAGE_MAX_PROGRESS_INITIAL: StageMaxProgress = {
-  1: 33,
-  2: 100,
-};
+} as const;
 
-type SyncOptions = {
+type StageMaxProgress = typeof STAGE_MAX_PROGRESS_INITIAL | typeof STAGE_MAX_PROGRESS_INCREMENTAL;
+
+interface SyncOptions {
   urgent: boolean;
-};
+}
 
 export type MobileSyncSettings = {
   maxBatchesToKeepInMemory: number;
@@ -68,7 +70,7 @@ export interface PullParams {
 }
 
 export class MobileSyncManager {
-  progressMaxByStage = STAGE_MAX_PROGRESS_INCREMENTAL;
+  progressMaxByStage: StageMaxProgress = STAGE_MAX_PROGRESS_INCREMENTAL;
 
   isInitialSync = false;
 
@@ -254,7 +256,7 @@ export class MobileSyncManager {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
       this.isQueuing = true;
-      this.progressMessage = urgent ? 'Sync in progress...' : 'Sync in queue';
+      this.progressMessage = urgent ? 'Sync in progress…' : 'Sync in queue';
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE);
       return;
     }
@@ -279,6 +281,18 @@ export class MobileSyncManager {
 
     // clear persisted cache from this session
     await dropSnapshotTable();
+
+    if (this.isInitialSync) {
+      // Give query planner an accurate baseline before the database gets actively used. Runs here
+      // rather than earlier because:
+      // - `pullInitialSync()` has by now restored the safe pragmas, so ANALYZE is journalled;
+      // - `isSyncing` is still set, so the sync timer can’t collide with ANALYZE’s write lock; and
+      // - pull cursor is already committed, so a slow or failed ANALYZE can’t cost this client its
+      //   sync progress.
+      this.setSyncStage(3);
+      this.setProgress(this.progressMaxByStage[this.syncStage - 1], 'Optimising database…');
+      await Database.requestQueryPlannerStatsRefresh();
+    }
 
     this.lastSuccessfulSyncTime = new Date();
     this.setProgress(0, '');

@@ -1,15 +1,15 @@
+import { DevSettings } from 'react-native';
+import { typeORMDriver } from 'react-native-quick-sqlite';
 import {
   type Connection,
   type ConnectionOptions,
   createConnection,
   getConnectionManager,
 } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite';
-import { DevSettings } from 'react-native';
 
+import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 import getCacheSizeKiB from './cacheSize';
 
 const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
@@ -35,6 +35,7 @@ const TEST_CONNECTION_CONFIG = {
 } as const;
 
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
+export const PLANNER_STATS_FULLY_ANALYSED_AT_KEY = 'plannerStatsFullyAnalysedAt';
 
 /** 90 minutes */
 const PLANNER_STATS_REFRESH_INTERVAL_MS = 5_400_000;
@@ -144,57 +145,73 @@ class DatabaseHelper {
    * With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
    * which would take care of running ANALYZE as needed. Our version of `react-native-quick-sqlite`
    * gives us SQLite 3.39.
+   *
+   * `analysis_limit` is connection-scoped and both modes share this connection, so each mode has
+   * to set it explicitly rather than relying on the pragma’s default.
+   *
+   *
    * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
+   * @param full Scan every index in full (accurate but slow) rather than sampling it
    * @returns Whether the refresh succeeded
    */
-  private async refreshQueryPlannerStats(): Promise<boolean> {
+  private async refreshQueryPlannerStats(full: boolean): Promise<boolean> {
     const start = performance.now();
+    const label = full ? 'Full' : 'Approximate';
     try {
-      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none.
-      // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
-      await this.client.query('PRAGMA analysis_limit = 400;');
+      // A full scan of every index is slow, but an “approximate ANALYZE” is better than none. (In
+      // my testing, full ANALYZE with 5M synced records takes ~2 min.)
+      await this.client.query(`PRAGMA analysis_limit = ${full ? 0 : 400};`);
       await this.client.query('ANALYZE;');
-      console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
+      console.log(`${label} ANALYZE done in ${performance.now() - start}ms`);
       return true;
     } catch (e) {
-      console.error(`Approximate ANALYZE failed after ${performance.now() - start}ms:`, e);
+      console.error(`${label} ANALYZE failed after ${performance.now() - start}ms:`, e);
       return false;
     }
   }
 
   /**
-   * Throttles to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   * Runs a full ANALYZE the first time it’s ever called on a device, then approximate ones
+   * thereafter. Throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS} so this can be called
    * opportunistically without repeatedly taking ANALYZE’s write lock.
    */
   async requestQueryPlannerStatsRefresh(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
     if (this.isAnalyzing) return;
+
     this.isAnalyzing = true;
     try {
-      const fact = await this.models.LocalSystemFact.findOne({
-        select: ['value'],
-        where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+      const hasEverFullyAnalysed = await this.models.LocalSystemFact.existsBy({
+        key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY,
       });
-      const lastRefresh = Number.parseInt(fact?.value, 10);
-      if (
-        Number.isFinite(lastRefresh) &&
-        Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
-      ) {
-        return;
+
+      if (hasEverFullyAnalysed) {
+        const fact = await this.models.LocalSystemFact.findOne({
+          select: ['value'],
+          where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+        });
+        const lastRefresh = Number.parseInt(fact?.value, 10);
+        if (
+          Number.isFinite(lastRefresh) &&
+          Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
+        ) {
+          return;
+        }
       }
 
-      const succeeded = await this.refreshQueryPlannerStats();
+      const shouldFullyAnalyze = !hasEverFullyAnalysed;
+
+      const succeeded = await this.refreshQueryPlannerStats(shouldFullyAnalyze);
       if (!succeeded) return;
 
-      // Upsert; `key` has no unique index, so ON CONFLICT isn’t available
+      const keys = shouldFullyAnalyze
+        ? [PLANNER_STATS_REFRESHED_AT_KEY, PLANNER_STATS_FULLY_ANALYSED_AT_KEY]
+        : [PLANNER_STATS_REFRESHED_AT_KEY];
       const value = Date.now().toString();
-      const { affected } = await this.models.LocalSystemFact.update(
-        { key: PLANNER_STATS_REFRESHED_AT_KEY },
-        { value },
+      await this.models.LocalSystemFact.upsert(
+        keys.map(key => ({ key, value })),
+        ['key'],
       );
-      if (!affected) {
-        await this.models.LocalSystemFact.insert({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
-      }
     } catch (e) {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);
