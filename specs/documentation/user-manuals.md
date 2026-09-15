@@ -16,12 +16,21 @@ Tamanu repository alongside the code they describe.
       product a user would recognise. The name the product's own navigation gives that
       area is the starting point, and an author departs from it where a clearer name
       serves the reader better.
+- [ ] Modules are a flat list within a platform. A module is a functional area of the
+      product as a user thinks of it, wherever it happens to sit in the app's own
+      navigation, so an area reached through a tab is a module in its own right rather
+      than being buried under the area that contains it.
 - [ ] A module folder holds one file per guide.
 - [ ] Each level carries an `index.md` listing what sits beneath it: the manuals root
       lists the platforms, a platform lists its modules, and a module lists its guides.
 - [ ] An index entry names its target by the guide's or module's title and links to it.
 - [ ] A module's index lists its guides in the order a reader would carry the tasks out,
       so that reading down the list follows the work rather than the alphabet.
+- [ ] A module whose guides are yet to be written says so on its index, so a reader who
+      arrives there learns the area is known rather than meeting a blank page.
+- [ ] A guide closes with links to the guides before and after it in its module's order,
+      letting a reader work straight through a module. The first and last guide each
+      carry the one link that applies.
 
 ## Platforms
 
