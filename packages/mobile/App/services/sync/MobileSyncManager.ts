@@ -1,35 +1,33 @@
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
-
+import { SETTING_KEYS } from '~/constants/settings';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
+import { SYNC_DIRECTIONS } from '../../models/types';
+import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
+import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTransactingModelsForDirection,
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
-  getTransactingModelsForDirection,
 } from './utils';
+import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
+import { checkForeignKeys } from './utils/checkForeignKeys';
+import { deferForeignKeys } from './utils/deferForeignKeys';
+import type { TransactingModel } from './utils/getModelsForDirection';
 import {
-  dropSnapshotTable,
   createSnapshotTable,
+  dropSnapshotTable,
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
-import { SYNC_DIRECTIONS } from '../../models/types';
-import { SYNC_EVENT_ACTIONS } from './types';
-import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
-import { SETTING_KEYS } from '~/constants/settings';
-import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
+import { saveChangesFromMemory, saveChangesFromSnapshot } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
-
-import type { TransactingModel } from './utils/getModelsForDirection';
-import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { deferForeignKeys } from './utils/deferForeignKeys';
-import { checkForeignKeys } from './utils/checkForeignKeys';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
