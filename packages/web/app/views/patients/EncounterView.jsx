@@ -173,6 +173,10 @@ const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   background: white;
 `;
 
+const StyledContentPane = styled(ContentPane)`
+  margin: 12px;
+`;
+
 export const EncounterView = () => {
   const api = useApi();
   const { getSetting } = useSettings();
@@ -190,10 +194,7 @@ export const EncounterView = () => {
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
   const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
   const fallbackEncounterTab = visibleTabs[0]?.key;
-  const { currentTab, onTabSelect } = useSyncedTabSearchParam(
-    visibleTabKeys,
-    fallbackEncounterTab,
-  );
+  const { currentTab, onTabSelect } = useSyncedTabSearchParam(visibleTabKeys, fallbackEncounterTab);
 
   // The patient is loaded into the store asynchronously, so patient.id is null on the first
   // render when this view is opened directly by URL. Only record the view once we have an id.
@@ -294,7 +295,7 @@ export const EncounterView = () => {
         data-testid="encounterinfopane-nabb"
       />
       {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
-      <ContentPane data-testid="contentpane-nv12">
+      <StyledContentPane data-testid="contentpane-nv12">
         <StyledTabDisplayDraggable
           tabs={visibleTabs}
           currentTab={currentTab}
@@ -305,7 +306,7 @@ export const EncounterView = () => {
           handleDragEnd={handleDragEnd}
           data-testid="styledtabdisplaydraggable-f593"
         />
-      </ContentPane>
+      </StyledContentPane>
     </GridColumnContainer>
   );
 };
