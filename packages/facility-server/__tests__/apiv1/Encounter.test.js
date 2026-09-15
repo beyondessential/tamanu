@@ -1241,6 +1241,48 @@ describe('Encounter', () => {
         expect(body.data[0].diagnosis.name).toEqual('Malady');
         expect(body.data[0].diagnosis.code).toEqual('malady');
       });
+
+      it('should default to sorting by primary first, then alphabetically by diagnosis', async () => {
+        const sortEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis sort test',
+        });
+        const [zebra, apple, mango] = await Promise.all(
+          ['Zebra', 'Apple', 'Mango'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+
+        await models.EncounterDiagnosis.create({
+          encounterId: sortEncounter.id,
+          diagnosisId: zebra.id,
+          isPrimary: false,
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: sortEncounter.id,
+          diagnosisId: apple.id,
+          isPrimary: true,
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: sortEncounter.id,
+          diagnosisId: mango.id,
+          isPrimary: false,
+        });
+
+        const result = await app.get(`/api/encounter/${sortEncounter.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.map(d => d.diagnosis.name)).toEqual(['Apple', 'Mango', 'Zebra']);
+      });
+
+      it('should sort alphabetically by diagnosis regardless of primary status when requested', async () => {
+        const result = await app.get(
+          `/api/encounter/${diagnosisEncounter.id}/diagnoses?orderBy=Diagnosis.name&order=asc`,
+        );
+        expect(result).toHaveSucceeded();
+        const names = result.body.data.map(d => d.diagnosis.name);
+        expect(names).toEqual([...names].sort());
+      });
     });
 
     describe('medication', () => {

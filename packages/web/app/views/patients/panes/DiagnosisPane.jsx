@@ -13,7 +13,7 @@ const TabPane = styled.div`
   margin: 20px 24px 24px;
   border: 1px solid ${Colors.outline};
   border-radius: 4px;
-  padding: 6px 12px;
+  padding: 0px 12px;
   min-height: 460px;
 `;
 
@@ -23,6 +23,89 @@ const ActionRow = styled.div`
   justify-content: space-between;
   padding: 14px 0;
 `;
+
+const SyndromicSurveillanceRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const SyndromicSurveillanceLink = styled.a`
+  color: ${Colors.primary};
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const BoldText = styled.span`
+  font-weight: 500;
+`;
+
+const SYNDROMIC_SURVEILLANCE_STATES = {
+  NOT_RECORDED: 'notRecorded',
+  SYMPTOMS_RECORDED: 'symptomsRecorded',
+  NO_SYNDROME: 'noSyndrome',
+};
+
+// TODO: replace with real syndromic surveillance data once available
+const HARDCODED_SYMPTOM_COUNT = 3;
+
+const SyndromicSurveillanceStatus = ({
+  state = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED,
+  'data-testid': dataTestId,
+}) => {
+  if (state === SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED) {
+    return (
+      <SyndromicSurveillanceLink data-testid={dataTestId}>
+        <TranslatedText
+          stringId="encounter.syndromicSurveillance.label"
+          fallback="Syndromic surveillance"
+          data-testid="translatedtext-syndromic-surveillance"
+        />
+      </SyndromicSurveillanceLink>
+    );
+  }
+
+  return (
+    <SyndromicSurveillanceRow data-testid={dataTestId}>
+      <span>
+        <TranslatedText
+          stringId="encounter.syndromicSurveillance.label"
+          fallback="Syndromic surveillance"
+          data-testid="translatedtext-syndromic-surveillance"
+        />
+        {': '}
+        <BoldText data-testid="boldtext-syndromic-surveillance-status">
+          {state === SYNDROMIC_SURVEILLANCE_STATES.SYMPTOMS_RECORDED ? (
+            <TranslatedText
+              stringId="encounter.syndromicSurveillance.symptomsRecorded"
+              fallback=":count symptoms recorded"
+              replacements={{ count: HARDCODED_SYMPTOM_COUNT.toLocaleString() }}
+              data-testid="translatedtext-symptoms-recorded"
+            />
+          ) : (
+            <TranslatedText
+              stringId="encounter.syndromicSurveillance.noSyndrome"
+              fallback="No syndrome"
+              data-testid="translatedtext-no-syndrome"
+            />
+          )}
+        </BoldText>
+      </span>
+      <SyndromicSurveillanceLink data-testid="syndromicsurveillancelink-viewedit">
+        <TranslatedText
+          stringId="general.action.viewEdit"
+          fallback="View/Edit"
+          data-testid="translatedtext-view-edit"
+        />
+      </SyndromicSurveillanceLink>
+    </SyndromicSurveillanceRow>
+  );
+};
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -46,10 +129,9 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         data-testid="diagnosismodal-pane"
       />
       <ActionRow data-testid="actionrow-diagnosis">
-        <TranslatedText
-          stringId="diagnosis.list.heading"
-          fallback="Diagnosis"
-          data-testid="translatedtext-heading"
+        <SyndromicSurveillanceStatus
+          state={SYNDROMIC_SURVEILLANCE_STATES.NO_SYNDROME}
+          data-testid="syndromicsurveillancestatus-diagnosis"
         />
         <NoteModalActionBlocker>
           <Button
