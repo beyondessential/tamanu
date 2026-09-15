@@ -438,7 +438,50 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
-encounterRelations.get('/:id/diagnoses', paginatedGetList('EncounterDiagnosis', 'encounterId'));
+encounterRelations.get(
+  '/:id/diagnoses',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { EncounterDiagnosis } = models;
+    const { id: encounterId } = params;
+    const { order = 'ASC', orderBy, page, rowsPerPage } = query;
+
+    req.checkPermission('list', 'EncounterDiagnosis');
+
+    const associations = EncounterDiagnosis.getListReferenceAssociations() || [];
+
+    // Default sort: primary diagnoses first, then alphabetically by diagnosis name.
+    // That alphabetical tiebreaker stays in place under any requested sort, unless the
+    // requested sort is already the diagnosis name itself.
+    const isSortingByDiagnosisName = orderBy === 'Diagnosis.name';
+    const sortOrder = [
+      ...(orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['isPrimary', 'DESC']]),
+      ...(isSortingByDiagnosisName ? [] : [['Diagnosis', 'name', 'ASC']]),
+    ];
+
+    const baseQueryOptions = {
+      where: { encounterId },
+      include: associations,
+    };
+
+    const count = await EncounterDiagnosis.count({
+      ...baseQueryOptions,
+      distinct: true,
+    });
+
+    const objects = await EncounterDiagnosis.findAll({
+      ...baseQueryOptions,
+      order: sortOrder,
+      limit: rowsPerPage,
+      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+    });
+
+    res.send({
+      count,
+      data: objects.map(object => object.forResponse()),
+    });
+  }),
+);
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {

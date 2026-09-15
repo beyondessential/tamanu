@@ -17,14 +17,14 @@ const getDiagnosisLabel = ({ diagnosis }) => (
 const getType = ({ isPrimary }) =>
   isPrimary ? (
     <TranslatedText
-      stringId="encounter.diagnosis.type.primary.full"
-      fallback="Primary diagnosis"
+      stringId="encounter.diagnosis.type.primary.short"
+      fallback="Primary"
       data-testid="translatedtext-primary"
     />
   ) : (
     <TranslatedText
-      stringId="encounter.diagnosis.type.secondary.full"
-      fallback="Secondary diagnosis"
+      stringId="encounter.diagnosis.type.secondary.short"
+      fallback="Secondary"
       data-testid="translatedtext-secondary"
     />
   );
@@ -41,7 +41,7 @@ const getCertainty = ({ certainty }) => (
 
 const COLUMNS = [
   {
-    key: 'diagnosis.name',
+    key: 'Diagnosis.name',
     title: (
       <TranslatedText
         stringId="general.localisedField.diagnosis.label"
@@ -50,7 +50,6 @@ const COLUMNS = [
       />
     ),
     accessor: getDiagnosisLabel,
-    sortable: false,
   },
   {
     key: 'isPrimary',
@@ -84,7 +83,6 @@ const COLUMNS = [
       />
     ),
     accessor: getClinician,
-    sortable: false,
   },
   {
     key: 'certainty',
@@ -105,7 +103,7 @@ export const DiagnosisTable = React.memo(({ encounterId, onItemClick, refreshCou
     endpoint={`encounter/${encounterId}/diagnoses`}
     onRowClick={row => onItemClick(row)}
     elevated={false}
-    initialSort={{ orderBy: 'date', order: 'desc' }}
+    initialSort={{ orderBy: 'isPrimary', order: 'desc' }}
     refreshCount={refreshCount}
     data-testid="datafetchingtable-diagnoses"
   />
