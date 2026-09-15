@@ -31,7 +31,9 @@ rules settled on this card make unreachable. See the plan.
 - [x] A new facility row naming a network is created enrolled in it. verifies spec: SENSNET
 - [x] One file defining a network and creating facilities into it imports both, with the facilities enrolled. verifies spec: SENSNET
 - [x] Two new facilities naming the same new network both join it. verifies spec: SENSNET
-- [x] A facility row naming a network that does not exist fails on that row. verifies spec: SENSNET
+- [x] A facility row naming a network that does not exist fails on that row, naming the network. verifies spec: SENSNET
+- [x] **That row fails alone, leaving the rows after it unaffected.** Surfaced in review: a raw foreign key violation would abort the import transaction, so every later row would fail with "current transaction is aborted" and bury the row at fault. verifies spec: SENSNET
+- [x] A facility row naming a soft-deleted network fails, since a facility must not be enrolled into a network that no longer exists. verifies spec: SENSNET
 - [x] A facility sheet with no network column imports, and existing memberships are untouched. verifies spec: SENSNET
 
 ## Refusing membership changes
@@ -53,8 +55,18 @@ rules settled on this card make unreachable. See the plan.
 - [x] Clearing an existing facility's network through the model is refused. verifies spec: SENSNET
 - [x] Creating a facility already enrolled in a network succeeds. verifies spec: SENSNET
 - [ ] The schema card's backfill migration still enrols existing sensitive facilities, because it writes through SQL rather than the model. verifies spec: SENSNET
+- [ ] **The backfill gives each sensitive facility a distinct network id even where facility codes differ only by punctuation** (`A/B` and `AB`), and where a code is punctuation alone. Surfaced in review: deriving the id from the code was lossy and could collide on the primary key, failing the upgrade on exactly the deployments that hold such a code. Now derived from the facility id. verifies spec: SENSNET
 - [ ] **Incoming sync still applies a facility whose network was set centrally to a facility server that holds it with none.** Surfaced during implementation: sync writes through `Model.update`, which validates against a fake `isNewRecord: true` instance, so the guard returns early. This is the transition the guard refuses, and it has to keep working — a deployment upgrading with sensitive facilities syncs exactly this. verifies spec: SENSNET
 - [ ] Provisioning re-applying a facility block that names the facility's current network is not treated as a change, so a repeated deploy does not fail. verifies spec: SENSNET
+
+## Over the import endpoint
+
+Driving `POST /v1/admin/import/referenceData` rather than the importer directly, so the real
+permission layer and the error shape an administrator sees are both exercised.
+
+- [x] A role without permission on the network type is refused, and nothing is written. verifies spec: SENSNET
+- [x] A role with create and write on the network type imports successfully. verifies spec: SENSNET
+- [x] A refused membership change comes back as a row-attributed error rather than a server error. verifies spec: SENSNET
 
 ## Export round-trip
 

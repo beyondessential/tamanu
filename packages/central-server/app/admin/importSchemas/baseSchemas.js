@@ -144,7 +144,27 @@ export const Facility = Base.shape({
   // writes it, and the Facility model refuses a membership change. A blank cell is already absent
   // (sheet_to_json is called without defval), but an explicit empty string survives as '', so
   // transform it back to undefined. Deliberately no default, for the same reason.
-  sensitiveNetworkId: yup.string().transform(value => (value === '' ? undefined : value)),
+  sensitiveNetworkId: yup
+    .string()
+    .transform(value => (value === '' ? undefined : value))
+    // This column is not resolved through FOREIGN_KEY_SCHEMATA, so without a check here an unknown
+    // id reaches Postgres as a foreign key violation. That aborts the whole import transaction, so
+    // every row after it fails with "current transaction is aborted" and the row actually at fault
+    // is buried. Failing validation instead keeps the row out of the upsert entirely.
+    .test('sensitive-network-exists', async (value, { options, createError, path }) => {
+      if (!value) return true;
+
+      // Networks import ahead of facilities, so one defined in the same file is already present.
+      // Soft-deleted networks don't count: the foreign key would accept one, but a facility must
+      // not be enrolled into a network that no longer exists.
+      const { models } = options.context;
+      if (await models.SensitiveNetwork.findByPk(value)) return true;
+
+      return createError({
+        path,
+        message: `${path} refers to a network that does not exist: ${value}`,
+      });
+    }),
 });
 
 export const Department = Base.shape({

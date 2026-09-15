@@ -8,28 +8,30 @@ import { QueryInterface } from 'sequelize';
 // preserves that exactly; pooling them into one shared network would newly expose each facility's
 // confidential data to the others, which cannot be undone once synced.
 //
-// There is no way to merge these networks afterwards: a facility's network is fixed when the
-// facility is created, so an operator who wants two facilities in one network stands up a new
-// facility enrolled in it.
+// A facility's network is fixed once the facility exists, so an operator cannot merge these
+// networks through the reference data import. Where a deployment genuinely wants two facilities
+// sharing one network, that is a deliberate widening of confidentiality and is done as a named
+// upgrade step (see mergeFijiSensitiveNetworks).
 export async function up(query: QueryInterface): Promise<void> {
-  // Facility codes admit . and /, which the reference data import rejects in an id, so strip them.
+  // Derived from the facility id, not its code. The id is already constrained to the characters an
+  // import allows, so it needs no transform; a code admits . and /, and stripping those to make it
+  // safe is lossy, so two distinct codes can collapse onto one id (A/B and AB) and a code of pure
+  // punctuation yields a bare prefix. Either collides on the primary key and fails the upgrade,
+  // and only on the deployments that happen to hold such a code.
   await query.sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)
-    SELECT 'sensitiveNetwork-' || regexp_replace(code, '[^A-Za-z0-9-]', '', 'g'), code, name
+    SELECT 'sensitiveNetwork-' || id, code, name
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL;
   `);
 
-  // Facility code is unique and the networks were just created from it, so this pairs each
-  // facility with its own network.
+  // Same derivation, so each facility pairs with the network just created from it.
   await query.sequelize.query(`
     UPDATE facilities
-    SET sensitive_network_id = sensitive_networks.id
-    FROM sensitive_networks
-    WHERE facilities.code = sensitive_networks.code
-      AND facilities.is_sensitive = TRUE
-      AND facilities.deleted_at IS NULL;
+    SET sensitive_network_id = 'sensitiveNetwork-' || id
+    WHERE is_sensitive = TRUE
+      AND deleted_at IS NULL;
   `);
 }
 

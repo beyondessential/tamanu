@@ -1,10 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { utils } from 'xlsx';
+import { utils, write } from 'xlsx';
 
 import { GENERAL_IMPORTABLE_DATA_TYPES } from '@tamanu/constants/importable';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
+import { makeRoleWithPermissions } from '../permissions';
 
 // the importer can take a little while
 vi.setConfig({ testTimeout: 50000 });
@@ -198,7 +199,44 @@ describe('Sensitive network import', () => {
       });
 
       expect(errors.length).toBeGreaterThan(0);
+      expect(errors.map(error => error.message).join('\n')).toContain(NETWORK_MISSING);
       expect(await models.Facility.findByPk('fac-a')).toBeNull();
+    });
+
+    it('fails a facility row naming a soft-deleted network', async () => {
+      // The foreign key would accept one, but a facility must not be enrolled into a network that
+      // no longer exists.
+      const network = await seedNetwork(NETWORK_A);
+      await network.destroy();
+
+      const { errors } = await doImport({
+        sheets: { Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', NETWORK_A]]) },
+      });
+
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors.map(error => error.message).join('\n')).toContain(NETWORK_A);
+      expect(await models.Facility.findByPk('fac-a')).toBeNull();
+    });
+
+    it('reports only the offending row, without aborting the rows after it', async () => {
+      // The check has to keep the bad row out of the upsert, not just describe it. Reaching
+      // Postgres would raise a foreign key violation, abort the transaction, and make every
+      // later row fail with "current transaction is aborted" — burying the row at fault.
+      await seedNetwork(NETWORK_A);
+
+      const { errors } = await doImport({
+        sheets: {
+          Facilities: facilitySheet([
+            ['fac-bad', 'FACBAD', 'Facility Bad', NETWORK_MISSING],
+            ['fac-ok', 'FACOK', 'Facility Ok', NETWORK_A],
+            ['fac-plain', 'FACPLAIN', 'Facility Plain', null],
+          ]),
+        },
+      });
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain(NETWORK_MISSING);
+      expect(errors.map(error => error.message).join('\n')).not.toContain('transaction is aborted');
     });
 
     it('creates a facility with a blank network cell in no network', async () => {
@@ -405,6 +443,87 @@ describe('Sensitive network import', () => {
 
       const facility = await models.Facility.findByPk('fac-a');
       expect(facility.sensitiveNetworkId).toBe(NETWORK_A);
+    });
+  });
+
+  // Everything above drives the importer directly. These go over the real endpoint so the
+  // permission layer and the error shape the administrator actually sees are exercised too.
+  describe('over the import endpoint', () => {
+    let app;
+
+    beforeAll(async () => {
+      app = await ctx.baseApp.asRole('practitioner');
+    });
+
+    beforeEach(async () => {
+      await models.Permission.destroy({ where: {}, force: true });
+      await models.Role.destroy({ where: {}, force: true });
+    });
+
+    // multiparty collects repeated fields into an array, which is the shape the endpoint expects.
+    const postImport = ({ sheets, dataTypes }) => {
+      const workbook = buildWorkbook(sheets);
+      const request = app
+        .post('/v1/admin/import/referenceData')
+        .attach('file', write(workbook, { type: 'buffer', bookType: 'xlsx' }), 'refdata.xlsx');
+      for (const dataType of dataTypes) {
+        request.field('includedDataTypes', dataType);
+      }
+      return request;
+    };
+
+    it('forbids the import for a role without permission on the network type', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'EncounterDiagnosis' },
+      ]);
+
+      const result = await postImport({
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
+        dataTypes: ['sensitiveNetwork'],
+      });
+
+      const { didntSendReason, errors } = result.body;
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors[0].message).toContain('SensitiveNetwork');
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).toBeNull();
+    });
+
+    it('allows the import for a role with permission on the network type', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'SensitiveNetwork' },
+        { verb: 'create', noun: 'SensitiveNetwork' },
+      ]);
+
+      const result = await postImport({
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
+        dataTypes: ['sensitiveNetwork'],
+      });
+
+      const { errors } = result.body;
+      expect(errors).toHaveLength(0);
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).not.toBeNull();
+    });
+
+    it('reports a refused membership change as a row error rather than a server error', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'Facility' },
+        { verb: 'create', noun: 'Facility' },
+      ]);
+      await seedNetwork(NETWORK_A);
+      await seedFacility('fac-a');
+
+      const result = await postImport({
+        sheets: { Facilities: facilitySheet([['fac-a', 'fac-a', 'fac-a', NETWORK_A]]) },
+        dataTypes: ['facility'],
+      });
+
+      expect(result.status).toBe(200);
+      const { didntSendReason, errors } = result.body;
+      expect(didntSendReason).toEqual('validationFailed');
+      const message = errors.map(error => error.message).join('\n');
+      expect(message).toContain(SENSITIVE_NETWORK_IS_FIXED_MESSAGE);
+      expect(message).toContain('fac-a');
+      expect((await models.Facility.findByPk('fac-a')).sensitiveNetworkId).toBeNull();
     });
   });
 

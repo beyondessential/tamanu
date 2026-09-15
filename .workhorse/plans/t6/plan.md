@@ -133,9 +133,19 @@ wanted: it already loads existing rows to validate against the database and push
 carrying the sheet row number, which is how the refusal gets attributed to a row rather than
 surfacing as a bare upsertion error.
 
-Decide once the model guard is in and its error is seen in a real import result. If `UpsertionError`
-already carries `sheetRow` and reads well in the admin panel, the fallback is duplicated logic that
-can drift from the model — skip it. Add it only if the message is genuinely unattributable.
+**Decided: no fallback for the membership refusal.** `UpsertionError.toJSON` serialises
+`previous.toString()`, so the Sequelize validation error carrying the model's message reaches the
+admin panel already attributed to its sheet and row. A `validateTableRows` copy would duplicate the
+rule and could drift from the model.
+
+**But a separate check was needed for the network id itself**, and `validateTableRows` was the wrong
+home for it. That hook reports errors without removing the row: `validRows` is still upserted
+afterwards, so a row with an unknown network would have reached Postgres anyway, raised a foreign
+key violation, aborted the import transaction, and made every subsequent row fail with "current
+transaction is aborted" — burying the row actually at fault. The check therefore lives on the yup
+`Facility` schema, because a row failing `schema.validate` is never pushed into `validRows` at all.
+`importRows` now puts `models` into the validation context so a schema can check a value against the
+database on every import path, following the precedent in `questionSchemas.js`.
 
 Either way the whole-file behaviour is free: `importerEndpoint` throws `rollback on errors` inside the
 transaction, so one refused row abandons the import, and dry-run validation reports it identically.
@@ -174,6 +184,20 @@ been executed. What was checked instead: JavaScript syntax on every changed file
 yup cast behaviour run directly against yup 0.32.11.
 
 The whole suite needs a run somewhere with dependencies installed before this is trusted.
+
+## Surfaced in review
+
+**The backfill derived network ids from a lossy transform of the facility code.** Stripping the
+characters a code admits but an id does not (`.` and `/`) can collapse two distinct codes onto one
+id, and a code of pure punctuation yields a bare prefix — either collides on the primary key and
+fails the upgrade, on exactly the deployments that hold such a code and nowhere in testing. Now
+derived from the facility id, which is already constrained to the characters an import allows, so it
+needs no transform; the pairing update uses the same expression instead of joining back on code.
+
+**`SyncLookup.sensitiveNetworkId` still declared `DataTypes.UUID`** after the column became a string,
+so any model-level write carrying a real network id would fail validation. It stayed quiet because
+lookup population writes raw SQL and faked rows default the column to null. Now `STRING`, matching
+the DDL and the dbt model.
 
 ## Surfaced by the first CI run
 
@@ -220,4 +244,7 @@ Raise with the user before merging.
 - [ ] Test that the backfill migration is unaffected
 - [x] Export round-trip test
 - [ ] `provision` with the default spreadsheet still succeeds
-- [ ] Decide on the `validateTableRows` fallback once the real error message is visible
+- [x] Decide on the `validateTableRows` fallback once the real error message is visible — no
+      fallback for the refusal; a network-existence check on the yup schema instead
+- [x] HTTP-level tests over `POST /v1/admin/import/referenceData` for the permission layer and the
+      refusal's error shape
