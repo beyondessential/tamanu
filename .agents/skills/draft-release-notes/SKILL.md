@@ -5,27 +5,28 @@ description: >-
   Tamanu release (e.g. "draft release notes for v2.45"). Pulls work from the specs and code that landed
   in that version's release/X.Y branch, plus the matching issues in the trackers (Linear's Tamanu team
   and Workhorse's Tamanu workspace), reconciles them, and writes docs/release-notes/vX-YY.md in the
-  canonical v2.44 format for project managers and system administrators. Not for developer changelogs
+  canonical v2.44 format for project managers and system administrators, plus a styled HTML rendering
+  at .workhorse/design/designs/vX-YY-release-notes.html. Not for developer changelogs
   or QA test scoping (use scope-tamanu-release-tests for the latter).
 label: "Draft release notes"
 ---
 
 # Draft release notes
 
-Produce **public release notes** for one Tamanu version and write them to `docs/release-notes/vX-YY.md`.
+Produce **public release notes** for one Tamanu version, as two files kept in step: the markdown at `docs/release-notes/vX-YY.md`, and a styled HTML rendering at `.workhorse/design/designs/vX-YY-release-notes.html`.
 
 The audience is **project managers and system administrators**, not developers. They read these notes to understand what new capabilities their teams gain, what workflows change, what configuration is required, and what to prepare and test before upgrading. Write to that audience throughout: user-facing capabilities and benefits, not implementation detail.
 
 The canonical format is the published **v2.44** notes, kept alongside this skill at `example-v2-44.md`. Read it first — it is the reference for section order, headings, emoji markers, voice, and how much detail each section carries.
 
-If `docs/release-notes/vX-YY.md` already exists, that version has been written up — deliver the existing notes rather than redrafting them, unless the user asks for a rewrite.
+If `docs/release-notes/vX-YY.md` already exists, that version has been written up — deliver the existing notes rather than redrafting them, unless the user asks for a rewrite. Where the markdown exists but the styled version does not, produce the styled version from it.
 
 ## Input
 
 The user specifies the **version** (e.g. `v2.45`, or `2.45`). Normalise it to:
 
 - **Release branch** `release/2.45`
-- **Output file** `docs/release-notes/v2-45.md` — the filename hyphenates the version, so the only dot in it is the extension's
+- **Output files** `docs/release-notes/v2-45.md` and `.workhorse/design/designs/v2-45-release-notes.html` — both filenames hyphenate the version, so the only dot in each is the extension's
 - **Linear version label** — the label for that version (often `v2.45.0`); confirm the exact label against the Tamanu team's labels rather than assuming. Version labels also drift, so ground the notes in what code shipped rather than assuming Linear is correct.
 
 Ask for the **release date** if the user hasn't given it. Format it `DD-MM-YYYY` in the header. If it's genuinely not known yet, leave `Released [RELEASE_DATE_PLACEHOLDER]`.
@@ -117,6 +118,19 @@ You cannot generate real Slab URLs. Wherever the format expects a Supporting doc
 
 Keep the descriptive label before each placeholder so the person filling them in knows which document goes where.
 
+Include only the documents that version's feature actually has. Three placeholders is the shape of the example, not a quota — a feature with only a configuration guide gets one line.
+
+## The styled version
+
+Every version carries a styled HTML rendering at `.workhorse/design/designs/vX-YY-release-notes.html`, alongside the markdown. It is what gets shared with a customer, pasted into a published page, or read by someone who is not looking at the repo.
+
+- **The markdown is the source of truth for wording.** The HTML renders it and says nothing the markdown doesn't. When wording changes, change both in the same turn and then grep to confirm no old phrasing survives in either — a change applied to one file only is the failure mode to watch for.
+- **Start from the most recent existing styled file.** Copy the newest `.workhorse/design/designs/v*-release-notes.html`, replace its content, and leave its CSS alone. This keeps every release looking like the last one and keeps the styling evolving in a single lineage rather than being reinvented per version.
+- **It belongs in `designs/`, never in a card's `mockups/` folder.** Release notes are read well outside the card that drafted them, and `mockups/{card-id}/` is card scratch that gets stripped on merge.
+- **Structure mirrors the markdown**: the same sections in the same order, emoji markers retained, feature entries as cards and the grouped fix lists as plain bullet groups. Carry the release date as the only thing above the title, since the version is already in the title.
+- **Keep the CSS inline** so the file stands alone when sent to someone.
+- Where no styled file exists yet to copy from, author one against the design system in `.workhorse/design/` — and if that library is absent, the house palette: stone-grey page with white surfaces, burnt orange accent, Inter, 4px spacing grid.
+
 ## Voice and conventions
 
 - **PM/admin audience.** Explain what a feature does, why it's useful, and how it fits a workflow. Leave out API specifics, database schemas, and internal architecture.
@@ -137,7 +151,10 @@ Keep the descriptive label before each placeholder so the person filling them in
 5. Reconcile the two sets on card id — committed specs win on overlap; tracker-only work is kept once confirmed shipped; dedup.
 6. Classify each item into the six sections and draft the notes in the canonical format, leaving `[SLAB_LINK_PLACEHOLDER]` for every supporting-documentation link.
 7. Write `docs/release-notes/vX-YY.md` (create `docs/release-notes/` on the first version).
-8. Tell the user the path, and list what still needs a human: the Slab links, the release date if placeholdered, and anything you couldn't confidently classify.
+8. Write the styled version to `.workhorse/design/designs/vX-YY-release-notes.html`, copying the most recent existing one and replacing its content.
+9. Tell the user both paths, and list what still needs a human: the Slab links, the release date if placeholdered, and anything you couldn't confidently classify.
+
+Later turns that revise the notes revise **both** files, and say so.
 
 ## Source of truth
 
