@@ -14,7 +14,13 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `prototype.html` — **all surfaces combined into one clickable prototype**: view switching between
   home / manuals / article / release notes, plus working search palette (`/` or ⌘K) and Ask AI
   drawer. The single-page files below remain as the per-surface references.
-- `home.html` — search-led landing. Top bar carries Search and a separate Ask AI control (Stripe pattern). Hero leads with a large search + Ask AI, then Linear-style icon-panel card grids (Popular, Browse).
+- `home.html` — search-led landing. Top bar carries Search and a separate Ask AI control (Stripe
+  pattern). Hero leads with a large search + Ask AI, then two deliberately different grids.
+  **Popular** is six real entries — a mix of user manuals and release notes — as outlined rows,
+  each carrying the icon and label of its kind (user manual or release notes) rather than a
+  per-article icon, so the kind is readable at a glance and the list can be generated from
+  whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
+  destinations. The two treatments are distinct so the sections do not read as one long grid.
 - `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable
   sidebar + footer cluster). The browse area is a grid of **topic cards** (one per feature area,
   keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales

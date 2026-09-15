@@ -560,6 +560,25 @@
   .foot-col a:hover, .foot-col a:hover .ext { color:var(--gold); }
   .foot-col a .ext { color:rgba(255,255,255,.4); }
   .foot-bar { color:rgba(255,255,255,.45); border-top-color:rgba(255,255,255,.14); }
+
+  /* ---- Popular: outlined rows, distinct from the filled Browse cards.
+         Accent encodes the kind: blue for a user manual, amber for a release note. ---- */
+  .pgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:1080px){ .pgrid{ grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:700px){ .pgrid{ grid-template-columns:1fr;} }
+  .pcard { --a:var(--brand); --a-10:var(--brand-10);
+    display:flex; gap:14px; align-items:flex-start; background:var(--bg);
+    border:1px solid var(--line); border-radius:12px; padding:18px; cursor:pointer;
+    transition:border-color .12s ease, box-shadow .12s ease; }
+  .pcard.release { --a:var(--c-amber); --a-10:var(--c-amber-10); }
+  .pcard:hover { border-color:color-mix(in srgb, var(--a) 48%, transparent);
+    box-shadow:0 4px 14px rgba(47,67,88,.07); }
+  .pcard .ic { width:38px; height:38px; flex:none; border-radius:9px;
+    background:var(--a-10); color:var(--a); display:grid; place-items:center; }
+  .pcard .kind { display:block; font-size:10.5px; font-weight:660; text-transform:uppercase;
+    letter-spacing:0.07em; color:var(--a); margin-bottom:5px; }
+  .pcard h3 { font-size:15px; font-weight:600; letter-spacing:-0.01em; margin:0 0 4px; line-height:1.35; }
+  .pcard p { font-size:13px; color:var(--ink-3); margin:0; }
 </style>
 </head>
 <body>
@@ -596,12 +615,33 @@
   </div>
   <div class="wrap">
     <div class="sec-title">Popular</div>
-    <div class="grid">
-      <div class="lcard" data-goto="manuals"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m4 8 8-4 8 4-8 4z"/><path d="M6 10v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg></div><div class="body"><h3>Getting started</h3><p>Learn your way around Tamanu and find a patient.</p></div></div>
-      <div class="lcard" data-goto="article"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div><div class="body"><h3>Recording an encounter</h3><p>Open, document and close a patient encounter.</p></div></div>
-      <div class="lcard" data-goto="article"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 3h6v4l4 11a2 2 0 0 1-2 3H7a2 2 0 0 1-2-3L9 7z"/></svg></div><div class="body"><h3>Creating a lab request</h3><p>Order tests and track results through to entry.</p></div></div>
-      <div class="lcard" data-goto="article"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="14" height="10" rx="2"/><path d="M17 11l4-2v8l-4-2z"/></svg></div><div class="body"><h3>Sending to pharmacy</h3><p>Send medications at prescribing and at discharge.</p></div></div>
+    <div class="pgrid">
+      <div class="pcard manual" data-goto="article">
+        <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+        <div><span class="kind">User manual</span><h3>Sending medications to pharmacy</h3><p>Medication</p></div>
+      </div>
+      <div class="pcard manual" data-goto="article">
+        <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+        <div><span class="kind">User manual</span><h3>Recording an encounter</h3><p>Clinical workflows</p></div>
+      </div>
+      <div class="pcard release" data-goto="releases">
+        <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></span>
+        <div><span class="kind">Release notes</span><h3>Configuration managed in the admin panel</h3><p>v2.62</p></div>
+      </div>
+      <div class="pcard manual" data-goto="article">
+        <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+        <div><span class="kind">User manual</span><h3>Creating a lab request</h3><p>Labs &amp; imaging</p></div>
+      </div>
+      <div class="pcard release" data-goto="releases">
+        <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></span>
+        <div><span class="kind">Release notes</span><h3>Automatic encounter, bed and inpatient fees</h3><p>v2.61</p></div>
+      </div>
+      <div class="pcard manual" data-goto="article">
+        <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+        <div><span class="kind">User manual</span><h3>Finding a patient</h3><p>Getting started</p></div>
+      </div>
     </div>
+
     <div class="sec-title">Browse</div>
     <div class="grid three">
       <div class="lcard" data-goto="manuals"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></div><div class="body"><h3>User manuals</h3><p>Step-by-step guides for clinical, administrative and configuration workflows.</p></div></div>
