@@ -94,13 +94,10 @@ describe('SystemErrors', () => {
     expect(screen.getByText('No system errors to display')).toBeTruthy();
   });
 
-  it('disables the send-log button when there are no errors, and does not open the modal', () => {
+  it('does not render the send-log button when there are no errors', () => {
     renderElementWithTranslatedText(withProviders(<SystemErrors />, []));
 
-    const sendLogButton = screen.getByRole('button', { name: 'Send error logs' });
-    expect(sendLogButton.disabled).toBe(true);
-
-    fireEvent.click(sendLogButton);
+    expect(screen.queryByRole('button', { name: 'Send error logs' })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Send error logs' })).toBeNull();
   });
 
