@@ -156,20 +156,23 @@
 
       <h2>If something goes wrong</h2>
 
-      <p class="flag">
-        <strong>At least one recording must be entered.</strong>
+      <p><strong>At least one recording must be entered.</strong></p>
+
+      <p>
         You selected <strong>Record</strong> without entering any measurements. Enter at
         least one reading, then try again.
       </p>
 
-      <p class="flag">
-        <strong>*Required</strong>
+      <p><strong>*Required</strong></p>
+
+      <p>
         This appears under a field that has to be filled in before you can record. Fill it
         in, then select <strong>Record</strong> again.
       </p>
 
-      <p class="flag">
-        <strong>Permission required.</strong>
+      <p><strong>Permission required.</strong></p>
+
+      <p>
         Your account cannot record vitals. Contact your system administrator if you
         believe you should be able to.
       </p>
@@ -178,13 +181,12 @@
   </div>
 
   <div class="note">
-    <b class="note-title">Highlighted above: the error list does not render as written.</b>
-    In the markdown each error message sits on its own line above its explanation, but a
-    single newline inside a paragraph renders as a space, so the two collapse into one
-    run of text. The message stops being a scannable heading, which is what the error
-    convention depends on. Fixing it needs the message and its explanation to be separate
-    blocks, either by making each message a <code>###</code> heading or by putting a blank
-    line between them.
+    <b class="note-title">How this document renders in the repository.</b>
+    This is <code>record-vitals.md</code> as a reader meets it on GitHub, which is where
+    the manuals live. Each error message sits in its own paragraph, separated from its
+    explanation by a blank line in the markdown, so the message stays scannable against
+    what is on the reader's screen. Written without that blank line the two collapse into
+    a single run of text and the message stops reading as a heading.
   </div>
 
 </div>
