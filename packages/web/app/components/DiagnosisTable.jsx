@@ -13,7 +13,6 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   border: none;
   border-radius: 0;
   border-top: 1px solid ${Colors.outline};
-  margin-top: 8px;
   .MuiTableHead-root {
     position: sticky;
     top: 0;
