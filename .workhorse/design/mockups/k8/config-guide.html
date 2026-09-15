@@ -1,5 +1,6 @@
 <!-- format: .agents/docs/config-guide-format.md -->
 <!-- source: docs/user-manuals/system-administration/medications/configuration-guide.md -->
+<!-- palette: TAMANU_COLORS, packages/ui-components/src/constants/colors.js -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -8,16 +9,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --page: #f8f7f4;
+    /* Tamanu palette */
+    --primary: #326699;
+    --primary-dark: #2f4358;
+    --primary-30: #C2D2E1;
+    --primary-10: #EBF0F5;
+    --blue: #1172D1;
+    --very-light-blue: #F4F9FF;
+    --green: #19934E;
+    --safe: #47ca80;
+    --alert: #f76853;
+    --light-alert: #fff0ee;
+    --yellow: #ffcc24;
+    --metallic-yellow: #BD9503;
+
+    --page: #f3f5f7;
     --surface: #ffffff;
-    --text: #1c1917;
-    --text-2: #57534e;
-    --text-3: #78716c;
-    --line: #e7e5e4;
-    --line-2: #d6d3d1;
-    --accent: #c2410c;
-    --accent-soft: #fef6f2;
-    --code-bg: #f5f4f2;
+    --surface-2: #f9fafb;
+    --text: #444444;
+    --text-2: #666666;
+    --text-3: #888888;
+    --line: #ebebeb;
+    --line-2: #dedede;
+
+    /* Required-field marker: unchanged from the original configuration */
+    --required: #c2410c;
   }
   * { box-sizing: border-box; }
   body {
@@ -30,162 +46,162 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Breadcrumb bar */
-  .bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
-    padding: 12px 32px;
-    font-size: 13px;
-    color: var(--text-3);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .bar code { background: none; padding: 0; color: var(--text-3); font-size: 12.5px; }
-  .bar .here { color: var(--text-2); font-weight: 500; }
+  .shell { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
 
-  .shell { display: flex; gap: 40px; max-width: 1180px; margin: 0 auto; padding: 40px 32px 80px; }
-
-  /* Table of contents */
-  nav {
-    width: 210px;
-    flex: none;
-    position: sticky;
-    top: 76px;
-    align-self: start;
-    font-size: 13.5px;
-  }
-  nav .label {
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-3);
-    margin-bottom: 12px;
-  }
-  nav a { display: block; padding: 5px 0 5px 12px; color: var(--text-2); text-decoration: none; border-left: 2px solid var(--line); }
-  nav a:hover { color: var(--accent); }
-  nav a.on { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
-  nav a.sub { padding-left: 24px; font-size: 13px; color: var(--text-3); }
-
-  /* Document */
   article {
-    flex: 1;
     background: var(--surface);
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-2);
     border-radius: 12px;
-    padding: 44px 52px 56px;
-    box-shadow: 0 1px 2px rgba(28,25,23,.04);
-    min-width: 0;
+    padding: 48px 56px 60px;
+    box-shadow: 0 1px 3px rgba(47,67,88,.06);
   }
+
   .lead { font-size: 16px; color: var(--text-2); margin: 0 0 18px; }
-  h1 { font-size: 25px; font-weight: 700; letter-spacing: -.015em; margin: 40px 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-  h1:first-of-type { margin-top: 30px; }
-  h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; margin: 32px 0 10px; }
-  h3 { font-size: 16px; font-weight: 600; margin: 26px 0 8px; }
+  h1 {
+    font-size: 25px; font-weight: 700; letter-spacing: -.015em;
+    color: var(--primary-dark);
+    margin: 44px 0 14px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-10);
+  }
+  h1:first-of-type { margin-top: 32px; }
+  h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--primary); margin: 34px 0 10px; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--primary-dark); margin: 26px 0 8px; }
   p { margin: 0 0 14px; }
   ul { margin: 0 0 14px; padding-left: 20px; }
   li { margin-bottom: 5px; }
-  li::marker { color: var(--text-3); }
+  li::marker { color: var(--primary-30); }
+  a { color: var(--blue); }
   code {
-    background: var(--code-bg);
-    border: 1px solid var(--line);
+    background: var(--primary-10);
+    border: 1px solid #dfe7ef;
     border-radius: 4px;
     padding: 1px 5px;
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 12.5px;
+    color: var(--primary-dark);
   }
-  hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 38px 0; }
   .muted { color: var(--text-2); }
 
   /* Version flag, inline in heading */
-  .ver { font-size: 13px; font-weight: 500; color: var(--accent); background: var(--accent-soft); border: 1px solid #fbd9c8; border-radius: 4px; padding: 2px 7px; vertical-align: middle; margin-left: 6px; white-space: nowrap; }
+  .ver {
+    font-size: 13px; font-weight: 500; vertical-align: middle; margin-left: 8px; white-space: nowrap;
+    color: var(--metallic-yellow); background: #FFF8E1; border: 1px solid #F0DFA6;
+    border-radius: 4px; padding: 2px 8px;
+  }
 
-  /* Field label pairs, e.g. Tab name */
-  .field { font-style: italic; font-weight: 600; font-size: 13.5px; color: var(--text-2); margin: 18px 0 6px; }
+  .field { font-style: italic; font-weight: 600; font-size: 13.5px; color: var(--text-2); margin: 20px 0 6px; }
 
   /* Tables */
   table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 13.5px; }
   th {
-    text-align: left;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    color: var(--text-3);
-    border-bottom: 1px solid var(--line-2);
-    padding: 8px 12px 8px 0;
-    vertical-align: bottom;
+    text-align: left; font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .05em;
+    color: var(--primary); background: var(--primary-10);
+    border-bottom: 1px solid var(--primary-30);
+    padding: 9px 12px; vertical-align: bottom;
   }
-  td { border-bottom: 1px solid var(--line); padding: 10px 12px 10px 0; vertical-align: top; color: var(--text-2); }
-  td:first-child { color: var(--text); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; white-space: nowrap; width: 1%; padding-right: 24px; }
-  td.plain:first-child { font-family: inherit; font-size: 13.5px; white-space: normal; }
-  .req { color: var(--accent); font-weight: 700; }
+  th:first-child { border-radius: 6px 0 0 0; }
+  th:last-child { border-radius: 0 6px 0 0; }
+  td { border-bottom: 1px solid var(--line); padding: 10px 12px; vertical-align: top; color: var(--text-2); }
+  td:first-child {
+    color: var(--primary-dark);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px; white-space: nowrap; width: 1%; padding-right: 24px;
+  }
+  td.plain:first-child { font-family: inherit; font-size: 13.5px; white-space: normal; color: var(--text); }
+  tbody tr:nth-child(even) { background: var(--surface-2); }
   tr:last-child td { border-bottom: 0; }
+  .req { color: var(--required); font-weight: 700; }
 
   /* Settings block */
-  .setting { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 14px 0 18px; background: #fdfcfb; }
-  .setting dl { display: grid; grid-template-columns: 116px 1fr; gap: 6px 16px; margin: 0; font-size: 13.5px; }
-  .setting dt { font-weight: 600; color: var(--text-3); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+  .setting {
+    border: 1px solid var(--primary-30); border-left: 3px solid var(--primary);
+    border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 14px 0 18px;
+    background: var(--primary-10);
+  }
+  .setting dl { display: grid; grid-template-columns: 124px 1fr; gap: 7px 16px; margin: 0; font-size: 13.5px; }
+  .setting dt {
+    font-weight: 600; color: var(--primary); font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: .04em; padding-top: 3px;
+  }
   .setting dd { margin: 0; color: var(--text); }
+  .setting dd .val {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px;
+    background: var(--surface); border: 1px solid var(--primary-30);
+    border-radius: 4px; padding: 1px 6px; color: var(--primary-dark);
+  }
+  .setting .default-row dd { color: var(--text-2); }
+
+  /* Note boxes */
+  .note { border-radius: 8px; padding: 13px 16px 13px 44px; font-size: 13.5px; margin: 0 0 18px; position: relative; }
+  .note p:last-child { margin-bottom: 0; }
+  .note .ico {
+    position: absolute; left: 15px; top: 13px;
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; color: #fff;
+  }
+  .note .hd { font-weight: 600; display: block; margin-bottom: 2px; }
+
+  .note.info   { background: var(--very-light-blue); border: 1px solid #CFE3F8; color: var(--text-2); }
+  .note.info .ico { background: var(--blue); }
+  .note.info .hd { color: var(--blue); }
+
+  .note.tip    { background: #F1FAF4; border: 1px solid #C6E8D4; color: var(--text-2); }
+  .note.tip .ico { background: var(--green); }
+  .note.tip .hd { color: var(--green); }
+
+  .note.req-note { background: var(--light-alert); border: 1px solid #FBD3CD; color: var(--text-2); }
+  .note.req-note .ico { background: var(--alert); }
+  .note.req-note .hd { color: #D64532; }
+
+  .note.warn   { background: #FFF8E1; border: 1px solid #F0DFA6; color: var(--text-2); }
+  .note.warn .ico { background: var(--metallic-yellow); }
+  .note.warn .hd { color: var(--metallic-yellow); }
 
   /* Screenshot placeholder */
   .shot {
-    border: 1.5px dashed var(--line-2);
-    border-radius: 8px;
-    background: repeating-linear-gradient(45deg, #fbfaf9, #fbfaf9 10px, #f5f4f2 10px, #f5f4f2 20px);
-    padding: 22px;
-    margin: 16px 0 18px;
-    text-align: center;
+    border: 1.5px dashed var(--primary-30); border-radius: 8px;
+    background: repeating-linear-gradient(45deg, #fbfcfd, #fbfcfd 10px, var(--primary-10) 10px, var(--primary-10) 20px);
+    padding: 22px; margin: 16px 0 18px; text-align: center;
   }
-  .shot .tag { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); border: 1px solid var(--line-2); background: var(--surface); border-radius: 4px; padding: 3px 8px; margin-bottom: 8px; }
+  .shot .tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--primary);
+    border: 1px solid var(--primary-30); background: var(--surface);
+    border-radius: 4px; padding: 3px 8px; margin-bottom: 8px;
+  }
   .shot .cap { font-size: 13px; color: var(--text-2); margin: 0; }
 
   /* Permission list */
-  .perm { margin: 0 0 16px; }
+  .perm { margin: 0 0 16px; padding-left: 0; }
   .perm > li { list-style: none; margin-bottom: 12px; }
   .perm > li > .head { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: var(--text); }
-  .perm .verb { color: var(--accent); font-weight: 600; }
-  .perm ul { margin: 6px 0 0; padding-left: 18px; }
+  .perm .verb {
+    color: var(--primary); font-weight: 600;
+    background: var(--primary-10); border-radius: 4px; padding: 1px 6px;
+  }
+  .perm ul { margin: 7px 0 0; padding-left: 18px; }
   .perm ul li { font-size: 13.5px; color: var(--text-2); }
 
-  /* Callout */
-  .note { border: 1px solid var(--line); background: var(--code-bg); border-radius: 8px; padding: 12px 16px; font-size: 13.5px; color: var(--text-2); margin: 0 0 16px; }
-  .note strong { color: var(--text); }
-
-  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; overflow-x: auto; font-size: 12.5px; margin: 0 0 16px; }
+  pre {
+    background: var(--surface-2); border: 1px solid var(--line-2);
+    border-radius: 8px; padding: 12px 16px; overflow-x: auto; font-size: 12.5px; margin: 0 0 16px;
+  }
   pre code { background: none; border: 0; padding: 0; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 16px; }
-  .chips span { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; color: var(--text-2); }
-  .chips .more { border-style: dashed; color: var(--text-3); }
+  .chips span {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+    background: var(--primary-10); border: 1px solid #dfe7ef;
+    border-radius: 4px; padding: 2px 7px; color: var(--primary-dark);
+  }
+  .chips .more { border-style: dashed; background: var(--surface); color: var(--text-3); }
 </style>
 </head>
 <body>
 
-<div class="bar">
-  <code>docs / user-manuals / system-administration / medications / <span class="here">configuration-guide.md</span></code>
-</div>
-
 <div class="shell">
-
-  <nav>
-    <div class="label">On this page</div>
-    <a href="#ref" class="on">Reference Data Types</a>
-    <a href="#ref" class="sub">Drug</a>
-    <a href="#ref" class="sub">Medication Sets</a>
-    <a href="#ref" class="sub">Medication Not Given Reason</a>
-    <a href="#hard">Hard coded fields</a>
-    <a href="#hard" class="sub">Units</a>
-    <a href="#hard" class="sub">Route of administration</a>
-    <a href="#hard" class="sub">Frequency</a>
-    <a href="#settings">Settings</a>
-    <a href="#sensitive">Sensitive medications</a>
-    <a href="#auto">Automated workflows</a>
-    <a href="#task">Medication due task</a>
-    <a href="#perms">Permissions</a>
-  </nav>
-
   <article>
 
     <p class="lead">This configuration guide steps system administrators through the set up of the Tamanu
@@ -206,7 +222,7 @@
 
     <hr>
 
-    <h1 id="ref">Reference Data Types</h1>
+    <h1>Reference Data Types</h1>
 
     <p>Reference data is configured through the reference data import spreadsheet, downloaded from and
     uploaded to your Tamanu system. See the Tamanu Reference Data Manual for how importing works.</p>
@@ -222,12 +238,20 @@
       populating the dropdown.</p>
     </div>
 
-    <div class="note"><strong>Note:</strong> for a deployment where mSupply is also in use, the drugs
-    list should be copied from the mSupply essential medicines list.</div>
+    <div class="note info">
+      <span class="ico">i</span>
+      <span class="hd">Note</span>
+      <p>For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
+      essential medicines list.</p>
+    </div>
 
-    <p>Default values can be set per medication for <code>route</code>, <code>dosingUnit</code>,
-    <code>dispensingUnit</code> and <code>notes</code>. When that medication is selected for
-    prescription the defaults populate automatically, which speeds up creating prescriptions.</p>
+    <div class="note tip">
+      <span class="ico">&check;</span>
+      <span class="hd">Configuration tip</span>
+      <p>Set default values for <code>route</code>, <code>dosingUnit</code>, <code>dispensingUnit</code>
+      and <code>notes</code> against each medication. The defaults populate automatically when the
+      medication is selected, which noticeably speeds up creating prescriptions.</p>
+    </div>
 
     <div class="field">Tab name</div>
     <p><code>Drug</code></p>
@@ -251,9 +275,19 @@
       </tbody>
     </table>
 
+    <h2>Medication Not Given Reason</h2>
+
+    <div class="note req-note">
+      <span class="ico">!</span>
+      <span class="hd">Required</span>
+      <p>This reference data type must be configured to complete the medication administration record
+      workflow when a medication is recorded as not given. Without it, staff cannot record a medication
+      as not given.</p>
+    </div>
+
     <hr>
 
-    <h1 id="hard">Hard coded fields</h1>
+    <h1>Hard coded fields</h1>
 
     <p>The following fields are hard coded in Tamanu and cannot be configured. To request a new value,
     make a request to your system administrator or Tamanu project manager.</p>
@@ -296,9 +330,17 @@
       </tbody>
     </table>
 
+    <div class="note warn">
+      <span class="ico">!</span>
+      <span class="hd">Warning</span>
+      <p>An administration schedule cannot be set for <code>Immediately</code> or
+      <code>As directed</code>, and the times for <code>Hourly</code> and <code>Half-hourly</code> are
+      fixed. Configuring administration times for these frequencies has no effect.</p>
+    </div>
+
     <hr>
 
-    <h1 id="settings">Settings</h1>
+    <h1>Settings</h1>
 
     <p>Settings are managed in the Settings admin panel.</p>
 
@@ -310,16 +352,36 @@
         <dt>Category</dt><dd>Medication</dd>
         <dt>Sub-category</dt><dd>Pharmacy orders</dd>
         <dt>Setting</dt><dd>Default prescription type</dd>
+        <div class="default-row" style="display:contents">
+          <dt>Default</dt><dd><span class="val">Existing encounter type</span></dd>
+        </div>
       </dl>
     </div>
 
     <p>Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
     supply on discharge and invoicing. The options are:</p>
     <ul>
-      <li><strong>Existing encounter type</strong>: the script type follows the encounter type. This is the default</li>
+      <li><strong>Existing encounter type</strong>: the script type follows the encounter type</li>
       <li><strong>Outpatient/Discharge</strong></li>
       <li><strong>Inpatient</strong></li>
     </ul>
+
+    <h2>Dispensing quantity autocalculation</h2>
+
+    <div class="setting">
+      <dl>
+        <dt>Scope</dt><dd>Global (All Facilities/Servers)</dd>
+        <dt>Category</dt><dd>Medications</dd>
+        <dt>Sub-category</dt><dd>Dispensing</dd>
+        <dt>Setting</dt><dd>Dispensing quantity autocalculation</dd>
+        <div class="default-row" style="display:contents">
+          <dt>Default</dt><dd><span class="val">Disabled</span></dd>
+        </div>
+      </dl>
+    </div>
+
+    <p>Calculates the dispensing quantity from the dose, frequency and duration of a prescription,
+    avoiding manual calculation. Automatically calculated quantities can still be edited.</p>
 
     <h2>Default administration schedule</h2>
 
@@ -329,6 +391,9 @@
         <dt>Category</dt><dd>Medications</dd>
         <dt>Sub-category</dt><dd>Default administration times</dd>
         <dt>Setting</dt><dd>For each frequency, set the ideal administration times in the JSON editor</dd>
+        <div class="default-row" style="display:contents">
+          <dt>Default</dt><dd>The standard times for each frequency, as listed under Frequency</dd>
+        </div>
       </dl>
     </div>
 
@@ -344,6 +409,13 @@
   "22:00"
 ]</code></pre>
 
+    <div class="note info">
+      <span class="ico">i</span>
+      <span class="hd">Note</span>
+      <p>Each time must fall in a different two-hour administration window, so two doses cannot be
+      scheduled in the same window.</p>
+    </div>
+
     <div class="shot">
       <div class="tag">Screenshot needed</div>
       <p class="cap">The default administration times setting.</p>
@@ -351,12 +423,24 @@
 
     <hr>
 
-    <h1 id="sensitive">Sensitive medications <span class="ver">supported from v2.39 onwards</span></h1>
+    <h1>Sensitive medications <span class="ver">supported from v2.39 onwards</span></h1>
+
+    <div class="note warn">
+      <span class="ico">!</span>
+      <span class="hd">Version</span>
+      <p>Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm
+      your deployment version before configuring this.</p>
+    </div>
 
     <p>This feature flags a medication as sensitive, so that only users with the required permissions can
     view and interact with it.</p>
 
-    <div class="note">Use this feature rarely, as medication information is critical for safe care.</div>
+    <div class="note warn">
+      <span class="ico">!</span>
+      <span class="hd">Warning</span>
+      <p>Use this feature rarely. Medication information is critical for safe care, and hiding it from
+      staff without the permission carries clinical risk.</p>
+    </div>
 
     <p>To configure a medication as sensitive:</p>
     <ul>
@@ -366,7 +450,7 @@
 
     <hr>
 
-    <h1 id="perms">Permissions</h1>
+    <h1>Permissions</h1>
 
     <p>See the Permissions Module configuration guide for more detail on Tamanu permissions.</p>
 
@@ -405,7 +489,6 @@
     </ul>
 
   </article>
-
 </div>
 
 </body>
