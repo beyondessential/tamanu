@@ -136,7 +136,11 @@ const MarStatusTooltipContent = ({
               !dose.isRemoved && (
                 <Span key={dose?.id}>
                   {dose?.doseAmount}&nbsp;
-                  <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />{' '}
+                  {dosingUnit && (
+                    <>
+                      <TranslatedEnum enumValues={DRUG_UNIT_SHORT_LABELS} value={dosingUnit} />{' '}
+                    </>
+                  )}
                   <TranslatedText
                     stringId="medication.mar.givenAt.tooltip"
                     fallback="given at :time"

@@ -1,4 +1,4 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { Routes } from '/helpers/routes';
 import { ErrorBoundary } from '/components/ErrorBoundary';
 import { StackHeader } from '~/ui/components/StackHeader';
@@ -25,10 +25,6 @@ const PatientSummary = ({
   navigation,
   selectedPatient,
 }: PatientSummaryStackProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   return (
     <ErrorBoundary>
       <StackHeader
@@ -36,7 +32,7 @@ const PatientSummary = ({
           <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />
         }
         subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
+        onGoBack={navigation.goBack}
       />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen

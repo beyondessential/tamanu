@@ -65,7 +65,7 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
       >
         <TranslatedText
           stringId="patient.recentlyViewed.title"
-          fallback="RECENTLY VIEWED PATIENTS"
+          fallback="Recently viewed patients"
           casing="upper"
         />
       </StyledText>

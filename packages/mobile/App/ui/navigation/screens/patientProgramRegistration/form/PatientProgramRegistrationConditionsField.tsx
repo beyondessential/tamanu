@@ -1,4 +1,11 @@
-import React, { type ReactElement, type FC, useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  type ReactElement,
+  type FC,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
@@ -259,31 +266,32 @@ export const PatientProgramRegistrationConditionsField = ({
   const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories, getTranslation);
 
   const conditionSuggester = useMemo(() => {
-    const previouslySelected = new Set(conditions.map(value => value?.condition?.value));
+    const previouslySelected = conditions
+      .map(value => value?.condition?.value)
+      .filter(value => value !== undefined);
     return new Suggester({
       model: models.ProgramRegistryCondition,
       options: {
-        where: {
-          programRegistry: programRegistryId,
-        },
+        where: { programRegistry: programRegistryId },
+        excludeIds: previouslySelected,
       },
-      filter: ({ entity_id }) => !previouslySelected.has(entity_id),
     });
   }, [models.ProgramRegistryCondition, programRegistryId, conditions]);
 
   const addItem = (newValue: ConditionAndCategory) => {
-    onChange([...conditions, newValue]);
-    setConditions([...conditions, newValue]);
+    const next = [...conditions, newValue];
+    onChange(next);
+    setConditions(next);
   };
-  const editItem = index => (newValue: ConditionAndCategory) => {
-    const newValues = conditions.map((value, i) => (i === index ? newValue : value));
-    onChange(newValues);
-    setConditions(newValues);
+  const editItem = (index: number) => (newValue: ConditionAndCategory) => {
+    const next = conditions.map((value, i) => (i === index ? newValue : value));
+    onChange(next);
+    setConditions(next);
   };
-  const deleteItem = index => () => {
-    const newValues = conditions.slice(0, index).concat(conditions.slice(index + 1));
-    onChange(newValues);
-    setConditions(newValues);
+  const deleteItem = (index: number) => () => {
+    const next = conditions.slice(0, index).concat(conditions.slice(index + 1));
+    onChange(next);
+    setConditions(next);
   };
 
   return (

@@ -15,17 +15,19 @@ import {
 } from '../error';
 import { version } from '/root/package.json';
 import { callWithBackoff, sleepAsync } from './utils';
+import { compressibleRequestBody } from './utils/compressibleRequestBody';
 import { CentralConnectionStatus } from '~/types';
 
-type PullMetadataResponse = {
-  totalToPull: number;
+interface PullMetadataResponse {
+  /** A Postgres `count(*)` is a bigint, which arrives serialised as a string */
+  totalToPull: string;
   pullUntil: number;
-};
+}
 
-type RefreshResponse = {
+interface RefreshResponse {
   token?: string;
   refreshToken?: string;
-};
+}
 
 const API_PREFIX = 'api';
 
@@ -52,7 +54,7 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
-    return new OutdatedVersionError(problem.extra.get('updateUrl'));
+    return new OutdatedVersionError(problem.extra.get('update-url'));
   }
 
   console.error('Response had non-OK value', problem);
@@ -163,8 +165,26 @@ export class CentralServerConnection {
     body,
     options?: FetchOptions,
   ): Promise<T> {
-    const headers = { 'Content-Type': 'application/json', ...(options?.headers || {}) };
-    return this.fetch(path, query, { ...options, method: 'POST', headers, body }) as Promise<T>;
+    const { compress, ...restOptions } = options ?? {};
+    const headers = { 'Content-Type': 'application/json', ...(restOptions.headers || {}) };
+    let outgoingBody = body;
+    if (compress) {
+      // send the body as a pre-serialised JSON string with Content-Encoding:
+      // gzip — React Native's native networking layer gzips string bodies with
+      // that header set, and body-parser on the central server inflates them;
+      // small bodies come back null and are sent as plain JSON
+      const compressible = compressibleRequestBody(body);
+      if (compressible !== null) {
+        outgoingBody = compressible;
+        headers['Content-Encoding'] = 'gzip';
+      }
+    }
+    return this.fetch(path, query, {
+      ...restOptions,
+      method: 'POST',
+      headers,
+      body: outgoingBody,
+    }) as Promise<T>;
   }
 
   async delete(path: string, query: Record<string, string | number>) {
@@ -248,7 +268,11 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get<PullMetadataResponse>(`sync/${sessionId}/pull/metadata`, {});
+    const { totalToPull, pullUntil } = await this.get<PullMetadataResponse>(
+      `sync/${sessionId}/pull/metadata`,
+      {},
+    );
+    return { totalToPull: Number.parseInt(totalToPull, 10), pullUntil };
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
@@ -264,7 +288,7 @@ export class CentralServerConnection {
   }
 
   async push(sessionId: string, changes): Promise<unknown> {
-    return this.post(`sync/${sessionId}/push`, {}, { changes });
+    return this.post(`sync/${sessionId}/push`, {}, { changes }, { compress: true });
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {

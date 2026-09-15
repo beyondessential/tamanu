@@ -10,7 +10,7 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
 import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import {
   FullView,
@@ -64,7 +64,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
   if (!user) {
     // This is only encountered in situations where it's about to immediately

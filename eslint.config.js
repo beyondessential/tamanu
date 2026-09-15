@@ -91,7 +91,6 @@ export default [
       'no-constructor-return': 'warn',
       'no-promise-executor-return': 'warn',
       'require-atomic-updates': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
       'react/jsx-key': 'warn',
     },
   },

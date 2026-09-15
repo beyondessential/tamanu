@@ -133,9 +133,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
               category="programRegistry"
             />
           }
-          onGoBack={() => {
-            navigation.goBack();
-          }}
+          onGoBack={navigation.goBack}
         />
         <Form
           initialValues={{

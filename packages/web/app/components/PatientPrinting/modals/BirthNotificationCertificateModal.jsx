@@ -110,7 +110,10 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
 
   const { data: deathData, isLoading: isDeathDataLoading } = useQuery(
     ['deathData', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/death`),
+    // A living patient has no death record and the endpoint 404s; that's expected here, so don't
+    // surface it as a server error toast (matches the other patient/:id/death callers).
+    () =>
+      api.get(`patient/${encodeURIComponent(patient.id)}/death`, {}, { showUnknownErrorToast: false }),
   );
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(['facility', facilityId], () =>

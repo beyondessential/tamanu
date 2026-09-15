@@ -46,7 +46,7 @@ interface SurveyFormInnerProps {
   encounterProp?: { encounterType?: string };
   formValuesRef: MutableRefObject<Record<string, any>>;
   setVisibleComponentKey: React.Dispatch<React.SetStateAction<string>>;
-  onCancel?: () => Promise<void>;
+  onCancel?: () => void;
   onGoBack?: () => void;
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
   currentScreenIndex: number;
@@ -120,9 +120,8 @@ const SurveyFormInner = ({
 
 export type SurveyFormProps = {
   onSubmit: (values: any) => Promise<void>;
-  openExitModal: () => Promise<void>;
   components: ISurveyScreenComponent[];
-  onCancel?: () => Promise<void>;
+  onCancel?: () => void;
   onGoBack?: () => void;
   patient: any;
   validate?: any;
@@ -224,7 +223,6 @@ export const SurveyForm = ({
 
   return (
     <Form
-      validateOnChange
       validateOnBlur
       validationSchema={formValidationSchema}
       initialValues={initialValues}

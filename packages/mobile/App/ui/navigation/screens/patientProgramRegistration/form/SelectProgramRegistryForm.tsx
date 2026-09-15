@@ -75,9 +75,7 @@ export const SelectProgramRegistryForm = ({ navigation, route }: BaseAppProps) =
             fallback="Program registry"
           />
         }
-        onGoBack={() => {
-          navigation.goBack();
-        }}
+        onGoBack={navigation.goBack}
       />
       <StyledView borderColor={theme.colors.BOX_OUTLINE} borderBottomWidth={1}></StyledView>
       <StyledView

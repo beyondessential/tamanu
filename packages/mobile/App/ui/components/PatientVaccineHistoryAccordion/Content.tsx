@@ -29,7 +29,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElement => {
+interface VaccinationDetails {
+  id: string;
+  status: string;
+  date: string;
+  scheduledVaccine: { doseLabel: string };
+}
+
+const VaccinationDetailsList = ({
+  status,
+  date,
+  scheduledVaccine,
+}: VaccinationDetails): ReactElement => {
   const { formatStringDate } = useDateFormatter();
   return (
     <RowView width="100%">
@@ -57,7 +68,7 @@ const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElemen
   );
 };
 
-export const Content = (section: any): ReactElement => (
+export const Content = ({ data }: { data: VaccinationDetails[] }): ReactElement => (
   <StyledView>
     <ColumnView
       width="100%"
@@ -65,7 +76,7 @@ export const Content = (section: any): ReactElement => (
       paddingLeft={20}
       paddingRight={20}
     >
-      {section.data.map(d => (
+      {data.map(d => (
         <VaccinationDetailsList key={d.id} {...d} />
       ))}
     </ColumnView>

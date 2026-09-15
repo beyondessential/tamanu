@@ -1,33 +1,28 @@
-import React, { type ReactElement, useCallback } from 'react';
 import type { NavigationProp } from '@react-navigation/native';
-import { Routes } from '/helpers/routes';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
+import type { IPatient } from '~/types';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
 import { ProgramViewHistoryScreen } from '../screens/programs/ProgramViewHistoryScreen';
 import { StackHeader } from '/components/StackHeader';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import type { IPatient } from '~/types';
+import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
-import { ProgramListScreen } from '../screens/programs/ProgramListScreen';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-const Tabs = createTopTabNavigator();
-
-type NewProgramEntryTabsProps = {
+interface NewProgramEntryTabsProps {
   navigation: NavigationProp<any>;
   selectedPatient: IPatient;
-};
+}
 
 const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
   return (
     <FullView>
-      <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />
-      <Tabs.Navigator screenOptions={{ headerShown: false }}>
-        <Tabs.Screen
+      <StackHeader title={joinNames(selectedPatient)} onGoBack={navigation.goBack} />
+      <TopTabNavigator>
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="program.action.viewHistory" fallback="View history" />
@@ -36,7 +31,7 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.ViewHistory}
           component={ProgramViewHistoryScreen}
         />
-        <Tabs.Screen
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="program.action.newForm" fallback="New form" />
@@ -45,7 +40,7 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
           name={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}
           component={ProgramListScreen}
         />
-      </Tabs.Navigator>
+      </TopTabNavigator>
     </FullView>
   );
 };

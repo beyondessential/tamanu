@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react';
+import React, { type ReactElement, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { TextField } from '../../TextField/TextField';
@@ -58,7 +58,7 @@ const RelationField = ({ fieldName, required }): ReactElement => {
     `general.localisedField.${fieldName}.label`,
     placeholder,
   );
-  const suggester = getSuggester(models, type);
+  const suggester = useMemo(() => getSuggester(models, type), [models, type]);
 
   return (
     <LocalisedField
