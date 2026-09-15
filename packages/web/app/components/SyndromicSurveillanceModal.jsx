@@ -13,6 +13,7 @@ const SyndromicSurveillanceModalComponent = ({ open, onClose, ...props }) => {
 
   return (
     <FormModal
+      width="md"
       title={
         <TranslatedText
           stringId="syndromicSurveillance.modal.title"

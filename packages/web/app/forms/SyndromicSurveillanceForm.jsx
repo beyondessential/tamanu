@@ -64,7 +64,7 @@ export const SyndromicSurveillanceForm = React.memo(({ onCancel, onSave }) => (
               label={
                 <TranslatedText
                   stringId="syndromicSurveillance.modal.noSyndrome.label"
-                  fallback="No syndrome (Patient was asked and none of the above apply)"
+                  fallback="No syndrome (Patient was asked and none apply)"
                   data-testid="translatedtext-no-syndrome"
                 />
               }
