@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { DateDisplay, EditedOrnament, PlainTimeDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { parseLabTestResult } from '@tamanu/utils/labTests';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
 
@@ -52,7 +53,22 @@ function round(float, { rounding } = {}) {
   return floatNumber.toFixed(rounding);
 }
 
-function getValidationState(normalizedValue, config = {}, visibilityCriteria = {}) {
+// A detection-limit result (e.g. "< 0.3") can't be compared numerically as-is; judge it against
+// the range on its comparator, honouring the direction at the boundary. "< n" is strictly below n,
+// so it flags low once n reaches the range minimum; "> n" mirrors that at the maximum.
+function getComparatorAlert(comparator, value, normalRange, unit) {
+  if (value === null) return null;
+  const { min, max } = normalRange;
+  const belowMin =
+    min != null && ((comparator === '<' && value <= min) || (comparator === '<=' && value < min));
+  if (belowMin) return `Outside normal range\n <${min}${unit}`;
+  const aboveMax =
+    max != null && ((comparator === '>' && value >= max) || (comparator === '>=' && value > max));
+  if (aboveMax) return `Outside normal range\n >${max}${unit}`;
+  return null;
+}
+
+export function getValidationState(normalizedValue, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
   const { normalRange, rangeText } = visibilityCriteria;
 
@@ -60,6 +76,12 @@ function getValidationState(normalizedValue, config = {}, visibilityCriteria = {
     return {
       severity: INFO,
     };
+  }
+
+  const { comparator, value: comparatorValue } = parseLabTestResult(normalizedValue);
+  if (comparator) {
+    const tooltip = normalRange && getComparatorAlert(comparator, comparatorValue, normalRange, unit);
+    return tooltip ? { tooltip, severity: ALERT } : { severity: INFO };
   }
 
   if (normalRange && normalizedValue < normalRange.min) {
