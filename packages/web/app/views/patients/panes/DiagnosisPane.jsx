@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Colors } from '../../../constants/styles';
 import { Button, TextButton } from '../../../components/Button';
+import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { DiagnosisModal } from '../../../components/DiagnosisModal';
 import { DiagnosisTable } from '../../../components/DiagnosisTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -136,9 +137,9 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         <NoteModalActionBlocker>
           <Button
             onClick={() => setEditedDiagnosis({})}
-            variant="outlined"
             color="primary"
             disabled={disabled}
+            startIcon={<PlusIcon height={18} width={18} data-testid="plusicon-add-diagnosis" />}
             data-testid="button-add-diagnosis"
           >
             <TranslatedText
