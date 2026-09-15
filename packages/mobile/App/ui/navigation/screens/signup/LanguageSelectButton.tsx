@@ -17,9 +17,9 @@ const ButtonContainer = styled(StyledView)`
   padding: 3px 0;
 `;
 
-type LanguageSelectButtonProps = {
+interface LanguageSelectButtonProps {
   navigation: NavigationProp<any>;
-};
+}
 
 export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps): ReactElement => {
   const { language, languageOptions } = useTranslation();
