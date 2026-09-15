@@ -11,7 +11,9 @@ export const TranslationProvider = ({ children }) => {
         getTranslation: (stringId, fallback) => {
           return fallback;
         },
-        getEnumTranslation: () => null,
+        getEnumTranslation: (enumValues, currentValue) => enumValues?.[currentValue] ?? null,
+        getReferenceDataTranslation: ({ value, fallback, placeholder }) =>
+          value ? fallback : placeholder,
         updateStoredLanguage: () => null,
         storedLanguage: '',
         translations: {},
