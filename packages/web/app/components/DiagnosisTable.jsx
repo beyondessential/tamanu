@@ -2,11 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
+import { DIAGNOSIS_CERTAINTY_CONFIG, DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
 import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { LimitedLinesCell } from './FormattedTableCell';
+import { TableCellTag } from './Tag';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -65,6 +66,11 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
+const CertaintyTag = styled(TableCellTag)`
+  font-size: 14px;
+  line-height: 18px;
+`;
+
 const getDiagnosisLabel = ({ diagnosis }) => (
   <TranslatedReferenceData
     fallback={diagnosis.name}
@@ -93,15 +99,18 @@ const getClinician = ({ clinician }) => (
   <NoWrapCell data-testid="nowrapcell-clinician">{clinician?.displayName}</NoWrapCell>
 );
 
-const getCertainty = ({ certainty }) => (
-  <NoWrapCell data-testid="nowrapcell-certainty">
-    <TranslatedEnum
-      value={certainty}
-      enumValues={DIAGNOSIS_CERTAINTY_LABELS}
-      data-testid="translatedenum-certainty"
-    />
-  </NoWrapCell>
-);
+const getCertainty = ({ certainty }) => {
+  const { color } = DIAGNOSIS_CERTAINTY_CONFIG[certainty];
+  return (
+    <CertaintyTag $color={color} noWrap data-testid="tablecelltag-certainty">
+      <TranslatedEnum
+        value={certainty}
+        enumValues={DIAGNOSIS_CERTAINTY_LABELS}
+        data-testid="translatedenum-certainty"
+      />
+    </CertaintyTag>
+  );
+};
 
 const COLUMNS = [
   {
