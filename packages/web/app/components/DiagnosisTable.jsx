@@ -1,9 +1,70 @@
 import React from 'react';
+import styled from 'styled-components';
+import { Box } from '@material-ui/core';
 
+import { DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
+import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
+import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
-import { DIAGNOSIS_CERTAINTY_LABELS } from '@tamanu/constants';
+
+const StyledDataFetchingTable = styled(DataFetchingTable)`
+  border: none;
+  border-radius: 0;
+  border-top: 1px solid ${Colors.outline};
+  margin-top: 8px;
+  .MuiTableHead-root {
+    position: sticky;
+    top: 0;
+  }
+  .MuiTableCell-head {
+    background-color: ${Colors.white};
+    padding-top: 12px;
+    padding-bottom: 12px;
+    span {
+      font-weight: 400;
+      color: ${Colors.midText};
+    }
+    padding-left: 10px;
+    padding-right: 10px;
+    &:last-child {
+      padding-right: 10px;
+    }
+    &:first-child {
+      padding-left: 10px;
+    }
+  }
+  .MuiTableCell-body {
+    padding: 4px 10px;
+    height: 44px;
+    &:last-child {
+      padding-right: 10px;
+    }
+    &:first-child {
+      padding-left: 10px;
+    }
+  }
+  .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
+    cursor: ${props => (props.onRowClick ? 'pointer' : '')};
+    &:hover {
+      background-color: ${Colors.veryLightBlue};
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        td {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+`;
+
+const NoWrapCell = styled(Box)`
+  white-space: nowrap;
+`;
 
 const getDiagnosisLabel = ({ diagnosis }) => (
   <TranslatedReferenceData
@@ -29,14 +90,18 @@ const getType = ({ isPrimary }) =>
     />
   );
 
-const getClinician = ({ clinician }) => clinician?.displayName;
+const getClinician = ({ clinician }) => (
+  <NoWrapCell data-testid="nowrapcell-clinician">{clinician?.displayName}</NoWrapCell>
+);
 
 const getCertainty = ({ certainty }) => (
-  <TranslatedEnum
-    value={certainty}
-    enumValues={DIAGNOSIS_CERTAINTY_LABELS}
-    data-testid="translatedenum-certainty"
-  />
+  <NoWrapCell data-testid="nowrapcell-certainty">
+    <TranslatedEnum
+      value={certainty}
+      enumValues={DIAGNOSIS_CERTAINTY_LABELS}
+      data-testid="translatedenum-certainty"
+    />
+  </NoWrapCell>
 );
 
 const COLUMNS = [
@@ -50,6 +115,7 @@ const COLUMNS = [
       />
     ),
     accessor: getDiagnosisLabel,
+    CellComponent: LimitedLinesCell,
   },
   {
     key: 'isPrimary',
@@ -83,6 +149,7 @@ const COLUMNS = [
       />
     ),
     accessor: getClinician,
+    CellComponent: LimitedLinesCell,
   },
   {
     key: 'certainty',
@@ -98,11 +165,13 @@ const COLUMNS = [
 ];
 
 export const DiagnosisTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
-  <DataFetchingTable
+  <StyledDataFetchingTable
     columns={COLUMNS}
     endpoint={`encounter/${encounterId}/diagnoses`}
     onRowClick={row => onItemClick(row)}
     elevated={false}
+    allowExport={false}
+    disablePagination
     initialSort={{ orderBy: 'isPrimary', order: 'desc' }}
     refreshCount={refreshCount}
     data-testid="datafetchingtable-diagnoses"
