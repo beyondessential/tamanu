@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../../constants/styles';
-import { Button } from '../../../components/Button';
+import { Button, TextButton } from '../../../components/Button';
 import { DiagnosisModal } from '../../../components/DiagnosisModal';
 import { DiagnosisTable } from '../../../components/DiagnosisTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -30,14 +30,14 @@ const SyndromicSurveillanceRow = styled.div`
   gap: 10px;
 `;
 
-const SyndromicSurveillanceLink = styled.a`
-  color: ${Colors.primary};
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
+const SyndromicSurveillanceTextButton = styled(TextButton)`
+  font-size: 14px;
 
-  &:hover {
-    text-decoration: underline;
+  &,
+  :hover {
+    color: ${props => (props.$isPrimary ? Colors.primary : Colors.darkestText)};
+    font-weight: ${props => (props.$isPrimary ? 500 : 400)};
+    text-decoration: ${props => (props.$isPrimary ? 'none' : 'underline')};
   }
 `;
 
@@ -60,13 +60,13 @@ const SyndromicSurveillanceStatus = ({
 }) => {
   if (state === SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED) {
     return (
-      <SyndromicSurveillanceLink data-testid={dataTestId}>
+      <SyndromicSurveillanceTextButton $isPrimary data-testid={dataTestId}>
         <TranslatedText
           stringId="encounter.syndromicSurveillance.label"
           fallback="Syndromic surveillance"
           data-testid="translatedtext-syndromic-surveillance"
         />
-      </SyndromicSurveillanceLink>
+      </SyndromicSurveillanceTextButton>
     );
   }
 
@@ -96,13 +96,13 @@ const SyndromicSurveillanceStatus = ({
           )}
         </BoldText>
       </span>
-      <SyndromicSurveillanceLink data-testid="syndromicsurveillancelink-viewedit">
+      <SyndromicSurveillanceTextButton data-testid="textbutton-syndromic-surveillance-viewedit">
         <TranslatedText
           stringId="general.action.viewEdit"
           fallback="View/Edit"
           data-testid="translatedtext-view-edit"
         />
-      </SyndromicSurveillanceLink>
+      </SyndromicSurveillanceTextButton>
     </SyndromicSurveillanceRow>
   );
 };
@@ -130,7 +130,7 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
       />
       <ActionRow data-testid="actionrow-diagnosis">
         <SyndromicSurveillanceStatus
-          state={SYNDROMIC_SURVEILLANCE_STATES.NO_SYNDROME}
+          state={SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED}
           data-testid="syndromicsurveillancestatus-diagnosis"
         />
         <NoteModalActionBlocker>
