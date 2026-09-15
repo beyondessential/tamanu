@@ -2,14 +2,15 @@ This configuration guide steps system administrators through the set up of the T
 Module. If it is your first time implementing the Medications Module or digitising medication
 workflows in your clinical setting, read the Medications Module Implementation Guide first.
 
-The Medications Module is not recommended for the following medications or clinical settings, whose
-orders and administration should remain on paper:
-
-- IV infusion medications
-- Anaesthesia medications
-- Complex oncology protocols
-- Dialysis
-- ICU, PICU and NICU
+> [!WARNING]
+> The Medications Module is not recommended for the following medications or clinical settings, whose
+> orders and administration should remain on paper:
+>
+> - IV infusion medications
+> - Anaesthesia medications
+> - Complex oncology protocols
+> - Dialysis
+> - ICU, PICU and NICU
 
 ---
 
@@ -25,12 +26,13 @@ The `Drug` reference data type configures the medication list available when pre
 > **Screenshot needed:** the Medications field in the new prescription form, showing drugs reference
 > data populating the dropdown.
 
-**Note:** for a deployment where mSupply is also in use, the drugs list should be copied from the
-mSupply essential medicines list.
+For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
+essential medicines list.
 
-Default values can be set per medication for `route`, `dosingUnit`, `dispensingUnit` and `notes`. When
-that medication is selected for prescription the defaults populate automatically, which speeds up
-creating prescriptions.
+> [!TIP]
+> Set default values per medication for `route`, `dosingUnit`, `dispensingUnit` and `notes`. When that
+> medication is selected for prescription the defaults populate automatically, which speeds up creating
+> prescriptions.
 
 **_Tab name_**
 
@@ -171,8 +173,9 @@ user, see Users: Creating and Managing Users.
 
 ## Medication Not Given Reason
 
-This reference data type must be configured to complete the medication administration record workflow
-when a medication is recorded as not given.
+> [!CAUTION]
+> This reference data type must be configured to complete the medication administration record workflow
+> when a medication is recorded as not given. Without it, staff cannot record a medication as not given.
 
 **_Tab name_**
 
@@ -265,8 +268,10 @@ prescribing.
 | Immediately | not scheduled | one-time |
 | As directed | not scheduled | as directed |
 
-An administration schedule cannot be set for `Immediately` or `As directed`. The administration times
-for `Hourly` and `Half-hourly` are fixed and cannot be changed.
+> [!WARNING]
+> An administration schedule cannot be set for `Immediately` or `As directed`, and the times for
+> `Hourly` and `Half-hourly` are fixed. Configuring administration times for these frequencies has no
+> effect.
 
 **_Searching by synonym_**
 
@@ -344,6 +349,9 @@ Settings are managed in the Settings admin panel.
 
 ## Pharmacy orders
 
+Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
+supply on discharge and invoicing.
+
 **Scope:** Facility (single facility)
 
 **Category:** Medication
@@ -352,10 +360,11 @@ Settings are managed in the Settings admin panel.
 
 **Setting:** Default prescription type
 
+**Default:** Existing encounter type
+
 > **Screenshot needed:** the default prescription type setting in the Settings admin panel.
 
-Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
-supply on discharge and invoicing. The options are:
+The options are:
 
 - **Existing encounter type**: the script type follows the encounter type. This is the default
 - **Outpatient/Discharge**
@@ -374,6 +383,8 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
 
 **Setting:** Toggle the required frequency off to disable it
 
+**Default:** All frequencies enabled
+
 > **Screenshot needed:** the frequencies enabled setting.
 
 ## Default administration schedule
@@ -389,6 +400,9 @@ For each frequency, the default administration schedule and ideal administration
 **Setting:** For each frequency, set the ideal administration times in the JSON editor. The default
 administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to
 10:00 window.
+
+**Default:** The standard administration times for each frequency, as listed under
+[Frequency](#frequency)
 
 > **Screenshot needed:** the default administration times setting.
 
@@ -433,10 +447,16 @@ scheduled in the same window.
 
 # Sensitive medications (supported from v2.39 onwards)
 
+> [!NOTE]
+> Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm your
+> deployment version before configuring this.
+
 This feature flags a medication as sensitive, so that only users with the required permissions can view
 and interact with it.
 
-Use this feature rarely, as medication information is critical for safe care.
+> [!WARNING]
+> Use this feature rarely. Medication information is critical for safe care, and hiding it from staff
+> without the permission carries clinical risk.
 
 To configure a medication as sensitive:
 
@@ -479,6 +499,8 @@ This is disabled by default and enabled with the following setting:
 **Sub-category:** Dispensing
 
 **Setting:** Dispensing quantity autocalculation
+
+**Default:** Disabled
 
 ## Immediate medications
 

@@ -37,9 +37,10 @@ Then these sections, in this order:
    described in prose and point at the relevant guide rather than given a column table.
 2. **`# Hard coded fields`** — the values each field permits, with a note that changing them requires a
    code change requested through a system administrator or project manager.
-3. **`# Settings`** — each setting as a **Scope** / **Category** / **Sub-category** / **Setting**
-   block. Settings taking structured values also show the required format and the errors invalid input
-   raises.
+3. **`# Settings`** — each setting as a **Scope** / **Category** / **Sub-category** / **Setting** /
+   **Default** block, preceded by a short description of what the setting does (see
+   [Settings blocks](#settings-blocks)). Settings taking structured values also show the required
+   format and the errors invalid input raises.
 4. **Feature and workflow sections** — self-contained, stating what requires configuration and what
    works without it.
 5. **`# Permissions`** — grouped by functional area, each entry pairing a verb with a subject as
@@ -47,7 +48,107 @@ Then these sections, in this order:
    import and export reference data and to view and modify settings.
 
 Use horizontal rules between major sections, and `##` / `###` for subsections. The Medications guide is
-the reference example of this shape.
+the reference example of this shape, and
+`.workhorse/design/mockups/k8/config-guide.html` shows it rendered.
+
+## Settings blocks
+
+Order each setting as **heading, then description, then the block**, so the reader learns what a
+setting does before being shown where to find it. Anything enumerating the setting's possible values
+goes after the block.
+
+The block carries five fields:
+
+```markdown
+**Scope:** Facility (single facility)
+
+**Category:** Medication
+
+**Sub-category:** Pharmacy orders
+
+**Setting:** Default prescription type
+
+**Default:** Existing encounter type
+```
+
+**Default** states the value that applies when the setting is untouched, taken from the schema's
+`defaultValue`. Give it in the reader's terms rather than the stored form: `Disabled` for a boolean
+defaulting to false, the option's display label for an enumeration, and the value with its unit where
+the schema declares one. Where a default is computed per case, say what determines it rather than
+inventing a single value.
+
+A setting with no `defaultValue` in the schema is either required or secret. Say which, rather than
+leaving **Default** blank.
+
+## Tables
+
+Tables carry the dense reference material: reference data columns, permitted values, and anything with
+a per-row default. Keep the first column the thing being looked up, so a reader scanning the left edge
+finds their row.
+
+**Reference data columns.** Two columns, `Column name` and `Description`:
+
+```markdown
+| Column name | Description |
+| --- | --- |
+| id * | Unique id for the drug. Letters, numbers and hyphens only. |
+| dispensingUnit | The unit pharmacy dispenses the medication in. Defaults to the dosing unit if not set. |
+```
+
+- Mark required columns with a space and `*` after the name, and state the convention once above the
+  table: `Where * is a required field.`
+- Column names go in the left cell **as they appear in the spreadsheet header**, unadorned. Do not
+  wrap them in backticks; the whole column is identifiers, so backticks add noise without adding
+  meaning
+- Every optional column's description says what happens when it is left empty, either the default it
+  takes or that no default applies. This is the question a reader most often brings to the table
+- Order the columns as the importer expects them, so the table can be read alongside the spreadsheet
+
+**Permitted values.** Where a stored value differs from what Tamanu displays, give both:
+
+```markdown
+| Value | Displays as |
+| --- | --- |
+| intramuscular | IM |
+```
+
+Where they are the same for every row, one column is enough. A long list of identical pairs is better
+as prose or a comma-separated run than a two-column table repeating itself.
+
+**Other tables.** Add columns only where each earns its place for every row. A column that is empty for
+most rows belongs in the description cell of the rows that need it.
+
+Keep cell content to a sentence or two. Where a value needs several paragraphs, a worked example or a
+code block, give it its own subsection under the table and reference it from the cell. Alerts cannot be
+nested in a table cell, so anything needing a callout also belongs outside the table.
+
+## Callouts
+
+Use GitHub's alert syntax, which renders in colour on GitHub and in the docs site. Four kinds, each
+with a fixed meaning:
+
+| Kind | Syntax | Renders | Use for |
+| --- | --- | --- | --- |
+| Note | `> [!NOTE]` | Blue | General information worth knowing, and version availability |
+| Configuration tip | `> [!TIP]` | Green | Advice that makes configuration easier or better |
+| Required | `> [!CAUTION]` | Red | Something that must be configured, or the workflow breaks |
+| Warning | `> [!WARNING]` | Amber | A configuration trap, a risk, or a gap a feature does not yet fill |
+
+```markdown
+> [!TIP]
+> Set default values for `route` and `dosingUnit` against each medication. The defaults populate
+> automatically when the medication is selected, which speeds up creating prescriptions.
+```
+
+Notes on using them:
+
+- **`[!IMPORTANT]` is not used.** It renders purple, which is outside the palette. Required content
+  takes `[!CAUTION]` so it reads red
+- **Alerts cannot be nested inside other elements**, so an alert cannot sit within a list or a table
+  cell. Lists and code blocks inside an alert are fine
+- **Do not stack alerts.** GitHub's own guidance is to avoid consecutive alerts and to use them
+  sparingly. Where two would sit together, merge them or leave one as ordinary prose. A guide whose
+  every second block is a coloured box teaches the reader to skip them
 
 ## Content sources
 
@@ -81,7 +182,9 @@ supported from.
 - Write version notes as **prose where they apply**: within the heading of the section they qualify
   (`# Sensitive medications (supported from v2.39 onwards)`) or within the specific table cell or line
   (`From v2.60 onwards, this column is superseded by dosingUnit`)
-- Not a badge, blockquote or callout
+- Where the consequence needs spelling out, follow the heading with a `> [!NOTE]` callout saying what
+  deployments below that version cannot do. Version availability is informational, so it takes the blue
+  note rather than the amber warning
 - Derive the version from release branch history (see `llm/project-rules/release-branches.md`), then
   present it to the author to confirm or correct
 
