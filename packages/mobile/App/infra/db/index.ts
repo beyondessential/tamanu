@@ -181,13 +181,16 @@ class DatabaseHelper {
 
     this.isAnalyzing = true;
     try {
-      const [lastRefreshFact, hasEverFullyAnalysed] = await Promise.all([
-        this.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } }),
-        this.models.LocalSystemFact.existsBy({ key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY }),
-      ]);
+      const hasEverFullyAnalysed = await this.models.LocalSystemFact.existsBy({
+        key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY,
+      });
 
       if (hasEverFullyAnalysed) {
-        const lastRefresh = Number.parseInt(lastRefreshFact.value, 10);
+        const fact = await this.models.LocalSystemFact.findOne({
+          select: ['value'],
+          where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+        });
+        const lastRefresh = Number.parseInt(fact?.value, 10);
         if (
           Number.isFinite(lastRefresh) &&
           Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
