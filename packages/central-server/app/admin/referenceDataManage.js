@@ -203,13 +203,17 @@ referenceDataManageRouter.get(
     }
 
     // Default to current records when model has visibilityStatus and no filter was sent.
-    // Lab test types also surface panelOnly so they can be managed here (they can't be ordered
-    // individually, but their integration codes still need editing).
+    // Lab test types also surface panelOnly and reflexTest so they can be managed here (they can't
+    // be ordered, but their integration codes still need editing).
     const hasVisibilityStatus = columns.some(c => c.key === 'visibilityStatus');
     if (hasVisibilityStatus && !searchWhere.visibilityStatus) {
       searchWhere.visibilityStatus =
         referenceDataType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-          ? [VISIBILITY_STATUSES.CURRENT, LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY]
+          ? [
+              VISIBILITY_STATUSES.CURRENT,
+              LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+              LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+            ]
           : VISIBILITY_STATUSES.CURRENT;
     }
 

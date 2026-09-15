@@ -883,6 +883,7 @@ labTestType.get(
       visibilityStatus: {
         [Op.notIn]: [
           LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+          LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
           LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL,
         ],
       },

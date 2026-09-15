@@ -1174,7 +1174,7 @@ describe('Labs', () => {
     });
   });
 
-  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly" or "historical"', async () => {
+  it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelOnly", "reflexTest" or "historical"', async () => {
     const makeLabTestType = async visibilityStatus => {
       const category = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -1196,6 +1196,9 @@ describe('Labs', () => {
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST);
+    await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);
     await makeLabTestType(LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL);

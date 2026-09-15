@@ -395,6 +395,25 @@ describe('Reference Data Manage', () => {
       expect(response.body.data.some(record => record.id === panelOnlyType.id)).toBe(true);
     });
 
+    it('lists reflexTest lab test types by default so they can be managed', async () => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const reflexTestType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      });
+
+      const response = await adminApp
+        .get(BASE_URL)
+        .query({ referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.some(record => record.id === reflexTestType.id)).toBe(true);
+    });
+
     it('should forbid access without permission', async () => {
       const response = await noPermissionApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
