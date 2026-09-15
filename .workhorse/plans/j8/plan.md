@@ -61,7 +61,9 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 - **Deployment: standalone public docs site**, independent of the Tamanu app.
 - **Hub scope: user manuals, release notes, a Roadmap, and a Report an issue support form.** API
   reference and the operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) stay out.
-- Black-and-white palette, Inter typeface, subtle 1px borders, generous whitespace.
+- **Tamanu-branded palette** over a mostly white page, Inter typeface, subtle 1px borders, generous
+  whitespace. Colour is applied as a layer over the original neutral mockups (see "Branding" below),
+  replacing the earlier black-and-white palette.
 - Shared top bar (Search + separate Ask AI control) and Linear left-sidebar pattern across pages.
 - **Search and Ask AI are two distinct controls** (Stripe pattern), not one combined bar.
 - **Ask AI is a page-aware chat drawer** (Stripe pattern), reached from the Ask AI control or a
@@ -71,6 +73,29 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
   out of the top nav and Browse so they don't read as Tamanu sections, since they are wholly separate
   products with only occasional crossover users. Real URLs still to be added (currently `#`), and the
   "Senaite: Animal Health" spelling to be confirmed (user wrote "Senate").
+
+## Branding
+
+Modelled on the Figma help centre: a mostly white page where colour arrives through category tiles,
+accents and a brand mark, rather than through large blocks of colour.
+
+- **Palette is the real Tamanu one**, taken from `packages/ui-components/src/constants/colors.js`
+  (itself mirroring the Tamanu Figma colour library): primary blue `#326699` and gold `#FFCC24` as
+  the brand pair, with green, purple, pink, amber and bright blue as category accents.
+- **The brand mark is the shipped Tamanu logo** (`packages/web/resources/errors/tamanu_logo_blue_no_text.svg`),
+  embedded as a data URI in a `--logo` custom property rather than redrawn.
+- **Category tiles carry a rotating accent** driven by `nth-child`, so each card sets a local `--a`
+  and `--a-10` pair that colours its icon, panel tint and hover state. Colour here is decorative
+  wayfinding, not meaning.
+- **Colour is load-bearing in two places only**: release-note section headings (blue major features,
+  amber enhancements, green fixes, red critical upgrade notes, purple upgrade steps) and the roadmap
+  timeline (blue delivered, gold planned). Emoji headings in the release notes were replaced by these
+  coloured rules.
+- Each mockup carries the same appended `Tamanu brand layer` block at the end of its stylesheet, so
+  the branding can be tuned in one place per file and the original neutral rules stay readable
+  underneath.
+- Typeface is unchanged. The Tamanu web app uses Roboto; the docs hub stays on Inter as a separate
+  surface. Worth confirming.
 
 ## Open questions
 
