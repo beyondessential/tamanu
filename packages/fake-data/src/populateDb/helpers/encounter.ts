@@ -1,17 +1,10 @@
-import { addMinutes } from 'date-fns';
-
 import { NOTE_RECORD_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import type { Encounter } from '@tamanu/database';
-import { parseDate, toDateTimeString } from '@tamanu/utils/dateTime';
 import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 
 import { times } from 'es-toolkit/compat';
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
-
-// Longest a seeded encounter runs before it is discharged. Triage encounters are much
-// shorter and set their own end (see `createTriage`).
-const LONGEST_STAY_IN_MINUTES = 90 * 24 * 60;
 
 interface CreateEncounterParams extends CommonParams {
   patientId?: string;
@@ -44,21 +37,6 @@ export const createEncounter = async ({
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
   const { Encounter, Note, Discharge, EncounterDiagnosis } = models;
 
-  // An encounter that hasn't been discharged is still open, and an open encounter has no
-  // end date. `fake` would otherwise draw endDate independently across a five-year span,
-  // landing a good half of them before the encounter started.
-  const resolvedEndDate =
-    endDate !== undefined
-      ? endDate
-      : isDischarged
-        ? toDateTimeString(
-            addMinutes(
-              parseDate(startDate),
-              chance.integer({ min: 30, max: LONGEST_STAY_IN_MINUTES }),
-            ),
-          )
-        : null;
-
   const encounter = await Encounter.create(
     fake(Encounter, {
       patientId: patientId || (await randomRecordId(models, 'Patient')),
@@ -66,10 +44,10 @@ export const createEncounter = async ({
       locationId: locationId || (await randomRecordId(models, 'Location')),
       examinerId: userId || (await randomRecordId(models, 'User')),
       startDate,
-      endDate: resolvedEndDate,
       // Only override when given: `fake` treats any key present in the overrides as
       // authoritative, so passing `undefined` would blank the generated value.
       ...(encounterType ? { encounterType } : {}),
+      ...(endDate !== undefined ? { endDate } : {}),
       ...(reasonForEncounter ? { reasonForEncounter } : {}),
     }),
   );
