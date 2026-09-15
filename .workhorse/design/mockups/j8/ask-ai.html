@@ -279,6 +279,16 @@
   .foot-col a:hover, .foot-col a:hover .ext { color:var(--gold); }
   .foot-col a .ext { color:rgba(255,255,255,.4); }
   .foot-bar { color:rgba(255,255,255,.45); border-top-color:rgba(255,255,255,.14); }
+
+  /* ---- page canvas: a soft neutral (Tamanu's own background token) so the
+         white top bar, cards and content surfaces read as surfaces on it ---- */
+  :root { --page:#F3F5F7; }
+  .backdrop { background:var(--page); }
+  .hero { background:transparent; }
+  /* sidebar hovers need to clear the canvas now that it is not white */
+  .side a.top:hover, .side a.item:hover, .side a.ver:hover, .side .children a:hover,
+  .side-m a.top:hover, .side-m .children a:hover, .side-foot a:hover,
+  .side-a a.item:hover, .side-v a.ver:hover { background:var(--brand-10); }
 </style>
 </head>
 <body>

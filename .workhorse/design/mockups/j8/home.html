@@ -318,6 +318,35 @@
   header.nav { background:var(--bg); -webkit-backdrop-filter:none; backdrop-filter:none;
     transition:box-shadow .15s ease; }
   header.nav.scrolled { box-shadow:0 1px 2px rgba(47,67,88,.07), 0 8px 20px rgba(47,67,88,.06); }
+
+  /* ---- page canvas: a soft neutral (Tamanu's own background token) so the
+         white top bar, cards and content surfaces read as surfaces on it ---- */
+  :root { --page:#F3F5F7; }
+  body { background:var(--page); }
+  .hero { background:transparent; }
+  /* sidebar hovers need to clear the canvas now that it is not white */
+  .side a.top:hover, .side a.item:hover, .side a.ver:hover, .side .children a:hover,
+  .side-m a.top:hover, .side-m .children a:hover, .side-foot a:hover,
+  .side-a a.item:hover, .side-v a.ver:hover { background:var(--brand-10); }
+
+  /* ---- dark top bar, matching the footer: a compressed echo of the hero
+         capsule, white search pill and gold Ask AI on navy ---- */
+  header.nav { background:var(--brand-dark); border-bottom:none; }
+  header.nav.scrolled { box-shadow:0 1px 3px rgba(20,32,44,.20), 0 10px 24px rgba(20,32,44,.14); }
+  header.nav .brand { color:#fff; }
+  header.nav .brand .mark { background:var(--logo-light) center/contain no-repeat; }
+  header.nav .brand .sub { color:var(--gold); }
+  header.nav nav.links a { color:rgba(255,255,255,.78); }
+  header.nav nav.links a:hover { color:#fff; }
+  header.nav nav.links a.active { color:#fff; font-weight:640; }
+  header.nav .searchbox { background:var(--bg); border:none; border-radius:999px; color:var(--ink-3); }
+  header.nav .searchbox:hover { box-shadow:0 0 0 3px rgba(255,255,255,.16); }
+  header.nav .searchbox svg { color:var(--brand); }
+  header.nav .searchbox .k { background:var(--fill); border:1px solid var(--line); color:var(--ink-3); }
+  header.nav .askai { background:var(--gold); border-color:var(--gold); color:var(--brand-dark);
+    border-radius:999px; box-shadow:none; }
+  header.nav .askai:hover { background:var(--bg); border-color:var(--bg); color:var(--brand-dark); }
+  header.nav .askai svg { color:var(--brand-dark); }
 </style>
 </head>
 <body>

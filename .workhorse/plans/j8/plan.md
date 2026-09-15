@@ -105,6 +105,16 @@ light display type, and a dark capsule around the search.
   the hub's signature element, taken from the black capsule on the Figma help centre home.
 - **Cards have no border or divider** — a flat colour thumbnail with a large icon, then title and
   description beneath.
+- **The page sits on a soft neutral canvas** (`#F3F5F7`, Tamanu's own `background` token) rather
+  than white, with the sticky top bar, cards, inputs, the search palette and the Ask AI drawer kept
+  white so they read as surfaces on it. The global search mockup keeps its dark stand-in backdrop.
+- **The top bar is sticky and navy**, the same `#2F4358` as the footer, so the page is bracketed by
+  the brand dark at both ends. It carries a white search pill and a gold Ask AI pill, making it a
+  compressed echo of the hero capsule, and gains a shadow once the page scrolls beneath it. It was
+  always `position: sticky`; the old translucent white background was what made the pinning
+  imperceptible.
+- **Gold is reserved for the brand word and the Ask AI action.** The active nav link is white rather
+  than gold, so the bar does not carry three competing gold elements.
 - **Display type is large and light** (hero 60px at weight 550, section headings 32px), not small and
   bold. Tracking is tight.
 - **The styling layer adds no content.** An earlier pass introduced a Popular topics section, card
