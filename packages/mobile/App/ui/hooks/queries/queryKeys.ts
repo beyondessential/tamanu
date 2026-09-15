@@ -55,11 +55,8 @@ export const surveyKeys = {
   components: (surveyId: string) =>
     [...surveyKeys.detail(surveyId), 'components'] as const satisfies QueryKey,
   vitalsSurvey: () => [...surveyKeys.all, 'vitalsSurvey'] as const satisfies QueryKey,
-  fullResponse: (surveyResponseId: string) =>
+  fullResponse: (surveyResponseId: MaybeId) =>
     [...surveyKeys.all, 'response', surveyResponseId] as const satisfies QueryKey,
-  // config is the raw JSON config string naming the source data element code
-  dataElementByCode: (config: string) =>
-    [...surveyKeys.all, 'dataElement', config] as const satisfies QueryKey,
 };
 
 export const programKeys = {

@@ -16,6 +16,7 @@ import type { PatientStateProps } from '../../../store/ducks/patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { renderAnswer } from '../programs/SurveyResponseDetailsScreen';
+import { resolveAnswerDisplayRecords } from '~/utils/resolveAnswerDisplayRecords';
 
 const styles = StyleSheet.create({
   accordion: {
@@ -39,24 +40,39 @@ export const ReferralHistoryScreen = (): ReactElement => {
   const { ability, user } = useAuth();
   const { formatStringDate } = useDateFormatter();
 
-  const { data: referrals, error } = useQuery({
+  const { data, error } = useQuery({
     queryKey: [...patientKeys.referrals(selectedPatient.id), { userId: user?.id }],
     queryFn: async () => {
-      const referrals = await Database.models.Referral.getForPatient(selectedPatient.id);
-      return (
-        referrals?.filter(referral =>
+      const allReferrals = await Database.models.Referral.getForPatient(selectedPatient.id);
+      const referrals =
+        allReferrals?.filter(referral =>
           ability.can('read', subject('Survey', { id: referral.surveyResponse.surveyId })),
-        ) ?? []
+        ) ?? [];
+
+      // Resolve every answer's referenced record up front, so rendering costs no further queries.
+      const answersToDisplay = referrals.flatMap(({ surveyResponse }) =>
+        surveyResponse.answers.map(answer => ({
+          type: answer.dataElement.type,
+          config: answer.dataElement.surveyScreenComponent.config ?? null,
+          answer: answer.body,
+        })),
       );
+
+      return {
+        referrals,
+        answerDisplayRecords: await resolveAnswerDisplayRecords(Database.models, answersToDisplay),
+      };
     },
   });
 
   if (error) {
     return <ErrorScreen error={error} />;
   }
-  if (!referrals) {
+  if (!data) {
     return null;
   }
+
+  const { referrals, answerDisplayRecords } = data;
   return (
     <StyledScrollView>
       <List.Section>
@@ -76,8 +92,9 @@ export const ReferralHistoryScreen = (): ReactElement => {
                   <View>
                     {renderAnswer({
                       type: answer.dataElement.type,
-                      config: answer.dataElement.surveyScreenComponent.config,
+                      config: answer.dataElement.surveyScreenComponent.config ?? null,
                       answer: answer.body,
+                      answerDisplayRecords,
                     })}
                   </View>
                 </View>
