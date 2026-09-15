@@ -7,12 +7,7 @@ import {
   TextButton,
   TranslatedEnum,
 } from '../../../components';
-import {
-  differenceInCalendarDays,
-  differenceInMinutes,
-  formatDuration,
-  intervalToDuration,
-} from 'date-fns';
+import { differenceInMinutes, formatDuration, intervalToDuration } from 'date-fns';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
@@ -195,7 +190,9 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
   } else if (totalMinutes < 1440) {
     formattedDuration = formatDuration(duration, { format: ['hours'] });
   } else {
-    const totalDays = differenceInCalendarDays(endMs, startMs);
+    // Total elapsed days from the raw millisecond difference, not a calendar-day
+    // comparison, so the result doesn't shift by browser timezone near midnight.
+    const totalDays = Math.floor(totalMinutes / 1440);
     formattedDuration = formatDuration({ days: totalDays }, { format: ['days'] });
   }
 
