@@ -2,7 +2,6 @@ import React from 'react';
 import { Linking } from 'react-native';
 import { LaunchIcon } from '~/ui/components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { RowView, StyledText, StyledTouchableOpacity } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
