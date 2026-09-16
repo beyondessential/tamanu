@@ -91,10 +91,12 @@ light display type, and a dark capsule around the search.
   the brand pair, with green, purple, pink, amber and bright blue as category accents.
 - **The brand mark is the shipped Tamanu logo** (`packages/web/resources/errors/tamanu_logo_blue_no_text.svg`),
   embedded as a data URI in a `--logo` custom property rather than redrawn.
-- **Category tiles carry a rotating accent** driven by `nth-child`, so each card sets a local `--a`
-  and `--a-10` pair that colours its icon, panel tint and hover state. Colour here is decorative
-  wayfinding, not meaning.
-- **Colour is load-bearing in two places only**: release-note section headings (blue major features,
+- **Each card sets a local `--a` and `--a-10` pair** that colours its icon, panel tint, label and
+  hover state. On the manuals index these rotate by `nth-child` as decorative wayfinding; on the home
+  page they are **semantic and fixed**: user manuals purple `#4101C9`, release notes pink `#D10580`,
+  roadmap green `#19934E`. The same three hold across both the Popular rows and the Browse tiles, so
+  a kind keeps one colour wherever it appears.
+- **Colour is load-bearing elsewhere too**: release-note section headings (blue major features,
   amber enhancements, green fixes, red critical upgrade notes, purple upgrade steps) and the roadmap
   timeline (blue delivered, gold planned). Emoji headings in the release notes were replaced by these
   coloured rules.

@@ -356,6 +356,14 @@
     box-shadow:0 4px 14px rgba(47,67,88,.07); }
   .lcard .panel { border-radius:0; min-height:150px; }
   .lcard .body { padding:16px 18px 20px; background:var(--bg); }
+
+  /* ---- kind accents are semantic, not decorative:
+         user manuals purple, release notes pink, roadmap green ---- */
+  .grid.three .lcard:nth-child(1) { --a:var(--c-purple); --a-10:var(--c-purple-10); }
+  .grid.three .lcard:nth-child(2) { --a:var(--c-pink);   --a-10:var(--c-pink-10); }
+  .grid.three .lcard:nth-child(3) { --a:var(--c-green);  --a-10:var(--c-green-10); }
+  .pcard { --a:var(--c-purple); --a-10:var(--c-purple-10); }
+  .pcard.release { --a:var(--c-pink); --a-10:var(--c-pink-10); }
 </style>
 </head>
 <body>
