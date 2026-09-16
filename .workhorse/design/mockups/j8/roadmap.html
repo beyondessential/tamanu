@@ -66,8 +66,6 @@
   .rmx-items li:last-child { border-bottom:0; padding-bottom:2px; }
   .rmx-items .ic { width:7px; height:7px; margin-top:6px; border-radius:999px; background:var(--ink-4); flex:none; }
   .rmx-items strong { color:var(--ink); font-weight:640; }
-  .rmx-details { margin-top:auto; display:inline-flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; }
-  .rmx-details .db { width:26px; height:26px; border-radius:7px; background:var(--ink); color:#fff; display:grid; place-items:center; flex:none; }
 
   .rmx-disclaimer { margin-top:30px; padding-top:18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-3); line-height:1.6; max-width:720px; }
   .rmx-disclaimer b { color:var(--ink-2); font-weight:600; }
@@ -160,8 +158,6 @@
   .rmx-card { border-color:#E3EAF1; box-shadow:0 1px 2px rgba(47,67,88,.04), 0 10px 26px rgba(47,67,88,.07); }
   .rmx-period { color:var(--brand-dark); }
   .rmx-items .ic { background:var(--brand-30); }
-  .rmx-details { color:var(--brand); }
-  .rmx-details .db { background:var(--brand); }
   .rmx-nav button:hover { border-color:var(--brand); color:var(--brand); }
 
   /* ---- report an issue ---- */
@@ -337,7 +333,7 @@
   .msg.user { color:var(--ink); }
   .msg.ai .who { color:var(--ink-3); }
   .cite { color:var(--ink-3); }
-  .rmx-period, .rmx-details, .rmx-nav button:hover { color:var(--ink); }
+  .rmx-period, .rmx-nav button:hover { color:var(--ink); }
   .dropzone .browse { color:var(--ink); }
   .note { color:var(--ink-2); }
   .feedback .b:hover, .ask-handoff:hover { color:var(--ink); }
@@ -414,6 +410,30 @@
     aside.side-a, aside.side-m { display:none; }
     aside.side:has(a.ver), aside.side-v { padding:18px 22px; }
   }
+
+  /* ---- roadmap goes vertical on small screens: the rows collapse with
+         display:contents so the zig-zag cards re-order into one chronological
+         column, and the horizontal axis is replaced by a left rail ---- */
+  @media (max-width:900px) {
+    .rmx-nav { display:none; }
+    .rmx-scroll { overflow:visible; padding:0; }
+    .rmx-track { width:auto; position:relative; padding-left:26px; }
+    .rmx-track::before { content:""; position:absolute; left:6px; top:10px; bottom:10px;
+      width:2px; background:var(--brand-30); }
+    .rmx-row { display:contents; }
+    .rmx-row.axis { display:none; }
+    .rmx-cell { width:auto; flex:none; padding:0; display:block; position:relative;
+      margin-bottom:16px; }
+    .rmx-cell:empty { display:none; }
+    .rmx-cell::before { content:""; position:absolute; left:-25px; top:22px; width:10px; height:10px;
+      border-radius:999px; background:var(--brand-30); border:2px solid var(--page); }
+    .rmx-cell:nth-child(1) { order:1; }
+    .rmx-cell:nth-child(2) { order:2; }
+    .rmx-cell:nth-child(3) { order:3; }
+    .rmx-cell:nth-child(4) { order:4; }
+    .rmx-cell:nth-child(5) { order:5; }
+    .rmx-cell:nth-child(6) { order:6; }
+  }
 </style>
 </head>
 <body>
@@ -437,7 +457,7 @@
 
 <main class="roadmap">
   <h1>Roadmap</h1>
-  <p class="subtitle">A best-estimate view of major developments in Tamanu, from recently released to planned. Move along the timeline to see each release.</p>
+  <p class="subtitle">A best-estimate view of major developments in Tamanu, from recently released to planned. Move along the timeline to see what's ahead.</p>
 
   <div class="rmx-legend">
     <span class="item"><span class="mk done"></span> Released</span>
@@ -459,7 +479,6 @@
               <li><span class="ic"></span><span>Improved <strong>scheduling and appointments module</strong>, including ability to book rooms and other locations</span></li>
               <li><span class="ic"></span><span><strong>Clinician dashboard</strong>, new landing experience for users</span></li>
             </ul>
-            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
           </div>
         </div>
         <div class="rmx-cell"></div>
@@ -471,7 +490,6 @@
               <li><span class="ic"></span><span><strong>Desktop charting</strong> to support speciality-specific documentation as well as standard clinical assessments such as wound management and pain assessments</span></li>
               <li><span class="ic"></span><span>Inclusion of 'Form' features into the <strong>procedures workflow</strong> allowing virtually any data to be collected against a procedure in configurable form fields</span></li>
             </ul>
-            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
           </div>
         </div>
         <div class="rmx-cell"></div>
@@ -484,7 +502,6 @@
               <li><span class="ic"></span><span>Expansion of FHIR API to <strong>send prescriptions to mSupply</strong></span></li>
               <li><span class="ic"></span><span>Expansion of FHIR API to <strong>receive lab results directly to Tamanu from</strong> SENAITE</span></li>
             </ul>
-            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
           </div>
         </div>
         <div class="rmx-cell"></div>
@@ -509,7 +526,6 @@
               <li><span class="ic"></span><span>Enhancements to <strong>program registries</strong> to capture <strong>condition categories</strong></span></li>
               <li><span class="ic"></span><span><strong>Intelligent patient duplicate detection</strong> on new patient creation</span></li>
             </ul>
-            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
           </div>
         </div>
         <div class="rmx-cell"></div>
@@ -522,7 +538,6 @@
               <li><span class="ic"></span><span>Ability to <strong>link a chart to a program registry</strong> enabling viewing chart entries across encounters</span></li>
               <li><span class="ic"></span><span>Enhancements to streamline the <strong>encounter management</strong> workflow</span></li>
             </ul>
-            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
           </div>
         </div>
         <div class="rmx-cell"></div>
@@ -534,7 +549,6 @@
               <li><span class="ic"></span><span>Enhancements to <strong>program forms</strong> to edit a program response</span></li>
               <li><span class="ic"></span><span><strong>Admin panel</strong> enhancements to streamline Tamanu configuration including an interface to manage permissions</span></li>
             </ul>
-            <span class="rmx-details"><span class="db"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span> View details</span>
           </div>
         </div>
       </div>

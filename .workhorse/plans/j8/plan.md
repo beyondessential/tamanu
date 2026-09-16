@@ -25,6 +25,9 @@ Mockups under `.workhorse/design/mockups/j8/`:
   sidebar + footer cluster). The browse area is a grid of **topic cards** (one per feature area,
   keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales
   better than one card per article when there are many manuals.
+- The roadmap is horizontal on desktop and **vertical on small screens**: the zig-zag rows collapse
+  with `display:contents` so the cards re-order into one chronological column against a left rail,
+  rather than forcing a sideways scroll on a phone.
 - `user-manual-article.html` — Linear docs article: left grouped nav, centre content, right "on this page" TOC.
 - `release-notes.html` — Linear changelog, master-detail: the left version list is the contents,
   and the reader clicks a version to view that release's notes on their own (one release shown at a
@@ -58,8 +61,8 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 - **Release notes** come from `docs/release-notes/*.md` in the GitHub repo (currently v2-61, v2-62, v2-63). Format: a `Released DD-MM-YYYY` line, a summary paragraph, then emoji-prefixed category headings (Major features, System enhancements, Tweaks and bug fixes, Critical upgrade notes, Upgrade steps). The mockup reproduces these by hand; the **real hub must parse the markdown at build/runtime** rather than carrying transcribed copies (the earlier mockup diverged because it was hand-summarised, not pulled). The worktree's copies were confirmed identical to `origin/main`.
 - **Roadmap** — content lives at https://www.bes.au/tamanu-roadmap/ and is now transcribed into the
   mockup (the user supplied it). Decision still open: whether the real hub fetches it live from
-  bes.au or mirrors it into the repo, and how "View details" resolves (a per-release detail, or a
-  link into release notes for shipped items).
+  bes.au or mirrors it into the repo. The cards carry no "View details" affordance — each card states
+  its own contents, so there is nothing further to open.
 - **User manuals** — source not yet decided. Some feature docs today live in Slab (release notes reference `[SLAB_LINK_PLACEHOLDER]`). Need to decide where manual content is authored and how it reaches the hub.
 
 ## Decisions taken
