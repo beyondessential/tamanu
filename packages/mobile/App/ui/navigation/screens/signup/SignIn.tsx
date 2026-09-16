@@ -27,11 +27,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);
   const { getTranslation } = useTranslation();
 
-  const onNavigateToForgotPassword = useCallback(() => {
-    console.log('onNavigateToForgotPassword...');
-    navigation.navigate(Routes.SignUpStack.ResetPassword);
-  }, []);
-
   const showOutdatedVersionAlert = useCallback(
     (error: OutdatedVersionError) => {
       console.log(error);
@@ -101,7 +96,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               }
             }}
           />
-          <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
+          <StyledTouchableOpacity
+            onPress={() => void navigation.navigate(Routes.SignUpStack.ResetPassword)}
+          >
             <StyledText
               width="100%"
               textAlign="center"
