@@ -1,0 +1,108 @@
+---
+name: write-user-guide
+description: >-
+  Write or update an end user guide for Tamanu, grounded in the running app and landed as a reviewed
+  pull request. Use when the user wants a user manual or user guide for a Tamanu module on Desktop or
+  Mobile (e.g. "write a guide for recording vitals"), wants an existing guide refreshed against the
+  current app, or wants to add a module to the manual. Writes to docs/user-manuals/ following
+  specs/documentation/user-manuals.md, and maintains the navigation through the manifest and its
+  generator. Not for configuration guides aimed at project managers (see
+  llm/project-rules/write-config-guides.md), nor for support runbooks (see curate-support-docs).
+label: "Write user guide"
+---
+
+## Your task: Write a user guide
+
+You write the end user manuals that live in `docs/user-manuals/` — task guides for the clinical and
+administrative staff who use Tamanu, not for the people who configure or build it.
+
+**Read `specs/documentation/user-manuals.md` first.** It specifies the structure, the anatomy of a
+guide, the language rules, numbering, and how screenshots are handled. This file is the procedure;
+that spec is the standard, and it wins wherever the two seem to differ.
+
+One run covers **one module on one platform**. Desktop and mobile guides stand alone and are never
+written as variants of each other — the two apps genuinely differ, and mobile lacks whole areas that
+desktop has.
+
+### Settle the scope before writing
+
+The person running you names the platform and the module. You work out the tasks: explore that area
+of the app, propose the list of guides with a one-line description each, and get it approved before
+writing any of them. Don't guess the task list and don't write the whole module in one silent go.
+
+A guide covers a single user action. Where a module's actions are small and tightly related, group
+them rather than fragmenting into near-empty files.
+
+### Ground every step in the running app
+
+Work in this order, and don't skip ahead:
+
+1. **Read the implementation.** Desktop is `packages/web`, mobile is `packages/mobile`. The
+   on-screen labels are the `fallback` strings on `TranslatedText` / `getTranslation` — take them
+   verbatim, including punctuation, because the guide names things exactly as the reader sees them.
+2. **Read the relevant spec under `specs/`** for intended behaviour. Treat it as thin: much of
+   Tamanu's spec tree is a stub, so the code is the real source. Never assume a spec exists or is
+   complete.
+3. **Run the app and click the flow through** before the guide is published. This is where claims
+   about what happens after an action get confirmed, and it is also when you capture screenshots.
+
+Anything you could not confirm by clicking is a claim, not a fact. Say so when you hand the work
+back rather than letting an unverified step read as settled.
+
+### Stay on mechanics, not configuration
+
+Guides describe how the product works, which holds at every deployment. How a site has been set up
+does not belong in them.
+
+Much of Tamanu's UI is survey-driven or reference-data-driven, so its fields vary per site. Cover
+finding the form, selecting it, completing it, and submitting it, and leave its fields alone. Where
+an action depends on a site's setup, say so, and tell the reader to contact their system
+administrator if they cannot do something they expect to.
+
+### Screenshots
+
+Capture real screenshots while you have the app running. Where you cannot get the shot, leave the
+placeholder form the spec defines so the gap stays visible and greppable. Do not quietly drop a
+screenshot the guide needs.
+
+### Never hand-edit the navigation
+
+Index pages, module and guide numbers, back-links, and the links between neighbouring guides are all
+**generated**. Editing them by hand desynchronises them from the manifest and the next build reverts
+your edit.
+
+1. Edit `docs/user-manuals/manifest.json` — add the module or list the new guide in the order a
+   reader would work through it.
+2. Run `npm run build-user-manuals`.
+3. Run `npm run check-user-manuals` to confirm nothing drifted and no guide file is unlisted.
+
+Write only the guide's own prose. Moving something in the manifest renumbers everything after it and
+repairs the affected links, so reordering is a manifest edit rather than a sweep through the files.
+
+### Check how it renders, not just how it reads
+
+Markdown that looks right in the source can render wrongly — a single newline inside a paragraph
+collapses to a space, which silently flattens any two-line construction. Before handing the work
+back, read the rendered output the way a reader on GitHub would, and confirm the structure survived.
+
+### Updating an existing guide
+
+Same skill, same grounding. Re-verify the guide against the running app, revise what has drifted, and
+leave what is still true alone. A refresh is not a rewrite. If the product changed enough that a step
+no longer exists, remove it rather than leaving a step that fails for the reader.
+
+### Slab is reference, not a source
+
+Tamanu's existing user guides on Slab are being retired. Read them to see what an area used to cover
+and to spot tasks worth including, but author the content from the app — Slab's wording may describe
+a version of the product that has moved on.
+
+### Landing the change
+
+Guides land as a **reviewed pull request**, never a silent commit. Follow
+`llm/project-rules/pull-requests.md` for the template and
+`llm/project-rules/git-workflow.md` for the title format. Note that **Tamanu does not allow the
+`docs` conventional type** — use `chore` for documentation changes.
+
+In the PR, say which guides were added or changed, and call out anything you could not verify against
+a running app so the reviewer knows what to check.
