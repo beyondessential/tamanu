@@ -534,10 +534,7 @@ export class CentralSyncManager {
         },
       );
 
-      // Derived here rather than accepted from the request: facilityIds is validated against the
-      // sync user's facility access at session start, so resolving the networks from it keeps
-      // network scoping inside that same guard. A facility in no network contributes none, so a
-      // session with no networked facility resolves an empty list and scoping stays facility-only.
+      // If facilityIds are sensitive, they should all be in the same sensitive network anyway
       const sensitiveNetworks = await sequelize.query(
         `
         SELECT DISTINCT sensitive_network_id
