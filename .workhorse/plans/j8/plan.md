@@ -123,6 +123,16 @@ light display type, and a dark capsule around the search.
   compressed echo of the hero capsule, and gains a shadow once the page scrolls beneath it. It was
   always `position: sticky`; the old translucent white background was what made the pinning
   imperceptible.
+- **The top bar is responsive in three steps.** Above 1080px it is the full bar. From 1080px it
+  tightens its gaps, narrows the search and drops the `/` hint. At 900px and below everything folds
+  behind a hamburger: brand and menu button on one row, the links, search and Ask AI stacking beneath
+  when open. 900px is the breakpoint because the four links plus search and Ask AI stop fitting a
+  little above tablet portrait width.
+- **Small screens needed page-level fixes, not just bar fixes.** The mockups overflowed sideways at
+  phone widths, which made the sticky bar wider than the viewport and pushed the menu button
+  off-screen entirely. Sidebar layouts collapse to a single column, hero and heading type scale down,
+  and card grids go to one column. The long in-section navs (article, manuals index) drop out on
+  mobile rather than burying the content; the release-notes version list is short and stays.
 - **Gold is reserved for the brand word and the Ask AI action.** The active nav link is white rather
   than gold, so the bar does not carry three competing gold elements.
 - **Display type is large and light** (hero 60px at weight 550, section headings 32px), not small and

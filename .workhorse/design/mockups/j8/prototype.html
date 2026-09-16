@@ -664,6 +664,75 @@
   /* on the navy bar and footer, greyscale reads as white */
   header.nav .brand .sub, .foot-brand .fb .sub { color:rgba(255,255,255,.72); }
   .foot-col a:hover, .foot-col a:hover .ext { color:#fff; }
+
+  /* ---- responsive top bar: compact on tablet, a menu below that ---- */
+  nav.links a, nav.top a { white-space:nowrap; }
+  .navtoggle { display:none; align-items:center; justify-content:center; width:38px; height:38px;
+    margin-left:auto; padding:0; border:none; border-radius:9px; background:transparent;
+    color:#fff; cursor:pointer; }
+  .navtoggle:hover { background:rgba(255,255,255,.12); }
+  .navtoggle .ic-close { display:none; }
+  header.nav.menu-open .navtoggle .ic-open { display:none; }
+  header.nav.menu-open .navtoggle .ic-close { display:block; }
+
+  /* tablet landscape: tighten spacing and drop the keyboard hint */
+  @media (max-width:1080px) {
+    .nav-inner { gap:18px; }
+    nav.links, nav.top { gap:16px; }
+    .searchbox, .nav-search { width:150px; }
+    .searchbox .k, .nav-search .kbd { display:none; }
+  }
+
+  /* tablet portrait and below: everything folds into the menu */
+  @media (max-width:900px) {
+    .nav-inner { flex-wrap:wrap; height:auto; min-height:56px; align-content:flex-start; row-gap:0; }
+    .brand, .navtoggle { height:56px; }
+    .navtoggle { display:flex; }
+    nav.links, nav.top, .nav-right { display:none; }
+    header.nav.menu-open nav.links, header.nav.menu-open nav.top {
+      display:flex; flex-direction:column; gap:0; width:100%; padding:4px 0 6px;
+      border-top:1px solid rgba(255,255,255,.14); }
+    header.nav.menu-open nav.links a, header.nav.menu-open nav.top a {
+      padding:12px 2px; font-size:15px; }
+    header.nav.menu-open .nav-right {
+      display:flex; width:100%; gap:10px; margin-left:0; padding:4px 0 14px; }
+    header.nav.menu-open .searchbox, header.nav.menu-open .nav-search { flex:1; width:auto; }
+    header.nav.menu-open .searchbox .k, header.nav.menu-open .nav-search .kbd { display:inline-block; }
+  }
+
+  /* ---- small screens: the page must not overflow sideways, or the sticky bar
+         grows wider than the viewport and its menu button lands off-screen ---- */
+  @media (max-width:900px) {
+    .nav-inner { padding:0 18px; }
+    .layout, .layout2, .layout3 { display:block; }
+    aside.side { position:static; width:auto; height:auto; border-right:none;
+      border-bottom:1px solid var(--line); }
+    aside.toc { display:none; }
+    .m-index, main.article, main.releases { padding:32px 22px 72px; }
+    main.roadmap, main.report { padding-inline:22px; }
+    .hero { padding:56px 20px 44px; }
+    .hero h1 { font-size:38px; }
+    .hero p.lede { font-size:16px; margin-bottom:28px; }
+    .hero-search { flex-direction:column; border-radius:20px; }
+    .big-ai { padding:14px 18px; justify-content:center; }
+    .wrap { padding:36px 20px 56px; }
+    .sec-title { font-size:26px; margin:44px 0 18px; }
+    .m-index h1, .article h1, .releases > h1, .roadmap h1, .report h1 { font-size:32px; }
+    .foot-inner { grid-template-columns:1fr; gap:24px; }
+  }
+  @media (max-width:600px) {
+    .hero h1 { font-size:31px; }
+    .pgrid, .grid, .grid.two, .grid.three, .tgrid { grid-template-columns:1fr; }
+  }
+
+  /* On mobile the long in-section navs would bury the content, so they drop out
+     (top-level nav lives in the menu). The release-notes version list is short and
+     is that page's primary control, so it stays and stacks above the notes. */
+  @media (max-width:900px) {
+    aside.side:has(a.item), aside.side:has(a.top),
+    aside.side-a, aside.side-m { display:none; }
+    aside.side:has(a.ver), aside.side-v { padding:18px 22px; }
+  }
 </style>
 </head>
 <body>
@@ -672,6 +741,7 @@
 <header class="nav">
   <div class="nav-inner">
     <a class="brand" data-goto="home"><span class="mark"></span> Tamanu <span class="sub">Docs</span></a>
+    <button class="navtoggle" type="button" aria-label="Menu" aria-expanded="false"><svg class="ic-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="ic-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <nav class="links">
       <a data-goto="manuals" data-nav="manuals">User manuals</a>
       <a data-goto="releases" data-nav="releases">Release notes</a>
@@ -1698,6 +1768,25 @@
     var sync = function () { nav.classList.toggle('scrolled', window.scrollY > 4); };
     sync();
     addEventListener('scroll', sync, { passive: true });
+  })();
+</script>
+<script>
+  // top-bar menu on small screens
+  (function () {
+    var nav = document.querySelector('header.nav');
+    var toggle = nav && nav.querySelector('.navtoggle');
+    if (!toggle) return;
+    var setOpen = function (open) {
+      nav.classList.toggle('menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', function () { setOpen(!nav.classList.contains('menu-open')); });
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('nav a')) setOpen(false);
+    });
+    addEventListener('resize', function () {
+      if (innerWidth > 900) setOpen(false);
+    });
   })();
 </script>
 </body>
