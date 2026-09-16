@@ -1,6 +1,6 @@
 # Mobile
 
-Guides to using Tamanu on a mobile device.
+Using Tamanu on a mobile device.
 
 ## Modules
 

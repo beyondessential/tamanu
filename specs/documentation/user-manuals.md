@@ -34,6 +34,22 @@ Tamanu repository alongside the code they describe.
       letting a reader work straight through a module. The first and last guide each
       carry the one link that applies.
 
+## Generated navigation
+
+One manifest holds the platforms, the modules in the order their platform lists them, and
+the guides in the order each module lists them. Everything that ties the manual together
+is derived from it, so the ordering lives in one place rather than being restated across
+every page that links to another.
+
+- [ ] The index pages, the module and guide numbers, each guide's link back to its module,
+      and the links between neighbouring guides are all generated from the manifest.
+- [ ] A guide's own prose is never rewritten by that generation, so the parts a person
+      writes and the parts derived from the manifest cannot overwrite each other.
+- [ ] Moving a module or a guide in the manifest renumbers everything that follows it and
+      repairs every affected link, so an insertion does not leave stale numbers behind.
+- [ ] A guide file that the manifest does not list is reported rather than left
+      unreachable, and the manual can be checked for drift without being rewritten.
+
 ## Numbering
 
 Modules and guides are numbered so that a trainer, a support officer, or a colleague can

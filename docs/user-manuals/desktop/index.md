@@ -1,6 +1,6 @@
 # Desktop
 
-Guides to using Tamanu on a computer.
+Using Tamanu on a computer.
 
 ## Modules
 
