@@ -74,6 +74,31 @@ the code-derived approach earns its keep.
 Several of these look like Dispensing module territory rather than omissions from this guide, which is
 exactly the editorial call the author confirmation step exists to make.
 
+### The Medications / Dispensing boundary
+
+A separate Dispensing guide will be written, and the boundary has been settled as follows.
+
+**Stays in Medications.** The whole `Drug` import sheet, including `dispensingUnit`, `unitConversion`
+and the per-facility stock columns. A single import sheet is documented in one place, so nobody
+importing drugs has to read two guides to fill in one spreadsheet. The Dispensing guide covers what
+those values then do downstream. Also staying: dispensing quantity autocalculation, the
+`MedicationPharmacyNote` permissions, and the Medication Template `dischargeQuantity` column.
+
+**Moves to Dispensing.** The facility `medications.pharmacyOrder.defaultPrescriptionType` setting,
+replaced in the Medications guide by a pointer.
+
+**Destination for the reported gaps.** This also settles where most of the undocumented configuration
+belongs: `MedicationDispense` and `MedicationRequest` permissions, the `medicationDispenseModifyReason`
+and `medicationPresetLabel` reference data types, `medications.dispensing.prescriptionLabelSize`,
+`medications.dispensing.autoDeleteTimeframeHours`, the `features.pharmacyOrder.*` flags, the facility
+`medications.medicationDispensing.*` settings, and the `autoDeleteMedicationRequests` schedule are all
+Dispensing guide material rather than omissions here.
+
+Worth noting the boundary does not follow the settings schema: `medications.dispensing.*` splits across
+both guides, with autocalculation staying and label size and auto-delete moving. This is the clearest
+evidence yet that module scope is an editorial judgment the code cannot supply, and why the skill
+confirms scope rather than deriving it.
+
 ## Sources of truth in code
 
 The guide's three code-derived sections each have a clean, machine-readable home. This is better than

@@ -347,28 +347,8 @@ For each frequency, the default schedule and ideal administration time can be ch
 
 Settings are managed in the Settings admin panel.
 
-## Pharmacy orders
-
-Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
-supply on discharge and invoicing.
-
-**Scope:** Facility (single facility)
-
-**Category:** Medication
-
-**Sub-category:** Pharmacy orders
-
-**Setting:** Default prescription type
-
-**Default:** Existing encounter type
-
-> **Screenshot needed:** the default prescription type setting in the Settings admin panel.
-
-The options are:
-
-- **Existing encounter type**: the script type follows the encounter type. This is the default
-- **Outpatient/Discharge**
-- **Inpatient**
+Pharmacy order settings, including the default prescription type sent when a user selects 'send to
+pharmacy', are covered in the Dispensing configuration guide.
 
 ## Frequencies
 
