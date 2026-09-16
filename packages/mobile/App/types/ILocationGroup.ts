@@ -1,5 +1,5 @@
-import { ID } from './ID';
-import { IFacility } from './IFacility';
+import type { ID } from './ID';
+import type { IFacility } from './IFacility';
 
 export interface ILocationGroup {
   id: ID;

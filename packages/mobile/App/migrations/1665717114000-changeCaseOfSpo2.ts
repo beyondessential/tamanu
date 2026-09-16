@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 // When we're upgrading into a version that uses migrations, we may have run a model sync
 // Test if this is the case, and if it was, skip this migration

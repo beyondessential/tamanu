@@ -1,7 +1,7 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { type ReactElement, useMemo } from 'react';
 import styled from 'styled-components';
 import { StyledText } from '~/ui/styled/common';
-import { TranslatedTextProps, useTranslation } from '~/ui/contexts/TranslationContext';
+import { type TranslatedTextProps, useTranslation } from '~/ui/contexts/TranslationContext';
 
 const TextWrapper = styled(StyledText)<{
   $isDebugMode: boolean;
@@ -45,8 +45,7 @@ export const TranslatedText = ({
 }: TranslatedTextProps): ReactElement => {
   const { debugMode, getTranslation } = useTranslation();
   const translation = useMemo(
-    () =>
-      getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n'),
+    () => getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n'),
     [getTranslation, stringId, fallback, replacements, casing],
   );
 

@@ -1,6 +1,6 @@
-import { ReferenceData } from '~/models/ReferenceData';
+import type { ReferenceData } from '~/models/ReferenceData';
 import { createDropdownOptionsFromObject } from '~/ui/helpers/fields';
-import { ID } from './ID';
+import type { ID } from './ID';
 
 export const Certainty = {
   Suspected: 'suspected',

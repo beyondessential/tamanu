@@ -1,4 +1,4 @@
-import { EntityManager } from "typeorm";
+import type { EntityManager } from 'typeorm';
 
 /**
  * Defer foreign key checks for the duration of the current transaction.
@@ -12,4 +12,4 @@ import { EntityManager } from "typeorm";
  */
 export const deferForeignKeys = async (entityManager: EntityManager): Promise<void> => {
   await entityManager.query('PRAGMA defer_foreign_keys = ON;');
-}
+};

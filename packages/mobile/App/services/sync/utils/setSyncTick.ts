@@ -1,4 +1,4 @@
-import { MODELS_MAP } from '../../../models/modelsMap';
+import type { MODELS_MAP } from '../../../models/modelsMap';
 
 export const setSyncTick = async (
   models: typeof MODELS_MAP,

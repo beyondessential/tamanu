@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyledTouchableOpacity } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PencilIcon } from '/components/Icons';

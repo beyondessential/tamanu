@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { FamilyHistoryDataProps } from '/interfaces/PatientDetails';
+import React, { type ReactElement } from 'react';
+import type { FamilyHistoryDataProps } from '/interfaces/PatientDetails';
 import { Separator } from '/components/Separator';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
@@ -19,8 +19,8 @@ export const FamilyHistory = (props: FamilyHistoryProps): ReactElement => (
         <SectionHeader h1>Family History</SectionHeader>
         <EditButton sectionTitle="Family History" onPress={props.onEdit} />
       </RowView>
-      {props.familyHistory.data.length > 0
-        && props.familyHistory.data.map((condition: string) => (
+      {props.familyHistory.data.length > 0 &&
+        props.familyHistory.data.map((condition: string) => (
           <RowView key={condition} alignItems="center" marginTop={10}>
             <Dot />
             <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>

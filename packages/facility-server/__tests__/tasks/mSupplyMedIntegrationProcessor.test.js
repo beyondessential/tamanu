@@ -25,7 +25,7 @@ vi.mock('@tamanu/api-client/fetchWithRetryBackoff');
 vi.mock('@tamanu/utils/sleepAsync', () => ({ sleepAsync: vi.fn(() => Promise.resolve()) }));
 
 const INTEGRATION_SETTINGS = {
-  enabled: true,
+  medDispenseEnabled: true,
   host: 'https://msupply.example.com',
   username: 'test-user',
   password: 'test-pass',
@@ -256,10 +256,10 @@ describe('mSupplyMedIntegrationProcessor', () => {
       );
     });
 
-    it('skips run when enabled is false and removes enabled-at fact', async () => {
+    it('skips run when medDispenseEnabled is false and removes enabled-at fact', async () => {
       await models.Setting.set(
         'integrations.mSupplyMed',
-        { ...INTEGRATION_SETTINGS, enabled: false },
+        { ...INTEGRATION_SETTINGS, medDispenseEnabled: false },
         SETTINGS_SCOPES.FACILITY,
         facilityId,
       );

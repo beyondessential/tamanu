@@ -1,28 +1,23 @@
-import React, { FC, ReactElement } from 'react';
+import React, { type FC, type ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { compose } from 'redux';
 import {
-  BottomTabBarProps,
-  BottomTabNavigationOptions,
+  type BottomTabBarProps,
+  type BottomTabNavigationOptions,
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import { PatientHome } from '/navigation/screens/home/Tabs/PatientHome';
-import {
-  RowView,
-  StyledText,
-  StyledTouchableOpacity,
-  StyledView,
-} from '/styled/common';
+import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { HomeScreen } from '/navigation/screens/home/Tabs/HomeScreen';
 import { withPatient } from '/containers/Patient';
-import { SvgProps } from 'react-native-svg';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import type { SvgProps } from 'react-native-svg';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { Routes } from '/helpers/routes';
 import { MoreScreen, ReportScreen, SyncDataScreen } from '/navigation/screens/home/Tabs';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { IconWithSizeProps } from '../../interfaces/WithSizeProps';
+import type { IconWithSizeProps } from '../../interfaces/WithSizeProps';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { SearchPatientStack } from './SearchPatient';
 import { HomeLogoIcon } from '~/ui/components/Icons/HomeLogo';
@@ -49,12 +44,14 @@ export function TabIcon({ Icon, color, focusedColor, strokeColor }: TabIconProps
   );
 }
 
-const TabScreenIcon = (Icon: FC<SvgProps>) => (props: {
-  focused: boolean;
-  focusedColor: string;
-  strokeColor: string;
-  color: string;
-}): ReactElement => <TabIcon Icon={Icon} {...props} />;
+const TabScreenIcon =
+  (Icon: FC<SvgProps>) =>
+  (props: {
+    focused: boolean;
+    focusedColor: string;
+    strokeColor: string;
+    color: string;
+  }): ReactElement => <TabIcon Icon={Icon} {...props} />;
 
 const tabLabelFontSize = screenPercentageToDP(1.47, Orientation.Height);
 
@@ -133,13 +130,21 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
                 justifyContent="center"
                 flex={1}
               >
-                {Icon &&
-                  Icon({
-                    focused: isFocused,
-                    focusedColor: isFocused ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE,
-                    strokeColor: isFocused ? theme.colors.PRIMARY_MAIN : theme.colors.WHITE,
-                    color: isFocused ? theme.colors.SECONDARY_MAIN : 'none',
-                  })}
+                {Icon?.(
+                  isFocused
+                    ? {
+                        focused: true,
+                        focusedColor: theme.colors.SECONDARY_MAIN,
+                        strokeColor: theme.colors.PRIMARY_MAIN,
+                        color: theme.colors.SECONDARY_MAIN,
+                      }
+                    : {
+                        focused: false,
+                        focusedColor: theme.colors.WHITE,
+                        strokeColor: theme.colors.WHITE,
+                        color: 'none',
+                      },
+                )}
                 <StyledText color={theme.colors.WHITE} fontSize={tabLabelFontSize} fontWeight={500}>
                   {label}
                 </StyledText>
@@ -151,6 +156,18 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps): ReactE
     </SafeAreaView>
   );
 }
+
+/**
+ * BottomTabNavigationConfig['tabBar'] expects a plain render function, not function
+ * component. React Compiler applies memoisation smarts to `MyTabBar`, which inserts a
+ * `useMemoCache` call that would violate the rules of hooks when `tabBar` is called as a
+ * plain function.
+ */
+function renderTabBar(props: BottomTabBarProps) {
+  return <MyTabBar {...props} />;
+}
+
+const screenOptions = { headerShown: false } as const;
 
 const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
   const { getTranslation } = useTranslation();
@@ -183,7 +200,7 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
 
   return (
     <ErrorBoundary>
-      <Tabs.Navigator tabBar={MyTabBar} screenOptions={{ headerShown: false }}>
+      <Tabs.Navigator screenOptions={screenOptions} tabBar={renderTabBar}>
         <Tabs.Screen
           options={HomeScreenOptions}
           name={Routes.HomeStack.HomeTabs.Home}

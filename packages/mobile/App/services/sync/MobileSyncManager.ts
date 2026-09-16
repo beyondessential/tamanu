@@ -1,9 +1,9 @@
 import mitt from 'mitt';
-import { type EntityManager } from 'typeorm';
+import type { EntityManager } from 'typeorm';
 
 import { Database } from '../../infra/db';
-import { MODELS_MAP } from '../../models/modelsMap';
-import { CentralServerConnection } from './CentralServerConnection';
+import type { MODELS_MAP } from '../../models/modelsMap';
+import type { CentralServerConnection } from './CentralServerConnection';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -21,13 +21,13 @@ import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 import { SETTING_KEYS } from '~/constants/settings';
-import { SettingsService } from '../settings';
+import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
-import { type TransactingModel } from './utils/getModelsForDirection';
-import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
+import type { TransactingModel } from './utils/getModelsForDirection';
+import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
 import { deferForeignKeys } from './utils/deferForeignKeys';
 import { checkForeignKeys } from './utils/checkForeignKeys';
 
@@ -57,8 +57,6 @@ export type MobileSyncSettings = {
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
 };
-
-export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
 
 export interface PullParams {
   sessionId: string;
@@ -296,7 +294,10 @@ export class MobileSyncManager {
       const message = error instanceof Error ? error.message : String(error);
       await this.centralServer.markSessionErrored(sessionId, message);
     } catch (reportError) {
-      console.error('MobileSyncManager.reportSyncError(): Failed to report sync error', reportError);
+      console.error(
+        'MobileSyncManager.reportSyncError(): Failed to report sync error',
+        reportError,
+      );
     }
   }
 
@@ -335,7 +336,7 @@ export class MobileSyncManager {
         outgoingChanges,
         this.syncSettings,
         (total, pushedRecords) =>
-          this.updateProgress(total, pushedRecords, 'Pushing all new changes...'),
+          this.updateProgress(total, pushedRecords, 'Pushing all new changes…'),
       );
     }
 
@@ -398,6 +399,9 @@ export class MobileSyncManager {
     } else {
       await this.pullIncrementalSync(pullParams);
     }
+
+    this.lastSyncPulledRecordsCount = totalToPull;
+
     console.log(
       `MobileSyncManager.pullIncomingChanges(): End sync incoming changes, incoming changes count: ${totalToPull}`,
     );
@@ -408,7 +412,11 @@ export class MobileSyncManager {
     let totalSaved = 0;
     const progressCallback = (incrementalSaved: number) => {
       totalSaved += Number(incrementalSaved);
-      this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
+      this.updateProgress(
+        recordTotal,
+        totalSaved,
+        `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
+      );
     };
 
     const { useUnsafeSchemaForInitialSync = false } = this.syncSettings;
@@ -448,6 +456,14 @@ export class MobileSyncManager {
 
   async pullIncrementalSync(pullParams: PullParams): Promise<void> {
     const { recordTotal, pullUntil } = pullParams;
+
+    if (recordTotal === 0) {
+      // Nothing to save, so don't stage a snapshot or open the (write-locking) save transaction.
+      // The pull cursor still has to advance, otherwise the next session re-asks from the old tick.
+      await Database.client.transaction(entityManager => this.postPull(entityManager, pullUntil));
+      return;
+    }
+
     const { maxRecordsPerSnapshotBatch = 1000 } = this.syncSettings;
     const processStreamedDataFunction = async (records: any) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
@@ -456,7 +472,11 @@ export class MobileSyncManager {
     let pullTotal = 0;
     const pullProgressCallback = (incrementalPulled: number) => {
       pullTotal += Number(incrementalPulled);
-      this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
+      this.updateProgress(
+        recordTotal,
+        pullTotal,
+        `Pulling changes (${pullTotal.toLocaleString()} / ${recordTotal.toLocaleString()})`,
+      );
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
@@ -471,7 +491,11 @@ export class MobileSyncManager {
     let totalSaved = 0;
     const saveProgressCallback = (incrementalSaved: number) => {
       totalSaved += Number(incrementalSaved);
-      this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
+      this.updateProgress(
+        recordTotal,
+        totalSaved,
+        `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
+      );
     };
     await Database.client.transaction(async transactionEntityManager => {
       try {

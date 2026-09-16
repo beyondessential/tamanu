@@ -1,9 +1,7 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
-export class addPatientProgramRegistrationReasonForChange1740342611000
-  implements MigrationInterface
-{
+export class addPatientProgramRegistrationReasonForChange1740342611000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const table = await getTable(queryRunner, 'patient_program_registration_conditions');
     await queryRunner.addColumn(

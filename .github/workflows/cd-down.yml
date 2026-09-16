@@ -96,18 +96,12 @@ jobs:
             kubectl -n tamanu-super delete subnamespaceanchor "$NS_NAME" --wait=true
           fi
 
-      - # if the pulumi destroy had failed, then the namespace delete will have deleted the
-        # actual resources, but we run pulumi destroy again to clean up the pulumi state
+      - # the namespace delete above removed the real resources; a second destroy only gets
+        # 403s (the runner's RBAC went with the namespace). Drop the state instead.
         if: always() && steps.down.outcome != 'success'
         continue-on-error: true
-        name: Down again!
-        uses: pulumi/actions@v7
-        with:
-          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
-          command: destroy
-          remove: true
-          stack-name: ${{ steps.stack.outputs.stackname }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: true
+        name: Forget the stack
+        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        run: pulumi stack rm --force --yes --stack ${{ steps.stack.outputs.stackname }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

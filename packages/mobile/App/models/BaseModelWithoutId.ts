@@ -5,14 +5,14 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Repository,
+  type Repository,
   UpdateDateColumn,
 } from 'typeorm';
 import { getSyncTick } from '../services/sync/utils';
-import { ObjectType } from 'typeorm/browser/common/ObjectType';
-import { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
+import type { ObjectType } from 'typeorm/browser/common/ObjectType';
+import type { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
 import { VisibilityStatus } from '../visibilityStatuses';
-import { BaseModel } from './BaseModel';
+import type { BaseModel } from './BaseModel';
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
@@ -24,18 +24,20 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
   // accommodated too, but that's done by making those fields nullable or
   // giving them sane defaults)
 
-  const columns = repo.metadata.columns.map(({ propertyName }) => propertyName);
-  return Object.entries(data)
-    .filter(([key]) => columns.includes(key))
-    .reduce(
-      (state, [key, value]) => ({
-        ...state,
-        [key]: value,
-      }),
-      {},
-    );
+  const columns = new Set(repo.metadata.columns.map(({ propertyName }) => propertyName));
+  return Object.fromEntries(Object.entries(data).filter(([key]) => columns.has(key)));
 }
 
+/**
+ * @privateRemarks In the static methods below, use of `this` is significant and cannot simply be
+ * swapped for the class name. TypeORM's `BaseEntity` statics dispatch on the calling entity class,
+ * so the `this` in `this.getRepository()` ends up referencing a concrete instance. This abstract
+ * base class is not registered with the DataSource, so `BaseModelWithoutId.getRepository()` throws
+ * "DataSource is not set for this entity."
+ *
+ * A longer-term solution would be to refactor this abstract class to behave more like… an abstract
+ * class.
+ */
 export abstract class BaseModelWithoutId extends BaseEntity {
   static allModels = undefined;
 
@@ -87,7 +89,7 @@ export abstract class BaseModelWithoutId extends BaseEntity {
   ): Promise<T[]> {
     const repo = this.getRepository<T>();
 
-    if (repo.metadata.columns.find((col) => col.propertyName === 'visibilityStatus')) {
+    if (repo.metadata.columns.find(col => col.propertyName === 'visibilityStatus')) {
       return repo.find({
         ...options,
         where: { ...options.where, visibilityStatus: VisibilityStatus.Current },

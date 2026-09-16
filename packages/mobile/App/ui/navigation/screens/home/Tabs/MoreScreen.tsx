@@ -1,24 +1,23 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import React, { type ReactElement, useMemo } from 'react';
 import { Linking, TouchableHighlight } from 'react-native';
 import { getUniqueId } from 'react-native-device-info';
 import { FlatList } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
-import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { UserAvatar } from '/components/UserAvatar';
-import { Button } from '/components/Button';
-import { Separator } from '/components/Separator';
-import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
-import { version as AppVersion } from '/root/package.json';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { authUserSelector } from '/helpers/selectors';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { Button } from '/components/Button';
+import { CameraOutlineIcon, LaunchIcon } from '/components/Icons';
+import { Separator } from '/components/Separator';
+import { UserAvatar } from '/components/UserAvatar';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
+import { authUserSelector } from '/helpers/selectors';
+import { version as AppVersion } from '/root/package.json';
+import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const StyledSeparator = styled(Separator)`
   padding-left: ${screenPercentageToDP(4.86, Orientation.Width)}px;
@@ -110,11 +109,7 @@ export const MoreScreen = (): ReactElement => {
     [],
   );
 
-  const signOut = useCallback(() => {
-    authCtx.signOut();
-  }, []);
-
-  setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
+  useStatusBarStyle('dark-content', theme.colors.BACKGROUND_GREY);
 
   return (
     <FullView>
@@ -152,8 +147,8 @@ export const MoreScreen = (): ReactElement => {
           marginTop={screenPercentageToDP(1.21, Orientation.Height)}
           width={screenPercentageToDP(29.19, Orientation.Width)}
           height={screenPercentageToDP(6.07, Orientation.Height)}
-          buttonText={<TranslatedText stringId="auth.action.signOut" fallback="Sign out" />}
-          onPress={signOut}
+          buttonText={<TranslatedText stringId="auth.action.logout" fallback="Log out" />}
+          onPress={authCtx.signOut}
           outline
           borderColor={theme.colors.PRIMARY_MAIN}
         />

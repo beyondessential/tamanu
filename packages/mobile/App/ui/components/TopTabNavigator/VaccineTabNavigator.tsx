@@ -1,139 +1,103 @@
-import React, { ComponentType, FunctionComponent } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
-import {
-  NavigationState,
-  Route,
-  SceneMap,
-  SceneRendererProps,
-  TabBar,
-  TabView,
-} from 'react-native-tab-view';
-import { SvgProps } from 'react-native-svg';
-import { theme } from '/styled/theme';
-import { StyledText, StyledView } from '/styled/common';
+import type { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
+import React, { type ComponentType, type FunctionComponent, type ReactElement } from 'react';
+import { Dimensions } from 'react-native';
 import * as Icons from '../Icons';
-import { IconWithSizeProps } from '/interfaces/WithSizeProps';
-import { VaccineDataProps } from '../VaccineCard';
+import type { VaccineDataProps } from '../VaccineCard';
+import { TopTabNavigator, TopTabScreen } from './index';
+import { VaccineStatus } from '/helpers/patient';
+import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-
-type CustomRoute = Route & {
-  icon: FunctionComponent<SvgProps>;
-  color?: string;
-  vaccine: VaccineDataProps;
-};
-
-type State = NavigationState<CustomRoute>;
-
-type TabBarProps = SceneRendererProps & { navigationState: State };
+import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const tabIconSize = screenPercentageToDP(2.5, Orientation.Height);
 
-const VaccineTabLabel = ({
-  route,
-  focused,
-}: {
-  route: CustomRoute;
+interface VaccineTabLabelProps {
+  color: string;
   focused: boolean;
-}): JSX.Element => {
-  const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
-  return (
-    <StyledView
-      height={screenPercentageToDP(7.36, Orientation.Height)}
-      alignItems="center"
-      paddingTop={screenPercentageToDP(1.03, Orientation.Height)}
-    >
-      <StyledView>
-        {focused ? (
-          <Icon size={tabIconSize} />
-        ) : (
-          <Icons.ScheduledVaccine size={tabIconSize} />
-        )}
-      </StyledView>
-      <StyledText
-        marginTop={screenPercentageToDP(1.21, Orientation.Height)}
-        textAlign="center"
-        fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-        color={focused ? route.color : theme.colors.TEXT_SOFT}
-      >
-        {route.title}
-      </StyledText>
-    </StyledView>
-  );
-};
-
-const getTabOptions = (routes: CustomRoute[]) =>
-  Object.fromEntries(
-    routes.map(route => [
-      route.key,
-      {
-        label: ({ focused }: { focused: boolean }) => (
-          <VaccineTabLabel route={route} focused={focused} />
-        ),
-      },
-    ]),
-  );
-
-/* eslint-disable implicit-arrow-linebreak */
-
-const customIndicatorStyle = (color?: string): { indicator: object } =>
-  StyleSheet.create({
-    indicator: {
-      backgroundColor: color,
-      height: 5,
-    },
-  });
-
-const TabBarStyle = StyleSheet.create({
-  tabBar: {
-    backgroundColor: theme.colors.WHITE,
-  },
-});
-
-const CustomTabBar = React.memo(
-  (props: TabBarProps): JSX.Element => {
-    const {
-      navigationState: { routes, index },
-    } = props;
-    const options = React.useMemo(() => getTabOptions(routes), [routes]);
-    return (
-      <TabBar
-        {...props}
-        style={TabBarStyle.tabBar}
-        activeColor={routes[index].color}
-        inactiveColor={theme.colors.TEXT_SOFT}
-        options={options}
-        indicatorStyle={customIndicatorStyle(routes[index].color).indicator}
-      />
-    );
-  },
-);
-
-const renderTabBar = (props: TabBarProps): JSX.Element => (
-  <CustomTabBar {...props} />
-);
-
-interface VaccineTabNavigatorProps {
-  state: any;
-  scenes: {
-    [key: string]: ComponentType<SceneRendererProps & { route: CustomRoute }>;
-  };
-  onChangeTab: Function;
+  icon: FunctionComponent<IconWithSizeProps>;
+  title: string;
 }
 
-const TabViewStyle = StyleSheet.create({
-  initialLayout: {
-    width: Dimensions.get('window').width,
-  },
+const VaccineTabLabel = ({
+  title,
+  color,
+  icon: Icon,
+  focused,
+}: VaccineTabLabelProps): ReactElement => (
+  <StyledView
+    height={screenPercentageToDP(7.36, Orientation.Height)}
+    alignItems="center"
+    paddingTop={screenPercentageToDP(1.03, Orientation.Height)}
+  >
+    <StyledView>
+      {focused ? <Icon size={tabIconSize} /> : <Icons.ScheduledVaccine size={tabIconSize} />}
+    </StyledView>
+    <StyledText
+      marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+      textAlign="center"
+      fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+      color={focused ? color : theme.colors.TEXT_SOFT}
+    >
+      {title}
+    </StyledText>
+  </StyledView>
+);
+
+const getTabScreenOptions = (
+  label: Omit<VaccineTabLabelProps, 'focused'>,
+): MaterialTopTabNavigationOptions => ({
+  tabBarActiveTintColor: label.color,
+  tabBarIndicatorStyle: { backgroundColor: label.color },
+  tabBarLabel: ({ focused }) => <VaccineTabLabel {...label} focused={focused} />,
 });
 
-export const VaccineTabNavigator = React.memo(
-  ({ state, scenes, onChangeTab }: VaccineTabNavigatorProps): JSX.Element => (
-    <TabView
-      navigationState={state}
-      renderScene={SceneMap(scenes)}
-      renderTabBar={renderTabBar}
-      onIndexChange={(index): void => onChangeTab({ ...state, index })}
-      initialLayout={TabViewStyle.initialLayout}
+const navigatorScreenOptions = {
+  tabBarStyle: { backgroundColor: theme.colors.WHITE },
+  tabBarInactiveTintColor: theme.colors.TEXT_SOFT,
+} as const satisfies MaterialTopTabNavigationOptions;
+
+const initialLayout = { width: Dimensions.get('window').width };
+
+interface VaccineTabNavigatorProps {
+  vaccine: VaccineDataProps;
+  component: ComponentType<any>;
+}
+
+export const VaccineTabNavigator = ({
+  vaccine,
+  component,
+}: VaccineTabNavigatorProps): ReactElement => (
+  <TopTabNavigator
+    backBehavior="none"
+    initialRouteName={
+      vaccine.status === VaccineStatus.NOT_GIVEN
+        ? Routes.HomeStack.VaccineStack.NewVaccineTabs.NotTakeTab
+        : Routes.HomeStack.VaccineStack.NewVaccineTabs.GivenOnTimeTab
+    }
+    initialLayout={initialLayout}
+    screenOptions={navigatorScreenOptions}
+  >
+    <TopTabScreen
+      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.GivenOnTimeTab}
+      component={component}
+      initialParams={{ vaccine, status: VaccineStatus.GIVEN }}
+      options={getTabScreenOptions({
+        title: 'Given',
+        color: theme.colors.SAFE,
+        icon: Icons.GivenOnTimeIcon,
+      })}
     />
-  ),
+    <TopTabScreen
+      name={Routes.HomeStack.VaccineStack.NewVaccineTabs.NotTakeTab}
+      component={component}
+      initialParams={{ vaccine, status: VaccineStatus.NOT_GIVEN }}
+      options={getTabScreenOptions({
+        title: 'Not given',
+        color: theme.colors.PRIMARY_MAIN,
+        icon: Icons.NotGivenIcon,
+      })}
+    />
+  </TopTabNavigator>
 );

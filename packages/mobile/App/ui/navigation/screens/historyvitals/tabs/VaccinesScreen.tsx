@@ -1,10 +1,10 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { compose } from 'redux';
 import { groupBy } from 'es-toolkit/compat';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { PatientVaccineHistoryAccordion } from '~/ui/components/PatientVaccineHistoryAccordion';
 import { withPatient } from '~/ui/containers/Patient';
-import { useBackendEffect } from '~/ui/hooks';
+import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -14,9 +14,8 @@ import { getReferenceDataStringId } from '~/ui/components/Translations/Translate
 export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
   const { getTranslation } = useTranslation();
 
-  const [administeredVaccines, error] = useBackendEffect(
-    ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [],
+  const { data: administeredVaccines, error } = usePatientAdministeredVaccinesQuery(
+    selectedPatient.id,
   );
 
   if (error) return <ErrorScreen error={error} />;

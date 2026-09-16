@@ -1,6 +1,6 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
-import { ILabTestType } from './ILabTestType';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
+import type { ILabTestType } from './ILabTestType';
 
 export interface ILabTestPanel {
   id: ID;

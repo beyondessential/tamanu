@@ -1,4 +1,4 @@
-import { EntityManager } from 'typeorm';
+import type { EntityManager } from 'typeorm';
 import { groupBy } from 'es-toolkit/compat';
 
 interface ForeignKeyViolation {

@@ -35,8 +35,8 @@ subprojects {
                 // Google Play requires apps targeting API 35+ to support 16 KB memory page
                 // sizes on 64-bit devices (enforced from 1 Feb 2027). NDK r27 still aligns
                 // shared libraries to 4 KB unless this is opted into; r28 makes it the
-                // default. Most native modules (React Native, Reanimated, Screens, Gesture
-                // Handler, Worklets) already pass this themselves, but some don't — notably
+                // default. Most native modules (React Native, Screens, Gesture Handler)
+                // already pass this themselves, but some don't — notably
                 // react-native-quick-sqlite — so apply it to every subproject rather than
                 // relying on each one. Harmless to set on modules with no native build, and
                 // harmless to repeat for those that already opt in.

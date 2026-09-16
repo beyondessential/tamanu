@@ -52,7 +52,6 @@ const Dialog = styled(MuiDialog)`
       print-color-adjust: exact;
     }
 
-    .MuiDialogTitle-root,
     .MuiDialogActions-root {
       display: none;
     }
@@ -90,6 +89,13 @@ const Header = styled.header`
   flex-wrap: wrap;
   padding-block: 14px;
   padding-inline: 32px 14px;
+
+  // Holds the title and the close/print icon buttons (Actions), neither of which
+  // has a MuiDialogTitle-root/MuiDialogActions-root class, so the print rule on
+  // Dialog above can't reach them — hide the whole header directly instead.
+  @media print {
+    display: none;
+  }
 `;
 
 const ModalTitle = styled(DialogTitle).attrs({ 'data-testid': 'modaltitle-ojhf' })`

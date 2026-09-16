@@ -1,7 +1,7 @@
 import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Patient } from './Patient';
-import { IPatientIssue, PatientIssueType } from '~/types';
+import type { IPatientIssue, PatientIssueType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 import { DateTimeStringColumn } from './DateColumns';
@@ -19,7 +19,7 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   @Column('text')
   type: PatientIssueType;
 
-  @ManyToOne(() => Patient, (patient) => patient.issues)
+  @ManyToOne(() => Patient, patient => patient.issues)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;

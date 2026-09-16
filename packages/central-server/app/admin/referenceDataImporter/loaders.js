@@ -1,6 +1,7 @@
 import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
+import { ReadSettings } from '@tamanu/settings';
 import {
   ENCOUNTER_TYPES,
   DRUG_STOCK_STATUSES,
@@ -512,8 +513,43 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function drugLoader(item, { models, pushError }) {
-  /* eslint-disable no-unused-vars */
+const DRUG_COLUMNS = [
+  'id',
+  'code',
+  'name',
+  'visibilityStatus',
+  'systemRequired',
+  'availableFacilities',
+  'route',
+  'dosingUnit',
+  'dispensingUnit',
+  'unitConversion',
+  'notes',
+  'isSensitive',
+];
+
+// The set of facilities where mSupply is the stock-on-hand source of truth is fixed for
+// the duration of one import. A factory instance (see dependencies.js's `get loader()`,
+// which creates one per import) resolves each facility's flag once via this cache and
+// reuses it across every drug row, rather than re-reading settings — even as a cache hit,
+// still two settings-cache lookups and a lodash `get` — tens of thousands of times over a
+// large sheet while the import transaction is held open.
+export function drugLoaderFactory() {
+  const stockOnHandEnabledByFacilityId = new Map();
+  return (item, context) => drugLoader(item, context, stockOnHandEnabledByFacilityId);
+}
+
+async function getStockOnHandEnabled(models, facilityId, stockOnHandEnabledByFacilityId) {
+  if (!stockOnHandEnabledByFacilityId.has(facilityId)) {
+    const enabled = await new ReadSettings(models, facilityId).get(
+      'integrations.mSupplyMed.stockOnHandEnabled',
+    );
+    stockOnHandEnabledByFacilityId.set(facilityId, enabled);
+  }
+  return stockOnHandEnabledByFacilityId.get(facilityId);
+}
+
+async function drugLoader(item, { models, pushError, header }, stockOnHandEnabledByFacilityId) {
   const {
     id: drugId,
     route,
@@ -522,14 +558,7 @@ export async function drugLoader(item, { models, pushError }) {
     unitConversion = 1,
     notes,
     isSensitive = false,
-    name,
-    visibilityStatus,
-    code,
-    systemRequired,
-    availableFacilities,
-    ...rest
   } = item;
-  /* eslint-enable no-unused-vars */
   const rows = [];
 
   const validDrugUnits = Object.values(DRUG_UNITS);
@@ -565,10 +594,14 @@ export async function drugLoader(item, { models, pushError }) {
     values: newDrug,
   });
 
+  // Every column that isn't a drug field is a facility's stock level. Taken from the header rather
+  // than from the row, so a facility whose cell is blank still gets its association written.
+  const facilityIdsToImport = header
+    .map(column => column.trim())
+    .filter(column => column && !DRUG_COLUMNS.includes(column));
   const facilitiesData = Object.fromEntries(
-    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
+    facilityIdsToImport.map(facilityId => [facilityId, item[facilityId]]),
   );
-  const facilityIdsToImport = Object.keys(facilitiesData);
   const facilitiesToImport = await models.Facility.findAll({
     attributes: ['id'],
     where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
@@ -589,6 +622,23 @@ export async function drugLoader(item, { models, pushError }) {
 
   for (const [key, value] of Object.entries(facilitiesData)) {
     const facilityId = key;
+
+    // mSupply is the source of truth for stock on hand at this facility: leave
+    // quantity/stockStatus out so the existing values (kept in sync by
+    // MSupplyStockOnHandProcessor) aren't overwritten by this import.
+    const stockOnHandEnabled = await getStockOnHandEnabled(
+      models,
+      facilityId,
+      stockOnHandEnabledByFacilityId,
+    );
+    if (stockOnHandEnabled) {
+      rows.push({
+        model: 'ReferenceDrugFacility',
+        values: { referenceDrugId, facilityId },
+      });
+      continue;
+    }
+
     const parsedQuantity = parseInt(value, 10);
 
     let quantity = null;

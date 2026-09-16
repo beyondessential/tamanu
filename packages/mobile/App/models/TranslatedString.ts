@@ -1,5 +1,5 @@
 import { COUNTRY_CODE_STRING_ID, LANGUAGE_NAME_STRING_ID } from '@tamanu/constants';
-import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -10,6 +10,7 @@ export type LanguageOption = {
 };
 
 @Entity('translated_strings')
+@Index('stringId_language_unique', ['stringId', 'language'], { unique: true })
 export class TranslatedString extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
@@ -45,11 +46,12 @@ export class TranslatedString extends BaseModel {
 
   static async getLanguageOptions(): Promise<LanguageOption[]> {
     const [languageNameKeys, countryCodeKeys] = await Promise.all([
-      this.getRepository().find({
+      TranslatedString.getRepository().find({
         where: { stringId: LANGUAGE_NAME_STRING_ID },
         select: ['language', 'text'],
+        order: { language: 'ASC' },
       }),
-      this.getRepository().find({
+      TranslatedString.getRepository().find({
         where: { stringId: COUNTRY_CODE_STRING_ID },
         select: ['language', 'text'],
       }),
@@ -67,10 +69,9 @@ export class TranslatedString extends BaseModel {
   }
 
   static async getForLanguage(language: string): Promise<{ [key: string]: string }> {
-    const translatedStrings = await this.getRepository().find({
-      where: {
-        language,
-      },
+    const translatedStrings = await TranslatedString.getRepository().find({
+      select: ['stringId', 'text'],
+      where: { language },
     });
     return Object.fromEntries(
       translatedStrings.map(translatedString => [translatedString.stringId, translatedString.text]),

@@ -1,10 +1,10 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import type { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface RowFieldProps {
   label: TranslatedTextElement;
