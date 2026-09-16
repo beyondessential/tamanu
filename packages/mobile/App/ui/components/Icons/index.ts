@@ -20,7 +20,7 @@ export * from './Pencil';
 export * from './CircleAdd';
 
 // Logos
-export * from './LogoV2';
+export { default as TamanuComboMark } from './TamanuComboMark';
 
 export * from './Profile';
 export * from './Question';
