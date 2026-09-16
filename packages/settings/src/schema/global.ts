@@ -232,7 +232,10 @@ export const globalSettings = {
           description: 'ISO 3166-1 alpha-2 country code (two letters, uppercase)',
           type: yup
             .string()
-            .matches(/^[A-Z]{2}$/, { excludeEmptyString: true, message: 'must be two uppercase letters' }),
+            .matches(/^[A-Z]{2}$/, {
+              excludeEmptyString: true,
+              message: 'must be two uppercase letters',
+            }),
           defaultValue: '',
         },
         'alpha-3': {
@@ -240,7 +243,10 @@ export const globalSettings = {
           description: 'ISO 3166-1 alpha-3 country code (three letters, uppercase)',
           type: yup
             .string()
-            .matches(/^[A-Z]{3}$/, { excludeEmptyString: true, message: 'must be three uppercase letters' }),
+            .matches(/^[A-Z]{3}$/, {
+              excludeEmptyString: true,
+              message: 'must be three uppercase letters',
+            }),
           defaultValue: '',
         },
       },
@@ -309,8 +315,7 @@ export const globalSettings = {
     rateLimit: {
       highRisk: true,
       name: 'Rate limiting',
-      description:
-        'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
+      description: 'Request rate limits, keyed off the client IP (which respects proxy.trusted)',
       requiresRestart: true,
       properties: {
         enabled: {
@@ -414,6 +419,17 @@ export const globalSettings = {
           type: yup.number().positive(),
           unit: 'hours',
           defaultValue: 72,
+        },
+      },
+    },
+    syndromicSurveillance: {
+      description: 'Syndromic surveillance settings',
+      exposedToWeb: true,
+      properties: {
+        enableSyndromicSurveillance: {
+          description: 'Enable the syndromic surveillance feature',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },
