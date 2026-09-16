@@ -66,9 +66,10 @@ deliverable, not a failure — it records a shot the guide needs, and it is far 
 stale picture.
 
 **Desktop.** `scripts/capture-user-manual-screenshot.mjs` takes one shot per run against whatever
-Tamanu you point it at. It reuses the e2e suite's `FACILITY_FRONTEND_URL`, `TEST_EMAIL`, and
-`TEST_PASSWORD`, so a machine already set up for Playwright tests needs nothing further; otherwise
-browsers come from `npx playwright install chromium`. Read the script's header for its options.
+Tamanu you point it at. It reads `FACILITY_FRONTEND_URL`, `TEST_EMAIL`, and `TEST_PASSWORD` from
+`packages/e2e-tests/.env` when that file exists, so a machine already set up for Playwright tests
+needs nothing further; exporting any of them in the shell overrides the file. Browsers come from
+`npx playwright install chromium`. Read the script's header for its options.
 
 ```
 node scripts/capture-user-manual-screenshot.mjs \

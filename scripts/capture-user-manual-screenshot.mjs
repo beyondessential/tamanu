@@ -10,8 +10,10 @@
  *
  * Prerequisites:
  *   npx playwright install chromium        (browsers are not installed by npm install)
- *   FACILITY_FRONTEND_URL, TEST_EMAIL, TEST_PASSWORD set, pointing at any running
- *   Tamanu the shots should be taken against.
+ *   FACILITY_FRONTEND_URL, TEST_EMAIL, and TEST_PASSWORD, pointing at any running Tamanu
+ *   the shots should be taken against. These are read from packages/e2e-tests/.env when
+ *   it exists, so an existing e2e setup needs no further configuration; values exported
+ *   in the shell override that file.
  *
  * Usage:
  *   node scripts/capture-user-manual-screenshot.mjs \
@@ -32,8 +34,34 @@
  * Screenshots are published, so point this at demo or test data. Never capture a
  * screen showing real patient information.
  */
+import { existsSync } from 'fs';
 import { mkdir } from 'fs/promises';
-import { dirname, resolve } from 'path';
+import { dirname, join, resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const E2E_ENV_FILE = join(dirname(fileURLToPath(import.meta.url)), '..', 'packages', 'e2e-tests', '.env');
+
+/**
+ * The e2e suite keeps its credentials and frontend URLs in packages/e2e-tests/.env, which
+ * Playwright loads through its own config rather than exporting to the shell. Read the same
+ * file so a machine already set up to run those tests needs nothing further, while anything
+ * exported in the shell still wins.
+ */
+function loadE2eEnv() {
+  if (!existsSync(E2E_ENV_FILE)) return;
+  const keys = ['FACILITY_FRONTEND_URL', 'ADMIN_FRONTEND_URL', 'TEST_EMAIL', 'TEST_PASSWORD'];
+  const fromShell = Object.fromEntries(keys.map(key => [key, process.env[key]]));
+  try {
+    process.loadEnvFile(E2E_ENV_FILE);
+  } catch {
+    return; // unreadable or malformed; the shell environment is still authoritative
+  }
+  // loadEnvFile already leaves existing variables alone; restoring them makes that
+  // guarantee explicit here rather than depending on it.
+  for (const [key, value] of Object.entries(fromShell)) {
+    if (value !== undefined) process.env[key] = value;
+  }
+}
 
 function parseArgs(argv) {
   const options = { click: [], viewport: '1440x900', path: '/dashboard' };
@@ -70,6 +98,8 @@ const options = parseArgs(process.argv.slice(2));
 if (!options.out) fail('--out is required (the PNG path to write)');
 if (!options.out.endsWith('.png')) fail('--out must end in .png');
 
+loadE2eEnv();
+
 const baseUrl =
   options.baseUrl ??
   (options.admin
@@ -78,7 +108,12 @@ const baseUrl =
 
 const email = process.env.TEST_EMAIL;
 const password = process.env.TEST_PASSWORD;
-if (!email || !password) fail('TEST_EMAIL and TEST_PASSWORD must be set');
+if (!email || !password) {
+  fail(
+    'TEST_EMAIL and TEST_PASSWORD must be set, either in the environment or in ' +
+      'packages/e2e-tests/.env (see its .env.example).',
+  );
+}
 
 const [width, height] = options.viewport.split('x').map(Number);
 if (!width || !height) fail(`--viewport must look like 1440x900, got "${options.viewport}"`);
