@@ -387,6 +387,27 @@ export const isDispenseModifiedByPharmacy = dispense => Boolean(dispense?.modifi
 export const getDispensedMedication = dispense =>
   dispense?.medication ?? dispense?.pharmacyOrderPrescription?.prescription?.medication;
 
+// The details a saved fill was dispensed with, in prescription shape so the instruction and label
+// builders can take it. Rows created before dispensed details were recorded carry none, and fall
+// back to the prescription.
+export const getDispensedPrescription = dispense => {
+  const prescription = dispense?.pharmacyOrderPrescription?.prescription;
+  if (!dispense?.medicationId) return prescription;
+
+  return {
+    ...prescription,
+    medication: getDispensedMedication(dispense),
+    isVariableDose: dispense.isVariableDose,
+    doseAmount: dispense.doseAmount,
+    dosingUnit: dispense.dosingUnit,
+    dispensingUnit: dispense.dispensingUnit,
+    frequency: dispense.frequency,
+    route: dispense.route,
+    durationValue: dispense.durationValue,
+    durationUnit: dispense.durationUnit,
+  };
+};
+
 // A fill modified by pharmacy replaces the prescription's pharmacy note on the MAR with the
 // dispense's own note (which already folds in any prescription-level note plus the standard
 // modification note), with a "View change" link to the change history. Returns both values the

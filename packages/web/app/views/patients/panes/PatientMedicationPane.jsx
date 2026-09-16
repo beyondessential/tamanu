@@ -40,7 +40,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import {
   DispensedMedicationName,
-  getDispensedMedication,
+  getDispensedPrescription,
   getMedicationLabelData,
   getTranslatedMedicationName,
   isDispenseModifiedByPharmacy,
@@ -349,7 +349,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
     ),
     sortable: false,
     accessor: data => {
-      const dispensingUnit = data?.pharmacyOrderPrescription?.prescription?.dispensingUnit;
+      const dispensingUnit = getDispensedPrescription(data)?.dispensingUnit;
       if (!dispensingUnit) return data?.quantity;
       return `${data?.quantity} ${getDrugUnitLabel(dispensingUnit, data?.quantity, getEnumTranslation)}`;
     },
@@ -499,13 +499,15 @@ export const PatientMedicationPane = ({ patient }) => {
   const handlePrintLabel = useCallback(
     item => {
       const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
-      const prescription = pharmacyOrderPrescription?.prescription;
+      const prescription = getDispensedPrescription(item);
 
-      const medication = getDispensedMedication(item);
       const labelItems = [
         {
           id,
-          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+          medicationName: getTranslatedMedicationName(
+            prescription?.medication,
+            getReferenceDataTranslation,
+          ),
           instructions,
           quantity,
           dispensingUnit: prescription?.dispensingUnit,
@@ -586,10 +588,7 @@ export const PatientMedicationPane = ({ patient }) => {
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
-        // The medication actually dispensed, which differs from the prescription's when
-        // pharmacy substituted it during dispensing (mirrors the table's Medication column).
-        medication: getDispensedMedication(dispenseData),
-        prescription: pharmacyOrderPrescription?.prescription,
+        prescription: getDispensedPrescription(dispenseData),
         medicationPresetLabel,
         patient,
       };
