@@ -97,6 +97,7 @@ import { removeZeroBenefitIndexes1787214563000 } from './1787214563000-removeZer
 import { dropLegacyNoteTables1787220453000 } from './1787220453000-dropLegacyNoteTables';
 import { dedupeLocalSystemFacts1787706000000 } from './1787706000000-dedupeLocalSystemFacts';
 import { enforceUniqueLocalSystemFactKeys1787706001000 } from './1787706001000-enforceUniqueLocalSystemFactKeys';
+import { dropLegacySyncSnapshotTable1789592603000 } from './1789592603000-dropLegacySyncSnapshotTable';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -197,4 +198,5 @@ export const migrationList = [
   dropLegacyNoteTables1787220453000,
   dedupeLocalSystemFacts1787706000000,
   enforceUniqueLocalSystemFactKeys1787706001000,
+  dropLegacySyncSnapshotTable1789592603000,
 ];

@@ -4,6 +4,7 @@ jest.mock('../infra/db', () => ({
   Database: {
     models: {},
     requestQueryPlannerStatsRefresh: jest.fn().mockResolvedValue(undefined),
+    requestSpaceReclaim: jest.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -36,10 +37,59 @@ describe('BackendManager.onAppStateChange()', () => {
     expect(manager.prevAppState).toBe('background');
   });
 
+  it('reclaims space after the planner stats refresh has finished', async () => {
+    let finishRefresh: () => void;
+    Database.requestQueryPlannerStatsRefresh.mockReturnValueOnce(
+      new Promise<void>(resolve => {
+        finishRefresh = resolve;
+      }),
+    );
+
+    manager.onAppStateChange('background');
+    await Promise.resolve();
+    expect(Database.requestSpaceReclaim).not.toHaveBeenCalled();
+
+    finishRefresh();
+    await Promise.resolve();
+    expect(Database.requestSpaceReclaim).toHaveBeenCalledTimes(1);
+  });
+
   it('refreshes planner stats when the app becomes inactive', () => {
     manager.onAppStateChange('inactive');
 
     expect(Database.requestQueryPlannerStatsRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reclaim space if a sync started during the planner stats refresh', async () => {
+    let finishRefresh: () => void;
+    Database.requestQueryPlannerStatsRefresh.mockReturnValueOnce(
+      new Promise<void>(resolve => {
+        finishRefresh = resolve;
+      }),
+    );
+
+    manager.onAppStateChange('background');
+    manager.syncManager.isSyncing = true;
+    finishRefresh();
+    await Promise.resolve();
+
+    expect(Database.requestSpaceReclaim).not.toHaveBeenCalled();
+  });
+
+  it('does not reclaim space if the app came back to the foreground during the refresh', async () => {
+    let finishRefresh: () => void;
+    Database.requestQueryPlannerStatsRefresh.mockReturnValueOnce(
+      new Promise<void>(resolve => {
+        finishRefresh = resolve;
+      }),
+    );
+
+    manager.onAppStateChange('background');
+    manager.onAppStateChange('active');
+    finishRefresh();
+    await Promise.resolve();
+
+    expect(Database.requestSpaceReclaim).not.toHaveBeenCalled();
   });
 
   it('skips the refresh while a sync is running', () => {
@@ -48,6 +98,7 @@ describe('BackendManager.onAppStateChange()', () => {
     manager.onAppStateChange('background');
 
     expect(Database.requestQueryPlannerStatsRefresh).not.toHaveBeenCalled();
+    expect(Database.requestSpaceReclaim).not.toHaveBeenCalled();
   });
 
   it('does not refresh when returning to the foreground', () => {

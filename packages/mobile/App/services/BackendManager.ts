@@ -60,18 +60,29 @@ export class BackendManager {
   }
 
   /**
-   * - Run approximate ANALYZE when app gets backgrounded to mitigate user-facing latency.
-   * - No queries should run so ANALYZE’s write lock should cause no visible latency. (Unless app is
-   *   frozen and resumed at next launch, at which point user may see a little delay.)
-   * - Fire-and-forget. ANALYZE is transactional; recovery is automatic if OS kills app.
+   * - Run database maintenance (approximate ANALYZE, then space reclamation) when app gets
+   *   backgrounded to mitigate user-facing latency.
+   * - No queries should run so the maintenance write locks should cause no visible latency.
+   *   (Unless app is frozen and resumed at next launch, at which point user may see a little
+   *   delay.)
+   * - Fire-and-forget. ANALYZE and VACUUM are transactional; recovery is automatic if OS kills app.
    */
   onAppStateChange(next: AppStateStatus): void {
     const wasActive = this.prevAppState === 'active';
     this.prevAppState = next;
     if (!wasActive || this.syncManager.isSyncing) return;
     if (next === 'background' || next === 'inactive') {
-      void Database.requestQueryPlannerStatsRefresh();
+      void this.runIdleDatabaseMaintenance();
     }
+  }
+
+  /** Sequential, so the two jobs never contend for the write lock. Neither throws. */
+  private async runIdleDatabaseMaintenance(): Promise<void> {
+    await Database.requestQueryPlannerStatsRefresh();
+    // Re-check: the periodic sync may have started, or the user come back, in the meantime, and a
+    // VACUUM can hold the write lock for minutes
+    if (this.syncManager.isSyncing || this.prevAppState === 'active') return;
+    await Database.requestSpaceReclaim();
   }
 
   async startSyncService(): Promise<void> {
