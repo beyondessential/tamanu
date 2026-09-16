@@ -1,4 +1,4 @@
-import { AuthService } from './auth';
+import type { AuthService } from './auth';
 import { readConfig, writeConfig } from './config';
 
 /*
@@ -14,7 +14,7 @@ export abstract class LocalDataService {
   constructor(auth: AuthService) {
     this.auth = auth;
     this._readDataFromConfig();
-    this.auth.emitter.on('remoteSignIn', (payload) => {
+    this.auth.emitter.on('remoteSignIn', payload => {
       this.data = this.extractDataFromPayload(payload);
       // write to config first to make sure it is stringifiable
       this._writeDataToConfig();

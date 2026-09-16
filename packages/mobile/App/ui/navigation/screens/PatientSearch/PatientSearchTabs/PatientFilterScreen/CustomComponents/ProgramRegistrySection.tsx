@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/core';
 import { subject } from '@casl/ability';
 
@@ -7,8 +7,11 @@ import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 // Helpers
-import { Suggester } from '~/ui/helpers/suggester';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { useBackend } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { Dropdown } from '~/ui/components/Dropdown';
@@ -16,6 +19,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
+import { ProgramRegistry } from '~/models/ProgramRegistry';
 
 const REGISTRY_COUNT_THRESHOLD = 10;
 
@@ -25,32 +29,41 @@ export const ProgramRegistrySection = (): ReactElement => {
   const { ability } = useAuth();
   const { getTranslation } = useTranslation();
 
-  const ProgramRegistrySuggester = useMemo(
+  const select = useCallback(
+    (registries: ProgramRegistry[]): OptionType[] =>
+      registries
+        .filter(({ id }) => ability.can('read', subject('ProgramRegistry', { id })))
+        .map(({ name, id }) => ({
+          label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
+          value: id,
+        })),
+    [ability, getTranslation],
+  );
+
+  const {
+    data: programRegistries,
+    error: programRegistryError,
+    isPending: isProgramRegistryLoading,
+  } = useQuery({
+    queryKey: programRegistryKeys.list(),
+    queryFn: () => Database.models.ProgramRegistry.getAllProgramRegistries(),
+    select,
+  });
+
+  const programRegistrySuggester = useMemo(
     () =>
       new Suggester({
         model: models.ProgramRegistry,
         options: {
-          where: {
-            visibilityStatus: VisibilityStatus.Current,
-          },
+          where: { visibilityStatus: VisibilityStatus.Current },
+          /** Select only program registries the user has read privilieges to */
+          includeIds: programRegistries?.map(({ value }) => value),
         },
-        filter: ({ entity_id }) => ability.can('read', subject('ProgramRegistry', { id: entity_id })),
       }),
-    [models.ProgramRegistry, ability],
+    [models.ProgramRegistry, programRegistries],
   );
 
-  const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
-    async ({ models }) => {
-      const rawData = await models.ProgramRegistry.getAllProgramRegistries();
-      return rawData.map(({ name, id }) => ({
-        label: getTranslation(getReferenceDataStringId(id, 'programRegistry'), name),
-        value: id,
-      }));
-    },
-    [],
-  );
-
-  if (isProgramRegistryLoading || programRegistryError) return;
+  if (isProgramRegistryLoading || programRegistryError || !programRegistries) return;
 
   const doesRegistryCountExceedThreshold = programRegistries.length > REGISTRY_COUNT_THRESHOLD;
 
@@ -69,7 +82,7 @@ export const ProgramRegistrySection = (): ReactElement => {
           fieldFontSize={screenPercentageToDP(2, Orientation.Height)}
           component={AutocompleteModalField}
           placeholder={getTranslation('general.action.search', 'Search')}
-          suggester={ProgramRegistrySuggester}
+          suggester={programRegistrySuggester}
           navigation={navigation}
           name="programRegistryId"
         />

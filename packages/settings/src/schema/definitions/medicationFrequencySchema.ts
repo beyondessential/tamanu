@@ -27,12 +27,20 @@ const hasUniqueTimeWindows = (times) => {
   return true;
 };
 
-const validateAdministrationIdealTimes = (value, ctx) => {
-  // Ensure there are no duplicate 2-hour windows
-  if (!hasUniqueTimeWindows(value)) {
+const validateAdministrationIdealTimes = (value, ctx, frequencyKey) => {
+  const dosesPerDay = ADMINISTRATION_FREQUENCY_DETAILS[frequencyKey].dosesPerDay;
+
+  // Hourly and half-hourly frequencies use more than one dose per 2-hour MAR slot
+  if (dosesPerDay <= 12) {
+    if (!hasUniqueTimeWindows(value)) {
+      return ctx.createError({
+        message:
+          'Duplicate 2-hour time blocks are not allowed. Ensure all times represent unique 2-hour windows.',
+      });
+    }
+  } else if (new Set(value).size !== value.length) {
     return ctx.createError({
-      message:
-        'Duplicate 2-hour time blocks are not allowed. Ensure all times represent unique 2-hour windows.',
+      message: 'Duplicate administration times are not allowed.',
     });
   }
 
@@ -65,7 +73,7 @@ export const medicationFrequencySchema = (frequencyKey) => {
       name: 'validate-administration-ideal-times',
       test(value, ctx) {
         if (!value) return true;
-        return validateAdministrationIdealTimes(value, ctx);
+        return validateAdministrationIdealTimes(value, ctx, frequencyKey);
       },
     });
 };

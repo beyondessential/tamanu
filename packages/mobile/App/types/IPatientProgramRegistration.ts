@@ -1,10 +1,10 @@
-import { ID } from './ID';
-import { IProgramRegistryClinicalStatus } from './IProgramRegistryClinicalStatus';
-import { DateTimeString } from './DateString';
-import { IFacility, IPatient, IReferenceData, IUser } from '.';
-import { IProgramRegistry } from './IProgramRegistry';
-import { RegistrationStatus } from '~/constants/programRegistries';
-import { IPatientProgramRegistrationCondition } from './IPatientProgramRegistrationCondition';
+import type { ID } from './ID';
+import type { IProgramRegistryClinicalStatus } from './IProgramRegistryClinicalStatus';
+import type { DateTimeString } from './DateString';
+import type { IFacility, IPatient, IReferenceData, IUser } from '.';
+import type { IProgramRegistry } from './IProgramRegistry';
+import type { RegistrationStatus } from '~/constants/programRegistries';
+import type { IPatientProgramRegistrationCondition } from './IPatientProgramRegistrationCondition';
 
 export interface IPatientProgramRegistration {
   id: ID;

@@ -102,7 +102,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const [pharmacyOrderModalOpen, setPharmacyOrderModalOpen] = useState(false);
   const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
-  const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
   const { navigateToMar, navigateToEncounter } = usePatientNavigation();
   const [prescriptionTypeModalOpen, setPrescriptionTypeModalOpen] = useState(false);
   const [prescriptionType, setPrescriptionType] = useState(null);
@@ -154,7 +153,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
 
   const handleReloadTable = () => {
     queryClient.invalidateQueries(['encounterMedication', encounter.id]);
-    setRefreshEncounterMedications(prev => prev + 1);
   };
 
   return (
@@ -179,9 +177,9 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           open={prescriptionType === PRESCRIPTION_TYPES.SINGLE_MEDICATION}
           encounterId={encounter.id}
           onClose={() => setPrescriptionType(null)}
-          onSaved={async () => {
+          onSaved={() => {
             setPrescriptionType(null);
-            setRefreshEncounterMedications(prev => prev + 1);
+            handleReloadTable();
           }}
           data-testid="medicationmodal-s2hv"
         />
@@ -190,7 +188,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           encounter={encounter}
           open={pharmacyOrderModalOpen}
           onClose={() => setPharmacyOrderModalOpen(false)}
-          onSubmit={() => setRefreshEncounterMedications(prev => prev + 1)}
+          onSubmit={handleReloadTable}
         />
         <PrintMultipleMedicationSelectionModal
           encounter={encounter}
@@ -203,9 +201,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             encounter={encounter}
             open={medicationImportModalOpen}
             onClose={() => setMedicationImportModalOpen(false)}
-            onSaved={() => {
-              setRefreshEncounterMedications(prev => prev + 1);
-            }}
+            onSaved={handleReloadTable}
             data-testid="medicationimportmodal-1zpq"
           />
         )}
@@ -308,7 +304,6 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           </ButtonGroup>
         </TableButtonRow>
         <EncounterMedicationTable
-          key={refreshEncounterMedications}
           encounter={encounter}
           data-testid="encountermedicationtable-gs0p"
           canImportOngoingPrescriptions={canImportOngoingPrescriptions}

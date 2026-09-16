@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, RelationId, OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
+import { type IDataRequiredToCreateLabRequest, type ILabRequest, LabRequestStatus } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
@@ -44,12 +44,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: false })
   displayId: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.labRequests)
+  @ManyToOne(() => Encounter, encounter => encounter.labRequests)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => User, (user) => user.labRequests)
+  @ManyToOne(() => User, user => user.labRequests)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
@@ -74,7 +74,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ labTestPriority }) => labTestPriority)
   labTestPriorityId: string;
 
-  @ManyToOne(() => User, (user) => user.collectedLabRequests)
+  @ManyToOne(() => User, user => user.collectedLabRequests)
   collectedBy: User;
   @RelationId(({ collectedBy }) => collectedBy)
   collectedById: string;
@@ -84,11 +84,11 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ specimenType }) => specimenType)
   specimenTypeId: string;
 
-  @OneToMany(() => LabTest, (labTest) => labTest.labRequest)
+  @OneToMany(() => LabTest, labTest => labTest.labRequest)
   tests: LabTest[];
 
   static async getForPatient(patientId: string, canListSensitive: boolean): Promise<LabRequest[]> {
-    const query = this.getRepository()
+    const query = LabRequest.getRepository()
       .createQueryBuilder('labRequest')
       .leftJoinAndSelect('labRequest.encounter', 'encounter')
       .leftJoinAndSelect('labRequest.labTestCategory', 'labTestCategory')
@@ -113,11 +113,11 @@ export class LabRequest extends BaseModel implements ILabRequest {
       throw new Error('A request must have at least one test');
     }
 
-    const labRequest = await this.createAndSaveOne(data);
+    const labRequest = await LabRequest.createAndSaveOne(data);
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map((labTestTypeId) =>
+      labTestTypeIds.map(labTestTypeId =>
         LabTest.createAndSaveOne({
           labTestType: labTestTypeId,
           labRequest: labRequest.id,

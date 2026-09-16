@@ -88,6 +88,20 @@ describe('CentralServerConnection', () => {
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
   });
+  describe('initiatePull', () => {
+    it('coerces the pull count to a number, since the server sends a bigint count as a string', async () => {
+      jest.spyOn(centralServerConnection, 'post').mockResolvedValue(undefined);
+      jest.spyOn(centralServerConnection, 'pollUntilTrue').mockResolvedValue(true);
+      jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValue({ totalToPull: '0', pullUntil: 999 });
+
+      const metadata = await centralServerConnection.initiatePull(mockSessionId, 100, [], []);
+
+      expect(metadata).toEqual({ totalToPull: 0, pullUntil: 999 });
+    });
+  });
+
   describe('pull', () => {
     it('should call get with correct parameters', async () => {
       const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
@@ -120,7 +134,52 @@ describe('CentralServerConnection', () => {
         {
           changes: mockChanges,
         },
+        { compress: true },
       );
+    });
+
+    it('should send large push bodies as a JSON string with Content-Encoding: gzip', async () => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: {} });
+      // enough records to comfortably exceed the 1KB compression threshold
+      const mockChanges = Array.from({ length: 50 }, (_, i) => ({
+        id: `test-id-${i}`,
+        recordId: `test-record-id-${i}`,
+        recordType: 'test-type',
+        data: { id: `test-id-${i}` },
+      }));
+
+      await centralServerConnection.push(mockSessionId, mockChanges);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      const requestConfig = mockAxiosRequest.mock.calls[0][0];
+      expect(requestConfig.headers).toMatchObject({
+        'Content-Type': 'application/json',
+        'Content-Encoding': 'gzip',
+      });
+      // React Native's networking layer only gzips string bodies (and strips
+      // the Content-Encoding header for any other body type), so the body must
+      // go out as a pre-serialised JSON string
+      expect(typeof requestConfig.data).toBe('string');
+      expect(JSON.parse(requestConfig.data)).toEqual({ changes: mockChanges });
+    });
+
+    it('should send small push bodies as plain JSON', async () => {
+      mockAxiosRequest.mockResolvedValueOnce({ data: {} });
+      const mockChanges = [
+        {
+          id: 'test-id-1',
+          recordId: 'test-record-id',
+          recordType: 'test-type-1',
+          data: { id: 'test-id-1' },
+        },
+      ];
+
+      await centralServerConnection.push(mockSessionId, mockChanges);
+
+      expect(mockAxiosRequest).toHaveBeenCalledTimes(1);
+      const requestConfig = mockAxiosRequest.mock.calls[0][0];
+      expect(requestConfig.headers['Content-Encoding']).toBeUndefined();
+      expect(requestConfig.data).toEqual({ changes: mockChanges });
     });
   });
   describe('completePush', () => {
@@ -384,15 +443,14 @@ describe('CentralServerConnection', () => {
             status: 400,
             type: ERROR_TYPE.CLIENT_INCOMPATIBLE,
             title: 'Client incompatible',
-            extra: {
-              updateUrl: mockUpdateUrl,
-            },
+            'update-url': mockUpdateUrl,
           },
         },
       });
-      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
-        new OutdatedVersionError(mockUpdateUrl),
-      );
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+        message: new OutdatedVersionError(mockUpdateUrl).message,
+        updateUrl: mockUpdateUrl,
+      });
     });
   });
 });

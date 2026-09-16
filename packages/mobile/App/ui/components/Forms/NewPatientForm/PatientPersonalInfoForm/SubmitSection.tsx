@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { StyledSafeAreaView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';

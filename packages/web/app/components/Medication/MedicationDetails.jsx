@@ -8,6 +8,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   MAX_REPEATS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
 } from '@tamanu/constants';
@@ -517,52 +518,59 @@ export const MedicationDetails = ({
                   </div>
                 )}
               </FormGrid>
-              <Box mt={2.5} display={'flex'} sx={{ gap: '20px' }}>
-                <Box flex={1}>
-                  <DarkestText color={`${Colors.darkText} !important`}>
-                    <TranslatedText
-                      stringId="medication.details.medicationAdministrationSchedule"
-                      fallback="Medication administration schedule"
-                    />
-                  </DarkestText>
-                  <DetailsContainer mt={0.5} display={'flex'}>
-                    <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                      {medication?.idealTimes
-                        ?.toSorted((a, b) => {
-                          const timeA = getDateFromTimeString(a);
-                          const timeB = getDateFromTimeString(b);
-                          return timeA - timeB;
-                        })
-                        .map(time => {
-                          const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
-                          return (
-                            <DarkestText key={time}>
-                              <TimeRangeDisplay
-                                range={{
-                                  start: getDateFromTimeString(slot.startTime),
-                                  end: getDateFromTimeString(slot.endTime),
-                                }}
-                              />
-                            </DarkestText>
-                          );
-                        })}
-                    </Box>
-                    <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                      {medication?.idealTimes
-                        ?.toSorted((a, b) => {
-                          const timeA = getDateFromTimeString(a);
-                          const timeB = getDateFromTimeString(b);
-                          return timeA - timeB;
-                        })
-                        .map(time => (
-                          <MidText key={time}>
-                            <TimeDisplay date={getDateFromTimeString(time)} noTooltip />
-                          </MidText>
-                        ))}
-                    </Box>
-                  </DetailsContainer>
-                </Box>
-                <Box flex={1}>
+              <Box mt={2.5} display={'grid'} gridTemplateColumns={'1fr 1fr'} sx={{ gap: '20px' }}>
+                {!FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(medication.frequency) && (
+                  <Box>
+                    <DarkestText color={`${Colors.darkText} !important`}>
+                      <TranslatedText
+                        stringId="medication.details.medicationAdministrationSchedule"
+                        fallback="Medication administration schedule"
+                      />
+                    </DarkestText>
+                    <DetailsContainer mt={0.5} display={'flex'}>
+                      <Box
+                        display={'flex'}
+                        flexDirection={'column'}
+                        mr={2.5}
+                        style={{ gap: '16px' }}
+                      >
+                        {medication?.idealTimes
+                          ?.toSorted((a, b) => {
+                            const timeA = getDateFromTimeString(a);
+                            const timeB = getDateFromTimeString(b);
+                            return timeA - timeB;
+                          })
+                          .map(time => {
+                            const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
+                            return (
+                              <DarkestText key={time}>
+                                <TimeRangeDisplay
+                                  range={{
+                                    start: getDateFromTimeString(slot.startTime),
+                                    end: getDateFromTimeString(slot.endTime),
+                                  }}
+                                />
+                              </DarkestText>
+                            );
+                          })}
+                      </Box>
+                      <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
+                        {medication?.idealTimes
+                          ?.toSorted((a, b) => {
+                            const timeA = getDateFromTimeString(a);
+                            const timeB = getDateFromTimeString(b);
+                            return timeA - timeB;
+                          })
+                          .map(time => (
+                            <MidText key={time}>
+                              <TimeDisplay date={getDateFromTimeString(time)} noTooltip />
+                            </MidText>
+                          ))}
+                      </Box>
+                    </DetailsContainer>
+                  </Box>
+                )}
+                <Box>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
                     {encounter && !isOngoingPrescription ? (
                       <TranslatedText

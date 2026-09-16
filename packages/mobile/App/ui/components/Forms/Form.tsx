@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react';
-import { Formik, FormikProps } from 'formik';
-import { FormOnSubmit, FormValidate, FormValidationSchema, GenericFormValues } from '~/types/Forms';
+import React, { type ReactElement } from 'react';
+import { Formik, type FormikProps } from 'formik';
+import type { FormOnSubmit, FormValidate, FormValidationSchema, GenericFormValues } from '~/types/Forms';
 
 type FormProps<T extends GenericFormValues> = {
   initialValues: T;

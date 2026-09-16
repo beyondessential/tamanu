@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { TableHeader } from '../Table';
+import type { TableHeader } from '../Table';
 import { theme } from '/styled/theme';
 
 export const vaccineTableHeader: TableHeader = {

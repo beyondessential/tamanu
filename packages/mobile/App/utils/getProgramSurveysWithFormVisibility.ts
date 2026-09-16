@@ -3,7 +3,7 @@ import {
   getQuestionCodesFromFormVisibilityCriteria,
   checkFormVisibilityCriteria,
 } from '@tamanu/utils';
-import { Survey } from '~/models/Survey';
+import type { Survey } from '~/models/Survey';
 
 /**
  * Filters program surveys to those that pass form visibility criteria for the patient.
@@ -17,9 +17,7 @@ export async function getProgramSurveysWithFormVisibility(
 ): Promise<Survey[]> {
   const questionCodes = [
     ...new Set(
-      surveys.flatMap(s =>
-        getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria ?? ''),
-      ),
+      surveys.flatMap(s => getQuestionCodesFromFormVisibilityCriteria(s.visibilityCriteria ?? '')),
     ),
   ].filter(Boolean);
 

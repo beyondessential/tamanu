@@ -1,9 +1,11 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, SETTINGS_SCOPES, TASK_STATUSES } from '@tamanu/constants';
+import { settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { add, sub } from 'date-fns';
 
 import { createTestContext } from '../utilities';
 
@@ -248,6 +250,71 @@ describe('GET user/tasks', () => {
         'undesignated task',
       ]);
       expect(result.body.count).toBe(2);
+    });
+  });
+
+  describe('overdue floor', () => {
+    const setSetting = async (key, hours) => {
+      await models.Setting.set(key, hours, SETTINGS_SCOPES.FACILITY, facilityId);
+      settingsCache.reset();
+    };
+
+    const setFloor = hours => setSetting('tasking.dashboardOverdueTasksTimeFrame', hours);
+
+    const createTaskDueAt = async (name, dueTime) => {
+      const task = await createTask(name);
+      return task.update({ dueTime: toDateTimeString(dueTime) });
+    };
+
+    const createTaskDueAgo = (name, hours) => createTaskDueAt(name, sub(new Date(), { hours }));
+
+    afterEach(async () => {
+      await setFloor(null);
+      await setSetting('tasking.encounterOverdueTasksTimeFrame', null);
+    });
+
+    it('includes arbitrarily old tasks when no floor is set', async () => {
+      await createTaskDueAgo('ancient', 24 * 90);
+      const response = await app.get(tasksUrl());
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(t => t.name)).toContain('ancient');
+    });
+
+    it('drops tasks overdue by longer than the floor and keeps newer ones', async () => {
+      await createTaskDueAgo('too-old', 10);
+      await createTaskDueAgo('within-window', 2);
+      await setFloor(8);
+      const response = await app.get(tasksUrl());
+      expect(response).toHaveSucceeded();
+      const names = response.body.data.map(t => t.name);
+      expect(names).toContain('within-window');
+      expect(names).not.toContain('too-old');
+      expect(response.body.count).toBe(1);
+    });
+
+    it('still applies the upcoming ceiling when a floor is set', async () => {
+      // upcomingTasksTimeFrame defaults to 8 hours, so a task due in 24 is above the ceiling
+      // whether or not a floor is in play.
+      await createTaskDueAt('too-far-ahead', add(new Date(), { hours: 24 }));
+      await createTaskDueAgo('within-window', 2);
+      await setFloor(8);
+
+      const response = await app.get(tasksUrl());
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(t => t.name)).toEqual(['within-window']);
+      expect(response.body.count).toBe(1);
+    });
+
+    it('is unaffected by the encounter floor', async () => {
+      await createTaskDueAgo('old', 10);
+      await setSetting('tasking.encounterOverdueTasksTimeFrame', 8);
+
+      const response = await app.get(tasksUrl());
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(t => t.name)).toEqual(['old']);
+      expect(response.body.count).toBe(1);
     });
   });
 

@@ -1,8 +1,8 @@
-import { IDepartment } from './IDepartment';
-import { IEncounter } from './IEncounter';
-import { ILocation } from './ILocation';
-import { IReferenceData } from './IReferenceData';
-import { IUser } from './IUser';
+import type { IDepartment } from './IDepartment';
+import type { IEncounter } from './IEncounter';
+import type { ILocation } from './ILocation';
+import type { IReferenceData } from './IReferenceData';
+import type { IUser } from './IUser';
 
 export interface IProcedure {
   id: string;

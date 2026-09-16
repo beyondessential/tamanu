@@ -1,7 +1,5 @@
 import { Dimensions, PixelRatio, Platform, StatusBar } from 'react-native';
-import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 
 // Inline replacements for react-native-responsive-screen (uses removed Dimensions.removeEventListener API)
 let screenWidth = Dimensions.get('window').width;
@@ -13,7 +11,8 @@ Dimensions.addEventListener('change', ({ window }) => {
 });
 
 const widthPercentageToDP = (widthPercent: string | number): number => {
-  const elemWidth = typeof widthPercent === 'number' ? widthPercent : parseFloat(String(widthPercent));
+  const elemWidth =
+    typeof widthPercent === 'number' ? widthPercent : parseFloat(String(widthPercent));
   return PixelRatio.roundToNearestPixel((screenWidth * elemWidth) / 100);
 };
 
@@ -31,13 +30,6 @@ export const dropdownSize = {
   distanceFromPlaceholder: -32,
 };
 
-export const SCREEN_ORIENTATION = {
-  PORTRAIT: 'portrait',
-  LANDSCAPE: 'landscape',
-} as const;
-
-export type SCREEN_ORIENTATION = (typeof SCREEN_ORIENTATION)[keyof typeof SCREEN_ORIENTATION];
-
 export const Orientation = {
   Width: 'width',
   Height: 'height',
@@ -48,32 +40,11 @@ export type Orientation = (typeof Orientation)[keyof typeof Orientation];
 export const screenPercentageToDP = (value: string | number, orientation: Orientation): number =>
   orientation === Orientation.Width ? widthPercentageToDP(value) : heightPercentageToDP(value);
 
-export const getOrientation = (): SCREEN_ORIENTATION =>
-  Dimensions.get('window').width < Dimensions.get('window').height
-    ? SCREEN_ORIENTATION.PORTRAIT
-    : SCREEN_ORIENTATION.LANDSCAPE;
-
 export const scrollTo = (scrollViewRef: any, position: { x: number; y: number }): void => {
   if (scrollViewRef) {
     scrollViewRef.current.scrollTo(position);
   }
 };
-
-export const calculateVerticalPositions = (
-  fieldList: string[],
-  inputOffset = 65,
-): VerticalPosition =>
-  fieldList.reduce<{ pos: VerticalPosition; off: number }>(
-    (acc, cur, index) => {
-      acc.pos[cur] = {
-        x: 0,
-        y: index === 0 ? 0 : acc.off + 35,
-      };
-      acc.off += inputOffset;
-      return acc;
-    },
-    { pos: {}, off: 0 },
-  ).pos;
 
 export const calculateDropdownPosition = (
   placeholderPosition: number,
@@ -95,13 +66,11 @@ export const calculateDropdownPosition = (
   return initialPosition;
 };
 
-export const setStatusBar = (
+export const useStatusBarStyle = (
   barStyle: 'light-content' | 'dark-content',
   backgroundColor: string,
 ): void =>
-  useFocusEffect(
-    useCallback(() => {
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
-      StatusBar.setBarStyle(barStyle);
-    }, []),
-  );
+  useFocusEffect(() => {
+    if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
+    StatusBar.setBarStyle(barStyle);
+  });

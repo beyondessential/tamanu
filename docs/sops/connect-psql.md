@@ -13,6 +13,14 @@ Tamanu config, so it does not prompt for a password:
 bestool tamanu psql
 ```
 
+> **bestool psql is not standard psql.** It is a separate client with its own
+> syntax and safety behaviour: read-only by default, autocommit off in write mode
+> (you must issue `COMMIT;` yourself), `${name}` variable interpolation, and
+> `\g`-suffix query modifiers (`\gx`, `\gj`, …). Read
+> [the bestool psql README](https://github.com/beyondessential/bestool/blob/main/crates/psql/README.md)
+> before writing anything non-trivial — assuming plain-psql syntax will break
+> things.
+
 Read/write mode (needed before any mutating statement — treat the mutation
 itself per its own class):
 

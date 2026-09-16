@@ -43,7 +43,7 @@ const removeFromInvoice = async (instance: Procedure) => {
 
 const updateInvoiceProductAfterUpdateHook = async (instance: Procedure) => {
   const previousValues = instance.previous() as Procedure;
-  await instance.sequelize.transaction(async () => {
+  const updateInvoiceItem = async () => {
     if (
       previousValues.procedureTypeId &&
       previousValues.procedureTypeId !== instance.procedureTypeId
@@ -53,7 +53,16 @@ const updateInvoiceProductAfterUpdateHook = async (instance: Procedure) => {
     }
 
     await addToInvoice(instance);
-  });
+  };
+
+  // sequelize.transaction() always opens a new connection rather than nesting as a savepoint
+  // under an ambient CLS transaction, so calling it unconditionally here can deadlock against
+  // a caller that already has a transaction open. Reuse the ambient transaction if present.
+  if (instance.sequelize.isInsideTransaction()) {
+    await updateInvoiceItem();
+  } else {
+    await instance.sequelize.transaction(updateInvoiceItem);
+  }
 };
 
 export const afterCreateHook = async (instance: Procedure) => {

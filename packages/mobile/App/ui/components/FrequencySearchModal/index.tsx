@@ -1,13 +1,13 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { type ReactElement, useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Button } from 'react-native-paper';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '../../styled/theme';
 import { TranslatedText } from '../Translations/TranslatedText';
+import AutocompleteResult from '../AutocompleteModal/AutocompleteResult';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
+import type { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,16 +15,6 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.BACKGROUND_GREY,
     flex: 1,
     justifyContent: 'space-between',
-  },
-  lightItemText: {
-    color: theme.colors.TEXT_DARK,
-    backgroundColor: theme.colors.WHITE,
-    padding: 12,
-  },
-  darkItemText: {
-    color: theme.colors.TEXT_DARK,
-    backgroundColor: theme.colors.LIGHT_GREY,
-    padding: 12,
   },
   backButton: {
     position: 'absolute',
@@ -69,10 +59,6 @@ export const FrequencySearchModalScreen = ({
     [callback, navigation],
   );
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
     <View style={styles.container}>
       <Autocomplete
@@ -83,22 +69,19 @@ export const FrequencySearchModalScreen = ({
         autoFocus
         flatListProps={{
           keyExtractor: item => item.value,
-          renderItem: ({ item, index }): ReactElement => {
-            const useDarkBackground = index % 2 === 0;
-            return (
-              <TouchableOpacity onPress={(): void => onSelectItem(item)}>
-                <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          },
+          renderItem: ({ item, index }) => (
+            <AutocompleteResult
+              onSelect={onSelectItem}
+              option={item}
+              useDarkBackground={index % 2 === 0}
+            />
+          ),
         }}
         style={{
           color: theme.colors.TEXT_DARK,
         }}
       />
-      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+      <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
     </View>

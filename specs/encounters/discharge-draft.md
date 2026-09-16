@@ -10,6 +10,15 @@ A clinician interrupted part way through can save what they have entered and com
 A draft is working state rather than clinical record.
 It holds what one clinician has entered so far, and the discharge is recorded only when the form is finalised.
 
+## Availability
+
+This workflow is not available to clinicians.
+Every entry point to it is hidden: saving a draft, the draft indicator on an encounter, the prompt on leaving a form with unsaved changes, and restoring a saved draft into the form.
+No draft is written while it is hidden.
+
+It is hidden pending Product design on how edits to the discharge planning note are tracked.
+The rest of this spec describes the workflow that is built and waiting behind that decision.
+
 ## Saving and resuming
 
 The discharge form offers "Save & exit" alongside finalising the discharge.

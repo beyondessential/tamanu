@@ -14,17 +14,16 @@ import {
   RecordedByField,
   VaccineLocationField,
 } from './VaccineCommonFields';
-import { VaccineFormProps } from './types';
+import type { VaccineFormProps } from './types';
 import { useSelector } from 'react-redux';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
 import { parseISO } from 'date-fns';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 
-
 export const VaccineFormGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
   const { values } = useFormikContext();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
 
   const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
 
