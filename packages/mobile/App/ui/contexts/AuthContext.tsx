@@ -58,7 +58,7 @@ const Provider = ({
   signOutUser,
   navRef,
   ...props
-}: PropsWithChildren<AuthProviderProps>): ReactElement => {
+}: PropsWithChildren<AuthProviderProps>) => {
   const backend = useContext(BackendContext);
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState<User>();
