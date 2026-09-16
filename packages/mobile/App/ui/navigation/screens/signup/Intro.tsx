@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { type FunctionComponent, useCallback } from 'react';
 import {
   CenterView,
   FullView,
@@ -14,7 +14,7 @@ import { Button } from '../../../components/Button';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { Routes } from '../../../helpers/routes';
 // Screen
-import { IntroScreenProps } from '../../../interfaces/Screens/SignUpStack/Intro';
+import type { IntroScreenProps } from '../../../interfaces/Screens/SignUpStack/Intro';
 
 export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: IntroScreenProps) => {
   const onNavigateToSignIn = useCallback(() => {

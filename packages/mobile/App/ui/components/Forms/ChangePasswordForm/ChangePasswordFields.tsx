@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
@@ -13,34 +13,15 @@ export const ChangePasswordFields = (): ReactElement => (
     marginRight={screenPercentageToDP(2.43, Orientation.Width)}
     marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
   >
-    <StyledView
-      justifyContent="space-around"
-    >
-      <StyledText
-        fontSize={13}
-        marginBottom={5}
-        color={theme.colors.SECONDARY_MAIN}
-      >
+    <StyledView justifyContent="space-around">
+      <StyledText fontSize={13} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
         Please enter the reset code you have received in your email
       </StyledText>
-      <Field
-        name="token"
-        component={TextField}
-        keyboardType="default"
-      />
-      <StyledText
-        fontSize={13}
-        marginTop={15}
-        marginBottom={5}
-        color={theme.colors.SECONDARY_MAIN}
-      >
+      <Field name="token" component={TextField} keyboardType="default" />
+      <StyledText fontSize={13} marginTop={15} marginBottom={5} color={theme.colors.SECONDARY_MAIN}>
         Enter a new password
       </StyledText>
-      <Field
-        name="newPassword"
-        component={TextField}
-        secure
-      />
+      <Field name="newPassword" component={TextField} secure />
       <Field name="server" component={ServerSelector} label="Select a country" />
     </StyledView>
     <SubmitButton

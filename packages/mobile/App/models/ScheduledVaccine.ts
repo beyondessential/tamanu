@@ -1,8 +1,8 @@
 import { Column, Entity, OneToMany, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { AdministeredVaccine } from './AdministeredVaccine';
-import { IScheduledVaccine } from '~/types';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import type { IScheduledVaccine } from '~/types';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -33,10 +33,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   @RelationId(({ vaccine }) => vaccine)
   vaccineId: string;
 
-  @OneToMany(
-    () => AdministeredVaccine,
-    (administeredVaccine) => administeredVaccine.scheduledVaccine,
-  )
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.scheduledVaccine)
   administeredVaccines: AdministeredVaccine[];
 
   @Column({ default: false })

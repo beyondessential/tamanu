@@ -1,10 +1,9 @@
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
 
 const tableName = 'patient_additional_data';
 const columnName = 'secondaryVillageId';
 
-export class addSecondaryVillageIdToPatientAdditionalData1718236579000
-  implements MigrationInterface {
+export class addSecondaryVillageIdToPatientAdditionalData1718236579000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await queryRunner.getTable(tableName);
     await queryRunner.addColumn(

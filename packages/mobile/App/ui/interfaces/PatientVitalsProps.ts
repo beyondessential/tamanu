@@ -1,4 +1,4 @@
-import { AVPUType } from '~/types/IVitals';
+import type { AVPUType } from '~/types/IVitals';
 
 export interface PatientVitalsProps {
   height?: number;

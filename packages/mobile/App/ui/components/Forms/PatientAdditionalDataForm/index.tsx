@@ -1,4 +1,5 @@
-import React, { ReactElement, useCallback, useRef } from 'react';
+import React, { type ReactElement, useCallback, useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { StyledView } from '/styled/common';
 import { Form } from '../Form';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
@@ -14,8 +15,9 @@ import { SubmitButton } from '../SubmitButton';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { FormScreenView } from '../FormScreenView';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
-import { NavigationProp } from '@react-navigation/native';
+import type { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
+import type { NavigationProp } from '@react-navigation/native';
 
 interface PatientAdditionalDataFormProps {
   patient: Patient;
@@ -40,11 +42,13 @@ export const PatientAdditionalDataForm = ({
   customSectionFields,
 }: PatientAdditionalDataFormProps): ReactElement => {
   const scrollViewRef = useRef();
+  const queryClient = useQueryClient();
   // After save/update, the model will mark itself for upload and the
   // patient for sync (see beforeInsert and beforeUpdate decorators).
-  const onCreateOrEditAdditionalData = useCallback(
-    async values => {
+  const { mutateAsync: saveAdditionalData } = useMutation({
+    mutationFn: async (values: any) => {
       const customPatientFieldDefinitions = await PatientFieldDefinition.findVisible({
+        select: ['id'],
         relations: ['category'],
         order: {
           // Nested ordering only works with typeorm version > 0.3.0
@@ -52,6 +56,9 @@ export const PatientAdditionalDataForm = ({
           name: 'DESC',
         },
       });
+      const customPatientFieldDefinitionsIds = new Set(
+        customPatientFieldDefinitions.map(definition => definition.id),
+      );
 
       await Patient.updateValues(patient.id, values);
 
@@ -59,7 +66,7 @@ export const PatientAdditionalDataForm = ({
 
       // Update any custom field definitions contained in this form
       const customValuesToUpdate = Object.keys(values).filter(key =>
-        customPatientFieldDefinitions.map(({ id }) => id).includes(key),
+        customPatientFieldDefinitionsIds.has(key),
       );
       await Promise.all(
         customValuesToUpdate.map(definitionId =>
@@ -70,10 +77,19 @@ export const PatientAdditionalDataForm = ({
           ),
         ),
       );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.detail(patient.id) });
+      queryClient.invalidateQueries({ queryKey: patientListKeys.all });
+    },
+  });
 
+  const onCreateOrEditAdditionalData = useCallback(
+    async (values: any) => {
+      await saveAdditionalData(values);
       navigation.goBack();
     },
-    [navigation, patient.id],
+    [navigation, saveAdditionalData],
   );
 
   // Get the field group for this section of the additional data template

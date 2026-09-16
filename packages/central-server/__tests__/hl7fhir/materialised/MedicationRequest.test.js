@@ -2,7 +2,12 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { formatRFC7231 } from 'date-fns';
 import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../../utilities';
-import { ADMINISTRATION_FREQUENCIES, DRUG_ROUTES, DRUG_UNITS } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  DIAGNOSIS_CERTAINTY,
+  DRUG_ROUTES,
+  DRUG_UNITS,
+} from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -27,19 +32,23 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       ReferenceData,
       User,
       Encounter,
+      EncounterDiagnosis,
       FhirPatient,
       FhirOrganization,
       FhirPractitioner,
       FhirEncounter,
     } = ctx.store.models;
 
-    const [practitioner, patient, drug1, drug2, facility] = await Promise.all([
-      User.create(fake(User)),
-      Patient.create(fake(Patient)),
-      ReferenceData.create(fakeReferenceData('drug')),
-      ReferenceData.create(fakeReferenceData('drug')),
-      Facility.create(fake(Facility)),
-    ]);
+    const [practitioner, patient, drug1, drug2, diagnosis1, diagnosis2, facility] =
+      await Promise.all([
+        User.create(fake(User)),
+        Patient.create(fake(Patient)),
+        ReferenceData.create(fakeReferenceData('drug')),
+        ReferenceData.create(fakeReferenceData('drug')),
+        ReferenceData.create({ ...fakeReferenceData('diagnosis'), type: 'diagnosis' }),
+        ReferenceData.create({ ...fakeReferenceData('diagnosis'), type: 'diagnosis' }),
+        Facility.create(fake(Facility)),
+      ]);
 
     const department = await Department.create({ ...fake(Department), facilityId: facility.id });
     const location = await Location.create({
@@ -55,6 +64,23 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       examinerId: practitioner.id,
     });
 
+    const encounterDiagnosis1 = await EncounterDiagnosis.create(
+      fake(EncounterDiagnosis, {
+        encounterId: encounter.id,
+        diagnosisId: diagnosis1.id,
+        certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
+        isPrimary: true,
+      }),
+    );
+    const encounterDiagnosis2 = await EncounterDiagnosis.create(
+      fake(EncounterDiagnosis, {
+        encounterId: encounter.id,
+        diagnosisId: diagnosis2.id,
+        certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
+        isPrimary: false,
+      }),
+    );
+
     const [fhirPatient, fhirEncounter, fhirOrganization, fhirPractitioner] = await Promise.all([
       FhirPatient.materialiseFromUpstream(patient.id),
       FhirEncounter.materialiseFromUpstream(encounter.id),
@@ -69,6 +95,10 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       patient,
       drug1,
       drug2,
+      diagnosis1,
+      diagnosis2,
+      encounterDiagnosis1,
+      encounterDiagnosis2,
       facility,
       location,
       encounter,
@@ -87,11 +117,13 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       ReferenceData,
       User,
       Encounter,
+      EncounterDiagnosis,
       FhirPatient,
       FhirOrganization,
       FhirPractitioner,
       FhirEncounter,
     } = ctx.store.models;
+    await EncounterDiagnosis.destroy({ where: {} });
     await Facility.destroy({ where: {} });
     await Location.destroy({ where: {} });
     await Patient.destroy({ where: {} });
@@ -275,12 +307,106 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
             text: prescriptionNote,
           },
         ],
+        reasonCode: expect.arrayContaining([
+          {
+            coding: [
+              {
+                system: 'http://hl7.org/fhir/sid/icd-10',
+                code: resources.diagnosis1.code,
+                display: resources.diagnosis1.name,
+              },
+            ],
+          },
+          {
+            coding: [
+              {
+                system: 'http://hl7.org/fhir/sid/icd-10',
+                code: resources.diagnosis2.code,
+                display: resources.diagnosis2.name,
+              },
+            ],
+          },
+        ]),
       });
+      expect(response.body.reasonCode).toHaveLength(2);
       expect(response.body.note).toHaveLength(2);
       expect(response.body.note[0].text).toBe(pharmacyOrder.comments);
       expect(response.body.note[1].text).toBe(prescriptionNote);
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
+    });
+
+    it('excludes disproven and error diagnoses from reasonCode', async () => {
+      const {
+        FhirMedicationRequest,
+        PharmacyOrder,
+        PharmacyOrderPrescription,
+        Prescription,
+        EncounterDiagnosis,
+        ReferenceData,
+      } = ctx.store.models;
+
+      const diagnosisDisproven = await ReferenceData.create({
+        ...fakeReferenceData('diagnosis'),
+        type: 'diagnosis',
+      });
+      const diagnosisError = await ReferenceData.create({
+        ...fakeReferenceData('diagnosis'),
+        type: 'diagnosis',
+      });
+      await EncounterDiagnosis.create(
+        fake(EncounterDiagnosis, {
+          encounterId: resources.encounter.id,
+          diagnosisId: diagnosisDisproven.id,
+          certainty: DIAGNOSIS_CERTAINTY.DISPROVEN,
+        }),
+      );
+      await EncounterDiagnosis.create(
+        fake(EncounterDiagnosis, {
+          encounterId: resources.encounter.id,
+          diagnosisId: diagnosisError.id,
+          certainty: DIAGNOSIS_CERTAINTY.ERROR,
+        }),
+      );
+
+      const prescription = await Prescription.create(
+        fake(Prescription, {
+          medicationId: resources.drug1.id,
+          frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+          idealTimes: ['08:00'],
+          route: DRUG_ROUTES.oral,
+        }),
+      );
+      const pharmacyOrder = await PharmacyOrder.create(
+        fake(PharmacyOrder, {
+          encounterId: resources.encounter.id,
+          orderingClinicianId: resources.practitioner.id,
+          date: getCurrentDateTimeString(),
+          facilityId: resources.facility.id,
+        }),
+      );
+      const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
+        fake(PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.id,
+          quantity: 5,
+          repeats: 0,
+        }),
+      );
+
+      const mat = await FhirMedicationRequest.materialiseFromUpstream(
+        pharmacyOrderPrescription.id,
+      );
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/MedicationRequest/${mat.id}`,
+      );
+
+      expect(response).toHaveSucceeded();
+      // Only the two confirmed/suspected diagnoses from beforeAll should appear
+      expect(response.body.reasonCode).toHaveLength(2);
+      const reasonCodes = response.body.reasonCode.map(rc => rc.coding[0].code);
+      expect(reasonCodes).not.toContain(diagnosisDisproven.code);
+      expect(reasonCodes).not.toContain(diagnosisError.code);
     });
 
     describe('search', () => {

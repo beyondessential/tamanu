@@ -19,6 +19,7 @@ const FACILITY_ID = 'balwyn';
 
 const INTEGRATION_SETTINGS = {
   enabled: true,
+  stockOnHandEnabled: true,
   host: 'https://msupply.example.com',
   username: 'test-user',
   password: 'test-pass',
@@ -107,10 +108,10 @@ describe('MSupplyStockOnHandProcessor', () => {
   });
 
   describe('skips when not configured', () => {
-    it('skips when integration is disabled', async () => {
+    it('skips when stock on hand sync is disabled', async () => {
       await models.Setting.set(
         'integrations.mSupplyMed',
-        { ...INTEGRATION_SETTINGS, enabled: false },
+        { ...INTEGRATION_SETTINGS, stockOnHandEnabled: false },
         SETTINGS_SCOPES.FACILITY,
         FACILITY_ID,
       );

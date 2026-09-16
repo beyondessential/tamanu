@@ -71,8 +71,7 @@ export const SurveyAnswerResult = ({
       return <ViewPhotoLink imageId={answer} data-testid="viewphotolink-w78m" />;
     case PROGRAM_DATA_ELEMENT_TYPES.NUMBER:
       return Number.parseFloat(answer).toLocaleString(getCurrentLanguageCode(), {
-        minimumSignificantDigits: 1,
-        maximumSignificantDigits: 6, // Probably excessive (delegate interpretation to user)
+        maximumFractionDigits: 6, // Probably excessive (delegate interpretation to user)
       });
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:

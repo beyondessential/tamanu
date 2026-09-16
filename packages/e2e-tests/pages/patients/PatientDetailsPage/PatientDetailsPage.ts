@@ -282,7 +282,13 @@ export class PatientDetailsPage extends BasePatientPage {
     this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.invoicingTab = this.page.getByTestId('styledtab-ccs8-invoicing');
-    this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    // Scoped to the Encounter history section's own container: 'styledtablebody-a0jz' is a
+    // generic styled-component testid that a within-encounter Tasks table also happens to use,
+    // so an unscoped match can silently grab that table's (non-interactive) row instead.
+    this.encountersList = this.page
+      .getByTestId('contentpane-n51k')
+      .getByTestId('styledtablebody-a0jz')
+      .locator('tr');
     this.departmentLabel = this.page
       .getByTestId('cardlabel-0v8z')
       .filter({ hasText: 'Department' })
@@ -470,6 +476,11 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async navigateToFirstEncounter() {
     await this.encountersList.first().waitFor({ state: 'visible' });
+    // Immediately after returning to this tab (e.g. from finalising a discharge), the row can be
+    // present and visible a beat before its click handler is wired up by React's commit — no
+    // observable signal distinguishes that instant from "ready", so a short, fixed wait is the
+    // pragmatic guard against silently clicking a not-yet-interactive row.
+    await this.page.waitForTimeout(300);
     await this.encountersList.first().click();
   }
 

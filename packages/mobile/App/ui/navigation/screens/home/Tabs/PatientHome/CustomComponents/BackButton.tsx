@@ -1,12 +1,10 @@
-import React, { FC, ReactElement } from 'react';
+import React, { type FC, type ReactElement } from 'react';
 import { ArrowLeftIcon } from '/components/Icons';
 import { StyledTouchableOpacity, StyledView } from '/styled/common';
-import { ButtonProps } from './fixture';
+import type { ButtonProps } from './fixture';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
-export const BackButton: FC<ButtonProps> = ({
-  onPress,
-}: ButtonProps): ReactElement => (
+export const BackButton: FC<ButtonProps> = ({ onPress }: ButtonProps): ReactElement => (
   <StyledTouchableOpacity onPress={onPress}>
     <StyledView
       alignItems="center"

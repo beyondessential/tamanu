@@ -1,5 +1,5 @@
 import { TEST_PATIENT_ID } from '@tamanu/constants';
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 const ENCOUNTERS_TABLE = 'encounters';

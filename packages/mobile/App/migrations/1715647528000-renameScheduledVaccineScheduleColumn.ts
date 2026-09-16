@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
 export class renameScheduledVaccineScheduleColumn1715647528000 implements MigrationInterface {

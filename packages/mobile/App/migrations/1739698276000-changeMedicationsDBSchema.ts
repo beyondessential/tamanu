@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
 
 const BaseColumns = [
   new TableColumn({

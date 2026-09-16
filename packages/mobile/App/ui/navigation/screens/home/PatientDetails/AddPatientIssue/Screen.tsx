@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -7,7 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { SubmitButton } from '/components/Forms/SubmitButton';
 import { Field } from '~/ui/components/Forms/FormField';
 import { TextField } from '~/ui/components/TextField/TextField';
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 import { StackHeader } from '~/ui/components/StackHeader';
 import { FullView } from '~/ui/styled/common';
 import { joinNames } from '~/ui/helpers/user';

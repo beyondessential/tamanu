@@ -1,5 +1,5 @@
-import { NavigationProp, RouteProp } from '@react-navigation/native';
-import { IPatient, IProgram, SurveyTypes } from '~/types';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import type { IPatient, IProgram, SurveyTypes } from '~/types';
 
 type SurveyResponseScreenParams = {
   SurveyResponseScreen: {
@@ -12,10 +12,7 @@ type SurveyResponseScreenParams = {
   };
 };
 
-type SurveyResponseScreenRouteProps = RouteProp<
-SurveyResponseScreenParams,
-'SurveyResponseScreen'
->;
+type SurveyResponseScreenRouteProps = RouteProp<SurveyResponseScreenParams, 'SurveyResponseScreen'>;
 
 export type SurveyResponseScreenProps = {
   navigation: NavigationProp<any>;

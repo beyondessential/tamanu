@@ -1,7 +1,7 @@
-import { LabTestPanel } from '~/models/LabTestPanel';
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
-import { IReferenceData } from './IReferenceData';
+import type { LabTestPanel } from '~/models/LabTestPanel';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
+import type { IReferenceData } from './IReferenceData';
 
 export const LabTestResultType = {
   NUMBER: 'Number',

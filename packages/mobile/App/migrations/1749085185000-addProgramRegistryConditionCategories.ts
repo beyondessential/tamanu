@@ -1,7 +1,7 @@
 import {
-  MigrationInterface,
+  type MigrationInterface,
   TableIndex,
-  QueryRunner,
+  type QueryRunner,
   Table,
   TableColumn,
   TableForeignKey,
@@ -173,9 +173,9 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
       )
     `);
 
-    const newCategoriesClause = NEW_PROGRAM_REGISTRY_CONDITION_CATEGORY_VALUES
-      .map((code) => `'${code}'`)
-      .join(',');
+    const newCategoriesClause = NEW_PROGRAM_REGISTRY_CONDITION_CATEGORY_VALUES.map(
+      code => `'${code}'`,
+    ).join(',');
 
     // Remove all unused categories per registry not in the new list
     await queryRunner.query(`
@@ -188,10 +188,10 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
     await queryRunner.createForeignKey(
       table,
       new TableForeignKey({
-         columnNames: ['programRegistryConditionCategoryId'],
-         referencedTableName: 'program_registry_condition_categories',
-         referencedColumnNames: ['id'],
-       }),
+        columnNames: ['programRegistryConditionCategoryId'],
+        referencedTableName: 'program_registry_condition_categories',
+        referencedColumnNames: ['id'],
+      }),
     );
 
     // Now make the column non-nullable
@@ -215,7 +215,7 @@ export class addProgramRegistryConditionCategories1749085185000 implements Migra
 
     // Drop the foreign key constraint
     const foreignKey = table.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('programRegistryConditionCategoryId') !== -1,
+      fk => fk.columnNames.indexOf('programRegistryConditionCategoryId') !== -1,
     );
     await queryRunner.dropForeignKey(table, foreignKey);
 

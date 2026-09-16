@@ -1,41 +1,22 @@
-import React, { ReactElement, useEffect } from 'react';
+import type { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs';
+import React, { useEffect } from 'react';
 import Orientation from 'react-native-orientation-locker';
-import { Routes } from '/helpers/routes';
-import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { VaccineTableRefreshContext } from '~/ui/components/VaccinesTable';
+import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
+import { Routes } from '/helpers/routes';
 
-const Tabs = createTopTabNavigator();
+const screenOptions = { swipeEnabled: false } as const satisfies MaterialTopTabNavigationOptions;
 
-type VaccineTableTabsProps = {
-  route: {
-    params?: {
-      latestAdministeredVaccineId?: string;
-    };
-  };
-};
-
-export const VaccineTableTabs = ({ route }: VaccineTableTabsProps): ReactElement => {
-  const { latestAdministeredVaccineId } = route.params ?? {};
+export const VaccineTableTabs = () => {
   useEffect(() => {
     Orientation.unlockAllOrientations();
-
-    return (): void => {
-      Orientation.lockToPortrait();
-    };
+    return () => void Orientation.lockToPortrait();
   }, []);
 
   return (
-    <VaccineTableRefreshContext.Provider value={latestAdministeredVaccineId}>
-    <Tabs.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarLabelStyle: { textTransform: 'none' },
-      }}
-      swipeEnabled={false}
-    >
-      <Tabs.Screen
+    <TopTabNavigator screenOptions={screenOptions}>
+      <TopTabScreen
         options={{
           tabBarLabel: () => (
             <TranslatedText stringId="vaccine.form.category.option.routine" fallback="Routine" />
@@ -44,7 +25,7 @@ export const VaccineTableTabs = ({ route }: VaccineTableTabsProps): ReactElement
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Routine}
         component={VaccineHistoryTab}
       />
-      <Tabs.Screen
+      <TopTabScreen
         options={{
           tabBarLabel: () => (
             <TranslatedText stringId="vaccine.form.category.option.catchUp" fallback="Catchup" />
@@ -53,7 +34,7 @@ export const VaccineTableTabs = ({ route }: VaccineTableTabsProps): ReactElement
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Catchup}
         component={VaccineHistoryTab}
       />
-      <Tabs.Screen
+      <TopTabScreen
         options={{
           tabBarLabel: () => (
             <TranslatedText stringId="vaccine.form.category.option.campaign" fallback="Campaign" />
@@ -62,7 +43,6 @@ export const VaccineTableTabs = ({ route }: VaccineTableTabsProps): ReactElement
         name={Routes.HomeStack.VaccineStack.VaccineTabs.Campaign}
         component={VaccineHistoryTab}
       />
-    </Tabs.Navigator>
-    </VaccineTableRefreshContext.Provider>
+    </TopTabNavigator>
   );
 };

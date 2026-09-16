@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceData } from '~/models/ReferenceData';
-import { MODELS_MAP } from '~/models/modelsMap';
+import type { ReferenceData } from '~/models/ReferenceData';
+import type { MODELS_MAP } from '~/models/modelsMap';
 import {
   bloodOptions,
   educationalAttainmentOptions,
@@ -11,13 +11,13 @@ import {
 } from '~/ui/helpers/additionalData';
 import { yupAttemptTransformToNumber } from '~/ui/helpers/numeralTranslation';
 
-import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
-import { PatientAdditionalData } from '~/models/PatientAdditionalData';
-import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import type { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { isObject } from 'es-toolkit/compat';
 
 // All PatientAdditionalData plain fields sorted alphabetically
-export const plainFields = [
+export const plainFields = new Set([
   'birthCertificate',
   'cityTown',
   'drivingLicense',
@@ -28,19 +28,19 @@ export const plainFields = [
   'streetVillage',
   'emergencyContactName',
   'emergencyContactNumber',
-];
+]);
 
 // All PatientAdditionalData select fields sorted alphabetically
-export const selectFields = [
+export const selectFields = new Set([
   'bloodType',
   'educationalLevel',
   'maritalStatus',
   'socialMedia',
   'title',
-];
+]);
 
 // All PatientAdditionalData relation ID fields sorted alphabetically
-export const relationIdFields = [
+export const relationIdFields = new Set([
   'countryId',
   'countryOfBirthId',
   'divisionId',
@@ -54,7 +54,7 @@ export const relationIdFields = [
   'settlementId',
   'subdivisionId',
   'villageId',
-];
+]);
 
 // Maps selectFields with the expected options needed for the field
 export const selectFieldsOptions = {
@@ -157,22 +157,16 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
   passport: Yup.string().nullable(),
   patientBillingTypeId: Yup.string().nullable(),
   placeOfBirth: Yup.string().nullable(),
-  primaryContactNumber: Yup.number()
-    .transform(yupAttemptTransformToNumber)
-    .nullable(),
+  primaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
   religionId: Yup.string().nullable(),
-  secondaryContactNumber: Yup.number()
-    .transform(yupAttemptTransformToNumber)
-    .nullable(),
+  secondaryContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
   settlementId: Yup.string().nullable(),
   socialMedia: Yup.string().nullable(),
   streetVillage: Yup.string().nullable(),
   subdivisionId: Yup.string().nullable(),
   title: Yup.string().nullable(),
   emergencyContactName: Yup.string().nullable(),
-  emergencyContactNumber: Yup.number()
-    .transform(yupAttemptTransformToNumber)
-    .nullable(),
+  emergencyContactNumber: Yup.number().transform(yupAttemptTransformToNumber).nullable(),
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones

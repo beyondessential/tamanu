@@ -7,7 +7,7 @@ import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { GreenTickIcon } from '~/ui/components/Icons';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Row } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/RecentPatientSurveyReportStyled';
-import { OptionType } from '~/ui/helpers/suggester';
+import type { OptionType } from '~/ui/helpers/suggester';
 
 interface ISelectModalScreen {
   navigation;
@@ -28,7 +28,7 @@ export const SelectModalScreen = (props: ISelectModalScreen) => {
     callback,
     options,
     modalTitle,
-    onClickBack = () => props.navigation.goBack(),
+    onClickBack = props.navigation.goBack,
   } = props.route.params;
 
   return (

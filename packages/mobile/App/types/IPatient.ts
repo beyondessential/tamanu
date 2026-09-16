@@ -1,6 +1,6 @@
-import { IPatientAdditionalData } from './IPatientAdditionalData';
-import { IPatientSecondaryId } from './IPatientSecondaryId';
-import { IReferenceData } from './IReferenceData';
+import type { IPatientAdditionalData } from './IPatientAdditionalData';
+import type { IPatientSecondaryId } from './IPatientSecondaryId';
+import type { IReferenceData } from './IReferenceData';
 
 export interface IPatient {
   id: string;
@@ -12,8 +12,8 @@ export interface IPatient {
   dateOfBirth?: string;
   email?: string;
   culturalName?: string;
-  village?: IReferenceData,
-  villageId?: string,
+  village?: IReferenceData;
+  villageId?: string;
   additionalData?: IPatientAdditionalData;
   secondaryIds?: IPatientSecondaryId[];
 }

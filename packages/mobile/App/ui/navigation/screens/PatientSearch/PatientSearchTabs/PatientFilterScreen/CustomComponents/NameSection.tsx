@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyledView } from '~/ui/styled/common';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { TextField } from '~/ui/components/TextField/TextField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 
-const fontSize = screenPercentageToDP(2, Orientation.Height)
+const fontSize = screenPercentageToDP(2, Orientation.Height);
 
 export const NameSection = (): ReactElement => (
   <StyledView marginTop={30}>

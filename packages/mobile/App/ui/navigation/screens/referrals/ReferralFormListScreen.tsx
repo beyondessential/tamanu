@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -7,7 +7,9 @@ import { MenuOptionButton } from '/components/MenuOptionButton';
 import { Separator } from '/components/Separator';
 import { Routes } from '/helpers/routes';
 import { SurveyTypes } from '~/types';
-import { useBackendEffect } from '~/ui/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Database } from '~/infra/db';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -16,17 +18,17 @@ export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
   const { ability } = useAuth();
 
-  const [surveys, error] = useBackendEffect(({ models }) =>
-    models.Survey.find({
-      where: {
-        surveyType: SurveyTypes.Referral,
-        visibilityStatus: VisibilityStatus.Current,
-      },
-      order: {
-        name: 'ASC',
-      },
-    }),
-  );
+  const { data: surveys, error } = useQuery({
+    queryKey: surveyKeys.list({ surveyType: SurveyTypes.Referral }),
+    queryFn: () =>
+      Database.models.Survey.find({
+        where: {
+          surveyType: SurveyTypes.Referral,
+          visibilityStatus: VisibilityStatus.Current,
+        },
+        order: { name: 'ASC' },
+      }),
+  });
 
   const filteredSurveys = surveys
     ?.filter(survey => survey.shouldShowInList(ability))

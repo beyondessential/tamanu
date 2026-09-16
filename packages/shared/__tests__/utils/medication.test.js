@@ -3,12 +3,14 @@ import { set } from 'date-fns';
 
 import {
   ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_FREQUENCY_DETAILS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   MEDICATION_DURATION_UNITS,
 } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getAutocalculatedDispensingQuantity,
+  getDefaultIdealTimes,
 } from '../../src/utils/medication';
 
 const breakfastSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(s => s.startTime === '06:00');
@@ -273,5 +275,62 @@ describe('getAutocalculatedDispensingQuantity', () => {
         frequency: ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY,
       }),
     ).toBe(6);
+  });
+});
+
+describe('getDefaultIdealTimes', () => {
+  it('uses the configured times for a frequency a deployment can customise', () => {
+    const configured = { [ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY]: ['07:00', '19:00'] };
+
+    expect(getDefaultIdealTimes(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY, configured)).toEqual([
+      '07:00',
+      '19:00',
+    ]);
+  });
+
+  it('falls back to the fixed times when a customisable frequency is unset', () => {
+    expect(getDefaultIdealTimes(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY, {})).toEqual(
+      ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY].startTimes,
+    );
+  });
+
+  it.each([
+    [ADMINISTRATION_FREQUENCIES.HOURLY, 24],
+    [ADMINISTRATION_FREQUENCIES.HALF_HOURLY, 48],
+  ])('resolves %s to its %i fixed administration times', (frequency, expectedCount) => {
+    const idealTimes = getDefaultIdealTimes(frequency, {});
+
+    expect(idealTimes).toEqual(ADMINISTRATION_FREQUENCY_DETAILS[frequency].startTimes);
+    expect(idealTimes).toHaveLength(expectedCount);
+  });
+
+  // These were removed from the settings schema, so a value stored against them before that is no
+  // longer editable in the admin panel and must not quietly drive administration times.
+  it.each([ADMINISTRATION_FREQUENCIES.HOURLY, ADMINISTRATION_FREQUENCIES.HALF_HOURLY])(
+    'ignores a stale configured value for %s',
+    frequency => {
+      const configured = { [frequency]: ['09:00'] };
+
+      expect(getDefaultIdealTimes(frequency, configured)).toEqual(
+        ADMINISTRATION_FREQUENCY_DETAILS[frequency].startTimes,
+      );
+    },
+  );
+
+  it.each([ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED])(
+    'returns no times for %s, which has no schedule',
+    frequency => {
+      expect(getDefaultIdealTimes(frequency, {})).toEqual([]);
+    },
+  );
+
+  it('returns no times when no frequency has been chosen yet', () => {
+    expect(getDefaultIdealTimes(undefined, {})).toEqual([]);
+  });
+
+  it('falls back to the fixed times when the setting has not loaded', () => {
+    expect(getDefaultIdealTimes(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY, undefined)).toEqual(
+      ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY].startTimes,
+    );
   });
 });

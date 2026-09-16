@@ -213,7 +213,7 @@ const fakeAllData = async (models, ctx) => {
       medicationId: medication5Id,
       discontinued: true,
       date: '2022-06-10T01:10:54.225+00:00',
-      discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+      discontinuedDate: '2022-06-10 01:19:54',
       discontinuingReason: 'It was not enough',
     }),
   );
@@ -663,7 +663,7 @@ describe('fijiAspenMediciReport', () => {
           {
             name: 'Glucose (hypertonic) 5%',
             discontinued: true,
-            discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+            discontinuedDate: '2022-06-10 01:19:54',
             discontinuingReason: 'It was not enough',
           },
         ],

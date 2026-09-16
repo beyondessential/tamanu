@@ -30,4 +30,4 @@ const prefixMap = new Map(
   ]),
 );
 
-export const getEnumPrefix = (enumValues) => prefixMap.get(enumValues);
+export const getEnumPrefix = enumValues => prefixMap.get(enumValues);

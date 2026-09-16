@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { StyledView } from '/styled/common';
-import { BaseInputProps } from '/interfaces/BaseInputProps';
+import type { BaseInputProps } from '/interfaces/BaseInputProps';
 import { OvalCheckbox } from '/components/Checkbox/OvalCheckbox';
 import { StyleSheet } from 'react-native';
 

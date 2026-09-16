@@ -1,22 +1,24 @@
-import React, { ReactElement, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { StyledText, StyledView } from '/styled/common';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { type ReactElement } from 'react';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import { BaseModelSubclass, Suggester } from '../../helpers/suggester';
+import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
-import { Routes } from '~/ui/helpers/routes';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
-import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
 import { SearchIcon } from '../Icons';
 import { ReadOnlyField } from '../ReadOnlyField/index';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { RequiredIndicator } from '../RequiredIndicator';
+import { type TranslatedTextElement, TranslatedText } from '../Translations/TranslatedText';
+import autocompleteQueryOptions from './currentOptionQuery';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { StyledText, StyledView } from '/styled/common';
 
 interface AutocompleteModalFieldProps {
   value?: string;
   placeholder?: TranslatedTextElement;
-  onChange: (newValue: string, selectedItem: any) => void;
+  onChange: (newValue: string, selectedItem: OptionType) => void;
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
   marginTop?: number;
@@ -49,31 +51,25 @@ export const AutocompleteModalField = ({
   fieldFontSize = screenPercentageToDP(2.1, Orientation.Height),
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
-  const [label, setLabel] = useState(null);
+  const queryClient = useQueryClient();
   const { language } = useTranslation();
-
-  const onPress = (selectedItem): void => {
-    onChange(selectedItem.value, selectedItem);
-    setLabel(selectedItem.label);
-  };
 
   const openModal = (): void =>
     navigation.navigate(modalRoute, {
-      callback: onPress,
+      callback: (selectedItem: OptionType): void => {
+        onChange(selectedItem.value, selectedItem);
+        // Optimistic update for immediate UI feedback
+        queryClient.setQueryData(
+          autocompleteQueryOptions(suggester, selectedItem.value, language).queryKey,
+          selectedItem,
+        );
+      },
       suggester,
     });
 
-  useEffect(() => {
-    if (!suggester) return;
-    (async (): Promise<void> => {
-      const data = await suggester.fetchCurrentOption(value, language);
-      if (data) {
-        setLabel(data.label);
-      } else {
-        setLabel(null);
-      }
-    })();
-  }, [value, suggester, language]);
+  const { data: currentOption } = useQuery(autocompleteQueryOptions(suggester, value, language));
+
+  const label = currentOption?.label ?? null;
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
