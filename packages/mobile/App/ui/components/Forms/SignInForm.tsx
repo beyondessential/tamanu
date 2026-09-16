@@ -82,9 +82,13 @@ const initialValues = {
   server: '',
 } as const;
 
-export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
+export const SignInForm: FunctionComponent<any> = ({
+  initialErrorMessage = '',
+  onOutdatedVersionError,
+  onSuccess,
+}) => {
   const [existingHost, setExistingHost] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
   const { getTranslation } = useTranslation();

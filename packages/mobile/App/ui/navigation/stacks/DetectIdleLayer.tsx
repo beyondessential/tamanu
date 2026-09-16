@@ -56,7 +56,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
         if (screenOffTimeRef.current) {
           screenOffTimeRef.current = null;
           if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
-            signOutClientRef.current();
+            signOutClientRef.current(true);
           }
         }
       }
@@ -71,7 +71,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
     const intervalId = setInterval(() => {
       if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
-        signOutClientRef.current();
+        signOutClientRef.current(true);
       }
     }, ONE_MINUTE);
 

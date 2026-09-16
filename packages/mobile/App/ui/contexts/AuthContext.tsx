@@ -34,7 +34,7 @@ interface AuthContextData {
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   reconnectWithPassword: (params: ReconnectWithPasswordParameters) => Promise<void>;
-  signOutClient: () => void;
+  signOutClient: (signedOutFromInactivity: boolean) => void;
   isUserAuthenticated: () => boolean;
   setUserFirstSignIn: () => void;
   checkFirstSession: () => boolean;
@@ -46,10 +46,7 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-const signUpRoutes = new Set([
-  Routes.SignUpStack.Index,
-  Routes.SignUpStack.SignIn,
-]);
+const signUpRoutes = new Set([Routes.SignUpStack.Index, Routes.SignUpStack.SignIn]);
 
 const Provider = ({
   setToken,
@@ -139,17 +136,22 @@ const Provider = ({
   const signOut = (): void => {
     backend.stopSyncService(); // we deliberately don't await this
     signOutUser();
-    signOutClient();
+    signOutClient(false);
   };
 
   // Sign out UI while preserving sync service
-  const signOutClient = (): void => {
+  const signOutClient = (signedOutFromInactivity: boolean): void => {
     setSignedInStatus(false);
     const currentRoute = navRef.current?.getCurrentRoute().name;
     if (!signUpRoutes.has(currentRoute)) {
       navRef.current?.reset({
         index: 0,
-        routes: [{ name: Routes.SignUpStack.Index }],
+        routes: [
+          {
+            name: Routes.SignUpStack.Index,
+            params: { signedOutFromInactivity },
+          },
+        ],
       });
     }
   };

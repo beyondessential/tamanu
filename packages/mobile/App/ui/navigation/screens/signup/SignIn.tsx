@@ -23,7 +23,7 @@ import {
 } from '/styled/common';
 import { theme } from '/styled/theme';
 
-export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
+export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProps) => {
   const authState = useSelector(authSelector);
   const { getTranslation } = useTranslation();
 
@@ -40,6 +40,11 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     },
     [getTranslation],
   );
+
+  const { signedOutFromInactivity } = route.params;
+  const inactivityMessage = signedOutFromInactivity
+    ? getTranslation('login.error.inactivityLogout', 'Logged out due to inactivity')
+    : '';
 
   const { facilityId } = useFacility();
   const { getLocalisation } = useLocalisation();
@@ -83,6 +88,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledView>
           <SignInForm
+            initialErrorMessage={inactivityMessage}
             onOutdatedVersionError={showOutdatedVersionAlert}
             onSuccess={(): void => {
               if (!facilityId) {

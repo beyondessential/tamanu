@@ -53,7 +53,11 @@ export const Core: FunctionComponent<any> = () => {
         component={FrequencySearchModalScreen}
         name={Routes.Forms.FrequencySearchModal}
       />
-      <Stack.Screen name={Routes.SignUpStack.Index} component={SignUpStack} />
+      <Stack.Screen
+        name={Routes.SignUpStack.Index}
+        component={SignUpStack}
+        initialParams={{ signedOutFromInactivity: false }}
+      />
       <Stack.Screen name={Routes.SignUpStack.SelectFacility} component={SelectFacilityScreen} />
       <Stack.Screen
         options={noSwipeGestureOnNavigator}

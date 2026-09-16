@@ -9,18 +9,25 @@ import { ResetPassword } from '../screens/signup/ResetPassword';
 import { ChangePassword } from '../screens/signup/ChangePassword';
 
 import { LanguageSelectScreen } from '../screens/signup/LanguageSelectScreen';
+import type { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
 
 const Stack = createStackNavigator();
 
 const TransitionStyle = TransitionPresets.SlideFromRightIOS;
 
-export const SignUpStack = (): ReactElement => {
+export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
+  const { signedOutFromInactivity } = route.params;
   return (
     <Stack.Navigator
       initialRouteName={Routes.SignUpStack.SignIn}
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen component={SignIn} name={Routes.SignUpStack.SignIn} options={TransitionStyle} />
+      <Stack.Screen
+        component={SignIn}
+        name={Routes.SignUpStack.SignIn}
+        initialParams={{ signedOutFromInactivity }}
+        options={TransitionStyle}
+      />
       <Stack.Screen
         name={Routes.SignUpStack.ResetPassword}
         component={ResetPassword}
