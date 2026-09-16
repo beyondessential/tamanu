@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useNavigate, useLocation } from 'react-router';
-import styled from 'styled-components';
 
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
 
@@ -20,12 +19,6 @@ import { useAuth } from '../contexts/Auth';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { getApprovalStatus } from '../utils/invoice';
 import { useSettings } from '../contexts/Settings';
-
-const StyledSearchTable = styled(SearchTableWithPermissionCheck)`
-  th {
-    white-space: nowrap;
-  }
-`;
 
 const StatusDisplay = React.memo(({ status }) => {
   const {
@@ -194,7 +187,7 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
   );
 
   return (
-    <StyledSearchTable
+    <SearchTableWithPermissionCheck
       verb="list"
       noun="ImagingRequest"
       autoRefresh={!encounterId}
