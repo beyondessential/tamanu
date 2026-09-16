@@ -347,6 +347,15 @@
     border-radius:999px; box-shadow:none; }
   header.nav .askai:hover { background:var(--bg); border-color:var(--bg); color:var(--brand-dark); }
   header.nav .askai svg { color:var(--brand-dark); }
+
+  /* ---- Browse: each item in its own bounding box — tinted panel above,
+         text on white beneath ---- */
+  .lcard { background:var(--bg); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    transition:border-color .12s ease, box-shadow .12s ease; }
+  .lcard:hover { border-color:color-mix(in srgb, var(--a) 45%, transparent);
+    box-shadow:0 4px 14px rgba(47,67,88,.07); }
+  .lcard .panel { border-radius:0; min-height:150px; }
+  .lcard .body { padding:16px 18px 20px; background:var(--bg); }
 </style>
 </head>
 <body>

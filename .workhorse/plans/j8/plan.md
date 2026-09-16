@@ -103,8 +103,9 @@ light display type, and a dark capsule around the search.
   underneath.
 - **The search sits in a navy capsule** holding a white pill input and a gold Ask AI pill. This is
   the hub's signature element, taken from the black capsule on the Figma help centre home.
-- **Cards have no border or divider** — a flat colour thumbnail with a large icon, then title and
-  description beneath.
+- **Browse items are boxed**: a bordered white card with the tinted colour panel filling its top and
+  the title and description on white beneath. Popular stays a compact outlined row, so the two
+  sections read as different kinds of thing.
 - **The page sits on a soft neutral canvas** (`#F3F5F7`, Tamanu's own `background` token) rather
   than white, with the sticky top bar, cards, inputs, the search palette and the Ask AI drawer kept
   white so they read as surfaces on it. The global search mockup keeps its dark stand-in backdrop.
