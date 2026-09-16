@@ -15,6 +15,7 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
+  DIAGNOSIS_CERTAINTY,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -139,7 +140,9 @@ encounter.post(
       // via its completing encounter.
       if (referralId) {
         const referral = await models.Referral.findByPk(referralId, {
-          include: [{ model: models.Encounter, as: 'initiatingEncounter', attributes: ['patientId'] }],
+          include: [
+            { model: models.Encounter, as: 'initiatingEncounter', attributes: ['patientId'] },
+          ],
         });
         if (!referral) {
           throw new NotFoundError(`Referral with id ${referralId} not found`);
@@ -451,17 +454,25 @@ encounterRelations.get(
 
     const associations = EncounterDiagnosis.getListReferenceAssociations() || [];
 
-    // Default sort: primary diagnoses first, then alphabetically by diagnosis name.
-    // That alphabetical tiebreaker stays in place under any requested sort, unless the
-    // requested sort is already the diagnosis name itself.
+    // Default sort: primary diagnoses first, disproven diagnoses last, then alphabetically by
+    // diagnosis name. The alphabetical tiebreaker stays in place under any requested sort, unless
+    // the requested sort is already the diagnosis name itself.
     const isSortingByDiagnosisName = orderBy === 'Diagnosis.name';
+    const disprovenLastOrder = literal(
+      `CASE WHEN "EncounterDiagnosis"."certainty" = '${DIAGNOSIS_CERTAINTY.DISPROVEN}' THEN 1 ELSE 0 END`,
+    );
     const sortOrder = [
-      ...(orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['isPrimary', 'DESC']]),
+      ...(orderBy
+        ? [[...orderBy.split('.'), order.toUpperCase()]]
+        : [disprovenLastOrder, ['isPrimary', 'DESC']]),
       ...(isSortingByDiagnosisName ? [] : [['Diagnosis', 'name', 'ASC']]),
     ];
 
     const baseQueryOptions = {
-      where: { encounterId },
+      where: {
+        encounterId,
+        certainty: { [Op.ne]: DIAGNOSIS_CERTAINTY.ERROR },
+      },
       include: associations,
     };
 
@@ -1027,9 +1038,7 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Tasking');
 
-    const upcomingTasksTimeFrame = await settings[facilityId].get(
-      'tasking.upcomingTasksTimeFrame',
-    );
+    const upcomingTasksTimeFrame = await settings[facilityId].get('tasking.upcomingTasksTimeFrame');
     const overdueTasksTimeFrame = await settings[facilityId].get(
       'tasking.encounterOverdueTasksTimeFrame',
     );
