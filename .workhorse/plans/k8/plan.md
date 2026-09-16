@@ -43,7 +43,7 @@ the code-derived approach earns its keep.
 
 **Corrected in the migrated guide** (facts the guide already documented, which the code contradicts):
 
-- **Units.** The published list holds about 31 units; the code has 57. Missing were `Ampule`,
+- **Units.** The published list holds about 31 units; the code has 56. Missing were `Ampule`,
   `Applicator`, `Bag`, `Blister Pack`, `Bottle`, `Box`, `Can`, `Canister`, `Carton`, `Cartridge`,
   `Each`, `Inhaler`, `Jar`, `Kit`, `Million units`, `Pack`, `Package`, `Pen`, `Roll`, `Sachet`,
   `Syringe`, `Tin`, `Tray`, `Tube`

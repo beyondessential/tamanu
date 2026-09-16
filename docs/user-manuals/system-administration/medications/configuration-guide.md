@@ -51,9 +51,9 @@ Where * is a required field.
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
 | route | The pathway through which the medication enters the body. Must be one of the routes listed under [Route of administration](#route-of-administration). If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
 | notes | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required. |
-| isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](#sensitive-medications). |
+| isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](#sensitive-medications-supported-from-v239-onwards). |
 | visibilityStatus | `current` for drugs available for prescription, or `historical` for drugs that should not be prescribed and should not appear in Tamanu. Defaults to `current` if blank. |
-| availableFacilities | Restricts the drug to specific facilities. Accepts a list of facility ids. Leave blank for all facilities. |
+| availableFacilities | Restricts the drug to specific facilities. Must be a JSON array of facility ids, for example `["facility-a", "facility-b"]`. Leave blank for all facilities. |
 | systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
 | facilityId | To record stock levels per facility, add the relevant facility id as a column header. See stock levels below. |
 
@@ -110,7 +110,7 @@ Where * is a required field.
 | dosingUnit * | The unit for the dose. Must be one of the units listed under [Units](#units). |
 | frequency * | Must be one of the frequencies listed under [Frequency](#frequency). |
 | route * | Must be one of the routes listed under [Route of administration](#route-of-administration). The display label is also accepted, so both `intravenous` and `IV` work. |
-| doseAmount * | The numerical dose amount. Input `variable` if the dose is variable. Required unless the dose is variable. |
+| doseAmount * | The numerical dose amount, or the word `variable` where the dose is variable. The cell cannot be left empty. |
 | ongoingMedication | Input `TRUE` if the medication should default to ongoing. Defaults to `FALSE`. |
 | prnMedication | Input `TRUE` if the medication should default to PRN. Defaults to `FALSE`. |
 | duration | The length of time and time unit, for example `7 days`. Supported units are hours, days, weeks and months. Both the length and the unit must be given together. Leave blank if no default duration is required. |
@@ -143,8 +143,12 @@ Where * is a required field.
 | visibilityStatus | `current` for sets available for ordering, or `historical` for sets that should not appear in Tamanu. Defaults to `current` if blank. |
 
 The `medicationTemplates` cell is the complete list for that set. Templates removed from the cell are
-removed from the set on the next import, and clearing the cell empties the set. Listing the same
-template twice, or naming a template that does not exist, reports an error.
+removed from the set on the next import. Listing the same template twice, or naming a template that
+does not exist, reports an error.
+
+> [!NOTE]
+> Clearing the cell entirely does not empty the set. To remove every medication from a set, set its
+> `visibilityStatus` to `historical` instead.
 
 ---
 
@@ -420,7 +424,7 @@ To configure a medication as sensitive:
 
 1. Set the medication as sensitive in the `Drug` reference data. See [Drug](#drug)
 2. Configure sensitive medication permissions for the required roles. See
-   [Sensitive medications permissions](#sensitive-medications-1)
+   [Sensitive medications permissions](#sensitive-medications)
 
 **Note:**
 
@@ -679,7 +683,7 @@ All reference data types require `ReferenceData` permissions for import and expo
 
 Required to manage medication related settings:
 
-- `read` for `Settings`
+- `read` for `Setting`
   - View settings
-- `write` for `Settings`
+- `write` for `Setting`
   - Modify settings

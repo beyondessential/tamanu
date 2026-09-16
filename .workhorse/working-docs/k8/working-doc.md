@@ -54,7 +54,7 @@ on the Slab text:
 
 - **Settings** — from `packages/settings/src/schema/` (`global.ts` / `central.ts` / `facility.ts`),
   reading scope, category/sub-category, default value, and flags.
-- **Permissions** — from `packages/shared/src/permissions/` and the permission subjects the module
+- **Permissions** — from `packages/constants/src/permissions.ts` and the permission subjects the module
   uses.
 - **Reference data** — the reference-data types the module consumes and their importer columns
   (required vs optional, default/empty behaviour, hard-coded enumerations).

@@ -206,7 +206,11 @@ Derive from the codebase rather than from prose:
 - **Settings** — the settings schemas (`packages/settings/src/schema/`) for scope, category, default
   value and description
 - **Permissions** — the permission definitions (`packages/constants/src/permissions.ts`) for subjects
-  and their verbs
+  and their verbs. **Copy each subject name verbatim** and confirm the verb is one the subject allows.
+  These are exact identifiers an administrator types into a role, and a near-miss fails silently: a role
+  configured against a subject that does not exist grants nothing, with no error. `Setting` is singular,
+  and a subject's allowed verbs vary, so neither can be inferred from the surrounding prose or carried
+  over from an existing document
 - **Reference data** — the importers and exporters
   (`packages/central-server/app/admin/referenceDataImporter/`, `.../exporter/modelExporters/`) for tab
   names and columns; `defaultProvisioningData/*.json5` for realistic example rows
@@ -293,6 +297,11 @@ captured, so a person can judge whether to recapture. Report them; do not silent
 Link to another guide with a **relative link** when it exists under `docs/user-manuals/`. Otherwise
 link to its current published location, so no reference dangles. As guides migrate, external links
 become relative ones.
+
+**Within a guide**, check that a heading anchor resolves to the section you mean. Heading text repeats
+across sections — a feature section and its matching permissions subsection often share a name — and the
+anchor for the second one is suffixed, so the bare slug silently lands on whichever comes first. Where a
+heading carries a version note, that note is part of its anchor.
 
 ## Drafting and updating
 

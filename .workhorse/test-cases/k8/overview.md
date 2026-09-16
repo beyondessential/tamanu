@@ -28,6 +28,13 @@ manual verification of a skill run rather than automated tests, since the output
 - [ ] A setting taking structured values shows its required format and the errors invalid input raises.
 - [ ] Permission verb and subject pairs match the permission definitions, and the capabilities listed
       under each verb are presented for confirmation before publishing.
+- [ ] Every `` `verb` for `Subject` `` pair in a published guide names a subject that exists in
+      `packages/constants/src/permissions.ts` with that verb allowed. Subject names are exact
+      identifiers, and a near-miss such as `Settings` for `Setting` grants nothing without erroring.
+- [ ] Reference data column descriptions state the required input format where the importer parses the
+      cell, such as `availableFacilities` needing a JSON array rather than a plain list.
+- [ ] Every in-guide heading anchor resolves to the intended section, including where two sections share
+      heading text or a heading carries a version note.
 - [ ] Hard-coded fields are listed with the note that changing them requires a code change.
 - [ ] A reference data type populated from elsewhere, such as the prescriber list, is described in
       prose rather than given a column table.
