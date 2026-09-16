@@ -89,7 +89,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               width="100%"
               justifyContent="space-between"
             >
-              <TamanuComboMark height={23} width={95} fill={theme.colors.WHITE} />
+              <TamanuComboMark height={23} width={95} />
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
                 displayName={user.displayName}

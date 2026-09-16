@@ -167,7 +167,7 @@ export const ReportScreen = (): ReactElement => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <TamanuComboMark height={23} width={95} fill={theme.colors.WHITE} />
+          <TamanuComboMark height={23} width={95} />
         </RowView>
         <StyledView flexDirection="row" justifyContent="flex-start" alignItems="center" flex={1}>
           <StyledText

@@ -63,8 +63,8 @@ export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProp
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
             <TamanuComboMark
+              width={screenPercentageToDP(75, Orientation.Width)}
               height={screenPercentageToDP(7.29, Orientation.Height)}
-              fill={theme.colors.WHITE}
             />
           </StyledView>
           <StyledView marginLeft={screenPercentageToDP(2.43, Orientation.Width)}>
