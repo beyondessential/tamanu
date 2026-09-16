@@ -21,7 +21,8 @@
  *     --out docs/user-manuals/desktop/patients/images/find-a-patient-list.png
  *
  * Options:
- *   --path <route>        route to capture, relative to the frontend (default /dashboard)
+ *   --path <route>        route to capture, appended to the frontend URL. Defaults to
+ *                         /dashboard, or / with --admin
  *   --out <file>          where to write the PNG (required)
  *   --base-url <url>      overrides FACILITY_FRONTEND_URL
  *   --admin               capture the admin frontend instead of the facility one
@@ -64,7 +65,7 @@ function loadE2eEnv() {
 }
 
 function parseArgs(argv) {
-  const options = { click: [], viewport: '1440x900', path: '/dashboard' };
+  const options = { click: [], viewport: '1440x900' };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     const next = () => {
@@ -118,6 +119,11 @@ if (!email || !password) {
 const [width, height] = options.viewport.split('x').map(Number);
 if (!width || !height) fail(`--viewport must look like 1440x900, got "${options.viewport}"`);
 
+// /dashboard is a facility route; the admin frontend has no such page, so its default
+// is its own root.
+const routePath = options.path ?? (options.admin ? '/' : '/dashboard');
+if (!routePath.startsWith('/')) fail(`--path must start with "/", got "${routePath}"`);
+
 // Imported only once the arguments are known good, so a typo reports itself plainly
 // instead of surfacing a module-resolution stack trace.
 let chromium;
@@ -144,12 +150,26 @@ try {
   await page.locator('input[name="email"]').fill(email);
   await page.locator('input[name="password"]').fill(password);
   await page.getByTestId('loginbutton-gx21').click();
-  await page.getByTestId('loginbutton-gx21').waitFor({ state: 'detached', timeout: 60_000 });
 
-  const target = new URL(options.path, baseUrl).toString();
-  if (!page.url().startsWith(target)) {
-    await page.goto(target, { waitUntil: 'domcontentloaded' });
+  // Wait for the authenticated shell, not merely for the login form to go away. The
+  // log-out button lives in the sidebar, which renders only past the facility check
+  // (packages/web/app/App.jsx returns the facility picker before it). Waiting for the
+  // login button to detach would also be satisfied by the facility-selection screen,
+  // and every shot after that would silently be of the wrong page.
+  try {
+    await page.getByTestId('logoutbutton-4zn4').waitFor({ state: 'visible', timeout: 60_000 });
+  } catch {
+    throw new Error(
+      'Signed in but never reached the app. Tamanu may be waiting on the facility-selection ' +
+        'screen, which happens when the account has more than one facility available.',
+    );
   }
+
+  // Concatenated rather than resolved through `new URL`, which would discard any path
+  // prefix on the base URL: new URL('/dashboard', 'https://host/tamanu') drops /tamanu.
+  // This matches constructFacilityUrl in the e2e suite.
+  const target = `${baseUrl.replace(/\/+$/, '')}${routePath}`;
+  await page.goto(target, { waitUntil: 'domcontentloaded' });
 
   for (const selector of options.click) {
     await page.locator(selector).click();

@@ -13,9 +13,14 @@
  * Conventions are specified in specs/documentation/user-manuals.md.
  */
 import { promises as fs } from 'fs';
-import { dirname, join } from 'path';
+import { dirname, join, relative, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
-const ROOT = join('docs', 'user-manuals');
+// Anchored to the script's own location so the result does not depend on the directory
+// it was invoked from.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = join(REPO_ROOT, 'docs', 'user-manuals');
+const display = path => relative(REPO_ROOT, path);
 const MANIFEST = join(ROOT, 'manifest.json');
 const NAV_MARKER = '<!-- nav -->';
 const checkOnly = process.argv.includes('--check');
@@ -45,7 +50,7 @@ async function writeFile(path, content) {
 function guideTitle(source, path) {
   const heading = source.match(/^# (.+)$/m);
   if (!heading) {
-    problems.push(`${path} has no H1 heading`);
+    problems.push(`${display(path)} has no H1 heading`);
     return null;
   }
   return heading[1].replace(/^\d+\.\d+ /, '');
@@ -57,7 +62,9 @@ function guideTitle(source, path) {
  */
 function renderGuide(source, { number, title, moduleTitle, previous, next }) {
   let body = source.slice(0, source.indexOf(NAV_MARKER) === -1 ? undefined : source.indexOf(NAV_MARKER));
-  body = body.replace(/^\[←[^\]]*\]\(index\.md\)\n\n/, '');
+  // Tolerant of leading whitespace, CRLF, and a single newline: a near-miss here would
+  // leave the old link in place while a fresh one is prepended below, giving two.
+  body = body.replace(/^\s*\[←[^\]]*\]\(index\.md\)[ \t]*(\r?\n)+/, '');
   body = body.replace(/^# .+$/m, `# ${number} ${title}`);
   body = `[← ${moduleTitle}](index.md)\n\n${body.trimEnd()}\n`;
 
@@ -86,7 +93,28 @@ await writeFile(
   ].join('\n'),
 );
 
+/**
+ * Reports directories that exist on disk but are absent from the manifest. A renamed or
+ * removed slug otherwise leaves its old folder behind, still holding guides, linked from
+ * nothing and reported by nobody.
+ */
+async function reportUnlistedDirectories(parent, listedSlugs, kind) {
+  const entries = await fs.readdir(parent, { withFileTypes: true }).catch(() => []);
+  for (const entry of entries) {
+    if (!entry.isDirectory() || listedSlugs.has(entry.name)) continue;
+    problems.push(`${display(join(parent, entry.name))} is a ${kind} directory the manifest does not list`);
+  }
+}
+
+await reportUnlistedDirectories(ROOT, new Set(manifest.platforms.map(p => p.slug)), 'platform');
+
 for (const platform of manifest.platforms) {
+  await reportUnlistedDirectories(
+    join(ROOT, platform.slug),
+    new Set(platform.modules.map(m => m.slug)),
+    'module',
+  );
+
   // Platform index: the numbered modules.
   await writeFile(
     join(ROOT, platform.slug, 'index.md'),
@@ -116,7 +144,7 @@ for (const platform of manifest.platforms) {
     for (const entry of onDisk) {
       if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
       if (entry.name !== 'index.md' && !guideFiles.includes(entry.name)) {
-        problems.push(`${join(moduleDir, entry.name)} is not listed in the manifest`);
+        problems.push(`${display(join(moduleDir, entry.name))} is not listed in the manifest`);
       }
     }
 
@@ -126,7 +154,7 @@ for (const platform of manifest.platforms) {
       const path = join(moduleDir, file);
       const source = await readIfExists(path);
       if (source === null) {
-        problems.push(`${path} is listed in the manifest but does not exist`);
+        problems.push(`${display(path)} is listed in the manifest but does not exist`);
         continue;
       }
       const title = guideTitle(source, path);
@@ -134,14 +162,17 @@ for (const platform of manifest.platforms) {
 
       // An image reference that points at nothing renders as a broken picture, which is
       // worse than the placeholder it replaced. Catch it here rather than in review.
-      for (const [, alt, target] of source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)) {
+      for (const [, alt, rawTarget] of source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)) {
+        // Markdown allows an optional title after the path — ![alt](x.png "Title") — and
+        // angle brackets around it. Neither is part of the filename.
+        const target = rawTarget.trim().replace(/^<(.*)>$/, '$1').split(/\s+/)[0];
         if (/^https?:/.test(target)) continue;
         try {
           await fs.access(join(moduleDir, target));
         } catch {
-          problems.push(`${path} refers to a missing image: ${target}`);
+          problems.push(`${display(path)} refers to a missing image: ${target}`);
         }
-        if (!alt.trim()) problems.push(`${path} has an image with no alt text: ${target}`);
+        if (!alt.trim()) problems.push(`${display(path)} has an image with no alt text: ${target}`);
       }
 
       guides.push({ file, path, source, title, number: `${moduleNumber}.${guideIndex + 1}` });
@@ -186,7 +217,7 @@ if (problems.length) {
 if (checkOnly) {
   if (drifted.length) {
     console.error(`${drifted.length} file(s) differ from the manifest:`);
-    for (const f of drifted) console.error(`  ${f}`);
+    for (const f of drifted) console.error(`  ${display(f)}`);
   } else {
     console.log('User manuals are up to date.');
   }
