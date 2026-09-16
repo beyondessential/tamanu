@@ -76,6 +76,12 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
+const initialValues = {
+  email: '',
+  password: '',
+  server: '',
+} as const;
+
 export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -114,11 +120,7 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
   }, []);
   return (
     <Form
-      initialValues={{
-        email: '',
-        password: '',
-        server: '',
-      }}
+      initialValues={initialValues}
       validateOnChange={false}
       validateOnBlur={false}
       validationSchema={Yup.object().shape({
