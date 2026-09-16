@@ -41,7 +41,10 @@ import {
 } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
-import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medication';
+import {
+  getDisplayedPharmacyRequest,
+  getLastOrderedAtForOngoingPrescriptions,
+} from '../../../utils/medication';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
@@ -676,10 +679,21 @@ patientRoute.get(
         ongoingPrescriptionIds,
       );
 
+      // Which single request to surface in a "last sent" column: the earliest one still awaiting
+      // dispense, else the most recent dispensed one. Distinct from lastOrderedAt above, which
+      // answers "when was this last sent" for recency checks — see getDisplayedPharmacyRequest.
+      const pharmacyRequests = await getDisplayedPharmacyRequest(
+        db,
+        'ongoing_prescription_id',
+        ongoingPrescriptionIds,
+      );
+
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
         isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
+        pharmacyRequestAt: pharmacyRequests[p.id]?.date ?? null,
+        isPharmacyRequestDispensed: pharmacyRequests[p.id]?.is_completed ?? null,
       }));
     }
 
