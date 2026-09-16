@@ -9,7 +9,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { SupportCentreButton } from './SupportCentreButton';
 import { SignInForm } from '/components/Forms/SignInForm';
-import { LogoV2Icon } from '/components/Icons';
+import { TamanuComboMark } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { authSelector } from '/helpers/selectors';
@@ -62,7 +62,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProp
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
             marginBottom={screenPercentageToDP(10.7, Orientation.Height)}
           >
-            <LogoV2Icon
+            <TamanuComboMark
               height={screenPercentageToDP(7.29, Orientation.Height)}
               fill={theme.colors.WHITE}
             />
