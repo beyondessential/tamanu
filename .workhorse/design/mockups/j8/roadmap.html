@@ -315,6 +315,36 @@
     border-radius:999px; box-shadow:none; }
   header.nav .askai:hover { background:var(--bg); border-color:var(--bg); color:var(--brand-dark); }
   header.nav .askai svg { color:var(--brand-dark); }
+
+  /* ---- type is black and greyscale only. Colour stays on icons, panel fills,
+         rules and borders, never on the words themselves. ---- */
+  .rn h2.sec-warn { color:var(--ink); }
+  .rn .rn-lead { color:var(--ink); }
+  .cat { color:var(--ink-3); }
+  .callout .h { color:var(--ink); }
+  .article a:not(.b), .rn a { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
+  .crumbs a:hover { color:var(--ink); }
+  .toc a:hover, .toc a.active { color:var(--ink); }
+  .side a.top:hover, .side a.item:hover, .side a.ver:hover, .side .children a:hover,
+  .side-m a.top:hover, .side-m .children a:hover, .side-foot a:hover,
+  .side-a a.item:hover, .side-v a.ver:hover,
+  .side a.top.open, .side a.item.active, .side a.ver.active,
+  .side-m a.top.open, .side-foot a.active,
+  .side-a a.item.active, .side-v a.ver.active { color:var(--ink); }
+  .pcard .kind { color:var(--ink-3); }
+  .tcard-all, .tcard-list a:hover { color:var(--ink); }
+  .prow .t mark, .row .t mark { color:var(--ink); }
+  .msg.user { color:var(--ink); }
+  .msg.ai .who { color:var(--ink-3); }
+  .cite { color:var(--ink-3); }
+  .rmx-period, .rmx-details, .rmx-nav button:hover { color:var(--ink); }
+  .dropzone .browse { color:var(--ink); }
+  .note { color:var(--ink-2); }
+  .feedback .b:hover, .ask-handoff:hover { color:var(--ink); }
+  .big-ai, header.nav .askai, header.nav .askai svg { color:var(--ink); }
+  /* on the navy bar and footer, greyscale reads as white */
+  header.nav .brand .sub, .foot-brand .fb .sub { color:rgba(255,255,255,.72); }
+  .foot-col a:hover, .foot-col a:hover .ext { color:#fff; }
 </style>
 </head>
 <body>

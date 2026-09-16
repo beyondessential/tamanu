@@ -96,6 +96,9 @@ light display type, and a dark capsule around the search.
   page they are **semantic and fixed**: user manuals purple `#4101C9`, release notes pink `#D10580`,
   roadmap green `#19934E`. The same three hold across both the Popular rows and the Browse tiles, so
   a kind keeps one colour wherever it appears.
+- **Type is black and greyscale only.** Colour never lands on the words: it carries on icons, panel
+  fills, section rules, borders and button backgrounds, and the text over them stays ink (or white on
+  the navy bar and footer). Body links are black and underlined rather than blue.
 - **Colour is load-bearing elsewhere too**: release-note section headings (blue major features,
   amber enhancements, green fixes, red critical upgrade notes, purple upgrade steps) and the roadmap
   timeline (blue delivered, gold planned). Emoji headings in the release notes were replaced by these
