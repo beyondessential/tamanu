@@ -9,14 +9,13 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { SupportCentreButton } from './SupportCentreButton';
 import { SignInForm } from '/components/Forms/SignInForm';
-import { CrossIcon, HomeBottomLogoIcon } from '/components/Icons';
+import { HomeBottomLogoIcon } from '/components/Icons';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { authSelector } from '/helpers/selectors';
 import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import {
   FullView,
-  RowView,
   StyledSafeAreaView,
   StyledText,
   StyledTouchableOpacity,
@@ -24,14 +23,9 @@ import {
 } from '/styled/common';
 import { theme } from '/styled/theme';
 
-export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
+export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProps) => {
   const authState = useSelector(authSelector);
   const { getTranslation } = useTranslation();
-
-  const onNavigateToForgotPassword = useCallback(() => {
-    console.log('onNavigateToForgotPassword...');
-    navigation.navigate(Routes.SignUpStack.ResetPassword);
-  }, []);
 
   const showOutdatedVersionAlert = useCallback(
     (error: OutdatedVersionError) => {
@@ -47,6 +41,11 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
     [getTranslation],
   );
 
+  const { signedOutFromInactivity } = route.params;
+  const inactivityMessage = signedOutFromInactivity
+    ? getTranslation('login.error.inactivityLogout', 'Logged out due to inactivity')
+    : '';
+
   const { facilityId } = useFacility();
   const { getLocalisation } = useLocalisation();
 
@@ -58,17 +57,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
       <StatusBar barStyle="light-content" />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
-          <RowView width="100%" justifyContent="flex-end" position="absolute" top={0}>
-            <StyledTouchableOpacity
-              onPress={(): void => navigation.navigate(Routes.SignUpStack.Intro)}
-              padding={screenPercentageToDP(2.43, Orientation.Height)}
-            >
-              <CrossIcon
-                height={screenPercentageToDP(2.43, Orientation.Height)}
-                width={screenPercentageToDP(2.43, Orientation.Height)}
-              />
-            </StyledTouchableOpacity>
-          </RowView>
           <StyledView
             style={{ flexDirection: 'row', justifyContent: 'center' }}
             marginTop={screenPercentageToDP(5.29, Orientation.Height)}
@@ -100,6 +88,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledView>
           <SignInForm
+            initialErrorMessage={inactivityMessage}
             onOutdatedVersionError={showOutdatedVersionAlert}
             onSuccess={(): void => {
               if (!facilityId) {
@@ -113,7 +102,9 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               }
             }}
           />
-          <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
+          <StyledTouchableOpacity
+            onPress={() => void navigation.navigate(Routes.SignUpStack.ResetPassword)}
+          >
             <StyledText
               width="100%"
               textAlign="center"

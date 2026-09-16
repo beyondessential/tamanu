@@ -15,6 +15,8 @@ import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal
 import { SecurityScreen } from '~/ui/navigation/screens/signup/SecurityScreen';
 import { useSecurityInfo } from '~/ui/hooks/useSecurityInfo';
 
+export type RootStackParamList = Record<string, { signedOutFromInactivity: boolean } | undefined>;
+
 const Stack = createStackNavigator();
 
 function getSignInFlowRoute(signedIn: boolean, facilityId?: string): string {

@@ -15,8 +15,8 @@ interface DetectIdleLayerProps {
   children: ReactNode;
 }
 
-const ONE_MINUTE = 1000 * 60;
-const UI_EXPIRY_TIME = ONE_MINUTE * 30;
+/** 30 minutes */
+const UI_EXPIRY_TIME = 1_800_000;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const lastActivityRef = useRef(Date.now());
@@ -73,7 +73,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
       if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
         signOutClientRef.current(true);
       }
-    }, ONE_MINUTE);
+    }, 60000);
 
     return () => {
       clearInterval(intervalId);
