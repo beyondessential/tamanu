@@ -24,7 +24,7 @@ import { resolveAuthErrorAction } from '~/ui/helpers/auth';
 import type { User } from '~/models/User';
 
 interface AuthProviderProps extends WithAuthStoreProps {
-  navRef: RefObject<NavigationContainerRef>;
+  navRef: RefObject<NavigationContainerRef<RootStackParamList>>;
 }
 
 interface AuthContextData {

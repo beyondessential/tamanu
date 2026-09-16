@@ -10,12 +10,12 @@ import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { TranslationProvider } from '../../contexts/TranslationContext';
-import { Core } from './Core';
+import { Core, type RootStackParamList } from './Core';
 import { DetectIdleLayer } from './DetectIdleLayer';
 import { SettingsProvider } from '~/ui/contexts/SettingsContext';
 
 export const RootStack = (): ReactElement => {
-  const navigationRef = React.useRef<NavigationContainerRef>(null);
+  const navigationRef = React.useRef<NavigationContainerRef<RootStackParamList>>(null);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
