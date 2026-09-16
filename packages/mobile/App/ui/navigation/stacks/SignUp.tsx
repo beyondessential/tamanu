@@ -9,13 +9,12 @@ import { Routes } from '/helpers/routes';
 
 const Stack = createStackNavigator();
 
+const screenOptions = { headerShown: false } as const;
+
 export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
   const { signedOutFromInactivity } = route.params;
   return (
-    <Stack.Navigator
-      initialRouteName={Routes.SignUpStack.SignIn}
-      screenOptions={{ headerShown: false }}
-    >
+    <Stack.Navigator initialRouteName={Routes.SignUpStack.SignIn} screenOptions={screenOptions}>
       <Stack.Screen
         component={SignIn}
         name={Routes.SignUpStack.SignIn}
