@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, RelationId } from 'typeorm';
 
-import { ILabTestPanelRequest } from '~/types';
+import type { ILabTestPanelRequest } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';

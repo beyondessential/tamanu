@@ -76,7 +76,7 @@ export function formatPlainTime<T extends `${number}:${number}:${number}`>(
   if (match) {
     const [, HH, mm] = match;
     const hour = Number.parseInt(HH, 10);
-    const hh = ((hour % 12) || 12).toString().padStart(2, '0');
+    const hh = (hour % 12 || 12).toString().padStart(2, '0');
     const a = hour < 12 ? 'am' : 'pm';
     return `${hh}:${mm}${a}`;
   }
@@ -218,7 +218,7 @@ export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
       const value = differenceFn(new Date(), birthDate);
 
       const unit = as.slice(0, -1); // slice off the s
-      return `${value} ${unit}${value === 1 ? '' : 's'}`;
+      return `${value}\u{00A0}${unit}${value === 1 ? '' : 's'}`;
     }
   }
 

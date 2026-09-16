@@ -1,5 +1,5 @@
-import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import React, { type FunctionComponent, type ReactElement, useCallback, useState } from 'react';
+import { Alert, KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   ColumnView,
   FullView,
@@ -11,20 +11,18 @@ import {
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { ResetPasswordForm } from '/components/Forms/ResetPasswordForm/ResetPasswordForm';
-import { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProps';
+import type { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProps';
 import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
-import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
+import type { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getResetPasswordErrorMessage } from '@tamanu/errors';
 
 export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPasswordProps) => {
   const authCtx = useAuth();
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const { getTranslation } = useTranslation();
 
   const [success, setSuccess] = useState(false);
   const [resetPasswordEmail, setResetPasswordEmail] = useState('');
@@ -38,35 +36,38 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
   }, []);
 
   const onRestartFlow = useCallback(() => {
-    setModalVisible(false);
-    setErrorMessage('');
     setSuccess(false);
     setResetPasswordEmail('');
   }, []);
 
-  const onChangeModalVisibility = useCallback((isVisible: boolean) => {
-    setModalVisible(isVisible);
-  }, []);
+  const showErrorAlert = useCallback(
+    (message: string) => {
+      Alert.alert(
+        getTranslation('resetPassword.error.title', 'Unable to reset password'),
+        message,
+        [{ text: getTranslation('general.action.ok', 'OK') }],
+      );
+    },
+    [getTranslation],
+  );
 
-  const setModalError = useCallback((message: string) => {
-    setErrorMessage(message);
-    onChangeModalVisibility(true);
-  }, []);
+  const onSubmitForm = useCallback(
+    async (values: ResetPasswordFormModel) => {
+      try {
+        if (!values.server) {
+          throw new Error('Please select a server to connect to');
+        }
+        await authCtx.requestResetPassword(values);
 
-  const onSubmitForm = useCallback(async (values: ResetPasswordFormModel) => {
-    try {
-      if (!values.server) {
-        throw new Error('Please select a server to connect to');
+        setSuccess(true);
+        setResetPasswordEmail(values.email);
+      } catch (error) {
+        const message = getResetPasswordErrorMessage(error);
+        showErrorAlert(message);
       }
-      await authCtx.requestResetPassword(values);
-
-      setSuccess(true);
-      setResetPasswordEmail(values.email);
-    } catch (error) {
-      const message = getResetPasswordErrorMessage(error);
-      setModalError(message);
-    }
-  }, []);
+    },
+    [authCtx, showErrorAlert],
+  );
 
   const renderForm = (): ReactElement => (
     <>
@@ -151,11 +152,6 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
-      <ModalInfo
-        onVisibilityChange={onChangeModalVisibility}
-        isVisible={modalVisible}
-        message={errorMessage}
-      />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
           <StyledView

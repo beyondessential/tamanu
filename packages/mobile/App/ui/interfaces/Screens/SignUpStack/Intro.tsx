@@ -1,4 +1,4 @@
-import { NavigationProp, RouteProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 
 export interface IntroScreenProps {
   navigation: NavigationProp<any>;

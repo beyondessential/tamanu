@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 // Components
 import { RadioButtonGroup } from '/components/RadioButtonGroup';
 // Helpers

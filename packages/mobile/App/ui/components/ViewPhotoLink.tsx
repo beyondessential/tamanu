@@ -1,15 +1,14 @@
-import React, { useCallback, useState } from 'react';
-import { Alert, Dimensions, TouchableOpacity, View } from 'react-native';
-import { useNetInfo } from '@react-native-community/netinfo';
 import CameraRoll from '@react-native-camera-roll/camera-roll';
+import { useNetInfo } from '@react-native-community/netinfo';
+import React, { useCallback, useState } from 'react';
+import { Alert, Dimensions, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
 import { useBackend } from '~/ui/hooks';
-import { theme } from '/styled/theme';
-import { StyledImage, StyledText, StyledView } from '/styled/common';
-import { imageToBase64URI } from '/helpers/image';
+import type { BaseInputProps } from '../interfaces/BaseInputProps';
 import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
-import { BaseInputProps } from '../interfaces/BaseInputProps';
+import { imageToBase64URI } from '/helpers/image';
+import { StyledImage, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export interface ViewPhotoLinkProps extends BaseInputProps {
   imageId: string;
@@ -89,30 +88,18 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         {
           text: 'Save',
           onPress: async (): Promise<void> => {
-            const time = new Date().getTime();
-            const fileName = `${time}-image.jpg`;
+            const fileName = `${Date.now()}-image.jpg`;
             const filePath = await saveFileInDocuments(imageData, fileName);
-            await CameraRoll.save(`file://${filePath}`, {
-              type: 'photo',
-            });
+            await CameraRoll.save(`file://${filePath}`, { type: 'photo' });
             await deleteFileInDocuments(fileName);
 
-            showMessage({
-              message: 'Image saved',
-              type: 'default',
-              backgroundColor: theme.colors.BRIGHT_BLUE,
-            });
+            ToastAndroid.show('Image saved', ToastAndroid.SHORT);
           },
           style: 'default',
         },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
       ],
-      {
-        cancelable: true,
-      },
+      { cancelable: true },
     );
   }, [imageData]);
   return (
@@ -135,7 +122,6 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         )}
         {errorMessage && <Message color={theme.colors.ALERT} message={errorMessage} />}
         {loading && <Message color={theme.colors.BRIGHT_BLUE} message="Loading image..." />}
-        <FlashMessage position="top" />
       </Modal>
     </View>
   );

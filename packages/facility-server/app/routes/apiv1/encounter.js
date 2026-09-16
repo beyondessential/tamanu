@@ -24,7 +24,7 @@ import {
   paginatedGetList,
   softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
-import { add } from 'date-fns';
+import { add, sub } from 'date-fns';
 import { z } from 'zod';
 import {
   deleteChartInstance,
@@ -967,12 +967,18 @@ encounterRelations.get(
     const upcomingTasksTimeFrame = await settings[facilityId].get(
       'tasking.upcomingTasksTimeFrame',
     );
+    const overdueTasksTimeFrame = await settings[facilityId].get(
+      'tasking.encounterOverdueTasksTimeFrame',
+    );
     const baseQueryOptions = {
       where: {
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
           [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          ...(overdueTasksTimeFrame != null && {
+            [Op.gte]: toPrimaryDateTimeString(sub(new Date(), { hours: overdueTasksTimeFrame })),
+          }),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,

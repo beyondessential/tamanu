@@ -3,10 +3,10 @@ import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
 import { Routes } from '~/ui/helpers/routes';
 import { SelectProgramRegistryForm } from '../screens/patientProgramRegistration/form/SelectProgramRegistryForm';
 import { PatientProgramRegistrationDetailsForm } from '../screens/patientProgramRegistration/form/PatientProgramRegistrationDetailsForm';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { compose } from 'redux';
 import { withPatient } from '~/ui/containers/Patient';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { createStackNavigator } from '@react-navigation/stack';
 
 export const Stack = createStackNavigator();

@@ -1,7 +1,7 @@
 import {
-  MigrationInterface,
+  type MigrationInterface,
   TableIndex,
-  QueryRunner,
+  type QueryRunner,
   Table,
   TableColumn,
   TableForeignKey,

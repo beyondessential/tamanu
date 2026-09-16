@@ -5,6 +5,7 @@ import { FormModal } from './FormModal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { invalidatePatientDataQueries } from '../utils';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const DeathModal = React.memo(({ open, onClose, deathData }) => {
@@ -19,10 +20,12 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const recordPatientDeath = async (data) => {
     const patientId = patient.id;
     await api.post(`patient/${patientId}/death`, data);
-    queryClient.invalidateQueries(['patientDeathSummary', patient.id]);
+    // Recording death auto-discharges the active encounter, so refresh the current-encounter query
+    // (and the rest of the patient data) alongside the death summary, not just patientDetails.
+    await invalidatePatientDataQueries(queryClient, patientId);
+    queryClient.invalidateQueries(['patientDeathSummary', patientId]);
 
     onClose();
-    queryClient.invalidateQueries(['patientDetails', patientId]);
     navigateToPatient(patientId);
   };
 

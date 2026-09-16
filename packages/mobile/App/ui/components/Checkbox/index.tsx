@@ -3,11 +3,11 @@ import { TouchableHighlight } from 'react-native';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { BaseInputProps } from '/interfaces/BaseInputProps';
+import type { BaseInputProps } from '/interfaces/BaseInputProps';
 import { CheckboxMarkIcon } from '../Icons';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
+import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;

@@ -1,9 +1,9 @@
 import { MoreThan } from 'typeorm';
 import { pick } from 'es-toolkit/compat';
 
-import { BaseModel } from '../../../models/BaseModel';
-import { SyncRecord, SyncRecordData } from '../types';
-import { MODELS_MAP } from '../../../models/modelsMap';
+import type { BaseModel } from '../../../models/BaseModel';
+import type { SyncRecord, SyncRecordData } from '../types';
+import type { MODELS_MAP } from '../../../models/modelsMap';
 import { extractIncludedColumns } from './extractIncludedColumns';
 import { Database } from '~/infra/db';
 

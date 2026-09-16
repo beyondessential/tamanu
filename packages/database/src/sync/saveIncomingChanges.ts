@@ -23,8 +23,11 @@ export const saveChangesForModel = async (
   isCentralServer: boolean,
   log: Logger,
 ) => {
+  const sanitizeContext = await model.prepareSanitizeContext(changes);
   const sanitizeData = (d: ModelSanitizeArgs) =>
-    isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
+    isCentralServer
+      ? model.sanitizeForCentralServer(d, sanitizeContext)
+      : model.sanitizeForFacilityServer(d, sanitizeContext);
 
   // split changes into create, update, delete
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);

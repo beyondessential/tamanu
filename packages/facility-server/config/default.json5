@@ -68,7 +68,8 @@
       },
     },
     "mSupplyMed": {
-      "enabled": false,
+      "medDispenseEnabled": false,
+      "stockOnHandEnabled": false,
       "username": "",
       "password": ""
     },

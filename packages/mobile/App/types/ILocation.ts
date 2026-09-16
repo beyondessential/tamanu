@@ -1,6 +1,6 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
-import { IFacility } from './IFacility';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
+import type { IFacility } from './IFacility';
 
 export interface ILocation {
   id: ID;

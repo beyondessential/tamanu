@@ -1,0 +1,328 @@
+name: Migration Test
+
+# Migrate the previous minor's seed snapshot forward to this version, on a database with
+# realistic volume, and report what each migration cost. The seed image already carries
+# the central server, so this needs no image of its own.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semver version under test (e.g. 2.65.0)'
+        type: string
+        required: true
+      image:
+        description: 'Seed image ref (e.g. ghcr.io/beyondessential/tamanu-seed:2.65.0)'
+        type: string
+        required: true
+      git_sha:
+        description: 'Git SHA to tag the run with (defaults to HEAD)'
+        type: string
+        required: false
+        default: ''
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      image:
+        type: string
+        required: true
+      git_sha:
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  SEED_NAMESPACE: tamanu-seed
+
+jobs:
+  migration-test:
+    runs-on: ubuntu-latest
+    name: Migrate to ${{ inputs.version }}
+    timeout-minutes: 90
+    steps:
+      - name: Validate version format
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format '$INPUT_VERSION' — expected X.Y.Z"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-cd
+        with:
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+
+      - name: Derive job name
+        id: names
+        run: |
+          SAFE_VERSION="${{ inputs.version }}"
+          SAFE_VERSION="${SAFE_VERSION//./-}"
+          JOB_NAME="migration-test-${SAFE_VERSION}-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "job_name=${JOB_NAME}" >> "$GITHUB_OUTPUT"
+
+      # from-snapshot: previous restores the newest snapshot below this version's minor, so
+      # the migrations meet data they have not been applied to. snapshot: "false" leaves no
+      # artefact behind: this run tests, it does not produce a fixture.
+      #
+      # The size must be at least the source snapshot's volume, or CNPG refuses the restore.
+      - name: Create migration test Job
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ inputs.version }}
+          GIT_SHA: ${{ inputs.git_sha || github.sha }}
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: ${JOB_NAME}
+            namespace: ${SEED_NAMESPACE}
+            labels:
+              pgsnap.bes.au/create: "true"
+            annotations:
+              pgsnap.bes.au/size: "5Gi"
+              pgsnap.bes.au/cpu: "2"
+              pgsnap.bes.au/memory: "4Gi"
+              pgsnap.bes.au/for-version: "${VERSION}"
+              pgsnap.bes.au/from-snapshot: "previous"
+              pgsnap.bes.au/snapshot: "false"
+              pgsnap.bes.au/git-sha: "${GIT_SHA}"
+          spec:
+            suspend: true
+            backoffLimit: 0
+            activeDeadlineSeconds: 3600
+            ttlSecondsAfterFinished: 3600
+            template:
+              spec:
+                restartPolicy: Never
+                tolerations:
+                  - key: bes.node.purpose
+                    operator: Equal
+                    value: spot-workload
+                    effect: NoSchedule
+                affinity:
+                  nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      nodeSelectorTerms:
+                        - matchExpressions:
+                            - key: bes.node.purpose
+                              operator: In
+                              values: [workload]
+                containers:
+                  - name: migrate
+                    image: ${IMAGE}
+                    # The version tag is mutable, so a node that already pulled it once would
+                    # otherwise run whatever it cached rather than the image just built.
+                    imagePullPolicy: Always
+                    env:
+                      # The console logger colourises the level, so "error" and its colon are
+                      # not adjacent bytes and the report step's scan for them finds nothing.
+                      - name: NO_COLOR
+                        value: "1"
+                    envFrom:
+                      - secretRef:
+                          name: pgsnap-${JOB_NAME}
+                    args:
+                      - |
+                        export CONFIG_SYNC_DB_HOST="\$DB_HOST"
+                        export CONFIG_SYNC_DB_PORT="\$DB_PORT"
+                        export CONFIG_SYNC_DB_NAME="\$DB_NAME"
+                        export CONFIG_SYNC_DB_USERNAME="\$DB_USERNAME"
+                        export CONFIG_SYNC_DB_PASSWORD="\$DB_PASSWORD"
+                        node --import tsx app migrate
+                        # The operator only honours `snapshot: "false"` once ops#299 is
+                        # deployed, so until then this run leaves a snapshot behind carrying
+                        # secrets only the seed image's key reads. Scrub as the seed build
+                        # does, so anything restoring it can still be migrated.
+                        node --import tsx ../scripts/src/scrubSeedSecrets.mts
+                    resources:
+                      requests:
+                        cpu: 250m
+                        memory: 1Gi
+                        ephemeral-storage: 512Mi
+                      limits:
+                        cpu: "2"
+                        memory: 4Gi
+                        ephemeral-storage: 2Gi
+          EOF
+
+      # The Job stays suspended until the operator has restored the snapshot into a CNPG
+      # cluster that accepts connections, which took ~10 minutes for a fresh one.
+      - name: Wait for the migration to finish
+        id: wait
+        # Not the default `bash -e`: this polls for a pod that does not exist yet, so a
+        # non-zero kubectl is expected and errexit would abort the watch before it starts.
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          TIMEOUT_SECONDS: '4800'
+        run: |
+          deadline=$((SECONDS + TIMEOUT_SECONDS))
+          misses=0
+          while (( SECONDS < deadline )); do
+            conditions=$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json 2>/dev/null | jq -r '
+              [(.status.succeeded // 0), (.status.failed // 0),
+               (.metadata.annotations["pgsnap.bes.au/phase"] // "")] | @tsv')
+
+            if [[ -n "$conditions" ]]; then
+              misses=0
+              read -r succeeded failed phase <<<"$conditions"
+              [[ "$succeeded" -gt 0 ]] && echo "outcome=succeeded" >> "$GITHUB_OUTPUT" && exit 0
+              [[ "$failed" -gt 0 ]] && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
+              # The operator gives up before ever unsuspending the Job when it cannot
+              # resolve the snapshot to restore, so the Job's own status stays empty.
+              [[ "$phase" == failed ]] && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
+            else
+              # The Job was applied before this step, so it going missing means the operator
+              # deleted it. Two misses, to ride out a transient API error.
+              (( ++misses >= 2 )) && echo "outcome=failed" >> "$GITHUB_OUTPUT" && exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "outcome=timeout" >> "$GITHUB_OUTPUT"
+
+      - name: Report
+        if: always()
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+          OUTCOME: ${{ steps.wait.outputs.outcome }}
+          VERSION: ${{ inputs.version }}
+          GIT_SHA: ${{ inputs.git_sha || github.sha }}
+          # Above this, the upgrade is a maintenance window every deployment has to plan for.
+          SLOW_BATCH_MS: '1200000'
+        run: |
+          logs=$(kubectl logs -n "$SEED_NAMESPACE" "job/$JOB_NAME" --tail=-1 2>/dev/null)
+
+          # An upgrade migrates in several batches, each of which reports its own summary, and the
+          # log line carries the logger's own prefix and suffix around the JSON.
+          summaries=$(grep -o 'TAMANU_MIGRATION_SUMMARY {[^}]*}' <<<"$logs" | sed 's/^TAMANU_MIGRATION_SUMMARY //')
+          read -r applied duration_ms baselined db_bytes db_rows <<<"$(jq -s -r '
+            [([.[].applied] | add // 0),
+             ([.[].batchDurationMs] | add // 0),
+             (any(.[]; .baselineApplied == true)),
+             ([.[].databaseSizeBytes | numbers] | max // -1),
+             ([.[].estimatedRowsTotal | numbers] | max // -1)] | @tsv' <<<"$summaries")"
+
+          # Every migration's own cost, so a reader can see which one blocks writes rather than
+          # only the batch total.
+          timings=$(grep -o 'TAMANU_MIGRATION_TIMINGS \[[^]]*\]' <<<"$logs" | sed 's/^TAMANU_MIGRATION_TIMINGS //')
+
+          # A migration that carried on after failing part of its work reports it against its own
+          # step, and the run still passes, so it has to be surfaced here or it reaches nobody.
+          degraded=$(grep -oE 'step=(upgrade|migration)/[^ ]+' <<<"$(grep -F 'error:' <<<"$logs")" | sort -u)
+
+          # The operator tears the cluster down as soon as the Job finishes, so these are the
+          # only record of what the run cost.
+          mkdir -p "$RUNNER_TEMP/migration-test"
+          printf '%s\n' "$logs" > "$RUNNER_TEMP/migration-test/migrate.log"
+          printf '%s\n' "$summaries" | jq -s '.' > "$RUNNER_TEMP/migration-test/batches.json"
+          printf '%s\n' "$timings" | jq -s 'add // [] | map(split(" ") | {migration: .[0], durationMs: (.[1] | tonumber)})' \
+            > "$RUNNER_TEMP/migration-test/migrations.json"
+          jq -n --arg version "$VERSION" --arg gitSha "$GIT_SHA" --arg outcome "$OUTCOME" \
+            --argjson applied "$applied" --argjson durationMs "$duration_ms" \
+            --argjson baselineApplied "$baselined" --argjson databaseSizeBytes "$db_bytes" \
+            --argjson estimatedRowsTotal "$db_rows" \
+            --arg degraded "$degraded" \
+            '{version: $version, gitSha: $gitSha, outcome: $outcome, applied: $applied,
+              durationMs: $durationMs, baselineApplied: $baselineApplied,
+              databaseSizeBytes: (if $databaseSizeBytes < 0 then null else $databaseSizeBytes end),
+              estimatedRowsTotal: (if $estimatedRowsTotal < 0 then null else $estimatedRowsTotal end),
+              degradedMigrations: ($degraded | split("\n") | map(select(length > 0)))}' \
+            > "$RUNNER_TEMP/migration-test/run.json"
+          kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json \
+            > "$RUNNER_TEMP/migration-test/job.json" 2>/dev/null || true
+
+          {
+            echo "## Migration test: $VERSION"
+            echo
+            if [[ -n "$summaries" ]]; then
+              echo "Applied $applied migrations in ${duration_ms}ms."
+              if (( db_rows >= 0 )); then
+                echo "Against $db_rows estimated rows, $db_bytes bytes."
+              fi
+              if [[ -n "$degraded" ]]; then
+                echo
+                echo "Migrations that reported a failure and carried on:"
+                printf '%s\n' "$degraded" | sed 's/^/- /'
+              fi
+            else
+              echo "No migration summary in the log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ -n "$degraded" ]]; then
+            echo "::warning::Some migrations reported a failure and carried on: $(tr '\n' ' ' <<<"$degraded")"
+          fi
+
+          if [[ -n "$summaries" ]] && (( duration_ms > SLOW_BATCH_MS )); then
+            echo "::warning::Migrating to $VERSION took ${duration_ms}ms, over the ${SLOW_BATCH_MS}ms mark."
+          fi
+
+          if [[ "$OUTCOME" != succeeded ]]; then
+            echo "$logs" | tail -100
+            kubectl describe job "$JOB_NAME" -n "$SEED_NAMESPACE"
+            echo "::error::Migrating the previous minor's data to $VERSION $OUTCOME."
+            exit 1
+          fi
+
+          if [[ -z "$summaries" ]]; then
+            echo "$logs" | tail -100
+            echo "::error::No migration summary in the log, so the image predates the structured output or the migration never ran."
+            exit 1
+          fi
+
+          # A fixture of the same version has already had these migrations applied, so a run
+          # with nothing pending proves nothing and must not read as a pass.
+          if (( applied == 0 )); then
+            echo "::error::No migrations were pending, so this run tested nothing. Check which snapshot was restored."
+            exit 1
+          fi
+
+          # The baseline only runs where there is no schema at all, so it means no snapshot was
+          # restored and the timings above are DDL against empty tables.
+          if [[ "$baselined" == true ]]; then
+            echo "::error::The baseline ran, so this migrated an empty database rather than the previous minor's data."
+            exit 1
+          fi
+
+      - name: Keep the run's timings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-test-${{ inputs.version }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/migration-test
+          retention-days: 30
+          if-no-files-found: warn
+
+      # Neither safety net covers a Job the operator never unsuspends: activeDeadlineSeconds does
+      # not accrue while suspended, and ttlSecondsAfterFinished only starts once a Job has finished.
+      - name: Release a job that never ran
+        if: always()
+        shell: bash --noprofile --norc -uo pipefail {0}
+        env:
+          JOB_NAME: ${{ steps.names.outputs.job_name }}
+        run: |
+          job=$(kubectl get job "$JOB_NAME" -n "$SEED_NAMESPACE" -o json 2>/dev/null) || exit 0
+          [[ -n "$job" ]] || exit 0
+
+          # Anything carrying Complete or Failed is left alone, so a finished Job keeps the hour
+          # of inspection its TTL grants even if the operator suspended it again afterwards.
+          if jq -e '.spec.suspend == true and ([.status.conditions[]? | select((.type == "Complete" or .type == "Failed") and .status == "True")] | length) == 0' <<<"$job" >/dev/null; then
+            echo "Job $JOB_NAME never left suspend, releasing it and its restored cluster."
+            kubectl delete job "$JOB_NAME" -n "$SEED_NAMESPACE" --ignore-not-found
+          fi

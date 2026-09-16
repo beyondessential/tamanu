@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 
 import { DateField } from '../../DateField/DateField';
 import { TextField } from '../../TextField/TextField';
@@ -13,7 +13,7 @@ import { Dropdown, SuggesterDropdown } from '../../Dropdown';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
-import { TranslatedText, TranslatedTextElement } from '../../Translations/TranslatedText';
+import { TranslatedText, type TranslatedTextElement } from '../../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (

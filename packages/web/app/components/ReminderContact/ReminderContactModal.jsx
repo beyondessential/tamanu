@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 
-import { BaseModal } from '@tamanu/ui-components';
 import { WS_EVENTS } from '@tamanu/constants';
-
+import { BaseModal, useTranslation } from '@tamanu/ui-components';
+import { useSocket } from '../../utils/useSocket';
 import { AddReminderContact } from './AddReminderContact';
 import { ReminderContactList } from './ReminderContactList';
 import { ReminderContactQR } from './ReminderContactQR';
 import { RemoveReminderContact } from './RemoveReminderContact';
-import { useTranslation } from '../../contexts/Translation';
-import { useSocket } from '../../utils/useSocket';
 
-
-const ReminderModalContainer = styled(Box)`
+const ReminderModalContainer = styled.div`
   padding: 0px 8px;
 `;
 
@@ -46,12 +42,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [selectedContact, setSelectedContact] = useState();
   const { socket } = useSocket();
 
-  const subscribersListener = useCallback((data) => {
-    setSuccessContactIds((prev) => [...prev, data?.contactId]);
+  const subscribersListener = useCallback(data => {
+    setSuccessContactIds(prev => [...prev, data?.contactId]);
   }, []);
 
   const handleUpdatePendingContacts = (newContactId, isTimerStarted) => {
-    setPendingContacts((previousPendingContacts) => ({
+    setPendingContacts(previousPendingContacts => ({
       ...previousPendingContacts,
       [newContactId]: {
         ...previousPendingContacts[newContactId],
@@ -69,7 +65,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
     setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   }, [open]);
 
-  const handleActiveView = (value) => {
+  const handleActiveView = value => {
     setActiveView(value);
   };
 
@@ -84,12 +80,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
       case REMINDER_CONTACT_VIEWS.REMOVE_REMINDER:
         return getTranslation(
           'patient.details.removeReminderContact.title',
-          'Remove reminder contact',
+          'Remove reminder contact?',
         );
     }
   };
 
-  const onContinue = (newContact) => {
+  const onContinue = newContact => {
     setNewContact(newContact);
     handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
     setTimeout(() => {
@@ -102,7 +98,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   };
 
-  const handleRemoveContact = (contact) => {
+  const handleRemoveContact = contact => {
     setSelectedContact(contact);
     handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
   };

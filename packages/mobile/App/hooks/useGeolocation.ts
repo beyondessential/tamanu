@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Geolocation, {
-  GeolocationError,
-  GeolocationResponse,
+  type GeolocationError,
+  type GeolocationResponse,
 } from '@react-native-community/geolocation';
 import { GEOLOCATION_OPTIONS } from '~/constants/comms';
 

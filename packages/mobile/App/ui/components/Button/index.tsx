@@ -1,11 +1,15 @@
-import React, { FunctionComponentElement, ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import * as styledSystem from 'styled-system';
 import { theme } from '/styled/theme';
-import { RowView, StyledTouchableOpacity, StyledViewProps } from '/styled/common';
+import { RowView, StyledTouchableOpacity, type StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TranslatedTextElement, getTranslatedTextFallback, getTranslatedTextStringId } from '/components/Translations/TranslatedText';
+import {
+  type TranslatedTextElement,
+  getTranslatedTextFallback,
+  getTranslatedTextStringId,
+} from '/components/Translations/TranslatedText';
 
 type StrNumType = number | string;
 
@@ -109,10 +113,12 @@ export const Button = ({
   padding,
   disabled,
   ...rest
-}: StyledButtonProps): FunctionComponentElement<{}> => (
+}: StyledButtonProps) => (
   <StyledTouchableOpacity
     testID={id || getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
-    accessibilityLabel={getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)}
+    accessibilityLabel={
+      getTranslatedTextStringId(buttonText) || getTranslatedTextFallback(buttonText)
+    }
     flex={flex}
     onPress={onPress}
     {...rest}

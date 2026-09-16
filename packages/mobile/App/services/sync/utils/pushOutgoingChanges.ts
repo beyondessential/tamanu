@@ -1,9 +1,9 @@
-import { SyncRecord } from '../types';
-import { MODELS_MAP } from '../../../models/modelsMap';
+import type { SyncRecord } from '../types';
+import type { MODELS_MAP } from '../../../models/modelsMap';
 
-import { CentralServerConnection } from '../CentralServerConnection';
+import type { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
-import { MobileSyncSettings } from '../MobileSyncManager';
+import type { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
  * Push outgoing changes in batches

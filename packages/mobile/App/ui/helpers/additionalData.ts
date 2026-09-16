@@ -76,6 +76,6 @@ export const ADDITIONAL_DATA_FIELDS = {
   SETTLEMENT_ID: 'settlementId',
   MEDICAL_AREA_ID: 'medicalAreaId',
   NURSING_ZONE_ID: 'nursingZoneId',
-};
+} as const;
 
 export const ALL_ADDITIONAL_DATA_FIELDS = Object.values(ADDITIONAL_DATA_FIELDS);

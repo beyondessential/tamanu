@@ -652,6 +652,14 @@ const MODEL_SPECIFIC_OVERRIDES = {
       availableFacilities: null,
     };
   },
+  ReferenceDrug: () => ({
+    route: chance.pickone(DRUG_ROUTE_VALUES),
+    dosingUnit: chance.pickone(DRUG_UNIT_VALUES),
+    dispensingUnit: chance.pickone(DRUG_UNIT_VALUES),
+    unitConversion: 1,
+    notes: null,
+    isSensitive: false,
+  }),
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
   Discharge: () => ({

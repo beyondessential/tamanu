@@ -6,7 +6,7 @@ import { ProgramDataElement } from './ProgramDataElement';
 import { SurveyResponse } from './SurveyResponse';
 import { VitalLog } from './VitalLog';
 
-import { ISurveyResponseAnswer } from '~/types';
+import type { ISurveyResponseAnswer } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey_response_answers')
@@ -22,26 +22,26 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   @DateTimeStringColumn({ nullable: true })
   editedTime?: string;
 
-  @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.answers)
+  @ManyToOne(() => SurveyResponse, surveyResponse => surveyResponse.answers)
   response: SurveyResponse;
 
   @RelationId(({ response }) => response)
   responseId: string;
 
-  @ManyToOne(() => ProgramDataElement, (dataElement) => dataElement.answers)
+  @ManyToOne(() => ProgramDataElement, dataElement => dataElement.answers)
   dataElement: ProgramDataElement;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 
-  @OneToMany(() => VitalLog, (vitalLog) => vitalLog.answer)
+  @OneToMany(() => VitalLog, vitalLog => vitalLog.answer)
   vitalLogs: VitalLog[];
 
   static async getLatestAnswerForPatient(
     patientId: string,
     dataElementCode: string,
   ): Promise<ISurveyResponseAnswer> {
-    return this.getRepository()
+    return SurveyResponseAnswer.getRepository()
       .createQueryBuilder('survey_response_answer')
       .leftJoin('survey_response_answer.response', 'response')
       .leftJoin('response.encounter', 'encounter')
@@ -64,7 +64,7 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
     if (!questionCodes.length) return {};
 
     const codePlaceholders = questionCodes.map((_, i) => `$${i + 2}`).join(', ');
-    const rows: { code: string; body: string }[] = await this.getRepository().query(
+    const rows: { code: string; body: string }[] = await SurveyResponseAnswer.getRepository().query(
       `
       SELECT code, body
       FROM (

@@ -1,6 +1,6 @@
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 
-import { ILabTestPanel } from '~/types';
+import type { ILabTestPanel } from '~/types';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -19,7 +19,7 @@ export class LabTestPanel extends BaseModel implements ILabTestPanel {
   @Column({ type: 'varchar', nullable: false, default: VisibilityStatus.Current })
   visibilityStatus?: VisibilityStatus;
 
-  @ManyToMany(() => LabTestType, (labTestType) => labTestType.labTestPanels)
+  @ManyToMany(() => LabTestType, labTestType => labTestType.labTestPanels)
   @JoinTable({
     name: 'lab_test_panel_lab_test_types',
   })

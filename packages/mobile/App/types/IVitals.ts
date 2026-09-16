@@ -1,4 +1,4 @@
-import { ID } from './ID';
+import type { ID } from './ID';
 
 export const AVPUType = {
   Alert: 'alert',

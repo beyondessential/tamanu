@@ -1,7 +1,7 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
-import { IPatientProgramRegistration } from './IPatientProgramRegistration';
-import { IProgramRegistry } from './IProgramRegistry';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
+import type { IPatientProgramRegistration } from './IPatientProgramRegistration';
+import type { IProgramRegistry } from './IProgramRegistry';
 
 export interface IProgramRegistryClinicalStatus {
   id: ID;

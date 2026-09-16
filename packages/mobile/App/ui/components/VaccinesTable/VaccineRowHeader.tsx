@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { theme } from '/styled/theme';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import type { TranslatedTextElement } from '../Translations/TranslatedText';
 
 interface VaccineRowHeaderProps {
   title: string;

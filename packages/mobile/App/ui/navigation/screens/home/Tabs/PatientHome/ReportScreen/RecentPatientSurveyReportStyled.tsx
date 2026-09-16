@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import styled from 'styled-components/native';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledText } from '~/ui/styled/common';
@@ -13,7 +13,6 @@ export const Row = styled.View`
   display: flex;
   flex-flow: row;
   flex-wrap: wrap;
-  
 `;
 
 export const HeaderRow = styled(Row)`
@@ -22,7 +21,7 @@ export const HeaderRow = styled(Row)`
 
 export const BorderRow = styled(Row)`
   border-bottom-width: 1px;
-  border-bottom-color: ${theme.colors.PRIMARY_MAIN}
+  border-bottom-color: ${theme.colors.PRIMARY_MAIN};
 `;
 
 export const ColumnCategory = styled.View`
@@ -40,15 +39,15 @@ export const Cell = styled.View`
   align-items: center;
 `;
 
-export const DataText = styled(StyledText)<{type?: 'strong' | 'regular'}>`
-  font-size: ${(p): string => `${screenPercentageToDP((p.type === 'strong' ? 1.8 : 1.7), Orientation.Height)}px`};
+export const DataText = styled(StyledText)<{ type?: 'strong' | 'regular' }>`
+  font-size: ${(p): string => `${screenPercentageToDP(p.type === 'strong' ? 1.8 : 1.7, Orientation.Height)}px`};
   font-weight: ${(p): number => (p.type === 'strong' ? 700 : 500)};
   color: ${(p): string => (p.type === 'strong' ? theme.colors.TEXT_SUPER_DARK : theme.colors.TEXT_DARK)};
 `;
 
 type DataCellProps = {
   type?: 'strong' | 'regular';
-}
+};
 
 export const DataCell: FC<DataCellProps> = ({ children, type = 'regular' }) => (
   <Cell>

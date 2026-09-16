@@ -1,10 +1,6 @@
 import { Column, Generated, PrimaryColumn } from 'typeorm';
 import { BaseModelWithoutId } from './BaseModelWithoutId';
 
-export type ModelPojo = {
-  id: string;
-};
-
 // This is used instead of @RelationId provided by typeorm, because
 // typeorm's @RelationId causes a O(n^2) operation for every query to that model.
 export const IdRelation = (options = {}): any => Column({ nullable: true, ...options });
@@ -52,6 +48,10 @@ export abstract class BaseModel extends BaseModelWithoutId {
       columns specified with 'IdRelation' and 'RelationId' need special handling.
     */
   static async updateValues<T extends BaseModel>(id: string, values: object): Promise<T | null> {
+    /**
+     * `this.getRepository` ≠ `BaseModel.getRepository` here
+     * @see {@link BaseModelWithoutId}
+     */
     const repo = this.getRepository<T>();
 
     // Find the actual instance we want to update

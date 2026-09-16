@@ -135,6 +135,9 @@ jobs:
                 containers:
                   - name: migrate
                     image: ${IMAGE}
+                    # The version tag is mutable, so a node that already pulled it once would
+                    # otherwise run whatever it cached rather than the image just built.
+                    imagePullPolicy: Always
                     envFrom:
                       - secretRef:
                           name: pgsnap-${JOB_NAME}
