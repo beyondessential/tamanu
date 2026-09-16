@@ -24,8 +24,8 @@ samples across categories produces one label per lab request.
   - [ ] Collected by
 - [ ] The label shows a barcode encoding the Request ID, with the Request ID
       printed as text beneath it.
-- [ ] The field labels are fixed English and are not translated, keeping a
-      consistent standard label format across facilities.
+- [ ] The field labels are translatable, so a facility running in another
+      language prints the labels in that language.
 
 ## Finalise and print step
 

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
-import { useDateTime } from '@tamanu/ui-components';
+import { useDateTime, useTranslation } from '@tamanu/ui-components';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 
 export const LAB_LABEL_DIMENSIONS = { width: 40, height: 28 };
@@ -78,6 +78,9 @@ const BarcodeContainer = styled.div`
  */
 export const LabRequestPrintLabel = React.memo(({ data, variant = 'print' }) => {
   const { formatShort, formatShortDateTime } = useDateTime();
+  // The label draws its field labels as SVG <text>, which can't hold a TranslatedText element, so
+  // resolve them to plain strings. Translation context flows into the print frame via the portal.
+  const { getTranslation } = useTranslation();
   const { patientName, patientDateOfBirth, patientId, requestId, date, collectedBy } = data;
   const ageDuration = getAgeDurationFromDate(patientDateOfBirth);
   const dateOfBirth = patientDateOfBirth
@@ -88,18 +91,48 @@ export const LabRequestPrintLabel = React.memo(({ data, variant = 'print' }) => 
       <FlexContainer data-testid="flexcontainer-24kt">
         <TextContainer data-testid="textcontainer-8y44">
           <svg viewBox={`0 0 ${TEXT_VIEWBOX_WIDTH} 107`}>
-            <Item x="0" y="12" label="Patient name" value={patientName} data-testid="item-asx7" />
-            <Item x="0" y="29" label="DOB" value={dateOfBirth} data-testid="item-krnm" />
-            <Item x="0" y="46" label="Patient ID" value={patientId} data-testid="item-r5xk" />
-            <Item x="0" y="63" label="Request ID" value={requestId} data-testid="item-vcco" />
+            <Item
+              x="0"
+              y="12"
+              label={getTranslation('lab.sampleLabel.patientName', 'Patient name')}
+              value={patientName}
+              data-testid="item-asx7"
+            />
+            <Item
+              x="0"
+              y="29"
+              label={getTranslation('lab.sampleLabel.dateOfBirth', 'DOB')}
+              value={dateOfBirth}
+              data-testid="item-krnm"
+            />
+            <Item
+              x="0"
+              y="46"
+              label={getTranslation('lab.sampleLabel.patientId', 'Patient ID')}
+              value={patientId}
+              data-testid="item-r5xk"
+            />
+            <Item
+              x="0"
+              y="63"
+              label={getTranslation('lab.sampleLabel.requestId', 'Request ID')}
+              value={requestId}
+              data-testid="item-vcco"
+            />
             <Item
               x="0"
               y="80"
-              label="Date collected"
+              label={getTranslation('lab.sampleLabel.dateCollected', 'Date collected')}
               value={formatShortDateTime(date)}
               data-testid="item-nxfc"
             />
-            <Item x="0" y="97" label="Collected by" value={collectedBy} data-testid="item-cby9" />
+            <Item
+              x="0"
+              y="97"
+              label={getTranslation('lab.sampleLabel.collectedBy', 'Collected by')}
+              value={collectedBy}
+              data-testid="item-cby9"
+            />
           </svg>
         </TextContainer>
         <BarcodeContainer data-testid="barcodecontainer-yq9a">

@@ -1,9 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { describe, expect, it } from 'vitest';
-import { AuthContext, DateTimeProvider, SettingsContext } from '@tamanu/ui-components';
+import {
+  AuthContext,
+  DateTimeProvider,
+  SettingsContext,
+  TranslationContext,
+} from '@tamanu/ui-components';
 
 import { LabRequestPrintLabel } from '../../app/components/PatientPrinting/printouts/LabRequestPrintLabel';
+
+const translationContext = { getTranslation: (_id, fallback) => fallback };
 
 const PRIMARY_TIME_ZONE = 'Pacific/Auckland';
 
@@ -20,11 +27,13 @@ const renderLabel = (data = LABEL_DATA) =>
   render(
     <AuthContext.Provider value={{ primaryTimeZone: PRIMARY_TIME_ZONE }}>
       <SettingsContext.Provider value={{ getSetting: key => ({ dateTimeLocale: 'en-AU' }[key]) }}>
-        <DateTimeProvider>
-          <div data-testid="label">
-            <LabRequestPrintLabel data={data} />
-          </div>
-        </DateTimeProvider>
+        <TranslationContext.Provider value={translationContext}>
+          <DateTimeProvider>
+            <div data-testid="label">
+              <LabRequestPrintLabel data={data} />
+            </div>
+          </DateTimeProvider>
+        </TranslationContext.Provider>
       </SettingsContext.Provider>
     </AuthContext.Provider>,
   );
