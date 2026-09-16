@@ -63,3 +63,6 @@ sources:
             config:
               meta:
                 masking: text
+          - name: available_facilities
+            data_type: jsonb
+            description: "{{ doc('invoice_insurance_plans__available_facilities') }}"
