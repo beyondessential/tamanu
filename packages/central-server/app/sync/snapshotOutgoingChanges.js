@@ -274,12 +274,12 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           AND (
             (facility_id IS NULL AND sensitive_network_id IS NULL)
             OR
-            facility_id in (:facilityIds)
+            facility_id IN (:facilityIds)
             ${
               sensitiveNetworkIds?.length
                 ? `
             OR
-            sensitive_network_id in (:sensitiveNetworkIds)`
+            sensitive_network_id IN (:sensitiveNetworkIds)`
                 : ''
             }
           )
