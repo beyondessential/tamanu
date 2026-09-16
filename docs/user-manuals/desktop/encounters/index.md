@@ -1,6 +1,6 @@
 # 8. Encounters
 
-Admitting a patient and moving them between locations.
+Admitting, moving, and discharging patients.
 
 ## Guides
 

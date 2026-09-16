@@ -115,6 +115,8 @@ The writing carries no assumed knowledge of Tamanu's internals.
       product, in bold, without quotation marks.
 - [ ] A guide assumes no step the reader has not been told to take, starting from the
       place in the product its opening names.
+- [ ] Module titles are in title case. Everything below them, including guide titles and
+      the headings inside a guide, is in sentence case.
 - [ ] Spelling follows Australian/NZ English.
 
 ## Screenshots

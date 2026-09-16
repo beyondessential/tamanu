@@ -1,4 +1,4 @@
-# 10. Program registries
+# 10. Program Registries
 
 Enrolling patients in program registries.
 

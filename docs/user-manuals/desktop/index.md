@@ -11,7 +11,7 @@ Guides to using Tamanu on a computer.
 - [5. Scheduling](scheduling/index.md): Outpatient appointments and location bookings.
 - [6. Program Registries](program-registries/index.md): Enrolling patients in program registries and tracking them.
 - [7. Immunisations](immunisations/index.md): Recording vaccines and using the immunisation register.
-- [8. Encounters](encounters/index.md): Admitting a patient and moving them between locations.
+- [8. Encounters](encounters/index.md): Admitting, moving, and discharging patients.
 - [9. Bed Management](bed-management/index.md): Beds and locations across the facility.
 - [10. Diagnoses](diagnoses/index.md): Recording and managing a patient's diagnoses.
 - [11. Vitals](vitals/index.md): Recording and reviewing a patient's observations during an encounter.
@@ -24,6 +24,6 @@ Guides to using Tamanu on a computer.
 - [18. Labs](labs/index.md): Requesting lab tests and reading results.
 - [19. Imaging](imaging/index.md): Requesting imaging and reading results.
 - [20. Referrals](referrals/index.md): Referring a patient and tracking referrals.
-- [21. Discharge](discharge/index.md): Discharging a patient and completing the discharge summary.
+- [21. Documents](documents/index.md): Files attached to a patient or an encounter.
 - [22. Invoicing](invoicing/index.md): Invoices raised against an encounter.
 - [23. Reports](reports/index.md): Running facility reports.
