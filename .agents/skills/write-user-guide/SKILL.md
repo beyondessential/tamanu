@@ -79,11 +79,28 @@ your edit.
 Write only the guide's own prose. Moving something in the manifest renumbers everything after it and
 repairs the affected links, so reordering is a manifest edit rather than a sweep through the files.
 
-### Check how it renders, not just how it reads
+### Confirm how it renders on GitHub
 
-Markdown that looks right in the source can render wrongly — a single newline inside a paragraph
-collapses to a space, which silently flattens any two-line construction. Before handing the work
-back, read the rendered output the way a reader on GitHub would, and confirm the structure survived.
+The manuals live in the repository, so GitHub's markdown rendering is where readers actually meet
+them. Source that looks right can still render wrongly, and the failure is silent — so preview the
+file as GitHub renders it before handing the work back, rather than trusting the source.
+
+The trap to know: **a single newline inside a paragraph renders as a space.** Anything you intend as
+two separate blocks needs a blank line between them, or the two collapse into one run of text and the
+structure you wrote disappears.
+
+Confirm each of these survived the render:
+
+- Each numbered step keeps its supporting detail as an indented paragraph under that step, rather
+  than flattening into the step text or breaking the numbering.
+- In the error list, every bullet still opens with the product's message in bold, so the list can be
+  scanned against what is on the reader's screen.
+- The link back to the module index sits above the title, and the previous/next links sit below the
+  rule at the end.
+- Each screenshot placeholder stands on its own line where the guide needs the shot.
+
+`.workhorse/design/designs/user-manual-guide-page.html` is the worked example of a guide as a reader
+meets it, if you need to compare against something concrete.
 
 ### Updating an existing guide
 
