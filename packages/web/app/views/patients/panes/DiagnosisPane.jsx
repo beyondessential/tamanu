@@ -10,6 +10,7 @@ import { SyndromicSurveillanceModal } from '../../../components/SyndromicSurveil
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
+import { useSettings } from '../../../contexts/Settings';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -119,6 +120,10 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
   const [editedDiagnosis, setEditedDiagnosis] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [isSyndromicSurveillanceModalOpen, setIsSyndromicSurveillanceModalOpen] = useState(false);
+  const { getSetting } = useSettings();
+  const isSyndromicSurveillanceEnabled = getSetting(
+    'syndromicSurveillance.enableSyndromicSurveillance',
+  );
 
   const refreshDiagnosisTable = useCallback(() => {
     setRefreshCount(prev => prev + 1);
@@ -135,17 +140,23 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         onSaved={refreshDiagnosisTable}
         data-testid="diagnosismodal-pane"
       />
-      <SyndromicSurveillanceModal
-        open={isSyndromicSurveillanceModalOpen}
-        onClose={() => setIsSyndromicSurveillanceModalOpen(false)}
-        data-testid="syndromicsurveillancemodal-pane"
-      />
-      <ActionRow data-testid="actionrow-diagnosis">
-        <SyndromicSurveillanceStatus
-          state={SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED}
-          onOpenModal={() => setIsSyndromicSurveillanceModalOpen(true)}
-          data-testid="syndromicsurveillancestatus-diagnosis"
+      {isSyndromicSurveillanceEnabled && (
+        <SyndromicSurveillanceModal
+          open={isSyndromicSurveillanceModalOpen}
+          onClose={() => setIsSyndromicSurveillanceModalOpen(false)}
+          data-testid="syndromicsurveillancemodal-pane"
         />
+      )}
+      <ActionRow data-testid="actionrow-diagnosis">
+        {isSyndromicSurveillanceEnabled ? (
+          <SyndromicSurveillanceStatus
+            state={SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED}
+            onOpenModal={() => setIsSyndromicSurveillanceModalOpen(true)}
+            data-testid="syndromicsurveillancestatus-diagnosis"
+          />
+        ) : (
+          <span />
+        )}
         <NoteModalActionBlocker>
           <Button
             onClick={() => setEditedDiagnosis({})}

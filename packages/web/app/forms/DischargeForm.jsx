@@ -173,6 +173,7 @@ const getDischargeInitialValues = ({
   medicationInitialValues,
   getCurrentDateTime,
   storedDateTimeToEpochMilliseconds,
+  showSyndromicSurveillance,
 }) => {
   const encounterStartMs = storedDateTimeToEpochMilliseconds(encounter.startDate);
 
@@ -204,7 +205,7 @@ const getDischargeInitialValues = ({
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
-    ...SYNDROMIC_SURVEILLANCE_INITIAL_VALUES,
+    ...(showSyndromicSurveillance ? SYNDROMIC_SURVEILLANCE_INITIAL_VALUES : {}),
   };
 };
 
@@ -291,6 +292,7 @@ export const DischargeForm = ({
   const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
   const showEncounterSummary =
     encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
+  const showSyndromicSurveillance = getSetting('syndromicSurveillance.enableSyndromicSurveillance');
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
     d => !['error', 'disproven'].includes(d.certainty),
@@ -464,6 +466,7 @@ export const DischargeForm = ({
           medicationInitialValues,
           getCurrentDateTime,
           storedDateTimeToEpochMilliseconds,
+          showSyndromicSurveillance,
         })}
         FormScreen={props => (
           <DischargeFormScreen
@@ -665,27 +668,31 @@ export const DischargeForm = ({
               <EncounterSummaryContent encounterId={encounter.id} />
             </div>
           )}
-          <SyndromicSurveillanceDivider
-            style={{ gridColumn: '1 / -1' }}
-            data-testid="divider-syndromic-surveillance-section"
-          />
-          <div style={{ gridColumn: '1 / -1' }}>
-            <SyndromicSurveillanceSectionTitle data-testid="sectiontitle-syndromic-surveillance">
-              <TranslatedText
-                stringId="encounter.syndromicSurveillance.label"
-                fallback="Syndromic surveillance"
-                data-testid="translatedtext-syndromic-surveillance-section-title"
+          {showSyndromicSurveillance && (
+            <>
+              <SyndromicSurveillanceDivider
+                style={{ gridColumn: '1 / -1' }}
+                data-testid="divider-syndromic-surveillance-section"
               />
-            </SyndromicSurveillanceSectionTitle>
-            <SyndromicSurveillanceIntroText data-testid="introtext-syndromic-surveillance-section">
-              <TranslatedText
-                stringId="discharge.syndromicSurveillance.intro"
-                fallback="Please complete the below for syndromic surveillance"
-                data-testid="translatedtext-syndromic-surveillance-section-intro"
-              />
-            </SyndromicSurveillanceIntroText>
-            <SyndromicSurveillanceFields data-testid="syndromicsurveillancefields-discharge" />
-          </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <SyndromicSurveillanceSectionTitle data-testid="sectiontitle-syndromic-surveillance">
+                  <TranslatedText
+                    stringId="encounter.syndromicSurveillance.label"
+                    fallback="Syndromic surveillance"
+                    data-testid="translatedtext-syndromic-surveillance-section-title"
+                  />
+                </SyndromicSurveillanceSectionTitle>
+                <SyndromicSurveillanceIntroText data-testid="introtext-syndromic-surveillance-section">
+                  <TranslatedText
+                    stringId="discharge.syndromicSurveillance.intro"
+                    fallback="Please complete the below for syndromic surveillance"
+                    data-testid="translatedtext-syndromic-surveillance-section-intro"
+                  />
+                </SyndromicSurveillanceIntroText>
+                <SyndromicSurveillanceFields data-testid="syndromicsurveillancefields-discharge" />
+              </div>
+            </>
+          )}
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
             data-testid="divider-lj2w"
