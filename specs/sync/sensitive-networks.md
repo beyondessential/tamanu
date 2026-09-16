@@ -8,7 +8,7 @@ A sensitive network is a named group of facilities that share confidential data.
 
 ## The network record
 
-- [ ] A sensitive network is identified by an id and carries a code and a name, both required. Each is unique across networks, as a facility's are. The id is a readable string chosen by whoever defines the network, as every other reference record's is.
+- [ ] A sensitive network is identified by an id and carries a code and a name, both required and each unique across networks. The id is a readable string chosen by whoever defines the network, as every other reference record's is.
 - [ ] Networks are reference data, defined on the central server and pulled down to facility servers and mobile devices. They are never pushed upwards.
 - [ ] Networks carry the record lifecycle fields every synced Tamanu record has: creation and update timestamps, soft deletion, and a sync tick.
 - [ ] Deleting a network that has member facilities is refused. Deletion would otherwise leave those facilities pointing at a deleted network, and either they stay sensitive with nothing to name them or they turn ordinary and begin syncing confidential data everywhere.
@@ -93,6 +93,7 @@ Facilities previously marked sensitive were isolated from each other as well as 
 
 - [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
 - [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import.
+- [ ] Facility codes and names are not unique, so where two of those facilities share one, the network's is qualified to keep it distinct from its sibling's.
 - [ ] Their lookup rows carry that network in place of the facility, so a facility later created into one of those networks receives the confidential data recorded before it existed.
 - [ ] Only the lookup rows scoped to a facility that belongs to a network are rescoped. A deployment with no networked facility rescopes nothing.
 - [ ] Rows scoped to a facility deleted while it was sensitive keep their facility, because that facility has no network to move them to. They reach no facility, as they did before.
