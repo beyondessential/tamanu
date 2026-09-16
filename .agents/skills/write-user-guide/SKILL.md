@@ -84,6 +84,12 @@ use rather than assuming** — it determines whether the shots are publishable.
 **Mobile.** There is no capture tooling and no emulator automation. Mobile screenshots are taken by
 a person. Leave placeholders and say so when you hand the work back.
 
+**Expect to set the screen up first.** Demonstration data is thin, so a screen often photographs
+empty: a chart with no readings, a patient with no encounter, an empty worklist. Entering what the
+shot needs is part of capturing it. Put in enough to make the screen read the way a user's would,
+and keep what you enter plausible — a guide illustrated with nonsense values teaches the reader to
+distrust it.
+
 **Two rules that do not bend:**
 
 - **Never capture a screen showing real patient information.** These images are published. Shoot
