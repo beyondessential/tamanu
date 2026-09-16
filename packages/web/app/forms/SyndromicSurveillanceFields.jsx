@@ -5,7 +5,7 @@ import { useFormikContext, getIn } from 'formik';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 
 import { Colors } from '../constants/styles';
-import { CheckField, Field } from '../components/Field';
+import { CheckField, CheckInput, Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 // TODO: replace with the real symptom reference data once available
@@ -15,14 +15,9 @@ export const MOCK_SYMPTOM_OPTIONS = [
   { value: 'option3', label: 'Option 3' },
 ];
 
-export const INITIAL_SYMPTOMS = MOCK_SYMPTOM_OPTIONS.reduce(
-  (values, option) => ({ ...values, [option.value]: false }),
-  {},
-);
-
 export const SYNDROMIC_SURVEILLANCE_INITIAL_VALUES = {
   noSyndrome: false,
-  symptoms: INITIAL_SYMPTOMS,
+  symptomIds: [],
 };
 
 const WhiteBox = styled.div`
@@ -50,11 +45,21 @@ export const SyndromicSurveillanceFields = React.memo(({ 'data-testid': dataTest
   const {
     values,
     errors,
+    setFieldValue,
     status: { submitStatus },
   } = useFormikContext();
-  const isAnySymptomChecked = Object.values(values.symptoms ?? {}).some(Boolean);
+  const symptomIds = values.symptomIds ?? [];
+  const isAnySymptomChecked = symptomIds.length > 0;
   const hasRequiredError =
     submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, 'noSyndrome');
+
+  const toggleSymptom = optionValue => event => {
+    const { checked } = event.target;
+    setFieldValue(
+      'symptomIds',
+      checked ? [...symptomIds, optionValue] : symptomIds.filter(id => id !== optionValue),
+    );
+  };
 
   return (
     <WhiteBox $error={hasRequiredError} data-testid={dataTestId}>
@@ -81,11 +86,12 @@ export const SyndromicSurveillanceFields = React.memo(({ 'data-testid': dataTest
       />
       <Divider data-testid="divider-syndromic-surveillance-symptoms" />
       {MOCK_SYMPTOM_OPTIONS.map(option => (
-        <Field
+        <CheckInput
           key={option.value}
-          name={`symptoms.${option.value}`}
+          name={option.value}
           label={option.label}
-          component={CheckField}
+          value={symptomIds.includes(option.value)}
+          onChange={toggleSymptom(option.value)}
           disabled={values.noSyndrome}
           data-testid={`field-symptom-${option.value}`}
         />

@@ -566,9 +566,8 @@ export const DischargeForm = ({
             noSyndrome: yup
               .boolean()
               .test('atLeastOneSyndromicSurveillanceItem', requiredInlineMessage, function (value) {
-                const symptoms = this.options.context?.symptoms ?? {};
-                const isAnySymptomChecked = Object.values(symptoms).some(Boolean);
-                return Boolean(value) || isAnySymptomChecked;
+                const symptomIds = this.options.context?.symptomIds ?? [];
+                return Boolean(value) || symptomIds.length > 0;
               }),
           }),
         })}
