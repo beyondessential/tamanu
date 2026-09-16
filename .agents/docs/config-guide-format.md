@@ -51,6 +51,33 @@ Use horizontal rules between major sections, and `##` / `###` for subsections. T
 the reference example of this shape, and
 `.workhorse/design/mockups/k8/config-guide.html` shows it rendered.
 
+## How guides render
+
+Guides are markdown, and markdown carries structure rather than styling. GitHub renders them with its
+own theme and strips style and class attributes, so a guide cannot control its own colours, borders or
+spacing there. Plan for two renderings of the same file:
+
+| Element | On GitHub | On the docs site |
+| --- | --- | --- |
+| Callouts | Coloured, with icon. Native alert rendering | Coloured, per the design |
+| Tables | GitHub's table styling | Tamanu blue headers |
+| Settings blocks | Bold labels on separate lines, no box | Bordered block |
+| Required marker | A plain `*` character | Coloured `*` |
+| Screenshot placeholders | A plain blockquote | Marked placeholder panel |
+| Version flags | Plain text in the heading or cell | Tinted inline label |
+
+The design in `.workhorse/design/mockups/k8/config-guide.html` is the **docs site** target, not what
+GitHub shows.
+
+Two consequences for how you write:
+
+- **Never rely on styling to carry meaning.** A callout must read correctly from its label and words
+  alone, because on GitHub the settings block is just bold text and the required `*` is just an
+  asterisk. This is why the required convention is stated in words above each table rather than left to
+  the marker's colour
+- **Do not hand-write HTML to recover the design.** GitHub permits only a narrow set of tags and strips
+  the attributes that would style them, so it degrades to worse markup rather than a styled box
+
 ## Settings blocks
 
 Order each setting as **heading, then description, then the block**, so the reader learns what a
