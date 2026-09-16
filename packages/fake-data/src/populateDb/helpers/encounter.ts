@@ -12,6 +12,10 @@ interface CreateEncounterParams extends CommonParams {
   locationId?: string;
   userId?: string;
   referenceDataId?: string;
+  encounterType?: string;
+  startDate?: string;
+  endDate?: string | null;
+  reasonForEncounter?: string;
   noteCount?: number;
   diagnosisCount?: number;
   isDischarged?: boolean;
@@ -23,11 +27,15 @@ export const createEncounter = async ({
   locationId,
   userId,
   referenceDataId,
+  encounterType,
+  startDate = '2023-12-21T04:59:51.851Z',
+  endDate,
+  reasonForEncounter,
   noteCount = chance.integer({ min: 1, max: 5 }),
   diagnosisCount = chance.integer({ min: 1, max: 5 }),
   isDischarged = chance.bool(),
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
-  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis } = models;
+  const { Encounter, Note, Discharge, EncounterDiagnosis } = models;
 
   const encounter = await Encounter.create(
     fake(Encounter, {
@@ -35,18 +43,17 @@ export const createEncounter = async ({
       departmentId: departmentId || (await randomRecordId(models, 'Department')),
       locationId: locationId || (await randomRecordId(models, 'Location')),
       examinerId: userId || (await randomRecordId(models, 'User')),
-      startDate: '2023-12-21T04:59:51.851Z',
+      startDate,
+      // Only override when given: `fake` treats any key present in the overrides as
+      // authoritative, so passing `undefined` would blank the generated value.
+      ...(encounterType ? { encounterType } : {}),
+      ...(endDate !== undefined ? { endDate } : {}),
+      ...(reasonForEncounter ? { reasonForEncounter } : {}),
     }),
   );
 
-  await EncounterHistory.create(
-    fake(EncounterHistory, {
-      examinerId: userId || (await randomRecordId(models, 'User')),
-      encounterId: encounter.id,
-      departmentId: departmentId || (await randomRecordId(models, 'Department')),
-      locationId: locationId || (await randomRecordId(models, 'Location')),
-    }),
-  );
+  // No EncounterHistory here: `Encounter.create` already writes the initial
+  // snapshot from the encounter itself.
 
   for (const _ of times(diagnosisCount)) {
     await EncounterDiagnosis.create(
