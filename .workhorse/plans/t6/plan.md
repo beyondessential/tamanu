@@ -187,6 +187,21 @@ The whole suite needs a run somewhere with dependencies installed before this is
 
 ## Surfaced in review
 
+**The network table's unique indexes were not deferrable.** `sensitive_networks` is a syncable
+table, and main carries a repo-wide invariant (TAM-7004, `uniqueConstraintDeferrability.test.js`)
+that every unique constraint on one must be `DEFERRABLE INITIALLY IMMEDIATE`, so the sync-apply
+transaction can defer validation to its end — otherwise a batch only transiently in conflict, such
+as two networks swapping codes, cannot be applied at all. U6 created them with
+`addIndex(..., { unique: true })`, which makes a bare unique index, and Postgres only supports
+DEFERRABLE on a constraint. They are now added as constraints in the same DDL migration, reusing
+the names.
+
+That has a knock-on the dbt check would otherwise have caught separately: the model generator reads
+`constraint_type === 'UNIQUE'`, so promoting the indexes makes it emit a `unique` test on `code` and
+`name`. `database/model/public/sensitive_networks.yml` is updated to match.
+
+## Surfaced in earlier review
+
 **The backfill derived network ids from a lossy transform of the facility code.** Stripping the
 characters a code admits but an id does not (`.` and `/`) can collapse two distinct codes onto one
 id, and a code of pure punctuation yields a bare prefix — either collides on the primary key and

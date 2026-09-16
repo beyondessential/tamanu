@@ -41,14 +41,23 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex(SENSITIVE_NETWORKS, ['code'], {
-    name: `${SENSITIVE_NETWORKS}_code_unique`,
-    unique: true,
-  });
-  await query.addIndex(SENSITIVE_NETWORKS, ['name'], {
-    name: `${SENSITIVE_NETWORKS}_name_unique`,
-    unique: true,
-  });
+  // UNIQUE constraints rather than unique indexes. Postgres only supports DEFERRABLE on a
+  // constraint, and every unique constraint on a syncable table has to be deferrable so the
+  // sync-apply transaction can defer validation to its end — otherwise a batch that is only
+  // transiently in conflict, such as two networks swapping codes, cannot be applied at all.
+  // See TAM-7004 and the uniqueConstraintDeferrability guard test.
+  await query.sequelize.query(`
+    ALTER TABLE ${SENSITIVE_NETWORKS}
+    ADD CONSTRAINT ${SENSITIVE_NETWORKS}_code_unique
+      UNIQUE (code)
+      DEFERRABLE INITIALLY IMMEDIATE;
+  `);
+  await query.sequelize.query(`
+    ALTER TABLE ${SENSITIVE_NETWORKS}
+    ADD CONSTRAINT ${SENSITIVE_NETWORKS}_name_unique
+      UNIQUE (name)
+      DEFERRABLE INITIALLY IMMEDIATE;
+  `);
 
   // A facility belongs to at most one network, and is sensitive exactly when this is set.
   await query.addColumn('facilities', 'sensitive_network_id', {
