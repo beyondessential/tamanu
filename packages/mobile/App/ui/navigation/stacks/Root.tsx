@@ -14,10 +14,12 @@ import { persistor, store } from '../../store/index';
 import { Core, type RootStackParamList } from './Core';
 import { DetectIdleLayer } from './DetectIdleLayer';
 
+const gestureHandlerRootViewStyle = { flex: 1 };
+
 export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef<RootStackParamList>>(null);
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={gestureHandlerRootViewStyle}>
       <SafeAreaProvider>
         <Root>
           <Provider store={store}>
