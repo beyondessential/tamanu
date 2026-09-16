@@ -58,7 +58,23 @@ manual verification of a skill run rather than automated tests, since the output
 - [ ] Narrative content the codebase cannot supply is requested from the author, and outstanding
       content is left as a marked gap rather than invented.
 - [ ] Clinical scope limitations are not fabricated when the author supplies none.
-- [ ] Where a screenshot is needed, the guide carries a caption and a marked placeholder.
+## Screenshots
+
+- [ ] Where a screenshot is needed, the placeholder names both the image file it is waiting for and
+      what the image must show.
+- [ ] A capture spec is written to `packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts`.
+- [ ] The capture spec reuses existing page objects from `packages/e2e-tests/pages/` rather than
+      introducing fresh selectors.
+- [ ] Running the capture spec writes each image into the guide's `images/` folder under the exact name
+      its placeholder gives, so no placeholder is left orphaned.
+- [ ] The capture spec does not run as part of the normal Playwright suite, so a missing screenshot
+      never fails the test run.
+- [ ] Captured screenshots contain synthetic data only, with no patient identifiable information.
+- [ ] A captured image replaces its placeholder with the caption preserved.
+- [ ] An update run reports screenshots sitting in sections whose underlying code has changed, and does
+      not silently recapture or delete them.
+- [ ] A guide published with outstanding placeholders says so in the pull request and names the capture
+      spec to run.
 
 ## Version flagging
 

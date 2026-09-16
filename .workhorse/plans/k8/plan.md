@@ -196,6 +196,34 @@ Inference alone isn't trustworthy here — a call site tells you a permission gu
 what the user-facing capability is called ("pause and resume a medication"), and the guide's value is
 precisely that translation. Confirmation is where that lands.
 
+## Screenshots: capture via a Playwright spec
+
+Screenshots were the weakest part of the design, since a skill reading code cannot produce them and the
+Medications guide alone needs eleven. The e2e suite turns out to supply most of what is needed:
+`packages/e2e-tests/pages/` already has page objects for the prescribing and administration screens
+(`pages/patients/MedicationsPage/`, `pages/medication/`) and for the Settings admin panel
+(`pages/facilityAdmin/SettingsPage.ts`), with auth setup writing `storageState` so navigation is solved.
+Playwright is configured with `screenshot: 'only-on-failure'`, so deliberate capture is a config change
+rather than new infrastructure.
+
+**The pipeline.** The skill writes a capture spec at
+`packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` reusing those page objects; a person
+runs it against a local stack and commits the images. Images live in an `images/` folder beside the
+guide, and each placeholder names the file it is waiting for, which is what lets the spec and the guide
+agree without a separate manifest.
+
+**Why not capture directly.** Running the spec needs a full local stack (PostgreSQL, provisioning,
+facility sync per the e2e README), which the skill cannot assume. Writing the spec is the part that
+benefits from knowing the guide's structure; running it is a separate, repeatable step.
+
+**Staleness.** Screenshots go stale silently when the UI moves. On update the skill reports which
+screenshots sit in sections whose underlying code has changed, and leaves the judgment to a person
+rather than recapturing or deleting.
+
+Two things to watch when building this: the capture spec must be scoped out of the normal Playwright
+run, since a capture job that fails the suite would make a missing screenshot look like a broken test;
+and there is no image precedent anywhere in `docs/` today, so this card sets that convention.
+
 ## Resulting run shape
 
 1. Take the target module/topic as input (decided per run, not from a stored list).

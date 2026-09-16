@@ -65,7 +65,22 @@ derive scope and proceed.
 
 Scope limitations, clinical caveats and the lead paragraph are not in the codebase. Ask the author for
 them. Where they are outstanding, leave a marked gap rather than inventing them, and **never fabricate
-clinical guidance**. Screenshots cannot be captured from code either, so leave marked placeholders.
+clinical guidance**.
+
+### Screenshots
+
+Screenshots come from a running Tamanu instance, not from reading code, so they are captured by a
+Playwright spec you write rather than by you directly. For each image the guide needs:
+
+1. Leave a **placeholder naming the image file and what it must show**, so the guide and the capture
+   spec agree without a separate manifest
+2. Write a capture spec at `packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` that
+   navigates to each screen and writes the image into the guide's `images/` folder. **Reuse the
+   existing page objects** in `packages/e2e-tests/pages/` rather than writing fresh selectors
+3. Tell the author what to run, since capturing needs a local stack they have and you may not
+
+Never fabricate an image or describe a screen you have not seen. The full conventions, including file
+naming and keeping screenshots current, are in the format doc.
 
 ### Batch your checkpoints
 
@@ -94,6 +109,9 @@ narrative, caveats or placeholders that someone wrote deliberately.
 
 Update the module README and the `docs/user-manuals/system-administration/` README so the new or
 changed guide is listed, then open a **pull request for review**.
+
+Where the guide still has screenshot placeholders, say so in the PR and name the capture spec to run,
+so a reviewer knows the guide is incomplete by design rather than by oversight.
 
 Title it to Tamanu's conventional commit format (see `llm/project-rules/pull-requests.md`) — note that
 `docs` is not an allowed type, so use `chore` — and use the repository template with the placeholder

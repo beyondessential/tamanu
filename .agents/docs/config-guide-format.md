@@ -239,8 +239,54 @@ supported from.
 
 ## Images
 
-Guides are screenshot-heavy, and screenshots cannot be captured from code. Where a guide benefits from
-one, leave a caption and a **marked placeholder** identifying the image needed. Do not fabricate images.
+Guides are screenshot-heavy. Screenshots cannot be produced by reading code, so they are captured from
+a running Tamanu instance by a Playwright spec the skill writes alongside the guide. Never fabricate an
+image or describe one you have not seen.
+
+**Image files** live in an `images/` folder beside the guide, at
+`docs/user-manuals/system-administration/{module}/images/`, referenced relatively. Name each file for
+what it shows, in kebab-case: `new-prescription-medication-field.png`.
+
+**Placeholders.** Where a guide needs an image that does not exist yet, leave a placeholder naming both
+the file it is waiting for and what the image must show:
+
+```markdown
+> **Screenshot needed:** `images/new-prescription-medication-field.png` — the Medications field in the
+> new prescription form, showing drugs reference data populating the dropdown.
+```
+
+Naming the file in the placeholder is what lets the capture spec and the guide agree without a separate
+manifest. Once captured, the placeholder becomes an ordinary image with the same caption:
+
+```markdown
+![The Medications field in the new prescription form.](images/new-prescription-medication-field.png)
+```
+
+### The capture spec
+
+Write a Playwright spec that navigates to each screen and captures its image, and put it under
+`packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts`.
+
+- **Reuse the existing page objects** in `packages/e2e-tests/pages/` rather than writing fresh
+  selectors. They already handle login, navigation and modals, and they are maintained alongside the UI
+  they cover. `pages/facilityAdmin/SettingsPage.ts` covers the Settings admin panel, and
+  `pages/patients/MedicationsPage/` the prescribing and administration screens
+- **Write each file to the guide's `images/` folder** under the exact name its placeholder gives
+- **Keep it out of the normal test run.** A capture spec navigates and captures, it does not assert, so
+  a failing suite must not be the signal that a screenshot is missing. Tag or scope it as its own
+  Playwright project
+- **Use synthetic data only**, as the rest of the suite does. A screenshot is published, so it must
+  never carry patient identifiable information
+- Follow `llm/project-rules/playwright-e2e.md` for structure and locator strategy
+
+Running it needs a local stack, so it is a separate step from authoring: the skill writes the spec and
+says what to run, and a person runs it and commits the images.
+
+### Keeping screenshots current
+
+Screenshots go stale when the UI moves, and nothing in the markdown reveals that. On an update run,
+**report which screenshots sit in sections whose underlying code has changed** since the image was last
+captured, so a person can judge whether to recapture. Report them; do not silently recapture or delete.
 
 ## Cross-references
 
