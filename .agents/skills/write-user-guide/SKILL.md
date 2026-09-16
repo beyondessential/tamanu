@@ -61,9 +61,40 @@ administrator if they cannot do something they expect to.
 
 ### Screenshots
 
-Capture real screenshots while you have the app running. Where you cannot get the shot, leave the
-placeholder form the spec defines so the gap stays visible and greppable. Do not quietly drop a
-screenshot the guide needs.
+Write the guide with placeholders first, then fill the ones you can. A placeholder is a real
+deliverable, not a failure — it records a shot the guide needs, and it is far better than a wrong or
+stale picture.
+
+**Desktop.** `scripts/capture-user-manual-screenshot.mjs` takes one shot per run against whatever
+Tamanu you point it at. It reuses the e2e suite's `FACILITY_FRONTEND_URL`, `TEST_EMAIL`, and
+`TEST_PASSWORD`, so a machine already set up for Playwright tests needs nothing further; otherwise
+browsers come from `npx playwright install chromium`. Read the script's header for its options.
+
+```
+node scripts/capture-user-manual-screenshot.mjs \
+  --path /patients/all \
+  --out docs/user-manuals/desktop/patients/images/find-a-patient-list.png
+```
+
+Getting a Tamanu running is the hard part, not the capture. Pointing at an existing deployment via
+`FACILITY_FRONTEND_URL` avoids standing up the local stack, which needs two databases, a
+provisioning run, and a sync bootstrap (`packages/e2e-tests/README.md`). **Ask which environment to
+use rather than assuming** — it determines whether the shots are publishable.
+
+**Mobile.** There is no capture tooling and no emulator automation. Mobile screenshots are taken by
+a person. Leave placeholders and say so when you hand the work back.
+
+**Two rules that do not bend:**
+
+- **Never capture a screen showing real patient information.** These images are published. Shoot
+  against demonstration or test data, and look at what you captured before committing it. Seed
+  patients like `Test Patient` are fine; anything from a live deployment is not.
+- **Replace the placeholder with the image, never leave both.** Put the file in the module's
+  `images/` folder, name it for its guide and what it shows, and give it alt text describing the
+  screen. `npm run check-user-manuals` reports a missing image or empty alt text.
+
+If a screen will not hold still, looks empty because the data is thin, or needs a state you cannot
+reach, leave the placeholder and say which shots are outstanding.
 
 ### Never hand-edit the navigation
 

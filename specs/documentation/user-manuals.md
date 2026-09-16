@@ -145,6 +145,17 @@ The writing carries no assumed knowledge of Tamanu's internals.
       found by searching for one string.
 - [ ] Screenshots sit where a visual helps the reader, typically on reaching a new screen
       or at a step that words describe poorly, rather than at a fixed rate per step.
+- [ ] Capturing a shot replaces its placeholder with the image, so a guide holds either
+      the placeholder or the picture and never both.
+- [ ] A module's images live in an `images` folder beside its guides, named for the guide
+      they belong to and what they show, so a guide and its pictures travel together.
+- [ ] Every image carries alt text describing what the shot shows, since the description
+      is what a reader who cannot see the image is left with.
+- [ ] A guide referring to an image that is not there is reported, the same way an
+      unlisted guide is.
+
+Screenshots are published, so they are taken against demonstration or test data. A
+screenshot never shows information about a real patient.
 
 ## Accuracy
 

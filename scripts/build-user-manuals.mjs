@@ -111,10 +111,12 @@ for (const platform of manifest.platforms) {
 
     // A guide file on disk that the manifest does not list has no place in the order,
     // so say so rather than quietly leaving it unreachable.
-    const onDisk = await fs.readdir(moduleDir).catch(() => []);
-    for (const file of onDisk) {
-      if (file !== 'index.md' && !guideFiles.includes(file)) {
-        problems.push(`${join(moduleDir, file)} is not listed in the manifest`);
+    // Only guides are listed in the manifest; the images folder beside them is not.
+    const onDisk = await fs.readdir(moduleDir, { withFileTypes: true }).catch(() => []);
+    for (const entry of onDisk) {
+      if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+      if (entry.name !== 'index.md' && !guideFiles.includes(entry.name)) {
+        problems.push(`${join(moduleDir, entry.name)} is not listed in the manifest`);
       }
     }
 
@@ -129,6 +131,19 @@ for (const platform of manifest.platforms) {
       }
       const title = guideTitle(source, path);
       if (title === null) continue;
+
+      // An image reference that points at nothing renders as a broken picture, which is
+      // worse than the placeholder it replaced. Catch it here rather than in review.
+      for (const [, alt, target] of source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)) {
+        if (/^https?:/.test(target)) continue;
+        try {
+          await fs.access(join(moduleDir, target));
+        } catch {
+          problems.push(`${path} refers to a missing image: ${target}`);
+        }
+        if (!alt.trim()) problems.push(`${path} has an image with no alt text: ${target}`);
+      }
+
       guides.push({ file, path, source, title, number: `${moduleNumber}.${guideIndex + 1}` });
     }
 
