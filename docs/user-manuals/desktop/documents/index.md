@@ -1,4 +1,4 @@
-# 21. Documents
+# 20. Documents
 
 Files attached to a patient or an encounter.
 

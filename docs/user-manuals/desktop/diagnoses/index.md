@@ -1,4 +1,4 @@
-# 10. Diagnoses
+# 9. Diagnoses
 
 Recording and managing a patient's diagnoses.
 

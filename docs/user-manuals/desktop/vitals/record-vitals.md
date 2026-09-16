@@ -1,6 +1,6 @@
 [← Vitals](index.md)
 
-# 11.1 Record a set of vitals
+# 10.1 Record a set of vitals
 
 Record a patient's observations against the encounter they are admitted under. Start from
 the patient's encounter.
