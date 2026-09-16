@@ -145,13 +145,21 @@ Where a type has no downloadable template, omit that row rather than leaving it 
 ```
 
 - Mark required columns with a space and `*` after the name, and state the convention once above the
-  table: `Where * is a required field.`
+  table: `Where * is a required field.` The marker means the reader must supply a value. Where the
+  importer does not actually enforce it, say so in that column's description, since a field that fails
+  silently rather than erroring is exactly what a reader needs warning about
 - Column names go in the left cell **as they appear in the spreadsheet header**, unadorned. Do not
   wrap them in backticks; the whole column is identifiers, so backticks add noise without adding
   meaning
 - Every optional column's description says what happens when it is left empty, either the default it
   takes or that no default applies. This is the question a reader most often brings to the table
-- Order the columns as the importer expects them, so the table can be read alongside the spreadsheet
+- Order the columns to match the exported spreadsheet, so a reader can work down the table and across
+  the sheet in step. Importers read by header name, so column order does not affect the import itself;
+  the ordering is for the reader
+- **Only list real column headers.** Where a sheet accepts variable headers, such as the drug sheet
+  reading any unrecognised header as a facility id, describe that in a section below the table rather
+  than inventing a placeholder row for it. A placeholder name in the column table reads as a literal
+  header, and someone will type it in
 
 **Permitted values.** Where a stored value differs from what Tamanu displays, give both:
 

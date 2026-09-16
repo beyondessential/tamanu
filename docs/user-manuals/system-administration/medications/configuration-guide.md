@@ -46,21 +46,23 @@ Where * is a required field.
 | id * | Unique id for the drug. Letters, numbers and hyphens only. |
 | code * | Unique code for the drug. Letters, numbers, hyphens, full stops and forward slashes only. |
 | name * | Name for the drug, up to 255 characters. This is the medication name displayed in Tamanu. |
+| visibilityStatus | `current` for drugs available for prescription, or `historical` for drugs that should not be prescribed and should not appear in Tamanu. Defaults to `current` if blank. |
+| systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
+| availableFacilities | Restricts the drug to specific facilities. Must be a JSON array of facility ids, for example `["facility-a", "facility-b"]`. Leave blank for all facilities. |
+| route | The pathway through which the medication enters the body. Must be one of the routes listed under [Route of administration](#route-of-administration). If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
 | dosingUnit | The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under [Units](#units). |
 | dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). Defaults to the dosing unit if not set. |
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
-| route | The pathway through which the medication enters the body. Must be one of the routes listed under [Route of administration](#route-of-administration). If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
 | notes | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required. |
 | isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](#sensitive-medications-supported-from-v239-onwards). |
-| visibilityStatus | `current` for drugs available for prescription, or `historical` for drugs that should not be prescribed and should not appear in Tamanu. Defaults to `current` if blank. |
-| availableFacilities | Restricts the drug to specific facilities. Must be a JSON array of facility ids, for example `["facility-a", "facility-b"]`. Leave blank for all facilities. |
-| systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
-| facilityId | To record stock levels per facility, add the relevant facility id as a column header. See stock levels below. |
+
+Stock levels are recorded in additional columns, one per facility, as described below.
 
 ### Stock levels
 
-Any column header that is not one of the columns above is treated as a facility id, and its cells set
-that facility's stock level for each drug:
+To record stock levels for a facility, add a column whose header is that facility's id. There is no
+column named `facilityId`: any column header that is not one of the columns above is read as a facility
+id, and its cells set that facility's stock level for each drug:
 
 - `0`: medication out of stock
 - `1` or above: medication in stock
@@ -139,7 +141,7 @@ Where * is a required field.
 | code * | Unique code for the medication set. |
 | type * | Always `medicationSet`. |
 | name * | Unique name for the medication set. |
-| medicationTemplates * | The medication template `id`s included in the set, separated by commas. A single template can be used across multiple sets. |
+| medicationTemplates * | The medication template `id`s included in the set, separated by commas. A single template can be used across multiple sets. This column is not validated on import, so an empty cell is accepted and leaves the set unchanged rather than reporting an error. |
 | visibilityStatus | `current` for sets available for ordering, or `historical` for sets that should not appear in Tamanu. Defaults to `current` if blank. |
 
 The `medicationTemplates` cell is the complete list for that set. Templates removed from the cell are
