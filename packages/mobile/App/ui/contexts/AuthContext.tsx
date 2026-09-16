@@ -1,27 +1,27 @@
+import type { PureAbility } from '@casl/ability';
+import NetInfo from '@react-native-community/netinfo';
+import type { NavigationContainerRef } from '@react-navigation/native';
 import React, {
   createContext,
   type PropsWithChildren,
-  type ReactElement,
   type RefObject,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import type { NavigationContainerRef } from '@react-navigation/native';
-import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
-import type { PureAbility } from '@casl/ability';
+import type { User } from '~/models/User';
 import { readConfig } from '~/services/config';
-import { withAuth } from '~/ui/containers/Auth';
-import type { WithAuthStoreProps } from '~/ui/store/ducks/auth';
-import { Routes } from '~/ui/helpers/routes';
-import { BackendContext } from '~/ui/contexts/BackendContext';
 import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
-import type { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
-import type { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
+import { withAuth } from '~/ui/containers/Auth';
+import { BackendContext } from '~/ui/contexts/BackendContext';
 import { buildAbility } from '~/ui/helpers/ability';
 import { resolveAuthErrorAction } from '~/ui/helpers/auth';
-import type { User } from '~/models/User';
+import { Routes } from '~/ui/helpers/routes';
+import type { RootStackParamList } from '~/ui/navigation/stacks/Core';
+import type { WithAuthStoreProps } from '~/ui/store/ducks/auth';
+import type { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
+import type { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
 
 interface AuthProviderProps extends WithAuthStoreProps {
   navRef: RefObject<NavigationContainerRef<RootStackParamList>>;

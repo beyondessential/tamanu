@@ -1,18 +1,18 @@
-import React, { type ReactElement } from 'react';
-import { Root } from 'popup-ui';
 import { NavigationContainer, type NavigationContainerRef } from '@react-navigation/native';
+import { Root } from 'popup-ui';
+import React, { type ReactElement } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PersistGate } from 'redux-persist/integration/react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { persistor, store } from '../../store/index';
+import { PersistGate } from 'redux-persist/integration/react';
+import { SettingsProvider } from '~/ui/contexts/SettingsContext';
 import { AuthProvider } from '../../contexts/AuthContext';
 import { FacilityProvider } from '../../contexts/FacilityContext';
 import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { TranslationProvider } from '../../contexts/TranslationContext';
+import { persistor, store } from '../../store/index';
 import { Core, type RootStackParamList } from './Core';
 import { DetectIdleLayer } from './DetectIdleLayer';
-import { SettingsProvider } from '~/ui/contexts/SettingsContext';
 
 export const RootStack = (): ReactElement => {
   const navigationRef = React.useRef<NavigationContainerRef<RootStackParamList>>(null);
