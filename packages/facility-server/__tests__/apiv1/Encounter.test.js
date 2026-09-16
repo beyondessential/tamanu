@@ -498,12 +498,8 @@ describe('Encounter', () => {
     it('replaces the draft rather than accumulating one per save', async () => {
       const encounter = await createOpenEncounter();
 
-      await app
-        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
-        .send({ note: 'first' });
-      await app
-        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
-        .send({ note: 'second' });
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'first' });
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'second' });
 
       const drafts = await models.EncounterDischargeDraft.findAll({
         where: { encounterId: encounter.id },
@@ -649,9 +645,7 @@ describe('Encounter', () => {
 
         // Discarding is how a clinician gets out of a form they have edited. Gating it on the
         // same permission as saving would leave them unable to close one.
-        const discarded = await formOnlyApp.delete(
-          `/api/encounter/${encounter.id}/dischargeDraft`,
-        );
+        const discarded = await formOnlyApp.delete(`/api/encounter/${encounter.id}/dischargeDraft`);
         expect(discarded).toHaveSucceeded();
       });
 
@@ -1282,6 +1276,66 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         const names = result.body.data.map(d => d.diagnosis.name);
         expect(names).toEqual([...names].sort());
+      });
+
+      it('should default to listing disproven diagnoses last, after primary/alphabetical ordering', async () => {
+        const disprovenSortEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis disproven sort test',
+        });
+        const [aardvark, disprovenZebra] = await Promise.all(
+          ['Aardvark', 'Zebra'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+
+        // Disproven, but alphabetically first: should still land after the confirmed diagnosis.
+        await models.EncounterDiagnosis.create({
+          encounterId: disprovenSortEncounter.id,
+          diagnosisId: aardvark.id,
+          isPrimary: true,
+          certainty: 'disproven',
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: disprovenSortEncounter.id,
+          diagnosisId: disprovenZebra.id,
+          isPrimary: false,
+          certainty: 'confirmed',
+        });
+
+        const result = await app.get(`/api/encounter/${disprovenSortEncounter.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.map(d => d.diagnosis.name)).toEqual(['Zebra', 'Aardvark']);
+      });
+
+      it('should not include diagnoses recorded in error', async () => {
+        const errorEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis error test',
+        });
+        const [confirmedDiagnosis, erroredDiagnosis] = await Promise.all(
+          ['Confirmed one', 'Errored one'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+
+        await models.EncounterDiagnosis.create({
+          encounterId: errorEncounter.id,
+          diagnosisId: confirmedDiagnosis.id,
+          certainty: 'confirmed',
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: errorEncounter.id,
+          diagnosisId: erroredDiagnosis.id,
+          certainty: 'error',
+        });
+
+        const result = await app.get(`/api/encounter/${errorEncounter.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toEqual(1);
+        expect(result.body.data[0].diagnosis.name).toEqual('Confirmed one');
       });
     });
 
