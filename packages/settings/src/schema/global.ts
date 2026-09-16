@@ -431,6 +431,12 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        mandatorySyndromicSurveillanceOnDischarge: {
+          description:
+            'Require syndromic surveillance to be completed before a patient can be manually discharged. Not enforced on the server, so an encounter that discharges automatically (e.g. outpatient) is unaffected.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
       },
     },
     appointments: {

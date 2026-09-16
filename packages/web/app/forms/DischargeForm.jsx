@@ -293,6 +293,9 @@ export const DischargeForm = ({
   const showEncounterSummary =
     encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
   const showSyndromicSurveillance = getSetting('syndromicSurveillance.enableSyndromicSurveillance');
+  const syndromicSurveillanceMandatory =
+    showSyndromicSurveillance &&
+    getSetting('syndromicSurveillance.mandatorySyndromicSurveillanceOnDischarge');
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
     d => !['error', 'disproven'].includes(d.certainty),
@@ -559,6 +562,15 @@ export const DischargeForm = ({
                 fallback="Discharge disposition"
               />,
             ),
+          ...(syndromicSurveillanceMandatory && {
+            noSyndrome: yup
+              .boolean()
+              .test('atLeastOneSyndromicSurveillanceItem', requiredInlineMessage, function (value) {
+                const symptoms = this.options.context?.symptoms ?? {};
+                const isAnySymptomChecked = Object.values(symptoms).some(Boolean);
+                return Boolean(value) || isAnySymptomChecked;
+              }),
+          }),
         })}
         formProps={{
           enableReinitialize: false,

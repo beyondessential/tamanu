@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
-import { useFormikContext } from 'formik';
+import { useFormikContext, getIn } from 'formik';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 
 import { Colors } from '../constants/styles';
 import { CheckField, Field } from '../components/Field';
@@ -27,7 +28,7 @@ export const SYNDROMIC_SURVEILLANCE_INITIAL_VALUES = {
 const WhiteBox = styled.div`
   grid-column: 1 / -1;
   background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${props => (props.$error ? Colors.alert : Colors.outline)};
   border-radius: 4px;
   padding: 20px;
   display: grid;
@@ -46,11 +47,17 @@ const IntroText = styled.p`
 `;
 
 export const SyndromicSurveillanceFields = React.memo(({ 'data-testid': dataTestId }) => {
-  const { values } = useFormikContext();
+  const {
+    values,
+    errors,
+    status: { submitStatus },
+  } = useFormikContext();
   const isAnySymptomChecked = Object.values(values.symptoms ?? {}).some(Boolean);
+  const hasRequiredError =
+    submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, 'noSyndrome');
 
   return (
-    <WhiteBox data-testid={dataTestId}>
+    <WhiteBox $error={hasRequiredError} data-testid={dataTestId}>
       <IntroText data-testid="introtext-syndromic-surveillance">
         <TranslatedText
           stringId="syndromicSurveillance.modal.intro"
