@@ -110,7 +110,11 @@ light display type, and a dark capsule around the search.
   sections read as different kinds of thing.
 - **The page sits on a soft neutral canvas** (`#F3F5F7`, Tamanu's own `background` token) rather
   than white, with the sticky top bar, cards, inputs, the search palette and the Ask AI drawer kept
-  white so they read as surfaces on it. The global search mockup keeps its dark stand-in backdrop.
+  white so they read as surfaces on it. **Release notes is the exception and reads on white**, since
+  it is a long unbroken run of prose. The global search mockup keeps its dark stand-in backdrop.
+- **The top bar exists in two markup variants** across the mockups (`nav.links`/`.searchbox`/`.k` on
+  most pages, `nav.top`/`.nav-search`/`.kbd` on release notes and the article). Any bar-level styling
+  has to cover both, or those two pages silently keep the old treatment.
 - **The top bar is sticky and navy**, the same `#2F4358` as the footer, so the page is bracketed by
   the brand dark at both ends. It carries a white search pill and a gold Ask AI pill, making it a
   compressed echo of the hero capsule, and gains a shadow once the page scrolls beneath it. It was

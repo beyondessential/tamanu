@@ -631,6 +631,9 @@
   .grid.three .lcard:nth-child(3) { --a:var(--c-green);  --a-10:var(--c-green-10); }
   .pcard { --a:var(--c-purple); --a-10:var(--c-purple-10); }
   .pcard.release { --a:var(--c-pink); --a-10:var(--c-pink-10); }
+
+  /* ---- release notes reads on white, not the neutral canvas ---- */
+  body:has(section[data-view="releases"]:not([hidden])) { background:var(--bg); }
 </style>
 </head>
 <body>

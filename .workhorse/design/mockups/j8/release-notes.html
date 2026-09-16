@@ -329,6 +329,18 @@
     border-radius:999px; box-shadow:none; }
   header.nav .askai:hover { background:var(--bg); border-color:var(--bg); color:var(--brand-dark); }
   header.nav .askai svg { color:var(--brand-dark); }
+
+  /* ---- release notes reads on white, not the neutral canvas ---- */
+  body { background:var(--bg); }
+
+  /* ---- dark top bar, second markup variant (nav.top / .nav-search / .kbd) ---- */
+  header.nav nav.top a { color:rgba(255,255,255,.78); }
+  header.nav nav.top a:hover { color:#fff; }
+  header.nav nav.top a.active { color:#fff; font-weight:640; }
+  header.nav .nav-search { background:var(--bg); border:none; border-radius:999px; color:var(--ink-3); }
+  header.nav .nav-search:hover { box-shadow:0 0 0 3px rgba(255,255,255,.16); }
+  header.nav .nav-search svg { color:var(--brand); }
+  header.nav .nav-search .kbd { background:var(--fill); border:1px solid var(--line); color:var(--ink-3); }
 </style>
 </head>
 <body>
