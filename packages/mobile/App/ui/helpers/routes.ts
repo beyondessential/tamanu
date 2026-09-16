@@ -16,7 +16,6 @@ export const Routes = {
   },
   SignUpStack: {
     Index: '',
-    Intro: '',
     SignIn: '',
     SelectFacility: '',
     ResetPassword: '',

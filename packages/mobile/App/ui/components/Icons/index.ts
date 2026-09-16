@@ -20,7 +20,6 @@ export * from './Pencil';
 export * from './CircleAdd';
 
 // Logos
-export * from './LogoV1';
 export * from './LogoV2';
 
 export * from './Profile';
