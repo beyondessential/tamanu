@@ -1,11 +1,10 @@
 import React from 'react';
-import { Path, Svg } from 'react-native-svg';
-import type { IconWithSizeProps } from '/interfaces/WithSizeProps';
+import { Path, Svg, type SvgProps } from 'react-native-svg';
 import { theme } from '~/ui/styled/theme';
 
-export default function TamanuComboMark({ width = 107, height = 26, ...props }: IconWithSizeProps) {
+export default function TamanuComboMark(props: SvgProps) {
   return (
-    <Svg width={width} height={height} viewBox="0 0 107 26" fill="none" {...props}>
+    <Svg width={107} height={26} viewBox="0 0 107 26" fill="none" {...props}>
       <Path
         fillRule="evenodd"
         clipRule="evenodd"
