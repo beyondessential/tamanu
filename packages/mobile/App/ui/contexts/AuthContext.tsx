@@ -23,9 +23,9 @@ import { buildAbility } from '~/ui/helpers/ability';
 import { resolveAuthErrorAction } from '~/ui/helpers/auth';
 import type { User } from '~/models/User';
 
-type AuthProviderProps = WithAuthStoreProps & {
+interface AuthProviderProps extends WithAuthStoreProps {
   navRef: RefObject<NavigationContainerRef>;
-};
+}
 
 interface AuthContextData {
   user: IUser;
