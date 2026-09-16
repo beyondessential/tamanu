@@ -34,11 +34,10 @@ essential medicines list.
 > medication is selected for prescription the defaults populate automatically, which speeds up creating
 > prescriptions.
 
-**_Tab name_**
-
-`Drug`
-
-**_Columns_**
+| Field | Value |
+| --- | --- |
+| Tab name | `Drug` |
+| Example template | [Drugs reference data template](https://docs.google.com/spreadsheets/d/1LJgSj4npHaEQ2VTGEqj6JjNHnEzipH0J/edit?usp=sharing&ouid=101956383786037376753&rtpof=true&sd=true) |
 
 Where * is a required field.
 
@@ -58,7 +57,7 @@ Where * is a required field.
 | systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
 | facilityId | To record stock levels per facility, add the relevant facility id as a column header. See stock levels below. |
 
-**_Stock levels_**
+### Stock levels
 
 Any column header that is not one of the columns above is treated as a facility id, and its cells set
 that facility's stock level for each drug:
@@ -75,11 +74,6 @@ facility with an unknown stock level.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
 that facility's stock levels. See the Dispensing configuration guide.
-
-**_Example reference data template_**
-
-An example Drugs reference data template is available
-[here](https://docs.google.com/spreadsheets/d/1LJgSj4npHaEQ2VTGEqj6JjNHnEzipH0J/edit?usp=sharing&ouid=101956383786037376753&rtpof=true&sd=true).
 
 ---
 
@@ -100,11 +94,10 @@ Two reference data types configure medication sets: `Medication Template` and `M
 
 `Medication Template` defines the default prescription details for each medication within a set.
 
-**_Tab name_**
-
-`Medication Template`
-
-**_Columns_**
+| Field | Value |
+| --- | --- |
+| Tab name | `Medication Template` |
+| Example template | [Medication Template reference data template](https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=1677869917) |
 
 Where * is a required field.
 
@@ -128,20 +121,15 @@ Where * is a required field.
 A duration cannot be set when the frequency is `Immediately`, or when the medication is flagged as
 ongoing. The import reports an error in both cases.
 
-**_Example reference data template_**
-
-[https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=1677869917](https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=1677869917)
-
 ### Medication Set
 
 `Medication Set` defines which medications are included in a set. Import it after, or at the same time
 as, Medication Template so the templates it references already exist.
 
-**_Tab name_**
-
-`Medication Set`
-
-**_Columns_**
+| Field | Value |
+| --- | --- |
+| Tab name | `Medication Set` |
+| Example template | [Medication Set reference data template](https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=521761644) |
 
 Where * is a required field.
 
@@ -158,10 +146,6 @@ The `medicationTemplates` cell is the complete list for that set. Templates remo
 removed from the set on the next import, and clearing the cell empties the set. Listing the same
 template twice, or naming a template that does not exist, reports an error.
 
-**_Example reference data template_**
-
-[https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=521761644](https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=521761644)
-
 ---
 
 ## Prescriber
@@ -177,11 +161,10 @@ user, see Users: Creating and Managing Users.
 > This reference data type must be configured to complete the medication administration record workflow
 > when a medication is recorded as not given. Without it, staff cannot record a medication as not given.
 
-**_Tab name_**
-
-`Medication Not Given Reason`
-
-**_Columns_**
+| Field | Value |
+| --- | --- |
+| Tab name | `Medication Not Given Reason` |
+| Example template | [Medication Not Given Reason reference data template](https://docs.google.com/spreadsheets/d/15IdNmcWf9h77P8fkOpprbh72asvj_RXIwUxSxbmmlkw) |
 
 Where * is a required field.
 
@@ -191,10 +174,6 @@ Where * is a required field.
 | code * | Unique code for the not given reason. |
 | name * | Unique name for the reason not given. |
 | visibilityStatus | `current` for reasons available for selection, or `historical` for reasons that should no longer be available. Defaults to `current` if blank. |
-
-**_Example reference data template_**
-
-[https://docs.google.com/spreadsheets/d/15IdNmcWf9h77P8fkOpprbh72asvj_RXIwUxSxbmmlkw](https://docs.google.com/spreadsheets/d/15IdNmcWf9h77P8fkOpprbh72asvj_RXIwUxSxbmmlkw)
 
 ---
 
@@ -273,7 +252,7 @@ prescribing.
 > `Hourly` and `Half-hourly` are fixed. Configuring administration times for these frequencies has no
 > effect.
 
-**_Searching by synonym_**
+### Searching by synonym
 
 Frequency selection supports searching by synonym. For example `Daily at night` is also searchable by
 `nocte` and `nightly`. When searching by a synonym the primary frequency is returned with its first
@@ -355,15 +334,13 @@ pharmacy', are covered in the Dispensing configuration guide.
 All hard coded frequencies are available by default. A frequency option can be disabled where it is not
 relevant to your deployment. Updates apply to all facilities in the deployment.
 
-**Scope:** Global (All Facilities/Servers)
-
-**Category:** Medications
-
-**Sub-category:** Frequencies enabled
-
-**Setting:** Toggle the required frequency off to disable it
-
-**Default:** All frequencies enabled
+| Field | Value |
+| --- | --- |
+| Scope | Global (All Facilities/Servers) |
+| Category | Medications |
+| Sub-category | Frequencies enabled |
+| Setting | Toggle the required frequency off to disable it |
+| Default | All frequencies enabled |
 
 > **Screenshot needed:** the frequencies enabled setting.
 
@@ -371,18 +348,13 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
 
 For each frequency, the default administration schedule and ideal administration time can be changed.
 
-**Scope:** Global (All Facilities/Servers)
-
-**Category:** Medications
-
-**Sub-category:** Default administration times
-
-**Setting:** For each frequency, set the ideal administration times in the JSON editor. The default
-administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to
-10:00 window.
-
-**Default:** The standard administration times for each frequency, as listed under
-[Frequency](#frequency)
+| Field | Value |
+| --- | --- |
+| Scope | Global (All Facilities/Servers) |
+| Category | Medications |
+| Sub-category | Default administration times |
+| Setting | For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window. |
+| Default | The standard administration times for each frequency, as listed under [Frequency](#frequency) |
 
 > **Screenshot needed:** the default administration times setting.
 
@@ -470,17 +442,13 @@ Unless specified, these work without configuration.
 The dispensing quantity can be calculated automatically from the dose, frequency and duration of a
 prescription, avoiding manual calculation. Automatically calculated quantities can still be edited.
 
-This is disabled by default and enabled with the following setting:
-
-**Scope:** Global (All Facilities/Servers)
-
-**Category:** Medications
-
-**Sub-category:** Dispensing
-
-**Setting:** Dispensing quantity autocalculation
-
-**Default:** Disabled
+| Field | Value |
+| --- | --- |
+| Scope | Global (All Facilities/Servers) |
+| Category | Medications |
+| Sub-category | Dispensing |
+| Setting | Dispensing quantity autocalculation |
+| Default | Disabled |
 
 ## Immediate medications
 

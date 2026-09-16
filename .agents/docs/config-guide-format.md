@@ -29,16 +29,17 @@ module.
 
 Then these sections, in this order:
 
-1. **`# Reference Data Types`** — one `##` per type. Each type states its purpose, names its import
-   spreadsheet **_Tab name_** in backticks, presents a **_Columns_** table (`Column name |
+1. **`# Reference Data Types`** — one `##` per type. Each type states its purpose, gives a details table
+   carrying its import spreadsheet tab name and example template link (see
+   [Reference data details](#reference-data-details)), then a columns table (`Column name |
    Description`) marking required columns with `*` and describing each column's meaning and its
-   behaviour when left empty, and links an **_Example reference data template_**. Nested types share a
-   `##`. Types populated from elsewhere in Tamanu (the prescriber list, drawn from active users) are
-   described in prose and point at the relevant guide rather than given a column table.
+   behaviour when left empty. Nested types share a `##`. Types populated from elsewhere in Tamanu (the
+   prescriber list, drawn from active users) are described in prose and point at the relevant guide
+   rather than given a column table.
 2. **`# Hard coded fields`** — the values each field permits, with a note that changing them requires a
    code change requested through a system administrator or project manager.
 3. **`# Settings`** — each setting as a **Scope** / **Category** / **Sub-category** / **Setting** /
-   **Default** block, preceded by a short description of what the setting does (see
+   **Default** table, preceded by a short description of what the setting does (see
    [Settings blocks](#settings-blocks)). Settings taking structured values also show the required
    format and the errors invalid input raises.
 4. **Feature and workflow sections** — self-contained, stating what requires configuration and what
@@ -61,10 +62,14 @@ spacing there. Plan for two renderings of the same file:
 | --- | --- | --- |
 | Callouts | Coloured, with icon. Native alert rendering | Coloured, per the design |
 | Tables | GitHub's table styling | Tamanu blue headers |
-| Settings blocks | Bold labels on separate lines, no box | Bordered block |
 | Required marker | A plain `*` character | Coloured `*` |
 | Screenshot placeholders | A plain blockquote | Marked placeholder panel |
 | Version flags | Plain text in the heading or cell | Tinted inline label |
+
+Structured content goes in **tables** rather than runs of bold labels, because a table is the one
+grouping construct that survives both renderings intact. This is why settings and reference data
+details are tables: as loose `**Label:**` lines they hold together only where a design can draw a box
+around them, and on GitHub they read as stranded bold text.
 
 The design in `.workhorse/design/mockups/k8/config-guide.html` is the **docs site** target, not what
 GitHub shows.
@@ -84,19 +89,20 @@ Order each setting as **heading, then description, then the block**, so the read
 setting does before being shown where to find it. Anything enumerating the setting's possible values
 goes after the block.
 
-The block carries five fields:
+The block is a two-column table carrying five fields:
 
 ```markdown
-**Scope:** Facility (single facility)
-
-**Category:** Medication
-
-**Sub-category:** Pharmacy orders
-
-**Setting:** Default prescription type
-
-**Default:** Existing encounter type
+| Field | Value |
+| --- | --- |
+| Scope | Facility (single facility) |
+| Category | Medication |
+| Sub-category | Pharmacy orders |
+| Setting | Default prescription type |
+| Default | Existing encounter type |
 ```
+
+Keep the five rows in that order, and include every row even where a value is obvious, so blocks stay
+comparable at a glance across guides.
 
 **Default** states the value that applies when the setting is untouched, taken from the schema's
 `defaultValue`. Give it in the reader's terms rather than the stored form: `Disabled` for a boolean
@@ -112,6 +118,22 @@ leaving **Default** blank.
 Tables carry the dense reference material: reference data columns, permitted values, and anything with
 a per-row default. Keep the first column the thing being looked up, so a reader scanning the left edge
 finds their row.
+
+### Reference data details
+
+Each reference data type opens with a details table, so its tab name and template link sit together
+rather than as free-floating labelled lines:
+
+```markdown
+| Field | Value |
+| --- | --- |
+| Tab name | `Drug` |
+| Example template | [Drugs reference data template](https://example.com/drugs) |
+```
+
+Where a type has no downloadable template, omit that row rather than leaving it empty.
+
+### Column tables
 
 **Reference data columns.** Two columns, `Column name` and `Description`:
 

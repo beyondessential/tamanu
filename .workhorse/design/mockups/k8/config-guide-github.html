@@ -152,11 +152,13 @@
     prescription the defaults populate automatically, which speeds up creating prescriptions.</p>
   </div>
 
-  <p><strong><em>Tab name</em></strong></p>
-
-  <p><code>Drug</code></p>
-
-  <p><strong><em>Columns</em></strong></p>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Tab name</td><td><code>Drug</code></td></tr>
+      <tr><td>Example template</td><td><a href="#">Drugs reference data template</a></td></tr>
+    </tbody>
+  </table>
 
   <p>Where * is a required field.</p>
 
@@ -188,9 +190,13 @@
     not given.</p>
   </div>
 
-  <p><strong><em>Tab name</em></strong></p>
-
-  <p><code>Medication Not Given Reason</code></p>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Tab name</td><td><code>Medication Not Given Reason</code></td></tr>
+      <tr><td>Example template</td><td><a href="#">Medication Not Given Reason reference data template</a></td></tr>
+    </tbody>
+  </table>
 
   <hr>
 
@@ -226,15 +232,16 @@
   <p>All hard coded frequencies are available by default. A frequency option can be disabled where it is
   not relevant to your deployment. Updates apply to all facilities in the deployment.</p>
 
-  <p><strong>Scope:</strong> Global (All Facilities/Servers)</p>
-
-  <p><strong>Category:</strong> Medications</p>
-
-  <p><strong>Sub-category:</strong> Frequencies enabled</p>
-
-  <p><strong>Setting:</strong> Toggle the required frequency off to disable it</p>
-
-  <p><strong>Default:</strong> All frequencies enabled</p>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Scope</td><td>Global (All Facilities/Servers)</td></tr>
+      <tr><td>Category</td><td>Medications</td></tr>
+      <tr><td>Sub-category</td><td>Frequencies enabled</td></tr>
+      <tr><td>Setting</td><td>Toggle the required frequency off to disable it</td></tr>
+      <tr><td>Default</td><td>All frequencies enabled</td></tr>
+    </tbody>
+  </table>
 
   <blockquote>
     <p><strong>Screenshot needed:</strong> the frequencies enabled setting.</p>
@@ -245,18 +252,16 @@
   <p>For each frequency, the default administration schedule and ideal administration time can be
   changed.</p>
 
-  <p><strong>Scope:</strong> Global (All Facilities/Servers)</p>
-
-  <p><strong>Category:</strong> Medications</p>
-
-  <p><strong>Sub-category:</strong> Default administration times</p>
-
-  <p><strong>Setting:</strong> For each frequency, set the ideal administration times in the JSON
-  editor. The default administration window is determined from the time set, so an ideal time of 09:00
-  falls in the 08:00 to 10:00 window.</p>
-
-  <p><strong>Default:</strong> The standard administration times for each frequency, as listed under
-  <a href="#">Frequency</a></p>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Scope</td><td>Global (All Facilities/Servers)</td></tr>
+      <tr><td>Category</td><td>Medications</td></tr>
+      <tr><td>Sub-category</td><td>Default administration times</td></tr>
+      <tr><td>Setting</td><td>For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window.</td></tr>
+      <tr><td>Default</td><td>The standard administration times for each frequency, as listed under <a href="#">Frequency</a></td></tr>
+    </tbody>
+  </table>
 
   <p>Required format:</p>
 

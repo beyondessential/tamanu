@@ -90,8 +90,6 @@
     border-radius: 4px; padding: 2px 8px;
   }
 
-  .field { font-style: italic; font-weight: 600; font-size: 13.5px; color: var(--text-2); margin: 20px 0 6px; }
-
   /* Tables */
   table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 13.5px; }
   th {
@@ -113,25 +111,6 @@
   tbody tr:nth-child(even) { background: var(--surface-2); }
   tr:last-child td { border-bottom: 0; }
   .req { color: var(--required); font-weight: 700; }
-
-  /* Settings block */
-  .setting {
-    border: 1px solid var(--primary-30); border-left: 3px solid var(--primary);
-    border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 14px 0 18px;
-    background: var(--primary-10);
-  }
-  .setting dl { display: grid; grid-template-columns: 124px 1fr; gap: 7px 16px; margin: 0; font-size: 13.5px; }
-  .setting dt {
-    font-weight: 600; color: var(--primary); font-size: 11.5px;
-    text-transform: uppercase; letter-spacing: .04em; padding-top: 3px;
-  }
-  .setting dd { margin: 0; color: var(--text); }
-  .setting dd .val {
-    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px;
-    background: var(--surface); border: 1px solid var(--primary-30);
-    border-radius: 4px; padding: 1px 6px; color: var(--primary-dark);
-  }
-  .setting .default-row dd { color: var(--text-2); }
 
   /* Note boxes */
   .note { border-radius: 8px; padding: 13px 16px 13px 44px; font-size: 13.5px; margin: 0 0 18px; position: relative; }
@@ -256,10 +235,14 @@
       medication is selected, which noticeably speeds up creating prescriptions.</p>
     </div>
 
-    <div class="field">Tab name</div>
-    <p><code>Drug</code></p>
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td class="plain">Tab name</td><td><code>Drug</code></td></tr>
+        <tr><td class="plain">Example template</td><td><a href="#">Drugs reference data template</a></td></tr>
+      </tbody>
+    </table>
 
-    <div class="field">Columns</div>
     <p class="muted" style="font-size:13.5px">Where <span class="req">*</span> is a required field.</p>
 
     <table>
@@ -355,34 +338,32 @@
     <p>Calculates the dispensing quantity from the dose, frequency and duration of a prescription,
     avoiding manual calculation. Automatically calculated quantities can still be edited.</p>
 
-    <div class="setting">
-      <dl>
-        <dt>Scope</dt><dd>Global (All Facilities/Servers)</dd>
-        <dt>Category</dt><dd>Medications</dd>
-        <dt>Sub-category</dt><dd>Dispensing</dd>
-        <dt>Setting</dt><dd>Dispensing quantity autocalculation</dd>
-        <div class="default-row" style="display:contents">
-          <dt>Default</dt><dd><span class="val">Disabled</span></dd>
-        </div>
-      </dl>
-    </div>
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td class="plain">Scope</td><td>Global (All Facilities/Servers)</td></tr>
+        <tr><td class="plain">Category</td><td>Medications</td></tr>
+        <tr><td class="plain">Sub-category</td><td>Dispensing</td></tr>
+        <tr><td class="plain">Setting</td><td>Dispensing quantity autocalculation</td></tr>
+        <tr><td class="plain">Default</td><td>Disabled</td></tr>
+      </tbody>
+    </table>
 
     <h2>Default administration schedule</h2>
 
     <p>Sets the default administration schedule and the ideal administration time for each frequency.
     The default schedule is applied when a medication is prescribed, and can be edited at that point.</p>
 
-    <div class="setting">
-      <dl>
-        <dt>Scope</dt><dd>Global (All Facilities/Servers)</dd>
-        <dt>Category</dt><dd>Medications</dd>
-        <dt>Sub-category</dt><dd>Default administration times</dd>
-        <dt>Setting</dt><dd>For each frequency, set the ideal administration times in the JSON editor</dd>
-        <div class="default-row" style="display:contents">
-          <dt>Default</dt><dd>The standard times for each frequency, as listed under Frequency</dd>
-        </div>
-      </dl>
-    </div>
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td class="plain">Scope</td><td>Global (All Facilities/Servers)</td></tr>
+        <tr><td class="plain">Category</td><td>Medications</td></tr>
+        <tr><td class="plain">Sub-category</td><td>Default administration times</td></tr>
+        <tr><td class="plain">Setting</td><td>For each frequency, set the ideal administration times in the JSON editor</td></tr>
+        <tr><td class="plain">Default</td><td>The standard times for each frequency, as listed under Frequency</td></tr>
+      </tbody>
+    </table>
 
     <p class="muted">Times must be in 24-hour format and written in double quotation marks. Where a
     frequency has multiple doses in a day, separate each time with a comma:</p>
