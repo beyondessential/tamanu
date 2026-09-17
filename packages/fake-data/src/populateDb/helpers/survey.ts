@@ -1,8 +1,6 @@
-import { Op } from 'sequelize';
-
 import { randomRecordId } from '../randomRecord.js';
 
-import { fake } from '../../fake/index.js';
+import { fake, fakeSurveyAnswerBody } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateSurveyResponseParams extends CommonParams {
@@ -26,11 +24,16 @@ export const createSurveyResponse = async ({
   // Seeds from older versions carry components with no data element, which leaves nothing
   // to answer.
   const components = await SurveyScreenComponent.findAll({
-    where: { surveyId: resolvedSurveyId, dataElementId: { [Op.ne]: null } },
+    where: { surveyId: resolvedSurveyId },
+    include: { association: 'dataElement', required: true },
   });
   await SurveyResponseAnswer.bulkCreate(
-    components.map(({ dataElementId }) =>
-      fake(SurveyResponseAnswer, { responseId: response.id, dataElementId }),
+    components.map(({ dataElementId, dataElement }) =>
+      fake(SurveyResponseAnswer, {
+        responseId: response.id,
+        dataElementId,
+        body: fakeSurveyAnswerBody(dataElement),
+      }),
     ),
   );
 };
