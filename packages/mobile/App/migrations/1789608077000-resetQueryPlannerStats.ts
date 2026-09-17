@@ -3,10 +3,15 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 /**
  * 2.63–2.64 periodically ran approximate ANALYZEs; 2.65 replaces it with `PRAGMA optimize`. Discard
  * the query planner statistics from the any ANALYZEs which may have run, as stale stats may cause
- * `PRAGMA optimize`’s heuristics never to see any reason to replace them.
+ * `PRAGMA optimize`’s heuristics never to see any reason to replace them. Also discard the
+ * timestamp those runs recorded, so that the throttle doesn’t defer the first `PRAGMA optimize` and
+ * leave the device querying with no statistics at all.
  */
 export class resetQueryPlannerStats1789608077000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      "DELETE FROM local_system_facts WHERE key = 'plannerStatsLastRefreshedAt'",
+    );
     await queryRunner.query('DROP TABLE IF EXISTS sqlite_stat1');
   }
 
