@@ -94,7 +94,10 @@ export class Patient extends BaseModel implements IPatient {
     const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
     if (patientIds.length === 0) return [];
 
-    const list = await Patient.getRepository().find({ where: { id: In(patientIds) } });
+    const list = await Patient.getRepository().find({
+      where: { id: In(patientIds) },
+      relations: ['village'],
+    });
 
     return (
       patientIds
