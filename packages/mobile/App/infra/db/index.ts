@@ -134,10 +134,6 @@ class DatabaseHelper {
       await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
       await this.client.query(`PRAGMA locking_mode = NORMAL;`);
       await this.client.query(`PRAGMA temp_store = 0;`);
-      // Already the default, but pinned: `PRAGMA optimize` inherits this for the ANALYZEs it runs,
-      // and an “approximate ANALYZE” (non-zero limit) caps every leading-column estimate at roughly
-      // the limit, which is badly wrong for our low-cardinality leading columns (facility_id, type…)
-      await this.client.query(`PRAGMA analysis_limit = 0;`);
       console.log(`Applied default pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying default pragma settings:', e);

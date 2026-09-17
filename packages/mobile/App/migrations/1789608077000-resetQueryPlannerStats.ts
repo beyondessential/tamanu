@@ -1,8 +1,8 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * 2.63 periodically ran approximate ANALYZEs; 2.64 replaces it with `PRAGMA optimize`. Discard the
- * query planner statistics from the any ANALYZEs which may have run, as stale stats may cause
+ * 2.63–2.64 periodically ran approximate ANALYZEs; 2.65 replaces it with `PRAGMA optimize`. Discard
+ * the query planner statistics from the any ANALYZEs which may have run, as stale stats may cause
  * `PRAGMA optimize`’s heuristics never to see any reason to replace them.
  */
 export class resetQueryPlannerStats1789608077000 implements MigrationInterface {
