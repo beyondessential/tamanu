@@ -42,8 +42,6 @@ export const snapshotOutgoingChanges = async (
       const changesForModel = await model.find({
         where: { updatedAtSyncTick: MoreThan(since) },
         withDeleted: true,
-        // The pushed record keeps only own columns and relation ids (extractIncludedColumns drops
-        // relation objects), so joining eager relations here is wasted work on every changed row.
         loadEagerRelations: false,
       });
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
