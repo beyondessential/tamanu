@@ -10,6 +10,7 @@ import {
   RelationId,
 } from 'typeorm';
 import { addHours, startOfDay, subDays } from 'date-fns';
+import { groupBy } from 'es-toolkit/compat';
 import { getUniqueId } from 'react-native-device-info';
 
 import { BaseModel, IdRelation } from './BaseModel';
@@ -94,9 +95,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => EncounterHistory, encounterHistory => encounterHistory.encounter)
   encounterHistories: EncounterHistory[];
 
-  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, {
-    eager: true,
-  })
+  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter)
   diagnoses: Diagnosis[];
 
   @OneToMany(() => EncounterPrescription, encounterPrescription => encounterPrescription.encounter)
@@ -253,23 +252,28 @@ export class Encounter extends BaseModel implements IEncounter {
     return encounter;
   }
 
+  /**
+   * Encounters for the visits history, each with its clinical notes and diagnoses. Diagnoses are
+   * loaded here rather than eagerly on the relation, as this is the only place that reads them.
+   */
   static async getForPatient(patientId: string): Promise<Encounter[]> {
-    const repo = Encounter.getRepository();
-
-    const encounters = await repo.find({
+    const encounters = await Encounter.getRepository().find({
       where: { patient: { id: patientId } },
       relations: ['location', 'location.facility'],
       order: { startDate: 'DESC', createdAt: 'DESC', id: 'DESC' },
     });
+    if (encounters.length === 0) return [];
 
-    const notes = await Note.find({
-      where: { recordId: In(encounters.map(({ id }) => id)) },
-    });
+    const encounterIds = encounters.map(({ id }) => id);
+    const notes = await Note.find({ where: { recordId: In(encounterIds) } });
+    const diagnoses = await Diagnosis.find({ where: { encounter: { id: In(encounterIds) } } });
+    const notesByEncounterId = groupBy(notes, note => note.recordId);
+    const diagnosesByEncounterId = groupBy(diagnoses, diagnosis => diagnosis.encounterId);
 
-    // Usually a patient won't have too many encounters, but if they do, this will be slow.
     return encounters.map(encounter => ({
       ...encounter,
-      notes: notes.filter(note => note.recordId === encounter.id),
+      notes: notesByEncounterId[encounter.id] ?? [],
+      diagnoses: diagnosesByEncounterId[encounter.id] ?? [],
     }));
   }
 
