@@ -2,6 +2,7 @@ import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import {
   getTablesWithNoMergeCoverage,
   mergePatient,
+  mergePatientInvoiceInsurancePlans,
 } from '../../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
 import { InvalidParameterError } from '@tamanu/errors';
@@ -1070,4 +1071,53 @@ describe('Patient merge', () => {
       expect(remainingPortalUsers).toHaveLength(1);
     });
   });
+
+  describe('PatientInvoiceInsurancePlan', () => {
+    afterEach(async () => {
+      await models.PatientInvoiceInsurancePlan.truncate({ force: true });
+    });
+
+    it('Moves a plan the keep patient does not hold', async () => {
+      const { InvoiceInsurancePlan, PatientInvoiceInsurancePlan } = models;
+      const [keep, merge] = await makeTwoPatients(models);
+      const plan = await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan));
+      await PatientInvoiceInsurancePlan.create({
+        patientId: merge.id,
+        invoiceInsurancePlanId: plan.id,
+      });
+
+      const affected = await mergePatientInvoiceInsurancePlans(models, keep.id, merge.id);
+      expect(affected).toHaveLength(1);
+
+      const remaining = await PatientInvoiceInsurancePlan.findAll();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0].patientId).toEqual(keep.id);
+      expect(remaining[0].invoiceInsurancePlanId).toEqual(plan.id);
+    });
+
+    it('Keeps a plan both patients hold, current, without duplicating it', async () => {
+      const { InvoiceInsurancePlan, PatientInvoiceInsurancePlan } = models;
+      const [keep, merge] = await makeTwoPatients(models);
+      const plan = await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan));
+      await PatientInvoiceInsurancePlan.create({
+        patientId: keep.id,
+        invoiceInsurancePlanId: plan.id,
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      });
+      await PatientInvoiceInsurancePlan.create({
+        patientId: merge.id,
+        invoiceInsurancePlanId: plan.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const affected = await mergePatientInvoiceInsurancePlans(models, keep.id, merge.id);
+      expect(affected).toHaveLength(1);
+
+      const remaining = await PatientInvoiceInsurancePlan.findAll();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0].patientId).toEqual(keep.id);
+      expect(remaining[0].visibilityStatus).toEqual(VISIBILITY_STATUSES.CURRENT);
+    });
+  });
+
 });
