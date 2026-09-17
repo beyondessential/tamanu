@@ -1,4 +1,4 @@
-<!-- source: docs/user-manuals/system-administration/medications/configuration-guide.md -->
+<!-- source: docs/user-manuals/system-administration/medications/ (reference-data.md, settings.md) -->
 <!-- Reproduces GitHub's light-theme markdown rendering, to show what the guide actually looks like
      when published. Alert icons are approximated with glyphs rather than octicon SVGs; everything
      else follows GitHub's own type scale, colours and spacing. -->
@@ -104,8 +104,8 @@
 
   <div class="banner">
     This page reproduces GitHub's light-theme markdown rendering of
-    <code>docs/user-manuals/system-administration/medications/configuration-guide.md</code>. It is what
-    readers see on GitHub, as distinct from the docs site design in <code>config-guide.html</code>.
+    the Medications guides under <code>docs/user-manuals/system-administration/medications/</code>. It is
+    what readers see on GitHub, as distinct from the docs site design in <code>config-guide.html</code>.
   </div>
 
   <p>This configuration guide steps system administrators through the set up of the Tamanu Medications
@@ -171,13 +171,12 @@
       <tr><td>dosingUnit</td><td>The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under <a href="#">Units</a>.</td></tr>
       <tr><td>dispensingUnit</td><td>The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under <a href="#">Units</a>. Defaults to the dosing unit if not set.</td></tr>
       <tr><td>unitConversion</td><td>Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set.</td></tr>
-      <tr><td>route</td><td>The pathway through which the medication enters the body. Must be one of the routes listed under <a href="#">Route of administration</a>. If no default is set, a user selects the route when prescribing. Leave blank if no default is required.</td></tr>
+      <tr><td>route</td><td>The pathway through which the medication enters the body. Use one of the routes listed under <a href="#">Route of administration</a>; this column is not validated on import, so an unrecognised value is accepted and will not display correctly. If no default is set, a user selects the route when prescribing.</td></tr>
       <tr><td>notes</td><td>A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed.</td></tr>
       <tr><td>isSensitive</td><td>Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank.</td></tr>
       <tr><td>visibilityStatus</td><td><code>current</code> for drugs available for prescription, or <code>historical</code> for drugs that should not be prescribed and should not appear in Tamanu. Defaults to <code>current</code> if blank.</td></tr>
       <tr><td>availableFacilities</td><td>Restricts the drug to specific facilities. Accepts a list of facility ids. Leave blank for all facilities.</td></tr>
       <tr><td>systemRequired</td><td>Marks the record as required by the system so it cannot be removed. Leave blank unless instructed.</td></tr>
-      <tr><td>facilityId</td><td>To record stock levels per facility, add the relevant facility id as a column header. See stock levels below.</td></tr>
     </tbody>
   </table>
 

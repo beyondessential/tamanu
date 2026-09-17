@@ -8,7 +8,7 @@ module's settings see [Settings](settings.md).
 
 # Permissions
 
-See the Users configuration guide for more detail on roles and permissions in Tamanu.
+See the [Users](../users/) configuration guides for more detail on roles and permissions in Tamanu.
 
 ## Prescriptions and ongoing medications
 

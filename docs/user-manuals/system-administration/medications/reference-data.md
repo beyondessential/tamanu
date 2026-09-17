@@ -42,7 +42,7 @@ Where * is a required field.
 | visibilityStatus | `current` for drugs available for prescription, or `historical` for drugs that should not be prescribed and should not appear in Tamanu. Defaults to `current` if blank. |
 | systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
 | availableFacilities | Restricts the drug to specific facilities. Must be a JSON array of facility ids, for example `["facility-a", "facility-b"]`. Leave blank for all facilities. |
-| route | The pathway through which the medication enters the body. Must be one of the routes listed under [Route of administration](#route-of-administration). If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
+| route | The pathway through which the medication enters the body. Use one of the routes listed under [Route of administration](#route-of-administration). This column is not validated on import, so an unrecognised value is accepted and will not display correctly. If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
 | dosingUnit | The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under [Units](#units). |
 | dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). Defaults to the dosing unit if not set. |
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
@@ -68,7 +68,7 @@ Because facility columns are read from the header, a blank cell still creates a 
 facility with an unknown stock level.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
-that facility's stock levels. See the Dispensing configuration guides.
+that facility's stock levels. See the [Dispensing](../dispensing/) configuration guides.
 
 ---
 

@@ -30,8 +30,9 @@ Read these two first, and follow them rather than reinventing their content:
 - `llm/project-rules/write-config-guides.md` — the authoring principles: audience, verifying everything
   against code, no repetition, and not telling project managers how to do their job
 
-The Medications guide (`docs/user-manuals/system-administration/medications/configuration-guide.md`)
-is the reference example of the shape you are aiming for.
+The Medications guides (`docs/user-manuals/system-administration/medications/`) are the reference
+example of the shape you are aiming for: a module README carrying the overview, and `reference-data.md`,
+`settings.md` and `permissions.md` beside it.
 
 Guides are markdown, and render differently on GitHub than on the docs site. Never rely on styling to
 carry meaning, and do not hand-write HTML to recover a design GitHub will strip. See "How guides

@@ -1,5 +1,5 @@
 <!-- format: .agents/docs/config-guide-format.md -->
-<!-- source: docs/user-manuals/system-administration/medications/configuration-guide.md -->
+<!-- source: docs/user-manuals/system-administration/medications/ (reference-data.md) -->
 <!-- palette: TAMANU_COLORS, packages/ui-components/src/constants/colors.js -->
 <!DOCTYPE html>
 <html lang="en-AU">
@@ -254,10 +254,9 @@
         <tr><td>dosingUnit</td><td>The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under Units.</td></tr>
         <tr><td>dispensingUnit</td><td>The unit pharmacy dispenses the medication in, used for invoicing. Defaults to the dosing unit if not set.</td></tr>
         <tr><td>unitConversion</td><td>Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set.</td></tr>
-        <tr><td>route</td><td>The pathway through which the medication enters the body. If no default is set, the user selects the route when prescribing.</td></tr>
+        <tr><td>route</td><td>The pathway through which the medication enters the body. Not validated on import, so an unrecognised value is accepted. If no default is set, the user selects the route when prescribing.</td></tr>
         <tr><td>isSensitive</td><td>Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank.</td></tr>
         <tr><td>visibilityStatus</td><td><code>current</code> for drugs available for prescription, or <code>historical</code> for drugs that should not be prescribed. Defaults to <code>current</code> if blank.</td></tr>
-        <tr><td>facilityId</td><td>To record stock levels per facility, add the relevant facility id as a column header.</td></tr>
       </tbody>
     </table>
 

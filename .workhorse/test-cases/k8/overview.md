@@ -39,6 +39,11 @@ manual verification of a skill run rather than automated tests, since the output
       identifiers, and a near-miss such as `Settings` for `Setting` grants nothing without erroring.
 - [ ] Reference data column descriptions state the required input format where the importer parses the
       cell, such as `availableFacilities` needing a JSON array rather than a plain list.
+- [ ] A column description does not claim enforcement the importer does not perform. Where a column is
+      unvalidated, such as the Drug sheet's `route` or a medication set's `medicationTemplates`, the
+      description says so, since an unvalidated value is accepted silently rather than erroring.
+- [ ] Guides reference sibling modules with a relative link where that module exists under
+      `docs/user-manuals/`, rather than naming it in prose.
 - [ ] Every in-guide heading anchor resolves to the intended section, including where two sections share
       heading text or a heading carries a version note.
 - [ ] Hard-coded fields are listed with the note that changing them requires a code change.

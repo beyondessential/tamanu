@@ -27,7 +27,8 @@ setting, read the Medications Module Implementation Guide first.
 ## Vaccines
 
 All vaccines that appear in the Vaccine Schedule, or are selected when recording vaccine workflows, must
-also be listed in the `Drug` reference data. See the Immunisations configuration guide.
+also be listed in the `Drug` reference data. See the [Immunisations](../immunisations/) configuration
+guides.
 
 ---
 

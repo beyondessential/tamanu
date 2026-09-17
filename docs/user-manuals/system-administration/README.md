@@ -63,4 +63,6 @@ from. Check your deployment's version before relying on them.
 Guides are written by the `draft-config-guide` skill, which reads the module's reference data, settings
 and permissions out of the codebase and drafts the guide against the format above. Where a module is
 not yet listed, add its folder and README at the point in the order where it belongs, and renumber the
-modules after it.
+modules after it. Renumbering means editing the rows in the table above and the `# n. Module` heading
+in each affected module README. Nothing on disk is renamed, because the numbers are not part of folder
+or file names.

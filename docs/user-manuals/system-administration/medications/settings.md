@@ -11,7 +11,7 @@ permissions required see [Permissions](permissions.md).
 Settings are managed in the Settings admin panel.
 
 Pharmacy order settings, including the default prescription type sent when a user selects 'send to
-pharmacy', are covered in the Dispensing configuration guides.
+pharmacy', are covered in the [Dispensing](../dispensing/) configuration guides.
 
 ## Frequencies
 
@@ -192,7 +192,7 @@ To support tracking of medications due for administration, a **Medication due** 
 
 To enable the medication due task:
 
-1. Enable the tasking feature. See the Tasks configuration guide
+1. Enable the tasking feature. See the [Tasks](../tasks/) configuration guides
 2. Assign the following permissions to users who should see the task:
    - `list` for `Tasking`
    - `read` for `Tasking`
