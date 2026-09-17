@@ -288,7 +288,11 @@ class DatabaseHelper {
     if (this.isAnalyzing) return;
     this.isAnalyzing = true;
     try {
-      const lastRefresh = await this.getFactNumber(PLANNER_STATS_REFRESHED_AT_KEY);
+      const fact = await this.models.LocalSystemFact.findOne({
+        select: ['value'],
+        where: { key: PLANNER_STATS_REFRESHED_AT_KEY },
+      });
+      const lastRefresh = Number.parseInt(fact?.value, 10);
       if (
         Number.isFinite(lastRefresh) &&
         Date.now() - lastRefresh < PLANNER_STATS_REFRESH_INTERVAL_MS
@@ -374,7 +378,11 @@ class DatabaseHelper {
       return;
     }
 
-    const lastAttempt = await this.getFactNumber(SPACE_RECLAIM_ATTEMPTED_AT_KEY);
+    const fact = await this.models.LocalSystemFact.findOne({
+      select: ['value'],
+      where: { key: SPACE_RECLAIM_ATTEMPTED_AT_KEY },
+    });
+    const lastAttempt = Number.parseInt(fact?.value, 10);
     if (
       Number.isFinite(lastAttempt) &&
       Date.now() - lastAttempt < SPACE_RECLAIM_RETRY_INTERVAL_MS
@@ -405,11 +413,6 @@ class DatabaseHelper {
     console.log(
       `VACUUM done in ${performance.now() - start}ms, reclaimed ${formatMiB((pageCount - pageCountAfter) * pageSize)}`,
     );
-  }
-
-  private async getFactNumber(key: string): Promise<number> {
-    const fact = await this.models.LocalSystemFact.findOne({ select: ['value'], where: { key } });
-    return Number.parseInt(fact?.value, 10);
   }
 
   private async setFact(key: string, value: string): Promise<void> {
