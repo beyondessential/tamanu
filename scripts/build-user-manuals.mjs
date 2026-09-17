@@ -30,7 +30,9 @@ const drifted = [];
 
 async function readIfExists(path) {
   try {
-    return await fs.readFile(path, 'utf8');
+    // Normalised to LF. Generated content is always LF, so without this a checkout with
+    // CRLF line endings would report every file as drifted and rewrite all of them.
+    return (await fs.readFile(path, 'utf8')).replace(/\r\n/g, '\n');
   } catch {
     return null;
   }
@@ -78,6 +80,47 @@ function renderGuide(source, { number, title, moduleTitle, previous, next }) {
 
 const manifest = JSON.parse(await fs.readFile(MANIFEST, 'utf8'));
 
+/**
+ * A missing key would otherwise be interpolated into the markdown as the word
+ * "undefined", which reads as content rather than as the mistake it is.
+ */
+function validateManifest({ title, intro, platforms }) {
+  const faults = [];
+  if (!title) faults.push('manifest is missing "title"');
+  if (!intro) faults.push('manifest is missing "intro"');
+  if (!Array.isArray(platforms)) {
+    faults.push('manifest is missing a "platforms" array');
+    return faults;
+  }
+  for (const [platformIndex, platform] of platforms.entries()) {
+    const where = platform?.slug ?? `platform ${platformIndex + 1}`;
+    for (const key of ['slug', 'title', 'description']) {
+      if (!platform?.[key]) faults.push(`${where} is missing "${key}"`);
+    }
+    if (!Array.isArray(platform?.modules)) {
+      faults.push(`${where} is missing a "modules" array`);
+      continue;
+    }
+    for (const [moduleIndex, module] of platform.modules.entries()) {
+      const moduleWhere = `${where}/${module?.slug ?? `module ${moduleIndex + 1}`}`;
+      for (const key of ['slug', 'title', 'description']) {
+        if (!module?.[key]) faults.push(`${moduleWhere} is missing "${key}"`);
+      }
+      if (module?.guides !== undefined && !Array.isArray(module.guides)) {
+        faults.push(`${moduleWhere} has a "guides" value that is not an array`);
+      }
+    }
+  }
+  return faults;
+}
+
+const manifestFaults = validateManifest(manifest);
+if (manifestFaults.length) {
+  console.error(`${display(MANIFEST)} is not valid:`);
+  for (const fault of manifestFaults) console.error(`  ${fault}`);
+  process.exit(1);
+}
+
 // Root index: the platforms.
 await writeFile(
   join(ROOT, 'index.md'),
@@ -94,22 +137,29 @@ await writeFile(
 );
 
 /**
- * Reports directories that exist on disk but are absent from the manifest. A renamed or
- * removed slug otherwise leaves its old folder behind, still holding guides, linked from
- * nothing and reported by nobody.
+ * Reports anything on disk at this level that the manifest does not account for: a
+ * directory whose slug is not listed (a renamed or removed slug otherwise leaves its old
+ * folder behind, still holding guides, linked from nothing), and any stray markdown
+ * beside the index, which would be a guide no page links to.
  */
-async function reportUnlistedDirectories(parent, listedSlugs, kind) {
+async function reportUnlistedEntries(parent, listedSlugs, kind) {
   const entries = await fs.readdir(parent, { withFileTypes: true }).catch(() => []);
   for (const entry of entries) {
-    if (!entry.isDirectory() || listedSlugs.has(entry.name)) continue;
-    problems.push(`${display(join(parent, entry.name))} is a ${kind} directory the manifest does not list`);
+    const path = display(join(parent, entry.name));
+    if (entry.isDirectory()) {
+      if (!listedSlugs.has(entry.name)) {
+        problems.push(`${path} is a ${kind} directory the manifest does not list`);
+      }
+    } else if (entry.name.endsWith('.md') && entry.name !== 'index.md') {
+      problems.push(`${path} is a stray guide: guides belong in a module directory`);
+    }
   }
 }
 
-await reportUnlistedDirectories(ROOT, new Set(manifest.platforms.map(p => p.slug)), 'platform');
+await reportUnlistedEntries(ROOT, new Set(manifest.platforms.map(p => p.slug)), 'platform');
 
 for (const platform of manifest.platforms) {
-  await reportUnlistedDirectories(
+  await reportUnlistedEntries(
     join(ROOT, platform.slug),
     new Set(platform.modules.map(m => m.slug)),
     'module',

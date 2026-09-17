@@ -374,6 +374,19 @@ jobs:
         with:
           config: .typos.toml
 
+  user-manuals:
+    name: User manuals
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+
+      # The manual's navigation is generated from docs/user-manuals/manifest.json, so a
+      # hand-edited index or a stale number would otherwise land unnoticed.
+      - run: npm run check-user-manuals
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -391,6 +404,7 @@ jobs:
       - dbt-model
       - dbt-todos
       - typos
+      - user-manuals
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1

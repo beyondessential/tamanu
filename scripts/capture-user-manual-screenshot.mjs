@@ -94,7 +94,13 @@ function fail(message) {
   process.exit(1);
 }
 
-const options = parseArgs(process.argv.slice(2));
+let options;
+try {
+  options = parseArgs(process.argv.slice(2));
+} catch (error) {
+  // Report a bad flag the same way as every other failure, rather than as a stack trace.
+  fail(error.message);
+}
 
 if (!options.out) fail('--out is required (the PNG path to write)');
 if (!options.out.endsWith('.png')) fail('--out must end in .png');
@@ -143,6 +149,7 @@ const context = await browser.newContext({
 });
 const page = await context.newPage();
 
+let failure = null;
 try {
   // Log in. These selectors mirror packages/e2e-tests/pages/LoginPage.ts; if the login
   // screen changes, that page object is the place to look.
@@ -194,7 +201,11 @@ try {
   console.log(`Wrote ${options.out}`);
   console.log('Check it shows no real patient information before committing it.');
 } catch (error) {
-  fail(`${error.message}\n\nThe app must be running and reachable at ${baseUrl}.`);
+  // Recorded rather than reported here: fail() exits the process, which would skip the
+  // close below and leave a headless browser running.
+  failure = `${error.message}\n\nThe app must be running and reachable at ${baseUrl}.`;
 } finally {
   await browser.close();
 }
+
+if (failure) fail(failure);

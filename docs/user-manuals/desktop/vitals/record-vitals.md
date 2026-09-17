@@ -27,8 +27,9 @@ the patient's encounter.
 
 4. Enter the measurements you have taken.
 
-   Fill in only the fields you have readings for and leave the rest blank. Some fields
-   work themselves out from other measurements and cannot be typed into.
+   Fill in only the fields you have readings for and leave the rest blank. You need at
+   least one reading to record. Some fields work themselves out from other measurements
+   and cannot be typed into.
 
 5. Select **Record**.
 
