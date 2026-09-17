@@ -5,6 +5,7 @@ import {
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  NOTIFICATION_TYPES,
   REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   VISIBILITY_STATUSES,
@@ -1022,6 +1023,35 @@ describe('Labs', () => {
 
     const labRequest = await models.LabRequest.findByPk(requestId);
     expect(labRequest).toHaveProperty('status', status);
+  });
+
+  it('notifies the requesting clinician when a request is rejected', async () => {
+    const user = await app.get('/api/user/me');
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId,
+    });
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, {
+        patientId,
+        requestedById: user.body.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      }),
+    );
+
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    await labRequest.update({ status: LAB_REQUEST_STATUSES.REJECTED });
+
+    const notifications = await models.Notification.findAll({
+      where: { userId: user.body.id, type: NOTIFICATION_TYPES.LAB_REQUEST },
+    });
+    const rejectedNotification = notifications.find(
+      notification => notification.metadata?.id === requestId,
+    );
+    expect(rejectedNotification).toBeTruthy();
+    expect(rejectedNotification.metadata.status).toBe(LAB_REQUEST_STATUSES.REJECTED);
+    expect(rejectedNotification.patientId).toBe(patientId);
   });
 
   it('should update the specimen attached', async () => {
