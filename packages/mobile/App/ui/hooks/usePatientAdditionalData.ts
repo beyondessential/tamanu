@@ -17,7 +17,7 @@ const loadPatientAdditionalData = async (patientId: string) => {
       where: {
         patient: { id: patientId },
       },
-      relations: models.PatientAdditionalData.REFERENCE_DATA_RELATIONS,
+      relations: models.PatientAdditionalData.referenceDataRelations,
     }),
     models.PatientFieldDefinition.findVisible({
       relations: ['category'],

@@ -10,7 +10,7 @@ import {
 import { isEmpty, snakeCase } from 'es-toolkit/compat';
 import { BaseModel, IdRelation } from './BaseModel';
 import type { IPatientAdditionalData } from '~/types';
-import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
 import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
@@ -153,21 +153,13 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
    * getPadFieldData and getFieldData), so its loader joins them all. Every other reader wants the
    * `*Id` columns only.
    */
-  static readonly REFERENCE_DATA_RELATIONS: string[] = [
-    'nationality',
-    'country',
-    'division',
-    'subdivision',
-    'medicalArea',
-    'nursingZone',
-    'settlement',
-    'ethnicity',
-    'occupation',
-    'religion',
-    'patientBillingType',
-    'countryOfBirth',
-    'secondaryVillage',
-  ];
+  static get referenceDataRelations(): string[] {
+    return PatientAdditionalData.getRepository()
+      .metadata.relations.filter(
+        relation => relation.inverseEntityMetadata.target === ReferenceData,
+      )
+      .map(relation => relation.propertyName);
+  }
 
   @ManyToOne(() => Facility)
   healthCenter: Facility;

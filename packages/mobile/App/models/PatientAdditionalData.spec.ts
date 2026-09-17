@@ -70,13 +70,15 @@ describe('PatientAdditionalData', () => {
     });
   });
 
-  describe('REFERENCE_DATA_RELATIONS', () => {
-    it('lists every reference data relation declared on the model', () => {
-      const { PatientAdditionalData, ReferenceData } = Database.models;
-      const declared = PatientAdditionalData.getRepository()
-        .metadata.relations.filter(relation => relation.inverseEntityMetadata.target === ReferenceData)
-        .map(relation => relation.propertyName);
-      expect([...PatientAdditionalData.REFERENCE_DATA_RELATIONS].sort()).toEqual(declared.sort());
+  describe('referenceDataRelations', () => {
+    it('includes only the relations that target ReferenceData', () => {
+      const relations = Database.models.PatientAdditionalData.referenceDataRelations;
+      expect(relations).toEqual(
+        expect.arrayContaining(['nationality', 'country', 'countryOfBirth', 'secondaryVillage']),
+      );
+      for (const relation of ['patient', 'healthCenter', 'mother', 'father']) {
+        expect(relations).not.toContain(relation);
+      }
     });
   });
 });
