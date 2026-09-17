@@ -16,6 +16,7 @@ import { BodyText, Heading4, LargeBodyText } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { useAuth } from '../../../../contexts/Auth';
 import { formatSettingName } from '../formatSettingName';
+import { linkifyUrls } from '../linkifyUrls';
 import { ResetToDefaultButton, SettingInput } from './SettingInput';
 
 const StyledLockIcon = styled(LockIcon)`
@@ -333,7 +334,7 @@ export const Category = ({
       />
       {schema.infoBanner && (
         <InfoBannerAlert severity="info" $indent={depth} data-testid="infobanneralert-fw01">
-          {schema.infoBanner}
+          {linkifyUrls(schema.infoBanner)}
         </InfoBannerAlert>
       )}
       {sortedProperties.map(([key, propertySchema]) => {
