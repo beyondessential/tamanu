@@ -85,7 +85,9 @@ const getConnectionConfig = (): ConnectionOptions => {
   return CONNECTION_CONFIG;
 };
 
-const formatMiB = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MiB`;
+function formatMiB(bytes: number): string {
+  return `${(bytes / 1_048_576).toLocaleString('en-AU', { maximumFractionDigits: 1 })} MiB`;
+}
 
 class DatabaseHelper {
   private isAnalyzing = false;
