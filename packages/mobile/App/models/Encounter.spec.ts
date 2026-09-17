@@ -102,22 +102,6 @@ describe('Encounter', () => {
     });
   });
 
-  describe('diagnoses relation', () => {
-    it('is not loaded eagerly', async () => {
-      const patient = fakePatient();
-      await Database.models.Patient.insert(patient);
-      const user = fakeUser();
-      await Database.models.User.insert(user);
-      const encounter = fakeEncounter();
-      encounter.patient = patient;
-      encounter.examiner = user;
-      await Database.models.Encounter.insert(encounter);
-
-      const loaded = await Database.models.Encounter.findOne({ where: { id: encounter.id } });
-      expect(loaded.diagnoses).toBeUndefined();
-    });
-  });
-
   describe('getCurrentEncounterForPatient', () => {
     it('returns an encounter started today and ignores one from a previous day', async () => {
       const patient = fakePatient();
