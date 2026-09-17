@@ -36,20 +36,8 @@
 
   /* ---------- cards (home + manuals) ---------- */
   .sec-title { font-size:18px; letter-spacing:-0.01em; font-weight:620; margin:44px 0 18px; }
-  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-  .grid.two { grid-template-columns:repeat(2,1fr); }
-  .grid.three { grid-template-columns:repeat(3,1fr); }
-  @media (max-width:1180px){ .grid{ grid-template-columns:repeat(2,1fr);} }
-  .lcard { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; transition:border-color .12s, transform .12s; cursor:pointer; }
-  .lcard:hover { border-color:#cfcfd4; transform:translateY(-1px); }
-  .lcard .panel { padding:22px; min-height:92px; border-bottom:1px solid var(--line); background:var(--fill); }
-  .lcard .panel svg { color:var(--ink); }
-  .lcard .body { padding:15px 18px 18px; }
-  .lcard h3 { font-size:15px; margin:0 0 6px; letter-spacing:-0.005em; }
-  .lcard p { font-size:13.5px; color:var(--ink-3); margin:0; line-height:1.5; }
 
   /* topic cards: a category with a few articles + view all */
-  .tgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
   @media (max-width:1180px){ .tgrid{ grid-template-columns:repeat(2,1fr);} }
   .tcard { background:#f6f6f7; border:1px solid transparent; border-radius:14px; padding:22px 22px 20px; display:flex; flex-direction:column; min-height:214px; transition:background .12s; }
   .tcard:hover { background:#f0f0f2; }
@@ -384,14 +372,6 @@
   .big-search svg { color:var(--brand); }
 
   /* ---- coloured category cards (rotating accent) ---- */
-  .lcard, .tcard { --a:var(--brand); --a-10:var(--brand-10); }
-  .grid .lcard:nth-child(6n+2), .tgrid .tcard:nth-child(6n+2) { --a:var(--c-amber); --a-10:var(--c-amber-10); }
-  .grid .lcard:nth-child(6n+3), .tgrid .tcard:nth-child(6n+3) { --a:var(--c-green); --a-10:var(--c-green-10); }
-  .grid .lcard:nth-child(6n+4), .tgrid .tcard:nth-child(6n+4) { --a:var(--c-purple); --a-10:var(--c-purple-10); }
-  .grid .lcard:nth-child(6n+5), .tgrid .tcard:nth-child(6n+5) { --a:var(--c-pink); --a-10:var(--c-pink-10); }
-  .grid .lcard:nth-child(6n+6), .tgrid .tcard:nth-child(6n+6) { --a:var(--brand-link); --a-10:#E8F1FC; }
-  .lcard .panel { background:var(--a-10); border-bottom-color:color-mix(in srgb, var(--a) 18%, transparent); }
-  .lcard .panel svg { color:var(--a); }
   .tcard { background:var(--a-10); }
   .tcard:hover { background:color-mix(in srgb, var(--a) 9%, #fff);
     border-color:color-mix(in srgb, var(--a) 30%, transparent); }
@@ -512,15 +492,6 @@
   .wrap { padding:56px 24px 72px; }
 
   /* ---- cards: no border, flat colour thumbnail, text beneath ---- */
-  .lcard { border:none; border-radius:0; background:transparent; overflow:visible; }
-  .lcard:hover { border:none; box-shadow:none; transform:none; }
-  .lcard .panel { border-bottom:none; border-radius:10px; min-height:152px; padding:20px;
-    display:flex; align-items:flex-end; transition:background .12s ease; }
-  .lcard:hover .panel { background:color-mix(in srgb, var(--a) 17%, #fff); }
-  .lcard .panel svg { width:34px; height:34px; }
-  .lcard .body { padding:14px 2px 0; }
-  .lcard h3 { font-size:17px; font-weight:600; letter-spacing:-0.015em; margin-bottom:5px; }
-  .lcard p { font-size:14px; }
 
   /* ---- topic cards ---- */
   .tcard { border:none; border-radius:16px; padding:26px 24px 24px; }
@@ -611,18 +582,9 @@
 
   /* ---- Browse: each item in its own bounding box — tinted panel above,
          text on white beneath ---- */
-  .lcard { background:var(--bg); border:1px solid var(--line); border-radius:14px; overflow:hidden;
-    transition:border-color .12s ease, box-shadow .12s ease; }
-  .lcard:hover { border-color:color-mix(in srgb, var(--a) 45%, transparent);
-    box-shadow:0 4px 14px rgba(47,67,88,.07); }
-  .lcard .panel { border-radius:0; min-height:150px; }
-  .lcard .body { padding:16px 18px 20px; background:var(--bg); }
 
   /* ---- kind accents are semantic, not decorative:
          user manuals purple, release notes pink, roadmap green ---- */
-  .grid.three .lcard:nth-child(1) { --a:var(--c-purple); --a-10:var(--c-purple-10); }
-  .grid.three .lcard:nth-child(2) { --a:var(--c-pink);   --a-10:var(--c-pink-10); }
-  .grid.three .lcard:nth-child(3) { --a:var(--c-green);  --a-10:var(--c-green-10); }
   .pcard { --a:var(--c-purple); --a-10:var(--c-purple-10); }
   .pcard.release { --a:var(--c-pink); --a-10:var(--c-pink-10); }
 
@@ -716,7 +678,7 @@
   }
   @media (max-width:600px) {
     .hero h1 { font-size:31px; }
-    .pgrid, .grid, .grid.two, .grid.three, .tgrid { grid-template-columns:1fr; }
+    .pgrid, .tgrid { grid-template-columns:1fr; }
   }
 
   /* On mobile the long in-section navs would bury the content, so they drop out
@@ -750,6 +712,47 @@
     .rmx-cell:nth-child(4) { order:4; }
     .rmx-cell:nth-child(5) { order:5; }
     .rmx-cell:nth-child(6) { order:6; }
+  }
+
+  /* ---- Browse: bento layout on the brand dark, each cell washed with its
+         kind's accent. Manuals leads because it is what most people came for. ---- */
+  .bento { display:grid; grid-template-columns:1.6fr 1fr; grid-template-rows:auto auto; gap:18px; }
+  .bcard { --a:var(--brand); position:relative; overflow:hidden; display:flex; flex-direction:column;
+    background:var(--brand-dark); color:#fff; border-radius:20px; padding:26px 24px 24px;
+    min-height:192px; cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease; }
+  .bcard::before { content:""; position:absolute; right:-60px; top:-70px; width:210px; height:210px;
+    border-radius:999px; background:var(--a); opacity:.34; filter:blur(46px); }
+  .bcard:hover { transform:translateY(-3px); box-shadow:0 14px 34px rgba(20,32,44,.30); }
+  .bcard > * { position:relative; }
+  .bcard .ic { width:46px; height:46px; border-radius:14px; color:#fff; margin-bottom:auto;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+    display:grid; place-items:center; }
+  .bcard h3 { font-size:20px; font-weight:620; letter-spacing:-0.02em; margin:22px 0 6px; }
+  .bcard p { font-size:14px; color:rgba(255,255,255,.72); margin:0; }
+  .bcard .meta { margin-top:20px; display:flex; gap:8px; flex-wrap:wrap; }
+  .bcard .meta span { font-size:12px; font-weight:560; color:rgba(255,255,255,.82);
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+    border-radius:999px; padding:5px 11px; }
+  /* the tall cell earns its size by listing the manual's top sections */
+  .bcard.lead { grid-row:span 2; justify-content:flex-start; }
+  .bcard.lead .ic { margin-bottom:0; }
+  .bcard.lead::before { right:-90px; top:-110px; width:360px; height:360px; opacity:.40; filter:blur(70px); }
+  .bcard.lead h3 { font-size:28px; letter-spacing:-0.03em; }
+  .bcard.lead p { font-size:15px; max-width:400px; }
+  .bcard.lead .links { margin-top:auto; padding-top:24px; display:flex; flex-direction:column; }
+  .bcard.lead .links a { display:flex; align-items:center; justify-content:space-between;
+    padding:11px 2px; font-size:14.5px; color:rgba(255,255,255,.84);
+    border-top:1px solid rgba(255,255,255,.12); }
+  .bcard.lead .links a:hover { color:#fff; }
+  .bcard.lead .links svg { opacity:.45; transition:transform .14s, opacity .14s; }
+  .bcard.lead .links a:hover svg { opacity:1; transform:translateX(3px); }
+  .bento .bcard:nth-child(1) { --a:var(--c-purple); }
+  .bento .bcard:nth-child(2) { --a:var(--c-pink); }
+  .bento .bcard:nth-child(3) { --a:var(--c-green); }
+  @media (max-width:900px) {
+    .bento { grid-template-columns:1fr; gap:14px; }
+    .bcard.lead { grid-row:auto; }
   }
 </style>
 </head>
@@ -816,10 +819,28 @@
     </div>
 
     <div class="sec-title">Browse</div>
-    <div class="grid three">
-      <div class="lcard" data-goto="manuals"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></div><div class="body"><h3>User manuals</h3><p>Step-by-step guides for clinical, administrative and configuration workflows.</p></div></div>
-      <div class="lcard" data-goto="releases"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></div><div class="body"><h3>Release notes</h3><p>What changed in each version, with upgrade notes and recommended testing.</p></div></div>
-      <div class="lcard" data-goto="roadmap"><div class="panel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8a3 3 0 0 0 0-6H7a3 3 0 0 1 0-6h6"/></svg></div><div class="body"><h3>Roadmap</h3><p>What's planned, in development and recently released across Tamanu.</p></div></div>
+    <div class="bento">
+      <div class="bcard lead">
+        <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
+        <a data-goto="manuals"><h3>User manuals</h3></a>
+        <p>Step-by-step guides for clinical, administrative and configuration workflows.</p>
+        <nav class="links">
+          <a data-goto="manuals">Getting started <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a data-goto="manuals">Clinical workflows <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a data-goto="manuals">Medication <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a data-goto="manuals">Labs &amp; imaging <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </nav>
+      </div>
+      <div class="bcard" data-goto="releases">
+        <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></span>
+        <h3>Release notes</h3>
+        <p>What changed in each version, with upgrade notes and recommended testing.</p>
+      </div>
+      <div class="bcard" data-goto="roadmap">
+        <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8a3 3 0 0 0 0-6H7a3 3 0 0 1 0-6h6"/></svg></span>
+        <h3>Roadmap</h3>
+        <p>What's planned, in development and recently released across Tamanu.</p>
+      </div>
     </div>
   </div>
 </section>
