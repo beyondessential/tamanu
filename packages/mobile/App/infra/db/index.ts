@@ -155,9 +155,7 @@ class DatabaseHelper {
         'PRAGMA optimize(0x00003);',
       );
       const statements = planned.map(row => Object.values(row)[0]);
-      console.log(
-        `PRAGMA optimize will run: ${statements.length ? statements.join(' ') : 'nothing'}`,
-      );
+      console.log(`PRAGMA optimize will run: ${statements.join('; ') || 'nothing'}`);
       await this.client.query('PRAGMA optimize;');
       console.log(`PRAGMA optimize done in ${performance.now() - start}ms`);
       return true;
