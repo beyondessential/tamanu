@@ -267,6 +267,7 @@ export class Encounter extends BaseModel implements IEncounter {
       .orderBy('encounter.startDate', 'DESC')
       .addOrderBy('encounter.createdAt', 'DESC')
       .addOrderBy('encounter.id', 'DESC')
+      .addOrderBy('note.date', 'ASC')
       .getMany();
   }
 
