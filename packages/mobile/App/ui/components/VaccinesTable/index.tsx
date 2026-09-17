@@ -55,6 +55,7 @@ export const VaccinesTable = ({
       (await Database.models.ScheduledVaccine.find({
         order: { index: 'ASC' },
         where: { category: categoryName },
+        relations: ['vaccine'],
       })) as IScheduledVaccine[],
   });
   const { data: patientAdministeredVaccines, error: administeredError } =
