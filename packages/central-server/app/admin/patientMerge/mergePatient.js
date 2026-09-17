@@ -365,35 +365,30 @@ export async function mergePatientInvoiceInsurancePlans(models, keepPatientId, u
 
   const affectedRecords = [];
 
-  // Move each unwanted plan to the keep patient, unless the keep patient already has a row for
-  // that plan — the composite primary key allows only one row per (patient, plan) pair.
+  // patientId is part of the primary key, so a plan reaches the keep patient by being created
+  // there and the unwanted row deleted: an in-place update targets a key that matches no row.
   for (const unwantedInvoiceInsurancePlan of existingUnwantedInvoiceInsurancePlans) {
-    if (
-      !existingKeepInvoiceInsurancePlans.some(
-        p => p.invoiceInsurancePlanId === unwantedInvoiceInsurancePlan.invoiceInsurancePlanId,
-      )
-    ) {
-      await unwantedInvoiceInsurancePlan.update({
-        patientId: keepPatientId,
-      });
-      affectedRecords.push(unwantedInvoiceInsurancePlan);
-    }
-  }
-
-  // Where both patients have the same plan but the keep patient's is historical while the unwanted
-  // patient's is current, bring the keep patient's row back to current so the merged patient keeps
-  // the plan.
-  for (const keepInvoiceInsurancePlan of existingKeepInvoiceInsurancePlans) {
-    const matchedUnwantedInvoiceInsurancePlan = existingUnwantedInvoiceInsurancePlans.find(
-      p => p.invoiceInsurancePlanId === keepInvoiceInsurancePlan.invoiceInsurancePlanId,
+    const keepInvoiceInsurancePlan = existingKeepInvoiceInsurancePlans.find(
+      p => p.invoiceInsurancePlanId === unwantedInvoiceInsurancePlan.invoiceInsurancePlanId,
     );
-    const shouldMakeCurrent =
-      matchedUnwantedInvoiceInsurancePlan?.visibilityStatus === VISIBILITY_STATUSES.CURRENT &&
-      keepInvoiceInsurancePlan.visibilityStatus === VISIBILITY_STATUSES.HISTORICAL;
-    if (shouldMakeCurrent) {
+
+    if (!keepInvoiceInsurancePlan) {
+      affectedRecords.push(
+        await models.PatientInvoiceInsurancePlan.create({
+          patientId: keepPatientId,
+          invoiceInsurancePlanId: unwantedInvoiceInsurancePlan.invoiceInsurancePlanId,
+          visibilityStatus: unwantedInvoiceInsurancePlan.visibilityStatus,
+        }),
+      );
+    } else if (
+      unwantedInvoiceInsurancePlan.visibilityStatus === VISIBILITY_STATUSES.CURRENT &&
+      keepInvoiceInsurancePlan.visibilityStatus === VISIBILITY_STATUSES.HISTORICAL
+    ) {
       await keepInvoiceInsurancePlan.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
       affectedRecords.push(keepInvoiceInsurancePlan);
     }
+
+    await unwantedInvoiceInsurancePlan.destroy();
   }
 
   return affectedRecords;
