@@ -1,14 +1,14 @@
-import React, { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Database } from '~/infra/db';
-import { patientKeys } from '../hooks/queries/queryKeys';
-import type { IPatientContact } from '~/types';
+import React, { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { compose } from 'redux';
-import { withPatient } from '../containers/Patient';
-import type { BaseAppProps } from '../interfaces/BaseAppProps';
-import { useSocket } from '../hooks/useSocket';
-import { PatientContact } from '~/models/PatientContact';
 import { WS_EVENTS } from '~/constants/webSocket';
+import { Database } from '~/infra/db';
+import { PatientContact } from '~/models/PatientContact';
+import type { IPatientContact } from '~/types';
+import { withPatient } from '../containers/Patient';
+import { patientKeys } from '../hooks/queries/queryKeys';
+import { useSocket } from '../hooks/useSocket';
+import type { BaseAppProps } from '../interfaces/BaseAppProps';
 
 interface ReminderContactData {
   reminderContactList: IPatientContact[];
