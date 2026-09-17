@@ -25,16 +25,35 @@ describe('Encounter', () => {
       const user = fakeUser();
       await Database.models.User.insert(user);
 
+      const facility = await Database.models.Facility.createAndSaveOne({
+        id: 'facility-central',
+        code: 'central',
+        name: 'Central Hospital',
+      });
+      const location = await Database.models.Location.createAndSaveOne({
+        id: 'location-ward-a',
+        code: 'ward-a',
+        name: 'Ward A',
+        facility,
+      });
+
       const encounter = fakeEncounter();
       encounter.patient = patient;
       encounter.examiner = user;
+      encounter.location = location;
       await Database.models.Encounter.insert(encounter);
 
       const result = await Database.models.Encounter.getForPatient(patient.id);
       // getForPatient joins only what the visits history renders, not examiner or patient
       delete encounter.examiner;
       delete encounter.patient;
+      delete encounter.location;
       expect(result[0]).toMatchObject(encounter);
+      expect(result[0].location).toMatchObject({
+        id: location.id,
+        name: 'Ward A',
+        facility: { id: facility.id, name: 'Central Hospital' },
+      });
       expect(result[0].notes).toEqual([]);
     });
 
