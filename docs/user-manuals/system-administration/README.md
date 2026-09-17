@@ -10,8 +10,10 @@ developer knowledge.
 
 Each module has a folder here and a number. Modules are ordered to follow the way a deployment is set
 up and used, starting with deployment and users and moving through the clinical workflow, rather than
-alphabetically. A module's guides are numbered within it, so the Medications configuration guide is
-15.1.
+alphabetically.
+
+A module's configuration is documented in three guides, numbered within the module: **reference data**,
+**settings**, and **permissions**. So Medications is module 15, and its settings guide is 15.2.
 
 Modules without a guide yet are listed so the shape of the documentation is visible and it is clear
 what is still to be written.
@@ -32,7 +34,7 @@ what is still to be written.
 | 12 | [Notes](notes/) | Not written yet |
 | 13 | [Forms](forms/) | Not written yet |
 | 14 | [Tasks](tasks/) | Not written yet |
-| 15 | [Medications](medications/) | 15.1 [Configuration guide](medications/configuration-guide.md) |
+| 15 | [Medications](medications/) | 15.1 [Reference data](medications/reference-data.md) &middot; 15.2 [Settings](medications/settings.md) &middot; 15.3 [Permissions](medications/permissions.md) |
 | 16 | [Procedures](procedures/) | Not written yet |
 | 17 | [Labs](labs/) | Not written yet |
 | 18 | [Imaging](imaging/) | Not written yet |

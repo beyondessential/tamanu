@@ -37,8 +37,8 @@ good real-world exercise of update mode against a guide nobody generated.
 ## Medications migration: gaps and corrections
 
 The Medications guide has been migrated to
-`docs/user-manuals/system-administration/medications/configuration-guide.md`, with the section and
-module READMEs seeded. Authoring it against code surfaced real drift, which is the first evidence that
+`docs/user-manuals/system-administration/medications/`, split across `reference-data.md`,
+`settings.md` and `permissions.md`, with the section and module READMEs seeded. Authoring it against code surfaced real drift, which is the first evidence that
 the code-derived approach earns its keep.
 
 **Corrected in the migrated guide** (facts the guide already documented, which the code contradicts):

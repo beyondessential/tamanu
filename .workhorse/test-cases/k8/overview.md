@@ -16,9 +16,15 @@ manual verification of a skill run rather than automated tests, since the output
       required columns marked.
 - [ ] The generated permissions section covers `Medication`, `SensitiveMedication`,
       `MedicationAdministration` and `MedicationPharmacyNote` with the correct verbs.
-- [ ] Sections appear in the specified order: reference data, hard-coded fields, settings, feature and
-      workflow sections, permissions.
-- [ ] The guide opens with a lead paragraph and no top-level heading.
+- [ ] The module is documented as three guides (`reference-data.md`, `settings.md`, `permissions.md`)
+      numbered 15.1 to 15.3, not as a single combined document.
+- [ ] Sections land in the right guide: permitted values with the reference data that accepts them,
+      automated workflows with the settings that drive them, and permission-gated features with the
+      permissions that control them.
+- [ ] Content belonging to no single surface (module overview, scope limitations, the IV medications
+      explanation) sits in the module README rather than being forced into one of the three.
+- [ ] Each guide opens with a lead paragraph, no top-level heading, and links to its two siblings.
+- [ ] Cross-references between the three guides use a relative file and anchor, and every one resolves.
 
 ## Code-derived accuracy
 

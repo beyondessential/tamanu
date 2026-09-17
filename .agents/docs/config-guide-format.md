@@ -14,9 +14,9 @@ Assume a basic understanding of Tamanu and digital systems, not clinical or deve
 
 Guides live under `docs/user-manuals/system-administration/`.
 
-- One folder per Tamanu module, holding **one or more topic guides** rather than a single combined
-  document
-- Lowercase kebab-case for both module folders and guide filenames
+- One folder per Tamanu module, holding **three guides** (`reference-data.md`, `settings.md`,
+  `permissions.md`) rather than a single combined document
+- Lowercase kebab-case for module folders. Guide filenames are the three fixed names above
 - `docs/user-manuals/system-administration/README.md` lists each module and its guides
 - Each module folder carries a README describing the module and listing its topic guides
 - Publishing or updating a guide updates the affected README entries
@@ -43,11 +43,46 @@ heading, and the guide's entry in step when a number changes.
 
 ## Structure
 
-Open with a **lead paragraph, no H1** (the title is displayed separately). It names the audience,
-points to the module's implementation guide where one exists, and states any scope limitations for the
-module.
+A module's configuration is documented in **three guides**, one per configuration surface, numbered
+within the module:
 
-Then these sections, in this order:
+| File | Number | Covers |
+| --- | --- | --- |
+| `reference-data.md` | *n*.1 | The reference data types the module needs, and the hard coded values their columns accept |
+| `settings.md` | *n*.2 | The module's settings, and the automated behaviour those settings drive |
+| `permissions.md` | *n*.3 | The permissions the module requires, and features gated entirely by permission |
+
+Splitting by surface means a reader configuring reference data is not reading past settings they do not
+need yet, and it matches how the work is actually done: reference data is imported, settings are set in
+the admin panel, and permissions are assigned to roles.
+
+Each guide opens with a **lead paragraph, no H1** (the title is displayed separately) naming what it
+covers and linking to its two siblings.
+
+**The module README carries what belongs to no single surface**: the module's overview, a pointer to its
+implementation guide, scope limitations (which medications or settings the module is not recommended
+for), and any explanatory material that is neither configuration nor behaviour. It is a short overview
+with the guide table, not a bare index.
+
+### Placing cross-cutting sections
+
+Some sections do not sit in exactly one surface. Place each where a reader would go looking for it:
+
+- **Permitted values** for reference data columns (units, routes, frequencies) go in the reference data
+  guide, with the columns that accept them
+- **Behaviour a setting turns on**, including automated workflows and anything the module generates on
+  a schedule, goes in the settings guide
+- **A feature gated by permission** goes in the permissions guide, even where it is switched on
+  elsewhere. Sensitive medications is configured by a reference data column but is entirely a
+  permissions feature, so it is explained alongside the permissions that control it
+- Where a section genuinely spans two guides, put it where its **first** configuration step happens and
+  cross-reference the other
+
+### Sections within a guide
+
+Within its own guide, each surface keeps the section shape below:
+
+**In `reference-data.md`:**
 
 1. **`# Reference Data Types`** — one `##` per type. Each type states its purpose, gives a details table
    carrying its import spreadsheet tab name and example template link (see
@@ -58,19 +93,35 @@ Then these sections, in this order:
    rather than given a column table.
 2. **`# Hard coded fields`** — the values each field permits, with a note that changing them requires a
    code change requested through a system administrator or project manager.
+
+**In `settings.md`:**
+
 3. **`# Settings`** — each setting as a **Scope** / **Category** / **Sub-category** / **Setting** /
    **Default** table, preceded by a short description of what the setting does (see
    [Settings blocks](#settings-blocks)). Settings taking structured values also show the required
    format and the errors invalid input raises.
 4. **Feature and workflow sections** — self-contained, stating what requires configuration and what
    works without it.
+
+**In `permissions.md`:**
+
 5. **`# Permissions`** — grouped by functional area, each entry pairing a verb with a subject as
    `` `verb` for `Subject` `` and listing the capabilities it grants. Include the permissions needed to
    import and export reference data and to view and modify settings.
+6. **Permission-gated features** — sections explaining a feature whose behaviour is controlled by the
+   permissions above.
 
-Use horizontal rules between major sections, and `##` / `###` for subsections. The Medications guide is
-the reference example of this shape, and
-`.workhorse/design/mockups/k8/config-guide.html` shows it rendered.
+Use horizontal rules between major sections, and `##` / `###` for subsections. The Medications guides
+are the reference example of this shape. `.workhorse/design/mockups/k8/config-guide-split.html` shows
+the three-guide structure, and `config-guide.html` and `config-guide-github.html` show a guide's
+content rendered on the docs site and on GitHub.
+
+### Cross-references between the three
+
+Splitting by surface means a workflow spanning surfaces now spans files, so the links matter more than
+they did. Link with a relative file and anchor (`[Frequency](reference-data.md#frequency)`). Check them
+whenever a heading moves, since an anchor that was valid inside one document is silently wrong once its
+target lives in another.
 
 ## How guides render
 

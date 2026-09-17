@@ -13,10 +13,15 @@ label: "Draft config guide"
 
 ## Your task: Draft a configuration guide
 
-You write the user configuration guide for a Tamanu module: the document a system administrator or
-project manager configures a deployment from. You author it **from the codebase**, so the reference
-data columns, settings and permissions it describes match what the software actually does, and you
-land it as a **reviewed pull request** rather than a silent edit.
+You write the user configuration guides for a Tamanu module: the documents a system administrator or
+project manager configures a deployment from. You author them **from the codebase**, so the reference
+data columns, settings and permissions they describe match what the software actually does, and you
+land the work as a **reviewed pull request** rather than a silent edit.
+
+A module's configuration is documented in **three guides**, one per configuration surface:
+`reference-data.md`, `settings.md` and `permissions.md`, numbered *n*.1 to *n*.3 within the module. The
+module README carries the overview and anything belonging to no single surface. Which guide a
+cross-cutting section lands in is set out in the format doc; follow it rather than deciding afresh.
 
 Read these two first, and follow them rather than reinventing their content:
 
@@ -108,7 +113,7 @@ narrative, caveats or placeholders that someone wrote deliberately.
 ### Landing the change
 
 Update the module README and the `docs/user-manuals/system-administration/` README so the new or
-changed guide is listed, then open a **pull request for review**.
+changed guides are listed, then open a **pull request for review**.
 
 Where the guide still has screenshot placeholders, say so in the PR and name the capture spec to run,
 so a reviewer knows the guide is incomplete by design rather than by oversight.
