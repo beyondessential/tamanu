@@ -1,17 +1,17 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { getSettingSecret } from '@tamanu/shared/utils/crypto';
 
 import { createTestContext } from './utilities';
 import { clearAnthropicModelCache } from '../app/anthropicModelSuggestions';
 
-jest.mock('@tamanu/shared/utils/crypto', () => {
-  const original = jest.requireActual('@tamanu/shared/utils/crypto');
+vi.mock('@tamanu/shared/utils/crypto', async () => {
+  const original = await vi.importActual('@tamanu/shared/utils/crypto');
   return {
     ...original,
-    getSettingSecret: jest.fn(),
+    getSettingSecret: vi.fn(),
   };
 });
-
-const { getSettingSecret } = jest.requireMock('@tamanu/shared/utils/crypto');
 
 const withVision = {
   image_input: { supported: true },
@@ -30,7 +30,7 @@ const MODELS_RESPONSE = {
 };
 
 const mockModelsRequest = (body = MODELS_RESPONSE, ok = true, status = 200) => {
-  global.fetch = jest.fn(async () => ({ ok, status, json: async () => body }));
+  global.fetch = vi.fn(async () => ({ ok, status, json: async () => body }));
 };
 
 describe('anthropicModel suggester', () => {
@@ -103,7 +103,7 @@ describe('anthropicModel suggester', () => {
 
   it('returns an empty list when the API responds with something other than JSON', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
-    global.fetch = jest.fn(async () => ({
+    global.fetch = vi.fn(async () => ({
       ok: true,
       status: 200,
       json: async () => {
@@ -125,7 +125,7 @@ describe('anthropicModel suggester', () => {
 
   it('returns an empty list when the API is unreachable', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
-    global.fetch = jest.fn(async () => {
+    global.fetch = vi.fn(async () => {
       throw new Error('network down');
     });
     const result = await adminApp.get('/api/suggestions/anthropicModel');
@@ -180,7 +180,7 @@ describe('anthropicModel suggester', () => {
     getSettingSecret.mockResolvedValue('sk-test');
     mockModelsRequest();
     const start = Date.now();
-    const clock = jest.spyOn(Date, 'now').mockReturnValue(start);
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(start);
 
     await adminApp.get('/api/suggestions/anthropicModel');
     clock.mockReturnValue(start + 61 * 1000);
@@ -211,7 +211,7 @@ describe('anthropicModel suggester', () => {
     const held = new Promise(resolve => {
       release = resolve;
     });
-    global.fetch = jest.fn(async () => {
+    global.fetch = vi.fn(async () => {
       await held;
       return { ok: true, status: 200, json: async () => MODELS_RESPONSE };
     });

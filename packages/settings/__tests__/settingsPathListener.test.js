@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { registerSettingsPathListener } from '../src/cache/dbNotifier';
 
 const settled = () =>
@@ -15,7 +16,7 @@ const notifierFor = options => {
 
 describe('registerSettingsPathListener', () => {
   it('runs onChange for a setting under a watched path', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const notify = notifierFor({
       paths: ['ai', 'patientSummary'],
       resolveChangedKey: async () => 'ai.anthropicModel',
@@ -29,7 +30,7 @@ describe('registerSettingsPathListener', () => {
   });
 
   it('ignores a setting outside the watched paths', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const notify = notifierFor({
       paths: ['ai'],
       resolveChangedKey: async () => 'vaccinations.defaultDose',
@@ -43,7 +44,7 @@ describe('registerSettingsPathListener', () => {
   });
 
   it('does not match a path that is only a name prefix', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const notify = notifierFor({
       paths: ['ai'],
       resolveChangedKey: async () => 'airQuality.threshold',
@@ -57,7 +58,7 @@ describe('registerSettingsPathListener', () => {
   });
 
   it('runs onChange when the key cannot be resolved', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const notify = notifierFor({
       paths: ['ai'],
       resolveChangedKey: async () => null,
@@ -71,7 +72,7 @@ describe('registerSettingsPathListener', () => {
   });
 
   it('collapses one save spread over several rows into a single run', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const notify = notifierFor({
       paths: ['ai'],
       resolveChangedKey: async () => 'ai.enabled',
@@ -87,7 +88,7 @@ describe('registerSettingsPathListener', () => {
   });
 
   it('reports a failing onChange without letting it reject', async () => {
-    const onError = jest.fn();
+    const onError = vi.fn();
     const notify = notifierFor({
       paths: ['ai'],
       resolveChangedKey: async () => 'ai.enabled',
@@ -104,8 +105,8 @@ describe('registerSettingsPathListener', () => {
   });
 
   it('ignores changes to other tables', async () => {
-    const onChange = jest.fn();
-    const resolveChangedKey = jest.fn();
+    const onChange = vi.fn();
+    const resolveChangedKey = vi.fn();
     const notify = notifierFor({ paths: ['ai'], resolveChangedKey, onChange });
 
     notify({ table: 'patients' });

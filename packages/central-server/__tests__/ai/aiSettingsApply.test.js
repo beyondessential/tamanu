@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -32,7 +33,7 @@ describe('AI settings listener', () => {
   beforeEach(async () => {
     // let a run raised by the previous case land before it can count as this one's
     await sleepAsync(SETTLE_MS);
-    refresh = jest.fn();
+    refresh = vi.fn();
     ctx.refreshAiService = refresh;
   });
 
@@ -79,7 +80,7 @@ describe('AI settings save', () => {
   // The save rebuilds directly rather than waiting on its own notification, so this
   // has resolved by the time the response lands, ahead of the listener's debounce.
   it('rebuilds the service before the save responds', async () => {
-    const refresh = jest.fn();
+    const refresh = vi.fn();
     ctx.refreshAiService = refresh;
 
     const result = await adminApp.put('/v1/admin/settings').send({

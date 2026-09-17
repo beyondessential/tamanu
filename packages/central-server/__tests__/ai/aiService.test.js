@@ -1,17 +1,17 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { settingsCache } from '@tamanu/settings/cache';
+import { getSettingSecret } from '@tamanu/shared/utils/crypto';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../../app/ApplicationContext';
 import { AIService } from '../../app/services/AIService';
 
-jest.mock('@tamanu/shared/utils/crypto', () => {
-  const original = jest.requireActual('@tamanu/shared/utils/crypto');
+vi.mock('@tamanu/shared/utils/crypto', async () => {
+  const original = await vi.importActual('@tamanu/shared/utils/crypto');
   return {
     ...original,
-    getSettingSecret: jest.fn(),
+    getSettingSecret: vi.fn(),
   };
 });
-
-const { getSettingSecret } = jest.requireMock('@tamanu/shared/utils/crypto');
 
 const PROMPT_SETTINGS = {
   'formBuilder.prompts': {
@@ -79,7 +79,7 @@ describe('ApplicationContext.refreshAiService', () => {
   it('drops the settings cache before reading', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
     const order = [];
-    const reset = jest.spyOn(settingsCache, 'reset').mockImplementation(() => order.push('reset'));
+    const reset = vi.spyOn(settingsCache, 'reset').mockImplementation(() => order.push('reset'));
 
     const context = contextFor({
       get: async path => {
