@@ -16,15 +16,12 @@ const optimizeCalls = (querySpy: jest.SpyInstance) =>
 
 const didRunOptimize = (querySpy: jest.SpyInstance) => optimizeCalls(querySpy).length > 0;
 
-/** A bare ANALYZE or a non-zero analysis limit: the “approximate ANALYZE” this module must never run */
-const didRunApproximateAnalyze = (querySpy: jest.SpyInstance) =>
-  sqlCalls(querySpy).some(sql => {
-    const statement = sql.trim().toUpperCase();
-    return (
-      statement.startsWith('ANALYZE') ||
-      (statement.startsWith('PRAGMA ANALYSIS_LIMIT') && !statement.endsWith('= 0;'))
-    );
-  });
+/** Index of the first statement matching `predicate`, or -1 */
+const indexOfCall = (querySpy: jest.SpyInstance, predicate: (statement: string) => boolean) =>
+  sqlCalls(querySpy).findIndex(sql => predicate(sql.trim().toUpperCase()));
+
+const didRunBareAnalyze = (querySpy: jest.SpyInstance) =>
+  indexOfCall(querySpy, statement => statement.startsWith('ANALYZE')) !== -1;
 
 /** Fails `PRAGMA optimize` while leaving every other query working */
 const mockFailingOptimize = (): jest.SpyInstance => {
@@ -69,12 +66,26 @@ describe('DatabaseHelper', () => {
       expect(parseInt(fact.value, 10)).toBeGreaterThanOrEqual(before);
     });
 
-    it('never runs an approximate ANALYZE', async () => {
+    it('bounds the ANALYZEs with analysis_limit = 400 before running PRAGMA optimize', async () => {
       const querySpy = jest.spyOn(Database.client, 'query');
 
       try {
         await Database.requestPragmaOptimize();
-        expect(didRunApproximateAnalyze(querySpy)).toBe(false);
+        const limitIndex = indexOfCall(querySpy, s => s === 'PRAGMA ANALYSIS_LIMIT = 400;');
+        const optimizeIndex = indexOfCall(querySpy, s => s === 'PRAGMA OPTIMIZE;');
+        expect(limitIndex).not.toBe(-1);
+        expect(optimizeIndex).toBeGreaterThan(limitIndex);
+      } finally {
+        querySpy.mockRestore();
+      }
+    });
+
+    it('never runs a bare ANALYZE itself', async () => {
+      const querySpy = jest.spyOn(Database.client, 'query');
+
+      try {
+        await Database.requestPragmaOptimize();
+        expect(didRunBareAnalyze(querySpy)).toBe(false);
       } finally {
         querySpy.mockRestore();
       }
@@ -112,10 +123,7 @@ describe('DatabaseHelper', () => {
       const querySpy = jest.spyOn(Database.client, 'query');
 
       try {
-        await Promise.all([
-          Database.requestPragmaOptimize(),
-          Database.requestPragmaOptimize(),
-        ]);
+        await Promise.all([Database.requestPragmaOptimize(), Database.requestPragmaOptimize()]);
         expect(optimizeCalls(querySpy)).toHaveLength(1);
       } finally {
         querySpy.mockRestore();

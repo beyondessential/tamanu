@@ -61,7 +61,7 @@ export class BackendManager {
 
   /**
    * - Run `PRAGMA optimize` when app gets backgrounded to mitigate user-facing latency.
-   * - Usually a no-op. When it does act, it runs one full ANALYZE per table that might benefit.
+   * - Usually a no-op. When it does act, it runs an approximate ANALYZE per table that might benefit.
    */
   onAppStateChange(next: AppStateStatus): void {
     const wasActive = this.prevAppState === 'active';
