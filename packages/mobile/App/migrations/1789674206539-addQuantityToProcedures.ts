@@ -1,6 +1,6 @@
 import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 
-export class addQuantityToProcedures1787706002000 implements MigrationInterface {
+export class addQuantityToProcedures1789674206539 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.addColumn(
       'procedures',
