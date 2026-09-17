@@ -1,10 +1,11 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import', () => {
   let ctx;
@@ -37,7 +38,7 @@ describe('Programs import', () => {
   it('should succeed with valid data', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
@@ -50,7 +51,7 @@ describe('Programs import', () => {
   it('should ignore obsolete surveys worksheets', async () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
 
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
@@ -62,7 +63,7 @@ describe('Programs import', () => {
     await doImport({ file: 'valid', dryRun: false });
     const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete', dryRun: true });
 
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 0, updated: 1, errored: 0 },
@@ -78,7 +79,7 @@ describe('Programs import', () => {
       dryRun: true,
     });
     console.log('stats', stats);
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 0, skipped: 1, errored: 0 },
@@ -102,7 +103,7 @@ describe('Programs import', () => {
 
     {
       const { errors, stats } = await doImport({ file: 'deleteQuestions' });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         ProgramDataElement: { created: 3 },
         SurveyScreenComponent: { created: 3 },
@@ -115,7 +116,7 @@ describe('Programs import', () => {
 
     {
       const { errors, stats } = await doImport({ file: 'deleteQuestions-2' });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         ProgramDataElement: { updated: 3 },
         SurveyScreenComponent: { skipped: 1, deleted: 2 },

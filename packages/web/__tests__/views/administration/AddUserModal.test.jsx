@@ -72,8 +72,8 @@ describe('AddUserModal submit-in-flight state', () => {
 
     renderModal();
 
-    // Confirm switches to its functionally-disabled variant with a spinner.
-    const confirmButton = screen.getByTestId('button-0nnt');
+    // Confirm is disabled with a spinner while the save is in flight.
+    const confirmButton = screen.getByTestId('styledcircularprogress-4end').closest('button');
     expect(confirmButton.disabled).toBe(true);
     expect(screen.getByTestId('styledcircularprogress-4end')).toBeTruthy();
 

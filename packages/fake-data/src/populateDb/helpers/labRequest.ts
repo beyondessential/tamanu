@@ -1,5 +1,6 @@
 import { times } from 'es-toolkit/compat';
-import { randomRecordId } from '../randomRecord.js';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
@@ -27,7 +28,10 @@ export const createLabRequest = async ({
   const resolvedDepartmentId = departmentId || (await randomRecordId(models, 'Department'));
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
   const resolvedEncounterId = encounterId || (await randomRecordId(models, 'Encounter'));
-  const resolvedRefDataId = referenceDataId || (await randomRecordId(models, 'ReferenceData'));
+  const resolvedCategoryId =
+    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.LAB_TEST_CATEGORY));
+  const resolvedMethodId =
+    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.LAB_TEST_METHOD));
   const resolvedPatientId = patientId || (await randomRecordId(models, 'Patient'));
   const resolvedLabTestTypeId = labTestTypeId || (await randomRecordId(models, 'LabTestType'));
 
@@ -52,8 +56,8 @@ export const createLabRequest = async ({
     const labTest = await LabTest.create(
       fake(LabTest, {
         labRequestId: labRequest.id,
-        categoryId: resolvedRefDataId,
-        labTestMethodId: resolvedRefDataId,
+        categoryId: resolvedCategoryId,
+        labTestMethodId: resolvedMethodId,
         labTestTypeId: resolvedLabTestTypeId,
       }),
     );

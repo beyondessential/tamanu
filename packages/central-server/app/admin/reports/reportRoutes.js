@@ -16,6 +16,16 @@ import { DryRun } from '../errors';
 
 export const reportsRouter = express.Router();
 
+// Reads degrade when initReporting fails at startup, but writes must not: without a
+// store they would address a different schema than the one they validated against.
+const assertReportingSchemasAvailable = reportSchemaStores => {
+  if (!reportSchemaStores) {
+    throw new InvalidOperationError(
+      'Reporting schemas failed to initialise, check the server startup logs',
+    );
+  }
+};
+
 reportsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -104,12 +114,12 @@ reportsRouter.post(
     req.checkPermission('create', 'ReportDefinition');
     req.checkPermission('create', 'ReportDefinitionVersion');
 
-    const { store, body, user, reportSchemaStores, isReportingSchemaEnabled } = req;
-    const defaultReportingSchema = isReportingSchemaEnabled
-      ? REPORT_DB_CONNECTIONS.REPORTING
-      : REPORT_DB_CONNECTIONS.RAW;
+    const { store, body, user, reportSchemaStores } = req;
+    assertReportingSchemasAvailable(reportSchemaStores);
 
-    const transformedBody = !body.dbSchema ? { ...body, dbSchema: defaultReportingSchema } : body;
+    const transformedBody = !body.dbSchema
+      ? { ...body, dbSchema: REPORT_DB_CONNECTIONS.REPORTING }
+      : body;
 
     const version = await createReportDefinitionVersion(
       { store, reportSchemaStores },
@@ -128,6 +138,8 @@ reportsRouter.post(
     req.checkPermission('create', 'ReportDefinitionVersion');
 
     const { store, params, body, user, reportSchemaStores } = req;
+    assertReportingSchemasAvailable(reportSchemaStores);
+
     const { reportId } = params;
     const version = await createReportDefinitionVersion(
       { store, reportSchemaStores },
@@ -194,11 +206,13 @@ reportsRouter.post(
     req.checkPermission('create', 'ReportDefinition');
     req.checkPermission('create', 'ReportDefinitionVersion');
 
-    const { store, user, reportSchemaStores, isReportingSchemaEnabled } = req;
+    const { store, user, reportSchemaStores } = req;
     const {
       models: { ReportDefinition, ReportDefinitionVersion },
       sequelize,
     } = store;
+
+    assertReportingSchemasAvailable(reportSchemaStores);
 
     const canEditSchema = req.ability.can('write', 'ReportDbSchema');
 
@@ -209,17 +223,20 @@ reportsRouter.post(
     if (versionData.versionNumber)
       throw new InvalidOperationError('Cannot import a report with a version number');
 
-    if (
-      isReportingSchemaEnabled &&
-      !canEditSchema &&
-      versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW
-    ) {
+    if (!canEditSchema && versionData.dbSchema === REPORT_DB_CONNECTIONS.RAW) {
       throw new InvalidOperationError(
         'You do not have permission to import reports using the raw schema',
       );
     }
 
-    const existingDefinition = await ReportDefinition.findOne({ where: { name } });
+    // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
+    const existingDefinition = await ReportDefinition.findOne({
+      where: { name },
+      paranoid: false,
+    });
+    if (existingDefinition?.deletedAt) {
+      throw new InvalidOperationError('A deleted report is still using this name');
+    }
     if (existingDefinition && existingDefinition.dbSchema !== versionData.dbSchema) {
       throw new InvalidOperationError('Cannot change a reporting schema for existing report');
     }
@@ -240,10 +257,7 @@ reportsRouter.post(
         },
         async () => {
           const [definition, createdDefinition] = await ReportDefinition.findOrCreate({
-            where: {
-              name,
-              dbSchema: isReportingSchemaEnabled ? versionData.dbSchema : REPORT_DB_CONNECTIONS.RAW,
-            },
+            where: { name, dbSchema: versionData.dbSchema },
             include: [
               {
                 model: ReportDefinitionVersion,

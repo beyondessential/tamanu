@@ -1,3 +1,5 @@
+import { beforeAll, describe, it } from 'vitest';
+import config from 'config';
 import express from 'express';
 import supertest from 'supertest';
 
@@ -16,7 +18,6 @@ describe('buildRateLimiters', () => {
     const { authLimiter } = buildRateLimiters();
     delete process.env.TEST_RATE_LIMITING;
 
-    const config = require('config');
     authMax = config.get('rateLimit.auth.max');
 
     const app = express();

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAuthSecret, getRefreshTokenSecret } from '../../src/utils/authSecrets';
 import { getCanonicalHostName } from '../../src/utils/canonicalHostName';
 import { getTrustedProxy } from '../../src/utils/trustedProxy';
@@ -6,8 +7,7 @@ import { getPrimaryTimeZone } from '../../src/utils/timeZoneCheck';
 // The config -> env cutover (TAM-6864) keeps the config keys as a transitional
 // fallback: each getter prefers its env var and falls back to the (soon-removed)
 // config key. This locks in that precedence so the fallback can't silently flip.
-jest.mock('config', () => ({
-  __esModule: true,
+vi.mock('config', () => ({
   default: {
     auth: { secret: 'config-secret', refreshToken: { secret: 'config-refresh' } },
     canonicalHostName: 'https://config-host.example',

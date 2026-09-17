@@ -1,23 +1,13 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useRef } from 'react';
 
+/**
+ * @deprecated Do not use. This hook is intentionally inert and will be removed.
+ * TODO: Abolish this hook and its every usage.
+ * @returns {[React.MutableRefObject<null>, true]}
+ */
 const useOverflow = () => {
-  const [isOverflowing, setIsOverflowing] = useState(false);
   const ref = useRef(null);
-
-  const checkOverflow = () => {
-    const element = ref.current;
-    if (element) {
-      setIsOverflowing(
-        element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight,
-      );
-    }
-  };
-
-  useLayoutEffect(() => {
-    checkOverflow();
-  }, [ref]);
-
-  return [ref, isOverflowing];
+  return [ref, true];
 };
 
 export default useOverflow;

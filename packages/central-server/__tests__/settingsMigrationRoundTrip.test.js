@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { FACT_FACILITY_IDS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { STEPS as CENTRAL_STEPS } from '../../upgrade/src/steps/1785000000000-migrateCentralConfigToSettings';
@@ -8,7 +9,7 @@ import { cloneDeep, merge } from 'es-toolkit/compat';
 import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from './utilities';
 
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 const logStub = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} };
 
@@ -21,7 +22,7 @@ const LEGACY_CONFIG = {
   localisation: { data: { country: { name: 'Fiji', 'alpha-2': 'FJ', 'alpha-3': 'FJI' } } },
   integrations: {
     dhis2: { username: 'dhis-user' },
-    mSupplyMed: { enabled: true, username: 'msu', password: 'mspw' },
+    mSupplyMed: { medDispenseEnabled: true, username: 'msu', password: 'mspw' },
   },
   tasking: { upcomingTasksTimeFrame: 9, upcomingTasksShouldBeGeneratedTimeFrame: 96 },
 };
@@ -112,7 +113,7 @@ describe('config->settings migration round trip', () => {
     expect(taskingRows[0].value).toBe(9);
     // secret excluded from the mSupplyMed subtree
     const msupply = rows.find(r => r.key === 'integrations.mSupplyMed' && r.facilityId === f1.id);
-    expect(msupply.value).toMatchObject({ enabled: true, username: 'msu' });
+    expect(msupply.value).toMatchObject({ medDispenseEnabled: true, username: 'msu' });
     expect(msupply.value.password).toBe(undefined);
 
     // one facility already has an operator value: apply must skip it

@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, test } from 'vitest';
 import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import config from 'config';
 import { Chance } from 'chance';
@@ -1645,6 +1646,233 @@ describe('Encounter', () => {
         // The older request was dispensed, the newer one is still active.
         expect(result.body.data[0].lastOrderedAt).toEqual('2020-01-15 14:30:00');
         expect(result.body.data[0].isLastOrderDispensed).toBe(false);
+      });
+
+      // A cancelled request is soft-deleted, so it must not count as the last-sent one even when
+      // it is the most recent request on the prescription.
+      it('skips a cancelled request in favour of the newest surviving one', async () => {
+        const survivingOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date: '2020-01-01 09:00:00',
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(survivingOrder).toHaveSucceeded();
+
+        const cancelledOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date: '2020-01-10 09:00:00',
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(cancelledOrder).toHaveSucceeded();
+        const [cancelledOrderPrescription] = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: cancelledOrder.body.id },
+        });
+        const deleteResult = await app.delete(
+          `/api/medication/medication-requests/${cancelledOrderPrescription.id}`,
+        );
+        expect(deleteResult).toHaveSucceeded();
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].lastOrderedAt).toEqual('2020-01-01 09:00:00');
+        expect(result.body.data[0].isLastOrderDispensed).toBe(false);
+      });
+
+      it('should report no last-sent state when every request has been cancelled', async () => {
+        const order = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: testPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(order).toHaveSucceeded();
+        const [orderPrescription] = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: order.body.id },
+        });
+        const deleteResult = await app.delete(
+          `/api/medication/medication-requests/${orderPrescription.id}`,
+        );
+        expect(deleteResult).toHaveSucceeded();
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].lastOrderedAt).toBeFalsy();
+        expect(result.body.data[0].isLastOrderDispensed).toBeNull();
+      });
+    });
+
+    // pharmacyRequestAt/isPharmacyRequestDispensed sit alongside lastOrderedAt on the same rows and
+    // answer a different question: which request should a user act on next (the earliest still
+    // awaiting dispense, else the latest dispensed one), ignoring cancelled requests entirely.
+    describe('pharmacyOrder pharmacy request status', () => {
+      let pharmacyRequestEncounter = null;
+      let pharmacyRequestPrescription = null;
+
+      beforeAll(async () => {
+        pharmacyRequestEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'pharmacy request status test',
+        });
+
+        const testMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'Pharmacyrequeststatuszol',
+          code: 'pharmacyrequeststatus',
+        });
+
+        pharmacyRequestPrescription = await models.Prescription.create(
+          fake(models.Prescription, {
+            patientId: patient.id,
+            prescriberId: app.user.id,
+            medicationId: testMedication.id,
+          }),
+        );
+
+        await models.EncounterPrescription.create({
+          encounterId: pharmacyRequestEncounter.id,
+          prescriptionId: pharmacyRequestPrescription.id,
+        });
+      });
+
+      afterEach(async () => {
+        await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+        await models.PharmacyOrder.truncate({ cascade: true, force: true });
+      });
+
+      const orderPharmacyRequest = async ({ date, isCompleted = false, cancelled = false }) => {
+        const order = await app
+          .post(`/api/encounter/${pharmacyRequestEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            date,
+            facilityId,
+            pharmacyOrderPrescriptions: [
+              { prescriptionId: pharmacyRequestPrescription.id, quantity: 1, repeats: 1 },
+            ],
+          });
+        expect(order).toHaveSucceeded();
+
+        const [orderPrescription] = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: order.body.id },
+        });
+        if (isCompleted) {
+          await orderPrescription.update({ isCompleted: true });
+        }
+        if (cancelled) {
+          const deleteResult = await app.delete(
+            `/api/medication/medication-requests/${orderPrescription.id}`,
+          );
+          expect(deleteResult).toHaveSucceeded();
+        }
+      };
+
+      const fetchPharmacyRequest = async () => {
+        const result = await app.get(
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications`,
+        );
+        expect(result).toHaveSucceeded();
+        const row = result.body.data.find(p => p.id === pharmacyRequestPrescription.id);
+        expect(row).toBeDefined();
+        return {
+          pharmacyRequestAt: row.pharmacyRequestAt,
+          isPharmacyRequestDispensed: row.isPharmacyRequestDispensed,
+        };
+      };
+
+      it('reports nothing for a prescription never sent to pharmacy', async () => {
+        const status = await fetchPharmacyRequest();
+
+        expect(status).toEqual({ pharmacyRequestAt: null, isPharmacyRequestDispensed: null });
+      });
+
+      it('reports nothing when every request has been cancelled', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
+
+        const status = await fetchPharmacyRequest();
+
+        expect(status).toEqual({ pharmacyRequestAt: null, isPharmacyRequestDispensed: null });
+      });
+
+      it('reports the single request when there is only one', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00' });
+
+        const status = await fetchPharmacyRequest();
+
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-01 09:00:00',
+          isPharmacyRequestDispensed: false,
+        });
+      });
+
+      it('picks the earliest active request over later active and dispensed requests', async () => {
+        await orderPharmacyRequest({ date: '2020-01-20 09:00:00', isCompleted: true });
+        await orderPharmacyRequest({ date: '2020-01-05 09:00:00' });
+        await orderPharmacyRequest({ date: '2020-01-10 09:00:00' });
+
+        const status = await fetchPharmacyRequest();
+
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-05 09:00:00',
+          isPharmacyRequestDispensed: false,
+        });
+      });
+
+      it('ignores cancelled requests when picking the earliest active request', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00', cancelled: true });
+        await orderPharmacyRequest({ date: '2020-01-10 09:00:00' });
+
+        const status = await fetchPharmacyRequest();
+
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-10 09:00:00',
+          isPharmacyRequestDispensed: false,
+        });
+      });
+
+      it('falls back to the latest dispensed request when every surviving request has been dispensed', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00', isCompleted: true });
+        await orderPharmacyRequest({ date: '2020-01-10 09:00:00', isCompleted: true });
+        // A later, cancelled active request must not win over the latest genuine dispensed one.
+        await orderPharmacyRequest({ date: '2020-01-20 09:00:00', cancelled: true });
+
+        const status = await fetchPharmacyRequest();
+
+        expect(status).toEqual({
+          pharmacyRequestAt: '2020-01-10 09:00:00',
+          isPharmacyRequestDispensed: true,
+        });
+      });
+
+      // The two rules disagree here, which is the whole reason both fields exist: the column
+      // surfaces the older outstanding request, while the recency check follows the newest send.
+      it('reports a different request to lastOrderedAt when an older request is still outstanding', async () => {
+        await orderPharmacyRequest({ date: '2020-01-01 09:00:00' });
+        await orderPharmacyRequest({ date: '2020-01-20 09:00:00', isCompleted: true });
+
+        const result = await app.get(
+          `/api/encounter/${pharmacyRequestEncounter.id}/medications`,
+        );
+        expect(result).toHaveSucceeded();
+        const row = result.body.data.find(p => p.id === pharmacyRequestPrescription.id);
+
+        expect(row.pharmacyRequestAt).toEqual('2020-01-01 09:00:00');
+        expect(row.isPharmacyRequestDispensed).toBe(false);
+        expect(row.lastOrderedAt).toEqual('2020-01-20 09:00:00');
+        expect(row.isLastOrderDispensed).toBe(true);
       });
     });
 

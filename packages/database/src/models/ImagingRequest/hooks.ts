@@ -5,6 +5,7 @@ import {
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
   REFERENCE_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import type { ImagingRequest } from './ImagingRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
@@ -97,6 +98,7 @@ const getItemsForImagingRequest = async (instance: ImagingRequest) => {
       where: {
         category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
         sourceRecordId: requestType.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
   }
@@ -113,6 +115,7 @@ const getItemsForImagingRequest = async (instance: ImagingRequest) => {
         where: {
           category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
           sourceRecordId: area.areaId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         },
       });
       if (areaProduct) {
@@ -142,17 +145,15 @@ const addToInvoice = async (instance: ImagingRequest) => {
   }
 
   const products = await getItemsForImagingRequest(instance);
-  await Promise.all(
-    products.map(async ({ item, product, note }) =>
-      instance.sequelize.models.Invoice.addItemToInvoice(
-        item,
-        encounterId,
-        product,
-        instance.requestedById,
-        { note },
-      ),
-    ),
-  );
+  for (const { item, product, note } of products) {
+    await instance.sequelize.models.Invoice.addItemToInvoice(
+      item,
+      encounterId,
+      product,
+      instance.requestedById,
+      { note },
+    );
+  }
 };
 
 const removeFromInvoice = async (instance: ImagingRequest) => {
@@ -162,11 +163,9 @@ const removeFromInvoice = async (instance: ImagingRequest) => {
   }
 
   const items = await getItemsForImagingRequest(instance);
-  await Promise.all(
-    items.map(async ({ item }) =>
-      instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId),
-    ),
-  );
+  for (const { item } of items) {
+    await instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId);
+  }
 };
 
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: ImagingRequest) => {

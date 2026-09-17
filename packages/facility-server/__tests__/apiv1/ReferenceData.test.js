@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';

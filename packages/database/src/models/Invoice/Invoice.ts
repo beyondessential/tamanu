@@ -11,6 +11,7 @@ import {
   SYSTEM_USER_UUID,
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
   ENCOUNTER_TYPES,
+  VISIBILITY_STATUSES,
   type EncounterType,
 } from '@tamanu/constants';
 import { Model } from '../Model';
@@ -37,6 +38,9 @@ import {
 import type { Prescription } from 'models/Prescription';
 import type { Encounter } from '../Encounter';
 import type { Location } from '../Location';
+import { stringToStableInteger } from '@tamanu/shared/utils';
+
+const BASE_INVOICE_ITEM_ADVISORY_KEY = 'addItemToInvoiceAdvisoryLock';
 
 type InvoiceItemSourceRecord =
   | Procedure
@@ -239,22 +243,59 @@ export class Invoice extends Model {
 
     const quantity = this.normaliseInvoiceItemQuantity(options?.quantity, 1);
 
-    await this.sequelize.models.InvoiceItem.upsert(
-      {
-        invoiceId: invoice.id,
-        sourceRecordType: newItem.getModelName(),
-        sourceRecordId: newItem.id,
-        productId: invoiceProduct.id,
-        orderedByUserId,
-        orderDate: new Date(),
-        quantity: quantity,
-        note: options?.note,
-        deletedAt: null, // Ensure we restore the item if it already exists
-      },
-      {
-        conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
-      },
-    );
+    const values = {
+      productId: invoiceProduct.id,
+      orderedByUserId,
+      orderDate: new Date(),
+      quantity,
+      note: options?.note,
+    };
+
+    // Not a plain upsert() because invoice_items_invoice_id_source_record_type_source_record_id_un
+    // is DEFERRABLE (see TAM-7004), and Postgres forbids deferrable constraints as
+    // ON CONFLICT arbiters.
+    // We use an advisory lock here to avoid concurrent creates of the same invoiceItem which would violate
+    // the uniqueness constraint.
+    const upsertInvoiceItem = async () => {
+      const lockId = stringToStableInteger(
+        `${BASE_INVOICE_ITEM_ADVISORY_KEY}:${invoice.id}:${newItem.getModelName()}:${newItem.id}`,
+      );
+      await this.sequelize.query(`SELECT pg_advisory_xact_lock(:lockId)`, {
+        replacements: { lockId },
+      });
+
+      const existingItem = await this.sequelize.models.InvoiceItem.findOne({
+        where: {
+          invoiceId: invoice.id,
+          sourceRecordType: newItem.getModelName(),
+          sourceRecordId: newItem.id,
+        },
+        paranoid: false,
+      });
+      if (existingItem) {
+        if (existingItem.deletedAt) {
+          await existingItem.restore(); // Ensure we restore the item if it already exists
+        }
+        await existingItem.update(values);
+      } else {
+        await this.sequelize.models.InvoiceItem.create({
+          invoiceId: invoice.id,
+          sourceRecordType: newItem.getModelName(),
+          sourceRecordId: newItem.id,
+          ...values,
+        });
+      }
+    };
+
+    // sequelize.transaction() always opens a new connection rather than nesting as a savepoint
+    // under an ambient CLS transaction, so calling it unconditionally here can deadlock against
+    // a caller (e.g. Procedure's updateInvoiceProductAfterUpdateHook) that is already inside a
+    // transaction touching the same invoice item row. Reuse the ambient transaction if present.
+    if (this.sequelize.isInsideTransaction()) {
+      await upsertInvoiceItem();
+    } else {
+      await this.sequelize.transaction(upsertInvoiceItem);
+    }
   }
 
   static async removeItemFromInvoice(
@@ -474,7 +515,7 @@ export class Invoice extends Model {
   private static findEncounterFeeProduct(category: string, referenceType: string, code: string) {
     const { InvoiceProduct, ReferenceData } = this.sequelize.models;
     return InvoiceProduct.findOne({
-      where: { category },
+      where: { category, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       include: [
         {
           model: ReferenceData,
@@ -585,7 +626,11 @@ export class Invoice extends Model {
 
     for (const [locationId, nights] of nightsByLocation) {
       const product = await InvoiceProduct.findOne({
-        where: { category: INVOICE_ITEMS_CATEGORIES.BED_FEE, sourceRecordId: locationId },
+        where: {
+          category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+          sourceRecordId: locationId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
       });
       if (!product) {
         continue; // location has no bed-fee product (e.g. an "open ward" placeholder) → not charged

@@ -43,6 +43,9 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
 
   const { title, subTitle } = getSetting('templates.letterhead');
   const { healthFacility } = getSetting('templates.vaccineCertificate');
+  const displayBirthCertificateNumber = getSetting(
+    'upcomingVaccinations.displayBirthCertificateNumber',
+  );
 
   const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccinesQuery(
     patient.id,
@@ -118,7 +121,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           logoSrc={logo}
           facilityName={facility?.name}
           signingSrc={footerImg}
-          printedBy={printedBy} 
+          printedBy={printedBy}
           printedDate={getCurrentDate()}
           localisation={localisation}
           settings={settings}
@@ -126,6 +129,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           translations={translations}
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
+          displayBirthCertificateNumber={displayBirthCertificateNumber}
           data-testid="workerrenderedpdfviewer-e076"
         />
       )}

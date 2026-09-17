@@ -1,20 +1,15 @@
-import {
-  CircularProgress,
-  IconButton,
-  Button as MuiButton,
-  ButtonBase as MuiButtonBase,
-} from '@material-ui/core';
-import { red } from '@material-ui/core/colors';
+import { CircularProgress, IconButton } from '@material-ui/core';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Lock from '@mui/icons-material/Lock';
-import { buttonClasses } from '@mui/material/Button';
+import MuiButton, { buttonClasses } from '@mui/material/Button';
+import { red } from '@mui/material/colors';
+import { styled } from '@mui/material/styles';
 import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { useFormikContext } from 'formik';
 import React, { forwardRef } from 'react';
-import { Link } from 'react-router';
-import styled from 'styled-components';
+import styledComponents from 'styled-components';
 
 import { TAMANU_COLORS } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -23,17 +18,7 @@ import { VisuallyHidden } from '../VisuallyHidden';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
-export const ButtonBase = props => {
-  delete props.functionallyDisabled;
-  const locationsProps = getLocationProps(props);
-  return <MuiButtonBase {...props} {...locationsProps} />;
-};
-
-const StyledButton = styled(({ ...props }) => {
-  delete props.functionallyDisabled;
-  delete props.confirmStyle;
-  return <MuiButton {...props} />;
-})`
+const StyledButton = styled(MuiButton)`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
@@ -41,10 +26,6 @@ const StyledButton = styled(({ ...props }) => {
   padding: 11px 18px 12px 18px;
   box-shadow: none;
   min-width: 100px;
-
-  /* Button is already disabled functionally,
-  this is only to visually make it more obvious that the button is disabled */
-  ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
   /* This style targets SVG icons provided as a child. Prefer using props startIcon or endIcon. */
   & :not(.MuiButton-startIcon, .MuiButton-endIcon) > .${svgIconClasses.root} {
@@ -58,7 +39,7 @@ const StyledButton = styled(({ ...props }) => {
   }
 
   &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
-    border-color: ${props => props.theme.palette.primary.main};
+    border-color: ${p => p.theme.palette.primary.main};
   }
 
   &.MuiButton-containedPrimary.Mui-disabled {
@@ -71,51 +52,26 @@ const StyledButton = styled(({ ...props }) => {
     color: ${TAMANU_COLORS.primary30};
     border-color: ${TAMANU_COLORS.primary30};
   }
-
-  ${props => props.confirmStyle ?? ''}
 `;
 
-const StyledCircularProgress = styled(CircularProgress)`
+const StyledCircularProgress = styledComponents(CircularProgress)`
   margin-right: 5px;
 `;
 
 const BaseButton = ({
   children,
-  variant = 'contained',
-  color = 'primary',
   type = 'button',
   disabled = false,
   isSubmitting = false,
-  functionallyDisabled = false, // for disable the function of button, but still keep the visual the same
   hasPermission = true,
   loadingColor = TAMANU_COLORS.white,
   showLoadingIndicator,
   ...props
 }) => {
-  const locationsProps = getLocationProps(props);
   const displayLock = !isSubmitting && !hasPermission;
 
-  const buttonComponent = functionallyDisabled
-    ? forwardRef((buttonProps, ref) => (
-        // Workaround to display a disabled button with non-disabled styling. MaterialUI doesn't
-        // see the disabled prop so it won't add its own styling, but the underlying button element
-        // is still disabled.
-        // eslint-disable-next-line react/button-has-type
-        <button type={type} {...buttonProps} ref={ref} disabled data-testid="button-0nnt" />
-      ))
-    : undefined;
-
   return (
-    <StyledButton
-      variant={variant}
-      color={color}
-      type={type}
-      disabled={disabled || !hasPermission}
-      functionallyDisabled={functionallyDisabled}
-      {...props}
-      {...locationsProps}
-      {...(buttonComponent && { component: buttonComponent })}
-    >
+    <StyledButton type={type} disabled={disabled || !hasPermission} {...props}>
       {displayLock && <Lock data-testid="lock-zz2l" />}
       {showLoadingIndicator && (
         <StyledCircularProgress
@@ -129,54 +85,48 @@ const BaseButton = ({
   );
 };
 
-export const Button = ({ isSubmitting = false, ...props }) => (
+export const Button = ({ isSubmitting = false, disabled, ...props }) => (
   <BaseButton
     isSubmitting={isSubmitting}
-    functionallyDisabled={isSubmitting}
+    disabled={disabled || isSubmitting}
     showLoadingIndicator={isSubmitting}
     {...props}
   />
 );
 
-export const OutlinedButton = styled(StyledButton).attrs({
-  color: 'primary',
-  variant: 'outlined',
-})`
-  border-color: ${props => props.theme.palette.primary.main};
+const OutlinedButtonBase = styled(StyledButton)`
   :disabled {
     border-color: ${TAMANU_COLORS.softText};
   }
 `;
 
-export const GreyOutlinedButton = styled(StyledButton)`
-  border: 1px solid #dedede;
-  color: ${props => props.theme.palette.text.secondary};
+export const OutlinedButton = forwardRef((props, ref) => (
+  <OutlinedButtonBase {...props} ref={ref} color="primary" variant="outlined" />
+));
+
+const GreyOutlinedButtonBase = styled(StyledButton)`
+  border-color: #dedede;
+  color: ${p => p.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(StyledButton)`
-  border: 1px solid ${TAMANU_COLORS.alert};
-  color: ${TAMANU_COLORS.alert};
-`;
+export const GreyOutlinedButton = forwardRef((props, ref) => (
+  <GreyOutlinedButtonBase {...props} ref={ref} color="inherit" variant="outlined" />
+));
 
-const StyledLargeButton = styled(StyledButton)`
+export const RedOutlinedButton = forwardRef((props, ref) => (
+  <StyledButton {...props} ref={ref} color="error" variant="outlined" />
+));
+
+export const LargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
+  border: 1px solid ${p => p.theme.palette.primary.main};
 `;
 
-export const LargeButton = props => (
-  <StyledLargeButton variant="contained" color="primary" {...props} />
-);
+export const LargeOutlineButton = props => <LargeButton variant="outlined" {...props} />;
 
-export const LargeOutlineButton = props => (
-  <StyledLargeButton variant="outlined" color="primary" {...props} />
-);
-
-export const DeleteButton = styled(Button).attrs({
-  children: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-  variant: 'contained',
-})`
+const DeleteButtonBase = styled(Button)`
   background-color: ${red[600]};
   color: ${TAMANU_COLORS.white};
   &:hover {
@@ -184,10 +134,13 @@ export const DeleteButton = styled(Button).attrs({
   }
 `;
 
-export const TextButton = styled(Button).attrs({
-  color: 'primary',
-  variant: 'text',
-})`
+export const DeleteButton = forwardRef((props, ref) => (
+  <DeleteButtonBase {...props} ref={ref}>
+    <TranslatedText stringId="general.action.delete" fallback="Delete" />
+  </DeleteButtonBase>
+));
+
+const TextButtonBase = styled(Button)`
   color: #5b84ad;
   font-size: 1rem;
   min-block-size: auto;
@@ -204,9 +157,11 @@ export const TextButton = styled(Button).attrs({
   }
 `;
 
-const LabelledBackButton = styled(TextButton).attrs({
-  startIcon: <ChevronLeft />,
-})`
+export const TextButton = forwardRef((props, ref) => (
+  <TextButtonBase {...props} ref={ref} variant="text" />
+));
+
+const LabelledBackButtonBase = styled(TextButton)`
   color: ${TAMANU_COLORS.primary};
   padding-right: 8px;
   font-size: 12px;
@@ -214,6 +169,10 @@ const LabelledBackButton = styled(TextButton).attrs({
     font-size: 20px;
   }
 `;
+
+const LabelledBackButton = forwardRef((props, ref) => (
+  <LabelledBackButtonBase {...props} ref={ref} startIcon={<ChevronLeft />} />
+));
 
 export const BackButton = ({
   children = <TranslatedText stringId="general.action.back" fallback="Back" />,
@@ -232,6 +191,7 @@ export const BackButton = ({
 
 export const FormSubmitButton = ({
   children,
+  disabled,
   text = <TranslatedText stringId="general.action.confirm" fallback="Confirm" />,
   color = 'primary',
   onSubmit,
@@ -241,11 +201,11 @@ export const FormSubmitButton = ({
 
   return (
     <Button
+      disabled={disabled || isSubmitting}
       isSubmitting={isSubmitting}
       showLoadingIndicator={showLoadingIndicator}
       color={color}
       onClick={onSubmit}
-      functionallyDisabled={isSubmitting}
       type="submit"
       {...props}
     >
@@ -254,49 +214,23 @@ export const FormSubmitButton = ({
   );
 };
 
-export const FormCancelButton = props => {
+export const FormCancelButton = ({ disabled, ...props }) => {
   const { isSubmitting } = useFormikContext();
-
   return (
     <OutlinedButton
-      functionallyDisabled={isSubmitting}
+      disabled={disabled || isSubmitting}
       {...props}
       data-testid="outlinedbutton-8rnr"
     />
   );
 };
 
-export const StyledPrimarySubmitButton = styled(FormSubmitButton)`
-  font-size: 16px;
-  line-height: 18px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-`;
-
-const StyledLargeSubmitButton = styled(FormSubmitButton)`
-  font-size: 15px;
-  line-height: 18px;
-  padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
-`;
-
-export const LargeSubmitButton = props => (
-  <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
-);
-
-export const DefaultIconButton = styled(IconButton).attrs({
+export const DefaultIconButton = styledComponents(IconButton).attrs({
   'data-testid': 'iconbutton-zsiq',
 })`
   border-radius: 20%;
   padding: 0px;
 `;
-
-const getLocationProps = ({ to }) => {
-  if (to) {
-    return { component: Link, to };
-  }
-  return {};
-};
 
 const ButtonWithPermissionTooltip = withPermissionTooltip(Button);
 export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissionTooltip);
@@ -305,7 +239,7 @@ export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissio
  * To be extended by custom components which need button semantics, but are not visually or
  * conceptually “a button”.
  */
-export const UnstyledHtmlButton = styled.button`
+export const UnstyledHtmlButton = styledComponents.button`
   appearance: none;
   background-color: unset;
   border: none;
@@ -325,7 +259,7 @@ export const UnstyledHtmlButton = styled.button`
  * `styled` version of this component, the selector will need specificity higher than (0,5,0) to
  * override the styles declared here.
  */
-export const ToggleButton = styled(MuiToggleButton)`
+export const ToggleButton = styledComponents(MuiToggleButton)`
   .${toggleButtonGroupClasses.root}
     &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
    .${toggleButtonGroupClasses.firstButton},

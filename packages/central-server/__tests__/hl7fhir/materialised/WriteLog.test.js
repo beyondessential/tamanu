@@ -1,15 +1,17 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 
 import { showError } from '@tamanu/shared/test-helpers';
 import { SCRUBBED_DATA_MESSAGE } from '@tamanu/constants';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../../utilities';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
-jest.mock('@tamanu/constants', () => {
-  const constants = jest.requireActual('@tamanu/constants');
+vi.mock('@tamanu/constants', async () => {
+  const constants = (await vi.importActual('@tamanu/constants'));
 
   //Mock the default export and named export 'foo'
   return {
@@ -23,6 +25,8 @@ jest.mock('@tamanu/constants', () => {
   };
 });
 
+// The write log is recorded after the response is sent, so poll for it. The wait between
+// attempts is what makes this a poll rather than ten queries in the same millisecond.
 const attemptFlogRetrieval = async (FhirWriteLog, options) => {
   let flog;
   for (let i = 0; i < 10; i++) {
@@ -30,6 +34,7 @@ const attemptFlogRetrieval = async (FhirWriteLog, options) => {
     if (flog) {
       break;
     }
+    await sleepAsync(50);
   }
   return flog;
 };

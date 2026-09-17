@@ -14,6 +14,7 @@ export const TabContainer = styled(Tabs)`
 `;
 
 const StyledTab = styled(Tab).attrs({ iconPosition: 'start' })`
+  padding-inline: 16px;
   &:not([aria-selected='true'], .Mui-selected) .fa {
     color: ${Colors.softText};
   }

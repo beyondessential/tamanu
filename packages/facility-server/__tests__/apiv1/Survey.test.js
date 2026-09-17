@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';

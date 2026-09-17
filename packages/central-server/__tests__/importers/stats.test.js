@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { coalesceStats } from "../../app/admin/stats";
 
 describe('Importer statistics utility functions', () => {

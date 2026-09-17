@@ -1,13 +1,14 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import * as yup from 'yup';
 import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { ArrowLeftIcon } from '~/ui/components/Icons';
 import { withPatient } from '~/ui/containers/Patient';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { joinNames } from '~/ui/helpers/user';
-import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   StyledSafeAreaView,
   StyledView,
@@ -24,6 +25,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PatientContact } from '~/models/PatientContact';
 import { SuggesterDropdown } from '~/ui/components/Dropdown';
 import { PATIENT_COMMUNICATION_CHANNELS } from '~/constants/comms';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { useReminderContact } from '~/ui/contexts/ReminderContactContext';
 
 interface IFormValues {
@@ -35,17 +37,22 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { getTranslation } = useTranslation();
   const { afterAddContact } = useReminderContact();
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+  const queryClient = useQueryClient();
+  const { mutateAsync: createContact } = useMutation({
+    mutationFn: (values: IFormValues) =>
+      PatientContact.createAndSaveOne<PatientContact>({
+        name: values.reminderContactName,
+        relationship: values.reminderContactRelationship,
+        method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
+        patient: selectedPatient.id,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patientKeys.contacts(selectedPatient.id) });
+    },
+  });
 
   const submit = async (values: IFormValues) => {
-    const newContact = await PatientContact.createAndSaveOne<PatientContact>({
-      name: values.reminderContactName,
-      relationship: values.reminderContactRelationship,
-      method: PATIENT_COMMUNICATION_CHANNELS.TELEGRAM,
-      patient: selectedPatient.id,
-    });
+    const newContact = await createContact(values);
     afterAddContact(
       {
         ...newContact,
@@ -73,7 +80,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
     <ScrollView>
       <StyledSafeAreaView>
         <StyledView paddingTop={20} paddingLeft={15} paddingRight={15} paddingBottom={20}>
-          <StyledTouchableOpacity onPress={onNavigateBack}>
+          <StyledTouchableOpacity onPress={navigation.goBack}>
             <ArrowLeftIcon
               fill={theme.colors.PRIMARY_MAIN}
               size={screenPercentageToDP(4, Orientation.Height)}
@@ -201,7 +208,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
                     </StyledText>
                   </Button>
                   <Button
-                    onPress={onNavigateBack}
+                    onPress={navigation.goBack}
                     backgroundColor={theme.colors.WHITE}
                     borderColor={theme.colors.PRIMARY_MAIN}
                     borderWidth={1}

@@ -1,12 +1,6 @@
 import { Database } from '~/infra/db';
 import { SurveyTypes } from '~/types';
-import {
-  fake,
-  fakeEncounter,
-  fakePatient,
-  fakeSurvey,
-  fakeUser,
-} from '/root/tests/helpers/fake';
+import { fake, fakeEncounter, fakePatient, fakeSurvey, fakeUser } from '/root/tests/helpers/fake';
 import { FieldTypes } from '~/ui/helpers/fields';
 
 describe('SurveyResponse', () => {
@@ -70,14 +64,10 @@ describe('SurveyResponse', () => {
           surveyId: survey.id,
           encounterReason: 'Test survey response',
         },
-        {
-          [dataElement.code]: 'alastair@bes.au',
-        },
-      ),
-        await patient.reload();
-      expect(patient).toMatchObject({
-        email: 'alastair@bes.au',
-      });
+        { [dataElement.code]: 'alastair@bes.au' },
+      );
+      await patient.reload();
+      expect(patient).toMatchObject({ email: 'alastair@bes.au' });
     });
   });
 
@@ -125,7 +115,7 @@ describe('SurveyResponse', () => {
       const response = await createResponse(encounter, '2024-02-01 00:00:00');
       await createResponse(otherPatientEncounter, '2024-03-01 00:00:00');
 
-      const results = await Database.models.SurveyResponse.getForPatient(patient.id);
+      const results = await Database.models.SurveyResponse.getForPatient({ patientId: patient.id });
 
       expect(results.map(r => r.id)).toEqual([response.id]);
     });
@@ -144,7 +134,7 @@ describe('SurveyResponse', () => {
         surveyResponse: linked.id,
       });
 
-      const results = await Database.models.SurveyResponse.getForPatient(patient.id);
+      const results = await Database.models.SurveyResponse.getForPatient({ patientId: patient.id });
 
       expect(results.map(r => r.id)).toEqual([kept.id]);
     });
@@ -153,7 +143,7 @@ describe('SurveyResponse', () => {
       const older = await createResponse(encounter, '2024-02-01 00:00:00');
       const newer = await createResponse(encounter, '2024-03-01 00:00:00');
 
-      const results = await Database.models.SurveyResponse.getForPatient(patient.id);
+      const results = await Database.models.SurveyResponse.getForPatient({ patientId: patient.id });
 
       expect(results.map(r => r.id)).toEqual([newer.id, older.id]);
       expect(results[0].survey.id).toEqual(survey.id);
@@ -163,7 +153,10 @@ describe('SurveyResponse', () => {
       const response = await createResponse(encounter, '2024-02-01 00:00:00');
       await createResponse(encounter, '2024-03-01 00:00:00', otherSurvey);
 
-      const results = await Database.models.SurveyResponse.getForPatient(patient.id, survey.id);
+      const results = await Database.models.SurveyResponse.getForPatient({
+        patientId: patient.id,
+        surveyId: survey.id,
+      });
 
       expect(results.map(r => r.id)).toEqual([response.id]);
     });

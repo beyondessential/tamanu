@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Transaction } from 'sequelize';
 
 import { withErrorShown } from '@tamanu/shared/test-helpers';

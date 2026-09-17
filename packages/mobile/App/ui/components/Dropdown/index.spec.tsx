@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 import { BaseStory, dropdownItems } from './fixture';
-import { SelectOption } from '.';
+import type { SelectOption } from '.';
 
 describe.skip('<Dropdown />', () => {
   it('should render <Dropdown />', async () => {

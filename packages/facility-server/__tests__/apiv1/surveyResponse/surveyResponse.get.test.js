@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 import { compressSignatureBody } from '@tamanu/shared/utils/signature';

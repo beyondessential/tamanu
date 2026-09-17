@@ -1,4 +1,4 @@
-import { beforeAll, describe, it } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';

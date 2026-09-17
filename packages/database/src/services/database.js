@@ -85,8 +85,10 @@ async function connectToDatabase(dbOptions) {
   } = dbOptions;
   let { name } = dbOptions;
 
-  // configure one test db per jest worker
-  const workerId = process.env.JEST_WORKER_ID;
+  // Configure one test db per vitest worker. VITEST_POOL_ID is a pool slot id, always
+  // between 1 and maxWorkers and reused as slots free up, so the number of databases stays
+  // bounded — unlike VITEST_WORKER_ID, which counts monotonically across the whole run.
+  const workerId = process.env.VITEST_POOL_ID;
   if (testMode && (workerId || recreateDatabase)) {
     if (workerId) {
       name = `${name}-${workerId}`;

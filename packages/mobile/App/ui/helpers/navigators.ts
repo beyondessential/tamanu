@@ -1,8 +1,6 @@
-import { CommonActions, NavigationProp } from '@react-navigation/native';
+import { CommonActions, type NavigationProp } from '@react-navigation/native';
 
 import { Routes } from './routes';
-
-export const noTabComponent = (): null => null;
 
 export const noSwipeGestureOnNavigator = {
   gestureEnabled: false,
@@ -10,10 +8,7 @@ export const noSwipeGestureOnNavigator = {
 
 // Navigate on a delay in order to wait for navigation to this screen to complete
 export const navigateAfterTimeout = (navigation, route): void => {
-  setTimeout(
-    () => navigation.navigate(route),
-    30,
-  );
+  setTimeout(() => navigation.navigate(route), 30);
 };
 
 /** Reset ProgramStack to the View history tab after submitting a program survey. */
@@ -59,27 +54,16 @@ const getVaccineStackNavigation = (
   return undefined;
 };
 
-/** Pop back to the vaccine table and refresh it without resetting the active category tab. */
-export const returnToVaccineTableWithRefresh = (
-  navigation: NavigationProp<any>,
-  latestAdministeredVaccineId?: string,
-): void => {
+/**
+ * Pop back to the vaccine table without resetting the active category tab. The table
+ * refreshes via query invalidation from the vaccine mutation, not navigation params.
+ */
+export const returnToVaccineTable = (navigation: NavigationProp<any>): void => {
   const stackNavigation = getVaccineStackNavigation(navigation);
 
   if (!stackNavigation) {
     navigation.goBack();
     return;
-  }
-
-  const tableRoute = stackNavigation
-    .getState()
-    .routes.find(route => route.name === Routes.HomeStack.VaccineStack.VaccineTabs.Index);
-
-  if (tableRoute?.key && latestAdministeredVaccineId) {
-    stackNavigation.dispatch({
-      ...CommonActions.setParams({ latestAdministeredVaccineId }),
-      source: tableRoute.key,
-    });
   }
 
   stackNavigation.goBack();

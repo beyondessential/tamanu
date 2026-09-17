@@ -190,7 +190,10 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
   } else if (totalMinutes < 1440) {
     formattedDuration = formatDuration(duration, { format: ['hours'] });
   } else {
-    formattedDuration = formatDuration(duration, { format: ['days'] });
+    // Total elapsed days from the raw millisecond difference, not a calendar-day
+    // comparison, so the result doesn't shift by browser timezone near midnight.
+    const totalDays = Math.floor(totalMinutes / 1440);
+    formattedDuration = formatDuration({ days: totalDays }, { format: ['days'] });
   }
 
   if (!formattedDuration) return null;

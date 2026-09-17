@@ -1,11 +1,11 @@
 import { debounce } from 'es-toolkit/compat';
-import React, { ReactElement, ReactNode, useCallback, useEffect, useRef } from 'react';
+import React, { type ReactElement, type ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
   AppState,
-  AppStateStatus,
-  EmitterSubscription,
+  type AppStateStatus,
+  type EmitterSubscription,
   Keyboard,
-  NativeEventSubscription,
+  type NativeEventSubscription,
   PanResponder,
 } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
@@ -15,8 +15,8 @@ interface DetectIdleLayerProps {
   children: ReactNode;
 }
 
-const ONE_MINUTE = 1000 * 60;
-const UI_EXPIRY_TIME = ONE_MINUTE * 30;
+/** 30 minutes */
+const UI_EXPIRY_TIME = 1_800_000;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const lastActivityRef = useRef(Date.now());
@@ -41,10 +41,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     return false;
   };
 
-  const stableHandleResetIdle = useCallback(
-    (): boolean => handleResetIdleRef.current(),
-    [],
-  );
+  const stableHandleResetIdle = useCallback((): boolean => handleResetIdleRef.current(), []);
 
   useEffect(() => {
     if (!signedIn) return;
@@ -52,7 +49,10 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     const handleStateChange = (nextAppState: AppStateStatus): void => {
       if (appStateRef.current === 'active' && nextAppState.match(/^(inactive|background)$/)) {
         screenOffTimeRef.current = Date.now();
-      } else if (appStateRef.current.match(/^(inactive|background)$/) && nextAppState === 'active') {
+      } else if (
+        appStateRef.current.match(/^(inactive|background)$/) &&
+        nextAppState === 'active'
+      ) {
         if (screenOffTimeRef.current) {
           screenOffTimeRef.current = null;
           if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
@@ -73,11 +73,11 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
       if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
         signOutClientRef.current(true);
       }
-    }, ONE_MINUTE);
+    }, 60000);
 
     return () => {
       clearInterval(intervalId);
-      subscriptions.forEach(subscription => subscription?.remove());
+      for (const subscription of subscriptions) subscription?.remove();
       debouncedResetIdle.cancel();
     };
   }, [signedIn, stableHandleResetIdle, debouncedResetIdle]);

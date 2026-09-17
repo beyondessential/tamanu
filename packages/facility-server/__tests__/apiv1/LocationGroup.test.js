@@ -1,5 +1,5 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import config from 'config';
-import { afterAll, beforeAll } from '@jest/globals';
 
 import { fake } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';

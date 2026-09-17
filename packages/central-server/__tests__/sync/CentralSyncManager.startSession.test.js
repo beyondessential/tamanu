@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { fakeUser } from '@tamanu/fake-data/fake';
@@ -58,7 +59,7 @@ describe('CentralSyncManager.startSession', () => {
   afterAll(() => ctx.close());
 
   it('creates a new session', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
@@ -67,7 +68,7 @@ describe('CentralSyncManager.startSession', () => {
   });
 
   it('tick-tocks the global clock', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
 
     await waitForSession(centralSyncManager, sessionId);
@@ -79,7 +80,7 @@ describe('CentralSyncManager.startSession', () => {
   });
 
   it('allows concurrent sync sessions', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId: sessionId1 } = await centralSyncManager.startSession();
     const { sessionId: sessionId2 } = await centralSyncManager.startSession();
 
@@ -94,7 +95,7 @@ describe('CentralSyncManager.startSession', () => {
   });
 
   it('A large number of concurrent sessions will not consume the database connection pool', async () => {
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: false,
@@ -129,11 +130,11 @@ describe('CentralSyncManager.startSession', () => {
       throw new Error(errorMessage);
     };
 
-    const spyMarkAsStartedAt = jest
+    const spyMarkAsStartedAt = vi
       .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
       .mockImplementation(fakeMarkAsStartedAt);
 
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
 
     await expect(waitForSession(centralSyncManager, sessionId))
@@ -142,7 +143,7 @@ describe('CentralSyncManager.startSession', () => {
   });
 
   it('throws an error if the sync lookup table has not yet built', async () => {
-    const centralSyncManager = initializeCentralSyncManager({
+    const centralSyncManager = await initializeCentralSyncManager({
       sync: {
         lookupTable: {
           enabled: true,
@@ -161,11 +162,11 @@ describe('CentralSyncManager.startSession', () => {
       // Do nothing and ensure we error out when the client starts polling
     };
 
-    const spyMarkAsStartedAt = jest
+    const spyMarkAsStartedAt = vi
       .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
       .mockImplementation(fakeMarkAsStartedAt);
 
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const { sessionId } = await centralSyncManager.startSession();
 
     await expect(waitForSession(centralSyncManager, sessionId))
@@ -181,7 +182,7 @@ describe('CentralSyncManager.startSession', () => {
    * Since the client is polling to see if the session has started, its important we only mark as started once everything is complete
    */
   it('performs no further operations after flagging the session as started', async () => {
-    const centralSyncManager = initializeCentralSyncManager();
+    const centralSyncManager = await initializeCentralSyncManager();
     const originalPrepareSession = centralSyncManager.prepareSession.bind(centralSyncManager);
     let dataValuesAtStartTime = null;
 
@@ -193,11 +194,11 @@ describe('CentralSyncManager.startSession', () => {
         dataValuesAtStartTime = cloneDeep(session.dataValues); // Save dataValues immediately after marking session as started
         return result;
       };
-      jest.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
+      vi.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
       return originalPrepareSession(session);
     };
 
-    jest
+    vi
       .spyOn(centralSyncManager, 'prepareSession')
       .mockImplementation(fakeCentralSyncManagerPrepareSession);
 

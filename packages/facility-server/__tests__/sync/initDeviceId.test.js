@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';

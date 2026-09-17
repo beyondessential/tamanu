@@ -1,6 +1,6 @@
 import React, {
-  FunctionComponent,
-  ReactElement,
+  type FunctionComponent,
+  type ReactElement,
   useCallback,
   useEffect,
   useRef,
@@ -42,12 +42,7 @@ const ErrorBox: React.FC<ErrorBoxProps> = ({ errorMessage }) => {
       flexDirection="row"
       alignItems="center"
     >
-      <StyledText
-        color={theme.colors.TEXT_SUPER_DARK}
-        fontSize={14}
-        fontWeight={400}
-        flex={1}
-      >
+      <StyledText color={theme.colors.TEXT_SUPER_DARK} fontSize={14} fontWeight={400} flex={1}>
         {errorMessage}
       </StyledText>
     </StyledView>
@@ -69,20 +64,31 @@ const ServerInfo = __DEV__
             <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
           </StyledText>
           <StyledText color={theme.colors.WHITE}>
-            <TranslatedText stringId="general.facility.label" fallback="Facility" />: <TranslatedReferenceData
-            fallback={facilityName}
-            value={facilityId}
-            category="facility"
-          />
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />:{' '}
+            <TranslatedReferenceData
+              fallback={facilityName}
+              value={facilityId}
+              category="facility"
+            />
           </StyledText>
         </StyledView>
       );
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
+const initialValues = {
+  email: '',
+  password: '',
+  server: '',
+} as const;
+
+export const SignInForm: FunctionComponent<any> = ({
+  initialErrorMessage = '',
+  onOutdatedVersionError,
+  onSuccess,
+}) => {
   const [existingHost, setExistingHost] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
   const { getTranslation } = useTranslation();
@@ -105,7 +111,7 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
         }
       }
     },
-    [existingHost, signIn,onOutdatedVersionError, onSuccess],
+    [existingHost, signIn, onOutdatedVersionError, onSuccess],
   );
 
   useEffect(() => {
@@ -118,11 +124,7 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
   }, []);
   return (
     <Form
-      initialValues={{
-        email: '',
-        password: '',
-        server: '',
-      }}
+      initialValues={initialValues}
       validateOnChange={false}
       validateOnBlur={false}
       validationSchema={Yup.object().shape({

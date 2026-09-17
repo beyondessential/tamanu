@@ -12,20 +12,19 @@ import {
 } from '@tamanu/shared/utils/medication';
 import {
   AutocompleteField,
-  DateDisplay,
   Field,
   NumberInput,
-  RequiredOrnament,
   TranslatedReferenceData,
   TranslatedText,
   useTranslation,
   VisuallyHidden,
 } from '@tamanu/ui-components';
 import { CheckField } from '../components/Field';
+import { LastSentCell } from '../components/Medication/LastSentCell';
 import { Colors } from '../constants';
 import { preventInvalidRepeatsInput, singularize } from '../utils';
 import { getStockStatus } from '../utils/medications';
-import { atLeastOneWhenSendingToPharmacy, emptyToNull } from '../utils/validation';
+import { dispensingQuantitySchema, emptyToNull } from '../utils/validation';
 
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
@@ -49,25 +48,18 @@ export const orderingPrescriberLabel = (
 );
 
 /**
- * Every listed medication needs a dispensing quantity, in both tables and whether or not pharmacy
- * orders are enabled — the discharge records it against the prescription either way. Zero only
- * stops being acceptable once the row is actually being sent to pharmacy.
+ * A dispensing quantity can be left blank on any row, in both tables and whether or not pharmacy
+ * orders are enabled — the server records a blank as zero against the prescription. A quantity is
+ * only demanded, and only has to be at least one, once the row is actually being sent to pharmacy.
  */
 export const getMedicationsValidationSchema = requiredInlineMessage =>
   yup.lazy(medications =>
     yup.object(
       Object.keys(medications ?? {}).reduce((schemas, key) => {
         schemas[key] = yup.object().shape({
-          quantity: yup
-            .number()
-            .transform(emptyToNull)
-            .integer()
-            .min(0)
-            // Nullable so a blank field fails as required rather than as a bad number.
-            .nullable()
-            .required(requiredInlineMessage)
-            .translatedLabel(dispensingQuantityLabel)
-            .test(atLeastOneWhenSendingToPharmacy(requiredInlineMessage)),
+          quantity: dispensingQuantitySchema(requiredInlineMessage).translatedLabel(
+            dispensingQuantityLabel,
+          ),
           repeats: yup
             .number()
             .transform(emptyToNull)
@@ -107,7 +99,9 @@ export const OrderingPrescriberField = ({ practitionerSuggester }) => {
             />
           </Box>
         }
-        required
+        // Only required, and only marked so, once something is being sent to pharmacy — the field
+        // is disabled and cannot be filled in while nothing is selected.
+        required={isSendingAnyMedication}
         disabled={!isSendingAnyMedication}
         data-testid="field-orderingprescriber"
       />
@@ -130,7 +124,8 @@ const NumberFieldWithoutLabel = ({ field, unitKey, ...props }) => {
   );
 };
 
-/** Mirrors getMedicationsValidationSchema: the floor lifts to 1 only once the row is being sent. */
+/** Mirrors getMedicationsValidationSchema: a quantity is only required, and the floor only lifts to
+ * 1, once the row is being sent to pharmacy. */
 const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => {
   const { values } = useFormikContext();
   const isSentToPharmacy = Boolean(values.medications?.[medicationId]?.sendToPharmacy);
@@ -141,7 +136,7 @@ const DispensingQuantityField = ({ medicationId, dispensingUnit, disabled }) => 
       component={NumberFieldWithoutLabel}
       unitKey={dispensingUnit ?? undefined}
       min={isSentToPharmacy ? 1 : 0}
-      required
+      required={isSentToPharmacy}
       disabled={disabled}
       data-testid="field-ksmf"
     />
@@ -202,36 +197,6 @@ const DiscontinuedAccessor = ({ medication, handleDiscontinueMedication }) => (
   </DarkestText>
 );
 
-const LastSentAccessor = ({ lastOrderedAt, isLastOrderDispensed }) => {
-  if (!lastOrderedAt) {
-    return (
-      <DarkestText>
-        <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
-      </DarkestText>
-    );
-  }
-  return (
-    <Box>
-      <DarkestText>
-        <DateDisplay date={lastOrderedAt} format="shortest" />
-      </DarkestText>
-      <Box fontSize="12px" color={Colors.softText}>
-        {isLastOrderDispensed ? (
-          <TranslatedText
-            stringId="medication.pharmacyRequest.status.dispensed"
-            fallback="Dispensed"
-          />
-        ) : (
-          <TranslatedText
-            stringId="medication.pharmacyRequest.status.activeRequest"
-            fallback="Active request"
-          />
-        )}
-      </Box>
-    </Box>
-  );
-};
-
 /*
  * The discharge medication tables use fixed layout so the two of them stay aligned with each other,
  * which means any column without a declared width just takes an equal share of whatever is left.
@@ -275,12 +240,9 @@ export const MEDICATION_COLUMNS = ({
   },
   {
     key: 'quantity',
-    title: (
-      <>
-        {dispensingQuantityLabel}
-        <RequiredOrnament />
-      </>
-    ),
+    // No required ornament on the header: a quantity is only required of the rows being sent to
+    // pharmacy, so marking the whole column would overstate the rule.
+    title: dispensingQuantityLabel,
     accessor: ({ id, medication, dispensingUnit }) => (
       <DispensingQuantityField
         medicationId={id}
@@ -343,7 +305,9 @@ export const MEDICATION_COLUMNS = ({
           title: (
             <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />
           ),
-          accessor: LastSentAccessor,
+          accessor: ({ lastOrderedAt, isLastOrderDispensed }) => (
+            <LastSentCell sentAt={lastOrderedAt} isDispensed={isLastOrderDispensed} />
+          ),
           style: { inlineSize: COLUMN_WIDTHS.lastSent },
         },
       ]

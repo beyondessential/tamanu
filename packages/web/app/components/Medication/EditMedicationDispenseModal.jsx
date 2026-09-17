@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -26,6 +26,7 @@ import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/Medica
 import {
   buildInstructionText,
   buildLabelText,
+  getDispensedPrescription,
   getMedicationLabelData,
   getStockStatus,
   getTranslatedMedicationName,
@@ -97,16 +98,15 @@ export const EditMedicationDispenseModal = memo(
       facilityId,
     });
 
-    // Derived from the prescription, not the dispense's saved instructions, so
-    // it shows the original even after the label text has been edited.
-    const prescription = medicationDispense?.pharmacyOrderPrescription?.prescription;
+    const dispensedPrescription = getDispensedPrescription(medicationDispense);
+    // Built from the dispensed details, so editing the label text leaves them alone.
     const defaultInstructions = medicationDispense
-      ? buildInstructionText(prescription, getTranslation, getEnumTranslation)
+      ? buildInstructionText(dispensedPrescription, getTranslation, getEnumTranslation)
       : '';
     // Label text has its own default formatting (verb prefix, long/plural units,
     // lowercased unit/frequency/route) and is what clearing a preset reverts to.
     const defaultLabelText = medicationDispense
-      ? buildLabelText(prescription, getTranslation, getEnumTranslation)
+      ? buildLabelText(dispensedPrescription, getTranslation, getEnumTranslation)
       : '';
     const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
@@ -115,6 +115,7 @@ export const EditMedicationDispenseModal = memo(
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [labelForPrint, setLabelForPrint] = useState(null);
+    const labelPrintRef = useRef(null);
 
     const { data: facility, isLoading: isLoadingFacility } = useFacilityQuery(facilityId, {
       enabled: open,
@@ -210,13 +211,15 @@ export const EditMedicationDispenseModal = memo(
       setShowValidationErrors(false);
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
-      const medication = item.pharmacyOrderPrescription.prescription?.medication;
       const labelItem = {
         id: item.id,
-        medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+        medicationName: getTranslatedMedicationName(
+          dispensedPrescription?.medication,
+          getReferenceDataTranslation,
+        ),
         instructions: item.instructions,
         quantity: item.quantity,
-        dispensingUnit: item.pharmacyOrderPrescription.prescription?.dispensingUnit,
+        dispensingUnit: dispensedPrescription?.dispensingUnit,
         remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
         prescriberName: item.pharmacyOrderPrescription.prescription?.prescriber?.displayName,
         requestNumber: item.pharmacyOrderPrescription.displayId,
@@ -248,7 +251,8 @@ export const EditMedicationDispenseModal = memo(
 
       if (onConfirm) onConfirm();
 
-      print();
+      // Awaited because onClose() unmounts the frame being printed.
+      await labelPrintRef.current.print();
 
       // Close dispense modal
       onClose();
@@ -275,11 +279,11 @@ export const EditMedicationDispenseModal = memo(
           key: 'medication',
           width: '250px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
-          accessor: ({ pharmacyOrderPrescription }) => (
+          accessor: () => (
             <TranslatedReferenceData
-              fallback={pharmacyOrderPrescription?.prescription?.medication?.name}
-              value={pharmacyOrderPrescription?.prescription?.medication?.id}
-              category={pharmacyOrderPrescription?.prescription?.medication?.type}
+              fallback={dispensedPrescription?.medication?.name}
+              value={dispensedPrescription?.medication?.id}
+              category={dispensedPrescription?.medication?.type}
             />
           ),
         },
@@ -297,7 +301,7 @@ export const EditMedicationDispenseModal = memo(
           ),
           accessor: item => {
             const { quantity } = item;
-            const dispensingUnit = item.pharmacyOrderPrescription?.prescription?.dispensingUnit;
+            const dispensingUnit = dispensedPrescription?.dispensingUnit;
             const hasQuantityError = errors.hasQuantityError || false;
             return (
               <QuantityInput
@@ -522,7 +526,7 @@ export const EditMedicationDispenseModal = memo(
         )}
 
         {step === MODAL_STEPS.REVIEW && labelForPrint && (
-          <MedicationLabelPrintPreview labels={[labelForPrint]} />
+          <MedicationLabelPrintPreview ref={labelPrintRef} labels={[labelForPrint]} />
         )}
       </StyledModal>
     );

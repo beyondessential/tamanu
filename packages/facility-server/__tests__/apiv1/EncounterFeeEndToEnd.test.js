@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 import { createDummyPatient, createDummyTriage } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';

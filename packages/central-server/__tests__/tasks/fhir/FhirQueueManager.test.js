@@ -2,7 +2,7 @@
  * Tests for FhirQueueManager (source: @tamanu/shared/tasks).
  * Run here in central-server so we avoid a circular devDependency between shared and database.
  */
-import { describe, expect, it, jest } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FhirQueueManager } from '@tamanu/shared/tasks';
 import { fakeUUID } from '@tamanu/utils/generateId';
@@ -101,7 +101,7 @@ describe('FhirQueueManager', () => {
     let queueManager;
 
     beforeEach(async () => {
-      logger = jest.fn();
+      logger = vi.fn();
       queueManager = new FhirQueueManager(ctx.store, ctx.settings, makeLogger(logger));
       queueManager.testMode = true;
       await queueManager.start();
@@ -148,7 +148,7 @@ describe('FhirQueueManager', () => {
       withErrorShown(async () => {
         await models.FhirJob.truncate();
 
-        logger = jest.fn();
+        logger = vi.fn();
         queueManager = new FhirQueueManager(ctx.store, ctx.settings, makeLogger(logger));
         queueManager.testMode = true;
         queueManager._concurrency = 1;

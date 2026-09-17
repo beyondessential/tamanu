@@ -4,7 +4,12 @@ import { QueryTypes } from 'sequelize';
 import { Agent, fetch } from 'undici';
 
 import { log } from '@tamanu/shared/services/logging';
-import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_META_SERVER_ID,
+  REPORT_DB_CONNECTIONS,
+  REPORT_DB_CONNECTION_SCHEMAS,
+} from '@tamanu/constants';
 
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
@@ -94,6 +99,20 @@ export class SendStatusToMetaServer extends ScheduledTask {
     return this.metaServerId;
   }
 
+  // Read each run rather than cached: the reporting schema is applied out of
+  // band, so a rebuild lands without restarting us.
+  async getReportingSchemaVersion() {
+    const [row] = await this.sequelize.query(
+      `SELECT obj_description(oid, 'pg_namespace') AS version
+       FROM pg_namespace WHERE nspname = :schema`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { schema: REPORT_DB_CONNECTION_SCHEMAS[REPORT_DB_CONNECTIONS.REPORTING] },
+      },
+    );
+    return row?.version ?? null;
+  }
+
   async run() {
     const currentSyncTick = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
     const pgVersionResult = await this.sequelize.query(`SELECT version()`, {
@@ -106,6 +125,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
         currentSyncTick,
         timezone: getPrimaryTimeZone(),
         pgVersion: pgVersionResult[0].version,
+        reportingSchemaVersion: await this.getReportingSchemaVersion(),
       }),
     });
   }

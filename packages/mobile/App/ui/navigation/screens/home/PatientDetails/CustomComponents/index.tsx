@@ -5,5 +5,4 @@ export * from './FamilyInformation';
 export * from './HealthIndicator';
 export * from './InformationBox';
 export * from './NotificationCheckbox';
-export * from './OngoingConditions';
 export * from './PatientIssues';

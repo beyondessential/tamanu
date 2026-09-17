@@ -1,19 +1,19 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { type ReactElement, useCallback, useEffect, useMemo } from 'react';
 import { Platform, StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
 import { Popup } from 'popup-ui';
-import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
+import { type IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
 import * as Icons from '/components/Icons';
-import { PatientHomeScreenProps } from '/interfaces/screens/HomeStack';
+import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
 import { Screen } from './Screen';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend } from '~/ui/hooks';
+import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -26,9 +26,7 @@ interface IPopup {
 }
 
 // TODO: declare this
-type PatientModule = {
-
-}
+type PatientModule = {};
 
 const showPopupChain = (popups: IPopup[]): void => {
   if (popups.length === 0) return;
@@ -62,7 +60,7 @@ const formatNoteToPopup = (note: string): IPopup => {
       };
 };
 
-const showPatientWarningPopups = (issues: IPatientIssue[]): void =>
+const showPatientWarningPopups = (issues: Pick<IPatientIssue, 'type' | 'note'>[]): void =>
   showPopupChain(
     issues
       .filter(({ type }) => type === PatientIssueType.Warning)
@@ -77,10 +75,12 @@ const usePatientModules = navigation => {
     return [
       {
         key: 'diagnosisAndTreatment',
-        title:   <TranslatedText
-        stringId="patient.diagnosisAndTreatment.title"
-        fallback="Diagnosis & Treatment"
-      />,
+        title: (
+          <TranslatedText
+            stringId="patient.diagnosisAndTreatment.title"
+            fallback="Diagnosis & Treatment"
+          />
+        ),
         Icon: Icons.DiagnosisAndTreatmentIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
@@ -122,7 +122,7 @@ const usePatientModules = navigation => {
 
 const usePatientMenuButtons = navigation => {
   const { ability } = useAuth();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
@@ -133,17 +133,26 @@ const usePatientMenuButtons = navigation => {
       [
         {
           key: 'patientDetails',
-          title:   <TranslatedText stringId="patient.action.viewPatientDetails" fallback="View patient details" />,
+          title: (
+            <TranslatedText
+              stringId="patient.action.viewPatientDetails"
+              fallback="View patient details"
+            />
+          ),
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
         },
         {
           key: 'history',
-          title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
+          title: (
+            <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />
+          ),
           onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
         },
         {
           key: 'programRegistries',
-          title: <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />,
+          title: (
+            <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />
+          ),
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
           hideFromMenu: !canViewProgramRegistries,
         },
@@ -161,7 +170,6 @@ const PatientHomeContainer = ({
   setSelectedPatient,
   route,
 }: PatientHomeScreenProps): ReactElement => {
-  const [errorMessage, setErrorMessage] = useState();
   const { from } = route.params || {};
 
   const patientMenuButtons = usePatientMenuButtons(navigation);
@@ -185,37 +193,8 @@ const PatientHomeContainer = ({
     setSelectedPatient(null);
   }, [from, navigation, setSelectedPatient]);
 
-  const { models } = useBackend();
-
-  const [patientIssues, setPatientIssues] = useState(null);
-  useFocusEffect(
-    useCallback(() => {
-      if (!selectedPatient) {
-        return;
-      }
-
-      let mounted = true;
-      (async (): Promise<void> => {
-        try {
-          const result = await models.PatientIssue.find({
-            order: { recordedDate: 'ASC' },
-            where: { patient: { id: selectedPatient.id } },
-          });
-          if (!mounted) {
-            return;
-          }
-          setPatientIssues(result);
-        } catch (err) {
-          if (!mounted) {
-            return;
-          }
-          setErrorMessage(err.message);
-        }
-      })();
-      return (): void => {
-        mounted = false;
-      };
-    }, [models, selectedPatient?.id]),
+  const { data: patientIssues, error: patientIssuesError } = usePatientIssuesQuery(
+    selectedPatient?.id,
   );
 
   useFocusEffect(
@@ -231,7 +210,7 @@ const PatientHomeContainer = ({
 
   const patientModules = usePatientModules(navigation);
 
-  if (errorMessage) return <ErrorScreen error={errorMessage} />;
+  if (patientIssuesError) return <ErrorScreen error={patientIssuesError} />;
 
   if (!selectedPatient) {
     return null;

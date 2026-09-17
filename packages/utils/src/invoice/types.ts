@@ -14,12 +14,15 @@ export interface Product {
 export interface InvoiceDiscount {
   id?: string;
   percentage?: number;
+  reason?: string;
+  isManual?: boolean;
 }
 
 export interface InvoiceItemDiscount {
   id?: string;
   type?: string;
   amount?: number;
+  reason?: string;
 }
 
 export interface InsurancePlanItem {

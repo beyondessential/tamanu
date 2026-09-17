@@ -1,8 +1,8 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { StyledView } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PatientMenuButton } from '/components/PatientMenuButton';
-import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 import styled from 'styled-components/native';
 
 interface VisitTypeButtonsProps {

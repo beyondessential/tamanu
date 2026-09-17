@@ -1,4 +1,4 @@
-import { beforeAll, describe, it } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as fc from 'fast-check';
 import { Transaction } from 'sequelize';
 

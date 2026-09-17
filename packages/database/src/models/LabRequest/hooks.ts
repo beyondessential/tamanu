@@ -4,6 +4,7 @@ import {
   NOTIFICATION_TYPES,
   INVOICEABLE_LAB_REQUEST_STATUSES,
   INPATIENT_BUNDLED_CATEGORIES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import type { LabRequest } from './LabRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
@@ -109,6 +110,7 @@ const getItemsForLabRequest = async (instance: LabRequest) => {
         where: {
           category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
           sourceRecordId: labTestPanelRequest.labTestPanelId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         },
       });
 
@@ -125,6 +127,7 @@ const getItemsForLabRequest = async (instance: LabRequest) => {
       where: {
         category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
         sourceRecordId: test.labTestTypeId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
 
@@ -143,16 +146,14 @@ const addToInvoice = async (instance: LabRequest) => {
   }
 
   const products = await getItemsForLabRequest(instance);
-  await Promise.all(
-    products.map(async ({ item, product }) =>
-      instance.sequelize.models.Invoice.addItemToInvoice(
-        item,
-        encounterId,
-        product,
-        instance.requestedById,
-      ),
-    ),
-  );
+  for (const { item, product } of products) {
+    await instance.sequelize.models.Invoice.addItemToInvoice(
+      item,
+      encounterId,
+      product,
+      instance.requestedById,
+    );
+  }
 };
 
 const removeFromInvoice = async (instance: LabRequest) => {
@@ -162,11 +163,9 @@ const removeFromInvoice = async (instance: LabRequest) => {
   }
 
   const items = await getItemsForLabRequest(instance);
-  await Promise.all(
-    items.map(async ({ item }) =>
-      instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId),
-    ),
-  );
+  for (const { item } of items) {
+    await instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId);
+  }
 };
 
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: LabRequest) => {

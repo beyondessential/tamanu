@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
@@ -7,7 +8,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import - Vitals Survey', () => {
   let ctx;
@@ -100,7 +101,7 @@ describe('Programs import - Vitals Survey', () => {
       file: 'vitals-valid',
       dryRun: true,
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(didntSendReason).toEqual('dryRun');
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
@@ -154,7 +155,7 @@ describe('Programs import - Vitals Survey', () => {
 
     {
       const { errors, stats } = await doImport({ file: 'vitals-delete-questions' });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 1, updated: 0, errored: 0 },
@@ -169,7 +170,7 @@ describe('Programs import - Vitals Survey', () => {
 
     {
       const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         ProgramDataElement: { skipped: 16 }, // deleter should NOT delete underlying PDEs
         SurveyScreenComponent: { skipped: 15, deleted: 1 },

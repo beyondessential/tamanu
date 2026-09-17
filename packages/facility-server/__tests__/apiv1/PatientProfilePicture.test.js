@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -58,7 +59,7 @@ describe('Patient profile picture', () => {
   afterAll(() => ctx.close());
 
   // Disabling this as the endpoint currently expects a real central server to exist
-  xit('should retrieve a profile picture where one exists', async () => {
+  it.skip('should retrieve a profile picture where one exists', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     await uploadDummyProfilePicture(models, patient.id);
 

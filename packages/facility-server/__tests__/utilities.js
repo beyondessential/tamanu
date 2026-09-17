@@ -1,4 +1,3 @@
-import 'jest-expect-message';
 import supertest from 'supertest';
 import config from 'config';
 
@@ -11,7 +10,6 @@ import {
   seedLocations,
   seedSettings,
 } from '@tamanu/database/demoData';
-import { Problem } from '@tamanu/errors';
 import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
 import { showError } from '@tamanu/shared/test-helpers';
@@ -27,7 +25,6 @@ import { createApiApp } from '../app/createApiApp';
 import { buildToken } from '../app/middleware/auth';
 import { initDatabase } from '../app/database';
 
-import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
@@ -36,15 +33,6 @@ import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 import { ApplicationContext } from '../app/ApplicationContext';
 import { FacilitySyncConnection } from '../app/sync/FacilitySyncConnection';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-
-jest.mock('../app/sync/CentralServerConnection');
-jest.mock('../app/utils/uploadAttachment');
-
-const formatError = response => `
-
-Error details:
-${JSON.stringify(response.body.error, null, 2)}
-`;
 
 const setupFacilityDb = async (sequelize, models) => {
   await sequelize.migrate('up');
@@ -150,101 +138,11 @@ class MockApplicationContext extends ApplicationContext {
   }
 }
 
-export function extendExpect(expect) {
-  expect.extend({
-    toBeForbidden(response) {
-      const { statusCode } = response;
-      const pass = statusCode === 403;
-      if (pass) {
-        return {
-          message: () =>
-            `Expected not forbidden (!== 403), got ${statusCode}. ${formatError(response)}`,
-          pass,
-        };
-      }
-      return {
-        message: () => `Expected forbidden (403), got ${statusCode}. ${formatError(response)}`,
-        pass,
-      };
-    },
-    toHaveRequestError(response) {
-      const { statusCode } = response;
-      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403;
-      if (pass) {
-        return {
-          message: () =>
-            `Expected no error status code, got ${statusCode}. ${formatError(response)}`,
-          pass,
-        };
-      }
-      return {
-        message: () => `Expected error status code, got ${statusCode}. ${formatError(response)}`,
-        pass,
-      };
-    },
-    toHaveSucceeded(response) {
-      const { statusCode } = response;
-      const pass = statusCode < 400;
-      if (pass) {
-        return {
-          message: () => `Expected failure status code, got ${statusCode}.`,
-          pass,
-        };
-      }
-      return {
-        message: () => `Expected success status code, got ${statusCode}. ${formatError(response)}`,
-        pass,
-      };
-    },
-    toBeProblemOfType(error, type) {
-      if (!(error instanceof Problem)) {
-        return {
-          message: () => `Expected a Problem, got a ${error?.name ?? typeof error}`,
-          pass: false,
-        };
-      }
-
-      if (error.type !== type) {
-        return {
-          message: () => `Expected Problem type ${type}, got ${error.type}`,
-          pass: false,
-        };
-      }
-
-      return {
-        message: () => `Expected Problem of type ${type}`,
-        pass: true,
-      };
-    },
-    toHaveStatus(response, status) {
-      const { statusCode } = response;
-      const pass = statusCode === status;
-      if (pass) {
-        return {
-          message: () => `Expected status code ${status}, got ${statusCode}.`,
-          pass,
-        };
-      }
-      return {
-        message: () =>
-          `Expected status code ${status}, got ${statusCode}. ${formatError(response)}`,
-        pass,
-      };
-    },
-    toMatchTabularReport(receivedReport, expectedData, options) {
-      return toMatchTabularReport(this, receivedReport, expectedData, options);
-    },
-  });
-}
-
 export async function createTestContext({
   enableReportInstances,
   databaseOverrides,
   initFhirTriggers = false,
 } = {}) {
-  // do NOT time out during create context
-  jest.setTimeout(1000 * 60 * 60 * 24);
-
   const context = await new MockApplicationContext().init({
     databaseOverrides,
     initFhirTriggers,

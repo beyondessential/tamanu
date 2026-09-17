@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
@@ -5,7 +6,7 @@ import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
 import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 // Get the unmocked function to be able to test it
-const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
+const { uploadAttachment } = await vi.importActual('../app/utils/uploadAttachment');
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
 const FILEDATA =
@@ -14,7 +15,7 @@ const FILEDATA =
 // Function called inside uploadAttachment, it expects a network request
 // with multipart/form-data which doesn't seem very straightforward to
 // recreate within node.
-jest.mock('@tamanu/shared/utils/getUploadedData');
+vi.mock('@tamanu/shared/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
   const fileName = path.resolve(__dirname, 'test-file.jpeg');
@@ -35,48 +36,50 @@ describe('UploadAttachment', () => {
   });
 
   it('abort creating document metadata if the central server fails to create attachment', async () => {
-    CentralServerConnection.mockImplementationOnce(() => ({
-      __esModule: true,
-      fetch: jest.fn(async (path, body) => {
-        // Make sure the parameters match what the central server expects
-        expect(path).toBe('attachment');
-        expect(body).toMatchObject({
-          method: 'POST',
-          body: {
-            type: 'image/jpeg',
-            size: 1002,
-            data: FILEDATA,
-          },
-        });
-        return {
-          error: 'Some error',
-        };
-      }),
-    }));
+    CentralServerConnection.mockImplementationOnce(function () {
+      return {
+        fetch: vi.fn(async (path, body) => {
+          // Make sure the parameters match what the central server expects
+          expect(path).toBe('attachment');
+          expect(body).toMatchObject({
+            method: 'POST',
+            body: {
+              type: 'image/jpeg',
+              size: 1002,
+              data: FILEDATA,
+            },
+          });
+          return {
+            error: 'Some error',
+          };
+        }),
+      };
+    });
     await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallError);
     expect(CentralServerConnection.mock.calls.length).toBe(1);
     expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });
 
   it('successfully uploads attachment', async () => {
-    CentralServerConnection.mockImplementationOnce(() => ({
-      __esModule: true,
-      fetch: jest.fn(async (path, body) => {
-        // Make sure the parameters match what the central server expects
-        expect(path).toBe('attachment');
-        expect(body).toMatchObject({
-          method: 'POST',
-          body: {
-            type: 'image/jpeg',
-            size: 1002,
-            data: FILEDATA,
-          },
-        });
-        return {
-          attachmentId: '111',
-        };
-      }),
-    }));
+    CentralServerConnection.mockImplementationOnce(function () {
+      return {
+        fetch: vi.fn(async (path, body) => {
+          // Make sure the parameters match what the central server expects
+          expect(path).toBe('attachment');
+          expect(body).toMatchObject({
+            method: 'POST',
+            body: {
+              type: 'image/jpeg',
+              size: 1002,
+              data: FILEDATA,
+            },
+          });
+          return {
+            attachmentId: '111',
+          };
+        }),
+      };
+    });
     const result = await uploadAttachment(mockReq);
     expect(result).toMatchObject({
       attachmentId: '111',

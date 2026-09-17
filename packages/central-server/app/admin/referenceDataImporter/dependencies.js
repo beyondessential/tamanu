@@ -5,7 +5,7 @@ import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderF
 import { invoicePriceListLoader } from './invoicePriceListLoader';
 import {
   administeredVaccineLoader,
-  drugLoader,
+  drugLoaderFactory,
   invoiceProductLoader,
   labTestPanelLoader,
   medicationSetLoader,
@@ -134,7 +134,11 @@ export default {
   },
 
   [REFERENCE_TYPES.DRUG]: {
-    loader: drugLoader,
+    get loader() {
+      // Use a getter to create a fresh loader instance (with its own per-import
+      // settings cache) on each access.
+      return drugLoaderFactory();
+    },
   },
   [REFERENCE_TYPES.MEDICATION_TEMPLATE]: {
     loader: medicationTemplateLoader,

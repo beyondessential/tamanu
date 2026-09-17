@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';

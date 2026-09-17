@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { ThemeProvider } from 'styled-components';
 import { StyledView, themeSystem } from '/styled/common';
@@ -12,7 +12,7 @@ import {
   SettingsIcon,
 } from '../Icons';
 import { MenuOptionButton } from './index';
-import { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MoreMenuOptions = [
   {
@@ -78,12 +78,7 @@ export const PatientDetails = [
 ];
 
 const Separator = (): ReactElement => (
-  <StyledView
-    alignSelf="center"
-    height={1}
-    background={theme.colors.DEFAULT_OFF}
-    width="90.24%"
-  />
+  <StyledView alignSelf="center" height={1} background={theme.colors.DEFAULT_OFF} width="90.24%" />
 );
 
 const styles = StyleSheet.create({

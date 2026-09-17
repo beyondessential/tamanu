@@ -1,4 +1,4 @@
-import { afterAll, beforeAll } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
 
 import {
@@ -348,6 +348,33 @@ describe('Imaging requests', () => {
     });
     expect(results.length).toBe(1);
     expect(results[0].description).toBe('new result description');
+  });
+
+  it('should create a result with only a completed time', async () => {
+    // arrange
+    const ir = await models.ImagingRequest.create({
+      encounterId: encounter.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
+      requestedById: app.user.id,
+    });
+    const completedAt = getCurrentDateTimeString();
+
+    // act
+    const result = await app.put(`/api/imagingRequest/${ir.id}`).send({
+      status: 'completed',
+      newResult: { completedAt },
+      facilityId,
+    });
+
+    // assert
+    expect(result).toHaveSucceeded();
+
+    const results = await models.ImagingResult.findAll({
+      where: { imagingRequestId: ir.id },
+    });
+    expect(results.length).toBe(1);
+    expect(results[0].completedAt).toBe(completedAt);
+    expect(results[0].completedById).toBe(null);
   });
 
   it('should create multiple results for an imaging request', async () => {

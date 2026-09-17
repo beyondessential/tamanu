@@ -1,6 +1,6 @@
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { ID } from './ID';
-import { IReferenceData } from './IReferenceData';
+import type { VisibilityStatus } from '~/visibilityStatuses';
+import type { ID } from './ID';
+import type { IReferenceData } from './IReferenceData';
 
 export interface IScheduledVaccine {
   id: ID;

@@ -1,7 +1,7 @@
 import { pick } from 'es-toolkit/compat';
 
-import { DataToPersist, SyncRecord } from '../types';
-import { BaseModel } from '../../../models/BaseModel';
+import type { DataToPersist, SyncRecord } from '../types';
+import type { BaseModel } from '../../../models/BaseModel';
 import { extractIncludedColumns } from './extractIncludedColumns';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 

@@ -1,10 +1,11 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
 import { createTestContext } from '../../utilities';
 import '../matchers';
 
 // the importer can take a little while
-jest.setTimeout(50000);
+vi.setConfig({ testTimeout: 50000 });
 
 describe('Patients import', () => {
   let ctx;
@@ -39,7 +40,7 @@ describe('Patients import', () => {
       dryRun: true,
     });
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toEqual({
       Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       PatientAdditionalData: {
@@ -103,7 +104,7 @@ describe('Patients import', () => {
     });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toEqual({
       Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
       PatientAdditionalData: {
@@ -124,7 +125,7 @@ describe('Patients import', () => {
     });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toEqual({
       Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
     });
@@ -137,7 +138,7 @@ describe('Patients import', () => {
     });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toEqual({
       Patient: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
     });
@@ -150,7 +151,7 @@ describe('Patients import', () => {
     });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats.Patient).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
     expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
   });
@@ -177,7 +178,7 @@ describe('Patients import', () => {
     });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats.Patient).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
     expect(stats.PatientAdditionalData).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
     expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });

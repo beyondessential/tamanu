@@ -31,12 +31,18 @@ export async function createReportDefinitionVersion(
     async () => {
       const { name, dbSchema, ...definitionVersion } = definition;
       if (!reportId) {
+        // The unique constraint on the name counts soft-deleted rows, so this lookup must too.
         const existingDefinition = await ReportDefinition.findOne({
           where: { name },
-          attributes: ['id'],
+          attributes: ['id', 'deletedAt'],
+          paranoid: false,
         });
         if (existingDefinition) {
-          throw new InvalidOperationError('Report name already exists');
+          throw new InvalidOperationError(
+            existingDefinition.deletedAt
+              ? 'A deleted report is still using this name'
+              : 'Report name already exists',
+          );
         }
       }
       const reportDefinitionId = reportId || (await ReportDefinition.create({ name, dbSchema })).id;

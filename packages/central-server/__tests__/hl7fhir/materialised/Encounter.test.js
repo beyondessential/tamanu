@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { addDays, getYear } from 'date-fns';
 
 import { chance, fake } from '@tamanu/fake-data/fake';
@@ -249,6 +250,36 @@ describe(`Materialised FHIR - Encounter`, () => {
           type: 'Patient',
           display: `${resources.patient.firstName} ${resources.patient.lastName}`,
         },
+      });
+      expect(response).toHaveSucceeded();
+    });
+
+    it('a survey response encounter', async () => {
+      // arrange
+      const [, mat] = await makeEncounter({
+        encounterType: 'surveyResponse',
+      });
+
+      // act
+      const path = `/api/integration/${INTEGRATION_ROUTE}/Encounter/${mat.id}`;
+      const response = await app.get(path);
+
+      // assert
+      expect(response.body).toMatchObject({
+        resourceType: 'Encounter',
+        id: expect.any(String),
+        status: 'in-progress',
+        class: [
+          {
+            coding: [
+              {
+                code: 'FLD',
+                display: 'field',
+                system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+              },
+            ],
+          },
+        ],
       });
       expect(response).toHaveSucceeded();
     });

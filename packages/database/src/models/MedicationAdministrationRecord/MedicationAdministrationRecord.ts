@@ -2,6 +2,7 @@ import { DataTypes, Op, type Transaction } from 'sequelize';
 import {
   ADMINISTRATION_FREQUENCIES,
   ENCOUNTER_TYPES,
+  FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   TASK_STATUSES,
@@ -19,6 +20,12 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Task } from '../Task';
 import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
 import { afterCreateHook, afterUpdateHook } from './hooks';
+
+const PRESCRIPTION_WITH_DUE_TASKS = {
+  frequency: {
+    [Op.notIn]: [...FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS],
+  },
+};
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -222,6 +229,8 @@ export class MedicationAdministrationRecord extends Model {
     // Skip if this is a PRN medication
     if (prescription.isPrn) return;
 
+    if (FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS.has(prescription.frequency)) return;
+
     const encounterPrescription = await EncounterPrescription.findOne({
       where: { prescriptionId: prescription.id },
       include: [
@@ -309,6 +318,7 @@ export class MedicationAdministrationRecord extends Model {
           as: 'prescription',
           attributes: ['id'],
           required: true,
+          where: PRESCRIPTION_WITH_DUE_TASKS,
           include: [
             {
               model: EncounterPrescription,
@@ -431,6 +441,7 @@ export class MedicationAdministrationRecord extends Model {
             as: 'prescription',
             attributes: ['id'],
             required: true,
+            where: PRESCRIPTION_WITH_DUE_TASKS,
             include: [
               {
                 model: EncounterPrescription,

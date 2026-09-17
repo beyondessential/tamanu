@@ -21,6 +21,7 @@ import { Colors, PATIENT_STATUS } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { getPatientStatus } from '../utils/getPatientStatus';
+import { IS_DISCHARGE_DRAFT_ENABLED } from './dischargeDraft';
 
 export const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -129,7 +130,7 @@ export const DischargeFormScreen = props => {
   // them as a draft instead of losing them. An untouched form just closes, and so does one
   // belonging to a clinician who cannot save a draft, since that screen exists to offer the save.
   const handleCancelAttempt = () => {
-    if (dirty && canWriteDischarge) {
+    if (IS_DISCHARGE_DRAFT_ENABLED && dirty && canWriteDischarge) {
       onStepForward();
       setShowWarningScreen(true);
     } else {
@@ -179,7 +180,9 @@ export const DischargeFormScreen = props => {
             )}
             confirmDisabled={isBlocked}
             cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-            {...(canWriteDischarge && !dischargeNotesFailed && { onBack: () => onSaveDraft(values) })}
+            {...(IS_DISCHARGE_DRAFT_ENABLED &&
+              canWriteDischarge &&
+              !dischargeNotesFailed && { onBack: () => onSaveDraft(values) })}
             backButtonText={
               <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
             }

@@ -1,8 +1,9 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as XLSX from 'xlsx';
 
 import { createTestContext } from '../utilities';
 
-jest.setTimeout(120 * 1000);
+vi.setConfig({ testTimeout: 120 * 1000 });
 
 // A minimal Tamanu program export workbook: a Metadata sheet with the survey
 // table header that marks the file as an exported (existing) program.
@@ -89,19 +90,19 @@ describe('Form Builder Admin', () => {
 
   beforeEach(() => {
     aiService = {
-      createSession: jest.fn().mockResolvedValue('new-session-id'),
-      hasSession: jest.fn().mockReturnValue(true),
-      sendFormBuilderMessage: jest.fn().mockResolvedValue({
+      createSession: vi.fn().mockResolvedValue('new-session-id'),
+      hasSession: vi.fn().mockReturnValue(true),
+      sendFormBuilderMessage: vi.fn().mockResolvedValue({
         message: 'AI response',
         attach_to_program_code: 'ncd',
         ready: false,
       }),
-      getSessionTranscript: jest.fn().mockResolvedValue('[human]\nBuild a referral form'),
-      invokeStructured: jest.fn().mockResolvedValue(programDefinition),
-      interpretFormBuilderImage: jest.fn().mockResolvedValue('SECTION: Referral\nQUESTION: Patient name'),
-      interpretFormBuilderPdf: jest.fn().mockResolvedValue('SECTION: PDF Referral\nQUESTION: Patient name'),
-      registerFormBuilderContext: jest.fn().mockResolvedValue(undefined),
-      addSessionMessages: jest.fn().mockResolvedValue(undefined),
+      getSessionTranscript: vi.fn().mockResolvedValue('[human]\nBuild a referral form'),
+      invokeStructured: vi.fn().mockResolvedValue(programDefinition),
+      interpretFormBuilderImage: vi.fn().mockResolvedValue('SECTION: Referral\nQUESTION: Patient name'),
+      interpretFormBuilderPdf: vi.fn().mockResolvedValue('SECTION: PDF Referral\nQUESTION: Patient name'),
+      registerFormBuilderContext: vi.fn().mockResolvedValue(undefined),
+      addSessionMessages: vi.fn().mockResolvedValue(undefined),
     };
     ctx.aiService = aiService;
   });

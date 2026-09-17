@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
@@ -12,7 +13,7 @@ import {
 } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import - Translation', () => {
   let ctx;

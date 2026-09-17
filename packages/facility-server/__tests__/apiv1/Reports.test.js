@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
 
@@ -8,8 +9,7 @@ import { setupReportPermissionsTest, testReportPermissions } from './reportsApiC
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 const reportsUtils = {
-  __esModule: true,
-  ...jest.requireActual('@tamanu/shared/reports'),
+  ...(await vi.importActual('@tamanu/shared/reports')),
 };
 
 describe('Reports', () => {
@@ -138,7 +138,7 @@ describe('Reports', () => {
     });
 
     it('should fail with 404 and message if report module is not found', async () => {
-      jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
+      vi.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
       const app = await baseApp.asRole('practitioner');
       const res = await app.post('/api/reports/invalid-report', {});
       expect(res).toHaveStatus(404);

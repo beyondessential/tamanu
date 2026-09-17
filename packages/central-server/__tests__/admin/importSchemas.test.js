@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { SSCPatientIssue } from '../../app/admin/importSchemas';
 
 describe('admin import schemas', () => {

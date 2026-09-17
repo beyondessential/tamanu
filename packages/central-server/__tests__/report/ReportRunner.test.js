@@ -1,7 +1,8 @@
+import { describe, expect, it, vi } from 'vitest';
 import { ReportRunner } from '../../app/report/ReportRunner';
 
-jest.mock('../../app/services/mailConfig', () => ({
-  getDefaultFromAddress: jest.fn(() => 'no-reply@tamanu.example'),
+vi.mock('../../app/services/mailConfig', () => ({
+  getDefaultFromAddress: vi.fn(() => 'no-reply@tamanu.example'),
 }));
 
 describe('ReportRunner', () => {
@@ -18,8 +19,8 @@ describe('ReportRunner', () => {
         'csv',
         { duration: '0s', ifRunAtLeast: '0s' },
       );
-      runner.getRequestedByUser = jest.fn().mockResolvedValue({ email: 'user@tamanu.example' });
-      runner.getReportName = jest.fn().mockResolvedValue('test-report-name');
+      runner.getRequestedByUser = vi.fn().mockResolvedValue({ email: 'user@tamanu.example' });
+      runner.getReportName = vi.fn().mockResolvedValue('test-report-name');
       return runner;
     };
 
@@ -27,7 +28,7 @@ describe('ReportRunner', () => {
       let sendEmailSettled = false;
 
       const emailService = {
-        sendEmail: jest.fn().mockImplementation(
+        sendEmail: vi.fn().mockImplementation(
           () =>
             new Promise(resolve => {
               setImmediate(() => {

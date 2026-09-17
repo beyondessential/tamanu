@@ -16,6 +16,7 @@ test_facility_offline_setup_postgres() {
 
     createdb -O tamanu central
     createdb -O tamanu facility
+    createdb -O tamanu facility_first_boot
 }
 
 # Start the central server.
@@ -129,6 +130,46 @@ test_facility_offline_facility_start_again() {
 	npm run --workspace @tamanu/facility-server start &
 	curl --retry 8 --retry-all-errors localhost:4000
 	kill -INT -$!
+}
+
+# A server whose very first boot is offline. Upgrading records the facilities the
+# config declares, so the boot check has them without asking central. Runs on its own
+# database, since a server that has already booted against a live central holds the
+# same fact by another route and would pass either way.
+test_facility_offline_first_boot() {
+	cat <<- EOF > packages/facility-server/config/local.json5
+	{
+	    "port": "4000",
+	    "serverFacilityIds": ["facility-test"],
+	    "sync": {
+	        "email": "facility-test@tamanu.io",
+	        "password": "facility-test",
+	        "enabled": true,
+	        "host": "http://localhost:3000"
+	    },
+	    "db": {
+	        "host": "localhost",
+	        "name": "facility_first_boot",
+	        "verbose": true,
+	        "username": "tamanu",
+	        "password": "tamanu",
+	    },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
+	}
+	EOF
+	npm run --workspace @tamanu/facility-server start upgrade
+	nohup npm run --workspace @tamanu/facility-server start > facility-first-boot.out 2>&1 &
+	local pid=$!
+	if ! curl --retry 8 --retry-all-errors localhost:4000; then
+		echo "=== facility-server failed its first boot offline, dumping logs ==="
+		cat facility-first-boot.out
+		exit 1
+	fi
+	kill -INT -$pid
 }
 
 test_facility_offline_$( echo $1 | sed "s/-/_/g" )

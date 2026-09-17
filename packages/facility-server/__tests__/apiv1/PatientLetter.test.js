@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'fs';
 import config from 'config';
 import ReactPDF from '@react-pdf/renderer';
@@ -19,7 +20,7 @@ describe('PatientLetter', () => {
 
   beforeAll(async () => {
     // The handler stats and reads the rendered file, so write a stand-in.
-    renderSpy = jest.spyOn(ReactPDF, 'render').mockImplementation(async (_element, filePath) => {
+    renderSpy = vi.spyOn(ReactPDF, 'render').mockImplementation(async (_element, filePath) => {
       fs.writeFileSync(filePath, 'not a real pdf');
     });
     ctx = await createTestContext();

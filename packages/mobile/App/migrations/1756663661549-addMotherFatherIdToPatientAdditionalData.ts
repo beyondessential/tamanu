@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { type MigrationInterface, type QueryRunner, TableColumn } from 'typeorm';
 
 const tableName = 'patient_additional_data';
 
@@ -38,7 +38,7 @@ export class addMotherFatherIdToPatientAdditionalData1756663661549 implements Mi
       );
     }
 
-        // Note: Foreign key constraints are handled by TypeORM at the application level
+    // Note: Foreign key constraints are handled by TypeORM at the application level
     // Not creating database-level foreign keys to avoid constraint violations during data sync
 
     // Re-enable foreign key constraints

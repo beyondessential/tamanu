@@ -143,11 +143,24 @@ const VaccineCertificateComponent = ({
   extraPatientFields,
   certificateData,
   healthFacility,
+  displayBirthCertificateNumber,
 }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
   const getLocalisation = key => get(localisation, key);
   const countryName = getLocalisation('country.name');
+
+  const birthCertificateField = displayBirthCertificateNumber
+    ? {
+        key: 'birthCertificate',
+        label: getTranslation('pdf.vaccineCertificate.patientDetails.birthCertificateNo', 'Birth certificate no'),
+        accessor: patientData => patientData?.additionalData?.birthCertificate || '',
+      }
+    : null;
+
+  const certificateExtraFields = [birthCertificateField, ...((extraPatientFields) || [])].filter(
+    field => field !== null,
+  );
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
   const columns = getColumns(getTranslation, formatShort);
@@ -212,7 +225,7 @@ const VaccineCertificateComponent = ({
             patient={patient}
             getSetting={getSetting}
             certificateId={certificateId}
-            extraFields={extraPatientFields}
+            extraFields={certificateExtraFields}
           />
         </CertificateHeader>
         <Box

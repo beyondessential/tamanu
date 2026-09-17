@@ -383,7 +383,7 @@
       "imagingTypes": {
         // keys are taken from IMAGING_TYPES in shared/constants/imaging
         // e.g.
-        // "xRay": { "label": "X-Ray" }
+        // "xRay": { "label": "X-ray" }
       },
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"

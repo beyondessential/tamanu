@@ -1,4 +1,4 @@
-import { QueryRunner } from 'typeorm';
+import type { QueryRunner } from 'typeorm';
 
 export const triggerFullResync = async (queryRunner: QueryRunner, tables: string[]) => {
   const tableString = tables.join(',');

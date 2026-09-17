@@ -140,11 +140,11 @@ export class MSupplyStockOnHandProcessor extends ScheduledTask {
     }
     const [facilityId] = serverFacilityIds;
 
-    const { enabled, username, password, host, storeId, backoff } =
+    const { stockOnHandEnabled, username, password, host, storeId, backoff } =
       await this.client.getSettings(facilityId);
 
-    if (!enabled) {
-      log.warn('MSupplyStockOnHandProcessor: mSupply integration is disabled, skipping');
+    if (!stockOnHandEnabled) {
+      log.warn('MSupplyStockOnHandProcessor: stock on hand sync is disabled, skipping');
       return;
     }
 

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { buildAbilityForTests } from '@tamanu/shared/permissions/buildAbility';
 
 describe('build Ability from permission definition', () => {

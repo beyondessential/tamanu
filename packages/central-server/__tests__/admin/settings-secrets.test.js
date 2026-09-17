@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { SECRET_PLACEHOLDER } from '@tamanu/settings';
 import { isEncryptedSecret, decryptSecret } from '@tamanu/shared/utils/crypto';
@@ -7,11 +8,11 @@ import { createTestContext } from '../utilities';
 // tests without needing a real key file or config secret.
 const TEST_KEY_BUFFER = Buffer.alloc(32, 0xab);
 
-jest.mock('@tamanu/shared/utils/crypto', () => {
-  const original = jest.requireActual('@tamanu/shared/utils/crypto');
+vi.mock('@tamanu/shared/utils/crypto', async () => {
+  const original = await vi.importActual('@tamanu/shared/utils/crypto');
   return {
     ...original,
-    getSettingsPskKeyBuffer: jest.fn(async () => Buffer.alloc(32, 0xab)),
+    getSettingsPskKeyBuffer: vi.fn(async () => Buffer.alloc(32, 0xab)),
   };
 });
 

@@ -1,8 +1,8 @@
-import React, { ReactElement, useCallback, useEffect } from 'react';
+import React, { type ReactElement, useCallback, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
-import { LogoV2Icon, SearchIcon } from '/components/Icons';
+import { TamanuComboMark, SearchIcon } from '/components/Icons';
 import { UserAvatar } from '/components/UserAvatar';
 import { withAuth } from '/containers/Auth';
 import { withPatient } from '~/ui/containers/Patient';
@@ -10,8 +10,8 @@ import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
-import { BaseAppProps } from '/interfaces/BaseAppProps';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
+import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import {
   FullView,
   RowView,
@@ -64,7 +64,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, []);
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
   if (!user) {
     // This is only encountered in situations where it's about to immediately
@@ -89,7 +89,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               width="100%"
               justifyContent="space-between"
             >
-              <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
+              <TamanuComboMark height={23} width={95} />
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
                 displayName={user.displayName}
@@ -108,7 +108,11 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              <TranslatedReferenceData category='facility' value={facilityId} fallback={facilityName} />
+              <TranslatedReferenceData
+                category="facility"
+                value={facilityId}
+                fallback={facilityName}
+              />
             </StyledText>
           </StyledView>
         </StyledView>

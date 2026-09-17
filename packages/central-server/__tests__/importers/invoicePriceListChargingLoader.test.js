@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { write, utils } from 'xlsx';
 import { keyBy } from 'lodash';
 import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
@@ -93,7 +94,7 @@ describe('Invoice price list charging import', () => {
       'invoicePriceListItem',
       'invoicePriceListCharging',
     ]);
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
 
     const items = await InvoicePriceListItem.findAll();
     expect(items).toHaveLength(2); // charging merged onto the same rows, not duplicated
@@ -117,7 +118,7 @@ describe('Invoice price list charging import', () => {
     });
 
     const { errors } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     const item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
     expect(item.isFixedPrice).toBe(true);
   });
@@ -135,7 +136,7 @@ describe('Invoice price list charging import', () => {
     });
 
     const { errors } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     // Blank is skipped — no item is created/flagged from the charging tab alone.
     expect(await InvoicePriceListItem.count()).toBe(0);
   });
@@ -154,7 +155,7 @@ describe('Invoice price list charging import', () => {
     });
 
     const { errors } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
 
     const items = await InvoicePriceListItem.findAll();
     expect(items).toHaveLength(1); // only the KOSRAE cell, YAP blank skipped
@@ -209,7 +210,7 @@ describe('Invoice price list charging import', () => {
     });
 
     const { errors } = await doImport(ctx, buffer, ['invoicePriceListCharging']);
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     const item = await InvoicePriceListItem.findOne({ where: { invoiceProductId: 'prod-1' } });
     expect(item.isFixedPrice).toBe(false);
   });

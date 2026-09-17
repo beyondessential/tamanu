@@ -1,4 +1,4 @@
-import { IPatient } from '~/types';
+import type { IPatient } from '~/types';
 
 export interface AllergiesProps {
   allergies: {
@@ -33,8 +33,7 @@ export interface PatientGeneralInformationDataProps {
   generalInfo: IPatient;
 }
 
-export type PatientDetails =
-  PatientGeneralInformationDataProps &
+export type PatientDetails = PatientGeneralInformationDataProps &
   ReminderWarnings &
   OnGoingConditionsDataProps &
   FamilyHistoryDataProps &

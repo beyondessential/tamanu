@@ -4,16 +4,16 @@ import * as Yup from 'yup';
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { getPatientDataDbLocation, checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
-import {
+import type {
   IPatient,
   IPatientAdditionalData,
   ISurveyScreenComponent,
   IUser,
   SurveyScreenValidationCriteria,
 } from '~/types';
-import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
-import { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
-import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
+import type { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
+import type { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 import { READONLY_DATA_FIELDS } from '@tamanu/constants';
 
 function getInitialValue(dataElement): string {

@@ -14,7 +14,7 @@ const StyledImagingRequestsTable = styled(ImagingRequestsTable)`
   border-start-start-radius: ${p => p.theme.shape.borderRadius}px;
 `;
 
-export const ImagingPane = React.memo(({ encounter, disabled }) => {
+export const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
 
@@ -37,7 +37,7 @@ export const ImagingPane = React.memo(({ encounter, disabled }) => {
         <NoteModalActionBlocker>
           <Button
             onClick={() => setPrintRequestsModalOpen(true)}
-            disabled={disabled}
+            disabled={readonly}
             variant="outlined"
             color="primary"
             data-testid="button-21bg"
@@ -52,7 +52,7 @@ export const ImagingPane = React.memo(({ encounter, disabled }) => {
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
             onClick={() => setNewRequestModalOpen(true)}
-            disabled={disabled}
+            disabled={readonly}
             verb="create"
             noun="ImagingRequest"
             data-testid="buttonwithpermissioncheck-14hy"

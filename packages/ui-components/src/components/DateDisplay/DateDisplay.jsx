@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { isSameDay } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { parseDate, isISO9075DateString } from '@tamanu/utils/dateTime';
+import { isISO9075DateString, trimToDate } from '@tamanu/utils/dateTime';
 
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
@@ -90,7 +89,6 @@ const DATE_FORMATS = {
 const TIME_FORMATS = {
   default: 'formatTime',
   withSeconds: 'formatTimeWithSeconds',
-  slot: 'formatTimeSlot',
 };
 
 const WEEKDAY_FORMATS = {
@@ -124,7 +122,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
 /**
  * TimeDisplay - Displays time only
  * @param {string|Date} date - The date/time value
- * @param {string} format - "default" | "withSeconds" | "slot"
+ * @param {string} format - "default" | "withSeconds"
  * @param {boolean} noTooltip - Disable hover tooltip
  *
  * @example
@@ -133,9 +131,6 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
  *
  * // format="withSeconds" → "9:30:00am"
  * <TimeDisplay date="2024-03-15 09:30:45" format="withSeconds" />
- *
- * // format="slot" → "9am" (hour only, for calendar slots)
- * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, ...props }) => {
@@ -173,7 +168,7 @@ export const TimeDisplay = React.memo(
  * @param {string|Date} date - The date value
  * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | "dayMonth" | null (for weekday/time only)
  * @param {string} weekdayFormat - "short" (e.g. "Fri") | "long" (e.g. "Friday") | "narrow" (e.g. "F") | null (default, hides weekday)
- * @param {string} timeFormat - "default" (e.g. "9:30am") | "withSeconds" (e.g. "9:30:00am") | "slot" (e.g. "9am") | null (default, hides time)
+ * @param {string} timeFormat - "default" (e.g. "9:30am") | "withSeconds" (e.g. "9:30:00am") | null (default, hides time)
  * @param {boolean} noTooltip - Disable hover tooltip
  *
  * @example
@@ -291,6 +286,43 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => (
 );
 
 /**
+ * RangeEndDisplay - One end of a date/time range
+ *
+ * Renders the instant as a date with its time, or as a time alone when `dateFormat`
+ * is null because the reader already knows the day.
+ *
+ * The end is isolated as a whole, date and time together, so a right-to-left month
+ * name cannot absorb the digits beside it and strand the am/pm marker. `bdi`
+ * resolves its base direction from the first strong character, so an Urdu end
+ * becomes one right-to-left run and renders exactly as a native RTL container
+ * would. Do not isolate the date and the time separately: that keeps them intact
+ * but forces them into left-to-right order against each other, which is wrong for
+ * the locale.
+ *
+ * @param {string|Date} date - The date/time value
+ * @param {string} dateFormat - Any {@link DateDisplay} format, or null for the time alone
+ * @param {string} timeFormat - Time format (default "default")
+ * @param {string} weekdayFormat - "short" | "long" | "narrow" | null (default, no weekday)
+ */
+export const RangeEndDisplay = React.memo(
+  ({ date, dateFormat = null, timeFormat = 'default', weekdayFormat = null }) => (
+    <bdi>
+      {dateFormat ? (
+        <DateDisplay
+          date={date}
+          format={dateFormat}
+          weekdayFormat={weekdayFormat}
+          timeFormat={timeFormat}
+          noTooltip
+        />
+      ) : (
+        <TimeDisplay date={date} format={timeFormat} noTooltip />
+      )}
+    </bdi>
+  ),
+);
+
+/**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
  * @param {string|Date} start - The start date/time
  * @param {string|Date} end - The end date/time (optional)
@@ -310,27 +342,36 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => (
  */
 export const DateTimeRangeDisplay = React.memo(
   ({ start, end, weekdayFormat = null, dateFormat = 'short', timeFormat = 'default' }) => {
-    const startDate = parseDate(start);
-    const endDate = end ? parseDate(end) : null;
-    const spansMultipleDays = endDate && !isSameDay(startDate, endDate);
+    const { toFacilityDateTime } = useDateTime();
+
+    // Days are compared as they are displayed, not as they are stored: a range can sit
+    // within one day in the primary timezone and straddle midnight in the facility's,
+    // or the reverse.
+    const startDay = trimToDate(toFacilityDateTime(start));
+    const endDay = end ? trimToDate(toFacilityDateTime(end)) : null;
+    const spansMultipleDays = Boolean(endDay) && startDay !== endDay;
+
+    // Whether the range has an end is a property of `end`, not of whether it could be
+    // converted: a value that fails to convert renders as the formatter's placeholder,
+    // which is visible, rather than the end silently disappearing.
+    const hasEnd = Boolean(end);
 
     return (
       <span>
-        <DateDisplay
+        <RangeEndDisplay
           date={start}
-          format={dateFormat}
+          dateFormat={dateFormat}
           weekdayFormat={weekdayFormat}
           timeFormat={timeFormat}
-          noTooltip
         />
-        {endDate && (
+        {hasEnd && (
           <>
             &nbsp;&ndash;{' '}
-            {spansMultipleDays ? (
-              <DateDisplay date={end} format={dateFormat} timeFormat={timeFormat} noTooltip />
-            ) : (
-              <TimeDisplay date={end} format={timeFormat} noTooltip />
-            )}
+            <RangeEndDisplay
+              date={end}
+              dateFormat={spansMultipleDays ? dateFormat : null}
+              timeFormat={timeFormat}
+            />
           </>
         )}
       </span>

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 
 import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
@@ -6,7 +7,7 @@ import { createTestContext } from '../../utilities';
 import '../matchers';
 
 // the importer can take a little while
-jest.setTimeout(50000);
+vi.setConfig({ testTimeout: 50000 });
 
 describe('Lab Test Panel import', () => {
   let ctx;
@@ -52,7 +53,7 @@ describe('Lab Test Panel import', () => {
       });
 
       expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         LabTestPanel: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
         LabTestPanelLabTestTypes: {

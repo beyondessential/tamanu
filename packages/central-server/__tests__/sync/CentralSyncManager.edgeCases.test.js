@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { sub } from 'date-fns';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
@@ -169,7 +170,7 @@ describe('CentralSyncManager Edge Cases', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: {
             enabled: true,
@@ -315,7 +316,7 @@ describe('CentralSyncManager Edge Cases', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager({
+      const centralSyncManager = await initializeCentralSyncManager({
         sync: {
           lookupTable: {
             enabled: true,

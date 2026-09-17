@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import { FhirReference } from '../../../src/services/fhirTypes';
 
 class FakeFhirResourceModel {

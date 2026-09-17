@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { subject } from '@casl/ability';
 import { VITALS_DATA_ELEMENT_IDS, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 // Route handler factory for getting survey response answers with edit history
 export const fetchAnswersWithHistory = (options = {}) =>
@@ -82,6 +83,8 @@ async function getAnswersWithHistory(req, options = {}) {
 
   const { page = 0, rowsPerPage = isVitals ? 10 : 50 } = query;
 
+  // History is computed only over the answers on the requested page (page_answers),
+  // not the whole encounter, and only for answers that actually have edit history.
   const vitalsHistorySelect = `
     SELECT
       vl.answer_id,
@@ -93,13 +96,9 @@ async function getAnswersWithHistory(req, options = {}) {
           'userDisplayName', u.display_name
         )
       )) logs
-    FROM survey_response_answers sra
-      INNER JOIN survey_responses sr ON sr.id = sra.response_id
-      ${patientId ? 'INNER JOIN encounters e ON e.id = sr.encounter_id' : ''}
-      LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
+    FROM page_answers pa
+      INNER JOIN vital_logs vl ON vl.answer_id = pa.id
       LEFT JOIN users u ON u.id = vl.recorded_by_id
-    WHERE ${encounterId ? 'sr.encounter_id = :encounterId' : 'e.patient_id = :patientId AND e.deleted_at IS NULL'}
-      AND sr.deleted_at IS NULL
     GROUP BY vl.answer_id
   `;
 
@@ -110,25 +109,23 @@ async function getAnswersWithHistory(req, options = {}) {
         JSONB_BUILD_OBJECT(
           'newValue', lc.record_data->>'body',
           'reasonForChange', lc.reason,
-          'date', TO_CHAR(lc.logged_at, 'YYYY-MM-DD HH24:MI:SS'),
+          -- logged_at is a real UTC instant; render it in the primary timezone so it
+          -- matches the naive date_time_string convention the rest of the chart data
+          -- (and the frontend's local-time formatting) expects.
+          'date', TO_CHAR(lc.logged_at AT TIME ZONE :primaryTimeZone, 'YYYY-MM-DD HH24:MI:SS'),
           'userDisplayName', u.display_name
         )
       )) logs
-    FROM survey_response_answers sra
-      INNER JOIN survey_responses sr ON sr.id = sra.response_id
-      ${patientId ? 'INNER JOIN encounters e ON e.id = sr.encounter_id' : ''}
-      LEFT JOIN logs.changes lc ON lc.record_id = sra.id
+    FROM page_answers pa
+      INNER JOIN logs.changes lc ON lc.record_id = pa.id AND lc.table_name = 'survey_response_answers'
       LEFT JOIN users u ON u.id = lc.updated_by_user_id
-    WHERE ${encounterId ? 'sr.encounter_id = :encounterId' : 'e.patient_id = :patientId AND e.deleted_at IS NULL'}
-      AND sr.deleted_at IS NULL
-      AND lc.table_name = 'survey_response_answers'
     GROUP BY lc.record_id
   `;
 
   const result = await db.query(
     `
       WITH
-      date AS (
+      filtered AS MATERIALIZED (
         SELECT response.id as response_id, sra.body
         FROM survey_response_answers sra
         INNER JOIN survey_responses response ON response.id = sra.response_id
@@ -139,7 +136,16 @@ async function getAnswersWithHistory(req, options = {}) {
         AND response.deleted_at IS NULL
         AND CASE WHEN :surveyId IS NOT NULL THEN response.survey_id = :surveyId ELSE true END
         AND CASE WHEN :instanceId IS NOT NULL THEN response.metadata->>'chartInstanceResponseId' = :instanceId ELSE true END
-        ORDER BY sra.body ${order} LIMIT :limit OFFSET :offset
+      ),
+      date AS (
+        SELECT response_id, body
+        FROM filtered
+        ORDER BY body ${order} LIMIT :limit OFFSET :offset
+      ),
+      page_answers AS MATERIALIZED (
+        SELECT answer.id, answer.data_element_id, answer.body, date.body AS date_body
+        FROM survey_response_answers answer
+        INNER JOIN date ON date.response_id = answer.response_id
       ),
       history AS (
         ${isVitals ? vitalsHistorySelect : chartHistorySelect}
@@ -148,13 +154,10 @@ async function getAnswersWithHistory(req, options = {}) {
       SELECT
         JSONB_BUILD_OBJECT(
           'dataElementId', answer.data_element_id,
-          'records', JSONB_OBJECT_AGG(date.body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
+          'records', JSONB_OBJECT_AGG(answer.date_body, JSONB_BUILD_OBJECT('id', answer.id, 'body', answer.body, 'logs', history.logs))
         ) result
       FROM
-        survey_response_answers answer
-      INNER JOIN
-        date
-      ON date.response_id = answer.response_id
+        page_answers answer
       LEFT JOIN
         history
       ON history.answer_id = answer.id
@@ -169,6 +172,7 @@ async function getAnswersWithHistory(req, options = {}) {
         dateDataElement,
         surveyId,
         instanceId,
+        primaryTimeZone: getPrimaryTimeZone(),
       },
       type: QueryTypes.SELECT,
     },

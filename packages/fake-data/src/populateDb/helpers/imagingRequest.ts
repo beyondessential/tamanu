@@ -35,7 +35,6 @@ export const createImagingRequest = async ({
       fake(ImagingResult, {
         imagingRequestId: imagingRequest.id,
         completedById: userId || (await randomRecordId(models, 'User')),
-        description: 'This is a test result',
         completedAt: '2022-03-04 15:30:00',
       }),
     );

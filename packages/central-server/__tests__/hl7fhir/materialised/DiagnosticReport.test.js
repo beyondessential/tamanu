@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-expressions */
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import dateFnsTz from 'date-fns-tz';
 
 import {
@@ -168,7 +169,7 @@ describe('Create DiagnosticReport', () => {
 
     it('post a DiagnosticReport to a ServiceRequest', async () => {
       const fakeDate = new Date('2020-01-01');
-      jest.useFakeTimers().setSystemTime(fakeDate);
+      vi.useFakeTimers().setSystemTime(fakeDate);
 
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(

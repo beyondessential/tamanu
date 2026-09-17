@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { sortBy } from 'es-toolkit/compat';
 import Chance from 'chance';

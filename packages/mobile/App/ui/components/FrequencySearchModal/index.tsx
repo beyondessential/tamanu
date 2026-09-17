@@ -1,40 +1,25 @@
-import React, { ReactElement, useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Button } from 'react-native-paper';
-import { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useEffect, useState } from 'react';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { theme } from '../../styled/theme';
-import { TranslatedText } from '../Translations/TranslatedText';
+import { Button } from 'react-native-paper';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
+import type { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
+import { theme } from '../../styled/theme';
+import AutocompleteResult from '../AutocompleteModal/AutocompleteResult';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
     backgroundColor: theme.colors.BACKGROUND_GREY,
     flex: 1,
-    justifyContent: 'space-between',
   },
-  lightItemText: {
-    color: theme.colors.TEXT_DARK,
-    backgroundColor: theme.colors.WHITE,
-    padding: 12,
-  },
-  darkItemText: {
-    color: theme.colors.TEXT_DARK,
-    backgroundColor: theme.colors.LIGHT_GREY,
-    padding: 12,
-  },
-  backButton: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderRadius: 0,
-  },
+  autocompleteContainer: { flex: 1 },
+  resultsContainer: { flex: 1 },
+  backButton: { borderRadius: 0 },
 });
 
-type FrequencySearchModalScreenProps = {
+interface FrequencySearchModalScreenProps {
   navigation: NavigationProp<any>;
   route: {
     params: {
@@ -43,7 +28,7 @@ type FrequencySearchModalScreenProps = {
       modalTitle?: string;
     };
   };
-};
+}
 
 export const FrequencySearchModalScreen = ({
   route,
@@ -69,38 +54,31 @@ export const FrequencySearchModalScreen = ({
     [callback, navigation],
   );
 
-  const onNavigateBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <Autocomplete
         placeholder={getTranslation('general.placeholder.search...', 'Search…')}
         placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
+        containerStyle={styles.autocompleteContainer}
+        listContainerStyle={styles.resultsContainer}
         flatListProps={{
           keyExtractor: item => item.value,
-          renderItem: ({ item, index }): ReactElement => {
-            const useDarkBackground = index % 2 === 0;
-            return (
-              <TouchableOpacity onPress={(): void => onSelectItem(item)}>
-                <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          },
-        }}
-        style={{
-          color: theme.colors.TEXT_DARK,
+          keyboardShouldPersistTaps: 'handled',
+          renderItem: ({ item, index }) => (
+            <AutocompleteResult
+              onSelect={onSelectItem}
+              option={item}
+              useDarkBackground={index % 2 === 0}
+            />
+          ),
         }}
       />
-      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+      <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };

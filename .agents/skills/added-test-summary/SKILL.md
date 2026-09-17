@@ -32,14 +32,14 @@ Count only `it`/`test`. A `describe`/`test.describe` is a suite wrapper, not a t
 
 Pick the runner from the package's own `test` script (check it; don't assume). Run under the repo's Node (`.node-version`) against local Postgres:
 
-- **vitest** — `@tamanu/database`, `@tamanu/web`: `npx vitest run <file> [-t "<substring>"]`
-- **jest** — `@tamanu/shared`, `@tamanu/central-server`, `@tamanu/facility-server`: `NODE_ENV=test npx jest <file> [-t "<substring>"] --verbose`
+- **vitest** — every package except mobile and e2e-tests: `npx vitest run <file> [-t "<substring>"]`
+- **jest** — `@tamanu/mobile`: `npx jest <file> [-t "<substring>"] --verbose`
 - **Playwright** e2e — `@tamanu/e2e-tests` (`*.spec.ts`): `npx playwright test <file> [-g "<title>"]`
 
 Always pass the specific file — never a bare workspace script (`npm test`, `npm run e2e-test`), which runs the whole suite. Run a new file whole; use `-t`/`-g` to scope a modified file to its new cases.
 
 When a runner **can't** run locally, cite the branch's CI run (`gh run list --branch <branch>` → `gh run view --log`) instead of reporting a false failure:
-- stale `node_modules` (e.g. an `es-toolkit/compat` / `defaultsDeep` error) → jest won't run;
+- stale `node_modules` (e.g. an `es-toolkit/compat` / `defaultsDeep` error) → the runner won't start;
 - e2e needs a running stack — a reachable facility frontend + `packages/e2e-tests/.env` (`FACILITY_FRONTEND_URL`, `TEST_EMAIL`, `TEST_PASSWORD`). Without it, list the added specs/cases from the diff and pull pass/fail from CI.
 
 ## 4. Report

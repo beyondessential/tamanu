@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/constants';
@@ -206,6 +207,31 @@ describe('EncounterCharting', () => {
         where: { dataElementId: 'pde-ChartQuestionOneA', body: '1234' },
       });
       expect(saved).toHaveProperty('body', '1234');
+    });
+
+    it('should not create an answer record for a measure left blank', async () => {
+      const submissionDate = getCurrentDateTimeString();
+      const result = await app.post('/api/surveyResponse').send({
+        surveyId: 'simple-chart-survey-0',
+        patientId: chartsPatient.id,
+        startTime: submissionDate,
+        endTime: submissionDate,
+        answers: {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: submissionDate,
+          'pde-ChartQuestionOneA': 1234,
+          // Left blank in the form, submitted as an empty string
+          'pde-ChartQuestionTwoA': '',
+        },
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      // The blank measure must not be persisted as an empty-bodied answer, otherwise its creation
+      // shows up in the cell's history as a spurious "Entry deleted" line.
+      const blankAnswer = await models.SurveyResponseAnswer.findOne({
+        where: { dataElementId: 'pde-ChartQuestionTwoA' },
+      });
+      expect(blankAnswer).toBeNull();
     });
 
     it('should get simple chart readings for an encounter', async () => {

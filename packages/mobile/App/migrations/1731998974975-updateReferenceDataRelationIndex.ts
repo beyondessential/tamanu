@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class updateReferenceDataRelationIndex1714605577000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

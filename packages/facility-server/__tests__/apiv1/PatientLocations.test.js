@@ -1,4 +1,4 @@
-import { afterAll, beforeAll } from '@jest/globals';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';

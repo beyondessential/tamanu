@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import JSON5 from 'json5';
 import { SETTINGS_SCOPES } from '@tamanu/constants';

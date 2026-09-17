@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { useSearchParams } from 'react-router';
 import { SearchTableWithPermissionCheck } from './Table';
@@ -137,6 +138,7 @@ const DISPENSE_PATIENT_PARAM = 'dispense';
 export const MedicationRequestsTable = () => {
   const { formatTime } = useDateTime();
   const api = useApi();
+  const queryClient = useQueryClient();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
   const { getSetting } = useSettings();
@@ -183,6 +185,9 @@ export const MedicationRequestsTable = () => {
       await api.delete(`medication/medication-requests/${selectedRequestId}`);
       setIsDeleteModalOpen(false);
       setSelectedRequestId(null);
+      // The deleted request drops out of the patient's dispensable list, which the dispense
+      // modal reads from its own cache.
+      await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
       // Trigger table refresh
       setRefreshCount(prev => prev + 1);
     } catch (error) {

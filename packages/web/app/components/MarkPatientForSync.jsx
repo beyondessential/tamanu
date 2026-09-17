@@ -10,7 +10,7 @@ import { notifyError } from '../utils';
 
 const MarkPatientForSyncButton = styled(Button).attrs({
   'data-testid': 'markpatientforsyncbutton-r8n7',
-  color: 'default',
+  color: 'inherit',
   variant: 'text',
 })`
   align-items: center;
@@ -20,9 +20,6 @@ const MarkPatientForSyncButton = styled(Button).attrs({
   gap: 1em;
   min-block-size: 9rem;
   min-inline-size: 10.5rem;
-  .MuiButton-label {
-    display: contents;
-  }
 `;
 
 function useMarkPatientForSyncMutation({ facilityId, patientId }) {

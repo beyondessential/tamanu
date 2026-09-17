@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { upperFirst } from 'es-toolkit/compat';
 import { utcToZonedTime } from 'date-fns-tz';
@@ -17,7 +18,7 @@ import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '@tamanu/shared/tasks';
 import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
-jest.setTimeout(50000);
+vi.setConfig({ testTimeout: 50000 });
 
 const PRIMARY_TIME_ZONE = getPrimaryTimeZone();
 
@@ -212,7 +213,7 @@ const fakeAllData = async (models, ctx) => {
       medicationId: medication5Id,
       discontinued: true,
       date: '2022-06-10T01:10:54.225+00:00',
-      discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+      discontinuedDate: '2022-06-10 01:19:54',
       discontinuingReason: 'It was not enough',
     }),
   );
@@ -662,7 +663,7 @@ describe('fijiAspenMediciReport', () => {
           {
             name: 'Glucose (hypertonic) 5%',
             discontinued: true,
-            discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+            discontinuedDate: '2022-06-10 01:19:54',
             discontinuingReason: 'It was not enough',
           },
         ],

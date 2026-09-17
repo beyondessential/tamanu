@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import {
   setHardcodedPermissionsUseForTestsOnly,
@@ -22,7 +23,7 @@ describe('AI Patient Summary (central-server)', () => {
 
     beforeAll(async () => {
       mockAiService = {
-        invoke: jest.fn(async () => ({ content: 'Generated patient summary.' })),
+        invoke: vi.fn(async () => ({ content: 'Generated patient summary.' })),
       };
       setHardcodedPermissionsUseForTestsOnly(true);
       ctx = await createTestContext({ aiService: mockAiService });
@@ -39,7 +40,8 @@ describe('AI Patient Summary (central-server)', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body).toEqual({ content: 'Generated patient summary.' });
-      expect(mockAiService.invoke).toHaveBeenCalled();
+      const [, userMessage] = mockAiService.invoke.mock.calls.at(-1);
+      expect(userMessage).toContain('TEST-001');
     });
 
     it('should include edit feedback in the AI prompt when provided', async () => {
@@ -48,8 +50,8 @@ describe('AI Patient Summary (central-server)', () => {
       const result = await patientSummaryApp.post(SUMMARY_URL).send({ patientData, editFeedback });
 
       expect(result).toHaveSucceeded();
-      const invokedMessage = mockAiService.invoke.mock.calls.at(-1)[1];
-      expect(invokedMessage).toContain('Corrected summary');
+      const [, userMessage] = mockAiService.invoke.mock.calls.at(-1);
+      expect(userMessage).toContain('Corrected summary');
     });
 
     describe('with db-defined permissions', () => {

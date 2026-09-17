@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ReactPDF from '@react-pdf/renderer';
 
 import { makePatientLetter } from '../../app/utils/makePatientLetter';
@@ -21,7 +22,7 @@ describe('makePatientLetter', () => {
   // module-scoped `ReactPDF.render` call site regardless of mock-hoisting order.
   let render;
   beforeEach(() => {
-    render = jest.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
+    render = vi.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
   });
   afterEach(() => {
     render.mockRestore();

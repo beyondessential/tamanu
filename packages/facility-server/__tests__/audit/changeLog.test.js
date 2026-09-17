@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { QueryTypes } from 'sequelize';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';

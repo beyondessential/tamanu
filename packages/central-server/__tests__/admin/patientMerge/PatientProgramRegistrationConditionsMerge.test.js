@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { capitalize } from 'es-toolkit/compat';
 import { fake } from '@tamanu/fake-data/fake';
 

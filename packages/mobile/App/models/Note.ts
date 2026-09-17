@@ -4,12 +4,12 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateStringColumn } from './DateColumns';
 import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
-import { DateString, ID, INote, IUser, NoteRecordType } from '~/types';
+import type { DateString, ID, INote, IUser, NoteRecordType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 
 import { BaseModel, IdRelation } from './BaseModel';
 import { User } from './User';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 
 @Entity('notes')
 export class Note extends BaseModel implements INote {
@@ -37,12 +37,12 @@ export class Note extends BaseModel implements INote {
   @Column({ type: 'varchar', nullable: true })
   revisedById?: string;
 
-  @ManyToOne(() => User, (user) => user.authoredNotes)
+  @ManyToOne(() => User, user => user.authoredNotes)
   author?: IUser;
   @RelationId(({ author }) => author)
   authorId?: ID;
 
-  @ManyToOne(() => User, (user) => user.onBehalfOfNotes)
+  @ManyToOne(() => User, user => user.onBehalfOfNotes)
   onBehalfOf?: IUser;
   @RelationId(({ onBehalfOf }) => onBehalfOf)
   onBehalfOfId?: ID;
@@ -55,7 +55,13 @@ export class Note extends BaseModel implements INote {
     }
   }
 
-  static async createForRecord({ recordId, recordType, noteTypeId, content, author }): Promise<Note> {
+  static async createForRecord({
+    recordId,
+    recordType,
+    noteTypeId,
+    content,
+    author,
+  }): Promise<Note> {
     return Note.createAndSaveOne<Note>({
       recordId,
       recordType,

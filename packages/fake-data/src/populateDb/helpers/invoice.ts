@@ -1,6 +1,8 @@
 import { times } from 'es-toolkit/compat';
 
-import { randomRecordId } from '../randomRecord.js';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+
+import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
@@ -67,13 +69,14 @@ export const createInvoice = async ({
   await InvoiceInsurerPayment.create(
     fake(InvoiceInsurerPayment, {
       invoicePaymentId: invoicePayment.id,
-      insurerId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+      insurerId: referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.INSURER)),
     }),
   );
   await InvoicePatientPayment.create(
     fake(InvoicePatientPayment, {
       invoicePaymentId: invoicePayment.id,
-      methodId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+      methodId:
+        referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.PAYMENT_METHOD)),
     }),
   );
 };

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { createTestContext } from './utilities';
@@ -56,7 +57,7 @@ describe('migrateAppointmentsToLocationGroups', () => {
   afterAll(() => ctx.close());
 
   it('migrates appointments to use location parents ', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     await migrateAppointments();
 
     const appointments = await models.Appointment.findAll({
@@ -71,7 +72,7 @@ describe('migrateAppointmentsToLocationGroups', () => {
   });
 
   it('skips appointments that have locations with no parent ', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     await migrateAppointments();
 
     const appointments = await models.Appointment.findAll({

@@ -2813,7 +2813,7 @@ medication.post(
       const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
       if (notFoundIds.length > 0) {
         throw new NotFoundError(
-          `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
+          `Pharmacy order prescription(s) not found: ${notFoundIds.join(', ')}`,
         );
       }
       const isSamePatient = prescriptionRecords.every(

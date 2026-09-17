@@ -8,7 +8,6 @@ import {
   getValues,
   fromEncounters,
   searchParameters,
-  filterFromEncounters,
 } from '../../utils/fhir/Encounter';
 import type { InitOptions, Models } from '../../types/model';
 
@@ -70,16 +69,6 @@ export class FhirEncounter extends FhirResource {
     if (upstreamTable === Encounter.tableName) {
       return fromEncounters(this.sequelize.models, table, id, deletedRow);
     }
-    return null;
-  }
-
-  static async queryToFilterUpstream(upstreamTable: string) {
-    const { Encounter } = this.sequelize.models;
-
-    if (upstreamTable === Encounter.tableName) {
-      return filterFromEncounters(this.sequelize.models, upstreamTable);
-    }
-
     return null;
   }
 

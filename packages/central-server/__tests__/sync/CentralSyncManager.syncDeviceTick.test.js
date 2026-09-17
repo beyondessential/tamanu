@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
@@ -45,7 +46,7 @@ describe('CentralSyncManager', () => {
 
   describe('syncDeviceTick', () => {
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
     });
 
     it('correctly sets the sync device tick for a sync', async () => {
@@ -77,7 +78,7 @@ describe('CentralSyncManager', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession({ deviceId: facility.id });
       await waitForSession(centralSyncManager, sessionId);
 
@@ -120,15 +121,15 @@ describe('CentralSyncManager', () => {
         flagTickTockBlocked();
       };
       const originalUpdateSnapshotRecords =
-        jest.requireActual('@tamanu/database/sync').updateSnapshotRecords;
-      const mockUpdateSnapshotRecords = jest.fn().mockImplementation(async (...args) => {
+        (await vi.importActual('@tamanu/database/sync')).updateSnapshotRecords;
+      const mockUpdateSnapshotRecords = vi.fn().mockImplementation(async (...args) => {
         // Block tickTock before completing the persist transaction so that we can test if concurrent edits share the same sync tick
         blockTickTock();
         return originalUpdateSnapshotRecords(...args);
       });
 
-      jest.doMock('@tamanu/database/sync', () => ({
-        ...jest.requireActual('@tamanu/database/sync'),
+      vi.doMock('@tamanu/database/sync', async () => ({
+        ...(await vi.importActual('@tamanu/database/sync')),
         updateSnapshotRecords: mockUpdateSnapshotRecords,
       }));
 
@@ -160,7 +161,7 @@ describe('CentralSyncManager', () => {
         },
       ];
 
-      const centralSyncManager = initializeCentralSyncManager();
+      const centralSyncManager = await initializeCentralSyncManager();
       tickTock = centralSyncManager.tickTockGlobalClock.bind(centralSyncManager);
       const { sessionId } = await centralSyncManager.startSession({ deviceId: facility.id });
       await waitForSession(centralSyncManager, sessionId);

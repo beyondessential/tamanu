@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, test, vi } from 'vitest';
 import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { pick } from 'es-toolkit/compat';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
@@ -64,10 +65,12 @@ describe('User', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     centralServer = ctx.centralServer;
-    CentralServerConnection.mockImplementation(() => centralServer);
+    CentralServerConnection.mockImplementation(function () {
+      return centralServer;
+    });
 
     // Mock UserLoginAttempt.checkIsUserLockedOut to focus tests here; lockout tests are elsewhere
-    jest.spyOn(models.UserLoginAttempt, 'checkIsUserLockedOut').mockResolvedValue({
+    vi.spyOn(models.UserLoginAttempt, 'checkIsUserLockedOut').mockResolvedValue({
       isUserLockedOut: false,
       remainingLockout: 0,
     });
@@ -456,7 +459,7 @@ describe('User', () => {
 
     // Mock the permission for user [verb: 'login', noun: 'Facility']
     const mockLoginFacilityPermission = async (user, hasPermission) => {
-      jest.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
+      vi.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
     };
 
     // Defaults for all of the tests in this block. We override as needed
@@ -779,6 +782,20 @@ describe('User', () => {
       const resultIds = result.body.data.map(x => x.id);
       const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
+    });
+
+    it('should not error when the patient is not present locally', async () => {
+      const missingPatientId = fake(models.Patient).id;
+
+      const result = await app.post(
+        `/api/user/recently-viewed-patients/${missingPatientId}`,
+      );
+      expect(result).toHaveStatus(204);
+
+      const recorded = await models.UserRecentlyViewedPatient.count({
+        where: { patientId: missingPatientId },
+      });
+      expect(recorded).toBe(0);
     });
   });
 

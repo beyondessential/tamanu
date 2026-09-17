@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestContext } from '../../utilities';
 import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
@@ -36,7 +37,7 @@ describe('Translated String import', () => {
       });
 
       expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         TranslatedString: {
           created: 4,
@@ -55,7 +56,7 @@ describe('Translated String import', () => {
       });
 
       expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toEqual({
         TranslatedString: {
           created: 2,
@@ -82,7 +83,7 @@ describe('Translated String import', () => {
       file: 'translated-string-skip-existing',
       skipExisting: true,
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       TranslatedString: {
         created: 1,
@@ -107,7 +108,7 @@ describe('Translated String import', () => {
     const { errors, stats } = await doImport({
       file: 'translated-string-skip-existing',
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       TranslatedString: {
         created: 1,
@@ -132,7 +133,7 @@ describe('Translated String import', () => {
     const { errors: errors1, stats: stats1 } = await doImport({
       file: 'translated-string-valid',
     });
-    expect(errors1).toBeEmpty();
+    expect(errors1).toHaveLength(0);
     expect(stats1).toMatchObject({
       TranslatedString: {
         created: 4,
@@ -147,7 +148,7 @@ describe('Translated String import', () => {
     const { errors: errors2, stats: stats2 } = await doImport({
       file: 'translated-string-single-language-missing',
     });
-    expect(errors2).toBeEmpty();
+    expect(errors2).toHaveLength(0);
     expect(stats2).toMatchObject({
       TranslatedString: {
         created: 0,
@@ -167,7 +168,7 @@ describe('Translated String import', () => {
     const { errors: errors3, stats: stats3 } = await doImport({
       file: 'translated-string-valid',
     });
-    expect(errors3).toBeEmpty();
+    expect(errors3).toHaveLength(0);
     expect(stats3).toMatchObject({
       TranslatedString: {
         created: 0,
@@ -201,7 +202,7 @@ describe('Translated String import', () => {
       file: 'translated-string-with-default',
     });
 
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toEqual({
       TranslatedString: {
         created: 4, // 6 in the file, but default should be ignored

@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { isEqual } from 'es-toolkit/compat';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';

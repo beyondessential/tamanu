@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
@@ -7,7 +8,7 @@ import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import - Charting', () => {
   let ctx;
@@ -48,7 +49,7 @@ describe('Programs import - Charting', () => {
         file: 'charting-simple-valid',
         dryRun: true,
       });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(didntSendReason).toEqual('dryRun');
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
@@ -62,7 +63,7 @@ describe('Programs import - Charting', () => {
         file: 'charting-simple-multiple-valid',
         dryRun: true,
       });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(didntSendReason).toEqual('dryRun');
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
@@ -105,7 +106,7 @@ describe('Programs import - Charting', () => {
         file: 'charting-complex-valid',
         dryRun: true,
       });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(didntSendReason).toEqual('dryRun');
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },

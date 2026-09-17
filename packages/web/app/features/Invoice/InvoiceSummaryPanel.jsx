@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
-import { getInvoiceSummary, isInvoiceEditable } from '@tamanu/utils/invoice';
+import {
+  getInvoiceDiscountReason,
+  getInvoiceSummary,
+  isInvoiceEditable,
+} from '@tamanu/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
 import { useSettings } from '../../contexts/Settings';
@@ -38,6 +42,13 @@ const ApplyLinkText = styled.span`
   }
 `;
 
+const DiscountReasonText = styled.div`
+  color: ${Colors.midText};
+  font-size: 12px;
+  font-weight: 400;
+  text-wrap: pretty;
+`;
+
 const RemoveLinkText = styled.span`
   color: ${Colors.darkestText};
   cursor: pointer;
@@ -70,6 +81,8 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   const discountPercentage = invoice.discount?.percentage
     ? Math.round(invoice.discount.percentage * 100)
     : 0;
+
+  const discountReason = getInvoiceDiscountReason(invoice.discount);
 
   const {
     invoiceItemsUndiscountedTotal,
@@ -117,6 +130,20 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
             displayAsNegative
             data-testid="invoice-summary-discountTotal"
           />
+        </Row>
+      )}
+      {isSlidingFeeScaleEnabled && discountReason && (
+        <Row $indent>
+          <DiscountReasonText data-testid="invoice-summary-discountReason">
+            {discountReason.kind === 'recorded' ? (
+              discountReason.text
+            ) : (
+              <TranslatedText
+                stringId="invoice.summary.discountReason.assessment"
+                fallback="Based on patient assessment"
+              />
+            )}
+          </DiscountReasonText>
         </Row>
       )}
       {isSlidingFeeScaleEnabled && isInvoiceEditable(invoice) && (

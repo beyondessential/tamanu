@@ -11,13 +11,11 @@ export const Routes = {
   Forms: {
     Index: '',
     AutocompleteModal: '',
-    MultiSelectModal: '',
     SelectModal: '',
     FrequencySearchModal: '',
   },
   SignUpStack: {
     Index: '',
-    Intro: '',
     SignIn: '',
     SelectFacility: '',
     ResetPassword: '',
@@ -145,7 +143,6 @@ export const Routes = {
       EditPatientAdditionalData: '',
     },
     PatientActions: '',
-    ExportDataScreen: '',
   },
 };
 
@@ -155,16 +152,15 @@ export const Routes = {
 // and providing autocompletes etc.
 //
 export function transformRoutes(baseKey, routes): void {
-  Object.keys(routes).map((k) => {
+  for (const k of Object.keys(routes)) {
     const val = routes[k];
     const routeString = [baseKey, k].join('/');
     if (typeof val === 'object') {
       transformRoutes(routeString, val);
-      return;
+      continue;
     }
-
     routes[k] = routeString;
-  });
+  }
 }
 
 transformRoutes('', Routes);

@@ -1,10 +1,11 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
 import { programImporter } from '../../app/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
 
 // the importer can take a little while
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 describe('Programs import - Question Validation', () => {
   let ctx;

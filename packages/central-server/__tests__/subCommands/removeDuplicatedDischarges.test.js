@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sub } from 'date-fns';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -93,7 +94,7 @@ describe('removeDuplicatedDischarges', () => {
   afterAll(() => ctx.close());
 
   it('removes all duplicated discharges except for the oldest for single encounter', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
 
     const encounter = await createEncounter(patient, {
       departmentId: department.id,
@@ -160,7 +161,7 @@ describe('removeDuplicatedDischarges', () => {
   });
 
   it('removes all duplicated discharges except for the oldest for multiple encounters', async () => {
-    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
 
     const encounter1 = await createEncounter(patient, {
       departmentId: department.id,

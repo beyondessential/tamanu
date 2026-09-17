@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sub } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';

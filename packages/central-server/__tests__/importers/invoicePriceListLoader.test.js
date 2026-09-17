@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { write, utils } from 'xlsx';
 import { fake } from '@tamanu/fake-data/fake';
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
@@ -85,7 +86,7 @@ describe('Invoice price list item import', () => {
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { errors, stats } = await doImport(ctx, { buffer });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
 
     // Expect 4 items created
     expect(stats).toMatchObject({
@@ -127,7 +128,7 @@ describe('Invoice price list item import', () => {
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { errors, stats } = await doImport(ctx, { buffer });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
 
     // Expect 2 items created
     expect(stats).toMatchObject({
@@ -257,7 +258,7 @@ describe('Invoice price list item import', () => {
     const { errors: createErrors, stats: createStats } = await doImport(ctx, {
       buffer: initialBuffer,
     });
-    expect(createErrors).toBeEmpty();
+    expect(createErrors).toHaveLength(0);
     expect(createStats).toMatchObject({
       InvoicePriceListItem: { created: 1 },
     });
@@ -269,7 +270,7 @@ describe('Invoice price list item import', () => {
     const { errors: updateErrors, stats: updateStats } = await doImport(ctx, {
       buffer: updatedBuffer,
     });
-    expect(updateErrors).toBeEmpty();
+    expect(updateErrors).toHaveLength(0);
     expect(updateStats).toMatchObject({
       InvoicePriceListItem: { updated: 1 },
     });
@@ -292,11 +293,11 @@ describe('Invoice price list item import', () => {
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { errors: createErrors } = await doImport(ctx, { buffer });
-    expect(createErrors).toBeEmpty();
+    expect(createErrors).toHaveLength(0);
 
     // Re-import with the same price
     const { errors: reimportErrors, stats: reimportStats } = await doImport(ctx, { buffer });
-    expect(reimportErrors).toBeEmpty();
+    expect(reimportErrors).toHaveLength(0);
     expect(reimportStats).toMatchObject({
       InvoicePriceListItem: { skipped: 1, updated: 0 },
     });

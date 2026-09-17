@@ -2,7 +2,7 @@ import { BeforeInsert, Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { User } from './User';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 
@@ -16,7 +16,7 @@ export class PatientAllergy extends BaseModel {
   @DateTimeStringColumn({ nullable: false })
   recordedDate: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.allergies)
+  @ManyToOne(() => Patient, patient => patient.allergies)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;

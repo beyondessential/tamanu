@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import {
   FACT_DEVICE_ID,
   FACT_FACILITY_IDS,
@@ -23,20 +24,20 @@ const makeArgs = ({ kind = USER_KINDS.USER, authenticatedAs = LEGACY_EMAIL, fact
     }),
   );
   const secretStore = new Map([[FACT_SYNC_PASSWORD, 'legacy-password']]);
-  const fetch = jest.fn();
-  const setToken = jest.fn();
+  const fetch = vi.fn();
+  const setToken = vi.fn();
   return {
     args: {
       sequelize: { transaction: async callback => callback() },
       models: {
         LocalSystemFact: {
-          get: jest.fn(async key => factStore.get(key) ?? null),
-          set: jest.fn(async (key, value) => void factStore.set(key, value)),
+          get: vi.fn(async key => factStore.get(key) ?? null),
+          set: vi.fn(async (key, value) => void factStore.set(key, value)),
         },
         LocalSystemSecret: {
-          get: jest.fn(async key => secretStore.get(key) ?? null),
-          set: jest.fn(async (key, value) => void secretStore.set(key, value)),
-          setIfAbsent: jest.fn(async (key, value) => {
+          get: vi.fn(async key => secretStore.get(key) ?? null),
+          set: vi.fn(async (key, value) => void secretStore.set(key, value)),
+          setIfAbsent: vi.fn(async (key, value) => {
             if (!secretStore.has(key)) secretStore.set(key, value);
           }),
         },

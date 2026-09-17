@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { BROWSER_SUPPORT_POLICIES, PLATFORM_SUPPORT_POLICIES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from './utilities';

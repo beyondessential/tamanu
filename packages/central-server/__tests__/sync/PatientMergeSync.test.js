@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LOOKUP_UP_TO_TICK,
@@ -12,16 +13,27 @@ import { mergePatient } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
 import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
-jest.mock('config', () => ({
-  ...jest.requireActual('config'),
-  sync: {
-    ...jest.requireActual('config').sync,
+// Keep the NOTIFY-driven resync out of these cases so each one observes what mergePatient
+// itself does. The listener re-stamps a merged encounter's child records asynchronously, on
+// another connection, so leaving it registered makes the flag-off case a race: it asserts the
+// child records were *not* re-stamped, which only holds until the listener catches up. What the
+// listener does on its own is covered by CentralSyncManager.syncLookup.test.js.
+vi.mock('../../app/sync', async () => ({
+  ...(await vi.importActual('../../app/sync')),
+  registerSyncLookupUpdateListener: vi.fn(),
+}));
+
+vi.mock('config', async () => {
+  const actual = await vi.importActual('config');
+  const sync = {
+    ...actual.default.sync,
     lookupTable: {
       enabled: true,
     },
     maxRecordsPerSnapshotChunk: 1000000000,
-  },
-}));
+  };
+  return { ...actual, sync, default: { ...actual.default, sync } };
+});
 
 describe('Sync Patient Merge', () => {
   let ctx;

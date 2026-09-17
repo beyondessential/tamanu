@@ -6,6 +6,8 @@ import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 
+import { buildSummaryUserMessage } from '../summaryUserMessage';
+
 // Bound the accepted keys so a caller cannot send arbitrary text as prompt
 // content; unknown top-level fields are rejected.
 const encounterSummaryBodySchema = z
@@ -51,18 +53,12 @@ encounterSummaryRoute.post(
 
     const { encounterData, editFeedback } = encounterSummaryBodySchema.parse(req.body);
 
-    let userMessage = JSON.stringify(encounterData, null, 2);
-
-    if (editFeedback.length > 0) {
-      const feedbackSection = editFeedback
-        .map(
-          (f, i) =>
-            `Correction ${i + 1}:\nOriginal AI output: ${f.aiGenerated}\nClinician corrected to: ${f.userEdited}`,
-        )
-        .join('\n\n');
-
-      userMessage += `\n\n---\nPrevious summaries for this encounter were corrected by a clinician. Apply these corrections to your output:\n\n${feedbackSection}`;
-    }
+    // Per-request content stays in the human turn so the system prompt can cache.
+    const userMessage = buildSummaryUserMessage({
+      dataTag: 'encounter_data',
+      data: encounterData,
+      editFeedback,
+    });
 
     const response = await req.aiService.invoke(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY, userMessage);
 

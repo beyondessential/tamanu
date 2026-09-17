@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { sub } from 'date-fns';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -12,9 +13,9 @@ import { BedFeeCharger } from '../../app/tasks/BedFeeCharger';
 import { getServerFacilityIds } from '../../app/serverConfig';
 import { createTestContext } from '../utilities';
 
-jest.mock('../../app/serverConfig', () => ({
-  ...jest.requireActual('../../app/serverConfig'),
-  getServerFacilityIds: jest.fn(),
+vi.mock('../../app/serverConfig', async () => ({
+  ...(await vi.importActual('../../app/serverConfig')),
+  getServerFacilityIds: vi.fn(),
 }));
 
 describe('BedFeeCharger', () => {

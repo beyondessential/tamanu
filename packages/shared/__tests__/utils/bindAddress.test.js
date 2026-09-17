@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, it } from 'vitest';
 import { parseBindAddress, resolveBindAddresses } from '../../src/utils/bindAddress';
 
 describe('parseBindAddress', () => {

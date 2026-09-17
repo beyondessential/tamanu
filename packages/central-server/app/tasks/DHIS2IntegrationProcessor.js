@@ -1,19 +1,59 @@
-import { pick } from 'es-toolkit/compat';
+import config from 'config';
+import { pick, groupBy } from 'es-toolkit/compat';
 import { fetch } from 'undici';
-import { utils } from 'xlsx';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { getOptionalSettingSecret } from '@tamanu/shared/utils/crypto';
 
-const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
+// https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_sending_bulks_data_values
+const convertToDHIS2DataValueSets = (reportData, dataSet) => {
+  if (!Array.isArray(reportData) || reportData.length === 0) return [];
+  const [headers, ...rows] = reportData;
+  const reportJSON = rows.map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
+
+  // Group rows by their composite key (period + orgunit + attributeoptioncombo)
+  const createGroupingKey = ({ period = '', orgunit = '', attributeoptioncombo = '' }) =>
+    `${period}|${orgunit}|${attributeoptioncombo}`;
+
+  const groupedRows = Object.values(groupBy(reportJSON, createGroupingKey));
+
+  // A configured dataSet marks the sets complete as of today (in the primary timezone).
+  const completion = dataSet
+    ? { dataSet, completeDate: getCurrentDateStringInTimezone(getPrimaryTimeZone(config)) }
+    : {};
+
+  // Transform each group of rows into a DHIS2 data value set object
+  return groupedRows.map(group => {
+    const { period, orgunit: orgUnit, attributeoptioncombo: attributeOptionCombo } = group[0];
+
+    const dataValues = group.map(row => ({
+      dataElement: row.dataelement,
+      categoryOptionCombo: row.categoryoptioncombo,
+      value: row.value,
+      comment: row.comment,
+    }));
+
+    // Construct the DHIS2 data value set object
+    return {
+      ...completion,
+      period,
+      orgUnit,
+      attributeOptionCombo,
+      dataValues,
+    };
+  });
+};
 
 export const INFO_LOGS = {
   SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
   PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Processing report',
-  SUCCESSFULLY_SENT_REPORT: 'DHIS2IntegrationProcessor: Report sent to DHIS2 successfully',
+  SUCCESSFULLY_SENT_DATA_VALUE_SET:
+    'DHIS2IntegrationProcessor: dataValueSet sent to DHIS2 successfully',
 };
 
 export const WARNING_LOGS = {
@@ -22,10 +62,12 @@ export const WARNING_LOGS = {
   REPORT_DOES_NOT_EXIST: "DHIS2IntegrationProcessor: Report doesn't exist, skipping",
   REPORT_HAS_NO_PUBLISHED_VERSION:
     'DHIS2IntegrationProcessor: Report has no published version, skipping',
-  FAILED_TO_SEND_REPORT: 'DHIS2IntegrationProcessor: Failed to send report to DHIS2',
+  REPORT_DATA_EMPTY: 'DHIS2IntegrationProcessor: Report returned no data rows, skipping push',
+  DATA_VALUE_SET_REJECTED: 'DHIS2IntegrationProcessor: dataValueSet rejected by DHIS2',
 };
 
 export const ERROR_LOGS = {
+  ERROR_POSTING_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: Error posting dataValueSet to DHIS2',
   ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
 };
 
@@ -100,7 +142,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     }
   }
 
-  async postToDHIS2({ reportId, reportCSV }) {
+  async postToDHIS2(dataValueSet) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = await this.getDHIS2Credentials();
     if (!username || !password) {
@@ -112,31 +154,23 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
-    try {
-      const response = await fetchWithRetryBackoff(
-        `${host}/api/dataValueSets?${params.toString()}`,
-        {
-          fetch,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/csv',
-            Accept: 'application/json',
-            Authorization: `Basic ${authHeader}`,
-          },
-          body: reportCSV,
-        },
-        { ...backoff, log },
-      );
 
-      return await response.json();
-    } catch (error) {
-      await this.logDHIS2Push({
-        reportId,
-        status: AUDIT_STATUSES.FAILURE,
-        message: error.message,
-      });
-      throw error;
-    }
+    const response = await fetchWithRetryBackoff(
+      `${host}/api/dataValueSets?${params.toString()}`,
+      {
+        fetch,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Basic ${authHeader}`,
+        },
+        body: JSON.stringify(dataValueSet),
+      },
+      { ...backoff, log },
+    );
+
+    return await response.json();
   }
 
   async processReport(reportId) {
@@ -174,35 +208,66 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
     const latestVersion = report.versions[0];
+    const advancedConfig = latestVersion.getAdvancedConfig();
+
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const reportCSV = arrayOfArraysToCSV(reportData);
+    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, advancedConfig.dhis2DataSet);
 
-    const {
-      message,
-      httpStatusCode,
-      response: { importCount, conflicts = [] },
-    } = await this.postToDHIS2({ reportId, reportCSV });
+    if (dhis2DataValueSets.length === 0) {
+      log.warn(WARNING_LOGS.REPORT_DATA_EMPTY, { report: reportString });
+      return;
+    }
 
-    if (httpStatusCode === 200) {
-      const successLog = await this.logDHIS2Push({
-        reportId,
-        status: AUDIT_STATUSES.SUCCESS,
-        message,
-        importCount,
-      });
+    for (const dataValueSet of dhis2DataValueSets) {
+      try {
+        const dhis2Response = await this.postToDHIS2(dataValueSet);
+        const { message, httpStatusCode, response } = dhis2Response;
+        const { importCount, conflicts = [] } = response ?? {};
 
-      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
-    } else {
-      const warningLog = await this.logDHIS2Push({
-        reportId,
-        status: AUDIT_STATUSES.WARNING,
-        message,
-        importCount,
-        conflicts: conflicts.map(conflict => conflict.value),
-      });
+        if (httpStatusCode === 200) {
+          const successLog = await this.logDHIS2Push({
+            reportId,
+            status: AUDIT_STATUSES.SUCCESS,
+            message,
+            importCount,
+          });
 
-      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
-      conflicts.forEach(conflict => log.warn(conflict.value));
+          log.info(INFO_LOGS.SUCCESSFULLY_SENT_DATA_VALUE_SET, successLog);
+        } else {
+          const warningLog = await this.logDHIS2Push({
+            reportId,
+            status: AUDIT_STATUSES.WARNING,
+            message,
+            importCount,
+            conflicts: conflicts.map(conflict => conflict.value),
+          });
+
+          log.warn(WARNING_LOGS.DATA_VALUE_SET_REJECTED, { ...warningLog, httpStatusCode });
+          conflicts.forEach(conflict => log.warn(conflict.value));
+        }
+      } catch (error) {
+        // Log the underlying error first so it survives even if the audit write below throws.
+        log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
+          reportId,
+          period: dataValueSet.period,
+          orgUnit: dataValueSet.orgUnit,
+          dataValueCount: dataValueSet.dataValues?.length,
+          error: error.message,
+        });
+        // A failed audit write must not abort the remaining data value sets in the batch.
+        try {
+          await this.logDHIS2Push({
+            reportId,
+            status: AUDIT_STATUSES.FAILURE,
+            message: error.message,
+          });
+        } catch (logError) {
+          log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
+            reportId,
+            error: `failed to write push log: ${logError.message}`,
+          });
+        }
+      }
     }
   }
 
@@ -229,10 +294,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       try {
         await this.processReport(reportId);
       } catch (error) {
-        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
-          reportId,
-          error,
-        });
+        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, { reportId, error: error.message });
       }
     }
   }

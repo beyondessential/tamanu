@@ -8,7 +8,6 @@ import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
-  DOCUMENT_SOURCES,
   NOTE_RECORD_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   CHARTING_DATA_ELEMENT_IDS,
@@ -25,7 +24,7 @@ import {
   paginatedGetList,
   softDeletionCheckingRouter,
 } from '@tamanu/shared/utils/crudHelpers';
-import { add } from 'date-fns';
+import { add, sub } from 'date-fns';
 import { z } from 'zod';
 import {
   deleteChartInstance,
@@ -36,6 +35,7 @@ import {
 import { keyBy } from 'es-toolkit/compat';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
+import { createDocumentMetadata } from '../../utils/createDocumentMetadata';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
 import { getLabRequestList } from '../../routeHandlers/labs';
@@ -49,8 +49,10 @@ import {
   checkPharmacyOrderPermission,
   checkSensitiveMedicationPermission,
   createPharmacyOrder,
+  getDisplayedPharmacyRequest,
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
+import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
 import {
   discardDischargeDraft,
@@ -181,7 +183,7 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const prescriptions = req.body.medications || {};
+        const prescriptions = DISCHARGE_MEDICATIONS_SCHEMA.parse(req.body.medications ?? {});
         const pharmacyOrderLines = [];
         for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
           const { quantity, repeats, sendToPharmacy } = prescriptionValues;
@@ -342,16 +344,13 @@ encounter.post(
     }
 
     // Create file on the central server
-    const { attachmentId, type, metadata } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const uploaded = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
 
-    const documentMetadataObject = await models.DocumentMetadata.create({
-      ...metadata,
-      attachmentId,
-      type,
-      encounterId: params.id,
-      documentUploadedAt: getCurrentDateTimeString(),
-      source: DOCUMENT_SOURCES.UPLOADED,
-    });
+    const documentMetadataObject = await createDocumentMetadata(
+      req,
+      { encounterId: params.id },
+      uploaded,
+    );
 
     res.send(documentMetadataObject);
   }),
@@ -457,7 +456,10 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Medication');
 
-    const associations = Prescription.getListReferenceAssociations() || [];
+    // medication is included explicitly below with its referenceDrug nested include
+    const associations = (Prescription.getListReferenceAssociations() || []).filter(
+      association => association !== 'medication',
+    );
 
     const medicationFilter = {};
     const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
@@ -576,6 +578,10 @@ encounterRelations.get(
 
     const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
+      // The sensitive-medication filter references the nested medication->referenceDrug join.
+      // Applying a limit would otherwise make Sequelize emit that join inside a subquery while
+      // leaving the WHERE outside it, and Postgres reports a missing FROM-clause entry.
+      subQuery: false,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
@@ -602,6 +608,15 @@ encounterRelations.get(
       );
       const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
+      // Which single request to surface in a "last sent" column: the earliest one still awaiting
+      // dispense, else the most recent dispensed one. Distinct from lastOrderedAt above, which
+      // answers "when was this last sent" for recency checks — see getDisplayedPharmacyRequest.
+      const pharmacyRequests = await getDisplayedPharmacyRequest(
+        db,
+        'prescription_id',
+        prescriptionIds,
+      );
+
       const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId(
         prescriptionIds,
       );
@@ -610,6 +625,8 @@ encounterRelations.get(
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
         isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
+        pharmacyRequestAt: pharmacyRequests[p.id]?.date ?? null,
+        isPharmacyRequestDispensed: pharmacyRequests[p.id]?.is_completed ?? null,
         latestModifiedDispense: latestModifiedDispenses[p.id] ?? null,
       }));
     }
@@ -760,8 +777,9 @@ encounterRelations.get(
       ],
     });
     if (!invoiceRecord) {
-      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
-      return res.send(null);
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice.
+      // res.json, not res.send: send writes an empty body, which the client cannot parse.
+      return res.json(null);
     }
 
     await req.audit.access({
@@ -969,12 +987,18 @@ encounterRelations.get(
     const upcomingTasksTimeFrame = await settings[facilityId].get(
       'tasking.upcomingTasksTimeFrame',
     );
+    const overdueTasksTimeFrame = await settings[facilityId].get(
+      'tasking.encounterOverdueTasksTimeFrame',
+    );
     const baseQueryOptions = {
       where: {
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
           [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          ...(overdueTasksTimeFrame != null && {
+            [Op.gte]: toPrimaryDateTimeString(sub(new Date(), { hours: overdueTasksTimeFrame })),
+          }),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,

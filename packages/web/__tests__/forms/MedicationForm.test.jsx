@@ -1,11 +1,17 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import { ENCOUNTER_TYPES, PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_FREQUENCY_DETAILS,
+  DRUG_ROUTES,
+  ENCOUNTER_TYPES,
+  PHARMACY_ORDER_DEFAULT_PRESCRIPTION_MODES,
+} from '@tamanu/constants';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
 import { renderElementWithTranslatedText } from '../helpers';
@@ -52,7 +58,7 @@ vi.mock('../../app/api/queries/useEncounterMedicationQuery', () => ({
 vi.mock('../../app/api/queries/useDispensingUnit', () => ({ default: () => ({ data: null }) }));
 
 vi.mock('../../app/hooks/useMedicationIdealTimes', () => ({
-  useMedicationIdealTimes: () => ({ defaultTimeSlots: [], idealTimes: [] }),
+  useMedicationIdealTimes: () => ({ defaultIdealTimes: [], defaultTimeSlots: [] }),
 }));
 
 vi.mock('../../app/components/PatientAllergiesWarning', () => ({ default: () => null }));
@@ -209,5 +215,68 @@ describe('MedicationForm send to pharmacy', () => {
 
     fireEvent.click(sendToPharmacyCheckbox());
     expect(quantityLabel()).not.toContain('Required');
+  });
+});
+
+describe('MedicationForm administration schedule', () => {
+  const SCHEDULE_HEADING = 'Medication administration schedule';
+
+  let onConfirmEdit;
+
+  beforeEach(() => {
+    settings['features.pharmacyOrder.enabled'] = false;
+    settings['medications.dispensing.dispensingQuantityAutocalculation'] = false;
+    settings['medications.defaultAdministrationTimes'] = {
+      [ADMINISTRATION_FREQUENCIES.DAILY]: ['06:00'],
+    };
+    encounter = { id: 'encounter-1', encounterType: ENCOUNTER_TYPES.ADMISSION };
+    onConfirmEdit = vi.fn();
+  });
+
+  // Editing is the only way to give the form a frequency without driving the (mocked out)
+  // frequency autocomplete.
+  const renderWithFrequency = frequency =>
+    renderForm({
+      onConfirmEdit,
+      editingMedication: {
+        medication: { name: 'Paracetamol' },
+        medicationId: 'drug-1',
+        doseAmount: 1,
+        route: DRUG_ROUTES.oral,
+        frequency,
+      },
+    });
+
+  it('prompts for a frequency before a schedule can be shown', () => {
+    renderForm();
+
+    expect(screen.getByText(SCHEDULE_HEADING)).toBeTruthy();
+    expect(screen.getByText(/Select a frequency above/)).toBeTruthy();
+  });
+
+  it('shows the schedule for a frequency whose times can be configured', () => {
+    renderWithFrequency(ADMINISTRATION_FREQUENCIES.DAILY);
+
+    expect(screen.getByText(SCHEDULE_HEADING)).toBeTruthy();
+  });
+
+  it.each([ADMINISTRATION_FREQUENCIES.HOURLY, ADMINISTRATION_FREQUENCIES.HALF_HOURLY])(
+    'hides the schedule for %s, whose times are fixed',
+    frequency => {
+      renderWithFrequency(frequency);
+
+      expect(screen.queryByText(SCHEDULE_HEADING)).toBeNull();
+    },
+  );
+
+  it('still submits the fixed administration times when no schedule was shown', async () => {
+    renderWithFrequency(ADMINISTRATION_FREQUENCIES.HOURLY);
+
+    fireEvent.click(screen.getByTestId('medication-button-finalise-7x3d'));
+
+    await waitFor(() => expect(onConfirmEdit).toHaveBeenCalled());
+    expect(onConfirmEdit.mock.calls[0][0].idealTimes).toEqual(
+      ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.HOURLY].startTimes,
+    );
   });
 });

@@ -1,5 +1,12 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { canUploadAttachment } from '../app/utils/getFreeDiskSpace';
 import { createTestContext } from './utilities';
+
+// Auto-mocked so each case can dictate whether there's room on disk. Vitest won't mock a
+// module imported by a setup file (it's already cached by the time the test file runs), so
+// this lives here rather than in configureEnvironment.js; this is the only suite that
+// touches the upload routes, so nothing else needs it.
+vi.mock('../app/utils/getFreeDiskSpace');
 
 // Mock image to be created with fs module. Expected size of 1002 bytes.
 const FILEDATA =

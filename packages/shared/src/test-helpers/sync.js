@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { QueryTypes } from 'sequelize';
 
 export const expectDeepSyncRecordMatch = (dbRecord, syncRecord, options = {}) => {

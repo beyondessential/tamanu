@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { nzEthnicity } from '@tamanu/database/utils/fhir';
 
 describe('New Zealand ethnicity extension', () => {

@@ -83,11 +83,6 @@ export const TimeSlotPicker = ({
   bookingSlotSettingsOverride,
   ...props
 }) => {
-  const [dayStart, dayEnd] = useMemo(() => {
-    const baseDate = date ? parseISO(date) : new Date();
-    return endpointsOfDay(baseDate);
-  }, [date]);
-
   const {
     initialValues: { startTime: initialStart, endTime: initialEnd },
     setFieldValue,
@@ -95,7 +90,12 @@ export const TimeSlotPicker = ({
     errors,
     isSubmitting,
   } = useFormikContext();
-  const { toFacilityDateTime, getDayBoundaries } = useDateTime();
+  const { toFacilityDateTime, getDayBoundaries, getCurrentDate } = useDateTime();
+
+  const [dayStart, dayEnd] = useMemo(
+    () => endpointsOfDay(parseISO(date || getCurrentDate())),
+    [date, getCurrentDate],
+  );
 
   const {
     slots: timeSlots,

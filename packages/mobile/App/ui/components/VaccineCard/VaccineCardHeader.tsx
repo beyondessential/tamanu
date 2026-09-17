@@ -5,7 +5,7 @@ import { RowView, StyledText, StyledTouchableOpacity, StyledView } from '/styled
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
-import { VaccineDataProps } from '.';
+import type { VaccineDataProps } from '.';
 
 export interface CardHeaderProps {
   vaccineData: VaccineDataProps;
@@ -13,15 +13,17 @@ export interface CardHeaderProps {
   onEditDetails: () => void;
 }
 
+const editableVaccineStatuses = new Set<VaccineStatus>([
+  VaccineStatus.NOT_GIVEN,
+  VaccineStatus.GIVEN,
+]);
+
 export const VaccineCardHeader = ({
   vaccineData: { name, id: drugId, status, scheduledVaccineId, scheduledVaccineLabel },
   onCloseModal,
   onEditDetails,
 }: CardHeaderProps): JSX.Element => {
-  const isVaccineEditable = [VaccineStatus.NOT_GIVEN, VaccineStatus.GIVEN].includes(
-    status as VaccineStatus,
-  );
-
+  const isVaccineEditable = editableVaccineStatuses.has(status);
   return (
     <StyledView
       background={theme.colors.PRIMARY_MAIN}

@@ -1,3 +1,5 @@
+import { describe, test } from 'vitest';
+
 describe('Scheduling', () => {
   test.todo('should schedule a new appointment');
   test.todo('should cancel an appointment');

@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
@@ -39,7 +40,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import {
   DispensedMedicationName,
-  getDispensedMedication,
+  getDispensedPrescription,
   getMedicationLabelData,
   getTranslatedMedicationName,
   isDispenseModifiedByPharmacy,
@@ -348,7 +349,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
     ),
     sortable: false,
     accessor: data => {
-      const dispensingUnit = data?.pharmacyOrderPrescription?.prescription?.dispensingUnit;
+      const dispensingUnit = getDispensedPrescription(data)?.dispensingUnit;
       if (!dispensingUnit) return data?.quantity;
       return `${data?.quantity} ${getDrugUnitLabel(dispensingUnit, data?.quantity, getEnumTranslation)}`;
     },
@@ -413,6 +414,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
 
 export const PatientMedicationPane = ({ patient }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const { ability, facilityId } = useAuth();
   const { getSetting } = useSettings();
   const { data: currentEncounter } = usePatientCurrentEncounterQuery(patient.id);
@@ -497,13 +499,15 @@ export const PatientMedicationPane = ({ patient }) => {
   const handlePrintLabel = useCallback(
     item => {
       const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
-      const prescription = pharmacyOrderPrescription?.prescription;
+      const prescription = getDispensedPrescription(item);
 
-      const medication = getDispensedMedication(item);
       const labelItems = [
         {
           id,
-          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+          medicationName: getTranslatedMedicationName(
+            prescription?.medication,
+            getReferenceDataTranslation,
+          ),
           instructions,
           quantity,
           dispensingUnit: prescription?.dispensingUnit,
@@ -536,12 +540,13 @@ export const PatientMedicationPane = ({ patient }) => {
     setSelectedDispense(null);
   }, []);
 
-  const handleEditConfirm = useCallback(() => {
+  const handleEditConfirm = useCallback(async () => {
     setIsEditModalOpen(false);
     setSelectedDispense(null);
+    await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
     // Trigger table refresh
     setRefreshCount(prev => prev + 1);
-  }, []);
+  }, [queryClient]);
 
   const handleCancelClick = useCallback(dispenseId => {
     setSelectedDispenseId(dispenseId);
@@ -552,9 +557,12 @@ export const PatientMedicationPane = ({ patient }) => {
     await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
     setIsCancelModalOpen(false);
     setSelectedDispenseId(null);
+    // Cancelling puts the request back in the patient's dispensable list, which the dispense
+    // modal reads from its own cache.
+    await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
     // Trigger table refresh
     setRefreshCount(prev => prev + 1);
-  }, [api, selectedDispenseId]);
+  }, [api, queryClient, selectedDispenseId]);
 
   const handleCancelCancel = useCallback(() => {
     setIsCancelModalOpen(false);
@@ -580,7 +588,7 @@ export const PatientMedicationPane = ({ patient }) => {
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
-        prescription: pharmacyOrderPrescription?.prescription,
+        prescription: getDispensedPrescription(dispenseData),
         medicationPresetLabel,
         patient,
       };

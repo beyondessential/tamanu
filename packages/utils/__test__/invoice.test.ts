@@ -12,6 +12,7 @@ import {
   isFixedPriceItem,
   getPatientPaymentsWithRemainingBalance,
   getInsurerPaymentsWithRemainingBalance,
+  getInvoiceDiscountReason,
 } from '../src';
 
 describe('Invoice Utils', () => {
@@ -789,6 +790,42 @@ describe('Invoice Utils', () => {
       const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
       expect(summary.insurerPaymentRemainingBalance).toEqual(60);
       expect(lastPayment.remainingBalance).toEqual(summary.insurerPaymentRemainingBalance);
+    });
+  });
+
+  describe('getInvoiceDiscountReason', () => {
+    it('reports the reason recorded against a manual discount', () => {
+      expect(
+        getInvoiceDiscountReason({ percentage: 0.2, isManual: true, reason: 'Hardship case' }),
+      ).toEqual({ kind: 'recorded', text: 'Hardship case' });
+    });
+
+    it('reports a sliding fee scale discount as coming from the assessment', () => {
+      expect(getInvoiceDiscountReason({ percentage: 0.2, isManual: false })).toEqual({
+        kind: 'assessment',
+      });
+    });
+
+    it('reports nothing for a manual discount saved without a reason', () => {
+      expect(getInvoiceDiscountReason({ percentage: 0.2, isManual: true })).toBeNull();
+    });
+
+    it('reports nothing when there is no discount', () => {
+      expect(getInvoiceDiscountReason(undefined)).toBeNull();
+      expect(getInvoiceDiscountReason(null)).toBeNull();
+    });
+
+    it('reports nothing for a zero discount, so no reason is shown against a zero adjustment', () => {
+      expect(getInvoiceDiscountReason({ percentage: 0, isManual: false })).toBeNull();
+      expect(
+        getInvoiceDiscountReason({ percentage: 0, isManual: true, reason: 'Waived' }),
+      ).toBeNull();
+    });
+
+    it('prefers a recorded reason over the assessment fallback', () => {
+      expect(
+        getInvoiceDiscountReason({ percentage: 0.3, isManual: false, reason: 'Override note' }),
+      ).toEqual({ kind: 'recorded', text: 'Override note' });
     });
   });
 });

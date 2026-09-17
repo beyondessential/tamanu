@@ -1,3 +1,4 @@
+import { describe, it } from 'vitest';
 import { expect } from 'chai';
 
 import { bodyToDrawPaths, mergeStrokesIntoBody } from '../../src/utils/signature';

@@ -234,11 +234,11 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
     const [facilityId] = serverFacilityIds;
 
-    const { enabled, username, password, host, storeId, customerCode } =
+    const { medDispenseEnabled, username, password, host, storeId, customerCode } =
       await this.client.getSettings(facilityId);
 
     // If the integration is disabled, delete the enabled-at fact and skip
-    if (!enabled) {
+    if (!medDispenseEnabled) {
       await this.models.LocalSystemFact.set(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT, null);
       log.warn('mSupplyMedIntegrationProcessor is disabled, skipping');
       return;

@@ -85,9 +85,11 @@ function classificationCode({ encounterType }: Encounter) {
       return FHIR_ENCOUNTER_CLASS_CODE.OBSENC;
 
     case ENCOUNTER_TYPES.SURVEY_RESPONSE:
+      return FHIR_ENCOUNTER_CLASS_CODE.FLD;
+
     case ENCOUNTER_TYPES.VACCINATION:
     default:
-      return null; // these should be filtered out (TODO EPI-452)
+      return null; // TODO EPI-452
   }
 }
 

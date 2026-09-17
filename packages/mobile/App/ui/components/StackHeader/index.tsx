@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { type ReactElement, type ReactNode } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '/styled/theme';
@@ -57,12 +57,7 @@ const HeaderTitle = ({ subtitle, title }: HeaderTitleProps): ReactElement => (
       typeof subtitle === 'string' ? (
         <Text style={stackHeaderStyles.subtitle}>{subtitle}</Text>
       ) : (
-        <StyledText
-          fontSize={11}
-          color={theme.colors.WHITE}
-          marginBottom={2}
-          textAlign="center"
-        >
+        <StyledText fontSize={11} color={theme.colors.WHITE} marginBottom={2} textAlign="center">
           {subtitle}
         </StyledText>
       )

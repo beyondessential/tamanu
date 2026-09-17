@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
 import { write, utils } from 'xlsx';
 
@@ -23,7 +24,7 @@ import { makeRoleWithPermissions } from '../permissions';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
-jest.setTimeout(50000);
+vi.setConfig({ testTimeout: 50000 });
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
@@ -96,7 +97,7 @@ describe('Data definition import', () => {
       const { didntSendReason, errors } = result.body;
 
       expect(didntSendReason).toEqual('dryRun');
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
     });
   });
 
@@ -104,7 +105,7 @@ describe('Data definition import', () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/allergy': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/diagnosis': { created: 10, updated: 0, errored: 0 },
@@ -233,7 +234,7 @@ describe('Data definition import', () => {
     const { stats, errors } = await doImport({
       file: 'user-password',
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       User: { created: 2, updated: 2 },
     });
@@ -275,7 +276,7 @@ describe('Data definition import', () => {
       file: 'valid-visibility',
     });
 
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
@@ -294,7 +295,7 @@ describe('Data definition import', () => {
     const { errors, stats } = await doImport({
       file: 'valid-whitespace',
     });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
@@ -310,7 +311,7 @@ describe('Data definition import', () => {
     if (testUserPre) await testUserPre.destroy();
 
     const { errors } = await doImport({ file: 'valid-userpassword' });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
 
     const testUser = await User.scope('withPassword').findByPk('test-password-hashing');
     const password = testUser.get('password', { raw: true });
@@ -335,7 +336,7 @@ describe('Data definition import', () => {
     expect(passwordPre).toEqual(expect.stringMatching(/^\$2/)); // sanity check
 
     const { errors } = await doImport({ file: 'valid-userpassword' });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
 
     const testUser = await User.scope('withPassword').findByPk('test-password-hashing');
     const password = testUser.get('password', { raw: true });
@@ -346,7 +347,7 @@ describe('Data definition import', () => {
 
   it('should import patient field definition categories with a tab named "Patient Field Def Category"', async () => {
     const { errors, stats } = await doImport({ file: 'patient-field-definition-categories' });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       PatientFieldDefinitionCategory: {
         created: 1,
@@ -426,7 +427,7 @@ describe('Data definition import', () => {
         dryRun: false,
       });
 
-      expect(createErrors).toBeEmpty();
+      expect(createErrors).toHaveLength(0);
       expect(createStats).toMatchObject({
         'ReferenceData/division': { created: 2, updated: 0, errored: 0 },
         'ReferenceData/subdivision': { created: 4, updated: 0, errored: 0 },
@@ -441,7 +442,7 @@ describe('Data definition import', () => {
         dryRun: false,
       });
 
-      expect(deleteErrors).toBeEmpty();
+      expect(deleteErrors).toHaveLength(0);
       expect(deleteStats).toMatchObject({
         ReferenceDataRelation: { deleted: 2, updated: 2, errored: 0 },
       });
@@ -457,7 +458,7 @@ describe('Data definition import', () => {
       dryRun: true,
     });
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/labTestCategory': { created: 1, updated: 0, errored: 0 },
       LabTestType: { created: 2, updated: 0, errored: 0 },
@@ -495,7 +496,7 @@ describe('Data definition import', () => {
     await models.LabTestType.destroy({ where: {}, force: true });
     await models.ReferenceData.destroy({ where: { type: 'labTestCategory' }, force: true });
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/labTestCategory': { created: 0, updated: 1, errored: 0 },
       LabTestType: { created: 0, updated: 2, errored: 0 },
@@ -575,7 +576,7 @@ describe('Data definition import', () => {
       dryRun: true,
     });
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/labTestCategory': { created: 1, updated: 0, errored: 0 },
       LabTestType: { created: 5, updated: 0, errored: 0 },
@@ -637,7 +638,7 @@ describe('Data definition import', () => {
   describe('Invoice Product', () => {
     it('should import an invoice product', async () => {
       const { errors, stats } = await doImport({ file: 'valid-invoice-product', dryRun: true });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         InvoiceProduct: { created: 1, updated: 0, errored: 0 },
       });
@@ -648,7 +649,7 @@ describe('Data definition import', () => {
         file: 'valid-invoice-product-and-sources',
         dryRun: true,
       });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
       expect(stats).toMatchObject({
         InvoiceProduct: { created: 6, updated: 0, errored: 0 },
       });
@@ -692,7 +693,7 @@ describe('Data definition import', () => {
 
     it('should import procedure type with formLink survey', async () => {
       const { errors } = await doImport({ file: 'procedure-type-form-link-add' });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
 
       const procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
       expect(procedureTypeSurveys).toHaveLength(2);
@@ -708,7 +709,7 @@ describe('Data definition import', () => {
 
       // Now, import a file that removes one of the associations
       const { errors } = await doImport({ file: 'procedure-type-form-link-delete' });
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
 
       procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
       expect(procedureTypeSurveys).toHaveLength(1);
@@ -760,7 +761,7 @@ describe('Permissions import', () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       Role: { created: 3, updated: 0, errored: 0 },
       Permission: { created: 35, updated: 0, errored: 0 },
@@ -865,7 +866,7 @@ describe('Permissions import', () => {
     const { didntSendReason, errors, stats } = await doImport({ file: 'old-format', dryRun: true });
 
     expect(didntSendReason).toEqual('dryRun');
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       Role: { created: 3, updated: 0, errored: 0 },
       Permission: { created: 3, updated: 0, errored: 0 },
@@ -949,7 +950,7 @@ describe('Permissions import', () => {
 
       const { errors } = await doBufferImport(buffer);
 
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
     });
 
     it('should allow a role with only FHIR permissions', async () => {
@@ -963,7 +964,7 @@ describe('Permissions import', () => {
 
       const { errors } = await doBufferImport(buffer);
 
-      expect(errors).toBeEmpty();
+      expect(errors).toHaveLength(0);
     });
   });
 });
@@ -999,7 +1000,7 @@ describe('Import from an exported file', () => {
   afterAll(() => ctx.close());
 
   afterEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     await clearData();
   });
 
@@ -1023,7 +1024,7 @@ describe('Import from an exported file', () => {
     await clearData();
 
     const { errors, stats } = await doImport({ file: fileName });
-    expect(errors).toBeEmpty();
+    expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/allergy': { created: 2, updated: 0, errored: 0 },
       'ReferenceData/diagnosis': { created: 2, updated: 0, errored: 0 },

@@ -46,7 +46,7 @@ e2e_test_setup_setup_central() {
                 "timeZone": "Pacific/Auckland",
                 "imagingTypes": {
                     "orthopantomography": { "label": "Orthopantomography" },
-                    "xRay": { "label": "X-Ray" },
+                    "xRay": { "label": "X-ray" },
                     "ctScan": { "label": "CT Scan" },
                     "ultrasound": { "label": "Ultrasound" },
                     "mri": { "label": "MRI" },
