@@ -21,6 +21,9 @@ Mockups under `.workhorse/design/mockups/j8/`:
   per-article icon, so the kind is readable at a glance and the list can be generated from
   whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
   destinations. The two treatments are distinct so the sections do not read as one long grid.
+- `popular-card-options.html` — **exploration sheet**, not a hub surface: the Popular entries
+  rendered five ways (light glow, dark minis, hairline rows, ranked, kind stripe) against the current
+  treatment, for choosing an uplift that sits with the dark Browse bento. Delete once one is picked.
 - `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable
   sidebar + footer cluster). The browse area is a grid of **topic cards** (one per feature area,
   keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales
