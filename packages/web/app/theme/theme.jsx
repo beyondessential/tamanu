@@ -58,7 +58,7 @@ const cssReset = {
   },
   ':where(td, th)': {
     padding: 0,
-    textWrap: 'balance',
+    textWrapStyle: 'balance',
   },
   ':where(th)': {
     textAlign: 'start',
