@@ -1,4 +1,4 @@
-# 18. Imaging
+# 19. Imaging
 
 Imaging types, areas, priorities, cancellation reasons, and imaging request workflows.
 

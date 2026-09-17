@@ -35,14 +35,15 @@ what is still to be written.
 | 13 | [Forms](forms/) | Not written yet |
 | 14 | [Tasks](tasks/) | Not written yet |
 | 15 | [Medications](medications/) | 15.1 [Reference data](medications/reference-data.md) &middot; 15.2 [Settings](medications/settings.md) &middot; 15.3 [Permissions](medications/permissions.md) |
-| 16 | [Procedures](procedures/) | Not written yet |
-| 17 | [Labs](labs/) | Not written yet |
-| 18 | [Imaging](imaging/) | Not written yet |
-| 19 | [Referrals](referrals/) | Not written yet |
-| 20 | [Documents](documents/) | Not written yet |
-| 21 | [Invoicing](invoicing/) | Not written yet |
-| 22 | [Reports](reports/) | Not written yet |
-| 23 | [Integrations](integrations/) | Not written yet |
+| 16 | [Dispensing](dispensing/) | Not written yet |
+| 17 | [Procedures](procedures/) | Not written yet |
+| 18 | [Labs](labs/) | Not written yet |
+| 19 | [Imaging](imaging/) | Not written yet |
+| 20 | [Referrals](referrals/) | Not written yet |
+| 21 | [Documents](documents/) | Not written yet |
+| 22 | [Invoicing](invoicing/) | Not written yet |
+| 23 | [Reports](reports/) | Not written yet |
+| 24 | [Integrations](integrations/) | Not written yet |
 
 Numbers are for reference and ordering only. They are not part of folder or file names, so a guide can
 be renumbered without breaking any link.

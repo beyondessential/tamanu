@@ -10,27 +10,8 @@ permissions required see [Permissions](permissions.md).
 
 Settings are managed in the Settings admin panel.
 
-## Pharmacy orders
-
-Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
-supply on discharge and invoicing.
-
-| Field | Value |
-| --- | --- |
-| Scope | Facility (single facility) |
-| Category | Medication |
-| Sub-category | Pharmacy orders |
-| Setting | Default prescription type |
-| Default | Existing encounter type |
-
-> **Screenshot needed:** `images/setting-default-prescription-type.png` — the default prescription type
-> setting in the Settings admin panel.
-
-The options are:
-
-- **Existing encounter type**: the script type follows the encounter type
-- **Outpatient/Discharge**
-- **Inpatient**
+Pharmacy order settings, including the default prescription type sent when a user selects 'send to
+pharmacy', are covered in the Dispensing configuration guides.
 
 ## Frequencies
 

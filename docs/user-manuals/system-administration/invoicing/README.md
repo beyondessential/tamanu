@@ -1,4 +1,4 @@
-# 21. Invoicing
+# 22. Invoicing
 
 Invoice products, price lists, encounter and bed fees, discounts, and the invoicing settings.
 

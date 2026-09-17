@@ -68,7 +68,7 @@ Because facility columns are read from the header, a blank cell still creates a 
 facility with an unknown stock level.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
-that facility's stock levels. See the Integrations configuration guide for the mSupply integration.
+that facility's stock levels. See the Dispensing configuration guides.
 
 ---
 

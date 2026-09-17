@@ -74,27 +74,33 @@ the code-derived approach earns its keep.
 Several of these look like Dispensing module territory rather than omissions from this guide, which is
 exactly the editorial call the author confirmation step exists to make.
 
-### Dispensing sits inside Medications
+### The Medications / Dispensing boundary
 
-Dispensing is **not** a separate module. It was briefly split out, then folded back when the module
-list was settled, so the Medications guide covers prescribing and dispensing together. The pharmacy
-orders setting lives in the Medications guide, and nothing points at a Dispensing guide.
+Dispensing is module 16, its own module directly after Medications. The boundary between the two:
 
-This makes the reported gaps **Medications scope rather than another guide's**, and therefore content
-this guide still owes: `MedicationDispense` and `MedicationRequest` permissions, the
-`medicationDispenseModifyReason` and `medicationPresetLabel` reference data types,
-`medications.dispensing.prescriptionLabelSize`, `medications.dispensing.autoDeleteTimeframeHours`, the
-`features.pharmacyOrder.*` flags, the facility `medications.medicationDispensing.*` settings, and the
-`autoDeleteMedicationRequests` schedule.
+**Stays in Medications.** The whole `Drug` import sheet, including `dispensingUnit`, `unitConversion`
+and the per-facility stock columns. A single import sheet is documented in one place, so nobody
+importing drugs has to read two guides to fill in one spreadsheet. Also staying: dispensing quantity
+autocalculation, the `MedicationPharmacyNote` permissions, and the Medication Template
+`dischargeQuantity` column.
 
-These are **deliberately left for the first skill run over Medications**, not overlooked. That run is
-the benchmark case anyway, and having it surface this content at the scope-confirmation step is a
-genuine test of the discover-and-confirm design rather than a gap to patch by hand now.
+**Belongs to Dispensing**, and is what its guides cover when written: the facility
+`medications.pharmacyOrder.defaultPrescriptionType` setting (moved out of Medications and replaced by a
+pointer), `MedicationDispense` and `MedicationRequest` permissions, the `medicationDispenseModifyReason`
+and `medicationPresetLabel` reference data types, `medications.dispensing.prescriptionLabelSize`,
+`medications.dispensing.autoDeleteTimeframeHours`, the `features.pharmacyOrder.*` flags, the facility
+`medications.medicationDispensing.*` settings, and the `autoDeleteMedicationRequests` schedule.
 
-The episode is worth keeping as evidence for why the skill confirms scope rather than deriving it. Two
-defensible module boundaries were drawn here within a single card, and neither followed the settings
-schema: under the split, `medications.dispensing.*` would have straddled two guides. Nothing in the
-codebase distinguishes the two answers, because the distinction is editorial.
+Medications now points at Dispensing guides that do not exist yet, in two places: pharmacy order
+settings, and mSupply as the source of truth for stock. Those pointers resolve when Dispensing is
+written; until then a reader following one finds a module README saying no guide exists.
+
+**This boundary moved three times within one card**: split out, folded into Medications, then split out
+again. That is the strongest evidence in this work for why the skill confirms scope with an author
+rather than deriving it. Every version was defensible, none followed the settings schema
+(`medications.dispensing.*` straddles the boundary in the current version, with autocalculation staying
+while label size and auto-delete move), and nothing in the codebase distinguishes them, because the
+distinction is editorial rather than technical.
 
 ### Other folds in the module list
 
