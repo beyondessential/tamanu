@@ -1,6 +1,6 @@
 import { Database, PLANNER_STATS_REFRESHED_AT_KEY } from './index';
 
-const FOUR_HOURS_MS = 14_400_000;
+const ONE_DAY_MS = 86_400_000;
 
 const getRefreshedAtFact = () =>
   Database.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } });
@@ -92,7 +92,7 @@ describe('DatabaseHelper', () => {
     });
 
     it('skips PRAGMA optimize when the last run is within the refresh interval', async () => {
-      await setRefreshedAtFact(String(Date.now() - FOUR_HOURS_MS / 2));
+      await setRefreshedAtFact(String(Date.now() - ONE_DAY_MS / 2));
       const querySpy = jest.spyOn(Database.client, 'query');
 
       try {
@@ -104,7 +104,7 @@ describe('DatabaseHelper', () => {
     });
 
     it('runs PRAGMA optimize again when the last run is older than the refresh interval', async () => {
-      const staleTimestamp = String(Date.now() - FOUR_HOURS_MS - 60_000);
+      const staleTimestamp = String(Date.now() - ONE_DAY_MS - 60_000);
       await setRefreshedAtFact(staleTimestamp);
       const querySpy = jest.spyOn(Database.client, 'query');
 
