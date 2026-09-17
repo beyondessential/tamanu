@@ -70,7 +70,10 @@ describe('Encounter', () => {
       undiagnosedEncounter.startDate = formatISO9075(subDays(new Date(), 1));
       undiagnosedEncounter.patient = patient;
       undiagnosedEncounter.examiner = user;
-      await Database.models.Encounter.insert([diagnosedEncounter, undiagnosedEncounter]);
+      // Inserted one at a time: TypeORM's post-insert reload on SQLite merges rows back into the
+      // inserted objects by position, so a bulk insert of random-UUID rows can swap their ids.
+      await Database.models.Encounter.insert(diagnosedEncounter);
+      await Database.models.Encounter.insert(undiagnosedEncounter);
 
       const malaria = await Database.models.ReferenceData.createAndSaveOne({
         id: 'diagnosis-malaria',
