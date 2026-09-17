@@ -38,6 +38,7 @@ const getAllContacts = async (models, patientId): Promise<IPatientContact[]> => 
     order: {
       name: 'ASC',
     },
+    relations: ['relationship'],
   });
 };
 

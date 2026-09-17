@@ -147,6 +147,27 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @IdRelation()
   secondaryVillageId?: string | null;
 
+  /**
+   * The patient details screen reads these reference data records by relation name (see
+   * getPadFieldData and getFieldData), so its loader joins them all. Every other reader wants the
+   * `*Id` columns only.
+   */
+  static readonly REFERENCE_DATA_RELATIONS: string[] = [
+    'nationality',
+    'country',
+    'division',
+    'subdivision',
+    'medicalArea',
+    'nursingZone',
+    'settlement',
+    'ethnicity',
+    'occupation',
+    'religion',
+    'patientBillingType',
+    'countryOfBirth',
+    'secondaryVillage',
+  ];
+
   @ManyToOne(() => Facility)
   healthCenter: Facility;
   @RelationId(({ healthCenter }) => healthCenter)

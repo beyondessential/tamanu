@@ -69,4 +69,14 @@ describe('PatientAdditionalData', () => {
       });
     });
   });
+
+  describe('REFERENCE_DATA_RELATIONS', () => {
+    it('lists every reference data relation declared on the model', () => {
+      const { PatientAdditionalData, ReferenceData } = Database.models;
+      const declared = PatientAdditionalData.getRepository()
+        .metadata.relations.filter(relation => relation.inverseEntityMetadata.target === ReferenceData)
+        .map(relation => relation.propertyName);
+      expect([...PatientAdditionalData.REFERENCE_DATA_RELATIONS].sort()).toEqual(declared.sort());
+    });
+  });
 });

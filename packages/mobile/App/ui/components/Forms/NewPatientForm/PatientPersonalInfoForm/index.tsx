@@ -158,7 +158,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
       // Reload instance to get the complete village fields
       // (related fields won't display all info otherwise)
-      return Patient.findOne({ where: { id: newPatient.id } });
+      return Patient.findOne({ where: { id: newPatient.id }, relations: ['village'] });
     },
     onSuccess: (reloadedPatient: Patient) => {
       queryClient.invalidateQueries({ queryKey: patientListKeys.all });
@@ -219,7 +219,10 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       await createOrUpdateOtherPatientData(values, selectedPatient.id);
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
-      const editedPatient = await Patient.findOne({ where: { id: selectedPatient.id } });
+      const editedPatient = await Patient.findOne({
+        where: { id: selectedPatient.id },
+        relations: ['village'],
+      });
       await Patient.markForSync(editedPatient.id);
       return editedPatient;
     },
