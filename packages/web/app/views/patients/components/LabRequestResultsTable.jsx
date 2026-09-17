@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
-import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
+import { getLabTestValidationCriteria } from '@tamanu/utils/labTests';
 import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
@@ -176,24 +176,6 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       {
         title: (
           <TranslatedText
-            stringId="lab.results.table.column.reference"
-            fallback="Reference"
-            data-testid="translatedtext-840i"
-          />
-        ),
-        key: 'reference',
-        accessor: row =>
-          getReferenceRange({
-            labTestType: row.labTestType,
-            labTest: row,
-            sex: patient.sex,
-            getTranslation,
-          }),
-        sortable: false,
-      },
-      {
-        title: (
-          <TranslatedText
             stringId="lab.results.table.column.labTestMethod"
             fallback="Method"
             data-testid="translatedtext-w6f1"
@@ -277,7 +259,8 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           setShowEditedEntryLegend(data.some(row => row.editedFields?.length > 0))
         }
         data-testid="styleddatafetchingtable-brdm"
-        allowExport={false}
+        allowExport
+        exportName={labRequest.displayId}
       />
       {showEditedEntryLegend && <EditedEntryLegend data-testid="editedentrylegend-labrequest" />}
       <LabTestResultModal
