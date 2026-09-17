@@ -9,6 +9,8 @@ jest.mock('react-native-device-info', () => ({
 
 import { Database } from '~/infra/db';
 import { fakeEncounter, fakePatient, fakeSurvey, fakeUser } from '/root/tests/helpers/fake';
+import { Certainty, ReferenceDataType } from '~/types';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 beforeAll(async () => {
   await Database.connect();
@@ -31,6 +33,62 @@ describe('Encounter', () => {
       const result = await Database.models.Encounter.getForPatient(patient.id);
       delete encounter.examiner; // examiner is not eager-loaded from db
       expect(result[0]).toMatchObject(encounter);
+    });
+
+    it('attaches each encounter’s diagnoses, with their reference data', async () => {
+      const patient = fakePatient();
+      await Database.models.Patient.insert(patient);
+      const user = fakeUser();
+      await Database.models.User.insert(user);
+
+      const diagnosedEncounter = fakeEncounter();
+      diagnosedEncounter.patient = patient;
+      diagnosedEncounter.examiner = user;
+      const undiagnosedEncounter = fakeEncounter();
+      undiagnosedEncounter.startDate = formatISO9075(subDays(new Date(), 1));
+      undiagnosedEncounter.patient = patient;
+      undiagnosedEncounter.examiner = user;
+      await Database.models.Encounter.insert([diagnosedEncounter, undiagnosedEncounter]);
+
+      const malaria = await Database.models.ReferenceData.createAndSaveOne({
+        id: 'diagnosis-malaria',
+        type: ReferenceDataType.Diagnosis,
+        code: 'B54',
+        name: 'Malaria',
+      });
+      await Database.models.Diagnosis.createAndSaveOne({
+        date: getCurrentDateTimeString(),
+        certainty: Certainty.Confirmed,
+        diagnosis: malaria,
+        encounter: diagnosedEncounter,
+        clinician: user,
+      });
+
+      const [first, second] = await Database.models.Encounter.getForPatient(patient.id);
+      expect(first.id).toBe(diagnosedEncounter.id);
+      expect(first.diagnoses).toHaveLength(1);
+      expect(first.diagnoses[0]).toMatchObject({
+        certainty: Certainty.Confirmed,
+        diagnosis: { id: malaria.id, name: 'Malaria' },
+      });
+      expect(second.id).toBe(undiagnosedEncounter.id);
+      expect(second.diagnoses).toEqual([]);
+    });
+  });
+
+  describe('diagnoses relation', () => {
+    it('is not loaded eagerly', async () => {
+      const patient = fakePatient();
+      await Database.models.Patient.insert(patient);
+      const user = fakeUser();
+      await Database.models.User.insert(user);
+      const encounter = fakeEncounter();
+      encounter.patient = patient;
+      encounter.examiner = user;
+      await Database.models.Encounter.insert(encounter);
+
+      const loaded = await Database.models.Encounter.findOne({ where: { id: encounter.id } });
+      expect(loaded.diagnoses).toBeUndefined();
     });
   });
 
