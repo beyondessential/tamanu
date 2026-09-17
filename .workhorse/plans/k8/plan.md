@@ -85,7 +85,11 @@ this guide still owes: `MedicationDispense` and `MedicationRequest` permissions,
 `medicationDispenseModifyReason` and `medicationPresetLabel` reference data types,
 `medications.dispensing.prescriptionLabelSize`, `medications.dispensing.autoDeleteTimeframeHours`, the
 `features.pharmacyOrder.*` flags, the facility `medications.medicationDispensing.*` settings, and the
-`autoDeleteMedicationRequests` schedule. They are still unwritten.
+`autoDeleteMedicationRequests` schedule.
+
+These are **deliberately left for the first skill run over Medications**, not overlooked. That run is
+the benchmark case anyway, and having it surface this content at the scope-confirmation step is a
+genuine test of the discover-and-confirm design rather than a gap to patch by hand now.
 
 The episode is worth keeping as evidence for why the skill confirms scope rather than deriving it. Two
 defensible module boundaries were drawn here within a single card, and neither followed the settings
