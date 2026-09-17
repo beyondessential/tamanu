@@ -18,8 +18,14 @@ Guides live under `docs/user-manuals/system-administration/`.
   document
 - Lowercase kebab-case for both module folders and guide filenames
 - `docs/user-manuals/system-administration/README.md` lists each module and its guides
-- Each module folder carries a README listing that module's topic guides
+- Each module folder carries a README describing the module and listing its topic guides
 - Publishing or updating a guide updates the affected README entries
+
+**The tree is pre-scaffolded.** Every known module already has a folder and README, including modules
+with no guide written yet, so the shape of the documentation is visible and the gaps are explicit.
+Writing a guide therefore means filling an existing folder, not creating one: add the guide, replace
+that module's "no configuration guide yet" line with a table listing it, and update the section README
+row from "Not written yet" to a link. Add a folder only for a module the tree does not yet cover.
 
 ## Structure
 
