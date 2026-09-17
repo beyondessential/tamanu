@@ -32,6 +32,13 @@ const EXCLUDED_STATUS_FILTER_OPTIONS = [
   LAB_REQUEST_STATUSES.INVALIDATED,
 ];
 
+// The finalised listing filters within its own finalised statuses.
+const FINALISED_STATUS_FILTER_OPTIONS = [
+  LAB_REQUEST_STATUSES.PUBLISHED,
+  LAB_REQUEST_STATUSES.INVALIDATED,
+  LAB_REQUEST_STATUSES.REJECTED,
+];
+
 const FacilityCheckbox = styled.div`
   display: flex;
   align-items: center;
@@ -60,12 +67,16 @@ export const LabRequestsSearchBar = ({ statuses }) => {
   const statusFilterOptions = useMemo(
     () =>
       Object.entries(LAB_REQUEST_STATUS_LABELS)
-        .filter(([value]) => !EXCLUDED_STATUS_FILTER_OPTIONS.includes(value))
+        .filter(([value]) =>
+          publishedStatus
+            ? FINALISED_STATUS_FILTER_OPTIONS.includes(value)
+            : !EXCLUDED_STATUS_FILTER_OPTIONS.includes(value),
+        )
         .map(([value, label]) => ({
           value,
           label: getTranslation(getEnumStringId(value, LAB_REQUEST_STATUS_LABELS), label),
         })),
-    [getTranslation],
+    [getTranslation, publishedStatus],
   );
   // MultiAutocompleteField reads options through a suggester; serve the static enum locally.
   const statusSuggester = useMemo(
@@ -283,7 +294,22 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         component={DateField}
         data-testid="localisedfield-kswp"
       />
-      {publishedStatus ? (
+      <LocalisedField
+        name="status"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.status.label"
+            fallback="Status"
+            data-testid="translatedtext-763d"
+          />
+        }
+        component={MultiAutocompleteField}
+        suggester={statusSuggester}
+        individualChips
+        size="small"
+        data-testid="localisedfield-2it8"
+      />
+      {publishedStatus && (
         <LocalisedField
           name="laboratory"
           label={
@@ -297,22 +323,6 @@ export const LabRequestsSearchBar = ({ statuses }) => {
           endpoint="labTestLaboratory"
           size="small"
           data-testid="localisedfield-7jda"
-        />
-      ) : (
-        <LocalisedField
-          name="status"
-          label={
-            <TranslatedText
-              stringId="general.localisedField.status.label"
-              fallback="Status"
-              data-testid="translatedtext-763d"
-            />
-          }
-          component={MultiAutocompleteField}
-          suggester={statusSuggester}
-          individualChips
-          size="small"
-          data-testid="localisedfield-2it8"
         />
       )}
     </CustomisableSearchBarWithPermissionCheck>

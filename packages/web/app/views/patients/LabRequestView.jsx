@@ -264,6 +264,7 @@ export const LabRequestView = () => {
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
+  const isRejected = labRequest.status === LAB_REQUEST_STATUSES.REJECTED;
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
@@ -355,17 +356,27 @@ export const LabRequestView = () => {
                 )
               ) : (
                 <OutlinedButton
-                  disabled={isHidden}
+                  // Rejected requests are otherwise hidden, but this button is how the
+                  // rejection report is reached, so it stays enabled for them.
+                  disabled={isHidden && !isRejected}
                   onClick={() => {
                     handleChangeModalId(MODAL_IDS.PRINT);
                   }}
                   data-testid="outlinedbutton-fdjm"
                 >
-                  <TranslatedText
-                    stringId="lab.action.printRequest"
-                    fallback="Print request"
-                    data-testid="translatedtext-7zng"
-                  />
+                  {isRejected ? (
+                    <TranslatedText
+                      stringId="lab.action.rejectionReport"
+                      fallback="Rejection report"
+                      data-testid="translatedtext-7zng"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="lab.action.printRequest"
+                      fallback="Print request"
+                      data-testid="translatedtext-7zng"
+                    />
+                  )}
                 </OutlinedButton>
               )}
               <Menu

@@ -79,13 +79,14 @@ export const pushNotificationAfterUpdateHook = async (
   }
 
   // For all other status changes: create a notification when the request
-  // reaches a "notify-worthy" status (interim, published, invalidated) or when
-  // it was previously published (so we can notify about updates or withdrawal).
+  // reaches a "notify-worthy" status (interim, published, invalidated, rejected)
+  // or when it was previously published (so we can notify about updates or withdrawal).
   const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
   const NOTIFICATION_STATUSES = [
     LAB_REQUEST_STATUSES.INTERIM_RESULTS,
     LAB_REQUEST_STATUSES.PUBLISHED,
     LAB_REQUEST_STATUSES.INVALIDATED,
+    LAB_REQUEST_STATUSES.REJECTED,
   ];
 
   const shouldPushNotification =
