@@ -104,8 +104,11 @@ light display type, and a dark capsule around the search.
   the navy bar and footer). Body links are black and underlined rather than blue.
 - **Colour is load-bearing elsewhere too**: release-note section headings (blue major features,
   amber enhancements, green fixes, red critical upgrade notes, purple upgrade steps) and the roadmap
-  timeline (blue delivered, gold planned). Emoji headings in the release notes were replaced by these
-  coloured rules.
+  timeline (blue delivered, gold planned).
+- **The release-note headings keep the source's emoji** (🌟 major features, 🔧 enhancements,
+  🐛 fixes, ⚠️ critical upgrade notes) exactly as they appear in
+  `docs/release-notes/v2-6*.md`. They are content, not decoration, so the mockup reproduces them; the
+  coloured rules sit alongside rather than replacing them.
 - Each mockup carries the same appended `Tamanu brand layer` block at the end of its stylesheet, so
   the branding can be tuned in one place per file and the original neutral rules stay readable
   underneath.

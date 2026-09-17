@@ -480,12 +480,12 @@
       <p class="summary">Tamanu v2.63 is a small release, made up of enhancements and fixes rather than new features. Vaccination certificates can show a patient's birth certificate number, patient lists gain sortable columns, and deployments that report to DHIS2 can mark datasets complete when they are posted.</p>
       <div class="rn">
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-enh">System Enhancements</h2>
+        <h2 class="rn-sec sec-enh">🔧 System Enhancements</h2>
         <ul>
           <li><strong>DHIS2 dataset completion</strong> - For deployments that report to DHIS2, report data is pushed as datasets and each configured dataset is marked complete when it is posted. The DHIS2 dataset is set against a report through the report admin panel.</li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-fix">Tweaks and Bug Fixes</h2>
+        <h2 class="rn-sec sec-fix">🐛 Tweaks and Bug Fixes</h2>
         <h3 class="rn-sub">Desktop</h3>
         <ul>
           <li><strong>Medications</strong> - All medication preset labels load rather than only the first 25, and the 'Medication administration schedule' section is collapsed by default in the medication form.</li>
@@ -504,7 +504,7 @@
           <li><strong>Reports</strong> - Soft-deleted survey responses are excluded from the generic survey export.</li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-warn">Critical Upgrade Notes</h2>
+        <h2 class="rn-sec sec-warn">⚠️ Critical Upgrade Notes</h2>
         <h3 class="rn-sub">Optional</h3>
         <p class="rn-lead">Vaccination certificate birth certificate number</p>
         <ul>
@@ -530,7 +530,7 @@
       <p class="summary">Tamanu v2.62 is a modest release. Its main change is administrative: a large amount of server configuration moves into the admin panel. Clinically, the 'Send to pharmacy' workflow extends to discharge and prescribing, and lab requests gain out-of-range result flags.</p>
       <div class="rn">
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-major">Major Features and Changes</h2>
+        <h2 class="rn-sec sec-major">🌟 Major Features and Changes</h2>
         <h3 class="rn-sub">System Administration</h3>
         <h4 class="rn-feat">Configuration Managed in the Admin Panel</h4>
         <p>Configuration that previously lived in files on each server is now database-backed settings, editable in the admin panel with validation and per-facility overrides. Existing values migrate automatically during the upgrade, so nothing needs re-entering and behaviour does not change.</p>
@@ -564,7 +564,7 @@
           <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-enh">System Enhancements</h2>
+        <h2 class="rn-sec sec-enh">🔧 System Enhancements</h2>
         <ul>
           <li><strong>Lab request result flags</strong> - An individual 'Lab request' now highlights numeric results outside their reference range, matching the patient-level results table, with a tooltip naming the bound breached. Fields edited after entry carry an asterisk and a legend below the table.</li>
           <li><strong>Lab request priority</strong> - Two settings control whether a priority must be chosen when a request is created, and whether it can be changed afterwards. Both default to current behaviour.</li>
@@ -573,7 +573,7 @@
           <li><strong>Hard deletes in the audit changelog</strong> - A permanently removed row is now recorded as it stood before removal and marked as a hard delete. Changelog writing and its attachment to sync are also more memory-efficient.</li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-fix">Tweaks and Bug Fixes</h2>
+        <h2 class="rn-sec sec-fix">🐛 Tweaks and Bug Fixes</h2>
         <h3 class="rn-sub">Desktop</h3>
         <ul>
           <li><strong>Invoicing</strong> - 'Details' and 'Ordered by' are now required on every line, so clearing 'Details' no longer silently deletes it. The reason for a discount or mark-up is visible on the item row, and a stale sliding fee discount no longer survives a change of family size.</li>
@@ -593,7 +593,7 @@
           <li><strong>Reports</strong> - Central refuses report writes when reporting schemas fail to initialise.</li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-warn">Critical Upgrade Notes</h2>
+        <h2 class="rn-sec sec-warn">⚠️ Critical Upgrade Notes</h2>
         <h3 class="rn-sub">Required</h3>
         <p class="rn-lead">Configuration moved into settings</p>
         <ul>
@@ -638,7 +638,7 @@
       <p class="summary">Tamanu v2.61 brings automatic invoicing of encounter, bed and inpatient fees, so facilities no longer add routine charges by hand. It also delivers a substantial set of medication improvements: pharmacy can now modify a prescription at the point of dispensing, and dispensing quantities can be calculated automatically from the prescription. Encounter notes gain search and filtering, and the 'Emergency patients' board gains filters and a clinician column.</p>
       <div class="rn">
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-major">Major Features and Changes</h2>
+        <h2 class="rn-sec sec-major">🌟 Major Features and Changes</h2>
         <h3 class="rn-sub">Tamanu Desktop</h3>
         <h4 class="rn-feat">Automatic Encounter, Bed and Inpatient Fees</h4>
         <p>Routine charges are now added to invoices automatically as care happens. An outpatient or emergency fee is applied when a visit starts, admitted patients accrue a bed fee for each night, and facilities that bundle clinical items into their admission fee can stop those items being billed twice. Every amount comes from the existing price list system, so there is one pricing mechanism to learn and a facility manages a single price list.</p>
@@ -730,11 +730,11 @@
           <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-enh">System Enhancements</h2>
+        <h2 class="rn-sec sec-enh">🔧 System Enhancements</h2>
         <h4 class="rn-feat">Reference Data Search in the Admin Panel</h4>
         <p>Searching reference data by ID in the admin panel now matches on the ID rather than the record name, so administrators can find a record using the identifier they already have.</p>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-fix">Tweaks and Bug Fixes</h2>
+        <h2 class="rn-sec sec-fix">🐛 Tweaks and Bug Fixes</h2>
         <h3 class="rn-sub">Desktop</h3>
         <ul>
           <li><strong>Invoicing</strong> - Payment corrections, including the total due when a payment is edited to $0 and refunds netted out of the remaining balance on printed invoices.</li>
@@ -761,7 +761,7 @@
           <li><strong>Settings and data</strong> - Timezone handling corrections and faster, more resilient database migrations.</li>
         </ul>
         <hr class="rn-hr">
-        <h2 class="rn-sec sec-warn">Critical Upgrade Notes</h2>
+        <h2 class="rn-sec sec-warn">⚠️ Critical Upgrade Notes</h2>
         <h3 class="rn-sub">Required</h3>
         <p class="rn-lead">'Emergency patients' board</p>
         <ul>
