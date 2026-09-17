@@ -10,6 +10,7 @@ import {
 import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
+import { LAST_SUCCESSFUL_PULL } from '~/services/sync/constants';
 import getCacheSizeKiB from './cacheSize';
 
 const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
@@ -173,7 +174,9 @@ class DatabaseHelper {
   /**
    * Runs a full ANALYZE the first time it’s ever called on a device, then approximate ones
    * thereafter. Throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS} so this can be called
-   * opportunistically without repeatedly taking ANALYZE’s write lock.
+   * opportunistically without repeatedly taking ANALYZE’s write lock. No-op until the initial sync
+   * has completed: ANALYZE on an empty database is pointless, and it would record a “full analyse”
+   * that then causes the post-initial-sync run to be skipped or downgraded to an approximate one.
    */
   async requestQueryPlannerStatsRefresh(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
@@ -181,6 +184,11 @@ class DatabaseHelper {
 
     this.isAnalyzing = true;
     try {
+      const hasCompletedInitialSync = await this.models.LocalSystemFact.existsBy({
+        key: LAST_SUCCESSFUL_PULL,
+      });
+      if (!hasCompletedInitialSync) return;
+
       const hasEverFullyAnalysed = await this.models.LocalSystemFact.existsBy({
         key: PLANNER_STATS_FULLY_ANALYSED_AT_KEY,
       });

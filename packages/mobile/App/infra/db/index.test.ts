@@ -3,6 +3,7 @@ import {
   PLANNER_STATS_FULLY_ANALYSED_AT_KEY,
   PLANNER_STATS_REFRESHED_AT_KEY,
 } from './index';
+import { LAST_SUCCESSFUL_PULL } from '~/services/sync/constants';
 
 const NINETY_MIN_MS = 5_400_000;
 
@@ -45,6 +46,23 @@ describe('DatabaseHelper', () => {
       for (const fact of [await getRefreshedAtFact(), await getFullyAnalysedAtFact()]) {
         if (fact) await fact.remove();
       }
+      if (!(await getFact(LAST_SUCCESSFUL_PULL))) await setFact(LAST_SUCCESSFUL_PULL, '1');
+    });
+
+    it('skips ANALYZE until the initial sync has completed', async () => {
+      await (await getFact(LAST_SUCCESSFUL_PULL)).remove();
+      const querySpy = jest.spyOn(Database.client, 'query');
+
+      try {
+        await Database.requestQueryPlannerStatsRefresh();
+        expect(didRunAnalyze(querySpy)).toBe(false);
+      } finally {
+        querySpy.mockRestore();
+      }
+
+      // Nothing recorded, so the first run after initial sync is still the full one
+      expect(await getRefreshedAtFact()).toBeFalsy();
+      expect(await getFullyAnalysedAtFact()).toBeFalsy();
     });
 
     it('runs a full ANALYZE and persists both timestamps when never run before', async () => {
