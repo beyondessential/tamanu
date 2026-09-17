@@ -15,7 +15,7 @@ const FormContent = styled.div`
   line-height: 18px;
 `;
 
-export const SyndromicSurveillanceForm = React.memo(({ onCancel, onSave }) => (
+export const SyndromicSurveillanceForm = React.memo(({ onCancel, onSave, readOnly }) => (
   <Form
     onSubmit={onSave}
     initialValues={SYNDROMIC_SURVEILLANCE_INITIAL_VALUES}
@@ -23,10 +23,14 @@ export const SyndromicSurveillanceForm = React.memo(({ onCancel, onSave }) => (
     render={({ submitForm }) => (
       <FormContent data-testid="formcontent-syndromic-surveillance">
         <FormGrid columns={1} data-testid="formgrid-syndromic-surveillance">
-          <SyndromicSurveillanceFields data-testid="whitebox-syndromic-surveillance" />
+          <SyndromicSurveillanceFields
+            readOnly={readOnly}
+            data-testid="whitebox-syndromic-surveillance"
+          />
           <ModalFormActionRow
             onConfirm={submitForm}
             onCancel={onCancel}
+            confirmDisabled={readOnly}
             confirmText={
               <TranslatedText
                 stringId="general.action.confirm"

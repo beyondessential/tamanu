@@ -41,7 +41,7 @@ const IntroText = styled.p`
   margin: 0;
 `;
 
-export const SyndromicSurveillanceFields = React.memo(({ 'data-testid': dataTestId }) => {
+export const SyndromicSurveillanceFields = React.memo(({ readOnly, 'data-testid': dataTestId }) => {
   const {
     values,
     errors,
@@ -81,7 +81,7 @@ export const SyndromicSurveillanceFields = React.memo(({ 'data-testid': dataTest
           />
         }
         component={CheckField}
-        disabled={isAnySymptomChecked}
+        disabled={readOnly || isAnySymptomChecked}
         data-testid="field-no-syndrome"
       />
       <Divider data-testid="divider-syndromic-surveillance-symptoms" />
@@ -92,7 +92,7 @@ export const SyndromicSurveillanceFields = React.memo(({ 'data-testid': dataTest
           label={option.label}
           value={symptomIds.includes(option.value)}
           onChange={toggleSymptom(option.value)}
-          disabled={values.noSyndrome}
+          disabled={readOnly || values.noSyndrome}
           data-testid={`field-symptom-${option.value}`}
         />
       ))}
