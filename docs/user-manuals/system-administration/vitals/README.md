@@ -1,4 +1,4 @@
-# 21. Vitals
+# 10. Vitals
 
 Vitals survey configuration, vital edit reasons, and charting of recorded vitals.
 

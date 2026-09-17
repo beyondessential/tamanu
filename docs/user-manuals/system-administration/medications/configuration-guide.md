@@ -75,7 +75,7 @@ Because facility columns are read from the header, a blank cell still creates a 
 facility with an unknown stock level.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
-that facility's stock levels. See the Dispensing configuration guide.
+that facility's stock levels. See the Integrations configuration guide for the mSupply integration.
 
 ---
 
@@ -335,8 +335,27 @@ For each frequency, the default schedule and ideal administration time can be ch
 
 Settings are managed in the Settings admin panel.
 
-Pharmacy order settings, including the default prescription type sent when a user selects 'send to
-pharmacy', are covered in the Dispensing configuration guide.
+## Pharmacy orders
+
+Determines the type of script sent when a user selects 'send to pharmacy'. This affects quantity,
+supply on discharge and invoicing.
+
+| Field | Value |
+| --- | --- |
+| Scope | Facility (single facility) |
+| Category | Medication |
+| Sub-category | Pharmacy orders |
+| Setting | Default prescription type |
+| Default | Existing encounter type |
+
+> **Screenshot needed:** `images/setting-default-prescription-type.png` — the default prescription type
+> setting in the Settings admin panel.
+
+The options are:
+
+- **Existing encounter type**: the script type follows the encounter type
+- **Outpatient/Discharge**
+- **Inpatient**
 
 ## Frequencies
 
@@ -513,7 +532,7 @@ To support tracking of medications due for administration, a **Medication due** 
 
 To enable the medication due task:
 
-1. Enable the tasking feature. See the Tasking configuration guide
+1. Enable the tasking feature. See the Tasks configuration guide
 2. Assign the following permissions to users who should see the task:
    - `list` for `Tasking`
    - `read` for `Tasking`
@@ -548,7 +567,7 @@ The task displays when all of the following are met:
 # Vaccines
 
 All vaccines that appear in the Vaccine Schedule, or are selected when recording vaccine workflows, must
-also be listed in the `Drug` reference data. See the Vaccine Module configuration guide.
+also be listed in the `Drug` reference data. See the Immunisations configuration guide.
 
 ---
 
@@ -603,7 +622,7 @@ workflows, pump programming validation and detailed handover communications.
 
 # Permissions
 
-See the Permissions Module configuration guide for more detail on Tamanu permissions.
+See the Users configuration guide for more detail on roles and permissions in Tamanu.
 
 ## Prescriptions and ongoing medications
 

@@ -74,30 +74,30 @@ the code-derived approach earns its keep.
 Several of these look like Dispensing module territory rather than omissions from this guide, which is
 exactly the editorial call the author confirmation step exists to make.
 
-### The Medications / Dispensing boundary
+### Dispensing sits inside Medications
 
-A separate Dispensing guide will be written, and the boundary has been settled as follows.
+Dispensing is **not** a separate module. It was briefly split out, then folded back when the module
+list was settled, so the Medications guide covers prescribing and dispensing together. The pharmacy
+orders setting lives in the Medications guide, and nothing points at a Dispensing guide.
 
-**Stays in Medications.** The whole `Drug` import sheet, including `dispensingUnit`, `unitConversion`
-and the per-facility stock columns. A single import sheet is documented in one place, so nobody
-importing drugs has to read two guides to fill in one spreadsheet. The Dispensing guide covers what
-those values then do downstream. Also staying: dispensing quantity autocalculation, the
-`MedicationPharmacyNote` permissions, and the Medication Template `dischargeQuantity` column.
+This makes the reported gaps **Medications scope rather than another guide's**, and therefore content
+this guide still owes: `MedicationDispense` and `MedicationRequest` permissions, the
+`medicationDispenseModifyReason` and `medicationPresetLabel` reference data types,
+`medications.dispensing.prescriptionLabelSize`, `medications.dispensing.autoDeleteTimeframeHours`, the
+`features.pharmacyOrder.*` flags, the facility `medications.medicationDispensing.*` settings, and the
+`autoDeleteMedicationRequests` schedule. They are still unwritten.
 
-**Moves to Dispensing.** The facility `medications.pharmacyOrder.defaultPrescriptionType` setting,
-replaced in the Medications guide by a pointer.
+The episode is worth keeping as evidence for why the skill confirms scope rather than deriving it. Two
+defensible module boundaries were drawn here within a single card, and neither followed the settings
+schema: under the split, `medications.dispensing.*` would have straddled two guides. Nothing in the
+codebase distinguishes the two answers, because the distinction is editorial.
 
-**Destination for the reported gaps.** This also settles where most of the undocumented configuration
-belongs: `MedicationDispense` and `MedicationRequest` permissions, the `medicationDispenseModifyReason`
-and `medicationPresetLabel` reference data types, `medications.dispensing.prescriptionLabelSize`,
-`medications.dispensing.autoDeleteTimeframeHours`, the `features.pharmacyOrder.*` flags, the facility
-`medications.medicationDispensing.*` settings, and the `autoDeleteMedicationRequests` schedule are all
-Dispensing guide material rather than omissions here.
+### Other folds in the module list
 
-Worth noting the boundary does not follow the settings schema: `medications.dispensing.*` splits across
-both guides, with autocalculation staying and label size and auto-delete moving. This is the clearest
-evidence yet that module scope is an editorial judgment the code cannot supply, and why the skill
-confirms scope rather than deriving it.
+The module list folds several things that had looked like separate modules: **permissions** into Users,
+**program registry** into Programs, **FHIR** into Integrations, and **sync** into Deploying Tamanu.
+Reference data keeps its own manual outside this tree. The Medications guide's cross-references were
+repointed accordingly.
 
 ## Sources of truth in code
 

@@ -8,33 +8,39 @@ developer knowledge.
 
 ## Modules
 
-Each module has a folder here and a number. A module's guides are numbered within it, so the
-Medications configuration guide is 9.1. Modules without a guide yet are listed so the shape of the
-documentation is visible and it is clear what is still to be written.
+Each module has a folder here and a number. Modules are ordered to follow the way a deployment is set
+up and used, starting with deployment and users and moving through the clinical workflow, rather than
+alphabetically. A module's guides are numbered within it, so the Medications configuration guide is
+15.1.
+
+Modules without a guide yet are listed so the shape of the documentation is visible and it is clear
+what is still to be written.
 
 | # | Module | Guides |
 | --- | --- | --- |
-| 1 | [Appointments](appointments/) | Not written yet |
-| 2 | [Dispensing](dispensing/) | Not written yet |
-| 3 | [Encounters](encounters/) | Not written yet |
-| 4 | [FHIR](fhir/) | Not written yet |
-| 5 | [Imaging](imaging/) | Not written yet |
-| 6 | [Integrations](integrations/) | Not written yet |
-| 7 | [Invoicing](invoicing/) | Not written yet |
-| 8 | [Labs](labs/) | Not written yet |
-| 9 | [Medications](medications/) | 9.1 [Configuration guide](medications/configuration-guide.md) |
-| 10 | [Patients](patients/) | Not written yet |
-| 11 | [Permissions](permissions/) | Not written yet |
-| 12 | [Program registry](program-registry/) | Not written yet |
-| 13 | [Programs and surveys](programs/) | Not written yet |
-| 14 | [Reference data](reference-data/) | Not written yet |
-| 15 | [Referrals](referrals/) | Not written yet |
-| 16 | [Reports](reports/) | Not written yet |
-| 17 | [Sync](sync/) | Not written yet |
-| 18 | [Tasking](tasking/) | Not written yet |
-| 19 | [Users](users/) | Not written yet |
-| 20 | [Vaccines](vaccines/) | Not written yet |
-| 21 | [Vitals](vitals/) | Not written yet |
+| 1 | [Deploying Tamanu](deploying-tamanu/) | Not written yet |
+| 2 | [Users](users/) | Not written yet |
+| 3 | [Patients](patients/) | Not written yet |
+| 4 | [Clinician Dashboard](clinician-dashboard/) | Not written yet |
+| 5 | [Scheduling](scheduling/) | Not written yet |
+| 6 | [Programs](programs/) | Not written yet |
+| 7 | [Immunisations](immunisations/) | Not written yet |
+| 8 | [Encounters](encounters/) | Not written yet |
+| 9 | [Diagnoses](diagnoses/) | Not written yet |
+| 10 | [Vitals](vitals/) | Not written yet |
+| 11 | [Charts](charts/) | Not written yet |
+| 12 | [Notes](notes/) | Not written yet |
+| 13 | [Forms](forms/) | Not written yet |
+| 14 | [Tasks](tasks/) | Not written yet |
+| 15 | [Medications](medications/) | 15.1 [Configuration guide](medications/configuration-guide.md) |
+| 16 | [Procedures](procedures/) | Not written yet |
+| 17 | [Labs](labs/) | Not written yet |
+| 18 | [Imaging](imaging/) | Not written yet |
+| 19 | [Referrals](referrals/) | Not written yet |
+| 20 | [Documents](documents/) | Not written yet |
+| 21 | [Invoicing](invoicing/) | Not written yet |
+| 22 | [Reports](reports/) | Not written yet |
+| 23 | [Integrations](integrations/) | Not written yet |
 
 Numbers are for reference and ordering only. They are not part of folder or file names, so a guide can
 be renumbered without breaking any link.
@@ -52,5 +58,6 @@ from. Check your deployment's version before relying on them.
 ## Adding a guide
 
 Guides are written by the `draft-config-guide` skill, which reads the module's reference data, settings
-and permissions out of the codebase and drafts the guide against the format above. Add a new module
-folder and README alongside the others where a module is not yet listed, and give it the next number.
+and permissions out of the codebase and drafts the guide against the format above. Where a module is
+not yet listed, add its folder and README at the point in the order where it belongs, and renumber the
+modules after it.

@@ -1,4 +1,4 @@
-# 3. Encounters
+# 8. Encounters
 
 Encounter types, admission and discharge workflows, triage categories, and encounter summary configuration.
 

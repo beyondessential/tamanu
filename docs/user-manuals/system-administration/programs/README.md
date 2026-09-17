@@ -1,5 +1,5 @@
-# 13. Programs and surveys
+# 6. Programs
 
-Programs, survey definitions, survey screens and questions, and the form builder.
+Programs, program registries, survey definitions, and the workflows built on them.
 
 No configuration guide has been written for this module yet.
