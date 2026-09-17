@@ -6,9 +6,9 @@ import type { PatientFieldValue } from '~/models/PatientFieldValue';
 import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { patientKeys } from './queries/queryKeys';
 
-export type CustomPatientFieldValues = {
+export interface CustomPatientFieldValues {
   [key: string]: PatientFieldValue[];
-};
+}
 
 const loadPatientAdditionalData = async (patientId: string) => {
   const { models } = Database;

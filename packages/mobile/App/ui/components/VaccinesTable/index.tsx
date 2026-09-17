@@ -21,7 +21,9 @@ import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccin
 import { SETTING_KEYS } from '~/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
-type VaccineTableCells = Record<string, VaccineTableCellData[]>;
+interface VaccineTableCells {
+  [key: string]: VaccineTableCellData[];
+}
 
 interface VaccinesTableProps {
   selectedPatient: any;

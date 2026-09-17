@@ -52,7 +52,7 @@ export interface VaccineFormValues {
   notGivenReasonId?: string;
 }
 
-// Shape of the `vaccinations.defaults` setting (see @tamanu/settings vaccinations schema)
+/** Shape of the `vaccinations.defaults` setting (see @tamanu/settings vaccinations schema) */
 interface VaccinationDefaults {
   locationGroupId: string | null;
   locationId: string | null;
