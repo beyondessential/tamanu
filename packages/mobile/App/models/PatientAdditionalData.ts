@@ -24,7 +24,8 @@ const METADATA_FIELDS = [
   'deletedAt',
   'updatedAtSyncTick',
   'updatedAtByField',
-];
+] as const;
+
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
