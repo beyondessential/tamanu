@@ -13,7 +13,7 @@ import {
   LocationField,
   TimeField,
 } from '../../components/Field';
-import { TextField, FormGrid } from '@tamanu/ui-components';
+import { NumberField, TextField, FormGrid } from '@tamanu/ui-components';
 import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSuggester } from '../../api';
@@ -102,6 +102,15 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             required
             component={DateField}
             data-testid="field-3a5v"
+          />
+          <Field
+            name="quantity"
+            label={<TranslatedText stringId="procedure.quantity.label" fallback="Quantity" />}
+            required
+            component={NumberField}
+            min={1}
+            step={1}
+            data-testid="field-quantity"
           />
           <Field
             name="departmentId"

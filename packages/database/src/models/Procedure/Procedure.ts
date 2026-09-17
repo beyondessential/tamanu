@@ -28,6 +28,7 @@ export class Procedure extends Model {
   declare assistantAnaesthetistId?: string;
   declare timeIn?: string;
   declare timeOut?: string;
+  declare quantity: number;
 
   declare encounter?: Encounter;
   declare location?: Location;
@@ -51,6 +52,15 @@ export class Procedure extends Model {
         completedNote: DataTypes.TEXT,
         timeIn: dateTimeType('timeIn'),
         timeOut: dateTimeType('timeOut'),
+        quantity: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 1,
+          validate: {
+            isInt: true,
+            min: 1,
+          },
+        },
       },
       {
         ...options,

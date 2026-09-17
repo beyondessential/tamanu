@@ -14,6 +14,7 @@ export interface IProcedure {
   completedNote?: string;
   timeIn?: string;
   timeOut?: string;
+  quantity: number;
   encounterId?: string;
   locationId?: string;
   procedureTypeId?: string;
