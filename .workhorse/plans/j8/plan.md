@@ -82,8 +82,8 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
   out of the top nav and Browse so they don't read as Tamanu sections, since they are wholly separate
   products with only occasional crossover users. Links point at the BES support centre for Tupaia,
   SENAITE and SENAITE Animal Health, and at `docs.msupply.org.nz` for mSupply, opening in a new tab.
-  Still open: the displayed labels read "Senaite" and "Senaite: Animal Health", while the support
-  centre styles them "SENAITE" and "SENAITE Animal Health" (no colon).
+  Labels read "Tupaia", "SENAITE", "SENAITE: Animal Health" and "mSupply"; SENAITE is capitalised to
+  match the support centre and the roadmap copy, which already used caps.
 
 ## Branding
 
