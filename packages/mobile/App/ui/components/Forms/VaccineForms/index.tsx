@@ -39,7 +39,7 @@ const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   }
 };
 
-export type VaccineFormValues = {
+export interface VaccineFormValues {
   date: Date;
   reason?: string;
   batch?: string;
@@ -53,7 +53,7 @@ export type VaccineFormValues = {
   consent?: boolean;
   scheduledVaccine?: ScheduledVaccine;
   notGivenReasonId?: string;
-};
+}
 
 interface VaccineFormProps {
   status: VaccineStatus;
