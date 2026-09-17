@@ -116,6 +116,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => Task, task => task.encounter)
   tasks: Task[];
 
+  /** Not a relation: notes hang off a polymorphic recordId. Populated by getForPatient. */
+  notes?: Note[];
+
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
