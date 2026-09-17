@@ -70,8 +70,9 @@ describe('Encounter', () => {
       undiagnosedEncounter.startDate = formatISO9075(subDays(new Date(), 1));
       undiagnosedEncounter.patient = patient;
       undiagnosedEncounter.examiner = user;
-      // Inserted one at a time: TypeORM's post-insert reload on SQLite merges rows back into the
-      // inserted objects by position, so a bulk insert of random-UUID rows can swap their ids.
+      // Insert one at a time. Clanker says “TypeORM’s post-insert reload on SQLite merges rows back
+      // into the inserted objects by position, so a bulk insert of random-UUID rows can swap their
+      // ids.”
       await Database.models.Encounter.insert(diagnosedEncounter);
       await Database.models.Encounter.insert(undiagnosedEncounter);
 
