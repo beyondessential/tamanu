@@ -7,23 +7,37 @@ import { QueryInterface } from 'sequelize';
 // visibility map is essentially never set and index-only scans are unavailable. And record_data is
 // jsonb, so ANALYZE detoasts every sampled value to build statistics that no predicate can use —
 // every filter is a record_data->>'key' extraction, which never consults the column's MCV list.
+//
+// autovacuum_vacuum_insert_scale_factor arrived in Postgres 13 and a deployment is still on 12,
+// where naming it at all is a syntax error rather than an ignored setting.
+const INSERT_SCALE_FACTOR_PG_MINIMUM = 130000;
+
+const onPg13OrAbove = (statement: string) => `
+  DO $$
+  BEGIN
+    IF current_setting('server_version_num')::int >= ${INSERT_SCALE_FACTOR_PG_MINIMUM} THEN
+      EXECUTE '${statement}';
+    END IF;
+  END $$;
+`;
+
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    ALTER TABLE logs.changes SET (
-      autovacuum_analyze_scale_factor = 0.02,
-      autovacuum_vacuum_insert_scale_factor = 0.05
-    );
+    ALTER TABLE logs.changes SET (autovacuum_analyze_scale_factor = 0.02);
   `);
+  await query.sequelize.query(
+    onPg13OrAbove('ALTER TABLE logs.changes SET (autovacuum_vacuum_insert_scale_factor = 0.05)'),
+  );
   await query.sequelize.query(`ALTER TABLE logs.changes ALTER COLUMN record_data SET STATISTICS 0;`);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    ALTER TABLE logs.changes RESET (
-      autovacuum_analyze_scale_factor,
-      autovacuum_vacuum_insert_scale_factor
-    );
+    ALTER TABLE logs.changes RESET (autovacuum_analyze_scale_factor);
   `);
+  await query.sequelize.query(
+    onPg13OrAbove('ALTER TABLE logs.changes RESET (autovacuum_vacuum_insert_scale_factor)'),
+  );
   await query.sequelize.query(
     `ALTER TABLE logs.changes ALTER COLUMN record_data SET STATISTICS -1;`,
   );
