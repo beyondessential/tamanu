@@ -1,6 +1,10 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUSES,
+  LAB_REQUEST_STATUS_LABELS,
+  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
+} from '@tamanu/constants';
 import { getEnumStringId } from '@tamanu/ui-components';
 import {
   AutocompleteField,
@@ -30,13 +34,6 @@ const EXCLUDED_STATUS_FILTER_OPTIONS = [
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
   LAB_REQUEST_STATUSES.CANCELLED,
   LAB_REQUEST_STATUSES.INVALIDATED,
-];
-
-// The finalised listing filters within its own finalised statuses.
-const FINALISED_STATUS_FILTER_OPTIONS = [
-  LAB_REQUEST_STATUSES.PUBLISHED,
-  LAB_REQUEST_STATUSES.INVALIDATED,
-  LAB_REQUEST_STATUSES.REJECTED,
 ];
 
 const FacilityCheckbox = styled.div`
@@ -69,7 +66,7 @@ export const LabRequestsSearchBar = ({ statuses }) => {
       Object.entries(LAB_REQUEST_STATUS_LABELS)
         .filter(([value]) =>
           publishedStatus
-            ? FINALISED_STATUS_FILTER_OPTIONS.includes(value)
+            ? LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED.includes(value)
             : !EXCLUDED_STATUS_FILTER_OPTIONS.includes(value),
         )
         .map(([value, label]) => ({
