@@ -83,12 +83,8 @@ cite a piece of the manual by number rather than by describing where it sits.
       that would otherwise interrupt the steps, the guide says so under its own heading
       before the steps begin. A guide with nothing to state there goes straight to the
       steps.
-- [ ] A guide covering a task whose errors readers commonly meet closes by naming those
-      errors and what to do about each. A task whose errors are rare or obscure ends at
-      its outcome.
-- [ ] The errors are a bullet list, each item opening with the message the product shows,
-      word for word and in bold, so a reader matches what is on their screen against the
-      list at a glance. What caused it and how to get past it follow in the same item.
+- [ ] A guide ends with its last step. Anything a reader needs in order to know the step
+      worked is said in the step itself.
 
 ## Scope
 
@@ -116,7 +112,6 @@ guides.
       fields sit under that step rather than becoming steps of their own.
 - [ ] A step says what the reader does and, where the result is not obvious, what they
       see happen.
-- [ ] A guide ends by stating the outcome, so the reader can confirm the task worked.
 
 ## Language
 

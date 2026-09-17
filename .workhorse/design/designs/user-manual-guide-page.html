@@ -116,11 +116,6 @@
     margin-top: 2px;
   }
 
-  .errors { padding-left: 20px; margin: 0; color: #57534e; }
-  .errors li { margin-bottom: 12px; }
-  .errors li::marker { color: #a8a29e; }
-  .errors b { color: #1c1917; }
-
   /* Annotation, not part of the page */
   .annotation {
     margin-top: 56px;
@@ -222,45 +217,24 @@
 
         <li>
           <div class="step-main">Select <b>Record</b>.</div>
+          <div class="step-note">
+            The window closes and your readings appear as a new column at the left of the
+            table. The most recent set of vitals is always the first column.
+          </div>
+          <div class="step-note">
+            A reading outside the normal range for the patient's age is highlighted. Rest
+            your pointer on it to see the normal range.
+          </div>
+          <p class="shot">[Screenshot: the vitals table with the newly recorded column highlighted]</p>
         </li>
       </ol>
-
-      <h2>What you should see</h2>
-
-      <p>
-        The window closes and your readings appear as a new column at the left of the
-        table. The most recent set of vitals is always the first column.
-      </p>
-      <p>
-        A reading outside the normal range for the patient's age is highlighted. Rest your
-        pointer on it to see the normal range.
-      </p>
-
-      <p class="shot">[Screenshot: the vitals table with the newly recorded column highlighted]</p>
-
-      <h2>If something goes wrong</h2>
-
-      <ul class="errors">
-        <li>
-          <b>At least one recording must be entered.</b> You selected <b>Record</b>
-          without entering any measurements. Enter at least one reading, then try again.
-        </li>
-        <li>
-          <b>*Required</b> This appears under a field that has to be filled in before you
-          can record. Fill it in, then select <b>Record</b> again.
-        </li>
-        <li>
-          <b>Permission required.</b> Your account cannot record vitals. Contact your
-          system administrator if you believe you should be able to.
-        </li>
-      </ul>
 
       <div class="annotation">
         <b>Reference: what a user manual guide looks like.</b> This is the worked example
         behind the End user manuals spec, showing a guide as a reader meets it. Note the
         conventions it demonstrates: numbered steps carrying one action each, on-screen
-        labels in bold, screenshot placeholders left visible until a shot is captured, and
-        an error list whose items open with the product's own wording. The site chrome
+        labels in bold, and screenshot placeholders left visible
+        until a shot is captured. The site chrome
         shows how the index structure reads as navigation, and is illustrative rather than
         a design for a documentation site.
       </div>

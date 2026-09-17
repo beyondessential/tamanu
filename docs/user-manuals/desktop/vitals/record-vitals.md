@@ -32,23 +32,10 @@ the patient's encounter.
 
 5. Select **Record**.
 
-## What you should see
+   The window closes and your readings appear as a new column at the left of the table.
+   The most recent set of vitals is always the first column.
 
-The window closes and your readings appear as a new column at the left of the table. The
-most recent set of vitals is always the first column.
+   A reading outside the normal range for the patient's age is highlighted. Rest your
+   pointer on it to see the normal range.
 
-A reading outside the normal range for the patient's age is highlighted. Rest your
-pointer on it to see the normal range.
-
-**[Screenshot: the vitals table with the newly recorded column highlighted]**
-
-## If something goes wrong
-
-- **At least one recording must be entered.** You selected **Record** without entering
-  any measurements. Enter at least one reading, then try again.
-
-- **\*Required** This appears under a field that has to be filled in before you can
-  record. Fill it in, then select **Record** again.
-
-- **Permission required.** Your account cannot record vitals. Contact your system
-  administrator if you believe you should be able to.
+   **[Screenshot: the vitals table with the newly recorded column highlighted]**

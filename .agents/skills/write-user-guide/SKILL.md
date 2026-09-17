@@ -131,8 +131,7 @@ Confirm each of these survived the render:
 
 - Each numbered step keeps its supporting detail as an indented paragraph under that step, rather
   than flattening into the step text or breaking the numbering.
-- In the error list, every bullet still opens with the product's message in bold, so the list can be
-  scanned against what is on the reader's screen.
+- On-screen labels are still bold, so a reader can match the words to what is in front of them.
 - The link back to the module index sits above the title, and the previous/next links sit below the
   rule at the end.
 - Each screenshot placeholder stands on its own line where the guide needs the shot.
