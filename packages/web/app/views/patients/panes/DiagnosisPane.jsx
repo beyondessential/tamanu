@@ -11,6 +11,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { useSettings } from '../../../contexts/Settings';
+import { useAuth } from '../../../contexts/Auth';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -60,11 +61,18 @@ const HARDCODED_SYMPTOM_COUNT = 3;
 const SyndromicSurveillanceStatus = ({
   state = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED,
   onOpenModal,
+  canCreate,
+  canWrite,
   'data-testid': dataTestId,
 }) => {
   if (state === SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED) {
     return (
-      <SyndromicSurveillanceTextButton $isPrimary onClick={onOpenModal} data-testid={dataTestId}>
+      <SyndromicSurveillanceTextButton
+        $isPrimary
+        onClick={onOpenModal}
+        disabled={!canCreate}
+        data-testid={dataTestId}
+      >
         <TranslatedText
           stringId="encounter.syndromicSurveillance.label"
           fallback="Syndromic surveillance"
@@ -105,8 +113,8 @@ const SyndromicSurveillanceStatus = ({
         data-testid="textbutton-syndromic-surveillance-viewedit"
       >
         <TranslatedText
-          stringId="general.action.viewEdit"
-          fallback="View/Edit"
+          stringId={canWrite ? 'general.action.viewEdit' : 'general.action.view'}
+          fallback={canWrite ? 'View/Edit' : 'View'}
           data-testid="translatedtext-view-edit"
         />
       </SyndromicSurveillanceTextButton>
@@ -121,9 +129,27 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [isSyndromicSurveillanceModalOpen, setIsSyndromicSurveillanceModalOpen] = useState(false);
   const { getSetting } = useSettings();
+  const { ability } = useAuth();
   const isSyndromicSurveillanceEnabled = getSetting(
     'syndromicSurveillance.enableSyndromicSurveillance',
   );
+  // "Create" applies when recording for the first time (no prior values); "write" applies when
+  // editing an already-recorded entry. Either one on its own, or plain "read", is enough to view.
+  const canCreateSyndromicSurveillance = ability.can('create', 'SyndromicSurveillance');
+  const canWriteSyndromicSurveillance = ability.can('write', 'SyndromicSurveillance');
+  const canViewSyndromicSurveillance =
+    canCreateSyndromicSurveillance ||
+    canWriteSyndromicSurveillance ||
+    ability.can('read', 'SyndromicSurveillance');
+  const showSyndromicSurveillance = isSyndromicSurveillanceEnabled && canViewSyndromicSurveillance;
+  // TODO: derive this from real syndromic surveillance data once available, rather than assuming
+  // nothing has been recorded yet.
+  const syndromicSurveillanceState = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED;
+  const isSyndromicSurveillanceRecorded =
+    syndromicSurveillanceState !== SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED;
+  const canEditSyndromicSurveillance = isSyndromicSurveillanceRecorded
+    ? canWriteSyndromicSurveillance
+    : canCreateSyndromicSurveillance;
 
   const refreshDiagnosisTable = useCallback(() => {
     setRefreshCount(prev => prev + 1);
@@ -140,18 +166,21 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         onSaved={refreshDiagnosisTable}
         data-testid="diagnosismodal-pane"
       />
-      {isSyndromicSurveillanceEnabled && (
+      {showSyndromicSurveillance && (
         <SyndromicSurveillanceModal
           open={isSyndromicSurveillanceModalOpen}
           onClose={() => setIsSyndromicSurveillanceModalOpen(false)}
+          readOnly={!canEditSyndromicSurveillance}
           data-testid="syndromicsurveillancemodal-pane"
         />
       )}
       <ActionRow data-testid="actionrow-diagnosis">
-        {isSyndromicSurveillanceEnabled ? (
+        {showSyndromicSurveillance ? (
           <SyndromicSurveillanceStatus
-            state={SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED}
+            state={syndromicSurveillanceState}
             onOpenModal={() => setIsSyndromicSurveillanceModalOpen(true)}
+            canCreate={canCreateSyndromicSurveillance}
+            canWrite={canWriteSyndromicSurveillance}
             data-testid="syndromicsurveillancestatus-diagnosis"
           />
         ) : (

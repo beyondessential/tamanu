@@ -4,7 +4,7 @@ import { SyndromicSurveillanceForm } from '../forms/SyndromicSurveillanceForm';
 import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const SyndromicSurveillanceModalComponent = ({ open, onClose, ...props }) => {
+const SyndromicSurveillanceModalComponent = ({ open, onClose, readOnly, ...props }) => {
   const onSave = data => {
     // TODO: the "no syndrome" vs symptoms mutual exclusivity is only enforced client-side
     // (disabled checkboxes); once this submits to a real endpoint, validate server-side too,
@@ -31,6 +31,7 @@ const SyndromicSurveillanceModalComponent = ({ open, onClose, ...props }) => {
       <SyndromicSurveillanceForm
         onCancel={onClose}
         onSave={onSave}
+        readOnly={readOnly}
         {...props}
         data-testid="syndromicsurveillanceform-modal"
       />

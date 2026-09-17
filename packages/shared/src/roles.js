@@ -81,6 +81,10 @@ export const practitioner = [
   { verb: 'create', noun: 'EncounterDiagnosis' },
   { verb: 'list', noun: 'EncounterDiagnosis' },
 
+  { verb: 'read', noun: 'SyndromicSurveillance' },
+  { verb: 'write', noun: 'SyndromicSurveillance' },
+  { verb: 'create', noun: 'SyndromicSurveillance' },
+
   { verb: 'read', noun: 'Medication' },
   { verb: 'write', noun: 'Medication' },
   { verb: 'create', noun: 'Medication' },

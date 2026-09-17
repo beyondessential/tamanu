@@ -292,9 +292,25 @@ export const DischargeForm = ({
   const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
   const showEncounterSummary =
     encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
-  const showSyndromicSurveillance = getSetting('syndromicSurveillance.enableSyndromicSurveillance');
+  // "Create" applies when recording for the first time (no prior values); "write" applies when
+  // editing an already-recorded entry. Either one on its own, or plain "read", is enough to view.
+  const canCreateSyndromicSurveillance = ability.can('create', 'SyndromicSurveillance');
+  const canWriteSyndromicSurveillance = ability.can('write', 'SyndromicSurveillance');
+  const canViewSyndromicSurveillance =
+    canCreateSyndromicSurveillance ||
+    canWriteSyndromicSurveillance ||
+    ability.can('read', 'SyndromicSurveillance');
+  const showSyndromicSurveillance =
+    getSetting('syndromicSurveillance.enableSyndromicSurveillance') && canViewSyndromicSurveillance;
+  // TODO: derive this from the encounter's real syndromic surveillance data once available,
+  // rather than assuming nothing has been recorded yet.
+  const isSyndromicSurveillanceRecorded = false;
+  const canEditSyndromicSurveillance = isSyndromicSurveillanceRecorded
+    ? canWriteSyndromicSurveillance
+    : canCreateSyndromicSurveillance;
   const syndromicSurveillanceMandatory =
     showSyndromicSurveillance &&
+    canEditSyndromicSurveillance &&
     getSetting('syndromicSurveillance.mandatorySyndromicSurveillanceOnDischarge');
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
@@ -700,7 +716,10 @@ export const DischargeForm = ({
                     data-testid="translatedtext-syndromic-surveillance-section-intro"
                   />
                 </SyndromicSurveillanceIntroText>
-                <SyndromicSurveillanceFields data-testid="syndromicsurveillancefields-discharge" />
+                <SyndromicSurveillanceFields
+                  readOnly={!canEditSyndromicSurveillance}
+                  data-testid="syndromicsurveillancefields-discharge"
+                />
               </div>
             </>
           )}
