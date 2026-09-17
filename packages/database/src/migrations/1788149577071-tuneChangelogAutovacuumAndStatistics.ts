@@ -8,15 +8,14 @@ import { QueryInterface } from 'sequelize';
 // jsonb, so ANALYZE detoasts every sampled value to build statistics that no predicate can use —
 // every filter is a record_data->>'key' extraction, which never consults the column's MCV list.
 //
-// autovacuum_vacuum_insert_scale_factor arrived in Postgres 13 and a deployment is still on 12,
-// where naming it at all is a syntax error rather than an ignored setting.
+// autovacuum_vacuum_insert_scale_factor arrived in Postgres 13, and a deployment is still on 12.
 const INSERT_SCALE_FACTOR_PG_MINIMUM = 130000;
 
 const onPg13OrAbove = (statement: string) => `
   DO $$
   BEGIN
     IF current_setting('server_version_num')::int >= ${INSERT_SCALE_FACTOR_PG_MINIMUM} THEN
-      EXECUTE '${statement}';
+      EXECUTE $stmt$${statement}$stmt$;
     END IF;
   END $$;
 `;
