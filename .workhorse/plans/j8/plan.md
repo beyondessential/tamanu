@@ -80,8 +80,10 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
 - **Partner/sibling products live in the footer**, in a "Related products" group with external-link
   arrows and a "separate products" caption — Tupaia, Senaite, Senaite: Animal Health, mSupply. Kept
   out of the top nav and Browse so they don't read as Tamanu sections, since they are wholly separate
-  products with only occasional crossover users. Real URLs still to be added (currently `#`), and the
-  "Senaite: Animal Health" spelling to be confirmed (user wrote "Senate").
+  products with only occasional crossover users. Links point at the BES support centre for Tupaia,
+  SENAITE and SENAITE Animal Health, and at `docs.msupply.org.nz` for mSupply, opening in a new tab.
+  Still open: the displayed labels read "Senaite" and "Senaite: Animal Health", while the support
+  centre styles them "SENAITE" and "SENAITE Animal Health" (no colon).
 
 ## Branding
 
