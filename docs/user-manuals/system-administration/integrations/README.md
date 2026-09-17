@@ -1,4 +1,4 @@
-# Integrations
+# 6. Integrations
 
 External system integrations, including mSupply, SENAITE, RIS/PACS, DHIS2, and the scheduled tasks that drive them.
 

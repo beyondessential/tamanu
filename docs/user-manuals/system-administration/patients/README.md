@@ -1,4 +1,4 @@
-# Patients
+# 10. Patients
 
 Patient registration, identifiers, patient fields, secondary IDs, search behaviour, and the patient portal.
 

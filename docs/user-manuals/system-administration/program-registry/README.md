@@ -1,4 +1,4 @@
-# Program registry
+# 12. Program registry
 
 Program registries, their conditions, categories, and clinical status configuration.
 

@@ -1,4 +1,4 @@
-# Labs
+# 8. Labs
 
 Lab test types, panels, categories, sample sites, methods, priorities, and lab request workflows.
 

@@ -1,4 +1,4 @@
-# Appointments
+# 1. Appointments
 
 Appointment types, booking types, location assignments, and the scheduling settings behind the appointments calendar.
 

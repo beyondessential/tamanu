@@ -25,7 +25,21 @@ Guides live under `docs/user-manuals/system-administration/`.
 with no guide written yet, so the shape of the documentation is visible and the gaps are explicit.
 Writing a guide therefore means filling an existing folder, not creating one: add the guide, replace
 that module's "no configuration guide yet" line with a table listing it, and update the section README
-row from "Not written yet" to a link. Add a folder only for a module the tree does not yet cover.
+row from "Not written yet" to a link. Add a folder only for a module the tree does not yet cover, and
+give it the next free number.
+
+### Numbering
+
+Modules are numbered at the section level, and a module's guides are numbered one branch below it:
+module 9 is Medications, and its configuration guide is 9.1. A module's number appears in its README
+heading (`# 9. Medications`), and its guides carry the two-part number in the README tables.
+
+Numbering stops there. It does not continue into a guide's own sections, which are titled rather than
+numbered.
+
+Numbers are reference and ordering only, and are deliberately **not** part of folder or file names, so
+renumbering never breaks a link or a cross-reference. Keep the section README, the module README
+heading, and the guide's entry in step when a number changes.
 
 ## Structure
 

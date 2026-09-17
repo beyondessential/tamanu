@@ -1,4 +1,4 @@
-# Sync
+# 17. Sync
 
 Sync between central and facility servers, sync scheduling, the sync lookup table, and troubleshooting settings.
 

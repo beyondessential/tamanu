@@ -1,4 +1,4 @@
-# Dispensing
+# 2. Dispensing
 
 Pharmacy orders, medication dispensing, prescription labels, stock on hand, and the mSupply medication integration.
 

@@ -1,4 +1,4 @@
-# Vaccines
+# 20. Vaccines
 
 Vaccine schedules, scheduled vaccines, vaccination certificates, and the immunisation workflows.
 
