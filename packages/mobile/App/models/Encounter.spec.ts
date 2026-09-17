@@ -31,8 +31,11 @@ describe('Encounter', () => {
       await Database.models.Encounter.insert(encounter);
 
       const result = await Database.models.Encounter.getForPatient(patient.id);
-      delete encounter.examiner; // examiner is not eager-loaded from db
+      // getForPatient joins only what the visits history renders, not examiner or patient
+      delete encounter.examiner;
+      delete encounter.patient;
       expect(result[0]).toMatchObject(encounter);
+      expect(result[0].notes).toEqual([]);
     });
 
     it('attaches each encounter’s diagnoses, with their reference data', async () => {

@@ -1,12 +1,10 @@
 import { addHours, startOfDay, subDays } from 'date-fns';
-import { groupBy } from 'es-toolkit';
 import { getUniqueId } from 'react-native-device-info';
 import {
   AfterInsert,
   BeforeInsert,
   Column,
   Entity,
-  In,
   Index,
   ManyToOne,
   OneToMany,
@@ -252,28 +250,24 @@ export class Encounter extends BaseModel implements IEncounter {
   }
 
   /**
-   * Encounters for the visits history, each with its clinical notes and diagnoses. Diagnoses are
-   * loaded here rather than eagerly on the relation, as this is the only place that reads them.
+   * Encounters for the visits history, each with its clinical notes and diagnoses, in one query.
+   * Diagnoses are joined here rather than eagerly on the relation, as this is the only place that
+   * reads them. Notes hang off a polymorphic recordId rather than a relation, so they are mapped
+   * onto the encounter by join condition.
    */
-  static async getForPatient(patientId: string): Promise<Encounter[]> {
-    const encounters = await Encounter.getRepository().find({
-      where: { patient: { id: patientId } },
-      relations: ['location', 'location.facility'],
-      order: { startDate: 'DESC', createdAt: 'DESC', id: 'DESC' },
-    });
-    if (encounters.length === 0) return [];
-
-    const encounterIds = encounters.map(({ id }) => id);
-    const notes = await Note.find({ where: { recordId: In(encounterIds) } });
-    const diagnoses = await Diagnosis.find({ where: { encounter: { id: In(encounterIds) } } });
-    const notesByEncounterId = groupBy(notes, note => note.recordId);
-    const diagnosesByEncounterId = groupBy(diagnoses, diagnosis => diagnosis.encounterId);
-
-    return encounters.map(encounter => ({
-      ...encounter,
-      notes: notesByEncounterId[encounter.id] ?? [],
-      diagnoses: diagnosesByEncounterId[encounter.id] ?? [],
-    }));
+  static getForPatient(patientId: string): Promise<Encounter[]> {
+    return Encounter.getRepository()
+      .createQueryBuilder('encounter')
+      .leftJoinAndSelect('encounter.location', 'location')
+      .leftJoinAndSelect('location.facility', 'facility')
+      .leftJoinAndSelect('encounter.diagnoses', 'diagnosis')
+      .leftJoinAndSelect('diagnosis.diagnosis', 'diagnosisReferenceData')
+      .leftJoinAndMapMany('encounter.notes', Note, 'note', 'note.recordId = encounter.id')
+      .where('encounter.patientId = :patientId', { patientId })
+      .orderBy('encounter.startDate', 'DESC')
+      .addOrderBy('encounter.createdAt', 'DESC')
+      .addOrderBy('encounter.id', 'DESC')
+      .getMany();
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {
