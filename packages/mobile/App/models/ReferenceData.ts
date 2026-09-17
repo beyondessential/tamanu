@@ -1,10 +1,10 @@
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { BaseModel } from './BaseModel';
 import { type IReferenceData, type ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
-import { SYNC_DIRECTIONS } from './types';
+import { BaseModel } from './BaseModel';
 import { ReferenceDataRelation as RefDataRelation } from './ReferenceDataRelation';
 import { ReferenceDrug } from './ReferenceDrug';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
