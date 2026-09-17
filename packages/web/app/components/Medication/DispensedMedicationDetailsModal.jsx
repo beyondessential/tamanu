@@ -77,7 +77,11 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
 
   // The dispense stores the label text in `instructions`; the clinical Instructions
   // shown here are derived from the prescription, mirroring the dispense modals.
-  const derivedInstructions = buildInstructionText(prescription, getTranslation, getEnumTranslation);
+  const derivedInstructions = buildInstructionText(
+    prescription,
+    getTranslation,
+    getEnumTranslation,
+  );
 
   const leftDetails = [
     {
