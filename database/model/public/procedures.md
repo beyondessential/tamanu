@@ -69,3 +69,7 @@ The time when the patient entered the procedure room or when the procedure setup
 {% docs procedures__time_out %}
 The time when the patient left the procedure room or when the procedure cleanup was completed.
 {% enddocs %}
+
+{% docs procedures__quantity %}
+The number of times this procedure was performed.
+{% enddocs %}
