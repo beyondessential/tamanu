@@ -1,3 +1,4 @@
+import { isEmpty, snakeCase } from 'es-toolkit/compat';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -7,16 +8,15 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
-import { isEmpty, snakeCase } from 'es-toolkit/compat';
-import { BaseModel, IdRelation } from './BaseModel';
-import type { IPatientAdditionalData } from '~/types';
-import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { Patient } from './Patient';
-import { SYNC_DIRECTIONS } from './types';
-import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { Database } from '~/infra/db';
+import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
+import type { IPatientAdditionalData } from '~/types';
+import { BaseModel, IdRelation } from './BaseModel';
 import { Facility } from './Facility';
+import { Patient } from './Patient';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 const METADATA_FIELDS = [
   'createdAt',
