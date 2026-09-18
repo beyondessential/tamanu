@@ -36,8 +36,8 @@ const TEST_CONNECTION_CONFIG = {
 
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
 
-/** 90 minutes */
-const PLANNER_STATS_REFRESH_INTERVAL_MS = 5_400_000;
+/** 1 day */
+const PLANNER_STATS_REFRESH_INTERVAL_MS = 86_400_000;
 
 const getConnectionConfig = (): ConnectionOptions => {
   const isJest = process.env.JEST_WORKER_ID !== undefined;
@@ -141,32 +141,35 @@ class DatabaseHelper {
   }
 
   /**
-   * With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
-   * which would take care of running ANALYZE as needed. Our version of `react-native-quick-sqlite`
-   * gives us SQLite 3.39.
-   * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
-   * @returns Whether the refresh succeeded
+   * @see https://sqlite.org/pragma.html#pragma_optimize
+   * @returns Whether the optimisation succeeded
    */
-  private async refreshQueryPlannerStats(): Promise<boolean> {
+  private async runPragmaOptimize(): Promise<boolean> {
     const start = performance.now();
     try {
-      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none.
-      // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
+      // Our SQLite (3.39) would otherwise run a full ANALYZE on each table `PRAGMA optimize` picks,
+      // which can take an unreasonably long time. Pinning to SQLite 3.46+’s default of 400.
       await this.client.query('PRAGMA analysis_limit = 400;');
-      await this.client.query('ANALYZE;');
-      console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
+      const planned = await this.client.query<{ [column: string]: string }[]>(
+        // 0x00001 (debugging mode) + 0x00002 (run ANALYZE on tables that might benefit).
+        'PRAGMA optimize(0x00003);',
+      );
+      const statements = planned.map(row => Object.values(row)[0]);
+      console.log(`PRAGMA optimize will run: ${statements.join('; ') || 'nothing'}`);
+      await this.client.query('PRAGMA optimize;');
+      console.log(`PRAGMA optimize done in ${performance.now() - start}ms`);
       return true;
     } catch (e) {
-      console.error(`Approximate ANALYZE failed after ${performance.now() - start}ms:`, e);
+      console.error(`PRAGMA optimize failed after ${performance.now() - start}ms:`, e);
       return false;
     }
   }
 
   /**
-   * Throttles to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
-   * opportunistically without repeatedly taking ANALYZE’s write lock.
+   * Throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   * opportunistically. A failed run is not recorded, so it is retried at the next call.
    */
-  async requestQueryPlannerStatsRefresh(): Promise<void> {
+  async requestPragmaOptimize(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
     if (this.isAnalyzing) return;
     this.isAnalyzing = true;
@@ -183,18 +186,13 @@ class DatabaseHelper {
         return;
       }
 
-      const succeeded = await this.refreshQueryPlannerStats();
+      const succeeded = await this.runPragmaOptimize();
       if (!succeeded) return;
 
-      // Upsert; `key` has no unique index, so ON CONFLICT isn’t available
-      const value = Date.now().toString();
-      const { affected } = await this.models.LocalSystemFact.update(
-        { key: PLANNER_STATS_REFRESHED_AT_KEY },
-        { value },
+      await this.models.LocalSystemFact.upsert(
+        { key: PLANNER_STATS_REFRESHED_AT_KEY, value: Date.now().toString() },
+        ['key'],
       );
-      if (!affected) {
-        await this.models.LocalSystemFact.insert({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
-      }
     } catch (e) {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);

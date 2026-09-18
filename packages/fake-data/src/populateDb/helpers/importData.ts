@@ -173,14 +173,25 @@ export const generateImportData = async ({
   // than the rest.
   const programRegistry = await pooled(ProgramRegistry, seedProgramRegistry, { size: 8 });
 
-  const invoiceProduct = await pooled(InvoiceProduct, () =>
-    InvoiceProduct.create(
-      fake(InvoiceProduct, {
-        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+  // A drug holds at most one invoice product, so the pool is per drug rather than the default 50
+  // across all of them.
+  const invoiceProduct = await pooled(
+    InvoiceProduct,
+    () =>
+      InvoiceProduct.create(
+        fake(InvoiceProduct, {
+          category: INVOICE_ITEMS_CATEGORIES.DRUG,
+          sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+          sourceRecordId: referenceData.id,
+        }),
+      ),
+    {
+      size: 1,
+      where: {
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
         sourceRecordId: referenceData.id,
-      }),
-    ),
+      },
+    },
   );
 
   const labTestType = await pooled(LabTestType, () =>

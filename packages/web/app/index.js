@@ -8,7 +8,7 @@ import { renderRootInto } from './Root';
 import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
-import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
+import { addSystemError, authFailure, initStore, restoreSession, versionIncompatible } from './store';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import './fonts.css';
@@ -64,6 +64,10 @@ async function start() {
 
   API.setVersionIncompatibleHandler((isTooLow, minVersion, maxVersion) => {
     store.dispatch(versionIncompatible(isTooLow, minVersion, maxVersion));
+  });
+
+  API.setSystemErrorHandler(error => {
+    store.dispatch(addSystemError(error));
   });
 
   const container = document.getElementById('root');

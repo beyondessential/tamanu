@@ -6,12 +6,14 @@ import { persistCombineReducers } from 'redux-persist';
 import { authReducer } from './auth';
 import { imagingRequestReducer } from './imagingRequest';
 import { specialModalsReducer } from './specialModals';
+import { systemErrorsReducer } from './systemErrors';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 export const createReducers = () => ({
   auth: authReducer,
   imagingRequest: imagingRequestReducer,
   specialModals: specialModalsReducer,
+  systemErrors: systemErrorsReducer,
 });
 
 export function initStore(api, initialState = {}) {

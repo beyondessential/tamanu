@@ -42,6 +42,7 @@ export const presetLabelFormatter = ({ id, code, name }) => ({
 export const PRESET_LABEL_SUGGESTER_OPTIONS = { formatter: presetLabelFormatter };
 
 const StyledInstructionsTextInput = styled(TextInput)`
+  min-inline-size: 13rem;
   .MuiInputBase-root.Mui-disabled {
     background: ${TAMANU_COLORS.background};
   }
@@ -54,6 +55,7 @@ const StyledInstructionsTextInput = styled(TextInput)`
 // minRows height and clips longer content. The read-only path renders a styled
 // div instead, sized to its content, so wrapped lines stay visible.
 const ReadOnlyInstructions = styled.div`
+  min-inline-size: 8rem;
   background: ${TAMANU_COLORS.background};
   border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
@@ -384,6 +386,27 @@ export const isDispenseModifiedByPharmacy = dispense => Boolean(dispense?.modifi
 // details were recorded.
 export const getDispensedMedication = dispense =>
   dispense?.medication ?? dispense?.pharmacyOrderPrescription?.prescription?.medication;
+
+// The details a saved fill was dispensed with, in prescription shape so the instruction and label
+// builders can take it. Rows created before dispensed details were recorded carry none, and fall
+// back to the prescription.
+export const getDispensedPrescription = dispense => {
+  const prescription = dispense?.pharmacyOrderPrescription?.prescription;
+  if (!dispense?.medicationId) return prescription;
+
+  return {
+    ...prescription,
+    medication: getDispensedMedication(dispense),
+    isVariableDose: dispense.isVariableDose,
+    doseAmount: dispense.doseAmount,
+    dosingUnit: dispense.dosingUnit,
+    dispensingUnit: dispense.dispensingUnit,
+    frequency: dispense.frequency,
+    route: dispense.route,
+    durationValue: dispense.durationValue,
+    durationUnit: dispense.durationUnit,
+  };
+};
 
 // A fill modified by pharmacy replaces the prescription's pharmacy note on the MAR with the
 // dispense's own note (which already folds in any prescription-level note plus the standard

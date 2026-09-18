@@ -24,6 +24,22 @@ export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
+    systemAdmin: {
+      name: 'System admin',
+      properties: {
+        support: {
+          name: 'Support',
+          properties: {
+            recipients: {
+              name: 'System error report recipients',
+              description: 'Email addresses that receive error logs submitted from this facility',
+              type: yup.array(yup.string().email().required()),
+              defaultValue: ['support@bes.au'],
+            },
+          },
+        },
+      },
+    },
     appointments: {
       description: 'Settings related to scheduling patient appointments and location bookings',
       properties: {
