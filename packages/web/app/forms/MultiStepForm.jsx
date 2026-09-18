@@ -97,6 +97,7 @@ export const MultiStepForm = ({
                     />
                   )
                 }
+                confirmDisabled={step.props.getConfirmDisabled?.(props.values)}
                 onCancel={onCancel}
                 data-testid="formsubmitcancelrow-aaiz"
               />

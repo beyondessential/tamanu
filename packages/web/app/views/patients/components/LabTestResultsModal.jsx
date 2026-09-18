@@ -24,10 +24,11 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
+import { renderLabResultGroupHeader } from '../../../utils/lab';
 import { SuggesterSelectField } from '../../../components/Field';
 import { FormModal } from '../../../components/FormModal';
 import { TableFormFields } from '../../../components/Table';
-import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
+import { BodyText } from '../../../components/Typography';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
@@ -50,14 +51,13 @@ const StyledTableFormFields = styled(TableFormFields)`
     text-align: left;
     background: ${Colors.white};
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     color: ${Colors.midText};
     padding: 10px;
   }
 
   tbody tr td {
     font-size: 14px;
-    vertical-align: top;
     padding: 8px;
     overflow: visible;
   }
@@ -68,16 +68,9 @@ const StyledTableFormFields = styled(TableFormFields)`
   }
 
   thead tr th:first-child,
-  thead tr th:nth-child(3),
-  tbody tr td:first-child,
-  tbody tr td:nth-child(3) {
-    padding-top: 20px;
-    vertical-align: top;
-  }
-
-  thead tr th:first-child,
   tbody tr td:first-child {
     padding-left: 20px;
+    width: 220px;
   }
 `;
 
@@ -116,20 +109,11 @@ const ErrorContainer = styled(Box)`
 const FormHeaderSection = styled(Box)`
   margin: 0 30px;
   padding-bottom: 20px;
+  padding-top: 16px;
 `;
 
 const InterpretationFieldSection = styled(Box)`
   margin: 20px 30px;
-`;
-
-const StyledHeading4 = styled(Heading4)`
-  margin-top: 8px;
-  margin-bottom: 10px;
-`;
-
-const StyledSmallBodyText = styled(SmallBodyText)`
-  margin-bottom: 12px;
-  color: ${Colors.midText};
 `;
 
 const LAB_TEST_PROPERTIES = {
@@ -216,9 +200,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
       width: '80px',
       accessor: row => (
-        <BodyText color="textTertiary" data-testid="bodytext-uq3u">
-          {row.labTestType.unit || 'N/A'}
-        </BodyText>
+        <BodyText data-testid="bodytext-uq3u">{row.labTestType.unit || 'N/A'}</BodyText>
       ),
     },
     ...(showSecondaryResultColumn
@@ -382,25 +364,18 @@ const ResultsForm = ({
   return (
     <Box data-testid="box-miwv">
       <FormHeaderSection data-testid="box-jcm4">
-        <div>
-          <StyledHeading4 data-testid="heading4-5541">
-            <TranslatedText
-              stringId="patient.lab.modal.enterResults.heading"
-              fallback="Enter test results"
-            />
-          </StyledHeading4>
-          <StyledSmallBodyText data-testid="smallbodytext-4j32">
-            <TranslatedText
-              stringId="patient.lab.modal.enterResults.subHeading"
-              fallback="Please record test results, other test result details and any relevant notes."
-            />
-          </StyledSmallBodyText>
-        </div>
+        <BodyText>
+          <TranslatedText
+            stringId="patient.lab.modal.enterResults.subHeading"
+            fallback="Please record the test results below"
+          />
+        </BodyText>
       </FormHeaderSection>
       <TableContainer data-testid="tablecontainer-dyto">
         <StyledTableFormFields
           columns={columns}
           data={labTestResults?.data}
+          getRowGroupHeader={renderLabResultGroupHeader}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
@@ -409,9 +384,14 @@ const ResultsForm = ({
           component={TextField}
           multiline
           disabled={areLabTestResultsReadOnly}
-          rows={6}
+          rows={4}
           name="resultsInterpretation"
-          label="Results Interpretation"
+          label={
+            <TranslatedText
+              stringId="lab.resultsInterpretation.label"
+              fallback="Results interpretation"
+            />
+          }
           data-testid="field-resultsinterpretation"
         />
       </InterpretationFieldSection>

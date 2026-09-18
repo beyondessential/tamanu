@@ -2,17 +2,18 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
-import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
+import { getLabTestValidationCriteria } from '@tamanu/utils/labTests';
 import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
 import { RangeValidatedCell } from '../../../components/FormattedTableCell';
-import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { getCompletedDate, getMethod, renderLabResultGroupHeader } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { LabTestResultModal } from '../LabTestResultModal';
+import { Colors } from '../../../constants/styles';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   cursor: pointer;
@@ -20,9 +21,12 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
     border-bottom: none;
   }
 
-  table thead tr th {
+  table thead tr th.MuiTableCell-head {
     position: sticky;
     top: 0;
+    font-weight: 400;
+    color: ${Colors.midText};
+    background: ${Colors.white};
   }
 `;
 
@@ -109,7 +113,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
                   referenceDataCategory="labTestType"
                 />
               ) : (
-                result || '–'
+                result || '-'
               );
             return (
               <ResultCell>
@@ -119,6 +123,12 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
                 </ConditionalTooltip>
               </ResultCell>
             );
+          }
+
+          // An empty numeric result would otherwise fall back to formatValue's em dash; keep it a
+          // hyphen like the other columns. Guard on nullish/empty only, so a real 0 still renders.
+          if (result === null || result === undefined || result === '') {
+            return <ResultCell>-</ResultCell>;
           }
 
           // Where a numeric result also carries a secondary result, its tooltip takes over
@@ -166,24 +176,6 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       {
         title: (
           <TranslatedText
-            stringId="lab.results.table.column.reference"
-            fallback="Reference"
-            data-testid="translatedtext-840i"
-          />
-        ),
-        key: 'reference',
-        accessor: row =>
-          getReferenceRange({
-            labTestType: row.labTestType,
-            labTest: row,
-            sex: patient.sex,
-            getTranslation,
-          }),
-        sortable: false,
-      },
-      {
-        title: (
-          <TranslatedText
             stringId="lab.results.table.column.labTestMethod"
             fallback="Method"
             data-testid="translatedtext-w6f1"
@@ -192,7 +184,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'labTestMethod',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.labTestMethod ? getMethod(row) : '–'}
+            value={row.labTestMethod ? getMethod(row) : '-'}
             isEdited={row.editedFields?.includes('labTestMethodId')}
           />
         ),
@@ -209,7 +201,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'laboratoryOfficer',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.laboratoryOfficer || '–'}
+            value={row.laboratoryOfficer || '-'}
             isEdited={row.editedFields?.includes('laboratoryOfficer')}
           />
         ),
@@ -226,7 +218,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'verification',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.verification || '–'}
+            value={row.verification || '-'}
             isEdited={row.editedFields?.includes('verification')}
           />
         ),
@@ -243,7 +235,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'completedDate',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.completedDate ? getCompletedDate(row) : '–'}
+            value={row.completedDate ? getCompletedDate(row) : '-'}
             isEdited={row.editedFields?.includes('completedDate')}
           />
         ),
@@ -259,15 +251,16 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         columns={columns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         initialSort={{ order: 'asc', orderBy: 'id' }}
-        disablePagination
         elevated={false}
         refreshCount={refreshCount}
         onRowClick={handleRowClick}
+        getRowGroupHeader={renderLabResultGroupHeader}
         onDataFetched={({ data }) =>
           setShowEditedEntryLegend(data.some(row => row.editedFields?.length > 0))
         }
         data-testid="styleddatafetchingtable-brdm"
-        allowExport={false}
+        allowExport
+        exportName={labRequest.displayId}
       />
       {showEditedEntryLegend && <EditedEntryLegend data-testid="editedentrylegend-labrequest" />}
       <LabTestResultModal

@@ -22,12 +22,13 @@ reference range is flagged for clinicians.
 - [ ] A test's effective reference range is resolved with this priority: a per-test numeric override (minimum and/or maximum), then a per-test text range, then the sex-based range on the test type, then the test type's text range.
 - [ ] A per-test numeric override that sets only one bound is combined with the test type's default for the other bound.
 - [ ] Sex-based ranges use the patient's recorded sex; where the patient's sex has no configured range, the numeric flag does not apply.
-- [ ] The reference range displayed in the lab request results table and the out-of-range flag are derived from the same resolution, so they always agree.
+- [ ] The out-of-range flag is derived from this resolution.
 
 ## Displaying results in a lab request
 
-- [ ] The lab request results table shows each test's result, unit, reference range, method, lab officer, verification and completed date.
+- [ ] The lab request results table shows each test's result, unit, method, lab officer, verification and completed date.
 - [ ] A result that also carries a secondary result shows the secondary result on hover.
+- [ ] The lab request results table can be exported.
 
 ## Edited entries
 
@@ -35,6 +36,6 @@ reference range is flagged for clinicians.
 - [ ] Whether a value counts as edited is derived from its recorded change history: it is edited once it has taken more than one distinct value. First filling in a blank is not an edit.
 - [ ] In an individual lab request's results table, every field that can be changed after entry carries this marker: the result, the method, the lab officer, the verification and the completed date.
 - [ ] The result cell is marked when either the result or its secondary result has been edited, since the cell surfaces both.
-- [ ] Fields that cannot be changed after entry — the test name, unit and reference range — are never marked.
+- [ ] Fields that cannot be changed after entry — the test name and unit — are never marked.
 - [ ] The patient's results table marks edited results the same way.
 - [ ] When a lab request's results table contains any edited value, a faded "* Edited entry" note appears at the bottom right below the table, in the same colour as the asterisk. The note is absent when nothing in the table is edited.

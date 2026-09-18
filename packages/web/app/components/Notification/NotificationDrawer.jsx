@@ -72,6 +72,12 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           'Lab results for :patientName (:displayId) have been <strong>invalidated</strong>',
           { replacements: { displayId, patientName } },
         );
+      case LAB_REQUEST_STATUSES.REJECTED:
+        return getTranslation(
+          'notification.content.labRequest.rejected',
+          'Lab sample for :patientName (:displayId) has been <strong>rejected</strong>',
+          { replacements: { displayId, patientName } },
+        );
     }
   }
 

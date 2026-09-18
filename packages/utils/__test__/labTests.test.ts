@@ -5,6 +5,7 @@ import {
   getLabTestValidationCriteriaFromNormalRanges,
   getReferenceRange,
   getReferenceRangeWithUnit,
+  parseLabTestResult,
 } from '../src/labTests';
 
 const getTranslation = (
@@ -257,5 +258,41 @@ describe('getReferenceRangeWithUnit', () => {
         getTranslation,
       }),
     ).toBe('5–10 mmol/L');
+  });
+});
+
+describe('parseLabTestResult', () => {
+  it('splits a below-detection-limit result into comparator and value', () => {
+    expect(parseLabTestResult('< 0.3')).toEqual({ comparator: '<', value: 0.3 });
+  });
+
+  it('splits an above-detection-limit result into comparator and value', () => {
+    expect(parseLabTestResult('> 100')).toEqual({ comparator: '>', value: 100 });
+  });
+
+  it('handles inclusive comparators', () => {
+    expect(parseLabTestResult('<= 5')).toEqual({ comparator: '<=', value: 5 });
+    expect(parseLabTestResult('>= 2.5')).toEqual({ comparator: '>=', value: 2.5 });
+  });
+
+  it('tolerates missing or extra whitespace around the comparator', () => {
+    expect(parseLabTestResult('<0.3')).toEqual({ comparator: '<', value: 0.3 });
+    expect(parseLabTestResult('  >   100  ')).toEqual({ comparator: '>', value: 100 });
+  });
+
+  it('parses a negative bound', () => {
+    expect(parseLabTestResult('< -1.2')).toEqual({ comparator: '<', value: -1.2 });
+  });
+
+  it('returns a null comparator for a plain numeric result', () => {
+    expect(parseLabTestResult('0.3')).toEqual({ comparator: null, value: 0.3 });
+    expect(parseLabTestResult(5)).toEqual({ comparator: null, value: 5 });
+  });
+
+  it('returns null value for a non-numeric result', () => {
+    expect(parseLabTestResult('Negative')).toEqual({ comparator: null, value: null });
+    expect(parseLabTestResult('')).toEqual({ comparator: null, value: null });
+    expect(parseLabTestResult(null)).toEqual({ comparator: null, value: null });
+    expect(parseLabTestResult(undefined)).toEqual({ comparator: null, value: null });
   });
 });

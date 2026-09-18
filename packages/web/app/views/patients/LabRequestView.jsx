@@ -81,6 +81,20 @@ const LabelContainer = styled.div`
 
 const FixedTileRow = styled(TileContainer)`
   flex-shrink: 0;
+
+  // Widen the tiles a little so the sample date & time fits on one line.
+  > div {
+    min-width: 150px;
+  }
+`;
+
+// Keep the sample date & time on one line, with the specimen type beneath it.
+const SampleCollectedDate = styled.div`
+  white-space: nowrap;
+`;
+
+const SampleSpecimenType = styled.div`
+  margin-top: 2px;
 `;
 
 const HIDDEN_STATUSES = [
@@ -224,6 +238,18 @@ export const LabRequestView = () => {
     await updateLabRequest(labRequest.id, data);
   };
 
+  const autoPrintLabel = getSetting('labs.autoPrintSampleLabel');
+  const handleSampleRecorded = () => {
+    // A sample was just recorded. With auto-print on, swap the still-open record-sample modal
+    // straight to the label print screen — changing the modal id rather than closing avoids the
+    // close animation clearing the modal before it reopens. Otherwise just close.
+    if (autoPrintLabel) {
+      setModalId(MODAL_IDS.LABEL_PRINT);
+    } else {
+      closeModal();
+    }
+  };
+
   const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
@@ -238,8 +264,12 @@ export const LabRequestView = () => {
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
+  const isRejected = labRequest.status === LAB_REQUEST_STATUSES.REJECTED;
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
+  // Rejected requests are hidden elsewhere, but this button is how their rejection
+  // report is reached, so the printout stays available for them.
+  const canOpenPrintout = !isHidden || isRejected;
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const isPriorityReadOnly = areLabRequestsReadOnly || !isPriorityEditingEnabled;
@@ -329,17 +359,25 @@ export const LabRequestView = () => {
                 )
               ) : (
                 <OutlinedButton
-                  disabled={isHidden}
+                  disabled={!canOpenPrintout}
                   onClick={() => {
                     handleChangeModalId(MODAL_IDS.PRINT);
                   }}
                   data-testid="outlinedbutton-fdjm"
                 >
-                  <TranslatedText
-                    stringId="lab.action.printRequest"
-                    fallback="Print request"
-                    data-testid="translatedtext-7zng"
-                  />
+                  {isRejected ? (
+                    <TranslatedText
+                      stringId="lab.action.rejectionReport"
+                      fallback="Rejection report"
+                      data-testid="translatedtext-7zng"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="lab.action.printRequest"
+                      fallback="Print request"
+                      data-testid="translatedtext-7zng"
+                    />
+                  )}
                 </OutlinedButton>
               )}
               <Menu
@@ -364,8 +402,8 @@ export const LabRequestView = () => {
             Icon={AutoAwesomeMotionIcon}
             text={
               <TranslatedText
-                stringId="lab.testCategory.label"
-                fallback="Test category"
+                stringId="lab.view.tile.category.label"
+                fallback="Category"
                 data-testid="translatedtext-4nhr"
               />
             }
@@ -461,12 +499,25 @@ export const LabRequestView = () => {
             }
             isReadOnly={areLabRequestsReadOnly}
             main={
-              <DateDisplay
-                color={labRequest.sampleTime ? 'unset' : Colors.softText}
-                date={labRequest.sampleTime}
-                timeFormat="default"
-                data-testid="datedisplay-h6el"
-              />
+              <>
+                <SampleCollectedDate>
+                  <DateDisplay
+                    color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                    date={labRequest.sampleTime}
+                    timeFormat="default"
+                    data-testid="datedisplay-h6el"
+                  />
+                </SampleCollectedDate>
+                {labRequest.sampleTime && labRequest.specimenType?.name && (
+                  <SampleSpecimenType data-testid="tile-specimentype">
+                    <TranslatedReferenceData
+                      category="specimenType"
+                      value={labRequest.specimenType.id}
+                      fallback={labRequest.specimenType.name}
+                    />
+                  </SampleSpecimenType>
+                )}
+              </>
             }
             actions={actions}
             data-testid="tile-v8kr"
@@ -588,7 +639,7 @@ export const LabRequestView = () => {
               label={
                 <TranslatedText
                   stringId="lab.resultsInterpretation.label"
-                  fallback="Results Interpretation"
+                  fallback="Results interpretation"
                   data-testid="translatedtext-resultsinterpretation"
                 />
               }
@@ -605,6 +656,7 @@ export const LabRequestView = () => {
           labRequest={labRequest}
           patient={patient}
           updateLabReq={updateLabReq}
+          onSampleRecorded={handleSampleRecorded}
           refreshLabTestTable={handleRefreshLabTestTable}
           open={modalOpen}
           onClose={closeModal}

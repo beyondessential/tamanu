@@ -4,15 +4,13 @@ import { selectFirstFromDropdown } from '@utils/testHelper';
 export class RecordSampleModal {
   readonly page: Page;
   readonly form!: Locator;
-  
-  // Form fields
+
+  // Form fields (B4: grouped-by-category sample details — all autocompletes)
   readonly dateTimeCollectedInput!: Locator;
   readonly collectedByInput!: Locator;
-  readonly collectedByDropdown!: Locator;
   readonly specimenTypeInput!: Locator;
-  readonly specimenTypeDropdown!: Locator;
-  readonly siteInputDropdownIcon!: Locator;
-  
+  readonly siteInput!: Locator;
+
   // Action buttons
   readonly recordSampleConfirmButton!: Locator;
   readonly closeButton!: Locator;
@@ -20,32 +18,21 @@ export class RecordSampleModal {
 
   constructor(page: Page) {
     this.page = page;
-    
-    // TestId mapping for RecordSampleModal elements
+
     const testIds = {
-      form: 'formgrid-3btd',
-      dateTimeCollectedInput: 'styledfield-dmjl-input',
-      collectedByInput: 'styledfield-v88m-input',
-      collectedByDropdown: 'styledfield-v88m-input-expandmoreicon',
-      specimenTypeInput: 'styledfield-0950-input',
-      specimenTypeDropdown: 'styledfield-0950-input-expandmoreicon',
-      siteInputDropdownIcon: 'selectinput-phtg-expandmoreicon-h115',
+      form: 'container-recordsample',
+      dateTimeCollectedInput: 'styledfield-sampletime-input',
+      collectedByInput: 'styledfield-collectedby-input',
+      specimenTypeInput: 'styledfield-specimentype-input',
+      siteInput: 'styledfield-site-input',
       recordSampleConfirmButton: 'row-vpng-confirmButton',
       closeButton: 'close-button',
       cancelButton: 'cancel-button',
     } as const;
 
-    // Create locators using the testId mapping
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
-
-    // Special cases that need additional processing
-    this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input');
-    this.collectedByInput = page.getByTestId('styledfield-v88m-input');
-    this.specimenTypeInput = page.getByTestId('styledfield-0950-input');
-    // Scope siteInputDropdownIcon to the record sample form to avoid matching elements in other forms
-    this.siteInputDropdownIcon = page.getByTestId('formgrid-3btd').getByTestId('selectinput-phtg-expandmoreicon-h115');
   }
 
   async waitForModalToLoad() {
@@ -53,23 +40,20 @@ export class RecordSampleModal {
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
-
-  // Helper function to select first option from all dropdowns
+  // Select the first option for each of the collected-by, specimen-type and site autocompletes.
   async selectFirstFromAllDropdowns() {
-    const collectedByText = await selectFirstFromDropdown(this.page, this.collectedByInput);   
+    const collectedByText = await selectFirstFromDropdown(this.page, this.collectedByInput);
     const specimenTypeText = await selectFirstFromDropdown(this.page, this.specimenTypeInput);
-    await this.siteInputDropdownIcon.click();
-    await this.page.keyboard.press('Enter');
+    await selectFirstFromDropdown(this.page, this.siteInput);
 
     return {
-    collectedBy: collectedByText,
-    specimenType: specimenTypeText,
-    }
-  
-}
-async waitForSampleCollectedModalToClose() {
-  await this.form.waitFor({ state: 'detached' });
-  await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-}
-}
+      collectedBy: collectedByText,
+      specimenType: specimenTypeText,
+    };
+  }
 
+  async waitForSampleCollectedModalToClose() {
+    await this.form.waitFor({ state: 'detached' });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+  }
+}

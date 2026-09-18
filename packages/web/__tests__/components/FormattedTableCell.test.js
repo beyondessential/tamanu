@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { formatValue } from '../../app/components/FormattedTableCell';
+import { formatValue, getValidationState } from '../../app/components/FormattedTableCell';
 
 describe('formatValue', () => {
   test.each([
@@ -60,5 +60,43 @@ describe('formatValue', () => {
     },
   ])('$title', ({ value, config, expected }) => {
     expect(formatValue(value, config)).toBe(expected);
+  });
+
+  test('displays a detection-limit result verbatim', () => {
+    expect(formatValue('< 0.3', { unit: 'mg/L' })).toBe('< 0.3');
+  });
+});
+
+describe('getValidationState', () => {
+  test('flags "< n" out of range when n reaches the lower bound', () => {
+    expect(
+      getValidationState('< 0.3', { unit: 'mg/L' }, { normalRange: { min: 0.3, max: 5 } }).severity,
+    ).toBe('alert');
+  });
+
+  test('does not flag "< n" when n sits inside the range', () => {
+    expect(
+      getValidationState('< 0.3', {}, { normalRange: { min: 0.1, max: 2 } }).severity,
+    ).toBe('info');
+  });
+
+  test('flags "> n" out of range when n reaches the upper bound', () => {
+    expect(getValidationState('> 100', {}, { normalRange: { min: 1, max: 50 } }).severity).toBe(
+      'alert',
+    );
+  });
+
+  test('does not flag a comparator result against a qualitative text range', () => {
+    expect(getValidationState('< 0.3', {}, { rangeText: 'Negative' }).severity).toBe('info');
+  });
+
+  test('still flags a plain numeric result below the range', () => {
+    expect(getValidationState('0.05', {}, { normalRange: { min: 0.3, max: 5 } }).severity).toBe(
+      'alert',
+    );
+  });
+
+  test('leaves an in-range plain numeric result informational', () => {
+    expect(getValidationState('2', {}, { normalRange: { min: 0.3, max: 5 } }).severity).toBe('info');
   });
 });
