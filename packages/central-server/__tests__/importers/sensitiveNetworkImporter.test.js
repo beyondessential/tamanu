@@ -461,9 +461,9 @@ describe('Sensitive network import', () => {
     });
 
     // multiparty collects repeated fields into an array, which is the shape the endpoint expects.
-    const postImport = ({ sheets, dataTypes }) => {
+    const postImport = ({ sheets, dataTypes, agent = app }) => {
       const workbook = buildWorkbook(sheets);
-      const request = app
+      const request = agent
         .post('/v1/admin/import/referenceData')
         .attach('file', write(workbook, { type: 'buffer', bookType: 'xlsx' }), 'refdata.xlsx');
       for (const dataType of dataTypes) {
@@ -480,6 +480,23 @@ describe('Sensitive network import', () => {
       const result = await postImport({
         sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
         dataTypes: ['sensitiveNetwork'],
+      });
+
+      const { didntSendReason, errors } = result.body;
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors[0].message).toContain('SensitiveNetwork');
+      expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).toBeNull();
+    });
+
+    // Distinct from the case above, where the role exists and merely lacks the noun: a least
+    // privilege user resolves no role record at all, so nothing grants the network type by default.
+    it('forbids the import for a least privilege user', async () => {
+      const leastPrivileged = await ctx.baseApp.asRole('base');
+
+      const result = await postImport({
+        sheets: { 'Sensitive Networks': networkSheet([[NETWORK_A, 'NETA', 'Network A']]) },
+        dataTypes: ['sensitiveNetwork'],
+        agent: leastPrivileged,
       });
 
       const { didntSendReason, errors } = result.body;
