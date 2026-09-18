@@ -12,6 +12,7 @@ import {
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   ENCOUNTER_TYPES,
+  SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -1336,6 +1337,109 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         expect(result.body.count).toEqual(1);
         expect(result.body.data[0].diagnosis.name).toEqual('Confirmed one');
+      });
+    });
+
+    describe('syndromic surveillance', () => {
+      let syndromicSurveillanceEncounter = null;
+      let symptomA = null;
+      let symptomB = null;
+
+      beforeAll(async () => {
+        syndromicSurveillanceEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'syndromic surveillance test',
+        });
+
+        [symptomA, symptomB] = await Promise.all(
+          ['Symptom A', 'Symptom B'].map(name =>
+            models.ReferenceData.create({
+              type: 'syndromicSurveillanceSymptom',
+              name,
+              code: name.toLowerCase().replace(' ', '-'),
+            }),
+          ),
+        );
+
+        await models.ReferenceData.findOrCreate({
+          where: { id: SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID },
+          defaults: {
+            id: SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
+            type: 'syndromicSurveillanceSymptom',
+            name: 'No syndrome',
+            code: 'no-syndrome',
+          },
+        });
+      });
+
+      it('should 404 when posting to an encounter that does not exist', async () => {
+        const result = await app
+          .post('/api/encounter/nonexistent-encounter-id/syndromicSurveillance')
+          .send({ noSyndrome: true, symptomIds: [] });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should return null when nothing has been recorded yet', async () => {
+        const result = await app.get(
+          `/api/encounter/${syndromicSurveillanceEncounter.id}/syndromicSurveillance`,
+        );
+        expect(result).toHaveSucceeded();
+        expect(result.body).toEqual(null);
+      });
+
+      it('should create a syndromic surveillance record with ticked symptoms', async () => {
+        const result = await app
+          .post(`/api/encounter/${syndromicSurveillanceEncounter.id}/syndromicSurveillance`)
+          .send({ noSyndrome: false, symptomIds: [symptomA.id] });
+        expect(result).toHaveSucceeded();
+        expect(result.body.noSyndrome).toEqual(false);
+        expect(result.body.symptomIds).toEqual([symptomA.id]);
+
+        const getResult = await app.get(
+          `/api/encounter/${syndromicSurveillanceEncounter.id}/syndromicSurveillance`,
+        );
+        expect(getResult).toHaveSucceeded();
+        expect(getResult.body.symptomIds).toEqual([symptomA.id]);
+      });
+
+      it('should edit an existing record, unchecking previous symptoms not resent', async () => {
+        const result = await app
+          .put(`/api/encounter/${syndromicSurveillanceEncounter.id}/syndromicSurveillance`)
+          .send({ noSyndrome: false, symptomIds: [symptomB.id] });
+        expect(result).toHaveSucceeded();
+        expect(result.body.symptomIds).toEqual([symptomB.id]);
+
+        const items = await models.EncounterSyndromeItem.findAll({
+          where: { encounterSyndromeId: result.body.id },
+        });
+        const itemBySyndromeId = Object.fromEntries(
+          items.map(item => [item.syndromeId, item.checked]),
+        );
+        expect(itemBySyndromeId[symptomA.id]).toEqual(false);
+        expect(itemBySyndromeId[symptomB.id]).toEqual(true);
+      });
+
+      it('should record no syndrome and clear it out when a symptom is ticked instead', async () => {
+        const noSyndromeEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'syndromic surveillance no syndrome test',
+        });
+
+        const noSyndromeResult = await app
+          .post(`/api/encounter/${noSyndromeEncounter.id}/syndromicSurveillance`)
+          .send({ noSyndrome: true, symptomIds: [] });
+        expect(noSyndromeResult).toHaveSucceeded();
+        expect(noSyndromeResult.body.noSyndrome).toEqual(true);
+        expect(noSyndromeResult.body.symptomIds).toEqual([]);
+
+        const symptomResult = await app
+          .put(`/api/encounter/${noSyndromeEncounter.id}/syndromicSurveillance`)
+          .send({ noSyndrome: false, symptomIds: [symptomA.id] });
+        expect(symptomResult).toHaveSucceeded();
+        expect(symptomResult.body.noSyndrome).toEqual(false);
+        expect(symptomResult.body.symptomIds).toEqual([symptomA.id]);
       });
     });
 

@@ -48,6 +48,8 @@ export * from './ProcedureAssistantClinician';
 export * from './ProcedureSurveyResponse';
 
 export * from './EncounterDiagnosis';
+export * from './EncounterSyndrome';
+export * from './EncounterSyndromeItem';
 export * from './Prescription';
 export * from './PatientOngoingPrescription';
 export * from './EncounterPrescription';
