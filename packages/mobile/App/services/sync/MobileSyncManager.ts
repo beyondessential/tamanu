@@ -226,6 +226,13 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
 
+    // A VACUUM kicked off while the app was backgrounded may still be running; let it finish
+    // before opening a central session so the session isn’t held open waiting on the write lock.
+    if (Database.maintenanceInProgress) {
+      console.log('MobileSyncManager.runSync(): Waiting for database maintenance to finish');
+      await Database.maintenanceInProgress;
+    }
+
     // clear persisted cache from last session
     await dropSnapshotTable();
 
