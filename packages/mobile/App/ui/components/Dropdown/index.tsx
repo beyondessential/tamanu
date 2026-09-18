@@ -210,9 +210,9 @@ export const Dropdown = React.memo(
   },
 );
 
-export const MultiSelectDropdown = ({ ...props }): ReactElement => (
-  <Dropdown multiselect {...props} />
-);
+export const MultiSelectDropdown = (
+  props: Omit<React.ComponentPropsWithRef<typeof Dropdown>, 'multiselect'>,
+) => <Dropdown multiselect {...props} />;
 
 export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
   const { getTranslation } = useTranslation();
