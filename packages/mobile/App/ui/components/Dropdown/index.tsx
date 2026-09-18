@@ -200,7 +200,6 @@ export const Dropdown = React.memo(
           }}
           styleListContainer={{ maxHeight: 300 }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
-          searchIcon={filterable ? undefined : null}
           disabled={disabled}
           clearable={clearable}
           fontSize={fieldFontSize}
