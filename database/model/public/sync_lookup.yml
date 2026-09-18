@@ -61,6 +61,14 @@ sources:
                   arguments:
                     to: source('tamanu', 'facilities')
                     field: id
+          - name: sensitive_network_id
+            data_type: character varying(255)
+            description: "{{ doc('sync_lookup__sensitive_network_id') }}"
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'sensitive_networks')
+                    field: id
           - name: is_lab_request
             data_type: boolean
             description: "{{ doc('sync_lookup__is_lab_request') }}"

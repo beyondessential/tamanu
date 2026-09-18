@@ -34,6 +34,14 @@ If the record has a [facility](#!/source/source.tamanu.tamanu.facilitys) referen
 This is used to filter records efficiently during the sync process.
 {% enddocs %}
 
+{% docs sync_lookup__sensitive_network_id %}
+If the record was recorded at a facility belonging to a [sensitive network](#!/source/source.tamanu.tamanu.sensitive_networks), this is that network.
+
+This is what withholds confidential data from facilities outside the network during the sync
+process. Unlike `facility_id`, which scopes records that are genuinely bound to one facility, this
+scopes records to a group of them.
+{% enddocs %}
+
 {% docs sync_lookup__is_lab_request %}
 Whether the record is or is related to a lab request.
 
