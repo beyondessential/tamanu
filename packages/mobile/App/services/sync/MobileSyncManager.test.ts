@@ -14,6 +14,7 @@ jest.mock('./utils', () => ({
   pullIncomingChanges: jest.fn(() => 0),
   saveIncomingChanges: jest.fn(),
   getModelsForDirection: jest.fn(),
+  getTableNamesForDirection: jest.fn(() => []),
   getSyncTick: jest.fn(),
   clearPersistedSyncSessionRecords: jest.fn(),
 }));

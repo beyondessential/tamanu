@@ -1,10 +1,18 @@
+import { groupBy } from 'es-toolkit';
 import type { EntityManager } from 'typeorm';
-import { groupBy } from 'es-toolkit/compat';
 
 interface ForeignKeyViolation {
   table: string;
   rowid: number | null;
   parent: string;
+}
+
+/** Thrown by checkForeignKeys when it finds violations, as opposed to failing to run the check */
+export class ForeignKeyViolationError extends Error {
+  constructor(violations: string[]) {
+    super(`Foreign key constraint failed during sync: ${violations.join('; ')}`);
+    this.name = 'ForeignKeyViolationError';
+  }
 }
 
 /**
@@ -24,7 +32,7 @@ export const checkForeignKeys = async (
 ): Promise<void> => {
   // A single argument-less foreign_key_check scans every table in one round-trip; filtering the
   // result to the synced tables is far cheaper than issuing one PRAGMA per model (20-30+ awaits).
-  const allViolations: ForeignKeyViolation[] = await entityManager.query(
+  const allViolations = await entityManager.query<ForeignKeyViolation[]>(
     'PRAGMA foreign_key_check;',
   );
   const syncedTables = new Set(tableNames);
@@ -53,5 +61,5 @@ export const checkForeignKeys = async (
     return `${table} record '${recordId}' references a missing ${parent} record`;
   });
 
-  throw new Error(`Foreign key constraint failed during sync: ${violations.join('; ')}`);
+  throw new ForeignKeyViolationError(violations);
 };
