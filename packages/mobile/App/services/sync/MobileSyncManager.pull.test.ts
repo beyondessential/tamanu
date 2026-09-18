@@ -2,6 +2,7 @@ import { MobileSyncManager, type MobileSyncSettings } from './MobileSyncManager'
 
 jest.mock('./utils', () => ({
   getModelsForDirection: jest.fn(() => ({}) as any),
+  getTableNamesForDirection: jest.fn(() => [] as string[]),
   getTransactingModelsForDirection: jest.fn(() => [] as any),
   getSyncTick: jest.fn(),
   setSyncTick: jest.fn(),

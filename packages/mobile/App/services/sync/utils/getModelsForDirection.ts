@@ -23,6 +23,12 @@ export const getModelsForDirection = (
     ),
   );
 
+export const getTableNamesForDirection = (
+  models: typeof MODELS_MAP,
+  direction: SYNC_DIRECTIONS,
+): string[] =>
+  Object.values(getModelsForDirection(models, direction)).map(model => model.getTableName());
+
 export const getTransactingModelsForDirection = (
   models: typeof MODELS_MAP,
   direction: SYNC_DIRECTIONS,

@@ -12,6 +12,7 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTableNamesForDirection,
   getTransactingModelsForDirection,
   pushOutgoingChanges,
   setSyncTick,
@@ -373,8 +374,7 @@ export class MobileSyncManager {
     });
     const tablesForFullResync = tablesForFullResyncSetting?.value.split(',');
 
-    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
-    const tableNames = Object.values(incomingModels).map(m => m.getTableName());
+    const tableNames = getTableNamesForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
     const { totalToPull, pullUntil } = await this.centralServer.initiatePull(
       sessionId,
@@ -420,9 +420,10 @@ export class MobileSyncManager {
       await Database.setUnsafePragma();
     }
 
-    const incomingTableNames = Object.values(
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-    ).map(model => model.getTableName());
+    const incomingTableNames = getTableNamesForDirection(
+      this.models,
+      SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+    );
 
     try {
       await runSyncSaveTransaction(incomingTableNames, async transactionEntityManager => {
@@ -496,9 +497,10 @@ export class MobileSyncManager {
         `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
       );
     };
-    const incomingTableNames = Object.values(
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-    ).map(model => model.getTableName());
+    const incomingTableNames = getTableNamesForDirection(
+      this.models,
+      SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+    );
 
     try {
       await runSyncSaveTransaction(incomingTableNames, async transactionEntityManager => {
