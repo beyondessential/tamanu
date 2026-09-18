@@ -110,8 +110,12 @@ export class ReferenceData extends BaseModel implements IReferenceData {
   }
 }
 
-export const ReferenceDataRelation = (): any =>
-  ManyToOne(() => ReferenceData, undefined, { eager: true });
+/**
+ * Not eager: every caller also declares the `*Id` column, and the few screens that display the
+ * reference data's name ask for the relation where they load it (`relations: [...]` or a join).
+ * Eager relations would be joined on every find-family call, including `count`, and on the sync push.
+ */
+export const ReferenceDataRelation = (): any => ManyToOne(() => ReferenceData);
 
 export const NullableReferenceDataRelation = (): any =>
-  ManyToOne(() => ReferenceData, undefined, { eager: true, nullable: true });
+  ManyToOne(() => ReferenceData, undefined, { nullable: true });
