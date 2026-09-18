@@ -534,10 +534,26 @@ export class CentralSyncManager {
         },
       );
 
+      // If facilityIds are sensitive, they should all be in the same sensitive network anyway
+      const sensitiveNetworks = await sequelize.query(
+        `
+        SELECT DISTINCT sensitive_network_id
+        FROM facilities
+        WHERE id IN (:facilityIds)
+          AND sensitive_network_id IS NOT NULL
+        `,
+        {
+          replacements: { facilityIds },
+          type: QueryTypes.SELECT,
+        },
+      );
+      const sensitiveNetworkIds = sensitiveNetworks.map(row => row.sensitive_network_id);
+
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !session.parameters.isMobile && since > -1,
+        sensitiveNetworkIds,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -563,7 +579,9 @@ export class CentralSyncManager {
           sessionId,
           facilityIds,
           deviceId,
-          {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+          // only the network scoping carries over; this snapshot is just for newly marked for
+          // sync patients, so it deliberately drops the rest of the session config
+          { sensitiveNetworkIds },
         );
 
         // get changes since the last successful sync for all other synced patients and independent
