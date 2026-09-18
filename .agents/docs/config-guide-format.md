@@ -300,6 +300,14 @@ Also:
 - Render reference data column tables **in the guide itself**, and retain links to downloadable example
   templates alongside them
 - Verify UI labels, conditional displays and automated behaviours against the implementation
+- **Never state a configurable value as a fixed fact.** Where a number in the prose is a setting's
+  default rather than a constant, say so and name the setting, because a deployment that has changed it
+  reads a guide that is wrong about its own behaviour. Check whether a figure is hard coded or a
+  `defaultValue` before writing it as either. The same applies in reverse: a genuinely hard coded value
+  is stated plainly, with the note that changing it needs a code change
+- **Describe the round trip where a sheet is exported.** An exporter may write a value back in a
+  different form from the one the importer accepts, and administrators routinely export, edit and
+  re-import. Where the forms differ, say what an export shows
 - **Author-supplied content.** Scope limitations, clinical caveats and the lead paragraph cannot come
   from code. Ask the author for them; where outstanding, leave a marked gap rather than inventing them.
   Never fabricate clinical guidance

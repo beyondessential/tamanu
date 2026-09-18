@@ -208,7 +208,10 @@ The task displays when all of the following are met:
 - The patient has an active inpatient encounter
 - The medication is a scheduled medication. PRN medications do not trigger a task
 - The medication has a **Due** time either in the past, from the start of the encounter to the current
-  time, or within the next 8 hours, where the 8 hour period begins when the user lands on the dashboard
+  time, or within an upcoming window that begins when the user lands on the dashboard. That window is 8
+  hours by default and is set per facility by the tasking upcoming tasks time frame setting, so a
+  deployment that has changed it sees a different window here. See the [Tasks](../tasks/) configuration
+  guides
 
 ## Medication due task behaviour
 

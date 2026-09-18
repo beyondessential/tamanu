@@ -44,6 +44,12 @@ manual verification of a skill run rather than automated tests, since the output
       description says so, since an unvalidated value is accepted silently rather than erroring.
 - [ ] Guides reference sibling modules with a relative link where that module exists under
       `docs/user-manuals/`, rather than naming it in prose.
+- [ ] A figure that is a setting's default, such as the 8-hour upcoming task window, is described as a
+      default with its setting named, not as a fixed fact.
+- [ ] Where an exporter writes a column back in a different form from the one the importer accepts,
+      such as the drug stock columns, the guide says what an export shows.
+- [ ] Every optional column's description states what happens when the cell is left empty, with no
+      column silently omitting it.
 - [ ] Every in-guide heading anchor resolves to the intended section, including where two sections share
       heading text or a heading carries a version note.
 - [ ] Hard-coded fields are listed with the note that changing them requires a code change.

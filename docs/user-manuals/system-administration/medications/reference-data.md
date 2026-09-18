@@ -9,8 +9,7 @@ permissions required see [Permissions](permissions.md).
 
 # Reference Data Types
 
-Reference data is configured through the reference data import spreadsheet, downloaded from and
-uploaded to your Tamanu system. See the Tamanu Reference Data Manual for how importing works.
+See the Tamanu Reference Data Manual for how importing works.
 
 ## Drug
 
@@ -43,7 +42,7 @@ Where * is a required field.
 | systemRequired | Marks the record as required by the system so it cannot be removed. Leave blank unless instructed. |
 | availableFacilities | Restricts the drug to specific facilities. Must be a JSON array of facility ids, for example `["facility-a", "facility-b"]`. Leave blank for all facilities. |
 | route | The pathway through which the medication enters the body. Use one of the routes listed under [Route of administration](#route-of-administration). This column is not validated on import, so an unrecognised value is accepted and will not display correctly. If no default is set, the user selects the route when prescribing. Leave blank if no default is required. |
-| dosingUnit | The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under [Units](#units). |
+| dosingUnit | The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under [Units](#units). If not set, the user selects the unit when prescribing. |
 | dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). Defaults to the dosing unit if not set. |
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
 | notes | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required. |
@@ -66,6 +65,14 @@ id, and its cells set that facility's stock level for each drug:
 
 Because facility columns are read from the header, a blank cell still creates a stock record for that
 facility with an unknown stock level.
+
+A header that is not a real facility id fails the import, reporting that some facilities do not exist
+or have been deleted. A mistyped facility id is the usual cause, since any unrecognised header is read
+as one.
+
+An export writes these columns back as the stored value: the number where a quantity was recorded, and
+otherwise the status itself, as `out_of_stock`, `unavailable` or `unknown`. A re-imported export is
+read the same way, so a round trip is safe.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
 that facility's stock levels. See the [Dispensing](../dispensing/) configuration guides.
