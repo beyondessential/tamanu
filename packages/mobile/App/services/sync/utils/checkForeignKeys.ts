@@ -1,5 +1,5 @@
+import { groupBy } from 'es-toolkit';
 import type { EntityManager } from 'typeorm';
-import { groupBy } from 'es-toolkit/compat';
 
 interface ForeignKeyViolation {
   table: string;
