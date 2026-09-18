@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -59,9 +59,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
 const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.doseLabel;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, 'data-testid': dataTestId}) => {
-    const [includeNotGiven, setIncludeNotGiven] = useState(false);
-
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, includeNotGiven = false, setIncludeNotGiven, 'data-testid': dataTestId}) => {
     const COLUMNS = useMemo(
       () => [
         {

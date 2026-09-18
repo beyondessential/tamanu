@@ -76,9 +76,19 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
+const initialValues = {
+  email: '',
+  password: '',
+  server: '',
+} as const;
+
+export const SignInForm: FunctionComponent<any> = ({
+  initialErrorMessage = '',
+  onOutdatedVersionError,
+  onSuccess,
+}) => {
   const [existingHost, setExistingHost] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
   const { getTranslation } = useTranslation();
@@ -114,11 +124,7 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
   }, []);
   return (
     <Form
-      initialValues={{
-        email: '',
-        password: '',
-        server: '',
-      }}
+      initialValues={initialValues}
       validateOnChange={false}
       validateOnBlur={false}
       validationSchema={Yup.object().shape({

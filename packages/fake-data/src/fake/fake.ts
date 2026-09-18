@@ -31,6 +31,7 @@ import {
   PLACE_OF_DEATHS,
   PREGNANCY_MOMENTS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  PROGRAM_DATA_ELEMENT_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
   REGISTRATION_STATUSES,
@@ -413,6 +414,29 @@ const FIELD_HANDLERS = {
 
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
 
+const PROGRAM_DATA_ELEMENTS_BY_NAME = new Map(
+  PROGRAM_DATA_ELEMENTS.map(element => [element.name, element]),
+);
+
+// A value a clinician could plausibly have entered for the question, so a seeded form response
+// reads like a real one. A deployment that imports its own survey definitions has data elements
+// outside the pool, so those fall back to whatever the question type accepts.
+export const fakeSurveyAnswerBody = ({ name, type }) => {
+  const element = PROGRAM_DATA_ELEMENTS_BY_NAME.get(name);
+  if (element?.answers) return chance.pickone(element.answers);
+  if (element?.range) {
+    const [min, max] = element.range;
+    return String(
+      element.decimals
+        ? chance.floating({ min, max, fixed: element.decimals })
+        : chance.integer({ min, max }),
+    );
+  }
+  return type === PROGRAM_DATA_ELEMENT_TYPES.NUMBER
+    ? String(chance.integer({ min: 1, max: 100 }))
+    : chance.sentence({ words: 4 });
+};
+
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: ({ name: passedName }) => {
     const facilityType = chance.pickone([
@@ -703,6 +727,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   InvoiceDiscount: () => ({
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
   }),
+  InvoiceInsurancePlan: () => ({
+    availableFacilities: null,
+  }),
   InvoiceInsurerPayment: () => ({
     status: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
@@ -748,9 +775,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Program: ({ name }) => named(name ?? pickDistinct(PROGRAM_NAMES)),
   ProgramDataElement: ({ name }) => {
-    const element = chance.pickone(PROGRAM_DATA_ELEMENTS);
+    const element =
+      PROGRAM_DATA_ELEMENTS_BY_NAME.get(name) ?? chance.pickone(PROGRAM_DATA_ELEMENTS);
     return {
       ...named(name ?? element.name),
+      type: element.type,
       indicator: element.indicator,
       defaultText: chance.pickone(PROGRAM_DATA_ELEMENT_HINTS),
       defaultOptions: null,

@@ -106,6 +106,18 @@ describe('Encounter invoice', () => {
         items: [],
       });
     });
+
+    it('should return a parseable JSON null when the encounter has no invoice', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+      expect(result).toHaveSucceeded();
+      expect(result.headers['content-type']).toMatch(/application\/json/);
+      expect(result.text).toBe('null');
+    });
   });
 
   describe('Automatically added items', () => {

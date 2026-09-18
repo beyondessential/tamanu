@@ -1,7 +1,7 @@
 import type { NavigationProp } from '@react-navigation/native';
 import { useQuery, type PlaceholderDataFunction } from '@tanstack/react-query';
 import React, { useCallback, useMemo, useState, type ReactElement } from 'react';
-import { StyleSheet, View, type FlatListProps } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, type FlatListProps } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { Button } from 'react-native-paper';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
@@ -15,16 +15,10 @@ import { TranslatedText } from '../Translations/TranslatedText';
 import AutocompleteResult from './AutocompleteResult';
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    flex: 1,
-  },
-  backButton: {
-    position: 'absolute',
-    insetBlockEnd: 0,
-    width: '100%',
-    borderRadius: 0,
-  },
+  container: { flex: 1 },
+  autocompleteContainer: { flex: 1 },
+  resultsContainer: { flex: 1 },
+  backButton: { borderRadius: 0 },
 });
 
 interface AutocompleteModalScreenProps {
@@ -95,7 +89,7 @@ export const AutocompleteModalScreen = ({
   );
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       {modalTitle && (
         <>
           <EmptyStackHeader title={modalTitle} onGoBack={navigation.goBack} />
@@ -108,11 +102,13 @@ export const AutocompleteModalScreen = ({
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
+        containerStyle={styles.autocompleteContainer}
+        listContainerStyle={styles.resultsContainer}
         flatListProps={flatListProps}
       />
       <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
