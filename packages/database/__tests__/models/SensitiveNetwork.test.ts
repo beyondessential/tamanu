@@ -150,6 +150,62 @@ describe('SensitiveNetwork', () => {
     });
   });
 
+  describe('deletion', () => {
+    it('refuses to delete a network that has a member facility', async () => {
+      const network = await createNetwork();
+      await createFacility(network.id);
+
+      await expect(network.destroy()).rejects.toThrow(/member facilities/);
+      expect(await models.SensitiveNetwork.findByPk(network.id)).not.toBeNull();
+    });
+
+    it('deletes a network with no members', async () => {
+      const network = await createNetwork();
+
+      await network.destroy();
+
+      expect(await models.SensitiveNetwork.findByPk(network.id)).toBeNull();
+    });
+
+    // The generic beforeDestroy hook cascades a soft delete to a model's HasMany targets, which is
+    // why SensitiveNetwork declares none. If that ever regresses, the refused delete would take the
+    // member with it.
+    it('leaves member facilities untouched when a delete is refused', async () => {
+      const network = await createNetwork();
+      const member = await createFacility(network.id);
+
+      await expect(network.destroy()).rejects.toThrow(/member facilities/);
+
+      const reloaded = await models.Facility.findByPk(member.id, { paranoid: false });
+      expect(reloaded.deletedAt).toBeNull();
+      expect(reloaded.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses a bulk delete covering a network with a member, and takes none of them', async () => {
+      const withMember = await createNetwork();
+      const empty = await createNetwork();
+      await createFacility(withMember.id);
+
+      await expect(
+        models.SensitiveNetwork.destroy({
+          where: { id: [withMember.id, empty.id] },
+        }),
+      ).rejects.toThrow(/member facilities/);
+
+      expect(await models.SensitiveNetwork.findByPk(withMember.id)).not.toBeNull();
+      expect(await models.SensitiveNetwork.findByPk(empty.id)).not.toBeNull();
+    });
+
+    // Restoring the facility would otherwise leave it pointing at a network that no longer exists.
+    it('counts a soft-deleted facility as a member', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility(network.id);
+      await facility.destroy();
+
+      await expect(network.destroy()).rejects.toThrow(/member facilities/);
+    });
+  });
+
   describe('uniqueness', () => {
     it('refuses a second network with the same code', async () => {
       const existing = await createNetwork();

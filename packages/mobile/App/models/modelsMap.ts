@@ -117,7 +117,7 @@ export const MODELS_MAP = {
   TaskDesignation,
   Procedure,
   ProcedureSurveyResponse,
-};
+} as const;
 
 type AllValuesOfObject<T extends object> = Array<T[keyof T]>;
 export type ArrayOfModels = AllValuesOfObject<typeof MODELS_MAP>;

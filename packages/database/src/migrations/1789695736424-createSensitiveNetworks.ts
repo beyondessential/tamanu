@@ -34,11 +34,9 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    updated_at_sync_tick: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      defaultValue: 0,
-    },
+    // No updated_at_sync_tick: the addUpdatedAtSyncTickColumn post-migration hook adds it, along
+    // with its index, using the right starting value for the server it runs on (0 on central,
+    // LAST_UPDATED_ELSEWHERE on facility). Declaring it here would hardcode one of those.
   });
 
   // UNIQUE constraints rather than unique indexes. Postgres only supports DEFERRABLE on a
@@ -76,13 +74,20 @@ export async function up(query: QueryInterface): Promise<void> {
     allowNull: true,
   });
 
-  // Every outgoing snapshot filters on this column.
-  await query.addIndex('sync_lookup', ['sensitive_network_id'], {
-    name: 'sync_lookup_sensitive_network_id_index',
-  });
+  // Partial, following sync_lookup_needs_rebuild_index. The column is null for every row outside a
+  // sensitive network, which is nearly all of them, so a full btree would carry an entry per
+  // sync_lookup row and be written on every update of the largest table in the deployment. The
+  // snapshot's null branch is served by the tick range scan either way; only the branch matching a
+  // specific network is selective, and that one implies the predicate below.
+  await query.sequelize.query(`
+    CREATE INDEX sync_lookup_sensitive_network_id_index
+      ON sync_lookup (sensitive_network_id)
+      WHERE sensitive_network_id IS NOT NULL;
+  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  await query.sequelize.query(`DROP INDEX IF EXISTS sync_lookup_sensitive_network_id_index;`);
   await query.removeColumn('sync_lookup', 'sensitive_network_id');
   await query.removeColumn('facilities', 'sensitive_network_id');
   await query.dropTable(SENSITIVE_NETWORKS);

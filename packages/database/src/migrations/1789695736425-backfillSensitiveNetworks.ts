@@ -55,6 +55,13 @@ export async function down(query: QueryInterface): Promise<void> {
     WHERE sensitive_network_id IS NOT NULL;
   `);
 
-  await query.sequelize.query(`UPDATE facilities SET sensitive_network_id = NULL;`);
+  // Bounded to the rows that actually hold a value: every facility touched here is re-stamped by
+  // set_updated_at_sync_tick, so it re-queues for push to every facility server and mobile device
+  // and triggers FHIR Organization rematerialisation.
+  await query.sequelize.query(`
+    UPDATE facilities
+    SET sensitive_network_id = NULL
+    WHERE sensitive_network_id IS NOT NULL;
+  `);
   await query.sequelize.query(`DELETE FROM sensitive_networks;`);
 }

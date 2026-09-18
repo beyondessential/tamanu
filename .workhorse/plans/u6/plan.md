@@ -44,18 +44,36 @@ DDL and DML in separate files (`packages/database/CLAUDE.md`), in this order:
 
 - [x] DDL: create `sensitive_networks`; add `facilities.sensitive_network_id` (nullable FK); add
       `sync_lookup.sensitive_network_id` (STRING, nullable, indexed) —
-      `1787600000000-createSensitiveNetworks.ts`
+      `1789695736424-createSensitiveNetworks.ts`
 - [x] DML: for each `facilities.is_sensitive = TRUE` facility that is not soft-deleted, create a
       network taking that facility's code and name, and point the facility at it —
-      `1787600000001-backfillSensitiveNetworks.ts`
-- [x] DDL: drop `facilities.is_sensitive` — `1787600000002-dropFacilityIsSensitive.ts`
+      `1789695736425-backfillSensitiveNetworks.ts`
+- [x] DDL: drop `facilities.is_sensitive` — `1789695736426-dropFacilityIsSensitive.ts`
 
 The drop has to be its own file and follow the backfill, which reads the column. Reversing runs
 them backwards, so the drop's `down` re-adds an empty column and the backfill's `down` refills it
 from network membership.
 
 Also added: the `SensitiveNetwork` model, `Facility.belongsTo(SensitiveNetwork)`, and a
-`SensitiveNetwork` entry in `fake-data` (unique on both code and name, so both need to be distinct).
+`SensitiveNetwork` entry in `fake-data`.
+
+**Networks are not unique on code or name**, and the backfill keys the network id on the facility's
+id rather than its code. The first cut had unique indexes on both columns and built the id out of
+the code. The determinism CI job failed on it with `duplicate key value violates unique constraint
+"sensitive_networks_name_unique", Key (name)=(Central Dispensary) already exists`: `fake-data`
+composes a facility name from a fixed prefix and suffix pool, so two facilities land on the same
+name once there are enough of them. Codes escape it only because `codeFor` appends a random suffix.
+
+That is not just a fake-data artefact. `facilities` has no unique index on code or name, and
+neither do `departments`, `locations` or `reference_data` — all three declare one in the model,
+where it never reaches the database. Enforcing it on `sensitive_networks` would have been stricter
+than anything else in the schema, and would have aborted the upgrade partway through on a real
+deployment holding two facilities with the same name. Making the constraints deferrable does not
+help either: `INITIALLY IMMEDIATE` still checks at the end of the backfill's INSERT, and deferring
+to commit only moves the same failure.
+
+The facility id is the only column guaranteed distinct, and deriving from it also keeps the
+backfill deterministic, which the determinism job requires and a generated uuid would fail.
 
 ## Call sites that read facility sensitivity
 
@@ -114,5 +132,30 @@ will, so both need revisiting when it lands.
 
 ## New tests
 
-- [x] `packages/database/__tests__/models/SensitiveNetwork.test.ts` — membership, code and name
-      uniqueness, and the delete guard including the cascade trap and soft-deleted members
+- [x] `packages/database/__tests__/models/SensitiveNetwork.test.ts` — membership, two networks
+      sharing a code and name, and the delete guard including the cascade trap and soft-deleted
+      members
+- [x] `packages/mobile/App/models/User.spec.ts` — `allowedFacilityIds` against networked and
+      ordinary facilities, the shortcut when nothing is networked, and the restricted case
+
+## Notes from review
+
+**The delete guard is registered with `addHook`, not through `init`.** `Model.init` spreads
+`options.hooks` first and then overwrites `beforeDestroy`/`beforeBulkDestroy` with the generic
+cascade hooks, so a guard passed through the init options is silently dropped. Registering it after
+`super.init` appends to the hook chain instead. The cascade itself is a no-op here because the model
+declares no `HasMany`, which is deliberate and covered by its own test.
+
+**Mobile filters on the relation, not the id.** `where: { sensitiveNetwork: IsNull() }` is correct
+and `where: { sensitiveNetworkId: IsNull() }` throws `EntityPropertyNotFoundError`, because
+`@RelationId` produces a computed property rather than a column. Declaring an explicit `@Column`
+alongside `@JoinColumn` would make the id form work, but only five mobile models do that against 48
+using `@RelationId`, and `relationIds.spec.ts` sanctions the latter. `User.spec.ts` pins the
+behaviour either way.
+
+**The `sync_lookup` index is partial.** The column stays null for every record outside a network,
+so a full btree would hold an entry per `sync_lookup` row and be written on every update of the
+largest table in the deployment, to serve a predicate that admits nearly everything. The partial
+shape follows `sync_lookup_needs_rebuild_index` and still serves the one selective branch, a
+snapshot narrowed to a specific network. The column itself is unread until V6, which the card
+intends.

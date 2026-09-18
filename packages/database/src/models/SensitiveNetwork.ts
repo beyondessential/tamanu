@@ -1,7 +1,8 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op, type DestroyOptions } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
-import type { InitOptions } from '../types/model';
+import type { InitOptions, Models } from '../types/model';
 
 // A named group of facilities that share confidential data. A facility is sensitive exactly when
 // it belongs to a network, so there is no separate sensitivity flag.
@@ -11,7 +12,7 @@ export class SensitiveNetwork extends Model {
   declare code: string;
   declare name: string;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
       {
         id: primaryKey,
@@ -32,6 +33,42 @@ export class SensitiveNetwork extends Model {
           { unique: true, fields: ['name'] },
         ],
       },
+    );
+
+    // Registered here rather than through init's `hooks` option, which Model.init overwrites with
+    // the generic destroy hooks.
+    this.addHook('beforeDestroy', async (network: SensitiveNetwork) => {
+      await this.refuseIfAnyHasMembers([network.id], models);
+    });
+    this.addHook('beforeBulkDestroy', async (destroyOptions: DestroyOptions) => {
+      const targeted = await SensitiveNetwork.findAll({
+        ...destroyOptions,
+        attributes: ['id'],
+      });
+      await this.refuseIfAnyHasMembers(
+        targeted.map(({ id }) => id),
+        models,
+      );
+    });
+  }
+
+  // Deleting a network with members would leave them pointing at a deleted row: they either stay
+  // sensitive with nothing to name them, or turn ordinary and begin syncing confidential data
+  // everywhere. A soft-deleted facility counts, because restoring it would strand it the same way,
+  // hence `paranoid: false`.
+  static async refuseIfAnyHasMembers(networkIds: string[], models: Models) {
+    if (networkIds.length === 0) return;
+
+    const members = await models.Facility.findAll({
+      where: { sensitiveNetworkId: { [Op.in]: networkIds } },
+      attributes: ['sensitiveNetworkId'],
+      paranoid: false,
+    });
+    if (members.length === 0) return;
+
+    const blocked = [...new Set(members.map(({ sensitiveNetworkId }) => sensitiveNetworkId))];
+    throw new InvalidOperationError(
+      `Cannot delete a sensitive network that still has member facilities: ${blocked.join(', ')}`,
     );
   }
 

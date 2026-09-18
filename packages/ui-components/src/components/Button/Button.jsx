@@ -3,12 +3,13 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import Lock from '@mui/icons-material/Lock';
 import MuiButton, { buttonClasses } from '@mui/material/Button';
 import { red } from '@mui/material/colors';
+import { styled } from '@mui/material/styles';
 import { svgIconClasses } from '@mui/material/SvgIcon';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { useFormikContext } from 'formik';
-import React from 'react';
-import styled from 'styled-components';
+import React, { forwardRef } from 'react';
+import styledComponents from 'styled-components';
 
 import { TAMANU_COLORS } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -38,7 +39,7 @@ const StyledButton = styled(MuiButton)`
   }
 
   &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
-    border-color: ${props => props.theme.palette.primary.main};
+    border-color: ${p => p.theme.palette.primary.main};
   }
 
   &.MuiButton-containedPrimary.Mui-disabled {
@@ -53,7 +54,7 @@ const StyledButton = styled(MuiButton)`
   }
 `;
 
-const StyledCircularProgress = styled(CircularProgress)`
+const StyledCircularProgress = styledComponents(CircularProgress)`
   margin-right: 5px;
 `;
 
@@ -93,39 +94,39 @@ export const Button = ({ isSubmitting = false, disabled, ...props }) => (
   />
 );
 
-export const OutlinedButton = styled(StyledButton).attrs({
-  color: 'primary',
-  variant: 'outlined',
-})`
+const OutlinedButtonBase = styled(StyledButton)`
   :disabled {
     border-color: ${TAMANU_COLORS.softText};
   }
 `;
 
-export const GreyOutlinedButton = styled(StyledButton).attrs(p => ({
-  color: p.theme.palette.text.secondary,
-  variant: 'outlined',
-}))`
+export const OutlinedButton = forwardRef((props, ref) => (
+  <OutlinedButtonBase {...props} ref={ref} color="primary" variant="outlined" />
+));
+
+const GreyOutlinedButtonBase = styled(StyledButton)`
   border-color: #dedede;
+  color: ${p => p.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled(StyledButton).attrs({
-  color: 'error',
-  variant: 'outlined',
-})``;
+export const GreyOutlinedButton = forwardRef((props, ref) => (
+  <GreyOutlinedButtonBase {...props} ref={ref} color="inherit" variant="outlined" />
+));
+
+export const RedOutlinedButton = forwardRef((props, ref) => (
+  <StyledButton {...props} ref={ref} color="error" variant="outlined" />
+));
 
 export const LargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
-  border: 1px solid ${props => props.theme.palette.primary.main};
+  border: 1px solid ${p => p.theme.palette.primary.main};
 `;
 
 export const LargeOutlineButton = props => <LargeButton variant="outlined" {...props} />;
 
-export const DeleteButton = styled(Button).attrs({
-  children: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-})`
+const DeleteButtonBase = styled(Button)`
   background-color: ${red[600]};
   color: ${TAMANU_COLORS.white};
   &:hover {
@@ -133,9 +134,13 @@ export const DeleteButton = styled(Button).attrs({
   }
 `;
 
-export const TextButton = styled(Button).attrs({
-  variant: 'text',
-})`
+export const DeleteButton = forwardRef((props, ref) => (
+  <DeleteButtonBase {...props} ref={ref}>
+    <TranslatedText stringId="general.action.delete" fallback="Delete" />
+  </DeleteButtonBase>
+));
+
+const TextButtonBase = styled(Button)`
   color: #5b84ad;
   font-size: 1rem;
   min-block-size: auto;
@@ -152,9 +157,11 @@ export const TextButton = styled(Button).attrs({
   }
 `;
 
-const LabelledBackButton = styled(TextButton).attrs({
-  startIcon: <ChevronLeft />,
-})`
+export const TextButton = forwardRef((props, ref) => (
+  <TextButtonBase {...props} ref={ref} variant="text" />
+));
+
+const LabelledBackButtonBase = styled(TextButton)`
   color: ${TAMANU_COLORS.primary};
   padding-right: 8px;
   font-size: 12px;
@@ -162,6 +169,10 @@ const LabelledBackButton = styled(TextButton).attrs({
     font-size: 20px;
   }
 `;
+
+const LabelledBackButton = forwardRef((props, ref) => (
+  <LabelledBackButtonBase {...props} ref={ref} startIcon={<ChevronLeft />} />
+));
 
 export const BackButton = ({
   children = <TranslatedText stringId="general.action.back" fallback="Back" />,
@@ -214,7 +225,7 @@ export const FormCancelButton = ({ disabled, ...props }) => {
   );
 };
 
-export const DefaultIconButton = styled(IconButton).attrs({
+export const DefaultIconButton = styledComponents(IconButton).attrs({
   'data-testid': 'iconbutton-zsiq',
 })`
   border-radius: 20%;
@@ -228,7 +239,7 @@ export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissio
  * To be extended by custom components which need button semantics, but are not visually or
  * conceptually “a button”.
  */
-export const UnstyledHtmlButton = styled.button`
+export const UnstyledHtmlButton = styledComponents.button`
   appearance: none;
   background-color: unset;
   border: none;
@@ -248,7 +259,7 @@ export const UnstyledHtmlButton = styled.button`
  * `styled` version of this component, the selector will need specificity higher than (0,5,0) to
  * override the styles declared here.
  */
-export const ToggleButton = styled(MuiToggleButton)`
+export const ToggleButton = styledComponents(MuiToggleButton)`
   .${toggleButtonGroupClasses.root}
     &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
    .${toggleButtonGroupClasses.firstButton},
