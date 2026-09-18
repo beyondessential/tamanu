@@ -6,7 +6,7 @@ import { CAN_ACCESS_ALL_FACILITIES, SETTINGS_SCOPES } from '~/constants';
 import { fakeUser } from '/root/tests/helpers/fake';
 
 // Facility sensitivity is network membership, and allowedFacilityIds is the only reader of it on
-// mobile. A mis-filter here hands a user a sensitive facility or hides an ordinary one.
+// mobile. Filtering it wrongly hands a user a sensitive facility, or hides an ordinary one.
 // spec: specs/sync/sensitive-networks.md
 describe('User.allowedFacilityIds', () => {
   beforeAll(async () => {
