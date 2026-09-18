@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { random, sample } from 'es-toolkit/compat';
+import { randomInt } from 'es-toolkit';
 import { formatISO9075 } from 'date-fns';
 
 import {
@@ -75,15 +75,15 @@ type FakeOptions = {
   relations?: string[];
 };
 
-const fakeDate = () => new Date(random(0, Date.now()));
+const fakeDate = () => new Date(randomInt(0, Date.now()));
 const fakeString = ({ propertyName, entityMetadata }, id: string) =>
   `${entityMetadata.name}.${propertyName}.${id}`;
-const fakeNumber = () => random(0, 10);
+const fakeNumber = () => randomInt(0, 10);
 const FIELD_HANDLERS = {
   String: fakeString,
   varchar: fakeString,
   text: fakeString,
-  Boolean: () => sample([true, false]),
+  Boolean: () => Math.random() < 0.5,
   Date: fakeDate,
   datetime: fakeDate,
   bigint: fakeNumber,
