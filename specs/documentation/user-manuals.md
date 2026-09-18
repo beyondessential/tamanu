@@ -1,0 +1,159 @@
+---
+id: MANUAL
+---
+
+# End user manuals
+
+Task-based guides that show a clinician or administrator how to carry out a piece of
+work in Tamanu. They are written for the person using the product, and they live in the
+Tamanu repository alongside the code they describe.
+
+## Location and structure
+
+- [ ] Manuals live under `docs/user-manuals/`.
+- [ ] The first level below that is the platform: `desktop/` and `mobile/`.
+- [ ] The second level is the module, one folder per module, named for the part of the
+      product a user would recognise. The name the product's own navigation gives that
+      area is the starting point, and an author departs from it where a clearer name
+      serves the reader better.
+- [ ] Modules are a flat list within a platform. A module is a functional area of the
+      product as a user thinks of it, wherever it happens to sit in the app's own
+      navigation, so an area reached through a tab is a module in its own right rather
+      than being buried under the area that contains it.
+- [ ] A module folder holds one file per guide.
+- [ ] Each level carries an `index.md` listing what sits beneath it: the manuals root
+      lists the platforms, a platform lists its modules, and a module lists its guides.
+- [ ] An index entry names its target by the guide's or module's title and links to it.
+- [ ] A module's index lists its guides in the order a reader would carry the tasks out,
+      so that reading down the list follows the work rather than the alphabet.
+- [ ] A module whose guides are yet to be written says so on its index, so a reader who
+      arrives there learns the area is known rather than meeting a blank page.
+- [ ] A guide opens with a link back to its module's index, placed above the title so a
+      reader can climb back out from where they entered.
+- [ ] A guide closes with links to the guides before and after it in its module's order,
+      letting a reader work straight through a module. The first and last guide each
+      carry the one link that applies.
+
+## Generated navigation
+
+One manifest holds the platforms, the modules in the order their platform lists them, and
+the guides in the order each module lists them. Everything that ties the manual together
+is derived from it, so the ordering lives in one place rather than being restated across
+every page that links to another.
+
+- [ ] The index pages, the module and guide numbers, each guide's link back to its module,
+      and the links between neighbouring guides are all generated from the manifest.
+- [ ] A guide's own prose is never rewritten by that generation, so the parts a person
+      writes and the parts derived from the manifest cannot overwrite each other.
+- [ ] Moving a module or a guide in the manifest renumbers everything that follows it and
+      repairs every affected link, so an insertion does not leave stale numbers behind.
+- [ ] A guide file that the manifest does not list is reported rather than left
+      unreachable, and the manual can be checked for drift without being rewritten.
+
+## Numbering
+
+Modules and guides are numbered so that a trainer, a support officer, or a colleague can
+cite a piece of the manual by number rather than by describing where it sits.
+
+- [ ] Modules are numbered in the order their platform's index lists them, and each
+      platform numbers from one.
+- [ ] A guide takes its module's number followed by its own position in that module, so
+      the sixth module's guides are 6.1, 6.2, and so on.
+- [ ] Numbers appear in page titles and in the entries that link to them, and nowhere
+      else. Folders and files carry unnumbered names, so renumbering a module leaves
+      every link between pages intact.
+
+## Platforms
+
+- [ ] A guide covers one platform. Desktop and mobile guides for the same module each
+      stand on their own and are read without reference to the other.
+- [ ] A guide describes only what the reader can do on the platform it covers.
+
+## What a guide covers
+
+- [ ] A guide covers a single user action, such as recording a set of vitals or
+      cancelling an appointment.
+- [ ] A module whose actions are small or tightly related groups several into one guide,
+      so that the guide stays the natural unit a reader would look for rather than
+      fragmenting into near-empty files.
+- [ ] A guide's title names the action from the reader's point of view.
+- [ ] A guide opens by saying what the action achieves and where in the product the
+      reader starts from.
+- [ ] Where a reader needs something in hand before starting, or needs to know something
+      that would otherwise interrupt the steps, the guide says so under its own heading
+      before the steps begin. A guide with nothing to state there goes straight to the
+      steps.
+- [ ] A guide ends with its last step. Anything a reader needs in order to know the step
+      worked is said in the step itself.
+
+## Scope
+
+Guides describe how the product works, which is the same wherever Tamanu runs. How a
+particular site has been set up is configuration, and belongs to the configuration
+guides.
+
+- [ ] A guide describes the product's mechanics rather than a site's configuration, so
+      that it holds true at every deployment.
+- [ ] Where a form's content is configured per site, the guide covers finding the form,
+      selecting it, completing it, and submitting it, and leaves the form's own fields
+      alone.
+- [ ] A guide covering an action that a site can switch on or off notes that the action
+      depends on how the reader's site is set up, so a reader who cannot find it knows
+      why.
+- [ ] Where an action may be unavailable to a reader, whether because their site has not
+      enabled it or because their account lacks the permission, the guide tells them to
+      contact their system administrator if they believe they should be able to carry it
+      out.
+
+## Instructional steps
+
+- [ ] Steps are a numbered list, one number per action the reader takes.
+- [ ] A step describes a single action. Where an action needs several fields filled, the
+      fields sit under that step rather than becoming steps of their own.
+- [ ] A step says what the reader does and, where the result is not obvious, what they
+      see happen.
+
+## Language
+
+Guides are read by clinical and administrative staff, often quickly and often on a ward.
+The writing carries no assumed knowledge of Tamanu's internals.
+
+- [ ] Sentences are short and in the active voice, addressing the reader as "you", with
+      one instruction to a sentence.
+- [ ] Technical and developer terms are absent. Where a Tamanu term is unavoidable, the
+      guide uses the exact word the product shows on screen.
+- [ ] Buttons, fields, tabs, and screens are named exactly as they appear in the
+      product, in bold, without quotation marks.
+- [ ] A guide assumes no step the reader has not been told to take, starting from the
+      place in the product its opening names.
+- [ ] Module titles are in title case. Everything below them, including guide titles and
+      the headings inside a guide, is in sentence case.
+- [ ] Spelling follows Australian/NZ English.
+
+## Screenshots
+
+- [ ] A screenshot that has not been captured appears as a visible placeholder line
+      describing the shot the guide needs, so that an unfilled slot is apparent to a
+      reader and to whoever fills it.
+- [ ] Every placeholder takes the same form, a bolded `[Screenshot: ...]` whose text
+      describes the shot, so that outstanding screenshots across the whole manual are
+      found by searching for one string.
+- [ ] Screenshots sit where a visual helps the reader, typically on reaching a new screen
+      or at a step that words describe poorly, rather than at a fixed rate per step.
+- [ ] Capturing a shot replaces its placeholder with the image, so a guide holds either
+      the placeholder or the picture and never both.
+- [ ] A module's images live in an `images` folder beside its guides, named for the guide
+      they belong to and what they show, so a guide and its pictures travel together.
+- [ ] Every image carries alt text describing what the shot shows, since the description
+      is what a reader who cannot see the image is left with.
+- [ ] A guide referring to an image that is not there is reported, the same way an
+      unlisted guide is.
+
+Screenshots are published, so they are taken against demonstration or test data. A
+screenshot never shows information about a real patient.
+
+## Accuracy
+
+- [ ] A guide describes the product as it currently ships, naming the buttons, tabs, and
+      screens the reader actually encounters.
+- [ ] A guide is verified against the running product before it is published.
