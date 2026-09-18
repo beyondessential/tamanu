@@ -1,5 +1,5 @@
+import { pick } from 'es-toolkit';
 import { MoreThan } from 'typeorm';
-import { pick } from 'es-toolkit/compat';
 
 import type { BaseModel } from '../../../models/BaseModel';
 import type { SyncRecord, SyncRecordData } from '../types';
