@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { Database } from '~/infra/db';
 import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
@@ -50,7 +48,7 @@ describe('runSyncSaveTransaction', () => {
   });
 
   it('allows a child to be saved before its parent within the transaction', async () => {
-    const parentId = uuidv4();
+    const parentId = crypto.randomUUID();
 
     await runSyncSaveTransaction(['tasks'], async em => {
       const repo = em.getRepository(Task);
@@ -62,14 +60,19 @@ describe('runSyncSaveTransaction', () => {
   });
 
   it('names the offending record when the commit fails on a deferred foreign key, and rolls back', async () => {
-    const childId = uuidv4();
+    const childId = crypto.randomUUID();
 
     await expect(
       runSyncSaveTransaction(['tasks'], async em => {
         // parentTaskId references a task that is never inserted
         await em
           .getRepository(Task)
-          .save(fakeTask(encounterId, requestedByUserId, { id: childId, parentTaskId: uuidv4() }));
+          .save(
+            fakeTask(encounterId, requestedByUserId, {
+              id: childId,
+              parentTaskId: crypto.randomUUID(),
+            }),
+          );
       }),
     ).rejects.toThrow(childId);
 
