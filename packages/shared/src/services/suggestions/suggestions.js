@@ -91,6 +91,8 @@ const invoiceInsurancePlanIncludeBuilder = req => {
       required: true,
       where: {
         patientId,
+        // Removed plans are marked historical (not soft-deleted), so exclude them explicitly
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     },
   ];
@@ -876,10 +878,18 @@ createSuggester(
   },
 );
 
+// spec: INVOICING#insurance-plans
 createSuggester(
   'invoiceInsurancePlan',
   'InvoiceInsurancePlan',
-  ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+  ({ endpoint, modelName, req }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
   {
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },

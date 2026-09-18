@@ -34,21 +34,20 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    updated_at_sync_tick: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      defaultValue: 0,
-    },
   });
 
-  await query.addIndex(SENSITIVE_NETWORKS, ['code'], {
-    name: `${SENSITIVE_NETWORKS}_code_unique`,
-    unique: true,
-  });
-  await query.addIndex(SENSITIVE_NETWORKS, ['name'], {
-    name: `${SENSITIVE_NETWORKS}_name_unique`,
-    unique: true,
-  });
+  // Deferrable so a sync-apply batch can transiently duplicate a code or name mid-transaction
+  // (see 1785000000000-makeUniqueConstraintsDeferrable.ts).
+  await query.sequelize.query(`
+    ALTER TABLE ${SENSITIVE_NETWORKS}
+      ADD CONSTRAINT ${SENSITIVE_NETWORKS}_code_unique
+      UNIQUE (code) DEFERRABLE INITIALLY IMMEDIATE;
+  `);
+  await query.sequelize.query(`
+    ALTER TABLE ${SENSITIVE_NETWORKS}
+      ADD CONSTRAINT ${SENSITIVE_NETWORKS}_name_unique
+      UNIQUE (name) DEFERRABLE INITIALLY IMMEDIATE;
+  `);
 
   // A facility belongs to at most one network, and is sensitive exactly when this is set.
   await query.addColumn('facilities', 'sensitive_network_id', {

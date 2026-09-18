@@ -2,7 +2,7 @@ import React, { type ReactElement, useCallback, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
-import { LogoV2Icon, SearchIcon } from '/components/Icons';
+import { TamanuComboMark, SearchIcon } from '/components/Icons';
 import { UserAvatar } from '/components/UserAvatar';
 import { withAuth } from '/containers/Auth';
 import { withPatient } from '~/ui/containers/Patient';
@@ -89,7 +89,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               width="100%"
               justifyContent="space-between"
             >
-              <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
+              <TamanuComboMark height={23} width={95} />
               <UserAvatar
                 size={screenPercentageToDP(5.46, Orientation.Height)}
                 displayName={user.displayName}
