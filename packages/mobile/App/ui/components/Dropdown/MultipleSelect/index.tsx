@@ -1,6 +1,8 @@
 // Originally from:
 // https://github.com/toystars/react-native-multiple-select
 
+import { find, get, reject } from 'es-toolkit/compat';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   FlatList,
@@ -10,11 +12,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import { find, get, reject } from 'es-toolkit/compat';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import styles, { colorPack } from './styles';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
 
 const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
 const largeFontSize = screenPercentageToDP(3, Orientation.Height);
