@@ -1123,11 +1123,11 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       return { facility, encounter };
     };
 
-    const pullEncounterIdsFor = async (centralSyncManager, facilityIds) => {
+    const pullEncounterIdsFor = async (centralSyncManager, facilityIds, since = 1) => {
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
-      await centralSyncManager.setupSnapshotForPull(sessionId, { since: 1, facilityIds }, () => true);
+      await centralSyncManager.setupSnapshotForPull(sessionId, { since, facilityIds }, () => true);
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       return outgoingChanges.filter(c => c.recordType === 'encounters').map(c => c.recordId);
@@ -1203,6 +1203,37 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       const lookupRow = await models.SyncLookup.findOne({ where: { recordId: encounter.id } });
       expect(lookupRow.sensitiveNetworkId).toBe(networkId);
       expect(lookupRow.facilityId).toBeNull();
+    });
+
+    // The newly-marked-for-sync pass takes its own session config rather than the shared one, so
+    // it is the only snapshot that can deliver a just-marked patient's history from before `since`.
+    // Drop the network ids from that config and a facility misses its network's entire history for
+    // the patient it has only just marked — every other test here marks no patient, so the
+    // newly-marked pass inserts nothing and the coverage all lands on the incremental pass.
+    it("gives a facility its network's history for a patient it has only just marked for sync", async () => {
+      const networkId = await createNetworkId();
+      const { encounter: siblingEncounter } = await createFacilityWithEncounter(networkId);
+      // no encounter of its own: recording one would mark the patient for sync here already, at
+      // the tick the encounter was created rather than the later one this test needs
+      const puller = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: networkId }),
+      );
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      // built while the clock is still low, so every lookup row sits below the tick pulled from
+      await centralSyncManager.updateLookupTable();
+
+      // marked after that tick, which is what makes this patient newly marked for sync
+      await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 20);
+      await models.PatientFacility.create({
+        patientId: patient.id,
+        facilityId: puller.id,
+      });
+
+      // the encounter predates `since`, so only the newly-marked pass can carry it
+      const encounterIds = await pullEncounterIdsFor(centralSyncManager, [puller.id], 10);
+
+      expect(encounterIds).toContain(siblingEncounter.id);
     });
 
     it('leaves a session whose facilities belong to no network seeing exactly what it saw before', async () => {

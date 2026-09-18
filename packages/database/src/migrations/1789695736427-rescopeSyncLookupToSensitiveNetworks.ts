@@ -1,7 +1,5 @@
 import { QueryInterface, QueryTypes } from 'sequelize';
 
-import { getModelsForPull } from '../sync';
-
 // DML only (spec: specs/sync/sensitive-networks.md).
 //
 // Existing lookup rows still carry the old scoping, where a record recorded at a sensitive facility
@@ -17,25 +15,64 @@ import { getModelsForPull } from '../sync';
 // and hard-delete triggers sit on the source tables and write into it), so a direct update
 // preserves ticks and no facility re-pulls a record it already holds.
 
-// The same predicate the guard test uses: a model is network scoped exactly when its lookup query
-// reaches encounters. Derived from the registry rather than listed, so it cannot drift from the
-// population logic it is mirroring — Notification included, whose joins reach encounters through
-// its metadata.
-const getEncounterScopedRecordTypes = async (query: QueryInterface) => {
-  const models = getModelsForPull(query.sequelize.models as any);
-  if (Object.keys(models).length === 0) {
-    throw new Error('No models registered, so the record types to rescope cannot be derived');
-  }
-
-  const recordTypes = [];
-  for (const model of Object.values<any>(models)) {
-    const { joins } = (await model.buildSyncLookupQueryDetails({})) ?? {};
-    if (model.tableName === 'encounters' || /JOIN\s+encounters\b/.test(joins ?? '')) {
-      recordTypes.push(model.tableName);
-    }
-  }
-  return recordTypes;
-};
+// The record types that were network scoped when this migration was written: every model whose
+// lookup query reaches encounters, which is the predicate syncLookupFacilityScope.test.ts enforces
+// on new models. Notification is included, reaching encounters through its metadata.
+//
+// Pinned rather than derived from the model registry at run time, so every deployment rescopes the
+// same tables whenever it upgrades. A model added after this shipped builds its lookup rows with
+// network scoping from the start and has nothing to rescope, so the list is complete as it stands
+// and should not be extended.
+const ENCOUNTER_SCOPED_RECORD_TYPES = [
+  'administered_vaccines',
+  'ai_documents',
+  'discharges',
+  'document_metadata',
+  'encounter_diagnoses',
+  'encounter_diets',
+  'encounter_history',
+  'encounter_pause_prescription_histories',
+  'encounter_pause_prescriptions',
+  'encounter_prescriptions',
+  'encounters',
+  'imaging_request_areas',
+  'imaging_requests',
+  'imaging_results',
+  'invoice_discounts',
+  'invoice_insurer_payments',
+  'invoice_item_discounts',
+  'invoice_item_finalised_insurances',
+  'invoice_items',
+  'invoice_patient_payments',
+  'invoice_payments',
+  'invoices',
+  'invoices_invoice_insurance_plans',
+  'lab_request_attachments',
+  'lab_request_logs',
+  'lab_requests',
+  'lab_test_panel_requests',
+  'lab_tests',
+  'medication_administration_record_doses',
+  'medication_administration_records',
+  'medication_dispenses',
+  'notes',
+  'notifications',
+  'patient_ongoing_prescriptions',
+  'pharmacy_order_prescriptions',
+  'pharmacy_orders',
+  'prescriptions',
+  'procedure_assistant_clinicians',
+  'procedure_survey_responses',
+  'procedures',
+  'referrals',
+  'survey_response_answers',
+  'survey_responses',
+  'task_designations',
+  'tasks',
+  'triages',
+  'vital_logs',
+  'vitals',
+];
 
 // Without a networked facility there is nothing to move, and facility_id is unindexed.
 const hasNetworkedFacility = async (query: QueryInterface) => {
@@ -49,8 +86,6 @@ const hasNetworkedFacility = async (query: QueryInterface) => {
 export async function up(query: QueryInterface): Promise<void> {
   if (!(await hasNetworkedFacility(query))) return;
 
-  const encounterScopedRecordTypes = await getEncounterScopedRecordTypes(query);
-
   await query.sequelize.query(
     `
     UPDATE sync_lookup
@@ -63,14 +98,15 @@ export async function up(query: QueryInterface): Promise<void> {
       AND facilities.sensitive_network_id IS NOT NULL
       AND sync_lookup.record_type IN (:encounterScopedRecordTypes);
     `,
-    { replacements: { encounterScopedRecordTypes }, type: QueryTypes.UPDATE },
+    {
+      replacements: { encounterScopedRecordTypes: ENCOUNTER_SCOPED_RECORD_TYPES },
+      type: QueryTypes.UPDATE,
+    },
   );
 }
 
 export async function down(query: QueryInterface): Promise<void> {
   if (!(await hasNetworkedFacility(query))) return;
-
-  const encounterScopedRecordTypes = await getEncounterScopedRecordTypes(query);
 
   // A network of one restores exactly the facility the row used to carry. A network with several
   // members has no single facility to go back to, so those rows keep their network and the old
@@ -90,6 +126,9 @@ export async function down(query: QueryInterface): Promise<void> {
     WHERE sync_lookup.sensitive_network_id = sole_members.sensitive_network_id
       AND sync_lookup.record_type IN (:encounterScopedRecordTypes);
     `,
-    { replacements: { encounterScopedRecordTypes }, type: QueryTypes.UPDATE },
+    {
+      replacements: { encounterScopedRecordTypes: ENCOUNTER_SCOPED_RECORD_TYPES },
+      type: QueryTypes.UPDATE,
+    },
   );
 }
