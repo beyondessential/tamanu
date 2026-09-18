@@ -1,0 +1,267 @@
+<!-- proposal: splitting each module's guide into Reference data / Settings / Permissions -->
+<!-- source: docs/user-manuals/system-administration/medications/ -->
+<!-- palette: TAMANU_COLORS, packages/ui-components/src/constants/colors.js -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Medications, split into three guides</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #326699; --primary-dark: #2f4358; --primary-30: #C2D2E1; --primary-10: #EBF0F5;
+    --blue: #1172D1; --very-light-blue: #F4F9FF;
+    --green: #19934E; --alert: #f76853; --light-alert: #fff0ee;
+    --yellow: #ffcc24; --metallic-yellow: #BD9503;
+    --page: #f3f5f7; --surface: #ffffff; --surface-2: #f9fafb;
+    --text: #444444; --text-2: #666666; --text-3: #888888;
+    --line: #ebebeb; --line-2: #dedede;
+    --required: #c2410c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--text);
+    font-family: Inter, -apple-system, system-ui, sans-serif;
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .shell { max-width: 1120px; margin: 0 auto; padding: 36px 32px 90px; }
+
+  .banner {
+    background: var(--very-light-blue); border: 1px solid #CFE3F8; border-radius: 8px;
+    padding: 12px 16px; margin-bottom: 28px; font-size: 13.5px; color: var(--text-2);
+  }
+  .banner strong { color: var(--primary-dark); }
+
+  /* Module index */
+  .index {
+    background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px;
+    padding: 26px 30px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(47,67,88,.06);
+  }
+  .index h2 { margin: 0 0 4px; font-size: 20px; color: var(--primary-dark); font-weight: 700; }
+  .index .path { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--text-3); margin-bottom: 16px; }
+  .index p { margin: 0 0 14px; color: var(--text-2); font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--primary); background: var(--primary-10); padding: 8px 12px;
+    border-bottom: 1px solid var(--primary-30); font-weight: 600;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--text-2); }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--primary-dark); width: 1%; white-space: nowrap; }
+  td.doc a { color: var(--blue); text-decoration: none; font-weight: 500; }
+
+  /* Three documents */
+  .docs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
+  .doc {
+    background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(47,67,88,.06);
+  }
+  .doc .hd { padding: 16px 20px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .doc .n { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--primary); font-weight: 600; }
+  .doc .t { font-size: 17px; font-weight: 600; color: var(--primary-dark); margin: 2px 0 3px; }
+  .doc .f { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--text-3); }
+  .doc .bd { padding: 16px 20px 20px; }
+  .doc .lead { font-size: 13px; color: var(--text-2); margin: 0 0 14px; }
+
+  .h1 {
+    font-size: 13px; font-weight: 700; color: var(--primary-dark);
+    border-bottom: 2px solid var(--primary-10); padding-bottom: 5px; margin: 16px 0 8px;
+  }
+  .h1:first-of-type { margin-top: 0; }
+  .h2 { font-size: 12.5px; color: var(--text); margin: 9px 0 3px; padding-left: 10px; border-left: 2px solid var(--primary-30); }
+  .h3 { font-size: 12px; color: var(--text-3); margin: 4px 0 3px; padding-left: 22px; }
+
+  .tag {
+    display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: .03em;
+    border-radius: 3px; padding: 1px 5px; margin-left: 5px; vertical-align: middle;
+    background: #FFF8E1; color: var(--metallic-yellow); border: 1px solid #F0DFA6;
+  }
+
+  /* Miniature content samples */
+  .mini { border: 1px solid var(--line); border-radius: 6px; margin: 8px 0 4px; overflow: hidden; font-size: 11.5px; }
+  .mini .mh { background: var(--primary-10); color: var(--primary); padding: 4px 8px; font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; }
+  .mini .mr { padding: 4px 8px; border-top: 1px solid var(--line); color: var(--text-2); display: flex; gap: 8px; }
+  .mini .mr span:first-child { font-family: ui-monospace, Menlo, monospace; color: var(--primary-dark); min-width: 78px; }
+  .req { color: var(--required); font-weight: 700; }
+
+  .note { border-radius: 6px; padding: 8px 10px; font-size: 11.5px; margin: 8px 0; border: 1px solid; }
+  .note.warn { background: #FFF8E1; border-color: #F0DFA6; color: var(--text-2); }
+  .note.warn b { color: var(--metallic-yellow); }
+  .note.info { background: var(--very-light-blue); border-color: #CFE3F8; color: var(--text-2); }
+  .note.info b { color: var(--blue); }
+
+  .perm { font-size: 11.5px; margin: 6px 0 0; padding-left: 0; list-style: none; }
+  .perm li { margin-bottom: 3px; font-family: ui-monospace, Menlo, monospace; color: var(--text-2); }
+  .perm .v { color: var(--primary); font-weight: 600; background: var(--primary-10); border-radius: 3px; padding: 0 4px; }
+
+  .legend { margin-top: 26px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: var(--text-2); }
+  .legend h3 { margin: 0 0 8px; font-size: 14px; color: var(--primary-dark); }
+  .legend ul { margin: 0; padding-left: 18px; }
+  .legend li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="banner">
+    <strong>Proposal:</strong> each module's guide splits into three, one per configuration surface.
+    Sections marked <span class="tag">cross-cutting</span> are the ones that do not sit naturally in a
+    single surface; their placement here is the proposal to review.
+  </div>
+
+  <div class="index">
+    <h2>15. Medications</h2>
+    <div class="path">docs/user-manuals/system-administration/medications/README.md</div>
+    <p>Prescribing, the medication administration record, medication sets, and sensitive medications.</p>
+    <table>
+      <thead><tr><th>#</th><th>Guide</th><th>Covers</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="num">15.1</td>
+          <td class="doc"><a href="#">Reference data</a></td>
+          <td>Drug, medication sets, not given reasons, and the hard coded values those columns accept</td>
+        </tr>
+        <tr>
+          <td class="num">15.2</td>
+          <td class="doc"><a href="#">Settings</a></td>
+          <td>Pharmacy orders, frequencies, administration schedules, and the automated workflows they drive</td>
+        </tr>
+        <tr>
+          <td class="num">15.3</td>
+          <td class="doc"><a href="#">Permissions</a></td>
+          <td>Prescribing, administration, pharmacy notes, and sensitive medication access</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="docs">
+
+    <!-- 15.1 -->
+    <div class="doc">
+      <div class="hd">
+        <div class="n">15.1</div>
+        <div class="t">Reference data</div>
+        <div class="f">medications/reference-data.md</div>
+      </div>
+      <div class="bd">
+        <p class="lead">The reference data the Medications Module needs, and the values each column
+        accepts.</p>
+
+        <div class="h1">Reference Data Types</div>
+        <div class="h2">Drug</div>
+        <div class="mini">
+          <div class="mh">Column name / Description</div>
+          <div class="mr"><span>id <span class="req">*</span></span><span>Unique id for the drug</span></div>
+          <div class="mr"><span>dosingUnit</span><span>The unit prescribed in</span></div>
+          <div class="mr"><span>isSensitive</span><span>Flags as sensitive</span></div>
+        </div>
+        <div class="h3">Stock levels</div>
+        <div class="h2">Medication Sets</div>
+        <div class="h3">Medication Template</div>
+        <div class="h3">Medication Set</div>
+        <div class="h2">Prescriber</div>
+        <div class="h2">Medication Not Given Reason</div>
+
+        <div class="h1">Hard coded fields <span class="tag">cross-cutting</span></div>
+        <div class="h2">Units</div>
+        <div class="h2">Route of administration</div>
+        <div class="h2">Frequency</div>
+        <div class="h3">Searching by synonym</div>
+        <div class="note info"><b>Note</b> &middot; These are the permitted values for the columns
+        above, so they sit with the reference data that uses them.</div>
+      </div>
+    </div>
+
+    <!-- 15.2 -->
+    <div class="doc">
+      <div class="hd">
+        <div class="n">15.2</div>
+        <div class="t">Settings</div>
+        <div class="f">medications/settings.md</div>
+      </div>
+      <div class="bd">
+        <p class="lead">The settings that govern prescribing, administration and dispensing, and the
+        behaviour they turn on.</p>
+
+        <div class="h1">Settings</div>
+        <div class="h2">Pharmacy orders</div>
+        <div class="mini">
+          <div class="mh">Field / Value</div>
+          <div class="mr"><span>Scope</span><span>Facility</span></div>
+          <div class="mr"><span>Category</span><span>Medication</span></div>
+          <div class="mr"><span>Setting</span><span>Default prescription type</span></div>
+          <div class="mr"><span>Default</span><span>Existing encounter type</span></div>
+        </div>
+        <div class="h2">Frequencies</div>
+        <div class="h2">Default administration schedule</div>
+
+        <div class="h1">Medication administration record <span class="tag">cross-cutting</span></div>
+        <div class="h2">Administration windows</div>
+        <div class="h2">Administration schedule</div>
+
+        <div class="h1">Automated workflows <span class="tag">cross-cutting</span></div>
+        <div class="h2">Dispensing quantity autocalculation</div>
+        <div class="h2">Immediate medications</div>
+        <div class="h2">Medication resumed</div>
+        <div class="h2">Medication discontinuation</div>
+
+        <div class="h1">Medication due task <span class="tag">cross-cutting</span></div>
+        <div class="h2">Setup</div>
+        <div class="h2">Criteria and behaviour</div>
+        <div class="note warn"><b>Warning</b> &middot; Setup needs both a tasking setting and three
+        permissions, so this section spans 15.2 and 15.3.</div>
+      </div>
+    </div>
+
+    <!-- 15.3 -->
+    <div class="doc">
+      <div class="hd">
+        <div class="n">15.3</div>
+        <div class="t">Permissions</div>
+        <div class="f">medications/permissions.md</div>
+      </div>
+      <div class="bd">
+        <p class="lead">The permissions required to prescribe, administer and manage medications, and
+        to view sensitive ones.</p>
+
+        <div class="h1">Permissions</div>
+        <div class="h2">Prescriptions and ongoing medications</div>
+        <ul class="perm">
+          <li><span class="v">list</span> for Medication</li>
+          <li><span class="v">read</span> for Medication</li>
+          <li><span class="v">write</span> for Medication</li>
+          <li><span class="v">create</span> for Medication</li>
+        </ul>
+        <div class="h2">Medication administration record</div>
+        <div class="h2">Pharmacy note</div>
+        <div class="h2">Admin panel</div>
+        <div class="h3">Reference data</div>
+        <div class="h3">Settings</div>
+
+        <div class="h1">Sensitive medications <span class="tag">cross-cutting</span></div>
+        <div class="h2">Configuring a sensitive medication</div>
+        <div class="h2">Sensitive medication permissions</div>
+        <div class="note warn"><b>Warning</b> &middot; The feature is configured in 15.1 (the
+        <code>isSensitive</code> column) but gated entirely by permissions, so the explanation sits
+        here with the permissions that control it.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <h3>What the module README absorbs</h3>
+    <p>Three sections belong to no single surface and move up to the module README, which becomes a
+    short overview rather than a bare index:</p>
+    <ul>
+      <li><b>Scope limitations</b> &mdash; the medications and settings the module is not recommended for</li>
+      <li><b>IV medications</b> &mdash; why IV medications are supported and IV infusions are not</li>
+      <li><b>Vaccines</b> &mdash; that vaccines must also appear in the Drug reference data</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!-- source: docs/user-manuals/system-administration/medications/ (reference-data.md, settings.md) -->
+<!-- Reproduces GitHub's light-theme markdown rendering, to show what the guide actually looks like
+     when published. Alert icons are approximated with glyphs rather than octicon SVGs; everything
+     else follows GitHub's own type scale, colours and spacing. -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Medications configuration guide, as GitHub renders it</title>
+<style>
+  :root {
+    --fg: #1f2328;
+    --fg-muted: #59636e;
+    --border: #d1d9e0;
+    --border-muted: #d1d9e0b3;
+    --canvas: #ffffff;
+    --canvas-subtle: #f6f8fa;
+    --link: #0969da;
+    --note: #0969da;
+    --tip: #1a7f37;
+    --warning: #9a6700;
+    --caution: #cf222e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1012px; margin: 0 auto; padding: 32px 32px 120px; }
+
+  h1, h2, h3 { font-weight: 600; margin: 24px 0 16px; line-height: 1.25; }
+  h1 { font-size: 2em; padding-bottom: .3em; border-bottom: 1px solid var(--border-muted); }
+  h2 { font-size: 1.5em; padding-bottom: .3em; border-bottom: 1px solid var(--border-muted); }
+  h3 { font-size: 1.25em; }
+  h1:first-child { margin-top: 0; }
+  p { margin: 0 0 16px; }
+  ul { margin: 0 0 16px; padding-left: 2em; }
+  li { margin-bottom: .25em; }
+  li > ul { margin-top: .25em; margin-bottom: 0; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { font-weight: 600; }
+
+  code {
+    background: rgba(129,139,152,.12);
+    border-radius: 6px;
+    padding: .2em .4em;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 85%;
+  }
+  pre {
+    background: var(--canvas-subtle);
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    margin: 0 0 16px;
+  }
+  pre code { background: none; padding: 0; font-size: 100%; }
+
+  hr { height: .25em; padding: 0; margin: 24px 0; background: var(--border); border: 0; }
+
+  table { border-collapse: collapse; border-spacing: 0; display: block; width: max-content; max-width: 100%; overflow: auto; margin: 0 0 16px; font-size: 14px; }
+  th, td { padding: 6px 13px; border: 1px solid var(--border); }
+  th { font-weight: 600; background: var(--canvas-subtle); text-align: left; }
+  tr:nth-child(2n) { background: var(--canvas-subtle); }
+
+  blockquote {
+    margin: 0 0 16px;
+    padding: 0 1em;
+    color: var(--fg-muted);
+    border-left: .25em solid var(--border);
+  }
+  blockquote > :last-child { margin-bottom: 0; }
+
+  /* GitHub alerts */
+  .alert { padding: .5rem 1em; margin-bottom: 16px; border-left: .25em solid; }
+  .alert > :last-child { margin-bottom: 0; }
+  .alert .title { display: flex; align-items: center; font-weight: 500; margin-bottom: 4px; line-height: 1; }
+  .alert .title .g { margin-right: 8px; font-size: 15px; line-height: 1; }
+  .alert.note { border-color: var(--note); }
+  .alert.note .title { color: var(--note); }
+  .alert.tip { border-color: var(--tip); }
+  .alert.tip .title { color: var(--tip); }
+  .alert.warning { border-color: var(--warning); }
+  .alert.warning .title { color: var(--warning); }
+  .alert.caution { border-color: var(--caution); }
+  .alert.caution .title { color: var(--caution); }
+
+  .banner {
+    background: #fff8c5; border: 1px solid #d4a72c66; border-radius: 6px;
+    padding: 10px 16px; margin-bottom: 24px; font-size: 13px; color: #4d2d00;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    This page reproduces GitHub's light-theme markdown rendering of
+    the Medications guides under <code>docs/user-manuals/system-administration/medications/</code>. It is
+    what readers see on GitHub, as distinct from the docs site design in <code>config-guide.html</code>.
+  </div>
+
+  <p>This configuration guide steps system administrators through the set up of the Tamanu Medications
+  Module. If it is your first time implementing the Medications Module or digitising medication
+  workflows in your clinical setting, read the Medications Module Implementation Guide first.</p>
+
+  <div class="alert warning">
+    <p class="title"><span class="g">&#9888;</span>Warning</p>
+    <p>The Medications Module is not recommended for the following medications or clinical settings,
+    whose orders and administration should remain on paper:</p>
+    <ul>
+      <li>IV infusion medications</li>
+      <li>Anaesthesia medications</li>
+      <li>Complex oncology protocols</li>
+      <li>Dialysis</li>
+      <li>ICU, PICU and NICU</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <h1>Reference Data Types</h1>
+
+  <p>Reference data is configured through the reference data import spreadsheet, downloaded from and
+  uploaded to your Tamanu system. See the Tamanu Reference Data Manual for how importing works.</p>
+
+  <h2>Drug</h2>
+
+  <p>The <code>Drug</code> reference data type configures the medication list available when
+  prescribing.</p>
+
+  <blockquote>
+    <p><strong>Screenshot needed:</strong> the Medications field in the new prescription form, showing
+    drugs reference data populating the dropdown.</p>
+  </blockquote>
+
+  <p>For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
+  essential medicines list.</p>
+
+  <div class="alert tip">
+    <p class="title"><span class="g">&#128161;</span>Tip</p>
+    <p>Set default values per medication for <code>route</code>, <code>dosingUnit</code>,
+    <code>dispensingUnit</code> and <code>notes</code>. When that medication is selected for
+    prescription the defaults populate automatically, which speeds up creating prescriptions.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Tab name</td><td><code>Drug</code></td></tr>
+      <tr><td>Example template</td><td><a href="#">Drugs reference data template</a></td></tr>
+    </tbody>
+  </table>
+
+  <p>Where * is a required field.</p>
+
+  <table>
+    <thead><tr><th>Column name</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>id *</td><td>Unique id for the drug. Letters, numbers and hyphens only.</td></tr>
+      <tr><td>code *</td><td>Unique code for the drug. Letters, numbers, hyphens, full stops and forward slashes only.</td></tr>
+      <tr><td>name *</td><td>Name for the drug, up to 255 characters. This is the medication name displayed in Tamanu.</td></tr>
+      <tr><td>dosingUnit</td><td>The unit the medication is prescribed in, and the unit displayed on the medication administration record. Must be one of the units listed under <a href="#">Units</a>.</td></tr>
+      <tr><td>dispensingUnit</td><td>The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under <a href="#">Units</a>. Defaults to the dosing unit if not set.</td></tr>
+      <tr><td>unitConversion</td><td>Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set.</td></tr>
+      <tr><td>route</td><td>The pathway through which the medication enters the body. Use one of the routes listed under <a href="#">Route of administration</a>; this column is not validated on import, so an unrecognised value is accepted and will not display correctly. If no default is set, a user selects the route when prescribing.</td></tr>
+      <tr><td>notes</td><td>A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed.</td></tr>
+      <tr><td>isSensitive</td><td>Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank.</td></tr>
+      <tr><td>visibilityStatus</td><td><code>current</code> for drugs available for prescription, or <code>historical</code> for drugs that should not be prescribed and should not appear in Tamanu. Defaults to <code>current</code> if blank.</td></tr>
+      <tr><td>availableFacilities</td><td>Restricts the drug to specific facilities. Accepts a list of facility ids. Leave blank for all facilities.</td></tr>
+      <tr><td>systemRequired</td><td>Marks the record as required by the system so it cannot be removed. Leave blank unless instructed.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Medication Not Given Reason</h2>
+
+  <div class="alert caution">
+    <p class="title"><span class="g">&#9888;</span>Caution</p>
+    <p>This reference data type must be configured to complete the medication administration record
+    workflow when a medication is recorded as not given. Without it, staff cannot record a medication as
+    not given.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Tab name</td><td><code>Medication Not Given Reason</code></td></tr>
+      <tr><td>Example template</td><td><a href="#">Medication Not Given Reason reference data template</a></td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h1>Hard coded fields</h1>
+
+  <h2>Route of administration</h2>
+
+  <p>Input the value shown in the left column. Where a route displays differently in Tamanu, the display
+  label is shown alongside it.</p>
+
+  <table>
+    <thead><tr><th>Value</th><th>Displays as</th></tr></thead>
+    <tbody>
+      <tr><td>dermal</td><td>Dermal</td></tr>
+      <tr><td>intramuscular</td><td>IM</td></tr>
+      <tr><td>intravenous</td><td>IV</td></tr>
+      <tr><td>subcutaneous</td><td>S/C</td></tr>
+      <tr><td>oral</td><td>Oral</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h1>Settings</h1>
+
+  <p>Settings are managed in the Settings admin panel.</p>
+
+  <p>Pharmacy order settings, including the default prescription type sent when a user selects 'send to
+  pharmacy', are covered in the Dispensing configuration guide.</p>
+
+  <h2>Frequencies</h2>
+
+  <p>All hard coded frequencies are available by default. A frequency option can be disabled where it is
+  not relevant to your deployment. Updates apply to all facilities in the deployment.</p>
+
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Scope</td><td>Global (All Facilities/Servers)</td></tr>
+      <tr><td>Category</td><td>Medications</td></tr>
+      <tr><td>Sub-category</td><td>Frequencies enabled</td></tr>
+      <tr><td>Setting</td><td>Toggle the required frequency off to disable it</td></tr>
+      <tr><td>Default</td><td>All frequencies enabled</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote>
+    <p><strong>Screenshot needed:</strong> the frequencies enabled setting.</p>
+  </blockquote>
+
+  <h2>Default administration schedule</h2>
+
+  <p>For each frequency, the default administration schedule and ideal administration time can be
+  changed.</p>
+
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Scope</td><td>Global (All Facilities/Servers)</td></tr>
+      <tr><td>Category</td><td>Medications</td></tr>
+      <tr><td>Sub-category</td><td>Default administration times</td></tr>
+      <tr><td>Setting</td><td>For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window.</td></tr>
+      <tr><td>Default</td><td>The standard administration times for each frequency, as listed under <a href="#">Frequency</a></td></tr>
+    </tbody>
+  </table>
+
+  <p>Required format:</p>
+
+  <ul>
+    <li>Times must be in 24-hour format and written in double quotation marks:</li>
+  </ul>
+
+<pre><code>[
+  "06:00"
+]</code></pre>
+
+  <div class="alert note">
+    <p class="title"><span class="g">&#8505;</span>Note</p>
+    <p>Each time must also fall in a different two-hour administration window, so two doses cannot be
+    scheduled in the same window.</p>
+  </div>
+
+  <hr>
+
+  <h1>Sensitive medications (supported from v2.39 onwards)</h1>
+
+  <div class="alert note">
+    <p class="title"><span class="g">&#8505;</span>Note</p>
+    <p>Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm
+    your deployment version before configuring this.</p>
+  </div>
+
+  <p>This feature flags a medication as sensitive, so that only users with the required permissions can
+  view and interact with it.</p>
+
+  <div class="alert warning">
+    <p class="title"><span class="g">&#9888;</span>Warning</p>
+    <p>Use this feature rarely. Medication information is critical for safe care, and hiding it from
+    staff without the permission carries clinical risk.</p>
+  </div>
+
+  <hr>
+
+  <h1>Permissions</h1>
+
+  <p>See the Permissions Module configuration guide for more detail on Tamanu permissions.</p>
+
+  <h2>Prescriptions and ongoing medications</h2>
+
+  <p>Required to prescribe a medication and manage the ongoing medications list:</p>
+
+  <ul>
+    <li><code>list</code> for <code>Medication</code>
+      <ul>
+        <li>View a list of medications at the encounter level</li>
+        <li>View the ongoing medications list and last encounter discharge medications</li>
+        <li>View prescription details from any of the above views</li>
+      </ul>
+    </li>
+    <li><code>read</code> for <code>Medication</code>
+      <ul><li>Print a prescription</li></ul>
+    </li>
+    <li><code>write</code> for <code>Medication</code>
+      <ul>
+        <li>Pause and resume a medication</li>
+        <li>Discontinue a medication, including through the discharge workflow</li>
+        <li>Set discharge quantity and repeats for a medication</li>
+      </ul>
+    </li>
+  </ul>
+
+</div>
+</body>
+</html>
