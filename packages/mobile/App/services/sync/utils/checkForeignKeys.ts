@@ -24,7 +24,7 @@ export const checkForeignKeys = async (
 ): Promise<void> => {
   // A single argument-less foreign_key_check scans every table in one round-trip; filtering the
   // result to the synced tables is far cheaper than issuing one PRAGMA per model (20-30+ awaits).
-  const allViolations: ForeignKeyViolation[] = await entityManager.query(
+  const allViolations = await entityManager.query<ForeignKeyViolation[]>(
     'PRAGMA foreign_key_check;',
   );
   const syncedTables = new Set(tableNames);
