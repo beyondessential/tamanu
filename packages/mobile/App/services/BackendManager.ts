@@ -60,16 +60,29 @@ export class BackendManager {
   }
 
   /**
-   * - Run `PRAGMA optimize` when app gets backgrounded to mitigate user-facing latency.
-   * - Usually a no-op. When it does act, it runs an approximate ANALYZE per table that might benefit.
+   * - Run database maintenance (`PRAGMA optimize`, then space reclamation) when app gets
+   *   backgrounded to mitigate user-facing latency.
+   * - Optimize is usually a no-op; when it does act, it runs an approximate ANALYZE per table that
+   *   might benefit. Space reclamation is a one-off VACUUM on old databases, then cheap
+   *   `incremental_vacuum`s.
+   * - Fire-and-forget. Both are transactional; recovery is automatic if OS kills app.
    */
   onAppStateChange(next: AppStateStatus): void {
     const wasActive = this.prevAppState === 'active';
     this.prevAppState = next;
     if (!wasActive || this.syncManager.isSyncing) return;
     if (next === 'background' || next === 'inactive') {
-      void Database.requestPragmaOptimize();
+      void this.runIdleDatabaseMaintenance();
     }
+  }
+
+  /** Sequential, so the two jobs never contend for the write lock. Neither throws. */
+  private async runIdleDatabaseMaintenance(): Promise<void> {
+    await Database.requestPragmaOptimize();
+    // Re-check: the periodic sync may have started, or the user come back, in the meantime, and a
+    // VACUUM can hold the write lock for minutes
+    if (this.syncManager.isSyncing || this.prevAppState === 'active') return;
+    await Database.requestSpaceReclaim();
   }
 
   async startSyncService(): Promise<void> {
