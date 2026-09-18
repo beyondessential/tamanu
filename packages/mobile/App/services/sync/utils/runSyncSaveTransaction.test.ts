@@ -80,17 +80,24 @@ describe('runSyncSaveTransaction', () => {
     expect(await Database.models.Task.count()).toBe(0);
   });
 
-  it('rethrows the commit error when the foreign key diagnostic itself fails', async () => {
+  it('keeps the commit error as the cause when the foreign key diagnostic itself fails', async () => {
     const queryRunner = Database.client.createQueryRunner();
-    jest.spyOn(queryRunner, 'commitTransaction').mockRejectedValue(new Error('disk I/O error'));
-    jest.spyOn(queryRunner.manager, 'query').mockRejectedValue(new Error('database is locked'));
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const commitError = new Error('disk I/O error');
+    jest.spyOn(queryRunner, 'commitTransaction').mockRejectedValue(commitError);
+    const query = queryRunner.query.bind(queryRunner);
+    jest.spyOn(queryRunner, 'query').mockImplementation((sql, ...rest) => {
+      if (String(sql).includes('foreign_key_check')) throw new Error('database is locked');
+      return query(sql, ...rest);
+    });
 
     await expect(
       runSyncSaveTransaction(['tasks'], async em => {
         await em.getRepository(Task).save(fakeTask(encounterId, requestedByUserId));
       }),
-    ).rejects.toThrow('disk I/O error');
+    ).rejects.toMatchObject({
+      message: expect.stringContaining('database is locked'),
+      cause: commitError,
+    });
 
     expect(queryRunner.isTransactionActive).toBe(false);
     expect(await Database.models.Task.count()).toBe(0);
