@@ -34,6 +34,9 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: true,
     },
+    // No updated_at_sync_tick: the addUpdatedAtSyncTickColumn post-migration hook adds it, along
+    // with its index, using the right starting value for the server it runs on (0 on central,
+    // LAST_UPDATED_ELSEWHERE on facility). Declaring it here would hardcode one of those.
   });
 
   // Deliberately no unique constraint on code or name. The backfill derives both from the facility
