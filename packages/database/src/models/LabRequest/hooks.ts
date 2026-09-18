@@ -82,7 +82,7 @@ export const pushNotificationAfterUpdateHook = async (
   // reaches a "notify-worthy" status (interim, published, invalidated, rejected)
   // or when it was previously published (so we can notify about updates or withdrawal).
   const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
-  const NOTIFICATION_STATUSES = [
+  const NOTIFY_ON_STATUSES = [
     LAB_REQUEST_STATUSES.INTERIM_RESULTS,
     LAB_REQUEST_STATUSES.PUBLISHED,
     LAB_REQUEST_STATUSES.INVALIDATED,
@@ -90,7 +90,7 @@ export const pushNotificationAfterUpdateHook = async (
   ];
 
   const shouldPushNotification =
-    NOTIFICATION_STATUSES.includes(currentStatus) || isChangingFromPublished;
+    NOTIFY_ON_STATUSES.includes(currentStatus) || isChangingFromPublished;
 
   if (shouldPushNotification) {
     await labRequest.sequelize.models.Notification.pushNotification(

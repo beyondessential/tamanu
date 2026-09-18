@@ -267,6 +267,9 @@ export const LabRequestView = () => {
   const isRejected = labRequest.status === LAB_REQUEST_STATUSES.REJECTED;
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
+  // Rejected requests are hidden elsewhere, but this button is how their rejection
+  // report is reached, so the printout stays available for them.
+  const canOpenPrintout = !isHidden || isRejected;
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
   const isPriorityReadOnly = areLabRequestsReadOnly || !isPriorityEditingEnabled;
@@ -356,9 +359,7 @@ export const LabRequestView = () => {
                 )
               ) : (
                 <OutlinedButton
-                  // Rejected requests are otherwise hidden, but this button is how the
-                  // rejection report is reached, so it stays enabled for them.
-                  disabled={isHidden && !isRejected}
+                  disabled={!canOpenPrintout}
                   onClick={() => {
                     handleChangeModalId(MODAL_IDS.PRINT);
                   }}
