@@ -473,16 +473,16 @@
   /* held back from the full brand dark so Browse stays the heavier section; the
      muted text is lifted to compensate for the lighter ground */
   .pcard { position:relative; overflow:hidden; color:#fff; border:none; border-radius:16px;
-    padding:20px; background:color-mix(in srgb, var(--brand-dark) 90%, transparent);
+    padding:20px; background:color-mix(in srgb, var(--brand-dark) 84%, transparent);
     transition:transform .16s ease, box-shadow .16s ease; }
   .pcard::before { content:""; position:absolute; right:-60px; top:-70px; width:170px; height:170px;
-    border-radius:999px; background:var(--a); opacity:.30; filter:blur(42px); }
+    border-radius:999px; background:var(--a); opacity:.24; filter:blur(42px); }
   .pcard:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(20,32,44,.28); }
   .pcard > * { position:relative; }
   .pcard .ic { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:#fff; }
-  .pcard .kind { color:rgba(255,255,255,.74); }
+  .pcard .kind { color:rgba(255,255,255,.80); }
   .pcard h3 { color:#fff; }
-  .pcard p { color:rgba(255,255,255,.76); }
+  .pcard p { color:rgba(255,255,255,.82); }
 </style>
 </head>
 <body>

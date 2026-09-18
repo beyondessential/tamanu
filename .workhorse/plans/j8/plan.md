@@ -126,10 +126,11 @@ light display type, and a dark capsule around the search.
   glow, dark minis, hairline rows, ranked, kind stripe); the chosen combination takes the dark minis'
   colour — navy with the kind's accent blurred from the top corner — while keeping Popular's compact
   row: icon chip at the left, kind label, title and section stacked beside it. The two sections now
-  read as one family. **Popular sits at 90% of the brand dark** so it reads a step lighter than
-  Browse, which keeps the full value: the two sections are then separated by weight as well as
-  density, and Browse stays the heavier of the two. The muted text on Popular is lifted to
-  compensate for the lighter ground, holding the kind label and section line above 5:1.
+  read as one family. **Popular sits at 84% of the brand dark** and carries a weaker accent glow, so
+  it reads a step lighter than Browse, which keeps the full value: the two sections are then
+  separated by weight as well as density, and Browse stays the heavier of the two. 84% is as far as
+  it goes — lightening the ground costs contrast against the muted white text, and the kind label is
+  small uppercase, so it has to clear 4.5:1. The muted text is lifted to compensate.
 - **The page sits on a soft neutral canvas** (`#F3F5F7`, Tamanu's own `background` token) rather
   than white, with the sticky top bar, cards, inputs, the search palette and the Ask AI drawer kept
   white so they read as surfaces on it. **Release notes is the exception and reads on white**, since
