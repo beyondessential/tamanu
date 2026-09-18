@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import type { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Department } from './Department';
@@ -38,12 +38,14 @@ export class Facility extends BaseModel implements IFacility {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  // A facility is sensitive exactly when it belongs to a network.
-  @ManyToOne(() => SensitiveNetwork, { nullable: true })
-  sensitiveNetwork?: SensitiveNetwork;
-
-  @RelationId(({ sensitiveNetwork }: Facility) => sensitiveNetwork)
+  // A facility is sensitive exactly when it belongs to a network. Declared as a column rather than
+  // a @RelationId so it can be filtered on: TypeORM does not treat a relation id as a column.
+  @Column({ type: 'varchar', nullable: true })
   sensitiveNetworkId?: string;
+
+  @ManyToOne(() => SensitiveNetwork, { nullable: true })
+  @JoinColumn({ name: 'sensitiveNetworkId' })
+  sensitiveNetwork?: SensitiveNetwork;
 
   @OneToMany(() => Location, ({ facility }) => facility)
   locations: Location[];
