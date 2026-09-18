@@ -7,7 +7,14 @@ export const typeORMDriver = {
   disablePromise: jest.fn(),
 };
 
+export const NitroSQLite = {
+  attach: jest.fn(),
+  detach: jest.fn(),
+  drop: jest.fn(),
+};
+
 export default {
   typeORMDriver,
+  NitroSQLite,
   ...typeORMDriver,
-}; 
+};
