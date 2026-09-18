@@ -1,30 +1,25 @@
-import React, { type ReactElement, useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Button } from 'react-native-paper';
 import type { NavigationProp } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useEffect, useState } from 'react';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
-import { theme } from '../../styled/theme';
-import { TranslatedText } from '../Translations/TranslatedText';
-import AutocompleteResult from '../AutocompleteModal/AutocompleteResult';
+import { Button } from 'react-native-paper';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import type { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
+import { theme } from '../../styled/theme';
+import AutocompleteResult from '../AutocompleteModal/AutocompleteResult';
+import { TranslatedText } from '../Translations/TranslatedText';
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
     backgroundColor: theme.colors.BACKGROUND_GREY,
     flex: 1,
-    justifyContent: 'space-between',
   },
-  backButton: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderRadius: 0,
-  },
+  autocompleteContainer: { flex: 1 },
+  resultsContainer: { flex: 1 },
+  backButton: { borderRadius: 0 },
 });
 
-type FrequencySearchModalScreenProps = {
+interface FrequencySearchModalScreenProps {
   navigation: NavigationProp<any>;
   route: {
     params: {
@@ -33,7 +28,7 @@ type FrequencySearchModalScreenProps = {
       modalTitle?: string;
     };
   };
-};
+}
 
 export const FrequencySearchModalScreen = ({
   route,
@@ -60,15 +55,18 @@ export const FrequencySearchModalScreen = ({
   );
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <Autocomplete
         placeholder={getTranslation('general.placeholder.search...', 'Search…')}
         placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
+        containerStyle={styles.autocompleteContainer}
+        listContainerStyle={styles.resultsContainer}
         flatListProps={{
           keyExtractor: item => item.value,
+          keyboardShouldPersistTaps: 'handled',
           renderItem: ({ item, index }) => (
             <AutocompleteResult
               onSelect={onSelectItem}
@@ -77,13 +75,10 @@ export const FrequencySearchModalScreen = ({
             />
           ),
         }}
-        style={{
-          color: theme.colors.TEXT_DARK,
-        }}
       />
       <Button mode="contained" style={styles.backButton} onPress={navigation.goBack}>
         <TranslatedText stringId="general.action.back" fallback="Back" />
       </Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };

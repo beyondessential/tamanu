@@ -21,6 +21,17 @@ describe('Lab request logs', () => {
   });
   afterAll(() => ctx.close());
 
+  it('returns null when a lab request has no published log', async () => {
+    const { id: requestId } = await models.LabRequest.createWithTests(
+      await randomLabRequest(models, { patientId }),
+    );
+
+    const response = await app.get(`/api/labRequestLog/labRequest/${requestId}/latest-published`);
+    expect(response).toHaveSucceeded();
+    expect(response.type).toBe('application/json');
+    expect(response.body).toBeNull();
+  });
+
   it('should throw an error if no userId is provided when updating a lab request', async () => {
     const { id: requestId } = await models.LabRequest.createWithTests(
       await randomLabRequest(models, { patientId }),

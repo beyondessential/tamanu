@@ -1,4 +1,4 @@
-import { IMAGING_AREA_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { IMAGING_AREA_TYPES, PROGRAM_DATA_ELEMENT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { ALLERGIES } from '@tamanu/database/demoData/allergies';
 import { APPOINTMENT_TYPES } from '@tamanu/database/demoData/appointmentTypes';
 import { CARE_PLANS } from '@tamanu/database/demoData/carePlan';
@@ -576,31 +576,88 @@ export const SURVEY_SCREEN_COMPONENT_PROMPTS = [
   { text: 'Presenting complaint', detail: "Chief complaint in patient's own words" },
 ];
 
+const { NUMBER, TEXT: FREE_TEXT } = PROGRAM_DATA_ELEMENT_TYPES;
+
 export const PROGRAM_DATA_ELEMENTS = [
-  { name: 'Systolic Blood Pressure', indicator: 'Vital Signs' },
-  { name: 'Diastolic Blood Pressure', indicator: 'Vital Signs' },
-  { name: 'Body Temperature', indicator: 'Vital Signs' },
-  { name: 'Respiratory Rate', indicator: 'Vital Signs' },
-  { name: 'Oxygen Saturation', indicator: 'Vital Signs' },
-  { name: 'Pulse Rate', indicator: 'Vital Signs' },
-  { name: 'Body Weight', indicator: 'Anthropometry' },
-  { name: 'Body Height', indicator: 'Anthropometry' },
-  { name: 'BMI', indicator: 'Anthropometry' },
-  { name: 'MUAC', indicator: 'Anthropometry' },
-  { name: 'Head Circumference', indicator: 'Anthropometry' },
-  { name: 'Haemoglobin Level', indicator: 'Lab Results' },
-  { name: 'Blood Glucose', indicator: 'Lab Results' },
-  { name: 'Malaria RDT Result', indicator: 'Lab Results' },
-  { name: 'HIV Test Result', indicator: 'Lab Results' },
-  { name: 'Urine Protein', indicator: 'Lab Results' },
-  { name: 'Cough Duration', indicator: 'Symptoms' },
-  { name: 'Fever Duration', indicator: 'Symptoms' },
-  { name: 'Pain Score', indicator: 'Symptoms' },
-  { name: 'Nausea Severity', indicator: 'Symptoms' },
-  { name: 'Pregnancy Status', indicator: 'Reproductive Health' },
-  { name: 'Gestational Age', indicator: 'Reproductive Health' },
-  { name: 'Fundal Height', indicator: 'Reproductive Health' },
-  { name: 'Gravidity', indicator: 'Reproductive Health' },
+  { name: 'Systolic Blood Pressure', indicator: 'Vital Signs', type: NUMBER, range: [95, 165] },
+  { name: 'Diastolic Blood Pressure', indicator: 'Vital Signs', type: NUMBER, range: [55, 100] },
+  {
+    name: 'Body Temperature',
+    indicator: 'Vital Signs',
+    type: NUMBER,
+    range: [35.5, 40.2],
+    decimals: 1,
+  },
+  { name: 'Respiratory Rate', indicator: 'Vital Signs', type: NUMBER, range: [12, 28] },
+  { name: 'Oxygen Saturation', indicator: 'Vital Signs', type: NUMBER, range: [88, 100] },
+  { name: 'Pulse Rate', indicator: 'Vital Signs', type: NUMBER, range: [55, 120] },
+  {
+    name: 'Body Weight',
+    indicator: 'Anthropometry',
+    type: NUMBER,
+    range: [3, 110],
+    decimals: 1,
+  },
+  {
+    name: 'Body Height',
+    indicator: 'Anthropometry',
+    type: NUMBER,
+    range: [45, 195],
+    decimals: 1,
+  },
+  { name: 'BMI', indicator: 'Anthropometry', type: NUMBER, range: [14, 38], decimals: 1 },
+  { name: 'MUAC', indicator: 'Anthropometry', type: NUMBER, range: [9, 33], decimals: 1 },
+  {
+    name: 'Head Circumference',
+    indicator: 'Anthropometry',
+    type: NUMBER,
+    range: [32, 58],
+    decimals: 1,
+  },
+  {
+    name: 'Haemoglobin Level',
+    indicator: 'Lab Results',
+    type: NUMBER,
+    range: [6, 17],
+    decimals: 1,
+  },
+  { name: 'Blood Glucose', indicator: 'Lab Results', type: NUMBER, range: [3, 18], decimals: 1 },
+  {
+    name: 'Malaria RDT Result',
+    indicator: 'Lab Results',
+    type: FREE_TEXT,
+    answers: ['Positive', 'Negative', 'Invalid'],
+  },
+  {
+    name: 'HIV Test Result',
+    indicator: 'Lab Results',
+    type: FREE_TEXT,
+    answers: ['Reactive', 'Non-reactive', 'Indeterminate'],
+  },
+  {
+    name: 'Urine Protein',
+    indicator: 'Lab Results',
+    type: FREE_TEXT,
+    answers: ['Negative', 'Trace', '1+', '2+', '3+'],
+  },
+  { name: 'Cough Duration', indicator: 'Symptoms', type: NUMBER, range: [1, 21] },
+  { name: 'Fever Duration', indicator: 'Symptoms', type: NUMBER, range: [1, 14] },
+  { name: 'Pain Score', indicator: 'Symptoms', type: NUMBER, range: [0, 10] },
+  {
+    name: 'Nausea Severity',
+    indicator: 'Symptoms',
+    type: FREE_TEXT,
+    answers: ['None', 'Mild', 'Moderate', 'Severe'],
+  },
+  {
+    name: 'Pregnancy Status',
+    indicator: 'Reproductive Health',
+    type: FREE_TEXT,
+    answers: ['Pregnant', 'Not pregnant', 'Unknown'],
+  },
+  { name: 'Gestational Age', indicator: 'Reproductive Health', type: NUMBER, range: [4, 42] },
+  { name: 'Fundal Height', indicator: 'Reproductive Health', type: NUMBER, range: [12, 40] },
+  { name: 'Gravidity', indicator: 'Reproductive Health', type: NUMBER, range: [1, 8] },
 ];
 
 export const PROGRAM_DATA_ELEMENT_HINTS = [

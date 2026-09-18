@@ -482,15 +482,18 @@ export const DispenseMedicationWorkflowModal = memo(
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
       const labelItems = selectedItems.map(item => {
-        const medication = getEffectivePrescription(item)?.medication;
+        const prescription = getEffectivePrescription(item);
         return {
           id: item.id,
-          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+          medicationName: getTranslatedMedicationName(
+            prescription?.medication,
+            getReferenceDataTranslation,
+          ),
           instructions: item.instructions,
           quantity: item.quantity,
-          dispensingUnit: item.prescription?.dispensingUnit,
+          dispensingUnit: prescription?.dispensingUnit,
           remainingRepeats: item.remainingRepeats,
-          prescriberName: item.prescription?.prescriber?.displayName,
+          prescriberName: prescription?.prescriber?.displayName,
           requestNumber: item.displayId,
         };
       });
@@ -640,7 +643,7 @@ export const DispenseMedicationWorkflowModal = memo(
           ),
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
-            const dispensingUnit = item.prescription?.dispensingUnit;
+            const dispensingUnit = getEffectivePrescription(item)?.dispensingUnit;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
             return (
               <QuantityInput
