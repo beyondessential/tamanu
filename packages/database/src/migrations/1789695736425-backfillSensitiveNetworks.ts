@@ -10,24 +10,23 @@ import { QueryInterface } from 'sequelize';
 //
 // An operator who does want them in one network merges them afterwards through the reference data
 // import, which is allowed because each facility is the sole member of its own network.
+// The network id is derived from the facility's primary key rather than its code, because id is
+// the only column a facility is guaranteed distinct on: nothing constrains code or name. Deriving
+// it rather than generating a uuid also keeps the backfill deterministic.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)
-    SELECT 'sensitiveNetwork-' || code, code, name
+    SELECT 'sensitiveNetwork-' || id, code, name
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL;
   `);
 
-  // Facility code is unique and the networks were just created from it, so this pairs each
-  // facility with its own network.
   await query.sequelize.query(`
     UPDATE facilities
-    SET sensitive_network_id = sensitive_networks.id
-    FROM sensitive_networks
-    WHERE facilities.code = sensitive_networks.code
-      AND facilities.is_sensitive = TRUE
-      AND facilities.deleted_at IS NULL;
+    SET sensitive_network_id = 'sensitiveNetwork-' || id
+    WHERE is_sensitive = TRUE
+      AND deleted_at IS NULL;
   `);
 }
 
@@ -41,6 +40,13 @@ export async function down(query: QueryInterface): Promise<void> {
     WHERE sensitive_network_id IS NOT NULL;
   `);
 
-  await query.sequelize.query(`UPDATE facilities SET sensitive_network_id = NULL;`);
+  // Bounded to the rows that actually hold a value: every facility touched here is re-stamped by
+  // set_updated_at_sync_tick, so it re-queues for push to every facility server and mobile device
+  // and triggers FHIR Organization rematerialisation.
+  await query.sequelize.query(`
+    UPDATE facilities
+    SET sensitive_network_id = NULL
+    WHERE sensitive_network_id IS NOT NULL;
+  `);
   await query.sequelize.query(`DELETE FROM sensitive_networks;`);
 }

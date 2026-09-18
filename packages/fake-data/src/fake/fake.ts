@@ -686,7 +686,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
-  // Unique on both code and name, so both have to be distinct per network.
   SensitiveNetwork: ({ name }) =>
     named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
   // A lookup row is unscoped unless a test deliberately scopes it. The outgoing snapshot admits a

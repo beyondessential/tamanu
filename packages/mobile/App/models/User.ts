@@ -81,7 +81,7 @@ export class User extends BaseModel implements IUser {
     // A facility is sensitive exactly when it belongs to a sensitive network.
     // spec: specs/sync/sensitive-networks.md
     const sensitiveFacilities = await Facility.getRepository().count({
-      where: { sensitiveNetwork: Not(IsNull()) },
+      where: { sensitiveNetworkId: Not(IsNull()) },
     });
     if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
       return CAN_ACCESS_ALL_FACILITIES;
@@ -97,7 +97,7 @@ export class User extends BaseModel implements IUser {
     if (hasAllNonSensitiveFacilityAccess) {
       // Combine any explicitly linked facilities with all non-sensitive facilities
       const allNonSensitiveFacilities = await Facility.getRepository().find({
-        where: { sensitiveNetwork: IsNull() },
+        where: { sensitiveNetworkId: IsNull() },
         select: ['id'],
       });
       const allNonSensitiveFacilityIds = allNonSensitiveFacilities.map(f => f.id);

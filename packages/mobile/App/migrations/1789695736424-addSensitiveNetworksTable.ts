@@ -50,7 +50,7 @@ const SensitiveNetworksTable = new Table({
   ],
 });
 
-export class addSensitiveNetworksTable1787600000000 implements MigrationInterface {
+export class addSensitiveNetworksTable1789695736424 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(SensitiveNetworksTable, true);
   }
