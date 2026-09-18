@@ -3,7 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { closeDatabase, createTestDatabase } from '../utilities';
-import { up as rescopeLookupRows } from '../../src/migrations/1787700000000-rescopeSyncLookupToSensitiveNetworks';
+import { up as rescopeLookupRows } from '../../src/migrations/1789695736427-rescopeSyncLookupToSensitiveNetworks';
 
 // spec: specs/sync/sensitive-networks.md
 describe('rescoping sync_lookup to sensitive networks', () => {
