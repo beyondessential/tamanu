@@ -30,6 +30,15 @@ import {
 } from '../../utils/query';
 import { notesWithSingleItemListHandler } from '../../routeHandlers';
 
+// A reflex test exists in reference data only so a LIMS can attach its results to a request; it is
+// never ordered, individually or as a member of a panel. panelOnly and historical stay orderable
+// within a panel — panelOnly exists for exactly that, and retiring a type shouldn't silently change
+// what an already-configured panel orders.
+const UNORDERABLE_VISIBILITY_STATUSES = [LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST];
+
+const isOrderableTestType = testType =>
+  !UNORDERABLE_VISIBILITY_STATUSES.includes(testType.visibilityStatus);
+
 // The fields of a lab test that can change after first entry, mapped from the column captured
 // in the audit log to the key returned to the client.
 const EDITABLE_LAB_TEST_FIELDS = {
@@ -940,19 +949,21 @@ labTestPanel.get('/', async (req, res) => {
       {
         model: models.LabTestType,
         as: 'labTestTypes',
-        attributes: ['id', 'code', 'name', 'isSensitive', 'availableFacilities'],
+        attributes: ['id', 'code', 'name', 'isSensitive', 'availableFacilities', 'visibilityStatus'],
         through: { attributes: ['order'] },
       },
     ],
     where,
   });
-  // Panel members inherit the same sensitivity and facility gating as GET /labTestType, so a panel
-  // never exposes tests the user can't see or that aren't available at their facility.
+  // Panel members inherit the same sensitivity and facility gating as GET /labTestType, plus the
+  // same unorderable-visibility exclusion, so a panel never exposes tests the user can't see, that
+  // aren't available at their facility, or that can't be ordered at all.
   const response = panels.map(panel => {
     const plain = panel.toJSON();
     plain.labTestTypes = (plain.labTestTypes ?? [])
       .filter(
         member =>
+          isOrderableTestType(member) &&
           (canCreateSensitive || !member.isSensitive) &&
           (!query.facilityId ||
             !member.availableFacilities ||
@@ -985,24 +996,25 @@ labTestPanel.get(
     if (!panel) {
       throw new NotFoundError();
     }
-    const options = {
+    const where = {
+      visibilityStatus: { [Op.notIn]: UNORDERABLE_VISIBILITY_STATUSES },
+    };
+    if (query.facilityId) {
+      where[Op.and] = [
+        Sequelize.literal(
+          `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
+        ),
+      ];
+    }
+    const response = await panel.getLabTestTypes({
       include: [
         {
           model: models.ReferenceData,
           as: 'category',
         },
       ],
-    };
-    if (query.facilityId) {
-      options.where = {
-        [Op.and]: [
-          Sequelize.literal(
-            `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
-          ),
-        ],
-      };
-    }
-    const response = await panel.getLabTestTypes(options);
+      where,
+    });
     res.send(response);
   }),
 );
@@ -1053,26 +1065,28 @@ async function createLabRequestsByCategory(models, body, note, user) {
         {
           model: models.LabTestType,
           as: 'labTestTypes',
-          attributes: ['id', 'availableFacilities', 'labTestCategoryId'],
+          attributes: ['id', 'availableFacilities', 'labTestCategoryId', 'visibilityStatus'],
         },
       ],
     });
 
     for (const panel of panels) {
-      const memberTestTypes = panel.labTestTypes ?? [];
-      const availableTestTypeIds = memberTestTypes
-        .filter(isAvailableAtFacility)
-        .map(testType => testType.id);
-      if (!availableTestTypeIds.length) {
+      // Ordering a panel creates a LabTest per member, so the exclusions the selector shows have to
+      // hold here too — otherwise a reflex test lands on the request as an empty row awaiting
+      // results it was never meant to be ordered for.
+      const orderableTestTypes = (panel.labTestTypes ?? []).filter(
+        testType => isOrderableTestType(testType) && isAvailableAtFacility(testType),
+      );
+      if (!orderableTestTypes.length) {
         throw new InvalidOperationError(
-          'A submission cannot include a panel with no test types available at this facility',
+          'A submission cannot include a panel with no orderable test types at this facility',
         );
       }
 
-      const { key, categoryId } = resolvePanelGroup(panel, memberTestTypes);
+      const { key, categoryId } = resolvePanelGroup(panel, orderableTestTypes);
       groupFor(key, categoryId).panels.push({
         labTestPanelId: panel.id,
-        labTestTypeIds: availableTestTypeIds,
+        labTestTypeIds: orderableTestTypes.map(testType => testType.id),
       });
     }
   }
@@ -1083,7 +1097,13 @@ async function createLabRequestsByCategory(models, body, note, user) {
         [Sequelize.fn('array_agg', Sequelize.col('id')), 'lab_test_type_ids'],
         'lab_test_category_id',
       ],
-      where: { id: { [Op.in]: labTestTypeIds } },
+      // An unorderable type is left out of the aggregate, so the count check below rejects the
+      // whole submission — the selector never offers one, and a caller reaching the endpoint
+      // directly shouldn't get to order one either.
+      where: {
+        id: { [Op.in]: labTestTypeIds },
+        visibilityStatus: { [Op.notIn]: UNORDERABLE_VISIBILITY_STATUSES },
+      },
       group: ['lab_test_category_id'],
     });
 
