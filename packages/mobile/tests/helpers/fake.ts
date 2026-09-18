@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { randomInt } from 'es-toolkit';
 import { formatISO9075 } from 'date-fns';
 
@@ -18,7 +17,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 import { Task } from '~/models/Task';
 
 export const fakePatient = (): IPatient => {
-  const uuid = uuidv4();
+  const uuid = crypto.randomUUID();
   return {
     id: `patient-id-${uuid}`,
     displayId: `patient_displayId-${uuid}`,
@@ -34,7 +33,7 @@ export const fakePatient = (): IPatient => {
 };
 
 export const fakeEncounter = (): IEncounter => ({
-  id: `encounter-id-${uuidv4()}`,
+  id: `encounter-id-${crypto.randomUUID()}`,
   encounterType: EncounterType.Clinic,
   startDate: formatISO9075(new Date()),
   reasonForEncounter: 'encounter-reason',
@@ -42,7 +41,7 @@ export const fakeEncounter = (): IEncounter => ({
 });
 
 export const fakeProgramDataElement = (): IProgramDataElement => ({
-  id: `program-data-element-id-${uuidv4()}`,
+  id: `program-data-element-id-${crypto.randomUUID()}`,
   code: 'program-data-element-code',
   defaultText: 'program-data-element-defaultText',
   type: DataElementType.FreeText,
@@ -51,7 +50,7 @@ export const fakeProgramDataElement = (): IProgramDataElement => ({
 });
 
 export const fakeSurvey = (): ISurvey => ({
-  id: `survey-id-${uuidv4()}`,
+  id: `survey-id-${crypto.randomUUID()}`,
   programId: null,
   name: 'survey-name',
   surveyType: SurveyTypes.Programs,
@@ -60,7 +59,7 @@ export const fakeSurvey = (): ISurvey => ({
 });
 
 export const fakeUser = (): IUser => {
-  const uuid = uuidv4();
+  const uuid = crypto.randomUUID();
   return {
     id: `user-id-${uuid}`,
     displayId: `user-displayId-${uuid}`,
@@ -96,7 +95,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   const { metadata } = model.getRepository();
 
   const record: any = {};
-  const id = uuidv4();
+  const id = crypto.randomUUID();
   // assign columns
   for (const column of metadata.ownColumns) {
     const typeId = typeof column.type === 'function' ? column.type.name : column.type;
@@ -157,8 +156,12 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   return record;
 };
 
-export const fakeTask = (encounterId: string, requestedByUserId: string, overrides: Partial<Task> = {}): Partial<Task> => ({
-  id: uuidv4(),
+export const fakeTask = (
+  encounterId: string,
+  requestedByUserId: string,
+  overrides: Partial<Task> = {},
+): Partial<Task> => ({
+  id: crypto.randomUUID(),
   name: 'test-task',
   dueTime: new Date().toISOString(),
   requestTime: new Date().toISOString(),
