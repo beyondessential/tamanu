@@ -1,11 +1,10 @@
 import { pick } from 'es-toolkit';
 import { MoreThan } from 'typeorm';
-
-import type { BaseModel } from '../../../models/BaseModel';
-import type { SyncRecord, SyncRecordData } from '../types';
-import type { MODELS_MAP } from '../../../models/modelsMap';
-import { extractIncludedColumns } from './extractIncludedColumns';
 import { Database } from '~/infra/db';
+import type { BaseModel } from '../../../models/BaseModel';
+import type { MODELS_MAP } from '../../../models/modelsMap';
+import type { SyncRecord, SyncRecordData } from '../types';
+import { extractIncludedColumns } from './extractIncludedColumns';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRecord, 'id'> => {
   const includedColumns = extractIncludedColumns(model);
