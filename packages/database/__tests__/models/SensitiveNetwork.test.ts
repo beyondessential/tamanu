@@ -44,19 +44,19 @@ describe('SensitiveNetwork', () => {
     });
   });
 
-  describe('uniqueness', () => {
-    it('refuses a second network with the same code', async () => {
+  describe('labels', () => {
+    // Networks take the code and name of the facility they were made for, and two facilities can
+    // share both. Constraining either here would fail the upgrade partway through on a deployment
+    // that has such a pair.
+    it('allows two networks to share a code and a name', async () => {
       const existing = await createNetwork();
-      await expect(
-        models.SensitiveNetwork.create(fake(models.SensitiveNetwork, { code: existing.code })),
-      ).rejects.toThrow();
-    });
+      const twin = await models.SensitiveNetwork.create(
+        fake(models.SensitiveNetwork, { code: existing.code, name: existing.name }),
+      );
 
-    it('refuses a second network with the same name', async () => {
-      const existing = await createNetwork();
-      await expect(
-        models.SensitiveNetwork.create(fake(models.SensitiveNetwork, { name: existing.name })),
-      ).rejects.toThrow();
+      expect(twin.id).not.toBe(existing.id);
+      expect(twin.code).toBe(existing.code);
+      expect(twin.name).toBe(existing.name);
     });
   });
 });

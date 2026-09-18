@@ -18,7 +18,8 @@ Covers the data model and the migration of existing sensitive facilities. Member
 
 - [x] A facility can be assigned a network and read back through the association
 - [x] A facility with no network reads back null, and is treated as not sensitive
-- [x] Two networks cannot share a code, and cannot share a name (verifies spec: SENSNET)
+- [x] Two networks can share a code and a name, since each takes them from a facility and facilities
+      are not distinct on either (verifies spec: SENSNET)
 - [ ] A network requires both a code and a name (verifies spec: SENSNET)
 - [ ] `sync_lookup` accepts and indexes a sensitive network id (verifies spec: SENSNET)
 - [ ] Networks pull from central to a facility server and are not pushed back (verifies spec: SENSNET)

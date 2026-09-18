@@ -55,7 +55,25 @@ them backwards, so the drop's `down` re-adds an empty column and the backfill's 
 from network membership.
 
 Also added: the `SensitiveNetwork` model, `Facility.belongsTo(SensitiveNetwork)`, and a
-`SensitiveNetwork` entry in `fake-data` (unique on both code and name, so both need to be distinct).
+`SensitiveNetwork` entry in `fake-data`.
+
+**Networks are not unique on code or name**, and the backfill keys the network id on the facility's
+id rather than its code. The first cut had unique indexes on both columns and built the id out of
+the code. The determinism CI job failed on it with `duplicate key value violates unique constraint
+"sensitive_networks_name_unique", Key (name)=(Central Dispensary) already exists`: `fake-data`
+composes a facility name from a fixed prefix and suffix pool, so two facilities land on the same
+name once there are enough of them. Codes escape it only because `codeFor` appends a random suffix.
+
+That is not just a fake-data artefact. `facilities` has no unique index on code or name, and
+neither do `departments`, `locations` or `reference_data` — all three declare one in the model,
+where it never reaches the database. Enforcing it on `sensitive_networks` would have been stricter
+than anything else in the schema, and would have aborted the upgrade partway through on a real
+deployment holding two facilities with the same name. Making the constraints deferrable does not
+help either: `INITIALLY IMMEDIATE` still checks at the end of the backfill's INSERT, and deferring
+to commit only moves the same failure.
+
+The facility id is the only column guaranteed distinct, and deriving from it also keeps the
+backfill deterministic, which the determinism job requires and a generated uuid would fail.
 
 ## Call sites that read facility sensitivity
 
@@ -114,5 +132,6 @@ will, so both need revisiting when it lands.
 
 ## New tests
 
-- [x] `packages/database/__tests__/models/SensitiveNetwork.test.ts` — membership, code and name
-      uniqueness, and the delete guard including the cascade trap and soft-deleted members
+- [x] `packages/database/__tests__/models/SensitiveNetwork.test.ts` — membership, two networks
+      sharing a code and name, and the delete guard including the cascade trap and soft-deleted
+      members

@@ -36,18 +36,11 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  // Deferrable so a sync-apply batch can transiently duplicate a code or name mid-transaction
-  // (see 1785000000000-makeUniqueConstraintsDeferrable.ts).
-  await query.sequelize.query(`
-    ALTER TABLE ${SENSITIVE_NETWORKS}
-      ADD CONSTRAINT ${SENSITIVE_NETWORKS}_code_unique
-      UNIQUE (code) DEFERRABLE INITIALLY IMMEDIATE;
-  `);
-  await query.sequelize.query(`
-    ALTER TABLE ${SENSITIVE_NETWORKS}
-      ADD CONSTRAINT ${SENSITIVE_NETWORKS}_name_unique
-      UNIQUE (name) DEFERRABLE INITIALLY IMMEDIATE;
-  `);
+  // Deliberately no unique constraint on code or name. The backfill derives both from the facility
+  // the network is made for, and facilities carry no uniqueness on either: `facilities` has only
+  // its primary key, as do `departments`, `locations` and `reference_data`, whose models declare a
+  // unique code that never reaches the database. Deployments do hold two facilities with the same
+  // name, so enforcing it here would fail the upgrade partway through.
 
   // A facility belongs to at most one network, and is sensitive exactly when this is set.
   await query.addColumn('facilities', 'sensitive_network_id', {
