@@ -39,11 +39,11 @@ export const runSyncSaveTransaction = async (
         await checkForeignKeys(queryRunner.manager, tableNames);
       } catch (diagnosticError) {
         if (diagnosticError instanceof ForeignKeyViolationError) throw diagnosticError;
-        // The diagnostic itself failed, likely for whatever reason the commit did. Surface the
-        // commit error as the real cause rather than let the diagnostic's error mask it.
-        console.error(
-          'runSyncSaveTransaction(): foreign_key_check failed after COMMIT failed',
-          diagnosticError,
+        // The diagnostic itself failed, likely for whatever reason the commit did. Keep the commit
+        // error as the cause rather than let the diagnostic's error mask it.
+        throw new Error(
+          `COMMIT failed and foreign_key_check could not run: ${diagnosticError.message}`,
+          { cause: commitError },
         );
       }
       // Otherwise the commit failed for some other reason
