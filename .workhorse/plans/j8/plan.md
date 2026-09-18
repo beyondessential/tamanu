@@ -127,14 +127,16 @@ light display type, and a dark capsule around the search.
   colour — navy with the kind's accent blurred from the top corner — while keeping Popular's compact
   row: icon chip at the left, kind label, title and section stacked beside it. The two sections now
   read as one family. **Popular is the light inverse of a Browse tile**: no fill at all, so the page
-  canvas shows through, outlined in its own kind colour — purple for a user manual, pink for a release
-  note — with the same blurred accent wash from the same corner, the same lift on hover, ink type, and
+  canvas shows through, outlined in its own kind colour at 75% strength — purple for a user manual,
+  pink for a release note — with the same blurred accent wash from the same corner, the same lift on hover, ink type, and
   the accent repeated in the icon chip. The outline makes the kind readable from the card's edge
   rather than only from its label. Holding Popular at a percentage of the brand dark was tried first and abandoned — the
   difference was only about 20 levels per channel, which the glow on top swamped, and lightening
   further would have pushed the muted white text under 4.5:1. The wash sits at 16% and the muted text
   is `--ink-2` rather than `--ink-3`, because the uppercase label overlaps the tint where `--ink-3`
-  measured 3.5:1.
+  measured 3.5:1. The outline is lightened rather than narrowed: a border cannot render under one
+  device pixel, so `0.75px` snaps back to the same solid hairline as `1px` at every density, and
+  reducing the colour is the only way to take weight out of it.
 - **The page sits on a soft neutral canvas** (`#F3F5F7`, Tamanu's own `background` token) rather
   than white, with the sticky top bar, cards, inputs, the search palette and the Ask AI drawer kept
   white so they read as surfaces on it. **Release notes is the exception and reads on white**, since
