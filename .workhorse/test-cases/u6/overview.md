@@ -21,7 +21,7 @@ Covers the data model and the migration of existing sensitive facilities. Member
 - [x] Two networks can share a code and a name, since each takes them from a facility and facilities
       are not distinct on either (verifies spec: SENSNET)
 - [ ] A network requires both a code and a name (verifies spec: SENSNET)
-- [ ] `sync_lookup` accepts and indexes a sensitive network id (verifies spec: SENSNET)
+- [ ] `sync_lookup` accepts a sensitive network id, and the index over it covers only the rows that carry one (verifies spec: SENSNET)
 - [ ] Networks pull from central to a facility server and are not pushed back (verifies spec: SENSNET)
 - [ ] A facility and its network arriving in one sync batch apply in dependency order, so the
       facility never lands before the network it references
@@ -40,14 +40,14 @@ Covers the data model and the migration of existing sensitive facilities. Member
 
 ## Facility access
 
-- [ ] With no facility in any network, a user who may access all non-sensitive facilities reaches
+- [x] With no facility in any network, a user who may access all non-sensitive facilities reaches
       every facility without enumeration (verifies spec: SENSNET)
 - [x] With one facility in a network, that same user reaches every non-networked facility plus
       their explicitly linked facilities (verifies spec: SENSNET)
 - [x] A user explicitly linked to one member of a network gains no access to its siblings
       (verifies spec: SENSNET)
 - [x] A user restricted to explicit links reaches those facilities whether or not they are networked
-- [ ] Mobile resolves all of the above identically to the server (verifies spec: SENSNET)
+- [x] Mobile resolves all of the above identically to the server (verifies spec: SENSNET)
 
 ## Mobile
 

@@ -44,11 +44,11 @@ DDL and DML in separate files (`packages/database/CLAUDE.md`), in this order:
 
 - [x] DDL: create `sensitive_networks`; add `facilities.sensitive_network_id` (nullable FK); add
       `sync_lookup.sensitive_network_id` (STRING, nullable, indexed) —
-      `1787600000000-createSensitiveNetworks.ts`
+      `1789695736424-createSensitiveNetworks.ts`
 - [x] DML: for each `facilities.is_sensitive = TRUE` facility that is not soft-deleted, create a
       network taking that facility's code and name, and point the facility at it —
-      `1787600000001-backfillSensitiveNetworks.ts`
-- [x] DDL: drop `facilities.is_sensitive` — `1787600000002-dropFacilityIsSensitive.ts`
+      `1789695736425-backfillSensitiveNetworks.ts`
+- [x] DDL: drop `facilities.is_sensitive` — `1789695736426-dropFacilityIsSensitive.ts`
 
 The drop has to be its own file and follow the backfill, which reads the column. Reversing runs
 them backwards, so the drop's `down` re-adds an empty column and the backfill's `down` refills it
@@ -135,3 +135,27 @@ will, so both need revisiting when it lands.
 - [x] `packages/database/__tests__/models/SensitiveNetwork.test.ts` — membership, two networks
       sharing a code and name, and the delete guard including the cascade trap and soft-deleted
       members
+- [x] `packages/mobile/App/models/User.spec.ts` — `allowedFacilityIds` against networked and
+      ordinary facilities, the shortcut when nothing is networked, and the restricted case
+
+## Notes from review
+
+**The delete guard is registered with `addHook`, not through `init`.** `Model.init` spreads
+`options.hooks` first and then overwrites `beforeDestroy`/`beforeBulkDestroy` with the generic
+cascade hooks, so a guard passed through the init options is silently dropped. Registering it after
+`super.init` appends to the hook chain instead. The cascade itself is a no-op here because the model
+declares no `HasMany`, which is deliberate and covered by its own test.
+
+**Mobile filters on the relation, not the id.** `where: { sensitiveNetwork: IsNull() }` is correct
+and `where: { sensitiveNetworkId: IsNull() }` throws `EntityPropertyNotFoundError`, because
+`@RelationId` produces a computed property rather than a column. Declaring an explicit `@Column`
+alongside `@JoinColumn` would make the id form work, but only five mobile models do that against 48
+using `@RelationId`, and `relationIds.spec.ts` sanctions the latter. `User.spec.ts` pins the
+behaviour either way.
+
+**The `sync_lookup` index is partial.** The column stays null for every record outside a network,
+so a full btree would hold an entry per `sync_lookup` row and be written on every update of the
+largest table in the deployment, to serve a predicate that admits nearly everything. The partial
+shape follows `sync_lookup_needs_rebuild_index` and still serves the one selective branch, a
+snapshot narrowed to a specific network. The column itself is unread until V6, which the card
+intends.

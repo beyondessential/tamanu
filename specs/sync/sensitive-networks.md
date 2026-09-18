@@ -44,7 +44,7 @@ Network membership scopes which data reaches a facility. It does not widen which
 ## Scoping sync by network
 
 - [ ] The sync lookup table carries the sensitive network a record belongs to, alongside the facility column that scopes genuinely facility-bound records such as patient facility links and facility-scoped settings.
-- [ ] The network column is indexed, because every outgoing snapshot filters on it.
+- [ ] The network column is indexed over the rows that carry a network. Records belonging to no network leave it unset, and a snapshot narrowing to one network is the only case the index has to serve.
 
 ## Facilities that were sensitive before networks existed
 
