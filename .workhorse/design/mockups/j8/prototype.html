@@ -759,7 +759,7 @@
   /* ---- Popular is the light inverse of the Browse tiles: same blurred accent
          wash from the same corner, same lift on hover, flipped onto white with
          ink type and the accent carried by the icon chip ---- */
-  .pcard { position:relative; overflow:hidden; color:var(--ink); border-radius:5px;
+  .pcard { position:relative; overflow:hidden; color:var(--ink); border-radius:16px;
     padding:20px; background:transparent;
     /* a hairline cannot render under one device pixel, so the outline is lightened
        to 75% rather than narrowed */
@@ -769,7 +769,7 @@
     border-radius:999px; background:var(--a); opacity:.16; filter:blur(42px); }
   .pcard:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(47,67,88,.16); }
   .pcard > * { position:relative; }
-  .pcard .ic { background:var(--a-10); color:var(--a); border-radius:4px;
+  .pcard .ic { background:var(--a-10); color:var(--a);
     border:1px solid color-mix(in srgb, var(--a) 20%, transparent); }
   /* the uppercase label overlaps the tint, where ink-3 falls under 4.5:1 */
   .pcard .kind { color:var(--ink-2); }
