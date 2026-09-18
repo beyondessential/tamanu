@@ -21,9 +21,6 @@ Mockups under `.workhorse/design/mockups/j8/`:
   per-article icon, so the kind is readable at a glance and the list can be generated from
   whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
   destinations. The two treatments are distinct so the sections do not read as one long grid.
-- `popular-card-options.html` — **exploration sheet**, not a hub surface: the Popular entries
-  rendered five ways (light glow, dark minis, hairline rows, ranked, kind stripe) against the current
-  treatment, for choosing an uplift that sits with the dark Browse bento. Delete once one is picked.
 - `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable
   sidebar + footer cluster). The browse area is a grid of **topic cards** (one per feature area,
   keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales
@@ -124,8 +121,14 @@ light display type, and a dark capsule around the search.
   is the bento layout wearing the dark treatment. Each cell is navy with a blurred wash of its kind's
   accent bleeding from the top corner. **User manuals leads**, spanning both rows, because it is what
   most people came for, and it earns the larger cell by listing its top sections as links rather than
-  padding the space. Release notes and Roadmap stack beside it. Popular stays a compact white
-  outlined row, so the two sections read as different kinds of thing.
+  padding the space. Release notes and Roadmap stack beside it.
+- **Popular wears the same dark treatment in its own layout.** Five uplifts were explored (light
+  glow, dark minis, hairline rows, ranked, kind stripe); the chosen combination takes the dark minis'
+  colour — navy with the kind's accent blurred from the top corner — while keeping Popular's compact
+  row: icon chip at the left, kind label, title and section stacked beside it. The two sections now
+  read as one family, distinguished by density rather than colour. The trade is a page that is
+  mostly brand dark from the top bar down to the footer, with the neutral canvas reduced to the
+  gutters between sections.
 - **The page sits on a soft neutral canvas** (`#F3F5F7`, Tamanu's own `background` token) rather
   than white, with the sticky top bar, cards, inputs, the search palette and the Ask AI drawer kept
   white so they read as surfaces on it. **Release notes is the exception and reads on white**, since
