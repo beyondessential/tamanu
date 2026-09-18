@@ -7,6 +7,14 @@ interface ForeignKeyViolation {
   parent: string;
 }
 
+/** Thrown by checkForeignKeys when it finds violations, as opposed to failing to run the check */
+export class ForeignKeyViolationError extends Error {
+  constructor(violations: string[]) {
+    super(`Foreign key constraint failed during sync: ${violations.join('; ')}`);
+    this.name = 'ForeignKeyViolationError';
+  }
+}
+
 /**
  * Surface any foreign key violations across the given tables, naming the offending records.
  *
@@ -53,5 +61,5 @@ export const checkForeignKeys = async (
     return `${table} record '${recordId}' references a missing ${parent} record`;
   });
 
-  throw new Error(`Foreign key constraint failed during sync: ${violations.join('; ')}`);
+  throw new ForeignKeyViolationError(violations);
 };

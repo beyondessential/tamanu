@@ -1,7 +1,7 @@
 import type { EntityManager } from 'typeorm';
 
 import { Database } from '~/infra/db';
-import { checkForeignKeys } from './checkForeignKeys';
+import { checkForeignKeys, ForeignKeyViolationError } from './checkForeignKeys';
 import { deferForeignKeys } from './deferForeignKeys';
 
 /**
@@ -34,8 +34,18 @@ export const runSyncSaveTransaction = async (
     try {
       await queryRunner.commitTransaction();
     } catch (commitError) {
-      // Throws a descriptive error if the failure was a foreign key violation
-      await checkForeignKeys(queryRunner.manager, tableNames);
+      try {
+        // Throws a descriptive error if the failure was a foreign key violation
+        await checkForeignKeys(queryRunner.manager, tableNames);
+      } catch (diagnosticError) {
+        if (diagnosticError instanceof ForeignKeyViolationError) throw diagnosticError;
+        // The diagnostic itself failed, likely for whatever reason the commit did. Surface the
+        // commit error as the real cause rather than let the diagnostic's error mask it.
+        console.error(
+          'runSyncSaveTransaction(): foreign_key_check failed after COMMIT failed',
+          diagnosticError,
+        );
+      }
       // Otherwise the commit failed for some other reason
       throw commitError;
     }
