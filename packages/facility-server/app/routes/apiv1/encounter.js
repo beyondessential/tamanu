@@ -59,6 +59,10 @@ import {
   getDischargeDraft,
   saveDischargeDraft,
 } from './encounterDischargeDraft';
+import {
+  getEncounterSyndromicSurveillance,
+  upsertEncounterSyndromicSurveillance,
+} from '../../routeHandlers/syndromicSurveillance';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -268,6 +272,12 @@ encounter.put(
             isDischargePrescription: true,
             lines: pharmacyOrderLines,
           });
+        }
+
+        if (req.body.syndromicSurveillance) {
+          // TODO: check create or write SyndromicSurveillance permission depending on whether a
+          // record already exists for this encounter, rather than relying on write Encounter.
+          await upsertEncounterSyndromicSurveillance(models, id, req.body.syndromicSurveillance);
         }
       }
 
@@ -491,6 +501,52 @@ encounterRelations.get(
       count,
       data: objects.map(object => object.forResponse()),
     });
+  }),
+);
+encounterRelations.get(
+  '/:id/syndromicSurveillance',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id: encounterId } = params;
+
+    req.checkPermission('read', 'SyndromicSurveillance');
+
+    const result = await getEncounterSyndromicSurveillance(models, encounterId);
+    res.json(result);
+  }),
+);
+encounter.post(
+  '/:id/syndromicSurveillance',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, body } = req;
+    const { id: encounterId } = params;
+
+    req.checkPermission('create', 'SyndromicSurveillance');
+
+    const encounterObject = await models.Encounter.findByPk(encounterId);
+    if (!encounterObject) throw new NotFoundError();
+
+    const result = await db.transaction(() =>
+      upsertEncounterSyndromicSurveillance(models, encounterId, body),
+    );
+    res.send(result);
+  }),
+);
+encounter.put(
+  '/:id/syndromicSurveillance',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, body } = req;
+    const { id: encounterId } = params;
+
+    req.checkPermission('write', 'SyndromicSurveillance');
+
+    const encounterObject = await models.Encounter.findByPk(encounterId);
+    if (!encounterObject) throw new NotFoundError();
+
+    const result = await db.transaction(() =>
+      upsertEncounterSyndromicSurveillance(models, encounterId, body),
+    );
+    res.send(result);
   }),
 );
 encounterRelations.get(
