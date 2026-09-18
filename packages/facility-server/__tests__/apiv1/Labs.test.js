@@ -436,6 +436,122 @@ describe('Labs', () => {
     expect(member.LabTestPanelLabTestTypes).toHaveProperty('order');
   });
 
+  describe('unorderable test types in panels', () => {
+    const createPanelWithMembers = async visibilityStatuses => {
+      const { id: labTestCategoryId } = await models.ReferenceData.create({
+        type: 'labTestCategory',
+        name: `Category ${chance.guid()}`,
+        code: chance.guid(),
+      });
+      const panel = await models.LabTestPanel.create({
+        name: `Panel ${chance.guid()}`,
+        code: chance.guid(),
+        categoryId: labTestCategoryId,
+      });
+      const members = [];
+      for (const visibilityStatus of visibilityStatuses) {
+        const labTestType = await models.LabTestType.create({
+          ...fake(models.LabTestType),
+          labTestCategoryId,
+          visibilityStatus,
+          isSensitive: false,
+          availableFacilities: null,
+        });
+        await models.LabTestPanelLabTestTypes.create({
+          labTestPanelId: panel.id,
+          labTestTypeId: labTestType.id,
+        });
+        members.push(labTestType);
+      }
+      return { panel, members };
+    };
+
+    const postLabRequest = async body => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId,
+      });
+      return app.post('/api/labRequest').send({ ...body, encounterId: encounter.id });
+    };
+
+    it('excludes reflex tests from panel members but keeps panelOnly ones', async () => {
+      const { panel, members } = await createPanelWithMembers([
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]);
+
+      const response = await app.get('/api/labTestPanel');
+      expect(response).toHaveSucceeded();
+
+      const returned = response.body.find(item => item.id === panel.id);
+      expect(returned.labTestTypes.map(({ id }) => id).sort()).toEqual(
+        [members[0].id, members[1].id].sort(),
+      );
+    });
+
+    // Matches how a panel of only-sensitive members behaves: still listed, with no members.
+    it('leaves a panel of only reflex tests listed with no members', async () => {
+      const { panel } = await createPanelWithMembers([
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]);
+
+      const response = await app.get('/api/labTestPanel');
+      expect(response).toHaveSucceeded();
+      const returned = response.body.find(item => item.id === panel.id);
+      expect(returned).toBeTruthy();
+      expect(returned.labTestTypes).toHaveLength(0);
+    });
+
+    it('excludes reflex tests from GET /api/labTestPanel/:id/labTestTypes', async () => {
+      const { panel, members } = await createPanelWithMembers([
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]);
+
+      const response = await app.get(`/api/labTestPanel/${panel.id}/labTestTypes`);
+      expect(response).toHaveSucceeded();
+      expect(response.body.map(({ id }) => id)).toEqual([members[0].id]);
+    });
+
+    it('does not create a lab test for a reflex test member when ordering a panel', async () => {
+      const { panel, members } = await createPanelWithMembers([
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]);
+
+      const response = await postLabRequest({ panelIds: [panel.id] });
+      expect(response).toHaveSucceeded();
+
+      const createdTests = await models.LabTest.findAll({
+        where: { labRequestId: response.body[0].id },
+      });
+      expect(createdTests.map(test => test.labTestTypeId).sort()).toEqual(
+        [members[0].id, members[1].id].sort(),
+      );
+    });
+
+    it('rejects a panel whose members are all reflex tests', async () => {
+      const { panel } = await createPanelWithMembers([
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]);
+
+      const response = await postLabRequest({ panelIds: [panel.id] });
+      expect(response).toHaveRequestError();
+    });
+
+    it('rejects a reflex test ordered individually', async () => {
+      const { members } = await createPanelWithMembers([
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]);
+
+      const response = await postLabRequest({ labTestTypeIds: [members[0].id] });
+      expect(response).toHaveRequestError();
+    });
+  });
+
   describe('sensitive test type via panel', () => {
     // `app` uses the practitioner role, which does NOT hold `create SensitiveLabRequest`.
     const createPanelWithTestType = async ({ isSensitive }) => {
