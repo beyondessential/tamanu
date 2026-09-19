@@ -1,7 +1,19 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+
+// Confidential data that has already synced to a facility cannot be recalled, and data a facility
+// recorded before joining a network already exists elsewhere in the deployment. So a facility's
+// network is fixed when the facility is created: it cannot be set later, cleared, or repointed.
+// spec: specs/sync/sensitive-networks.md
+//
+// Deliberately not exported. models/index.ts re-exports this file wholesale and initDatabase treats
+// every export as a model class, so a non-model export here breaks database init everywhere. Tests
+// assert against the message text directly.
+const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
 
 export class Facility extends Model {
   declare id: string;
@@ -47,6 +59,29 @@ export class Facility extends Model {
           { unique: true, fields: ['code'] },
           { unique: true, fields: ['name'] },
         ],
+        validate: {
+          // Covers every path that writes a facility through a loaded instance: the reference data
+          // import, and provisioning's own facilities block. Two paths are deliberately outside it,
+          // and both have to stay that way.
+          //
+          // Migrations write through raw SQL, so no validator runs. The schema card's backfill
+          // enrols existing sensitive facilities, which is exactly the transition refused here — a
+          // CHECK constraint or trigger would block it.
+          //
+          // Incoming sync writes through `Model.update(values, { where })` (see saveChanges.ts),
+          // which validates against `this.build(values)` — a fake instance with isNewRecord true.
+          // The isNewRecord check below is what lets that through, and it is load-bearing: once the
+          // backfill has run centrally, facility rows carrying a network sync down to facility
+          // servers that still hold them with none. Widening this guard to catch bulk updates would
+          // break sync on every one of them.
+          sensitiveNetworkIsFixed() {
+            if (this.isNewRecord) return;
+            if (!this.changed('sensitiveNetworkId')) return;
+            throw new InvalidOperationError(
+              `${SENSITIVE_NETWORK_IS_FIXED_MESSAGE} (facility ${this.code ?? this.id})`,
+            );
+          },
+        },
       },
     );
   }

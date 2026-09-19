@@ -4,6 +4,11 @@ import { fake } from '@tamanu/fake-data/fake';
 
 import { closeDatabase, createTestDatabase } from '../utilities';
 
+// Asserted as text rather than imported: the constant is deliberately not exported from
+// models/Facility, because initDatabase treats every export of a model file as a model class.
+const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
+
 // spec: specs/sync/sensitive-networks.md
 describe('SensitiveNetwork', () => {
   let models;
@@ -44,6 +49,107 @@ describe('SensitiveNetwork', () => {
     });
   });
 
+  describe('membership does not change', () => {
+    it('allows a facility to be created already enrolled in a network', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility(network.id);
+
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses enrolling an existing facility that belongs to no network', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility();
+
+      await expect(facility.update({ sensitiveNetworkId: network.id })).rejects.toThrow(
+        SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
+      );
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('refuses removing a facility from its network', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility(network.id);
+
+      await expect(facility.update({ sensitiveNetworkId: null })).rejects.toThrow(
+        SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
+      );
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses moving a facility to a different network', async () => {
+      const from = await createNetwork();
+      const to = await createNetwork();
+      const facility = await createFacility(from.id);
+
+      await expect(facility.update({ sensitiveNetworkId: to.id })).rejects.toThrow(
+        SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
+      );
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(from.id);
+    });
+
+    it('refuses moving a facility that is the sole member of its network', async () => {
+      const from = await createNetwork();
+      const to = await createNetwork();
+      const facility = await createFacility(from.id);
+
+      const members = await models.Facility.count({ where: { sensitiveNetworkId: from.id } });
+      expect(members).toBe(1);
+
+      await expect(facility.update({ sensitiveNetworkId: to.id })).rejects.toThrow(
+        SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
+      );
+    });
+
+    it('refuses enrolling a facility that was deleted while belonging to no network', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility();
+      await facility.destroy();
+
+      await facility.restore();
+      await expect(facility.update({ sensitiveNetworkId: network.id })).rejects.toThrow(
+        SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
+      );
+    });
+
+    it('names the facility in the refusal', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility();
+
+      await expect(facility.update({ sensitiveNetworkId: network.id })).rejects.toThrow(
+        facility.code,
+      );
+    });
+
+    it('leaves other facility fields writable on a networked facility', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility(network.id);
+
+      await facility.update({ name: 'Renamed facility' });
+
+      await facility.reload();
+      expect(facility.name).toBe('Renamed facility');
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('treats rewriting the same network as no change', async () => {
+      const network = await createNetwork();
+      const facility = await createFacility(network.id);
+
+      await facility.update({ sensitiveNetworkId: network.id, name: 'Still here' });
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+      expect(facility.name).toBe('Still here');
+    });
+  });
+
   describe('deletion', () => {
     it('refuses to delete a network that has a member facility', async () => {
       const network = await createNetwork();
@@ -59,17 +165,6 @@ describe('SensitiveNetwork', () => {
       await network.destroy();
 
       expect(await models.SensitiveNetwork.findByPk(network.id)).toBeNull();
-    });
-
-    it('deletes a network left empty by its only member moving elsewhere', async () => {
-      const emptied = await createNetwork();
-      const destination = await createNetwork();
-      const facility = await createFacility(emptied.id);
-
-      await facility.update({ sensitiveNetworkId: destination.id });
-      await emptied.destroy();
-
-      expect(await models.SensitiveNetwork.findByPk(emptied.id)).toBeNull();
     });
 
     // The generic beforeDestroy hook cascades a soft delete to a model's HasMany targets, which is
@@ -111,19 +206,19 @@ describe('SensitiveNetwork', () => {
     });
   });
 
-  describe('labels', () => {
-    // Networks take the code and name of the facility they were made for, and two facilities can
-    // share both. Constraining either here would fail the upgrade partway through on a deployment
-    // that has such a pair.
-    it('allows two networks to share a code and a name', async () => {
+  describe('uniqueness', () => {
+    it('refuses a second network with the same code', async () => {
       const existing = await createNetwork();
-      const twin = await models.SensitiveNetwork.create(
-        fake(models.SensitiveNetwork, { code: existing.code, name: existing.name }),
-      );
+      await expect(
+        models.SensitiveNetwork.create(fake(models.SensitiveNetwork, { code: existing.code })),
+      ).rejects.toThrow();
+    });
 
-      expect(twin.id).not.toBe(existing.id);
-      expect(twin.code).toBe(existing.code);
-      expect(twin.name).toBe(existing.name);
+    it('refuses a second network with the same name', async () => {
+      const existing = await createNetwork();
+      await expect(
+        models.SensitiveNetwork.create(fake(models.SensitiveNetwork, { name: existing.name })),
+      ).rejects.toThrow();
     });
   });
 });
