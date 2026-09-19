@@ -266,7 +266,13 @@ export async function importRows(
       validRows.push({
         model,
         sheetRow,
-        values: await schema.validate(values, { abortEarly: false, context: validationContext }),
+        // models first so an explicit validationContext still wins, and so schemas that need to
+        // check a value against the database get it on every import path, not just the ones whose
+        // caller happens to pass it.
+        values: await schema.validate(values, {
+          abortEarly: false,
+          context: { models, ...validationContext },
+        }),
       });
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');

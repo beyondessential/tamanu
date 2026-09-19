@@ -8,20 +8,35 @@ import { QueryInterface } from 'sequelize';
 // preserves that exactly; pooling them into one shared network would newly expose each facility's
 // confidential data to the others, which cannot be undone once synced.
 //
-// An operator who does want them in one network merges them afterwards through the reference data
-// import, which is allowed because each facility is the sole member of its own network.
-// The network id is derived from the facility's primary key rather than its code, because id is
-// the only column a facility is guaranteed distinct on: nothing constrains code or name. Deriving
-// it rather than generating a uuid also keeps the backfill deterministic.
+// A facility's network is fixed once the facility exists, so an operator cannot merge these
+// networks through the reference data import. Where a deployment genuinely wants two facilities
+// sharing one network, that is a deliberate widening of confidentiality and is done as a named
+// upgrade step (see mergeFijiSensitiveNetworks).
 export async function up(query: QueryInterface): Promise<void> {
+  // Every value here has to be unique, and only facilities.id can be relied on for that.
+  //
+  // The id is derived from the facility id rather than its code: a code admits . and /, which an
+  // import rejects in an id, and stripping them is lossy — two distinct codes can collapse onto one
+  // (A/B and AB) and a code of pure punctuation leaves a bare prefix.
+  //
+  // code and name are the facility's, but sensitive_networks holds both unique and facilities holds
+  // neither, so two facilities may well share a name ("Central Clinic" in two divisions). Where a
+  // value repeats among the facilities being backfilled, the facility id qualifies it.
+  //
+  // A collision either way fails the upgrade, and only on the deployments that happen to hold such
+  // a facility. An administrator can rename any of this through the reference data import after.
   await query.sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)
-    SELECT 'sensitiveNetwork-' || id, code, name
+    SELECT
+      'sensitiveNetwork-' || id,
+      CASE WHEN COUNT(*) OVER (PARTITION BY code) > 1 THEN code || '-' || id ELSE code END,
+      CASE WHEN COUNT(*) OVER (PARTITION BY name) > 1 THEN name || ' (' || id || ')' ELSE name END
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL;
   `);
 
+  // Same derivation, so each facility pairs with the network just created from it.
   await query.sequelize.query(`
     UPDATE facilities
     SET sensitive_network_id = 'sensitiveNetwork-' || id
