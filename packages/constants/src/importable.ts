@@ -80,6 +80,7 @@ export const OTHER_REFERENCE_TYPES = {
   INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
   INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
+  SENSITIVE_NETWORK: 'sensitiveNetwork',
 } as const;
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);

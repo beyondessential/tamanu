@@ -27,9 +27,11 @@ export class SensitiveNetwork extends Model {
       },
       {
         ...options,
-        // No unique index on code or name: they are labels carried over from the facility each
-        // network was made for, and facilities are not unique on either.
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        indexes: [
+          { unique: true, fields: ['code'] },
+          { unique: true, fields: ['name'] },
+        ],
       },
     );
 

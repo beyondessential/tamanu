@@ -8,6 +8,7 @@ import { utils } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
+  OTHER_REFERENCE_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
   SETTINGS_SCOPES,
@@ -100,11 +101,13 @@ const initialiseDatabaseWithRetry = async () => {
 function validateFullReferenceDataImport(workbook) {
   // 'user' has special logic and 'administeredVaccine' is a special case used for existing
   // deployments. Charging overlays are optional (absent = per-unit, the default), so a complete
-  // seed doesn't require charging data.
+  // seed doesn't require charging data. Sensitive networks only exist in a deployment that holds
+  // confidential data, so having none is the correct state rather than an incomplete seed.
   const EXCLUDED_FROM_FULL_IMPORT_CHECK = [
     'user',
     'administeredVaccine',
     PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING,
+    OTHER_REFERENCE_TYPES.SENSITIVE_NETWORK,
   ];
 
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
