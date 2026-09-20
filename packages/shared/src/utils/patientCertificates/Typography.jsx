@@ -61,8 +61,10 @@ export const P = ({ mt = 0, mb, bold = false, fontSize = 14, style = {}, ...prop
     bold={bold}
   />
 );
+const keepWordsWhole = word => [word];
+
 export const CertificateAddress = props => (
-  <Text bold style={styles.certificateAddress} {...props} />
+  <Text bold style={styles.certificateAddress} hyphenationCallback={keepWordsWhole} {...props} />
 );
 export const CertificateTitle = props => <Text bold style={styles.certificateTitle} {...props} />;
 export const CertificateSubtitle = props => <Text style={styles.certificateSubtitle} {...props} />;
