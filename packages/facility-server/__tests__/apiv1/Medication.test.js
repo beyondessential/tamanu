@@ -1591,6 +1591,179 @@ describe('Medication', () => {
         expect(visible.body.data.find(d => d.id === dispense.id)).toBeDefined();
       });
     });
+
+    describe('area', () => {
+      // The pharmacy order chain's own encounter is always discharged (endDate set), so these
+      // tests give the patient a second, currently active encounter in a different location
+      // group to prove the area column reflects the patient's CURRENT encounter, not the one
+      // tied to the dispense.
+      const createActiveEncounter = ({ patientId, locationId }) =>
+        models.Encounter.create(
+          fake(models.Encounter, {
+            patientId,
+            locationId,
+            departmentId: department.id,
+            examinerId: app.user.id,
+            endDate: null,
+          }),
+        );
+
+      it("should return the patient's current area, not the dispense's own encounter location", async () => {
+        const areaPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: areaPatient.id,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+        const dispenseId = dispenseResult.body[0].id;
+
+        const currentLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId }),
+        );
+        const currentLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: currentLocationGroup.id, facilityId }),
+        );
+        await createActiveEncounter({
+          patientId: areaPatient.id,
+          locationId: currentLocation.id,
+        });
+
+        const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
+
+        const row = result.body.data.find(d => d.id === dispenseId);
+        expect(row).toBeDefined();
+        expect(row.currentAreaName).toBe(currentLocationGroup.name);
+      });
+
+      it('should return a null currentAreaName when the patient has no active encounter', async () => {
+        const areaPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: areaPatient.id,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+        const dispenseId = dispenseResult.body[0].id;
+
+        const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
+
+        const row = result.body.data.find(d => d.id === dispenseId);
+        expect(row).toBeDefined();
+        expect(row.currentAreaName).toBeFalsy();
+      });
+
+      it('should filter by locationGroupId, matching the current encounter, not the dispensed one', async () => {
+        const areaPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: areaPatient.id,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+        const dispenseId = dispenseResult.body[0].id;
+
+        const currentLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId }),
+        );
+        const currentLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: currentLocationGroup.id, facilityId }),
+        );
+        await createActiveEncounter({
+          patientId: areaPatient.id,
+          locationId: currentLocation.id,
+        });
+
+        const matching = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&locationGroupId=${currentLocationGroup.id}`,
+        );
+        expect(matching).toHaveSucceeded();
+        expect(matching.body.data.find(d => d.id === dispenseId)).toBeDefined();
+
+        const other = await models.LocationGroup.create(fake(models.LocationGroup, { facilityId }));
+        const notMatching = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&locationGroupId=${other.id}`,
+        );
+        expect(notMatching).toHaveSucceeded();
+        expect(notMatching.body.data.find(d => d.id === dispenseId)).toBeUndefined();
+      });
+
+      it('should sort by currentAreaName', async () => {
+        const firstLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId, name: 'Area A' }),
+        );
+        const firstLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: firstLocationGroup.id, facilityId }),
+        );
+        const secondLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId, name: 'Area B' }),
+        );
+        const secondLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: secondLocationGroup.id, facilityId }),
+        );
+
+        const firstPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription: firstPharmacyOrderPrescription } =
+          await createPharmacyOrderWithPrescription({ patientId: firstPatient.id });
+        const firstDispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: firstPharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(firstDispenseResult).toHaveSucceeded();
+        await createActiveEncounter({ patientId: firstPatient.id, locationId: firstLocation.id });
+
+        const secondPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription: secondPharmacyOrderPrescription } =
+          await createPharmacyOrderWithPrescription({ patientId: secondPatient.id });
+        const secondDispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: secondPharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(secondDispenseResult).toHaveSucceeded();
+        await createActiveEncounter({ patientId: secondPatient.id, locationId: secondLocation.id });
+
+        const ascending = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&orderBy=currentAreaName&order=ASC&rowsPerPage=100`,
+        );
+        expect(ascending).toHaveSucceeded();
+        const ascendingIds = ascending.body.data.map(d => d.id);
+        expect(ascendingIds.indexOf(firstDispenseResult.body[0].id)).toBeLessThan(
+          ascendingIds.indexOf(secondDispenseResult.body[0].id),
+        );
+
+        const descending = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&orderBy=currentAreaName&order=DESC&rowsPerPage=100`,
+        );
+        expect(descending).toHaveSucceeded();
+        const descendingIds = descending.body.data.map(d => d.id);
+        expect(descendingIds.indexOf(secondDispenseResult.body[0].id)).toBeLessThan(
+          descendingIds.indexOf(firstDispenseResult.body[0].id),
+        );
+      });
+    });
   });
 
   describe('GET /api/patient/:id/dispensed-medications', () => {
