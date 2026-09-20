@@ -428,7 +428,7 @@ test.describe('Vaccines', () => {
         true,
       );
 
-      await patientDetailsPage.patientVaccinePane?.vaccineNotGivenCheckbox.click();
+      await expect(patientDetailsPage.patientVaccinePane!.vaccineNotGivenCheckbox).toBeChecked();
 
       await assertEditedVaccine(patientDetailsPage, editedVaccine);
     });

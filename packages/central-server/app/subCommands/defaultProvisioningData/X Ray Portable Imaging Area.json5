@@ -1,0 +1,137 @@
+{
+  "sheetName": "X Ray Portable Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "xRayPortableImagingArea-AbdomenErectandSupine",
+      "code": "AbdomenErectandSupine",
+      "name": "Abdomen Erect and Supine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-AbdomenPlain",
+      "code": "AbdomenPlain",
+      "name": "Abdomen - Plain",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-AbdomenRenal",
+      "code": "AbdomenRenal",
+      "name": "Abdomen - Renal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-AnkleandLegLeft",
+      "code": "AnkleandLegLeft",
+      "name": "Ankle and Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-AnkleandLegRight",
+      "code": "AnkleandLegRight",
+      "name": "Ankle and Leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-Chest",
+      "code": "Chest",
+      "name": "Chest",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-FacialBones",
+      "code": "FacialBones",
+      "name": "Facial Bones",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-HandBoneAge",
+      "code": "HandBoneAge",
+      "name": "Hand - Bone Age",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-HandLeft",
+      "code": "HandLeft",
+      "name": "Hand - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-HandRight",
+      "code": "HandRight",
+      "name": "Hand - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-PelvisArea",
+      "code": "PelvisArea",
+      "name": "Pelvis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-RibsBothsides",
+      "code": "RibsBothsides",
+      "name": "Ribs - Both sides",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-RibsLeft",
+      "code": "RibsLeft",
+      "name": "Ribs - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-RibsRight",
+      "code": "RibsRight",
+      "name": "Ribs - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-Skull",
+      "code": "Skull",
+      "name": "Skull",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-SpineCervical",
+      "code": "SpineCervical",
+      "name": "Spine - Cervical",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-SpineFull",
+      "code": "SpineFull",
+      "name": "Spine - Full",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-SpineThoracic",
+      "code": "SpineThoracic",
+      "name": "Spine - Thoracic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-SternumOnly",
+      "code": "SternumOnly",
+      "name": "Sternum Only",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-WristLeft",
+      "code": "WristLeft",
+      "name": "Wrist - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "xRayPortableImagingArea-WristRight",
+      "code": "WristRight",
+      "name": "Wrist - Right",
+      "visibilityStatus": "current"
+    }
+  ]
+}

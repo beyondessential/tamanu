@@ -134,13 +134,10 @@ export class FhirDiagnosticReport extends FhirResource {
         `entered-in-error DiagnosticReport can only be applied to a published LabRequest`,
       );
     }
-    await this.sequelize.transaction(async () => {
-      const newStatus = this.getLabRequestStatus();
 
-      if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
-        return;
-      }
+    const newStatus = this.getLabRequestStatus();
 
+    if (this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
       labRequest.set({ status: newStatus });
       if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
         labRequest.set({ publishedDate: getCurrentDateTimeString() });
@@ -160,7 +157,7 @@ export class FhirDiagnosticReport extends FhirResource {
       if (this.presentedForm) {
         await this.saveAttachment(labRequest);
       }
-    });
+    }
 
     return labRequest;
   }

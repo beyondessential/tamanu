@@ -39,6 +39,7 @@ import {
 } from '~/constants/medications';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getDefaultIdealTimes } from '~/ui/helpers/medicationHelpers';
 import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
@@ -107,11 +108,11 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         }),
       ]);
 
-      const idealTimes =
-        values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-        values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-          ? ''
-          : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
+      // Frequencies with no schedule ('Immediately', 'As directed') resolve to no times at all.
+      const idealTimes = getDefaultIdealTimes(
+        values.frequency,
+        frequenciesAdministrationIdealTimes,
+      ).join(',');
       const data = {
         ...values,
         doseAmount: values.doseAmount || null,
@@ -165,20 +166,18 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         model: ReferenceData,
         options: {
           column: 'name',
-          where: {
-            type: ReferenceDataType.Drug,
-          },
           relations: ['referenceDrug'],
+          where: { type: ReferenceDataType.Drug },
+          // A drug with no reference_drugs row joins to NULL, and isn’t sensitive
+          andWhere: canCreateSensitiveMedication
+            ? undefined
+            : { sql: 'COALESCE(referenceDrug.isSensitive, 0) = 0' },
         },
         formatter: (record: any) => ({
           label: record.entity_display_label,
           value: record.entity_id,
           ...record,
         }),
-        filter: (data: any) => {
-          const isSensitive = data.referenceDrug_isSensitive;
-          return !isSensitive || canCreateSensitiveMedication;
-        },
       }),
     [canCreateSensitiveMedication],
   );
@@ -577,9 +576,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   backgroundColor={theme.colors.WHITE}
                   textColor={theme.colors.PRIMARY_MAIN}
                   outline
-                  onPress={() => {
-                    navigation.goBack();
-                  }}
+                  onPress={navigation.goBack}
                   buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
                 />
               </ScrollView>

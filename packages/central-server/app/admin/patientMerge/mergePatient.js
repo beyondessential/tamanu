@@ -4,7 +4,6 @@ import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { refreshChildRecordsForSync } from '@tamanu/shared/utils/refreshChildRecordsForSync';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 
@@ -12,9 +11,6 @@ const BULK_CREATE_BATCH_SIZE = 100;
 // Models included here will just have their patientId field
 // redirected to the new patient and that's all.
 
-// IMPORTANT: Any models here that have child records, please add the logic to handle them
-// in:
-// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
 export const simpleUpdateModels = [
   'Encounter',
   'PatientAllergy',
@@ -42,9 +38,6 @@ export const simpleUpdateModels = [
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
 
-// IMPORTANT: Any models here that have child records, please add the logic to handle them
-// in:
-// - updateDependentRecordsForResync function in this file AND PatientMergeMaintainer.js.
 export const specificUpdateModels = [
   'Patient',
   'PatientAdditionalData',
@@ -363,20 +356,18 @@ export async function mergePortalUser(models, keepPatientId, unwantedPatientId) 
 export async function mergePatientInvoiceInsurancePlans(models, keepPatientId, unwantedPatientId) {
   const existingUnwantedInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
     where: { patientId: unwantedPatientId },
-    paranoid: false,
   });
   if (!existingUnwantedInvoiceInsurancePlans.length) {
     return [];
   }
   const existingKeepInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
     where: { patientId: keepPatientId },
-    paranoid: false,
   });
 
   const affectedRecords = [];
 
-  // For each unwanted invoice insurance plan,
-  // update the patientId to the keep patient if it doesn't exist in the keep patient
+  // Move each unwanted plan to the keep patient, unless the keep patient already has a row for
+  // that plan — the composite primary key allows only one row per (patient, plan) pair.
   for (const unwantedInvoiceInsurancePlan of existingUnwantedInvoiceInsurancePlans) {
     if (
       !existingKeepInvoiceInsurancePlans.some(
@@ -390,23 +381,23 @@ export async function mergePatientInvoiceInsurancePlans(models, keepPatientId, u
     }
   }
 
-  // For each keep invoice insurance plan,
-  // if it matches an unwanted invoice insurance plan AND it is soft deleted, restore it
+  // Where both patients have the same plan but the keep patient's is historical while the unwanted
+  // patient's is current, bring the keep patient's row back to current so the merged patient keeps
+  // the plan.
   for (const keepInvoiceInsurancePlan of existingKeepInvoiceInsurancePlans) {
     const matchedUnwantedInvoiceInsurancePlan = existingUnwantedInvoiceInsurancePlans.find(
-      p =>
-        p.invoiceInsurancePlanId === keepInvoiceInsurancePlan.invoiceInsurancePlanId
+      p => p.invoiceInsurancePlanId === keepInvoiceInsurancePlan.invoiceInsurancePlanId,
     );
-    // If
-    // 1. the unwanted invoice insurance plan exists and is not soft deleted, and
-    // 2. the keep invoice insurance plan is soft deleted,
-    // then restore the keep invoice insurance plan
-    const shouldRestore = matchedUnwantedInvoiceInsurancePlan && !matchedUnwantedInvoiceInsurancePlan.deletedAt && keepInvoiceInsurancePlan.deletedAt;
-    if (shouldRestore) {
-      await keepInvoiceInsurancePlan.restore();
+    const shouldMakeCurrent =
+      matchedUnwantedInvoiceInsurancePlan?.visibilityStatus === VISIBILITY_STATUSES.CURRENT &&
+      keepInvoiceInsurancePlan.visibilityStatus === VISIBILITY_STATUSES.HISTORICAL;
+    if (shouldMakeCurrent) {
+      await keepInvoiceInsurancePlan.update({ visibilityStatus: VISIBILITY_STATUSES.CURRENT });
       affectedRecords.push(keepInvoiceInsurancePlan);
     }
   }
+
+  return affectedRecords;
 }
 
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
@@ -441,43 +432,6 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
     await models.PatientFacility.bulkCreate(chunkOfRecords);
   }
   return newPatientFacilities;
-}
-
-export async function refreshMultiChildRecordsForSync(model, records) {
-  for (const record of records) {
-    await refreshChildRecordsForSync(model, record.id);
-  }
-}
-
-/**
- * Due to the generic cascade deletion hook, when the unwanted patient deletion is synced down to facility,
- * all dependent records that are not updated as part of this transaction will also be soft deleted in facility.
- * Hence, we need to update the dependent records of unwanted patient in this transaction, so that they are not soft deleted.
- * @param {*} models
- * @param {*} unwantedPatientId
- */
-async function updateDependentRecordsForResync(models, unwantedPatientId) {
-  // Encounters
-  const encounters = await models.Encounter.findAll({
-    where: { patientId: unwantedPatientId },
-    attributes: ['id'],
-  });
-  await refreshMultiChildRecordsForSync(models.Encounter, encounters);
-
-  // Patient Care Plans
-  const patientCarePlans = await models.PatientCarePlan.findAll({
-    where: { patientId: unwantedPatientId },
-    attributes: ['id'],
-  });
-  await refreshMultiChildRecordsForSync(models.PatientCarePlan, patientCarePlans);
-
-  // Patient Death Data
-  const patientDeathDataRecords = await models.PatientDeathData.findAll({
-    where: { patientId: unwantedPatientId },
-
-    attributes: ['id'],
-  });
-  await refreshMultiChildRecordsForSync(models.PatientDeathData, patientDeathDataRecords);
 }
 
 export async function mergePatient(
@@ -521,9 +475,10 @@ export async function mergePatient(
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
 
-    // See the function's documentation for more details on why this is needed
     if (updateDependentRecordsForResyncEnabled) {
-      await updateDependentRecordsForResync(models, unwantedPatientId);
+      // Re-queues every lookup row still scoped to this patient: repointing misses join-derived
+      // scope, and the facility cascade hook deletes dependants that don't arrive with the tombstone.
+      await models.LocalSystemFact.flagLookupPatientsForRebuild([unwantedPatientId]);
     }
 
     updates.Patient = 2;

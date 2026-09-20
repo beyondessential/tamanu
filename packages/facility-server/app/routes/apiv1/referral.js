@@ -6,7 +6,7 @@ import { permissionCheckingRouter, simpleGet, simplePut } from '@tamanu/shared/u
 export const referral = express.Router();
 
 referral.get('/:id', simpleGet('Referral', { auditAccess: true }));
-referral.put('/:id', simplePut('Referral'));
+referral.put('/:id', simplePut('Referral', { allowedFields: ['status'] }));
 referral.post(
   '/',
   asyncHandler(async (req, res) => {

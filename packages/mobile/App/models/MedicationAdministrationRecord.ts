@@ -16,7 +16,10 @@ import {
   startOfDay,
 } from 'date-fns';
 import { areDatesInSameTimeSlot, getFirstAdministrationDate } from '~/ui/helpers/medicationHelpers';
-import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS,
+} from '~/constants/medications';
 import { EncounterPrescription } from './EncounterPrescription';
 import { EncounterType } from '~/types/IEncounter';
 import { Task } from './Task';
@@ -100,7 +103,9 @@ export class MedicationAdministrationRecord extends BaseModel {
 
     // Get the first administration date for the prescription
     let firstAdministrationDate: Date | undefined;
-    const idealTimes = prescription.idealTimes?.split(',') || [];
+    // A prescription synced from central can carry an empty `idealTimes` array, which round-trips
+    // to '' here — and ''.split(',') is [''], not [], which would reach date parsing and throw.
+    const idealTimes = prescription.idealTimes?.split(',').filter(Boolean) || [];
     if (idealTimes && idealTimes.length > 0) {
       firstAdministrationDate = getFirstAdministrationDate(
         new Date(prescription.startDate),
@@ -194,6 +199,8 @@ export class MedicationAdministrationRecord extends BaseModel {
 
     // Skip if this is a PRN medication
     if (!prescription || prescription.isPrn) return;
+
+    if (FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS.has(prescription.frequency)) return;
 
     const encounterPrescription = await EncounterPrescription.findOne({
       where: { prescription: { id: prescription.id } },

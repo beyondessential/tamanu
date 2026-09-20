@@ -1,5 +1,21 @@
+import {
+  ADMINISTRATION_FREQUENCY_DETAILS,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
+  type AdministrationFrequency,
+} from '@tamanu/constants';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '~/constants/medications';
 import { addDays, format, isSameDay, set } from 'date-fns';
+
+/** @privateRemarks Duplicate of namesake from `@tamanu/shared/src/utils/medication.js`. */
+export const getDefaultIdealTimes = (
+  frequency: AdministrationFrequency,
+  configuredAdministrationTimes?: Record<string, `${number}:${number}`[]>,
+): readonly string[] => {
+  const configured = FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES.has(frequency)
+    ? undefined
+    : configuredAdministrationTimes?.[frequency];
+  return configured ?? ADMINISTRATION_FREQUENCY_DETAILS[frequency]?.startTimes ?? [];
+};
 
 export const getDateFromTimeString = (
   time: `${number}:${number}` | Date,

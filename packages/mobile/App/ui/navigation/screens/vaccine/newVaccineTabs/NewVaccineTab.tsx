@@ -1,33 +1,36 @@
-import React, { type FC, type ReactElement, useCallback } from 'react';
-import { StackActions, useNavigation } from '@react-navigation/native';
+import { type RouteProp, StackActions, useNavigation } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Route } from 'react-native-tab-view';
-import type { SvgProps } from 'react-native-svg';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
 import { formatISO9075, parseISO } from 'date-fns';
-
-import { withPatient } from '~/ui/containers/Patient';
-import { StyledSafeAreaView } from '/styled/common';
-import { VaccineForm, type VaccineFormValues } from '/components/Forms/VaccineForms';
-import type { VaccineDataProps } from '/components/VaccineCard';
-import { useBackend } from '~/ui/hooks';
+import React, { type ReactElement, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { compose } from 'redux';
+import type { AdministeredVaccine } from '~/models/AdministeredVaccine';
 import { EncounterType, type IPatient } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { returnToVaccineTable } from '~/ui/helpers/navigators';
-import { Routes } from '~/ui/helpers/routes';
+import { withPatient } from '~/ui/containers/Patient';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { returnToVaccineTable } from '~/ui/helpers/navigators';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { Routes } from '~/ui/helpers/routes';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { useBackend } from '~/ui/hooks';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { VaccineCategory } from '../../../../helpers/patient';
-import type { AdministeredVaccine } from '~/models/AdministeredVaccine';
+import { VaccineForm, type VaccineFormValues } from '/components/Forms/VaccineForms';
+import type { VaccineDataProps } from '/components/VaccineCard';
+import { StyledSafeAreaView } from '/styled/common';
+
+type NewVaccineTabRouteProps = RouteProp<
+  {
+    NewVaccineTab: {
+      vaccine: VaccineDataProps;
+      status: VaccineStatus;
+    };
+  },
+  'NewVaccineTab'
+>;
 
 type NewVaccineTabProps = {
-  route: Route & {
-    icon: FC<SvgProps>;
-    color?: string;
-    vaccine: VaccineDataProps;
-  };
+  route: NewVaccineTabRouteProps;
   selectedPatient: IPatient;
 };
 
@@ -47,13 +50,9 @@ export const NewVaccineTabComponent = ({
   route,
   selectedPatient,
 }: NewVaccineTabProps): ReactElement => {
-  const { vaccine } = route;
+  const { vaccine, status } = route.params;
   const { administeredVaccine } = vaccine;
   const navigation = useNavigation();
-
-  const onPressCancel = useCallback(() => {
-    navigation.goBack();
-  }, []);
 
   const user = useSelector(authUserSelector);
 
@@ -188,13 +187,13 @@ export const NewVaccineTabComponent = ({
     <StyledSafeAreaView flex={1}>
       <VaccineForm
         onSubmit={recordVaccination}
-        onCancel={onPressCancel}
+        onCancel={navigation.goBack}
         patientId={selectedPatient.id}
         initialValues={{
           ...vaccineObject,
           date: vaccineObject.date ? parseISO(vaccineObject.date) : null,
         }}
-        status={route.key as VaccineStatus}
+        status={status}
       />
     </StyledSafeAreaView>
   );

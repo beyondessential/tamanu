@@ -34,6 +34,10 @@ Readability is the highest priority. Every line of code is read many times over 
 - Schema changes (added/removed/changed tables or columns) require updating the dbt source models in `database/model/` — see `packages/database/CLAUDE.md`
 - Adding a new **importable reference-data type** (a new `reference_data` type, or anything added to `OTHER_REFERENCE_TYPES` that flows into `GENERAL_IMPORTABLE_DATA_TYPES`) makes it **required by the provisioning completeness check** (`validateFullReferenceDataImport` in `provision.js`). You must either add a matching `packages/central-server/app/subCommands/defaultProvisioningData/<Sheet>.json5` (with at least one data row) **or** add it to `EXCLUDED_FROM_FULL_IMPORT_CHECK` if it's optional — otherwise `provision` throws and the deploy's central-provisioner job fails (central-api never starts).
 
+### Fake data
+
+- A new data type ships with realistic fake data. For a `reference_data` type, add a name pool to `REFERENCE_DATA_NAMES` in `packages/fake-data/src/fake/names.ts`; without one, generated rows are named `<Type> 42`. For a new model that seeded environments should carry, add a `fake<Model>()` helper in `fake.ts`, generate it in `populateDb/generateEachDataType.ts` and the populateDb helper for the clinical flow it belongs to, and give it a count in `populateDb/parseTally/standard.json`.
+
 ### Queries
 
 - **Bound the work by what the response returns.** If a query pages its output, its joins and aggregates must be scoped to that page too. A CTE bounded by the parent record (an encounter, a patient) rather than the page does work proportional to that record's entire history, so it degrades worst for the longest-staying patients — the ones whose data is most needed. Watch for an aggregate computed over a wider set than the page and then discarded by the outer join.

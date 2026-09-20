@@ -6,6 +6,7 @@ import {
   BLOB_SERVE_POLICIES,
   BLOB_SERVE_POLICIES_VALUES,
   BROWSER_SUPPORT_POLICIES,
+  FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
   IMAGING_TYPES_VALUES,
   isValidAdditionalSearchField,
   PLATFORM_SUPPORT_POLICIES,
@@ -2189,6 +2190,16 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
+            [ADMINISTRATION_FREQUENCIES.HOURLY]: {
+              description: ADMINISTRATION_FREQUENCIES.HOURLY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.HALF_HOURLY]: {
+              description: ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
             [ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY]: {
               description: ADMINISTRATION_FREQUENCIES.EVERY_SECOND_DAY,
               type: yup.boolean(),
@@ -2228,8 +2239,11 @@ export const globalSettings = {
               frequency =>
                 !(
                   [
+                    // Not true frequencies
                     ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
                     ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                    // So frequent, not meaningful to customise
+                    ...FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
                   ] as AdministrationFrequency[]
                 ).includes(frequency),
             ),

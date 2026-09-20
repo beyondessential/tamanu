@@ -49,6 +49,7 @@ import {
   checkPharmacyOrderPermission,
   checkSensitiveMedicationPermission,
   createPharmacyOrder,
+  getDisplayedPharmacyRequest,
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { DISCHARGE_MEDICATIONS_SCHEMA } from './medicationValidationSchema';
@@ -458,7 +459,10 @@ encounterRelations.get(
 
     req.checkPermission('list', 'Medication');
 
-    const associations = Prescription.getListReferenceAssociations() || [];
+    // medication is included explicitly below with its referenceDrug nested include
+    const associations = (Prescription.getListReferenceAssociations() || []).filter(
+      association => association !== 'medication',
+    );
 
     const medicationFilter = {};
     const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
@@ -577,6 +581,10 @@ encounterRelations.get(
 
     const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
+      // The sensitive-medication filter references the nested medication->referenceDrug join.
+      // Applying a limit would otherwise make Sequelize emit that join inside a subquery while
+      // leaving the WHERE outside it, and Postgres reports a missing FROM-clause entry.
+      subQuery: false,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
@@ -603,6 +611,15 @@ encounterRelations.get(
       );
       const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
+      // Which single request to surface in a "last sent" column: the earliest one still awaiting
+      // dispense, else the most recent dispensed one. Distinct from lastOrderedAt above, which
+      // answers "when was this last sent" for recency checks — see getDisplayedPharmacyRequest.
+      const pharmacyRequests = await getDisplayedPharmacyRequest(
+        db,
+        'prescription_id',
+        prescriptionIds,
+      );
+
       const latestModifiedDispenses = await Prescription.getLatestModifiedDispensesByPrescriptionId(
         prescriptionIds,
       );
@@ -611,6 +628,8 @@ encounterRelations.get(
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
         isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
+        pharmacyRequestAt: pharmacyRequests[p.id]?.date ?? null,
+        isPharmacyRequestDispensed: pharmacyRequests[p.id]?.is_completed ?? null,
         latestModifiedDispense: latestModifiedDispenses[p.id] ?? null,
       }));
     }
@@ -761,8 +780,9 @@ encounterRelations.get(
       ],
     });
     if (!invoiceRecord) {
-      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
-      return res.send(null);
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice.
+      // res.json, not res.send: send writes an empty body, which the client cannot parse.
+      return res.json(null);
     }
 
     await req.audit.access({

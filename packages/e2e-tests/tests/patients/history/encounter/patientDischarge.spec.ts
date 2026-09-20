@@ -36,16 +36,16 @@ test.describe('Patient discharge', () => {
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
 
-    // Encounter medications all start selected to send.
-    await expect(dischargeModal.sendToPharmacyCheckbox(sentPrescription.id)).toBeChecked();
-    await expect(dischargeModal.sendToPharmacyCheckbox(notSentPrescription.id)).toBeChecked();
+    // Encounter medications start unselected until the clinician chooses to send them.
+    await expect(dischargeModal.sendToPharmacyCheckbox(sentPrescription.id)).not.toBeChecked();
+    await expect(dischargeModal.sendToPharmacyCheckbox(notSentPrescription.id)).not.toBeChecked();
+    await dischargeModal.sendToPharmacyCheckbox(sentPrescription.id).check();
 
     // A dispensing quantity is required of the medication being sent. The one left behind is given
     // a quantity too, so that what reaches pharmacy is what was selected rather than what was
     // filled in — prescriptions are created without a quantity.
     await dischargeModal.setDispensingQuantity(sentPrescription.id, 12);
     await dischargeModal.setDispensingQuantity(notSentPrescription.id, 8);
-    await dischargeModal.sendToPharmacyCheckbox(notSentPrescription.id).uncheck();
 
     await dischargeModal.finaliseDischarge();
 
@@ -77,8 +77,8 @@ test.describe('Patient discharge', () => {
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
 
+    // Left unselected, as it starts by default: nothing is being sent to pharmacy here.
     await dischargeModal.setDispensingQuantity(prescription.id, 5);
-    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
     await dischargeModal.finaliseDischarge();
 
     // A discharged encounter offers its summary in place of the discharge action.
@@ -110,9 +110,9 @@ test.describe('Patient discharge', () => {
     await dischargeModal.waitForModalToLoad();
 
     // A prescription created without a quantity is recorded as zero, so the row starts at 0 and
-    // stays there: there is nothing to dispense once it is out of the pharmacy order.
+    // stays there: there is nothing to dispense once it is out of the pharmacy order (left
+    // unselected, as it starts by default).
     await expect(dischargeModal.dispensingQuantityInput(prescription.id)).toHaveValue('0');
-    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
 
     await dischargeModal.finaliseDischarge();
 
@@ -138,7 +138,9 @@ test.describe('Patient discharge', () => {
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
 
-    // A prescription created without a quantity starts at zero, with the row selected to send.
+    // A prescription created without a quantity starts at zero. Selecting it to send is what
+    // makes the dispensing quantity required.
+    await dischargeModal.sendToPharmacyCheckbox(prescription.id).check();
     await dischargeModal.attemptFinaliseDischarge();
     await expect(dischargeModal.dispensingQuantityError(prescription.id)).toHaveText('*Required');
 
@@ -171,14 +173,14 @@ test.describe('Patient discharge', () => {
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
 
-    // Encounter medications start selected, so there is an order to attribute from the outset.
-    await expect(dischargeModal.orderingPrescriberInput).toBeEnabled();
-
-    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
+    // Nothing is selected to send yet, so there is no order to attribute.
     await expect(dischargeModal.orderingPrescriberInput).toBeDisabled();
 
     await dischargeModal.sendToPharmacyCheckbox(prescription.id).check();
     await expect(dischargeModal.orderingPrescriberInput).toBeEnabled();
+
+    await dischargeModal.sendToPharmacyCheckbox(prescription.id).uncheck();
+    await expect(dischargeModal.orderingPrescriberInput).toBeDisabled();
   });
 
   // Regression guard: discontinuing a medication used to reinitialise the whole discharge form,
@@ -221,6 +223,9 @@ test.describe('Patient discharge', () => {
 
     const dischargeModal = patientDetailsPage.getPrepareDischargeModal();
     await dischargeModal.waitForModalToLoad();
+
+    // The ordering prescriber field is only active once a medication is selected to send.
+    await dischargeModal.sendToPharmacyCheckbox(keptPrescription.id).check();
 
     // Edits the discontinue must not disturb: a prescriber other than the default, and a quantity.
     const chosenPrescriber = await dischargeModal.changeOrderingPrescriber(currentUser.displayName);

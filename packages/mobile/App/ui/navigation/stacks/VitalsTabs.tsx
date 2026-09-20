@@ -1,16 +1,14 @@
-import React, { type ReactElement, useCallback } from 'react';
-import { compose } from 'redux';
 import type { NavigationProp } from '@react-navigation/native';
-import { Routes } from '/helpers/routes';
-import { StackHeader } from '/components/StackHeader';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
-import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
-import { withPatient } from '~/ui/containers/Patient';
+import React, { type ReactElement } from 'react';
+import { compose } from 'redux';
 import type { IPatient } from '~/types';
+import { withPatient } from '~/ui/containers/Patient';
 import { joinNames } from '~/ui/helpers/user';
+import { AddVitalsScreen, ViewHistoryScreen } from '../screens/vitals/tabs';
+import { StackHeader } from '/components/StackHeader';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import { TranslatedText } from '/components/Translations/TranslatedText';
-
-const Tabs = createTopTabNavigator();
+import { Routes } from '/helpers/routes';
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
@@ -23,19 +21,15 @@ const DumbVitalsTabs = ({
   navigation,
   selectedPatient,
 }: NewProgramEntryTabsProps): ReactElement => {
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   return (
     <>
       <StackHeader
         title={<TranslatedText stringId="patient.vitals.title" fallback="Vitals" />}
         subtitle={getPatientName(selectedPatient)}
-        onGoBack={goBack}
+        onGoBack={navigation.goBack}
       />
-      <Tabs.Navigator swipeEnabled={false} lazy screenOptions={{ headerShown: false }}>
-        <Tabs.Screen
+      <TopTabNavigator screenOptions={{ lazy: true }}>
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="patient.vitals.heading.addVitals" fallback="Add Vitals" />
@@ -44,7 +38,7 @@ const DumbVitalsTabs = ({
           name={Routes.HomeStack.VitalsStack.VitalsTabs.AddDetails}
           component={AddVitalsScreen}
         />
-        <Tabs.Screen
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText stringId="patient.vitals.heading.history" fallback="History" />
@@ -53,7 +47,7 @@ const DumbVitalsTabs = ({
           name={Routes.HomeStack.VitalsStack.VitalsTabs.ViewHistory}
           component={ViewHistoryScreen}
         />
-      </Tabs.Navigator>
+      </TopTabNavigator>
     </>
   );
 };
