@@ -25,7 +25,7 @@ import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import { useEncounterDischargeDraftQuery } from '../api/queries/useEncounterDischargeDraftQuery';
 import { useEncounterDischargeDraftMutation } from '../api/mutations/useEncounterDischargeDraftMutation';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { useEncounterSyndromicSurveillanceQuery } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
+import { useSyndromicSurveillanceAccess } from '../hooks/useSyndromicSurveillanceAccess';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
@@ -296,22 +296,12 @@ export const DischargeForm = ({
   const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
   const showEncounterSummary =
     encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
-  // "Create" applies when recording for the first time (no prior values); "write" applies when
-  // editing an already-recorded entry. Either one on its own, or plain "read", is enough to view.
-  const canCreateSyndromicSurveillance = ability.can('create', 'SyndromicSurveillance');
-  const canWriteSyndromicSurveillance = ability.can('write', 'SyndromicSurveillance');
-  const canViewSyndromicSurveillance =
-    canCreateSyndromicSurveillance ||
-    canWriteSyndromicSurveillance ||
-    ability.can('read', 'SyndromicSurveillance');
-  const showSyndromicSurveillance =
-    getSetting('syndromicSurveillance.enableSyndromicSurveillance') && canViewSyndromicSurveillance;
-  const { data: syndromicSurveillanceData, isFetched: isSyndromicSurveillanceFetched } =
-    useEncounterSyndromicSurveillanceQuery(encounter.id, { enabled: showSyndromicSurveillance });
-  const isSyndromicSurveillanceRecorded = Boolean(syndromicSurveillanceData);
-  const canEditSyndromicSurveillance = isSyndromicSurveillanceRecorded
-    ? canWriteSyndromicSurveillance
-    : canCreateSyndromicSurveillance;
+  const {
+    show: showSyndromicSurveillance,
+    data: syndromicSurveillanceData,
+    isFetched: isSyndromicSurveillanceFetched,
+    canEdit: canEditSyndromicSurveillance,
+  } = useSyndromicSurveillanceAccess(encounter.id);
   const syndromicSurveillanceMandatory =
     showSyndromicSurveillance &&
     canEditSyndromicSurveillance &&

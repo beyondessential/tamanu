@@ -10,9 +10,7 @@ import { SyndromicSurveillanceModal } from '../../../components/SyndromicSurveil
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { useSettings } from '../../../contexts/Settings';
-import { useAuth } from '../../../contexts/Auth';
-import { useEncounterSyndromicSurveillanceQuery } from '../../../api/queries/useEncounterSyndromicSurveillanceQuery';
+import { useSyndromicSurveillanceAccess } from '../../../hooks/useSyndromicSurveillanceAccess';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -127,32 +125,19 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
   const [editedDiagnosis, setEditedDiagnosis] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [isSyndromicSurveillanceModalOpen, setIsSyndromicSurveillanceModalOpen] = useState(false);
-  const { getSetting } = useSettings();
-  const { ability } = useAuth();
-  const isSyndromicSurveillanceEnabled = getSetting(
-    'syndromicSurveillance.enableSyndromicSurveillance',
-  );
-  // "Create" applies when recording for the first time (no prior values); "write" applies when
-  // editing an already-recorded entry. Either one on its own, or plain "read", is enough to view.
-  const canCreateSyndromicSurveillance = ability.can('create', 'SyndromicSurveillance');
-  const canWriteSyndromicSurveillance = ability.can('write', 'SyndromicSurveillance');
-  const canViewSyndromicSurveillance =
-    canCreateSyndromicSurveillance ||
-    canWriteSyndromicSurveillance ||
-    ability.can('read', 'SyndromicSurveillance');
-  const showSyndromicSurveillance = isSyndromicSurveillanceEnabled && canViewSyndromicSurveillance;
-  const { data: syndromicSurveillanceData } = useEncounterSyndromicSurveillanceQuery(encounter.id, {
-    enabled: showSyndromicSurveillance,
-  });
-  const isSyndromicSurveillanceRecorded = Boolean(syndromicSurveillanceData);
+  const {
+    show: showSyndromicSurveillance,
+    data: syndromicSurveillanceData,
+    isRecorded: isSyndromicSurveillanceRecorded,
+    canCreate: canCreateSyndromicSurveillance,
+    canWrite: canWriteSyndromicSurveillance,
+    canEdit: canEditSyndromicSurveillance,
+  } = useSyndromicSurveillanceAccess(encounter.id);
   const syndromicSurveillanceState = !isSyndromicSurveillanceRecorded
     ? SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED
     : syndromicSurveillanceData.noSyndrome
       ? SYNDROMIC_SURVEILLANCE_STATES.NO_SYNDROME
       : SYNDROMIC_SURVEILLANCE_STATES.SYMPTOMS_RECORDED;
-  const canEditSyndromicSurveillance = isSyndromicSurveillanceRecorded
-    ? canWriteSyndromicSurveillance
-    : canCreateSyndromicSurveillance;
 
   const refreshDiagnosisTable = useCallback(() => {
     setRefreshCount(prev => prev + 1);
