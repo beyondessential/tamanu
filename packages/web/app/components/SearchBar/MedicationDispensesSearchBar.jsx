@@ -18,6 +18,9 @@ const StyledCustomisableSearchBarWithPermissionCheck = styled(
 const MedicationDispensesSearchBarMainFields = () => {
   const drugSuggester = useSuggester('drug');
   const practitionerSuggester = useSuggester('practitioner');
+  const areaSuggester = useSuggester('locationGroup', {
+    baseQueryParameters: { filterByFacility: true },
+  });
 
   return (
     <>
@@ -73,6 +76,20 @@ const MedicationDispensesSearchBarMainFields = () => {
           data-testid="field-drug"
         />
       </div>
+      <Field
+        name="locationGroupId"
+        label={
+          <TranslatedText
+            stringId="medication-dispenses.search.area.label"
+            fallback="Area"
+            data-testid="translatedtext-dispenses-area"
+          />
+        }
+        component={AutocompleteField}
+        suggester={areaSuggester}
+        size="small"
+        data-testid="field-dispenses-area"
+      />
       <Field
         name="dispensedAt"
         label={
