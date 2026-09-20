@@ -1,16 +1,33 @@
 import React from 'react';
 
+import { useEncounterSyndromicSurveillanceMutation } from '../api/mutations/useEncounterSyndromicSurveillanceMutation';
 import { SyndromicSurveillanceForm } from '../forms/SyndromicSurveillanceForm';
 import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const SyndromicSurveillanceModalComponent = ({ open, onClose, readOnly, ...props }) => {
-  const onSave = data => {
+const SyndromicSurveillanceModalComponent = ({
+  open,
+  onClose,
+  readOnly,
+  encounterId,
+  existingData,
+  onSaved,
+  ...props
+}) => {
+  const { createSyndromicSurveillance, editSyndromicSurveillance } =
+    useEncounterSyndromicSurveillanceMutation(encounterId, {
+      onSuccess: onSaved,
+    });
+
+  const onSave = async data => {
     // TODO: the "no syndrome" vs symptoms mutual exclusivity is only enforced client-side
-    // (disabled checkboxes); once this submits to a real endpoint, validate server-side too,
-    // since a user could bypass the UI and submit both.
-    // eslint-disable-next-line no-console
-    console.log(data);
+    // (disabled checkboxes); validate server-side too, since a user could bypass the UI and
+    // submit both.
+    if (existingData) {
+      await editSyndromicSurveillance(data);
+    } else {
+      await createSyndromicSurveillance(data);
+    }
     onClose();
   };
 
@@ -32,6 +49,7 @@ const SyndromicSurveillanceModalComponent = ({ open, onClose, readOnly, ...props
         onCancel={onClose}
         onSave={onSave}
         readOnly={readOnly}
+        existingData={existingData}
         {...props}
         data-testid="syndromicsurveillanceform-modal"
       />

@@ -3,17 +3,13 @@ import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { useFormikContext, getIn } from 'formik';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
+import { SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID } from '@tamanu/constants';
 
 import { Colors } from '../constants/styles';
 import { CheckField, CheckInput, Field } from '../components/Field';
+import { TranslatedReferenceData } from '../components/Translation/TranslatedReferenceData';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-
-// TODO: replace with the real symptom reference data once available
-export const MOCK_SYMPTOM_OPTIONS = [
-  { value: 'option1', label: 'Option 1' },
-  { value: 'option2', label: 'Option 2' },
-  { value: 'option3', label: 'Option 3' },
-];
+import { useSyndromicSurveillanceSymptomsQuery } from '../api/queries/useSyndromicSurveillanceSymptomsQuery';
 
 export const SYNDROMIC_SURVEILLANCE_INITIAL_VALUES = {
   noSyndrome: false,
@@ -48,6 +44,10 @@ export const SyndromicSurveillanceFields = React.memo(({ readOnly, 'data-testid'
     setFieldValue,
     status: { submitStatus },
   } = useFormikContext();
+  const { data: symptoms = [] } = useSyndromicSurveillanceSymptomsQuery();
+  const symptomOptions = symptoms.filter(
+    symptom => symptom.id !== SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
+  );
   const symptomIds = values.symptomIds ?? [];
   const isAnySymptomChecked = symptomIds.length > 0;
   const hasRequiredError =
@@ -85,15 +85,22 @@ export const SyndromicSurveillanceFields = React.memo(({ readOnly, 'data-testid'
         data-testid="field-no-syndrome"
       />
       <Divider data-testid="divider-syndromic-surveillance-symptoms" />
-      {MOCK_SYMPTOM_OPTIONS.map(option => (
+      {symptomOptions.map(symptom => (
         <CheckInput
-          key={option.value}
-          name={option.value}
-          label={option.label}
-          value={symptomIds.includes(option.value)}
-          onChange={toggleSymptom(option.value)}
+          key={symptom.id}
+          name={symptom.id}
+          label={
+            <TranslatedReferenceData
+              fallback={symptom.name}
+              value={symptom.id}
+              category="syndromicSurveillanceSymptom"
+              data-testid={`translatedreferencedata-symptom-${symptom.id}`}
+            />
+          }
+          value={symptomIds.includes(symptom.id)}
+          onChange={toggleSymptom(symptom.id)}
           disabled={readOnly || values.noSyndrome}
-          data-testid={`field-symptom-${option.value}`}
+          data-testid={`field-symptom-${symptom.id}`}
         />
       ))}
     </WhiteBox>

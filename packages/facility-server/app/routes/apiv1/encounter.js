@@ -274,10 +274,11 @@ encounter.put(
           });
         }
 
-        if (req.body.syndromicSurveillance) {
+        const { noSyndrome, symptomIds } = req.body;
+        if (noSyndrome != null || symptomIds != null) {
           // TODO: check create or write SyndromicSurveillance permission depending on whether a
           // record already exists for this encounter, rather than relying on write Encounter.
-          await upsertEncounterSyndromicSurveillance(models, id, req.body.syndromicSurveillance);
+          await upsertEncounterSyndromicSurveillance(models, id, { noSyndrome, symptomIds });
         }
       }
 

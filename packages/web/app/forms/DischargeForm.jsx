@@ -25,6 +25,7 @@ import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import { useEncounterDischargeDraftQuery } from '../api/queries/useEncounterDischargeDraftQuery';
 import { useEncounterDischargeDraftMutation } from '../api/mutations/useEncounterDischargeDraftMutation';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { useEncounterSyndromicSurveillanceQuery } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
@@ -55,10 +56,7 @@ import {
   orderingPrescriberLabel,
   OrderingPrescriberField,
 } from './DischargeMedicationColumns';
-import {
-  SyndromicSurveillanceFields,
-  SYNDROMIC_SURVEILLANCE_INITIAL_VALUES,
-} from './SyndromicSurveillanceFields';
+import { SyndromicSurveillanceFields } from './SyndromicSurveillanceFields';
 
 const SyndromicSurveillanceDivider = styled(Divider)`
   margin: 0 auto;
@@ -174,6 +172,7 @@ const getDischargeInitialValues = ({
   getCurrentDateTime,
   storedDateTimeToEpochMilliseconds,
   showSyndromicSurveillance,
+  syndromicSurveillanceData,
 }) => {
   const encounterStartMs = storedDateTimeToEpochMilliseconds(encounter.startDate);
 
@@ -205,7 +204,12 @@ const getDischargeInitialValues = ({
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
-    ...(showSyndromicSurveillance ? SYNDROMIC_SURVEILLANCE_INITIAL_VALUES : {}),
+    ...(showSyndromicSurveillance
+      ? {
+          noSyndrome: syndromicSurveillanceData?.noSyndrome ?? false,
+          symptomIds: syndromicSurveillanceData?.symptomIds ?? [],
+        }
+      : {}),
   };
 };
 
@@ -302,9 +306,9 @@ export const DischargeForm = ({
     ability.can('read', 'SyndromicSurveillance');
   const showSyndromicSurveillance =
     getSetting('syndromicSurveillance.enableSyndromicSurveillance') && canViewSyndromicSurveillance;
-  // TODO: derive this from the encounter's real syndromic surveillance data once available,
-  // rather than assuming nothing has been recorded yet.
-  const isSyndromicSurveillanceRecorded = false;
+  const { data: syndromicSurveillanceData, isFetched: isSyndromicSurveillanceFetched } =
+    useEncounterSyndromicSurveillanceQuery(encounter.id, { enabled: showSyndromicSurveillance });
+  const isSyndromicSurveillanceRecorded = Boolean(syndromicSurveillanceData);
   const canEditSyndromicSurveillance = isSyndromicSurveillanceRecorded
     ? canWriteSyndromicSurveillance
     : canCreateSyndromicSurveillance;
@@ -342,6 +346,7 @@ export const DischargeForm = ({
     !isLoadingEncounterMedications &&
     !isLoadingOngoingPrescriptions &&
     (!IS_DISCHARGE_DRAFT_ENABLED || isDischargeDraftFetched) &&
+    (!showSyndromicSurveillance || isSyndromicSurveillanceFetched) &&
     dischargeNotes !== null;
   const [isInitialDataReady, setIsInitialDataReady] = useState(false);
   if (hasInitialData && !isInitialDataReady) {
@@ -486,6 +491,7 @@ export const DischargeForm = ({
           getCurrentDateTime,
           storedDateTimeToEpochMilliseconds,
           showSyndromicSurveillance,
+          syndromicSurveillanceData,
         })}
         FormScreen={props => (
           <DischargeFormScreen

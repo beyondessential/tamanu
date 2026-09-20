@@ -12,6 +12,7 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { useSettings } from '../../../contexts/Settings';
 import { useAuth } from '../../../contexts/Auth';
+import { useEncounterSyndromicSurveillanceQuery } from '../../../api/queries/useEncounterSyndromicSurveillanceQuery';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -55,11 +56,9 @@ const SYNDROMIC_SURVEILLANCE_STATES = {
   NO_SYNDROME: 'noSyndrome',
 };
 
-// TODO: replace with real syndromic surveillance data once available
-const HARDCODED_SYMPTOM_COUNT = 3;
-
 const SyndromicSurveillanceStatus = ({
   state = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED,
+  symptomCount = 0,
   onOpenModal,
   canCreate,
   canWrite,
@@ -96,7 +95,7 @@ const SyndromicSurveillanceStatus = ({
             <TranslatedText
               stringId="encounter.syndromicSurveillance.symptomsRecorded"
               fallback=":count symptoms recorded"
-              replacements={{ count: HARDCODED_SYMPTOM_COUNT.toLocaleString() }}
+              replacements={{ count: symptomCount.toLocaleString() }}
               data-testid="translatedtext-symptoms-recorded"
             />
           ) : (
@@ -142,11 +141,15 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
     canWriteSyndromicSurveillance ||
     ability.can('read', 'SyndromicSurveillance');
   const showSyndromicSurveillance = isSyndromicSurveillanceEnabled && canViewSyndromicSurveillance;
-  // TODO: derive this from real syndromic surveillance data once available, rather than assuming
-  // nothing has been recorded yet.
-  const syndromicSurveillanceState = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED;
-  const isSyndromicSurveillanceRecorded =
-    syndromicSurveillanceState !== SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED;
+  const { data: syndromicSurveillanceData } = useEncounterSyndromicSurveillanceQuery(encounter.id, {
+    enabled: showSyndromicSurveillance,
+  });
+  const isSyndromicSurveillanceRecorded = Boolean(syndromicSurveillanceData);
+  const syndromicSurveillanceState = !isSyndromicSurveillanceRecorded
+    ? SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED
+    : syndromicSurveillanceData.noSyndrome
+      ? SYNDROMIC_SURVEILLANCE_STATES.NO_SYNDROME
+      : SYNDROMIC_SURVEILLANCE_STATES.SYMPTOMS_RECORDED;
   const canEditSyndromicSurveillance = isSyndromicSurveillanceRecorded
     ? canWriteSyndromicSurveillance
     : canCreateSyndromicSurveillance;
@@ -171,6 +174,8 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
           open={isSyndromicSurveillanceModalOpen}
           onClose={() => setIsSyndromicSurveillanceModalOpen(false)}
           readOnly={!canEditSyndromicSurveillance}
+          encounterId={encounter.id}
+          existingData={syndromicSurveillanceData}
           data-testid="syndromicsurveillancemodal-pane"
         />
       )}
@@ -178,6 +183,7 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         {showSyndromicSurveillance ? (
           <SyndromicSurveillanceStatus
             state={syndromicSurveillanceState}
+            symptomCount={syndromicSurveillanceData?.symptomIds?.length}
             onOpenModal={() => setIsSyndromicSurveillanceModalOpen(true)}
             canCreate={canCreateSyndromicSurveillance}
             canWrite={canWriteSyndromicSurveillance}
