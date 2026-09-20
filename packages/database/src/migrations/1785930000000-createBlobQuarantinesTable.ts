@@ -45,8 +45,14 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
   // The read path asks "is this hash known bad" on every serve, and the hash is
-  // the identity of the record.
-  await query.addIndex(TABLE, ['hash'], { unique: true, name: 'blob_quarantines_hash' });
+  // the identity of the record. Sync-apply defers unique checks to the end of its
+  // transaction, so every unique constraint on a syncable table is deferrable.
+  await query.sequelize.query(`
+    ALTER TABLE ${TABLE}
+    ADD CONSTRAINT blob_quarantines_hash
+      UNIQUE (hash)
+      DEFERRABLE INITIALLY IMMEDIATE;
+  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
