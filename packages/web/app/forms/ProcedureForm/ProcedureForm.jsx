@@ -190,8 +190,6 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             suggester={anaestheticSuggester}
             data-testid="field-w9b5"
           />
-          {/* Empty div to make the time in field start on a new row */}
-          <div />
           <Field
             name="timeIn"
             label={<TranslatedText stringId="procedure.timeIn.label" fallback="Time in" />}
