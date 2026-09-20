@@ -34,7 +34,12 @@ import { loadSettingFile } from '../utils/loadSettingFile';
  * Converts the json files in the defaultProvisioningData directory into an XLSX workbook
  * @returns {WorkBook}
  */
-const parseDefaultProvisioningJsonSheets = dir => {
+export const DEFAULT_PROVISIONING_DATA_DIRECTORY = resolve(
+  import.meta.dirname,
+  'defaultProvisioningData',
+);
+
+export const parseDefaultProvisioningJsonSheets = dir => {
   const entries = fs
     .readdirSync(dir)
     .filter(f => f.endsWith('.json5'))
@@ -98,7 +103,7 @@ const initialiseDatabaseWithRetry = async () => {
  * Validates that a reference data file contains all sheets importable through the reference data importer
  * @param {string} file - File path
  */
-function validateFullReferenceDataImport(workbook) {
+export function validateFullReferenceDataImport(workbook) {
   // 'user' has special logic and 'administeredVaccine' is a special case used for existing
   // deployments. Charging overlays are optional (absent = per-unit, the default), so a complete
   // seed doesn't require charging data. Sensitive networks only exist in a deployment that holds
@@ -213,13 +218,12 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     ...rest
   } of referenceData ?? []) {
     if (isUsingDefaultSpreadsheet) {
-      const defaultProvisioningDataDirectory = resolve(import.meta.dirname, 'defaultProvisioningData');
       log.info('Using reference data json files from this branch', {
-        directory: defaultProvisioningDataDirectory,
+        directory: DEFAULT_PROVISIONING_DATA_DIRECTORY,
       });
 
       const defaultReferenceDataWorkbook = parseDefaultProvisioningJsonSheets(
-        defaultProvisioningDataDirectory,
+        DEFAULT_PROVISIONING_DATA_DIRECTORY,
       );
 
       // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.

@@ -15,6 +15,9 @@ import {
   waitForSession,
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
+// Relative because @tamanu/upgrade only exports its root, and the root pulls in the whole
+// step runner.
+import { STEPS } from '../../../upgrade/src/steps/1788700000000-mergeFijiSensitiveNetworks.js';
 
 describe('CentralSyncManager Sensitive Facilities', () => {
   let ctx;
@@ -992,7 +995,10 @@ describe('CentralSyncManager Sensitive Facilities', () => {
             type: NOTIFICATION_TYPES.IMAGING_REQUEST,
             patientId: patient.id,
             userId: practitioner.id,
-            metadata: { id: 'non-sensitive-imaging-request', encounterId: nonSensitiveEncounter.id },
+            metadata: {
+              id: 'non-sensitive-imaging-request',
+              encounterId: nonSensitiveEncounter.id,
+            },
           }),
         );
 
@@ -1103,9 +1109,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
   describe('sharing within a network', () => {
     // A facility plus the location, department and encounter needed to record something at it.
     const createFacilityWithEncounter = async sensitiveNetworkId => {
-      const facility = await models.Facility.create(
-        fake(models.Facility, { sensitiveNetworkId }),
-      );
+      const facility = await models.Facility.create(fake(models.Facility, { sensitiveNetworkId }));
       const location = await models.Location.create(
         fake(models.Location, { facilityId: facility.id }),
       );
@@ -1168,10 +1172,12 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
 
     it('syncs to a session covering several facilities everything scoped to any of their networks', async () => {
-      const { facility: memberA, encounter: encounterA } =
-        await createFacilityWithEncounter(await createNetworkId());
-      const { facility: memberB, encounter: encounterB } =
-        await createFacilityWithEncounter(await createNetworkId());
+      const { facility: memberA, encounter: encounterA } = await createFacilityWithEncounter(
+        await createNetworkId(),
+      );
+      const { facility: memberB, encounter: encounterB } = await createFacilityWithEncounter(
+        await createNetworkId(),
+      );
       const { encounter: otherNetworkEncounter } = await createFacilityWithEncounter(
         await createNetworkId(),
       );
@@ -1251,6 +1257,167 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       expect(encounterIds).toContain(outsiderEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
       expect(encounterIds).not.toContain(networkedEncounter.id);
+    });
+  });
+
+  // The Facility model refuses a membership change, so the only way a facility moves network in
+  // production is this upgrade step's raw SQL. That makes it the one reachable path for the two
+  // behaviours a network change turns on: historical lookup rows following the facility to its new
+  // network, and those rows flowing again to a facility that has already pulled past them. The
+  // step's own test mocks sequelize, so it asserts SQL text rather than either of these.
+  describe('merging networks through the SRH upgrade step', () => {
+    const SRH_FACILITY_IDS = ['facility-SRHCentral', 'facility-SRHWestern', 'facility-SRHNorthern'];
+    const SRH_NETWORK_ID = 'sensitiveNetwork-srh';
+
+    // What U6's backfill leaves behind: each sensitive facility in a network of its own.
+    const createBackfilledSrhFacility = async id => {
+      const network = await models.SensitiveNetwork.create(
+        fake(models.SensitiveNetwork, { id: `sensitiveNetwork-${id}` }),
+      );
+      const facility = await models.Facility.create(
+        fake(models.Facility, { id, sensitiveNetworkId: network.id }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { facilityId: facility.id }),
+      );
+      const department = await models.Department.create(
+        fake(models.Department, { facilityId: facility.id }),
+      );
+      const encounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: practitioner.id,
+        endDate: null,
+      });
+      return { facility, encounter, networkId: network.id };
+    };
+
+    const runMergeStep = async () => {
+      const [mergeStep] = STEPS;
+      await mergeStep.run({
+        sequelize: ctx.store.sequelize,
+        models,
+        log: { info: () => {}, debug: () => {}, warn: () => {} },
+      });
+    };
+
+    const pullEncounterIds = async (centralSyncManager, facilityIds, since = 1) => {
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+      await centralSyncManager.setupSnapshotForPull(sessionId, { since, facilityIds }, () => true);
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      return outgoingChanges.filter(c => c.recordType === 'encounters').map(c => c.recordId);
+    };
+
+    it('moves the three facilities onto one network and retires the backfilled ones', async () => {
+      const central = await createBackfilledSrhFacility(SRH_FACILITY_IDS[0]);
+      const western = await createBackfilledSrhFacility(SRH_FACILITY_IDS[1]);
+      const northern = await createBackfilledSrhFacility(SRH_FACILITY_IDS[2]);
+
+      await runMergeStep();
+
+      for (const id of SRH_FACILITY_IDS) {
+        const facility = await models.Facility.findByPk(id);
+        expect(facility.sensitiveNetworkId).toBe(SRH_NETWORK_ID);
+      }
+      for (const { networkId } of [central, western, northern]) {
+        const retired = await models.SensitiveNetwork.findByPk(networkId, { paranoid: false });
+        expect(retired.deletedAt).not.toBeNull();
+      }
+    });
+
+    it('retags the historical lookup rows the three facilities already had', async () => {
+      const central = await createBackfilledSrhFacility(SRH_FACILITY_IDS[0]);
+      await createBackfilledSrhFacility(SRH_FACILITY_IDS[1]);
+      await createBackfilledSrhFacility(SRH_FACILITY_IDS[2]);
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      await runMergeStep();
+
+      // Left on its old network, the row reaches a network that no longer exists and the encounter
+      // is stranded — visible to nobody, including the facility that recorded it.
+      const lookupRow = await models.SyncLookup.findOne({
+        where: { recordId: central.encounter.id },
+      });
+      expect(lookupRow.sensitiveNetworkId).toBe(SRH_NETWORK_ID);
+      expect(lookupRow.facilityId).toBeNull();
+    });
+
+    it("gives each facility its new siblings' history once merged", async () => {
+      const central = await createBackfilledSrhFacility(SRH_FACILITY_IDS[0]);
+      const western = await createBackfilledSrhFacility(SRH_FACILITY_IDS[1]);
+      await createBackfilledSrhFacility(SRH_FACILITY_IDS[2]);
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      // isolated beforehand, which is what the backfill deliberately preserved
+      expect(await pullEncounterIds(centralSyncManager, [western.facility.id])).not.toContain(
+        central.encounter.id,
+      );
+
+      await runMergeStep();
+
+      expect(await pullEncounterIds(centralSyncManager, [western.facility.id])).toContain(
+        central.encounter.id,
+      );
+    });
+
+    it('re-queues the retagged rows for a facility that has already pulled past them', async () => {
+      // The retag alone leaves every row at the tick it was built with, so a facility that has
+      // already synced would never ask for it again and the merge would appear to do nothing. The
+      // step's tick bump is what makes the history actually arrive.
+      const central = await createBackfilledSrhFacility(SRH_FACILITY_IDS[0]);
+      const western = await createBackfilledSrhFacility(SRH_FACILITY_IDS[1]);
+      await createBackfilledSrhFacility(SRH_FACILITY_IDS[2]);
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const { updatedAtSyncTick: tickAlreadyPulled } = await models.SyncLookup.findOne({
+        where: { recordId: central.encounter.id },
+      });
+
+      await runMergeStep();
+
+      const encounterIds = await pullEncounterIds(
+        centralSyncManager,
+        [western.facility.id],
+        Number(tickAlreadyPulled),
+      );
+      expect(encounterIds).toContain(central.encounter.id);
+    });
+
+    it('fails rather than merging into a network that already holds the id', async () => {
+      // Past the "already share a network" return above, an existing SRH network means the
+      // deployment is not in the state this step was written for, and enrolling the facilities
+      // into it would put them somewhere this step never described.
+      await models.SensitiveNetwork.create(
+        fake(models.SensitiveNetwork, { id: SRH_NETWORK_ID, code: 'SRH', name: 'SRH' }),
+      );
+      await createBackfilledSrhFacility(SRH_FACILITY_IDS[0]);
+      await createBackfilledSrhFacility(SRH_FACILITY_IDS[1]);
+      const northern = await createBackfilledSrhFacility(SRH_FACILITY_IDS[2]);
+
+      await expect(runMergeStep()).rejects.toThrow();
+
+      // the transaction takes the half-done merge with it
+      await northern.facility.reload();
+      expect(northern.facility.sensitiveNetworkId).toBe(northern.networkId);
+    });
+
+    it('leaves a deployment without all three facilities alone', async () => {
+      const { facility, networkId } = await createBackfilledSrhFacility(SRH_FACILITY_IDS[0]);
+
+      await runMergeStep();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(networkId);
+      expect(await models.SensitiveNetwork.findByPk(SRH_NETWORK_ID)).toBeNull();
     });
   });
 

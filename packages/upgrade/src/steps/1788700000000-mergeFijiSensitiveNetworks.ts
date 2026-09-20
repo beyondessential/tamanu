@@ -81,25 +81,16 @@ export const STEPS: Steps = [
           merging: mergedIds.length,
         });
 
+        // Unguarded, so a network already holding this id, code or name aborts the upgrade. Past
+        // the early return above, every one of those means the deployment is not in the state
+        // this step was written for, and going ahead would enrol the facilities into a network
+        // that is not the one described here. Note this cannot be ON CONFLICT DO NOTHING anyway:
+        // code and name are DEFERRABLE unique constraints (TAM-7004), and Postgres refuses a
+        // deferrable constraint as a speculative-insertion arbiter.
         await sequelize.query(
-          `INSERT INTO sensitive_networks (id, code, name)
-           VALUES (:id, :code, :name)
-           ON CONFLICT DO NOTHING;`,
+          `INSERT INTO sensitive_networks (id, code, name) VALUES (:id, :code, :name);`,
           { replacements: SRH_NETWORK, type: QueryTypes.INSERT },
         );
-
-        // DO NOTHING also swallows a clash on the unique code or name, which would leave the
-        // facilities pointing at a network that doesn't exist.
-        const [network] = await sequelize.query<{ id: string }>(
-          `SELECT id FROM sensitive_networks WHERE id = :id AND deleted_at IS NULL;`,
-          { replacements: { id: SRH_NETWORK.id }, type: QueryTypes.SELECT },
-        );
-        if (!network) {
-          log.warn('Could not create the SRH sensitive network, so the merge was skipped', {
-            code: SRH_NETWORK.code,
-          });
-          return;
-        }
 
         await sequelize.query(
           `UPDATE facilities SET sensitive_network_id = :targetId
@@ -110,21 +101,27 @@ export const STEPS: Steps = [
           },
         );
 
+        // Retagging alone leaves every row older than each facility's last pull, so nothing would
+        // be pulled. Take a fresh tick the way the sync clock does, so no session shares it, and
+        // reserve it before the statement that writes it.
+        const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
+
         // Historical rows already carry a network: the rescope migration moved them off their
         // facility earlier in this same upgrade, and population has written the network since.
+        //
+        // Retag and re-tick in one pass. sync_lookup is the largest table in the deployment, and
+        // splitting these writes the same rows twice for no gain — the tick pass could only ever
+        // match rows this statement has just moved, because the network was created above and so
+        // nothing referenced it beforehand.
         await sequelize.query(
-          `UPDATE sync_lookup SET sensitive_network_id = :targetId
+          `UPDATE sync_lookup
+           SET sensitive_network_id = :targetId,
+               updated_at_sync_tick = :tick
            WHERE sensitive_network_id IN (:mergedIds);`,
-          { replacements: { targetId: SRH_NETWORK.id, mergedIds }, type: QueryTypes.UPDATE },
-        );
-
-        // Retagging alone leaves every row older than each facility's last pull, so nothing would
-        // be pulled. Take a fresh tick the way the sync clock does, so no session shares it.
-        const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
-        await sequelize.query(
-          `UPDATE sync_lookup SET updated_at_sync_tick = :tick
-           WHERE sensitive_network_id = :targetId;`,
-          { replacements: { tick: tock - 1, targetId: SRH_NETWORK.id }, type: QueryTypes.UPDATE },
+          {
+            replacements: { targetId: SRH_NETWORK.id, tick: tock - 1, mergedIds },
+            type: QueryTypes.UPDATE,
+          },
         );
 
         await sequelize.query(

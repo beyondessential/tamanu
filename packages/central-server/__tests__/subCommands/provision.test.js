@@ -6,7 +6,12 @@ import { join } from 'node:path';
 import { chance, fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
-import { provision } from '../../app/subCommands/provision';
+import {
+  DEFAULT_PROVISIONING_DATA_DIRECTORY,
+  parseDefaultProvisioningJsonSheets,
+  provision,
+  validateFullReferenceDataImport,
+} from '../../app/subCommands/provision';
 
 const ADMIN_EMAIL = 'admin@tamanu.io';
 
@@ -70,8 +75,27 @@ describe('provision subCommand', () => {
   it('throws when the provisioned admin already exists and skipIfNotNeeded is false', async () => {
     await User.create(fake(User, { email: ADMIN_EMAIL }));
 
-    await expect(
-      provision(provisioningPath, { skipIfNotNeeded: false }),
-    ).rejects.toThrow(/already in the database/);
+    await expect(provision(provisioningPath, { skipIfNotNeeded: false })).rejects.toThrow(
+      /already in the database/,
+    );
+  });
+
+  // provision validates the default spreadsheet for completeness before importing it, and a
+  // general importable data type with neither a sheet here nor an entry in
+  // EXCLUDED_FROM_FULL_IMPORT_CHECK makes it throw — failing the central-provisioner deploy job,
+  // so central-api never starts. Asserted against the parsed workbook rather than by provisioning,
+  // which imports every sheet and takes minutes.
+  describe('default provisioning data completeness', () => {
+    it('passes the completeness check with no Sensitive Network sheet present', () => {
+      const workbook = parseDefaultProvisioningJsonSheets(DEFAULT_PROVISIONING_DATA_DIRECTORY);
+
+      // the exclusion is what carries this, not a sheet nobody noticed was added
+      const sheetNames = Object.keys(workbook.Sheets).map(name =>
+        name.toLowerCase().replace(/[^a-z]/g, ''),
+      );
+      expect(sheetNames).not.toContain('sensitivenetwork');
+
+      expect(() => validateFullReferenceDataImport(workbook)).not.toThrow();
+    });
   });
 });

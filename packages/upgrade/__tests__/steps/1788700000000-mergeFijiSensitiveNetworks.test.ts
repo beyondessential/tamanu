@@ -13,11 +13,7 @@ const SRH_FACILITIES = [
 ];
 const BACKFILLED_NETWORK_IDS = SRH_FACILITIES.map(({ networkId }) => networkId);
 
-const makeArgs = ({
-  facilities = SRH_FACILITIES,
-  networkCreated = true,
-  serverType = 'central',
-} = {}) => {
+const makeArgs = ({ facilities = SRH_FACILITIES, serverType = 'central' } = {}) => {
   const queries: { sql: string; replacements: any }[] = [];
   return {
     args: {
@@ -27,9 +23,6 @@ const makeArgs = ({
         query: vi.fn(async (sql: string, options: any = {}) => {
           queries.push({ sql, replacements: options.replacements });
           if (sql.includes('FROM facilities')) return facilities;
-          if (sql.includes('FROM sensitive_networks')) {
-            return networkCreated ? [{ id: NETWORK_ID }] : [];
-          }
           return [[], 0];
         }),
       },
@@ -79,9 +72,10 @@ describe('1788700000000-mergeFijiSensitiveNetworks', () => {
 
     await mergeStep.run(args);
 
-    expect(
-      findQuery(queries, 'UPDATE sync_lookup SET sensitive_network_id')!.replacements,
-    ).toMatchObject({ targetId: NETWORK_ID, mergedIds: BACKFILLED_NETWORK_IDS });
+    expect(findQuery(queries, 'UPDATE sync_lookup')!.replacements).toMatchObject({
+      targetId: NETWORK_ID,
+      mergedIds: BACKFILLED_NETWORK_IDS,
+    });
     expect(
       findQuery(queries, 'UPDATE sensitive_networks SET deleted_at')!.replacements,
     ).toMatchObject({
@@ -105,15 +99,17 @@ describe('1788700000000-mergeFijiSensitiveNetworks', () => {
     });
   });
 
-  it('retags before bumping, so the moved rows are included in the bump', async () => {
+  // sync_lookup is the largest table in the deployment, so retag and re-tick have to be one
+  // statement: a separate tick pass could only rewrite rows the retag had just written.
+  it('retags and re-ticks sync_lookup in a single pass', async () => {
     const { args, queries } = makeArgs();
 
     await mergeStep.run(args);
 
-    const sqls = queries.map(query => query.sql);
-    expect(sqls.findIndex(sql => sql.includes('SET sensitive_network_id'))).toBeLessThan(
-      sqls.findIndex(sql => sql.includes('updated_at_sync_tick')),
-    );
+    const lookupWrites = queries.filter(query => query.sql.includes('UPDATE sync_lookup'));
+    expect(lookupWrites).toHaveLength(1);
+    expect(lookupWrites[0].sql).toContain('sensitive_network_id = :targetId');
+    expect(lookupWrites[0].sql).toContain('updated_at_sync_tick = :tick');
   });
 
   it('writes nothing once the facilities share the network', async () => {
@@ -150,14 +146,5 @@ describe('1788700000000-mergeFijiSensitiveNetworks', () => {
     await mergeStep.run(args);
 
     expect(writes(queries)).toHaveLength(0);
-  });
-
-  it('moves no facility when the network could not be created', async () => {
-    const { args, queries } = makeArgs({ networkCreated: false });
-
-    await mergeStep.run(args);
-
-    expect(findQuery(queries, 'UPDATE facilities')).toBeUndefined();
-    expect(args.log.warn).toHaveBeenCalled();
   });
 });

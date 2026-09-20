@@ -97,6 +97,9 @@ describe('Sensitive network import', () => {
       expect(await models.SensitiveNetwork.findByPk(NETWORK_A)).toBeNull();
     });
 
+    // code and name are unique constraints, so a duplicate that reaches the upsert aborts the
+    // whole transaction and every later row reports "current transaction is aborted" instead of
+    // the one that is actually wrong. These assert the row is named, not merely that it failed.
     it('fails a row whose code duplicates another network', async () => {
       await seedNetwork(NETWORK_A, 'NETA', 'Network A');
 
@@ -104,7 +107,9 @@ describe('Sensitive network import', () => {
         sheets: { 'Sensitive Networks': networkSheet([[NETWORK_B, 'NETA', 'Network B']]) },
       });
 
-      expect(errors.length).toBeGreaterThan(0);
+      const message = errors.map(error => error.message).join('\n');
+      expect(message).toContain('NETA');
+      expect(message).not.toContain('transaction is aborted');
       expect(await models.SensitiveNetwork.findByPk(NETWORK_B)).toBeNull();
     });
 
@@ -115,8 +120,26 @@ describe('Sensitive network import', () => {
         sheets: { 'Sensitive Networks': networkSheet([[NETWORK_B, 'NETB', 'Network A']]) },
       });
 
-      expect(errors.length).toBeGreaterThan(0);
+      const message = errors.map(error => error.message).join('\n');
+      expect(message).toContain('Network A');
+      expect(message).not.toContain('transaction is aborted');
       expect(await models.SensitiveNetwork.findByPk(NETWORK_B)).toBeNull();
+    });
+
+    it('reports only the duplicate row, leaving the sheet after it to be read', async () => {
+      // A unique violation reaching Postgres aborts the transaction, so the facility sheet below
+      // would fail in importRows' settings read before producing any row-attributed error.
+      await seedNetwork(NETWORK_A, 'NETA', 'Network A');
+
+      const { errors } = await doImport({
+        sheets: {
+          'Sensitive Networks': networkSheet([[NETWORK_B, 'NETA', 'Network B']]),
+          Facilities: facilitySheet([['fac-a', 'FACA', 'Facility A', null]]),
+        },
+      });
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toContain('NETA');
     });
 
     it('updates a network re-imported under its own id', async () => {

@@ -124,9 +124,43 @@ export const User = Base.shape({
     .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
+// code and name are unique constraints on sensitive_networks (migration 1789695736424). Without a
+// check here a duplicate reaches Postgres as a raw unique violation, and because the import is one
+// transaction with no savepoints that aborts everything after it: the remaining rows fail with
+// "current transaction is aborted" and the row actually at fault is buried. Failing validation
+// instead keeps the row out of the upsert, as sensitive-network-exists does for the foreign key.
+//
+// Only against what is already stored. Two rows of the same sheet duplicating each other is not
+// caught here — a schema sees one row at a time, and the upsert runs as a second pass after every
+// row has validated, so neither this nor the database can see the earlier row yet. That case still
+// reaches Postgres.
+const sensitiveNetworkLabelIsUnique = field =>
+  async function isUnique(value, { parent, path, createError, options }) {
+    if (!value) return true;
+
+    // paranoid: false because the constraint spans deleted rows too, so a soft-deleted network
+    // still holds its code and name against a new one.
+    const existing = await options.context.models.SensitiveNetwork.findOne({
+      where: { [field]: value },
+      paranoid: false,
+    });
+    if (existing && existing.id !== parent.id) {
+      return createError({
+        path,
+        message: `${path} is already used by network ${existing.id}: ${value}`,
+      });
+    }
+
+    return true;
+  };
+
 export const SensitiveNetwork = Base.shape({
-  code: fieldTypes.code.required(),
-  name: fieldTypes.name.required(),
+  code: fieldTypes.code
+    .required()
+    .test('sensitive-network-code-unique', sensitiveNetworkLabelIsUnique('code')),
+  name: fieldTypes.name
+    .required()
+    .test('sensitive-network-name-unique', sensitiveNetworkLabelIsUnique('name')),
 });
 
 export const Facility = Base.shape({
