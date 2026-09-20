@@ -311,6 +311,7 @@ export const ProcedureModal = ({
           : {
               date: getCurrentDate(),
               startTime: toFacilityTz(getCurrentDateTime()),
+              quantity: 1,
               physicianId: currentUser.id,
               assistantClinicianIds: [],
               departmentId: encounter.departmentId,
@@ -330,6 +331,14 @@ export const ProcedureModal = ({
           .date()
           .required()
           .translatedLabel(<TranslatedText stringId="general.date.label" fallback="Date" />),
+        quantity: yup
+          .number()
+          .integer()
+          .min(1)
+          .required()
+          .translatedLabel(
+            <TranslatedText stringId="procedure.quantity.label" fallback="Quantity" />,
+          ),
         startTime: yup
           .date()
           .translatedLabel(
