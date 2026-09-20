@@ -1441,6 +1441,28 @@ describe('Encounter', () => {
         expect(symptomResult.body.noSyndrome).toEqual(false);
         expect(symptomResult.body.symptomIds).toEqual([symptomA.id]);
       });
+
+      it('should record syndromic surveillance data submitted alongside a discharge', async () => {
+        const dischargeEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models, { current: true })),
+          patientId: patient.id,
+          reasonForEncounter: 'syndromic surveillance discharge test',
+        });
+
+        const result = await app.put(`/api/encounter/${dischargeEncounter.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: dischargeEncounter.id, dischargerId: app.user.id },
+          noSyndrome: false,
+          symptomIds: [symptomA.id],
+        });
+        expect(result).toHaveSucceeded();
+
+        const getResult = await app.get(
+          `/api/encounter/${dischargeEncounter.id}/syndromicSurveillance`,
+        );
+        expect(getResult).toHaveSucceeded();
+        expect(getResult.body.symptomIds).toEqual([symptomA.id]);
+      });
     });
 
     describe('medication', () => {

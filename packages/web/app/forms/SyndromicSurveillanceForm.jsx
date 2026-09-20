@@ -15,41 +15,48 @@ const FormContent = styled.div`
   line-height: 18px;
 `;
 
-export const SyndromicSurveillanceForm = React.memo(({ onCancel, onSave, readOnly }) => (
-  <Form
-    onSubmit={onSave}
-    initialValues={SYNDROMIC_SURVEILLANCE_INITIAL_VALUES}
-    formType={FORM_TYPES.CREATE_FORM}
-    render={({ submitForm }) => (
-      <FormContent data-testid="formcontent-syndromic-surveillance">
-        <FormGrid columns={1} data-testid="formgrid-syndromic-surveillance">
-          <SyndromicSurveillanceFields
-            readOnly={readOnly}
-            data-testid="whitebox-syndromic-surveillance"
-          />
-          <ModalFormActionRow
-            onConfirm={submitForm}
-            onCancel={onCancel}
-            confirmDisabled={readOnly}
-            confirmText={
-              <TranslatedText
-                stringId="general.action.confirm"
-                fallback="Confirm"
-                data-testid="translatedtext-confirm"
-              />
-            }
-            cancelText={
-              <TranslatedText
-                stringId="general.action.cancel"
-                fallback="Cancel"
-                data-testid="translatedtext-cancel"
-              />
-            }
-            data-testid="modalformactionrow-syndromic-surveillance"
-          />
-        </FormGrid>
-      </FormContent>
-    )}
-    data-testid="form-syndromic-surveillance"
-  />
-));
+export const SyndromicSurveillanceForm = React.memo(
+  ({ onCancel, onSave, readOnly, existingData }) => (
+    <Form
+      onSubmit={onSave}
+      initialValues={
+        existingData
+          ? { noSyndrome: existingData.noSyndrome, symptomIds: existingData.symptomIds }
+          : SYNDROMIC_SURVEILLANCE_INITIAL_VALUES
+      }
+      enableReinitialize
+      formType={FORM_TYPES.CREATE_FORM}
+      render={({ submitForm }) => (
+        <FormContent data-testid="formcontent-syndromic-surveillance">
+          <FormGrid columns={1} data-testid="formgrid-syndromic-surveillance">
+            <SyndromicSurveillanceFields
+              readOnly={readOnly}
+              data-testid="whitebox-syndromic-surveillance"
+            />
+            <ModalFormActionRow
+              onConfirm={submitForm}
+              onCancel={onCancel}
+              confirmDisabled={readOnly}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.confirm"
+                  fallback="Confirm"
+                  data-testid="translatedtext-confirm"
+                />
+              }
+              cancelText={
+                <TranslatedText
+                  stringId="general.action.cancel"
+                  fallback="Cancel"
+                  data-testid="translatedtext-cancel"
+                />
+              }
+              data-testid="modalformactionrow-syndromic-surveillance"
+            />
+          </FormGrid>
+        </FormContent>
+      )}
+      data-testid="form-syndromic-surveillance"
+    />
+  ),
+);
