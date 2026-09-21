@@ -20,9 +20,6 @@ const SyndromicSurveillanceModalComponent = ({
     });
 
   const onSave = async data => {
-    // TODO: the "no syndrome" vs symptoms mutual exclusivity is only enforced client-side
-    // (disabled checkboxes); validate server-side too, since a user could bypass the UI and
-    // submit both.
     if (existingData) {
       await editSyndromicSurveillance(data);
     } else {
