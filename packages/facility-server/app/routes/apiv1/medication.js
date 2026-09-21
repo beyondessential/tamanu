@@ -1905,7 +1905,7 @@ medication.get(
         {
           association: 'prescription',
           where: prescriptionFilters,
-          attributes: ['id'],
+          attributes: ['id', 'date'],
           include: [
             {
               association: 'medication',
