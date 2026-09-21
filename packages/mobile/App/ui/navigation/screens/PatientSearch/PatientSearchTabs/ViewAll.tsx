@@ -125,7 +125,7 @@ const searchAndFilterPatients = async (
   // Order and limit
   queryBuilder.orderBy('patient.lastName', 'ASC');
   queryBuilder.addOrderBy('patient.firstName', 'ASC');
-  queryBuilder.limit(100);
+  queryBuilder.limit(25);
 
   const patients = await queryBuilder.getMany();
   // Patient and IPatient disagree on village.visibilityStatus (string vs enum), a
