@@ -78,12 +78,8 @@ const AUTO_VACUUM_INCREMENTAL = 2;
 
 const isJest = (): boolean => process.env.JEST_WORKER_ID !== undefined;
 
-const getConnectionConfig = (): ConnectionOptions => {
-  if (isJest()) {
-    return TEST_CONNECTION_CONFIG;
-  }
-  return CONNECTION_CONFIG;
-};
+const getConnectionConfig = (): ConnectionOptions =>
+  isJest() ? TEST_CONNECTION_CONFIG : CONNECTION_CONFIG;
 
 function formatMiB(bytes: number): string {
   return `${(bytes / 1_048_576).toLocaleString('en-AU', { maximumFractionDigits: 1 })} MiB`;
