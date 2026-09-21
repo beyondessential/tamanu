@@ -315,9 +315,11 @@ class DatabaseHelper {
   }
 
   private async fullVacuumIfWorthwhile(): Promise<void> {
-    const pageSize = await this.readPragmaNumber('page_size');
-    const pageCount = await this.readPragmaNumber('page_count');
-    const freelistCount = await this.readPragmaNumber('freelist_count');
+    const [pageSize, pageCount, freelistCount] = await Promise.all([
+      this.readPragmaNumber('page_size'),
+      this.readPragmaNumber('page_count'),
+      this.readPragmaNumber('freelist_count'),
+    ]);
     const fileBytes = pageCount * pageSize;
     const freeBytes = freelistCount * pageSize;
     if (freeBytes < Math.max(VACUUM_MIN_FREE_BYTES, fileBytes * VACUUM_MIN_FREE_FRACTION)) {
