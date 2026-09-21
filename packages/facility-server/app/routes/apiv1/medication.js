@@ -2074,6 +2074,7 @@ medication.get(
       JOIN location_groups ON location_groups.id = locations.location_group_id
       WHERE encounters.patient_id = "pharmacyOrderPrescription->pharmacyOrder->encounter".patient_id
         AND encounters.end_date IS NULL
+      ORDER BY encounters.start_date DESC, encounters.id
       LIMIT 1
     )`);
     const currentAreaSubqueryForLocationGroupId = Sequelize.literal(`(
@@ -2082,6 +2083,7 @@ medication.get(
       JOIN locations ON locations.id = encounters.location_id
       WHERE encounters.patient_id = "pharmacyOrderPrescription->pharmacyOrder->encounter".patient_id
         AND encounters.end_date IS NULL
+      ORDER BY encounters.start_date DESC, encounters.id
       LIMIT 1
     )`);
 
