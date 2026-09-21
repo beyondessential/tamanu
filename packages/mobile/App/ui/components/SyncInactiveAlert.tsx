@@ -158,43 +158,30 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const netInfo = useNetInfo();
   const { centralServer } = useBackend();
 
-  const handleClose = (): void => setOpen(false);
-  const handleOpen = (): void => setOpen(true);
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  const handleStatusChange = (
-    status: CentralConnectionStatus,
-    isInternetReachable: boolean,
-  ): void => {
-    if (
-      status === CentralConnectionStatus.Disconnected
-      // Reconnection with central is not possible if there is no internet connection
-    ) {
-      if (isInternetReachable) {
-        handleOpen();
-      } else if (open) {
-        handleClose();
-      }
-    }
-    if (status === CentralConnectionStatus.Connected && open) {
-      handleClose();
-    }
-  };
-
   useEffect(() => {
-    const handler = (status: CentralConnectionStatus): void => {
-      handleStatusChange(status, netInfo.isInternetReachable);
+    const handleStatusChange = (status: CentralConnectionStatus): void => {
+      switch (status) {
+        case CentralConnectionStatus.Disconnected:
+          // Reconnection with central is not possible if there is no internet connection
+          setOpen(netInfo.isInternetReachable);
+          return;
+        case CentralConnectionStatus.Connected:
+          setOpen(false);
+          return;
+      }
     };
-    centralServer.emitter.on('statusChange', handler);
+    centralServer.emitter.on('statusChange', handleStatusChange);
     return () => {
-      centralServer.emitter.off('statusChange', handler);
+      centralServer.emitter.off('statusChange', handleStatusChange);
     };
-  }, [netInfo.isInternetReachable, open]);
+  }, [centralServer, netInfo.isInternetReachable]);
 
   return (
     <>
-      <Alert open={open} onClose={handleClose} severity={AlertSeverity.Info}>
+      <Alert open={open} onClose={() => void setOpen(false)} severity={AlertSeverity.Info}>
         <StyledText
           color={theme.colors.PRIMARY_MAIN}
           fontSize={screenPercentageToDP(1.68, Orientation.Height)}
