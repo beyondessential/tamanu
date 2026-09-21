@@ -139,7 +139,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField<string>('search');
-  const search = useDebouncedValue(searchField.value.trim(), 300);
+  const query = useDebouncedValue(searchField.value.trim(), 300);
 
   // Get filters
   const filterFields: readonly FieldProp[] = useFilterFields();
@@ -153,8 +153,8 @@ const Screen: FC<ViewAllScreenProps> = ({
   }, [filterFields]);
 
   const { data: list } = useQuery({
-    queryKey: patientListKeys.search({ search, filters: activeFilters }),
-    queryFn: () => searchAndFilterPatients(search, activeFilters),
+    queryKey: patientListKeys.search({ query, filters: activeFilters }),
+    queryFn: () => searchAndFilterPatients(query, activeFilters),
   });
 
   if (!list) return <LoadingScreen />;
