@@ -2,7 +2,7 @@
  * Generates the navigation for the end user manuals from docs/user-manuals/manifest.json.
  *
  * The manifest is the authoritative list of platforms, modules, and the order of the
- * guides inside each module. This script writes every index.md, numbers each module and
+ * guides inside each module. This script writes every README.md, numbers each module and
  * guide, and maintains the back-link and the previous/next footer inside each guide.
  * Guide prose is never touched.
  *
@@ -66,9 +66,9 @@ function renderGuide(source, { number, title, moduleTitle, previous, next }) {
   let body = source.slice(0, source.indexOf(NAV_MARKER) === -1 ? undefined : source.indexOf(NAV_MARKER));
   // Tolerant of leading whitespace, CRLF, and a single newline: a near-miss here would
   // leave the old link in place while a fresh one is prepended below, giving two.
-  body = body.replace(/^\s*\[←[^\]]*\]\(index\.md\)[ \t]*(\r?\n)+/, '');
+  body = body.replace(/^\s*\[←[^\]]*\]\((?:README|index)\.md\)[ \t]*(\r?\n)+/, '');
   body = body.replace(/^# .+$/m, `# ${number} ${title}`);
-  body = `[← ${moduleTitle}](index.md)\n\n${body.trimEnd()}\n`;
+  body = `[← ${moduleTitle}](README.md)\n\n${body.trimEnd()}\n`;
 
   const links = [];
   if (previous) links.push(`Previous: [${previous.number} ${previous.title}](${previous.file})`);
@@ -123,7 +123,7 @@ if (manifestFaults.length) {
 
 // Root index: the platforms.
 await writeFile(
-  join(ROOT, 'index.md'),
+  join(ROOT, 'README.md'),
   [
     `# ${manifest.title}`,
     '',
@@ -131,7 +131,7 @@ await writeFile(
     '',
     '## Platforms',
     '',
-    ...manifest.platforms.map(p => `- [${p.title}](${p.slug}/index.md): ${p.description}`),
+    ...manifest.platforms.map(p => `- [${p.title}](${p.slug}/README.md): ${p.description}`),
     '',
   ].join('\n'),
 );
@@ -155,7 +155,7 @@ async function reportUnlistedEntries(parent, listedSlugs) {
       if (!listedSlugs.has(entry.name)) {
         problems.push(`${path} is a module directory the manifest does not list`);
       }
-    } else if (entry.name.endsWith('.md') && entry.name !== 'index.md') {
+    } else if (entry.name.endsWith('.md') && entry.name !== 'README.md') {
       problems.push(`${path} is a stray guide: guides belong in a module directory`);
     }
   }
@@ -169,7 +169,7 @@ for (const platform of manifest.platforms) {
 
   // Platform index: the numbered modules.
   await writeFile(
-    join(ROOT, platform.slug, 'index.md'),
+    join(ROOT, platform.slug, 'README.md'),
     [
       `# ${platform.title}`,
       '',
@@ -178,7 +178,7 @@ for (const platform of manifest.platforms) {
       '## Modules',
       '',
       ...platform.modules.map(
-        (m, i) => `- [${i + 1}. ${m.title}](${m.slug}/index.md): ${m.description}`,
+        (m, i) => `- [${i + 1}. ${m.title}](${m.slug}/README.md): ${m.description}`,
       ),
       '',
     ].join('\n'),
@@ -195,7 +195,7 @@ for (const platform of manifest.platforms) {
     const onDisk = await fs.readdir(moduleDir, { withFileTypes: true }).catch(() => []);
     for (const entry of onDisk) {
       if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
-      if (entry.name !== 'index.md' && !guideFiles.includes(entry.name)) {
+      if (entry.name !== 'README.md' && !guideFiles.includes(entry.name)) {
         problems.push(`${display(join(moduleDir, entry.name))} is not listed in the manifest`);
       }
     }
@@ -231,7 +231,7 @@ for (const platform of manifest.platforms) {
     }
 
     await writeFile(
-      join(moduleDir, 'index.md'),
+      join(moduleDir, 'README.md'),
       [
         `# ${moduleNumber}. ${module.title}`,
         '',

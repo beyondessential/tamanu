@@ -21,7 +21,7 @@ Tamanu repository alongside the code they describe.
       navigation, so an area reached through a tab is a module in its own right rather
       than being buried under the area that contains it.
 - [ ] A module folder holds one file per guide.
-- [ ] Each level carries an `index.md` listing what sits beneath it: the manuals root
+- [ ] Each level carries a `README.md` listing what sits beneath it: the manuals root
       lists the platforms, a platform lists its modules, and a module lists its guides.
 - [ ] An index entry names its target by the guide's or module's title and links to it.
 - [ ] A module's index lists its guides in the order a reader would carry the tasks out,

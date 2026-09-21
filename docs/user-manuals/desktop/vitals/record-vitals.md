@@ -1,4 +1,4 @@
-[← Vitals](index.md)
+[← Vitals](README.md)
 
 # 10.1 Record a set of vitals
 

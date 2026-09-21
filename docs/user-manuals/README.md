@@ -8,5 +8,5 @@ do something you believe you should be able to, contact your system administrato
 
 ## Platforms
 
-- [Desktop](desktop/index.md): Using Tamanu on a computer.
-- [Mobile](mobile/index.md): Using Tamanu on a mobile device.
+- [Desktop](desktop/README.md): Using Tamanu on a computer.
+- [Mobile](mobile/README.md): Using Tamanu on a mobile device.
