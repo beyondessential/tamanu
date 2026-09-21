@@ -1,41 +1,54 @@
-import React, { type FC, type ReactElement, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { type FieldHelperProps, type FieldInputProps, type FieldMetaProps, useField } from 'formik';
+import React, { type FC, type ReactElement, useMemo } from 'react';
 import { compose } from 'redux';
-import { useQuery } from '@tanstack/react-query';
-// Containers
-import { withPatient } from '/containers/Patient';
-// Components
-import { FullView, StyledView } from '/styled/common';
-import { PatientSectionList } from '/components/PatientSectionList';
-import { LoadingScreen } from '/components/LoadingScreen';
-// Helpers
-import { Routes } from '/helpers/routes';
-//Props
-import type { ViewAllScreenProps } from '/interfaces/Screens/PatientSearchStack/ViewAllScreenProps';
-import { Button } from '/components/Button';
-import { theme } from '/styled/theme';
-import { FilterIcon } from '/components/Icons/FilterIcon';
-import { useFilterFields } from './PatientFilterScreen';
-import type { IPatient } from '~/types';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { PatientFromRoute } from '~/ui/helpers/constants';
-import { Database } from '~/infra/db';
-import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
 import { RegistrationStatus } from '~/constants/programRegistries';
+import { Database } from '~/infra/db';
+import type { IPatient } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { PatientFromRoute } from '~/ui/helpers/constants';
+import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
+import useDebouncedValue from '~/ui/hooks/useDebouncedValue';
+import { useFilterFields } from './PatientFilterScreen';
+import { Button } from '/components/Button';
+import { FilterIcon } from '/components/Icons/FilterIcon';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { PatientSectionList } from '/components/PatientSectionList';
+import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import type { ViewAllScreenProps } from '/interfaces/Screens/PatientSearchStack/ViewAllScreenProps';
+import { FullView, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 type FieldProp = [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>];
 
-type QueryConfig = { where: string; substitutions: {} };
+type PatientFilterField =
+  | 'dateOfBirth'
+  | 'firstName'
+  | 'lastName'
+  | 'programRegistryId'
+  | 'sex'
+  | 'villageId';
 
-const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
+interface QueryConfig {
+  where: string;
+  substitutions: {
+    [key: string]: unknown;
+  };
+}
+
+const getQueryConfigForField = (
+  fieldName: PatientFilterField,
+  fieldValue: unknown,
+): QueryConfig => {
   const defaultConfig = {
     where: `patient.${fieldName} = :${fieldName}`,
     substitutions: {
       [fieldName]: fieldValue,
     },
-  };
+  } as const satisfies QueryConfig;
 
   switch (fieldName) {
     case 'sex':
@@ -47,7 +60,7 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
       return {
         where: `patient.${fieldName} = :${fieldName}`,
         substitutions: {
-          [fieldName]: format(fieldValue, 'yyyy-MM-dd'),
+          [fieldName]: format(fieldValue as Date, 'yyyy-MM-dd'),
         },
       };
     case 'firstName':
@@ -77,10 +90,8 @@ const getQueryConfigForField = (fieldName, fieldValue): QueryConfig => {
 
 const searchAndFilterPatients = async (
   searchTerm: string,
-  filters: Record<string, string>,
+  filters: Partial<Record<PatientFilterField, string | Date>>,
 ): Promise<IPatient[]> => {
-  const searchValue = searchTerm.trim();
-
   const queryBuilder = Database.models.Patient.getRepository().createQueryBuilder('patient');
 
   queryBuilder.leftJoinAndSelect('patient.village', 'referenceData');
@@ -94,18 +105,19 @@ const searchAndFilterPatients = async (
       patient.lastName LIKE :search OR
       patient.culturalName LIKE :search
     )`,
-    { search: `%${searchValue}%` },
+    { search: `%${searchTerm}%` },
   );
 
   // Filter patients by any of the specific "advanced"/"per-field" filters the user has specified
-  Object.entries(filters).forEach(([fieldName, fieldValue]) => {
+  for (const [fieldName, fieldValue] of Object.entries(filters) as [
+    PatientFilterField,
+    string | Date,
+  ][]) {
     const queryConfig = getQueryConfigForField(fieldName, fieldValue);
-    if (!queryConfig) {
-      return;
-    }
+    if (!queryConfig) continue;
     const { where, substitutions } = queryConfig;
     queryBuilder.andWhere(where, substitutions);
-  });
+  }
 
   // Don't return deleted patients
   queryBuilder.andWhere('patient.deletedAt IS NULL');
@@ -127,7 +139,7 @@ const Screen: FC<ViewAllScreenProps> = ({
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
   const [searchField] = useField('search');
-  const search = searchField.value;
+  const search = useDebouncedValue(searchField.value.trim(), 300);
 
   // Get filters
   const filterFields: FieldProp[] = useFilterFields();
@@ -170,7 +182,7 @@ const Screen: FC<ViewAllScreenProps> = ({
           onPress={onNavigateToFilters}
           buttonText={
             <>
-              <TranslatedText stringId="patient.search.filterCount" fallback="Filters" />
+              <TranslatedText stringId="patient.search.filters" fallback="Filters" />
               {activeFilterCount > 0 && <> ({activeFilterCount.toLocaleString()})</>}
             </>
           }
