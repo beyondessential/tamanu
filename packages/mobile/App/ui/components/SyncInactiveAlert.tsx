@@ -155,7 +155,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const netInfo = useNetInfo();
+  const { isInternetReachable } = useNetInfo();
   const { centralServer } = useBackend();
 
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
@@ -166,7 +166,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
       switch (status) {
         case CentralConnectionStatus.Disconnected:
           // Reconnection with central is not possible if there is no internet connection
-          setOpen(netInfo.isInternetReachable);
+          setOpen(isInternetReachable);
           return;
         case CentralConnectionStatus.Connected:
           setOpen(false);
@@ -175,7 +175,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
     };
     centralServer.emitter.on('statusChange', handleStatusChange);
     return () => void centralServer.emitter.off('statusChange', handleStatusChange);
-  }, [centralServer, netInfo.isInternetReachable]);
+  }, [centralServer.emitter, isInternetReachable]);
 
   return (
     <>
