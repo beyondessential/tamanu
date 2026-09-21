@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
-import { IconButton, Tooltip } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { ThemedTooltip, UnstyledHtmlButton } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 
 const Row = styled.div`
@@ -36,6 +36,11 @@ const StyledCheckbox = styled(Checkbox)`
   &.Mui-disabled i {
     color: ${Colors.softText};
   }
+`;
+
+const CheckboxTooltipTarget = styled.span`
+  display: inline-flex;
+  align-items: center;
 `;
 
 const LabelText = styled.span`
@@ -149,32 +154,38 @@ export const CategoryHeader = ({ children, ...props }) => (
 );
 
 export const SelectableTestRow = ({ id, label, checked, disabled, disabledTooltip, onChange }) => {
-  const row = (
+  const checkbox = (
+    <StyledCheckbox
+      {...CheckboxIcons}
+      color="primary"
+      checked={checked}
+      disabled={disabled}
+      onChange={event => onChange(id, event.target.checked)}
+      name={id}
+      data-testid={`testrow-checkbox-${id}`}
+    />
+  );
+
+  return (
     <Row data-testid={`testrow-${id}`}>
       <ExpandSpacer />
       <RowLabel $disabled={disabled}>
-        <StyledCheckbox
-          {...CheckboxIcons}
-          color="primary"
-          checked={checked}
-          disabled={disabled}
-          onChange={event => onChange(id, event.target.checked)}
-          name={id}
-          data-testid={`testrow-checkbox-${id}`}
-        />
+        {disabled && disabledTooltip ? (
+          <ThemedTooltip
+            title={disabledTooltip}
+            placement="top-start"
+            data-testid={`testrow-tooltip-${id}`}
+          >
+            {/* span wrapper: a disabled checkbox emits no hover events for the tooltip */}
+            <CheckboxTooltipTarget>{checkbox}</CheckboxTooltipTarget>
+          </ThemedTooltip>
+        ) : (
+          checkbox
+        )}
         <LabelText $disabled={disabled}>{label}</LabelText>
       </RowLabel>
     </Row>
   );
-
-  if (disabled && disabledTooltip) {
-    return (
-      <Tooltip title={disabledTooltip} placement="top-start" data-testid={`testrow-tooltip-${id}`}>
-        <span>{row}</span>
-      </Tooltip>
-    );
-  }
-  return row;
 };
 
 export const PanelRow = ({

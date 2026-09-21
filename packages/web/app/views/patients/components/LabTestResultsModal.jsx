@@ -44,9 +44,23 @@ const StyledModal = styled(FormModal)`
   .MuiDialogActions-root {
     display: none;
   }
+  .MuiDialog-paper {
+    max-width: 1400px;
+  }
 `;
 
 const StyledTableFormFields = styled(TableFormFields)`
+  padding: 0 10px;
+  border-radius: 3px;
+
+  &.MuiTable-root {
+    border-block-end: 1px solid ${Colors.outline};
+  }
+
+  tr:last-child td {
+    border-block-end: none;
+  }
+
   thead tr th {
     text-align: left;
     background: ${Colors.white};
@@ -70,7 +84,7 @@ const StyledTableFormFields = styled(TableFormFields)`
   thead tr th:first-child,
   tbody tr td:first-child {
     padding-left: 20px;
-    width: 220px;
+    width: 260px;
   }
 `;
 
@@ -177,6 +191,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
+      width: '220px',
       title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
       accessor: (row, i) => {
         const { resultType, options, id: labTestTypeId } = row.labTestType;
@@ -243,7 +258,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
       title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
-      width: '160px',
+      width: '260px',
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -276,7 +291,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       title: (
         <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
       ),
-      width: '260px',
+      width: '240px',
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -458,7 +473,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
 
   return (
     <StyledModal
-      width="lg"
       title={
         <TranslatedText
           stringId="patient.lab.modal.enterResults.title"

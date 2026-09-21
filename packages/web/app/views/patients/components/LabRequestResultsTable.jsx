@@ -260,7 +260,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         }
         data-testid="styleddatafetchingtable-brdm"
         allowExport
-        exportName={labRequest.displayId}
+        exportName={`Lab results-${labRequest.displayId}`}
       />
       {showEditedEntryLegend && <EditedEntryLegend data-testid="editedentrylegend-labrequest" />}
       <LabTestResultModal
