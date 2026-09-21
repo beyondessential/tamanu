@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "2.62.8",
+  "version": "2.62.9",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "clean": "rimraf -- dist",
