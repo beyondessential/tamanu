@@ -7,8 +7,6 @@ import type { BaseAppProps } from '/interfaces/BaseAppProps';
 export const PatientFilterScreen = ({ navigation, route }: BaseAppProps) => {
   const { onChangeFilters } = route.params;
 
-  const [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] = useFilterFields();
-
   const onNavigateBack = () => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
   };
@@ -20,6 +18,7 @@ export const PatientFilterScreen = ({ navigation, route }: BaseAppProps) => {
     });
   };
 
+  const [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] = useFilterFields();
   const onClearFilters = () => {
     sex[2].setValue('');
     dateOfBirth[2].setValue(null);
