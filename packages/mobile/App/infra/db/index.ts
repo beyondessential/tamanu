@@ -284,7 +284,7 @@ class DatabaseHelper {
 
   private async reclaimSpace(): Promise<void> {
     try {
-      const autoVacuum = await this.readPragmaNumber('auto_vacuum');
+      const autoVacuum = (await this.readPragmaNumber('auto_vacuum')) as 0 | 1 | 2;
       switch (autoVacuum) {
         case AUTO_VACUUM_NONE:
           await this.fullVacuumIfWorthwhile();
