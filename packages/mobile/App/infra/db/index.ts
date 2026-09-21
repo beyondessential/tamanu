@@ -285,12 +285,17 @@ class DatabaseHelper {
   private async reclaimSpace(): Promise<void> {
     try {
       const autoVacuum = await this.readPragmaNumber('auto_vacuum');
-      if (autoVacuum === AUTO_VACUUM_INCREMENTAL) {
-        await this.incrementalVacuum();
-      } else if (autoVacuum === AUTO_VACUUM_NONE) {
-        await this.fullVacuumIfWorthwhile();
+      switch (autoVacuum) {
+        case AUTO_VACUUM_NONE:
+          await this.fullVacuumIfWorthwhile();
+          break;
+        case AUTO_VACUUM_INCREMENTAL:
+          await this.incrementalVacuum();
+          break;
+        default:
+          // FULL: SQLite already truncates on every commit, nothing to do
+          break;
       }
-      // FULL: SQLite already truncates on every commit, nothing to do
     } catch (e) {
       // Best-effort maintenance: not worth falling over some free pages
       console.error('Error reclaiming database space:', e);
