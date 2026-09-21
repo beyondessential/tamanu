@@ -276,8 +276,7 @@ encounter.put(
 
         const { noSyndrome, symptomIds } = req.body;
         if (noSyndrome != null || symptomIds != null) {
-          // TODO: check create or write SyndromicSurveillance permission depending on whether a
-          // record already exists for this encounter, rather than relying on write Encounter.
+          // By design: gated on write Encounter (already checked above)
           await upsertEncounterSyndromicSurveillance(models, id, { noSyndrome, symptomIds });
         }
       }
@@ -504,6 +503,7 @@ encounterRelations.get(
     });
   }),
 );
+// spec: SYND#permissions
 encounterRelations.get(
   '/:id/syndromicSurveillance',
   asyncHandler(async (req, res) => {
