@@ -5,11 +5,14 @@ const deviceInfo = jest.requireMock('react-native-device-info');
 const ONE_DAY_MS = 86_400_000;
 const ONE_MEBIBYTE = 1_048_576;
 
-const getRefreshedAtFact = () =>
-  Database.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } });
+const getRefreshedAtFact = async () =>
+  await Database.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } });
 
-const setRefreshedAtFact = (value: string) =>
-  Database.models.LocalSystemFact.createAndSaveOne({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
+const setRefreshedAtFact = async (value: string) =>
+  await Database.models.LocalSystemFact.createAndSaveOne({
+    key: PLANNER_STATS_REFRESHED_AT_KEY,
+    value,
+  });
 
 const sqlCalls = (querySpy: jest.SpyInstance): string[] =>
   querySpy.mock.calls.map(([sql]) => sql).filter((sql): sql is string => typeof sql === 'string');
