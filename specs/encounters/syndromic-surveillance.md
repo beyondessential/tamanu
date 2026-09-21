@@ -18,3 +18,22 @@ Presenting the list of symptoms to a practitioner:
 - Every other symptom appears below the divider, in alphabetical order by name.
 
 The alphabetical ordering is produced by the server, not the client: the endpoint that lists syndromic surveillance symptoms returns them already in this order (the "no syndrome" item first, the rest alphabetically after it), so any client rendering the list does not need to sort it.
+
+## Recording syndromic surveillance for an encounter
+
+A practitioner records syndromic surveillance from the encounter's diagnosis pane, or from the discharge form when discharging the encounter. Both surfaces read and write the same record for the encounter, so recording it during discharge is equivalent to recording it beforehand from the diagnosis pane.
+
+Recording syndromic surveillance means selecting either the "no syndrome" symptom or one or more other symptoms — never both at once. Selecting "no syndrome" clears any other selected symptoms, and selecting a symptom clears "no syndrome". A request to record both is rejected.
+
+The encounter's syndromic surveillance record can be revised at any time up to and including discharge. Revising it replaces which symptoms are recorded as ticked; it does not affect whether the encounter has a record at all — once syndromic surveillance has been recorded for an encounter, it stays recorded even if every symptom is later unticked and replaced with a different selection.
+
+## Permissions
+
+Recording or editing syndromic surveillance requires one of two permissions, depending on whether the encounter already has a record:
+
+- Creating a first record for an encounter requires the create permission.
+- Editing an already-recorded entry requires the write permission.
+
+Either permission alone, or the read permission on its own, is enough to view what has been recorded. A user with only the read permission cannot open the recording form to make changes.
+
+When syndromic surveillance is submitted as part of discharging an encounter, it is covered by the permission to discharge that encounter, rather than requiring the create or write syndromic surveillance permission directly.

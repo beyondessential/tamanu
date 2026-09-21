@@ -10,6 +10,8 @@ import { useEncounterSyndromicSurveillanceQuery } from '../api/queries/useEncoun
  *
  * "Create" applies when recording for the first time (no prior values); "write" applies when
  * editing an already-recorded entry. Either one on its own, or plain "read", is enough to view.
+ *
+ * spec: SYND#permissions
  */
 export const useSyndromicSurveillanceAccess = encounterId => {
   const { getSetting } = useSettings();

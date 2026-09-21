@@ -1463,6 +1463,13 @@ describe('Encounter', () => {
         expect(getResult).toHaveSucceeded();
         expect(getResult.body.symptomIds).toEqual([symptomA.id]);
       });
+
+      it('should reject recording both no syndrome and specific symptoms', async () => {
+        const result = await app
+          .post(`/api/encounter/${syndromicSurveillanceEncounter.id}/syndromicSurveillance`)
+          .send({ noSyndrome: true, symptomIds: [symptomA.id] });
+        expect(result).toHaveRequestError();
+      });
     });
 
     describe('medication', () => {
