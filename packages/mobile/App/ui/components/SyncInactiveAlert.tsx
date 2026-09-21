@@ -195,7 +195,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
             textDecorationLine="underline"
             fontSize={screenPercentageToDP(1.68, Orientation.Height)}
           >
-            <TranslatedText stringId="sync.action.reconnect" fallback="Click here to reconnect." />
+            <TranslatedText stringId="sync.action.reconnect" fallback="Tap here to reconnect." />
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
