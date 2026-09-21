@@ -88,7 +88,7 @@ function formatMiB(bytes: number): string {
 }
 
 class DatabaseHelper {
-  private isAnalyzing = false;
+  private isOptimizing = false;
 
   /**
    * Resolves when the currently running space reclamation (possibly a long VACUUM) finishes.
@@ -295,8 +295,8 @@ class DatabaseHelper {
    */
   async requestPragmaOptimize(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
-    if (this.isAnalyzing) return;
-    this.isAnalyzing = true;
+    if (this.isOptimizing) return;
+    this.isOptimizing = true;
     try {
       const fact = await this.models.LocalSystemFact.findOne({
         select: ['value'],
@@ -321,7 +321,7 @@ class DatabaseHelper {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);
     } finally {
-      this.isAnalyzing = false;
+      this.isOptimizing = false;
     }
   }
 
