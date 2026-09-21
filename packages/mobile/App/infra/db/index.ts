@@ -37,27 +37,29 @@ const TEST_CONNECTION_CONFIG = {
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
 export const SPACE_RECLAIM_ATTEMPTED_AT_KEY = 'spaceReclaimLastAttemptedAt';
 
+const MEBIBYTE = 1_048_576;
+
 /** 1 day */
 const PLANNER_STATS_REFRESH_INTERVAL_MS = 86_400_000;
 
 /**
- * 24 hours. A full VACUUM that fails (typically `SQLITE_FULL`, or the OS killing the app before it
- * commits) is safe to retry, but not worth retrying on every backgrounding.
+ * 24 hours. Safe to retry if VACUUM fails (e.g. `SQLITE_FULL` killed by OS) but not worth retrying
+ * on every backgrounding.
  */
 const SPACE_RECLAIM_RETRY_INTERVAL_MS = 86_400_000;
 
 /**
- * A full VACUUM rewrites the whole file, so only bother when there’s a meaningful amount to get
- * back: at least this many bytes free, *and* at least {@link VACUUM_MIN_FREE_FRACTION} of the file.
+ * A full VACUUM rewrites the whole file, so only bother when there’s going to be meaningful
+ * benefit: at least 64 MiB free, *and* at least {@link VACUUM_MIN_FREE_FRACTION} of the file.
  */
-const VACUUM_MIN_FREE_BYTES = 64 * 1024 * 1024;
+const VACUUM_MIN_FREE_BYTES = 64 * MEBIBYTE;
 const VACUUM_MIN_FREE_FRACTION = 0.1;
 
 /**
  * VACUUM builds the compacted copy in a temp file, then copies it back under the rollback journal,
  * so it can transiently need about twice the file size on disk. Leave some headroom on top of that.
  */
-const VACUUM_DISK_HEADROOM_BYTES = 256 * 1024 * 1024;
+const VACUUM_DISK_HEADROOM_BYTES = 256 * MEBIBYTE;
 
 /** Pages to hand back to the filesystem per background event: bounded so it stays cheap. */
 const INCREMENTAL_VACUUM_MAX_PAGES = 4096;
@@ -68,10 +70,7 @@ const AUTO_VACUUM_INCREMENTAL = 2;
 
 const getConnectionConfig = (): ConnectionOptions => {
   const isJest = process.env.JEST_WORKER_ID !== undefined;
-  if (isJest) {
-    return TEST_CONNECTION_CONFIG;
-  }
-  return CONNECTION_CONFIG;
+  return isJest ? TEST_CONNECTION_CONFIG : CONNECTION_CONFIG;
 };
 
 function formatMiB(bytes: number): string {
