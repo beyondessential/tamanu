@@ -3,7 +3,7 @@ import { Database, PLANNER_STATS_REFRESHED_AT_KEY, SPACE_RECLAIM_ATTEMPTED_AT_KE
 const deviceInfo = jest.requireMock('react-native-device-info');
 
 const ONE_DAY_MS = 86_400_000;
-const MiB = 1024 * 1024;
+const ONE_MEBIBYTE = 1_048_576;
 
 const getRefreshedAtFact = () =>
   Database.models.LocalSystemFact.findOne({ where: { key: PLANNER_STATS_REFRESHED_AT_KEY } });
@@ -177,7 +177,7 @@ describe('DatabaseHelper', () => {
     beforeEach(async () => {
       const fact = await getAttemptFact();
       if (fact) await fact.remove();
-      deviceInfo.getFreeDiskStorage.mockResolvedValue(100 * 1024 * MiB);
+      deviceInfo.getFreeDiskStorage.mockResolvedValue(100 * 1024 * ONE_MEBIBYTE);
     });
 
     describe('on a database that has never been vacuumed', () => {
@@ -198,7 +198,7 @@ describe('DatabaseHelper', () => {
       });
 
       it('skips VACUUM when the disk does not have room for the rewrite', async () => {
-        deviceInfo.getFreeDiskStorage.mockResolvedValue(100 * MiB);
+        deviceInfo.getFreeDiskStorage.mockResolvedValue(100 * ONE_MEBIBYTE);
         jest.spyOn(console, 'warn').mockImplementation(() => {});
         const originalQuery = Database.client.query.bind(Database.client);
         const querySpy = pretendLargeFreelist(jest.spyOn(Database.client, 'query'), originalQuery);
