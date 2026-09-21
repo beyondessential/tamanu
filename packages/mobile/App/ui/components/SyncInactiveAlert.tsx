@@ -1,21 +1,21 @@
+import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { useNetInfo } from '@react-native-community/netinfo';
+import { CentralConnectionStatus } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { authUserSelector } from '~/ui/helpers/selectors';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { useBackend } from '../hooks';
 import { Alert, AlertSeverity } from './Alert';
-import { CrossIcon } from './Icons';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { Button } from './Button';
 import { Form } from './Forms/Form';
 import { Field } from './Forms/FormField';
+import { CrossIcon } from './Icons';
 import { TextField } from './TextField/TextField';
-import { Button } from './Button';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { CentralConnectionStatus } from '~/types';
-import { useBackend } from '../hooks';
 import { TranslatedText } from './Translations/TranslatedText';
 
 interface AuthenticationModelProps {
@@ -155,46 +155,31 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const netInfo = useNetInfo();
+  const { isInternetReachable } = useNetInfo();
   const { centralServer } = useBackend();
 
-  const handleClose = (): void => setOpen(false);
-  const handleOpen = (): void => setOpen(true);
+  useEffect(() => {
+    const handleStatusChange = (status: CentralConnectionStatus): void => {
+      switch (status) {
+        case CentralConnectionStatus.Disconnected:
+          // Reconnection with central is not possible if there is no internet connection
+          setOpen(isInternetReachable ?? false);
+          return;
+        case CentralConnectionStatus.Connected:
+          setOpen(false);
+          return;
+      }
+    };
+    centralServer.emitter.on('statusChange', handleStatusChange);
+    return () => void centralServer.emitter.off('statusChange', handleStatusChange);
+  }, [centralServer.emitter, isInternetReachable]);
+
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  const handleStatusChange = (
-    status: CentralConnectionStatus,
-    isInternetReachable: boolean,
-  ): void => {
-    if (
-      status === CentralConnectionStatus.Disconnected
-      // Reconnection with central is not possible if there is no internet connection
-    ) {
-      if (isInternetReachable) {
-        handleOpen();
-      } else if (open) {
-        handleClose();
-      }
-    }
-    if (status === CentralConnectionStatus.Connected && open) {
-      handleClose();
-    }
-  };
-
-  useEffect(() => {
-    const handler = (status: CentralConnectionStatus): void => {
-      handleStatusChange(status, netInfo.isInternetReachable);
-    };
-    centralServer.emitter.on('statusChange', handler);
-    return () => {
-      centralServer.emitter.off('statusChange', handler);
-    };
-  }, [netInfo.isInternetReachable, open]);
-
   return (
     <>
-      <Alert open={open} onClose={handleClose} severity={AlertSeverity.Info}>
+      <Alert open={open} onClose={() => void setOpen(false)} severity={AlertSeverity.Info}>
         <StyledText
           color={theme.colors.PRIMARY_MAIN}
           fontSize={screenPercentageToDP(1.68, Orientation.Height)}
@@ -208,7 +193,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
             textDecorationLine="underline"
             fontSize={screenPercentageToDP(1.68, Orientation.Height)}
           >
-            <TranslatedText stringId="sync.action.reconnect" fallback="Click here to reconnect." />
+            <TranslatedText stringId="sync.action.reconnect" fallback="Tap here to reconnect." />
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
