@@ -251,9 +251,11 @@ class DatabaseHelper {
     }
   }
 
-  private async readPragmaNumber(name: string): Promise<number> {
+  private async readPragmaNumber(
+    name: 'auto_vacuum' | 'freelist_count' | 'page_count' | 'page_size',
+  ): Promise<number> {
     const [row] = await this.client.query(`PRAGMA ${name};`);
-    return Number(row[name]);
+    return Number.parseInt(row[name], 10);
   }
 
   /**
