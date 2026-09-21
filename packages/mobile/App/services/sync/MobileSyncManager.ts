@@ -46,14 +46,14 @@ type SyncOptions = {
   urgent: boolean;
 };
 
-export type MobileSyncSettings = {
+export interface MobileSyncSettings {
   maxBatchesToKeepInMemory: number;
   maxRecordsPerSnapshotBatch: number;
   maxRecordsPerInsertBatch: number;
   maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-};
+}
 
 export interface PullParams {
   sessionId: string;
@@ -226,7 +226,7 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
 
-    // A VACUUM kicked off while the app was backgrounded may still be running; let it finish
+    // A VACUUM kicked off while the app was backgrounded may still be running. Let it finish
     // before opening a central session so the session isn’t held open waiting on the write lock.
     if (Database.maintenanceInProgress) {
       console.log('MobileSyncManager.runSync(): Waiting for database maintenance to finish');
