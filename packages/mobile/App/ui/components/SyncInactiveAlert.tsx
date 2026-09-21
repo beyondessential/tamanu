@@ -163,7 +163,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
       switch (status) {
         case CentralConnectionStatus.Disconnected:
           // Reconnection with central is not possible if there is no internet connection
-          setOpen(isInternetReachable);
+          setOpen(isInternetReachable ?? false);
           return;
         case CentralConnectionStatus.Connected:
           setOpen(false);
