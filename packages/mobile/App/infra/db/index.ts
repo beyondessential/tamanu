@@ -229,9 +229,6 @@ if (__DEV__) {
     await clear();
     DevSettings.reload();
   });
-}
-
-if (__DEV__) {
   DevSettings.addMenuItem('DB schema sync', async () => {
     try {
       await Database.forceSync();
@@ -239,10 +236,7 @@ if (__DEV__) {
       console.error(e);
     }
   });
-}
-
-// Add a dev menu item to drop database and rerun migrations
-if (__DEV__) {
+  // Add a dev menu item to drop database and rerun migrations
   DevSettings.addMenuItem('Drop database', async () => {
     await Database.client.dropDatabase();
     await Database.forceSync();
