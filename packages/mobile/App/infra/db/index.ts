@@ -259,9 +259,9 @@ class DatabaseHelper {
   }
 
   /**
-   * Hands free pages in the main database back to the filesystem. Best-effort, never throws, and
-   * meant for when the app is backgrounded: a full VACUUM can take minutes on a large database
-   * and holds the write lock for the duration.
+   * Hands free pages in the main database back to the filesystem. Best-effort, never throws. Holds
+   * write lock for potentially minutes, so be intentional about when it gets run. (Ideally in
+   * background.)
    *
    * - Databases created before `auto_vacuum` was set (the overwhelming majority of installs) can
    *   only shrink via a full VACUUM. That one-off VACUUM also switches them to INCREMENTAL, so it
