@@ -1,21 +1,21 @@
+import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { useNetInfo } from '@react-native-community/netinfo';
+import { CentralConnectionStatus } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { authUserSelector } from '~/ui/helpers/selectors';
 import { StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { useBackend } from '../hooks';
 import { Alert, AlertSeverity } from './Alert';
-import { CrossIcon } from './Icons';
-import { authUserSelector } from '~/ui/helpers/selectors';
+import { Button } from './Button';
 import { Form } from './Forms/Form';
 import { Field } from './Forms/FormField';
+import { CrossIcon } from './Icons';
 import { TextField } from './TextField/TextField';
-import { Button } from './Button';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { CentralConnectionStatus } from '~/types';
-import { useBackend } from '../hooks';
 import { TranslatedText } from './Translations/TranslatedText';
 
 interface AuthenticationModelProps {
@@ -158,9 +158,6 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const { isInternetReachable } = useNetInfo();
   const { centralServer } = useBackend();
 
-  const handleOpenModal = (): void => setOpenAuthenticationModel(true);
-  const handleCloseModal = (): void => setOpenAuthenticationModel(false);
-
   useEffect(() => {
     const handleStatusChange = (status: CentralConnectionStatus): void => {
       switch (status) {
@@ -176,6 +173,9 @@ export const SyncInactiveAlert = (): JSX.Element => {
     centralServer.emitter.on('statusChange', handleStatusChange);
     return () => void centralServer.emitter.off('statusChange', handleStatusChange);
   }, [centralServer.emitter, isInternetReachable]);
+
+  const handleOpenModal = (): void => setOpenAuthenticationModel(true);
+  const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
   return (
     <>
