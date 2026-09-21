@@ -1,16 +1,15 @@
+import { DevSettings } from 'react-native';
+import { getFreeDiskStorage } from 'react-native-device-info';
+import { typeORMDriver } from 'react-native-quick-sqlite';
 import {
   type Connection,
   type ConnectionOptions,
   createConnection,
   getConnectionManager,
 } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite';
-import { DevSettings } from 'react-native';
-import { getFreeDiskStorage } from 'react-native-device-info';
-
+import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 import getCacheSizeKiB from './cacheSize';
 
 const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
