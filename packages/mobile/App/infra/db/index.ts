@@ -273,7 +273,7 @@ class DatabaseHelper {
    */
   async requestSpaceReclaim(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
-    if (this.maintenanceInProgress) return;
+    if (this.maintenanceInProgress !== null) return;
     this.maintenanceInProgress = this.reclaimSpace();
     try {
       await this.maintenanceInProgress;
