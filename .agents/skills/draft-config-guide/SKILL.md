@@ -13,113 +13,86 @@ label: "Draft config guide"
 
 ## Your task: Draft a configuration guide
 
-You write the user configuration guides for a Tamanu module: the documents a system administrator or
-project manager configures a deployment from. You author them **from the codebase**, so the reference
-data columns, settings and permissions they describe match what the software actually does, and you
-land the work as a **reviewed pull request** rather than a silent edit.
+You write the configuration guides a system administrator or project manager configures a deployment
+from. You author them **from the codebase**, so what they describe matches what the software does, and
+land them as a **reviewed pull request**.
 
-A module's configuration is documented in **three guides**, one per configuration surface:
-`reference-data.md`, `settings.md` and `permissions.md`, numbered *n*.1 to *n*.3 within the module. The
-module README carries the overview and anything belonging to no single surface. Which guide a
-cross-cutting section lands in is set out in the format doc; follow it rather than deciding afresh.
+Read `.agents/docs/config-guide-format.md` first and follow it for anything about what a guide looks
+like: structure, tables, settings blocks, callouts, version flags, screenshots, and the accuracy rules.
+This file is the procedure only.
 
-Read these two first, and follow them rather than reinventing their content:
+Each module has three guides — `reference-data.md`, `settings.md`, `permissions.md` — plus a README.
+The Medications guides (`docs/user-manuals/system-administration/medications/`) are the worked example.
 
-- `.agents/docs/config-guide-format.md` — the format: where guides live, the section backbone, settings
-  blocks, tables, callouts, version flagging, and the publishing rules
-- `llm/project-rules/write-config-guides.md` — the authoring principles: audience, verifying everything
-  against code, no repetition, and not telling project managers how to do their job
+Drafting a new guide and updating an existing one are the same job from different starting points. When
+updating, read the existing guides first: they carry author-written content you must preserve.
 
-The Medications guides (`docs/user-manuals/system-administration/medications/`) are the reference
-example of the shape you are aiming for: a module README carrying the overview, and `reference-data.md`,
-`settings.md` and `permissions.md` beside it.
-
-Guides are markdown, and render differently on GitHub than on the docs site. Never rely on styling to
-carry meaning, and do not hand-write HTML to recover a design GitHub will strip. See "How guides
-render" in the format doc.
-
-### Draft or update
-
-**Drafting a new guide** for a module, and **updating an existing one** against current code, are the
-same job with a different starting point. When updating, read the existing guide first: it carries
-author-written content you must preserve, and its scope tells you what the guide is understood to
-cover.
-
-### Establish scope before you write
+### 1. Establish scope, and confirm it
 
 A module's configuration is not grouped anywhere in the codebase, and the boundary between modules is
-an editorial judgment the code cannot supply. Medication settings span several top-level schema keys;
-`Drug` reference data belongs to Medications, Vaccines and Invoicing at once; and the Medications and
-Dispensing guides deliberately split the `medications.dispensing` subtree between them.
+editorial. Medication settings span several schema keys; `Drug` reference data belongs to Medications,
+Dispensing and Immunisations at once.
 
-So **discover candidates mechanically, then confirm them with the author**:
+Discover candidates:
 
 - **Settings** — `packages/settings/src/schema/{global,central,facility}.ts`. Search beyond the
   obviously-named subtree; related settings hide under other top-level keys and under `features`
 - **Permissions** — `packages/constants/src/permissions.ts`. Search by meaning, not prefix: a subject
   like `SensitiveMedication` sorts away from its siblings
 - **Reference data** — `packages/constants/src/importable.ts` for the types, then the importers
-  (`packages/central-server/app/admin/referenceDataImporter/`), import schemas
-  (`.../admin/importSchemas/`) and exporters (`.../admin/exporter/modelExporters/`) for tab names,
-  columns, required fields and default-when-empty behaviour. `defaultProvisioningData/*.json5` gives
-  realistic example rows
+  (`packages/central-server/app/admin/referenceDataImporter/`), import schemas and exporters
+  (`.../admin/exporter/modelExporters/`) for tab names, columns, required fields and default-when-empty
+  behaviour. `defaultProvisioningData/*.json5` has realistic example rows
 
-Present the candidate list for the author to approve or trim **before authoring anything**. Do not
+Then **present the candidate list for the author to approve or trim before writing anything**. Do not
 derive scope and proceed.
 
-### Gather what the code cannot give you
+### 2. Draft what the code cannot give you
 
-Scope limitations, clinical caveats and the lead paragraph are not in the codebase. Ask the author for
-them. Where they are outstanding, leave a marked gap rather than inventing them, and **never fabricate
-clinical guidance**.
+Scope limitations, clinical caveats and the lead paragraph are not in the codebase. Draft them from
+the module's existing documentation and what you can see of its behaviour, then have the author correct
+them. Never invent clinical guidance: where you have nothing to go on, leave a marked gap.
 
-### Screenshots
+### 3. Batch the author's checkpoints
 
-Screenshots come from a running Tamanu instance, not from reading code, so they are captured by a
-Playwright spec you write rather than by you directly. For each image the guide needs:
+Three things need the author: scope, the capabilities listed under each permission (inferred from
+`req.ability.can()` call sites), and version flags (from release branch history, see
+`llm/project-rules/release-branches.md`).
 
-1. Leave a **placeholder naming the image file and what it must show**, so the guide and the capture
-   spec agree without a separate manifest
-2. Write a capture spec at `packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` that
-   navigates to each screen and writes the image into the guide's `images/` folder. **Reuse the
-   existing page objects** in `packages/e2e-tests/pages/` rather than writing fresh selectors
-3. Tell the author what to run, since capturing needs a local stack they have and you may not
+Settle **scope first**, then present the drafted permission capabilities, version flags and lead
+paragraph **together as one review**. A guide-authoring skill that asks a dozen separate questions will
+not get used.
 
-Never fabricate an image or describe a screen you have not seen. The full conventions, including file
-naming and keeping screenshots current, are in the format doc.
+### 4. Screenshots
 
-### Batch your checkpoints
+Screenshots come from a running Tamanu instance, so you write a capture spec rather than capturing
+them. Leave a placeholder for each image per the format doc, then write a Playwright spec at
+`packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` that navigates to each screen and
+writes the image into the guide's `images/` folder under the name its placeholder gives.
 
-Three things need the author: the scope, the capabilities listed under each permission, and the version
-a feature became available. Run separately these turn the skill into an interrogation, and a
-guide-authoring skill that asks a dozen questions will not get used.
+**Reuse the existing page objects** in `packages/e2e-tests/pages/` rather than writing fresh selectors.
+Keep the spec out of the normal test run — it captures, it does not assert, so a missing screenshot must
+not fail the suite. Use synthetic data only; these images are published. Follow
+`llm/project-rules/playwright-e2e.md`.
 
-Settle **scope first**, since everything downstream depends on it. Then derive the permission
-capabilities (from where each permission is enforced) and the version flags (from release branch
-history, see `llm/project-rules/release-branches.md`) and present them **together as one review**.
+Capturing needs a local stack, so tell the author what to run.
 
-### Report gaps, never widen scope
+### 5. Report gaps, never widen scope
 
-You will find configuration the guide does not document. Report it to the author and leave it out
-unless they ask for it. An omission is often deliberate: the configuration may belong to an adjacent
-module's guide, or cover something not yet supported for deployments. Correcting a fact the guide
-already documents is not widening scope, and you should always do it.
+You will find configuration a guide does not document. Report it and leave it out unless the author asks
+for it: an omission is often deliberate, because the configuration belongs to an adjacent module or is
+not yet supported. Correcting a fact the guide already documents is not widening scope — always do that.
 
-### Updating proposes a diff
+On an update, also report screenshots sitting in sections whose code has changed, so the author can
+judge whether to recapture.
 
-When updating an existing guide, **present the changes for the author to accept rather than editing the
-guide directly**. The risk worth designing against is not missing an update, it is silently overwriting
-narrative, caveats or placeholders that someone wrote deliberately.
+### 6. Land it
 
-### Landing the change
+**Updating proposes a diff**: present changes for the author to accept rather than editing a guide
+directly. The risk worth designing against is not missing an update, it is silently overwriting prose
+someone wrote deliberately.
 
-Update the module README and the `docs/user-manuals/system-administration/` README so the new or
-changed guides are listed, then open a **pull request for review**.
-
-Where the guide still has screenshot placeholders, say so in the PR and name the capture spec to run,
-so a reviewer knows the guide is incomplete by design rather than by oversight.
-
-Title it to Tamanu's conventional commit format (see `llm/project-rules/pull-requests.md`) — note that
-`docs` is not an allowed type, so use `chore` — and use the repository template with the placeholder
-replaced. Summarise what you wrote, and **report the configuration gaps you found** in the PR so a
-reviewer sees them in context.
+Update the module README and the section README, then open a **pull request for review**. Title it to
+Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
+type, use `chore`) with the repository template. In the PR, summarise what you wrote, report the
+configuration gaps you found, and name the capture spec to run where placeholders are outstanding.

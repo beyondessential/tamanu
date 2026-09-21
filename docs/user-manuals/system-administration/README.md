@@ -52,8 +52,7 @@ be renumbered without breaking any link.
 
 Guides are authored from the Tamanu codebase, so the reference data columns, settings and permissions
 they describe match what the software does. The format they follow is defined in
-`.agents/docs/config-guide-format.md`, and the principles behind them in
-`llm/project-rules/write-config-guides.md`.
+`.agents/docs/config-guide-format.md`.
 
 Features that are unavailable in older deployments carry a note stating the version they are supported
 from. Check your deployment's version before relying on them.

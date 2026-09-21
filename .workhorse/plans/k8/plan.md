@@ -18,11 +18,15 @@ changes.
 
 Division of labour between the three documentation-guidance files:
 
-- `llm/project-rules/write-config-guides.md` — authoring **principles** (audience, verify from code, no
-  repetition, Australian English). Unchanged by this card
-- `.agents/docs/config-guide-format.md` — the **format**: location, section backbone, content sources,
-  version flagging, update and publishing rules
-- The skill's `SKILL.md` — the **procedure** for a run. Cites both rather than restating them
+- `.agents/docs/config-guide-format.md` — what a guide **is**: audience, principles, structure,
+  tables, callouts, version flags, screenshots, accuracy rules
+- The skill's `SKILL.md` — the **procedure** for a run, citing the format doc rather than restating it
+
+`llm/project-rules/write-config-guides.md` was folded into the format doc and removed at review, on the
+grounds that two documents covering the same ground drift apart. Its Slab-specific heading guidance was
+dropped as superseded; its principles (audience, verify from code, spreadsheet framing, no repetition,
+don't tell PMs their job, Australian English) are now the format doc's opening section. `AGENTS.md`
+points at the format doc instead.
 
 ## Follow-up: the orphan invoicing guide
 
