@@ -6,8 +6,8 @@ description: >-
   Mobile (e.g. "write a guide for recording vitals"), wants an existing guide refreshed against the
   current app, or wants to add a module to the manual. Writes to docs/user-manuals/ following
   specs/documentation/user-manuals.md, and maintains the navigation through the manifest and its
-  generator. Not for configuration guides aimed at project managers (see
-  llm/project-rules/write-config-guides.md), nor for support runbooks (see curate-support-docs).
+  generator. Not for configuration guides, which are written for the people who set Tamanu up and
+  have their own skill (see draft-config-guide), nor for support runbooks (see curate-support-docs).
 label: "Write user guide"
 ---
 

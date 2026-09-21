@@ -137,18 +137,23 @@ await writeFile(
 );
 
 /**
- * Reports anything on disk at this level that the manifest does not account for: a
+ * Reports anything inside a platform that the manifest does not account for: a module
  * directory whose slug is not listed (a renamed or removed slug otherwise leaves its old
  * folder behind, still holding guides, linked from nothing), and any stray markdown
  * beside the index, which would be a guide no page links to.
+ *
+ * Scoped to the platforms the manifest owns rather than the whole of docs/user-manuals/,
+ * because sibling trees there belong to other documentation and are not this script's to
+ * police. The cost is that renaming a platform leaves its old directory unreported, which
+ * is a far rarer event than renaming a module.
  */
-async function reportUnlistedEntries(parent, listedSlugs, kind) {
+async function reportUnlistedEntries(parent, listedSlugs) {
   const entries = await fs.readdir(parent, { withFileTypes: true }).catch(() => []);
   for (const entry of entries) {
     const path = display(join(parent, entry.name));
     if (entry.isDirectory()) {
       if (!listedSlugs.has(entry.name)) {
-        problems.push(`${path} is a ${kind} directory the manifest does not list`);
+        problems.push(`${path} is a module directory the manifest does not list`);
       }
     } else if (entry.name.endsWith('.md') && entry.name !== 'index.md') {
       problems.push(`${path} is a stray guide: guides belong in a module directory`);
@@ -156,13 +161,10 @@ async function reportUnlistedEntries(parent, listedSlugs, kind) {
   }
 }
 
-await reportUnlistedEntries(ROOT, new Set(manifest.platforms.map(p => p.slug)), 'platform');
-
 for (const platform of manifest.platforms) {
   await reportUnlistedEntries(
     join(ROOT, platform.slug),
     new Set(platform.modules.map(m => m.slug)),
-    'module',
   );
 
   // Platform index: the numbered modules.
