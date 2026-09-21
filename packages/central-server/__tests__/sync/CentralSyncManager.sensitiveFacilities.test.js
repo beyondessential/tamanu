@@ -1260,8 +1260,8 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
   });
 
-  // The Facility model refuses a membership change, so the only way a facility moves network in
-  // production is this upgrade step's raw SQL. That makes it the one reachable path for the two
+  // The import and provisioning both refuse a membership change, so the only way a facility moves
+  // network in production is this upgrade step's raw SQL. That makes it the one reachable path for the two
   // behaviours a network change turns on: historical lookup rows following the facility to its new
   // network, and those rows flowing again to a facility that has already pulled past them. The
   // step's own test mocks sequelize, so it asserts SQL text rather than either of these.

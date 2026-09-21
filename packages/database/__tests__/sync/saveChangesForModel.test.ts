@@ -128,59 +128,6 @@ describe('saveChangesForModel', () => {
     });
   });
 
-  // Facility.sensitiveNetworkIsFixed refuses a membership change on a loaded instance, and sync
-  // has to be exempt from it: after central backfills its sensitive facilities into networks, or
-  // merges two networks, those rows pull down to facility servers still holding them with the old
-  // membership. If the validator ever caught this path, sync would break on every facility server
-  // in a deployment with a sensitive facility, so assert the write actually lands rather than
-  // relying on saveUpdates validating a built instance whose isNewRecord happens to be true.
-  // spec: specs/sync/sensitive-networks.md
-  describe('applying a facility whose network changed centrally', () => {
-    const applyIncomingFacility = async values =>
-      saveChangesForModel(models.Facility, [{ data: values, isDeleted: false }], false, log);
-
-    afterEach(async () => {
-      await models.Facility.truncate({ cascade: true, force: true });
-      await models.SensitiveNetwork.truncate({ cascade: true, force: true });
-    });
-
-    it('enrols a facility that pulls down carrying a network it did not have', async () => {
-      const network = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
-      const facility = await models.Facility.create(
-        fake(models.Facility, { sensitiveNetworkId: null }),
-      );
-
-      await applyIncomingFacility({
-        id: facility.id,
-        code: facility.code,
-        name: facility.name,
-        sensitiveNetworkId: network.id,
-      });
-
-      await facility.reload();
-      expect(facility.sensitiveNetworkId).toBe(network.id);
-    });
-
-    it('moves a facility that pulls down carrying a different network', async () => {
-      // what the SRH merge upgrade step looks like from a facility server
-      const from = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
-      const to = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
-      const facility = await models.Facility.create(
-        fake(models.Facility, { sensitiveNetworkId: from.id }),
-      );
-
-      await applyIncomingFacility({
-        id: facility.id,
-        code: facility.code,
-        name: facility.name,
-        sensitiveNetworkId: to.id,
-      });
-
-      await facility.reload();
-      expect(facility.sensitiveNetworkId).toBe(to.id);
-    });
-  });
-
   describe('saveDeletes', () => {
     it('should update record, then delete record in saveDeletes()', async () => {
       // setup test data
