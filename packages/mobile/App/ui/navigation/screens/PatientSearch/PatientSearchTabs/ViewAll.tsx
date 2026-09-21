@@ -145,22 +145,18 @@ const Screen: FC<ViewAllScreenProps> = ({
     queryFn: () => searchAndFilterPatients(search, activeFilters),
   });
 
-  const onNavigateToPatientHome = useCallback(patient => {
+  if (!list) return <LoadingScreen />;
+
+  const onNavigateToPatientHome = patient => {
     setSelectedPatient(patient);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
       from: PatientFromRoute.ALL_PATIENT,
     });
-  }, []);
+  };
 
-  const onNavigateToFilters = useCallback(
-    () => navigation.navigate(Routes.HomeStack.SearchPatientStack.FilterSearch),
-    [],
-  );
-
-  if (!list) {
-    return <LoadingScreen />;
-  }
+  const onNavigateToFilters = () =>
+    void navigation.navigate(Routes.HomeStack.SearchPatientStack.FilterSearch);
 
   return (
     <FullView>
@@ -168,16 +164,15 @@ const Screen: FC<ViewAllScreenProps> = ({
       <StyledView position="absolute" zIndex={2} width="100%" alignItems="center" bottom={30}>
         <Button
           width={screenPercentageToDP(60.82, Orientation.Width)}
-          backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
+          backgroundColor={theme.colors.MAIN_SUPER_DARK}
           bordered
           textColor={theme.colors.WHITE}
           onPress={onNavigateToFilters}
           buttonText={
-            <TranslatedText
-              stringId="patient.search.filterCount"
-              fallback="Filters :filterCount"
-              replacements={{ filterCount: activeFilterCount > 0 ? activeFilterCount : '' }}
-            />
+            <>
+              <TranslatedText stringId="patient.search.filterCount" fallback="Filters" />
+              {activeFilterCount > 0 && <> ({activeFilterCount.toLocaleString()})</>}
+            </>
           }
         >
           <StyledView marginRight={screenPercentageToDP(2.43, Orientation.Width)}>
