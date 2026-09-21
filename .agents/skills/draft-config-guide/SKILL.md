@@ -6,7 +6,7 @@ description: >-
   for a module (e.g. "write a config guide for Vaccines", "update the Medications config guide"), or
   wants existing System Administration documentation brought into GitHub. Authors from the codebase so
   the guide matches what the software does, and lands it as a reviewed pull request under
-  docs/user-manuals/system-administration/. Not for developer documentation or release notes (use
+  docs/user-manuals/config-guides/. Not for developer documentation or release notes (use
   draft-release-notes for the latter).
 label: "Draft config guide"
 ---
@@ -22,7 +22,7 @@ like: structure, tables, settings blocks, callouts, version flags, screenshots, 
 This file is the procedure only.
 
 Each module has three guides — `reference-data.md`, `settings.md`, `permissions.md` — plus a README.
-The Medications guides (`docs/user-manuals/system-administration/medications/`) are the worked example.
+The Medications guides (`docs/user-manuals/config-guides/medications/`) are the worked example.
 
 Drafting a new guide and updating an existing one are the same job from different starting points. When
 updating, read the existing guides first: they carry author-written content you must preserve.

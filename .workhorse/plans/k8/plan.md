@@ -33,7 +33,7 @@ points at the format doc instead.
 `specs/invoicing/configuration-guide.md` is an actual configuration guide sitting in the specs tree. It
 is the only file under `specs/` with no frontmatter, and it follows the numbered config-guide house
 style rather than the spec format. It belongs in
-`docs/user-manuals/system-administration/invoicing/` under the convention this card establishes.
+`docs/user-manuals/config-guides/invoicing/` under the convention this card establishes.
 
 Deliberately out of scope for this card. It makes an obvious early target once the skill exists, and a
 good real-world exercise of update mode against a guide nobody generated.
@@ -41,7 +41,7 @@ good real-world exercise of update mode against a guide nobody generated.
 ## Medications migration: gaps and corrections
 
 The Medications guide has been migrated to
-`docs/user-manuals/system-administration/medications/`, split across `reference-data.md`,
+`docs/user-manuals/config-guides/medications/`, split across `reference-data.md`,
 `settings.md` and `permissions.md`, with the section and module READMEs seeded. Authoring it against code surfaced real drift, which is the first evidence that
 the code-derived approach earns its keep.
 

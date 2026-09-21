@@ -14,7 +14,7 @@ The skill's core competency: point it at a Tamanu module, and it reads that modu
 data, settings and permissions out of the codebase, verifies UI labels and workflows against the
 implementation, and produces a configuration guide matching the house format (modelled on the
 Medications guide). It also updates existing guides by re-verifying them against current code. Output
-lands as markdown in `docs/user-manuals/system-administration/{module}/`, published as a reviewed PR.
+lands as markdown in `docs/user-manuals/config-guides/{module}/`, published as a reviewed PR.
 
 ## Behaviour
 
@@ -37,7 +37,7 @@ lands as markdown in `docs/user-manuals/system-administration/{module}/`, publis
 ### Where guides live
 
 - Root: this repo's `docs/` folder.
-- Tree: `docs/user-manuals/system-administration/{module}/{topic}.md` (kebab-case slugs — *tentative,
+- Tree: `docs/user-manuals/config-guides/{module}/{topic}.md` (kebab-case slugs — *tentative,
   see open questions*).
 - One folder per Tamanu module; **multiple topic guides** per module folder (not one monolith).
 

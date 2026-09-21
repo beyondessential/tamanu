@@ -1,7 +1,7 @@
-# System Administration
+# Configuration guides
 
-Configuration guides for system administrators and project managers setting up a Tamanu deployment.
-Each guide covers a module's reference data, settings and permissions.
+For system administrators and project managers setting up a Tamanu deployment. Each module has three
+guides, covering its reference data, settings and permissions.
 
 Guides assume a basic understanding of Tamanu and digital systems. They do not assume clinical or
 developer knowledge.

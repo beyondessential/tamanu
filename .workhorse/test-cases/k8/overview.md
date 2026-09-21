@@ -110,7 +110,7 @@ manual verification of a skill run rather than automated tests, since the output
 
 ## Location, navigation and links
 
-- [ ] A guide is written to `docs/user-manuals/system-administration/{module}/{topic}.md` in
+- [ ] A guide is written to `docs/user-manuals/config-guides/{module}/{topic}.md` in
       kebab-case.
 - [ ] Publishing a second guide in a module updates both the module README and the
       `system-administration/` README, adding entries rather than replacing or duplicating them.

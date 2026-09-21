@@ -22,7 +22,7 @@ Assume basic Tamanu and digital literacy, not clinical or developer knowledge.
 
 ## Location and numbering
 
-Guides live under `docs/user-manuals/system-administration/`, one folder per module, in lowercase
+Guides live under `docs/user-manuals/config-guides/`, one folder per module, in lowercase
 kebab-case. Each module folder holds three guides with fixed names — `reference-data.md`,
 `settings.md`, `permissions.md` — plus a `README.md`.
 
