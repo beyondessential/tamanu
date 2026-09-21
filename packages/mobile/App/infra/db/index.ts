@@ -322,9 +322,7 @@ class DatabaseHelper {
     ]);
     const fileBytes = pageCount * pageSize;
     const freeBytes = freelistCount * pageSize;
-    if (freeBytes < Math.max(VACUUM_MIN_FREE_BYTES, fileBytes * VACUUM_MIN_FREE_FRACTION)) {
-      return;
-    }
+    if (freeBytes < Math.max(VACUUM_MIN_FREE_BYTES, fileBytes * VACUUM_MIN_FREE_FRACTION)) return;
 
     const fact = await this.models.LocalSystemFact.findOne({
       select: ['value'],
