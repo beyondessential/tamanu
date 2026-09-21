@@ -1,3 +1,4 @@
+import { InvalidParameterError } from '@tamanu/errors';
 import { SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID } from '@tamanu/constants';
 
 function toSyndromicSurveillanceResponse(encounterSyndromeId, encounterId, tickedSyndromeIds) {
@@ -18,12 +19,20 @@ function toSyndromicSurveillanceResponse(encounterSyndromeId, encounterId, ticke
  * Relies on the ambient CLS transaction, so callers must already be inside one where this write
  * has to stand or fall with the rest of their work. Also assumes `encounterId` refers to an
  * existing encounter — callers that haven't already loaded/checked it should do so first.
+ *
+ * spec: SYND#recording-syndromic-surveillance-for-an-encounter
  */
 export async function upsertEncounterSyndromicSurveillance(
   models,
   encounterId,
   { noSyndrome, symptomIds },
 ) {
+  if (noSyndrome && symptomIds?.length > 0) {
+    throw new InvalidParameterError(
+      'Syndromic surveillance cannot record both "no syndrome" and specific symptoms.',
+    );
+  }
+
   const { EncounterSyndrome, EncounterSyndromeItem } = models;
 
   const [encounterSyndrome] = await EncounterSyndrome.findOrCreate({
