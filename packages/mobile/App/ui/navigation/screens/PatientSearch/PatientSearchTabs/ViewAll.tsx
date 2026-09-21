@@ -138,11 +138,11 @@ const Screen: FC<ViewAllScreenProps> = ({
   setSelectedPatient,
 }: ViewAllScreenProps): ReactElement => {
   /** Get Search Input */
-  const [searchField] = useField('search');
+  const [searchField] = useField<string>('search');
   const search = useDebouncedValue(searchField.value.trim(), 300);
 
   // Get filters
-  const filterFields: FieldProp[] = useFilterFields();
+  const filterFields: readonly FieldProp[] = useFilterFields();
 
   // Get fields in active use, and transform from formik fields to a simple object
   const [activeFilters, activeFilterCount] = useMemo(() => {

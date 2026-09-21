@@ -7,7 +7,7 @@ import { useFilterFields } from './hooks';
 const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
   const { onChangeFilters } = route.params;
 
-  const fields = useFilterFields();
+  const [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId] = useFilterFields();
 
   const onNavigateBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
@@ -21,23 +21,13 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
   }, [navigation, onChangeFilters]);
 
   const onClearFilters = useCallback(() => {
-    fields.forEach(fieldData => {
-      const field = fieldData[0];
-      const helpers = fieldData[2];
-      switch (field.name) {
-        case 'age':
-          helpers.setValue([0, 99]);
-          break;
-        default:
-          if (typeof field.value === 'string') {
-            helpers.setValue('');
-          } else {
-            helpers.setValue(null);
-          }
-          break;
-      }
-    });
-  }, [fields]);
+    sex[2].setValue('');
+    dateOfBirth[2].setValue(null);
+    firstName[2].setValue('');
+    lastName[2].setValue('');
+    villageId[2].setValue(null);
+    programRegistryId[2].setValue(null);
+  }, [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId]);
 
   return <Screen onCancel={onNavigateBack} onClear={onClearFilters} onSubmit={onSubmit} />;
 };
