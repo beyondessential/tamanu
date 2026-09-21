@@ -67,13 +67,32 @@ not get used.
 
 Screenshots come from a running Tamanu instance, so you write a capture spec rather than capturing
 them. Leave a placeholder for each image per the format doc, then write a Playwright spec at
-`packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` that navigates to each screen and
-writes the image into the guide's `images/` folder under the name its placeholder gives.
+`packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` that reaches each screen and writes
+the image into the guide's `images/` folder under the name its placeholder gives.
 
 **Reuse the existing page objects** in `packages/e2e-tests/pages/` rather than writing fresh selectors.
 Keep the spec out of the normal test run — it captures, it does not assert, so a missing screenshot must
 not fail the suite. Use synthetic data only; these images are published. Follow
 `llm/project-rules/playwright-e2e.md`.
+
+Three things make a capture spec more than navigation, so plan for them:
+
+- **Most screens need data seeded first.** A screenshot of a medication administration record needs a
+  patient, an encounter and a prescription to exist. Create them through the API helpers in
+  `utils/apiHelpers.ts` and the fixtures in `fixtures/`, as the feature specs do, rather than trying to
+  find a suitable record
+- **Settings screens are the cheap majority and map straight onto the guide.**
+  `pages/facilityAdmin/SettingsPage.ts` exposes `selectScope`, `selectCategory` and `selectSubCategory`,
+  which are the same three fields as the settings block, so each settings screenshot is a direct
+  translation of its block. Note the admin panel is a different frontend origin; the shared auth setup
+  covers both
+- **Some screens have no page object.** Check before promising one: at the time of writing nothing in
+  `pages/` covers the medication administration record. Where a screen is uncovered, say so and agree
+  with the author whether to add a page object or skip that image. Do not quietly write raw selectors
+  into the capture spec, which puts unmaintained locators outside the page-object layer
+
+An error-state screenshot needs input that deliberately fails validation, so it is written like a test
+even though it asserts nothing.
 
 Capturing needs a local stack, so tell the author what to run.
 
