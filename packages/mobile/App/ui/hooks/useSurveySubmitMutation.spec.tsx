@@ -7,7 +7,7 @@ import { type IPatient, SurveyTypes } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
-import useSurveySubmitMutation, { type SubmitSurveyVariables } from './useSurveySubmitMutation';
+import useSurveySubmitMutation, { type SurveySubmitVariables } from './useSurveySubmitMutation';
 
 jest.mock('~/models/Patient', () => ({
   Patient: { findOne: jest.fn() },
@@ -50,13 +50,13 @@ const USER_ID = crypto.randomUUID();
 const selectedPatient = { id: PATIENT_ID, firstName: 'Old' } as IPatient;
 const submittedResponse = { id: 'response-1' };
 
-const variables: SubmitSurveyVariables = {
+const variables = {
   patientId: PATIENT_ID,
   surveyId: 'survey-1',
   surveyType: SurveyTypes.Programs,
   components: [],
   values: { 'question-1': 'answer' },
-};
+} as const satisfies SurveySubmitVariables;
 
 // gcTime: 0 so no garbage-collection timers outlive the tests and keep jest from exiting
 const createQueryClient = () =>

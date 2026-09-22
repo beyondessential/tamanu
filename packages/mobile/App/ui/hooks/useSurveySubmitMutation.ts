@@ -13,7 +13,7 @@ import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
 import { patientKeys, patientListKeys, registrationKeys, reportKeys } from './queries/queryKeys';
 
-export interface SubmitSurveyVariables {
+export interface SurveySubmitVariables {
   patientId: string;
   surveyId: string;
   surveyType: SurveyTypes;
@@ -44,7 +44,7 @@ async function invalidateRelevantQueries(queryClient: QueryClient, patientId: st
 export default function useSurveySubmitMutation(): UseMutationResult<
   { id: string } | null,
   Error,
-  SubmitSurveyVariables
+  SurveySubmitVariables
 > {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
@@ -63,7 +63,7 @@ export default function useSurveySubmitMutation(): UseMutationResult<
       surveyType,
       components,
       values,
-    }: SubmitSurveyVariables): Promise<{ id: string } | null> => {
+    }: SurveySubmitVariables): Promise<{ id: string } | null> => {
       const model = surveyType === SurveyTypes.Referral ? models.Referral : models.SurveyResponse;
       return model.submit(
         patientId,
