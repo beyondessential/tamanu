@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import AddIcon from '@mui/icons-material/Add';
 
 import { SelectInput, Button, VisuallyHidden } from '@tamanu/ui-components';
-import { REFERENCE_TYPES, SYSTEM_DATA_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES_WITH_A_DETAIL_RECORD, SYSTEM_DATA_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -17,13 +17,6 @@ import { EditReferenceDataModal } from './EditReferenceDataModal';
 import { useReferenceDataColumns } from './useReferenceDataColumns';
 import { useReferenceDataDeleteMutation } from './useReferenceDataDeleteMutation';
 
-// These types keep half their fields in a detail table this form cannot reach, so a record created
-// here would be incomplete and break the screens that read it. The importer writes both halves.
-const TYPES_WITH_A_DETAIL_RECORD = [
-  REFERENCE_TYPES.DRUG,
-  REFERENCE_TYPES.TASK_TEMPLATE,
-  REFERENCE_TYPES.MEDICATION_TEMPLATE,
-];
 import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 
 const Container = styled.div`
@@ -86,7 +79,7 @@ const PlaceholderBox = styled.div`
 
 export const ManageReferenceDataTab = () => {
   const [selectedType, setSelectedType] = useState('');
-  const hasDetailRecord = TYPES_WITH_A_DETAIL_RECORD.includes(selectedType);
+  const hasDetailRecord = REFERENCE_TYPES_WITH_A_DETAIL_RECORD.includes(selectedType);
   const { data: columns = [] } = useReferenceDataColumns(selectedType);
   const [searchParams, setSearchParams] = useState({});
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
