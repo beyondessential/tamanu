@@ -41,8 +41,12 @@ covering them.
 - [x] Removing the photo clears the reference held against the patient. — verifies spec: PHOTO
 - [x] Removing is refused to a user without permission to write the patient, and the photo is
       left as it was. — verifies spec: PHOTO
+- [x] Removing the photo of a patient whose only photo is an older ProfilePhoto survey answer
+      leaves them with no photo, rather than falling back to it. — verifies spec: PHOTO
 - [ ] The remove option is offered only when the patient has a photo. — verifies spec: PHOTO
 - [ ] After removal the avatar returns to the initials. — verifies spec: PHOTO
+- [ ] Setting a photo on a patient whose photo was previously removed shows the new photo.
+      — verifies spec: PHOTO
 
 ## Capturing through a survey
 
@@ -59,8 +63,10 @@ covering them.
 
 - [x] A patient with no photo on their record and no survey photo reports no picture.
       — verifies spec: PHOTO
-- [ ] A patient with no photo on their record falls back to their most recent ProfilePhoto
+- [x] A patient with no photo on their record falls back to their most recent ProfilePhoto
       survey answer. — verifies spec: PHOTO
+- [ ] Mobile applies the same precedence as the server: record photo, then ProfilePhoto survey
+      answer, then initials. — verifies spec: PHOTO
 - [ ] A photo set on the record is shown in preference to an earlier ProfilePhoto survey
       answer. — verifies spec: PHOTO
 

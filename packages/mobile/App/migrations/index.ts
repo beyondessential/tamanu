@@ -99,6 +99,7 @@ import { dedupeLocalSystemFacts1787706000000 } from './1787706000000-dedupeLocal
 import { enforceUniqueLocalSystemFactKeys1787706001000 } from './1787706001000-enforceUniqueLocalSystemFactKeys';
 import { resetQueryPlannerStats1789608077000 } from './1789608077000-resetQueryPlannerStats';
 import { addProfilePhotoAttachmentIdToPatientAdditionalData1789700000000 } from './1789700000000-addProfilePhotoAttachmentIdToPatientAdditionalData';
+import { addProfilePhotoRemovedToPatientAdditionalData1789700000001 } from './1789700000001-addProfilePhotoRemovedToPatientAdditionalData';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -201,4 +202,5 @@ export const migrationList = [
   enforceUniqueLocalSystemFactKeys1787706001000,
   resetQueryPlannerStats1789608077000,
   addProfilePhotoAttachmentIdToPatientAdditionalData1789700000000,
+  addProfilePhotoRemovedToPatientAdditionalData1789700000001,
 ];

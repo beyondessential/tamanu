@@ -77,17 +77,25 @@ describe('Patient profile picture', () => {
     expect(result).toHaveRequestError();
   });
 
-  it('reports no picture for a patient whose record photo has been removed, even with an older survey photo', async () => {
+  it('falls back to an older survey photo for a patient with none on their record', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     await uploadDummyProfilePicture(models, patient.id);
-    await models.PatientAdditionalData.updateForPatient(patient.id, {
-      profilePhotoAttachmentId: null,
-    });
 
-    // falls back to the survey answer, which needs a central server to load, so this only
-    // asserts that a photo was found at all
+    // loading the image itself needs a central server, so this only asserts that a photo was
+    // found to load rather than reported as missing
     const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
     expect(result).not.toHaveStatus(404);
+  });
+
+  it('reports no picture once the photo is removed, even when an older survey photo exists', async () => {
+    const patient = await models.Patient.create(await createDummyPatient(models));
+    await uploadDummyProfilePicture(models, patient.id);
+
+    const removal = await app.delete(`/api/patient/${patient.id}/profilePicture`);
+    expect(removal).toHaveSucceeded();
+
+    const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
+    expect(result).toHaveStatus(404);
   });
 
   describe('removing a photo', () => {
@@ -102,6 +110,7 @@ describe('Patient profile picture', () => {
 
       const additionalData = await models.PatientAdditionalData.getForPatient(patient.id);
       expect(additionalData.profilePhotoAttachmentId).toBeNull();
+      expect(additionalData.profilePhotoRemoved).toBe(true);
     });
 
     it('reports not found for a patient that does not exist', async () => {

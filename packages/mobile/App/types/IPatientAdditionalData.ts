@@ -20,6 +20,7 @@ export interface IPatientAdditionalData {
   emergencyContactName?: string;
   emergencyContactNumber?: string;
   profilePhotoAttachmentId?: string;
+  profilePhotoRemoved?: boolean;
   nationality?: IReferenceData;
   country?: IReferenceData;
   division?: IReferenceData;

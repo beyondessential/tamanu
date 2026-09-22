@@ -58,10 +58,18 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
         nested interactive elements. The navigating control is now an overlay button behind the
         content, leaving the avatar a sibling rather than a descendant.
 - [x] Remove-photo action clears the reference.
+      - Clearing the reference alone wasn't enough: a null reference is indistinguishable from
+        "never set", so removal fell straight back to the legacy survey photo and the image
+        returned. Added `patient_additional_data.profile_photo_removed` (server + mobile) so
+        removal is recorded distinctly, and the resolution consults it before falling back.
 - [x] ID card reads the resolved photo.
       - No change needed: it already consumes `patient/:id/profilePicture`, so it inherits the
         new resolution.
 - [x] Mobile patient cards/tiles pass the resolved image to `UserAvatar`.
+      - Mobile now applies the same precedence as the facility endpoint, using the existing
+        `SurveyResponseAnswer.getLatestAnswerForPatient` helper for the legacy fallback. It
+        previously read only the record field, so legacy-photo patients showed initials on
+        mobile while web and the ID card showed the photo.
 - [x] Tests: endpoint (upload/remove/permission/resolution+fallback), survey write-to-photo.
       - Written; see the caveat in the test cases about the DB-backed suites not being runnable
         locally.
@@ -74,6 +82,12 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
 - [ ] Regenerate the dbt source models for the new column (`npm run dbt-generate-model`, fill in
       the new TODOs, `npm run dbt-check-todos`) — this needs a live database, so it could not be
       done here. CI fails on outstanding TODOs.
+- [ ] Revisit whether the legacy survey photo should be resolved at read time at all. Both
+      review findings traced to it: the precedence now has to be duplicated on every platform
+      that shows a photo, and it forced a `profile_photo_removed` marker to tell "removed" from
+      "never set". Backfilling legacy photos into the column once (the "Migrate them" option
+      from the interview) would delete that whole class of problem, at the cost of a data
+      migration. Worth weighing before more surfaces start showing photos.
 - [ ] Decide whether the mobile patient list should fetch photos lazily. Each photo is fetched
       from central on first display and cached per attachment for the session, which is fine for
       a handful of rows but worth revisiting for long lists.

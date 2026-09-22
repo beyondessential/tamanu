@@ -6,6 +6,10 @@ import { BackendContext } from '~/ui/contexts/BackendContext';
 // usually temporary, and the avatar falls back to the patient's initials in the meantime.
 const imagesByAttachmentId = new Map<string, string>();
 
+// Photos captured before a patient could hold one on their record live as the answer to a
+// survey question conventionally coded like this
+const LEGACY_PHOTO_QUESTION_CODE = 'ProfilePhoto';
+
 /**
  * Resolves a patient's profile photo to an image URI, or undefined when they have no photo or it
  * can't be loaded. The photo itself is only held on the central server, so this needs a
@@ -23,13 +27,35 @@ export const usePatientProfilePhoto = (patientId?: string): string | undefined =
 
     let isCurrent = true;
 
+    // Same precedence as the facility server's profile picture endpoint: the photo held on the
+    // patient's record, then the most recent ProfilePhoto survey answer for patients who only
+    // ever had one of those, and nothing once a photo has been deliberately removed.
+    const resolveAttachmentId = async (): Promise<string | undefined> => {
+      // patient additional data uses the patient's id as its own
+      const additionalData = await backend.models.PatientAdditionalData.findOne({
+        where: { id: patientId },
+      });
+
+      if (additionalData?.profilePhotoAttachmentId) {
+        return additionalData.profilePhotoAttachmentId;
+      }
+
+      if (additionalData?.profilePhotoRemoved) {
+        return undefined;
+      }
+
+      const legacyAnswer = await backend.models.SurveyResponseAnswer.getLatestAnswerForPatient(
+        patientId,
+        LEGACY_PHOTO_QUESTION_CODE,
+      );
+
+      // the body of a ProfilePhoto survey answer is an attachment id
+      return legacyAnswer?.body || undefined;
+    };
+
     const loadPhoto = async (): Promise<void> => {
       try {
-        // patient additional data uses the patient's id as its own
-        const additionalData = await backend.models.PatientAdditionalData.findOne({
-          where: { id: patientId },
-        });
-        const attachmentId = additionalData?.profilePhotoAttachmentId;
+        const attachmentId = await resolveAttachmentId();
 
         if (!attachmentId) {
           if (isCurrent) setPhotoUri(undefined);

@@ -47,6 +47,8 @@ a clinician sets, replaces, or removes the photo.
       patient has one.
 - [ ] Removing the photo clears the patient's photo reference, and the avatar returns to
       the initials.
+- [ ] A patient whose photo has been removed has no photo, including where they have an
+      earlier `ProfilePhoto` survey photo that would otherwise be shown.
 
 ## Capturing through a survey
 
@@ -63,12 +65,14 @@ same photo.
 
 Before this feature, a patient's photo was held only as a survey answer for a photo
 question conventionally coded `ProfilePhoto`, read back for the printed ID card. Those
-photos keep showing until a photo is set on the patient's record.
+photos keep showing until a photo is set or removed on the patient's record.
 
-- [ ] Where a patient has no photo reference on their record, their most recently answered
-      `ProfilePhoto` survey photo is shown instead, wherever the patient photo appears.
+- [ ] Where a patient has never had a photo set or removed on their record, their most
+      recently answered `ProfilePhoto` survey photo is shown instead, wherever the patient
+      photo appears.
 - [ ] Once a photo is set on the patient's record, that photo is shown in preference to
       any earlier `ProfilePhoto` survey answer.
+- [ ] Setting a photo on a patient whose photo was previously removed shows the new photo.
 
 ## Where the photo appears
 

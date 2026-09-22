@@ -55,10 +55,18 @@ const getLegacySurveyPhotoAttachmentId = async (req, patientId) => {
 
 const resolvePhotoAttachmentId = async (req, patientId) => {
   const additionalData = await req.models.PatientAdditionalData.getForPatient(patientId);
-  return (
-    additionalData?.profilePhotoAttachmentId ??
-    (await getLegacySurveyPhotoAttachmentId(req, patientId))
-  );
+
+  if (additionalData?.profilePhotoAttachmentId) {
+    return additionalData.profilePhotoAttachmentId;
+  }
+
+  // Removing a photo leaves the patient with none, so an older survey photo must not be shown
+  // in its place. Only a patient who has never had one on their record falls back.
+  if (additionalData?.profilePhotoRemoved) {
+    return null;
+  }
+
+  return getLegacySurveyPhotoAttachmentId(req, patientId);
 };
 
 const getPatientOrThrow = async (req, patientId) => {
@@ -109,6 +117,7 @@ patientProfilePicture.post(
 
     await models.PatientAdditionalData.updateForPatient(params.id, {
       profilePhotoAttachmentId: attachmentId,
+      profilePhotoRemoved: false,
     });
 
     res.send({ attachmentId });
@@ -125,6 +134,7 @@ patientProfilePicture.delete(
 
     await models.PatientAdditionalData.updateForPatient(params.id, {
       profilePhotoAttachmentId: null,
+      profilePhotoRemoved: true,
     });
 
     res.send({});
