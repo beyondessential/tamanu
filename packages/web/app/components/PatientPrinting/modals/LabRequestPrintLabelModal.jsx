@@ -1,7 +1,12 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
+import {
+  Modal,
+  TranslatedText,
+  ConfirmCancelRow,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+} from '@tamanu/ui-components';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { LabRequestLabelPrintFrame } from '../printouts/LabRequestLabelPrintFrame';
 import { LabRequestFinalisedHeader } from '../LabRequestFinalisedHeader';
@@ -49,7 +54,12 @@ const Instruction = styled(BodyText)`
   text-align: center;
 `;
 
-const toLabelData = (patient, lab) => ({
+// A modal divider that reaches the modal edges rather than stopping at the content padding.
+const FullWidthSeparator = styled(FormSeparatorLine)`
+  margin-inline: -${MODAL_PADDING_LEFT_AND_RIGHT}px;
+`;
+
+export const toLabelData = (patient, lab) => ({
   patientName: getPatientNameAsString(patient),
   requestId: lab.displayId,
   patientId: patient.displayId,
@@ -113,7 +123,7 @@ export const LabRequestPrintLabelModal = ({
       {showFinalisedHeader && (
         <>
           <LabRequestFinalisedHeader />
-          <FormSeparatorLine />
+          <FullWidthSeparator />
         </>
       )}
       <Instruction>

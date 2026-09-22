@@ -55,7 +55,7 @@ const HeaderCell = styled(Heading4)`
 export const SampleDetailsCell = styled.div`
   display: flex;
   padding: 10px 16px 10px 0px;
-  align-items: flex-start;
+  align-items: center;
   > div {
     width: 100%;
   }

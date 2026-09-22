@@ -46,14 +46,14 @@ const CheckboxTooltipTarget = styled.span`
 const LabelText = styled.span`
   font-size: 14px;
   line-height: 18px;
-  color: ${({ $disabled }) => ($disabled ? Colors.softText : Colors.darkestText)};
+  color: ${Colors.darkestText};
 `;
 
 const CountText = styled.span`
   font-size: 14px;
   line-height: 18px;
   margin-left: 6px;
-  color: ${Colors.softText};
+  color: ${Colors.midText};
 `;
 
 const ExpandToggle = styled(UnstyledHtmlButton)`
@@ -81,7 +81,8 @@ const CategoryHeaderRow = styled.div`
   border-bottom: 1px solid ${Colors.outline};
   border-top: 1px solid ${Colors.outline};
   margin-bottom: 2px;
-  margin-right: 5px;
+  // Match the search field's divider width so the two lines are the same length
+  margin-right: 1.3rem;
   // The search field's bottom border already separates the list; skip the doubled line
   &:first-child {
     border-top: none;
@@ -91,7 +92,7 @@ const CategoryHeaderRow = styled.div`
 const MemberRow = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.midText};
+  color: ${Colors.darkestText};
   padding: 0.2rem 0 0.2rem 60px;
 `;
 
@@ -182,7 +183,7 @@ export const SelectableTestRow = ({ id, label, checked, disabled, disabledToolti
         ) : (
           checkbox
         )}
-        <LabelText $disabled={disabled}>{label}</LabelText>
+        <LabelText>{label}</LabelText>
       </RowLabel>
     </Row>
   );

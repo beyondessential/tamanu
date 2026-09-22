@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Form, OutlinedButton, ButtonRow, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import {
+  Form,
+  OutlinedButton,
+  ButtonRow,
+  FormGrid,
+  FormSubmitCancelRow,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+} from '@tamanu/ui-components';
 import {
   FormSeparatorLine,
 } from '../components';
@@ -9,6 +16,11 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 const StyledBackButton = styled(OutlinedButton)`
   margin-right: auto;
   margin-left: 0 !important;
+`;
+
+// The footer divider reaches the modal edges rather than stopping at the content padding.
+const FullWidthSeparator = styled(FormSeparatorLine)`
+  margin-inline: -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
 // MultiStepForm is a single Formik instance whose children are each page of the
@@ -73,7 +85,7 @@ export const MultiStepForm = ({
         return (
           <FormGrid data-testid="formgrid-wses">
             {React.cloneElement(step, props)}
-            <FormSeparatorLine data-testid="formseparatorline-01xj" />
+            <FullWidthSeparator data-testid="formseparatorline-01xj" />
             <ButtonRow data-testid="buttonrow-40t7">
               {stepNumber > 0 && (
                 <StyledBackButton

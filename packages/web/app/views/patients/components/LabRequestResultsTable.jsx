@@ -34,6 +34,12 @@ const ResultCell = styled.span`
   display: inline-block;
 `;
 
+// Tests belonging to a panel sit under the panel's group header and are indented from it.
+const TestName = styled.span`
+  display: inline-block;
+  padding-left: ${({ $indented }) => ($indented ? '15px' : '0')};
+`;
+
 const ValueWithEditedMarker = ({ value, isEdited }) => (
   <>
     {value}
@@ -64,12 +70,14 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         ),
         key: 'labTestType.name',
         accessor: row => (
-          <TranslatedReferenceData
-            fallback={row.labTestType.name}
-            value={row.labTestType.id}
-            category="labTestType"
-            data-testid="translatedreferencedata-kplb"
-          />
+          <TestName $indented={Boolean(row.labTestPanel)}>
+            <TranslatedReferenceData
+              fallback={row.labTestType.name}
+              value={row.labTestType.id}
+              category="labTestType"
+              data-testid="translatedreferencedata-kplb"
+            />
+          </TestName>
         ),
         sortable: false,
       },
