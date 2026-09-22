@@ -27,8 +27,8 @@ export const onlySteps = (needs: Needs): StepStr[] =>
   needs.filter((need: Need) => need.startsWith(STEP_PREFIX)) as StepStr[];
 export const onlyMigrations = (needs: Needs): MigrationStr[] =>
   needs.filter((need: Need) => need.startsWith(MIGRATION_PREFIX)) as MigrationStr[];
-export const stepFile = (str: StepStr) => str.split('/')[1] + '.js';
-export const migrationFile = (str: MigrationStr) => str.split('/')[1] + '.js';
+export const stepFile = (str: StepStr) => `${str.split('/')[1]}.ts`;
+export const migrationFile = (str: MigrationStr) => `${str.split('/')[1]}.ts`;
 
 export interface StepArgs {
   sequelize: Sequelize;

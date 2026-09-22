@@ -83,8 +83,8 @@ export const ENCOUNTER_SCOPED_RECORD_TYPES = [
 // dropFacilityIsSensitive removes.
 export const BETWEEN_SCHEMA_MIGRATIONS = {
   at: START,
-  after: [needsMigration('1789695736424-createSensitiveNetworks')],
-  before: [needsMigration('1789695736426-dropFacilityIsSensitive')],
+  after: [needsMigration('1789695736424-createSensitiveNetworks.ts')],
+  before: [needsMigration('1789695736426-dropFacilityIsSensitive.ts')],
 };
 
 // What decides the path. A deleted facility does not count: it gained no network, so the ordinary
