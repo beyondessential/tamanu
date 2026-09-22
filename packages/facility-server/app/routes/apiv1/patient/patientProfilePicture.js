@@ -1,18 +1,19 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT } from '@tamanu/constants';
+import { DOCUMENT_SIZE_LIMIT, LEGACY_PROFILE_PHOTO_QUESTION_CODE } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { CentralServerConnection } from '../../../sync';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
 
 export const patientProfilePicture = express.Router();
 
-// Photos captured before a patient could hold one on their record live as the answer to a
-// survey question conventionally coded like this, and are still shown until one is set.
-const LEGACY_PHOTO_QUESTION_CODE = 'ProfilePhoto';
-
 const DEFAULT_PHOTO_MIME_TYPE = 'image/jpeg';
+
+// The formats accepted for survey and document photos. The file input in the client can't be
+// relied on: the endpoint is reachable directly, and whatever type is claimed here ends up
+// served back as the photo's mime type.
+const ACCEPTED_PHOTO_MIME_TYPES = ['image/jpeg', 'image/png'];
 
 // what we want is:
 // - the answer body
@@ -43,7 +44,7 @@ const getLegacySurveyPhotoAttachmentId = async (req, patientId) => {
     {
       replacements: {
         patientId,
-        photoCode: LEGACY_PHOTO_QUESTION_CODE,
+        photoCode: LEGACY_PROFILE_PHOTO_QUESTION_CODE,
       },
       type: QueryTypes.SELECT,
     },
@@ -92,9 +93,12 @@ patientProfilePicture.get(
     // the image itself is only held on the central server, so it can only be shown while
     // that server is reachable
     const centralServer = new CentralServerConnection({ deviceId });
-    const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
-      method: 'GET',
-    });
+    const response = await centralServer.fetch(
+      `attachment/${encodeURIComponent(attachmentId)}?base64=true`,
+      {
+        method: 'GET',
+      },
+    );
 
     // send the data along
     res.send({
@@ -113,7 +117,11 @@ patientProfilePicture.post(
     await getPatientOrThrow(req, params.id);
 
     // the image is stored on the central server, so this needs it to be reachable
-    const { attachmentId } = await uploadAttachment(req, DOCUMENT_SIZE_LIMIT);
+    const { attachmentId } = await uploadAttachment(
+      req,
+      DOCUMENT_SIZE_LIMIT,
+      ACCEPTED_PHOTO_MIME_TYPES,
+    );
 
     await models.PatientAdditionalData.updateForPatient(params.id, {
       profilePhotoAttachmentId: attachmentId,

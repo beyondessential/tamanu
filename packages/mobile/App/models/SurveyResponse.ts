@@ -86,7 +86,13 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientAdditionalData) {
-    await PatientAdditionalData.updateForPatient(patientId, valuesByModel.PatientAdditionalData);
+    const { profilePhotoAttachmentId } = valuesByModel.PatientAdditionalData;
+    await PatientAdditionalData.updateForPatient(patientId, {
+      ...valuesByModel.PatientAdditionalData,
+      // capturing a photo undoes an earlier removal, so the record can't hold both a photo and
+      // a marker saying it was removed
+      ...(profilePhotoAttachmentId ? { profilePhotoRemoved: false } : {}),
+    });
   }
 
   if (valuesByModel.PatientProgramRegistration) {

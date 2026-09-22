@@ -3,9 +3,9 @@ import { useApi } from '../useApi';
 
 export const PATIENT_PROFILE_PICTURE_QUERY_KEY = 'patientProfilePicture';
 
-// The image is only held on the central server, so a patient with no photo and a central server
-// that can't be reached are both ordinary outcomes here: each resolves to no photo, which the
-// avatar shows as the patient's initials.
+// A patient with no photo is answered with a 404, which is an ordinary outcome rather than a
+// failure, so it resolves to no photo. Anything else is left to reject so callers can tell a
+// patient without a photo apart from a photo that couldn't be loaded.
 export const usePatientProfilePictureQuery = patientId => {
   const api = useApi();
   return useQuery(
@@ -13,13 +13,17 @@ export const usePatientProfilePictureQuery = patientId => {
     async () => {
       try {
         return await api.get(`patient/${encodeURIComponent(patientId)}/profilePicture`);
-      } catch {
-        return null;
+      } catch (error) {
+        if (error?.status === 404) return null;
+        throw error;
       }
     },
     {
       enabled: !!patientId,
       retry: false,
+      // an attachment's contents never change, so the fetched image stays good until the photo
+      // is set or removed, both of which invalidate this query
+      staleTime: Infinity,
     },
   );
 };

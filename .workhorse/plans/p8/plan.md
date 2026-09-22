@@ -74,6 +74,28 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
       - Written; see the caveat in the test cases about the DB-backed suites not being runnable
         locally.
 
+## Review round 1 corrections
+
+- **The survey half couldn't actually be configured.** `importRows` picks a validation schema by
+  `SSC<type>`; there was no `SSCPhoto`, so Photo rows fell back to the generic schema whose
+  config is `noUnknown()` and any `writeToPatient` was rejected. Allowing the key through the
+  *sanitiser* (`programDefinition.js`) was not enough. Added `SSCPhoto`, which also constrains a
+  Photo question to writing only the profile photo.
+- **The photo field is no longer an ordinary PatientData location.** It stayed in
+  `PATIENT_DATA_FIELD_LOCATIONS` (so the runtime write still resolves) but is filtered out of the
+  importer's read/write field lists, so a PatientData question can neither display the attachment
+  id as text nor write a free-text answer into it. That also reverted the importer test's expected
+  messages to their original text — the earlier edit to them was papering over this.
+- `PATIENT_PROFILE_PHOTO_FIELD` and `LEGACY_PROFILE_PHOTO_QUESTION_CODE` now live in
+  `@tamanu/constants` instead of being magic strings in three places.
+- Mobile hook: cleared stale state between patients (it could show one patient's face against
+  another's name), capped retries to one attempt, bounded the image cache, and encoded the
+  attachment id into the request path.
+- Upload now validates the mime type **before** sending to central, so a rejected type doesn't
+  leave an orphaned attachment there. The client-side `accept` was the only check.
+- A survey capture clears `profilePhotoRemoved`, so a record can't hold both a photo and a
+  marker saying it was removed.
+
 ## Outstanding
 
 - [x] Run the database-backed suites. The machine's own Postgres wants a password, but a
@@ -91,6 +113,13 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
       "never set". Backfilling legacy photos into the column once (the "Migrate them" option
       from the interview) would delete that whole class of problem, at the cost of a data
       migration. Worth weighing before more surfaces start showing photos.
-- [ ] Decide whether the mobile patient list should fetch photos lazily. Each photo is fetched
-      from central on first display and cached per attachment for the session, which is fine for
-      a handful of rows but worth revisiting for long lists.
+- [ ] Mobile patient lists resolve photos per row. `PatientSectionList` renders every result in
+      a plain `ScrollView` with no virtualisation and `ViewAll` fetches up to 100 patients, so a
+      search can fire 100 record lookups, 100 legacy-answer joins and 100 central fetches at
+      once. Retries are now capped at one attempt and the cache is bounded, which takes the
+      sting out, but the real fix is resolving a page's photos in one query in the list
+      container — or removing the per-row legacy lookup entirely, which the backfill above would
+      do.
+- [ ] No E2E coverage for the sidebar photo flows (upload, remove, and that clicking the name
+      still navigates while the avatar's control does not). These need a running stack, so they
+      were not added here; the test-case file lists them unticked.

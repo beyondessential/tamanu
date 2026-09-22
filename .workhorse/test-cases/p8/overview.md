@@ -21,7 +21,7 @@ covering them.
 
 ## Setting the photo
 
-- [ ] Uploading an image file from the sidebar sets it as the patient's photo, replacing any
+- [x] Uploading an image file from the sidebar sets it as the patient's photo, replacing any
       existing one. — verifies spec: PHOTO
 - [ ] Capturing an image from the device camera sets it as the patient's photo.
       — verifies spec: PHOTO
@@ -30,6 +30,8 @@ covering them.
 - [ ] An upload that fails reports why and leaves the existing photo in place.
       — verifies spec: PHOTO
 - [ ] Uploading with the central server unreachable fails and says so. — verifies spec: PHOTO
+- [x] A file whose format is not an accepted photo type is rejected before anything is stored.
+      — verifies spec: PHOTO
 - [ ] A file over the size limit is rejected. — verifies spec: PHOTO
 - [x] Setting a photo is refused to a user without permission to write the patient.
       — verifies spec: PHOTO
@@ -43,7 +45,7 @@ covering them.
       leaves them with no photo, rather than falling back to it. — verifies spec: PHOTO
 - [ ] The remove option is offered only when the patient has a photo. — verifies spec: PHOTO
 - [ ] After removal the avatar returns to the initials. — verifies spec: PHOTO
-- [ ] Setting a photo on a patient whose photo was previously removed shows the new photo.
+- [x] Setting a photo on a patient whose photo was previously removed shows the new photo.
       — verifies spec: PHOTO
 
 ## Capturing through a survey
@@ -54,6 +56,13 @@ covering them.
       — verifies spec: PHOTO
 - [x] A photo question with no write-to-patient config leaves the patient's photo alone.
       — verifies spec: PHOTO
+- [x] A photo question configured to write the profile photo passes program import.
+      — verifies spec: PHOTO
+- [x] A photo question configured to write any other patient field is refused on import.
+      — verifies spec: PHOTO
+- [x] An ordinary patient-data question cannot be configured to write the profile photo.
+      — verifies spec: PHOTO
+- [x] Capturing a photo through a survey undoes an earlier removal. — verifies spec: PHOTO
 - [ ] A photo question submitted from mobile writes to the patient's photo the same way.
       — verifies spec: PHOTO
 
@@ -65,7 +74,7 @@ covering them.
       survey answer. — verifies spec: PHOTO
 - [ ] Mobile applies the same precedence as the server: record photo, then ProfilePhoto survey
       answer, then initials. — verifies spec: PHOTO
-- [ ] A photo set on the record is shown in preference to an earlier ProfilePhoto survey
+- [x] A photo set on the record is shown in preference to an earlier ProfilePhoto survey
       answer. — verifies spec: PHOTO
 
 ## Sidebar interaction

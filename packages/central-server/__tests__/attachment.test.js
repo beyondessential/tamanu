@@ -66,6 +66,8 @@ describe('Attachment (central-server)', () => {
     // we could assume it is a valid base64 string
     const reEncodedStr = Buffer.from(receivedStr, 'base64').toString('base64');
     expect(receivedStr).toBe(reEncodedStr);
+    // callers need the type to serve the bytes back under the right mime type
+    expect(result.body.type).toBe(attachment.type);
   });
 
   it('should send error if there is no enough disk space', async () => {

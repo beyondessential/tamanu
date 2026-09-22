@@ -372,6 +372,41 @@ describe('SurveyResponse.createWithAnswers', () => {
     expect(await models.Attachment.findByPk(answer.body)).not.toBeNull();
   });
 
+  it('undoes an earlier removal when a survey captures a new photo', async () => {
+    const otherPatient = await models.Patient.create(fake(models.Patient));
+    const otherEncounter = await findOneOrCreate(models, models.Encounter, {
+      patientId: otherPatient.id,
+    });
+    await models.PatientAdditionalData.updateForPatient(otherPatient.id, {
+      profilePhotoRemoved: true,
+    });
+
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId: otherPatient.id,
+        encounterId: otherEncounter.id,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: 'a-freshly-captured-photo',
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(otherPatient.id);
+    expect(additionalData.profilePhotoAttachmentId).toBe('a-freshly-captured-photo');
+    expect(additionalData.profilePhotoRemoved).toBe(false);
+  });
+
   it('leaves the patient alone for a photo question that does not write to them', async () => {
     // a patient of its own: the shared one carries a photo from the tests above, and patient
     // additional data isn't truncated between them

@@ -171,7 +171,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
               {patient.lastName}
             </NameText>
           </div>
-          <PatientPhotoAvatar patient={patient} data-testid="patientinitialsicon-wt16" />
+          <PatientPhotoAvatar patient={patient} />
         </NameContainer>
       </PatientHeader>
       <CoreInfoSection data-testid="coreinfosection-ri8t">
