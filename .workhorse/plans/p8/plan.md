@@ -76,12 +76,15 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
 
 ## Outstanding
 
-- [ ] Run the database-backed suites (`central-test`, `facility-test`) on a machine with a test
-      database. They could not be executed here: local Postgres needs credentials that weren't
-      available.
-- [ ] Regenerate the dbt source models for the new column (`npm run dbt-generate-model`, fill in
-      the new TODOs, `npm run dbt-check-todos`) — this needs a live database, so it could not be
-      done here. CI fails on outstanding TODOs.
+- [x] Run the database-backed suites. The machine's own Postgres wants a password, but a
+      throwaway cluster works and touches nothing: `initdb -D /tmp/pg -A trust -U tamanu`, set
+      `port = 55432`, `pg_ctl start`, create the `tamanu-*-test` databases, and point each
+      package at it with a (gitignored) `config/local.json5`. Remember to remove those files and
+      stop the cluster afterwards.
+- [x] Regenerate the dbt source models for the new columns. Note the generator refuses to run
+      while `database/` is dirty, and writes `TODO` into the `.md` that `dbt-check-todos` then
+      fails on, so the descriptions have to be filled in by hand. Don't hand-write the `.yml`:
+      it adds `data_tests: - not_null` for NOT NULL columns, which is easy to miss.
 - [ ] Revisit whether the legacy survey photo should be resolved at read time at all. Both
       review findings traced to it: the precedence now has to be duplicated on every platform
       that shows a photo, and it forced a `profile_photo_removed` marker to tell "removed" from

@@ -3,10 +3,8 @@
 Scenarios verifying the patient photo (spec: PHOTO). Ticked cases have an automated test
 covering them.
 
-> The database-backed suites (facility endpoint, central survey model) were written but could
-> not be executed locally: this machine's Postgres needs credentials that weren't available, so
-> no test database could be created. They need a run on a machine with one before being trusted.
-> The web unit tests were run and pass.
+> All ticked cases have been run and pass. The database-backed suites run against a throwaway
+> Postgres cluster (see the plan for how); the web unit tests run directly.
 
 ## Showing the photo
 
