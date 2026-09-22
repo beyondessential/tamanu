@@ -1,7 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
-import { REFERENCE_TYPES, SEARCHABLE_COLUMN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES_WITH_A_DETAIL_RECORD,
+  SEARCHABLE_COLUMN_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
@@ -13,14 +17,6 @@ import {
 
 export const referenceDataManageRouter = express.Router();
 
-// These types keep half their fields in a detail table this endpoint does not write, so a record
-// created here would be incomplete and break the screens that read it. The importer writes both.
-const TYPES_WITH_A_DETAIL_RECORD = [
-  REFERENCE_TYPES.DRUG,
-  REFERENCE_TYPES.TASK_TEMPLATE,
-  REFERENCE_TYPES.MEDICATION_TEMPLATE,
-];
-
 referenceDataManageRouter.post(
   '/',
   asyncHandler(async (req, res) => {
@@ -30,7 +26,7 @@ referenceDataManageRouter.post(
 
     assertValidType(referenceDataType);
 
-    if (TYPES_WITH_A_DETAIL_RECORD.includes(referenceDataType)) {
+    if (REFERENCE_TYPES_WITH_A_DETAIL_RECORD.includes(referenceDataType)) {
       throw new InvalidOperationError(
         `${referenceDataType} must be added through the reference data importer`,
       );
