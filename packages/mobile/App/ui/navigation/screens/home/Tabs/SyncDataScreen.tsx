@@ -155,8 +155,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             fontSize={screenPercentageToDP(2.55, Orientation.Height)}
             textAlign="center"
           >
-            {isSyncing ? `${progress} %` : null}
-            {syncFinishedSuccessfully ? '100 %' : null}
+            {isSyncing ? `${progress}%` : null}
+            {syncFinishedSuccessfully ? '100%' : null}
           </StyledText>
         ) : null}
         {isSyncing ? null : (
