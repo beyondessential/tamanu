@@ -2,7 +2,7 @@ import { StackActions } from '@react-navigation/native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { add } from 'date-fns';
 import { Formik } from 'formik';
-import React, { Fragment, type ReactElement, useCallback, useMemo } from 'react';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
@@ -26,7 +26,6 @@ import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { FrequencySearchField } from '~/ui/components/FrequencySearchField/FrequencySearchField';
 import { NumberField } from '~/ui/components/NumberField';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -74,7 +73,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   const { models } = useBackend();
   const { ability } = useAuth();
   const user = useSelector(authUserSelector);
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
@@ -269,16 +268,15 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   </StyledText>
                   {patientAllergies !== undefined ? (
                     <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>
-                      {patientAllergies.map((allergy, index) => (
-                        <Fragment key={allergy.id}>
-                          <TranslatedReferenceData
-                            category={allergy.allergy.type}
-                            value={allergy.allergy.name}
-                            fallback={allergy.allergy.name}
-                          />
-                          {index < patientAllergies.length - 1 && ', '}
-                        </Fragment>
-                      ))}
+                      {patientAllergies
+                        .map(({ allergy }) =>
+                          getReferenceDataTranslation({
+                            category: allergy.type,
+                            value: allergy.name,
+                            fallback: allergy.name,
+                          }),
+                        )
+                        .join(', ')}
                     </StyledText>
                   ) : (
                     <ColumnView>
