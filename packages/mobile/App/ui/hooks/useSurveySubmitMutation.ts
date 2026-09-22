@@ -43,7 +43,7 @@ export default function useSurveySubmitMutation<T extends SurveyTypes>({
   surveyType,
 }: {
   surveyType: T;
-}): UseMutationResult<SurveySubmitResult<T> | null, Error, SurveySubmitVariables> {
+}) {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
   const queryClient = useQueryClient();
