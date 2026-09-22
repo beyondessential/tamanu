@@ -3,7 +3,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { closeDatabase, createTestDatabase } from '../utilities';
-import { up as rescopeLookupRows } from '../../src/migrations/1789695736427-rescopeSyncLookupToSensitiveNetworks';
+import { hasFijiSrhFacilities } from '../../../upgrade/src/sensitiveNetworks.js';
+import { rescopeSyncLookup } from '../../../upgrade/src/steps/1789695736430-backfillSensitiveNetworks.js';
 
 // spec: specs/sync/sensitive-networks.md
 describe('rescoping sync_lookup to sensitive networks', () => {
@@ -56,7 +57,7 @@ describe('rescoping sync_lookup to sensitive networks', () => {
     const facility = await createFacility(network.id);
     const recordId = await createLookupRow({ recordType: 'encounters', facilityId: facility.id });
 
-    await rescopeLookupRows(sequelize.getQueryInterface());
+    await rescopeSyncLookup(sequelize);
 
     const row = await readLookupRow(recordId);
     expect(row.sensitive_network_id).toBe(network.id);
@@ -72,7 +73,7 @@ describe('rescoping sync_lookup to sensitive networks', () => {
       updatedAtSyncTick: 7,
     });
 
-    await rescopeLookupRows(sequelize.getQueryInterface());
+    await rescopeSyncLookup(sequelize);
 
     expect((await readLookupRow(recordId)).updated_at_sync_tick).toBe('7');
   });
@@ -86,7 +87,7 @@ describe('rescoping sync_lookup to sensitive networks', () => {
     await createFacility((await createNetwork()).id);
     const recordId = await createLookupRow({ recordType: 'encounters', facilityId: facility.id });
 
-    await rescopeLookupRows(sequelize.getQueryInterface());
+    await rescopeSyncLookup(sequelize);
 
     const row = await readLookupRow(recordId);
     expect(row.facility_id).toBe(facility.id);
@@ -101,7 +102,7 @@ describe('rescoping sync_lookup to sensitive networks', () => {
       facilityId: facility.id,
     });
 
-    await rescopeLookupRows(sequelize.getQueryInterface());
+    await rescopeSyncLookup(sequelize);
 
     const row = await readLookupRow(recordId);
     expect(row.facility_id).toBe(facility.id);
@@ -112,10 +113,34 @@ describe('rescoping sync_lookup to sensitive networks', () => {
     const facility = await createFacility(null);
     const recordId = await createLookupRow({ recordType: 'encounters', facilityId: facility.id });
 
-    await rescopeLookupRows(sequelize.getQueryInterface());
+    await rescopeSyncLookup(sequelize);
 
     const row = await readLookupRow(recordId);
     expect(row.facility_id).toBe(facility.id);
     expect(row.sensitive_network_id).toBeNull();
+  });
+
+  // The two upgrade paths are mutually exclusive, and this is what decides between them.
+  describe('choosing the path', () => {
+    it('takes the ordinary path on a deployment without the SRH facilities', async () => {
+      await createFacility();
+
+      expect(await hasFijiSrhFacilities(sequelize)).toBe(false);
+    });
+
+    it('takes the Fiji path once an SRH facility is there', async () => {
+      await models.Facility.create(fake(models.Facility, { id: 'facility-SRHCentral' }));
+
+      expect(await hasFijiSrhFacilities(sequelize)).toBe(true);
+    });
+
+    it('ignores a deleted SRH facility', async () => {
+      const facility = await models.Facility.create(
+        fake(models.Facility, { id: 'facility-SRHWestern' }),
+      );
+      await facility.destroy();
+
+      expect(await hasFijiSrhFacilities(sequelize)).toBe(false);
+    });
   });
 });
