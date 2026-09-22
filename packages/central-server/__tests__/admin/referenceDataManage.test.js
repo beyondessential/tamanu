@@ -412,6 +412,40 @@ describe('Reference Data Manage', () => {
       expect(response.body.data).toBeInstanceOf(Array);
     });
 
+    it('should merge detail fields into each row', async () => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'search-detail',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      await models.ReferenceDrug.create({
+        ...fake(models.ReferenceDrug),
+        referenceDataId: drug.id,
+        route: 'topical',
+        isSensitive: true,
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'search-detail',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.find(r => r.id === drug.id)).toMatchObject({
+        route: 'topical',
+        isSensitive: true,
+      });
+    });
+
+    it('should return null detail fields for a record with no detail row', async () => {
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'search-alpha',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data[0]).toMatchObject({ route: null, isSensitive: null });
+    });
+
     it('should support pagination', async () => {
       const response = await adminApp.get(BASE_URL).query({
         referenceDataType: TEST_TYPE,
