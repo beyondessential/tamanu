@@ -1,16 +1,16 @@
+import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import React, { type ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import { CenterView, StyledText, StyledView } from '../../../../styled/common';
-import { theme } from '../../../../styled/theme';
-import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../../helpers/screen';
-import { BackendContext } from '../../../../contexts/BackendContext';
-import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
-import { Button } from '../../../../components/Button';
-import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
-import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
+import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
+import { Button } from '../../../../components/Button';
+import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
+import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
+import { BackendContext } from '../../../../contexts/BackendContext';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../../helpers/screen';
+import { CenterView, StyledText, StyledView } from '../../../../styled/common';
+import { theme } from '../../../../styled/theme';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
   const backend = useContext(BackendContext);
@@ -20,6 +20,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [hasError, setHasError] = useState(false);
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [isQueuing, setIsQueuing] = useState(syncManager.isQueuing);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
@@ -31,9 +32,16 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   useStatusBarStyle('light-content', theme.colors.MAIN_SUPER_DARK);
 
-  const manualSync = useCallback(() => {
-    syncManager.triggerUrgentSync();
-  }, []);
+  const manualSync = useCallback(async () => {
+    // For immediate visible feedback. (Sync manager emits nothing until the central server has
+    // accepted or queued the session, which takes an indeterminate amount of time.)
+    setIsConnecting(true);
+    try {
+      await syncManager.triggerUrgentSync();
+    } finally {
+      setIsConnecting(false);
+    }
+  }, [syncManager]);
 
   useEffect(() => {
     // Add this listener to detect when users exit/switch to another tab
@@ -48,6 +56,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   useEffect(() => {
     const handler = (action: string): void => {
+      // Any event means the sync manager now owns the sync state
+      setIsConnecting(false);
       switch (action) {
         case SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE:
           setProgress(0);
@@ -107,13 +117,14 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
     };
   }, []);
 
-  const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
+  const syncFinishedSuccessfully =
+    syncStarted && !isConnecting && !isSyncing && !isQueuing && !hasError;
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
         {/* Circular progress */}
-        {(isSyncing || isQueuing) && !hasError ? (
+        {(isConnecting || isSyncing || isQueuing) && !hasError ? (
           <ActivityIndicator
             size="large"
             color={theme.colors.SECONDARY_MAIN}
@@ -159,7 +170,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
             {syncFinishedSuccessfully ? '100%' : null}
           </StyledText>
         ) : null}
-        {isSyncing ? null : (
+        {isConnecting || isSyncing ? null : (
           <Button
             onPress={manualSync}
             width={160}
