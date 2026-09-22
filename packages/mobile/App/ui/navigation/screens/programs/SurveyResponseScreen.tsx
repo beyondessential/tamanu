@@ -120,14 +120,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         resetToProgramSurveyHistory(navigation, response.id);
       }
     },
-    [
-      submitSurveyResponse,
-      selectedPatientId,
-      surveyId,
-      components,
-      isReferral,
-      navigation,
-    ],
+    [components, isReferral, navigation, selectedPatientId, submitSurveyResponse, surveyId],
   );
 
   const confirmExit = () => {
