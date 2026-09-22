@@ -37,8 +37,7 @@ export const useAfterSurveySubmit = (): ((patientId: string) => Promise<void>) =
 
   return useCallback(
     async (patientId: string) => {
-      invalidateAfterSurveySubmit(queryClient, patientId);
-
+      void invalidateAfterSurveySubmit(queryClient, patientId);
       if (selectedPatientId !== patientId) return;
       const patient = await Patient.findOne({ where: { id: patientId } });
       if (patient) dispatch(actions.setSelectedPatient(patient));
