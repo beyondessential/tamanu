@@ -8,6 +8,7 @@ export * from './useVitalsSurveyQuery';
 export * from './useReferenceDataQuery';
 export { default as useDispensingUnit } from './useDispensingUnit';
 export * from './usePatientAdditionalDataQuery';
+export * from './usePatientProfilePictureQuery';
 export * from './useEncounterDataQuery';
 export * from './useLabRequestNotesQuery';
 export * from './usePatientCurrentEncounterQuery';

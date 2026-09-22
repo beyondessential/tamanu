@@ -314,6 +314,86 @@ describe('SurveyResponse.createWithAnswers', () => {
     });
   });
 
+  it("writes a captured photo to the patient's profile photo", async () => {
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          // a photo answer supplied as an attachment id is stored as-is
+          [dataElement.id]: 'an-existing-attachment-id',
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(patientId);
+    expect(additionalData.profilePhotoAttachmentId).toBe('an-existing-attachment-id');
+  });
+
+  it('stores the id of the attachment it created, not the raw image', async () => {
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: { size: 4, data: Buffer.from('test').toString('base64') },
+        },
+      }),
+    );
+
+    const answer = await models.SurveyResponseAnswer.findOne({
+      where: { dataElementId: dataElement.id },
+    });
+    const additionalData = await models.PatientAdditionalData.getForPatient(patientId);
+
+    expect(additionalData.profilePhotoAttachmentId).toBe(answer.body);
+    expect(await models.Attachment.findByPk(answer.body)).not.toBeNull();
+  });
+
+  it('leaves the patient alone for a photo question that does not write to them', async () => {
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: undefined,
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: 'an-ordinary-photo-attachment',
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(patientId);
+    expect(additionalData?.profilePhotoAttachmentId ?? null).toBeNull();
+  });
+
   it('creates patient program registration from actions', async () => {
     const survey = await createDummySurvey(models);
     const registry = await models.ProgramRegistry.create(

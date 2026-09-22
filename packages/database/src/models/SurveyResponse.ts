@@ -83,12 +83,18 @@ const getFieldsToWrite = async (
 ) => {
   const recordValuesByModel: Record<string, Record<string, any>> = {};
 
-  const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  // Photo questions can also write to the patient record (e.g. the profile photo). A photo
+  // answer must already have been resolved to its attachment id by the caller, since that id
+  // is what gets stored on the patient.
+  const patientDataQuestions = questions.filter(q =>
+    [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA, PROGRAM_DATA_ELEMENT_TYPES.PHOTO].includes(
+      q.dataElement.type,
+    ),
   );
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
-    const config = JSON.parse(configString) || {};
+    // Most photo questions carry no config at all, so this must tolerate its absence
+    const config = safeJsonParse(configString) ?? {};
 
     if (!config.writeToPatient) {
       // this is just a question that's reading patient data, not writing it
@@ -439,6 +445,9 @@ export class SurveyResponse extends Model {
     };
 
     // create answer records
+    // A photo answer's raw value is the image itself, but anything writing it onto the patient
+    // record needs the id of the attachment it was stored as, so keep the resolved bodies.
+    const answersForActions: Record<string, any> = { ...finalAnswers };
     for (const a of Object.entries(finalAnswers)) {
       const [dataElementId, value] = a;
       const dataElement = findDataElement(dataElementId);
@@ -446,6 +455,9 @@ export class SurveyResponse extends Model {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
       const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models);
+      if (dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+        answersForActions[dataElementId] = body;
+      }
       // Don't create empty answers. A blank measure is not a recorded value, so persisting it as
       // an empty-bodied row would surface its creation in chart history as a spurious "Entry
       // deleted" line (chart history is derived from the answer audit changelog).
@@ -472,7 +484,7 @@ export class SurveyResponse extends Model {
       models,
       facilityId,
       questions,
-      finalAnswers,
+      answersForActions,
       encounter.patientId,
       surveyId,
       responseData.userId,

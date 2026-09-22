@@ -36,8 +36,11 @@ type RecordValuesByModel = {
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
 
-  const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === FieldTypes.PATIENT_DATA,
+  // Photo questions can also write to the patient record (e.g. the profile photo). A photo
+  // answer's value is already the id of the attachment it was saved as, which is what gets
+  // stored on the patient.
+  const patientDataQuestions = questions.filter(q =>
+    [FieldTypes.PATIENT_DATA, FieldTypes.PHOTO].includes(q.dataElement.type),
   );
   for (const question of patientDataQuestions) {
     const config = question.getConfigObject();

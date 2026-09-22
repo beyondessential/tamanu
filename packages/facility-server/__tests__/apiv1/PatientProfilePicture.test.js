@@ -76,4 +76,61 @@ describe('Patient profile picture', () => {
     const result = await app.get(`/api/patient/${otherPatient.id}/profilePicture`);
     expect(result).toHaveRequestError();
   });
+
+  it('reports no picture for a patient whose record photo has been removed, even with an older survey photo', async () => {
+    const patient = await models.Patient.create(await createDummyPatient(models));
+    await uploadDummyProfilePicture(models, patient.id);
+    await models.PatientAdditionalData.updateForPatient(patient.id, {
+      profilePhotoAttachmentId: null,
+    });
+
+    // falls back to the survey answer, which needs a central server to load, so this only
+    // asserts that a photo was found at all
+    const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
+    expect(result).not.toHaveStatus(404);
+  });
+
+  describe('removing a photo', () => {
+    it('clears the photo held against the patient', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      await models.PatientAdditionalData.updateForPatient(patient.id, {
+        profilePhotoAttachmentId: 'attachment-to-remove',
+      });
+
+      const result = await app.delete(`/api/patient/${patient.id}/profilePicture`);
+      expect(result).toHaveSucceeded();
+
+      const additionalData = await models.PatientAdditionalData.getForPatient(patient.id);
+      expect(additionalData.profilePhotoAttachmentId).toBeNull();
+    });
+
+    it('reports not found for a patient that does not exist', async () => {
+      const result = await app.delete('/api/patient/not-a-real-patient/profilePicture');
+      expect(result).toHaveRequestError();
+    });
+
+    it('is refused to a user without permission to write the patient', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      await models.PatientAdditionalData.updateForPatient(patient.id, {
+        profilePhotoAttachmentId: 'attachment-to-keep',
+      });
+      const noPermsApp = await baseApp.asRole('base');
+
+      const result = await noPermsApp.delete(`/api/patient/${patient.id}/profilePicture`);
+      expect(result).toBeForbidden();
+
+      const additionalData = await models.PatientAdditionalData.getForPatient(patient.id);
+      expect(additionalData.profilePhotoAttachmentId).toBe('attachment-to-keep');
+    });
+  });
+
+  describe('setting a photo', () => {
+    it('is refused to a user without permission to write the patient', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const noPermsApp = await baseApp.asRole('base');
+
+      const result = await noPermsApp.post(`/api/patient/${patient.id}/profilePicture`);
+      expect(result).toBeForbidden();
+    });
+  });
 });

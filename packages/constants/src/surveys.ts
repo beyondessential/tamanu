@@ -66,6 +66,9 @@ export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
 export const ACTION_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  // Photo questions are actionable because they can be configured to write the captured
+  // image onto the patient record (e.g. the patient's profile photo)
+  PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
 ];
 
 export const SURVEY_TYPES = {
@@ -170,6 +173,8 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
   registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
   registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
   registrationCurrentlyAtFacility: ['PatientProgramRegistration', 'facilityId'],
+  // Written by a Photo question, and holds the id of the captured image's attachment
+  profilePhoto: ['PatientAdditionalData', 'profilePhotoAttachmentId'],
   ...makeLookupFields('Patient', [
     'firstName',
     'middleName',

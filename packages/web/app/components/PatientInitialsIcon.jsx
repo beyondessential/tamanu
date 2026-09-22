@@ -11,10 +11,36 @@ const StyledAvatar = styled(Avatar)`
   height: 46px;
 `;
 
-export const PatientInitialsIcon = memo(({ patient }) => {
+// A photo is stored as uploaded, so it's centre-cropped here to fit the avatar
+const PhotoAvatar = styled(StyledAvatar)`
+  background: ${Colors.softOutline};
+
+  .MuiAvatar-img {
+    object-fit: cover;
+    object-position: center;
+  }
+`;
+
+export const PatientInitialsIcon = memo(({ patient, photo, className }) => {
   const first = patient.firstName ? patient.firstName.substring(0, 1) : '';
   const last = patient.lastName ? patient.lastName.substring(0, 1) : '';
+
+  if (photo?.data) {
+    return (
+      <PhotoAvatar
+        className={className}
+        src={`data:${photo.mimeType};base64,${photo.data}`}
+        alt=""
+        data-testid="patientphotoavatar"
+      />
+    );
+  }
+
   return (
-    <StyledAvatar color="primary" data-testid="styledavatar-lm84">{`${first}${last}`}</StyledAvatar>
+    <StyledAvatar
+      color="primary"
+      className={className}
+      data-testid="styledavatar-lm84"
+    >{`${first}${last}`}</StyledAvatar>
   );
 }); // TODO add sync status symbol
