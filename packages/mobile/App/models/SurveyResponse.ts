@@ -1,6 +1,11 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm';
 import { readConfig } from '~/services/config';
-import { EncounterType, type ICreateSurveyResponse, type ISurveyResponse } from '~/types';
+import {
+  EncounterType,
+  type IVitalsSurvey,
+  type ICreateSurveyResponse,
+  type ISurveyResponse,
+} from '~/types';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import {
