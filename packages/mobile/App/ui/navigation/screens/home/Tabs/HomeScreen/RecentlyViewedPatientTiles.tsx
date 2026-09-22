@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
 import type { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
-import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
+import useRecentlyViewedPatients from '~/ui/hooks/localConfig';
 import { PatientCard } from '/components/PatientCard';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';

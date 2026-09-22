@@ -15,7 +15,7 @@ import { Routes } from '/helpers/routes';
 import { FullView, StyledText, StyledView } from '/styled/common';
 import { joinNames } from '/helpers/user';
 import { getAgeFromDate } from '~/ui/helpers/date';
-import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
+import useRecentlyViewedPatients from '~/ui/hooks/localConfig';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { theme } from '~/ui/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
