@@ -45,6 +45,7 @@ sources:
             data_type: text
             description: "{{ doc('blob_quarantines__hash') }}"
             data_tests:
+              - unique
               - not_null
           - name: scanner_version
             data_type: text
