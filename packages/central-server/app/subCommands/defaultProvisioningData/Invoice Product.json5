@@ -170,42 +170,10 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-labTestType-Bicarbonate",
-      "name": "Bicarbonate",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Bicarbonate",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-Bilibubin",
-      "name": "Bilibubin",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Bilibubin",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-BloodGlucose",
-      "name": "Blood Glucose",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-BloodGlucose",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
       "id": "invoiceProduct-labTestType-Calcium",
       "name": "Calcium",
       "category": "LabTestType",
       "sourceRecordId": "labTestType-Calcium",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-CD4",
-      "name": "CD4",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-CD4",
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
@@ -226,66 +194,10 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-labTestType-COVID",
-      "name": "COVID-19 Swab",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-COVID",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-COVID19NasalSwab",
-      "name": "COVID-19 Nasal Swab",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-COVID19NasalSwab",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-COVIDEndotrachealaspirate",
-      "name": "COVID-19 Endotracheal aspirate",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-COVIDEndotrachealaspirate",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-COVIDNasalSwab",
-      "name": "COVID-19 Nasal Swab",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-COVIDNasalSwab",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-COVIDNasopharyngealSwab",
-      "name": "COVID-19 Nasopharyngeal Swab",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-COVIDNasopharyngealSwab",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-COVIDOropharyngealSwab",
-      "name": "COVID-19 Oropharyngeal Swab 211",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-COVIDOropharyngealSwab",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
       "id": "invoiceProduct-labTestType-Creatinine",
       "name": "Creatinine",
       "category": "LabTestType",
       "sourceRecordId": "labTestType-Creatinine",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-eGFR",
-      "name": "eGFR",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-eGFR",
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
@@ -306,46 +218,6 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-labTestType-HbA1C",
-      "name": "HbA1C",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-HbA1C",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-HBsAG",
-      "name": "HBsAG",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-HBsAG",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-HGB",
-      "name": "HGB",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-HGB",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-HIV",
-      "name": "HIV",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-HIV",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-HIVViralload",
-      "name": "HIV Viral load",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-HIVViralload",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
       "id": "invoiceProduct-labTestType-INR",
       "name": "INR",
       "category": "LabTestType",
@@ -358,22 +230,6 @@
       "name": "Lymphocytes",
       "category": "LabTestType",
       "sourceRecordId": "labTestType-Lymphocytes",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-Magnesium",
-      "name": "Magnesium",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Magnesium",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-Malariatype",
-      "name": "Malaria type",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Malariatype",
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
@@ -418,38 +274,6 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-labTestType-Papsmear",
-      "name": "Pap smear",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Papsmear",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-Parasitecount",
-      "name": "Parasite count",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Parasitecount",
-      "discountable": 0,
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-PCV",
-      "name": "PCV",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-PCV",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-Phosphate",
-      "name": "Phosphate",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Phosphate",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
       "id": "invoiceProduct-labTestType-PLT",
       "name": "PLT",
       "category": "LabTestType",
@@ -466,43 +290,11 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-labTestType-Prothrombin",
-      "name": "Prothrombin Time",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Prothrombin",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-RapidHIVTest",
-      "name": "Rapid HIV test",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-RapidHIVTest",
-      "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
       "id": "invoiceProduct-labTestType-RBC",
       "name": "RBC",
       "category": "LabTestType",
       "sourceRecordId": "labTestType-RBC",
       "discountable": 1,
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-RDTNegativenofurthertestingneeded",
-      "name": "AgRDT Negative, no further testing needed",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-RDTNegativenofurthertestingneeded",
-      "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-RDTPositive",
-      "name": "AgRDT Positive, no further testing needed",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-RDTPositive",
-      "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
@@ -522,27 +314,11 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "invoiceProduct-labTestType-Urea",
-      "name": "Urea",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Urea",
-      "discountable": "FALSE",
-      "visibilityStatus": "current"
-    },
-    {
       "id": "invoiceProduct-labTestType-WBC",
       "name": "WBC",
       "category": "LabTestType",
       "sourceRecordId": "labTestType-WBC",
       "discountable": "TRUE",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "invoiceProduct-labTestType-Woundswab",
-      "name": "Wound swab",
-      "category": "LabTestType",
-      "sourceRecordId": "labTestType-Woundswab",
-      "discountable": "FALSE",
       "visibilityStatus": "current"
     },
     {
