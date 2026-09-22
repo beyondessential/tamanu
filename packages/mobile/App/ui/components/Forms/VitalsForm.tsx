@@ -2,9 +2,9 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import type { PatientStateProps } from '/store/ducks/patient';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useBackend } from '~/ui/hooks';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { useAfterSurveySubmit } from '~/ui/hooks/useAfterSurveySubmit';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
 import { ErrorScreen } from '/components/ErrorScreen';
@@ -31,7 +31,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const queryClient = useQueryClient();
+  const afterSurveySubmit = useAfterSurveySubmit();
   const { mutateAsync: submitVitals } = useMutation({
     mutationFn: ({
       surveyId,
@@ -53,8 +53,9 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
         },
         values,
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
+    onSuccess: async response => {
+      if (!response) return;
+      await afterSurveySubmit(selectedPatient.id);
     },
   });
   const {
