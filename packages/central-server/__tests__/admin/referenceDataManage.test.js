@@ -58,6 +58,7 @@ describe('Reference Data Manage', () => {
       const route = response.body.find(c => c.key === 'route');
       expect(route.enumValues).toContain('oral');
       expect(route.enumValues).not.toContain('telepathic');
+      expect(route.enumName).toBe('DRUG_ROUTE_LABELS');
     });
 
     it('should include the detail model columns for a type that has one', async () => {

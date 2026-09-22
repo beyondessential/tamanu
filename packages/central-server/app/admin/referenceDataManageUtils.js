@@ -70,15 +70,27 @@ const READONLY_COLUMNS = {
 
 // Columns the product constrains to a constant but stores as a plain string, so the enum never
 // reaches us from the schema. Keyed by "ModelName.column".
+// `enumName` names the registered labels constant, so the form can render translated options.
+// `ADMINISTRATION_FREQUENCIES` has no registered labels object, and its values are already
+// sentences, so it ships values alone.
 const ENUM_VALUE_OVERRIDES = {
-  'ReferenceDrug.route': DRUG_ROUTE_VALUES,
-  'ReferenceDrug.dosingUnit': DRUG_UNIT_VALUES,
-  'ReferenceDrug.dispensingUnit': DRUG_UNIT_VALUES,
-  'ReferenceMedicationTemplate.route': DRUG_ROUTE_VALUES,
-  'ReferenceMedicationTemplate.dosingUnit': DRUG_UNIT_VALUES,
-  'ReferenceMedicationTemplate.frequency': Object.values(ADMINISTRATION_FREQUENCIES),
-  'ReferenceMedicationTemplate.durationUnit': Object.values(MEDICATION_DURATION_UNITS),
-  'TaskTemplate.frequencyUnit': Object.values(TASK_FREQUENCY_UNIT),
+  'ReferenceDrug.route': { values: DRUG_ROUTE_VALUES, enumName: 'DRUG_ROUTE_LABELS' },
+  'ReferenceDrug.dosingUnit': { values: DRUG_UNIT_VALUES, enumName: 'DRUG_UNIT_LABELS' },
+  'ReferenceDrug.dispensingUnit': { values: DRUG_UNIT_VALUES, enumName: 'DRUG_UNIT_LABELS' },
+  'ReferenceMedicationTemplate.route': { values: DRUG_ROUTE_VALUES, enumName: 'DRUG_ROUTE_LABELS' },
+  'ReferenceMedicationTemplate.dosingUnit': {
+    values: DRUG_UNIT_VALUES,
+    enumName: 'DRUG_UNIT_LABELS',
+  },
+  'ReferenceMedicationTemplate.frequency': { values: Object.values(ADMINISTRATION_FREQUENCIES) },
+  'ReferenceMedicationTemplate.durationUnit': {
+    values: Object.values(MEDICATION_DURATION_UNITS),
+    enumName: 'MEDICATION_DURATION_UNITS_LABELS',
+  },
+  'TaskTemplate.frequencyUnit': {
+    values: Object.values(TASK_FREQUENCY_UNIT),
+    enumName: 'TASK_FREQUENCY_UNIT_LABELS',
+  },
 };
 
 // FK columns that should render as multi-select autocomplete instead of single select
@@ -175,9 +187,12 @@ const buildColumns = async model => {
         readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
-      const enumValues = ENUM_VALUE_OVERRIDES[`${model.name}.${key}`] ?? (typeName === 'ENUM' ? attr.type?.values : null);
-      if (enumValues) {
-        col.enumValues = enumValues;
+      const override = ENUM_VALUE_OVERRIDES[`${model.name}.${key}`];
+      if (override) {
+        col.enumValues = override.values;
+        if (override.enumName) col.enumName = override.enumName;
+      } else if (typeName === 'ENUM' && attr.type?.values) {
+        col.enumValues = attr.type.values;
       }
       if (fkSuggesters[key]) {
         col.suggesterEndpoint = fkSuggesters[key];

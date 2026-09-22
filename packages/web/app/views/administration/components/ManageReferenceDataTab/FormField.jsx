@@ -1,8 +1,14 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { startCase } from 'es-toolkit/compat';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
 import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
+import {
+  DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
+  TASK_FREQUENCY_UNIT_LABELS,
+} from '@tamanu/constants';
 import {
   Field,
   SelectField,
@@ -13,6 +19,15 @@ import { NumberField } from '../../../../components/Field/NumberField';
 import { CheckField } from '../../../../components/Field/CheckField';
 import { useSuggester } from '../../../../api/suggesters';
 import { REQUIRED_FIELDS, SUGGESTER_OPTIONS } from './constants';
+
+// Columns whose values the schema stores as plain strings; the server names the registered labels
+// constant so the option text is the product's own, and translated.
+const ENUM_LABELS = {
+  DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
+  TASK_FREQUENCY_UNIT_LABELS,
+};
 
 const CheckFieldWrapper = styled.div`
   display: flex;
@@ -100,6 +115,21 @@ export const FormField = memo(({ col, isEditMode }) => {
 
   if (col.suggesterEndpoint) {
     return <SuggesterFormField col={col} disabled={disabled} />;
+  }
+
+  const enumLabels = ENUM_LABELS[col.enumName];
+  if (enumLabels) {
+    return (
+      <Field
+        name={col.key}
+        label={col.key}
+        component={TranslatedSelectField}
+        enumValues={enumLabels}
+        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+        disabled={disabled}
+        data-testid={`field-form-${col.key}`}
+      />
+    );
   }
 
   if (col.enumValues) {
