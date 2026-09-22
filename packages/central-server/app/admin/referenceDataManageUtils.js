@@ -237,6 +237,11 @@ export const assertValidEnumValues = (columns, data) => {
   }
 };
 
+export const pickDetailValues = (columns, detailRecord) =>
+  Object.fromEntries(
+    columns.filter(c => c.detail).map(c => [c.key, detailRecord?.[c.key] ?? null]),
+  );
+
 export const splitWritableData = (columns, data, isEditMode) => ({
   base: getWritableData(columns.filter(c => !c.detail), data, isEditMode),
   detail: getWritableData(columns.filter(c => c.detail), data, isEditMode),

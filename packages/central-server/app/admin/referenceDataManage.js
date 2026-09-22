@@ -11,6 +11,7 @@ import {
   assertValidType,
   assertValidEnumValues,
   splitWritableData,
+  pickDetailValues,
   createMultiSelectRecords,
 } from './referenceDataManageUtils';
 
@@ -37,14 +38,16 @@ referenceDataManageRouter.post(
         return res.send(records);
       }
 
-      const record = await model.sequelize.transaction(async () => {
+      const { record, detailRecord } = await model.sequelize.transaction(async () => {
         const created = await model.create({ ...typeFilter, ...base });
-        if (detailModel) {
-          await detailModel.create({ ...detail, referenceDataId: created.id });
-        }
-        return created;
+        return {
+          record: created,
+          detailRecord: detailModel
+            ? await detailModel.create({ ...detail, referenceDataId: created.id })
+            : null,
+        };
       });
-      res.send({ ...record.forResponse(), ...detail });
+      res.send({ ...record.forResponse(), ...pickDetailValues(columns, detailRecord) });
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
         const field = err.errors?.[0]?.path ?? 'field';
@@ -78,17 +81,18 @@ referenceDataManageRouter.put(
     const { base, detail } = splitWritableData(columns, rawData, true);
     assertValidEnumValues(columns, { ...base, ...detail });
 
+    let detailRecord = null;
     await model.sequelize.transaction(async () => {
       await record.update(base);
       if (detailModel) {
-        const [detailRecord] = await detailModel.findOrCreate({
+        [detailRecord] = await detailModel.findOrCreate({
           where: { referenceDataId: record.id },
           defaults: { ...detail, referenceDataId: record.id },
         });
         await detailRecord.update(detail);
       }
     });
-    res.send({ ...record.forResponse(), ...detail });
+    res.send({ ...record.forResponse(), ...pickDetailValues(columns, detailRecord) });
   }),
 );
 
@@ -144,7 +148,6 @@ referenceDataManageRouter.get(
     const detailModel = getDetailModel(req.store.models, referenceDataType);
     const detailAssociation = getDetailAssociation(referenceDataType);
     const columns = await getColumnsForModel(model, detailModel);
-    const detailKeys = columns.filter(c => c.detail).map(c => c.key);
 
     // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
     // The list query eager-loads those associations so the name can be displayed in the row.
@@ -247,10 +250,7 @@ referenceDataManageRouter.get(
           row[c.key] = record[c.key]?.name ?? null;
         }
         if (detailAssociation) {
-          const detail = record[detailAssociation];
-          for (const key of detailKeys) {
-            row[key] = detail?.[key] ?? null;
-          }
+          Object.assign(row, pickDetailValues(columns, record[detailAssociation]));
           delete row[detailAssociation];
         }
         return row;
