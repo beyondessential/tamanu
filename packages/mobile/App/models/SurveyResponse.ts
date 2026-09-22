@@ -87,7 +87,6 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientProgramRegistration) {
-    const facilityId = await readConfig('facilityId', '');
     const programRegistryDetail = await ProgramRegistry.findOne({
       select: ['id'],
       where: {
@@ -104,7 +103,8 @@ async function writeToPatientFields(
       {
         ...valuesByModel.PatientProgramRegistration,
         registeringFacilityId:
-          valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
+          valuesByModel.PatientProgramRegistration.registeringFacilityId ||
+          (await readConfig('facilityId', '')),
         clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
       },
       submittedTime,
