@@ -104,6 +104,21 @@ describe('Reference Data Manage', () => {
       expect(record.name).toBe('Test Create Drug');
     });
 
+    it('should refuse to create a type whose record needs a detail row', async () => {
+      for (const referenceDataType of [
+        REFERENCE_TYPES.DRUG,
+        REFERENCE_TYPES.TASK_TEMPLATE,
+        REFERENCE_TYPES.MEDICATION_TEMPLATE,
+      ]) {
+        const response = await adminApp.post(BASE_URL).send({
+          referenceDataType,
+          code: `test-blocked-${referenceDataType}`,
+          name: 'Test Blocked',
+        });
+        expect(response).toHaveRequestError();
+      }
+    });
+
     it('should reject creating a record with a duplicate unique field', async () => {
       const existing = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
