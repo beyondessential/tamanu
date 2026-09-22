@@ -2193,8 +2193,9 @@ describe('Medication', () => {
       );
 
     it('returns the not-dispensed record after it has been soft deleted', async () => {
-      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
-        patientId: patient.id,
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, medication } = await createPharmacyOrderWithPrescription({
+        patientId: localPatient.id,
       });
       const notDispensedReason = await createNotDispensedReason();
       const postResult = await app
@@ -2208,7 +2209,11 @@ describe('Medication', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.id).toBe(pharmacyOrderPrescription.id);
-      expect(result.body.notDispensedReasonId).toBe(notDispensedReason.id);
+      expect(result.body.notDispensedReason.id).toBe(notDispensedReason.id);
+      expect(result.body.prescription.medication.id).toBe(medication.id);
+      expect(result.body.pharmacyOrder.encounter.patient.id).toBe(localPatient.id);
+      expect(result.body.pharmacyOrder.encounter.patient.displayId).toBe(localPatient.displayId);
+      expect(result.body.pharmacyOrder.encounter.patient.firstName).toBe(localPatient.firstName);
     });
 
     it('returns 404 when the request was deleted but never marked not dispensed', async () => {

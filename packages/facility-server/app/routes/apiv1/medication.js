@@ -2091,10 +2091,20 @@ medication.get(
           include: [{ association: 'medication', attributes: ['id', 'name', 'type'] }],
         },
         {
+          // The parent pharmacy order is soft deleted along with its last remaining
+          // request (see the afterDestroy hook on PharmacyOrderPrescription), so this
+          // needs its own paranoid: false to still be found.
           association: 'pharmacyOrder',
           attributes: ['id'],
+          paranoid: false,
           include: [
-            { association: 'encounter', attributes: ['id'], include: ['patient'] },
+            {
+              association: 'encounter',
+              attributes: ['id'],
+              include: [
+                { association: 'patient', attributes: ['id', 'displayId', 'firstName', 'lastName'] },
+              ],
+            },
           ],
         },
         { association: 'notDispensedReason', attributes: ['id', 'name'] },
@@ -2105,7 +2115,27 @@ medication.get(
       throw new NotFoundError(`Not dispensed record with id ${params.id} not found`);
     }
 
-    res.send(pharmacyOrderPrescription.forResponse());
+    // forResponse() only remaps associations a model declares via getListReferenceAssociations,
+    // and does so one level deep — it can't walk the pharmacyOrder -> encounter -> patient chain
+    // this modal needs, so the response is shaped explicitly instead.
+    res.send({
+      id: pharmacyOrderPrescription.id,
+      displayId: pharmacyOrderPrescription.displayId,
+      repeats: pharmacyOrderPrescription.repeats,
+      notDispensedAt: pharmacyOrderPrescription.notDispensedAt,
+      notDispensedReason: pharmacyOrderPrescription.notDispensedReason ?? null,
+      prescription: pharmacyOrderPrescription.prescription
+        ? {
+            date: pharmacyOrderPrescription.prescription.date,
+            medication: pharmacyOrderPrescription.prescription.medication ?? null,
+          }
+        : null,
+      pharmacyOrder: {
+        encounter: {
+          patient: pharmacyOrderPrescription.pharmacyOrder?.encounter?.patient ?? null,
+        },
+      },
+    });
   }),
 );
 

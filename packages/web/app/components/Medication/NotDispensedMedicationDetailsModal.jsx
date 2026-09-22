@@ -35,7 +35,7 @@ const DarkestText = styled(Box)`
 `;
 
 const ActionRow = styled(Box)`
-  margin: 0 -32px -8px;
+  margin: 20px -32px -8px;
   padding: 20px 40px 0 40px;
   border-top: 1px solid ${Colors.outline};
   display: flex;
