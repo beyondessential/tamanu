@@ -373,6 +373,12 @@ describe('SurveyResponse.createWithAnswers', () => {
   });
 
   it('leaves the patient alone for a photo question that does not write to them', async () => {
+    // a patient of its own: the shared one carries a photo from the tests above, and patient
+    // additional data isn't truncated between them
+    const otherPatient = await models.Patient.create(fake(models.Patient));
+    const otherEncounter = await findOneOrCreate(models, models.Encounter, {
+      patientId: otherPatient.id,
+    });
     const survey = await createDummySurvey(models);
     const { dataElement } = await createDummyDataElement(models, survey, {
       type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
@@ -381,8 +387,8 @@ describe('SurveyResponse.createWithAnswers', () => {
 
     await models.SurveyResponse.sequelize.transaction(() =>
       models.SurveyResponse.createWithAnswers({
-        patientId,
-        encounterId,
+        patientId: otherPatient.id,
+        encounterId: otherEncounter.id,
         surveyId: survey.id,
         answers: {
           [dataElement.id]: 'an-ordinary-photo-attachment',
@@ -390,7 +396,7 @@ describe('SurveyResponse.createWithAnswers', () => {
       }),
     );
 
-    const additionalData = await models.PatientAdditionalData.getForPatient(patientId);
+    const additionalData = await models.PatientAdditionalData.getForPatient(otherPatient.id);
     expect(additionalData?.profilePhotoAttachmentId ?? null).toBeNull();
   });
 
