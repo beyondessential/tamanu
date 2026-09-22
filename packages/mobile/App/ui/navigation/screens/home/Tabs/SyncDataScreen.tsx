@@ -133,18 +133,20 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
         {syncFinishedSuccessfully ? (
           <GreenTickIcon size={screenPercentageToDP('8', Orientation.Height)} />
         ) : null}
-        {hasError ? <ErrorIcon size={screenPercentageToDP('8', Orientation.Height)} /> : null}
-        {hasError ? (
-          <StyledText
-            marginTop={25}
-            fontWeight={500}
-            color="#F76853"
-            fontSize={screenPercentageToDP(2.55, Orientation.Height)}
-            textAlign="center"
-          >
-            <TranslatedText stringId="sync.error.syncFailed" fallback="Sync failed" />
-          </StyledText>
-        ) : null}
+        {hasError && (
+          <>
+            <ErrorIcon size={screenPercentageToDP('8', Orientation.Height)} />
+            <StyledText
+              color="#F76853"
+              fontSize={screenPercentageToDP(2.55, Orientation.Height)}
+              fontWeight={500}
+              marginTop={25}
+              textAlign="center"
+            >
+              <TranslatedText stringId="sync.error.syncFailed" fallback="Sync failed" />
+            </StyledText>
+          </>
+        )}
         {isSyncing || syncFinishedSuccessfully ? (
           <StyledText
             marginTop={25}
