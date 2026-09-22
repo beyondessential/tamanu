@@ -1,6 +1,6 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Avatar from '@material-ui/core/Avatar';
 import { CircularProgress, Menu, MenuItem } from '@material-ui/core';
 import { Camera, Trash2, Upload } from 'lucide-react';
@@ -105,45 +105,46 @@ export const PatientPhotoAvatar = ({ patient }) => {
   const fileInputRef = useRef(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [isCaptureOpen, setCaptureOpen] = useState(false);
-  const [isSaving, setSaving] = useState(false);
 
   const { data: photo } = usePatientProfilePictureQuery(patient.id);
   const canChangePhoto = ability?.can('write', 'Patient');
 
+  const closeMenu = () => setMenuAnchor(null);
+  const openMenu = event => setMenuAnchor(event.currentTarget);
+
   const refreshPhoto = () =>
     queryClient.invalidateQueries([PATIENT_PROFILE_PICTURE_QUERY_KEY, patient.id]);
 
-  const closeMenu = () => setMenuAnchor(null);
-
-  // The avatar sits inside a button that navigates to the patient, so every interaction here
-  // has to be kept from reaching it
-  const openMenu = event => {
-    event.preventDefault();
-    event.stopPropagation();
-    setMenuAnchor(event.currentTarget);
-  };
-
-  const savePhoto = useCallback(
-    async file => {
-      setSaving(true);
-      try {
-        await api.postWithFileUpload(`patient/${patient.id}/profilePicture`, file, {
-          type: file.type,
-        });
-        await refreshPhoto();
-      } catch (error) {
+  const { mutate: savePhoto, isLoading: isSaving } = useMutation(
+    file =>
+      api.postWithFileUpload(`patient/${patient.id}/profilePicture`, file, { type: file.type }),
+    {
+      onSuccess: refreshPhoto,
+      onError: error =>
         notifyError(
           getTranslation('patient.photo.error.uploadFailed', 'Photo could not be saved. :message', {
             replacements: { message: error.message },
           }),
-        );
-      } finally {
-        setSaving(false);
-      }
+        ),
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api, patient.id, getTranslation],
   );
+
+  const { mutate: removePhoto, isLoading: isRemoving } = useMutation(
+    () => api.delete(`patient/${patient.id}/profilePicture`),
+    {
+      onSuccess: refreshPhoto,
+      onError: error =>
+        notifyError(
+          getTranslation(
+            'patient.photo.error.removeFailed',
+            'Photo could not be removed. :message',
+            { replacements: { message: error.message } },
+          ),
+        ),
+    },
+  );
+
+  const isBusy = isSaving || isRemoving;
 
   const handleFileSelected = event => {
     const file = event.target.files?.[0];
@@ -152,38 +153,23 @@ export const PatientPhotoAvatar = ({ patient }) => {
     if (file) savePhoto(file);
   };
 
-  const handleUploadClick = event => {
-    event.stopPropagation();
+  const handleUploadClick = () => {
     closeMenu();
     fileInputRef.current?.click();
   };
 
-  const handleCaptureClick = event => {
-    event.stopPropagation();
+  const handleCaptureClick = () => {
     closeMenu();
     setCaptureOpen(true);
   };
 
-  const handleRemoveClick = async event => {
-    event.stopPropagation();
+  const handleRemoveClick = () => {
     closeMenu();
-    setSaving(true);
-    try {
-      await api.delete(`patient/${patient.id}/profilePicture`);
-      await refreshPhoto();
-    } catch (error) {
-      notifyError(
-        getTranslation('patient.photo.error.removeFailed', 'Photo could not be removed. :message', {
-          replacements: { message: error.message },
-        }),
-      );
-    } finally {
-      setSaving(false);
-    }
+    removePhoto();
   };
 
   return (
-    <AvatarContainer onClick={event => event.stopPropagation()} data-testid="patient-photo-avatar">
+    <AvatarContainer data-testid="patient-photo-avatar">
       {photo?.data ? (
         <PhotoAvatar
           src={`data:${photo.mimeType};base64,${photo.data}`}
@@ -193,7 +179,7 @@ export const PatientPhotoAvatar = ({ patient }) => {
       ) : (
         <PatientInitialsIcon patient={patient} />
       )}
-      {canChangePhoto && !isSaving && (
+      {canChangePhoto && !isBusy && (
         <ChangePhotoButton
           type="button"
           onClick={openMenu}
@@ -205,7 +191,7 @@ export const PatientPhotoAvatar = ({ patient }) => {
           <Camera size={18} />
         </ChangePhotoButton>
       )}
-      {isSaving && (
+      {isBusy && (
         <UploadingOverlay data-testid="photo-saving-overlay">
           <CircularProgress size={20} />
         </UploadingOverlay>

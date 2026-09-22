@@ -6,8 +6,30 @@ import { patientKeys } from './queries/queryKeys';
 // A photo is only held on the central server, so resolving one costs a round trip. Keyed on the
 // patient, react-query dedupes the many rows of a list asking at once and remembers the answer —
 // including "this patient has no photo", which is the common case and would otherwise repeat two
-// queries on every remount of an unvirtualised list.
-const PHOTO_CACHE_TIME = 1000 * 60 * 30;
+// queries on every remount of an unvirtualised list. Cached entries are whole images, so they are
+// held for minutes rather than the rest of the session.
+const PHOTO_CACHE_TIME = 1000 * 60 * 5;
+
+// Patient lists aren't virtualised, so every row mounts at once and asks for its photo. Without
+// a bound that is one central-server round trip per row, each carrying a whole image.
+const MAX_CONCURRENT_PHOTO_FETCHES = 4;
+let activePhotoFetches = 0;
+const waitingForFetchSlot: Array<() => void> = [];
+
+const withFetchSlot = async <T>(fetchPhoto: () => Promise<T>): Promise<T> => {
+  if (activePhotoFetches >= MAX_CONCURRENT_PHOTO_FETCHES) {
+    await new Promise<void>(resolve => {
+      waitingForFetchSlot.push(resolve);
+    });
+  }
+  activePhotoFetches += 1;
+  try {
+    return await fetchPhoto();
+  } finally {
+    activePhotoFetches -= 1;
+    waitingForFetchSlot.shift()?.();
+  }
+};
 
 /**
  * Resolves a patient's profile photo to an image URI, or undefined when they have no photo or it
@@ -24,6 +46,9 @@ export const usePatientProfilePhoto = (patientId?: string): string | undefined =
     // patient additional data uses the patient's id as its own
     const additionalData = await backend.models.PatientAdditionalData.findOne({
       where: { id: patientId },
+      // the model eagerly joins its reference-data relations, which is a lot of work for two
+      // scalar columns once per row of a patient list
+      select: ['profilePhotoAttachmentId', 'profilePhotoRemoved'],
     });
 
     if (additionalData?.profilePhotoAttachmentId) {
@@ -47,12 +72,14 @@ export const usePatientProfilePhoto = (patientId?: string): string | undefined =
     const attachmentId = await resolveAttachmentId();
     if (!attachmentId) return null;
 
-    const response = (await backend.centralServer.fetch(
-      `attachment/${encodeURIComponent(attachmentId)}`,
-      { base64: true },
-      // The avatar falls back to initials, so one attempt is enough. Retrying would have every
-      // patient in a list churning against an unreachable server for minutes.
-      { backoff: { maxAttempts: 1 } },
+    const response = (await withFetchSlot(() =>
+      backend.centralServer.fetch(
+        `attachment/${encodeURIComponent(attachmentId)}`,
+        { base64: true },
+        // The avatar falls back to initials, so one attempt is enough. Retrying would have every
+        // patient in a list churning against an unreachable server for minutes.
+        { backoff: { maxAttempts: 1 } },
+      ),
     )) as { data?: string; type?: string };
 
     if (!response?.data) return null;

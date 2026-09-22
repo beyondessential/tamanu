@@ -14,6 +14,13 @@ export const uploadAttachment = async (req, maxFileSize, allowedTypes) => {
   // Read request and extract file, stats and metadata
   const { deviceId } = req;
   const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
+
+  // A request with no file part would otherwise fail deep in fs.statSync as a 500, which tells
+  // the caller nothing about what was wrong with their request
+  if (!file) {
+    throw new InvalidParameterError('No file was included in the upload.');
+  }
+
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 

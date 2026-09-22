@@ -121,6 +121,26 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
 - The photo rendering moved out of the shared `PatientInitialsIcon` into `PatientPhotoAvatar`, so
   the shared component is untouched by this card again.
 
+## Review round 3 corrections
+
+- **A blank photo answer wiped the patient's photo.** `getBodyForAnswer` returns null for an
+  unanswered Photo question, and that null was written straight onto the patient — so submitting
+  a survey containing a configured ProfilePhoto question *without* taking a photo cleared one set
+  from the sidebar, and because the removal marker was untouched the read path then resurfaced
+  the old legacy photo. `getFieldsToWrite` now skips an empty photo answer (server and mobile).
+  Covered by a regression test that was confirmed to fail without the fix.
+- Mobile hook: narrowed the `PatientAdditionalData` read to the two columns it needs (the model
+  eagerly joins 18 reference-data relations), bounded concurrent central fetches, and shortened
+  the cache lifetime since entries are whole images.
+- `PatientPhotoAvatar`: the propagation guards were dead once the avatar became a sibling of the
+  nav button rather than a descendant, and the comments still described the old nesting. Dropped
+  them, and replaced two hand-rolled save/remove blocks with `useMutation`, which removed the
+  `exhaustive-deps` disable and its stale-closure hazard.
+- `uploadAttachment` returns a 400 rather than failing deep in `fs.statSync` when a request
+  carries no file part.
+- Restored `exported-refdata-all-table.xlsx`: it is a generated test artifact that the reference
+  data importer suite rewrites, and it had been auto-committed into this PR.
+
 ## Outstanding
 
 - [x] Run the database-backed suites. The machine's own Postgres wants a password, but a

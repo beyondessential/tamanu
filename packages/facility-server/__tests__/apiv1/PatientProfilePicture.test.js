@@ -222,4 +222,32 @@ describe('Patient profile picture', () => {
       expect(uploadAttachment).not.toHaveBeenCalled();
     });
   });
+
+  describe('authentication', () => {
+    it('refuses an unauthenticated request to read a photo', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const result = await baseApp.get(`/api/patient/${patient.id}/profilePicture`);
+      expect(result).toHaveRequestError();
+    });
+
+    it('refuses an unauthenticated request to set a photo', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const result = await baseApp.post(`/api/patient/${patient.id}/profilePicture`);
+      expect(result).toHaveRequestError();
+      expect(uploadAttachment).not.toHaveBeenCalled();
+    });
+
+    it('refuses an unauthenticated request to remove a photo', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      await models.PatientAdditionalData.updateForPatient(patient.id, {
+        profilePhotoAttachmentId: 'a-photo-that-should-survive',
+      });
+
+      const result = await baseApp.delete(`/api/patient/${patient.id}/profilePicture`);
+      expect(result).toHaveRequestError();
+
+      const additionalData = await models.PatientAdditionalData.getForPatient(patient.id);
+      expect(additionalData.profilePhotoAttachmentId).toBe('a-photo-that-should-survive');
+    });
+  });
 });

@@ -107,6 +107,12 @@ const getFieldsToWrite = async (
     }
     const value = answers[dataElement.id];
 
+    // A photo question that was left unanswered is not an instruction to remove the patient's
+    // photo, so it must not overwrite one that is already there.
+    if (dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !value) {
+      continue;
+    }
+
     const { modelName, fieldName } = await getPatientDataDbLocation(configFieldName, models);
 
     if (!modelName) {

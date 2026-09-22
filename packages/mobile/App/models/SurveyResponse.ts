@@ -57,6 +57,13 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
     }
 
     const value = answers[dataElement.code];
+
+    // A photo question that was left unanswered is not an instruction to remove the patient's
+    // photo, so it must not overwrite one that is already there.
+    if (dataElement.type === FieldTypes.PHOTO && !value) {
+      continue;
+    }
+
     const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);

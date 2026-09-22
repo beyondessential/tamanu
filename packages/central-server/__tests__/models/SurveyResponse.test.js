@@ -372,6 +372,41 @@ describe('SurveyResponse.createWithAnswers', () => {
     expect(await models.Attachment.findByPk(answer.body)).not.toBeNull();
   });
 
+  it('leaves an existing photo alone when the photo question is left unanswered', async () => {
+    const otherPatient = await models.Patient.create(fake(models.Patient));
+    const otherEncounter = await findOneOrCreate(models, models.Encounter, {
+      patientId: otherPatient.id,
+    });
+    await models.PatientAdditionalData.updateForPatient(otherPatient.id, {
+      profilePhotoAttachmentId: 'a-photo-set-from-the-sidebar',
+    });
+
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId: otherPatient.id,
+        encounterId: otherEncounter.id,
+        surveyId: survey.id,
+        answers: {
+          // the clinician skipped the photo question, or cleared the one they took
+          [dataElement.id]: null,
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(otherPatient.id);
+    expect(additionalData.profilePhotoAttachmentId).toBe('a-photo-set-from-the-sidebar');
+  });
+
   it('undoes an earlier removal when a survey captures a new photo', async () => {
     const otherPatient = await models.Patient.create(fake(models.Patient));
     const otherEncounter = await findOneOrCreate(models, models.Encounter, {
