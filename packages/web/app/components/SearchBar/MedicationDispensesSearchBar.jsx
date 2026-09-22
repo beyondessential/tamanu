@@ -128,7 +128,6 @@ const MedicationDispensesSearchBarMainFields = () => {
         component={SearchField}
         data-testid="field-request-number"
       />
-      <div />
     </>
   );
 };
