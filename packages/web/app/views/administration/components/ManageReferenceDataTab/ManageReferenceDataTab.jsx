@@ -2,7 +2,7 @@ import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, SYSTEM_DATA_TYPES } from '@tamanu/constants';
 import {
   Button,
   SelectInput,
@@ -19,6 +19,14 @@ import { EditReferenceDataModal } from './EditReferenceDataModal';
 import { SearchBar } from './SearchBar';
 import { useReferenceDataColumns } from './useReferenceDataColumns';
 import { useReferenceDataDeleteMutation } from './useReferenceDataDeleteMutation';
+
+// These types keep half their fields in a detail table this form cannot reach, so a record created
+// here would be incomplete and break the screens that read it. The importer writes both halves.
+const TYPES_WITH_A_DETAIL_RECORD = [
+  REFERENCE_TYPES.DRUG,
+  REFERENCE_TYPES.TASK_TEMPLATE,
+  REFERENCE_TYPES.MEDICATION_TEMPLATE,
+];
 
 const Container = styled.div`
   margin: 20px;
@@ -80,6 +88,7 @@ const PlaceholderBox = styled.div`
 
 export const ManageReferenceDataTab = () => {
   const [selectedType, setSelectedType] = useState('');
+  const hasDetailRecord = TYPES_WITH_A_DETAIL_RECORD.includes(selectedType);
   const { data: columns = [] } = useReferenceDataColumns(selectedType);
   const [searchParams, setSearchParams] = useState({});
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -190,6 +199,11 @@ export const ManageReferenceDataTab = () => {
                 stringId="admin.referenceData.selectTypeToAdd"
                 fallback="Select desired reference data to add new"
               />
+            ) : hasDetailRecord ? (
+              <TranslatedText
+                stringId="admin.referenceData.addViaImporter"
+                fallback="Add this reference data through the importer, so its full record is created"
+              />
             ) : (
               ''
             )
@@ -199,7 +213,7 @@ export const ManageReferenceDataTab = () => {
             <StyledAddButton
               color="primary"
               variant="contained"
-              disabled={!selectedType}
+              disabled={!selectedType || hasDetailRecord}
               onClick={() => setIsAddModalOpen(true)}
               data-testid="add-refdata-button"
               startIcon={<AddIcon />}
