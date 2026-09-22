@@ -2,23 +2,19 @@ import React, { type ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import { compose } from 'redux';
-// Containers
-import { withPatient } from '/containers/Patient';
-// Components
-import { ErrorScreen } from '/components/ErrorScreen';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { PatientTile } from '/components/PatientTile';
-// props
-import type { RecentViewedScreenProps } from '/interfaces/Screens/PatientSearchStack/RecentViewedScreenProps';
-// Helpers
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { getAgeFromDate } from '~/ui/helpers/date';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import useRecentlyViewedPatients from '~/ui/hooks/useRecentlyViewedPatients';
 import { theme } from '~/ui/styled/theme';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { PatientTile } from '/components/PatientTile';
+import { withPatient } from '/containers/Patient';
 import { Routes } from '/helpers/routes';
 import { joinNames } from '/helpers/user';
+import type { RecentViewedScreenProps } from '/interfaces/Screens/PatientSearchStack/RecentViewedScreenProps';
 import { FullView, StyledText, StyledView } from '/styled/common';
 
 const NoPatientsCard = (): ReactElement => (
