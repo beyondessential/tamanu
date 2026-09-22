@@ -1,3 +1,7 @@
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+
 import supertest from 'supertest';
 import config from 'config';
 
@@ -20,7 +24,10 @@ import {
   initFhirSettingsFromDb,
 } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from '@tamanu/database';
+import { BlobStore } from '@tamanu/database/blobStore';
 
+import { FacilityBlobCache } from '../app/blobCache';
+import { FacilityBlobHealer } from '../app/blobIntegrity';
 import { createApiApp } from '../app/createApiApp';
 import { buildToken } from '../app/middleware/auth';
 import { initDatabase } from '../app/database';
@@ -127,6 +134,27 @@ class MockApplicationContext extends ApplicationContext {
         fhirWorkerEnabled: getFhirWorkerSettings().enabled,
       });
     }
+
+    // Temp-rooted and reserve-free so route tests exercise the blob-backed
+    // attachment and asset paths without depending on the test host's disk headroom.
+    const blobRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'facility-blob-store-test-'));
+    this.blobStore = new BlobStore({
+      root: blobRoot,
+      models: this.models,
+      getFreeDiskReserveBytes: async () => 0,
+      evictCache: async bytesNeeded => {
+        await this.blobCache?.evictBytes(bytesNeeded);
+      },
+    });
+    this.blobCache = new FacilityBlobCache({
+      blobStore: this.blobStore,
+      models: this.models,
+      getCacheBudgetBytes: async () => 10 * 1024 ** 3,
+    });
+    this.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobCache.putOutbox(source, options);
+    this.blobHealer = new FacilityBlobHealer({ blobStore: this.blobStore, models: this.models });
+    this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     // Reporting reads its per-server secret from local_system_facts, so init it
     // after setupFacilityDb has migrated.

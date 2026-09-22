@@ -39,6 +39,7 @@
     "@passcod/faith": "^0.5.0",
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/api-client": "*",
+    "@tamanu/blobs": "*",
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/errors": "*",

@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
+    "@tamanu/blobs": "*",
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
     "@tamanu/settings": "*",

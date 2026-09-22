@@ -527,6 +527,331 @@ For the `logs.fhir_writes` join that shows what an integration received for a la
 request, and the SENAITE-specific interpretation, see
 `../runbooks/senaite-integration-delay.md`.
 
+## Blob store
+
+`blobs` is the server's registry of the attachment and asset bytes it holds on
+disk, one row per blob. It is local to each server and does not sync, so the
+figures below describe that server only. All **[diagnose]**.
+
+On a facility server `tier` separates the two kinds of content, and the
+distinction is the one that matters when triaging: an `outbox` blob has not been
+acknowledged by central and is the only copy of its content, while a `cache` blob
+is durable on central and can be refetched. On the central server every row is
+authoritative and `tier` is not consulted.
+
+### Store size by tier
+
+```sql
+SELECT tier,
+       count(*) AS blobs,
+       pg_size_pretty(sum(size)) AS bytes
+FROM blobs
+WHERE deleted_at IS NULL
+GROUP BY tier;
+```
+
+### Outbox depth and age (facility)
+
+An outbox that is not draining while sync is otherwise healthy means the
+connection works but the push path does not. `eligible_since_tick` is set once a
+blob's referencing record has synced, so a null is a blob not yet eligible to
+push rather than a stuck one.
+
+```sql
+SELECT count(*) AS outbox_blobs,
+       pg_size_pretty(sum(size)) AS bytes,
+       min(created_at) AS oldest,
+       count(*) FILTER (WHERE eligible_since_tick IS NULL) AS not_yet_eligible
+FROM blobs
+WHERE deleted_at IS NULL AND tier = 'outbox';
+```
+
+### Corrupt blobs
+
+A corrupt blob failed verification against its hash and is never served. On a
+facility this should self-correct by refetching; a count that persists means the
+repair path is not working. On central it is an authoritative copy needing repair
+from a peer or a backup, and is an escalation.
+
+```sql
+SELECT id, hash, size, tier, created_at, last_scrubbed_at
+FROM blobs
+WHERE deleted_at IS NULL AND integrity_state = 'corrupt'
+ORDER BY created_at;
+```
+
+On a facility, `tier` decides how urgent this is: a `cache` row is self-correcting,
+an `outbox` row may be the only copy of its content. See
+`../runbooks/blob-integrity.md`.
+
+Note the query above does not show most facility cache faults. Dropping the bad
+copy is what makes them self-correcting, and the drop takes the row with it, so
+they are counted instead (below).
+
+### Dropped cache blobs (facility)
+
+How many cache blobs this server has dropped for failing verification, and when it
+last did. A dropped blob leaves no row, so this counter is the only record that it
+happened. It never resets, so the number matters relative to the last one seen for
+this server rather than on its own: one drop is a bad sector the refetch already
+corrected, a count climbing between visits is failing media.
+
+```sql
+SELECT key, value
+FROM local_system_facts
+WHERE key IN ('blobCacheFaults', 'blobCacheFaultAt');
+```
+
+### Return a restored blob to the scrub (dev-OTS)
+
+**[dev-OTS]** The one mutating statement in this section, and only as step 2 of the
+backup restore in `../runbooks/blob-integrity.md` §5, after good bytes have been
+placed in the blob's fan-out path. A `corrupt` row is taken out of the scrub's
+verification pass, so the placed file is not looked at until the row goes back to
+`absent`. The next pass then hashes the file and decides for itself: `verified` if
+the restore was good, `corrupt` again if it was not.
+
+Never run this to clear a corrupt count. Only `verified` content is served, so
+this does not expose bad bytes, but without step 1 it converts a recorded fault
+into a blob that reads as content-pending until the next pass records it corrupt
+again, which loses the signal and the count that was tracking it.
+
+```sql
+UPDATE blobs
+SET integrity_state = 'absent', last_scrubbed_at = NULL
+WHERE hash = :hash AND integrity_state = 'corrupt';
+```
+
+### Integrity state summary
+
+The shape of the store's health in one row, and the basis of the `blob_integrity`
+check. `absent` is a registry entry whose bytes the store no longer holds, as
+distinct from `corrupt` bytes that are held but no longer match their hash.
+
+```sql
+SELECT integrity_state,
+       tier,
+       count(*) AS blobs,
+       pg_size_pretty(sum(size)) AS bytes
+FROM blobs
+WHERE deleted_at IS NULL
+GROUP BY integrity_state, tier
+ORDER BY integrity_state, tier;
+```
+
+### Scrub coverage
+
+The scrub verifies least-recently-scrubbed blobs first, in rate-limited passes, so
+the oldest scrub time is how far behind a full cycle it is. A figure that keeps
+growing means the store is being added to faster than the per-pass limits cover
+it: raise `maxBlobsPerPass` / `maxGigabytesPerPass`, or run the scrub more often
+(central `schedules.blobIntegrityScrub`, or the same path in facility settings).
+A never-scrubbed count that never falls means the scrub is not running at all.
+
+```sql
+SELECT count(*) AS blobs,
+       count(*) FILTER (WHERE last_scrubbed_at IS NULL) AS never_scrubbed,
+       min(last_scrubbed_at) AS oldest_scrub,
+       max(last_scrubbed_at) AS newest_scrub
+FROM blobs
+WHERE deleted_at IS NULL;
+```
+
+### Correction rate
+
+The basis of the `blob_correction_rate` check, and a **different signal from
+`blob_integrity`**: these are blobs the store repaired from their own parity, so no
+content was lost. What a rising figure means is that the disk underneath is
+starting to fail, so the response is to plan replacing the media rather than to
+recover anything. See `../runbooks/blob-correction-rate.md`. **[diagnose]**
+
+Read `blobs_corrected` (how much of the store is affected) alongside
+`corrections_total` (how many repairs). Many corrections spread over many blobs is
+failing media; repeated corrections on one blob is a single bad region.
+
+```sql
+SELECT count(*) FILTER (WHERE last_corrected_at > now() - interval '24 hours') AS corrected_24h,
+       count(*) FILTER (WHERE last_corrected_at > now() - interval '7 days') AS corrected_7d,
+       count(*) AS blobs_corrected,
+       sum(correction_count) AS corrections_total,
+       max(last_corrected_at) AS most_recent
+FROM blobs
+WHERE correction_count > 0 AND deleted_at IS NULL;
+```
+
+### Parity coverage
+
+Error correction is off by default. Once enabled, the scrub brings already-stored
+content under protection over a scrub cycle, so `unprotected` falls pass by pass
+rather than immediately. It never reaches zero: blobs under 32 KiB are skipped
+deliberately (a parity shard is at least one filesystem cluster, so the overhead
+outgrows the blob), and on a facility only un-pushed `outbox` blobs are covered.
+**[diagnose]**
+
+```sql
+SELECT tier,
+       count(*) AS blobs,
+       count(*) FILTER (WHERE has_parity) AS protected,
+       count(*) FILTER (WHERE NOT has_parity AND size >= 32768) AS unprotected,
+       pg_size_pretty(sum(size) FILTER (WHERE has_parity)) AS protected_bytes
+FROM blobs
+WHERE deleted_at IS NULL
+GROUP BY tier
+ORDER BY tier;
+```
+
+### Backfill progress
+
+After the upgrade to the version that carries blob storage, a background job moves
+the attachment and asset bytes that were held in database columns out to the
+store. It starts on its own, works in small batches every few minutes, and stops
+when nothing is left. No operator action starts or finishes it.
+
+Central and a facility do different work here, which changes how the figures read:
+
+- **Central** moves both `attachments` and `assets` rows: each row gains a hash
+  and gives up its bytes. It rewrites its changelog entries for both tables.
+- **A facility** copies its asset bytes into its own store and leaves the rows
+  alone. Those rows change only when central's updated rows arrive over sync. It
+  rewrites asset changelog entries, and deliberately leaves attachment rows and
+  attachment changelog entries as they are, so a count against attachments on a
+  facility is expected and will not fall.
+
+Progress shows in the counts below. The database's on-disk size stays where it is
+while the job runs: clearing a byte column makes the space reusable inside the
+database without handing it back to the filesystem, which takes a `VACUUM FULL` or
+`pg_repack` and is a separate operator decision.
+
+**What is left to move.** The rows still holding bytes and the changelog entries
+still holding a copy of them. `stored_bytes` is the size as stored (compressed),
+so treat it as an order of magnitude rather than an exact volume. **[diagnose]**
+
+```sql
+SELECT 'rows: attachments' AS unit,
+       count(*) AS remaining,
+       pg_size_pretty(sum(pg_column_size(data))) AS stored_bytes
+FROM attachments
+WHERE data IS NOT NULL AND hash IS NULL
+UNION ALL
+SELECT 'rows: assets', count(*), pg_size_pretty(sum(pg_column_size(data)))
+FROM assets
+WHERE data IS NOT NULL AND hash IS NULL
+UNION ALL
+SELECT 'changelog: ' || table_name, count(*), NULL
+FROM logs.changes
+WHERE table_schema = 'public'
+  AND table_name IN ('attachments', 'assets')
+  AND record_data->>'data' IS NOT NULL
+GROUP BY table_name;
+```
+
+A changelog line missing from the output means there is nothing left for that
+table. On a facility the changelog count has no index to work with and scans the
+changelog, so it can take a while on a large one. It is still read-only.
+
+**What is already on the store.** Rows and entries that carry a hash and no bytes.
+Content created since the upgrade was never in the database and is counted here
+too, so read this as the size of the store-backed set rather than as a tally of
+what the job has moved. **[diagnose]**
+
+```sql
+SELECT 'rows: attachments' AS unit, count(*) AS on_store
+FROM attachments
+WHERE hash IS NOT NULL
+UNION ALL
+SELECT 'rows: assets', count(*)
+FROM assets
+WHERE hash IS NOT NULL
+UNION ALL
+SELECT 'changelog: ' || table_name, count(*)
+FROM logs.changes
+WHERE table_schema = 'public'
+  AND table_name IN ('attachments', 'assets')
+  AND record_data->>'hash' IS NOT NULL
+  AND record_data->>'data' IS NULL
+GROUP BY table_name;
+```
+
+**Is it moving.** Run this twice, several minutes apart, and compare. It is the
+same total the server itself uses to decide the job is done: at zero the backfill
+is complete and stops looking. On a facility, drop the `attachments` line and
+narrow the changelog filter to `table_name = 'assets'`, since neither is that
+server's work. **[diagnose]**
+
+```sql
+SELECT now() AS at,
+       (SELECT count(*) FROM attachments WHERE data IS NOT NULL AND hash IS NULL)
+     + (SELECT count(*) FROM assets WHERE data IS NOT NULL AND hash IS NULL)
+     + (SELECT count(*) FROM logs.changes
+        WHERE table_schema = 'public'
+          AND table_name IN ('attachments', 'assets')
+          AND record_data->>'data' IS NOT NULL) AS remaining;
+```
+
+The job runs every few minutes, so if the figure has not moved after fifteen
+minutes or so, read the server log for `BlobBackfillTask`
+(`../sops/read-logs.md`):
+
+| Log line | What it means |
+| --- | --- |
+| `moved content into the blob store` | A batch finished, with the unit and how many |
+| `paused, not enough free disk to admit more content` | The store has reached its free-disk reserve and stopped rather than crossing it. It resumes on its own once there is room; the fix is space on the volume holding `blobStorage.root` |
+| `content still to move` | A pass ended with work outstanding, which is normal mid-run |
+| `complete, no in-database blob content remains` | Finished, and every hash confirmed backed by content the server holds |
+| `complete except for content this server does not hold` | Nothing is left holding bytes, but a hash has no content behind it locally. See `../runbooks/blob-integrity.md` |
+
+No `BlobBackfillTask` lines at all means the job is not running: check that the
+server's task process is up and that `schedules.blobBackfill.enabled` has not been
+turned off in settings.
+
+To put content back in the database (a version downgrade, or an abandoned
+backfill), see `../runbooks/blob-backfill-rollback.md`.
+
+## Blob antivirus
+
+Only where the deployment has turned scanning on. See
+`../runbooks/blob-antivirus.md`.
+
+### Quarantined content
+
+Content found to be malware, named by hash. Written on central and synchronised
+everywhere, so the same rows appear on a facility. Quarantined content is
+retained, never served, never fetched and never repaired. **[diagnose]**
+
+```sql
+SELECT q.hash, q.created_at, q.scanner_version, q.signature_version,
+       b.size, b.tier
+FROM blob_quarantines q
+LEFT JOIN blobs b ON b.hash = q.hash AND b.deleted_at IS NULL
+WHERE q.deleted_at IS NULL
+ORDER BY q.created_at DESC;
+```
+
+A row with no matching blob is normal: the quarantine names content, not a copy
+of it, so it stands on servers that never held the bytes.
+
+### Scan coverage
+
+What the scanner has got through. Under the `only-known-good` posture unscanned
+content is withheld, so a large `unscanned` figure there is content clinicians
+cannot open. Falling means the pass is working through a backlog; flat means the
+scanner is not being reached, or nothing is scheduled to run. **[diagnose]**
+
+```sql
+SELECT count(*) AS blobs,
+       count(*) FILTER (WHERE scan_verdict IS NULL) AS unscanned,
+       count(*) FILTER (WHERE scan_verdict = 'clean') AS clean,
+       count(*) FILTER (WHERE scan_verdict = 'infected') AS infected,
+       max(scanned_at) AS newest_scan,
+       max(signature_version) AS newest_signatures
+FROM blobs
+WHERE deleted_at IS NULL AND integrity_state = 'verified';
+```
+
+Content above `blobStorage.antivirus.maxScanMB` is never sent to the scanner and
+stays unscanned by design, so a residual count that never clears is expected;
+compare it against the large blobs in the store before treating it as a stall.
+
 ## DHIS2 push log
 
 `logs.dhis2_pushes` has one row per failed or successful push to DHIS2.

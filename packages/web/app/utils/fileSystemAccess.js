@@ -73,7 +73,12 @@ export const saveFile = async ({
     /** @type {FileSystemWritableFileStream} */
     let writable;
     try {
-      const [writable, data] = await Promise.all([fileHandle.createWritable(), getData()]);
+      // The data comes first so a failure to produce it leaves no writable behind:
+      // one created alongside it would be unreachable once the pair rejected, and
+      // so could never be aborted. The picker has already run by here, so nothing
+      // in this order depends on user activation.
+      const data = await getData();
+      writable = await fileHandle.createWritable();
       await writable.write(data);
       await writable.close();
     } catch (error) {

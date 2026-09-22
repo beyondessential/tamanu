@@ -1,9 +1,16 @@
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
+import { BlobOutboxPusher } from './blobCache';
+import { BlobTransferChannel } from './blobTransfer';
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
-import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
+import {
+  getServerFacilityIds,
+  getSyncConfig,
+  isServerConfigured,
+  initServerConfig,
+} from './serverConfig';
 import { resolveSchedules } from './tasks';
 
 // How often a sync/tasks process re-checks for first-run setup completing.
@@ -29,6 +36,29 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
     enabled: (await resolveSchedules(context)).timeSync.enabled,
   });
   context.centralServer = new CentralServerConnection(context);
+
+  // spec: CACHE
+  // The blob transfer channel and outbox pusher need a central connection, so
+  // they arrive with the sync runtime; the cache itself (context.blobCache)
+  // works local-only from boot.
+  context.blobTransferChannel = new BlobTransferChannel({
+    blobStore: context.blobStore,
+    centralServer: context.centralServer,
+    // Central scopes every fetch and push to the facilities the caller declares,
+    // and refuses a caller that declares none.
+    facilityIds: getServerFacilityIds() ?? [],
+  });
+  context.blobCache.setTransferChannel(context.blobTransferChannel);
+  // spec: SCRUB — central is the peer rung of the self-heal ladder, so the
+  // healer can only reach it once the sync runtime is up.
+  context.blobHealer.setTransferChannel(context.blobTransferChannel);
+  context.blobOutboxPusher = new BlobOutboxPusher({
+    models: context.models,
+    transferChannel: context.blobTransferChannel,
+    blobCache: context.blobCache,
+    referenceResolvers: context.blobReferenceResolvers,
+  });
+
   context.syncManager = syncManager ?? new FacilitySyncManager(context);
 
   await performTimeZoneChecks({ sequelize: context.sequelize });

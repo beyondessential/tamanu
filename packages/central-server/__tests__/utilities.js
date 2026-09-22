@@ -1,4 +1,8 @@
 import { vi } from 'vitest';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+
 import config from 'config';
 import supertest from 'supertest';
 
@@ -8,6 +12,7 @@ import {
   REPORT_DB_CONNECTION_VALUES,
   SERVER_TYPES,
 } from '@tamanu/constants';
+import { BlobStore } from '@tamanu/database/blobStore';
 import { seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
@@ -43,6 +48,18 @@ class MockApplicationContext {
     if (initFhirTriggers) {
       await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled: true });
     }
+
+    // Temp-rooted and reserve-free so endpoint tests exercise the transfer
+    // channel without depending on the test host's real disk headroom.
+    const blobRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'central-blob-store-test-'));
+    this.blobStore = new BlobStore({
+      root: blobRoot,
+      models: this.store.models,
+      getFreeDiskReserveBytes: async () => 0,
+    });
+    this.store.sequelize.admitAttachmentBlob = (source, options) =>
+      this.blobStore.put(source, options);
+    this.onClose(() => fs.rm(blobRoot, { recursive: true, force: true }));
 
     this.emailService = {
       sendEmail: vi.fn().mockImplementation(() =>

@@ -1,3 +1,5 @@
+import { Readable } from 'node:stream';
+
 import { DataTypes, Op, Sequelize } from 'sequelize';
 
 import {
@@ -28,6 +30,23 @@ import type { PatientIssue } from './PatientIssue';
 import type { ProgramDataElement } from './ProgramDataElement';
 import type { Survey } from './Survey';
 import type { User } from './User';
+
+// spec: ATCH
+// An attachment carries the patient linkage of the record it is created for. A
+// caller that knows only the encounter has the patient resolved here, so a photo
+// attachment is scoped the same way the scope backfill scopes existing rows —
+// both columns populated, rather than leaving readers to reach the patient
+// through the encounter.
+async function resolveAttachmentScope(
+  models: Models,
+  { encounterId, patientId }: { encounterId?: string; patientId?: string },
+) {
+  if (patientId || !encounterId) {
+    return { encounterId, patientId };
+  }
+  const encounter = await models.Encounter.findByPk(encounterId, { attributes: ['patientId'] });
+  return { encounterId, patientId: encounter.patientId };
+}
 
 /** @internal Use {@link SurveyResponse.createPatientIssues} instead. */
 async function _createPatientIssues(
@@ -445,7 +464,9 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models);
+      const body = await SurveyResponse.getBodyForAnswer(dataElement.type, value, models, {
+        encounterId: record.encounterId,
+      });
       // Don't create empty answers. A blank measure is not a recorded value, so persisting it as
       // an empty-bodied row would surface its creation in chart history as a spurious "Entry
       // deleted" line (chart history is derived from the answer audit changelog).
@@ -490,15 +511,27 @@ export class SurveyResponse extends Model {
     dataElementType: ProgramDataElement['type'],
     value: any,
     models: Models,
+    scope: { encounterId?: string; patientId?: string } = {},
   ) {
     if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && value) {
       // If the client already provided an attachment ID, keep it as-is
       if (typeof value === 'string') return value;
 
+      // spec: ATCH
+      // The photo is admitted to the blob store and the attachment records only
+      // its hash, so it synchronises with the survey answer that references it
+      // rather than carrying its bytes through sync.
       const { size, data } = value as unknown as { size: number; data: string };
-      const { id: attachmentId } = await models.Attachment.create(
-        models.Attachment.sanitizeForDatabase({ data, size, type: 'image/jpeg' }),
+      const { hash, size: storedSize } = await models.Attachment.sequelize.admitAttachmentBlob(
+        Readable.from([Buffer.from(data, 'base64')]),
+        { sizeHint: size },
       );
+      const { id: attachmentId } = await models.Attachment.create({
+        type: 'image/jpeg',
+        hash,
+        size: storedSize,
+        ...(await resolveAttachmentScope(models, scope)),
+      });
 
       return attachmentId; // Store attachment ID as answer body
     }

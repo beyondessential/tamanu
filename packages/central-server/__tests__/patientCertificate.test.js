@@ -1,4 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Readable } from 'node:stream';
+
+import ReactPDF from '@react-pdf/renderer';
+
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -7,7 +11,7 @@ import {
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
 import { chance, fake } from '@tamanu/fake-data/fake';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
-import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { ASSET_NAMES, LAB_REQUEST_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { makeCovidCertificate, makeVaccineCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
@@ -174,6 +178,7 @@ describe('Certificate', () => {
     const result = await makeCovidCertificate({
       models,
       settings,
+      blobStore: ctx.blobStore,
       certType: chance.pickone(Object.values(CertificateTypes)),
       patient: patientRecord,
       printedBy: chance.name(),
@@ -188,11 +193,107 @@ describe('Certificate', () => {
     const result = await makeVaccineCertificate({
       models,
       settings,
+      blobStore: ctx.blobStore,
       patient: patientRecord,
       printedAt: new Date(),
       printedBy: chance.name(),
       facilityName: 'test facility',
     });
     expect(result.status).toEqual('success');
+  });
+
+  // spec: ASSET
+  describe('artwork from the blob store', () => {
+    // The rendered element is captured rather than a PDF produced, so the
+    // asset's bytes can be compared with what was admitted. spyOn mutates the
+    // shared ReactPDF object, so it reaches the module-scoped call site.
+    let render;
+
+    beforeEach(() => {
+      render = vi.spyOn(ReactPDF, 'render').mockResolvedValue(undefined);
+    });
+
+    afterEach(async () => {
+      render.mockRestore();
+      await models.Asset.destroy({ where: {}, force: true });
+    });
+
+    const admitAsset = async (name, content) => {
+      const { hash } = await ctx.blobStore.put(Readable.from(content));
+      await models.Asset.create({ name, type: 'image/png', data: null, hash });
+      return hash;
+    };
+
+    const certificate = async () =>
+      await makeVaccineCertificate({
+        models,
+        settings,
+        blobStore: ctx.blobStore,
+        patient: await models.Patient.findByPk(patient.id),
+        printedAt: new Date(),
+        printedBy: chance.name(),
+        facilityName: 'test facility',
+      });
+
+    const covidCertificate = async () =>
+      await makeCovidCertificate({
+        models,
+        settings,
+        blobStore: ctx.blobStore,
+        certType: CertificateTypes.test,
+        patient: await models.Patient.findByPk(patient.id),
+        printedBy: chance.name(),
+      });
+
+    it('resolves a hash-form asset into the rendered certificate', async () => {
+      const logo = Buffer.from('the letterhead logo bytes');
+      const watermark = Buffer.from('the watermark bytes');
+      await admitAsset(ASSET_NAMES.LETTERHEAD_LOGO, logo);
+      await admitAsset(ASSET_NAMES.VACCINE_CERTIFICATE_WATERMARK, watermark);
+
+      await certificate();
+
+      const [element] = render.mock.calls[0];
+      expect(element.props.logoSrc).toEqual(logo);
+      expect(element.props.watermarkSrc).toEqual(watermark);
+    });
+
+    it('resolves a hash-form asset into a rendered covid certificate too', async () => {
+      const footer = Buffer.from('the covid test footer bytes');
+      await admitAsset(ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER, footer);
+
+      await covidCertificate();
+
+      const [element] = render.mock.calls[0];
+      expect(element.props.signingSrc).toEqual(footer);
+    });
+
+    it('fails rather than printing unbranded when the bytes cannot be resolved', async () => {
+      const hash = await admitAsset(
+        ASSET_NAMES.LETTERHEAD_LOGO,
+        Buffer.from('a logo the store no longer holds'),
+      );
+      await ctx.blobStore.delete(hash);
+
+      await expect(certificate()).rejects.toThrow();
+      expect(render).not.toHaveBeenCalled();
+    });
+
+    it('fails rather than printing unbranded with no store to resolve against', async () => {
+      await admitAsset(ASSET_NAMES.LETTERHEAD_LOGO, Buffer.from('a logo nothing can open'));
+
+      await expect(
+        makeVaccineCertificate({
+          models,
+          settings,
+          blobStore: null,
+          patient: await models.Patient.findByPk(patient.id),
+          printedAt: new Date(),
+          printedBy: chance.name(),
+          facilityName: 'test facility',
+        }),
+      ).rejects.toThrow();
+      expect(render).not.toHaveBeenCalled();
+    });
   });
 });
