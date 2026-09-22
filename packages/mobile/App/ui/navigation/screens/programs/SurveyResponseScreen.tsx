@@ -107,9 +107,9 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const onSubmit = useCallback(
     async (values: GenericFormValues) => {
       const response = await submitSurveyResponse({
+        components,
         patientId: selectedPatientId,
         surveyId,
-        components,
         values,
       });
 
