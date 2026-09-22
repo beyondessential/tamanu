@@ -215,7 +215,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         setNote('Attaching answers...');
 
         // figure out if its a vital survey response
-        let vitalsSurvey;
+        let vitalsSurvey: IVitalsSurvey;
         try {
           vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
         } catch (e) {
