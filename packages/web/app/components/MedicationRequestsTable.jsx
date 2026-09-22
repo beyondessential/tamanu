@@ -212,6 +212,11 @@ export const MedicationRequestsTable = () => {
     setSelectedRequest(null);
   };
 
+  const handleNotDispensedSuccess = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
+    setRefreshCount(prev => prev + 1);
+  };
+
   const columns = [
     {
       key: 'pharmacyOrder.encounter.patient.displayId',
@@ -414,6 +419,7 @@ export const MedicationRequestsTable = () => {
         open={isNotDispensedModalOpen}
         onClose={handleNotDispensedClose}
         request={selectedRequest}
+        onSuccess={handleNotDispensedSuccess}
       />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}

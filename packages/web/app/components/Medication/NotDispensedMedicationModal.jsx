@@ -14,6 +14,7 @@ import {
   useSuggester,
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
+import { useApi } from '../../api';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { FormModal } from '../FormModal';
@@ -63,7 +64,8 @@ const getValidationSchema = () =>
       .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   });
 
-export const NotDispensedMedicationModal = ({ open, onClose, request }) => {
+export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess }) => {
+  const api = useApi();
   const { formatShortest } = useDateTime();
   const notDispensedReasonSuggester = useSuggester('medicationNotDispensedReason');
 
@@ -121,9 +123,9 @@ export const NotDispensedMedicationModal = ({ open, onClose, request }) => {
     },
   ];
 
-  const handleSubmit = values => {
-    // eslint-disable-next-line no-console
-    console.log(values);
+  const handleSubmit = async values => {
+    await api.post(`medication/medication-requests/${request.id}/not-dispensed`, values);
+    onSuccess?.();
     onClose();
   };
 

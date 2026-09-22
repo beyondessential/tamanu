@@ -2014,6 +2014,101 @@ medication.delete(
   }),
 );
 
+const notDispensedInputSchema = z
+  .object({
+    notDispensedReasonId: z.string(),
+  })
+  .strip();
+
+medication.post(
+  '/medication-requests/:id/not-dispensed',
+  asyncHandler(async (req, res) => {
+    const { models, params, body, user } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('create', 'MedicationDispense');
+
+    const { notDispensedReasonId } = await notDispensedInputSchema.parseAsync(body);
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['id', 'prescriberId'],
+        },
+        {
+          association: 'pharmacyOrder',
+          attributes: ['id', 'encounterId'],
+          include: [{ association: 'encounter', attributes: ['id', 'patientId'] }],
+        },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription) {
+      throw new NotFoundError(`Medication request with id ${params.id} not found`);
+    }
+
+    const notDispensedAt = getCurrentDateTimeString();
+
+    await PharmacyOrderPrescription.sequelize.transaction(async () => {
+      await pharmacyOrderPrescription.update({
+        notDispensedReasonId,
+        notDispensedById: user.id,
+        notDispensedAt,
+      });
+      await pharmacyOrderPrescription.destroy();
+
+      const prescriberId = pharmacyOrderPrescription.prescription?.prescriberId;
+      const patientId = pharmacyOrderPrescription.pharmacyOrder?.encounter?.patientId;
+      if (prescriberId && patientId) {
+        await models.Notification.pushNotification(NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED, {
+          prescriberId,
+          patientId,
+          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+          encounterId: pharmacyOrderPrescription.pharmacyOrder?.encounterId,
+        });
+      }
+    });
+
+    res.send({ success: true });
+  }),
+);
+
+medication.get(
+  '/medication-requests/:id/not-dispensed',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('read', 'MedicationRequest');
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      paranoid: false,
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['id', 'date'],
+          include: [{ association: 'medication', attributes: ['id', 'name', 'type'] }],
+        },
+        {
+          association: 'pharmacyOrder',
+          attributes: ['id'],
+          include: [
+            { association: 'encounter', attributes: ['id'], include: ['patient'] },
+          ],
+        },
+        { association: 'notDispensedReason', attributes: ['id', 'name'] },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription || !pharmacyOrderPrescription.notDispensedAt) {
+      throw new NotFoundError(`Not dispensed record with id ${params.id} not found`);
+    }
+
+    res.send(pharmacyOrderPrescription.forResponse());
+  }),
+);
+
 medication.get(
   '/medication-dispenses',
   asyncHandler(async (req, res) => {
