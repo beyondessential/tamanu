@@ -34,13 +34,6 @@ async function invalidateRelevantQueries(queryClient: QueryClient, patientId: st
   ]);
 }
 
-/**
- * Submits a survey (or referral) response for a patient. Every survey submission goes through
- * this mutation so that the follow-up is not something each form has to remember: a survey may
- * write patient fields, so besides invalidating the affected queries the selected patient is
- * reloaded into the store, since the patient header and details screens render from the store
- * rather than from a query.
- */
 export default function useSurveySubmitMutation(): UseMutationResult<
   { id: string } | null,
   Error,
