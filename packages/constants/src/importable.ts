@@ -58,6 +58,13 @@ export const REFERENCE_TYPES = {
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
 
+// Half of each record lives in a detail table that only the importer writes.
+export const REFERENCE_TYPES_WITH_A_DETAIL_RECORD = [
+  REFERENCE_TYPES.DRUG,
+  REFERENCE_TYPES.TASK_TEMPLATE,
+  REFERENCE_TYPES.MEDICATION_TEMPLATE,
+];
+
 // Reference data stored in its own table (not in 'reference_data' table)
 
 export const OTHER_REFERENCE_TYPES = {
