@@ -45,8 +45,8 @@ const mockDispatch = jest.fn();
 const mockSubmitSurveyResponse = jest.fn();
 const mockSubmitReferral = jest.fn();
 
-const PATIENT_ID = 'patient-1';
-const USER_ID = 'user-1';
+const PATIENT_ID = crypto.randomUUID();
+const USER_ID = crypto.randomUUID();
 const selectedPatient = { id: PATIENT_ID, firstName: 'Old' } as IPatient;
 const submittedResponse = { id: 'response-1' };
 
