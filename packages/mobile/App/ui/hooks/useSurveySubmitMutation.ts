@@ -1,19 +1,14 @@
-import {
-  type QueryClient,
-  useMutation,
-  type UseMutationResult,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { Patient } from '~/models/Patient';
+import type { Referral } from '~/models/Referral';
+import type { SurveyResponse } from '~/models/SurveyResponse';
 import { type GenericFormValues, type ISurveyScreenComponent, SurveyTypes } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { useBackend } from '~/ui/hooks';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
 import { patientKeys, patientListKeys, registrationKeys, reportKeys } from './queries/queryKeys';
-import { Referral } from '~/models/Referral';
-import { SurveyResponse } from '~/models/SurveyResponse';
 
 export interface SurveySubmitVariables {
   patientId: string;
