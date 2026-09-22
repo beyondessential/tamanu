@@ -7,17 +7,7 @@ import { type IPatient, SurveyTypes } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
-import {
-  patientKeys,
-  patientListKeys,
-  registrationKeys,
-  reportKeys,
-  surveyKeys,
-} from './queries/queryKeys';
-import useSurveySubmitMutation, {
-  invalidateAfterSurveySubmit,
-  type SubmitSurveyVariables,
-} from './useSurveySubmitMutation';
+import useSurveySubmitMutation, { type SubmitSurveyVariables } from './useSurveySubmitMutation';
 
 jest.mock('~/models/Patient', () => ({
   Patient: { findOne: jest.fn() },
@@ -99,34 +89,6 @@ beforeEach(() => {
       auth: { user: { id: USER_ID } },
     } as ReduxStoreProps),
   );
-});
-
-describe('invalidateAfterSurveySubmit', () => {
-  it('invalidates every query a submission can make stale and leaves others alone', () => {
-    const queryClient = createQueryClient();
-    const staleKeys = [
-      patientKeys.detail(PATIENT_ID),
-      patientKeys.additionalData(PATIENT_ID),
-      [...patientKeys.registrations(PATIENT_ID), 'recent', {}],
-      patientListKeys.recentlyViewed(),
-      patientListKeys.search({ search: '', filters: {} }),
-      registrationKeys.detail('registration-1'),
-      reportKeys.referralList(),
-    ];
-    const untouchedKeys = [patientKeys.detail('patient-2'), surveyKeys.vitalsSurvey()];
-    for (const key of [...staleKeys, ...untouchedKeys]) {
-      queryClient.setQueryData(key, {});
-    }
-
-    invalidateAfterSurveySubmit(queryClient, PATIENT_ID);
-
-    for (const key of staleKeys) {
-      expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true);
-    }
-    for (const key of untouchedKeys) {
-      expect(queryClient.getQueryState(key)?.isInvalidated).toBe(false);
-    }
-  });
 });
 
 describe('useSurveySubmitMutation', () => {

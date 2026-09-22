@@ -21,22 +21,18 @@ export interface SubmitSurveyVariables {
   values: GenericFormValues;
 }
 
-/** @internal Exported only for testing */
-export const invalidateAfterSurveySubmit = async (
-  queryClient: QueryClient,
-  patientId: string,
-): Promise<void> => {
+async function invalidateRelevantQueries(queryClient: QueryClient, patientId: string) {
   await Promise.all([
-    // Additional data, registrations, survey responses, encounters, vitals… all key off this prefix
+    // Additional data, registrations, survey responses, encounters, vitals…
     queryClient.invalidateQueries({ queryKey: patientKeys.detail(patientId) }),
-    // Recently viewed tiles and patient search render patient columns the form may have written
+    // Recently viewed tiles and patient search
     queryClient.invalidateQueries({ queryKey: patientListKeys.all }),
     // Registration detail and conditions screens
     queryClient.invalidateQueries({ queryKey: registrationKeys.all }),
     // Recent visitors, referral list and encounter summary reports
     queryClient.invalidateQueries({ queryKey: reportKeys.all }),
   ]);
-};
+}
 
 /**
  * Submits a survey (or referral) response for a patient. Every survey submission goes through
@@ -78,7 +74,7 @@ export default function useSurveySubmitMutation(): UseMutationResult<
     },
     onSuccess: async (response, { patientId }) => {
       if (!response) return;
-      void invalidateAfterSurveySubmit(queryClient, patientId);
+      void invalidateRelevantQueries(queryClient, patientId);
       if (selectedPatientId !== patientId) return;
       const patient = await Patient.findOne({ where: { id: patientId } });
       if (patient) dispatch(actions.setSelectedPatient(patient));
