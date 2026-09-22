@@ -132,6 +132,11 @@ export class Notification extends Model {
           additionalMetadata.encounterId = encounterPrescription!.encounterId;
           break;
         }
+        case NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED: {
+          userId = metadata.prescriberId;
+          patientId = metadata.patientId;
+          break;
+        }
         default:
           return;
       }
