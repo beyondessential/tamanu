@@ -25,10 +25,11 @@ export const SearchBar = ({ columns, onSearch }) => {
       columns
         .filter(
           col =>
-            SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
-            col.suggesterEndpoint ||
-            col.enumValues ||
-            col.key === AVAILABLE_FACILITIES_KEY,
+            !col.detail &&
+            (SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
+              col.suggesterEndpoint ||
+              col.enumValues ||
+              col.key === AVAILABLE_FACILITIES_KEY),
         )
         .sort((a, b) => getFieldSortOrder(a) - getFieldSortOrder(b)),
     [columns],

@@ -6,8 +6,10 @@ import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
   getColumnsForModel,
+  getDetailAssociation,
+  getDetailModel,
   assertValidType,
-  getWritableData,
+  splitWritableData,
   createMultiSelectRecords,
 } from './referenceDataManageUtils';
 
@@ -23,17 +25,24 @@ referenceDataManageRouter.post(
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model);
-    const data = getWritableData(columns, rawData, false);
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    const columns = await getColumnsForModel(model, detailModel);
+    const { base, detail } = splitWritableData(columns, rawData, false);
 
     try {
       if (columns.some(c => c.multiSelect)) {
-        const records = await createMultiSelectRecords(model, columns, data, typeFilter);
+        const records = await createMultiSelectRecords(model, columns, base, typeFilter);
         return res.send(records);
       }
 
-      const record = await model.create({ ...typeFilter, ...data });
-      res.send(record.forResponse());
+      const record = await model.sequelize.transaction(async () => {
+        const created = await model.create({ ...typeFilter, ...base });
+        if (detailModel) {
+          await detailModel.create({ ...detail, referenceDataId: created.id });
+        }
+        return created;
+      });
+      res.send({ ...record.forResponse(), ...detail });
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
         const field = err.errors?.[0]?.path ?? 'field';
@@ -62,11 +71,21 @@ referenceDataManageRouter.put(
       throw new InvalidOperationError(`Record with id "${id}" not found`);
     }
 
-    const columns = await getColumnsForModel(model);
-    const data = getWritableData(columns, rawData, true);
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    const columns = await getColumnsForModel(model, detailModel);
+    const { base, detail } = splitWritableData(columns, rawData, true);
 
-    await record.update(data);
-    res.send(record.forResponse());
+    await model.sequelize.transaction(async () => {
+      await record.update(base);
+      if (detailModel) {
+        const [detailRecord] = await detailModel.findOrCreate({
+          where: { referenceDataId: record.id },
+          defaults: { ...detail, referenceDataId: record.id },
+        });
+        await detailRecord.update(detail);
+      }
+    });
+    res.send({ ...record.forResponse(), ...detail });
   }),
 );
 
@@ -95,7 +114,8 @@ referenceDataManageRouter.get(
     const { referenceDataType } = req.query;
     assertValidType(referenceDataType);
     const { model } = getModelForType(req.store.models, referenceDataType);
-    res.send(await getColumnsForModel(model));
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    res.send(await getColumnsForModel(model, detailModel));
   }),
 );
 
@@ -118,24 +138,32 @@ referenceDataManageRouter.get(
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model);
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    const detailAssociation = getDetailAssociation(referenceDataType);
+    const columns = await getColumnsForModel(model, detailModel);
+    const detailKeys = columns.filter(c => c.detail).map(c => c.key);
 
     // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
     // The list query eager-loads those associations so the name can be displayed in the row.
-    const fkNameColumns = columns.filter(c => c.isFkName);
+    const fkNameColumns = columns.filter(c => c.isFkName && !c.detail);
     const fkNameByKey = new Map(fkNameColumns.map(c => [c.key, c]));
     const include = fkNameColumns.map(c => ({
       association: c.key,
       attributes: ['id', 'name'],
       required: false,
     }));
+    if (detailAssociation) {
+      include.push({ association: detailAssociation, required: false });
+    }
 
     // Build search filters from query params
     const searchWhere = {};
     const searchableKeys = new Set(
       columns
         .filter(
-          c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues,
+          c =>
+            !c.detail &&
+            (SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues),
         )
         .map(c => c.key),
     );
@@ -214,6 +242,10 @@ referenceDataManageRouter.get(
         const row = record.forResponse();
         for (const c of fkNameColumns) {
           row[c.key] = record[c.key]?.name ?? null;
+        }
+        const detail = detailAssociation ? record[detailAssociation] : null;
+        for (const key of detailKeys) {
+          row[key] = detail?.[key] ?? null;
         }
         return row;
       }),

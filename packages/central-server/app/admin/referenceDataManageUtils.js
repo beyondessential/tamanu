@@ -2,9 +2,28 @@ import { upperFirst } from 'es-toolkit/compat';
 import {
   REFERENCE_TYPE_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
+  REFERENCE_TYPES,
   SUGGESTER_ENDPOINTS,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+
+// Reference types whose record is split across two tables: the reference_data row and a detail row
+// keyed by reference_data_id. Both halves are managed as one record here.
+const DETAIL_ASSOCIATIONS = {
+  [REFERENCE_TYPES.DRUG]: 'referenceDrug',
+  [REFERENCE_TYPES.TASK_TEMPLATE]: 'taskTemplate',
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: 'medicationTemplate',
+};
+
+// Owned by the association, never edited as a field.
+const DETAIL_INTERNAL_COLUMNS = new Set(['id', 'referenceDataId']);
+
+export const getDetailAssociation = type => DETAIL_ASSOCIATIONS[type] ?? null;
+
+export const getDetailModel = (models, type) => {
+  const association = getDetailAssociation(type);
+  return association ? models.ReferenceData.associations[association]?.target ?? null : null;
+};
 
 export const getModelForType = (models, type) => {
   if (REFERENCE_TYPE_VALUES.includes(type)) {
@@ -119,7 +138,7 @@ const getDbColumnInfo = async model => {
   return new Map(results.map(row => [row.column_name, row]));
 };
 
-export const getColumnsForModel = async model => {
+const buildColumns = async model => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   const dbColumns = await getDbColumnInfo(model);
@@ -158,6 +177,23 @@ export const getColumnsForModel = async model => {
     return nameCol ? [col, nameCol] : [col];
   });
 };
+
+export const getColumnsForModel = async (model, detailModel = null) => {
+  const columns = await buildColumns(model);
+  if (!detailModel) return columns;
+
+  // Detail columns live on another table, so the list query cannot sort or filter by them.
+  const detailColumns = (await buildColumns(detailModel))
+    .filter(col => !DETAIL_INTERNAL_COLUMNS.has(col.key) && !DETAIL_INTERNAL_COLUMNS.has(col.fkKey))
+    .map(col => ({ ...col, detail: true }));
+
+  return [...columns, ...detailColumns];
+};
+
+export const splitWritableData = (columns, data, isEditMode) => ({
+  base: getWritableData(columns.filter(c => !c.detail), data, isEditMode),
+  detail: getWritableData(columns.filter(c => c.detail), data, isEditMode),
+});
 
 export const assertValidType = type => {
   if (!type) {
