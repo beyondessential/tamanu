@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import * as yup from 'yup';
 
 import {
@@ -8,6 +8,7 @@ import {
   ConfirmCancelRow,
   Field,
   Form,
+  FormGrid,
   TranslatedReferenceData,
   TranslatedText,
   useDateTime,
@@ -18,12 +19,6 @@ import { useApi } from '../../api';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { FormModal } from '../FormModal';
-
-const StyledFormModal = styled(FormModal)`
-  .MuiPaper-root {
-    max-width: 670px;
-  }
-`;
 
 const Text = styled.div`
   font-size: 14px;
@@ -53,8 +48,17 @@ const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
 `;
 
-const StyledDivider = styled(Divider)`
-  margin: 20px -32px;
+const ActionRow = styled(Box)`
+  margin: 10px -32px -8px;
+  padding: 20px 40px 0 40px;
+  border-top: 1px solid ${Colors.outline};
+  display: flex;
+  justify-content: flex-end;
+  grid-column: span 2;
+`;
+
+const StyledFormGrid = styled(FormGrid)`
+  margin-top: 0;
 `;
 
 const getValidationSchema = () =>
@@ -74,16 +78,10 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
   const { pharmacyOrder, prescription, displayId, repeats } = request;
   const patient = pharmacyOrder?.encounter?.patient;
 
-  const details = [
+  const leftDetails = [
     {
       label: <TranslatedText stringId="medication.notDispensed.modal.patientId" fallback="Patient ID" />,
       value: patient?.displayId || '-',
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.notDispensed.modal.patientName" fallback="Patient name" />
-      ),
-      value: patient ? <PatientNameDisplay patient={patient} /> : '-',
     },
     {
       label: (
@@ -99,18 +97,27 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
     },
     {
       label: (
+        <TranslatedText stringId="medication.notDispensed.modal.requestNo" fallback="Request no." />
+      ),
+      value: displayId || '-',
+    },
+  ];
+
+  const rightDetails = [
+    {
+      label: (
+        <TranslatedText stringId="medication.notDispensed.modal.patientName" fallback="Patient name" />
+      ),
+      value: patient ? <PatientNameDisplay patient={patient} /> : '-',
+    },
+    {
+      label: (
         <TranslatedText
           stringId="medication.notDispensed.modal.prescriptionDate"
           fallback="Prescription date"
         />
       ),
       value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.notDispensed.modal.requestNo" fallback="Request no." />
-      ),
-      value: displayId || '-',
     },
     {
       label: (
@@ -130,9 +137,10 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
   };
 
   return (
-    <StyledFormModal
+    <FormModal
       open={open}
       onClose={onClose}
+      width="sm"
       title={
         <TranslatedText
           stringId="medication.notDispensed.modal.title"
@@ -146,18 +154,29 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
           fallback="Would you like to record the below medication as not dispensed? The prescribing clinician will be notified and active request will be cancelled."
         />
         <br />
+        <br />
         <TranslatedText
           stringId="medication.notDispensed.modal.irreversible"
           fallback="This action is irreversible."
         />
       </Text>
-      <DetailsContainer>
-        {details.map((detail, index) => (
-          <Box key={index} mb={index === details.length - 1 ? 0 : 2}>
-            <MidText>{detail.label}</MidText>
-            <DarkestText mt={0.5}>{detail.value}</DarkestText>
-          </Box>
-        ))}
+      <DetailsContainer display="flex" justifyContent="space-between">
+        <Box flex={1.1}>
+          {leftDetails.map((detail, index) => (
+            <Box key={index} mb={index === leftDetails.length - 1 ? 0 : 2}>
+              <MidText>{detail.label}</MidText>
+              <DarkestText mt={0.5}>{detail.value}</DarkestText>
+            </Box>
+          ))}
+        </Box>
+        <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
+          {rightDetails.map((detail, index) => (
+            <Box key={index} mb={index === rightDetails.length - 1 ? 0 : 2}>
+              <MidText>{detail.label}</MidText>
+              <DarkestText mt={0.5}>{detail.value}</DarkestText>
+            </Box>
+          ))}
+        </Box>
       </DetailsContainer>
       <Form
         suppressErrorDialog
@@ -165,7 +184,7 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
         initialValues={{ notDispensedReasonId: '' }}
         validationSchema={getValidationSchema()}
         render={({ submitForm }) => (
-          <>
+          <StyledFormGrid>
             <Field
               name="notDispensedReasonId"
               component={AutocompleteField}
@@ -178,21 +197,22 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
               suggester={notDispensedReasonSuggester}
               required
             />
-            <StyledDivider />
-            <ConfirmCancelRow
-              onCancel={onClose}
-              onConfirm={submitForm}
-              cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-              confirmText={
-                <TranslatedText
-                  stringId="medication.notDispensed.modal.confirmButton"
-                  fallback="Record as not dispensed"
-                />
-              }
-            />
-          </>
+            <ActionRow>
+              <ConfirmCancelRow
+                onCancel={onClose}
+                onConfirm={submitForm}
+                cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+                confirmText={
+                  <TranslatedText
+                    stringId="medication.notDispensed.modal.confirmButton"
+                    fallback="Record as not dispensed"
+                  />
+                }
+              />
+            </ActionRow>
+          </StyledFormGrid>
         )}
       />
-    </StyledFormModal>
+    </FormModal>
   );
 };

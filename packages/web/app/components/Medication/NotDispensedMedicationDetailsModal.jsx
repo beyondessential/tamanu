@@ -7,12 +7,6 @@ import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 
-const StyledModal = styled(BaseModal)`
-  .MuiPaper-root {
-    max-width: 670px;
-  }
-`;
-
 const Text = styled.div`
   font-size: 14px;
   line-height: 18px;
@@ -41,7 +35,7 @@ const DarkestText = styled(Box)`
 `;
 
 const ActionRow = styled(Box)`
-  margin: 20px -32px -8px;
+  margin: 0 -32px -8px;
   padding: 20px 40px 0 40px;
   border-top: 1px solid ${Colors.outline};
   display: flex;
@@ -56,21 +50,12 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
   const { pharmacyOrder, prescription, displayId, repeats, notDispensedReason, notDispensedAt } = record;
   const patient = pharmacyOrder?.encounter?.patient;
 
-  const details = [
+  const leftDetails = [
     {
       label: (
         <TranslatedText stringId="medication.notDispensedDetails.patientId" fallback="Patient ID" />
       ),
       value: patient?.displayId || '-',
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.notDispensedDetails.patientName"
-          fallback="Patient name"
-        />
-      ),
-      value: patient ? <PatientNameDisplay patient={patient} /> : '-',
     },
     {
       label: (
@@ -86,18 +71,39 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
     },
     {
       label: (
+        <TranslatedText stringId="medication.notDispensedDetails.requestNo" fallback="Request no." />
+      ),
+      value: displayId || '-',
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="medication.notDispensedDetails.reasonNotDispensed"
+          fallback="Reason not dispensed"
+        />
+      ),
+      value: notDispensedReason?.name || '-',
+    },
+  ];
+
+  const rightDetails = [
+    {
+      label: (
+        <TranslatedText
+          stringId="medication.notDispensedDetails.patientName"
+          fallback="Patient name"
+        />
+      ),
+      value: patient ? <PatientNameDisplay patient={patient} /> : '-',
+    },
+    {
+      label: (
         <TranslatedText
           stringId="medication.notDispensedDetails.prescriptionDate"
           fallback="Prescription date"
         />
       ),
       value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
-    },
-    {
-      label: (
-        <TranslatedText stringId="medication.notDispensedDetails.requestNo" fallback="Request no." />
-      ),
-      value: displayId || '-',
     },
     {
       label: (
@@ -111,15 +117,6 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
     {
       label: (
         <TranslatedText
-          stringId="medication.notDispensedDetails.reasonNotDispensed"
-          fallback="Reason not dispensed"
-        />
-      ),
-      value: notDispensedReason?.name || '-',
-    },
-    {
-      label: (
-        <TranslatedText
           stringId="medication.notDispensedDetails.dateNotDispensed"
           fallback="Date not dispensed"
         />
@@ -129,8 +126,9 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
   ];
 
   return (
-    <StyledModal
+    <BaseModal
       open={open}
+      width="sm"
       title={
         <TranslatedText
           stringId="medication.notDispensedDetails.title"
@@ -145,19 +143,29 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
           fallback="The below medication was marked as not dispensed."
         />
       </Text>
-      <DetailsContainer>
-        {details.map((detail, index) => (
-          <Box key={index} mb={index === details.length - 1 ? 0 : 2}>
-            <MidText>{detail.label}</MidText>
-            <DarkestText mt={0.5}>{detail.value}</DarkestText>
-          </Box>
-        ))}
+      <DetailsContainer display="flex" justifyContent="space-between">
+        <Box flex={1.1}>
+          {leftDetails.map((detail, index) => (
+            <Box key={index} mb={index === leftDetails.length - 1 ? 0 : 2}>
+              <MidText>{detail.label}</MidText>
+              <DarkestText mt={0.5}>{detail.value}</DarkestText>
+            </Box>
+          ))}
+        </Box>
+        <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
+          {rightDetails.map((detail, index) => (
+            <Box key={index} mb={index === rightDetails.length - 1 ? 0 : 2}>
+              <MidText>{detail.label}</MidText>
+              <DarkestText mt={0.5}>{detail.value}</DarkestText>
+            </Box>
+          ))}
+        </Box>
       </DetailsContainer>
       <ActionRow>
         <Button onClick={onClose}>
           <TranslatedText stringId="general.action.close" fallback="Close" />
         </Button>
       </ActionRow>
-    </StyledModal>
+    </BaseModal>
   );
 };
