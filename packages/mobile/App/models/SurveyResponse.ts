@@ -1,37 +1,33 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm';
-
+import { readConfig } from '~/services/config';
 import { EncounterType, type ICreateSurveyResponse, type ISurveyResponse } from '~/types';
-
-import {
-  FieldTypes,
-  getResultValue,
-  getStringValue,
-  getPatientDataDbLocation,
-} from '~/ui/helpers/fields';
-
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-
+import {
+  FieldTypes,
+  getPatientDataDbLocation,
+  getResultValue,
+  getStringValue,
+} from '~/ui/helpers/fields';
+import { VisibilityStatus } from '../visibilityStatuses';
 import { BaseModel } from './BaseModel';
-import { Survey } from './Survey';
+import { DateTimeStringColumn } from './DateColumns';
 import { Encounter } from './Encounter';
-import { ProgramRegistry } from './ProgramRegistry';
-import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { ProgramRegistry } from './ProgramRegistry';
+import { Referral } from './Referral';
+import { Survey } from './Survey';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
-import { DateTimeStringColumn } from './DateColumns';
-import { PatientProgramRegistration } from './PatientProgramRegistration';
-import { VisibilityStatus } from '../visibilityStatuses';
-import { readConfig } from '~/services/config';
 
-type RecordValuesByModel = {
+interface RecordValuesByModel {
   Patient?: Record<string, string>;
   PatientAdditionalData?: Record<string, string>;
   PatientProgramRegistration?: Record<string, string>;
-};
+}
 
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
