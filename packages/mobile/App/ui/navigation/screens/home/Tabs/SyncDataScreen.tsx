@@ -13,7 +13,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
 
 export const SyncDataScreen = ({ navigation }): ReactElement => {
-  const backend = useContext(BackendContext) as BackendContext;
+  const backend = useContext(BackendContext);
   const syncManager = backend.syncManager;
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
