@@ -51,6 +51,15 @@ describe('Reference Data Manage', () => {
       expect(nameCol).toMatchObject({ type: 'TEXT', readOnly: false });
     });
 
+    it('should offer the constant values for columns stored as plain strings', async () => {
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      expect(response).toHaveSucceeded();
+
+      const route = response.body.find(c => c.key === 'route');
+      expect(route.enumValues).toContain('oral');
+      expect(route.enumValues).not.toContain('telepathic');
+    });
+
     it('should include the detail model columns for a type that has one', async () => {
       const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toHaveSucceeded();
@@ -186,6 +195,16 @@ describe('Reference Data Manage', () => {
         where: { referenceDataId: response.body.id },
       });
       expect(referenceDrug).toBe(null);
+    });
+
+    it('should reject a detail value outside its constant', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-bad-route-code',
+        name: 'Test Drug Bad Route',
+        route: 'telepathic',
+      });
+      expect(response).toHaveRequestError();
     });
 
     it('should reject creating a record with a duplicate unique field', async () => {

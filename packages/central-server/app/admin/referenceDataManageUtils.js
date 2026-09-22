@@ -1,9 +1,14 @@
 import { upperFirst } from 'es-toolkit/compat';
 import {
-  REFERENCE_TYPE_VALUES,
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_VALUES,
+  DRUG_UNIT_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
+  MEDICATION_DURATION_UNITS,
+  REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
   SUGGESTER_ENDPOINTS,
+  TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 
@@ -61,6 +66,19 @@ const READONLY_ON_EDIT_COLUMNS = /** @type {const} */ (new Set(['id']));
 // Fields that are always read-only (hidden from form) for specific models
 const READONLY_COLUMNS = {
   id: new Set(['ReferenceDataRelation']),
+};
+
+// Columns the product constrains to a constant but stores as a plain string, so the enum never
+// reaches us from the schema. Keyed by "ModelName.column".
+const ENUM_VALUE_OVERRIDES = {
+  'ReferenceDrug.route': DRUG_ROUTE_VALUES,
+  'ReferenceDrug.dosingUnit': DRUG_UNIT_VALUES,
+  'ReferenceDrug.dispensingUnit': DRUG_UNIT_VALUES,
+  'ReferenceMedicationTemplate.route': DRUG_ROUTE_VALUES,
+  'ReferenceMedicationTemplate.dosingUnit': DRUG_UNIT_VALUES,
+  'ReferenceMedicationTemplate.frequency': Object.values(ADMINISTRATION_FREQUENCIES),
+  'ReferenceMedicationTemplate.durationUnit': Object.values(MEDICATION_DURATION_UNITS),
+  'TaskTemplate.frequencyUnit': Object.values(TASK_FREQUENCY_UNIT),
 };
 
 // FK columns that should render as multi-select autocomplete instead of single select
@@ -157,8 +175,9 @@ const buildColumns = async model => {
         readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
-      if (typeName === 'ENUM' && attr.type?.values) {
-        col.enumValues = attr.type.values;
+      const enumValues = ENUM_VALUE_OVERRIDES[`${model.name}.${key}`] ?? (typeName === 'ENUM' ? attr.type?.values : null);
+      if (enumValues) {
+        col.enumValues = enumValues;
       }
       if (fkSuggesters[key]) {
         col.suggesterEndpoint = fkSuggesters[key];
@@ -188,6 +207,19 @@ export const getColumnsForModel = async (model, detailModel = null) => {
     .map(col => ({ ...col, detail: true }));
 
   return [...columns, ...detailColumns];
+};
+
+export const assertValidEnumValues = (columns, data) => {
+  for (const col of columns) {
+    if (!col.enumValues) continue;
+    const value = data[col.key];
+    if (value == null || value === '') continue;
+    if (!col.enumValues.includes(value)) {
+      throw new InvalidOperationError(
+        `Invalid ${col.key} "${value}". Must be one of: ${col.enumValues.join(', ')}.`,
+      );
+    }
+  }
 };
 
 export const splitWritableData = (columns, data, isEditMode) => ({

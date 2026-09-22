@@ -9,6 +9,7 @@ import {
   getDetailAssociation,
   getDetailModel,
   assertValidType,
+  assertValidEnumValues,
   splitWritableData,
   createMultiSelectRecords,
 } from './referenceDataManageUtils';
@@ -28,6 +29,7 @@ referenceDataManageRouter.post(
     const detailModel = getDetailModel(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, false);
+    assertValidEnumValues(columns, { ...base, ...detail });
 
     try {
       if (columns.some(c => c.multiSelect)) {
@@ -74,6 +76,7 @@ referenceDataManageRouter.put(
     const detailModel = getDetailModel(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, true);
+    assertValidEnumValues(columns, { ...base, ...detail });
 
     await model.sequelize.transaction(async () => {
       await record.update(base);
