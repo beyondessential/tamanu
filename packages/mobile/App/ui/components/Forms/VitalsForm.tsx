@@ -26,7 +26,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const { mutateAsync: submitVitals } = useSurveySubmitMutation();
+  const { mutateAsync: submitVitals } = useSurveySubmitMutation({ surveyType: SurveyTypes.Vitals });
   const {
     data: vitalsSurvey,
     error: vitalsError,
@@ -63,7 +63,6 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
     const responseRecord = await submitVitals({
       patientId: selectedPatient.id,
       surveyId: id,
-      surveyType: SurveyTypes.Vitals,
       components,
       values: { ...values, [dateComponent.dataElement.code]: new Date() },
     });

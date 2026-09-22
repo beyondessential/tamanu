@@ -53,7 +53,6 @@ const submittedResponse = { id: 'response-1' };
 const variables = {
   patientId: PATIENT_ID,
   surveyId: 'survey-1',
-  surveyType: SurveyTypes.Programs,
   components: [],
   values: { 'question-1': 'answer' },
 } as const satisfies SurveySubmitVariables;
@@ -62,12 +61,12 @@ const variables = {
 const createQueryClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
 
-const renderSubmitSurvey = async () => {
+const renderSubmitSurvey = async (surveyType: SurveyTypes = SurveyTypes.Programs) => {
   const queryClient = createQueryClient();
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
-  const { result } = await renderHook(() => useSurveySubmitMutation(), { wrapper });
+  const { result } = await renderHook(() => useSurveySubmitMutation({ surveyType }), { wrapper });
   return result.current.mutateAsync;
 };
 
@@ -113,9 +112,9 @@ describe('useSurveySubmitMutation', () => {
   });
 
   it('submits a referral survey through the referral model', async () => {
-    const submitSurvey = await renderSubmitSurvey();
+    const submitSurvey = await renderSubmitSurvey(SurveyTypes.Referral);
 
-    await act(() => submitSurvey({ ...variables, surveyType: SurveyTypes.Referral }));
+    await act(() => submitSurvey(variables));
 
     expect(mockSubmitReferral).toHaveBeenCalledTimes(1);
     expect(mockSubmitSurveyResponse).not.toHaveBeenCalled();

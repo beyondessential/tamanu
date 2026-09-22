@@ -102,14 +102,13 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     enabled: survey != null,
   });
 
-  const { mutateAsync: submitSurveyResponse } = useSurveySubmitMutation();
+  const { mutateAsync: submitSurveyResponse } = useSurveySubmitMutation({ surveyType });
 
   const onSubmit = useCallback(
     async (values: GenericFormValues) => {
       const response = await submitSurveyResponse({
         patientId: selectedPatientId,
         surveyId,
-        surveyType,
         components,
         values,
       });
@@ -125,7 +124,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
       submitSurveyResponse,
       selectedPatientId,
       surveyId,
-      surveyType,
       components,
       isReferral,
       navigation,
