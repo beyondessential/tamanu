@@ -83,8 +83,11 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in facilities."
             data_tests:
               - not_null
-          - name: is_sensitive
-            data_type: boolean
-            description: "{{ doc('facilities__is_sensitive') }}"
+          - name: sensitive_network_id
+            data_type: character varying(255)
+            description: "{{ doc('facilities__sensitive_network_id') }}"
             data_tests:
-              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'sensitive_networks')
+                    field: id

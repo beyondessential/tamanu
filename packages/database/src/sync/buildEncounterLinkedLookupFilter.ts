@@ -9,10 +9,13 @@ import type { Model } from '../models/Model';
  * Helper to determine if a facility_id should be populated in sync lookup
  * Only populates facility_id when the encounter is from a sensitive facility
  * This ensures sensitive encounters are only synced to their originating facility
+ *
+ * A facility is sensitive exactly when it belongs to a sensitive network
+ * (spec: specs/sync/sensitive-networks.md)
  */
 export const ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE = `
     CASE
-      WHEN facilities.is_sensitive = TRUE THEN facilities.id
+      WHEN facilities.sensitive_network_id IS NOT NULL THEN facilities.id
       ELSE NULL
     END
   `;

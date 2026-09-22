@@ -98,6 +98,8 @@ import { dropLegacyNoteTables1787220453000 } from './1787220453000-dropLegacyNot
 import { dedupeLocalSystemFacts1787706000000 } from './1787706000000-dedupeLocalSystemFacts';
 import { enforceUniqueLocalSystemFactKeys1787706001000 } from './1787706001000-enforceUniqueLocalSystemFactKeys';
 import { resetQueryPlannerStats1789608077000 } from './1789608077000-resetQueryPlannerStats';
+import { addSensitiveNetworksTable1789695736424 } from './1789695736424-addSensitiveNetworksTable';
+import { replaceFacilityIsSensitiveWithNetwork1789695736425 } from './1789695736425-replaceFacilityIsSensitiveWithNetwork';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -199,4 +201,6 @@ export const migrationList = [
   dedupeLocalSystemFacts1787706000000,
   enforceUniqueLocalSystemFactKeys1787706001000,
   resetQueryPlannerStats1789608077000,
+  addSensitiveNetworksTable1789695736424,
+  replaceFacilityIsSensitiveWithNetwork1789695736425,
 ];

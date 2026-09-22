@@ -40,6 +40,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });
+    await models.SensitiveNetwork.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
     await models.User.create({
@@ -82,6 +83,14 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     },
   };
 
+  // A facility is sensitive by belonging to a network. Unless a test deliberately shares one,
+  // each sensitive facility gets its own network of one, which is what a facility marked
+  // sensitive before networks existed becomes.
+  const createNetworkId = async () => {
+    const network = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+    return network.id;
+  };
+
   beforeEach(async () => {
     patient = await models.Patient.create(fake(models.Patient));
     practitioner = await models.User.create(fake(models.User));
@@ -98,7 +107,9 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       },
     }));
 
-    sensitiveFacility = await models.Facility.create(fake(models.Facility, { isSensitive: true }));
+    sensitiveFacility = await models.Facility.create(
+      fake(models.Facility, { sensitiveNetworkId: await createNetworkId() }),
+    );
     const sensitiveDepartment = await models.Department.create(
       fake(models.Department, { facilityId: sensitiveFacility.id }),
     );
@@ -114,7 +125,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       endDate: null,
     });
     nonSensitiveFacility = await models.Facility.create(
-      fake(models.Facility, { isSensitive: false }),
+      fake(models.Facility, { sensitiveNetworkId: null }),
     );
     const nonSensitiveDepartment = await models.Department.create(
       fake(models.Department, { facilityId: nonSensitiveFacility.id }),
@@ -1087,14 +1098,15 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
   describe('edge cases', () => {
     it("won't sync between facilities just because they are both sensitive", async () => {
+      // Two networks of one, which is what two unrelated sensitive facilities become.
       const sensitiveFacilityA = await models.Facility.create(
         fake(models.Facility, {
-          isSensitive: true,
+          sensitiveNetworkId: await createNetworkId(),
         }),
       );
       const sensitiveFacilityB = await models.Facility.create(
         fake(models.Facility, {
-          isSensitive: true,
+          sensitiveNetworkId: await createNetworkId(),
         }),
       );
       const sensitiveLocationA = await models.Location.create(
@@ -1160,7 +1172,9 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
     it('will keep historical sensitive data unsynced to other facilities when a facility changes from sensitive to non-sensitive, until the data is edited', async () => {
       // Create a facility that starts as sensitive
-      const facility = await models.Facility.create(fake(models.Facility, { isSensitive: true }));
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: await createNetworkId() }),
+      );
       const department = await models.Department.create(
         fake(models.Department, { facilityId: facility.id }),
       );
@@ -1183,7 +1197,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       await centralSyncManager.updateLookupTable();
 
       // Change facility to non-sensitive and update lookup table
-      await facility.update({ isSensitive: false });
+      await facility.update({ sensitiveNetworkId: null });
       await centralSyncManager.updateLookupTable();
 
       // Check that the historical sensitive data is still unsynced to the non-sensitive facility
@@ -1209,7 +1223,9 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
     it('will keep historical non-sensitive data synced to other facilities when a facility changes to sensitive, but stop syncing new changes', async () => {
       // Create a facility that starts as non-sensitive
-      const facility = await models.Facility.create(fake(models.Facility, { isSensitive: false }));
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: null }),
+      );
       const department = await models.Department.create(
         fake(models.Department, { facilityId: facility.id }),
       );
@@ -1232,7 +1248,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       await centralSyncManager.updateLookupTable();
 
       // Change facility to sensitive and update lookup table
-      await facility.update({ isSensitive: true });
+      await facility.update({ sensitiveNetworkId: await createNetworkId() });
       await centralSyncManager.updateLookupTable();
 
       // Check that the historical non-sensitive data is still synced to the non-sensitive facility
