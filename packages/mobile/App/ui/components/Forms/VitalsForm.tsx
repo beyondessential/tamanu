@@ -19,7 +19,7 @@ interface VitalsFormProps {
   onAfterSubmit: () => void;
 }
 
-export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
+export const VitalsForm = ({ onAfterSubmit }: VitalsFormProps) => {
   const { getTranslation } = useTranslation();
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
@@ -39,13 +39,11 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
 
   const error = vitalsError || padError;
+  if (error) return <ErrorScreen error={error} />;
+
   const isLoading = isVitalsLoading || isPadLoading;
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
+
   if (!vitalsSurvey) {
     return (
       <FullView>
@@ -66,10 +64,7 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
       components,
       values: { ...values, [dateComponent.dataElement.code]: new Date() },
     });
-
-    if (responseRecord) {
-      onAfterSubmit();
-    }
+    if (responseRecord) onAfterSubmit();
   };
 
   // On mobile, date is programmatically submitted
