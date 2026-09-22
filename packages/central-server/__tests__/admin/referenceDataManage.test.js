@@ -12,7 +12,7 @@ import { createTestContext } from '../utilities';
 
 const BASE_URL = '/api/admin/referenceData/manage';
 const COLUMNS_URL = `${BASE_URL}/columns`;
-const TEST_TYPE = REFERENCE_TYPES.DRUG;
+const TEST_TYPE = REFERENCE_TYPES.VILLAGE;
 
 describe('Reference Data Manage', () => {
   let ctx;
