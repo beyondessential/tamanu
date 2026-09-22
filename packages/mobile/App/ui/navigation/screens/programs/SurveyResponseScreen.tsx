@@ -4,7 +4,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { type ReactElement, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useSelector } from 'react-redux';
-
 import { Database } from '~/infra/db';
 import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';

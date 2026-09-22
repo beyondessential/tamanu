@@ -1,8 +1,7 @@
-import React, { type ReactNode } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react-native';
-
+import React, { type ReactNode } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Patient } from '~/models/Patient';
 import type { IPatient } from '~/types';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';

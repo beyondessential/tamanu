@@ -1,22 +1,22 @@
+import { useMutation } from '@tanstack/react-query';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '/store/ducks/patient';
-import { useMutation } from '@tanstack/react-query';
+import { SurveyTypes } from '~/types';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useBackend } from '~/ui/hooks';
-import { useAfterSurveySubmit } from '~/ui/hooks/useAfterSurveySubmit';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
-import { ErrorScreen } from '/components/ErrorScreen';
-import { FullView, StyledText } from '~/ui/styled/common';
-import { theme } from '/styled/theme';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { authUserSelector } from '/helpers/selectors';
-import { SurveyTypes } from '~/types';
-import { SurveyForm } from '/components/Forms/SurveyForm';
-import { VitalsDataElements } from '/helpers/constants';
+import { useAfterSurveySubmit } from '~/ui/hooks/useAfterSurveySubmit';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { FullView, StyledText } from '~/ui/styled/common';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { SurveyForm } from '/components/Forms/SurveyForm';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { VitalsDataElements } from '/helpers/constants';
+import { authUserSelector } from '/helpers/selectors';
+import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '/store/ducks/patient';
+import { theme } from '/styled/theme';
 
 interface VitalsFormProps {
   onAfterSubmit: () => void;
