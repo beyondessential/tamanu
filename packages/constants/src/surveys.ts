@@ -159,6 +159,12 @@ export const PATIENT_PROFILE_PHOTO_FIELD = 'profilePhoto';
 // question conventionally given this code, and are read back until a photo is set or removed.
 export const LEGACY_PROFILE_PHOTO_QUESTION_CODE = 'ProfilePhoto';
 
+// The image formats accepted wherever a photo is captured. Kept in step with the photo file
+// filter the survey and document photo fields use, so a patient photo isn't held to a different
+// standard from the photos already captured elsewhere.
+export const PHOTO_MIME_TYPES = ['image/jpeg'];
+export const PHOTO_FILE_EXTENSIONS = ['jpg', 'jpeg'];
+
 // Following this format:
 // [modelName, fieldName, options]
 // options is an object with the key being the value and the value being the label

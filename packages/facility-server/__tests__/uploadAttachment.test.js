@@ -35,6 +35,14 @@ describe('UploadAttachment', () => {
     expect(CentralServerConnection.mock.calls.length).toBe(0);
   });
 
+  it('abort uploading file if its type is not one of the permitted types', async () => {
+    await expect(uploadAttachment(mockReq, undefined, ['image/png'])).rejects.toThrow(
+      InvalidParameterError,
+    );
+    // nothing should have been sent to the central server
+    expect(CentralServerConnection.mock.calls.length).toBe(0);
+  });
+
   it('abort creating document metadata if the central server fails to create attachment', async () => {
     CentralServerConnection.mockImplementationOnce(function () {
       return {

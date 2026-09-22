@@ -82,7 +82,7 @@ covering them.
 - [ ] Clicking the patient's name still navigates to the patient. — verifies spec: PHOTO
 - [ ] Clicking the avatar's change-photo control opens the menu without navigating.
       — verifies spec: PHOTO
-- [ ] A user without permission to write the patient sees no change-photo control.
+- [x] A user without permission to write the patient sees no change-photo control.
       — verifies spec: PHOTO
 
 ## Migration and sync

@@ -1,7 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-import { DOCUMENT_SIZE_LIMIT, LEGACY_PROFILE_PHOTO_QUESTION_CODE } from '@tamanu/constants';
+import {
+  DOCUMENT_SIZE_LIMIT,
+  LEGACY_PROFILE_PHOTO_QUESTION_CODE,
+  PHOTO_MIME_TYPES,
+} from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { CentralServerConnection } from '../../../sync';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
@@ -10,41 +14,39 @@ export const patientProfilePicture = express.Router();
 
 const DEFAULT_PHOTO_MIME_TYPE = 'image/jpeg';
 
-// The formats accepted for survey and document photos. The file input in the client can't be
-// relied on: the endpoint is reachable directly, and whatever type is claimed here ends up
-// served back as the photo's mime type.
-const ACCEPTED_PHOTO_MIME_TYPES = ['image/jpeg', 'image/png'];
-
-// what we want is:
-// - the answer body
-// - of a programdataelement with code 'ProfilePhoto'
-// - on a surveyresponse
-// - attached to an encounter
-// - with this patient
+// The photo is the most recent answer to a ProfilePhoto question on any of this patient's
+// encounters. The question is resolved first: program_data_elements is small, and a deployment
+// that never configured one can skip the answers table altogether rather than joining through it
+// on every patient view.
 const getLegacySurveyPhotoAttachmentId = async (req, patientId) => {
+  const dataElements = await req.models.ProgramDataElement.findAll({
+    where: { code: LEGACY_PROFILE_PHOTO_QUESTION_CODE },
+    attributes: ['id'],
+  });
+
+  if (dataElements.length === 0) return null;
+
   const result = await req.db.query(
     `
       SELECT body
         FROM
           survey_response_answers
-          LEFT JOIN survey_responses
+          JOIN survey_responses
             ON (survey_response_answers.response_id = survey_responses.id)
-          LEFT JOIN encounters
+          JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
-          LEFT JOIN program_data_elements
-            ON (survey_response_answers.data_element_id = program_data_elements.id)
         WHERE
           encounters.patient_id = :patientId
-          AND program_data_elements.code = :photoCode
+          AND survey_response_answers.data_element_id IN (:dataElementIds)
           AND encounters.deleted_at is null
-        ORDER BY 
+        ORDER BY
           survey_responses.created_at DESC
       LIMIT 1
     `,
     {
       replacements: {
         patientId,
-        photoCode: LEGACY_PROFILE_PHOTO_QUESTION_CODE,
+        dataElementIds: dataElements.map(dataElement => dataElement.id),
       },
       type: QueryTypes.SELECT,
     },
@@ -97,6 +99,9 @@ patientProfilePicture.get(
       `attachment/${encodeURIComponent(attachmentId)}?base64=true`,
       {
         method: 'GET',
+        // this runs on every patient view and the avatar falls back to initials, so it must not
+        // sit through the default sync backoff when central is unreachable
+        backoff: { maxAttempts: 1 },
       },
     );
 
@@ -111,16 +116,15 @@ patientProfilePicture.get(
 patientProfilePicture.post(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Patient');
-
     const { models, params } = req;
-    await getPatientOrThrow(req, params.id);
+    const patient = await getPatientOrThrow(req, params.id);
+    req.checkPermission('write', patient);
 
     // the image is stored on the central server, so this needs it to be reachable
     const { attachmentId } = await uploadAttachment(
       req,
       DOCUMENT_SIZE_LIMIT,
-      ACCEPTED_PHOTO_MIME_TYPES,
+      PHOTO_MIME_TYPES,
     );
 
     await models.PatientAdditionalData.updateForPatient(params.id, {
@@ -135,10 +139,9 @@ patientProfilePicture.post(
 patientProfilePicture.delete(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Patient');
-
     const { models, params } = req;
-    await getPatientOrThrow(req, params.id);
+    const patient = await getPatientOrThrow(req, params.id);
+    req.checkPermission('write', patient);
 
     await models.PatientAdditionalData.updateForPatient(params.id, {
       profilePhotoAttachmentId: null,

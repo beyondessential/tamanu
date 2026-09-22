@@ -1,8 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
+import Avatar from '@material-ui/core/Avatar';
 import { CircularProgress, Menu, MenuItem } from '@material-ui/core';
 import { Camera, Trash2, Upload } from 'lucide-react';
+import { PHOTO_FILE_EXTENSIONS, PHOTO_MIME_TYPES } from '@tamanu/constants';
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { PhotoCaptureModal } from '../PhotoCaptureModal';
@@ -15,8 +17,24 @@ import { useAuth } from '../../contexts/Auth';
 import { notifyError } from '../../utils';
 import { Colors } from '../../constants';
 
-// Photos are captured and uploaded as JPEG, matching the survey and document photo fields
-const ACCEPTED_FILE_TYPES = 'image/jpeg,.jpg,.jpeg';
+// Kept in step with what the server accepts, so the picker can't offer a file the upload will
+// then refuse
+const ACCEPTED_FILE_TYPES = [
+  ...PHOTO_MIME_TYPES,
+  ...PHOTO_FILE_EXTENSIONS.map(extension => `.${extension}`),
+].join(',');
+
+// A photo is stored as uploaded, so it's centre-cropped here to fit the avatar
+const PhotoAvatar = styled(Avatar)`
+  background: ${Colors.softOutline};
+  width: 46px;
+  height: 46px;
+
+  .MuiAvatar-img {
+    object-fit: cover;
+    object-position: center;
+  }
+`;
 
 const AvatarContainer = styled.div`
   position: relative;
@@ -166,7 +184,15 @@ export const PatientPhotoAvatar = ({ patient }) => {
 
   return (
     <AvatarContainer onClick={event => event.stopPropagation()} data-testid="patient-photo-avatar">
-      <PatientInitialsIcon patient={patient} photo={photo} />
+      {photo?.data ? (
+        <PhotoAvatar
+          src={`data:${photo.mimeType};base64,${photo.data}`}
+          alt=""
+          data-testid="patientphotoavatar"
+        />
+      ) : (
+        <PatientInitialsIcon patient={patient} />
+      )}
       {canChangePhoto && !isSaving && (
         <ChangePhotoButton
           type="button"

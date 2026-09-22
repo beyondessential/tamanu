@@ -5,8 +5,9 @@ import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 
 // The image lives on the central server, which is stubbed for every facility suite, so the
-// fetch has to be given a body for the route to serve a photo at all.
-const STUB_IMAGE = { data: 'aW1hZ2U=', type: 'image/jpeg' };
+// fetch has to be given a body for the route to serve a photo at all. The type is deliberately
+// not the route's own default, so a test asserting on it proves the value came from central.
+const STUB_IMAGE = { data: 'aW1hZ2U=', type: 'image/png' };
 
 async function uploadDummyProfilePicture(models, patientId) {
   const program = await models.Program.create({ name: 'pfp-program' });
@@ -80,6 +81,18 @@ describe('Patient profile picture', () => {
     const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
     expect(result).toHaveSucceeded();
 
+    expect(result.body).toEqual({ mimeType: STUB_IMAGE.type, data: STUB_IMAGE.data });
+  });
+
+  it("falls back to jpeg when the central server doesn't report the image's type", async () => {
+    const patient = await models.Patient.create(await createDummyPatient(models));
+    await models.PatientAdditionalData.updateForPatient(patient.id, {
+      profilePhotoAttachmentId: 'a-typeless-photo',
+    });
+    centralFetch.mockImplementationOnce(async () => ({ data: STUB_IMAGE.data }));
+
+    const result = await app.get(`/api/patient/${patient.id}/profilePicture`);
+    expect(result).toHaveSucceeded();
     expect(result.body).toEqual({ mimeType: 'image/jpeg', data: STUB_IMAGE.data });
   });
 

@@ -96,6 +96,31 @@ Working notes for implementing the Patient photo spec (`specs/patient/photo.md`)
 - A survey capture clears `profilePhotoRemoved`, so a record can't hold both a photo and a
   marker saying it was removed.
 
+## Review round 2 corrections
+
+- **One definition of an accepted photo.** `PHOTO_MIME_TYPES` / `PHOTO_FILE_EXTENSIONS` now live in
+  `@tamanu/constants`; the server check, the sidebar file input and `FILTER_PHOTOS` (survey and
+  document photo fields) all derive from them, instead of four divergent lists. Settled on
+  jpeg-only, which is what `FILTER_PHOTOS` already allowed and what the spec asks for — the
+  earlier jpeg+png list was a unilateral widening.
+- **Authorise against the loaded patient.** POST and DELETE now `checkPermission('write', patient)`
+  rather than the class, matching `patient.js`, so per-patient CASL conditions apply.
+- **The GET no longer sits through the sync backoff.** It defaulted to 15 attempts over ~2
+  minutes; since it runs on every patient view and falls back to initials, it is capped to one
+  attempt, as the mobile hook and `uploadAttachment` already are.
+- **The legacy lookup resolves the question first.** `program_data_elements` is small, so a
+  deployment that never configured a ProfilePhoto question now skips the join over
+  `survey_response_answers` entirely rather than running it on every patient view.
+- **Mobile hook rebuilt on react-query**, replacing a hand-rolled LRU map, manual cancellation and
+  an effect. That gives dedupe across the rows of a list, caching of the "no photo" outcome (the
+  common case, previously re-queried on every remount), and removes the stale-LRU and
+  unbounded-growth problems.
+- **`staleTime` is finite.** `Infinity` assumed the only writes were the two sidebar actions that
+  invalidate the query; a survey-captured photo writes the same field with no hook, so the cache
+  has to heal on its own.
+- The photo rendering moved out of the shared `PatientInitialsIcon` into `PatientPhotoAvatar`, so
+  the shared component is untouched by this card again.
+
 ## Outstanding
 
 - [x] Run the database-backed suites. The machine's own Postgres wants a password, but a
