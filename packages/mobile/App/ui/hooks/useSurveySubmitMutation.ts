@@ -15,16 +15,16 @@ import { patientKeys, patientListKeys, registrationKeys, reportKeys } from './qu
 import { Referral } from '~/models/Referral';
 import { SurveyResponse } from '~/models/SurveyResponse';
 
-export interface SurveySubmitOptions {
-  surveyType: SurveyTypes;
-}
-
 export interface SurveySubmitVariables {
   patientId: string;
   surveyId: string;
   components: ISurveyScreenComponent[];
   values: GenericFormValues;
 }
+
+type SurveySubmitResult<T extends SurveyTypes> = T extends typeof SurveyTypes.Referral
+  ? Referral
+  : SurveyResponse;
 
 async function invalidateRelevantQueries(queryClient: QueryClient, patientId: string) {
   await Promise.all([
@@ -39,13 +39,11 @@ async function invalidateRelevantQueries(queryClient: QueryClient, patientId: st
   ]);
 }
 
-export default function useSurveySubmitMutation({
+export default function useSurveySubmitMutation<T extends SurveyTypes>({
   surveyType,
-}: SurveySubmitOptions): UseMutationResult<
-  { id: string } | null,
-  Error,
-  SurveySubmitVariables
-> {
+}: {
+  surveyType: T;
+}): UseMutationResult<SurveySubmitResult<T> | null, Error, SurveySubmitVariables> {
   const { models } = useBackend();
   const user = useSelector(authUserSelector);
   const queryClient = useQueryClient();
@@ -54,20 +52,16 @@ export default function useSurveySubmitMutation({
     (state: ReduxStoreProps) => state.patient.selectedPatient?.id,
   );
 
-  return useMutation({
-    mutationFn: async ({
-      patientId,
-      surveyId,
-      components,
-      values,
-    }: SurveySubmitVariables): Promise<Referral | SurveyResponse | null> => {
+  return useMutation<SurveySubmitResult<T> | null, Error, SurveySubmitVariables>({
+    mutationFn: async ({ patientId, surveyId, components, values }) => {
       const model = surveyType === SurveyTypes.Referral ? models.Referral : models.SurveyResponse;
-      return await model.submit(
+      const response = await model.submit(
         patientId,
         user.id,
         { surveyId, components, surveyType, encounterReason: 'Form response' },
         values,
       );
+      return response as SurveySubmitResult<T> | null;
     },
     onSuccess: async (response, { patientId }) => {
       if (!response) return;
