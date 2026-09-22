@@ -1,19 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { SurveyTypes } from '~/types';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { useBackend } from '~/ui/hooks';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
-import { useAfterSurveySubmit } from '~/ui/hooks/useAfterSurveySubmit';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
+import useSurveySubmitMutation from '~/ui/hooks/useSurveySubmitMutation';
 import { FullView, StyledText } from '~/ui/styled/common';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { SurveyForm } from '/components/Forms/SurveyForm';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { VitalsDataElements } from '/helpers/constants';
-import { authUserSelector } from '/helpers/selectors';
 import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import type { PatientStateProps } from '/store/ducks/patient';
 import { theme } from '/styled/theme';
@@ -23,41 +20,13 @@ interface VitalsFormProps {
 }
 
 export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
-  const { models } = useBackend();
   const { getTranslation } = useTranslation();
-  const user = useSelector(authUserSelector);
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const afterSurveySubmit = useAfterSurveySubmit();
-  const { mutateAsync: submitVitals } = useMutation({
-    mutationFn: ({
-      surveyId,
-      components,
-      values,
-    }: {
-      surveyId: string;
-      components: any[];
-      values: any;
-    }) =>
-      models.SurveyResponse.submit(
-        selectedPatient.id,
-        user.id,
-        {
-          surveyId,
-          components,
-          surveyType: SurveyTypes.Vitals,
-          encounterReason: 'Form response',
-        },
-        values,
-      ),
-    onSuccess: async response => {
-      if (!response) return;
-      await afterSurveySubmit(selectedPatient.id);
-    },
-  });
+  const { mutateAsync: submitVitals } = useSurveySubmitMutation();
   const {
     data: vitalsSurvey,
     error: vitalsError,
@@ -92,7 +61,9 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   const onSubmit = async (values: any): Promise<void> => {
     const responseRecord = await submitVitals({
+      patientId: selectedPatient.id,
       surveyId: id,
+      surveyType: SurveyTypes.Vitals,
       components,
       values: { ...values, [dateComponent.dataElement.code]: new Date() },
     });

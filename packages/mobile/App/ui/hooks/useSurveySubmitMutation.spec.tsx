@@ -3,7 +3,8 @@ import { act, renderHook } from '@testing-library/react-native';
 import React, { type ReactNode } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Patient } from '~/models/Patient';
-import type { IPatient } from '~/types';
+import { type IPatient, SurveyTypes } from '~/types';
+import { useBackend } from '~/ui/hooks';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
 import {
@@ -13,10 +14,17 @@ import {
   reportKeys,
   surveyKeys,
 } from './queries/queryKeys';
-import { invalidateAfterSurveySubmit, useAfterSurveySubmit } from './useAfterSurveySubmit';
+import useSurveySubmitMutation, {
+  invalidateAfterSurveySubmit,
+  type SubmitSurveyVariables,
+} from './useSurveySubmitMutation';
 
 jest.mock('~/models/Patient', () => ({
   Patient: { findOne: jest.fn() },
+}));
+
+jest.mock('~/ui/hooks', () => ({
+  useBackend: jest.fn(),
 }));
 
 // The patient duck imports these for its recently-viewed side effect; not exercised here
@@ -40,31 +48,56 @@ jest.mock('react-redux', () => ({
 jest.useRealTimers();
 
 const mockFindOne = Patient.findOne as jest.Mock;
+const mockUseBackend = useBackend as jest.Mock;
 const mockUseDispatch = useDispatch as unknown as jest.Mock;
 const mockUseSelector = useSelector as unknown as jest.Mock;
 const mockDispatch = jest.fn();
+const mockSubmitSurveyResponse = jest.fn();
+const mockSubmitReferral = jest.fn();
 
 const PATIENT_ID = 'patient-1';
+const USER_ID = 'user-1';
 const selectedPatient = { id: PATIENT_ID, firstName: 'Old' } as IPatient;
+const submittedResponse = { id: 'response-1' };
+
+const variables: SubmitSurveyVariables = {
+  patientId: PATIENT_ID,
+  surveyId: 'survey-1',
+  surveyType: SurveyTypes.Programs,
+  components: [],
+  values: { 'question-1': 'answer' },
+};
 
 // gcTime: 0 so no garbage-collection timers outlive the tests and keep jest from exiting
 const createQueryClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
 
-const renderAfterSurveySubmit = async () => {
+const renderSubmitSurvey = async () => {
   const queryClient = createQueryClient();
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
-  const { result } = await renderHook(() => useAfterSurveySubmit(), { wrapper });
-  return result.current;
+  const { result } = await renderHook(() => useSurveySubmitMutation(), { wrapper });
+  return result.current.mutateAsync;
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseBackend.mockReturnValue({
+    models: {
+      SurveyResponse: { submit: mockSubmitSurveyResponse },
+      Referral: { submit: mockSubmitReferral },
+    },
+  });
+  mockSubmitSurveyResponse.mockResolvedValue(submittedResponse);
+  mockSubmitReferral.mockResolvedValue(submittedResponse);
+  mockFindOne.mockResolvedValue(selectedPatient);
   mockUseDispatch.mockReturnValue(mockDispatch);
   mockUseSelector.mockImplementation((selector: (state: ReduxStoreProps) => unknown) =>
-    selector({ patient: { selectedPatient } } as ReduxStoreProps),
+    selector({
+      patient: { selectedPatient },
+      auth: { user: { id: USER_ID } },
+    } as ReduxStoreProps),
   );
 });
 
@@ -96,22 +129,61 @@ describe('invalidateAfterSurveySubmit', () => {
   });
 });
 
-describe('useAfterSurveySubmit', () => {
-  it('reloads the selected patient into the store', async () => {
+describe('useSurveySubmitMutation', () => {
+  it('submits a survey response as the signed-in user', async () => {
+    const submitSurvey = await renderSubmitSurvey();
+
+    const response = await act(() => submitSurvey(variables));
+
+    expect(response).toBe(submittedResponse);
+    expect(mockSubmitSurveyResponse).toHaveBeenCalledWith(
+      PATIENT_ID,
+      USER_ID,
+      {
+        surveyId: variables.surveyId,
+        components: variables.components,
+        surveyType: SurveyTypes.Programs,
+        encounterReason: 'Form response',
+      },
+      variables.values,
+    );
+    expect(mockSubmitReferral).not.toHaveBeenCalled();
+  });
+
+  it('submits a referral survey through the referral model', async () => {
+    const submitSurvey = await renderSubmitSurvey();
+
+    await act(() => submitSurvey({ ...variables, surveyType: SurveyTypes.Referral }));
+
+    expect(mockSubmitReferral).toHaveBeenCalledTimes(1);
+    expect(mockSubmitSurveyResponse).not.toHaveBeenCalled();
+  });
+
+  it('reloads the selected patient into the store after submitting', async () => {
     const reloadedPatient = { ...selectedPatient, firstName: 'New' };
     mockFindOne.mockResolvedValue(reloadedPatient);
-    const afterSurveySubmit = await renderAfterSurveySubmit();
+    const submitSurvey = await renderSubmitSurvey();
 
-    await act(() => afterSurveySubmit(PATIENT_ID));
+    await act(() => submitSurvey(variables));
 
     expect(mockFindOne).toHaveBeenCalledWith({ where: { id: PATIENT_ID } });
     expect(mockDispatch).toHaveBeenCalledWith(actions.setSelectedPatient(reloadedPatient));
   });
 
-  it('does not touch the store when a different patient is selected', async () => {
-    const afterSurveySubmit = await renderAfterSurveySubmit();
+  it('does not touch the store when the submission was not persisted', async () => {
+    mockSubmitSurveyResponse.mockResolvedValue(null);
+    const submitSurvey = await renderSubmitSurvey();
 
-    await act(() => afterSurveySubmit('patient-2'));
+    await act(() => submitSurvey(variables));
+
+    expect(mockFindOne).not.toHaveBeenCalled();
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('does not touch the store when a different patient is selected', async () => {
+    const submitSurvey = await renderSubmitSurvey();
+
+    await act(() => submitSurvey({ ...variables, patientId: 'patient-2' }));
 
     expect(mockFindOne).not.toHaveBeenCalled();
     expect(mockDispatch).not.toHaveBeenCalled();
@@ -119,9 +191,9 @@ describe('useAfterSurveySubmit', () => {
 
   it('does not touch the store when the patient can no longer be found', async () => {
     mockFindOne.mockResolvedValue(null);
-    const afterSurveySubmit = await renderAfterSurveySubmit();
+    const submitSurvey = await renderSubmitSurvey();
 
-    await act(() => afterSurveySubmit(PATIENT_ID));
+    await act(() => submitSurvey(variables));
 
     expect(mockDispatch).not.toHaveBeenCalled();
   });
