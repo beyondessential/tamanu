@@ -55,14 +55,12 @@ export default function useSurveySubmitMutation({
   );
 
   return useMutation({
-    // Referral.submit and SurveyResponse.submit return different record types; callers only
-    // rely on the shared id field.
     mutationFn: async ({
       patientId,
       surveyId,
       components,
       values,
-    }: SurveySubmitVariables): Promise<{ id: string } | null> => {
+    }: SurveySubmitVariables): Promise<Referral | SurveyResponse | null> => {
       const model = surveyType === SurveyTypes.Referral ? models.Referral : models.SurveyResponse;
       return await model.submit(
         patientId,
