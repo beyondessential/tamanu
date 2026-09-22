@@ -243,9 +243,12 @@ referenceDataManageRouter.get(
         for (const c of fkNameColumns) {
           row[c.key] = record[c.key]?.name ?? null;
         }
-        const detail = detailAssociation ? record[detailAssociation] : null;
-        for (const key of detailKeys) {
-          row[key] = detail?.[key] ?? null;
+        if (detailAssociation) {
+          const detail = record[detailAssociation];
+          for (const key of detailKeys) {
+            row[key] = detail?.[key] ?? null;
+          }
+          delete row[detailAssociation];
         }
         return row;
       }),
