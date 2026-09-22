@@ -2084,6 +2084,158 @@ describe('Medication', () => {
     });
   });
 
+  describe('POST /api/medication/medication-requests/:id/not-dispensed', () => {
+    const createNotDispensedReason = () =>
+      models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_NOT_DISPENSED_REASON }),
+      );
+
+    it('records the reason, soft deletes the request, and notifies the prescriber', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, prescription, encounter } =
+        await createPharmacyOrderWithPrescription({ patientId: localPatient.id });
+      const notDispensedReason = await createNotDispensedReason();
+
+      const result = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      expect(result).toHaveSucceeded();
+
+      const reloaded = await models.PharmacyOrderPrescription.findByPk(
+        pharmacyOrderPrescription.id,
+        { paranoid: false },
+      );
+      expect(reloaded.notDispensedReasonId).toBe(notDispensedReason.id);
+      expect(reloaded.notDispensedById).toBe(app.user.id);
+      expect(reloaded.notDispensedAt).toBeTruthy();
+      expect(reloaded.deletedAt).toBeTruthy();
+
+      // Dropped from the active list (paranoid excludes it by default)
+      expect(await models.PharmacyOrderPrescription.findByPk(pharmacyOrderPrescription.id)).toBeNull();
+
+      const notifications = await models.Notification.findAll({
+        where: { type: NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED, patientId: localPatient.id },
+      });
+      expect(notifications).toHaveLength(1);
+      expect(notifications[0].userId).toBe(prescription.prescriberId);
+      expect(notifications[0].metadata).toMatchObject({
+        prescriberId: prescription.prescriberId,
+        patientId: localPatient.id,
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        encounterId: encounter.id,
+      });
+    });
+
+    it('does not alter the original prescription', async () => {
+      const { pharmacyOrderPrescription, prescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+
+      const result = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      expect(result).toHaveSucceeded();
+
+      const reloadedPrescription = await models.Prescription.findByPk(prescription.id);
+      expect(reloadedPrescription.discontinued).not.toBe(true);
+    });
+
+    it('returns 404 when the medication request does not exist', async () => {
+      const notDispensedReason = await createNotDispensedReason();
+
+      const result = await app
+        .post(`/api/medication/medication-requests/${crypto.randomUUID()}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      expect(result).toHaveStatus(404);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('rejects a user without create MedicationDispense permission', async () => {
+        const noPermsApp = await baseApp.asNewRole([]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+
+        const result = await noPermsApp
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('allows a user with only create MedicationDispense permission', async () => {
+        const limitedApp = await baseApp.asNewRole([['create', 'MedicationDispense']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+
+        const result = await limitedApp
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+
+        expect(result).toHaveSucceeded();
+      });
+    });
+  });
+
+  describe('GET /api/medication/medication-requests/:id/not-dispensed', () => {
+    const createNotDispensedReason = () =>
+      models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_NOT_DISPENSED_REASON }),
+      );
+
+    it('returns the not-dispensed record after it has been soft deleted', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+      const postResult = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+      expect(postResult).toHaveSucceeded();
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.id).toBe(pharmacyOrderPrescription.id);
+      expect(result.body.notDispensedReasonId).toBe(notDispensedReason.id);
+    });
+
+    it('returns 404 when the request was deleted but never marked not dispensed', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const deleteResult = await app.delete(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}`,
+      );
+      expect(deleteResult).toHaveSucceeded();
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveStatus(404);
+    });
+
+    it('returns 404 when the medication request does not exist', async () => {
+      const result = await app.get(
+        `/api/medication/medication-requests/${crypto.randomUUID()}/not-dispensed`,
+      );
+
+      expect(result).toHaveStatus(404);
+    });
+  });
+
   describe('Approved column', () => {
     let patient;
     let testEncounter;
