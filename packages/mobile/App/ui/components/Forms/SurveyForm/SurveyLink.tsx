@@ -5,6 +5,7 @@ import { DateFormats } from '~/ui/helpers/constants';
 import { useFormikContext } from 'formik';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
@@ -22,6 +23,12 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
         surveyId: source,
         limit: 1,
       }),
+    meta: dependsOn(
+      Database.models.SurveyResponse,
+      Database.models.Encounter,
+      Database.models.Survey,
+      Database.models.ProcedureSurveyResponse,
+    ),
   });
   const surveyResponse = responses?.[0];
 

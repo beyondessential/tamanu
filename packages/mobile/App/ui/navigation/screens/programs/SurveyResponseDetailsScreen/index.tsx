@@ -16,6 +16,7 @@ import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { suggestionKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { PatientDataDisplayField } from '~/ui/components/PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
@@ -26,6 +27,15 @@ const useFullSurveyResponseQuery = (surveyResponseId: string) =>
   useQuery({
     queryKey: surveyKeys.fullResponse(surveyResponseId),
     queryFn: () => Database.models.SurveyResponse.getFullResponse(surveyResponseId),
+    meta: dependsOn(
+      Database.models.SurveyResponse,
+      Database.models.Survey,
+      Database.models.Encounter,
+      Database.models.Patient,
+      Database.models.SurveyScreenComponent,
+      Database.models.ProgramDataElement,
+      Database.models.SurveyResponseAnswer,
+    ),
   });
 
 const SurveyLinkAnswer = ({ answer }): ReactElement => {
@@ -45,12 +55,14 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { locale } = useDateFormatter();
   const parsedConfig = JSON.parse(config);
+  const model = Database.models[parsedConfig.source];
   const { data: record, error } = useQuery({
     queryKey: suggestionKeys.currentOption(parsedConfig.source, { id: answer }),
     queryFn: () => {
-      const repo = Database.models[parsedConfig.source].getRepository();
+      const repo = model.getRepository();
       return repo.findOne({ where: { id: answer } });
     },
+    meta: model ? dependsOn(model) : undefined,
   });
   if (!record) {
     return <StyledText>{answer}</StyledText>;

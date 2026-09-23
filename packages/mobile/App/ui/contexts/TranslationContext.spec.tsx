@@ -16,6 +16,7 @@ jest.mock('~/infra/db', () => ({
       TranslatedString: {
         getForLanguage: jest.fn(),
         getLanguageOptions: jest.fn(),
+        getTableName: () => 'translated_strings',
       },
     },
   },

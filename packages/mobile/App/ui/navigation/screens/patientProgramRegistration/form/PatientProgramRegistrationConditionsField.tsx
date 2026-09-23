@@ -14,6 +14,7 @@ import { theme } from '~/ui/styled/theme';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { useBackend } from '~/ui/hooks';
 import { Suggester } from '~/ui/helpers/suggester';
 import { Routes } from '~/ui/helpers/routes';
@@ -260,6 +261,10 @@ export const PatientProgramRegistrationConditionsField = ({
           visibilityStatus: VisibilityStatus.Current,
         },
       }),
+    meta: dependsOn(
+      Database.models.ProgramRegistryConditionCategory,
+      Database.models.ProgramRegistry,
+    ),
   });
 
   // Filter out recorded in error category and map to options

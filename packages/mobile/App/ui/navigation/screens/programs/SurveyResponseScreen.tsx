@@ -17,6 +17,7 @@ import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helper
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { joinNames } from '~/ui/helpers/user';
 import { patientKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
 import useSurveySubmitMutation from '~/ui/hooks/useSurveySubmitMutation';
@@ -49,6 +50,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
       Database.models.Survey.getRepository().findOne({
         where: { id: surveyId },
       }),
+    meta: dependsOn(Database.models.Survey),
   });
 
   const {
@@ -58,6 +60,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   } = useQuery({
     queryKey: surveyKeys.components(surveyId),
     queryFn: () => survey.getComponents({ includeAllVitals: false }),
+    meta: dependsOn(Database.models.SurveyScreenComponent, Database.models.ProgramDataElement),
     enabled: Boolean(survey),
   });
 
@@ -99,6 +102,11 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
 
       return canReadProgramRegistry ? patientProgramRegistry : null;
     },
+    meta: dependsOn(
+      Database.models.PatientProgramRegistration,
+      Database.models.ProgramRegistry,
+      Database.models.Program,
+    ),
     enabled: survey != null,
   });
 

@@ -11,6 +11,7 @@ import { withPatient } from '/containers/Patient';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { programKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import type { Program } from '~/models/Program';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -36,6 +37,7 @@ const Screen = (): ReactElement => {
         .orderBy('program.name', 'ASC')
         .distinct(true)
         .getMany(),
+    meta: dependsOn(Database.models.Program, Database.models.Survey),
   });
 
   if (programsIsLoading) {

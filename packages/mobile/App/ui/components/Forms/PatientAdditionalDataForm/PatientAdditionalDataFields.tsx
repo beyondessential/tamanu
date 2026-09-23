@@ -10,6 +10,7 @@ import { PatientFieldDefinitionComponents } from '~/ui/helpers/fieldComponents';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientFieldDefinitionKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { useBackend } from '~/ui/hooks';
 import {
   getSuggester,
@@ -81,6 +82,7 @@ const CustomField = ({ fieldName, required }): ReactElement => {
       Database.models.PatientFieldDefinition.findOne({
         where: { id: fieldName },
       }),
+    meta: dependsOn(Database.models.PatientFieldDefinition),
   });
 
   if (loading) return <ActivityIndicator />;
@@ -143,6 +145,7 @@ export const PatientAdditionalDataFields = ({
       Database.models.PatientFieldDefinition.getRepository().find({
         select: ['id'],
       }),
+    meta: dependsOn(Database.models.PatientFieldDefinition),
     select: definitions => definitions.map(d => d.id),
   });
 

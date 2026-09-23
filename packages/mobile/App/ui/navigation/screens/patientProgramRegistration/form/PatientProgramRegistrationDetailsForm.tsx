@@ -23,6 +23,7 @@ import { PatientProgramRegistration } from '~/models/PatientProgramRegistration'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys, programRegistryKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { Routes } from '~/ui/helpers/routes';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -67,6 +68,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           programRegistry: { id: programRegistry.id },
         },
       }),
+    meta: dependsOn(Database.models.ProgramRegistryClinicalStatus, Database.models.ProgramRegistry),
     select: statuses =>
       statuses.map(status => ({
         ...status,

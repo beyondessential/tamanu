@@ -2,6 +2,7 @@ import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/r
 
 import { useBackend } from '~/ui/hooks';
 import { canUploadAttachmentKey } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 
 interface CanUploadAttachmentResponse {
   canUploadAttachment: boolean;
@@ -23,6 +24,7 @@ export default function useCanUploadAttachmentQuery(
   return useQuery({
     queryKey: canUploadAttachmentKey,
     queryFn: () => centralServer.get<CanUploadAttachmentResponse>('health/canUploadAttachment', {}),
+    meta: dependsOn(),
     select: response => response.canUploadAttachment,
     /** Unlike local database queries, remote queries are worth retrying */
     retry: 2,

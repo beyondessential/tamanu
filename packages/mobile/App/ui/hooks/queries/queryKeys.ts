@@ -149,7 +149,8 @@ export const translationKeys = {
 
 /**
  * Remote queries. Unlike everything above, these hit a server over the internet rather than the
- * local database, so they aren't covered by the sync-driven cache invalidation in BackendContext.
+ * local database, so they declare `meta: dependsOn()` and the sync-driven cache invalidation in
+ * BackendContext leaves them alone.
  */
 export const serverKeys = {
   all: ['servers'] as const satisfies QueryKey,

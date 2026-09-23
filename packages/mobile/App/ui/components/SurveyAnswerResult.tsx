@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { renderAnswer } from '../navigation/screens/programs/SurveyResponseDetailsScreen';
 import { View, Text } from 'react-native';
 
@@ -16,6 +17,7 @@ export const SurveyAnswerResult = ({ config, answer }) => {
       });
       return sourceDataElement.surveyScreenComponent;
     },
+    meta: dependsOn(Database.models.ProgramDataElement, Database.models.SurveyScreenComponent),
     enabled: Boolean(answer && config),
   });
 

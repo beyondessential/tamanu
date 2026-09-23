@@ -3,6 +3,7 @@ import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/r
 import type { SelectOption } from '~/ui/components/Dropdown';
 import { fetchJson } from './fetchJson';
 import { serverKeys } from './queryKeys';
+import { dependsOn } from './queryMeta';
 import * as overrides from '/root/serverOverrides.json';
 
 const DEFAULT_META_SERVER = 'https://meta.tamanu.app';
@@ -51,6 +52,7 @@ export default function useServersQuery(
   return useQuery({
     queryKey: serverKeys.list(),
     queryFn: fetchServers,
+    meta: dependsOn(),
     staleTime: 60_000,
     /** Unlike local database queries, remote queries are worth retrying */
     retry: 2,

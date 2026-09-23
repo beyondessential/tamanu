@@ -11,6 +11,7 @@ import { OptionType, Suggester } from '~/ui/helpers/suggester';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { useBackend } from '~/ui/hooks';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -47,6 +48,7 @@ export const ProgramRegistrySection = (): ReactElement => {
   } = useQuery({
     queryKey: programRegistryKeys.list(),
     queryFn: () => Database.models.ProgramRegistry.getAllProgramRegistries(),
+    meta: dependsOn(Database.models.ProgramRegistry),
     select,
   });
 

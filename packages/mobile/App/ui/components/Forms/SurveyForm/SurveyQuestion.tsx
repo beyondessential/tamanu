@@ -7,6 +7,7 @@ import { FieldByType } from '~/ui/helpers/fieldComponents';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { PatientDataDisplayField } from '../../PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_VALUES } from '@tamanu/constants';
@@ -50,6 +51,11 @@ const useGetConfig = component => {
         where: { id: component.surveyId },
         relations: ['program', 'program.registry'],
       }),
+    meta: dependsOn(
+      Database.models.Survey,
+      Database.models.Program,
+      Database.models.ProgramRegistry,
+    ),
     enabled: configObject.source === 'ProgramRegistryClinicalStatus',
   });
   if (configObject.source === 'ProgramRegistryClinicalStatus' && survey) {

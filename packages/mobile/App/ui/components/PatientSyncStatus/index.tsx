@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { patientKeys, syncKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { useBackend } from '~/ui/hooks';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
@@ -32,6 +33,7 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
         where: { key: LAST_SUCCESSFUL_PULL },
         select: ['updatedAt'],
       }),
+    meta: dependsOn(Database.models.LocalSystemFact),
   });
   const { mutate: markPatientForSync } = useMutation({
     mutationFn: () => Patient.markForSync(selectedPatient.id),

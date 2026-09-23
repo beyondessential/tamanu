@@ -3,6 +3,7 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { patientKeys } from './queryKeys';
+import { dependsOn } from './queryMeta';
 
 /**
  * The bare PatientAdditionalData record, unlike usePatientAdditionalData which also loads custom
@@ -19,6 +20,7 @@ export default function usePatientAdditionalDataRecordQuery(
           patient: { id: patientId },
         },
       }),
+    meta: dependsOn(Database.models.PatientAdditionalData, Database.models.ReferenceData),
     enabled: Boolean(patientId),
   });
 }

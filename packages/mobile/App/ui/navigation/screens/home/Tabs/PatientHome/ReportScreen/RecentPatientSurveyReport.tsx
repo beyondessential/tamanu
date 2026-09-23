@@ -4,6 +4,7 @@ import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { reportKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import {
@@ -32,6 +33,11 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
   const { data: recentVisitorsData } = useQuery({
     queryKey: reportKeys.recentVisitors(selectedSurveyId),
     queryFn: () => Database.models.Patient.getRecentVisitors(selectedSurveyId),
+    meta: dependsOn(
+      Database.models.Patient,
+      Database.models.Encounter,
+      Database.models.SurveyResponse,
+    ),
   });
   const [genderData, ageData, visitorsData] = recentVisitorsData || [null, null, null];
 
@@ -40,6 +46,7 @@ export const RecentPatientSurveyReport: FC<IOwnProps> = ({ selectedSurveyId }) =
   const { data: referralsData } = useQuery({
     queryKey: reportKeys.referralList(),
     queryFn: () => Database.models.Patient.getReferralList(),
+    meta: dependsOn(Database.models.Patient, Database.models.Encounter, Database.models.Referral),
   });
 
   const maleData = genderData?.find(item => item.gender === 'male');
