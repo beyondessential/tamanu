@@ -6,7 +6,12 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import type { Model } from '../models/Model';
 import type { Models } from '../types/model';
-import type { ModelSanitizeArgs, RecordType, SyncSnapshotData } from '../types/sync';
+import type {
+  ModelSanitizeArgs,
+  RecordType,
+  SyncSnapshotAttributes,
+  SyncSnapshotData,
+} from '../types/sync';
 import { extractChangelogFromSnapshotRecords } from '../utils/audit/extractChangelogFromSnapshotRecords';
 import { insertChangelogRecords } from '../utils/audit/insertChangelogRecords';
 import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
@@ -19,7 +24,7 @@ const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds
 
 export const saveChangesForModel = async (
   model: typeof Model,
-  changes: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
+  changes: SyncSnapshotAttributes[],
   isCentralServer: boolean,
   log: Logger,
 ) => {
@@ -42,15 +47,13 @@ export const saveChangesForModel = async (
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-  const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
-    r.get({ plain: true }),
-  );
-  const idToExistingRecord: Record<number, (typeof existingRecords)[0]> = Object.fromEntries(
-    existingRecords.map(e => [e.id, e]),
-  );
+  const existingRecords: { id: string }[] = (
+    await model.findByIds(idsForIncomingRecords, false)
+  ).map(r => r.get({ plain: true }));
+  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
   // follow the same pattern for incoming records
   // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-  const idToIncomingRecord: { [key: number]: (typeof changes)[0] } = Object.fromEntries(
+  const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data.id).map(e => [e.data.id, e]),
   );
   const idsForUpdate = new Set();

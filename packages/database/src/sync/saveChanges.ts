@@ -8,7 +8,7 @@ const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
 // We use hooks: false in all transactions here to avoid triggering side effects that may violate other records in the sync payload
 
-type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
+type RecordWithIsDeleted<T = { [attr: string]: unknown }> = {
   id: string;
   /** Non-nullable in most tables */
   createdAt: Date | null;
@@ -17,6 +17,7 @@ type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
   /** A `Fn` when the write itself stamps the time, e.g. `fn('now')` */
   deletedAt: Date | Utils.Fn | null;
   updatedAtSyncTick: string;
+  isDeleted?: boolean;
 } & T;
 
 /**
@@ -32,7 +33,7 @@ type PublicSchemaRecord<T = { [attr: string]: unknown }> = {
  * Incoming records on the central server carry no tick, so the column is omitted there and the
  * trigger stamps the current tick as usual (the change still has to reach other devices).
  */
-export const saveCreates = async (model: typeof Model, records: PublicSchemaRecord[]) => {
+export const saveCreates = async (model: typeof Model, records: RecordWithIsDeleted[]) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
@@ -60,8 +61,8 @@ export const saveCreates = async (model: typeof Model, records: PublicSchemaReco
  */
 export const saveUpdates = async (
   model: typeof Model,
-  incomingRecords: PublicSchemaRecord[],
-  idToExistingRecord: Record<number, PublicSchemaRecord>,
+  incomingRecords: RecordWithIsDeleted[],
+  idToExistingRecord: Record<string, RecordWithIsDeleted>,
   isCentralServer: boolean,
 ) => {
   const recordsToSave = isCentralServer
