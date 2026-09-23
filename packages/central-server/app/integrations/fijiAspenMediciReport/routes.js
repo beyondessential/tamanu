@@ -27,6 +27,31 @@ function formatDate(date) {
   ).replace(/Z$/, '+00:00');
 }
 
+// Medici's parser only accepts the note type enum from before note types became reference data
+const LEGACY_NOTE_TYPES = [
+  'treatmentPlan',
+  'admission',
+  'medical',
+  'surgical',
+  'nursing',
+  'dietary',
+  'pharmacy',
+  'physiotherapy',
+  'social',
+  'discharge',
+  'areaToBeImaged',
+  'resultDescription',
+  'system',
+  'other',
+  'clinicalMobile',
+  'handover',
+];
+
+function legacyNoteType(noteTypeId) {
+  const noteType = noteTypeId?.replace(/^notetype-/, '');
+  return LEGACY_NOTE_TYPES.includes(noteType) ? noteType : 'other';
+}
+
 function checkMediciReportPermission(req, _res, next) {
   const { ability } = req;
   if (!ability.can('read', 'MediciReport')) {
@@ -215,6 +240,7 @@ routes.get(
     const mapNotes = notes =>
       notes?.map(note => ({
         ...note,
+        noteType: legacyNoteType(note.noteTypeId),
         noteDate: formatDate(note.noteDate),
       }));
     const mappedData = data.map(encounterData => {
