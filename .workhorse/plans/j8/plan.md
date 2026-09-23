@@ -75,12 +75,10 @@ User manuals has three principal categories:
   overlap.
 - **Tamanu mobile** — module folders for the mobile app (Patients, Programs, Program registry,
   Immunisations, Vitals, Diagnosis and treatment, Labs, Referrals).
-- **Configuration guides** — organised **surface first**: Reference data, Settings and Permissions
-  sit directly under the category, and each lists the modules in set-up order with the guide's
-  number (Settings → 15.2 Medications). This inverts the module-first folders on card K8
-  (`docs/user-manuals/config-guides/<module>/{reference-data,settings,permissions}.md`); the site's
-  navigation is surface first regardless of how the files are foldered. The 24 modules and their
-  order come from K8's section README.
+- **Configuration guides** — a list of modules in set-up order, numbered, and within each module
+  its three guides: Reference data (*n*.1), Settings (*n*.2) and Permissions (*n*.3). This mirrors
+  the folders on card K8 (`docs/user-manuals/config-guides/<module>/{reference-data,settings,permissions}.md`),
+  and the 24 modules and their order come from K8's section README.
 
 Guides follow the format in K8's `.agents/docs/config-guide-format.md`. Until real guides arrive,
 **every configuration guide page shows that format doc as placeholder content**; the title, crumbs,
@@ -91,23 +89,25 @@ Design notes:
 - **The sidebar is one component across the index, desktop article and config guide pages**: a
   collapsible group per category, headed by its accent dot, with modules beneath. The page's own
   category is expanded and the others collapse, which keeps a roughly 55-row tree manageable.
+- **Module numbers show wherever a configuration module is listed** (sidebar and index tiles), in
+  muted tabular figures, and each guide carries its *n*.1 / *n*.2 / *n*.3 number in the sidebar.
 - **Each category holds one accent** across its sidebar dot, index header and tile hover: desktop
   purple, mobile bright blue, configuration red. Amber was tried for configuration but blurs into a
   muddy olive over the navy (any yellow does), so red is used.
 - **The index opens each category with a dark header band** in the Browse tiles' treatment: navy,
   frosted icon chip, the category accent blurred from the top-right corner, and a module count.
-  Outlined module tiles sit beneath. Configuration's three tiles carry the "Covers" line from the
-  format doc.
-- **Surface-first navigation separates a module's three guides**, so the guide page restores the
-  link with a tab strip under the title (Reference data 15.1 · Settings 15.2 · Permissions 15.3).
-  The selected tab is navy.
+  Outlined module tiles sit beneath; Configuration's tiles are its 24 numbered modules.
+- **The guide page is titled with the module**, with crumbs Configuration guides / Module / Guide,
+  and a tab strip under the title switches between the module's three guides (Reference data 15.1 ·
+  Settings 15.2 · Permissions 15.3). The selected tab is navy.
 - **Guide rendering on the docs site**, per the format doc's "How guides render" table: tables get
   Tamanu blue (`#326699`) header rows with a bold first column; code blocks sit on the brand navy with
   a language label and Copy action; inline code is a light chip. The callouts table shows a swatch
   beside each colour name. Callout, required-marker and screenshot-placeholder treatments are still
   to design, since the placeholder text only mentions them inside code blocks.
-- Clicking Reference data, Settings or Permissions currently opens Medications (the one module with a
-  real guide on K8) rather than a surface landing page listing every module.
+- Opening a module goes straight to its Reference data guide. There is no module overview page yet,
+  though K8's module READMEs (scope warnings, the IV medications explainer) would naturally live
+  there.
 
 ## Decisions taken
 
