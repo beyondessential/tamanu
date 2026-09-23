@@ -30,6 +30,8 @@ export class PatientAdditionalData extends Model {
   declare secondaryVillageId?: string;
   declare updatedAtByField?: Record<string, any>;
   declare insurerPolicyNumber?: string;
+  declare profilePhotoAttachmentId?: string;
+  declare profilePhotoRemoved?: boolean;
   declare registeredById?: string;
   declare nationalityId?: string;
   declare countryId?: string;
@@ -91,6 +93,18 @@ export class PatientAdditionalData extends Model {
         },
         updatedAtByField: DataTypes.JSON,
         insurerPolicyNumber: DataTypes.STRING,
+
+        // Relation can't be managed by sequelize because the
+        // attachment won't get downloaded to facility server
+        profilePhotoAttachmentId: DataTypes.STRING,
+
+        // Set when the photo is deliberately removed, so an older survey photo isn't shown in
+        // its place
+        profilePhotoRemoved: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,

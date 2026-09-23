@@ -4,8 +4,9 @@ import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';
 
 // Helper function for uploading one file to the central server
-// req: express request, maxFileSize: integer (size in bytes)
-export const uploadAttachment = async (req, maxFileSize) => {
+// req: express request, maxFileSize: integer (size in bytes),
+// allowedTypes: optional array of accepted mime types
+export const uploadAttachment = async (req, maxFileSize, allowedTypes) => {
   // TODO: Figure out permission management for writing
   // an Attachment
   // req.checkPermission('write', 'Attachment'); ??
@@ -13,6 +14,13 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // Read request and extract file, stats and metadata
   const { deviceId } = req;
   const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
+
+  // A request with no file part would otherwise fail deep in fs.statSync as a 500, which tells
+  // the caller nothing about what was wrong with their request
+  if (!file) {
+    throw new InvalidParameterError('No file was included in the upload.');
+  }
+
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
@@ -22,6 +30,12 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // Check file size constraint
   if (maxFileSize && size > maxFileSize) {
     throw new InvalidParameterError(`Uploaded file exceeds limit of ${maxFileSize} bytes.`);
+  }
+
+  // Check the type before sending anything, so a rejected upload doesn't leave an orphaned
+  // attachment on the central server
+  if (allowedTypes && !allowedTypes.includes(type)) {
+    throw new InvalidParameterError(`Uploaded file must be one of: ${allowedTypes.join(', ')}.`);
   }
 
   // Upload file to central server

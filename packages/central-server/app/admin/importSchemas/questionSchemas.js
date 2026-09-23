@@ -3,6 +3,7 @@ import {
   CURRENTLY_AT_TYPES,
   PATIENT_DATA_FIELD_LOCATIONS,
   PATIENT_ISSUE_TYPES,
+  PATIENT_PROFILE_PHOTO_FIELD,
   READONLY_DATA_FIELDS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
@@ -72,11 +73,14 @@ const patientDataColumnString = allowedLocations =>
       return true;
     });
 
-const READ_DATA_FIELDS = [
-  ...Object.keys(PATIENT_DATA_FIELD_LOCATIONS),
-  ...Object.values(READONLY_DATA_FIELDS),
-];
-const WRITE_DATA_FIELDS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS);
+// The profile photo holds an attachment id rather than patient data a question could sensibly
+// display or type in, so it is reachable only from a Photo question (see SSCPhoto) and not from
+// an ordinary PatientData question's `column` or `writeToPatient.fieldName`.
+const PATIENT_DATA_FIELDS = Object.keys(PATIENT_DATA_FIELD_LOCATIONS).filter(
+  field => field !== PATIENT_PROFILE_PHOTO_FIELD,
+);
+const READ_DATA_FIELDS = [...PATIENT_DATA_FIELDS, ...Object.values(READONLY_DATA_FIELDS)];
+const WRITE_DATA_FIELDS = PATIENT_DATA_FIELDS;
 
 // Note this config needs "source" as a sibling
 const whereConfig = () =>
@@ -123,6 +127,26 @@ export const SSCPatientData = SurveyScreenComponent.shape({
           'isAdditionalDataField is deprecated in Tamanu 2.1, it is now just inferred from the fieldName',
           writeToPatient => !writeToPatient || writeToPatient?.isAdditionalDataField === undefined,
         )
+        .noUnknown()
+        .default(null),
+    }),
+  ),
+});
+
+// A Photo question may be configured to write its captured image onto the patient record. The
+// only field it can write is the profile photo: the answer is an attachment id, which no other
+// patient field is meant to hold.
+export const SSCPhoto = SurveyScreenComponent.shape({
+  config: configString(
+    baseConfigShape.shape({
+      writeToPatient: yup
+        .object()
+        .shape({
+          fieldName: yup
+            .string()
+            .oneOf([PATIENT_PROFILE_PHOTO_FIELD])
+            .required(),
+        })
         .noUnknown()
         .default(null),
     }),

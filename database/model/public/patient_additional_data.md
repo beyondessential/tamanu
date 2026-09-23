@@ -191,3 +191,19 @@ Reference to patient administrative village of residence ([Reference Data](#!/so
 
 See also [`patients.village_id`](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
+
+{% docs patient_additional_data__profile_photo_attachment_id %}
+Reference to the attachment holding the patient's profile photo.
+
+Attachments are only stored on the central server and are never synced down to facility servers,
+so this is deliberately not a foreign key: on a facility database the referenced row does not
+exist.
+{% enddocs %}
+
+{% docs patient_additional_data__profile_photo_removed %}
+Whether the patient's profile photo has been deliberately removed.
+
+Distinguishes a patient whose photo was removed from one who never had one set. Deployments that
+captured photos as a `ProfilePhoto` survey answer before patients could hold one on their record
+fall back to that answer, and this flag stops a removed photo being replaced by it.
+{% enddocs %}

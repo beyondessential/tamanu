@@ -66,6 +66,9 @@ export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
 export const ACTION_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  // Photo questions are actionable because they can be configured to write the captured
+  // image onto the patient record (e.g. the patient's profile photo)
+  PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
 ];
 
 export const SURVEY_TYPES = {
@@ -148,6 +151,20 @@ const makeLookupFields = (model: string, fields: (string | [string, Record<strin
     fields.map(f => [Array.isArray(f) ? f[0] : f, [model, ...(Array.isArray(f) ? f : [f])]]),
   );
 
+// The patient field a Photo question writes its captured image to, as named in a question's
+// `writeToPatient` config.
+export const PATIENT_PROFILE_PHOTO_FIELD = 'profilePhoto';
+
+// Photos captured before a patient could hold one on their record live as the answer to a photo
+// question conventionally given this code, and are read back until a photo is set or removed.
+export const LEGACY_PROFILE_PHOTO_QUESTION_CODE = 'ProfilePhoto';
+
+// The image formats accepted wherever a photo is captured. Kept in step with the photo file
+// filter the survey and document photo fields use, so a patient photo isn't held to a different
+// standard from the photos already captured elsewhere.
+export const PHOTO_MIME_TYPES = ['image/jpeg'];
+export const PHOTO_FILE_EXTENSIONS = ['jpg', 'jpeg'];
+
 // Following this format:
 // [modelName, fieldName, options]
 // options is an object with the key being the value and the value being the label
@@ -170,6 +187,11 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
   registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
   registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
   registrationCurrentlyAtFacility: ['PatientProgramRegistration', 'facilityId'],
+  // Only reachable from a Photo question, and holds the id of the captured image's attachment.
+  // Excluded from the read/write field lists the program importer validates ordinary
+  // PatientData questions against, so it can't be displayed as text or written from a
+  // free-text answer.
+  [PATIENT_PROFILE_PHOTO_FIELD]: ['PatientAdditionalData', 'profilePhotoAttachmentId'],
   ...makeLookupFields('Patient', [
     'firstName',
     'middleName',

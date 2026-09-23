@@ -205,3 +205,11 @@ sources:
             config:
               meta:
                 masking: string
+          - name: profile_photo_attachment_id
+            data_type: character varying(255)
+            description: "{{ doc('patient_additional_data__profile_photo_attachment_id') }}"
+          - name: profile_photo_removed
+            data_type: boolean
+            description: "{{ doc('patient_additional_data__profile_photo_removed') }}"
+            data_tests:
+              - not_null

@@ -8,7 +8,7 @@ import React, { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
-import { SETTING_KEYS } from '@tamanu/constants';
+import { PHOTO_FILE_EXTENSIONS, SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';
 import { useSettings } from '../../contexts';
 import { Button } from '../Button';
@@ -119,7 +119,10 @@ const ValueSection = ({ onClear, showFileDialog, smallDisplay, value, ViewPhotoL
 
 export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] };
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
-export const FILTER_PHOTOS = { name: 'Photos (.jpg, .jpeg)', extensions: ['jpg', 'jpeg'] };
+export const FILTER_PHOTOS = {
+  name: `Photos (${PHOTO_FILE_EXTENSIONS.map(e => `.${e}`).join(', ')})`,
+  extensions: PHOTO_FILE_EXTENSIONS,
+};
 
 const getFilterNames = filters => {
   if (filters.length === 1 && filters[0].name === FILTER_PHOTOS.name) {

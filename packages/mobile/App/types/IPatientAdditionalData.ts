@@ -19,6 +19,8 @@ export interface IPatientAdditionalData {
   passport?: string;
   emergencyContactName?: string;
   emergencyContactNumber?: string;
+  profilePhotoAttachmentId?: string;
+  profilePhotoRemoved?: boolean;
   nationality?: IReferenceData;
   country?: IReferenceData;
   division?: IReferenceData;

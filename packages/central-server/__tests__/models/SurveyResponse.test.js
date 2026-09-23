@@ -314,6 +314,162 @@ describe('SurveyResponse.createWithAnswers', () => {
     });
   });
 
+  it("writes a captured photo to the patient's profile photo", async () => {
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          // a photo answer supplied as an attachment id is stored as-is
+          [dataElement.id]: 'an-existing-attachment-id',
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(patientId);
+    expect(additionalData.profilePhotoAttachmentId).toBe('an-existing-attachment-id');
+  });
+
+  it('stores the id of the attachment it created, not the raw image', async () => {
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId,
+        encounterId,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: { size: 4, data: Buffer.from('test').toString('base64') },
+        },
+      }),
+    );
+
+    const answer = await models.SurveyResponseAnswer.findOne({
+      where: { dataElementId: dataElement.id },
+    });
+    const additionalData = await models.PatientAdditionalData.getForPatient(patientId);
+
+    expect(additionalData.profilePhotoAttachmentId).toBe(answer.body);
+    expect(await models.Attachment.findByPk(answer.body)).not.toBeNull();
+  });
+
+  it('leaves an existing photo alone when the photo question is left unanswered', async () => {
+    const otherPatient = await models.Patient.create(fake(models.Patient));
+    const otherEncounter = await findOneOrCreate(models, models.Encounter, {
+      patientId: otherPatient.id,
+    });
+    await models.PatientAdditionalData.updateForPatient(otherPatient.id, {
+      profilePhotoAttachmentId: 'a-photo-set-from-the-sidebar',
+    });
+
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId: otherPatient.id,
+        encounterId: otherEncounter.id,
+        surveyId: survey.id,
+        answers: {
+          // the clinician skipped the photo question, or cleared the one they took
+          [dataElement.id]: null,
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(otherPatient.id);
+    expect(additionalData.profilePhotoAttachmentId).toBe('a-photo-set-from-the-sidebar');
+  });
+
+  it('undoes an earlier removal when a survey captures a new photo', async () => {
+    const otherPatient = await models.Patient.create(fake(models.Patient));
+    const otherEncounter = await findOneOrCreate(models, models.Encounter, {
+      patientId: otherPatient.id,
+    });
+    await models.PatientAdditionalData.updateForPatient(otherPatient.id, {
+      profilePhotoRemoved: true,
+    });
+
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: {
+        writeToPatient: {
+          fieldName: 'profilePhoto',
+        },
+      },
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId: otherPatient.id,
+        encounterId: otherEncounter.id,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: 'a-freshly-captured-photo',
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(otherPatient.id);
+    expect(additionalData.profilePhotoAttachmentId).toBe('a-freshly-captured-photo');
+    expect(additionalData.profilePhotoRemoved).toBe(false);
+  });
+
+  it('leaves the patient alone for a photo question that does not write to them', async () => {
+    // a patient of its own: the shared one carries a photo from the tests above, and patient
+    // additional data isn't truncated between them
+    const otherPatient = await models.Patient.create(fake(models.Patient));
+    const otherEncounter = await findOneOrCreate(models, models.Encounter, {
+      patientId: otherPatient.id,
+    });
+    const survey = await createDummySurvey(models);
+    const { dataElement } = await createDummyDataElement(models, survey, {
+      type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO,
+      config: undefined,
+    });
+
+    await models.SurveyResponse.sequelize.transaction(() =>
+      models.SurveyResponse.createWithAnswers({
+        patientId: otherPatient.id,
+        encounterId: otherEncounter.id,
+        surveyId: survey.id,
+        answers: {
+          [dataElement.id]: 'an-ordinary-photo-attachment',
+        },
+      }),
+    );
+
+    const additionalData = await models.PatientAdditionalData.getForPatient(otherPatient.id);
+    expect(additionalData?.profilePhotoAttachmentId ?? null).toBeNull();
+  });
+
   it('creates patient program registration from actions', async () => {
     const survey = await createDummySurvey(models);
     const registry = await models.ProgramRegistry.create(

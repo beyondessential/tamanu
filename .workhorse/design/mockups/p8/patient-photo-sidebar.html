@@ -1,0 +1,296 @@
+<!-- spec: patient/photo.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Patient photo — details sidebar</title>
+<style>
+  :root {
+    --primary: #326699;
+    --primary10: #EBF0F5;
+    --darkestText: #444444;
+    --darkText: #666666;
+    --midText: #888888;
+    --softText: #b8b8b8;
+    --outline: #dedede;
+    --softOutline: #ebebeb;
+    --background: #f3f5f7;
+    --white: #ffffff;
+    --veryLightBlue: #F4F9FF;
+    --alert: #f76853;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--background);
+    color: var(--darkestText);
+    margin: 0;
+    padding: 40px;
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .caption {
+    font-size: 12px;
+    color: var(--midText);
+    margin: 0 0 10px 2px;
+    letter-spacing: .02em;
+  }
+  /* --- Sidebar panel (faithful to PatientInfoPane) --- */
+  .sidebar {
+    width: 320px;
+    background: var(--white);
+    border: 1px solid var(--softOutline);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .patient-button {
+    padding: 25px 35px 35px 25px;
+    cursor: pointer;
+  }
+  .patient-button:hover { background: var(--veryLightBlue); }
+  .name-header {
+    color: var(--softText);
+    font-size: 11px;
+    line-height: 15px;
+    margin-bottom: 20px;
+  }
+  .name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .name-text {
+    font-size: 24px;
+    line-height: 32px;
+    text-transform: capitalize;
+    color: var(--darkestText);
+  }
+
+  /* --- Avatar (46x46, primary bg) --- */
+  .avatar {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+  }
+  .avatar-initials,
+  .avatar-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .avatar-initials {
+    background: var(--primary);
+    color: var(--white);
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .avatar-photo { background: #cdd8e2; }
+  .avatar-photo svg { width: 100%; height: 100%; display: block; }
+
+  /* hover affordance to change photo */
+  .avatar-edit {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(50, 102, 153, .55);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity .12s ease;
+    cursor: pointer;
+  }
+  .avatar:hover .avatar-edit { opacity: 1; }
+  .avatar-edit svg { width: 18px; height: 18px; }
+  .avatar.is-open .avatar-edit { opacity: 1; }
+
+  /* uploading state */
+  .avatar-uploading {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--primary10);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* --- Popover menu --- */
+  .menu {
+    position: absolute;
+    top: 54px;
+    right: 0;
+    width: 168px;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    padding: 4px;
+    z-index: 5;
+  }
+  .menu button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: 0;
+    padding: 9px 10px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--darkestText);
+    text-align: left;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .menu button:hover { background: var(--background); }
+  .menu button.danger { color: var(--alert); }
+  .menu button svg { width: 15px; height: 15px; flex: 0 0 auto; color: var(--midText); }
+  .menu button.danger svg { color: var(--alert); }
+  .menu .sep { height: 1px; background: var(--softOutline); margin: 4px 2px; }
+
+  /* --- Core info grid (unchanged region, kept faithful) --- */
+  .core-grid {
+    display: grid;
+    grid-template-columns: 2fr 3.5fr;
+    border-top: 1px solid var(--softOutline);
+    border-bottom: 1px solid var(--softOutline);
+    padding-left: 10px;
+  }
+  .core-cell { padding: 10px 15px; }
+  .core-cell:first-child { border-right: 1px solid var(--softOutline); }
+  .core-label { color: var(--softText); font-size: 14px; line-height: 18px; }
+  .core-value { color: var(--darkText); font-size: 14px; line-height: 18px; font-weight: 500; text-transform: capitalize; }
+  .core-value .age { color: var(--midText); font-weight: 400; text-transform: none; }
+  .health-wrap { padding: 20px 10px 12px; }
+  .health {
+    background: var(--primary);
+    color: var(--white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* --- States strip --- */
+  .states { display: flex; gap: 28px; }
+  .state { text-align: center; }
+  .state .avatar { margin: 0 auto; }
+</style>
+</head>
+<body>
+
+  <div>
+    <p class="caption">Patient details sidebar — photo set, hover to change</p>
+    <div class="sidebar">
+      <div class="patient-button">
+        <div class="name-header">PATIENT DETAILS</div>
+        <div class="name-row">
+          <div>
+            <div class="name-text">Sarah</div>
+            <div class="name-text">Wallace</div>
+          </div>
+          <div class="avatar is-open">
+            <div class="avatar-photo">
+              <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+                <rect width="46" height="46" fill="#cdd8e2"/>
+                <circle cx="23" cy="18" r="8" fill="#9db0c2"/>
+                <path d="M8 44c0-9 7-14 15-14s15 5 15 14z" fill="#9db0c2"/>
+              </svg>
+            </div>
+            <div class="avatar-edit" title="Change photo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <div class="menu">
+              <button>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload photo
+              </button>
+              <button>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Take photo
+              </button>
+              <div class="sep"></div>
+              <button class="danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Remove photo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="core-grid">
+        <div class="core-cell">
+          <div class="core-label">Sex</div>
+          <div class="core-value">Female</div>
+        </div>
+        <div class="core-cell">
+          <div class="core-label">DOB</div>
+          <div class="core-value">15/05/1990 <span class="age">(35yrs)</span></div>
+        </div>
+      </div>
+
+      <div class="health-wrap">
+        <div class="health">
+          <span>National Health Number</span>
+          <span>WALS100923</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <p class="caption">Avatar states</p>
+    <div class="states">
+      <div class="state">
+        <div class="avatar">
+          <div class="avatar-initials">SW</div>
+        </div>
+        <p class="caption" style="margin-top:10px">No photo</p>
+      </div>
+      <div class="state">
+        <div class="avatar">
+          <div class="avatar-photo">
+            <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+              <rect width="46" height="46" fill="#cdd8e2"/>
+              <circle cx="23" cy="18" r="8" fill="#9db0c2"/>
+              <path d="M8 44c0-9 7-14 15-14s15 5 15 14z" fill="#9db0c2"/>
+            </svg>
+          </div>
+        </div>
+        <p class="caption" style="margin-top:10px">Photo set</p>
+      </div>
+      <div class="state">
+        <div class="avatar">
+          <div class="avatar-initials">SW</div>
+          <div class="avatar-uploading"><div class="spinner"></div></div>
+        </div>
+        <p class="caption" style="margin-top:10px">Uploading</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

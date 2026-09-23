@@ -1,6 +1,7 @@
 import React from 'react';
 import { RowView, StyledText, StyledView } from '/styled/common';
 import { UserAvatar } from '../UserAvatar';
+import { usePatientProfilePhoto } from '~/ui/hooks/usePatientProfilePhoto';
 import { getDisplayAge } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getGender, joinNames } from '/helpers/user';
@@ -11,7 +12,8 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useSettings } from '/contexts/SettingsContext';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
-  const { firstName, lastName, sex } = patient;
+  const { id, firstName, lastName, sex } = patient;
+  const image = usePatientProfilePhoto(id);
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const ageDisplayFormat = getSetting('ageDisplayFormat');
@@ -28,6 +30,7 @@ export const PatientTile = (patient: IPatient): JSX.Element => {
         <UserAvatar
           size={screenPercentageToDP('4.86', Orientation.Height)}
           sex={sex}
+          image={image}
           displayName={joinNames({ firstName, lastName })}
         />
       </StyledView>

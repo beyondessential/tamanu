@@ -35,6 +35,7 @@ const SUPPORTED_CONFIG_KEYS_BY_QUESTION_TYPE = {
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: ['rounding', 'unit'],
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ['column', 'source', 'where', 'writeToPatient'],
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: ['issueNote', 'issueType'],
+  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: ['writeToPatient'],
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: ['rounding', 'unit'],
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: ['source'],
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: ['source'],

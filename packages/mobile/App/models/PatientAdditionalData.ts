@@ -82,6 +82,15 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @Column({ nullable: true })
   emergencyContactNumber?: string;
 
+  // Id of the attachment holding the patient's profile photo. Not a relation: attachments
+  // are pushed to central and not held locally.
+  @Column({ nullable: true })
+  profilePhotoAttachmentId?: string;
+
+  // Set when the photo is deliberately removed, so an older survey photo isn't shown instead
+  @Column({ nullable: false, default: false })
+  profilePhotoRemoved?: boolean;
+
   @ReferenceDataRelation()
   nationality?: ReferenceData;
   @RelationId(({ nationality }) => nationality)

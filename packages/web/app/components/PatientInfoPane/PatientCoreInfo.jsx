@@ -1,16 +1,15 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Button, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { TranslatedSex, TranslatedText, useTranslation, DateDisplay } from '@tamanu/ui-components';
-import { PatientInitialsIcon } from '../PatientInitialsIcon';
+import { PatientPhotoAvatar } from './PatientPhotoAvatar';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
 import { PATIENT_STATUS_COLORS, Colors } from '../../constants';
 
-const PatientButton = styled(Button)`
-  display: block;
-  width: 100%;
+const PatientHeader = styled.div`
+  position: relative;
   padding: 25px 35px 35px 25px;
   text-align: left;
 
@@ -19,7 +18,20 @@ const PatientButton = styled(Button)`
   }
 `;
 
+// Covers the whole header so the name still navigates to the patient, while leaving the avatar
+// beside it free to carry its own controls rather than nesting them in a button
+const PatientNavButton = styled.button`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+`;
+
 const NameHeader = styled(Typography)`
+  pointer-events: none;
   align-self: flex-start;
   color: ${(props) => props.theme.palette.text.tertiary};
   font-size: 11px;
@@ -34,6 +46,7 @@ const NameText = styled(Typography)`
 `;
 
 const NameContainer = styled.div`
+  pointer-events: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -135,7 +148,13 @@ export const CoreInfoDisplay = memo(({ patient }) => {
 
   return (
     <>
-      <PatientButton onClick={() => navigateToPatient(patient.id)} data-testid="patientbutton-7qal">
+      <PatientHeader data-testid="patientbutton-7qal">
+        <PatientNavButton
+          type="button"
+          onClick={() => navigateToPatient(patient.id)}
+          aria-label={getTranslation('patient.detailsSidebar.title', 'Patient details')}
+          data-testid="patientnavbutton-7qal"
+        />
         <NameHeader data-testid="nameheader-22n1">
           <TranslatedText
             stringId="patient.detailsSidebar.title"
@@ -152,9 +171,9 @@ export const CoreInfoDisplay = memo(({ patient }) => {
               {patient.lastName}
             </NameText>
           </div>
-          <PatientInitialsIcon patient={patient} data-testid="patientinitialsicon-wt16" />
+          <PatientPhotoAvatar patient={patient} />
         </NameContainer>
-      </PatientButton>
+      </PatientHeader>
       <CoreInfoSection data-testid="coreinfosection-ri8t">
         <CoreInfoCell
           label={

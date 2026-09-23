@@ -9,6 +9,8 @@ export const patientKeys = {
     [...patientKeys.detail(patientId), 'additionalData'] as const satisfies QueryKey,
   issues: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'issues'] as const satisfies QueryKey,
+  profilePhoto: (patientId: MaybeId) =>
+    [...patientKeys.detail(patientId), 'profilePhoto'] as const satisfies QueryKey,
   encounters: (patientId: MaybeId) =>
     [...patientKeys.detail(patientId), 'encounters'] as const satisfies QueryKey,
   administeredVaccines: (patientId: MaybeId) =>

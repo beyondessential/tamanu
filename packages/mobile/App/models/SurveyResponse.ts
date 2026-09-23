@@ -37,8 +37,11 @@ interface RecordValuesByModel {
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
 
-  const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === FieldTypes.PATIENT_DATA,
+  // Photo questions can also write to the patient record (e.g. the profile photo). A photo
+  // answer's value is already the id of the attachment it was saved as, which is what gets
+  // stored on the patient.
+  const patientDataQuestions = questions.filter(q =>
+    [FieldTypes.PATIENT_DATA, FieldTypes.PHOTO].includes(q.dataElement.type),
   );
   for (const question of patientDataQuestions) {
     const config = question.getConfigObject();
@@ -55,6 +58,13 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
     }
 
     const value = answers[dataElement.code];
+
+    // A photo question that was left unanswered is not an instruction to remove the patient's
+    // photo, so it must not overwrite one that is already there.
+    if (dataElement.type === FieldTypes.PHOTO && !value) {
+      continue;
+    }
+
     const { modelName, fieldName } = getPatientDataDbLocation(configFieldName);
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
@@ -84,7 +94,13 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientAdditionalData) {
-    await PatientAdditionalData.updateForPatient(patientId, valuesByModel.PatientAdditionalData);
+    const { profilePhotoAttachmentId } = valuesByModel.PatientAdditionalData;
+    await PatientAdditionalData.updateForPatient(patientId, {
+      ...valuesByModel.PatientAdditionalData,
+      // capturing a photo undoes an earlier removal, so the record can't hold both a photo and
+      // a marker saying it was removed
+      ...(profilePhotoAttachmentId ? { profilePhotoRemoved: false } : {}),
+    });
   }
 
   if (valuesByModel.PatientProgramRegistration) {

@@ -4,6 +4,7 @@ import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
 import { DateFormats } from '/helpers/constants';
 import { getDisplayAge } from '/helpers/date';
 import { UserAvatar } from '../UserAvatar';
+import { usePatientProfilePhoto } from '~/ui/hooks/usePatientProfilePhoto';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as styles from './styles';
 import { theme } from '/styled/theme';
@@ -23,8 +24,8 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
   const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
 
-  // TODO: These fields aren't on the patient model yet.
-  const image = null;
+  const image = usePatientProfilePhoto(patient.id);
+  // TODO: This field isn't on the patient model yet.
   const lastViewed = new Date();
 
   const name = joinNames({ firstName, lastName });
