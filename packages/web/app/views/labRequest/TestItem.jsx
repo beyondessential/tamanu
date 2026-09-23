@@ -33,14 +33,32 @@ const StyledCheckbox = styled(Checkbox)`
       color: ${({ theme }) => theme.palette.primary.main};
     }
   }
-  &.Mui-disabled i {
-    color: ${Colors.softText};
-  }
 `;
 
 const CheckboxTooltipTarget = styled.span`
   display: inline-flex;
   align-items: center;
+`;
+
+// Honour explicit newlines in the tooltip copy so the line break lands where design wants it
+const TooltipText = styled.span`
+  white-space: pre-line;
+`;
+
+// Disabled rows (test already covered by a selected panel) show a filled square: the fa-square
+// outline over a lighter solid fill, keeping the same geometry as the enabled rows' checkbox.
+const DisabledCheckIcon = styled.span`
+  position: relative;
+  display: inline-flex;
+  i.fas {
+    color: ${Colors.softOutline};
+  }
+  i.far {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: ${Colors.outline};
+  }
 `;
 
 const LabelText = styled.span`
@@ -150,6 +168,13 @@ const CheckboxIcons = {
   checkedIcon: <i className="far fa-check-square" />,
 };
 
+const DisabledCheckboxIcon = (
+  <DisabledCheckIcon>
+    <i className="fas fa-square" />
+    <i className="far fa-square" />
+  </DisabledCheckIcon>
+);
+
 export const CategoryHeader = ({ children, ...props }) => (
   <CategoryHeaderRow {...props}>{children}</CategoryHeaderRow>
 );
@@ -158,6 +183,8 @@ export const SelectableTestRow = ({ id, label, checked, disabled, disabledToolti
   const checkbox = (
     <StyledCheckbox
       {...CheckboxIcons}
+      // Disabled rows show a filled square rather than an empty checkbox
+      {...(disabled && { icon: DisabledCheckboxIcon })}
       color="primary"
       checked={checked}
       disabled={disabled}
@@ -173,7 +200,7 @@ export const SelectableTestRow = ({ id, label, checked, disabled, disabledToolti
       <RowLabel $disabled={disabled}>
         {disabled && disabledTooltip ? (
           <ThemedTooltip
-            title={disabledTooltip}
+            title={<TooltipText>{disabledTooltip}</TooltipText>}
             placement="top-start"
             data-testid={`testrow-tooltip-${id}`}
           >

@@ -394,7 +394,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
 
   const coveredTooltip = getTranslation(
     'lab.testSelect.coveredByPanel',
-    'A panel containing this test has already been selected',
+    'A panel containing this test\nhas already been selected',
   );
 
   const renderItem = item => {

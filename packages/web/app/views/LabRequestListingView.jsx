@@ -67,7 +67,7 @@ export const PublishedLabRequestListingView = () => (
       title={
         <TranslatedText
           stringId="lab.list.published.title"
-          fallback="Published lab requests"
+          fallback="Finalised requests"
           data-testid="translatedtext-lab-request-published-title"
         />
       }
