@@ -1,12 +1,11 @@
-import { Brackets, Column, RelationId, Entity, ManyToOne } from 'typeorm';
 import { get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
-
+import { Brackets, Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { readConfig } from '~/services/config';
+import { parseOrKeep } from '~/utils/parseOrKeep';
+import type { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { SYNC_DIRECTIONS } from './types';
-import type { IFacility } from '../types';
-import { readConfig } from '~/services/config';
-import { parseOrKeep } from '~/utils/parseOrKeep';
 
 @Entity('settings')
 export class Setting extends BaseModel {
