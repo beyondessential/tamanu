@@ -4,7 +4,10 @@ import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { closeDatabase, initDatabase } from '../../utilities';
 import { runPostMigration, runPreMigration } from '../../../src/services/migrations/hooks';
 import { tablesWithTrigger, tablesWithoutTrigger } from '../../../src/utils';
-import { createMigrationInterface } from '../../../src/services/migrations/migrations';
+import {
+  createMigrationInterface,
+  runInRollbackTransaction,
+} from '../../../src/services/migrations/migrations';
 import { log } from '@tamanu/shared/services/logging/log';
 import { Umzug } from 'umzug';
 
@@ -101,6 +104,14 @@ describe('migrationHooks', () => {
       await stampReporting(`2.60.1 ${DIGEST}`);
       await runPreMigration(log, database.sequelize);
       expect(await reportingExists()).toBe(false);
+    });
+
+    it('keeps the schema through a dry run', async () => {
+      await stampReporting(`2.60.1 ${DIGEST}`);
+      await runInRollbackTransaction(database.sequelize, () =>
+        runPreMigration(log, database.sequelize),
+      );
+      expect(await reportingExists()).toBe(true);
     });
 
     it.each([
