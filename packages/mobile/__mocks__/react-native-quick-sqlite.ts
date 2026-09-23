@@ -7,7 +7,14 @@ export const typeORMDriver = {
   disablePromise: jest.fn(),
 };
 
+export const QuickSQLite = {
+  attach: jest.fn(),
+  detach: jest.fn(),
+  delete: jest.fn(),
+};
+
 export default {
   typeORMDriver,
+  QuickSQLite,
   ...typeORMDriver,
-}; 
+};
