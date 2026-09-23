@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import AddIcon from '@mui/icons-material/Add';
 
 import { SelectInput, Button } from '@tamanu/ui-components';
-import { SYSTEM_DATA_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES_WITH_A_DETAIL_RECORD, SYSTEM_DATA_TYPES } from '@tamanu/constants';
 import { DataFetchingTable } from '../../../../components/Table/DataFetchingTable';
 import { Colors } from '../../../../constants/styles';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -16,6 +16,7 @@ import { AddReferenceDataModal } from './AddReferenceDataModal';
 import { EditReferenceDataModal } from './EditReferenceDataModal';
 import { useReferenceDataColumns } from './useReferenceDataColumns';
 import { useReferenceDataDeleteMutation } from './useReferenceDataDeleteMutation';
+
 import { DATA_TYPE_OPTIONS, ENDPOINT } from './constants';
 
 const Container = styled.div`
@@ -78,6 +79,7 @@ const PlaceholderBox = styled.div`
 
 export const ManageReferenceDataTab = () => {
   const [selectedType, setSelectedType] = useState('');
+  const hasDetailRecord = REFERENCE_TYPES_WITH_A_DETAIL_RECORD.includes(selectedType);
   const { data: columns = [] } = useReferenceDataColumns(selectedType);
   const [searchParams, setSearchParams] = useState({});
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -185,6 +187,11 @@ export const ManageReferenceDataTab = () => {
                 fallback="Select desired reference data to add new"
                 data-testid="translatedtext-tooltip-add-refdata"
               />
+            ) : hasDetailRecord ? (
+              <TranslatedText
+                stringId="admin.referenceData.addViaImporter"
+                fallback="Add this reference data through the importer, so its full record is created"
+              />
             ) : (
               ''
             )
@@ -194,7 +201,7 @@ export const ManageReferenceDataTab = () => {
             <StyledAddButton
               color="primary"
               variant="contained"
-              disabled={!selectedType}
+              disabled={!selectedType || hasDetailRecord}
               onClick={() => setIsAddModalOpen(true)}
               data-testid="add-refdata-button"
               startIcon={<AddIcon />}
