@@ -64,50 +64,71 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
   mockup (the user supplied it). Decision still open: whether the real hub fetches it live from
   bes.au or mirrors it into the repo. The cards carry no "View details" affordance — each card states
   its own contents, so there is nothing further to open.
-- **User manuals** — source not yet decided. Some feature docs today live in Slab (release notes reference `[SLAB_LINK_PLACEHOLDER]`). Need to decide where manual content is authored and how it reaches the hub.
+- **User manuals** — markdown in the repo under `docs/user-manuals/`, written by two skills on other
+  cards: L8 (`write-user-guide`) for the desktop and mobile end-user guides, K8
+  (`draft-config-guide`) for configuration guides under `config-guides/`. Both bring existing Slab
+  content across. L8 also carries a `manifest.json` listing platforms, modules and guides, which the
+  hub can read for its navigation. Like release notes, the hub parses this markdown rather than
+  carrying copies.
 
 ## User manuals structure
 
-User manuals has three principal categories:
+User manuals has three principal categories. Their module lists come from the cards writing the
+content, copied verbatim:
 
-- **Tamanu desktop** — module folders (Patients, Scheduling, Encounters, Medications…), each holding
-  its articles. The mockup lists 20 modules, named to match the configuration modules where they
-  overlap.
-- **Tamanu mobile** — module folders for the mobile app (Patients, Programs, Program registry,
-  Immunisations, Vitals, Diagnosis and treatment, Labs, Referrals).
-- **Configuration guides** — a list of modules in set-up order, numbered, and within each module
-  its three guides: Reference data (*n*.1), Settings (*n*.2) and Permissions (*n*.3). This mirrors
-  the folders on card K8 (`docs/user-manuals/config-guides/<module>/{reference-data,settings,permissions}.md`),
-  and the 24 modules and their order come from K8's section README.
+- **Tamanu desktop** — 22 numbered modules from card L8's `docs/user-manuals/desktop` (1 Accessing
+  Tamanu Desktop … 22 Reports), each holding numbered guides (10.1 Record a set of vitals).
+- **Tamanu mobile** — 13 numbered modules from L8's `docs/user-manuals/mobile` (1 Accessing Tamanu
+  Mobile … 13 Sync).
+- **Configuration guides** — 24 modules in set-up order from card K8's section README, and within
+  each module its three guides: Reference data (*n*.1), Settings (*n*.2) and Permissions (*n*.3).
+  This mirrors K8's folders (`docs/user-manuals/config-guides/<module>/{reference-data,settings,permissions}.md`).
 
-Guides follow the format in K8's `.agents/docs/config-guide-format.md`. Until real guides arrive,
-**every configuration guide page shows that format doc as placeholder content**; the title, crumbs,
-tabs and sidebar follow whichever module and surface was chosen.
+**Placeholder content is the real content from those cards.** Every configuration guide page shows
+K8's Medications guides (reference data, settings, permissions), and every desktop or mobile module
+opens L8's "Record a set of vitals", the one end-user guide written so far. Formatting follows K8's
+`.agents/docs/config-guide-format.md` for configuration guides and L8's `write-user-guide` skill for
+end-user guides. The prototype renders the markdown at build time from those files.
 
 Design notes:
 
-- **The sidebar is one component across the index, desktop article and config guide pages**: a
-  collapsible group per category, headed by its accent dot, with modules beneath. The page's own
-  category is expanded and the others collapse, which keeps a roughly 55-row tree manageable.
-- **Module numbers show wherever a configuration module is listed** (sidebar and index tiles), in
-  muted tabular figures, and each guide carries its *n*.1 / *n*.2 / *n*.3 number in the sidebar.
+- **The sidebar is one component across the index, article and config guide pages**: a collapsible
+  group per category, headed by its accent dot, with numbered modules beneath. The page's own
+  category is expanded and the others collapse.
+- **Module and guide numbers show wherever they are listed** (sidebar, index tiles, article title),
+  in muted tabular figures.
 - **Each category holds one accent** across its sidebar dot, index header and tile hover: desktop
   purple, mobile bright blue, configuration red. Amber was tried for configuration but blurs into a
   muddy olive over the navy (any yellow does), so red is used.
 - **The index opens each category with a dark header band** in the Browse tiles' treatment: navy,
   frosted icon chip, the category accent blurred from the top-right corner, and a module count.
-  Outlined module tiles sit beneath; Configuration's tiles are its 24 numbered modules.
-- **The guide page is titled with the module**, with crumbs Configuration guides / Module / Guide,
-  and a tab strip under the title switches between the module's three guides (Reference data 15.1 ·
-  Settings 15.2 · Permissions 15.3). The selected tab is navy.
-- **Guide rendering on the docs site**, per the format doc's "How guides render" table: tables get
-  Tamanu blue (`#326699`) header rows with a bold first column; code blocks sit on the brand navy with
-  a language label and Copy action; inline code is a light chip. The callouts table shows a swatch
-  beside each colour name. Callout, required-marker and screenshot-placeholder treatments are still
-  to design, since the placeholder text only mentions them inside code blocks.
-- Opening a module goes straight to its Reference data guide. There is no module overview page yet,
-  though K8's module READMEs (scope warnings, the IV medications explainer) would naturally live
-  there.
+  Outlined module tiles sit beneath, carrying L8's one-line module descriptions for desktop and
+  mobile; configuration modules have none.
+- **The config guide page is titled with the module**, with crumbs Configuration guides / Module /
+  Guide, and a tab strip under the title switches between the module's three guides. The selected
+  tab is navy. The article page is titled with its numbered guide title.
+
+### How guides render on the docs site
+
+Per the format doc's "How guides render" table:
+
+- A guide's `#` sections render one level below the page title, split by its horizontal rules. The
+  first paragraph is set as a lead. The on-page contents lists `#` and `##` headings, nested.
+- **Tables** get Tamanu blue (`#326699`) header rows and a bold first column.
+- **Required marker**: the `*` after a column name is red.
+- **Callouts**: the four GitHub alert kinds render as tinted panels with a left rule and an icon in
+  the kind's colour, labelled as the format doc names them: Note (blue), Configuration tip (green),
+  Required (red), Warning (amber). The words stay ink.
+- **Screenshot placeholders**: both conventions (K8's `> **Screenshot needed:** file — description`
+  and L8's `**[Screenshot: description]**`) render as the same dashed "Screenshot to come" panel,
+  captioned with the description and, where given, the file name.
+- **Code blocks** sit on the brand navy with a language label and Copy action; inline code is a
+  light chip.
+- **Links keep working**: in-page anchors, links between a module's three guides (including their
+  anchors, using GitHub's heading slugs), and links to other configuration modules.
+- End-user numbered steps use the existing numbered-circle step style.
+- Opening a module goes straight to its first guide. There is no module overview page yet, though
+  K8's module READMEs (scope warnings, the IV medications explainer) would naturally live there.
 
 ## Decisions taken
 
