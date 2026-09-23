@@ -775,6 +775,28 @@
   .pcard .kind { color:var(--ink-2); }
   .pcard h3 { color:var(--ink); }
   .pcard p { color:var(--ink-2); }
+
+  /* ---- roadmap header wears the Browse tiles' dark treatment, washed in the
+         roadmap's green, so it reads as the tile you came through ---- */
+  .rmx-hero { --a:var(--c-green); position:relative; overflow:hidden; background:var(--brand-dark);
+    color:#fff; border-radius:20px; padding:30px 30px 26px; }
+  .rmx-hero::before { content:""; position:absolute; right:-90px; top:-110px; width:360px; height:360px;
+    border-radius:999px; background:var(--a); opacity:.40; filter:blur(70px); }
+  .rmx-hero > * { position:relative; }
+  .rmx-hero .ic { width:46px; height:46px; border-radius:14px; color:#fff; margin-bottom:22px;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+    display:grid; place-items:center; }
+  .roadmap .rmx-hero h1 { color:#fff; margin:0 0 8px; }
+  .roadmap .rmx-hero .subtitle { color:rgba(255,255,255,.72); margin:0; }
+  .rmx-hero .rmx-legend { margin:22px 0 0; gap:8px; }
+  .rmx-hero .rmx-legend .item { font-size:12px; font-weight:560; color:rgba(255,255,255,.82);
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+    border-radius:999px; padding:5px 11px 5px 8px; }
+  .rmx-hero .rmx-legend .mk { width:12px; height:12px; }
+  .rmx-hero .rmx-legend .mk.planned { background:transparent; border-color:color-mix(in srgb, var(--c-green) 45%, #fff); }
+  @media (max-width:900px) {
+    .rmx-hero { padding:24px 22px 22px; border-radius:18px; }
+  }
 </style>
 </head>
 <body>
@@ -1422,12 +1444,14 @@
 <!-- ============ VIEW: ROADMAP ============ -->
 <section data-view="roadmap" hidden>
   <main class="roadmap">
-    <h1>Roadmap</h1>
-    <p class="subtitle">A best-estimate view of major developments in Tamanu, from recently released to planned. Move along the timeline to see what's ahead.</p>
-
-    <div class="rmx-legend">
-      <span class="item"><span class="mk done"></span> Released</span>
-      <span class="item"><span class="mk planned"></span> Planned</span>
+    <div class="rmx-hero">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8a3 3 0 0 0 0-6H7a3 3 0 0 1 0-6h6"/></svg></span>
+      <h1>Roadmap</h1>
+      <p class="subtitle">A best-estimate view of major developments in Tamanu, from recently released to planned. Move along the timeline to see what's ahead.</p>
+      <div class="rmx-legend">
+        <span class="item"><span class="mk done"></span> Released</span>
+        <span class="item"><span class="mk planned"></span> Planned</span>
+      </div>
     </div>
 
     <div class="rmx-nav">
@@ -1479,9 +1503,9 @@
           <div class="rmx-cell"><span class="rmx-marker done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
           <div class="rmx-cell"><span class="rmx-marker done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
           <div class="rmx-cell"><span class="rmx-marker done"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
-          <div class="rmx-cell"><span class="rmx-marker planned"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
-          <div class="rmx-cell"><span class="rmx-marker planned"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
-          <div class="rmx-cell"><span class="rmx-marker planned"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span></div>
+          <div class="rmx-cell"><span class="rmx-marker planned"></span></div>
+          <div class="rmx-cell"><span class="rmx-marker planned"></span></div>
+          <div class="rmx-cell"><span class="rmx-marker planned"></span></div>
         </div>
 
         <!-- BOTTOM ROW: (gap), V2.34, (gap), Oct-Dec 2025, (gap), Apr-Jun 2026 -->
