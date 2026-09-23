@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { BackendContext } from './BackendContext';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { SettingsService } from '~/services/settings';
+import { BackendContext } from './BackendContext';
 
 interface SettingsContextData {
   getSetting<T>(key: string): T | undefined;
@@ -14,23 +14,15 @@ const SettingsContext = createContext<SettingsContextData>({} as SettingsContext
 
 export const useSettings = () => useContext(SettingsContext);
 
-export const SettingsProvider = ({ children }) => {
+export const SettingsProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const backend = useContext(BackendContext);
-
-  const defaultHelpers = useMemo(() => makeHelpers(backend.settings), [backend.settings]);
-  const [helpers, setHelpers] = useState(defaultHelpers);
+  const [helpers, setHelpers] = useState(() => makeHelpers(backend.settings));
 
   useEffect(() => {
-    const onChanged = (): void => {
-      // updates the helper functions whenever the settings change,
-      // in order to make components update with the new value
-      setHelpers(makeHelpers(backend.settings));
-    };
+    const onChanged = () => void setHelpers(makeHelpers(backend.settings));
     backend.settings.emitter.on('settingsChanged', onChanged);
-    return () => {
-      backend.settings.emitter.off('settingsChanged', onChanged);
-    };
-  }, [backend, backend.settings]);
+    return () => void backend.settings.emitter.off('settingsChanged', onChanged);
+  }, [backend]);
 
   return <SettingsContext.Provider value={helpers}>{children}</SettingsContext.Provider>;
 };
