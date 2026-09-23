@@ -1,11 +1,10 @@
 import { Brackets, Column, RelationId, Entity, ManyToOne } from 'typeorm';
-import { get as getAtPath, merge, set as setAtPath } from 'es-toolkit/compat';
+import { get as getAtPath, set as setAtPath } from 'es-toolkit/compat';
 
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { SYNC_DIRECTIONS } from './types';
 import type { IFacility } from '../types';
-import { SETTINGS_SCOPES } from '~/constants';
 import { readConfig } from '~/services/config';
 import { parseOrKeep } from '~/utils/parseOrKeep';
 
@@ -28,77 +27,34 @@ export class Setting extends BaseModel {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  /**
-   * IMPORTANT: Duplicated from shared-src/models/Setting.js
-   * Please update both places when modify
-   */
-  static async get(key = '', facilityId: string | null = null, scopeOverride = null) {
-    const determineScope = () => {
-      if (scopeOverride) {
-        return scopeOverride;
-      }
-      if (facilityId) {
-        return SETTINGS_SCOPES.FACILITY;
-      }
-      return null;
-    };
+  static async getByKey<T = unknown>(key: string): Promise<T | undefined> {
+    if (!key) throw new Error('Setting.getByKey requires a key');
 
-    const scope = determineScope();
+    const facilityId = await readConfig('facilityId', '');
 
-    const settingsQueryBuilder = Setting.getRepository()
+    const settings = await Setting.getRepository()
       .createQueryBuilder('setting')
       .where(
         new Brackets(qb => {
-          qb.where('facilityId = :facilityId', { facilityId }).orWhere('facilityId IS NULL');
-        }),
-      );
-
-    if (key) {
-      settingsQueryBuilder.andWhere(
-        new Brackets(qb => {
           qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
         }),
-      );
-    }
-
-    if (scope) {
-      settingsQueryBuilder.andWhere(
+      )
+      .andWhere(
         new Brackets(qb => {
-          qb.where('scope = :scope', { scope });
+          qb.where('facilityId = :facilityId', { facilityId }).orWhere('facilityId IS NULL');
         }),
-      );
-    }
-
-    settingsQueryBuilder
+      )
       .orderBy('key', 'ASC')
       // we want facility keys to come last so they override global keys
-      .addOrderBy("COALESCE(facilityId, '###')", 'ASC');
-
-    const settings = await settingsQueryBuilder.getMany();
+      .addOrderBy("COALESCE(facilityId, '###')", 'ASC')
+      .getMany();
 
     const settingsObject = {};
     for (const currentSetting of settings) {
       setAtPath(settingsObject, currentSetting.key, parseOrKeep(currentSetting.value));
     }
 
-    if (key === '') {
-      return settingsObject;
-    }
-
-    // just return the object or value below the requested key
-    // e.g. if schedules.outPatientDischarger was requested, the return object will look like
-    // {  schedule: '0 11 * * *', batchSize: 1000 }
-    // rather than
-    // { schedules: { outPatientDischarger: { schedule: '0 11 * * *', batchSize: 1000 } } }
     return getAtPath(settingsObject, key);
-  }
-
-  static async getByKey(key = '') {
-    const facilityId = await readConfig('facilityId', '');
-    const settingWithFacilityScope = await Setting.get('', facilityId);
-    const settingWithGlobalScope = await Setting.get('');
-    const settings = merge(settingWithGlobalScope, settingWithFacilityScope);
-    return getAtPath(settings, key);
   }
 
   static sanitizePulledRecordData(rows) {
