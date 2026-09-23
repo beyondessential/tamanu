@@ -95,6 +95,10 @@ Design notes:
 - **The sidebar is one component across the index, article and config guide pages**: a collapsible
   group per category, headed by its accent dot, with numbered modules beneath. The page's own
   category is expanded and the others collapse.
+- **Module rows are independent disclosures**: clicking a row opens or closes its guides, any number
+  can be open at once, and the guides themselves are the links. Arriving at a guide opens its module
+  and leaves any other open modules as they were. A desktop or mobile module with no written guides
+  has no chevron and links straight through.
 - **Module and guide numbers show wherever they are listed** (sidebar, index tiles, article title),
   in muted tabular figures.
 - **Each category holds one accent** across its sidebar dot, index header and tile hover: desktop
