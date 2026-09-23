@@ -81,9 +81,11 @@ export const saveChangesForModel = async (
       // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
       return { ...sanitizeData(data), isDeleted };
     });
-  // the soft delete / restore decision travels with the update so deleted_at is written in the
-  // same statement as the rest of the record (see saveUpdates); records with no decision leave
-  // deleted_at untouched
+  /**
+   * The soft-delete/restore decision travels with the update so `deleted_at` is written in the same
+   * statement as the rest of the record (see {@link saveUpdates}). Records with no decision leave
+   * `deleted_at` untouched.
+   */
   const getDeletedAt = (id: SyncSnapshotData['id']) => {
     if (idsForDelete.has(id)) return fn('now');
     if (idsForRestore.has(id)) return null;
