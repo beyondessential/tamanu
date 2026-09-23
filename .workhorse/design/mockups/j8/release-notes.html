@@ -440,6 +440,14 @@
     aside.side-a, aside.side-m { display:none; }
     aside.side:has(a.ver), aside.side-v { padding:18px 22px; }
   }
+
+  /* ---- sidebars: hover is a light tint, the selected row is the brand navy, matching the
+         selected guide tab, so the two never read alike ---- */
+  .side-v a.ver.active, .side a.ver.active, .side-a a.item.active, .side a.item.active,
+  .side-m .children a.active,
+  .side-v a.ver.active:hover, .side a.ver.active:hover, .side-a a.item.active:hover, .side a.item.active:hover,
+  .side-m .children a.active:hover { background:var(--brand-dark); color:#fff; font-weight:560; }
+  .side-v a.ver.active .d, .side a.ver.active .d, .side-m .children a.active .num { color:rgba(255,255,255,.62); }
 </style>
 </head>
 <body>

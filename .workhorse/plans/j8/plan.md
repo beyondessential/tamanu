@@ -95,6 +95,10 @@ Design notes:
 - **The sidebar is one component across the index, article and config guide pages**: a collapsible
   group per category, headed by its accent dot, with numbered modules beneath. The page's own
   category is expanded and the others collapse.
+- **Selected and hover never look alike in a sidebar**: hover is the light blue tint, and the
+  selected row (current release version, current guide or article) is the brand navy with white text,
+  matching the selected guide tab. This holds across the release notes, User manuals and article
+  sidebars.
 - **Module rows are independent disclosures**: clicking a row opens or closes its guides, any number
   can be open at once, and the guides themselves are the links. Arriving at a guide opens its module
   and leaves any other open modules as they were. A desktop or mobile module with no written guides

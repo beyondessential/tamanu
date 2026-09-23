@@ -928,6 +928,13 @@
   .markdown-body .markdown-alert-warning .markdown-alert-title { color:#9a6700; }
   .markdown-body .markdown-alert-caution { border-left-color:#cf222e; }
   .markdown-body .markdown-alert-caution .markdown-alert-title { color:#cf222e; }
+  /* ---- sidebars: hover is a light tint, the selected row is the brand navy, matching the
+         selected guide tab, so the two never read alike ---- */
+  .side-v a.ver.active, .side a.ver.active, .side-a a.item.active, .side a.item.active,
+  .side-m .children a.active,
+  .side-v a.ver.active:hover, .side a.ver.active:hover, .side-a a.item.active:hover, .side a.item.active:hover,
+  .side-m .children a.active:hover { background:var(--brand-dark); color:#fff; font-weight:560; }
+  .side-v a.ver.active .d, .side a.ver.active .d, .side-m .children a.active .num { color:rgba(255,255,255,.62); }
   @media (max-width:900px) {
     .mgrid, .mgrid-3 { grid-template-columns:1fr; }
     .cat-head { padding:20px; gap:14px; }
