@@ -28,16 +28,25 @@ export const resolveAppointmentSchedules = async (
     'data.generatedUntilDate',
   );
 
-  // Map rows onto the Appointment model so the snapshot data has camel case keys. A raw row would
-  // carry `deleted_at`, but `sanitizeRecord` expects (and strips) `deletedAt`.
+  // Select only the model's own columns and map them onto the Appointment model so the snapshot
+  // data has camel case keys. A raw `SELECT *` row would carry `deleted_at`, but `sanitizeRecord`
+  // expects (and strips) `deletedAt`; it would also carry legacy columns the model no longer
+  // declares, which `mapToModel` passes through under their raw names.
   const { Appointment: AppointmentModel } = AppointmentScheduleModel.sequelize.models;
+  /**
+   * Get attributes from Sequelize model, because `SELECT *` includes `start_time_legacy` and
+   * `end_time_legacy`, which we don’t want.
+   */
+  const appointmentColumns = Object.values(AppointmentModel.getAttributes())
+    .map(attribute => `appointments.${attribute.field}`)
+    .join(', ');
   const outOfBoundAppointments = await AppointmentScheduleModel.sequelize.query(
     `
     WITH schedule_generated_until_dates AS (
      SELECT value::date_string AS date, key::uuid AS id from json_each_text(:generatedUntilDates)
     )
     SELECT
-      *
+      ${appointmentColumns}
     FROM
       appointments
     WHERE
