@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Model, Sequelize } from 'sequelize';
 import type { SYNC_DIRECTIONS } from '@tamanu/constants';
 import type { Models } from './model';
 import type { SYNC_SESSION_DIRECTION } from '../sync/constants';
@@ -19,21 +19,23 @@ export interface Store {
   models: Models;
 }
 
-export type RecordType = any;
+export type RecordType = string;
 
 export interface SyncSnapshotData {
-  id: number;
+  id: string;
   [key: string]: any;
 }
 
 export interface SyncSnapshotAttributes {
-  id: number;
+  /** bigserial */
+  id: string;
   direction: string;
   recordType: string;
   recordId: string;
   isDeleted: boolean;
   data: SyncSnapshotData;
-  savedAtSyncTick: number;
+  /** bigint */
+  savedAtSyncTick: string;
   updatedAtByFieldSum?: number; // only for merged records
   syncLookupId?: number; // no syncLookupId if it is an incoming record
   requiresRepull?: boolean;
