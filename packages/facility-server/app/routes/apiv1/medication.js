@@ -2060,14 +2060,17 @@ medication.post(
 
       const prescriberId = pharmacyOrderPrescription.prescription?.prescriberId;
       const patientId = pharmacyOrderPrescription.pharmacyOrder?.encounter?.patientId;
-      if (prescriberId && patientId) {
-        await models.Notification.pushNotification(NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED, {
-          prescriberId,
-          patientId,
-          pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
-          encounterId: pharmacyOrderPrescription.pharmacyOrder?.encounterId,
-        });
+      if (!prescriberId || !patientId) {
+        throw new InvalidOperationError(
+          `Pharmacy order prescription ${pharmacyOrderPrescription.id} is missing prescriber or patient data required to notify the prescriber`,
+        );
       }
+      await models.Notification.pushNotification(NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED, {
+        prescriberId,
+        patientId,
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        encounterId: pharmacyOrderPrescription.pharmacyOrder?.encounterId,
+      });
     });
 
     res.send({ success: true });
