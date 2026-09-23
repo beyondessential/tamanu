@@ -489,6 +489,53 @@
   .pcard .kind { color:var(--ink-2); }
   .pcard h3 { color:var(--ink); }
   .pcard p { color:var(--ink-2); }
+
+  /* ---- Recent features: the latest major features from the release notes, as a carousel.
+         Three cards show at a time and the arrows step through them a card at a time ---- */
+  .sec-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin:60px 0 24px; }
+  .sec-head .sec-title { margin:0; }
+  .feat-nav { display:flex; gap:10px; flex:none; }
+  .feat-nav button { width:40px; height:40px; border-radius:999px; border:1px solid var(--line); background:#fff;
+    color:var(--ink); display:grid; place-items:center; cursor:pointer; }
+  .feat-nav button:hover:not(:disabled) { border-color:var(--brand); color:var(--brand); }
+  .feat-nav button:focus-visible { outline:2px solid var(--brand); outline-offset:2px; }
+  .feat-nav button:disabled { opacity:.4; cursor:default; }
+  .feat-track { display:grid; grid-auto-flow:column; grid-auto-columns:calc((100% - 36px) / 3); gap:18px;
+    overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; scrollbar-width:none;
+    padding:2px 2px 14px; margin:0 -2px; }
+  .feat-track::-webkit-scrollbar { display:none; }
+  .feat-card { scroll-snap-align:start; display:flex; flex-direction:column; overflow:hidden; background:#fff;
+    border:1px solid var(--line); border-radius:16px; }
+  /* the video sits on the brand navy, washed in the release notes pink, until a video is added */
+  .feat-video { position:relative; overflow:hidden; aspect-ratio:16 / 9; display:grid; place-items:center;
+    background:var(--brand-dark); }
+  .feat-video::before { content:""; position:absolute; right:-70px; top:-90px; width:240px; height:240px;
+    border-radius:999px; background:var(--c-pink); opacity:.32; filter:blur(52px); }
+  .feat-video .play { position:relative; width:54px; height:54px; border-radius:999px; display:grid; place-items:center;
+    padding-left:3px; color:var(--brand-dark); background:rgba(255,255,255,.92); }
+  .feat-video .vlabel { position:absolute; left:14px; bottom:12px; font-size:12px; font-weight:560; color:rgba(255,255,255,.7); }
+  .feat-body { display:flex; flex-direction:column; flex:1; padding:18px 20px 6px; }
+  .feat-meta { font-size:12px; font-weight:560; color:var(--ink-3); margin-bottom:6px; }
+  .feat-body h3 { font-size:17px; font-weight:620; letter-spacing:-0.015em; line-height:1.3; margin:0 0 8px; color:var(--ink); }
+  .feat-body p { font-size:14px; line-height:1.5; color:var(--ink-2); margin:0 0 16px; }
+  .feat-links { margin-top:auto; display:flex; flex-direction:column; }
+  .feat-links a { display:flex; align-items:center; gap:8px; padding:11px 0; font-size:14px; font-weight:560;
+    color:var(--ink); text-decoration:none; border-top:1px solid var(--line); cursor:pointer; }
+  .feat-links a .dt { font-weight:400; color:var(--ink-3); }
+  .feat-links a svg { margin-left:auto; color:var(--ink-4); transition:transform .14s, color .14s; }
+  .feat-links a:hover svg { color:var(--ink); transform:translateX(3px); }
+  /* landing on a feature in the release notes briefly marks it */
+  .rn h4.rn-feat { scroll-margin-top:96px; border-radius:6px; }
+  .rn h4.rn-feat.flash { animation:featflash 1.8s ease-out; }
+  @keyframes featflash {
+    from { background:var(--c-pink-10); box-shadow:0 0 0 8px var(--c-pink-10); }
+    to { background:transparent; box-shadow:0 0 0 8px transparent; }
+  }
+  @media (max-width:1080px) { .feat-track { grid-auto-columns:calc((100% - 18px) / 2); } }
+  @media (max-width:900px) {
+    .sec-head { margin:44px 0 18px; }
+    .feat-track { grid-auto-columns:86%; }
+  }
 </style>
 </head>
 <body>
@@ -544,6 +591,85 @@
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
         <div><span class="kind">User manual</span><h3>Finding a patient</h3><p>Getting started</p></div>
       </a>
+    </div>
+
+    <div class="sec-head">
+      <div class="sec-title">Recent features</div>
+      <div class="feat-nav"><button type="button" aria-label="Previous features"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" aria-label="Next features"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div>
+    </div>
+    <div class="feat-track">
+      <article class="feat-card">
+        <div class="feat-video"><span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="vlabel">Video to come</span></div>
+        <div class="feat-body">
+          <div class="feat-meta">v2.62 · System Administration</div>
+          <h3>Configuration managed in the admin panel</h3>
+          <p>Configuration that previously lived in files on each server is now database-backed settings, editable in the admin panel with validation and per-facility overrides.</p>
+          <nav class="feat-links" aria-label="Read more">
+            <a href="#" data-feature="v262" data-feature-target="feat-v262-configuration-managed-in-the-admin-panel">Release notes <span class="dt">v2.62</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="guide" data-module="1" data-surface="settings">User guide <span class="dt">Deploying Tamanu settings</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </nav>
+        </div>
+      </article>
+      <article class="feat-card">
+        <div class="feat-video"><span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="vlabel">Video to come</span></div>
+        <div class="feat-body">
+          <div class="feat-meta">v2.62 · Tamanu Desktop</div>
+          <h3>'Send to pharmacy' from discharge and prescribing</h3>
+          <p>Medications can now be sent to pharmacy at the two points where prescribing happens: writing a new prescription, and discharging a patient.</p>
+          <nav class="feat-links" aria-label="Read more">
+            <a href="#" data-feature="v262" data-feature-target="feat-v262-send-to-pharmacy-from-discharge-and-prescribing">Release notes <span class="dt">v2.62</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article">User guide <span class="dt">Medications</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </nav>
+        </div>
+      </article>
+      <article class="feat-card">
+        <div class="feat-video"><span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="vlabel">Video to come</span></div>
+        <div class="feat-body">
+          <div class="feat-meta">v2.61 · Tamanu Desktop</div>
+          <h3>Automatic encounter, bed and inpatient fees</h3>
+          <p>Routine charges are now added to invoices automatically as care happens.</p>
+          <nav class="feat-links" aria-label="Read more">
+            <a href="#" data-feature="v261" data-feature-target="feat-v261-automatic-encounter-bed-and-inpatient-fees">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article">User guide <span class="dt">Invoicing</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </nav>
+        </div>
+      </article>
+      <article class="feat-card">
+        <div class="feat-video"><span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="vlabel">Video to come</span></div>
+        <div class="feat-body">
+          <div class="feat-meta">v2.61 · Tamanu Desktop</div>
+          <h3>Prescription modification at dispensing</h3>
+          <p>Pharmacy can now change the details of a prescription while dispensing it, without sending it back to the prescriber.</p>
+          <nav class="feat-links" aria-label="Read more">
+            <a href="#" data-feature="v261" data-feature-target="feat-v261-prescription-modification-at-dispensing">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article">User guide <span class="dt">Medications</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </nav>
+        </div>
+      </article>
+      <article class="feat-card">
+        <div class="feat-video"><span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="vlabel">Video to come</span></div>
+        <div class="feat-body">
+          <div class="feat-meta">v2.61 · Tamanu Desktop</div>
+          <h3>Medication dispensing quantity autocalculation</h3>
+          <p>Tamanu can now work out the dispensing quantity from the dose, frequency and duration of a prescription, so the quantity no longer has to be counted out by hand.</p>
+          <nav class="feat-links" aria-label="Read more">
+            <a href="#" data-feature="v261" data-feature-target="feat-v261-medication-dispensing-quantity-autocalculation">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="guide" data-module="15" data-surface="settings" data-jump="settings--dispensing-quantity-autocalculation">User guide <span class="dt">Medications settings</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </nav>
+        </div>
+      </article>
+      <article class="feat-card">
+        <div class="feat-video"><span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="vlabel">Video to come</span></div>
+        <div class="feat-body">
+          <div class="feat-meta">v2.61 · Tamanu Desktop</div>
+          <h3>Encounter notes search and filters</h3>
+          <p>Clinical notes on an encounter can now be searched and filtered instead of scrolled through.</p>
+          <nav class="feat-links" aria-label="Read more">
+            <a href="#" data-feature="v261" data-feature-target="feat-v261-encounter-notes-search-and-filters">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article">User guide <span class="dt">Notes</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </nav>
+        </div>
+      </article>
     </div>
 
     <div class="sec-title">Browse</div>
@@ -624,6 +750,44 @@
       if (innerWidth > 900) setOpen(false);
     });
   })();
+</script>
+<script>
+  // Recent features: the arrows step the carousel a card at a time, and switch off at either end
+  (function () {
+    var track = document.querySelector('.feat-track');
+    if (!track) return;
+    var buttons = document.querySelectorAll('.feat-nav button');
+    var previous = buttons[0], next = buttons[1];
+    var step = function () { return track.querySelector('.feat-card').getBoundingClientRect().width + 18; };
+    var sync = function () {
+      previous.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    };
+    previous.addEventListener('click', function () { track.scrollBy({ left: -step() }); });
+    next.addEventListener('click', function () { track.scrollBy({ left: step() }); });
+    track.addEventListener('scroll', sync, { passive: true });
+    addEventListener('resize', sync);
+    sync();
+  })();
+
+  // A feature's release notes link opens its version and lands on the feature itself
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('[data-feature]');
+    if (!link) return;
+    e.preventDefault();
+    if (typeof showView !== 'function') return; // the standalone home page has no other views
+    closeOverlays();
+    showView('releases');
+    selectRelease(link.dataset.feature);
+    var target = document.getElementById(link.dataset.featureTarget);
+    if (!target) return;
+    setTimeout(function () {
+      target.scrollIntoView({ block: 'start' });
+      target.classList.remove('flash');
+      void target.offsetWidth;
+      target.classList.add('flash');
+    }, 0);
+  });
 </script>
 </body>
 </html>

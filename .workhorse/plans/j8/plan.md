@@ -21,6 +21,16 @@ Mockups under `.workhorse/design/mockups/j8/`:
   per-article icon, so the kind is readable at a glance and the list can be generated from
   whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
   destinations. The two treatments are distinct so the sections do not read as one long grid.
+- **Home: Recent features** sits between Popular and Browse. It is a carousel of the six most recent
+  major features (the `### _Feature_` headings in `docs/release-notes`, newest first; v2.63 has
+  none, so they are v2.62's two and v2.61's first four). Three cards show at a time, stepped by
+  arrows in the section header that switch off at either end. Each card has a 16:9 video area (the
+  brand navy with a pink wash, a play button and "Video to come" until a video exists), the version
+  and area, the feature title in sentence case, the first sentence of its release notes intro as the
+  blurb, and two link rows: **Release notes** opens that version and scrolls to the feature, which
+  briefly highlights; **User guide** opens the mapped guide (Medications settings lands on its
+  "Dispensing quantity autocalculation" section). The feature-to-guide mapping is a proposal to
+  confirm.
 - `manuals-index.html` — the manuals section landing. **Superseded by the prototype's manuals view**,
   which carries the three-category structure (see "User manuals structure"); this standalone file
   still shows the earlier topic-card grid.
