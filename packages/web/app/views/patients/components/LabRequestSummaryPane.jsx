@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
@@ -12,8 +12,13 @@ import {
   useSelectableColumn,
 } from '../../../components';
 import { LabRequestFinalisedHeader } from '../../../components/PatientPrinting/LabRequestFinalisedHeader';
-import { LabRequestPrintLabelModal } from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import {
+  LabRequestPrintLabelModal,
+  toLabelData,
+} from '../../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { LabRequestLabelPrintFrame } from '../../../components/PatientPrinting/printouts/LabRequestLabelPrintFrame';
 import { useSettings } from '../../../contexts/Settings';
+import { usePatient } from '../../../contexts/Patient';
 import { useLabRequestNotesQuery } from '../../../api/queries';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
@@ -125,12 +130,13 @@ const getColumns = () => [
 
 const MODALS = {
   PRINT: 'print',
-  LABEL_PRINT: 'labelPrint',
   AUTO_LABEL_PRINT: 'autoLabelPrint',
 };
 
 export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClose }) => {
   const { getSetting } = useSettings();
+  const { patient } = usePatient();
+  const labelFrameRef = useRef(null);
   // Auto-print the sample labels when every sample in the request has been recorded and the
   // facility has opted in; the print screen then replaces the standard finalise screen.
   const autoPrintLabel =
@@ -146,21 +152,25 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
     setIsOpen(MODALS.AUTO_LABEL_PRINT);
   }
   // The auto-print screen prints every request and closing it ends the finalise flow; the manual
-  // "Print labels" button prints the table's selection and returns to the summary.
+  // "Print labels" button prints the table's selection straight to the native print dialog.
   const isAutoLabelPrint = isOpen === MODALS.AUTO_LABEL_PRINT;
   const { selectedRows, selectableColumn } = useSelectableColumn(labRequests, {
     columnKey: 'selected',
     showIndeterminate: true,
-    // Categories whose sample is already recorded start selected; the rest are left for the user.
+    // Rows whose sample is already recorded start selected; every row can still be selected,
+    // including those with no recorded sample.
     getIsRowInitiallySelected: request => Boolean(request.sampleTime),
-    // A sample that has not been recorded cannot be printed, so its row is not selectable —
-    // for the per-row checkbox and for the select-all control.
-    getIsRowDisabled: (selectedKeys, row) => !row.sampleTime,
-    getRowsFilterer: () => request => Boolean(request.sampleTime),
   });
   const noRowSelected = useMemo(() => !selectedRows?.length, [selectedRows]);
   // All the lab requests were made in a batch and have the same details
   const { id } = labRequests[0];
+
+  // The selected rows' labels are rendered into a hidden frame so "Print labels" can open the
+  // native print dialog directly, without a separate preview modal.
+  const printedLabels = useMemo(
+    () => (patient ? selectedRows.map(lab => toLabelData(patient, lab)) : []),
+    [patient, selectedRows],
+  );
 
   const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } =
     useLabRequestNotesQuery(id);
@@ -169,7 +179,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
     <Container data-testid="container-nnz7">
       <LabRequestFinalisedHeader />
       <FormSeparatorLine />
-      <BodyText mt="20px" mb="28px">
+      <BodyText mt="20px" mb="20px">
         <TranslatedText
           stringId="lab.requestSummary.instruction"
           fallback="Please select items from the list below to print sample labels or the lab request."
@@ -194,7 +204,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
       <Actions data-testid="actions-3chb">
         <OutlinedButton
           size="small"
-          onClick={() => setIsOpen(MODALS.LABEL_PRINT)}
+          onClick={() => labelFrameRef.current?.print()}
           disabled={noRowSelected}
           data-testid="outlinedbutton-skm0"
         >
@@ -204,10 +214,13 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
             data-testid="translatedtext-z6vw"
           />
         </OutlinedButton>
+        <LabRequestLabelPrintFrame ref={labelFrameRef} labels={printedLabels} />
+        {/* The manual "Print labels" button prints via the hidden frame above. The preview screen
+            only appears when the facility has opted into auto-printing sample labels. */}
         <LabRequestPrintLabelModal
-          labRequests={isAutoLabelPrint ? labRequests : selectedRows}
-          open={isOpen === MODALS.LABEL_PRINT || isAutoLabelPrint}
-          onClose={isAutoLabelPrint ? onClose : () => setIsOpen(false)}
+          labRequests={labRequests}
+          open={isAutoLabelPrint}
+          onClose={onClose}
           showFinalisedHeader
           data-testid="labrequestprintlabelmodal-n8hs"
         />
@@ -234,7 +247,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
           data-testid="multiplelabrequestsprintoutmodal-1dc5"
         />
       </Actions>
-      <FormSeparatorLine data-testid="formseparatorline-9zz8" />
+      <FormSeparatorLine />
       <Box display="flex" justifyContent="flex-end" pt={3} data-testid="box-t4gx">
         <Button onClick={onClose} data-testid="button-9vga">
           <TranslatedText

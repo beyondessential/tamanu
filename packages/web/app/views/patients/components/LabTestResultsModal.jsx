@@ -130,6 +130,12 @@ const InterpretationFieldSection = styled(Box)`
   margin: 20px 30px;
 `;
 
+// Tests belonging to a panel sit under the panel's group header and are indented from it.
+const TestName = styled.span`
+  display: inline-block;
+  padding-left: ${({ $indented }) => ($indented ? '15px' : '0')};
+`;
+
 const LAB_TEST_PROPERTIES = {
   COMPLETED_DATE: 'completedDate',
   ID: 'id',
@@ -182,11 +188,13 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       title: <TranslatedText stringId="lab.test.label" fallback="Test" />,
       width: '120px',
       accessor: row => (
-        <TranslatedReferenceData
-          fallback={row.labTestType.name}
-          value={row.labTestType.id}
-          category="labTestType"
-        />
+        <TestName $indented={Boolean(row.labTestPanel)}>
+          <TranslatedReferenceData
+            fallback={row.labTestType.name}
+            value={row.labTestType.id}
+            category="labTestType"
+          />
+        </TestName>
       ),
     },
     {

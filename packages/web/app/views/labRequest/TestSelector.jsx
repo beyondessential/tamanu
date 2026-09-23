@@ -63,7 +63,9 @@ const Controls = styled.div`
   align-items: center;
   gap: 8px;
   margin-right: 1.3rem;
-  padding-bottom: 0.5rem;
+  // Fixed height so this row's divider lines up with the "Selected" divider opposite
+  height: 52px;
+  box-sizing: border-box;
   border-bottom: 1px solid ${Colors.outline};
 `;
 
@@ -72,6 +74,7 @@ const StyledSearchInput = styled(SearchInput)`
   margin-left: 5px;
   .MuiInputBase-root {
     padding-left: 0;
+    height: 36px;
   }
   .MuiInputBase-input {
     font-size: 14px;
@@ -150,8 +153,9 @@ const SelectedHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 8px;
-  padding-bottom: 12px;
+  // Matches the search Controls height so both column dividers align
+  height: 52px;
+  box-sizing: border-box;
   margin-bottom: 8px;
   border-bottom: 1px solid ${Colors.outline};
 `;
@@ -160,6 +164,10 @@ const SectionTitle = styled.span`
   font-size: 15px;
   line-height: 18px;
   color: ${Colors.darkestText};
+`;
+
+const SelectedCount = styled.span`
+  color: ${Colors.midText};
 `;
 
 const ClearAllButton = styled(TextButton)`
@@ -386,7 +394,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
 
   const coveredTooltip = getTranslation(
     'lab.testSelect.coveredByPanel',
-    'A panel containing this test has already been selected',
+    'A panel containing this test\nhas already been selected',
   );
 
   const renderItem = item => {
@@ -500,11 +508,8 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
       <SelectedColumn data-testid="test-selector-selected">
         <SelectedHeader>
           <SectionTitle>
-            <TranslatedText
-              stringId="lab.testSelect.selected"
-              fallback="Selected (:count)"
-              replacements={{ count: selectedCount }}
-            />
+            <TranslatedText stringId="lab.testSelect.selected" fallback="Selected" />{' '}
+            <SelectedCount>({selectedCount})</SelectedCount>
           </SectionTitle>
           {selectedCount > 0 && (
             <ClearAllButton onClick={clearAll} data-testid="test-selector-clear-all">

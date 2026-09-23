@@ -49,7 +49,7 @@ const Instruction = styled(BodyText)`
   text-align: center;
 `;
 
-const toLabelData = (patient, lab) => ({
+export const toLabelData = (patient, lab) => ({
   patientName: getPatientNameAsString(patient),
   requestId: lab.displayId,
   patientId: patient.displayId,

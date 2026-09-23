@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Form, OutlinedButton, ButtonRow, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import {
-  FormSeparatorLine,
-} from '../components';
+  Form,
+  OutlinedButton,
+  ButtonRow,
+  FormGrid,
+  FormSubmitCancelRow,
+} from '@tamanu/ui-components';
+import { FormSeparatorLine } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledBackButton = styled(OutlinedButton)`
@@ -33,7 +37,7 @@ export const MultiStepForm = ({
   const totalSteps = steps.length;
   const isLastStep = stepNumber === totalSteps - 1;
 
-  const next = (values) => {
+  const next = values => {
     setSnapshot(values);
     const nextStep = Math.min(stepNumber + 1, totalSteps - 1);
     if (onChangeStep) {
@@ -42,7 +46,7 @@ export const MultiStepForm = ({
     setStepNumber(nextStep);
   };
 
-  const previous = (values) => {
+  const previous = values => {
     const prevStep = Math.max(stepNumber - 1, 0);
     if (onChangeStep) {
       onChangeStep(prevStep, values);
@@ -69,11 +73,11 @@ export const MultiStepForm = ({
       validationSchema={step.props.validationSchema}
       style={{ width: '100%' }}
       showInlineErrorsOnly
-      render={(props) => {
+      render={props => {
         return (
           <FormGrid data-testid="formgrid-wses">
             {React.cloneElement(step, props)}
-            <FormSeparatorLine data-testid="formseparatorline-01xj" />
+            <FormSeparatorLine />
             <ButtonRow data-testid="buttonrow-40t7">
               {stepNumber > 0 && (
                 <StyledBackButton
