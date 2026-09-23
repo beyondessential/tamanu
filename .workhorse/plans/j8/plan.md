@@ -110,23 +110,24 @@ Design notes:
 
 ### How guides render on the docs site
 
-Per the format doc's "How guides render" table:
+**Guide content renders exactly as GitHub renders it**, the "On GitHub" column of the format doc's
+rendering table, rather than being restyled for the site. Guides are markdown in the repo and GitHub
+strips any styling, so matching GitHub keeps one appearance on both surfaces. The site's own chrome
+(top bar, sidebar, crumbs, title, guide tabs, on-page contents, feedback) stays in the site's style
+around it.
 
-- A guide's `#` sections render one level below the page title, split by its horizontal rules. The
-  first paragraph is set as a lead. The on-page contents lists `#` and `##` headings, nested.
-- **Tables** get Tamanu blue (`#326699`) header rows and a bold first column.
-- **Required marker**: the `*` after a column name is red.
-- **Callouts**: the four GitHub alert kinds render as tinted panels with a left rule and an icon in
-  the kind's colour, labelled as the format doc names them: Note (blue), Configuration tip (green),
-  Required (red), Warning (amber). The words stay ink.
-- **Screenshot placeholders**: both conventions (K8's `> **Screenshot needed:** file — description`
-  and L8's `**[Screenshot: description]**`) render as the same dashed "Screenshot to come" panel,
-  captioned with the description and, where given, the file name.
-- **Code blocks** sit on the brand navy with a language label and Copy action; inline code is a
-  light chip.
-- **Links keep working**: in-page anchors, links between a module's three guides (including their
-  anchors, using GitHub's heading slugs), and links to other configuration modules.
-- End-user numbered steps use the existing numbered-circle step style.
+- The content area uses GitHub's light markdown theme, taken from `github-markdown-css`: GitHub's
+  font stack, `#1f2328` text, `#0969da` links (underlined on hover), grey-bordered tables with bold
+  headers and striped rows, light grey code blocks, grey-ruled blockquotes and GitHub's thick `hr`.
+- Alerts render as GitHub alerts: a coloured left rule, and the octicon and label (Note, Tip,
+  Caution, Warning) in the kind's colour.
+- The required `*` is plain. K8's `> **Screenshot needed:** …` notes show as ordinary blockquotes
+  and L8's `**[Screenshot: …]**` notes as bold text, as on GitHub.
+- End-user steps are GitHub's plain numbered list.
+- Headings sit one level under the page title (a guide's `#` renders as an `h2`) but keep the size
+  and underline GitHub gives their source level. Anchors use GitHub's heading slugs.
+- Links keep working: in-page anchors, links between a module's three guides (with anchors), and
+  links to other configuration modules.
 - Opening a module goes straight to its first guide. There is no module overview page yet, though
   K8's module READMEs (scope warnings, the IV medications explainer) would naturally live there.
 

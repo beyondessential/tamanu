@@ -865,57 +865,62 @@
   .guide .g-tabs a[aria-current="page"] { background:var(--brand-dark); color:#fff; font-weight:560; }
   .guide .g-tabs a[aria-current="page"] .n { color:rgba(255,255,255,.6); }
   .article .crumbs a { text-decoration:none; color:inherit; cursor:pointer; }
-  .doc .lead { font-size:16.5px; }
-  .doc code { font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.86em; color:var(--ink);
-    background:#EDF1F5; border:1px solid #E0E6ED; border-radius:5px; padding:1px 5px; }
-  /* code blocks sit on the brand dark */
-  .doc .code { margin:4px 0 22px; background:var(--brand-dark); border-radius:12px; overflow:hidden; }
-  .doc .code-head { display:flex; align-items:center; padding:6px 8px 6px 16px; font-size:12px; font-weight:560;
-    color:rgba(255,255,255,.6); border-bottom:1px solid rgba(255,255,255,.1); }
-  .doc .code-head .copy { all:unset; margin-left:auto; cursor:pointer; font-size:12px; font-weight:560;
-    color:rgba(255,255,255,.72); padding:4px 9px; border-radius:6px; }
-  .doc .code-head .copy:hover { background:rgba(255,255,255,.1); color:#fff; }
-  .doc .code-head .copy:focus-visible { outline:2px solid rgba(255,255,255,.6); }
-  .doc pre { margin:0; padding:14px 16px 16px; overflow-x:auto; }
-  .doc pre code { all:unset; display:block; white-space:pre; color:#E7EDF3;
-    font:12.5px/1.65 ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
-  /* tables: Tamanu blue headers, the first column is the thing being looked up */
-  .doc .tbl { overflow-x:auto; margin:4px 0 22px; background:var(--bg); border:1px solid var(--line); border-radius:12px; }
-  .doc table { width:100%; border-collapse:collapse; font-size:13.5px; line-height:1.5; }
-  .doc th { background:var(--brand); color:#fff; text-align:left; font-weight:600; padding:10px 14px; white-space:nowrap; }
-  .doc td { padding:10px 14px; border-top:1px solid var(--line); color:var(--ink-2); vertical-align:top; }
-  .doc td:first-child { color:var(--ink); font-weight:560; }
-  .doc td code, .doc td:has(.sw) { white-space:nowrap; }
-  .doc td .sw { display:inline-block; width:9px; height:9px; margin-right:7px; border-radius:999px; background:var(--sw); }
-  /* rendered guide structure: a guide's # sections sit under the page title */
-  .doc h2 { font-size:24px; font-weight:600; letter-spacing:-0.025em; margin:44px 0 14px; }
-  .doc h3 { font-size:18px; font-weight:620; letter-spacing:-0.015em; margin:32px 0 10px; scroll-margin-top:74px; }
-  .doc h4 { font-size:15px; font-weight:640; margin:24px 0 8px; scroll-margin-top:74px; }
-  .doc hr { border:0; border-top:1px solid var(--line); margin:40px 0 0; }
-  .doc hr + h2 { margin-top:36px; }
-  .doc .lead { font-size:16.5px; }
-  .doc .req { color:var(--c-red); font-weight:700; }
-  .doc h1 .h-num { margin-right:12px; color:var(--ink-4); font-weight:500; font-variant-numeric:tabular-nums; }
-  /* callouts: GitHub alert kinds. Colour sits on the icon, rule and tint; the words stay ink */
-  .doc .alert { --k:var(--brand); --k-10:var(--brand-05); margin:18px 0 22px; padding:14px 18px;
-    border-radius:12px; background:var(--k-10); border:1px solid color-mix(in srgb, var(--k) 26%, transparent);
-    border-left:3px solid var(--k); }
-  .doc .alert-tip { --k:var(--c-green); --k-10:var(--c-green-10); }
-  .doc .alert-caution { --k:var(--c-red); --k-10:var(--c-red-10); }
-  .doc .alert-warning { --k:var(--c-amber); --k-10:var(--c-amber-10); }
-  .doc .alert .alert-title { display:flex; align-items:center; gap:8px; margin:0 0 6px; font-size:13px; font-weight:650; color:var(--ink); }
-  .doc .alert-title svg { color:var(--k); flex:none; }
-  .doc .alert p, .doc .alert li { font-size:14px; }
-  .doc .alert > :last-child { margin-bottom:0; }
-  /* screenshot placeholders: a marked panel naming what the image must show */
-  .doc .shot { margin:16px 0 24px; }
-  .doc .shot-frame { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-    min-height:150px; border:1.5px dashed var(--brand-30); border-radius:12px; background:var(--brand-05); }
-  .doc .shot-ic { display:grid; color:var(--brand); }
-  .doc .shot-label { font-size:11.5px; font-weight:650; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-3); }
-  .doc .shot figcaption { margin-top:8px; font-size:13px; line-height:1.5; color:var(--ink-3); }
-  .doc .shot figcaption code { font-size:.82em; }
+  .article h1 .h-num { margin-right:12px; color:var(--ink-4); font-weight:500; font-variant-numeric:tabular-nums; }
   .toc a.l3 { padding-left:24px; font-size:12.5px; }
+
+  /* ======================= Guide content, as GitHub renders it =======================
+     Guides are markdown in the repo and GitHub strips styling, so the site shows them the way
+     GitHub does. Values are GitHub's light markdown theme (github-markdown-css). Headings sit
+     one level under the page title, each keeping the size GitHub gives its source level. ---- */
+  .markdown-body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
+    font-size:16px; line-height:1.5; color:#1f2328; word-wrap:break-word; }
+  .markdown-body p { margin:0 0 1rem; color:#1f2328; }
+  .markdown-body blockquote, .markdown-body ul, .markdown-body ol, .markdown-body table, .markdown-body pre {
+    margin-top:0; margin-bottom:1rem; }
+  .markdown-body ul, .markdown-body ol { padding-left:2em; color:#1f2328; }
+  .markdown-body ul ul, .markdown-body ol ul, .markdown-body ul ol, .markdown-body ol ol { margin-bottom:0; }
+  .markdown-body li { margin:0; }
+  .markdown-body li + li { margin-top:.25em; }
+  .markdown-body li > p { margin-top:1rem; }
+  .markdown-body strong { font-weight:600; color:inherit; }
+  .article .markdown-body a { color:#0969da; text-decoration:none; }
+  .article .markdown-body a:hover { text-decoration:underline; }
+  .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5 { margin:1.5rem 0 1rem;
+    font-weight:600; line-height:1.25; letter-spacing:normal; color:#1f2328; scroll-margin-top:74px; }
+  .markdown-body h2 { font-size:2em; padding-bottom:.3em; border-bottom:1px solid #d1d9e0b3; }
+  .markdown-body h3 { font-size:1.5em; padding-bottom:.3em; border-bottom:1px solid #d1d9e0b3; }
+  .markdown-body h4 { font-size:1.25em; }
+  .markdown-body h5 { font-size:1em; }
+  .markdown-body hr { box-sizing:content-box; height:.25em; padding:0; margin:1.5rem 0; overflow:hidden;
+    background-color:#d1d9e0; border:0; }
+  .markdown-body blockquote { padding:0 1em; color:#59636e; border-left:.25em solid #d1d9e0; }
+  .markdown-body blockquote > :last-child { margin-bottom:0; }
+  .markdown-body code { padding:.2em .4em; margin:0; font-size:85%; white-space:break-spaces;
+    background-color:#818b981f; border-radius:6px;
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace; }
+  .markdown-body pre { padding:1rem; overflow:auto; font-size:85%; line-height:1.45; color:#1f2328;
+    background-color:#f6f8fa; border-radius:6px;
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace; }
+  .markdown-body pre > code { padding:0; margin:0; font-size:100%; white-space:pre; word-break:normal; background:transparent; border:0; }
+  .markdown-body table { display:block; width:max-content; max-width:100%; overflow:auto;
+    border-spacing:0; border-collapse:collapse; font-variant:tabular-nums; }
+  .markdown-body table th { font-weight:600; }
+  .markdown-body table th, .markdown-body table td { padding:6px 13px; border:1px solid #d1d9e0; }
+  .markdown-body table tr { background-color:#fff; border-top:1px solid #d1d9e0b3; }
+  .markdown-body table tr:nth-child(2n) { background-color:#f6f8fa; }
+  .markdown-body .markdown-alert { padding:.5rem 1rem; margin-bottom:1rem; color:inherit; border-left:.25em solid #d1d9e0; }
+  .markdown-body .markdown-alert > :first-child { margin-top:0; }
+  .markdown-body .markdown-alert > :last-child { margin-bottom:0; }
+  .markdown-body .markdown-alert .markdown-alert-title { display:flex; align-items:center; font-weight:500; line-height:1; }
+  .markdown-body .markdown-alert .octicon { display:inline-block; margin-right:.5rem; fill:currentColor; vertical-align:text-bottom; }
+  .markdown-body .markdown-alert-note { border-left-color:#0969da; }
+  .markdown-body .markdown-alert-note .markdown-alert-title { color:#0969da; }
+  .markdown-body .markdown-alert-tip { border-left-color:#1a7f37; }
+  .markdown-body .markdown-alert-tip .markdown-alert-title { color:#1a7f37; }
+  .markdown-body .markdown-alert-warning { border-left-color:#9a6700; }
+  .markdown-body .markdown-alert-warning .markdown-alert-title { color:#9a6700; }
+  .markdown-body .markdown-alert-caution { border-left-color:#cf222e; }
+  .markdown-body .markdown-alert-caution .markdown-alert-title { color:#cf222e; }
   @media (max-width:900px) {
     .mgrid, .mgrid-3 { grid-template-columns:1fr; }
     .cat-head { padding:20px; gap:14px; }
@@ -1508,21 +1513,22 @@
       </div>
     </aside>
 
-    <main class="article doc manual cat-desktop">
+    <main class="article manual cat-desktop">
       <div class="crumbs"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <span>Tamanu desktop</span> <span class="sep">/</span> <span>Vitals</span> <span class="sep">/</span> <span>Record a set of vitals</span></div>
       <h1><span class="h-num">10.1</span>Record a set of vitals</h1>
-      <p class="lead">Record a patient&#39;s observations against the encounter they are admitted under. Start from
+      <div class="markdown-body">
+      <p>Record a patient&#39;s observations against the encounter they are admitted under. Start from
       the patient&#39;s encounter.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The encounter view with the Vitals tab visible</figcaption></figure>
+      <p><strong>[Screenshot: the encounter view with the Vitals tab visible]</strong></p>
       <h3 id="art--steps">Steps</h3>
-      <ol class="steps">
+      <ol>
       <li><p>Open the <strong>Vitals</strong> tab.</p>
       <p>The table lists every set of vitals already recorded for this encounter. If none have
       been recorded yet, it shows <strong>No data found</strong>.</p>
       </li>
       <li><p>Select <strong>Record vitals</strong>.</p>
       <p>The <strong>Record vitals</strong> window opens.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The Record vitals window, showing the empty form</figcaption></figure>
+      <p><strong>[Screenshot: the Record vitals window, showing the empty form]</strong></p>
       </li>
       <li><p>Check <strong>Date recorded</strong>.</p>
       <p>This is filled in with the current date and time. Change it if the observations were
@@ -1537,10 +1543,11 @@
       The most recent set of vitals is always the first column.</p>
       <p>A reading outside the normal range for the patient&#39;s age is highlighted. Rest your
       pointer on it to see the normal range.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The vitals table with the newly recorded column highlighted</figcaption></figure>
+      <p><strong>[Screenshot: the vitals table with the newly recorded column highlighted]</strong></p>
       </li>
       </ol>
 
+      </div>
       <div class="feedback">Was this page helpful?<div class="btns"><span class="b">Yes</span><span class="b">No</span></div></div>
     </main>
 
@@ -1753,7 +1760,7 @@
       </div>
     </aside>
 
-    <main class="article doc guide cat-config">
+    <main class="article guide cat-config">
       <div class="crumbs"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <span>Configuration guides</span> <span class="sep">/</span> <span id="g-crumb-module">Medications</span> <span class="sep">/</span> <span id="g-crumb-surface">Settings</span></div>
       <h1 id="g-title">Medications</h1>
       <nav class="g-tabs" aria-label="Guides for this module">
@@ -1761,8 +1768,8 @@
         <a data-goto="guide" data-surface="settings" data-module="15" aria-current="page">Settings <span class="n">15.2</span></a>
         <a data-goto="guide" data-surface="permissions" data-module="15">Permissions <span class="n">15.3</span></a>
       </nav>
-      <div class="g-body" data-surface="reference-data" hidden>
-      <p class="lead">The reference data the Tamanu Medications Module needs, and the values each column accepts. Reference
+      <div class="g-body markdown-body" data-surface="reference-data" hidden>
+      <p>The reference data the Tamanu Medications Module needs, and the values each column accepts. Reference
       data is configured through the reference data import spreadsheet, downloaded from and uploaded to your
       Tamanu system.</p>
       <p>For the settings that govern prescribing and administration see <a href="#" data-goto="guide" data-surface="settings">Settings</a>, and for the
@@ -1772,14 +1779,16 @@
       <p>See the Tamanu Reference Data Manual for how importing works.</p>
       <h3 id="reference-data--drug">Drug</h3>
       <p>The <code>Drug</code> reference data type configures the medication list available when prescribing.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The Medications field in the
-      new prescription form, showing drugs reference data populating the dropdown. <code>images/new-prescription-medication-field.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/new-prescription-medication-field.png</code> — the Medications field in the
+      new prescription form, showing drugs reference data populating the dropdown.</p>
+      </blockquote>
       <p>For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
       essential medicines list.</p>
-      <div class="alert alert-tip" role="note"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg>Configuration tip</p><p>Set default values per medication for <code>route</code>, <code>dosingUnit</code>, <code>dispensingUnit</code> and <code>notes</code>. When that
+      <div class="markdown-alert markdown-alert-tip"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"/></svg>Tip</p><p>Set default values per medication for <code>route</code>, <code>dosingUnit</code>, <code>dispensingUnit</code> and <code>notes</code>. When that
       medication is selected for prescription the defaults populate automatically, which speeds up creating
       prescriptions.</p></div>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -1794,9 +1803,9 @@
       <td>Example template</td>
       <td><a href="https://docs.google.com/spreadsheets/d/1LJgSj4npHaEQ2VTGEqj6JjNHnEzipH0J/edit?usp=sharing&ouid=101956383786037376753&rtpof=true&sd=true" target="_blank" rel="noreferrer">Drugs reference data template</a></td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>Where * is a required field.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Column name</th>
@@ -1804,15 +1813,15 @@
       </tr>
       </thead>
       <tbody><tr>
-      <td>id <span class="req">*</span></td>
+      <td>id *</td>
       <td>Unique id for the drug. Letters, numbers and hyphens only.</td>
       </tr>
       <tr>
-      <td>code <span class="req">*</span></td>
+      <td>code *</td>
       <td>Unique code for the drug. Letters, numbers, hyphens, full stops and forward slashes only.</td>
       </tr>
       <tr>
-      <td>name <span class="req">*</span></td>
+      <td>name *</td>
       <td>Name for the drug, up to 255 characters. This is the medication name displayed in Tamanu.</td>
       </tr>
       <tr>
@@ -1851,7 +1860,7 @@
       <td>isSensitive</td>
       <td>Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See <a href="#" data-goto="guide" data-surface="permissions" data-jump="permissions--sensitive-medications-supported-from-v239-onwards">Sensitive medications</a>.</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>Stock levels are recorded in additional columns, one per facility, as described below.</p>
       <h4 id="reference-data--stock-levels">Stock levels</h4>
       <p>To record stock levels for a facility, add a column whose header is that facility&#39;s id. There is no
@@ -1888,7 +1897,7 @@
       <p>Two reference data types configure medication sets: <code>Medication Template</code> and <code>Medication Set</code>.</p>
       <h4 id="reference-data--medication-template">Medication Template</h4>
       <p><code>Medication Template</code> defines the default prescription details for each medication within a set.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -1903,9 +1912,9 @@
       <td>Example template</td>
       <td><a href="https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=1677869917" target="_blank" rel="noreferrer">Medication Template reference data template</a></td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>Where * is a required field.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Column name</th>
@@ -1913,35 +1922,35 @@
       </tr>
       </thead>
       <tbody><tr>
-      <td>id <span class="req">*</span></td>
+      <td>id *</td>
       <td>Unique id for the medication template. This id is referenced when configuring Medication Set reference data. A single template can be used across multiple sets.</td>
       </tr>
       <tr>
-      <td>code <span class="req">*</span></td>
+      <td>code *</td>
       <td>Unique code for the medication template.</td>
       </tr>
       <tr>
-      <td>name <span class="req">*</span></td>
+      <td>name *</td>
       <td>Unique name for the medication template.</td>
       </tr>
       <tr>
-      <td>medication <span class="req">*</span></td>
+      <td>medication *</td>
       <td>The <code>id</code> of the medication from the <code>Drug</code> reference data. The drug must already exist.</td>
       </tr>
       <tr>
-      <td>dosingUnit <span class="req">*</span></td>
+      <td>dosingUnit *</td>
       <td>The unit for the dose. Must be one of the units listed under <a href="#" data-jump="reference-data--units">Units</a>.</td>
       </tr>
       <tr>
-      <td>frequency <span class="req">*</span></td>
+      <td>frequency *</td>
       <td>Must be one of the frequencies listed under <a href="#" data-jump="reference-data--frequency">Frequency</a>.</td>
       </tr>
       <tr>
-      <td>route <span class="req">*</span></td>
+      <td>route *</td>
       <td>Must be one of the routes listed under <a href="#" data-jump="reference-data--route-of-administration">Route of administration</a>. The display label is also accepted, so both <code>intravenous</code> and <code>IV</code> work.</td>
       </tr>
       <tr>
-      <td>doseAmount <span class="req">*</span></td>
+      <td>doseAmount *</td>
       <td>The numerical dose amount, or the word <code>variable</code> where the dose is variable. The cell cannot be left empty.</td>
       </tr>
       <tr>
@@ -1968,13 +1977,13 @@
       <td>visibilityStatus</td>
       <td><code>current</code> or <code>historical</code>. Defaults to <code>current</code> if blank.</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>A duration cannot be set when the frequency is <code>Immediately</code>, or when the medication is flagged as
       ongoing. The import reports an error in both cases.</p>
       <h4 id="reference-data--medication-set">Medication Set</h4>
       <p><code>Medication Set</code> defines which medications are included in a set. Import it after, or at the same time
       as, Medication Template so the templates it references already exist.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -1989,9 +1998,9 @@
       <td>Example template</td>
       <td><a href="https://docs.google.com/spreadsheets/d/1h_g6053mkjcxSFhqC5rKSY-DDfhuhR0H#gid=521761644" target="_blank" rel="noreferrer">Medication Set reference data template</a></td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>Where * is a required field.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Column name</th>
@@ -1999,34 +2008,34 @@
       </tr>
       </thead>
       <tbody><tr>
-      <td>id <span class="req">*</span></td>
+      <td>id *</td>
       <td>Unique id for the medication set.</td>
       </tr>
       <tr>
-      <td>code <span class="req">*</span></td>
+      <td>code *</td>
       <td>Unique code for the medication set.</td>
       </tr>
       <tr>
-      <td>type <span class="req">*</span></td>
+      <td>type *</td>
       <td>Always <code>medicationSet</code>.</td>
       </tr>
       <tr>
-      <td>name <span class="req">*</span></td>
+      <td>name *</td>
       <td>Unique name for the medication set.</td>
       </tr>
       <tr>
-      <td>medicationTemplates <span class="req">*</span></td>
+      <td>medicationTemplates *</td>
       <td>The medication template <code>id</code>s included in the set, separated by commas. A single template can be used across multiple sets. This column is not validated on import, so an empty cell is accepted and leaves the set unchanged rather than reporting an error.</td>
       </tr>
       <tr>
       <td>visibilityStatus</td>
       <td><code>current</code> for sets available for ordering, or <code>historical</code> for sets that should not appear in Tamanu. Defaults to <code>current</code> if blank.</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>The <code>medicationTemplates</code> cell is the complete list for that set. Templates removed from the cell are
       removed from the set on the next import. Listing the same template twice, or naming a template that
       does not exist, reports an error.</p>
-      <div class="alert alert-note" role="note"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Note</p><p>Clearing the cell entirely does not empty the set. To remove every medication from a set, set its
+      <div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>Note</p><p>Clearing the cell entirely does not empty the set. To remove every medication from a set, set its
       <code>visibilityStatus</code> to <code>historical</code> instead.</p></div>
       <hr>
       <h3 id="reference-data--prescriber">Prescriber</h3>
@@ -2034,9 +2043,9 @@
       user, see Users: Creating and Managing Users.</p>
       <hr>
       <h3 id="reference-data--medication-not-given-reason">Medication Not Given Reason</h3>
-      <div class="alert alert-caution" role="note"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3h7L21 8.5v7L15.5 21h-7L3 15.5v-7z"/><path d="M12 8v5M12 16h.01"/></svg>Required</p><p>This reference data type must be configured to complete the medication administration record workflow
+      <div class="markdown-alert markdown-alert-caution"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>Caution</p><p>This reference data type must be configured to complete the medication administration record workflow
       when a medication is recorded as not given. Without it, staff cannot record a medication as not given.</p></div>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -2051,9 +2060,9 @@
       <td>Example template</td>
       <td><a href="https://docs.google.com/spreadsheets/d/15IdNmcWf9h77P8fkOpprbh72asvj_RXIwUxSxbmmlkw" target="_blank" rel="noreferrer">Medication Not Given Reason reference data template</a></td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>Where * is a required field.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Column name</th>
@@ -2061,22 +2070,22 @@
       </tr>
       </thead>
       <tbody><tr>
-      <td>id <span class="req">*</span></td>
+      <td>id *</td>
       <td>Unique id for the not given reason.</td>
       </tr>
       <tr>
-      <td>code <span class="req">*</span></td>
+      <td>code *</td>
       <td>Unique code for the not given reason.</td>
       </tr>
       <tr>
-      <td>name <span class="req">*</span></td>
+      <td>name *</td>
       <td>Unique name for the reason not given.</td>
       </tr>
       <tr>
       <td>visibilityStatus</td>
       <td><code>current</code> for reasons available for selection, or <code>historical</code> for reasons that should no longer be available. Defaults to <code>current</code> if blank.</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <hr>
       <h2 id="reference-data--hard-coded-fields">Hard coded fields</h2>
       <p>The following fields are hard coded in Tamanu and cannot be configured. To request a new value, make a
@@ -2095,7 +2104,7 @@
       <h3 id="reference-data--route-of-administration">Route of administration</h3>
       <p>Input the value shown in the left column. Where a route displays differently in Tamanu, the display
       label is shown alongside it.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Value</th>
@@ -2162,12 +2171,12 @@
       <td>vaginal</td>
       <td>Vaginal</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <h3 id="reference-data--frequency">Frequency</h3>
       <p>Tamanu includes a list of frequencies supporting common dosing patterns. The selected frequency
       determines the default administration schedule for the prescribed medication, which can be edited when
       prescribing.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Frequency</th>
@@ -2265,8 +2274,8 @@
       <td>not scheduled</td>
       <td>as directed</td>
       </tr>
-      </tbody></table></div>
-      <div class="alert alert-warning" role="note"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4 3 17a2 2 0 0 0 1.7 3h14.6A2 2 0 0 0 21 17L13.7 4a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>Warning</p><p>An administration schedule cannot be set for <code>Immediately</code> or <code>As directed</code>, and the times for
+      </tbody></table>
+      <div class="markdown-alert markdown-alert-warning"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>Warning</p><p>An administration schedule cannot be set for <code>Immediately</code> or <code>As directed</code>, and the times for
       <code>Hourly</code> and <code>Half-hourly</code> are fixed. Configuring administration times for these frequencies has no
       effect.</p></div>
       <h4 id="reference-data--searching-by-synonym">Searching by synonym</h4>
@@ -2274,9 +2283,11 @@
       <code>nocte</code> and <code>nightly</code>. When searching by a synonym the primary frequency is returned with its first
       synonym shown in brackets, so the meaning stays clear while supporting the medical abbreviations still
       in common use.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>Frequency search showing a query for
-      <code>BID</code> returning <code>Two times daily (BD)</code>. <code>images/frequency-synonym-search.png</code></figcaption></figure>
-      <div class="tbl"><table>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/frequency-synonym-search.png</code> — frequency search showing a query for
+      <code>BID</code> returning <code>Two times daily (BD)</code>.</p>
+      </blockquote>
+      <table>
       <thead>
       <tr>
       <th>Frequency</th>
@@ -2355,14 +2366,14 @@
       <td>Twice daily - AM and midday</td>
       <td>AM and midday, BD - AM and midday, AM and lunch, BD - AM and lunch</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <p>Reassigning the primary frequency, or the ordering of synonyms, requires a change to the Tamanu code.</p>
       <p>Individual frequency options can be disabled where they are not required for a deployment. See
       <a href="#" data-goto="guide" data-surface="settings" data-jump="settings--frequencies">Frequencies</a>.</p>
 
       </div>
-      <div class="g-body" data-surface="settings">
-      <p class="lead">The settings that govern prescribing, administration and dispensing in the Tamanu Medications Module,
+      <div class="g-body markdown-body" data-surface="settings">
+      <p>The settings that govern prescribing, administration and dispensing in the Tamanu Medications Module,
       and the automated behaviour they drive. Settings are managed in the Settings admin panel.</p>
       <p>For the reference data these settings act on see <a href="#" data-goto="guide" data-surface="reference-data">Reference data</a>, and for the
       permissions required see <a href="#" data-goto="guide" data-surface="permissions">Permissions</a>.</p>
@@ -2374,7 +2385,7 @@
       <h3 id="settings--frequencies">Frequencies</h3>
       <p>All hard coded frequencies are available by default. A frequency option can be disabled where it is not
       relevant to your deployment. Updates apply to all facilities in the deployment.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -2401,11 +2412,13 @@
       <td>Default</td>
       <td>All frequencies enabled</td>
       </tr>
-      </tbody></table></div>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The frequencies enabled setting. <code>images/setting-frequencies-enabled.png</code></figcaption></figure>
+      </tbody></table>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/setting-frequencies-enabled.png</code> — the frequencies enabled setting.</p>
+      </blockquote>
       <h3 id="settings--default-administration-schedule">Default administration schedule</h3>
       <p>For each frequency, the default administration schedule and ideal administration time can be changed.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -2432,39 +2445,45 @@
       <td>Default</td>
       <td>The standard administration times for each frequency, as listed under <a href="#" data-goto="guide" data-surface="reference-data" data-jump="reference-data--frequency">Frequency</a></td>
       </tr>
-      </tbody></table></div>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The default administration
-      times setting. <code>images/setting-default-administration-times.png</code></figcaption></figure>
+      </tbody></table>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/setting-default-administration-times.png</code> — the default administration
+      times setting.</p>
+      </blockquote>
       <p><code>Immediately</code>, <code>As directed</code>, <code>Hourly</code> and <code>Half-hourly</code> are not listed, because their administration
       times are either not scheduled or fixed.</p>
       <p>Required format:</p>
       <ul>
       <li>Times must be in 24-hour format and written in double quotation marks:</li>
       </ul>
-      <div class="code"><div class="code-head"><span>JSON</span><button class="copy" type="button">Copy</button></div><pre><code>[
+      <pre><code>[
   &quot;06:00&quot;
-]</code></pre></div>
+]</code></pre>
       <ul>
       <li>Where a frequency has multiple doses in a day, separate each time with a comma:</li>
       </ul>
-      <div class="code"><div class="code-head"><span>JSON</span><button class="copy" type="button">Copy</button></div><pre><code>[
+      <pre><code>[
   &quot;02:00&quot;,
   &quot;06:00&quot;,
   &quot;10:00&quot;,
   &quot;14:00&quot;,
   &quot;18:00&quot;,
   &quot;22:00&quot;
-]</code></pre></div>
+]</code></pre>
       <ul>
       <li>An error displays if the format is incorrect:</li>
       </ul>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The error shown for an incorrect JSON
-      format. <code>images/error-invalid-json-format.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/error-invalid-json-format.png</code> — the error shown for an incorrect JSON
+      format.</p>
+      </blockquote>
       <ul>
       <li>An error displays if the number of administration times does not match the selected frequency:</li>
       </ul>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The error shown for an
-      incorrect number of administration windows. <code>images/error-wrong-administration-window-count.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/error-wrong-administration-window-count.png</code> — the error shown for an
+      incorrect number of administration windows.</p>
+      </blockquote>
       <p>Each time must also fall in a different two-hour administration window, so two doses cannot be
       scheduled in the same window.</p>
       <hr>
@@ -2475,20 +2494,26 @@
       24-hour period. These windows are not configurable.</p>
       <p>The schedule displayed on the MAR depends on the selected frequency and administration schedule for
       the prescribed medication.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The medication administration
-      record showing the 12 two-hour administration windows. <code>images/medication-administration-record.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/medication-administration-record.png</code> — the medication administration
+      record showing the 12 two-hour administration windows.</p>
+      </blockquote>
       <p>Four windows carry a period label, used where the design shows the time of day rather than the hours:
       06:00 to 08:00 is breakfast, 12:00 to 14:00 is lunch, 18:00 to 20:00 is dinner, and 22:00 to midnight
       is night.</p>
       <p>Ideal administration times can be set for each frequency within each administration window. The ideal
       administration time displays in a tooltip when hovering over a due dose on the MAR.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>Tooltip on a due dose showing
-      the ideal administration time within its window. <code>images/ideal-administration-time-tooltip.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/ideal-administration-time-tooltip.png</code> — tooltip on a due dose showing
+      the ideal administration time within its window.</p>
+      </blockquote>
       <h3 id="settings--administration-schedule">Administration schedule</h3>
       <p>The administration schedule is set when prescribing. A default schedule is applied based on the
       selected frequency and can be edited if required.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The medication
-      administration schedule within the new prescription form. <code>images/administration-schedule-prescription-form.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/administration-schedule-prescription-form.png</code> — the medication
+      administration schedule within the new prescription form.</p>
+      </blockquote>
       <p>For each frequency, the default schedule and ideal administration time can be changed. See
       <a href="#" data-jump="settings--default-administration-schedule">Default administration schedule</a>.</p>
       <hr>
@@ -2499,7 +2524,7 @@
       <h3 id="settings--dispensing-quantity-autocalculation">Dispensing quantity autocalculation</h3>
       <p>The dispensing quantity can be calculated automatically from the dose, frequency and duration of a
       prescription, avoiding manual calculation. Automatically calculated quantities can still be edited.</p>
-      <div class="tbl"><table>
+      <table>
       <thead>
       <tr>
       <th>Field</th>
@@ -2526,7 +2551,7 @@
       <td>Default</td>
       <td>Disabled</td>
       </tr>
-      </tbody></table></div>
+      </tbody></table>
       <h3 id="settings--immediate-medications">Immediate medications</h3>
       <p>A prescription with a frequency of <code>Immediately</code> is a one-time order administered without delay due to
       the urgency of the circumstances. An example is &quot;Benadryl 50mg orally STAT&quot; for a patient having an
@@ -2545,8 +2570,10 @@
       prescription without a duration must be discontinued manually when required.</p>
       <p>Where a medication has a start date and time and a duration recorded, the end date and time can be
       viewed in the medication details modal once the prescription is complete.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The medication details modal
-      displaying the medication end date and time. <code>images/medication-details-end-date.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/medication-details-end-date.png</code> — the medication details modal
+      displaying the medication end date and time.</p>
+      </blockquote>
       <p>Automatically discontinued medications have the following discontinuation details:</p>
       <ul>
       <li>&#39;Discontinued by&#39; is set to &#39;System&#39;</li>
@@ -2558,8 +2585,10 @@
       <h2 id="settings--medication-due-task">Medication due task</h2>
       <p>To support tracking of medications due for administration, a <strong>Medication due</strong> task displays in the
       <strong>Upcoming tasks</strong> table on the clinician dashboard when a medication is due.</p>
-      <figure class="shot"><div class="shot-frame"><span class="shot-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span><span class="shot-label">Screenshot to come</span></div><figcaption>The medication due task displaying in the
-      upcoming tasks table. <code>images/medication-due-task.png</code></figcaption></figure>
+      <blockquote>
+      <p><strong>Screenshot needed:</strong> <code>images/medication-due-task.png</code> — the medication due task displaying in the
+      upcoming tasks table.</p>
+      </blockquote>
       <h3 id="settings--medication-due-task-setup">Medication due task setup</h3>
       <p>To enable the medication due task:</p>
       <ol>
@@ -2598,8 +2627,8 @@
       </ul>
 
       </div>
-      <div class="g-body" data-surface="permissions" hidden>
-      <p class="lead">The permissions required to prescribe, administer and manage medications in the Tamanu Medications
+      <div class="g-body markdown-body" data-surface="permissions" hidden>
+      <p>The permissions required to prescribe, administer and manage medications in the Tamanu Medications
       Module, and to view medications flagged as sensitive.</p>
       <p>For the reference data these permissions act on see <a href="#" data-goto="guide" data-surface="reference-data">Reference data</a>, and for the
       module&#39;s settings see <a href="#" data-goto="guide" data-surface="settings">Settings</a>.</p>
@@ -2718,11 +2747,11 @@
       </ul>
       <hr>
       <h2 id="permissions--sensitive-medications-supported-from-v239-onwards">Sensitive medications (supported from v2.39 onwards)</h2>
-      <div class="alert alert-note" role="note"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Note</p><p>Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm your
+      <div class="markdown-alert markdown-alert-note"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>Note</p><p>Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm your
       deployment version before configuring this.</p></div>
       <p>This feature flags a medication as sensitive, so that only users with the required permissions can view
       and interact with it.</p>
-      <div class="alert alert-warning" role="note"><p class="alert-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4 3 17a2 2 0 0 0 1.7 3h14.6A2 2 0 0 0 21 17L13.7 4a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>Warning</p><p>Use this feature rarely. Medication information is critical for safe care, and hiding it from staff
+      <div class="markdown-alert markdown-alert-warning"><p class="markdown-alert-title"><svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>Warning</p><p>Use this feature rarely. Medication information is critical for safe care, and hiding it from staff
       without the permission carries clinical risk.</p></div>
       <p>To configure a medication as sensitive:</p>
       <ol>
@@ -3684,14 +3713,6 @@
     jumpTo(link.dataset.jump);
   });
 
-  // Code blocks: copy their contents
-  document.addEventListener('click', (e)=>{
-    const copy = e.target.closest('.code .copy');
-    if (!copy) return;
-    navigator.clipboard && navigator.clipboard.writeText(copy.closest('.code').querySelector('code').textContent);
-    copy.textContent = 'Copied';
-    setTimeout(()=>{ copy.textContent = 'Copy'; }, 1400);
-  });
 </script>
 </body>
 </html>
