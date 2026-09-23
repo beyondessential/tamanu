@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import React, { type ReactElement, useCallback, useRef } from 'react';
 import { Database } from '~/infra/db';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -42,7 +42,6 @@ export interface DropdownProps extends Omit<BaseInputProps, 'label'> {
   clearable?: boolean;
   required?: boolean;
   error?: any;
-  allowResetSingleValue?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {
@@ -103,25 +102,16 @@ export const Dropdown = React.memo(
     disabled,
     required = false,
     clearable = true,
-    allowResetSingleValue,
   }: DropdownProps) => {
-    const [selectedItems, setSelectedItems] = useState(() => {
+    const selectedItems = (() => {
       if (!value) return [];
       return Array.isArray(value) ? value : [value];
-    });
-
-    useEffect(() => {
-      if (!allowResetSingleValue || Array.isArray(value)) return;
-      if (value !== selectedItems[0]) {
-        setSelectedItems([value]);
-      }
-    }, [value, allowResetSingleValue]);
+    })();
 
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();
     const onSelectedItemsChange = useCallback(
       items => {
-        setSelectedItems(items);
         onChange(multiselect ? JSON.stringify(items) : items[0]); // Form submits multiselect items as JSON array string OR single item as value string
       },
       [multiselect, onChange],
