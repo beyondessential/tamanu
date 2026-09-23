@@ -1031,7 +1031,7 @@
   .pager .pm { font-size:13px; color:var(--ink-3); }
   @media (max-width:700px) { .pager { grid-template-columns:1fr; } .pager a.next { grid-column:1; } }
   /* ---- module overview: the module's guides as cards, between its description and the rest of its README ---- */
-  .mod-guides { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:4px 0 28px; }
+  .mod-guides { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin:4px 0 28px; }
   .article .mod-guides a { display:flex; flex-direction:column; gap:4px; padding:14px 18px; border:1px solid var(--line);
     border-radius:12px; color:var(--ink); text-decoration:none; cursor:pointer;
     transition:border-color .12s ease, box-shadow .12s ease; }
@@ -1039,7 +1039,16 @@
   .mod-guides .pt { font-size:15px; font-weight:600; }
   .mod-guides .pn { margin-right:8px; font-weight:500; color:var(--ink-4); font-variant-numeric:tabular-nums; }
   .mod-guides .pm { font-size:13px; line-height:1.45; color:var(--ink-3); }
-  @media (max-width:900px) { .mod-guides { grid-template-columns:1fr; } }
+  /* ---- tablet: the contents rail gives way so a guide keeps a readable width ---- */
+  @media (min-width:901px) and (max-width:1180px) {
+    .layout3 { grid-template-columns:264px minmax(0,1fr); }
+    .layout3 > aside.toc { display:none; }
+  }
+  /* crumbs wrap between items, never inside one */
+  .article .crumbs { flex-wrap:wrap; row-gap:4px; }
+  .article .crumbs > * { white-space:nowrap; }
+  /* index tiles take as many columns as fit, rather than a fixed count */
+  .mgrid { grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); }
   @media (max-width:900px) {
     .mgrid, .mgrid-3 { grid-template-columns:1fr; }
     .cat-head { padding:20px; gap:14px; }
@@ -1221,50 +1230,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="true"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
           <button class="top" type="button" aria-expanded="false" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="desktop" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="article" data-platform="desktop" data-module="10"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="true"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -1272,168 +1280,144 @@
         <div class="mgroup-list">
           <button class="top" type="button" aria-expanded="false" data-module="1"><span class="num">1</span>Deploying Tamanu <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="1"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="1" data-surface="reference-data"><span class="num">1.1</span>Reference data</a>
             <a data-goto="guide" data-module="1" data-surface="settings"><span class="num">1.2</span>Settings</a>
             <a data-goto="guide" data-module="1" data-surface="permissions"><span class="num">1.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="2"><span class="num">2</span>Users <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="2"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="2" data-surface="reference-data"><span class="num">2.1</span>Reference data</a>
             <a data-goto="guide" data-module="2" data-surface="settings"><span class="num">2.2</span>Settings</a>
             <a data-goto="guide" data-module="2" data-surface="permissions"><span class="num">2.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="3"><span class="num">3</span>Patients <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="3"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="3" data-surface="reference-data"><span class="num">3.1</span>Reference data</a>
             <a data-goto="guide" data-module="3" data-surface="settings"><span class="num">3.2</span>Settings</a>
             <a data-goto="guide" data-module="3" data-surface="permissions"><span class="num">3.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="4"><span class="num">4</span>Clinician Dashboard <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="4"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="4" data-surface="reference-data"><span class="num">4.1</span>Reference data</a>
             <a data-goto="guide" data-module="4" data-surface="settings"><span class="num">4.2</span>Settings</a>
             <a data-goto="guide" data-module="4" data-surface="permissions"><span class="num">4.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="5"><span class="num">5</span>Scheduling <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="5"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="5" data-surface="reference-data"><span class="num">5.1</span>Reference data</a>
             <a data-goto="guide" data-module="5" data-surface="settings"><span class="num">5.2</span>Settings</a>
             <a data-goto="guide" data-module="5" data-surface="permissions"><span class="num">5.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="6"><span class="num">6</span>Programs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="6"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="6" data-surface="reference-data"><span class="num">6.1</span>Reference data</a>
             <a data-goto="guide" data-module="6" data-surface="settings"><span class="num">6.2</span>Settings</a>
             <a data-goto="guide" data-module="6" data-surface="permissions"><span class="num">6.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="7"><span class="num">7</span>Immunisations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="7"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="7" data-surface="reference-data"><span class="num">7.1</span>Reference data</a>
             <a data-goto="guide" data-module="7" data-surface="settings"><span class="num">7.2</span>Settings</a>
             <a data-goto="guide" data-module="7" data-surface="permissions"><span class="num">7.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="8"><span class="num">8</span>Encounters <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="8"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="8" data-surface="reference-data"><span class="num">8.1</span>Reference data</a>
             <a data-goto="guide" data-module="8" data-surface="settings"><span class="num">8.2</span>Settings</a>
             <a data-goto="guide" data-module="8" data-surface="permissions"><span class="num">8.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="9"><span class="num">9</span>Diagnoses <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="9"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="9" data-surface="reference-data"><span class="num">9.1</span>Reference data</a>
             <a data-goto="guide" data-module="9" data-surface="settings"><span class="num">9.2</span>Settings</a>
             <a data-goto="guide" data-module="9" data-surface="permissions"><span class="num">9.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="10" data-surface="reference-data"><span class="num">10.1</span>Reference data</a>
             <a data-goto="guide" data-module="10" data-surface="settings"><span class="num">10.2</span>Settings</a>
             <a data-goto="guide" data-module="10" data-surface="permissions"><span class="num">10.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="11"><span class="num">11</span>Charts <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="11"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="11" data-surface="reference-data"><span class="num">11.1</span>Reference data</a>
             <a data-goto="guide" data-module="11" data-surface="settings"><span class="num">11.2</span>Settings</a>
             <a data-goto="guide" data-module="11" data-surface="permissions"><span class="num">11.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="12"><span class="num">12</span>Notes <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="12"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="12" data-surface="reference-data"><span class="num">12.1</span>Reference data</a>
             <a data-goto="guide" data-module="12" data-surface="settings"><span class="num">12.2</span>Settings</a>
             <a data-goto="guide" data-module="12" data-surface="permissions"><span class="num">12.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="13"><span class="num">13</span>Forms <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="13"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="13" data-surface="reference-data"><span class="num">13.1</span>Reference data</a>
             <a data-goto="guide" data-module="13" data-surface="settings"><span class="num">13.2</span>Settings</a>
             <a data-goto="guide" data-module="13" data-surface="permissions"><span class="num">13.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="14"><span class="num">14</span>Tasks <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="14"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="14" data-surface="reference-data"><span class="num">14.1</span>Reference data</a>
             <a data-goto="guide" data-module="14" data-surface="settings"><span class="num">14.2</span>Settings</a>
             <a data-goto="guide" data-module="14" data-surface="permissions"><span class="num">14.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="15"><span class="num">15</span>Medications <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="15"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="15" data-surface="reference-data"><span class="num">15.1</span>Reference data</a>
             <a data-goto="guide" data-module="15" data-surface="settings"><span class="num">15.2</span>Settings</a>
             <a data-goto="guide" data-module="15" data-surface="permissions"><span class="num">15.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="16"><span class="num">16</span>Dispensing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="16"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="16" data-surface="reference-data"><span class="num">16.1</span>Reference data</a>
             <a data-goto="guide" data-module="16" data-surface="settings"><span class="num">16.2</span>Settings</a>
             <a data-goto="guide" data-module="16" data-surface="permissions"><span class="num">16.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="17"><span class="num">17</span>Procedures <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="17"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="17" data-surface="reference-data"><span class="num">17.1</span>Reference data</a>
             <a data-goto="guide" data-module="17" data-surface="settings"><span class="num">17.2</span>Settings</a>
             <a data-goto="guide" data-module="17" data-surface="permissions"><span class="num">17.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="18"><span class="num">18</span>Labs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="18"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="18" data-surface="reference-data"><span class="num">18.1</span>Reference data</a>
             <a data-goto="guide" data-module="18" data-surface="settings"><span class="num">18.2</span>Settings</a>
             <a data-goto="guide" data-module="18" data-surface="permissions"><span class="num">18.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="19"><span class="num">19</span>Imaging <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="19"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="19" data-surface="reference-data"><span class="num">19.1</span>Reference data</a>
             <a data-goto="guide" data-module="19" data-surface="settings"><span class="num">19.2</span>Settings</a>
             <a data-goto="guide" data-module="19" data-surface="permissions"><span class="num">19.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="20"><span class="num">20</span>Referrals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="20"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="20" data-surface="reference-data"><span class="num">20.1</span>Reference data</a>
             <a data-goto="guide" data-module="20" data-surface="settings"><span class="num">20.2</span>Settings</a>
             <a data-goto="guide" data-module="20" data-surface="permissions"><span class="num">20.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="21"><span class="num">21</span>Documents <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="21"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="21" data-surface="reference-data"><span class="num">21.1</span>Reference data</a>
             <a data-goto="guide" data-module="21" data-surface="settings"><span class="num">21.2</span>Settings</a>
             <a data-goto="guide" data-module="21" data-surface="permissions"><span class="num">21.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="22"><span class="num">22</span>Invoicing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="22"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="22" data-surface="reference-data"><span class="num">22.1</span>Reference data</a>
             <a data-goto="guide" data-module="22" data-surface="settings"><span class="num">22.2</span>Settings</a>
             <a data-goto="guide" data-module="22" data-surface="permissions"><span class="num">22.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="23"><span class="num">23</span>Reports <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="23"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="23" data-surface="reference-data"><span class="num">23.1</span>Reference data</a>
             <a data-goto="guide" data-module="23" data-surface="settings"><span class="num">23.2</span>Settings</a>
             <a data-goto="guide" data-module="23" data-surface="permissions"><span class="num">23.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="24"><span class="num">24</span>Integrations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="24"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="24" data-surface="reference-data"><span class="num">24.1</span>Reference data</a>
             <a data-goto="guide" data-module="24" data-surface="settings"><span class="num">24.2</span>Settings</a>
             <a data-goto="guide" data-module="24" data-surface="permissions"><span class="num">24.3</span>Permissions</a>
@@ -1452,28 +1436,28 @@
         <div><h2>Tamanu desktop</h2><p>Using Tamanu on a computer.</p></div>
       </div>
       <div class="mgrid cat-desktop">
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="1"><span class="num">1</span><span class="t">Accessing Tamanu Desktop<span class="d">Signing in, signing out, and changing your language.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="2"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the sidebar, search, and how the screens fit together.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="3"><span class="num">3</span><span class="t">Clinician Dashboard<span class="d">The overview you land on after signing in.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="4"><span class="num">4</span><span class="t">Patients<span class="d">Finding, registering, and managing patient records.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="5"><span class="num">5</span><span class="t">Scheduling<span class="d">Outpatient appointments and location bookings.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="6"><span class="num">6</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries and tracking them.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="7"><span class="num">7</span><span class="t">Immunisations<span class="d">Recording vaccines and using the immunisation register.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="8"><span class="num">8</span><span class="t">Encounters<span class="d">Admitting, moving, and discharging patients, and managing beds across the facility.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="9"><span class="num">9</span><span class="t">Diagnoses<span class="d">Recording and managing a patient's diagnoses.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="10"><span class="num">10</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="11"><span class="num">11</span><span class="t">Charts<span class="d">Recording and reviewing charted clinical data.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="12"><span class="num">12</span><span class="t">Notes<span class="d">Written clinical notes on an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="13"><span class="num">13</span><span class="t">Forms<span class="d">Completing program forms and surveys for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="14"><span class="num">14</span><span class="t">Tasks<span class="d">Clinical tasks raised and completed during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="15"><span class="num">15</span><span class="t">Medications<span class="d">Prescribing, dispensing, and administering medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="16"><span class="num">16</span><span class="t">Procedures<span class="d">Procedures carried out during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="17"><span class="num">17</span><span class="t">Labs<span class="d">Requesting lab tests and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="18"><span class="num">18</span><span class="t">Imaging<span class="d">Requesting imaging and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="19"><span class="num">19</span><span class="t">Referrals<span class="d">Referring a patient and tracking referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="20"><span class="num">20</span><span class="t">Documents<span class="d">Files attached to a patient or an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="21"><span class="num">21</span><span class="t">Invoicing<span class="d">Invoices raised against an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="desktop" data-module="22"><span class="num">22</span><span class="t">Reports<span class="d">Running facility reports.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span><span class="t">Accessing Tamanu Desktop<span class="d">Signing in, signing out, and changing your language.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the sidebar, search, and how the screens fit together.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span><span class="t">Clinician Dashboard<span class="d">The overview you land on after signing in.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span><span class="t">Patients<span class="d">Finding, registering, and managing patient records.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span><span class="t">Scheduling<span class="d">Outpatient appointments and location bookings.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries and tracking them.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span><span class="t">Immunisations<span class="d">Recording vaccines and using the immunisation register.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span><span class="t">Encounters<span class="d">Admitting, moving, and discharging patients, and managing beds across the facility.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span><span class="t">Diagnoses<span class="d">Recording and managing a patient's diagnoses.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="10"><span class="num">10</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span><span class="t">Charts<span class="d">Recording and reviewing charted clinical data.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span><span class="t">Notes<span class="d">Written clinical notes on an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span><span class="t">Forms<span class="d">Completing program forms and surveys for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span><span class="t">Tasks<span class="d">Clinical tasks raised and completed during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span><span class="t">Medications<span class="d">Prescribing, dispensing, and administering medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span><span class="t">Procedures<span class="d">Procedures carried out during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span><span class="t">Labs<span class="d">Requesting lab tests and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span><span class="t">Imaging<span class="d">Requesting imaging and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span><span class="t">Referrals<span class="d">Referring a patient and tracking referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span><span class="t">Documents<span class="d">Files attached to a patient or an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span><span class="t">Invoicing<span class="d">Invoices raised against an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span><span class="t">Reports<span class="d">Running facility reports.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       </div>
 
       <div class="cat-head cat-mobile" id="m-mobile">
@@ -1481,19 +1465,19 @@
         <div><h2>Tamanu mobile</h2><p>Using Tamanu on a mobile device.</p></div>
       </div>
       <div class="mgrid cat-mobile">
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="1"><span class="num">1</span><span class="t">Accessing Tamanu Mobile<span class="d">Signing in, choosing a facility, and signing out.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="2"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the bottom tabs and a patient's modules.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="3"><span class="num">3</span><span class="t">Patients<span class="d">Finding patients, registering them, and viewing their details.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="4"><span class="num">4</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="5"><span class="num">5</span><span class="t">Diagnosis and Treatment<span class="d">Recording a diagnosis and prescribing medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="6"><span class="num">6</span><span class="t">Programs<span class="d">Completing program forms for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="7"><span class="num">7</span><span class="t">Referral<span class="d">Referring a patient and viewing referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="8"><span class="num">8</span><span class="t">Vaccine<span class="d">Recording vaccines given to a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="9"><span class="num">9</span><span class="t">Tests<span class="d">Requesting lab tests and viewing request history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="10"><span class="num">10</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="11"><span class="num">11</span><span class="t">History<span class="d">A patient's visit and vaccine history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="12"><span class="num">12</span><span class="t">Reports<span class="d">The survey activity summary.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="mobile" data-module="13"><span class="num">13</span><span class="t">Sync<span class="d">Syncing the device with the central server.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span><span class="t">Accessing Tamanu Mobile<span class="d">Signing in, choosing a facility, and signing out.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the bottom tabs and a patient's modules.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span><span class="t">Patients<span class="d">Finding patients, registering them, and viewing their details.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span><span class="t">Diagnosis and Treatment<span class="d">Recording a diagnosis and prescribing medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span><span class="t">Programs<span class="d">Completing program forms for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span><span class="t">Referral<span class="d">Referring a patient and viewing referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span><span class="t">Vaccine<span class="d">Recording vaccines given to a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span><span class="t">Tests<span class="d">Requesting lab tests and viewing request history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span><span class="t">History<span class="d">A patient's visit and vaccine history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span><span class="t">Reports<span class="d">The survey activity summary.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span><span class="t">Sync<span class="d">Syncing the device with the central server.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       </div>
 
       <div class="cat-head cat-config" id="m-config">
@@ -1501,30 +1485,30 @@
         <div><h2>Configuration guides</h2><p>For system administrators and project managers setting up a Tamanu deployment.</p></div>
       </div>
       <div class="mgrid cat-config">
-        <a class="mtile" data-goto="module" data-cat="config" data-module="1"><span class="num">1</span><span class="t">Deploying Tamanu</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="2"><span class="num">2</span><span class="t">Users</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="3"><span class="num">3</span><span class="t">Patients</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="4"><span class="num">4</span><span class="t">Clinician Dashboard</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="5"><span class="num">5</span><span class="t">Scheduling</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="6"><span class="num">6</span><span class="t">Programs</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="7"><span class="num">7</span><span class="t">Immunisations</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="8"><span class="num">8</span><span class="t">Encounters</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="9"><span class="num">9</span><span class="t">Diagnoses</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="10"><span class="num">10</span><span class="t">Vitals</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="11"><span class="num">11</span><span class="t">Charts</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="12"><span class="num">12</span><span class="t">Notes</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="13"><span class="num">13</span><span class="t">Forms</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="14"><span class="num">14</span><span class="t">Tasks</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="15"><span class="num">15</span><span class="t">Medications</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="16"><span class="num">16</span><span class="t">Dispensing</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="17"><span class="num">17</span><span class="t">Procedures</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="18"><span class="num">18</span><span class="t">Labs</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="19"><span class="num">19</span><span class="t">Imaging</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="20"><span class="num">20</span><span class="t">Referrals</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="21"><span class="num">21</span><span class="t">Documents</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="22"><span class="num">22</span><span class="t">Invoicing</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="23"><span class="num">23</span><span class="t">Reports</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="module" data-cat="config" data-module="24"><span class="num">24</span><span class="t">Integrations</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="1" data-surface="reference-data"><span class="num">1</span><span class="t">Deploying Tamanu</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="2" data-surface="reference-data"><span class="num">2</span><span class="t">Users</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="3" data-surface="reference-data"><span class="num">3</span><span class="t">Patients</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="4" data-surface="reference-data"><span class="num">4</span><span class="t">Clinician Dashboard</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="5" data-surface="reference-data"><span class="num">5</span><span class="t">Scheduling</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="6" data-surface="reference-data"><span class="num">6</span><span class="t">Programs</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="7" data-surface="reference-data"><span class="num">7</span><span class="t">Immunisations</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="8" data-surface="reference-data"><span class="num">8</span><span class="t">Encounters</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="9" data-surface="reference-data"><span class="num">9</span><span class="t">Diagnoses</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="10" data-surface="reference-data"><span class="num">10</span><span class="t">Vitals</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="11" data-surface="reference-data"><span class="num">11</span><span class="t">Charts</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="12" data-surface="reference-data"><span class="num">12</span><span class="t">Notes</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="13" data-surface="reference-data"><span class="num">13</span><span class="t">Forms</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="14" data-surface="reference-data"><span class="num">14</span><span class="t">Tasks</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="15" data-surface="reference-data"><span class="num">15</span><span class="t">Medications</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="16" data-surface="reference-data"><span class="num">16</span><span class="t">Dispensing</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="17" data-surface="reference-data"><span class="num">17</span><span class="t">Procedures</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="18" data-surface="reference-data"><span class="num">18</span><span class="t">Labs</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="19" data-surface="reference-data"><span class="num">19</span><span class="t">Imaging</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="20" data-surface="reference-data"><span class="num">20</span><span class="t">Referrals</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="21" data-surface="reference-data"><span class="num">21</span><span class="t">Documents</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="22" data-surface="reference-data"><span class="num">22</span><span class="t">Invoicing</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="23" data-surface="reference-data"><span class="num">23</span><span class="t">Reports</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="guide" data-module="24" data-surface="reference-data"><span class="num">24</span><span class="t">Integrations</span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       </div>
     </div>
   </div>
@@ -1538,50 +1522,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="true"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
           <button class="top" type="button" aria-expanded="true" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="desktop" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="article" data-platform="desktop" data-module="10" class="active"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -1589,168 +1572,144 @@
         <div class="mgroup-list">
           <button class="top" type="button" aria-expanded="false" data-module="1"><span class="num">1</span>Deploying Tamanu <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="1"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="1" data-surface="reference-data"><span class="num">1.1</span>Reference data</a>
             <a data-goto="guide" data-module="1" data-surface="settings"><span class="num">1.2</span>Settings</a>
             <a data-goto="guide" data-module="1" data-surface="permissions"><span class="num">1.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="2"><span class="num">2</span>Users <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="2"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="2" data-surface="reference-data"><span class="num">2.1</span>Reference data</a>
             <a data-goto="guide" data-module="2" data-surface="settings"><span class="num">2.2</span>Settings</a>
             <a data-goto="guide" data-module="2" data-surface="permissions"><span class="num">2.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="3"><span class="num">3</span>Patients <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="3"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="3" data-surface="reference-data"><span class="num">3.1</span>Reference data</a>
             <a data-goto="guide" data-module="3" data-surface="settings"><span class="num">3.2</span>Settings</a>
             <a data-goto="guide" data-module="3" data-surface="permissions"><span class="num">3.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="4"><span class="num">4</span>Clinician Dashboard <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="4"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="4" data-surface="reference-data"><span class="num">4.1</span>Reference data</a>
             <a data-goto="guide" data-module="4" data-surface="settings"><span class="num">4.2</span>Settings</a>
             <a data-goto="guide" data-module="4" data-surface="permissions"><span class="num">4.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="5"><span class="num">5</span>Scheduling <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="5"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="5" data-surface="reference-data"><span class="num">5.1</span>Reference data</a>
             <a data-goto="guide" data-module="5" data-surface="settings"><span class="num">5.2</span>Settings</a>
             <a data-goto="guide" data-module="5" data-surface="permissions"><span class="num">5.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="6"><span class="num">6</span>Programs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="6"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="6" data-surface="reference-data"><span class="num">6.1</span>Reference data</a>
             <a data-goto="guide" data-module="6" data-surface="settings"><span class="num">6.2</span>Settings</a>
             <a data-goto="guide" data-module="6" data-surface="permissions"><span class="num">6.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="7"><span class="num">7</span>Immunisations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="7"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="7" data-surface="reference-data"><span class="num">7.1</span>Reference data</a>
             <a data-goto="guide" data-module="7" data-surface="settings"><span class="num">7.2</span>Settings</a>
             <a data-goto="guide" data-module="7" data-surface="permissions"><span class="num">7.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="8"><span class="num">8</span>Encounters <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="8"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="8" data-surface="reference-data"><span class="num">8.1</span>Reference data</a>
             <a data-goto="guide" data-module="8" data-surface="settings"><span class="num">8.2</span>Settings</a>
             <a data-goto="guide" data-module="8" data-surface="permissions"><span class="num">8.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="9"><span class="num">9</span>Diagnoses <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="9"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="9" data-surface="reference-data"><span class="num">9.1</span>Reference data</a>
             <a data-goto="guide" data-module="9" data-surface="settings"><span class="num">9.2</span>Settings</a>
             <a data-goto="guide" data-module="9" data-surface="permissions"><span class="num">9.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="10" data-surface="reference-data"><span class="num">10.1</span>Reference data</a>
             <a data-goto="guide" data-module="10" data-surface="settings"><span class="num">10.2</span>Settings</a>
             <a data-goto="guide" data-module="10" data-surface="permissions"><span class="num">10.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="11"><span class="num">11</span>Charts <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="11"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="11" data-surface="reference-data"><span class="num">11.1</span>Reference data</a>
             <a data-goto="guide" data-module="11" data-surface="settings"><span class="num">11.2</span>Settings</a>
             <a data-goto="guide" data-module="11" data-surface="permissions"><span class="num">11.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="12"><span class="num">12</span>Notes <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="12"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="12" data-surface="reference-data"><span class="num">12.1</span>Reference data</a>
             <a data-goto="guide" data-module="12" data-surface="settings"><span class="num">12.2</span>Settings</a>
             <a data-goto="guide" data-module="12" data-surface="permissions"><span class="num">12.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="13"><span class="num">13</span>Forms <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="13"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="13" data-surface="reference-data"><span class="num">13.1</span>Reference data</a>
             <a data-goto="guide" data-module="13" data-surface="settings"><span class="num">13.2</span>Settings</a>
             <a data-goto="guide" data-module="13" data-surface="permissions"><span class="num">13.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="14"><span class="num">14</span>Tasks <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="14"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="14" data-surface="reference-data"><span class="num">14.1</span>Reference data</a>
             <a data-goto="guide" data-module="14" data-surface="settings"><span class="num">14.2</span>Settings</a>
             <a data-goto="guide" data-module="14" data-surface="permissions"><span class="num">14.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="15"><span class="num">15</span>Medications <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="15"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="15" data-surface="reference-data"><span class="num">15.1</span>Reference data</a>
             <a data-goto="guide" data-module="15" data-surface="settings"><span class="num">15.2</span>Settings</a>
             <a data-goto="guide" data-module="15" data-surface="permissions"><span class="num">15.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="16"><span class="num">16</span>Dispensing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="16"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="16" data-surface="reference-data"><span class="num">16.1</span>Reference data</a>
             <a data-goto="guide" data-module="16" data-surface="settings"><span class="num">16.2</span>Settings</a>
             <a data-goto="guide" data-module="16" data-surface="permissions"><span class="num">16.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="17"><span class="num">17</span>Procedures <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="17"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="17" data-surface="reference-data"><span class="num">17.1</span>Reference data</a>
             <a data-goto="guide" data-module="17" data-surface="settings"><span class="num">17.2</span>Settings</a>
             <a data-goto="guide" data-module="17" data-surface="permissions"><span class="num">17.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="18"><span class="num">18</span>Labs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="18"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="18" data-surface="reference-data"><span class="num">18.1</span>Reference data</a>
             <a data-goto="guide" data-module="18" data-surface="settings"><span class="num">18.2</span>Settings</a>
             <a data-goto="guide" data-module="18" data-surface="permissions"><span class="num">18.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="19"><span class="num">19</span>Imaging <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="19"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="19" data-surface="reference-data"><span class="num">19.1</span>Reference data</a>
             <a data-goto="guide" data-module="19" data-surface="settings"><span class="num">19.2</span>Settings</a>
             <a data-goto="guide" data-module="19" data-surface="permissions"><span class="num">19.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="20"><span class="num">20</span>Referrals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="20"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="20" data-surface="reference-data"><span class="num">20.1</span>Reference data</a>
             <a data-goto="guide" data-module="20" data-surface="settings"><span class="num">20.2</span>Settings</a>
             <a data-goto="guide" data-module="20" data-surface="permissions"><span class="num">20.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="21"><span class="num">21</span>Documents <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="21"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="21" data-surface="reference-data"><span class="num">21.1</span>Reference data</a>
             <a data-goto="guide" data-module="21" data-surface="settings"><span class="num">21.2</span>Settings</a>
             <a data-goto="guide" data-module="21" data-surface="permissions"><span class="num">21.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="22"><span class="num">22</span>Invoicing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="22"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="22" data-surface="reference-data"><span class="num">22.1</span>Reference data</a>
             <a data-goto="guide" data-module="22" data-surface="settings"><span class="num">22.2</span>Settings</a>
             <a data-goto="guide" data-module="22" data-surface="permissions"><span class="num">22.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="23"><span class="num">23</span>Reports <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="23"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="23" data-surface="reference-data"><span class="num">23.1</span>Reference data</a>
             <a data-goto="guide" data-module="23" data-surface="settings"><span class="num">23.2</span>Settings</a>
             <a data-goto="guide" data-module="23" data-surface="permissions"><span class="num">23.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="24"><span class="num">24</span>Integrations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="24"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="24" data-surface="reference-data"><span class="num">24.1</span>Reference data</a>
             <a data-goto="guide" data-module="24" data-surface="settings"><span class="num">24.2</span>Settings</a>
             <a data-goto="guide" data-module="24" data-surface="permissions"><span class="num">24.3</span>Permissions</a>
@@ -1814,50 +1773,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
           <button class="top" type="button" aria-expanded="false" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="desktop" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="article" data-platform="desktop" data-module="10"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -1865,168 +1823,144 @@
         <div class="mgroup-list">
           <button class="top" type="button" aria-expanded="false" data-module="1"><span class="num">1</span>Deploying Tamanu <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="1"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="1" data-surface="reference-data"><span class="num">1.1</span>Reference data</a>
             <a data-goto="guide" data-module="1" data-surface="settings"><span class="num">1.2</span>Settings</a>
             <a data-goto="guide" data-module="1" data-surface="permissions"><span class="num">1.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="2"><span class="num">2</span>Users <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="2"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="2" data-surface="reference-data"><span class="num">2.1</span>Reference data</a>
             <a data-goto="guide" data-module="2" data-surface="settings"><span class="num">2.2</span>Settings</a>
             <a data-goto="guide" data-module="2" data-surface="permissions"><span class="num">2.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="3"><span class="num">3</span>Patients <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="3"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="3" data-surface="reference-data"><span class="num">3.1</span>Reference data</a>
             <a data-goto="guide" data-module="3" data-surface="settings"><span class="num">3.2</span>Settings</a>
             <a data-goto="guide" data-module="3" data-surface="permissions"><span class="num">3.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="4"><span class="num">4</span>Clinician Dashboard <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="4"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="4" data-surface="reference-data"><span class="num">4.1</span>Reference data</a>
             <a data-goto="guide" data-module="4" data-surface="settings"><span class="num">4.2</span>Settings</a>
             <a data-goto="guide" data-module="4" data-surface="permissions"><span class="num">4.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="5"><span class="num">5</span>Scheduling <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="5"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="5" data-surface="reference-data"><span class="num">5.1</span>Reference data</a>
             <a data-goto="guide" data-module="5" data-surface="settings"><span class="num">5.2</span>Settings</a>
             <a data-goto="guide" data-module="5" data-surface="permissions"><span class="num">5.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="6"><span class="num">6</span>Programs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="6"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="6" data-surface="reference-data"><span class="num">6.1</span>Reference data</a>
             <a data-goto="guide" data-module="6" data-surface="settings"><span class="num">6.2</span>Settings</a>
             <a data-goto="guide" data-module="6" data-surface="permissions"><span class="num">6.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="7"><span class="num">7</span>Immunisations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="7"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="7" data-surface="reference-data"><span class="num">7.1</span>Reference data</a>
             <a data-goto="guide" data-module="7" data-surface="settings"><span class="num">7.2</span>Settings</a>
             <a data-goto="guide" data-module="7" data-surface="permissions"><span class="num">7.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="8"><span class="num">8</span>Encounters <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="8"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="8" data-surface="reference-data"><span class="num">8.1</span>Reference data</a>
             <a data-goto="guide" data-module="8" data-surface="settings"><span class="num">8.2</span>Settings</a>
             <a data-goto="guide" data-module="8" data-surface="permissions"><span class="num">8.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="9"><span class="num">9</span>Diagnoses <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="9"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="9" data-surface="reference-data"><span class="num">9.1</span>Reference data</a>
             <a data-goto="guide" data-module="9" data-surface="settings"><span class="num">9.2</span>Settings</a>
             <a data-goto="guide" data-module="9" data-surface="permissions"><span class="num">9.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="10" data-surface="reference-data"><span class="num">10.1</span>Reference data</a>
             <a data-goto="guide" data-module="10" data-surface="settings"><span class="num">10.2</span>Settings</a>
             <a data-goto="guide" data-module="10" data-surface="permissions"><span class="num">10.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="11"><span class="num">11</span>Charts <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="11"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="11" data-surface="reference-data"><span class="num">11.1</span>Reference data</a>
             <a data-goto="guide" data-module="11" data-surface="settings"><span class="num">11.2</span>Settings</a>
             <a data-goto="guide" data-module="11" data-surface="permissions"><span class="num">11.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="12"><span class="num">12</span>Notes <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="12"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="12" data-surface="reference-data"><span class="num">12.1</span>Reference data</a>
             <a data-goto="guide" data-module="12" data-surface="settings"><span class="num">12.2</span>Settings</a>
             <a data-goto="guide" data-module="12" data-surface="permissions"><span class="num">12.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="13"><span class="num">13</span>Forms <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="13"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="13" data-surface="reference-data"><span class="num">13.1</span>Reference data</a>
             <a data-goto="guide" data-module="13" data-surface="settings"><span class="num">13.2</span>Settings</a>
             <a data-goto="guide" data-module="13" data-surface="permissions"><span class="num">13.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="14"><span class="num">14</span>Tasks <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="14"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="14" data-surface="reference-data"><span class="num">14.1</span>Reference data</a>
             <a data-goto="guide" data-module="14" data-surface="settings"><span class="num">14.2</span>Settings</a>
             <a data-goto="guide" data-module="14" data-surface="permissions"><span class="num">14.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="true" data-module="15"><span class="num">15</span>Medications <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="15"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="15" data-surface="reference-data"><span class="num">15.1</span>Reference data</a>
             <a data-goto="guide" data-module="15" data-surface="settings" class="active"><span class="num">15.2</span>Settings</a>
             <a data-goto="guide" data-module="15" data-surface="permissions"><span class="num">15.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="16"><span class="num">16</span>Dispensing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="16"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="16" data-surface="reference-data"><span class="num">16.1</span>Reference data</a>
             <a data-goto="guide" data-module="16" data-surface="settings"><span class="num">16.2</span>Settings</a>
             <a data-goto="guide" data-module="16" data-surface="permissions"><span class="num">16.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="17"><span class="num">17</span>Procedures <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="17"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="17" data-surface="reference-data"><span class="num">17.1</span>Reference data</a>
             <a data-goto="guide" data-module="17" data-surface="settings"><span class="num">17.2</span>Settings</a>
             <a data-goto="guide" data-module="17" data-surface="permissions"><span class="num">17.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="18"><span class="num">18</span>Labs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="18"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="18" data-surface="reference-data"><span class="num">18.1</span>Reference data</a>
             <a data-goto="guide" data-module="18" data-surface="settings"><span class="num">18.2</span>Settings</a>
             <a data-goto="guide" data-module="18" data-surface="permissions"><span class="num">18.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="19"><span class="num">19</span>Imaging <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="19"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="19" data-surface="reference-data"><span class="num">19.1</span>Reference data</a>
             <a data-goto="guide" data-module="19" data-surface="settings"><span class="num">19.2</span>Settings</a>
             <a data-goto="guide" data-module="19" data-surface="permissions"><span class="num">19.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="20"><span class="num">20</span>Referrals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="20"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="20" data-surface="reference-data"><span class="num">20.1</span>Reference data</a>
             <a data-goto="guide" data-module="20" data-surface="settings"><span class="num">20.2</span>Settings</a>
             <a data-goto="guide" data-module="20" data-surface="permissions"><span class="num">20.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="21"><span class="num">21</span>Documents <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="21"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="21" data-surface="reference-data"><span class="num">21.1</span>Reference data</a>
             <a data-goto="guide" data-module="21" data-surface="settings"><span class="num">21.2</span>Settings</a>
             <a data-goto="guide" data-module="21" data-surface="permissions"><span class="num">21.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="22"><span class="num">22</span>Invoicing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="22"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="22" data-surface="reference-data"><span class="num">22.1</span>Reference data</a>
             <a data-goto="guide" data-module="22" data-surface="settings"><span class="num">22.2</span>Settings</a>
             <a data-goto="guide" data-module="22" data-surface="permissions"><span class="num">22.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="23"><span class="num">23</span>Reports <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="23"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="23" data-surface="reference-data"><span class="num">23.1</span>Reference data</a>
             <a data-goto="guide" data-module="23" data-surface="settings"><span class="num">23.2</span>Settings</a>
             <a data-goto="guide" data-module="23" data-surface="permissions"><span class="num">23.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="24"><span class="num">24</span>Integrations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="24"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="24" data-surface="reference-data"><span class="num">24.1</span>Reference data</a>
             <a data-goto="guide" data-module="24" data-surface="settings"><span class="num">24.2</span>Settings</a>
             <a data-goto="guide" data-module="24" data-surface="permissions"><span class="num">24.3</span>Permissions</a>
@@ -2159,7 +2093,7 @@
       otherwise the status itself, as <code>out_of_stock</code>, <code>unavailable</code> or <code>unknown</code>. A re-imported export is
       read the same way, so a round trip is safe.</p>
       <p>Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
-      that facility&#39;s stock levels. See the <a href="#" data-goto="module" data-cat="config" data-module="16">Dispensing</a> configuration guides.</p>
+      that facility&#39;s stock levels. See the <a href="#" data-goto="guide" data-module="16" data-surface="reference-data">Dispensing</a> configuration guides.</p>
       <hr>
       <h3 id="reference-data--medication-sets">Medication Sets</h3>
       <p>A medication set is a pre-configured group of medications commonly prescribed together for a specific
@@ -2657,7 +2591,7 @@
       <h2 id="settings--settings">Settings</h2>
       <p>Settings are managed in the Settings admin panel.</p>
       <p>Pharmacy order settings, including the default prescription type sent when a user selects &#39;send to
-      pharmacy&#39;, are covered in the <a href="#" data-goto="module" data-cat="config" data-module="16">Dispensing</a> configuration guides.</p>
+      pharmacy&#39;, are covered in the <a href="#" data-goto="guide" data-module="16" data-surface="reference-data">Dispensing</a> configuration guides.</p>
       <h3 id="settings--frequencies">Frequencies</h3>
       <p>All hard coded frequencies are available by default. A frequency option can be disabled where it is not
       relevant to your deployment. Updates apply to all facilities in the deployment.</p>
@@ -2868,7 +2802,7 @@
       <h3 id="settings--medication-due-task-setup">Medication due task setup</h3>
       <p>To enable the medication due task:</p>
       <ol>
-      <li>Enable the tasking feature. See the <a href="#" data-goto="module" data-cat="config" data-module="14">Tasks</a> configuration guides</li>
+      <li>Enable the tasking feature. See the <a href="#" data-goto="guide" data-module="14" data-surface="reference-data">Tasks</a> configuration guides</li>
       <li>Assign the following permissions to users who should see the task:<ul>
       <li><code>list</code> for <code>Tasking</code></li>
       <li><code>read</code> for <code>Tasking</code></li>
@@ -2886,7 +2820,7 @@
       <li>The medication has a <strong>Due</strong> time either in the past, from the start of the encounter to the current
       time, or within an upcoming window that begins when the user lands on the dashboard. That window is 8
       hours by default and is set per facility by the tasking upcoming tasks time frame setting, so a
-      deployment that has changed it sees a different window here. See the <a href="#" data-goto="module" data-cat="config" data-module="14">Tasks</a> configuration
+      deployment that has changed it sees a different window here. See the <a href="#" data-goto="guide" data-module="14" data-surface="reference-data">Tasks</a> configuration
       guides</li>
       </ul>
       <h3 id="settings--medication-due-task-behaviour">Medication due task behaviour</h3>
@@ -2910,7 +2844,7 @@
       module&#39;s settings see <a href="#" data-goto="guide" data-surface="settings">Settings</a>.</p>
       <hr>
       <h2 id="permissions--permissions">Permissions</h2>
-      <p>See the <a href="#" data-goto="module" data-cat="config" data-module="2">Users</a> configuration guides for more detail on roles and permissions in Tamanu.</p>
+      <p>See the <a href="#" data-goto="guide" data-module="2" data-surface="reference-data">Users</a> configuration guides for more detail on roles and permissions in Tamanu.</p>
       <h3 id="permissions--prescriptions-and-ongoing-medications">Prescriptions and ongoing medications</h3>
       <p>Required to prescribe a medication and manage the ongoing medications list:</p>
       <ul>
@@ -3107,50 +3041,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
           <button class="top" type="button" aria-expanded="false" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="desktop" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="article" data-platform="desktop" data-module="10"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="module" data-cat="desktop" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="module" data-cat="mobile" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -3158,168 +3091,144 @@
         <div class="mgroup-list">
           <button class="top" type="button" aria-expanded="false" data-module="1"><span class="num">1</span>Deploying Tamanu <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="1"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="1" data-surface="reference-data"><span class="num">1.1</span>Reference data</a>
             <a data-goto="guide" data-module="1" data-surface="settings"><span class="num">1.2</span>Settings</a>
             <a data-goto="guide" data-module="1" data-surface="permissions"><span class="num">1.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="2"><span class="num">2</span>Users <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="2"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="2" data-surface="reference-data"><span class="num">2.1</span>Reference data</a>
             <a data-goto="guide" data-module="2" data-surface="settings"><span class="num">2.2</span>Settings</a>
             <a data-goto="guide" data-module="2" data-surface="permissions"><span class="num">2.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="3"><span class="num">3</span>Patients <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="3"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="3" data-surface="reference-data"><span class="num">3.1</span>Reference data</a>
             <a data-goto="guide" data-module="3" data-surface="settings"><span class="num">3.2</span>Settings</a>
             <a data-goto="guide" data-module="3" data-surface="permissions"><span class="num">3.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="4"><span class="num">4</span>Clinician Dashboard <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="4"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="4" data-surface="reference-data"><span class="num">4.1</span>Reference data</a>
             <a data-goto="guide" data-module="4" data-surface="settings"><span class="num">4.2</span>Settings</a>
             <a data-goto="guide" data-module="4" data-surface="permissions"><span class="num">4.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="5"><span class="num">5</span>Scheduling <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="5"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="5" data-surface="reference-data"><span class="num">5.1</span>Reference data</a>
             <a data-goto="guide" data-module="5" data-surface="settings"><span class="num">5.2</span>Settings</a>
             <a data-goto="guide" data-module="5" data-surface="permissions"><span class="num">5.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="6"><span class="num">6</span>Programs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="6"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="6" data-surface="reference-data"><span class="num">6.1</span>Reference data</a>
             <a data-goto="guide" data-module="6" data-surface="settings"><span class="num">6.2</span>Settings</a>
             <a data-goto="guide" data-module="6" data-surface="permissions"><span class="num">6.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="7"><span class="num">7</span>Immunisations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="7"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="7" data-surface="reference-data"><span class="num">7.1</span>Reference data</a>
             <a data-goto="guide" data-module="7" data-surface="settings"><span class="num">7.2</span>Settings</a>
             <a data-goto="guide" data-module="7" data-surface="permissions"><span class="num">7.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="8"><span class="num">8</span>Encounters <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="8"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="8" data-surface="reference-data"><span class="num">8.1</span>Reference data</a>
             <a data-goto="guide" data-module="8" data-surface="settings"><span class="num">8.2</span>Settings</a>
             <a data-goto="guide" data-module="8" data-surface="permissions"><span class="num">8.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="9"><span class="num">9</span>Diagnoses <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="9"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="9" data-surface="reference-data"><span class="num">9.1</span>Reference data</a>
             <a data-goto="guide" data-module="9" data-surface="settings"><span class="num">9.2</span>Settings</a>
             <a data-goto="guide" data-module="9" data-surface="permissions"><span class="num">9.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="10"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="10" data-surface="reference-data"><span class="num">10.1</span>Reference data</a>
             <a data-goto="guide" data-module="10" data-surface="settings"><span class="num">10.2</span>Settings</a>
             <a data-goto="guide" data-module="10" data-surface="permissions"><span class="num">10.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="11"><span class="num">11</span>Charts <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="11"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="11" data-surface="reference-data"><span class="num">11.1</span>Reference data</a>
             <a data-goto="guide" data-module="11" data-surface="settings"><span class="num">11.2</span>Settings</a>
             <a data-goto="guide" data-module="11" data-surface="permissions"><span class="num">11.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="12"><span class="num">12</span>Notes <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="12"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="12" data-surface="reference-data"><span class="num">12.1</span>Reference data</a>
             <a data-goto="guide" data-module="12" data-surface="settings"><span class="num">12.2</span>Settings</a>
             <a data-goto="guide" data-module="12" data-surface="permissions"><span class="num">12.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="13"><span class="num">13</span>Forms <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="13"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="13" data-surface="reference-data"><span class="num">13.1</span>Reference data</a>
             <a data-goto="guide" data-module="13" data-surface="settings"><span class="num">13.2</span>Settings</a>
             <a data-goto="guide" data-module="13" data-surface="permissions"><span class="num">13.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="14"><span class="num">14</span>Tasks <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="14"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="14" data-surface="reference-data"><span class="num">14.1</span>Reference data</a>
             <a data-goto="guide" data-module="14" data-surface="settings"><span class="num">14.2</span>Settings</a>
             <a data-goto="guide" data-module="14" data-surface="permissions"><span class="num">14.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="true" data-module="15"><span class="num">15</span>Medications <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="15" class="active"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="15" data-surface="reference-data"><span class="num">15.1</span>Reference data</a>
             <a data-goto="guide" data-module="15" data-surface="settings"><span class="num">15.2</span>Settings</a>
             <a data-goto="guide" data-module="15" data-surface="permissions"><span class="num">15.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="16"><span class="num">16</span>Dispensing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="16"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="16" data-surface="reference-data"><span class="num">16.1</span>Reference data</a>
             <a data-goto="guide" data-module="16" data-surface="settings"><span class="num">16.2</span>Settings</a>
             <a data-goto="guide" data-module="16" data-surface="permissions"><span class="num">16.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="17"><span class="num">17</span>Procedures <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="17"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="17" data-surface="reference-data"><span class="num">17.1</span>Reference data</a>
             <a data-goto="guide" data-module="17" data-surface="settings"><span class="num">17.2</span>Settings</a>
             <a data-goto="guide" data-module="17" data-surface="permissions"><span class="num">17.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="18"><span class="num">18</span>Labs <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="18"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="18" data-surface="reference-data"><span class="num">18.1</span>Reference data</a>
             <a data-goto="guide" data-module="18" data-surface="settings"><span class="num">18.2</span>Settings</a>
             <a data-goto="guide" data-module="18" data-surface="permissions"><span class="num">18.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="19"><span class="num">19</span>Imaging <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="19"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="19" data-surface="reference-data"><span class="num">19.1</span>Reference data</a>
             <a data-goto="guide" data-module="19" data-surface="settings"><span class="num">19.2</span>Settings</a>
             <a data-goto="guide" data-module="19" data-surface="permissions"><span class="num">19.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="20"><span class="num">20</span>Referrals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="20"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="20" data-surface="reference-data"><span class="num">20.1</span>Reference data</a>
             <a data-goto="guide" data-module="20" data-surface="settings"><span class="num">20.2</span>Settings</a>
             <a data-goto="guide" data-module="20" data-surface="permissions"><span class="num">20.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="21"><span class="num">21</span>Documents <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="21"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="21" data-surface="reference-data"><span class="num">21.1</span>Reference data</a>
             <a data-goto="guide" data-module="21" data-surface="settings"><span class="num">21.2</span>Settings</a>
             <a data-goto="guide" data-module="21" data-surface="permissions"><span class="num">21.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="22"><span class="num">22</span>Invoicing <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="22"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="22" data-surface="reference-data"><span class="num">22.1</span>Reference data</a>
             <a data-goto="guide" data-module="22" data-surface="settings"><span class="num">22.2</span>Settings</a>
             <a data-goto="guide" data-module="22" data-surface="permissions"><span class="num">22.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="23"><span class="num">23</span>Reports <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="23"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="23" data-surface="reference-data"><span class="num">23.1</span>Reference data</a>
             <a data-goto="guide" data-module="23" data-surface="settings"><span class="num">23.2</span>Settings</a>
             <a data-goto="guide" data-module="23" data-surface="permissions"><span class="num">23.3</span>Permissions</a>
           </div>
           <button class="top" type="button" aria-expanded="false" data-module="24"><span class="num">24</span>Integrations <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="module" data-cat="config" data-module="24"><span class="num"></span>Overview</a>
             <a data-goto="guide" data-module="24" data-surface="reference-data"><span class="num">24.1</span>Reference data</a>
             <a data-goto="guide" data-module="24" data-surface="settings"><span class="num">24.2</span>Settings</a>
             <a data-goto="guide" data-module="24" data-surface="permissions"><span class="num">24.3</span>Permissions</a>
@@ -3513,7 +3422,7 @@
       <hr>
       <h3 id="mod-config-15--vaccines">Vaccines</h3>
       <p>All vaccines that appear in the Vaccine Schedule, or are selected when recording vaccine workflows, must
-      also be listed in the <code>Drug</code> reference data. See the <a href="#" data-goto="module" data-cat="config" data-module="7">Immunisations</a> configuration
+      also be listed in the <code>Drug</code> reference data. See the <a href="#" data-goto="guide" data-module="7" data-surface="reference-data">Immunisations</a> configuration
       guides.</p>
       <hr>
       <h3 id="mod-config-15--iv-medications">IV medications</h3>
@@ -5119,12 +5028,9 @@
     const group = view.querySelector('.cat-' + cat);
     group.querySelector('.mgroup-head').setAttribute('aria-expanded', 'true');
     const row = group.querySelector('.top[data-module="' + num + '"]');
-    if (row.matches('button')) {
-      row.setAttribute('aria-expanded', 'true');
-      row.nextElementSibling.querySelector('[data-goto="module"]').classList.add('active');
-    } else {
-      row.classList.add('current');
-    }
+    // the sidebar opens to the module; the overview itself has no entry there
+    if (row.matches('button')) row.setAttribute('aria-expanded', 'true');
+    else row.classList.add('current');
   }
   showGuide({ module:'15', surface:'settings' });
   showArticle({});

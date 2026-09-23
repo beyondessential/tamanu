@@ -127,9 +127,13 @@ Design notes:
   such as the Medications scope warning and IV medications explainer, follows the cards, with its
   headings in "On this page". The README's own guide listing (K8's guide table and "not written
   yet" note, L8's Guides section) is what the cards replace, so it is not repeated. The overview is
-  reached from the module crumb, the index module tiles, an "Overview" link at the top of each
-  expandable module in the sidebar, sidebar rows for modules without written guides, and links
-  between modules inside guides (`../dispensing/`).
+  reached **only from the module crumb** on a guide; it has no entry in the sidebar, and index
+  tiles, sidebar rows and links between modules open the module's first guide instead, so the
+  overview spends no navigation space.
+- **Guide pages hold up at tablet width**: between 901px and 1180px the "On this page" rail gives
+  way so the guide keeps a readable width, crumbs wrap only between items, and index and overview
+  cards take as many columns as fit rather than a fixed count. Below 900px the sidebar also drops
+  out and the guide runs full width.
 - **Previous and next** sit at the foot of every guide, after the feedback prompt, as two outlined
   cards. Each leads with the neighbouring guide's number and module ("17.3 Procedures") and names
   the guide beneath it ("Permissions"). Configuration guides run in reading
