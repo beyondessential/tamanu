@@ -24,10 +24,18 @@ export const saveChangesForModel = async (
   log: Logger,
 ) => {
   const sanitizeContext = await model.prepareSanitizeContext(changes);
-  const sanitizeData = (d: ModelSanitizeArgs) =>
-    isCentralServer
+  const sanitizeData = (d: ModelSanitizeArgs) => {
+    /**
+     * Discard value from client. (Applies only to mobile, which doesn’t strip deleted_at.) Enforces
+     * that the delete/restore decision below is the only thing that sets/unsets deleted_at.
+     * (Otherwise a stale edit pushed against a record central has since deleted would carry
+     * `deletedAt: null` and silently restore it.)
+     */
+    const { deletedAt: _, ...sanitized }: ModelSanitizeArgs = isCentralServer
       ? model.sanitizeForCentralServer(d, sanitizeContext)
       : model.sanitizeForFacilityServer(d, sanitizeContext);
+    return sanitized;
+  };
 
   // split changes into creates and updates; soft deletes and restores ride along on the update
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);

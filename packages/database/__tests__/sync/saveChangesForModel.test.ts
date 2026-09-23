@@ -276,6 +276,164 @@ describe('saveChangesForModel', () => {
     });
   });
 
+  // Mobile pushes every column bar createdAt/updatedAt/updatedAtSyncTick, so its records arrive
+  // carrying `deletedAt`. saveChangesForModel owns the delete/restore decision; the client’s value
+  // must never be written through, or a stale edit against a record central has since deleted would
+  // quietly restore it.
+  describe('client-supplied deletedAt is ignored', () => {
+    const clientDeletedAt = '2020-01-01 00:00:00';
+
+    it('does not restore a centrally deleted field-merged record from a stale mobile edit', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const additionalData = await models.PatientAdditionalData.create(
+        fake(models.PatientAdditionalData, { patientId: patient.id, placeOfBirth: 'Here' }),
+      );
+      // e.g. the unwanted side of a patient merge, deleted on central before the device pulled it
+      await additionalData.destroy();
+      await additionalData.reload({ paranoid: false });
+      const {
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        updatedAtSyncTick: _tick,
+        ...pushedAdditionalData
+      } = additionalData.get({ plain: true });
+      expect(pushedAdditionalData.updatedAtByField).toBeTruthy();
+      const changes = [
+        {
+          // the device never saw the delete, so it echoes deletedAt: null alongside its edit
+          data: { ...pushedAdditionalData, deletedAt: null, placeOfBirth: 'There' },
+          isDeleted: false,
+        },
+      ];
+
+      await saveChangesForModel(models.PatientAdditionalData, changes, true, log);
+
+      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
+      const [, [updatePayload]] = saveChangeModules.saveUpdates.mock.calls[0];
+      expect(updatePayload).not.toHaveProperty('deletedAt');
+      const stillDeleted = await models.PatientAdditionalData.findByPk(additionalData.id, {
+        paranoid: false,
+      });
+      expect(stillDeleted.deletedAt).not.toBeNull();
+      expect(stillDeleted.placeOfBirth).toBe('There');
+
+      await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
+      await models.Patient.destroy({ where: { id: patient.id }, force: true });
+    });
+
+    it('does not restore a centrally deleted record from a stale edit (no field merge)', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      await existingRecord.destroy();
+      const changes = [
+        { data: { id: existingRecord.id, text: 'current', deletedAt: null }, isDeleted: false },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [{ id: existingRecord.id, text: 'current' }],
+        expect.anything(),
+        true,
+      );
+      const stillDeleted = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
+        paranoid: false,
+      });
+      expect(stillDeleted.deletedAt).not.toBeNull();
+      expect(stillDeleted.text).toBe('current');
+    });
+
+    it('does not write a client deletedAt timestamp onto a live record', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      const changes = [
+        {
+          data: { id: existingRecord.id, text: 'current', deletedAt: clientDeletedAt },
+          isDeleted: false,
+        },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [{ id: existingRecord.id, text: 'current' }],
+        expect.anything(),
+        true,
+      );
+      const stillLive = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(stillLive).not.toBeNull();
+      expect(stillLive.deletedAt).toBeNull();
+      expect(stillLive.text).toBe('current');
+    });
+
+    it('replaces a client deletedAt on a soft-deleted create with the server’s own timestamp', async () => {
+      const changes = [
+        { data: { id: 'new_record_id', text: 'new', deletedAt: clientDeletedAt }, isDeleted: true },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+
+      expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
+        { id: 'new_record_id', text: 'new', isDeleted: true },
+      ]);
+      const created = await models.SurveyScreenComponent.findByPk('new_record_id', {
+        paranoid: false,
+      });
+      expect(created.deletedAt).not.toBeNull();
+      expect(new Date(created.deletedAt).getTime()).toBeGreaterThan(
+        new Date('2020-01-02').getTime(),
+      );
+    });
+
+    it('still restores on the facility server from the persist step’s own decision', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      await existingRecord.destroy();
+      const changes = [
+        {
+          data: {
+            id: existingRecord.id,
+            text: 'current',
+            deletedAt: null,
+            updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+          },
+          isDeleted: false,
+        },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+
+      // the null here is the restore decision re-attached by saveChangesForModel, not the payload’s
+      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+        models.SurveyScreenComponent,
+        [
+          {
+            id: existingRecord.id,
+            text: 'current',
+            updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+            deletedAt: null,
+          },
+        ],
+        expect.anything(),
+        false,
+      );
+      const restored = await models.SurveyScreenComponent.findByPk(existingRecord.id);
+      expect(restored).not.toBeNull();
+      expect(restored.text).toBe('current');
+      expect(Number.parseInt(restored.updatedAtSyncTick, 10)).toBe(
+        SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+      );
+    });
+  });
+
   // Records pulled from central are marked with INCOMING_FROM_CENTRAL_SERVER (-1), which the
   // set_updated_at_sync_tick trigger stores as LAST_UPDATED_ELSEWHERE (-999) so the facility never
   // pushes them back. The tick has to be written in the same statement as deleted_at — a paranoid
