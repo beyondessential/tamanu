@@ -709,6 +709,7 @@ describe('fijiAspenMediciReport', () => {
             notes: [
               {
                 noteTypeId: NOTE_TYPES.OTHER,
+                noteType: 'other',
                 content: 'Please perform this lab test very carefully',
                 noteDate: '2022-06-09T02:04:54+00:00',
                 revisedById: fakedata.labRequestNote.id,
@@ -723,6 +724,7 @@ describe('fijiAspenMediciReport', () => {
             notes: [
               {
                 noteTypeId: NOTE_TYPES.OTHER,
+                noteType: 'other',
                 content: 'Check for fractured knees please',
                 noteDate: '2022-06-10T06:04:54+00:00',
                 revisedById: fakedata.imagingRequestNote.id,
@@ -733,6 +735,7 @@ describe('fijiAspenMediciReport', () => {
         notes: [
           {
             noteTypeId: NOTE_TYPES.OTHER,
+            noteType: 'other',
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
             revisedById: fakedata.encounterNote.id,
