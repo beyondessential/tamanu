@@ -14,7 +14,6 @@ type RecordWithIsDeleted<T = { [attr: string]: unknown }> = {
   createdAt: Date | null;
   /** Non-nullable in most tables */
   updatedAt: Date | null;
-  /** A `Fn` when the write itself stamps the time, e.g. `fn('now')` */
   deletedAt: Date | Utils.Fn | null;
   updatedAtSyncTick: string;
   isDeleted?: boolean;
