@@ -1,5 +1,5 @@
 import type { PureAbility } from '@casl/ability';
-import { union } from 'es-toolkit/compat';
+import { union } from 'es-toolkit';
 import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import type { IUser } from '~/types';
