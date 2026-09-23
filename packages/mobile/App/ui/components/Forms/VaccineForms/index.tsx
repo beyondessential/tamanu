@@ -13,6 +13,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { SETTING_KEYS } from '../../../../constants';
 import { Form } from '../Form';
 import { SubmitButton } from '../SubmitButton';
@@ -111,6 +112,7 @@ export const VaccineForm = ({
         {};
       return { locationId, departmentId };
     },
+    meta: dependsOn(Database.models.Encounter, Database.models.Setting),
   });
 
   if (error) return <ErrorScreen error={error} />;

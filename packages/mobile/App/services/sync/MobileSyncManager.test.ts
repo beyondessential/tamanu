@@ -24,7 +24,7 @@ jest.mock('./utils/manageSnapshotTable', () => ({
 
 jest.mock('../../infra/db', () => ({
   Database: {
-    models: {},
+    models: { LocalSystemFact: { getTableName: () => 'local_system_facts' } },
     client: {
       transaction: jest.fn(),
       query: jest.fn(),

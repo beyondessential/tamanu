@@ -21,6 +21,7 @@ import { authUserSelector } from '/helpers/selectors';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
 import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
@@ -175,6 +176,7 @@ export const SurveyForm = ({
       const encounter = await Database.models.Encounter.getCurrentEncounterForPatient(patient.id);
       return { encounter };
     },
+    meta: dependsOn(Database.models.Encounter),
   });
 
   const { encounter } = encounterResult || {};

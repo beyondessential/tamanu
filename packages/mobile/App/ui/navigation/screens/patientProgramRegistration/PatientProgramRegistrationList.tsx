@@ -9,6 +9,7 @@ import { theme } from '~/ui/styled/theme';
 import { Routes } from '~/ui/helpers/routes';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -81,6 +82,11 @@ export const PatientProgramRegistrationList = ({ selectedPatient }): ReactElemen
       Database.models.PatientProgramRegistration.getMostRecentRegistrationsForPatient(
         selectedPatient.id,
       ),
+    meta: dependsOn(
+      Database.models.PatientProgramRegistration,
+      Database.models.ProgramRegistryClinicalStatus,
+      Database.models.ProgramRegistry,
+    ),
   });
   if (isRegistrationLoading) return <LoadingScreen />;
 

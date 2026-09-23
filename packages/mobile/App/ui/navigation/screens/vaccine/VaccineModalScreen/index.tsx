@@ -6,6 +6,7 @@ import type { IPatient } from '~/types';
 import { Database } from '~/infra/db';
 import { returnToVaccineTable } from '~/ui/helpers/navigators';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { ErrorScreen } from '/components/ErrorScreen';
 import { LoadingScreen } from '/components/LoadingScreen';
 import { VaccineCard, type VaccineDataProps } from '/components/VaccineCard';
@@ -41,6 +42,16 @@ export const VaccineModalScreen = ({
   } = useQuery({
     queryKey: [...patientKeys.administeredVaccines(patient.id), administeredVaccineId],
     queryFn: () => Database.models.AdministeredVaccine.getById(administeredVaccineId),
+    meta: dependsOn(
+      Database.models.AdministeredVaccine,
+      Database.models.Encounter,
+      Database.models.User,
+      Database.models.ReferenceData,
+      Database.models.ScheduledVaccine,
+      Database.models.Location,
+      Database.models.Department,
+      Database.models.LocationGroup,
+    ),
     enabled: administeredVaccineId !== undefined,
   });
   const isLoading = administeredVaccineId !== undefined && isPending;

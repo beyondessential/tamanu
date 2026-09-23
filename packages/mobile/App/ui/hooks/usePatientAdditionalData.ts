@@ -5,6 +5,7 @@ import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import type { PatientFieldValue } from '~/models/PatientFieldValue';
 import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { patientKeys } from './queries/queryKeys';
+import { dependsOn } from './queries/queryMeta';
 
 export type CustomPatientFieldValues = {
   [key: string]: PatientFieldValue[];
@@ -59,6 +60,13 @@ export const usePatientAdditionalData = (
   const { data, error, isPending } = useQuery({
     queryKey: patientKeys.additionalData(patientId),
     queryFn: () => loadPatientAdditionalData(patientId),
+    meta: dependsOn(
+      Database.models.PatientAdditionalData,
+      Database.models.ReferenceData,
+      Database.models.PatientFieldDefinition,
+      Database.models.PatientFieldDefinitionCategory,
+      Database.models.PatientFieldValue,
+    ),
     enabled: Boolean(patientId),
   });
 

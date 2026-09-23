@@ -4,6 +4,7 @@ import { Database } from '~/infra/db';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { theme } from '~/ui/styled/theme';
 import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
@@ -220,6 +221,7 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
   const { data: options = [] } = useQuery({
     queryKey: referenceKeys.dataByType(referenceDataType, { format: 'selectOptions' }),
     queryFn: () => Database.models.ReferenceData.getSelectOptionsForType(referenceDataType),
+    meta: dependsOn(Database.models.ReferenceData),
     select: data =>
       data.map(option => ({
         label: getTranslation(

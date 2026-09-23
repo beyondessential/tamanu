@@ -2,6 +2,7 @@ import React, { type ReactNode, createContext, useContext, useEffect, useState }
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '../hooks/queries/queryKeys';
+import { dependsOn } from '../hooks/queries/queryMeta';
 import type { IPatientContact } from '~/types';
 import { compose } from 'redux';
 import { withPatient } from '../containers/Patient';
@@ -48,6 +49,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
   const { data: reminderContactList = [], isPending: isLoading } = useQuery({
     queryKey: patientKeys.contacts(selectedPatient.id),
     queryFn: () => getAllContacts(Database.models, selectedPatient.id),
+    meta: dependsOn(Database.models.PatientContact, Database.models.ReferenceData),
   });
 
   useEffect(

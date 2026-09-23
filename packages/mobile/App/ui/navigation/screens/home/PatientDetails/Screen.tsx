@@ -16,6 +16,7 @@ import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { getGender, joinNames } from '~/ui/helpers/user';
 import { settingKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   FullView,
@@ -38,6 +39,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
     queryKey: settingKeys.byKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
     queryFn: () =>
       Database.models.Setting.getByKey<boolean>(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
+    meta: dependsOn(Database.models.Setting),
   });
 
   const onEditPatientIssues = useCallback(() => {

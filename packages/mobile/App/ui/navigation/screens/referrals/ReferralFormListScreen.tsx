@@ -10,6 +10,7 @@ import { SurveyTypes } from '~/types';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -28,6 +29,7 @@ export const ReferralFormListScreen = (): ReactElement => {
         },
         order: { name: 'ASC' },
       }),
+    meta: dependsOn(Database.models.Survey),
   });
 
   const filteredSurveys = surveys

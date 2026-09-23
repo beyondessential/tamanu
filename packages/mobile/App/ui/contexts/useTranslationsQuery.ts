@@ -8,6 +8,7 @@ import { isEmptyObject } from 'es-toolkit';
 import { Database } from '~/infra/db';
 import { fetchJson } from '../hooks/queries/fetchJson';
 import { translationKeys } from '../hooks/queries/queryKeys';
+import { dependsOn } from '../hooks/queries/queryMeta';
 
 export interface Translations {
   [stringId: string]: string;
@@ -33,6 +34,7 @@ export default function useTranslationsQuery(
   return useQuery({
     queryKey: translationKeys.forLanguage(languageCode, host),
     queryFn: () => fetchTranslations(languageCode, host),
+    meta: dependsOn(Database.models.TranslatedString),
     enabled: enabled && Boolean(languageCode),
     // Keep showing the previous language while a newly selected one loads
     placeholderData: keepPreviousData,

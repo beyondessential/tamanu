@@ -9,6 +9,7 @@ import { addHours, format, startOfToday, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { SummaryBoard } from './SummaryBoard';
 import type { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
@@ -97,6 +98,7 @@ export const ReportScreen = (): ReactElement => {
   const { data } = useQuery({
     queryKey: reportKeys.encounterSummary(selectedSurveyId),
     queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
+    meta: dependsOn(Database.models.Encounter, Database.models.SurveyResponse),
   });
 
   const { data: surveys } = useQuery({
@@ -105,6 +107,7 @@ export const ReportScreen = (): ReactElement => {
       Database.models.Survey.find({
         where: { surveyType: SurveyTypes.Programs },
       }),
+    meta: dependsOn(Database.models.Survey),
   });
 
   useEffect(() => {

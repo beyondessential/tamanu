@@ -37,6 +37,7 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { Field } from '/components/Forms/FormField';
 import { SubmitButton } from '/components/Forms/SubmitButton';
@@ -92,6 +93,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         where: { patient: { id: selectedPatient.id } },
         relations: ['allergy'],
       }),
+    meta: dependsOn(Database.models.PatientAllergy, Database.models.ReferenceData),
     enabled: Boolean(selectedPatient?.id),
   });
 

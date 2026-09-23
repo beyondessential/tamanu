@@ -4,9 +4,11 @@ import React, { useCallback, useMemo, useState, type ReactElement } from 'react'
 import { KeyboardAvoidingView, StyleSheet, type FlatListProps } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { Button } from 'react-native-paper';
+import { Database } from '~/infra/db';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { suggestionKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import useDebouncedValue from '~/ui/hooks/useDebouncedValue';
 import { StyledView } from '~/ui/styled/common';
 import type { BaseModelSubclass, OptionType, Suggester } from '../../helpers/suggester';
@@ -54,6 +56,11 @@ export const AutocompleteModalScreen = ({
       language,
     }),
     queryFn: () => suggester.fetchSuggestions(debouncedSearchTerm, language),
+    // The joined relations' target tables are only known at runtime, so a suggester with
+    // `relations` stays untagged (invalidated after every sync)
+    meta: suggester.options.relations?.length
+      ? undefined
+      : dependsOn(suggester.model, Database.models.TranslatedString),
     // Keep previous list on screen while during reloads to prevent flicker
     placeholderData: holdPreviousData,
   });

@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DateFormats } from '../../../helpers/constants';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { StyledScrollView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
@@ -49,6 +50,15 @@ export const ReferralHistoryScreen = (): ReactElement => {
         ) ?? []
       );
     },
+    meta: dependsOn(
+      Database.models.Referral,
+      Database.models.Encounter,
+      Database.models.SurveyResponse,
+      Database.models.Survey,
+      Database.models.SurveyResponseAnswer,
+      Database.models.ProgramDataElement,
+      Database.models.SurveyScreenComponent,
+    ),
   });
 
   if (error) {

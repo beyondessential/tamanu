@@ -5,6 +5,7 @@ import { Text } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { Field } from '../FormField';
 import { SurveyResultBadge } from '../../SurveyResultBadge';
 
@@ -19,6 +20,12 @@ export const SurveyResult = ({ patient, config, name }) => {
         surveyId: config.source,
         limit: 1,
       }),
+    meta: dependsOn(
+      Database.models.SurveyResponse,
+      Database.models.Encounter,
+      Database.models.Survey,
+      Database.models.ProcedureSurveyResponse,
+    ),
   });
   const surveyResponse = responses?.[0];
 

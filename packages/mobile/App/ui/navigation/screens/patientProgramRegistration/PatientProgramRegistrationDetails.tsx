@@ -12,6 +12,7 @@ import { DateFormats } from '~/ui/helpers/constants';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import useFullProgramRegistrationQuery from '~/ui/hooks/queries/useFullProgramRegistrationQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
@@ -170,6 +171,11 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
       Database.models.PatientProgramRegistrationCondition.findForRegistration(
         patientProgramRegistrationId,
       ),
+    meta: dependsOn(
+      Database.models.PatientProgramRegistrationCondition,
+      Database.models.ProgramRegistryCondition,
+      Database.models.ProgramRegistryConditionCategory,
+    ),
   });
 
   if ((!preloadedRegistration && isRegistrationLoading) || isConditionsLoading) {

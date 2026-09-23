@@ -4,6 +4,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { StyledText } from '~/ui/styled/common';
 import { Database } from '~/infra/db';
 import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { getDisplayNameForModel } from '~/ui/helpers/fields';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
@@ -82,6 +83,15 @@ export const PatientDataDisplayField = ({
         fieldName,
         answer: value,
       }),
+    // The target model is resolved from relation metadata at runtime; these are every relation
+    // target reachable from PATIENT_DATA_FIELD_LOCATIONS (Patient eagerly loads its village)
+    meta: dependsOn(
+      Database.models.ReferenceData,
+      Database.models.Facility,
+      Database.models.User,
+      Database.models.Patient,
+      Database.models.ProgramRegistryClinicalStatus,
+    ),
     /** Only standard fields without enum options need a database lookup  */
     enabled: Boolean(value && modelName && !options),
   });

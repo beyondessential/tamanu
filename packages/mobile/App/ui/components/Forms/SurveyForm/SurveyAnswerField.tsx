@@ -5,6 +5,7 @@ import { useFormikContext } from 'formik';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { renderAnswer } from '~/ui/navigation/screens/programs/SurveyResponseDetailsScreen';
 import { Text } from 'react-native';
 
@@ -30,6 +31,13 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
 
       return { answer, sourceQuestion: dataElement.surveyScreenComponent };
     },
+    meta: dependsOn(
+      Database.models.SurveyResponseAnswer,
+      Database.models.SurveyResponse,
+      Database.models.Encounter,
+      Database.models.ProgramDataElement,
+      Database.models.SurveyScreenComponent,
+    ),
   });
   const answerBody = data?.answer?.body ?? '';
   const sourceQuestion = data?.sourceQuestion;

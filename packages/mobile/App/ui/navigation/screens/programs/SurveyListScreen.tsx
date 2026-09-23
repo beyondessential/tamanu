@@ -14,6 +14,7 @@ import { joinNames } from '/helpers/user';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import type { Survey } from '~/models/Survey';
@@ -66,6 +67,14 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
 
         return getProgramSurveysWithFormVisibility(models, filteredByAbility, selectedPatient?.id);
       },
+      meta: dependsOn(
+        Database.models.Survey,
+        Database.models.Program,
+        Database.models.SurveyResponseAnswer,
+        Database.models.SurveyResponse,
+        Database.models.Encounter,
+        Database.models.ProgramDataElement,
+      ),
     });
 
   const onNavigateToSurvey = (survey: Survey): void => {

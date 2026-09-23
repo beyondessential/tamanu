@@ -15,6 +15,7 @@ import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { StyledText } from '~/ui/styled/common';
 import { SurveyTypes } from '~/types';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -60,6 +61,12 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
           surveyIds.has(response.surveyId),
       );
     },
+    meta: dependsOn(
+      Database.models.SurveyResponse,
+      Database.models.Encounter,
+      Database.models.Survey,
+      Database.models.ProcedureSurveyResponse,
+    ),
   });
 
   useEffect(() => {

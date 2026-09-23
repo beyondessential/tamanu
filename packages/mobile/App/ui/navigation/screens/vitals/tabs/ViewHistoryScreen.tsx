@@ -6,6 +6,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { useSelector } from 'react-redux';
 import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
 import type { PatientStateProps } from '/store/ducks/patient';
@@ -19,6 +20,13 @@ export const ViewHistoryScreen = (): ReactElement => {
   const { data: response, error } = useQuery({
     queryKey: patientKeys.vitals(selectedPatient.id),
     queryFn: () => Database.models.Patient.getVitals(selectedPatient.id),
+    meta: dependsOn(
+      Database.models.SurveyResponseAnswer,
+      Database.models.SurveyResponse,
+      Database.models.SurveyScreenComponent,
+      Database.models.ProgramDataElement,
+      Database.models.Encounter,
+    ),
   });
 
   if (error) return <ErrorScreen error={error} />;

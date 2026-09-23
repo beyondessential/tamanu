@@ -4,6 +4,7 @@ import { uniqBy } from 'es-toolkit/compat';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
@@ -56,6 +57,7 @@ export const VaccinesTable = ({
         order: { index: 'ASC' },
         where: { category: categoryName },
       })) as IScheduledVaccine[],
+    meta: dependsOn(Database.models.ScheduledVaccine, Database.models.ReferenceData),
   });
   const { data: patientAdministeredVaccines, error: administeredError } =
     usePatientAdministeredVaccinesQuery(selectedPatient.id);

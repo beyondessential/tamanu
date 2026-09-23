@@ -11,6 +11,7 @@ import { Database } from '~/infra/db';
 import type { LanguageOption } from '~/models/TranslatedString';
 import { fetchJson } from './fetchJson';
 import { translationKeys } from './queryKeys';
+import { dependsOn } from './queryMeta';
 
 interface TranslatedLanguageField {
   language: string;
@@ -82,6 +83,7 @@ export default function useLanguageOptionsQuery(
   return useQuery({
     queryKey: translationKeys.languageOptions(host),
     queryFn: () => fetchRemoteLanguageOptions(host),
+    meta: dependsOn(),
     enabled: enabled && Boolean(host),
     refetchOnReconnect: true,
     retry: 2,
@@ -101,6 +103,7 @@ export function useLocalLanguageOptionsQuery(
   return useQuery({
     queryKey: translationKeys.localLanguageOptions(),
     queryFn: () => Database.models.TranslatedString.getLanguageOptions(),
+    meta: dependsOn(Database.models.TranslatedString),
     enabled,
     select: collapseDefaultLanguage,
     ...rest,

@@ -22,6 +22,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { Database } from '~/infra/db';
 import { patientListKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { RegistrationStatus } from '~/constants/programRegistries';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
@@ -143,6 +144,11 @@ const Screen: FC<ViewAllScreenProps> = ({
   const { data: list } = useQuery({
     queryKey: patientListKeys.search({ search, filters: activeFilters }),
     queryFn: () => searchAndFilterPatients(search, activeFilters),
+    meta: dependsOn(
+      Database.models.Patient,
+      Database.models.ReferenceData,
+      Database.models.PatientProgramRegistration,
+    ),
   });
 
   const onNavigateToPatientHome = useCallback(patient => {

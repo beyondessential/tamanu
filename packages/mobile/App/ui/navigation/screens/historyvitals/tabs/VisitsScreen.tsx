@@ -7,6 +7,7 @@ import { theme } from '/styled/theme';
 import { NOTE_TYPES } from '~/ui/helpers/constants';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
@@ -54,6 +55,15 @@ const DumbVisitsScreen = ({ selectedPatient }): ReactElement => {
   const { data, error } = useQuery({
     queryKey: patientKeys.encounters(selectedPatient.id),
     queryFn: () => Database.models.Encounter.getForPatient(selectedPatient.id),
+    meta: dependsOn(
+      Database.models.Encounter,
+      Database.models.Location,
+      Database.models.Facility,
+      Database.models.Note,
+      Database.models.Patient,
+      Database.models.Diagnosis,
+      Database.models.ReferenceData,
+    ),
   });
 
   if (error) return <ErrorScreen error={error} />;

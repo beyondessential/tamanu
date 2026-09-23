@@ -3,6 +3,7 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import type { PatientIssue } from '~/models/PatientIssue';
 import { patientKeys } from './queryKeys';
+import { dependsOn } from './queryMeta';
 
 export default function usePatientIssuesQuery(
   patientId: string | undefined,
@@ -14,6 +15,7 @@ export default function usePatientIssuesQuery(
         order: { recordedDate: 'ASC' },
         where: { patient: { id: patientId } },
       }),
+    meta: dependsOn(Database.models.PatientIssue),
     enabled: Boolean(patientId),
   });
 }

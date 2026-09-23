@@ -11,6 +11,7 @@ import { withPatient } from '~/ui/containers/Patient';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys, syncKeys } from '~/ui/hooks/queries/queryKeys';
+import { dependsOn } from '~/ui/hooks/queries/queryMeta';
 import type { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledText, StyledView } from '/styled/common';
@@ -106,11 +107,19 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     useQuery({
       queryKey: patientKeys.labRequests(selectedPatient.id, { userId: user?.id }),
       queryFn: () => Database.models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
+      meta: dependsOn(
+        Database.models.LabRequest,
+        Database.models.Encounter,
+        Database.models.ReferenceData,
+        Database.models.LabTest,
+        Database.models.LabTestType,
+      ),
     });
 
   const { data: lastSuccessfulPushTick } = useQuery({
     queryKey: syncKeys.lastSuccessfulPushTick(),
     queryFn: () => getSyncTick(Database.models, LAST_SUCCESSFUL_PUSH),
+    meta: dependsOn(Database.models.LocalSystemFact),
   });
 
   useEffect(() => {

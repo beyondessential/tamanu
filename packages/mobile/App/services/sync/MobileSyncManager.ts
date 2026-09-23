@@ -8,7 +8,7 @@ import { SYNC_DIRECTIONS } from '../../models/types';
 import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
-import { SYNC_EVENT_ACTIONS } from './types';
+import { SYNC_EVENT_ACTIONS, type SyncEvents } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -85,7 +85,14 @@ export class MobileSyncManager {
 
   lastSyncPulledRecordsCount: number = null;
 
-  emitter = mitt();
+  /**
+   * Tables whose rows changed during the current (or most recent) sync run. Only ever added to
+   * after the transaction that wrote them has committed. Reported on
+   * {@link SYNC_EVENT_ACTIONS.SYNC_ENDED}.
+   */
+  touchedTables = new Set<string>();
+
+  emitter = mitt<SyncEvents>();
 
   urgentSyncInterval = null;
 
@@ -208,7 +215,10 @@ export class MobileSyncManager {
         this.syncStage = null;
         this.isSyncing = false;
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
-        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
+        // Copy so listeners never observe the next run’s reset
+        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, {
+          touchedTables: new Set(this.touchedTables),
+        });
         if (this.urgentSyncInterval) {
           clearInterval(this.urgentSyncInterval);
           this.urgentSyncInterval = null;
@@ -225,6 +235,7 @@ export class MobileSyncManager {
 
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
+    this.touchedTables = new Set();
 
     // clear persisted cache from last session
     await dropSnapshotTable();
@@ -312,6 +323,8 @@ export class MobileSyncManager {
     // updated even mid way through this sync, are marked using the new tick and will be captured in
     // the next push
     await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
+    // Sync ticks are the only local writes a push makes
+    this.touchedTables.add(this.models.LocalSystemFact.getTableName());
 
     const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     console.log(
@@ -422,7 +435,7 @@ export class MobileSyncManager {
     }
 
     try {
-      await Database.client.transaction(async transactionEntityManager => {
+      const savedTables = await Database.client.transaction(async transactionEntityManager => {
         await deferForeignKeys(transactionEntityManager);
         const incomingModels = getTransactingModelsForDirection(
           this.models,
@@ -434,8 +447,15 @@ export class MobileSyncManager {
          * models don’t need to be topologically ordered.
          */
         const modelsToSave = Object.values(incomingModels);
+        const tablesReceivingRows = new Set<string>();
         const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, modelsToSave, this.syncSettings, progressCallback);
+          const batchTables = await saveChangesFromMemory(
+            records,
+            modelsToSave,
+            this.syncSettings,
+            progressCallback,
+          );
+          for (const table of batchTables) tablesReceivingRows.add(table);
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
@@ -444,7 +464,9 @@ export class MobileSyncManager {
           modelsToSave.map(model => model.getTableName()),
         );
         await this.postPull(transactionEntityManager, pullUntil);
+        return tablesReceivingRows;
       });
+      this.recordPulledTables(savedTables);
     } catch (err) {
       console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
       throw err;
@@ -462,6 +484,7 @@ export class MobileSyncManager {
       // Nothing to save, so don't stage a snapshot or open the (write-locking) save transaction.
       // The pull cursor still has to advance, otherwise the next session re-asks from the old tick.
       await Database.client.transaction(entityManager => this.postPull(entityManager, pullUntil));
+      this.recordPulledTables(new Set());
       return;
     }
 
@@ -498,7 +521,7 @@ export class MobileSyncManager {
         `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
       );
     };
-    await Database.client.transaction(async transactionEntityManager => {
+    const savedTables = await Database.client.transaction(async transactionEntityManager => {
       try {
         await deferForeignKeys(transactionEntityManager);
         const incomingModels = getTransactingModelsForDirection(
@@ -511,12 +534,17 @@ export class MobileSyncManager {
          * models don’t need to be topologically ordered.
          */
         const modelsToSave = Object.values(incomingModels);
-        await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
+        const tablesReceivingRows = await saveChangesFromSnapshot(
+          modelsToSave,
+          this.syncSettings,
+          saveProgressCallback,
+        );
         await checkForeignKeys(
           transactionEntityManager,
           modelsToSave.map(model => model.getTableName()),
         );
         await this.postPull(transactionEntityManager, pullUntil);
+        return tablesReceivingRows;
       } catch (err) {
         console.error(
           'MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync',
@@ -525,6 +553,17 @@ export class MobileSyncManager {
         throw err;
       }
     });
+    this.recordPulledTables(savedTables);
+  }
+
+  /**
+   * Call only after a pull transaction has committed. `postPull` runs in that same transaction and
+   * always writes the pull cursor, so `local_system_facts` is touched even when no records were
+   * pulled.
+   */
+  private recordPulledTables(savedTables: ReadonlySet<string>): void {
+    for (const table of savedTables) this.touchedTables.add(table);
+    this.touchedTables.add(this.models.LocalSystemFact.getTableName());
   }
 
   async postPull(entityManager: EntityManager, pullUntil: number) {
