@@ -1,10 +1,9 @@
-import { QueryTypes } from 'sequelize';
 import { keyBy, mapValues } from 'es-toolkit/compat';
+import { QueryTypes } from 'sequelize';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-
-import type { Appointment, AppointmentSchedule } from 'models';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
+import type { Appointment, AppointmentSchedule } from '../models';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { sanitizeRecord } from './sanitizeRecord';
 
@@ -17,7 +16,7 @@ export const resolveAppointmentSchedules = async (
   AppointmentScheduleModel: typeof AppointmentSchedule,
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
-  const relevantChanges = changes.filter((c) => !c.isDeleted && c.data.cancelledAtDate);
+  const relevantChanges = changes.filter(c => !c.isDeleted && c.data.cancelledAtDate);
 
   if (relevantChanges.length === 0) {
     return;
@@ -29,7 +28,10 @@ export const resolveAppointmentSchedules = async (
     'data.generatedUntilDate',
   );
 
-  const outOfBoundAppointments = (await AppointmentScheduleModel.sequelize.query(
+  // Map rows onto the Appointment model so the snapshot data has camel case keys. A raw row would
+  // carry `deleted_at`, but `sanitizeRecord` expects (and strips) `deletedAt`.
+  const { Appointment: AppointmentModel } = AppointmentScheduleModel.sequelize.models;
+  const outOfBoundAppointments = await AppointmentScheduleModel.sequelize.query(
     `
     WITH schedule_generated_until_dates AS (
      SELECT value::date_string AS date, key::uuid AS id from json_each_text(:generatedUntilDates)
@@ -46,24 +48,26 @@ export const resolveAppointmentSchedules = async (
     `,
     {
       type: QueryTypes.SELECT,
+      model: AppointmentModel as typeof Appointment,
+      mapToModel: true,
       replacements: {
         canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
         scheduleIds: Object.keys(generatedUntilDates),
         generatedUntilDates: JSON.stringify(generatedUntilDates),
       },
     },
-  )) as Appointment[];
+  );
 
   if (outOfBoundAppointments.length === 0) {
     return;
   }
 
-  const inserts = outOfBoundAppointments.map((a) => ({
+  const inserts = outOfBoundAppointments.map(a => ({
     direction: SYNC_SESSION_DIRECTION.INCOMING,
     recordType: 'appointments',
     recordId: a.id,
     isDeleted: true,
-    data: sanitizeRecord(a),
+    data: sanitizeRecord(a.get({ plain: true })),
   }));
 
   return {
