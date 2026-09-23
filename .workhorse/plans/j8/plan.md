@@ -147,6 +147,8 @@ around it.
 ## Decisions taken
 
 - **Deployment: standalone public docs site**, independent of the Tamanu app.
+- **Site name: Tamanu Knowledge Hub**, shown as the Tamanu mark and wordmark with "Knowledge Hub" as
+  the secondary label in the top bar and footer, and in page titles.
 - **Hub scope: user manuals, release notes, a Roadmap, and a Report an issue support form.** API
   reference and the operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) stay out.
 - **Tamanu-branded palette** over a mostly white page, Inter typeface, subtle 1px borders, generous
