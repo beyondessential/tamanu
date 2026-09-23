@@ -508,11 +508,8 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
       <SelectedColumn data-testid="test-selector-selected">
         <SelectedHeader>
           <SectionTitle>
-            <TranslatedText
-              stringId="lab.testSelect.selected"
-              fallback="Selected (:count)"
-              replacements={{ count: <SelectedCount>{selectedCount}</SelectedCount> }}
-            />
+            <TranslatedText stringId="lab.testSelect.selected" fallback="Selected" />{' '}
+            <SelectedCount>({selectedCount})</SelectedCount>
           </SectionTitle>
           {selectedCount > 0 && (
             <ClearAllButton onClick={clearAll} data-testid="test-selector-clear-all">

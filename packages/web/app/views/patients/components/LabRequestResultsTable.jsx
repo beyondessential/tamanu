@@ -37,7 +37,7 @@ const ResultCell = styled.span`
 // Tests belonging to a panel sit under the panel's group header and are indented from it.
 const TestName = styled.span`
   display: inline-block;
-  padding-left: ${({ $indented }) => ($indented ? '15px' : '0')};
+  padding-left: ${({ $indented }) => ($indented ? '20px' : '0')};
 `;
 
 const ValueWithEditedMarker = ({ value, isEdited }) => (

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { Button, OutlinedButton, MODAL_PADDING_LEFT_AND_RIGHT } from '@tamanu/ui-components';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
@@ -58,11 +58,6 @@ const Actions = styled.div`
   > button {
     margin-right: 15px;
   }
-`;
-
-// A modal divider that reaches the modal edges rather than stopping at the content padding.
-const FullWidthSeparator = styled(FormSeparatorLine)`
-  margin-inline: -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
 const getColumns = () => [
@@ -183,7 +178,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
   return (
     <Container data-testid="container-nnz7">
       <LabRequestFinalisedHeader />
-      <FullWidthSeparator />
+      <FormSeparatorLine />
       <BodyText mt="20px" mb="20px">
         <TranslatedText
           stringId="lab.requestSummary.instruction"
@@ -252,7 +247,7 @@ export const LabRequestSummaryPane = React.memo(({ encounter, labRequests, onClo
           data-testid="multiplelabrequestsprintoutmodal-1dc5"
         />
       </Actions>
-      <FullWidthSeparator data-testid="formseparatorline-9zz8" />
+      <FormSeparatorLine />
       <Box display="flex" justifyContent="flex-end" pt={3} data-testid="box-t4gx">
         <Button onClick={onClose} data-testid="button-9vga">
           <TranslatedText

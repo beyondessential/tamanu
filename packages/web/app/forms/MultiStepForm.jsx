@@ -6,21 +6,13 @@ import {
   ButtonRow,
   FormGrid,
   FormSubmitCancelRow,
-  MODAL_PADDING_LEFT_AND_RIGHT,
 } from '@tamanu/ui-components';
-import {
-  FormSeparatorLine,
-} from '../components';
+import { FormSeparatorLine } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledBackButton = styled(OutlinedButton)`
   margin-right: auto;
   margin-left: 0 !important;
-`;
-
-// The footer divider reaches the modal edges rather than stopping at the content padding.
-const FullWidthSeparator = styled(FormSeparatorLine)`
-  margin-inline: -${MODAL_PADDING_LEFT_AND_RIGHT}px;
 `;
 
 // MultiStepForm is a single Formik instance whose children are each page of the
@@ -45,7 +37,7 @@ export const MultiStepForm = ({
   const totalSteps = steps.length;
   const isLastStep = stepNumber === totalSteps - 1;
 
-  const next = (values) => {
+  const next = values => {
     setSnapshot(values);
     const nextStep = Math.min(stepNumber + 1, totalSteps - 1);
     if (onChangeStep) {
@@ -54,7 +46,7 @@ export const MultiStepForm = ({
     setStepNumber(nextStep);
   };
 
-  const previous = (values) => {
+  const previous = values => {
     const prevStep = Math.max(stepNumber - 1, 0);
     if (onChangeStep) {
       onChangeStep(prevStep, values);
@@ -81,11 +73,11 @@ export const MultiStepForm = ({
       validationSchema={step.props.validationSchema}
       style={{ width: '100%' }}
       showInlineErrorsOnly
-      render={(props) => {
+      render={props => {
         return (
           <FormGrid data-testid="formgrid-wses">
             {React.cloneElement(step, props)}
-            <FullWidthSeparator data-testid="formseparatorline-01xj" />
+            <FormSeparatorLine />
             <ButtonRow data-testid="buttonrow-40t7">
               {stepNumber > 0 && (
                 <StyledBackButton
