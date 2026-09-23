@@ -1943,6 +1943,11 @@ medication.get(
           ],
           required: true,
         },
+        {
+          association: 'medicationDispenses',
+          attributes: ['id', 'dispensedAt'],
+          separate: true,
+        },
       ],
       where: {
         [Op.and]: [
@@ -1980,7 +1985,10 @@ medication.get(
 
     res.send({
       count,
-      data,
+      data: data.map(row => ({
+        ...row.toJSON(),
+        remainingRepeats: row.getRemainingRepeats(),
+      })),
     });
   }),
 );
@@ -2098,7 +2106,7 @@ medication.get(
           // request (see the afterDestroy hook on PharmacyOrderPrescription), so this
           // needs its own paranoid: false to still be found.
           association: 'pharmacyOrder',
-          attributes: ['id'],
+          attributes: ['id', 'isDischargePrescription'],
           paranoid: false,
           include: [
             {
@@ -2111,6 +2119,7 @@ medication.get(
           ],
         },
         { association: 'notDispensedReason', attributes: ['id', 'name'] },
+        { association: 'medicationDispenses', attributes: ['id', 'dispensedAt'], required: false },
       ],
     });
 
@@ -2124,7 +2133,7 @@ medication.get(
     res.send({
       id: pharmacyOrderPrescription.id,
       displayId: pharmacyOrderPrescription.displayId,
-      repeats: pharmacyOrderPrescription.repeats,
+      remainingRepeats: pharmacyOrderPrescription.getRemainingRepeats(),
       notDispensedAt: pharmacyOrderPrescription.notDispensedAt,
       notDispensedReason: pharmacyOrderPrescription.notDispensedReason ?? null,
       prescription: pharmacyOrderPrescription.prescription

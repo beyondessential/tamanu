@@ -47,7 +47,14 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
 
   if (!record || !open) return null;
 
-  const { pharmacyOrder, prescription, displayId, repeats, notDispensedReason, notDispensedAt } = record;
+  const {
+    pharmacyOrder,
+    prescription,
+    displayId,
+    remainingRepeats,
+    notDispensedReason,
+    notDispensedAt,
+  } = record;
   const patient = pharmacyOrder?.encounter?.patient;
 
   const leftDetails = [
@@ -112,7 +119,7 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
           fallback="Remaining repeats"
         />
       ),
-      value: repeats ?? 0,
+      value: remainingRepeats ?? 0,
     },
     {
       label: (
