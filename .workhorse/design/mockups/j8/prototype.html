@@ -1001,6 +1001,29 @@
     .rn-hero { padding:24px 22px 22px; border-radius:18px; }
     .rn-hero h1 { font-size:32px; }
   }
+  /* ---- a guide reads on white; the sidebar and contents rails stay on the canvas ---- */
+  main.article.manual, main.article.guide { background:#fff; min-height:calc(100vh - 58px); }
+  .article .crumbs a:hover { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
+  .article .crumbs [aria-current="page"] { color:var(--ink-2); }
+  .cat-head { scroll-margin-top:80px; }
+  .side-m .mgroup-list a.top.current, .side-m .mgroup-list a.top.current:hover {
+    background:var(--brand-dark); color:#fff; font-weight:560; }
+  .side-m .mgroup-list a.top.current .num { color:rgba(255,255,255,.62); }
+  /* ---- previous and next: step through guides in reading order ---- */
+  .pager { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:28px; }
+  .article .pager a { display:flex; flex-direction:column; gap:3px; padding:14px 18px; border:1px solid var(--line);
+    border-radius:12px; color:var(--ink); text-decoration:none; cursor:pointer;
+    transition:border-color .12s ease, box-shadow .12s ease; }
+  .pager a:hover { border-color:var(--brand-30); box-shadow:0 4px 14px rgba(47,67,88,.07); }
+  .pager a.next { grid-column:2; align-items:flex-end; text-align:right; }
+  .pager .pl { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-3); }
+  .pager a svg { transition:transform .12s ease; }
+  .pager a.prev:hover svg { transform:translateX(-3px); }
+  .pager a.next:hover svg { transform:translateX(3px); }
+  .pager .pt { font-size:15px; font-weight:600; }
+  .pager .pt .pn { margin-right:8px; font-weight:500; color:var(--ink-4); font-variant-numeric:tabular-nums; }
+  .pager .pm { font-size:13px; color:var(--ink-3); }
+  @media (max-width:700px) { .pager { grid-template-columns:1fr; } .pager a.next { grid-column:1; } }
   @media (max-width:900px) {
     .mgrid, .mgrid-3 { grid-template-columns:1fr; }
     .cat-head { padding:20px; gap:14px; }
@@ -1094,7 +1117,7 @@
           <p>Medications can now be sent to pharmacy at the two points where prescribing happens: writing a new prescription, and discharging a patient.</p>
           <nav class="feat-links" aria-label="Read more">
             <a href="#" data-feature="v262" data-feature-target="feat-v262-send-to-pharmacy-from-discharge-and-prescribing">Release notes <span class="dt">v2.62</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a href="#" data-goto="article">User guide <span class="dt">Medications</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article" data-platform="desktop" data-module="15">User guide <span class="dt">Medications</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </nav>
         </div>
       </article>
@@ -1106,7 +1129,7 @@
           <p>Routine charges are now added to invoices automatically as care happens.</p>
           <nav class="feat-links" aria-label="Read more">
             <a href="#" data-feature="v261" data-feature-target="feat-v261-automatic-encounter-bed-and-inpatient-fees">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a href="#" data-goto="article">User guide <span class="dt">Invoicing</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article" data-platform="desktop" data-module="21">User guide <span class="dt">Invoicing</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </nav>
         </div>
       </article>
@@ -1118,7 +1141,7 @@
           <p>Pharmacy can now change the details of a prescription while dispensing it, without sending it back to the prescriber.</p>
           <nav class="feat-links" aria-label="Read more">
             <a href="#" data-feature="v261" data-feature-target="feat-v261-prescription-modification-at-dispensing">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a href="#" data-goto="article">User guide <span class="dt">Medications</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article" data-platform="desktop" data-module="15">User guide <span class="dt">Medications</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </nav>
         </div>
       </article>
@@ -1142,7 +1165,7 @@
           <p>Clinical notes on an encounter can now be searched and filtered instead of scrolled through.</p>
           <nav class="feat-links" aria-label="Read more">
             <a href="#" data-feature="v261" data-feature-target="feat-v261-encounter-notes-search-and-filters">Release notes <span class="dt">v2.61</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a href="#" data-goto="article">User guide <span class="dt">Notes</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a href="#" data-goto="article" data-platform="desktop" data-module="12">User guide <span class="dt">Notes</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </nav>
         </div>
       </article>
@@ -1182,49 +1205,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="true"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="article"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="article"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="article"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="article"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="article"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="article"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="article"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="article"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="article"><span class="num">9</span>Diagnoses</a>
-          <button class="top" type="button" aria-expanded="false"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <button class="top" type="button" aria-expanded="false" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="article"><span class="num">10.1</span>Record a set of vitals</a>
+            <a data-goto="article" data-platform="desktop" data-module="10"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="article"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="article"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="article"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="article"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="article"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="article"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="article"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="article"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="article"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="article"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="article"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="article"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="true"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="article"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="article"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="article"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="article"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="article"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="article"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="article"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="article"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="article"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="article"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="article"><span class="num">11</span>History</a>
-          <a class="top" data-goto="article"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="article"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -1388,28 +1411,28 @@
         <div><h2>Tamanu desktop</h2><p>Using Tamanu on a computer.</p></div>
       </div>
       <div class="mgrid cat-desktop">
-        <a class="mtile" data-goto="article"><span class="num">1</span><span class="t">Accessing Tamanu Desktop<span class="d">Signing in, signing out, and changing your language.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the sidebar, search, and how the screens fit together.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">3</span><span class="t">Clinician Dashboard<span class="d">The overview you land on after signing in.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">4</span><span class="t">Patients<span class="d">Finding, registering, and managing patient records.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">5</span><span class="t">Scheduling<span class="d">Outpatient appointments and location bookings.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">6</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries and tracking them.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">7</span><span class="t">Immunisations<span class="d">Recording vaccines and using the immunisation register.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">8</span><span class="t">Encounters<span class="d">Admitting, moving, and discharging patients, and managing beds across the facility.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">9</span><span class="t">Diagnoses<span class="d">Recording and managing a patient's diagnoses.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">10</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">11</span><span class="t">Charts<span class="d">Recording and reviewing charted clinical data.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">12</span><span class="t">Notes<span class="d">Written clinical notes on an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">13</span><span class="t">Forms<span class="d">Completing program forms and surveys for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">14</span><span class="t">Tasks<span class="d">Clinical tasks raised and completed during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">15</span><span class="t">Medications<span class="d">Prescribing, dispensing, and administering medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">16</span><span class="t">Procedures<span class="d">Procedures carried out during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">17</span><span class="t">Labs<span class="d">Requesting lab tests and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">18</span><span class="t">Imaging<span class="d">Requesting imaging and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">19</span><span class="t">Referrals<span class="d">Referring a patient and tracking referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">20</span><span class="t">Documents<span class="d">Files attached to a patient or an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">21</span><span class="t">Invoicing<span class="d">Invoices raised against an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">22</span><span class="t">Reports<span class="d">Running facility reports.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span><span class="t">Accessing Tamanu Desktop<span class="d">Signing in, signing out, and changing your language.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the sidebar, search, and how the screens fit together.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span><span class="t">Clinician Dashboard<span class="d">The overview you land on after signing in.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span><span class="t">Patients<span class="d">Finding, registering, and managing patient records.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span><span class="t">Scheduling<span class="d">Outpatient appointments and location bookings.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries and tracking them.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span><span class="t">Immunisations<span class="d">Recording vaccines and using the immunisation register.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span><span class="t">Encounters<span class="d">Admitting, moving, and discharging patients, and managing beds across the facility.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span><span class="t">Diagnoses<span class="d">Recording and managing a patient's diagnoses.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="10"><span class="num">10</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span><span class="t">Charts<span class="d">Recording and reviewing charted clinical data.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span><span class="t">Notes<span class="d">Written clinical notes on an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span><span class="t">Forms<span class="d">Completing program forms and surveys for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span><span class="t">Tasks<span class="d">Clinical tasks raised and completed during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span><span class="t">Medications<span class="d">Prescribing, dispensing, and administering medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span><span class="t">Procedures<span class="d">Procedures carried out during an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span><span class="t">Labs<span class="d">Requesting lab tests and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span><span class="t">Imaging<span class="d">Requesting imaging and reading results.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span><span class="t">Referrals<span class="d">Referring a patient and tracking referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span><span class="t">Documents<span class="d">Files attached to a patient or an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span><span class="t">Invoicing<span class="d">Invoices raised against an encounter.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span><span class="t">Reports<span class="d">Running facility reports.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       </div>
 
       <div class="cat-head cat-mobile" id="m-mobile">
@@ -1417,19 +1440,19 @@
         <div><h2>Tamanu mobile</h2><p>Using Tamanu on a mobile device.</p></div>
       </div>
       <div class="mgrid cat-mobile">
-        <a class="mtile" data-goto="article"><span class="num">1</span><span class="t">Accessing Tamanu Mobile<span class="d">Signing in, choosing a facility, and signing out.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the bottom tabs and a patient's modules.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">3</span><span class="t">Patients<span class="d">Finding patients, registering them, and viewing their details.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">4</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">5</span><span class="t">Diagnosis and Treatment<span class="d">Recording a diagnosis and prescribing medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">6</span><span class="t">Programs<span class="d">Completing program forms for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">7</span><span class="t">Referral<span class="d">Referring a patient and viewing referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">8</span><span class="t">Vaccine<span class="d">Recording vaccines given to a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">9</span><span class="t">Tests<span class="d">Requesting lab tests and viewing request history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">10</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">11</span><span class="t">History<span class="d">A patient's visit and vaccine history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">12</span><span class="t">Reports<span class="d">The survey activity summary.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        <a class="mtile" data-goto="article"><span class="num">13</span><span class="t">Sync<span class="d">Syncing the device with the central server.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span><span class="t">Accessing Tamanu Mobile<span class="d">Signing in, choosing a facility, and signing out.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span><span class="t">Navigating Tamanu<span class="d">Finding your way around: the bottom tabs and a patient's modules.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span><span class="t">Patients<span class="d">Finding patients, registering them, and viewing their details.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span><span class="t">Vitals<span class="d">Recording and reviewing a patient's observations.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span><span class="t">Diagnosis and Treatment<span class="d">Recording a diagnosis and prescribing medication.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span><span class="t">Programs<span class="d">Completing program forms for a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span><span class="t">Referral<span class="d">Referring a patient and viewing referrals.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span><span class="t">Vaccine<span class="d">Recording vaccines given to a patient.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span><span class="t">Tests<span class="d">Requesting lab tests and viewing request history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span><span class="t">Program Registries<span class="d">Enrolling patients in program registries.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span><span class="t">History<span class="d">A patient's visit and vaccine history.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span><span class="t">Reports<span class="d">The survey activity summary.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="mtile" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span><span class="t">Sync<span class="d">Syncing the device with the central server.</span></span><span class="arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       </div>
 
       <div class="cat-head cat-config" id="m-config">
@@ -1474,49 +1497,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="true"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="article"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="article"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="article"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="article"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="article"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="article"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="article"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="article"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="article"><span class="num">9</span>Diagnoses</a>
-          <button class="top" type="button" aria-expanded="true"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <button class="top" type="button" aria-expanded="true" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="article" class="active"><span class="num">10.1</span>Record a set of vitals</a>
+            <a data-goto="article" data-platform="desktop" data-module="10" class="active"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="article"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="article"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="article"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="article"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="article"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="article"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="article"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="article"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="article"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="article"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="article"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="article"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="article"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="article"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="article"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="article"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="article"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="article"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="article"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="article"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="article"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="article"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="article"><span class="num">11</span>History</a>
-          <a class="top" data-goto="article"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="article"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -1672,8 +1695,8 @@
     </aside>
 
     <main class="article manual cat-desktop">
-      <div class="crumbs"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <span>Tamanu desktop</span> <span class="sep">/</span> <span>Vitals</span> <span class="sep">/</span> <span>Record a set of vitals</span></div>
-      <h1><span class="h-num">10.1</span>Record a set of vitals</h1>
+      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <a id="a-crumb-platform" data-goto="manuals" data-jump="m-desktop">Tamanu desktop</a> <span class="sep">/</span> <a id="a-crumb-module" data-goto="article" data-platform="desktop" data-module="10">Vitals</a> <span class="sep">/</span> <span aria-current="page">Record a set of vitals</span></nav>
+      <h1><span class="h-num" id="a-num">10.1</span>Record a set of vitals</h1>
       <div class="markdown-body">
       <p>Record a patient&#39;s observations against the encounter they are admitted under. Start from
       the patient&#39;s encounter.</p>
@@ -1707,6 +1730,7 @@
 
       </div>
       <div class="feedback">Was this page helpful?<div class="btns"><span class="b">Yes</span><span class="b">No</span></div></div>
+      <nav class="pager" aria-label="Previous and next guides"></nav>
     </main>
 
     <aside class="toc">
@@ -1724,49 +1748,49 @@
       <div class="mgroup cat-desktop">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu desktop<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="article"><span class="num">1</span>Accessing Tamanu Desktop</a>
-          <a class="top" data-goto="article"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="article"><span class="num">3</span>Clinician Dashboard</a>
-          <a class="top" data-goto="article"><span class="num">4</span>Patients</a>
-          <a class="top" data-goto="article"><span class="num">5</span>Scheduling</a>
-          <a class="top" data-goto="article"><span class="num">6</span>Program Registries</a>
-          <a class="top" data-goto="article"><span class="num">7</span>Immunisations</a>
-          <a class="top" data-goto="article"><span class="num">8</span>Encounters</a>
-          <a class="top" data-goto="article"><span class="num">9</span>Diagnoses</a>
-          <button class="top" type="button" aria-expanded="false"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="1"><span class="num">1</span>Accessing Tamanu Desktop</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="3"><span class="num">3</span>Clinician Dashboard</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="4"><span class="num">4</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="5"><span class="num">5</span>Scheduling</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="6"><span class="num">6</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="7"><span class="num">7</span>Immunisations</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="8"><span class="num">8</span>Encounters</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="9"><span class="num">9</span>Diagnoses</a>
+          <button class="top" type="button" aria-expanded="false" data-platform="desktop" data-module="10"><span class="num">10</span>Vitals <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>
           <div class="children">
-            <a data-goto="article"><span class="num">10.1</span>Record a set of vitals</a>
+            <a data-goto="article" data-platform="desktop" data-module="10"><span class="num">10.1</span>Record a set of vitals</a>
           </div>
-          <a class="top" data-goto="article"><span class="num">11</span>Charts</a>
-          <a class="top" data-goto="article"><span class="num">12</span>Notes</a>
-          <a class="top" data-goto="article"><span class="num">13</span>Forms</a>
-          <a class="top" data-goto="article"><span class="num">14</span>Tasks</a>
-          <a class="top" data-goto="article"><span class="num">15</span>Medications</a>
-          <a class="top" data-goto="article"><span class="num">16</span>Procedures</a>
-          <a class="top" data-goto="article"><span class="num">17</span>Labs</a>
-          <a class="top" data-goto="article"><span class="num">18</span>Imaging</a>
-          <a class="top" data-goto="article"><span class="num">19</span>Referrals</a>
-          <a class="top" data-goto="article"><span class="num">20</span>Documents</a>
-          <a class="top" data-goto="article"><span class="num">21</span>Invoicing</a>
-          <a class="top" data-goto="article"><span class="num">22</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="11"><span class="num">11</span>Charts</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="12"><span class="num">12</span>Notes</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="13"><span class="num">13</span>Forms</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="14"><span class="num">14</span>Tasks</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="15"><span class="num">15</span>Medications</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="16"><span class="num">16</span>Procedures</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="17"><span class="num">17</span>Labs</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="18"><span class="num">18</span>Imaging</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="19"><span class="num">19</span>Referrals</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="20"><span class="num">20</span>Documents</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="21"><span class="num">21</span>Invoicing</a>
+          <a class="top" data-goto="article" data-platform="desktop" data-module="22"><span class="num">22</span>Reports</a>
         </div>
       </div>
       <div class="mgroup cat-mobile">
         <button class="mgroup-head" type="button" aria-expanded="false"><span class="dot"></span>Tamanu mobile<span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></button>
         <div class="mgroup-list">
-          <a class="top" data-goto="article"><span class="num">1</span>Accessing Tamanu Mobile</a>
-          <a class="top" data-goto="article"><span class="num">2</span>Navigating Tamanu</a>
-          <a class="top" data-goto="article"><span class="num">3</span>Patients</a>
-          <a class="top" data-goto="article"><span class="num">4</span>Vitals</a>
-          <a class="top" data-goto="article"><span class="num">5</span>Diagnosis and Treatment</a>
-          <a class="top" data-goto="article"><span class="num">6</span>Programs</a>
-          <a class="top" data-goto="article"><span class="num">7</span>Referral</a>
-          <a class="top" data-goto="article"><span class="num">8</span>Vaccine</a>
-          <a class="top" data-goto="article"><span class="num">9</span>Tests</a>
-          <a class="top" data-goto="article"><span class="num">10</span>Program Registries</a>
-          <a class="top" data-goto="article"><span class="num">11</span>History</a>
-          <a class="top" data-goto="article"><span class="num">12</span>Reports</a>
-          <a class="top" data-goto="article"><span class="num">13</span>Sync</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="1"><span class="num">1</span>Accessing Tamanu Mobile</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="2"><span class="num">2</span>Navigating Tamanu</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="3"><span class="num">3</span>Patients</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="4"><span class="num">4</span>Vitals</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="5"><span class="num">5</span>Diagnosis and Treatment</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="6"><span class="num">6</span>Programs</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="7"><span class="num">7</span>Referral</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="8"><span class="num">8</span>Vaccine</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="9"><span class="num">9</span>Tests</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="10"><span class="num">10</span>Program Registries</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="11"><span class="num">11</span>History</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="12"><span class="num">12</span>Reports</a>
+          <a class="top" data-goto="article" data-platform="mobile" data-module="13"><span class="num">13</span>Sync</a>
         </div>
       </div>
       <div class="mgroup cat-config">
@@ -1922,7 +1946,7 @@
     </aside>
 
     <main class="article guide cat-config">
-      <div class="crumbs"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <span>Configuration guides</span> <span class="sep">/</span> <span id="g-crumb-module">Medications</span> <span class="sep">/</span> <span id="g-crumb-surface">Settings</span></div>
+      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <a data-goto="manuals" data-jump="m-config">Configuration guides</a> <span class="sep">/</span> <a id="g-crumb-module" data-goto="guide" data-module="15" data-surface="reference-data">Medications</a> <span class="sep">/</span> <span id="g-crumb-surface" aria-current="page">Settings</span></nav>
       <h1 id="g-title">Medications</h1>
       <nav class="g-tabs" aria-label="Guides for this module">
         <a data-goto="guide" data-surface="reference-data" data-module="15">Reference data <span class="n">15.1</span></a>
@@ -2937,6 +2961,7 @@
 
       </div>
       <div class="feedback">Was this page helpful?<div class="btns"><span class="b">Yes</span><span class="b">No</span></div></div>
+      <nav class="pager" aria-label="Previous and next guides"></nav>
     </main>
 
     <aside class="toc">
@@ -3780,7 +3805,7 @@
       return;
     }
     if (close){ e.preventDefault(); closeOverlays(); return; }
-    if (goto){ e.preventDefault(); closeOverlays(); showView(goto.dataset.goto); if (goto.dataset.goto==='guide') showGuide(goto.dataset); return; }
+    if (goto){ e.preventDefault(); closeOverlays(); showView(goto.dataset.goto); if (goto.dataset.goto==='guide') showGuide(goto.dataset); else if (goto.dataset.goto==='article') showArticle(goto.dataset); else if (goto.dataset.jump) jumpTo(goto.dataset.jump); return; }
     if (scroll){ e.preventDefault(); const el=document.getElementById(scroll.dataset.scroll); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); return; }
   });
 
@@ -3889,6 +3914,7 @@
     if (target.module) guideModule = Number(target.module);
     view.querySelector('#g-title').textContent = CONFIG_MODULES[guideModule - 1];
     view.querySelector('#g-crumb-module').textContent = CONFIG_MODULES[guideModule - 1];
+    view.querySelector('#g-crumb-module').dataset.module = guideModule;
     view.querySelector('#g-crumb-surface').textContent = surface.label;
     view.querySelectorAll('.g-tabs a').forEach((tab, i)=>{
       tab.dataset.module = guideModule;
@@ -3903,6 +3929,7 @@
     });
     view.querySelector('.cat-config .mgroup-head').setAttribute('aria-expanded', 'true');
     view.querySelectorAll('.g-body, .toc-list').forEach(el=> el.hidden = el.dataset.surface !== surface.key);
+    renderGuidePager(view, surface);
     if (target.jump) jumpTo(target.jump);
   }
   function jumpTo(id){
@@ -3916,6 +3943,72 @@
     jumpTo(link.dataset.jump);
   });
 
+  const ARTICLE_TITLE = "Record a set of vitals";
+  // Previous and next: configuration guides run module by module, reference data then settings
+  // then permissions. End-user guides step module by module; each shows the one written guide.
+  const PLATFORMS = {"desktop":{"label":"Tamanu desktop","modules":["Accessing Tamanu Desktop","Navigating Tamanu","Clinician Dashboard","Patients","Scheduling","Program Registries","Immunisations","Encounters","Diagnoses","Vitals","Charts","Notes","Forms","Tasks","Medications","Procedures","Labs","Imaging","Referrals","Documents","Invoicing","Reports"]},"mobile":{"label":"Tamanu mobile","modules":["Accessing Tamanu Mobile","Navigating Tamanu","Patients","Vitals","Diagnosis and Treatment","Programs","Referral","Vaccine","Tests","Program Registries","History","Reports","Sync"]}};
+  const ARROW_L = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>';
+  const ARROW_R = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  function pagerLink(direction, data, number, title, detail){
+    const link = document.createElement('a');
+    link.href = '#';
+    link.className = direction;
+    Object.assign(link.dataset, data);
+    const label = direction === 'prev' ? ARROW_L + 'Previous' : 'Next' + ARROW_R;
+    link.innerHTML = '<span class="pl">' + label + '</span><span class="pt"><span class="pn">' + number + '</span>' + title + '</span><span class="pm">' + detail + '</span>';
+    return link;
+  }
+  function renderPager(view, previous, next){
+    const pager = view.querySelector('.pager');
+    pager.replaceChildren(...[previous, next].filter(Boolean));
+  }
+  function guideStop(index){
+    if (index < 0 || index >= CONFIG_MODULES.length * SURFACES.length) return null;
+    const module = Math.floor(index / SURFACES.length) + 1;
+    const surface = SURFACES[index % SURFACES.length];
+    return { data: { goto:'guide', module:String(module), surface:surface.key }, number: module + '.' + surface.n,
+      title: surface.label, detail: CONFIG_MODULES[module - 1] };
+  }
+  function renderGuidePager(view, surface){
+    const here = (guideModule - 1) * SURFACES.length + SURFACES.indexOf(surface);
+    const before = guideStop(here - 1), after = guideStop(here + 1);
+    renderPager(view,
+      before && pagerLink('prev', before.data, before.number, before.title, before.detail),
+      after && pagerLink('next', after.data, after.number, after.title, after.detail));
+  }
+
+  let articleAt = { platform:'desktop', module:10 };
+  function showArticle(target){
+    const view = document.querySelector('[data-view="article"]');
+    articleAt = target.platform ? { platform:target.platform, module:Number(target.module) } : { platform:'desktop', module:10 };
+    const platform = PLATFORMS[articleAt.platform];
+    const moduleName = platform.modules[articleAt.module - 1];
+    const crumbPlatform = view.querySelector('#a-crumb-platform');
+    crumbPlatform.textContent = platform.label;
+    crumbPlatform.dataset.jump = 'm-' + articleAt.platform;
+    const crumbModule = view.querySelector('#a-crumb-module');
+    crumbModule.textContent = moduleName;
+    crumbModule.dataset.platform = articleAt.platform;
+    crumbModule.dataset.module = articleAt.module;
+    view.querySelector('#a-num').textContent = articleAt.module + '.1';
+    // the sidebar marks the module shown; a module with written guides opens to them
+    view.querySelectorAll('.mgroup-list [data-platform]').forEach(el=>{
+      const here = el.dataset.platform === articleAt.platform && Number(el.dataset.module) === articleAt.module;
+      if (el.matches('a.top')) el.classList.toggle('current', here);
+      if (el.matches('button.top') && here) el.setAttribute('aria-expanded', 'true');
+      if (el.closest('.children')) el.classList.toggle('active', here);
+    });
+    view.querySelector('.cat-' + articleAt.platform + ' .mgroup-head').setAttribute('aria-expanded', 'true');
+    const stop = offset => {
+      const module = articleAt.module + offset;
+      if (module < 1 || module > platform.modules.length) return null;
+      return pagerLink(offset < 0 ? 'prev' : 'next', { goto:'article', platform:articleAt.platform, module:String(module) },
+        module + '.1', '' + ARTICLE_TITLE + '', platform.modules[module - 1]);
+    };
+    renderPager(view, stop(-1), stop(1));
+  }
+  showGuide({ module:'15', surface:'settings' });
+  showArticle({});
 </script>
 </body>
 </html>
