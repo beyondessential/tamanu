@@ -115,8 +115,8 @@ Design notes:
   matching the selected guide tab. This holds across the release notes, User manuals and article
   sidebars.
 - **A guide reads on white**: on the article and configuration guide pages everything right of the
-  sidebar, the guide and its "On this page" rail, is one white page; the sidebar stays on the soft
-  grey canvas.
+  sidebar, the guide and its "On this page" rail, is one white page reaching the window's right
+  edge; the sidebar, and the margin to its left, stay on the soft grey canvas.
 - **Breadcrumbs are links** except the current page: "User manuals" opens the index; "Tamanu
   desktop", "Tamanu mobile" and "Configuration guides" open the index scrolled to that category; the
   module crumb opens the module's first guide.

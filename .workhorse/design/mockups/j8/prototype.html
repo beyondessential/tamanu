@@ -1006,6 +1006,8 @@
   /* everything right of the sidebar, the guide and its "On this page" rail, is one white page */
   @media (min-width:901px) {
     [data-view="article"] .layout3, [data-view="guide"] .layout3 { background:linear-gradient(to right, transparent 264px, #fff 264px); }
+    /* and on out to the window's right edge; the canvas continues only on the sidebar's side */
+    [data-view="article"], [data-view="guide"] { background:linear-gradient(to right, var(--page) 50%, #fff 50%); }
   }
   .article .crumbs a:hover { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
   .article .crumbs [aria-current="page"] { color:var(--ink-2); }
