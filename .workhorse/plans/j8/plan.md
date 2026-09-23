@@ -36,6 +36,11 @@ Mockups under `.workhorse/design/mockups/j8/`:
   `docs/release-notes/v2-61..63.md` — every section (features, enhancements, fixes, critical upgrade
   notes, upgrade steps), the real `DD-MM-YYYY` dates, and the `[SLAB_LINK_PLACEHOLDER]` links. The
   sidebar lists only the versions that exist in the repo.
+- **Release notes has one header for the whole section**, above the version list and notes rather
+  than repeated in the content column: a dark tile in the Browse tiles' treatment, washed in the
+  release notes pink, carrying the title and intro. Each release then opens with its own title, the
+  version with its `Released DD-MM-YYYY` line from the source file (e.g. "v2.63 · Released
+  03-09-2026").
 - `roadmap.html` — a Roadmap section built as a **horizontal timeline** after the Microsoft 365
   roadmap "Latest announcements" area: period cards zig-zag above and below a central axis of status
   markers (Released = filled, Planned = dashed), with prev/next navigation and a "View details"
@@ -109,7 +114,7 @@ Design notes:
   purple, mobile bright blue, configuration red. Amber was tried for configuration but blurs into a
   muddy olive over the navy (any yellow does), so red is used.
 - **The index opens each category with a dark header band** in the Browse tiles' treatment: navy,
-  frosted icon chip, the category accent blurred from the top-right corner, and a module count.
+  frosted icon chip, and the category accent blurred from the top-right corner.
   Outlined module tiles sit beneath, carrying L8's one-line module descriptions for desktop and
   mobile; configuration modules have none.
 - **The config guide page is titled with the module**, with crumbs Configuration guides / Module /
