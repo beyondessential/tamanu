@@ -114,13 +114,15 @@ Design notes:
   selected row (current release version, current guide or article) is the brand navy with white text,
   matching the selected guide tab. This holds across the release notes, User manuals and article
   sidebars.
-- **A guide reads on white**: on the article and configuration guide pages the centre column is
-  white, while the sidebar and "On this page" rails stay on the soft grey canvas.
+- **A guide reads on white**: on the article and configuration guide pages everything right of the
+  sidebar, the guide and its "On this page" rail, is one white page; the sidebar stays on the soft
+  grey canvas.
 - **Breadcrumbs are links** except the current page: "User manuals" opens the index; "Tamanu
   desktop", "Tamanu mobile" and "Configuration guides" open the index scrolled to that category; the
   module crumb opens the module's first guide.
 - **Previous and next** sit at the foot of every guide, after the feedback prompt, as two outlined
-  cards showing the neighbouring guide's number, title and module. Configuration guides run in reading
+  cards. Each leads with the neighbouring guide's number and module ("17.3 Procedures") and names
+  the guide beneath it ("Permissions"). Configuration guides run in reading
   order module by module, reference data then settings then permissions (15.2 → 15.3 → 16.1), with
   no Previous on 1.1 and no Next on 24.3. End-user guides step through their platform's modules;
   until more guides are written, each module shows L8's one guide under its own module number and

@@ -1001,8 +1001,12 @@
     .rn-hero { padding:24px 22px 22px; border-radius:18px; }
     .rn-hero h1 { font-size:32px; }
   }
-  /* ---- a guide reads on white; the sidebar and contents rails stay on the canvas ---- */
+  /* ---- a guide and its contents rail read on white; the sidebar stays on the canvas ---- */
   main.article.manual, main.article.guide { background:#fff; min-height:calc(100vh - 58px); }
+  /* everything right of the sidebar, the guide and its "On this page" rail, is one white page */
+  @media (min-width:901px) {
+    [data-view="article"] .layout3, [data-view="guide"] .layout3 { background:linear-gradient(to right, transparent 264px, #fff 264px); }
+  }
   .article .crumbs a:hover { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
   .article .crumbs [aria-current="page"] { color:var(--ink-2); }
   .cat-head { scroll-margin-top:80px; }
@@ -3944,8 +3948,8 @@
   });
 
   const ARTICLE_TITLE = "Record a set of vitals";
-  // Previous and next: configuration guides run module by module, reference data then settings
-  // then permissions. End-user guides step module by module; each shows the one written guide.
+  // Previous and next: each card leads with the module and names the guide beneath it.
+  // Configuration guides run module by module, reference data then settings then permissions. End-user guides step module by module; each shows the one written guide.
   const PLATFORMS = {"desktop":{"label":"Tamanu desktop","modules":["Accessing Tamanu Desktop","Navigating Tamanu","Clinician Dashboard","Patients","Scheduling","Program Registries","Immunisations","Encounters","Diagnoses","Vitals","Charts","Notes","Forms","Tasks","Medications","Procedures","Labs","Imaging","Referrals","Documents","Invoicing","Reports"]},"mobile":{"label":"Tamanu mobile","modules":["Accessing Tamanu Mobile","Navigating Tamanu","Patients","Vitals","Diagnosis and Treatment","Programs","Referral","Vaccine","Tests","Program Registries","History","Reports","Sync"]}};
   const ARROW_L = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>';
   const ARROW_R = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
@@ -3967,7 +3971,7 @@
     const module = Math.floor(index / SURFACES.length) + 1;
     const surface = SURFACES[index % SURFACES.length];
     return { data: { goto:'guide', module:String(module), surface:surface.key }, number: module + '.' + surface.n,
-      title: surface.label, detail: CONFIG_MODULES[module - 1] };
+      title: CONFIG_MODULES[module - 1], detail: surface.label };
   }
   function renderGuidePager(view, surface){
     const here = (guideModule - 1) * SURFACES.length + SURFACES.indexOf(surface);
@@ -4003,7 +4007,7 @@
       const module = articleAt.module + offset;
       if (module < 1 || module > platform.modules.length) return null;
       return pagerLink(offset < 0 ? 'prev' : 'next', { goto:'article', platform:articleAt.platform, module:String(module) },
-        module + '.1', '' + ARTICLE_TITLE + '', platform.modules[module - 1]);
+        module + '.1', platform.modules[module - 1], '' + ARTICLE_TITLE + '');
     };
     renderPager(view, stop(-1), stop(1));
   }
