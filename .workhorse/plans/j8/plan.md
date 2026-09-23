@@ -21,10 +21,11 @@ Mockups under `.workhorse/design/mockups/j8/`:
   per-article icon, so the kind is readable at a glance and the list can be generated from
   whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
   destinations. The two treatments are distinct so the sections do not read as one long grid.
-- `manuals-index.html` — the manuals section landing: Linear docs-home layout (left expandable
-  sidebar + footer cluster). The browse area is a grid of **topic cards** (one per feature area,
-  keeping the topic icon): each card lists a few of its articles and a "View all" link, which scales
-  better than one card per article when there are many manuals.
+- `manuals-index.html` — the manuals section landing. **Superseded by the prototype's manuals view**,
+  which carries the three-category structure (see "User manuals structure"); this standalone file
+  still shows the earlier topic-card grid.
+- The prototype also has a **configuration guide** view, reached from the Configuration guides tiles
+  and sidebar entries.
 - The roadmap is horizontal on desktop and **vertical on small screens**: the zig-zag rows collapse
   with `display:contents` so the cards re-order into one chronological column against a left rail,
   rather than forcing a sideways scroll on a phone.
@@ -64,6 +65,49 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
   bes.au or mirrors it into the repo. The cards carry no "View details" affordance — each card states
   its own contents, so there is nothing further to open.
 - **User manuals** — source not yet decided. Some feature docs today live in Slab (release notes reference `[SLAB_LINK_PLACEHOLDER]`). Need to decide where manual content is authored and how it reaches the hub.
+
+## User manuals structure
+
+User manuals has three principal categories:
+
+- **Tamanu desktop** — module folders (Patients, Scheduling, Encounters, Medications…), each holding
+  its articles. The mockup lists 20 modules, named to match the configuration modules where they
+  overlap.
+- **Tamanu mobile** — module folders for the mobile app (Patients, Programs, Program registry,
+  Immunisations, Vitals, Diagnosis and treatment, Labs, Referrals).
+- **Configuration guides** — organised **surface first**: Reference data, Settings and Permissions
+  sit directly under the category, and each lists the modules in set-up order with the guide's
+  number (Settings → 15.2 Medications). This inverts the module-first folders on card K8
+  (`docs/user-manuals/config-guides/<module>/{reference-data,settings,permissions}.md`); the site's
+  navigation is surface first regardless of how the files are foldered. The 24 modules and their
+  order come from K8's section README.
+
+Guides follow the format in K8's `.agents/docs/config-guide-format.md`. Until real guides arrive,
+**every configuration guide page shows that format doc as placeholder content**; the title, crumbs,
+tabs and sidebar follow whichever module and surface was chosen.
+
+Design notes:
+
+- **The sidebar is one component across the index, desktop article and config guide pages**: a
+  collapsible group per category, headed by its accent dot, with modules beneath. The page's own
+  category is expanded and the others collapse, which keeps a roughly 55-row tree manageable.
+- **Each category holds one accent** across its sidebar dot, index header and tile hover: desktop
+  purple, mobile bright blue, configuration red. Amber was tried for configuration but blurs into a
+  muddy olive over the navy (any yellow does), so red is used.
+- **The index opens each category with a dark header band** in the Browse tiles' treatment: navy,
+  frosted icon chip, the category accent blurred from the top-right corner, and a module count.
+  Outlined module tiles sit beneath. Configuration's three tiles carry the "Covers" line from the
+  format doc.
+- **Surface-first navigation separates a module's three guides**, so the guide page restores the
+  link with a tab strip under the title (Reference data 15.1 · Settings 15.2 · Permissions 15.3).
+  The selected tab is navy.
+- **Guide rendering on the docs site**, per the format doc's "How guides render" table: tables get
+  Tamanu blue (`#326699`) header rows with a bold first column; code blocks sit on the brand navy with
+  a language label and Copy action; inline code is a light chip. The callouts table shows a swatch
+  beside each colour name. Callout, required-marker and screenshot-placeholder treatments are still
+  to design, since the placeholder text only mentions them inside code blocks.
+- Clicking Reference data, Settings or Permissions currently opens Medications (the one module with a
+  real guide on K8) rather than a surface landing page listing every module.
 
 ## Decisions taken
 
