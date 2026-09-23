@@ -1,5 +1,6 @@
 import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
-import { requireTable } from './prerequisites';
+import { REPORT_DB_CONNECTIONS, REPORT_DB_CONNECTION_SCHEMAS } from '@tamanu/constants';
+import { requireManagedReportingSchema, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
 const disableSyncTickTrigger: MigrationHook = {
@@ -18,4 +19,19 @@ const disableSyncTickTrigger: MigrationHook = {
   },
 };
 
-export const PRE_MIGRATION_HOOKS: MigrationHook[] = [disableSyncTickTrigger];
+const dropManagedReportingSchema: MigrationHook = {
+  name: 'dropManagedReportingSchema',
+  prerequisites: [requireManagedReportingSchema],
+  async run({ log, sequelize }) {
+    // Its views block DDL on the columns they read. Startup recreates the schema empty, and
+    // alertd applies the one built for the new version once migrations have run.
+    const schema = REPORT_DB_CONNECTION_SCHEMAS[REPORT_DB_CONNECTIONS.REPORTING];
+    log.info('Dropping the managed reporting schema for migrations');
+    await sequelize.query(`DROP SCHEMA "${schema}" CASCADE;`);
+  },
+};
+
+export const PRE_MIGRATION_HOOKS: MigrationHook[] = [
+  disableSyncTickTrigger,
+  dropManagedReportingSchema,
+];
