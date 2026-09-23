@@ -300,8 +300,17 @@ describe('saveChangesForModel', () => {
       expect(pushedAdditionalData.updatedAtByField).toBeTruthy();
       const changes = [
         {
-          // the device never saw the delete, so it echoes deletedAt: null alongside its edit
-          data: { ...pushedAdditionalData, deletedAt: null, placeOfBirth: 'There' },
+          // the device never saw the delete, so it echoes deletedAt: null alongside its edit; the
+          // newer per-field tick lets the edit win the field-wise merge
+          data: {
+            ...pushedAdditionalData,
+            deletedAt: null,
+            placeOfBirth: 'There',
+            updatedAtByField: {
+              ...pushedAdditionalData.updatedAtByField,
+              place_of_birth: currentSyncTick + 1,
+            },
+          },
           isDeleted: false,
         },
       ];

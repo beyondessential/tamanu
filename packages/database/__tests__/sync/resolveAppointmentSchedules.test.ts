@@ -33,6 +33,8 @@ describe('resolveAppointmentSchedules', () => {
       daysOfWeek: ['WE'],
       untilDate: '1990-10-23',
       generatedUntilDate: '1990-10-23',
+      // fake() fills every date column, so pin the one the resolver keys off
+      cancelledAtDate: null,
       isFullyGenerated: true,
     });
 
@@ -95,17 +97,18 @@ describe('resolveAppointmentSchedules', () => {
 
     expect(inserts).toHaveLength(1);
     const { data } = inserts[0];
-    const snakeCaseKeys = Object.keys(data).filter(key => key.includes('_'));
-    expect(snakeCaseKeys).toEqual([]);
+    // exactly the model's attributes minus sync metadata — the same set the sync lookup builds —
+    // so no raw column name (`deleted_at`, undeclared legacy columns) can leak through
+    const syncedAttributes = Object.keys(models.Appointment.getAttributes()).filter(
+      attribute => !COLUMNS_EXCLUDED_FROM_SYNC.includes(attribute),
+    );
+    expect(Object.keys(data).sort()).toEqual(syncedAttributes.sort());
     expect(data).toMatchObject({
       scheduleId: schedule.id,
       patientId: patient.id,
       startTime: '1990-10-16 12:00:00',
       status: APPOINTMENT_STATUSES.CONFIRMED,
     });
-    for (const column of COLUMNS_EXCLUDED_FROM_SYNC) {
-      expect(data).not.toHaveProperty(column);
-    }
   });
 
   it('ignores appointments that are already cancelled', async () => {
