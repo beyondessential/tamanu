@@ -117,9 +117,19 @@ Design notes:
 - **A guide reads on white**: on the article and configuration guide pages everything right of the
   sidebar, the guide and its "On this page" rail, is one white page reaching the window's right
   edge; the sidebar, and the margin to its left, stay on the soft grey canvas.
-- **Breadcrumbs are links** except the current page: "User manuals" opens the index; "Tamanu
-  desktop", "Tamanu mobile" and "Configuration guides" open the index scrolled to that category; the
-  module crumb opens the module's first guide.
+- **Breadcrumbs are links** except the current page, and each goes somewhere different: "User
+  manuals" opens the index; "Tamanu desktop", "Tamanu mobile" and "Configuration guides" open the
+  index scrolled to that category; the module crumb opens the module's overview page.
+- **Every module has an overview page**, the module's own README (configuration, card K8) or index
+  page (desktop and mobile, card L8), rendered as GitHub does. Its number and name are the title,
+  its description leads, and its guides follow as cards (15.1 Reference data, 15.2 Settings, 15.3
+  Permissions, each with its "Covers" line from the format doc). Anything else the README carries,
+  such as the Medications scope warning and IV medications explainer, follows the cards, with its
+  headings in "On this page". The README's own guide listing (K8's guide table and "not written
+  yet" note, L8's Guides section) is what the cards replace, so it is not repeated. The overview is
+  reached from the module crumb, the index module tiles, an "Overview" link at the top of each
+  expandable module in the sidebar, sidebar rows for modules without written guides, and links
+  between modules inside guides (`../dispensing/`).
 - **Previous and next** sit at the foot of every guide, after the feedback prompt, as two outlined
   cards. Each leads with the neighbouring guide's number and module ("17.3 Procedures") and names
   the guide beneath it ("Permissions"). Configuration guides run in reading
@@ -164,10 +174,6 @@ around it.
   and underline GitHub gives their source level. Anchors use GitHub's heading slugs.
 - Links keep working: in-page anchors, links between a module's three guides (with anchors), and
   links to other configuration modules.
-- Opening a module goes straight to its first guide. There is no module overview page yet, though
-  K8's module READMEs (scope warnings, the IV medications explainer) would naturally live there.
-
-## Decisions taken
 
 - **Deployment: standalone public docs site**, independent of the Tamanu app.
 - **Site name: Tamanu Knowledge Hub**, shown as the Tamanu mark and wordmark with "Knowledge Hub" as
