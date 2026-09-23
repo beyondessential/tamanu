@@ -4,6 +4,15 @@ This file contains patterns and conventions for the database package that should
 
 ## Migration Patterns
 
+### Naming and Timestamps
+
+Migration filenames are prefixed with a millisecond epoch timestamp (13 digits), e.g. `1788479841884-addReasonCodeToFhirMedicationRequests.ts`. Never hand-write the timestamp or the filename — always create migrations with the package's own script, which stamps a live `Date.now()`-equivalent timestamp and wires up any required registration:
+
+- **Server (Sequelize)**, from the repo root: `npm run create-migration -- <migrationName>` (`scripts/create-server-migration.mjs`). Migrations here are auto-discovered from the directory at runtime, so no separate registration step is needed.
+- **Mobile (TypeORM)**, from `packages/mobile`: `npm run migrate-create <migrationName>` (`scripts/create_mobile_migration.sh`). This also appends the import and list entry to `App/migrations/index.ts` — mobile migrations are an explicit list, not auto-discovered, so a hand-created file that skips this script will silently never run until it's added there.
+
+When a server migration and its corresponding mobile migration are added together, they don't need matching timestamps (each package's migrations run independently) — just make sure each is created via its own script.
+
 ### Never Mix DDL and DML in the Same Migration
 
 **Problem:** PostgreSQL uses deferred constraint triggers for audit logging. When you INSERT, UPDATE or DELETE rows in a table, trigger events are queued to fire at transaction commit. If you then try to ALTER TABLE (add/remove columns) in the same transaction, PostgreSQL throws:
