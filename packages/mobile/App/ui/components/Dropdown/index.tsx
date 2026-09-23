@@ -1,18 +1,20 @@
-import React, { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-
-import { StyledText, StyledView } from '/styled/common';
+import { useQuery } from '@tanstack/react-query';
+import React, { type ReactElement, useCallback, useRef } from 'react';
+import { Database } from '~/infra/db';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import { theme } from '~/ui/styled/theme';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
+import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import {
+  type TranslatedTextElement,
+  getTranslatedTextFallback,
+} from '../Translations/TranslatedText';
 import { MultiSelect } from './MultipleSelect';
 import type { MultiSelectProps } from './MultipleSelect/types';
-import type { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
-import { useQuery } from '@tanstack/react-query';
-import { Database } from '~/infra/db';
-import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
-import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import { StyledText, StyledView } from '/styled/common';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -40,7 +42,6 @@ export interface DropdownProps extends Omit<BaseInputProps, 'label'> {
   clearable?: boolean;
   required?: boolean;
   error?: any;
-  allowResetSingleValue?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {
@@ -101,30 +102,17 @@ export const Dropdown = React.memo(
     disabled,
     required = false,
     clearable = true,
-    allowResetSingleValue,
   }: DropdownProps) => {
-    const [selectedItems, setSelectedItems] = useState(() => {
-      if (!value) {
-        return [];
-      }
-
+    const selectedItems = (() => {
+      if (!value) return [];
       return Array.isArray(value) ? value : [value];
-    });
-
-    useEffect(() => {
-      if (!allowResetSingleValue || Array.isArray(value)) return;
-      if (value !== selectedItems[0]) {
-        setSelectedItems([value]);
-      }
-    }, [value, allowResetSingleValue]);
+    })();
 
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();
     const onSelectedItemsChange = useCallback(
-      items => {
-        setSelectedItems(items);
-        onChange(multiselect ? JSON.stringify(items) : items[0]); // Form submits multiselect items as JSON array string OR single item as value string
-      },
+      /* Form submits multiselect items as JSON array string OR single item as value string*/
+      items => void onChange(multiselect ? JSON.stringify(items) : items[0]),
       [multiselect, onChange],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
