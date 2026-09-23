@@ -1,10 +1,34 @@
 import { upperFirst } from 'es-toolkit/compat';
 import {
-  REFERENCE_TYPE_VALUES,
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_VALUES,
+  DRUG_UNIT_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
+  MEDICATION_DURATION_UNITS,
+  REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
   SUGGESTER_ENDPOINTS,
+  TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+
+// Reference types whose record is split across two tables: the reference_data row and a detail row
+// keyed by reference_data_id. Both halves are managed as one record here.
+const DETAIL_ASSOCIATIONS = {
+  [REFERENCE_TYPES.DRUG]: 'referenceDrug',
+  [REFERENCE_TYPES.TASK_TEMPLATE]: 'taskTemplate',
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: 'medicationTemplate',
+};
+
+// Owned by the association, never edited as a field.
+const DETAIL_INTERNAL_COLUMNS = new Set(['id', 'referenceDataId']);
+
+export const getDetailAssociation = type => DETAIL_ASSOCIATIONS[type] ?? null;
+
+export const getDetailModel = (models, type) => {
+  const association = getDetailAssociation(type);
+  return association ? models.ReferenceData.associations[association]?.target ?? null : null;
+};
 
 export const getModelForType = (models, type) => {
   if (REFERENCE_TYPE_VALUES.includes(type)) {
@@ -42,6 +66,31 @@ const READONLY_ON_EDIT_COLUMNS = /** @type {const} */ (new Set(['id']));
 // Fields that are always read-only (hidden from form) for specific models
 const READONLY_COLUMNS = {
   id: new Set(['ReferenceDataRelation']),
+};
+
+// Columns the product constrains to a constant but stores as a plain string, so the enum never
+// reaches us from the schema. Keyed by "ModelName.column".
+// `enumName` names the registered labels constant, so the form can render translated options.
+// `ADMINISTRATION_FREQUENCIES` has no registered labels object, and its values are already
+// sentences, so it ships values alone.
+const ENUM_VALUE_OVERRIDES = {
+  'ReferenceDrug.route': { values: DRUG_ROUTE_VALUES, enumName: 'DRUG_ROUTE_LABELS' },
+  'ReferenceDrug.dosingUnit': { values: DRUG_UNIT_VALUES, enumName: 'DRUG_UNIT_LABELS' },
+  'ReferenceDrug.dispensingUnit': { values: DRUG_UNIT_VALUES, enumName: 'DRUG_UNIT_LABELS' },
+  'ReferenceMedicationTemplate.route': { values: DRUG_ROUTE_VALUES, enumName: 'DRUG_ROUTE_LABELS' },
+  'ReferenceMedicationTemplate.dosingUnit': {
+    values: DRUG_UNIT_VALUES,
+    enumName: 'DRUG_UNIT_LABELS',
+  },
+  'ReferenceMedicationTemplate.frequency': { values: Object.values(ADMINISTRATION_FREQUENCIES) },
+  'ReferenceMedicationTemplate.durationUnit': {
+    values: Object.values(MEDICATION_DURATION_UNITS),
+    enumName: 'MEDICATION_DURATION_UNITS_LABELS',
+  },
+  'TaskTemplate.frequencyUnit': {
+    values: Object.values(TASK_FREQUENCY_UNIT),
+    enumName: 'TASK_FREQUENCY_UNIT_LABELS',
+  },
 };
 
 // FK columns that should render as multi-select autocomplete instead of single select
@@ -119,7 +168,7 @@ const getDbColumnInfo = async model => {
   return new Map(results.map(row => [row.column_name, row]));
 };
 
-export const getColumnsForModel = async model => {
+const buildColumns = async model => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   const dbColumns = await getDbColumnInfo(model);
@@ -138,7 +187,11 @@ export const getColumnsForModel = async model => {
         readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
-      if (typeName === 'ENUM' && attr.type?.values) {
+      const override = ENUM_VALUE_OVERRIDES[`${model.name}.${key}`];
+      if (override) {
+        col.enumValues = override.values;
+        if (override.enumName) col.enumName = override.enumName;
+      } else if (typeName === 'ENUM' && attr.type?.values) {
         col.enumValues = attr.type.values;
       }
       if (fkSuggesters[key]) {
@@ -158,6 +211,41 @@ export const getColumnsForModel = async model => {
     return nameCol ? [col, nameCol] : [col];
   });
 };
+
+export const getColumnsForModel = async (model, detailModel = null) => {
+  const columns = await buildColumns(model);
+  if (!detailModel) return columns;
+
+  // Detail columns live on another table, so the list query cannot sort or filter by them.
+  const detailColumns = (await buildColumns(detailModel))
+    .filter(col => !DETAIL_INTERNAL_COLUMNS.has(col.key) && !DETAIL_INTERNAL_COLUMNS.has(col.fkKey))
+    .map(col => ({ ...col, detail: true }));
+
+  return [...columns, ...detailColumns];
+};
+
+export const assertValidEnumValues = (columns, data) => {
+  for (const col of columns) {
+    if (!col.enumValues) continue;
+    const value = data[col.key];
+    if (value == null || value === '') continue;
+    if (!col.enumValues.includes(value)) {
+      throw new InvalidOperationError(
+        `Invalid ${col.key} "${value}". Must be one of: ${col.enumValues.join(', ')}.`,
+      );
+    }
+  }
+};
+
+export const pickDetailValues = (columns, detailRecord) =>
+  Object.fromEntries(
+    columns.filter(c => c.detail).map(c => [c.key, detailRecord?.[c.key] ?? null]),
+  );
+
+export const splitWritableData = (columns, data, isEditMode) => ({
+  base: getWritableData(columns.filter(c => !c.detail), data, isEditMode),
+  detail: getWritableData(columns.filter(c => c.detail), data, isEditMode),
+});
 
 export const assertValidType = type => {
   if (!type) {

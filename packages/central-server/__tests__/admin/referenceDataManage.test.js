@@ -51,6 +51,25 @@ describe('Reference Data Manage', () => {
       expect(nameCol).toMatchObject({ type: 'TEXT', readOnly: false });
     });
 
+    it('should offer the constant values for columns stored as plain strings', async () => {
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      expect(response).toHaveSucceeded();
+
+      const route = response.body.find(c => c.key === 'route');
+      expect(route.enumValues).toContain('oral');
+      expect(route.enumValues).not.toContain('telepathic');
+      expect(route.enumName).toBe('DRUG_ROUTE_LABELS');
+    });
+
+    it('should include the detail model columns for a type that has one', async () => {
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      expect(response).toHaveSucceeded();
+
+      const isSensitive = response.body.find(c => c.key === 'isSensitive');
+      expect(isSensitive).toMatchObject({ detail: true, type: 'BOOLEAN' });
+      expect(response.body.map(c => c.key)).not.toContain('referenceDataId');
+    });
+
     it('should reject an invalid type', async () => {
       const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: 'invalidType' });
       expect(response).toHaveRequestError();
@@ -132,6 +151,61 @@ describe('Reference Data Manage', () => {
       const record = await models.ReferenceData.findByPk(response.body.id);
       expect(record).toBeTruthy();
       expect(record.name).toBe('Test Create Drug');
+    });
+
+    it('should create a drug with its detail record from one payload', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-detail-code',
+        name: 'Test Drug Detail',
+        route: 'oral',
+        isSensitive: true,
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug).toMatchObject({ route: 'oral', isSensitive: true });
+    });
+
+    it('should create a detail record even when no detail fields were filled in', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-bare-code',
+        name: 'Test Drug Bare',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug).toBeTruthy();
+      expect(referenceDrug.isSensitive).toBe(false);
+    });
+
+    it('should not create a detail record for a type that has none', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.VILLAGE,
+        code: 'test-village-code',
+        name: 'Test Village',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug).toBe(null);
+    });
+
+    it('should reject a detail value outside its constant', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-bad-route-code',
+        name: 'Test Drug Bad Route',
+        route: 'telepathic',
+      });
+      expect(response).toHaveRequestError();
     });
 
     it('should reject creating a record with a duplicate unique field', async () => {
@@ -220,6 +294,47 @@ describe('Reference Data Manage', () => {
       expect(record.name).toBe('Updated Name');
     });
 
+    it('should update a drug detail field', async () => {
+      const created = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-edit-code',
+        name: 'Test Drug Edit',
+        route: 'oral',
+      });
+      expect(created).toHaveSucceeded();
+
+      const response = await adminApp.put(`${BASE_URL}/${created.body.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        name: 'Test Drug Edited',
+        route: 'topical',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: created.body.id },
+      });
+      expect(referenceDrug.route).toBe('topical');
+    });
+
+    it('should create a missing detail record when editing an orphaned drug', async () => {
+      const orphan = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-orphan-code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${orphan.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        route: 'oral',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: orphan.id },
+      });
+      expect(referenceDrug.route).toBe('oral');
+    });
+
     it('should return an error for a non-existent record', async () => {
       const response = await adminApp.put(`${BASE_URL}/non-existent-id`).send({
         referenceDataType: TEST_TYPE,
@@ -295,6 +410,40 @@ describe('Reference Data Manage', () => {
       expect(response.body).toHaveProperty('count');
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toBeInstanceOf(Array);
+    });
+
+    it('should merge detail fields into each row', async () => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'search-detail',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      await models.ReferenceDrug.create({
+        ...fake(models.ReferenceDrug),
+        referenceDataId: drug.id,
+        route: 'topical',
+        isSensitive: true,
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'search-detail',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.find(r => r.id === drug.id)).toMatchObject({
+        route: 'topical',
+        isSensitive: true,
+      });
+    });
+
+    it('should return null detail fields for a record with no detail row', async () => {
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'search-alpha',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data[0]).toMatchObject({ route: null, isSensitive: null });
     });
 
     it('should support pagination', async () => {

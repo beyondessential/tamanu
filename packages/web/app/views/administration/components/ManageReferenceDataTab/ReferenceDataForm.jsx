@@ -1,11 +1,21 @@
 import React, { useCallback, useMemo } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
+import { startCase } from 'es-toolkit/compat';
 import { FormGrid, Form } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ModalFormActionRow } from '../../../../components/ModalActionRow';
+import { FormSeparatorLine } from '../../../../components/FormSeparatorLine';
 import { FormField } from './FormField';
 import { REQUIRED_FIELDS } from './constants';
+
+const DetailHeading = styled.h3`
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+`;
 
 const buildValidationSchema = (columns, isEditMode) => {
   const shape = {};
@@ -19,16 +29,40 @@ const buildValidationSchema = (columns, isEditMode) => {
   return yup.object().shape(shape);
 };
 
-export const ReferenceDataForm = ({ columns, onSubmit, onCancel, initialValues, isEditMode }) => {
+export const ReferenceDataForm = ({
+  columns,
+  onSubmit,
+  onCancel,
+  initialValues,
+  isEditMode,
+  selectedType,
+}) => {
   const validationSchema = useMemo(() => buildValidationSchema(columns, isEditMode), [columns, isEditMode]);
   const renderForm = useCallback(
-    ({ submitForm }) => (
+    ({ submitForm }) => {
+      const visibleColumns = columns.filter(col => !col.readOnly);
+      const firstDetailKey = visibleColumns.find(col => col.detail)?.key;
+
+      return (
       <FormGrid data-testid="formgrid-refdata">
-        {columns
-          .filter(col => !col.readOnly)
-          .map(col => (
-            <FormField key={col.key} col={col} isEditMode={isEditMode} />
-          ))}
+        {visibleColumns.map(col => (
+          <React.Fragment key={col.key}>
+            {col.key === firstDetailKey && (
+              <>
+                <FormSeparatorLine data-testid="formseparatorline-refdata-detail" />
+                <DetailHeading data-testid="detailheading-refdata">
+                  <TranslatedText
+                    stringId="admin.referenceData.detailsHeading"
+                    fallback=":type details"
+                    replacements={{ type: startCase(selectedType) }}
+                    data-testid="translatedtext-refdata-details-heading"
+                  />
+                </DetailHeading>
+              </>
+            )}
+            <FormField col={col} isEditMode={isEditMode} />
+          </React.Fragment>
+        ))}
         <ModalFormActionRow
           confirmText={
             <TranslatedText
@@ -42,8 +76,9 @@ export const ReferenceDataForm = ({ columns, onSubmit, onCancel, initialValues, 
           data-testid="modalformactionrow-refdata"
         />
       </FormGrid>
-    ),
-    [columns, isEditMode, onCancel],
+      );
+    },
+    [columns, isEditMode, onCancel, selectedType],
   );
 
   return (
