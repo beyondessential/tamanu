@@ -141,6 +141,10 @@ Design notes:
   no Previous on 1.1 and no Next on 24.3. End-user guides step through their platform's modules;
   until more guides are written, each module shows L8's one guide under its own module number and
   crumbs, the same placeholder approach as configuration guides.
+- **The sidebar always shows where you are**: on a guide the guide's row is navy; on a module
+  overview, which has no row of its own, the module's row is navy (and open). Being open alone never
+  marks a row as selected. On arrival the sidebar scrolls, within itself, to keep the selected row in
+  view.
 - **Module rows are independent disclosures**: clicking a row opens or closes its guides, any number
   can be open at once, and the guides themselves are the links. Arriving at a guide opens its module
   and leaves any other open modules as they were. A desktop or mobile module with no written guides

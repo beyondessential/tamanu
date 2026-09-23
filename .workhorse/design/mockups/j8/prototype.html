@@ -1012,9 +1012,10 @@
   .article .crumbs a:hover { color:var(--ink); text-decoration:underline; text-underline-offset:3px; }
   .article .crumbs [aria-current="page"] { color:var(--ink-2); }
   .cat-head { scroll-margin-top:80px; }
-  .side-m .mgroup-list a.top.current, .side-m .mgroup-list a.top.current:hover {
+  .side-m .mgroup-list a.top.current, .side-m .mgroup-list a.top.current:hover,
+  .side-m .mgroup-list button.top.current, .side-m .mgroup-list button.top.current:hover {
     background:var(--brand-dark); color:#fff; font-weight:560; }
-  .side-m .mgroup-list a.top.current .num { color:rgba(255,255,255,.62); }
+  .side-m .mgroup-list .top.current .num, .side-m .mgroup-list .top.current .chev { color:rgba(255,255,255,.62); }
   /* ---- previous and next: step through guides in reading order ---- */
   .pager { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:28px; }
   .article .pager a { display:flex; flex-direction:column; gap:3px; padding:14px 18px; border:1px solid var(--line);
@@ -4930,6 +4931,7 @@
     view.querySelector('.cat-config .mgroup-head').setAttribute('aria-expanded', 'true');
     view.querySelectorAll('.g-body, .toc-list').forEach(el=> el.hidden = el.dataset.surface !== surface.key);
     renderGuidePager(view, surface);
+    revealInSidebar(view.querySelector('.cat-config .children a.active'));
     if (target.jump) jumpTo(target.jump);
   }
   function jumpTo(id){
@@ -4949,6 +4951,15 @@
   const PLATFORMS = {"desktop":{"label":"Tamanu desktop","modules":["Accessing Tamanu Desktop","Navigating Tamanu","Clinician Dashboard","Patients","Scheduling","Program Registries","Immunisations","Encounters","Diagnoses","Vitals","Charts","Notes","Forms","Tasks","Medications","Procedures","Labs","Imaging","Referrals","Documents","Invoicing","Reports"]},"mobile":{"label":"Tamanu mobile","modules":["Accessing Tamanu Mobile","Navigating Tamanu","Patients","Vitals","Diagnosis and Treatment","Programs","Referral","Vaccine","Tests","Program Registries","History","Reports","Sync"]}};
   const ARROW_L = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>';
   const ARROW_R = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  // keep the selected row in view in the sidebar, without moving the page
+  function revealInSidebar(el){
+    if (!el) return;
+    // the sidebar scrolls in its inner wrapper where it has one
+    const side = [el.closest('.side-scroll'), el.closest('aside.side')].find(box => box && box.scrollHeight > box.clientHeight);
+    if (!side) return;
+    const top = el.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
+    if (top < side.scrollTop || top > side.scrollTop + side.clientHeight - 60) side.scrollTop = top - side.clientHeight / 3;
+  }
   function pagerLink(direction, data, number, title, detail){
     const link = document.createElement('a');
     link.href = '#';
@@ -4999,6 +5010,7 @@
       if (el.closest('.children')) el.classList.toggle('active', here);
     });
     view.querySelector('.cat-' + articleAt.platform + ' .mgroup-head').setAttribute('aria-expanded', 'true');
+    revealInSidebar(view.querySelector('.mgroup-list .top.current, .children a.active'));
     const stop = offset => {
       const module = articleAt.module + offset;
       if (module < 1 || module > platform.modules.length) return null;
@@ -5024,13 +5036,14 @@
     view.querySelector('#m-crumb-module').textContent = name;
     view.querySelector('#m-title').textContent = name;
     view.querySelector('#m-num').textContent = num;
-    view.querySelectorAll('.children a.active, a.top.current').forEach(el=> el.classList.remove('active', 'current'));
+    view.querySelectorAll('.children a.active, .top.current').forEach(el=> el.classList.remove('active', 'current'));
     const group = view.querySelector('.cat-' + cat);
     group.querySelector('.mgroup-head').setAttribute('aria-expanded', 'true');
     const row = group.querySelector('.top[data-module="' + num + '"]');
-    // the sidebar opens to the module; the overview itself has no entry there
+    // the overview has no entry of its own in the sidebar, so the module's row is the selected page
+    row.classList.add('current');
     if (row.matches('button')) row.setAttribute('aria-expanded', 'true');
-    else row.classList.add('current');
+    revealInSidebar(row);
   }
   showGuide({ module:'15', surface:'settings' });
   showArticle({});
