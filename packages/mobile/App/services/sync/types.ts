@@ -56,3 +56,22 @@ export const SYNC_EVENT_ACTIONS = {
 } as const;
 
 export type SYNC_EVENT_ACTIONS = (typeof SYNC_EVENT_ACTIONS)[keyof typeof SYNC_EVENT_ACTIONS];
+
+/** Payload of {@link SYNC_EVENT_ACTIONS.SYNC_ENDED} */
+export interface SyncEndedEvent {
+  /**
+   * Names of the tables whose rows changed during this sync run. Only counts transactions that
+   * committed, so after a failed pull this holds just what the push wrote.
+   */
+  touchedTables: ReadonlySet<string>;
+}
+
+/** Events emitted by `MobileSyncManager.emitter`, keyed by {@link SYNC_EVENT_ACTIONS} */
+export type SyncEvents = {
+  [SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE]: undefined;
+  [SYNC_EVENT_ACTIONS.SYNC_STARTED]: undefined;
+  [SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED]: undefined;
+  [SYNC_EVENT_ACTIONS.SYNC_ENDED]: SyncEndedEvent;
+  [SYNC_EVENT_ACTIONS.SYNC_SUCCESS]: undefined;
+  [SYNC_EVENT_ACTIONS.SYNC_ERROR]: { error: unknown };
+};

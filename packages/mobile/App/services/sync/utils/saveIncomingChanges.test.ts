@@ -1,8 +1,17 @@
-import { saveChangesForModel } from './saveIncomingChanges';
+import {
+  saveChangesForModel,
+  saveChangesFromMemory,
+  saveChangesFromSnapshot,
+} from './saveIncomingChanges';
 import * as preparedQueryModules from './executePreparedQuery';
 import type { MobileSyncSettings } from '../MobileSyncManager';
 
 jest.mock('./executePreparedQuery');
+jest.mock('./manageSnapshotTable', () => ({
+  getSnapshotBatchIds: jest.fn(),
+  getSnapshotBatchesByIds: jest.fn(),
+}));
+const { getSnapshotBatchIds, getSnapshotBatchesByIds } = jest.requireMock('./manageSnapshotTable');
 jest.mock('./buildFromSyncRecord', () => ({
   buildFromSyncRecord: jest
     .fn()
@@ -312,5 +321,64 @@ describe('saveChangesForModel', () => {
         progressCallback,
       );
     });
+  });
+});
+
+const makeTableModel = (tableName: string) =>
+  ({
+    name: tableName,
+    getTableName: () => tableName,
+    getTransactionalRepository: jest.fn(() => repository),
+  }) as any;
+
+const recordFor = (recordType: string, id: string) => ({
+  id,
+  recordId: id,
+  recordType,
+  data: { id },
+  isDeleted: false,
+});
+
+describe('touched tables', () => {
+  const patients = makeTableModel('patients');
+  const encounters = makeTableModel('encounters');
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('saveChangesFromMemory returns only the tables that received rows', async () => {
+    mockExistingRecords([]);
+    const touched = await saveChangesFromMemory(
+      [recordFor('patients', 'p1'), recordFor('patients', 'p2')],
+      [patients, encounters],
+      mobileSyncSettings,
+      progressCallback,
+    );
+    expect([...touched]).toEqual(['patients']);
+  });
+
+  it('saveChangesFromMemory returns an empty set when there are no records', async () => {
+    const touched = await saveChangesFromMemory(
+      [],
+      [patients, encounters],
+      mobileSyncSettings,
+      progressCallback,
+    );
+    expect(touched.size).toBe(0);
+  });
+
+  it('saveChangesFromSnapshot accumulates touched tables across snapshot batches', async () => {
+    mockExistingRecords([]);
+    getSnapshotBatchIds.mockResolvedValue([1, 2]);
+    getSnapshotBatchesByIds
+      .mockResolvedValueOnce([recordFor('patients', 'p1')])
+      .mockResolvedValueOnce([recordFor('encounters', 'e1')]);
+    const touched = await saveChangesFromSnapshot(
+      [patients, encounters],
+      { ...mobileSyncSettings, maxBatchesToKeepInMemory: 1 },
+      progressCallback,
+    );
+    expect([...touched].sort()).toEqual(['encounters', 'patients']);
   });
 });

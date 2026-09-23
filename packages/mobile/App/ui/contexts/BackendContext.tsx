@@ -4,7 +4,8 @@ import { BackendManager } from '../../services/BackendManager';
 
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
-import { SYNC_EVENT_ACTIONS } from '../../services/sync/types';
+import { SYNC_EVENT_ACTIONS, type SyncEndedEvent } from '../../services/sync/types';
+import { invalidateQueriesForTables } from '../hooks/queries/queryMeta';
 import queryClient from '../queryClient';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
@@ -30,7 +31,8 @@ export const BackendProvider = ({ Component }): ReactElement => {
   }, [backendManager]);
 
   useEffect(() => {
-    const onSyncEnded = (): void => void queryClient.invalidateQueries();
+    const onSyncEnded = ({ touchedTables }: SyncEndedEvent): void =>
+      void invalidateQueriesForTables(queryClient, touchedTables);
     backendManager.syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ENDED, onSyncEnded);
     return () => {
       backendManager.syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, onSyncEnded);
