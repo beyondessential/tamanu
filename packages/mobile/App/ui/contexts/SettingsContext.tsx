@@ -17,7 +17,7 @@ export const useSettings = () => useContext(SettingsContext);
 export const SettingsProvider = ({ children }) => {
   const backend = useContext(BackendContext);
 
-  const defaultHelpers = useMemo(() => makeHelpers(backend.settings), [backend]);
+  const defaultHelpers = useMemo(() => makeHelpers(backend.settings), [backend.settings]);
   const [helpers, setHelpers] = useState(defaultHelpers);
 
   useEffect(() => {
