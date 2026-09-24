@@ -110,7 +110,8 @@ export class SendStatusToMetaServer extends ScheduledTask {
         replacements: { schema: REPORT_DB_CONNECTION_SCHEMAS[REPORT_DB_CONNECTIONS.REPORTING] },
       },
     );
-    return row?.version ?? null;
+    // alertd appends the build's digest after the version.
+    return row?.version?.trim().split(/\s+/)[0] || null;
   }
 
   async run() {

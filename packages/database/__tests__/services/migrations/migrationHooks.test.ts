@@ -4,7 +4,10 @@ import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { closeDatabase, initDatabase } from '../../utilities';
 import { runPostMigration, runPreMigration } from '../../../src/services/migrations/hooks';
 import { tablesWithTrigger, tablesWithoutTrigger } from '../../../src/utils';
-import { createMigrationInterface } from '../../../src/services/migrations/migrations';
+import {
+  createMigrationInterface,
+  runInRollbackTransaction,
+} from '../../../src/services/migrations/migrations';
 import { log } from '@tamanu/shared/services/logging/log';
 import { Umzug } from 'umzug';
 
@@ -72,6 +75,54 @@ describe('migrationHooks', () => {
   afterEach(async () => {
     await removeFakeTriggerFunction(database.sequelize);
     await closeDatabase();
+  });
+
+  describe('dropManagedReportingSchema', () => {
+    const DIGEST = 'sha256-ujw9dykwmiegt+dMTirjNmjYuieQjjSl2U/Y+f9Mn3A=';
+
+    const stampReporting = async (stamp: string | null) => {
+      await database.sequelize.query('DROP SCHEMA IF EXISTS reporting CASCADE');
+      await database.sequelize.query('CREATE SCHEMA reporting');
+      await database.sequelize.query('CREATE VIEW reporting.probe AS SELECT 1 AS one');
+      if (stamp !== null) {
+        await database.sequelize.query(`COMMENT ON SCHEMA reporting IS '${stamp}'`);
+      }
+    };
+
+    const reportingExists = async () => {
+      const [rows] = await database.sequelize.query(
+        "SELECT 1 FROM pg_namespace WHERE nspname = 'reporting'",
+      );
+      return rows.length > 0;
+    };
+
+    afterEach(async () => {
+      await database.sequelize.query('DROP SCHEMA IF EXISTS reporting CASCADE');
+    });
+
+    it('drops a schema alertd applied', async () => {
+      await stampReporting(`2.60.1 ${DIGEST}`);
+      await runPreMigration(log, database.sequelize);
+      expect(await reportingExists()).toBe(false);
+    });
+
+    it('keeps the schema through a dry run', async () => {
+      await stampReporting(`2.60.1 ${DIGEST}`);
+      await runInRollbackTransaction(database.sequelize, () =>
+        runPreMigration(log, database.sequelize),
+      );
+      expect(await reportingExists()).toBe(true);
+    });
+
+    it.each([
+      ['a version-only stamp', '2.60.1'],
+      ['no stamp', null],
+      ['a digest that is not sha256', '2.60.1 sha512-abc='],
+    ])('keeps a schema with %s', async (_label, stamp) => {
+      await stampReporting(stamp);
+      await runPreMigration(log, database.sequelize);
+      expect(await reportingExists()).toBe(true);
+    });
   });
 
   describe('tablesWithTrigger', () => {

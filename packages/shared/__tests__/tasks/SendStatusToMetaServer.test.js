@@ -27,6 +27,13 @@ describe('SendStatusToMetaServer', () => {
       );
     });
 
+    it('reports the version alone when alertd has stamped the build after it', async () => {
+      const { task } = taskReturning([
+        { version: '2.60.1 sha256-ujw9dykwmiegt+dMTirjNmjYuieQjjSl2U/Y+f9Mn3A=' },
+      ]);
+      await expect(task.getReportingSchemaVersion()).resolves.toBe('2.60.1');
+    });
+
     it('reports null when the schema carries no stamp', async () => {
       const { task } = taskReturning([{ version: null }]);
       await expect(task.getReportingSchemaVersion()).resolves.toBeNull();
