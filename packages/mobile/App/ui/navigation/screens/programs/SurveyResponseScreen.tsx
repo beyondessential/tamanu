@@ -1,41 +1,34 @@
+import { subject } from '@casl/ability';
+import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import React, { type ReactElement, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Dimensions, Text } from 'react-native';
 import Modal from 'react-native-modal';
-import { useNavigation } from '@react-navigation/native';
-import { subject } from '@casl/ability';
-
-import { CenterView, FullView, RowView } from '~/ui/styled/common';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
-import { Routes } from '/helpers/routes';
-import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
-
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import { Database } from '~/infra/db';
-import {
-  patientKeys,
-  registrationKeys,
-  reportKeys,
-  surveyKeys,
-} from '~/ui/hooks/queries/queryKeys';
-import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
-import { useBackend } from '~/ui/hooks';
 import { type GenericFormValues, type IPatientAdditionalData, SurveyTypes } from '~/types';
+import { Button } from '~/ui/components/Button';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
+import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { SurveyForm } from '~/ui/components/Forms/SurveyForm';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { StackHeader } from '~/ui/components/StackHeader';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { authUserSelector } from '~/ui/helpers/selectors';
+import { joinNames } from '~/ui/helpers/user';
+import { patientKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
+import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
+import useSurveySubmitMutation from '~/ui/hooks/useSurveySubmitMutation';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import type { PatientStateProps } from '~/ui/store/ducks/patient';
-import { joinNames } from '~/ui/helpers/user';
-import { StackHeader } from '~/ui/components/StackHeader';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { CenterView, FullView, RowView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Button } from '~/ui/components/Button';
-import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { resetToProgramSurveyHistory, resetToReferralHistory } from '~/ui/helpers/navigators';
+import { Routes } from '/helpers/routes';
+import type { SurveyResponseScreenProps } from '/interfaces/Screens/ProgramsStack/SurveyResponseScreen';
 
 const buttonSharedStyles = {
   width: screenPercentageToDP('25', Orientation.Width),
@@ -121,36 +114,16 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     enabled: survey != null,
   });
 
-  const { models } = useBackend();
-  const queryClient = useQueryClient();
-  const { mutateAsync: submitSurveyResponse } = useMutation({
-    // Referral.submit and SurveyResponse.submit return different record types; the
-    // caller only relies on the shared id field.
-    mutationFn: (values: GenericFormValues): Promise<{ id: string } | null> => {
-      const model = isReferral ? models.Referral : models.SurveyResponse;
-      return model.submit(
-        selectedPatientId,
-        user.id,
-        {
-          surveyId,
-          components,
-          surveyType,
-          encounterReason: 'Form response',
-        },
-        values,
-      );
-    },
-    onSuccess: response => {
-      if (!response) return;
-      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatientId) });
-      queryClient.invalidateQueries({ queryKey: registrationKeys.all });
-      queryClient.invalidateQueries({ queryKey: reportKeys.all });
-    },
-  });
+  const { mutateAsync: submitSurveyResponse } = useSurveySubmitMutation({ surveyType });
 
   const onSubmit = useCallback(
     async (values: GenericFormValues) => {
-      const response = await submitSurveyResponse(values);
+      const response = await submitSurveyResponse({
+        components,
+        patientId: selectedPatientId,
+        surveyId,
+        values,
+      });
 
       if (!response) return;
       if (isReferral) {
@@ -159,7 +132,7 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         resetToProgramSurveyHistory(navigation, response.id);
       }
     },
-    [submitSurveyResponse, isReferral, navigation],
+    [components, isReferral, navigation, selectedPatientId, submitSurveyResponse, surveyId],
   );
 
   const closeModalCallback = useCallback(async () => {
