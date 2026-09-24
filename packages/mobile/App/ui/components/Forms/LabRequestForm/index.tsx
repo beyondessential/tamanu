@@ -1,19 +1,21 @@
 import React, { type ReactElement, useCallback, useMemo, useState } from 'react';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
-import { Field } from '/components/Forms/FormField';
-import { FormScreenView } from '/components/Forms/FormScreenView';
-import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
-import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
-import { DateField } from '~/ui/components/DateField/DateField';
-import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
-import { SubmitButton } from '../SubmitButton';
-import { Suggester } from '~/ui/helpers/suggester';
+import type { FindOptionsWhere } from 'typeorm';
+import { LabTestType } from '~/models/LabTestType';
 import { ReferenceDataType } from '~/types';
+import { DateField } from '~/ui/components/DateField/DateField';
+import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
+import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { Suggester } from '~/ui/helpers/suggester';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
-import { TranslatedText } from '../../Translations/TranslatedText';
+import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { TranslatedReferenceData } from '../../Translations/TranslatedReferenceData';
-import { useAuth } from '~/ui/contexts/AuthContext';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { SubmitButton } from '../SubmitButton';
+import { Field } from '/components/Forms/FormField';
+import { FormScreenView } from '/components/Forms/FormScreenView';
+import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 
 export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
   const { ability } = useAuth();
@@ -79,31 +81,35 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     [models.User],
   );
 
-  const handleLabRequestTypeSelected = useCallback(async selectedValue => {
-    const where: any = {
-      labTestCategory: { id: selectedValue },
-      visibilityStatus: VisibilityStatus.Current,
-    };
-    if (!canCreateSensitive) {
-      where.isSensitive = false;
-    }
-    const selectedLabTestTypes = await models.LabTestType.find({
-      where,
-      order: { name: 'ASC' },
-    });
-    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
-      id: labTestType.id,
-      text: (
-        <TranslatedReferenceData
-          fallback={labTestType.name}
-          value={labTestType.id}
-          category="labTestType"
-        />
-      ),
-      value: false,
-    }));
-    setLabTestTypes(labTestTypeOptions);
-  }, []);
+  const handleLabRequestTypeSelected = useCallback(
+    async (selectedValue: string) => {
+      const where: FindOptionsWhere<LabTestType> = {
+        labTestCategory: { id: selectedValue },
+        visibilityStatus: VisibilityStatus.Current,
+      };
+      if (!canCreateSensitive) {
+        where.isSensitive = false;
+      }
+      const selectedLabTestTypes = await models.LabTestType.find({
+        select: ['id', 'name'],
+        where,
+        order: { name: 'ASC' },
+      });
+      const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
+        id: labTestType.id,
+        text: (
+          <TranslatedReferenceData
+            fallback={labTestType.name}
+            value={labTestType.id}
+            category="labTestType"
+          />
+        ),
+        value: false,
+      }));
+      setLabTestTypes(labTestTypeOptions);
+    },
+    [canCreateSensitive, models.LabTestType],
+  );
 
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
