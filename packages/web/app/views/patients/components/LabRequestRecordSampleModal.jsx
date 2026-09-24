@@ -51,7 +51,7 @@ const StyledModal = styled(FormModal)`
 
 const LabRequestRecordSampleForm = ({ submitForm, values, setFieldValue, onClose }) => {
   const { getSetting } = useSettings();
-  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+  const mandateSpecimenType = getSetting(SETTING_KEYS.LAB_MANDATE_SPECIMEN_TYPE);
 
   const practitionerSuggester = useSuggester('practitioner');
   const specimenTypeSuggester = useSuggester('specimenType');
@@ -129,7 +129,7 @@ export const LabRequestRecordSampleModal = React.memo(
     const { getSetting } = useSettings();
     const { getCurrentDateTime } = useDateTime();
     const { currentUser } = useAuth();
-    const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+    const mandateSpecimenType = getSetting(SETTING_KEYS.LAB_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
     const updateSample = async formValues => {
