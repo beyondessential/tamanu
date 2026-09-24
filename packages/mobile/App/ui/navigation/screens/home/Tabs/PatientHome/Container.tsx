@@ -175,33 +175,28 @@ const PatientHomeContainer = ({
     }, []),
   );
 
-  // This screen stays mounted as a tab while other tabs are in front, and every sync invalidates
-  // all queries, so gate the alert on focus and show it once per patient
   const isFocused = useIsFocused();
-  const [warningsShownForPatientId, setWarningsShownForPatientId] = useState<string | null>(null);
+  const [prevPatientId, setPrevPatientId] = useState<string | null>(null);
   useEffect(() => {
-    if (!isFocused || !selectedPatient) return;
-    if (warningsShownForPatientId === selectedPatient.id) return;
+    if (!isFocused || !selectedPatient || prevPatientId === selectedPatient.id) return;
 
-    const warningNotes = (patientIssues ?? [])
-      .filter(({ type }) => type === PatientIssueType.Warning)
-      .map(({ note }) => note);
-    if (warningNotes.length === 0) return;
+    const warningNotes = patientIssues
+      ?.filter(pi => pi.type === PatientIssueType.Warning)
+      .map(pi => pi.note);
+    if (warningNotes === undefined || warningNotes.length === 0) return;
 
-    setWarningsShownForPatientId(selectedPatient.id);
+    setPrevPatientId(selectedPatient.id);
     Alert.alert(
       getTranslation('patient.warning.title', 'Patient warnings'),
       formatWarningsAsUnorderedList(warningNotes),
     );
-  }, [getTranslation, isFocused, patientIssues, selectedPatient, warningsShownForPatientId]);
+  }, [getTranslation, isFocused, patientIssues, prevPatientId, selectedPatient]);
 
   const patientModules = usePatientModules(navigation);
 
   if (patientIssuesError) return <ErrorScreen error={patientIssuesError} />;
 
-  if (!selectedPatient) {
-    return null;
-  }
+  if (!selectedPatient) return null;
 
   return (
     <Screen
