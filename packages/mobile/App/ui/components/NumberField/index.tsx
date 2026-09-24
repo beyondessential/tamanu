@@ -40,41 +40,42 @@ const isEquivalent = (
   return parseFloat(text) === Number(value);
 };
 
-export const NumberField = (props: NumberFieldProps) => {
-  const {
-    isOpen,
-    placeholder,
-    disabled,
-    secure,
-    hints,
-    returnKeyType,
-    autoFocus,
-    onFocus,
-    onBlur,
-    label,
-    error,
-    required,
-    labelColor,
-    labelFontSize,
-    fieldFontSize,
-  } = props;
-  const [typedText, setTypedText] = useState(toText(props.value));
-  const [prevValue, setPrevValue] = useState(props.value);
-  if (props.value !== prevValue) {
-    setPrevValue(props.value);
+export const NumberField = ({
+  autoFocus,
+  disabled,
+  error,
+  fieldFontSize,
+  hints,
+  isOpen,
+  label,
+  labelColor,
+  labelFontSize,
+  onBlur,
+  onChange,
+  onFocus,
+  placeholder,
+  required,
+  returnKeyType,
+  secure,
+  value,
+}: NumberFieldProps) => {
+  const [typedText, setTypedText] = useState(() => toText(value));
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     // The parent holds a parsed number. If it matches what was typed, it is just echoing our own
     // input back, so keep the raw text (e.g. `1.`). Otherwise the parent changed the value.
-    if (!isEquivalent(typedText, props.value)) setTypedText(toText(props.value));
+    if (!isEquivalent(typedText, value)) setTypedText(toText(value));
   }
 
   const onChangeNumber = (next: string): void => {
     const value = Number.parseFloat(next);
     if (Number.isNaN(value)) {
       setTypedText(undefined);
-      props.onChange?.('');
+      onChange?.('');
     } else {
       setTypedText(next);
-      props.onChange?.(value);
+      onChange?.(value);
     }
   };
 
