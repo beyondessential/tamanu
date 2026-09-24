@@ -179,7 +179,6 @@ const PatientHomeContainer = ({
     Alert.alert(
       getTranslation('patient.warning.title', 'Patient warnings'),
       formatWarningsAsUnorderedList(warningNotes),
-      // [{ text: getTranslation('general.action.ok', 'OK') }],
     );
   }, [getTranslation, isFocused, patientIssues, selectedPatient, warningsShownForPatientId]);
 
