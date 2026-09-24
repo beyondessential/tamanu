@@ -152,7 +152,7 @@ const PatientHomeContainer = ({
         screen: Routes.HomeStack.SearchPatientStack.Index,
         params: {
           screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-          from: from,
+          from,
         },
       });
     } else {
