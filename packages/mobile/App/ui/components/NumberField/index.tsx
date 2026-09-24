@@ -40,7 +40,10 @@ function isEquivalent(text: string | undefined, value: string | number | null | 
 export const NumberField = ({ onChange, value, ...props }: NumberFieldProps) => {
   const [typedText, setTypedText] = useState(() => toText(value));
   const [prevValue, setPrevValue] = useState(value);
-  if (value !== prevValue) {
+
+  // Basically `value !== prevValue`, but considers NaN equivalent to NaN. Otherwise we get an
+  // infinite loop render loop from `setPrevValue(NaN)`
+  if (!Object.is(value, prevValue)) {
     setPrevValue(value);
     // The parent holds a parsed number. If it matches what was typed, it is just echoing our own
     // input back, so keep the raw text (e.g. `1.`). Otherwise the parent changed the value.
