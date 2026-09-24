@@ -2059,11 +2059,16 @@ medication.post(
     const notDispensedAt = getCurrentDateTimeString();
 
     await PharmacyOrderPrescription.sequelize.transaction(async () => {
-      await pharmacyOrderPrescription.update({
-        notDispensedReasonId,
-        notDispensedById: user.id,
-        notDispensedAt,
-      });
+      // The destroy() below re-runs the same invoice-quantity recalculation with the final
+      // state, so skip it here to avoid running the whole chain twice for one action.
+      await pharmacyOrderPrescription.update(
+        {
+          notDispensedReasonId,
+          notDispensedById: user.id,
+          notDispensedAt,
+        },
+        { hooks: false },
+      );
       await pharmacyOrderPrescription.destroy();
 
       const prescriberId = pharmacyOrderPrescription.prescription?.prescriberId;
