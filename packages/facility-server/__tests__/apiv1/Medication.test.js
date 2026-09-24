@@ -73,7 +73,11 @@ describe('Medication', () => {
     return { medication, referenceDrug };
   };
 
-  const createPharmacyOrderWithPrescription = async ({ patientId, repeats = 1 }) => {
+  const createPharmacyOrderWithPrescription = async ({
+    patientId,
+    repeats = 1,
+    isDischargePrescription = true,
+  }) => {
     const { medication } = await createDrug();
     const encounter = await models.Encounter.create(
       fake(models.Encounter, {
@@ -101,7 +105,7 @@ describe('Medication', () => {
       fake(models.PharmacyOrder, {
         orderingClinicianId: app.user.id,
         encounterId: encounter.id,
-        isDischargePrescription: true,
+        isDischargePrescription,
         date: getCurrentDateTimeString(),
         facilityId,
       }),
@@ -2216,6 +2220,48 @@ describe('Medication', () => {
       expect(result.body.pharmacyOrder.encounter.patient.firstName).toBe(localPatient.firstName);
     });
 
+    it('does not expose the raw repeats column, only remainingRepeats', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 3,
+        isDischargePrescription: true,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+      await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.remainingRepeats).toBe(3);
+      expect(result.body.repeats).not.toBeDefined();
+    });
+
+    // getRemainingRepeats() treats a non-discharge (inpatient) request as never having
+    // repeats to consume, regardless of the repeats value on the row — see
+    // PharmacyOrderPrescription.getRemainingRepeats().
+    it('returns 0 remainingRepeats for an inpatient request regardless of repeats', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 3,
+        isDischargePrescription: false,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+      await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.remainingRepeats).toBe(0);
+    });
+
     it('returns 404 when the request was deleted but never marked not dispensed', async () => {
       const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
         patientId: patient.id,
@@ -2406,6 +2452,29 @@ describe('Medication', () => {
       expect(found).toBeDefined();
       expect(found.prescription.invoiceItem).toBeDefined();
       expect(found.prescription.invoiceItem.approved).toBe(false);
+    });
+  });
+
+  describe('GET /api/medication/medication-requests remainingRepeats', () => {
+    // A row here is always an active, not-yet-dispensed request (isCompleted: false), so it can
+    // never carry a medicationDispense and remainingRepeats always equals raw repeats for an
+    // outpatient row. The only behaviour this endpoint can exercise is the inpatient guard on
+    // getRemainingRepeats() — the dispense-driven divergence is covered against
+    // GET /api/medication/medication-dispenses instead, where it's actually reachable.
+    it('returns 0 remainingRepeats for an inpatient request regardless of repeats', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 3,
+        isDischargePrescription: false,
+      });
+
+      const result = await app.get(`/api/medication/medication-requests?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
+      expect(found).toBeDefined();
+      expect(found.remainingRepeats).toBe(0);
+      expect(found.repeats).toBe(3);
     });
   });
 
