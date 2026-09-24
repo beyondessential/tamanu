@@ -2046,7 +2046,7 @@ medication.post(
         },
         {
           association: 'pharmacyOrder',
-          attributes: ['id', 'encounterId'],
+          attributes: ['id', 'encounterId', 'isDischargePrescription'],
           include: [{ association: 'encounter', attributes: ['id', 'patientId'] }],
         },
       ],
