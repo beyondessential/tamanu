@@ -93,9 +93,9 @@ const usePatientModules = navigation => {
 const usePatientMenuButtons = navigation => {
   const { ability } = useAuth();
   const { getSetting } = useSettings();
-  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
-  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
-  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
+  const canViewProgramRegistries =
+    ability.can('list', 'PatientProgramRegistration') ||
+    ability.can('create', 'PatientProgramRegistration');
   const config = getSetting<PatientModulesLayout>('layouts.mobilePatientModules');
 
   return useMemo(
