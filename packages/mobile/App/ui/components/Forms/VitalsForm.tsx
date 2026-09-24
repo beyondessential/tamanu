@@ -1,62 +1,32 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '/store/ducks/patient';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useBackend } from '~/ui/hooks';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { SurveyTypes } from '~/types';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 import usePatientAdditionalDataRecordQuery from '~/ui/hooks/queries/usePatientAdditionalDataRecordQuery';
 import useVitalsSurveyQuery from '~/ui/hooks/queries/useVitalsSurveyQuery';
-import { ErrorScreen } from '/components/ErrorScreen';
-import { FullView, StyledText } from '~/ui/styled/common';
-import { theme } from '/styled/theme';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { authUserSelector } from '/helpers/selectors';
-import { SurveyTypes } from '~/types';
-import { SurveyForm } from '/components/Forms/SurveyForm';
-import { VitalsDataElements } from '/helpers/constants';
 import { useCurrentScreen } from '~/ui/hooks/useCurrentScreen';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
+import useSurveySubmitMutation from '~/ui/hooks/useSurveySubmitMutation';
+import { FullView, StyledText } from '~/ui/styled/common';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { SurveyForm } from '/components/Forms/SurveyForm';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { VitalsDataElements } from '/helpers/constants';
+import type { ReduxStoreProps } from '/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '/store/ducks/patient';
+import { theme } from '/styled/theme';
 
 interface VitalsFormProps {
   onAfterSubmit: () => void;
 }
 
-export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
-  const { models } = useBackend();
+export const VitalsForm = ({ onAfterSubmit }: VitalsFormProps) => {
   const { getTranslation } = useTranslation();
-  const user = useSelector(authUserSelector);
   const { currentScreenIndex, setCurrentScreenIndex } = useCurrentScreen();
 
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const queryClient = useQueryClient();
-  const { mutateAsync: submitVitals } = useMutation({
-    mutationFn: ({
-      surveyId,
-      components,
-      values,
-    }: {
-      surveyId: string;
-      components: any[];
-      values: any;
-    }) =>
-      models.SurveyResponse.submit(
-        selectedPatient.id,
-        user.id,
-        {
-          surveyId,
-          components,
-          surveyType: SurveyTypes.Vitals,
-          encounterReason: 'Form response',
-        },
-        values,
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
-    },
-  });
+  const { mutateAsync: submitVitals } = useSurveySubmitMutation({ surveyType: SurveyTypes.Vitals });
   const {
     data: vitalsSurvey,
     error: vitalsError,
@@ -69,13 +39,11 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
   } = usePatientAdditionalDataRecordQuery(selectedPatient.id);
 
   const error = vitalsError || padError;
+  if (error) return <ErrorScreen error={error} />;
+
   const isLoading = isVitalsLoading || isPadLoading;
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
+
   if (!vitalsSurvey) {
     return (
       <FullView>
@@ -91,14 +59,12 @@ export const VitalsForm: React.FC<VitalsFormProps> = ({ onAfterSubmit }) => {
 
   const onSubmit = async (values: any): Promise<void> => {
     const responseRecord = await submitVitals({
+      patientId: selectedPatient.id,
       surveyId: id,
       components,
       values: { ...values, [dateComponent.dataElement.code]: new Date() },
     });
-
-    if (responseRecord) {
-      onAfterSubmit();
-    }
+    if (responseRecord) onAfterSubmit();
   };
 
   // On mobile, date is programmatically submitted
