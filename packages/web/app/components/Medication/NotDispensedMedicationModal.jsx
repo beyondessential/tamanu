@@ -161,6 +161,7 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
               }
               suggester={notDispensedReasonSuggester}
               required
+              data-testid="not-dispensed-reason"
             />
             <ActionRow>
               <ConfirmCancelRow
