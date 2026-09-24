@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/database",
-  "version": "2.64.3",
+  "version": "2.64.4",
   "private": true,
   "description": "BES - Database",
   "main": "./src/index",
