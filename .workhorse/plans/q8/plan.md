@@ -35,7 +35,7 @@ No "bootstrapped" marker is needed; the sync process re-fetching a small bundle 
 
 - The state is "configured, pull cursor unset". No new fact.
 - `/public/ping` reports it, alongside `setupRequired`.
-- Web: after login, and ahead of facility selection, a logged-in user sees the setting-up screen (reusing `StatusPage`), polled until the first sync completes, with a log out action. Everyone is held there; there's nothing to let people into early.
+- Web: after login, and ahead of facility selection, a logged-in user sees the setting-up screen (reusing `StatusPage`), polled until the first sync completes, with a log out action. Static heading: not the `LoadingStatusPage` ellipsis animation, which shifts the centred heading as it grows. Everyone is held there; there's nothing to let people into early.
 - Because the screen is driven by server state, closing the wizard and coming back lands on the same screen.
 
 ## Follow-up
