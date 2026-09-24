@@ -157,8 +157,10 @@ describe('Schemas', () => {
             },
           ],
         },
-        labs: {
-          mandateSpecimenType: false,
+        features: {
+          labRequest: {
+            mandateSpecimenType: false,
+          },
         },
       };
 
@@ -174,8 +176,10 @@ describe('Schemas', () => {
             enabled: false,
           },
         },
-        labs: {
-          mandateSpecimenType: 'a',
+        features: {
+          labRequest: {
+            mandateSpecimenType: 'a',
+          },
         },
       };
 
@@ -192,8 +196,10 @@ describe('Schemas', () => {
             enabled: false,
           },
         },
-        labs: {
-          mandateSpecimenType: false,
+        features: {
+          labRequest: {
+            mandateSpecimenType: false,
+          },
         },
         a: {
           b: {

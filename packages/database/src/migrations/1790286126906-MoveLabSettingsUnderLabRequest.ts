@@ -1,8 +1,8 @@
 import { QueryInterface } from 'sequelize';
 
 const MOVES = [
-  ['features.mandateSpecimenType', 'labs.mandateSpecimenType'],
-  ['features.onlyAllowLabPanels', 'labs.onlyAllowLabPanels'],
+  ['features.mandateSpecimenType', 'features.labRequest.mandateSpecimenType'],
+  ['features.onlyAllowLabPanels', 'features.labRequest.onlyAllowLabPanels'],
 ];
 
 export async function up(query: QueryInterface): Promise<void> {

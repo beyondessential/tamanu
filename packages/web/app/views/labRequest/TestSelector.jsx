@@ -255,7 +255,7 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   const { facilityId } = useAuth();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const onlyAllowLabPanels = getSetting(SETTING_KEYS.LAB_ONLY_ALLOW_PANELS);
+  const onlyAllowLabPanels = getSetting(SETTING_KEYS.FEATURE_ONLY_ALLOW_LAB_PANELS);
   const { values, setFieldValue, setValues } = useFormikContext();
 
   const labTestTypeIds = useMemo(() => values.labTestTypeIds ?? [], [values.labTestTypeIds]);

@@ -29,7 +29,7 @@ export const LabRequestMultiStepForm = ({
 }) => {
   const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
-  const mandateSpecimenType = getSetting(SETTING_KEYS.LAB_MANDATE_SPECIMEN_TYPE);
+  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
   const mandatePriority = getSetting('features.labRequest.priorityMandatory');
 
   const { currentUser } = useAuth();
