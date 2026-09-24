@@ -1,15 +1,15 @@
+import { DevSettings } from 'react-native';
+import { getFreeDiskStorage } from 'react-native-device-info';
+import { typeORMDriver } from 'react-native-quick-sqlite';
 import {
   type Connection,
   type ConnectionOptions,
   createConnection,
   getConnectionManager,
 } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite';
-import { DevSettings } from 'react-native';
-
+import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 import getCacheSizeKiB from './cacheSize';
 
 const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
@@ -35,20 +35,56 @@ const TEST_CONNECTION_CONFIG = {
 } as const;
 
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
+export const SPACE_RECLAIM_ATTEMPTED_AT_KEY = 'spaceReclaimLastAttemptedAt';
+
+const MEBIBYTE = 1_048_576;
 
 /** 1 day */
 const PLANNER_STATS_REFRESH_INTERVAL_MS = 86_400_000;
 
+/**
+ * 24 hours. Safe to retry if VACUUM fails (e.g. `SQLITE_FULL` killed by OS) but not worth retrying
+ * on every backgrounding.
+ */
+const SPACE_RECLAIM_RETRY_INTERVAL_MS = 86_400_000;
+
+/**
+ * A full VACUUM rewrites the whole file, so only bother when there’s going to be meaningful
+ * benefit: at least 64 MiB free, *and* at least {@link VACUUM_MIN_FREE_FRACTION} of the file.
+ */
+const VACUUM_MIN_FREE_BYTES = 64 * MEBIBYTE;
+const VACUUM_MIN_FREE_FRACTION = 0.1;
+
+/**
+ * VACUUM builds the compacted copy in a temp file, then copies it back under the rollback journal,
+ * so it can transiently need about twice the file size on disk. Leave some headroom on top of that.
+ */
+const VACUUM_DISK_HEADROOM_BYTES = 256 * MEBIBYTE;
+
+/** Pages to hand back to the filesystem per background event: bounded so it stays cheap. */
+const INCREMENTAL_VACUUM_MAX_PAGES = 4096;
+
+/** @see https://sqlite.org/pragma.html#pragma_auto_vacuum */
+const AUTO_VACUUM_NONE = 0;
+const AUTO_VACUUM_INCREMENTAL = 2;
+
 const getConnectionConfig = (): ConnectionOptions => {
   const isJest = process.env.JEST_WORKER_ID !== undefined;
-  if (isJest) {
-    return TEST_CONNECTION_CONFIG;
-  }
-  return CONNECTION_CONFIG;
+  return isJest ? TEST_CONNECTION_CONFIG : CONNECTION_CONFIG;
 };
 
+function formatMiB(bytes: number): string {
+  return `${(bytes / MEBIBYTE).toLocaleString('en-AU', { maximumFractionDigits: 1 })} MiB`;
+}
+
 class DatabaseHelper {
-  private isAnalyzing = false;
+  private isOptimizing = false;
+
+  /**
+   * Resolves when the currently running space reclamation (possibly a long VACUUM) finishes.
+   * `null` when none is running. Never rejects.
+   */
+  maintenanceInProgress: Promise<void> | null = null;
 
   client: Connection = null;
 
@@ -114,6 +150,7 @@ class DatabaseHelper {
   async createClient(): Promise<ConnectionOptions | void> {
     try {
       this.client = await createConnection(getConnectionConfig());
+      await this.setAutoVacuumForFreshDatabase();
       await this.forceSync();
     } catch (error) {
       if (error.name === 'AlreadyHasActiveConnectionError') {
@@ -124,6 +161,19 @@ class DatabaseHelper {
       }
     }
     await this.setDefaultPragma();
+  }
+
+  /**
+   * Only takes effect while the file has no tables yet, i.e. on a fresh install before the
+   * first-time-setup migration runs. On an existing database it’s a no-op until a VACUUM, which
+   * {@link requestSpaceReclaim} takes care of.
+   */
+  private async setAutoVacuumForFreshDatabase(): Promise<void> {
+    try {
+      await this.client.query('PRAGMA auto_vacuum = INCREMENTAL;');
+    } catch (e) {
+      console.error('Error setting auto_vacuum:', e);
+    }
   }
 
   async setDefaultPragma(): Promise<void> {
@@ -171,8 +221,8 @@ class DatabaseHelper {
    */
   async requestPragmaOptimize(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
-    if (this.isAnalyzing) return;
-    this.isAnalyzing = true;
+    if (this.isOptimizing) return;
+    this.isOptimizing = true;
     try {
       const fact = await this.models.LocalSystemFact.findOne({
         select: ['value'],
@@ -197,8 +247,121 @@ class DatabaseHelper {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);
     } finally {
-      this.isAnalyzing = false;
+      this.isOptimizing = false;
     }
+  }
+
+  private async readPragmaNumber<
+    T extends 'auto_vacuum' | 'freelist_count' | 'page_count' | 'page_size',
+  >(name: T): Promise<number> {
+    const [row] = await this.client.query<[Record<T, number>]>(`PRAGMA ${name};`);
+    return row[name];
+  }
+
+  /**
+   * Hands free pages in the main database back to the filesystem. Best-effort, never throws. Holds
+   * write lock for potentially minutes, so be intentional about when it gets run. (Ideally in
+   * background.)
+   *
+   * - Databases created before `auto_vacuum` was set (the overwhelming majority of installs) can
+   *   only shrink via a full VACUUM. That one-off VACUUM also switches them to INCREMENTAL, so it
+   *   only ever runs once per device, and only when there’s enough free space to be worth it and
+   *   enough disk to do it safely.
+   * - INCREMENTAL databases release a bounded number of pages per call via `incremental_vacuum`.
+   *
+   * Exposed as {@link maintenanceInProgress} so a sync starting mid-VACUUM can wait for it.
+   */
+  async requestSpaceReclaim(): Promise<void> {
+    // Prevent background → foreground → background cycle from causing overlapping calls
+    if (this.maintenanceInProgress !== null) return;
+    this.maintenanceInProgress = this.reclaimSpace();
+    try {
+      await this.maintenanceInProgress;
+    } finally {
+      this.maintenanceInProgress = null;
+    }
+  }
+
+  private async reclaimSpace(): Promise<void> {
+    try {
+      const autoVacuum = (await this.readPragmaNumber('auto_vacuum')) as 0 | 1 | 2;
+      switch (autoVacuum) {
+        case AUTO_VACUUM_NONE:
+          await this.fullVacuumIfWorthwhile();
+          break;
+        case AUTO_VACUUM_INCREMENTAL:
+          await this.incrementalVacuum();
+          break;
+        default:
+          // FULL: SQLite already truncates on every commit, nothing to do
+          break;
+      }
+    } catch (e) {
+      // Best-effort maintenance: not worth falling over some free pages
+      console.error('Error reclaiming database space:', e);
+    }
+  }
+
+  private async incrementalVacuum(): Promise<void> {
+    const freelistCount = await this.readPragmaNumber('freelist_count');
+    if (freelistCount === 0) return;
+    const pageSize = await this.readPragmaNumber('page_size');
+    const pagesToFree = Math.min(freelistCount, INCREMENTAL_VACUUM_MAX_PAGES);
+    const start = performance.now();
+    await this.client.query(`PRAGMA incremental_vacuum(${pagesToFree});`);
+    console.log(
+      `Incremental vacuum released ${formatMiB(pagesToFree * pageSize)} in ${performance.now() - start}ms (${freelistCount - pagesToFree} free pages remain)`,
+    );
+  }
+
+  private async fullVacuumIfWorthwhile(): Promise<void> {
+    const [pageSize, pageCount, freelistCount] = await Promise.all([
+      this.readPragmaNumber('page_size'),
+      this.readPragmaNumber('page_count'),
+      this.readPragmaNumber('freelist_count'),
+    ]);
+    const fileBytes = pageCount * pageSize;
+    const freeBytes = freelistCount * pageSize;
+    if (freeBytes < Math.max(VACUUM_MIN_FREE_BYTES, fileBytes * VACUUM_MIN_FREE_FRACTION)) return;
+
+    const fact = await this.models.LocalSystemFact.findOne({
+      select: ['value'],
+      where: { key: SPACE_RECLAIM_ATTEMPTED_AT_KEY },
+    });
+    const lastAttempt = Number.parseInt(fact?.value, 10);
+    if (
+      Number.isFinite(lastAttempt) &&
+      Date.now() - lastAttempt < SPACE_RECLAIM_RETRY_INTERVAL_MS
+    ) {
+      return;
+    }
+
+    const freeDiskBytes = await getFreeDiskStorage();
+    const requiredDiskBytes = 2 * fileBytes + VACUUM_DISK_HEADROOM_BYTES;
+    if (!Number.isFinite(freeDiskBytes) || freeDiskBytes < requiredDiskBytes) {
+      console.warn(
+        `Skipping VACUUM: ${formatMiB(freeBytes)} reclaimable but only ${formatMiB(freeDiskBytes)} free on disk (need ${formatMiB(requiredDiskBytes)})`,
+      );
+      return;
+    }
+
+    // Recorded up front so an attempt that doesn’t finish (SQLITE_FULL, or the OS killing the
+    // backgrounded app) still counts towards the back-off.
+    await this.models.LocalSystemFact.upsert(
+      { key: SPACE_RECLAIM_ATTEMPTED_AT_KEY, value: Date.now().toString() },
+      ['key'],
+    );
+
+    const start = performance.now();
+    console.log(`Starting VACUUM to reclaim ${formatMiB(freeBytes)} of ${formatMiB(fileBytes)}`);
+    // Setting auto_vacuum before VACUUM is the only way to change it on a populated database; from
+    // here on, space is handed back incrementally instead.
+    await this.client.query('PRAGMA auto_vacuum = INCREMENTAL;');
+    await this.client.query('VACUUM;');
+    const pageCountAfter = await this.readPragmaNumber('page_count');
+    console.log(
+      `VACUUM done in ${performance.now() - start}ms, reclaimed ${formatMiB((pageCount - pageCountAfter) * pageSize)}`,
+    );
   }
 
   // WARNING: These settings prioritize performance over data safety
