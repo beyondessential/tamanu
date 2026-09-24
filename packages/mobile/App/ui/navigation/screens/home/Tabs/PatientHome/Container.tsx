@@ -178,20 +178,23 @@ const PatientHomeContainer = ({
 
   const isFocused = useIsFocused();
   const [prevPatientId, setPrevPatientId] = useState<string | null>(null);
-  useEffect(() => {
-    if (!isFocused || !selectedPatient || prevPatientId === selectedPatient.id) return;
+  useEffect(
+    function showPatientWarningsAlert() {
+      if (!isFocused || !selectedPatient || prevPatientId === selectedPatient.id) return;
 
-    const warningNotes = patientIssues
-      ?.filter(pi => pi.type === PatientIssueType.Warning)
-      .map(pi => pi.note);
-    if (warningNotes === undefined || warningNotes.length === 0) return;
+      const warningNotes = patientIssues
+        ?.filter(pi => pi.type === PatientIssueType.Warning)
+        .map(pi => pi.note);
+      if (warningNotes === undefined || warningNotes.length === 0) return;
 
-    setPrevPatientId(selectedPatient.id);
-    Alert.alert(
-      getTranslation('patient.warning.title', 'Patient warnings'),
-      formatWarningsAsUnorderedList(warningNotes),
-    );
-  }, [getTranslation, isFocused, patientIssues, prevPatientId, selectedPatient]);
+      setPrevPatientId(selectedPatient.id);
+      Alert.alert(
+        getTranslation('patient.warning.title', 'Patient warnings'),
+        formatWarningsAsUnorderedList(warningNotes),
+      );
+    },
+    [getTranslation, isFocused, patientIssues, prevPatientId, selectedPatient],
+  );
 
   const patientModules = usePatientModules(navigation);
 
