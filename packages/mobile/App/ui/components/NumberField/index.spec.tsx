@@ -30,4 +30,24 @@ describe('<NumberField />', (): void => {
     await fireEvent.changeText(input, 'invalid value');
     expect(input.props.value).toBe('');
   });
+  it('should adopt a value changed by the parent', async (): Promise<void> => {
+    const { getByLabelText, rerender } = await render(
+      <BaseNumberFieldStory label={props.label} value="12" />,
+    );
+    const input = getByLabelText(props.label);
+    expect(input.props.value).toBe('12');
+    await fireEvent.changeText(input, newValue);
+    expect(input.props.value).toBe(newValue);
+    await rerender(<BaseNumberFieldStory label={props.label} value="" />);
+    expect(input.props.value).toBe('');
+  });
+  it('should keep partial input when the parent echoes the parsed number back', async (): Promise<void> => {
+    const { getByLabelText, rerender } = await render(
+      <BaseNumberFieldStory label={props.label} value="" />,
+    );
+    const input = getByLabelText(props.label);
+    await fireEvent.changeText(input, '1.');
+    await rerender(<BaseNumberFieldStory label={props.label} value={1} />);
+    expect(input.props.value).toBe('1.');
+  });
 });
