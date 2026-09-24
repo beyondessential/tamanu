@@ -196,7 +196,6 @@ const PatientHomeContainer = ({
   const patientModules = usePatientModules(navigation);
 
   if (patientIssuesError) return <ErrorScreen error={patientIssuesError} />;
-
   if (!selectedPatient) return null;
 
   return (
@@ -208,4 +207,5 @@ const PatientHomeContainer = ({
     />
   );
 };
+
 export const PatientHome = compose(withPatient)(PatientHomeContainer);
