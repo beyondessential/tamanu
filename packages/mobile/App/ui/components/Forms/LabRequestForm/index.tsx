@@ -36,9 +36,7 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.LabTestCategory,
-          },
+          where: { type: ReferenceDataType.LabTestCategory },
         },
       }),
     [models.ReferenceData],
@@ -48,9 +46,7 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.LabTestPriority,
-          },
+          where: { type: ReferenceDataType.LabTestPriority },
         },
       }),
     [models.ReferenceData],
@@ -60,9 +56,7 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.LabSampleSite,
-          },
+          where: { type: ReferenceDataType.LabSampleSite },
         },
       }),
     [models.ReferenceData],
@@ -72,9 +66,7 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.SpecimenType,
-          },
+          where: { type: ReferenceDataType.SpecimenType },
         },
       }),
     [models.ReferenceData],
