@@ -40,25 +40,7 @@ const isEquivalent = (
   return parseFloat(text) === Number(value);
 };
 
-export const NumberField = ({
-  autoFocus,
-  disabled,
-  error,
-  fieldFontSize,
-  hints,
-  isOpen,
-  label,
-  labelColor,
-  labelFontSize,
-  onBlur,
-  onChange,
-  onFocus,
-  placeholder,
-  required,
-  returnKeyType,
-  secure,
-  value,
-}: NumberFieldProps) => {
+export const NumberField = ({ onChange, value, ...props }: NumberFieldProps) => {
   const [typedText, setTypedText] = useState(() => toText(value));
   const [prevValue, setPrevValue] = useState(value);
   if (value !== prevValue) {
@@ -81,24 +63,10 @@ export const NumberField = ({
 
   return (
     <TextField
-      required={required}
-      label={label}
-      isOpen={isOpen}
-      placeholder={placeholder}
-      disabled={disabled}
-      secure={secure}
-      hints={hints}
-      returnKeyType={returnKeyType}
-      autoFocus={autoFocus}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      error={error}
-      value={typedText ?? ''}
-      onChange={onChangeNumber}
       keyboardType="numeric"
-      labelFontSize={labelFontSize}
-      labelColor={labelColor}
-      fieldFontSize={fieldFontSize}
+      onChange={onChangeNumber}
+      value={typedText ?? ''}
+      {...props}
     />
   );
 };
