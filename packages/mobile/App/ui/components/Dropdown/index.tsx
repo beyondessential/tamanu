@@ -111,9 +111,8 @@ export const Dropdown = React.memo(
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();
     const onSelectedItemsChange = useCallback(
-      items => {
-        onChange(multiselect ? JSON.stringify(items) : items[0]); // Form submits multiselect items as JSON array string OR single item as value string
-      },
+      /* Form submits multiselect items as JSON array string OR single item as value string*/
+      items => void onChange(multiselect ? JSON.stringify(items) : items[0]),
       [multiselect, onChange],
     );
     const filterable = options.length >= MIN_COUNT_FILTERABLE_BY_DEFAULT;
