@@ -9,12 +9,12 @@ interface LabTestTypesQueryParams {
   includeSensitive: boolean;
 }
 
-export default function useLabTestTypesQuery<TData = LabTestType[]>(
+export default function useLabTestTypesQuery(
   { labTestCategoryId, includeSensitive }: LabTestTypesQueryParams,
-  useQueryOptions: Omit<UseQueryOptions<LabTestType[], Error, TData>, 'queryKey' | 'queryFn'> = {},
+  useQueryOptions: Omit<UseQueryOptions<LabTestType[]>, 'queryKey' | 'queryFn'> = {},
 ) {
   const { enabled = true, ...rest } = useQueryOptions;
-  return useQuery({
+  return useQuery<LabTestType[]>({
     queryKey: referenceKeys.labTestTypes({ labTestCategoryId, includeSensitive }),
     queryFn: () =>
       Database.models.LabTestType.find({
