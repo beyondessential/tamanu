@@ -31,14 +31,11 @@ function toText(value: string | number | null | undefined): string | undefined {
   return isEmpty(value) ? undefined : value.toString();
 }
 
-const isEquivalent = (
-  text: string | undefined,
-  value: string | number | null | undefined,
-): boolean => {
+function isEquivalent(text: string | undefined, value: string | number | null | undefined) {
   if (isEmpty(value)) return isEmpty(text);
   if (isEmpty(text)) return false;
-  return parseFloat(text) === Number(value);
-};
+  return Number.parseFloat(text) === Number.parseFloat(value.toString());
+}
 
 export const NumberField = ({ onChange, value, ...props }: NumberFieldProps) => {
   const [typedText, setTypedText] = useState(() => toText(value));
