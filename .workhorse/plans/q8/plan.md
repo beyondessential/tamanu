@@ -23,7 +23,7 @@ The first sync still pulls from the beginning of the timeline and overwrites eve
 ## Who fetches it
 
 - **Wizard:** after minting the sync user, logs in as that sync user (proving the minted credentials end to end), fetches the bundle, then writes the setup facts and the bundle in one transaction under the existing setup advisory lock. Configured and bootstrapped can never diverge. The wizard then logs the admin in with the credentials they just entered.
-- **Sync process:** before a sync session, if the pull cursor is unset, fetches and applies the bundle. Covers env-configured servers (which never run the wizard) and a server whose wizard fetch was lost.
+- **Sync process:** before a sync session, if the pull cursor is unset, fetches and applies the bundle. Covers env-configured servers (which never run the wizard) and a server whose wizard fetch was lost. A failed bootstrap is logged and the session runs anyway: the bootstrap is a convenience and must never hold up the first sync.
 
 ### Concurrency
 
@@ -35,9 +35,9 @@ No "bootstrapped" marker is needed; the sync process re-fetching a small bundle 
 
 - The state is "configured, pull cursor unset". No new fact.
 - `/public/ping` reports it, alongside `setupRequired`.
-- Web: after login, and ahead of facility selection, a logged-in user sees a "We're setting things up" screen, polled until the first sync completes. Everyone is held there; there's nothing to let people into early.
+- Web: after login, and ahead of facility selection, a logged-in user sees the setting-up screen (reusing `StatusPage`), polled until the first sync completes, with a log out action. Everyone is held there; there's nothing to let people into early.
 - Because the screen is driven by server state, closing the wizard and coming back lands on the same screen.
 
-## Follow-up (separate card)
+## Follow-up
 
-Progress reporting: the sync process knows `totalToPull` and `totalPulled`, and would relay them to the API over the existing TCP connection, with the persist step after the pull reported separately. Then a progress bar and time expectations on the setting-up screen.
+Progress reporting on the setting-up screen is a separate card in the breakdown.
