@@ -101,7 +101,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
           <TranslatedReferenceData
             fallback={labTestType.name}
             value={labTestType.id}
-            category="labTestType"
+            category={ReferenceDataType.LabTestType}
           />
         ),
         value: false,
