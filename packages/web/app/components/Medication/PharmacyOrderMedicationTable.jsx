@@ -196,6 +196,7 @@ const getColumns = (
       },
     },
     {
+      // spec: PHORD
       key: COLUMN_KEYS.STOCK,
       title: <TranslatedText stringId="medication-requests.table.column.stockStatus" fallback="Stock" />,
       sortable: false,
