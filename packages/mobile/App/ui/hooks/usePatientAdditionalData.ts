@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { groupBy } from 'es-toolkit/compat';
 import { Database } from '~/infra/db';
+import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import type { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import type { PatientFieldValue } from '~/models/PatientFieldValue';
-import type { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { patientKeys } from './queries/queryKeys';
 
-export type CustomPatientFieldValues = {
+export interface CustomPatientFieldValues {
   [key: string]: PatientFieldValue[];
-};
+}
 
 const loadPatientAdditionalData = async (patientId: string) => {
   const { models } = Database;
@@ -17,6 +17,7 @@ const loadPatientAdditionalData = async (patientId: string) => {
       where: {
         patient: { id: patientId },
       },
+      relations: models.PatientAdditionalData.referenceDataRelations,
     }),
     models.PatientFieldDefinition.findVisible({
       relations: ['category'],

@@ -53,7 +53,7 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter?: string;
 
   @Index()
-  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
+  @ManyToOne(() => Patient, patient => patient.encounters)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)

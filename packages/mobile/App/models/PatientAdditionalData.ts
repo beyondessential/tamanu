@@ -1,3 +1,4 @@
+import { isEmpty, snakeCase } from 'es-toolkit/compat';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -7,16 +8,15 @@ import {
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
-import { isEmpty, snakeCase } from 'es-toolkit/compat';
-import { BaseModel, IdRelation } from './BaseModel';
-import type { IPatientAdditionalData } from '~/types';
-import { type ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { Patient } from './Patient';
-import { SYNC_DIRECTIONS } from './types';
-import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { Database } from '~/infra/db';
+import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
 import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
+import type { IPatientAdditionalData } from '~/types';
+import { BaseModel, IdRelation } from './BaseModel';
 import { Facility } from './Facility';
+import { Patient } from './Patient';
+import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 const METADATA_FIELDS = [
   'createdAt',
@@ -24,7 +24,8 @@ const METADATA_FIELDS = [
   'deletedAt',
   'updatedAtSyncTick',
   'updatedAtByField',
-];
+] as const;
+
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -146,6 +147,19 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   secondaryVillage?: ReferenceData;
   @IdRelation()
   secondaryVillageId?: string | null;
+
+  /**
+   * The patient details screen reads these reference data records by relation name (see
+   * getPadFieldData and getFieldData), so its loader joins them all. Every other reader wants the
+   * `*Id` columns only.
+   */
+  static get referenceDataRelations(): string[] {
+    return PatientAdditionalData.getRepository()
+      .metadata.relations.filter(
+        relation => relation.inverseEntityMetadata.target === ReferenceData,
+      )
+      .map(relation => relation.propertyName);
+  }
 
   @ManyToOne(() => Facility)
   healthCenter: Facility;
