@@ -110,7 +110,7 @@ export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (
       style={styles.flatList}
       data={data}
       keyExtractor={(item): string => item.key}
-      renderItem={({ item }): any => <MenuOptionButton {...item} />}
+      renderItem={({ item }) => <MenuOptionButton {...item} />}
       ItemSeparatorComponent={Separator}
     />
   </ThemeProvider>
