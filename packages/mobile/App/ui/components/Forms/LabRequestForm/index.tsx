@@ -1,4 +1,4 @@
-import React, { type ReactElement, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { LabTestType } from '~/models/LabTestType';
 import { ReferenceDataType } from '~/types';
 import { DateField } from '~/ui/components/DateField/DateField';
