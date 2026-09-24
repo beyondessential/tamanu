@@ -459,11 +459,6 @@ export const globalSettings = {
       exposedToWeb: true,
       exposedToPatientPortal: true,
       properties: {
-        mandateSpecimenType: {
-          description: 'Make specimen type a required field when creating a new lab request',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         enableAppointmentsExtentions: {
           description: 'Enable the appointment extensions feature',
           type: yup.boolean(),
@@ -543,11 +538,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
           highRisk: true,
-        },
-        onlyAllowLabPanels: {
-          description: 'Only allow lab tests to be created via panels and not individual tests',
-          type: yup.boolean(),
-          defaultValue: false,
         },
         displayProcedureCodesInDischargeSummary: {
           type: yup.boolean(),
@@ -730,6 +720,16 @@ export const globalSettings = {
         labRequest: {
           description: 'Lab request settings',
           properties: {
+            mandateSpecimenType: {
+              description: 'Make specimen type a required field when creating a new lab request',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            onlyAllowLabPanels: {
+              description: 'Only allow lab tests to be created via panels and not individual tests',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
             enableLabResultsPrintout: {
               name: 'Lab results printout',
               description:
