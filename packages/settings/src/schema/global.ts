@@ -459,11 +459,6 @@ export const globalSettings = {
       exposedToWeb: true,
       exposedToPatientPortal: true,
       properties: {
-        mandateSpecimenType: {
-          description: 'Make specimen type a required field when creating a new lab request',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         enableAppointmentsExtentions: {
           description: 'Enable the appointment extensions feature',
           type: yup.boolean(),
@@ -543,11 +538,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
           highRisk: true,
-        },
-        onlyAllowLabPanels: {
-          description: 'Only allow lab tests to be created via panels and not individual tests',
-          type: yup.boolean(),
-          defaultValue: false,
         },
         displayProcedureCodesInDischargeSummary: {
           type: yup.boolean(),
@@ -1468,6 +1458,23 @@ export const globalSettings = {
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
       editor: SETTING_EDITORS.OBJECT_LIST,
+    },
+    labs: {
+      name: 'Labs',
+      description: 'Settings related to lab requests',
+      exposedToWeb: true,
+      properties: {
+        mandateSpecimenType: {
+          description: 'Make specimen type a required field when creating a new lab request',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        onlyAllowLabPanels: {
+          description: 'Only allow lab tests to be created via panels and not individual tests',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',

@@ -131,7 +131,7 @@ export const SampleDetailsTable = ({
   const { getSetting } = useSettings();
   const { currentUser } = useAuth();
   const { values, setFieldValue } = useFormikContext();
-  const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
+  const mandateSpecimenType = getSetting(SETTING_KEYS.LAB_MANDATE_SPECIMEN_TYPE);
 
   const sampleDetails = values.sampleDetails ?? {};
 
