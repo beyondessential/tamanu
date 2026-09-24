@@ -1,2 +1,2 @@
 export { ActiveLabRequestsPage } from './ActiveLabRequestsPage';
-export { PublishedLabRequestsPage } from './PublishedLabRequestsPage';
+export { FinalisedLabRequestsPage } from './FinalisedLabRequestsPage';

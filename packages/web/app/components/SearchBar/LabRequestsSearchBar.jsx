@@ -45,7 +45,7 @@ const FacilityCheckbox = styled.div`
 export const LabRequestsSearchBar = ({ statuses }) => {
   const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
   const { searchParameters, setSearchParameters } = useLabRequest(
-    publishedStatus ? LabRequestSearchParamKeys.Published : LabRequestSearchParamKeys.All,
+    publishedStatus ? LabRequestSearchParamKeys.Finalised : LabRequestSearchParamKeys.All,
   );
 
   const advancedFields = publishedStatus ? PUBLISHED_ADVANCED_FIELDS : ALL_ADVANCED_FIELDS;
