@@ -92,10 +92,11 @@ const usePatientModules = navigation => {
 
 const usePatientMenuButtons = navigation => {
   const { ability } = useAuth();
-  const { getSetting } = useSettings();
   const canViewProgramRegistries =
     ability.can('list', 'PatientProgramRegistration') ||
     ability.can('create', 'PatientProgramRegistration');
+
+  const { getSetting } = useSettings();
   const config = getSetting<PatientModulesLayout>('layouts.mobilePatientModules');
 
   return useMemo(
