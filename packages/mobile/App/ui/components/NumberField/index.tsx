@@ -48,13 +48,13 @@ export const NumberField = ({ onChange, value, ...props }: NumberFieldProps) => 
   }
 
   const onChangeNumber = (next: string): void => {
-    const value = Number.parseFloat(next);
-    if (Number.isNaN(value)) {
+    const parsed = Number.parseFloat(next);
+    if (Number.isNaN(parsed)) {
       setTypedText(undefined);
       onChange?.('');
     } else {
       setTypedText(next);
-      onChange?.(value);
+      onChange?.(parsed);
     }
   };
 
