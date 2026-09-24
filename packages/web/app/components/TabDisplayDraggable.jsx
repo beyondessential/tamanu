@@ -30,6 +30,7 @@ const StyledTab = styled.div.attrs({ role: 'tab' })`
   padding-inline: 12px;
   position: relative;
 
+  // spec: ETABS
   // !important needed to override react-beautiful-dnd
   cursor: pointer !important;
 
