@@ -2024,7 +2024,7 @@ medication.delete(
 
 const notDispensedInputSchema = z
   .object({
-    notDispensedReasonId: z.string(),
+    notDispensedReasonId: z.string().min(1, { message: 'Not dispensed reason ID is required' }),
   })
   .strip();
 
