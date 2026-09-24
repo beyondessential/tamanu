@@ -1,5 +1,5 @@
-import { useFocusEffect, useIsFocused } from '@react-navigation/core';
-import React, { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/core';
+import React, { type ReactElement, useCallback, useMemo, useRef } from 'react';
 import { Alert, Platform, StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
@@ -176,24 +176,25 @@ const PatientHomeContainer = ({
     }, []),
   );
 
-  const isFocused = useIsFocused();
-  const [prevPatientId, setPrevPatientId] = useState<string | null>(null);
-  useEffect(
-    function showPatientWarningsAlert() {
-      if (!isFocused || !selectedPatient || prevPatientId === selectedPatient.id) return;
+  const lastAlertedPatientId = useRef<string | null>(null);
+  useFocusEffect(
+    useCallback(
+      function showPatientWarningsAlert() {
+        if (!selectedPatient || lastAlertedPatientId.current === selectedPatient.id) return;
 
-      const warningNotes = patientIssues
-        ?.filter(pi => pi.type === PatientIssueType.Warning)
-        .map(pi => pi.note);
-      if (warningNotes === undefined || warningNotes.length === 0) return;
+        const warningNotes = patientIssues
+          ?.filter(pi => pi.type === PatientIssueType.Warning)
+          .map(pi => pi.note);
+        if (warningNotes === undefined || warningNotes.length === 0) return;
 
-      setPrevPatientId(selectedPatient.id);
-      Alert.alert(
-        getTranslation('patient.warning.title', 'Patient warnings'),
-        formatWarningsAsUnorderedList(warningNotes),
-      );
-    },
-    [getTranslation, isFocused, patientIssues, prevPatientId, selectedPatient],
+        lastAlertedPatientId.current = selectedPatient.id;
+        Alert.alert(
+          getTranslation('patient.warning.title', 'Patient warnings'),
+          formatWarningsAsUnorderedList(warningNotes),
+        );
+      },
+      [getTranslation, patientIssues, selectedPatient],
+    ),
   );
 
   const patientModules = usePatientModules(navigation);
