@@ -1429,7 +1429,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
   });
 
   describe('edge cases', () => {
-    it("won't sync between facilities just because they are both sensitive", async () => {
+    it("won't sync between facilities just because they are both from different networks", async () => {
       // Two networks of one, which is what two unrelated sensitive facilities become.
       const sensitiveFacilityA = await models.Facility.create(
         fake(models.Facility, {
