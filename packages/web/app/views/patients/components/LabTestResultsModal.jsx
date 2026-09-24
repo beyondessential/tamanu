@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { getReferenceRange } from '@tamanu/utils/labTests';
 import {
   Alert,
   ConditionalTooltip,
@@ -32,6 +33,7 @@ import { BodyText } from '../../../components/Typography';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
+import { usePatient } from '../../../contexts/Patient';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 
 const TableContainer = styled.div`
@@ -177,7 +179,13 @@ const getValidationSchema = getTranslation =>
     resultsInterpretation: yup.string().nullable(),
   });
 
-const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly }) => {
+const getColumns = ({
+  labTestResults,
+  onChangeResult,
+  areLabTestResultsReadOnly,
+  sex,
+  getTranslation,
+}) => {
   const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
@@ -224,6 +232,16 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       width: '80px',
       accessor: row => (
         <BodyText data-testid="bodytext-uq3u">{row.labTestType.unit || 'N/A'}</BodyText>
+      ),
+    },
+    {
+      key: 'reference',
+      title: <TranslatedText stringId="lab.results.table.column.reference" fallback="Reference" />,
+      width: '120px',
+      accessor: row => (
+        <BodyText data-testid="bodytext-reference">
+          {getReferenceRange({ labTestType: row.labTestType, labTest: row, sex, getTranslation })}
+        </BodyText>
       ),
     },
     ...(showSecondaryResultColumn
@@ -346,6 +364,8 @@ const ResultsForm = ({
   areLabTestResultsReadOnly,
 }) => {
   const { getCurrentDateTime } = useDateTime();
+  const { getTranslation } = useTranslation();
+  const { patient } = usePatient();
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * In the case of labTestMethod this occurs in the case that:
@@ -377,8 +397,15 @@ const ResultsForm = ({
   );
 
   const columns = useMemo(
-    () => getColumns({ labTestResults, onChangeResult, areLabTestResultsReadOnly }),
-    [labTestResults, onChangeResult, areLabTestResultsReadOnly],
+    () =>
+      getColumns({
+        labTestResults,
+        onChangeResult,
+        areLabTestResultsReadOnly,
+        sex: patient?.sex,
+        getTranslation,
+      }),
+    [labTestResults, onChangeResult, areLabTestResultsReadOnly, patient?.sex, getTranslation],
   );
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
