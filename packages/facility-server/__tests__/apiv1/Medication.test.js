@@ -2157,6 +2157,31 @@ describe('Medication', () => {
       expect(result).toHaveStatus(404);
     });
 
+    it('returns 404 on a repeat call, since the request is already soft deleted', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const firstReason = await createNotDispensedReason();
+      const secondReason = await createNotDispensedReason();
+
+      const firstResult = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: firstReason.id });
+      expect(firstResult).toHaveSucceeded();
+
+      const secondResult = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: secondReason.id });
+      expect(secondResult).toHaveStatus(404);
+
+      // The original reason/notifier from the first call must not have been overwritten.
+      const reloaded = await models.PharmacyOrderPrescription.findByPk(
+        pharmacyOrderPrescription.id,
+        { paranoid: false },
+      );
+      expect(reloaded.notDispensedReasonId).toBe(firstReason.id);
+    });
+
     describe('permissions', () => {
       disableHardcodedPermissionsForSuite();
 
