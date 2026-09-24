@@ -89,7 +89,15 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
           fallback="Reason not dispensed"
         />
       ),
-      value: notDispensedReason?.name || '-',
+      value: notDispensedReason ? (
+        <TranslatedReferenceData
+          value={notDispensedReason.id}
+          fallback={notDispensedReason.name}
+          category="medicationNotDispensedReason"
+        />
+      ) : (
+        '-'
+      ),
     },
   ];
 
