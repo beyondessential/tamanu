@@ -1,4 +1,4 @@
-import { Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
 import { constructFacilityUrl } from '@utils/navigation';
 import { DispenseMedicationModal } from './DispenseMedicationModal';
@@ -39,11 +39,17 @@ export class MedicationRequestsPage extends BasePage {
 
   // Opens the row's actions kebab and picks "Not dispensed". The kebab shares a testid across
   // every row, so it is located scoped to that row rather than page-wide.
+  //
+  // The active requests table auto-refreshes, which re-renders the row and can close (detach)
+  // an open menu mid-click. Retrying the whole open-menu → click-item sequence rides out any
+  // refresh that lands between steps (see the same handling in MedicationDispensesPage).
   async openNotDispensed(patientDisplayId: string): Promise<NotDispensedMedicationModal> {
     const row = this.rowForPatient(patientDisplayId);
     await row.waitFor({ state: 'visible' });
-    await row.getByTestId('openbutton-d1ec').click();
-    await this.page.getByTestId('list-i0ae').getByText('Not dispensed').click();
+    await expect(async () => {
+      await row.getByTestId('openbutton-d1ec').click();
+      await this.page.getByTestId('list-i0ae').getByText('Not dispensed').click({ timeout: 5000 });
+    }).toPass({ timeout: 30000 });
     if (!this.notDispensedMedicationModal) {
       this.notDispensedMedicationModal = new NotDispensedMedicationModal(this.page);
     }
