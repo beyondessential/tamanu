@@ -2285,6 +2285,44 @@ describe('Medication', () => {
 
       expect(result).toHaveStatus(404);
     });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('rejects a user without read MedicationRequest permission', async () => {
+        const noPermsApp = await baseApp.asNewRole([]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+        await app
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+
+        const result = await noPermsApp.get(
+          `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+        );
+
+        expect(result).toBeForbidden();
+      });
+
+      it('allows a user with only read MedicationRequest permission', async () => {
+        const limitedApp = await baseApp.asNewRole([['read', 'MedicationRequest']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+        await app
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+
+        const result = await limitedApp.get(
+          `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+        );
+
+        expect(result).toHaveSucceeded();
+      });
+    });
   });
 
   describe('Approved column', () => {
