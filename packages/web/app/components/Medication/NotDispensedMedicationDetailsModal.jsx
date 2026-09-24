@@ -6,32 +6,13 @@ import { BaseModal, Button, TranslatedReferenceData, TranslatedText, useDateTime
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
+import { MedicationDetailsColumns } from './MedicationDetailsColumns';
 
 const Text = styled.div`
   font-size: 14px;
   line-height: 18px;
   color: ${Colors.darkestText};
   margin-bottom: 16px;
-`;
-
-const DetailsContainer = styled(Box)`
-  padding: 12px 20px;
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px;
-  background-color: ${Colors.white};
-`;
-
-const MidText = styled(Box)`
-  font-size: 14px;
-  line-height: 18px;
-  color: ${Colors.midText};
-`;
-
-const DarkestText = styled(Box)`
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: 500;
-  color: ${Colors.darkestText};
 `;
 
 const ActionRow = styled(Box)`
@@ -158,24 +139,7 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
           fallback="The below medication was marked as not dispensed."
         />
       </Text>
-      <DetailsContainer display="flex" justifyContent="space-between">
-        <Box flex={1.1}>
-          {leftDetails.map((detail, index) => (
-            <Box key={index} mb={index === leftDetails.length - 1 ? 0 : 2}>
-              <MidText>{detail.label}</MidText>
-              <DarkestText mt={0.5}>{detail.value}</DarkestText>
-            </Box>
-          ))}
-        </Box>
-        <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
-          {rightDetails.map((detail, index) => (
-            <Box key={index} mb={index === rightDetails.length - 1 ? 0 : 2}>
-              <MidText>{detail.label}</MidText>
-              <DarkestText mt={0.5}>{detail.value}</DarkestText>
-            </Box>
-          ))}
-        </Box>
-      </DetailsContainer>
+      <MedicationDetailsColumns leftDetails={leftDetails} rightDetails={rightDetails} />
       <ActionRow>
         <Button onClick={onClose}>
           <TranslatedText stringId="general.action.close" fallback="Close" />
