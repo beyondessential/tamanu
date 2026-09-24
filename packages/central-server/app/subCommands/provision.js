@@ -8,6 +8,7 @@ import { utils } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
+  OTHER_REFERENCE_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
   SETTINGS_SCOPES,
@@ -22,6 +23,7 @@ import {
   isEncryptedSecret,
 } from '@tamanu/shared/utils/crypto';
 import { normaliseSheetName } from '../admin/importer/importerEndpoint';
+import { SENSITIVE_NETWORK_IS_FIXED_MESSAGE } from '../admin/importSchemas/baseSchemas';
 import { programImporter } from '../admin/programImporter/programImporter';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
@@ -33,7 +35,12 @@ import { loadSettingFile } from '../utils/loadSettingFile';
  * Converts the json files in the defaultProvisioningData directory into an XLSX workbook
  * @returns {WorkBook}
  */
-const parseDefaultProvisioningJsonSheets = dir => {
+export const DEFAULT_PROVISIONING_DATA_DIRECTORY = resolve(
+  import.meta.dirname,
+  'defaultProvisioningData',
+);
+
+export const parseDefaultProvisioningJsonSheets = dir => {
   const entries = fs
     .readdirSync(dir)
     .filter(f => f.endsWith('.json5'))
@@ -97,14 +104,16 @@ const initialiseDatabaseWithRetry = async () => {
  * Validates that a reference data file contains all sheets importable through the reference data importer
  * @param {string} file - File path
  */
-function validateFullReferenceDataImport(workbook) {
+export function validateFullReferenceDataImport(workbook) {
   // 'user' has special logic and 'administeredVaccine' is a special case used for existing
   // deployments. Charging overlays are optional (absent = per-unit, the default), so a complete
-  // seed doesn't require charging data.
+  // seed doesn't require charging data. Sensitive networks only exist in a deployment that holds
+  // confidential data, so having none is the correct state rather than an incomplete seed.
   const EXCLUDED_FROM_FULL_IMPORT_CHECK = [
     'user',
     'administeredVaccine',
     PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING,
+    OTHER_REFERENCE_TYPES.SENSITIVE_NETWORK,
   ];
 
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
@@ -210,13 +219,12 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     ...rest
   } of referenceData ?? []) {
     if (isUsingDefaultSpreadsheet) {
-      const defaultProvisioningDataDirectory = resolve(import.meta.dirname, 'defaultProvisioningData');
       log.info('Using reference data json files from this branch', {
-        directory: defaultProvisioningDataDirectory,
+        directory: DEFAULT_PROVISIONING_DATA_DIRECTORY,
       });
 
       const defaultReferenceDataWorkbook = parseDefaultProvisioningJsonSheets(
-        defaultProvisioningDataDirectory,
+        DEFAULT_PROVISIONING_DATA_DIRECTORY,
       );
 
       // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
@@ -271,6 +279,15 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
 
     const facility = await store.models.Facility.findByPk(id);
     if (facility) {
+      // Absent means no instruction, as a blank cell does on the facility import sheet.
+      // spec: specs/sync/sensitive-networks.md
+      if (
+        fields.sensitiveNetworkId !== undefined &&
+        fields.sensitiveNetworkId !== facility.sensitiveNetworkId
+      ) {
+        throw new Error(`${SENSITIVE_NETWORK_IS_FIXED_MESSAGE} (facility ${id})`);
+      }
+
       log.info('Updating facility', { id });
       await facility.update(fields);
     } else {

@@ -8,8 +8,7 @@ A sensitive network is a named group of facilities that share confidential data.
 
 ## The network record
 
-- [ ] A sensitive network is identified by an id and carries a code and a name, both required.
-- [ ] Two networks may carry the same code and the same name. A network made for an existing sensitive facility takes that facility's code and name, and facilities are themselves distinct only by id, so networks are too. The id is a readable string chosen by whoever defines the network, as every other reference record's is.
+- [ ] A sensitive network is identified by an id and carries a code and a name, both required and each unique across networks. The id is a readable string chosen by whoever defines the network, as every other reference record's is.
 - [ ] Networks are reference data, defined on the central server and pulled down to facility servers and mobile devices. They are never pushed upwards.
 - [ ] Networks carry the record lifecycle fields every synced Tamanu record has: creation and update timestamps, soft deletion, and a sync tick.
 - [ ] Deleting a network that has member facilities is refused. Deletion would otherwise leave those facilities pointing at a deleted network, and either they stay sensitive with nothing to name them or they turn ordinary and begin syncing confidential data everywhere.
@@ -34,6 +33,29 @@ network boundary no longer describes.
 - [ ] A facility cannot be removed from its network. Un-networking a facility means wiping its local data and resyncing it from scratch.
 - [ ] A facility cannot be moved from one network to another, whether or not it is the sole member of its current network.
 - [ ] A facility joining an existing network is therefore always a new facility, which holds no history of its own. It receives what the network recorded before it was created, so the members it joins have nothing to pull from it.
+- [ ] A deleted facility is an existing facility, so restoring one cannot enrol it in a network. It returns with the membership it had when it was deleted.
+
+### Refusing a membership change
+
+- [ ] A membership change is refused on both paths that write a facility: the reference data import and provisioning. Nothing else in the application writes one.
+- [ ] Incoming sync is not one of those paths and is never refused. A facility server applies whatever membership central sends, because central is where the rule is enforced and a migration there can legitimately change membership.
+- [ ] A refusal names the facility and states that only a new facility can be enrolled in a network.
+
+## Administering networks
+
+Networks and facility membership are defined through the reference data import, alongside every other reference data type.
+
+- [ ] Networks are imported from a sheet of their own, each row carrying the network's id, code and name.
+- [ ] A facility's network is set from a column on the facility sheet holding the id of the network the facility belongs to.
+- [ ] The reference data export writes networks to the same sheet and facilities with the same network column, so a deployment can export its reference data, edit it, and import it back with every facility's membership intact.
+- [ ] A single file can define a network and create the facilities that belong to it, because networks are imported ahead of the facilities that reference them.
+- [ ] A facility row that leaves the network column empty leaves that facility's membership as it stands. An empty cell is an absence of instruction, not an instruction to remove the facility from its network.
+- [ ] A facility row naming a network that does not exist fails on that row.
+- [ ] Importing a network again under its own id changes its code and name. Both are labels, and changing them moves no data.
+- [ ] Importing networks is permission-checked as its own reference data type.
+- [ ] An import that would change a facility's network fails on that row, and the import as a whole is abandoned, so a file that changes one facility's network imports none of its other rows either.
+- [ ] Validating a file without importing it reports the same failure, so the refusal is visible before anything is written.
+- [ ] A deployment with no confidential data defines no networks, so a reference data file is complete without a network sheet.
 
 ## Facility access for users
 
@@ -72,7 +94,7 @@ Facilities previously marked sensitive were isolated from each other as well as 
 
 - [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
 - [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import, and an id derived from that facility's id.
-- [ ] Two sensitive facilities that share a code and a name each still get their own network, both carrying that code and name.
+- [ ] Facility codes and names are not unique, so where two of those facilities share one, the network's is qualified to keep it distinct from its sibling's.
 - [ ] Their lookup rows carry that network in place of the facility, so a facility later created into one of those networks receives the confidential data recorded before it existed.
 - [ ] Only the lookup rows scoped to a facility that belongs to a network are rescoped. A deployment with no networked facility rescopes nothing.
 - [ ] Rows scoped to a facility deleted while it was sensitive keep their facility, because that facility has no network to move them to. They reach no facility, as they did before.

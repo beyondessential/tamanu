@@ -15,6 +15,9 @@ import {
   waitForSession,
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
+// Relative because @tamanu/upgrade only exports its root, and the root pulls in the whole
+// step runner.
+import { STEPS } from '../../../upgrade/src/steps/1789695736431-fijiSrhSensitiveNetwork.js';
 
 describe('CentralSyncManager Sensitive Facilities', () => {
   let ctx;
@@ -992,7 +995,10 @@ describe('CentralSyncManager Sensitive Facilities', () => {
             type: NOTIFICATION_TYPES.IMAGING_REQUEST,
             patientId: patient.id,
             userId: practitioner.id,
-            metadata: { id: 'non-sensitive-imaging-request', encounterId: nonSensitiveEncounter.id },
+            metadata: {
+              id: 'non-sensitive-imaging-request',
+              encounterId: nonSensitiveEncounter.id,
+            },
           }),
         );
 
@@ -1103,9 +1109,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
   describe('sharing within a network', () => {
     // A facility plus the location, department and encounter needed to record something at it.
     const createFacilityWithEncounter = async sensitiveNetworkId => {
-      const facility = await models.Facility.create(
-        fake(models.Facility, { sensitiveNetworkId }),
-      );
+      const facility = await models.Facility.create(fake(models.Facility, { sensitiveNetworkId }));
       const location = await models.Location.create(
         fake(models.Location, { facilityId: facility.id }),
       );
@@ -1168,10 +1172,12 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
 
     it('syncs to a session covering several facilities everything scoped to any of their networks', async () => {
-      const { facility: memberA, encounter: encounterA } =
-        await createFacilityWithEncounter(await createNetworkId());
-      const { facility: memberB, encounter: encounterB } =
-        await createFacilityWithEncounter(await createNetworkId());
+      const { facility: memberA, encounter: encounterA } = await createFacilityWithEncounter(
+        await createNetworkId(),
+      );
+      const { facility: memberB, encounter: encounterB } = await createFacilityWithEncounter(
+        await createNetworkId(),
+      );
       const { encounter: otherNetworkEncounter } = await createFacilityWithEncounter(
         await createNetworkId(),
       );
@@ -1254,8 +1260,176 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
   });
 
+  // The import and provisioning both refuse a membership change, so the only way a facility moves
+  // network in production is this upgrade step's raw SQL. That makes it the one reachable path for the two
+  // behaviours a network change turns on: historical lookup rows following the facility to its new
+  // network, and those rows flowing again to a facility that has already pulled past them. The
+  // step's own test mocks sequelize, so it asserts SQL text rather than either of these.
+  // The import and provisioning both refuse a membership change, so the only way a facility moves
+  // network in production is this upgrade step's raw SQL. That makes it the one reachable path for
+  // the two behaviours a shared network turns on: historical lookup rows carrying the network, and
+  // those rows flowing to a facility that has already pulled past them.
+  describe('the Fiji SRH upgrade step', () => {
+    const FIJI_SRH_FACILITY_IDS = ['facility-SRHCentral', 'facility-SRHWestern', 'facility-SRHNorthern'];
+    const FIJI_SRH_NETWORK_ID = 'sensitiveNetwork-srh';
+
+    // The step runs mid-upgrade, between the migration that adds the network columns and the one
+    // that drops is_sensitive, so it is the last thing that can still read that column. The test
+    // database is fully migrated and no longer has it, hence putting it back for these cases.
+    beforeAll(async () => {
+      await ctx.store.sequelize.query(
+        `ALTER TABLE facilities ADD COLUMN IF NOT EXISTS is_sensitive BOOLEAN NOT NULL DEFAULT FALSE;`,
+      );
+    });
+
+    afterAll(async () => {
+      await ctx.store.sequelize.query(`ALTER TABLE facilities DROP COLUMN IF EXISTS is_sensitive;`);
+    });
+
+    // Pre-upgrade: sensitive, but no network yet — the state the ordinary backfill would turn into
+    // a network of one, and that the Fiji path claims instead.
+    const createFijiSrhFacility = async id => {
+      const facility = await models.Facility.create(
+        fake(models.Facility, { id, sensitiveNetworkId: null }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { facilityId: facility.id }),
+      );
+      const department = await models.Department.create(
+        fake(models.Department, { facilityId: facility.id }),
+      );
+      const encounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+        examinerId: practitioner.id,
+        endDate: null,
+      });
+      return { facility, encounter };
+    };
+
+    // The shape the old facility-based population left behind: rows pinned to the facility that
+    // recorded them. Current population writes networks, so a test has to put it back.
+    const pinLookupRowsToFacility = async facilityId =>
+      ctx.store.sequelize.query(
+        `UPDATE sync_lookup SET facility_id = :facilityId, sensitive_network_id = NULL
+         WHERE record_id IN (
+           SELECT id FROM encounters
+           WHERE location_id IN (SELECT id FROM locations WHERE facility_id = :facilityId)
+         );`,
+        { replacements: { facilityId } },
+      );
+
+    const buildLookup = async facilityIds => {
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+      for (const facilityId of facilityIds) await pinLookupRowsToFacility(facilityId);
+      return centralSyncManager;
+    };
+
+    const runFijiSrhStep = async () => {
+      const [fijiSrhStep] = STEPS;
+      await fijiSrhStep.run({
+        sequelize: ctx.store.sequelize,
+        models,
+        log: { info: () => {}, debug: () => {}, warn: () => {} },
+      });
+    };
+
+    const pullEncounterIds = async (centralSyncManager, facilityIds, since = 1) => {
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+      await centralSyncManager.setupSnapshotForPull(sessionId, { since, facilityIds }, () => true);
+      const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+      return outgoingChanges.filter(c => c.recordType === 'encounters').map(c => c.recordId);
+    };
+
+    it('puts all three facilities into one network', async () => {
+      for (const id of FIJI_SRH_FACILITY_IDS) await createFijiSrhFacility(id);
+
+      await runFijiSrhStep();
+
+      for (const id of FIJI_SRH_FACILITY_IDS) {
+        const facility = await models.Facility.findByPk(id);
+        expect(facility.sensitiveNetworkId).toBe(FIJI_SRH_NETWORK_ID);
+      }
+    });
+
+    it('moves the historical lookup rows onto that network', async () => {
+      const central = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[0]);
+      await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[1]);
+      await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[2]);
+      await buildLookup(FIJI_SRH_FACILITY_IDS);
+
+      await runFijiSrhStep();
+
+      const lookupRow = await models.SyncLookup.findOne({
+        where: { recordId: central.encounter.id },
+      });
+      expect(lookupRow.sensitiveNetworkId).toBe(FIJI_SRH_NETWORK_ID);
+      expect(lookupRow.facilityId).toBeNull();
+    });
+
+    it("gives each facility its new siblings' history", async () => {
+      const central = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[0]);
+      const western = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[1]);
+      await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[2]);
+      const centralSyncManager = await buildLookup(FIJI_SRH_FACILITY_IDS);
+
+      // isolated beforehand, which is what the ordinary path would have preserved
+      expect(await pullEncounterIds(centralSyncManager, [western.facility.id])).not.toContain(
+        central.encounter.id,
+      );
+
+      await runFijiSrhStep();
+
+      expect(await pullEncounterIds(centralSyncManager, [western.facility.id])).toContain(
+        central.encounter.id,
+      );
+    });
+
+    it('re-queues the rows for a facility that has already pulled past them', async () => {
+      // Rescoping alone leaves every row at the tick it was built with, so a facility that has
+      // already synced would never ask for it again and the change would appear to do nothing.
+      // The fresh tick is what makes the history actually arrive.
+      const central = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[0]);
+      const western = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[1]);
+      await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[2]);
+      const centralSyncManager = await buildLookup(FIJI_SRH_FACILITY_IDS);
+
+      const { updatedAtSyncTick: tickAlreadyPulled } = await models.SyncLookup.findOne({
+        where: { recordId: central.encounter.id },
+      });
+
+      await runFijiSrhStep();
+
+      const encounterIds = await pullEncounterIds(
+        centralSyncManager,
+        [western.facility.id],
+        Number(tickAlreadyPulled),
+      );
+      expect(encounterIds).toContain(central.encounter.id);
+    });
+
+    it('fails rather than enrolling into a network that already holds the id', async () => {
+      // An existing SRH network means the deployment is not in the state this was written for, and
+      // enrolling the facilities into it would put them somewhere this step never described.
+      await models.SensitiveNetwork.create(
+        fake(models.SensitiveNetwork, { id: FIJI_SRH_NETWORK_ID, code: 'SRH', name: 'SRH' }),
+      );
+      for (const id of FIJI_SRH_FACILITY_IDS) await createFijiSrhFacility(id);
+
+      await expect(runFijiSrhStep()).rejects.toThrow();
+
+      // the transaction takes the half-done enrolment with it
+      const northern = await models.Facility.findByPk(FIJI_SRH_FACILITY_IDS[2]);
+      expect(northern.sensitiveNetworkId).toBeNull();
+    });
+  });
+
   describe('edge cases', () => {
-    it("won't sync between facilities just because they are both sensitive", async () => {
+    it("won't sync between facilities just because they are both from different networks", async () => {
       // Two networks of one, which is what two unrelated sensitive facilities become.
       const sensitiveFacilityA = await models.Facility.create(
         fake(models.Facility, {
@@ -1326,108 +1500,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
       expect(encounterIds).toContain(sensitiveEncounterA.id);
       expect(encounterIds).not.toContain(sensitiveEncounterB.id);
-    });
-
-    it('will keep historical sensitive data unsynced to other facilities when a facility changes from sensitive to non-sensitive, until the data is edited', async () => {
-      // Create a facility that starts as sensitive
-      const facility = await models.Facility.create(
-        fake(models.Facility, { sensitiveNetworkId: await createNetworkId() }),
-      );
-      const department = await models.Department.create(
-        fake(models.Department, { facilityId: facility.id }),
-      );
-      const location = await models.Location.create(
-        fake(models.Location, { facilityId: facility.id }),
-      );
-
-      // Create encounter while facility is sensitive
-      const encounter = await models.Encounter.create({
-        ...fake(models.Encounter),
-        patientId: patient.id,
-        locationId: location.id,
-        departmentId: department.id,
-        examinerId: practitioner.id,
-        endDate: null,
-      });
-
-      // Initialize sync manager and update lookup table to capture the sensitive state
-      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
-      await centralSyncManager.updateLookupTable();
-
-      // Change facility to non-sensitive and update lookup table
-      await facility.update({ sensitiveNetworkId: null });
-      await centralSyncManager.updateLookupTable();
-
-      // Check that the historical sensitive data is still unsynced to the non-sensitive facility
-      const beforeEditEncounterIds = await getOutgoingIdsForRecordType(
-        centralSyncManager,
-        nonSensitiveFacility.id,
-        'encounters',
-      );
-      expect(beforeEditEncounterIds).not.toContain(encounter.id);
-
-      // Edit the encounter to trigger a new sync
-      await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
-      await centralSyncManager.updateLookupTable();
-
-      // Check that the new encounter changes are synced to the non-sensitive facility
-      const updatedEncounterIds = await getOutgoingIdsForRecordType(
-        centralSyncManager,
-        nonSensitiveFacility.id,
-        'encounters',
-      );
-      expect(updatedEncounterIds).toContain(encounter.id);
-    });
-
-    it('will keep historical non-sensitive data synced to other facilities when a facility changes to sensitive, but stop syncing new changes', async () => {
-      // Create a facility that starts as non-sensitive
-      const facility = await models.Facility.create(
-        fake(models.Facility, { sensitiveNetworkId: null }),
-      );
-      const department = await models.Department.create(
-        fake(models.Department, { facilityId: facility.id }),
-      );
-      const location = await models.Location.create(
-        fake(models.Location, { facilityId: facility.id }),
-      );
-
-      // Create encounter while facility is non-sensitive
-      const encounter = await models.Encounter.create({
-        ...fake(models.Encounter),
-        patientId: patient.id,
-        locationId: location.id,
-        departmentId: department.id,
-        examinerId: practitioner.id,
-        endDate: null,
-      });
-
-      // Initialize sync manager and update lookup table to capture the non-sensitive state
-      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
-      await centralSyncManager.updateLookupTable();
-
-      // Change facility to sensitive and update lookup table
-      await facility.update({ sensitiveNetworkId: await createNetworkId() });
-      await centralSyncManager.updateLookupTable();
-
-      // Check that the historical non-sensitive data is still synced to the non-sensitive facility
-      const beforeEditEncounterIds = await getOutgoingIdsForRecordType(
-        centralSyncManager,
-        nonSensitiveFacility.id,
-        'encounters',
-      );
-      expect(beforeEditEncounterIds).toContain(encounter.id);
-
-      // Edit the encounter to trigger a new sync
-      await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
-      await centralSyncManager.updateLookupTable();
-
-      // Check that the new encounter changes are not synced to the non-sensitive facility
-      const updatedEncounterIds = await getOutgoingIdsForRecordType(
-        centralSyncManager,
-        nonSensitiveFacility.id,
-        'encounters',
-      );
-      expect(updatedEncounterIds).not.toContain(encounter.id);
     });
 
     it('will not sync prescriptions linked through patient_ongoing_prescriptions from a sensitive facility', async () => {

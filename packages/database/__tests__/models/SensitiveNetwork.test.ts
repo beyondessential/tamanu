@@ -61,17 +61,6 @@ describe('SensitiveNetwork', () => {
       expect(await models.SensitiveNetwork.findByPk(network.id)).toBeNull();
     });
 
-    it('deletes a network left empty by its only member moving elsewhere', async () => {
-      const emptied = await createNetwork();
-      const destination = await createNetwork();
-      const facility = await createFacility(emptied.id);
-
-      await facility.update({ sensitiveNetworkId: destination.id });
-      await emptied.destroy();
-
-      expect(await models.SensitiveNetwork.findByPk(emptied.id)).toBeNull();
-    });
-
     // The generic beforeDestroy hook cascades a soft delete to a model's HasMany targets, which is
     // why SensitiveNetwork declares none. If that ever regresses, the refused delete would take the
     // member with it.
@@ -111,19 +100,19 @@ describe('SensitiveNetwork', () => {
     });
   });
 
-  describe('labels', () => {
-    // Networks take the code and name of the facility they were made for, and two facilities can
-    // share both. Constraining either here would fail the upgrade partway through on a deployment
-    // that has such a pair.
-    it('allows two networks to share a code and a name', async () => {
+  describe('uniqueness', () => {
+    it('refuses a second network with the same code', async () => {
       const existing = await createNetwork();
-      const twin = await models.SensitiveNetwork.create(
-        fake(models.SensitiveNetwork, { code: existing.code, name: existing.name }),
-      );
+      await expect(
+        models.SensitiveNetwork.create(fake(models.SensitiveNetwork, { code: existing.code })),
+      ).rejects.toThrow();
+    });
 
-      expect(twin.id).not.toBe(existing.id);
-      expect(twin.code).toBe(existing.code);
-      expect(twin.name).toBe(existing.name);
+    it('refuses a second network with the same name', async () => {
+      const existing = await createNetwork();
+      await expect(
+        models.SensitiveNetwork.create(fake(models.SensitiveNetwork, { name: existing.name })),
+      ).rejects.toThrow();
     });
   });
 });

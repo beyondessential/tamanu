@@ -124,6 +124,49 @@ export const User = Base.shape({
     .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
 });
 
+// code and name are unique constraints on sensitive_networks (migration 1789695736424). Without a
+// check here a duplicate reaches Postgres as a raw unique violation, and because the import is one
+// transaction with no savepoints that aborts everything after it: the remaining rows fail with
+// "current transaction is aborted" and the row actually at fault is buried. Failing validation
+// instead keeps the row out of the upsert, as sensitive-network-exists does for the foreign key.
+//
+// Only against what is already stored. Two rows of the same sheet duplicating each other is not
+// caught here — a schema sees one row at a time, and the upsert runs as a second pass after every
+// row has validated, so neither this nor the database can see the earlier row yet. That case still
+// reaches Postgres.
+// Matched as text by tests that cannot import from the model layer.
+export const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
+
+const sensitiveNetworkLabelIsUnique = field =>
+  async function isUnique(value, { parent, path, createError, options }) {
+    if (!value) return true;
+
+    // paranoid: false because the constraint spans deleted rows too, so a soft-deleted network
+    // still holds its code and name against a new one.
+    const existing = await options.context.models.SensitiveNetwork.findOne({
+      where: { [field]: value },
+      paranoid: false,
+    });
+    if (existing && existing.id !== parent.id) {
+      return createError({
+        path,
+        message: `${path} is already used by network ${existing.id}: ${value}`,
+      });
+    }
+
+    return true;
+  };
+
+export const SensitiveNetwork = Base.shape({
+  code: fieldTypes.code
+    .required()
+    .test('sensitive-network-code-unique', sensitiveNetworkLabelIsUnique('code')),
+  name: fieldTypes.name
+    .required()
+    .test('sensitive-network-name-unique', sensitiveNetworkLabelIsUnique('name')),
+});
+
 export const Facility = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
@@ -134,6 +177,51 @@ export const Facility = Base.shape({
   division: yup.string(),
   type: yup.string(),
   visibilityStatus,
+  // An empty cell means "no instruction", not "remove this facility from its network". The key has
+  // to be absent from the cast output for that to hold, because importRows normalises undefined to
+  // null and writes it. A blank cell is already absent (sheet_to_json is called without defval),
+  // but an explicit empty string survives as '', so transform it back to undefined. Deliberately no
+  // default, for the same reason.
+  sensitiveNetworkId: yup
+    .string()
+    .transform(value => (value === '' ? undefined : value))
+    // This column is not resolved through FOREIGN_KEY_SCHEMATA, so without a check here an unknown
+    // id reaches Postgres as a foreign key violation. That aborts the whole import transaction, so
+    // every row after it fails with "current transaction is aborted" and the row actually at fault
+    // is buried. Failing validation instead keeps the row out of the upsert entirely.
+    .test('sensitive-network-exists', async (value, { options, createError, path }) => {
+      if (!value) return true;
+
+      // Networks import ahead of facilities, so one defined in the same file is already present.
+      // Soft-deleted networks don't count: the foreign key would accept one, but a facility must
+      // not be enrolled into a network that no longer exists.
+      const { models } = options.context;
+      if (await models.SensitiveNetwork.findByPk(value)) return true;
+
+      return createError({
+        path,
+        message: `${path} refers to a network that does not exist: ${value}`,
+      });
+    })
+    // The import and provisioning are the only things that write a facility, so the rule lives on
+    // both rather than on the model: a model validator only catches a change on a loaded instance,
+    // and incoming sync bulk-updates, which must stay exempt.
+    // spec: specs/sync/sensitive-networks.md
+    .test('sensitive-network-is-fixed', async (value, { parent, path, createError, options }) => {
+      if (!value) return true;
+
+      // paranoid: false because a soft-deleted facility is still an existing facility: restoring
+      // one returns it with the membership it had, it does not enrol it.
+      const existing = await options.context.models.Facility.findByPk(parent.id, {
+        paranoid: false,
+      });
+      if (!existing || existing.sensitiveNetworkId === value) return true;
+
+      return createError({
+        path,
+        message: `${SENSITIVE_NETWORK_IS_FIXED_MESSAGE} (facility ${existing.code ?? parent.id})`,
+      });
+    }),
 });
 
 export const Department = Base.shape({
