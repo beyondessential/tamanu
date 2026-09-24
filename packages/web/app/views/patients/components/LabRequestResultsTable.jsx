@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
-import { getLabTestValidationCriteria } from '@tamanu/utils/labTests';
+import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
 import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
@@ -179,6 +179,24 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         accessor: ({ labTestType }) =>
           labTestType?.unit ||
           getTranslation('general.fallback.notApplicable', 'N/A', { casing: 'lower' }),
+        sortable: false,
+      },
+      {
+        title: (
+          <TranslatedText
+            stringId="lab.results.table.column.reference"
+            fallback="Reference"
+            data-testid="translatedtext-840i"
+          />
+        ),
+        key: 'reference',
+        accessor: row =>
+          getReferenceRange({
+            labTestType: row.labTestType,
+            labTest: row,
+            sex: patient.sex,
+            getTranslation,
+          }),
         sortable: false,
       },
       {
