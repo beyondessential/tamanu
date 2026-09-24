@@ -116,6 +116,7 @@ describe('Medication', () => {
         prescriptionId: prescription.id,
         quantity: 10,
         repeats,
+        isCompleted: false,
       }),
       id: crypto.randomUUID(),
     });
@@ -140,6 +141,7 @@ describe('Medication', () => {
         prescriptionId: prescription.id,
         quantity: 10,
         repeats: 1,
+        isCompleted: false,
       }),
       id: crypto.randomUUID(),
     });
