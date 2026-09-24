@@ -1,5 +1,4 @@
 import { NavigationContainer, type NavigationContainerRef } from '@react-navigation/native';
-import { Root } from 'popup-ui';
 import React, { type ReactElement } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -21,27 +20,25 @@ export const RootStack = (): ReactElement => {
   return (
     <GestureHandlerRootView style={gestureHandlerRootViewStyle}>
       <SafeAreaProvider>
-        <Root>
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-              <NavigationContainer ref={navigationRef}>
-                <LocalisationProvider>
-                  <TranslationProvider>
-                    <AuthProvider navRef={navigationRef}>
-                      <SettingsProvider>
-                        <FacilityProvider>
-                          <DetectIdleLayer>
-                            <Core />
-                          </DetectIdleLayer>
-                        </FacilityProvider>
-                      </SettingsProvider>
-                    </AuthProvider>
-                  </TranslationProvider>
-                </LocalisationProvider>
-              </NavigationContainer>
-            </PersistGate>
-          </Provider>
-        </Root>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <NavigationContainer ref={navigationRef}>
+              <LocalisationProvider>
+                <TranslationProvider>
+                  <AuthProvider navRef={navigationRef}>
+                    <SettingsProvider>
+                      <FacilityProvider>
+                        <DetectIdleLayer>
+                          <Core />
+                        </DetectIdleLayer>
+                      </FacilityProvider>
+                    </SettingsProvider>
+                  </AuthProvider>
+                </TranslationProvider>
+              </LocalisationProvider>
+            </NavigationContainer>
+          </PersistGate>
+        </Provider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

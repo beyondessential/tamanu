@@ -45,7 +45,6 @@
     "mathjs": "^12.1.0",
     "mitt": "^2.1.0",
     "nanoid": "^3.3.8",
-    "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "19.2.3",
     "react-native": "0.85.3",

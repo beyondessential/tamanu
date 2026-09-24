@@ -1,71 +1,28 @@
-import React, { type ReactElement, useCallback, useEffect, useMemo } from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/core';
+import React, { type ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, Platform, StatusBar } from 'react-native';
 import { compose } from 'redux';
-import { useFocusEffect } from '@react-navigation/core';
-import { Popup } from 'popup-ui';
-import { type IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
-// Components
-import * as Icons from '/components/Icons';
-import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
-import { Screen } from './Screen';
-// Helpers
-import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
-// Containers
-import { withPatient } from '/containers/Patient';
-import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { PatientFromRoute } from '~/ui/helpers/constants';
 import { useSettings } from '~/ui/contexts/SettingsContext';
-
-interface IPopup {
-  title: string;
-  textBody: string;
-}
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { PatientFromRoute } from '~/ui/helpers/constants';
+import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
+import { Screen } from './Screen';
+import * as Icons from '/components/Icons';
+import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
+import { theme } from '/styled/theme';
+import { PatientIssueType } from '/types/IPatientIssue';
 
 // TODO: declare this
 type PatientModule = {};
 
-const showPopupChain = (popups: IPopup[]): void => {
-  if (popups.length === 0) return;
-  const [currentPopup, ...restOfChain] = popups;
-  const { title, textBody } = currentPopup;
-
-  Popup.show({
-    type: 'Warning',
-    title,
-    textBody,
-    callback: () => {
-      if (restOfChain.length > 0) {
-        showPopupChain(restOfChain);
-      } else {
-        Popup.hide();
-      }
-    },
-  });
-};
-
-const formatNoteToPopup = (note: string): IPopup => {
-  const [firstPart, secondPart] = note.split(/:(.+)/);
-  return secondPart
-    ? {
-        title: firstPart,
-        textBody: secondPart,
-      }
-    : {
-        title: '',
-        textBody: firstPart,
-      };
-};
-
-const showPatientWarningPopups = (issues: Pick<IPatientIssue, 'type' | 'note'>[]): void =>
-  showPopupChain(
-    issues
-      .filter(({ type }) => type === PatientIssueType.Warning)
-      .map(({ note }) => formatNoteToPopup(note)),
-  );
+function formatWarningsAsUnorderedList(notes: string[]): string {
+  return notes.map(note => `• ${note}`).join('\n');
+}
 
 const usePatientModules = navigation => {
   const { getSetting } = useSettings();
@@ -173,6 +130,7 @@ const PatientHomeContainer = ({
   const { from } = route.params || {};
 
   const patientMenuButtons = usePatientMenuButtons(navigation);
+  const { getTranslation } = useTranslation();
 
   const onNavigateToSearchPatients = useCallback(() => {
     if (from === PatientFromRoute.ALL_PATIENT || from === PatientFromRoute.RECENTLY_VIEWED) {
@@ -204,9 +162,26 @@ const PatientHomeContainer = ({
     }, []),
   );
 
+  // This screen stays mounted as a tab while other tabs are in front, and every sync invalidates
+  // all queries, so gate the alert on focus and show it once per patient
+  const isFocused = useIsFocused();
+  const [warningsShownForPatientId, setWarningsShownForPatientId] = useState<string | null>(null);
   useEffect(() => {
-    showPatientWarningPopups(patientIssues || []);
-  }, [patientIssues]);
+    if (!isFocused || !selectedPatient) return;
+    if (warningsShownForPatientId === selectedPatient.id) return;
+
+    const warningNotes = (patientIssues ?? [])
+      .filter(({ type }) => type === PatientIssueType.Warning)
+      .map(({ note }) => note);
+    if (warningNotes.length === 0) return;
+
+    setWarningsShownForPatientId(selectedPatient.id);
+    Alert.alert(
+      getTranslation('patient.warning.title', 'Patient warnings'),
+      formatWarningsAsUnorderedList(warningNotes),
+      // [{ text: getTranslation('general.action.ok', 'OK') }],
+    );
+  }, [getTranslation, isFocused, patientIssues, selectedPatient, warningsShownForPatientId]);
 
   const patientModules = usePatientModules(navigation);
 
