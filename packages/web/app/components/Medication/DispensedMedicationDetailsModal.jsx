@@ -64,7 +64,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
 
   const {
     prescription,
-    medication,
     quantity,
     instructions,
     remainingRepeats,
@@ -76,7 +75,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
   } = item;
 
   // The dispense stores the label text in `instructions`; the clinical Instructions
-  // shown here are derived from the prescription, mirroring the dispense modals.
+  // shown here are derived from the details it was dispensed with.
   const derivedInstructions = buildInstructionText(prescription, getTranslation, getEnumTranslation);
 
   const leftDetails = [
@@ -92,9 +91,9 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
       ),
       value: (
         <TranslatedReferenceData
-          fallback={medication?.name}
-          value={medication?.id}
-          category={medication?.type}
+          fallback={prescription?.medication?.name}
+          value={prescription?.medication?.id}
+          category={prescription?.medication?.type}
         />
       ),
     },

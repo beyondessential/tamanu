@@ -1,10 +1,10 @@
 import React, { type FC, type ReactElement, useCallback, useEffect, useState } from 'react';
 import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
 import { Button } from '/components/Button';
-import { LogoV2Icon } from '/components/Icons';
+import { TamanuComboMark } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
@@ -151,7 +151,7 @@ export const ReportScreen = (): ReactElement => {
     }
   }, [isReportWeekly]);
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
     <FullView>
@@ -167,7 +167,7 @@ export const ReportScreen = (): ReactElement => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <LogoV2Icon height={23} width={95} fill={theme.colors.WHITE} />
+          <TamanuComboMark height={23} width={95} />
         </RowView>
         <StyledView flexDirection="row" justifyContent="flex-start" alignItems="center" flex={1}>
           <StyledText

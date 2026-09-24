@@ -7,6 +7,7 @@ import { createTestContext } from '../utilities';
 // indexes, or relied on as an ON CONFLICT arbiter elsewhere) — see migration for details.
 const EXCLUDED_FROM_DEFERRABLE_UNIQUE_CHECK = [
   'ai_documents_id_key',
+  'patient_invoice_insurance_plans_id_key',
   'patient_ongoing_prescriptions_id_key',
   'patient_program_registrations_id_key',
   'patient_invoice_insurance_plans_id_key',

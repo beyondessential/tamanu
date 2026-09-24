@@ -65,11 +65,11 @@ describe('1785000000001-migrateFacilityConfigToSettings', () => {
       expect(await step.check(args)).toBe(false);
     });
     it('resolves served facilities env > fact', async () => {
-      process.env.SYNC_FACILITY_IDS = ' f9 , f8 ,f9 ';
+      process.env.TAMANU_FACILITY_IDS = ' f9 , f8 ,f9 ';
       try {
         expect(await servedFacilityIds(makeArgs().models.LocalSystemFact)).toEqual(['f9', 'f8']);
       } finally {
-        delete process.env.SYNC_FACILITY_IDS;
+        delete process.env.TAMANU_FACILITY_IDS;
       }
       expect(await servedFacilityIds(makeArgs().models.LocalSystemFact)).toEqual(['f1', 'f2']);
     });

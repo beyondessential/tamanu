@@ -1,51 +1,49 @@
-import React, { Fragment, type ReactElement, useCallback, useMemo } from 'react';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
-import { Formik } from 'formik';
-import { ScrollView } from 'react-native-gesture-handler';
-import * as Yup from 'yup';
 import { StackActions } from '@react-navigation/native';
-
-import { Field } from '/components/Forms/FormField';
-import { ColumnView, FullView, RowView, StyledText, StyledView } from '/styled/common';
-import { TextField } from '/components/TextField/TextField';
-import { SubmitButton } from '/components/Forms/SubmitButton';
-import { theme } from '/styled/theme';
-import { KeyboardAvoidingView, StyleSheet } from 'react-native';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useBackend } from '~/ui/hooks';
-import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
-import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
+import { add } from 'date-fns';
+import { Formik } from 'formik';
+import React, { type ReactElement, useCallback, useMemo } from 'react';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
+import { compose } from 'redux';
+import * as Yup from 'yup';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_LABELS,
+  DRUG_ROUTE_VALUES,
+  DRUG_UNIT_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
+} from '~/constants/medications';
 import { Database } from '~/infra/db';
-import { withPatient } from '~/ui/containers/Patient';
-import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
-import { ReferenceDataType } from '~/types';
-import { Suggester } from '~/ui/helpers/suggester';
+import type { Prescription } from '~/models/Prescription';
 import { ReferenceData } from '~/models/ReferenceData';
-import { NumberField } from '~/ui/components/NumberField';
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { ReferenceDataType } from '~/types';
+import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { Button } from '~/ui/components/Button';
+import { Checkbox } from '~/ui/components/Checkbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { FrequencySearchField } from '~/ui/components/FrequencySearchField/FrequencySearchField';
-import { Checkbox } from '~/ui/components/Checkbox';
-import {
-  DRUG_ROUTE_VALUES,
-  MEDICATION_DURATION_UNITS_LABELS,
-  ADMINISTRATION_FREQUENCIES,
-  DRUG_ROUTE_LABELS,
-  DRUG_UNIT_LABELS,
-} from '~/constants/medications';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { NumberField } from '~/ui/components/NumberField';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { withPatient } from '~/ui/containers/Patient';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { getDefaultIdealTimes } from '~/ui/helpers/medicationHelpers';
-import { Button } from '~/ui/components/Button';
-import { useSettings } from '~/ui/contexts/SettingsContext';
-import { add } from 'date-fns';
-import type { Prescription } from '~/models/Prescription';
-import { useAuth } from '~/ui/contexts/AuthContext';
 import { Routes } from '~/ui/helpers/routes';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
+import { Field } from '/components/Forms/FormField';
+import { SubmitButton } from '/components/Forms/SubmitButton';
+import { TextField } from '/components/TextField/TextField';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ColumnView, FullView, RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -75,7 +73,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   const { models } = useBackend();
   const { ability } = useAuth();
   const user = useSelector(authUserSelector);
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
@@ -166,20 +164,18 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
         model: ReferenceData,
         options: {
           column: 'name',
-          where: {
-            type: ReferenceDataType.Drug,
-          },
           relations: ['referenceDrug'],
+          where: { type: ReferenceDataType.Drug },
+          // A drug with no reference_drugs row joins to NULL, and isn’t sensitive
+          andWhere: canCreateSensitiveMedication
+            ? undefined
+            : { sql: 'COALESCE(referenceDrug.isSensitive, 0) = 0' },
         },
         formatter: (record: any) => ({
           label: record.entity_display_label,
           value: record.entity_id,
           ...record,
         }),
-        filter: (data: any) => {
-          const isSensitive = data.referenceDrug_isSensitive;
-          return !isSensitive || canCreateSensitiveMedication;
-        },
       }),
     [canCreateSensitiveMedication],
   );
@@ -271,18 +267,17 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     :{' '}
                   </StyledText>
                   {patientAllergies !== undefined ? (
-                    patientAllergies.map((allergy, index) => (
-                      <Fragment key={allergy.id}>
-                        <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>
-                          <TranslatedReferenceData
-                            category={allergy.allergy.type}
-                            value={allergy.allergy.name}
-                            fallback={allergy.allergy.name}
-                          />
-                          {index < patientAllergies.length - 1 && ', '}
-                        </StyledText>
-                      </Fragment>
-                    ))
+                    <StyledText color={theme.colors.MAIN_SUPER_DARK} fontWeight={500}>
+                      {patientAllergies
+                        .map(({ allergy }) =>
+                          getReferenceDataTranslation({
+                            category: allergy.type,
+                            value: allergy.name,
+                            fallback: allergy.name,
+                          }),
+                        )
+                        .join(', ')}
+                    </StyledText>
                   ) : (
                     <ColumnView>
                       {isMarkedForSync ? (
@@ -578,9 +573,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   backgroundColor={theme.colors.WHITE}
                   textColor={theme.colors.PRIMARY_MAIN}
                   outline
-                  onPress={() => {
-                    navigation.goBack();
-                  }}
+                  onPress={navigation.goBack}
                   buttonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
                 />
               </ScrollView>

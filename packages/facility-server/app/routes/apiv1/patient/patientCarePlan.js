@@ -12,7 +12,10 @@ import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 export const patientCarePlan = express.Router();
 
 patientCarePlan.get('/:id', simpleGet('PatientCarePlan'));
-patientCarePlan.put('/:id', simplePut('PatientCarePlan'));
+patientCarePlan.put(
+  '/:id',
+  simplePut('PatientCarePlan', { allowedFields: ['carePlanId', 'date', 'examinerId'] }),
+);
 patientCarePlan.post(
   '/',
   asyncHandler(async (req, res) => {

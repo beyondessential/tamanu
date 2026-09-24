@@ -10,10 +10,11 @@ jest.mock('./buildFromSyncRecord', () => ({
       records.map(record => ({ ...record.data, deletedAt: record.isDeleted ? 'now' : null })),
     ),
 }));
-// Mock dependencies like `model.find`
+// Mock dependencies like `repository.query`
 
 const repository = {
-  find: jest.fn(),
+  query: jest.fn(),
+  metadata: { tableName: 'test_table' },
 };
 const getModel = jest.fn(() => ({
   sanitizePulledRecordData: jest.fn().mockImplementation(d => d),
@@ -22,27 +23,27 @@ const getModel = jest.fn(() => ({
 const Model = getModel() as any;
 const progressCallback = jest.fn();
 
-const mobileSyncSettings: MobileSyncSettings = {
+const mobileSyncSettings = {
   maxRecordsPerInsertBatch: 500,
   maxRecordsPerUpdateBatch: 500,
   maxBatchesToKeepInMemory: 10,
   maxRecordsPerSnapshotBatch: 500,
   useUnsafeSchemaForInitialSync: true,
   dynamicLimiter: {
-    initialLimit: 10000,
-    minLimit: 1000,
-    maxLimit: 40000,
+    initialLimit: 10_000,
+    minLimit: 1_000,
+    maxLimit: 40_000,
     maxLimitChangePerPage: 0.3,
     optimalTimePerPage: 500,
   },
-};
+} as const satisfies MobileSyncSettings;
 
 const generateExistingRecord = (id, data = {}) => ({
   id,
   ...data,
 });
 const mockExistingRecords = records => {
-  repository.find.mockImplementation(() => records);
+  repository.query.mockImplementation(() => records.map(({ id }) => ({ id })));
 };
 
 describe('saveChangesForModel', () => {
@@ -123,6 +124,38 @@ describe('saveChangesForModel', () => {
         500,
         progressCallback,
       );
+    });
+  });
+
+  describe('existence check', () => {
+    it('queries existing ids with a raw parameterised select', async () => {
+      // setup test data
+      const existingRecords = [generateExistingRecord('existing_record_id')];
+      mockExistingRecords(existingRecords);
+      const changes = [
+        {
+          id: 'existing_record_id',
+          recordId: 'existing_record_id',
+          recordType: 'string',
+          data: { id: 'existing_record_id' },
+          isDeleted: false,
+        },
+        {
+          id: 'new_record_id',
+          recordId: 'new_record_id',
+          recordType: 'string',
+          data: { id: 'new_record_id' },
+          isDeleted: false,
+        },
+      ];
+      // act
+      await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
+      // assertions
+      expect(repository.query).toBeCalledTimes(1);
+      expect(repository.query).toBeCalledWith('SELECT id FROM test_table WHERE id IN (?,?)', [
+        'existing_record_id',
+        'new_record_id',
+      ]);
     });
   });
 

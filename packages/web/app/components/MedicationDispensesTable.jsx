@@ -15,7 +15,7 @@ import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLa
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import {
   DispensedMedicationName,
-  getDispensedMedication,
+  getDispensedPrescription,
   getMedicationLabelData,
   getTranslatedMedicationName,
   isDispenseModifiedByPharmacy,
@@ -101,14 +101,16 @@ export const MedicationDispensesTable = () => {
 
   const handlePrintLabel = item => {
     const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
-    const prescription = pharmacyOrderPrescription?.prescription;
+    const prescription = getDispensedPrescription(item);
     const patient = pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
 
-    const medication = getDispensedMedication(item);
     const labelItems = [
       {
         id,
-        medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+        medicationName: getTranslatedMedicationName(
+          prescription?.medication,
+          getReferenceDataTranslation,
+        ),
         instructions,
         quantity,
         dispensingUnit: prescription?.dispensingUnit,
@@ -223,8 +225,9 @@ export const MedicationDispensesTable = () => {
           fallback="Qty dispensed"
         />
       ),
-      accessor: ({ quantity, pharmacyOrderPrescription }) => {
-        const dispensingUnit = pharmacyOrderPrescription?.prescription?.dispensingUnit;
+      accessor: item => {
+        const { quantity } = item;
+        const dispensingUnit = getDispensedPrescription(item)?.dispensingUnit;
         if (!dispensingUnit) return quantity;
         return `${quantity} ${getDrugUnitLabel(dispensingUnit, quantity, getEnumTranslation)}`;
       },
@@ -323,11 +326,7 @@ export const MedicationDispensesTable = () => {
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
       dispensedBy: dispenseData.dispensedBy,
-      // The medication actually dispensed, which differs from the prescription's when
-      // pharmacy substituted it during dispensing (mirrors the table's Medication column).
-      medication: getDispensedMedication(dispenseData),
-      // Full prescription so the modal can derive the original Instructions text.
-      prescription: dispenseData.pharmacyOrderPrescription?.prescription,
+      prescription: getDispensedPrescription(dispenseData),
       medicationPresetLabel: dispenseData.medicationPresetLabel,
       patient,
     };

@@ -218,7 +218,7 @@ export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
       const value = differenceFn(new Date(), birthDate);
 
       const unit = as.slice(0, -1); // slice off the s
-      return `${value} ${unit}${value === 1 ? '' : 's'}`;
+      return `${value}\u{00A0}${unit}${value === 1 ? '' : 's'}`;
     }
   }
 

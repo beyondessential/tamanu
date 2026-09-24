@@ -5,7 +5,7 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm/PatientDetailsForm';
-import { invalidatePatientDataQueries, notifyError } from '../../../utils';
+import { invalidatePatientDataQueries, notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 // Momentary component to just display a message, will need design and
@@ -45,6 +45,13 @@ export const PatientDetailsPane = React.memo(
 
       // invalidate the cache of patient data queries to reload the patient data
       await invalidatePatientDataQueries(queryClient, patient.id);
+
+      notifySuccess(
+        <TranslatedText
+          stringId="patient.details.notification.saveSuccess"
+          fallback="Patient details successfully updated"
+        />,
+      );
     };
 
     // Display form if user can read, write or create patient additional data.

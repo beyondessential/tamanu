@@ -1,6 +1,7 @@
 import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
 
 import type { SelectOption } from '~/ui/components/Dropdown';
+import { fetchJson } from './fetchJson';
 import { serverKeys } from './queryKeys';
 import * as overrides from '/root/serverOverrides.json';
 
@@ -25,11 +26,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   }
 
   const metaServer = metaServerOverride || DEFAULT_META_SERVER;
-  const response = await fetch(`${metaServer}/servers`);
-  if (!response.ok) {
-    throw new Error(`Could not fetch the server list from ${metaServer}: ${response.status}`);
-  }
-  const servers: Server[] = await response.json();
+  const servers = await fetchJson<Server[]>(`${metaServer}/servers`);
 
   const options = servers.map(s => ({
     label: s.name,

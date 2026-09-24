@@ -1,8 +1,8 @@
-import React, { type ReactElement, useCallback } from 'react';
+import React, { type ReactElement } from 'react';
 import { useSelector } from 'react-redux';
 import { Routes } from '/helpers/routes';
 import { StackHeader } from '/components/StackHeader';
-import { createTopTabNavigator } from '/components/TopTabNavigator';
+import { TopTabNavigator, TopTabScreen } from '/components/TopTabNavigator';
 import type { BaseAppProps } from '/interfaces/BaseAppProps';
 import { joinNames } from '/helpers/user';
 import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
@@ -12,25 +12,19 @@ import { ReferralHistoryScreen } from '~/ui/navigation/screens/referrals/Referra
 import { ReferralFormListScreen } from '../screens/referrals/ReferralFormListScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
-const Tabs = createTopTabNavigator();
-
 export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const goBack = useCallback(() => {
-    navigation.goBack();
-  }, []);
-
   return (
     <ErrorBoundary>
       <StackHeader
         title={<TranslatedText stringId="patient.referral.title" fallback="Referral" />}
         subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
+        onGoBack={navigation.goBack}
       />
-      <Tabs.Navigator swipeEnabled={false} screenOptions={{ headerShown: false }}>
-        <Tabs.Screen
+      <TopTabNavigator>
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText
@@ -42,7 +36,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
           name={Routes.HomeStack.ReferralStack.ReferralList.Index}
           component={ReferralFormListScreen}
         />
-        <Tabs.Screen
+        <TopTabScreen
           options={{
             tabBarLabel: () => (
               <TranslatedText
@@ -54,7 +48,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
           name={Routes.HomeStack.ReferralStack.ViewHistory.Index}
           component={ReferralHistoryScreen}
         />
-      </Tabs.Navigator>
+      </TopTabNavigator>
     </ErrorBoundary>
   );
 };

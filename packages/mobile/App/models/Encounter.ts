@@ -1,40 +1,38 @@
+import { addHours, startOfDay, subDays } from 'date-fns';
+import { getUniqueId } from 'react-native-device-info';
 import {
   AfterInsert,
   BeforeInsert,
   Column,
   Entity,
-  In,
   Index,
   ManyToOne,
   OneToMany,
   RelationId,
 } from 'typeorm';
-import { addHours, startOfDay, subDays } from 'date-fns';
-import { getUniqueId } from 'react-native-device-info';
-
-import { BaseModel, IdRelation } from './BaseModel';
-import { EncounterType, type IEncounter } from '~/types';
-import { Patient } from './Patient';
-import { Diagnosis } from './Diagnosis';
-import { User } from './User';
-import { AdministeredVaccine } from './AdministeredVaccine';
-import { SurveyResponse } from './SurveyResponse';
-import { Vitals } from './Vitals';
 import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
-import type { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
-import { Department } from './Department';
-import { Location } from './Location';
-import { Referral } from './Referral';
-import { LabRequest } from './LabRequest';
-import { EncounterHistory } from './EncounterHistory';
-import { readConfig } from '~/services/config';
 import { type ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
-import { SYNC_DIRECTIONS } from './types';
+import { readConfig } from '~/services/config';
+import { EncounterType, type IEncounter } from '~/types';
 import { getCurrentDateTimeString, toDateTimeString } from '~/ui/helpers/date';
+import type { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
+import { AdministeredVaccine } from './AdministeredVaccine';
+import { BaseModel, IdRelation } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
-import { Note } from './Note';
+import { Department } from './Department';
+import { Diagnosis } from './Diagnosis';
+import { EncounterHistory } from './EncounterHistory';
 import { EncounterPrescription } from './EncounterPrescription';
+import { LabRequest } from './LabRequest';
+import { Location } from './Location';
+import { Note } from './Note';
+import { Patient } from './Patient';
+import { Referral } from './Referral';
+import { SurveyResponse } from './SurveyResponse';
 import { Task } from './Task';
+import { SYNC_DIRECTIONS } from './types';
+import { User } from './User';
+import { Vitals } from './Vitals';
 
 const TIME_OFFSET = 3;
 
@@ -55,7 +53,7 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter?: string;
 
   @Index()
-  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
+  @ManyToOne(() => Patient, patient => patient.encounters)
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -94,9 +92,7 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => EncounterHistory, encounterHistory => encounterHistory.encounter)
   encounterHistories: EncounterHistory[];
 
-  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, {
-    eager: true,
-  })
+  @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter)
   diagnoses: Diagnosis[];
 
   @OneToMany(() => EncounterPrescription, encounterPrescription => encounterPrescription.encounter)
@@ -119,6 +115,9 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @OneToMany(() => Task, task => task.encounter)
   tasks: Task[];
+
+  /** Not a relation: notes hang off a polymorphic recordId. Populated by getForPatient. */
+  notes?: Note[];
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
@@ -253,24 +252,26 @@ export class Encounter extends BaseModel implements IEncounter {
     return encounter;
   }
 
-  static async getForPatient(patientId: string): Promise<Encounter[]> {
-    const repo = Encounter.getRepository();
-
-    const encounters = await repo.find({
-      where: { patient: { id: patientId } },
-      relations: ['location', 'location.facility'],
-      order: { startDate: 'DESC', createdAt: 'DESC', id: 'DESC' },
-    });
-
-    const notes = await Note.find({
-      where: { recordId: In(encounters.map(({ id }) => id)) },
-    });
-
-    // Usually a patient won't have too many encounters, but if they do, this will be slow.
-    return encounters.map(encounter => ({
-      ...encounter,
-      notes: notes.filter(note => note.recordId === encounter.id),
-    }));
+  /**
+   * Encounters for the visits history, each with its clinical notes and diagnoses, in one query.
+   * Diagnoses are joined here rather than eagerly on the relation, as this is the only place that
+   * reads them. Notes hang off a polymorphic recordId rather than a relation, so they are mapped
+   * onto the encounter by join condition.
+   */
+  static getForPatient(patientId: string): Promise<Encounter[]> {
+    return Encounter.getRepository()
+      .createQueryBuilder('encounter')
+      .leftJoinAndSelect('encounter.location', 'location')
+      .leftJoinAndSelect('location.facility', 'facility')
+      .leftJoinAndSelect('encounter.diagnoses', 'diagnosis')
+      .leftJoinAndSelect('diagnosis.diagnosis', 'diagnosisReferenceData')
+      .leftJoinAndMapMany('encounter.notes', Note, 'note', 'note.recordId = encounter.id')
+      .where('encounter.patientId = :patientId', { patientId })
+      .orderBy('encounter.startDate', 'DESC')
+      .addOrderBy('encounter.createdAt', 'DESC')
+      .addOrderBy('encounter.id', 'DESC')
+      .addOrderBy('note.date', 'ASC')
+      .getMany();
   }
 
   static async getTotalEncountersAndResponses(surveyId: string): Promise<SummaryInfo[]> {

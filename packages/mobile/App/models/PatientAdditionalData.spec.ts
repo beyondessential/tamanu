@@ -1,8 +1,8 @@
 import { mocked } from 'jest-mock';
-
 import { Database } from '~/infra/db';
-import { fakePatient } from '/root/tests/helpers/fake';
 import { readConfig } from '~/services/config';
+import { fakePatient } from '/root/tests/helpers/fake';
+
 jest.mock('~/services/config');
 const mockedReadConfig = mocked(readConfig);
 jest.setTimeout(60000); // can be slow to create/delete records
@@ -67,6 +67,18 @@ describe('PatientAdditionalData', () => {
         place_of_birth: expect.any(Number),
         primary_contact_number: expect.any(Number),
       });
+    });
+  });
+
+  describe('referenceDataRelations', () => {
+    it('includes only the relations that target ReferenceData', () => {
+      const relations = Database.models.PatientAdditionalData.referenceDataRelations;
+      expect(relations).toEqual(
+        expect.arrayContaining(['nationality', 'country', 'countryOfBirth', 'secondaryVillage']),
+      );
+      for (const relation of ['patient', 'healthCenter', 'mother', 'father']) {
+        expect(relations).not.toContain(relation);
+      }
     });
   });
 });

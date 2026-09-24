@@ -1,4 +1,3 @@
-import { In } from 'typeorm';
 import { chunk, groupBy, partition } from 'es-toolkit/compat';
 
 import type { SyncRecord } from '../types';
@@ -27,14 +26,16 @@ export const saveChangesForModel = async (
 
   const idsForUpdate = new Set<string>();
 
+  const { tableName } = repository.metadata;
   for (const recordIdChunk of chunk(recordIds, SQLITE_MAX_PARAMETERS)) {
-    const batchOfExisting = await repository.find({
-      where: { id: In(recordIdChunk) },
-      select: ['id', 'deletedAt'],
-      withDeleted: true,
-    });
-    for (const existing of batchOfExisting) {
-      idsForUpdate.add(existing.id);
+    const bindings = recordIdChunk.map(() => '?').join(',');
+    /** Raw `SELECT` rather `find()` to bypass entity hydration  */
+    const existingRows: { id: string }[] = await repository.query(
+      `SELECT id FROM ${tableName} WHERE id IN (${bindings})`,
+      recordIdChunk,
+    );
+    for (const { id } of existingRows) {
+      idsForUpdate.add(id);
     }
   }
 
@@ -86,12 +87,12 @@ const prepareChangesForModels = (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  sortedModels: TransactingModel[],
+  models: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
   const { maxRecordsPerInsertBatch = 2000 } = syncSettings;
-  const modelChanges = prepareChangesForModels(records, sortedModels);
+  const modelChanges = prepareChangesForModels(records, models);
   for (const { model, records } of modelChanges) {
     if (model.name === 'User') {
       await saveChangesForModel(model, records, syncSettings, progressCallback);
@@ -107,7 +108,7 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  sortedModels: TransactingModel[],
+  models: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
@@ -115,7 +116,7 @@ export const saveChangesFromSnapshot = async (
   const batchIds = await getSnapshotBatchIds();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
-    const modelChanges = prepareChangesForModels(batchRecords, sortedModels);
+    const modelChanges = prepareChangesForModels(batchRecords, models);
     for (const { model, records } of modelChanges) {
       await saveChangesForModel(model, records, syncSettings, progressCallback);
     }

@@ -1,5 +1,6 @@
 import { REPORT_DB_CONNECTIONS, REPORT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '../randomRecord.js';
+import { pooledWithChild } from '../pool.js';
 
 import { fake } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
@@ -15,18 +16,28 @@ export const createDbReport = async ({
 
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
 
-  const reportDefinition = await ReportDefinition.create(
-    fake(ReportDefinition, {
-      dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
-    }),
-  );
-  await ReportDefinitionVersion.create(
-    fake(ReportDefinitionVersion, {
-      status: REPORT_STATUSES.DRAFT,
-      queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
-      reportDefinitionId: reportDefinition.id,
-      userId: resolvedUserId,
-    }),
+  const version = (reportDefinitionId: string) =>
+    ReportDefinitionVersion.create(
+      fake(ReportDefinitionVersion, {
+        status: REPORT_STATUSES.DRAFT,
+        queryOptions: `{"parameters": [], "defaultDateRange": "allTime"}`,
+        reportDefinitionId,
+        userId: resolvedUserId,
+      }),
+    );
+
+  // Every definition shows in the reports list, so a round reuses one once the pool is full.
+  await pooledWithChild(
+    ReportDefinition,
+    () =>
+      ReportDefinition.create(
+        fake(ReportDefinition, {
+          dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
+        }),
+      ),
+    ReportDefinitionVersion,
+    version,
+    { childKey: 'reportDefinitionId' },
   );
 };
 
