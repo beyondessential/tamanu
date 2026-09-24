@@ -17,8 +17,21 @@ import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/Patie
 import { theme } from '/styled/theme';
 import { PatientIssueType } from '/types/IPatientIssue';
 
-// TODO: declare this
-type PatientModule = {};
+interface PatientModuleLayout {
+  sortPriority: number;
+  hidden: boolean;
+}
+
+interface PatientModulesLayout {
+  diagnosisAndTreatment: PatientModuleLayout;
+  programs: PatientModuleLayout;
+  /** Lives in the patient menu rather than the module grid, so it has no sort priority */
+  programRegistries: Pick<PatientModuleLayout, 'hidden'>;
+  referral: PatientModuleLayout;
+  tests: PatientModuleLayout;
+  vaccine: PatientModuleLayout;
+  vitals: PatientModuleLayout;
+}
 
 function formatWarningsAsUnorderedList(notes: string[]): string {
   return notes.map(note => `• ${note}`).join('\n');
@@ -26,7 +39,7 @@ function formatWarningsAsUnorderedList(notes: string[]): string {
 
 const usePatientModules = navigation => {
   const { getSetting } = useSettings();
-  const config = getSetting<PatientModule>('layouts.mobilePatientModules');
+  const config = getSetting<PatientModulesLayout>('layouts.mobilePatientModules');
 
   return useMemo(() => {
     return [
@@ -83,7 +96,7 @@ const usePatientMenuButtons = navigation => {
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
-  const config = getSetting('layouts.mobilePatientModules');
+  const config = getSetting<PatientModulesLayout>('layouts.mobilePatientModules');
 
   return useMemo(
     () =>
