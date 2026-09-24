@@ -21,6 +21,7 @@ import {
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { singularize } from '../../utils';
+import { getStockStatus } from '../../utils/medications';
 import { CheckInput } from '../Field';
 import { Table } from '../Table';
 import { LastSentCell } from './LastSentCell';
@@ -100,6 +101,7 @@ export const COLUMN_KEYS = {
   DOSE: 'dose',
   FREQUENCY: 'frequency',
   DURATION: 'duration',
+  STOCK: 'stock',
   QUANTITY: 'quantity',
   REPEATS: 'repeats',
   LAST_SENT: 'lastSent',
@@ -192,6 +194,12 @@ const getColumns = (
 
         return `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`;
       },
+    },
+    {
+      key: COLUMN_KEYS.STOCK,
+      title: <TranslatedText stringId="medication-requests.table.column.stockStatus" fallback="Stock" />,
+      sortable: false,
+      accessor: prescription => getStockStatus({ prescription }, false),
     },
     {
       key: COLUMN_KEYS.DATE,

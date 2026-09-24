@@ -444,7 +444,12 @@ export const PharmacyOrderModal = React.memo(
       if (isDischargeOrOutpatient && !isOngoingMode) {
         columns.push(COLUMN_KEYS.DURATION);
       }
-      columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
+      columns.push(
+        COLUMN_KEYS.STOCK,
+        COLUMN_KEYS.DATE,
+        COLUMN_KEYS.LAST_SENT,
+        COLUMN_KEYS.QUANTITY,
+      );
       if (isDischargeOrOutpatient) {
         columns.push(COLUMN_KEYS.REPEATS);
       }
