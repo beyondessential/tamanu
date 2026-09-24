@@ -16,21 +16,25 @@ import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
 
 export const MoreMenuOptions = [
   {
+    key: 'settings',
     title: 'Settings',
     Icon: SettingsIcon,
     onPress: (): void => console.log('Settings'),
   },
   {
+    key: 'feedback',
     title: 'Feedback',
     Icon: FeedbackIcon,
     onPress: (): void => console.log('Feedback'),
   },
   {
+    key: 'faqs',
     title: 'FAQs',
     Icon: QuestionIcon,
     onPress: (): void => console.log('Question'),
   },
   {
+    key: 'notifications',
     title: 'Notifications',
     Icon: RingIcon,
     onPress: (): void => console.log('Notification'),
@@ -39,26 +43,32 @@ export const MoreMenuOptions = [
 
 export const ProgramOptions = [
   {
+    key: 'familyPlanning',
     title: 'Family Planning',
     onPress: (): void => console.log('Family Planning'),
   },
   {
+    key: 'pregnant',
     title: 'Pregnant',
     onPress: (): void => console.log('Family Planning'),
   },
   {
+    key: 'programType3',
     title: 'Program type 3',
     onPress: (): void => console.log('Family Planning'),
   },
   {
+    key: 'programType4',
     title: 'Program type 4',
     onPress: (): void => console.log('Family Planning'),
   },
   {
+    key: 'programType5',
     title: 'Program type 5',
     onPress: (): void => console.log('Family Planning'),
   },
   {
+    key: 'programType6',
     title: 'Program type 6',
     onPress: (): void => console.log('Family Planning'),
   },
@@ -66,11 +76,13 @@ export const ProgramOptions = [
 
 export const PatientDetails = [
   {
+    key: 'viewPatientDetails',
     title: 'View patient details',
     Icon: HistoryIcon,
     onPress: (): void => console.log('Patient details'),
   },
   {
+    key: 'viewHistory',
     title: 'View History',
     Icon: PatientDetailsIcon,
     onPress: (): void => console.log('History'),
@@ -97,7 +109,7 @@ export const BaseStory = ({ data }: BaseStoryProps): ReactElement => (
       showsVerticalScrollIndicator={false}
       style={styles.flatList}
       data={data}
-      keyExtractor={(item): string => item.title}
+      keyExtractor={(item): string => String(item.key)}
       renderItem={({ item }): any => <MenuOptionButton {...item} />}
       ItemSeparatorComponent={Separator}
     />
