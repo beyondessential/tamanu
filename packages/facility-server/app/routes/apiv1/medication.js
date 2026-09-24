@@ -2000,7 +2000,6 @@ medication.delete(
     const { PharmacyOrderPrescription } = models;
 
     req.checkPermission('delete', 'MedicationRequest');
-    req.checkPermission('delete', 'MedicationDispense');
 
     const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
       include: [
@@ -2034,7 +2033,7 @@ medication.post(
     const { models, params, body, user } = req;
     const { PharmacyOrderPrescription } = models;
 
-    req.checkPermission('create', 'MedicationDispense');
+    req.checkPermission('delete', 'MedicationRequest');
 
     const { notDispensedReasonId } = await notDispensedInputSchema.parseAsync(body);
 

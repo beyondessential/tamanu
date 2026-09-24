@@ -2185,7 +2185,7 @@ describe('Medication', () => {
     describe('permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it('rejects a user without create MedicationDispense permission', async () => {
+      it('rejects a user without delete MedicationRequest permission', async () => {
         const noPermsApp = await baseApp.asNewRole([]);
         const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
           patientId: patient.id,
@@ -2199,8 +2199,8 @@ describe('Medication', () => {
         expect(result).toBeForbidden();
       });
 
-      it('allows a user with only create MedicationDispense permission', async () => {
-        const limitedApp = await baseApp.asNewRole([['create', 'MedicationDispense']]);
+      it('allows a user with only delete MedicationRequest permission', async () => {
+        const limitedApp = await baseApp.asNewRole([['delete', 'MedicationRequest']]);
         const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
           patientId: patient.id,
         });
@@ -2316,13 +2316,15 @@ describe('Medication', () => {
 
       it('rejects a user without read MedicationRequest permission', async () => {
         const noPermsApp = await baseApp.asNewRole([]);
+        const arrangingApp = await baseApp.asNewRole([['delete', 'MedicationRequest']]);
         const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
           patientId: patient.id,
         });
         const notDispensedReason = await createNotDispensedReason();
-        await app
+        const postResult = await arrangingApp
           .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
           .send({ notDispensedReasonId: notDispensedReason.id });
+        expect(postResult).toHaveSucceeded();
 
         const result = await noPermsApp.get(
           `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
@@ -2333,13 +2335,15 @@ describe('Medication', () => {
 
       it('allows a user with only read MedicationRequest permission', async () => {
         const limitedApp = await baseApp.asNewRole([['read', 'MedicationRequest']]);
+        const arrangingApp = await baseApp.asNewRole([['delete', 'MedicationRequest']]);
         const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
           patientId: patient.id,
         });
         const notDispensedReason = await createNotDispensedReason();
-        await app
+        const postResult = await arrangingApp
           .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
           .send({ notDispensedReasonId: notDispensedReason.id });
+        expect(postResult).toHaveSucceeded();
 
         const result = await limitedApp.get(
           `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
