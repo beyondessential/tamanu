@@ -461,7 +461,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   labelColor={theme.colors.TEXT_DARK}
                   labelFontSize={14}
                   fieldFontSize={14}
-                  allowResetSingleValue
                 />
 
                 <Field
