@@ -1,5 +1,5 @@
 import { keyBy, mapValues } from 'es-toolkit/compat';
-import { QueryTypes } from 'sequelize';
+import { DataTypes, QueryTypes } from 'sequelize';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
@@ -38,6 +38,7 @@ export const resolveAppointmentSchedules = async (
    * `end_time_legacy`, which we don’t want.
    */
   const appointmentColumns = Object.values(AppointmentModel.getAttributes())
+    .filter(attribute => !(attribute.type instanceof DataTypes.VIRTUAL))
     .map(attribute => `appointments.${attribute.field}`)
     .join(', ');
   const outOfBoundAppointments = await AppointmentScheduleModel.sequelize.query(
