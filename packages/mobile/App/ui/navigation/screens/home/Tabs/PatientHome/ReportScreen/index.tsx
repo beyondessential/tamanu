@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
-import React, { type FC, type ReactElement, useCallback, useState } from 'react';
+import React, { type FC, type ReactElement, useState } from 'react';
 import { Database } from '~/infra/db';
 import { SurveyTypes } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -139,14 +139,6 @@ export const ReportScreen = (): ReactElement => {
     },
   );
 
-  const onChangeReportType = useCallback(() => {
-    if (isReportWeekly) {
-      setReportType(false);
-    } else {
-      setReportType(true);
-    }
-  }, [isReportWeekly]);
-
   useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
@@ -185,7 +177,10 @@ export const ReportScreen = (): ReactElement => {
           )}
         </StyledView>
       </StyledSafeAreaView>
-      <ReportTypeButtons onPress={onChangeReportType} isReportWeekly={isReportWeekly} />
+      <ReportTypeButtons
+        onPress={() => setReportType(prev => !prev)}
+        isReportWeekly={isReportWeekly}
+      />
       {selectedSurveyId !== undefined ? (
         <ReportChart
           isReportWeekly={isReportWeekly}
