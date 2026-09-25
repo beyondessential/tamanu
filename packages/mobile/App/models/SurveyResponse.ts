@@ -169,11 +169,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       }),
     ]);
 
-    return {
-      ...response,
-      questions: [...questions],
-      answers: [...answers],
-    };
+    return { ...response, questions, answers };
   }
 
   static async submit(
