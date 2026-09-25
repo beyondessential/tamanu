@@ -144,21 +144,20 @@ export const DateField = React.memo(
       [onChange, mode, currentPickerMode, tempDate],
     );
 
-    const dateValue = value && (value instanceof Date ? value : parseISO(value));
-
-    const formatValue = useCallback(() => {
-      if (value) {
-        if (mode === 'date') return formatDate(dateValue, DateFormats.DDMMYY);
-        if (mode === 'time') return formatDate(dateValue, DateFormats.TIME);
-        if (mode === 'datetime')
-          return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(dateValue, DateFormats.TIME)}`;
-      }
-      return null;
-    }, [mode, value, dateValue, formatDate]);
-
     const IconComponent = mode === 'time' ? ClockIcon : CalendarIcon;
 
-    const formattedValue = formatValue();
+    const dateValue = value && (value instanceof Date ? value : parseISO(value));
+    const formattedValue = (() => {
+      if (!value) return null;
+      switch (mode) {
+        case 'date':
+          return formatDate(dateValue, DateFormats.DDMMYY);
+        case 'time':
+          return formatDate(dateValue, DateFormats.TIME);
+        case 'datetime':
+          return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(dateValue, DateFormats.TIME)}`;
+      }
+    })();
 
     const getPlaceholder = () => {
       if (placeholder) return placeholder;
