@@ -99,6 +99,7 @@ treated as a hard pre-filter on any suggested action.
 - [disable-fhir-jobs](sops/disable-fhir-jobs.md) (dev-OTS)
 - [disable-materialised-resources](sops/disable-materialised-resources.md) (dev-OTS)
 - [manage-alerts](sops/manage-alerts.md)
+- [set-up-patient-portal](sops/set-up-patient-portal.md)
 
 ## Reference
 
