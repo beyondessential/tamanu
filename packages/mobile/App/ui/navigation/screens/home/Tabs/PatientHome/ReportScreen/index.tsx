@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
 import React, { type FC, type ReactElement, useState } from 'react';
 import { Database } from '~/infra/db';
+import type { Survey } from '~/models/Survey';
 import { SurveyTypes } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
@@ -54,7 +55,11 @@ const ReportTypeButtons = ({ isReportWeekly, onPress }: IReportTypeButtons): Rea
   </RowView>
 );
 
-const buildVisitReport = (rows: SummaryInfo[]) => {
+function buildReportOptions(surveys: Survey[]) {
+  return surveys.map(survey => ({ label: survey.name, value: survey.id }));
+}
+
+function buildVisitReport(rows: SummaryInfo[]) {
   const today = addHours(startOfToday(), 3);
   const rowsByDate = new Map(rows.map(row => [row.encounterDate, row]));
 
@@ -70,7 +75,7 @@ const buildVisitReport = (rows: SummaryInfo[]) => {
     },
     todayData: rowsByDate.get(format(today, 'yyyy-MM-dd')),
   };
-};
+}
 
 interface ReportChartProps {
   isReportWeekly: boolean;
@@ -107,16 +112,17 @@ export const ReportScreen = (): ReactElement => {
   const [userSelectedSurveyId, setUserSelectedSurveyId] = useState<string>();
   const [isReportWeekly, setReportType] = useState<boolean>(true);
 
-  const { data: surveys } = useQuery({
+  const { data: reportOptions } = useQuery({
     queryKey: surveyKeys.list({ surveyType: SurveyTypes.Programs }),
     queryFn: () =>
       Database.models.Survey.find({
         where: { surveyType: SurveyTypes.Programs },
       }),
+    select: buildReportOptions,
   });
 
   // Default to the first survey until the user picks one
-  const selectedSurveyId = userSelectedSurveyId ?? surveys?.[0]?.id;
+  const selectedSurveyId = userSelectedSurveyId ?? reportOptions?.[0]?.value;
 
   const { data: report } = useQuery({
     queryKey: reportKeys.encounterSummary(selectedSurveyId),
@@ -124,8 +130,6 @@ export const ReportScreen = (): ReactElement => {
     enabled: selectedSurveyId !== undefined,
     select: buildVisitReport,
   });
-
-  const reportList = surveys?.map(s => ({ label: s.name, value: s.id }));
 
   useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
@@ -154,9 +158,9 @@ export const ReportScreen = (): ReactElement => {
           >
             <TranslatedText stringId="report.title" fallback="Reports" />
           </StyledText>
-          {reportList && (
+          {reportOptions && (
             <Dropdown
-              options={reportList}
+              options={reportOptions}
               handleSelect={setUserSelectedSurveyId}
               selectedItem={selectedSurveyId}
             />
