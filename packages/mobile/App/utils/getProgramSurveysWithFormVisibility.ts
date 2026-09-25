@@ -25,14 +25,13 @@ export async function getProgramSurveysWithFormVisibility(
     return surveys;
   }
 
-  const valuesByCode = await models.SurveyResponseAnswer.getLastAnswerValuesByQuestionCodes(
-    patientId,
-    questionCodes,
-  );
-  const dataElements = await models.ProgramDataElement.find({
-    where: { code: In(questionCodes) },
-    select: ['code', 'type'],
-  });
+  const [valuesByCode, dataElements] = await Promise.all([
+    models.SurveyResponseAnswer.getLastAnswerValuesByQuestionCodes(patientId, questionCodes),
+    models.ProgramDataElement.find({
+      where: { code: In(questionCodes) },
+      select: ['code', 'type'],
+    }),
+  ]);
   const typesByCode = (dataElements || []).reduce(
     (acc: Record<string, string>, el: { code: string; type: string }) => {
       acc[el.code] = el.type;
