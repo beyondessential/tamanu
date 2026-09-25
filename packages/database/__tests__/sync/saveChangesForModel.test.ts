@@ -195,6 +195,26 @@ describe('saveChangesForModel', () => {
       // with the current tick like any other write
       expect(Number.parseInt(updatedRecordInDb.updatedAtSyncTick, 10)).toBe(currentSyncTick);
     });
+
+    it('ignores a raw column name in the payload that aliases the deletedAt decision', async () => {
+      const existingRecord = await models.SurveyScreenComponent.create({
+        id: 'existing_record_id',
+        text: 'historical',
+      });
+      // a producer that leaks raw row keys (as a `SELECT *` hook once did) must not be able to
+      // cancel the delete: Sequelize would otherwise put `deleted_at = NULL` in the same SET clause
+      const changes = [
+        { data: { id: existingRecord.id, text: 'current', deleted_at: null }, isDeleted: true },
+      ];
+
+      await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
+
+      const deletedRecord = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
+        paranoid: false,
+      });
+      expect(deletedRecord.deletedAt).not.toBeNull();
+      expect(deletedRecord.text).toBe('current');
+    });
   });
 
   describe('saveRestore', () => {

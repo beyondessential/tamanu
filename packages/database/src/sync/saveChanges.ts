@@ -59,6 +59,14 @@ export const saveUpdates = async (
       })
     : // on the facility server, trust the resolved central server version
       incomingRecords;
+
+  /**
+   * Sequelize writes any key it doesn't recognise to the SET clause verbatim, after the mapped
+   * attributes, so a raw column name in the payload (e.g. `deleted_at`) would silently override
+   * the attribute it aliases (here, the `deletedAt` decision). Restrict the write to the model's
+   * attributes so that can't happen.
+   */
+  const fields = Object.keys(model.getAttributes());
   await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r => {
     // Strip `id` from the update payload — it's already in the WHERE clause and is
     // never supposed to change. Models with GENERATED ALWAYS `id` columns (e.g.
@@ -69,6 +77,6 @@ export const saveUpdates = async (
     // into the SET clause — which Postgres rejects for GENERATED columns. Filtering
     // here keeps the write valid regardless of the hooks/validate behaviour.
     const { id, ...values } = r;
-    return model.update(values, { where: { id }, paranoid: false, hooks: false });
+    return model.update(values, { where: { id }, fields, paranoid: false, hooks: false });
   });
 };
