@@ -181,7 +181,7 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
           color={theme.colors.PRIMARY_MAIN}
           fontWeight={500}
         >
-          {oneMonthAgoFormatted} - {todayFormatted}
+          {oneMonthAgoFormatted}&thinsp;&ndash;&thinsp;{todayFormatted}
         </StyledText>
       </RowView>
       <StyledView
