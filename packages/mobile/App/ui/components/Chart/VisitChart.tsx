@@ -158,9 +158,8 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
             color={theme.colors.TEXT_MID}
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
           >
-            <TranslatedText stringId="report.subHeading.total" fallback="TOTAL" casing="upper" />
+            <TranslatedText stringId="report.subHeading.total" fallback="Total" casing="upper" />
           </StyledText>
-
           <StyledText
             fontWeight="bold"
             color={theme.colors.TEXT_DARK}
