@@ -2064,6 +2064,29 @@ medication.get(
     const dispenseTz = getPrimaryTimeZone();
     const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
+    // Scalar subquery for the patient's current area (the location group of their currently
+    // active encounter, i.e. the encounter with no endDate yet). Kept as a correlated scalar
+    // subquery, rather than a joined include, so it can't fan out the paginated result set.
+    const currentAreaNameLiteral = Sequelize.literal(`(
+      SELECT location_groups.name
+      FROM encounters
+      JOIN locations ON locations.id = encounters.location_id
+      JOIN location_groups ON location_groups.id = locations.location_group_id
+      WHERE encounters.patient_id = "pharmacyOrderPrescription->pharmacyOrder->encounter".patient_id
+        AND encounters.end_date IS NULL
+      ORDER BY encounters.start_date DESC, encounters.id
+      LIMIT 1
+    )`);
+    const currentAreaSubqueryForLocationGroupId = Sequelize.literal(`(
+      SELECT locations.location_group_id
+      FROM encounters
+      JOIN locations ON locations.id = encounters.location_id
+      WHERE encounters.patient_id = "pharmacyOrderPrescription->pharmacyOrder->encounter".patient_id
+        AND encounters.end_date IS NULL
+      ORDER BY encounters.start_date DESC, encounters.id
+      LIMIT 1
+    )`);
+
     const rootFilter = mapQueryFilters(filterParams, [
       {
         key: 'dispensedAt',
@@ -2077,6 +2100,11 @@ medication.get(
       { key: 'dispensedByUserId', operator: Op.eq },
       // The dispensed medication (may differ from the prescription's when modified by pharmacy)
       { key: 'medicationId', operator: Op.eq },
+      {
+        key: 'locationGroupId',
+        mapFn: (_fieldName, _operator, value) =>
+          Sequelize.where(currentAreaSubqueryForLocationGroupId, value),
+      },
     ]);
 
     // Query MedicationDispense with all associations
@@ -2192,6 +2220,7 @@ medication.get(
         'modifiedById',
         'modifiedReasonId',
         'modifiedAt',
+        [currentAreaNameLiteral, 'currentAreaName'],
       ],
       where: {
         [Op.and]: [
@@ -2213,10 +2242,16 @@ medication.get(
             : []),
         ],
       },
-      order: [
-        [...orderBy.split('.'), orderDirection],
-        ['dispensedAt', 'DESC'],
-      ],
+      order:
+        orderBy === 'currentAreaName'
+          ? [
+              [Sequelize.literal('"currentAreaName"'), `${orderDirection} NULLS LAST`],
+              ['dispensedAt', 'DESC'],
+            ]
+          : [
+              [...orderBy.split('.'), orderDirection],
+              ['dispensedAt', 'DESC'],
+            ],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
       distinct: true,
