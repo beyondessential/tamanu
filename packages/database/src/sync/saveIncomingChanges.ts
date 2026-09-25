@@ -47,9 +47,9 @@ export const saveChangesForModel = async (
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
   // add all records that already exist in the db to the list to be updated
   // even if they are being deleted or restored, we should also run an update query to keep the data in sync
-  const existingRecords: { id: string }[] = (
-    await model.findByIds(idsForIncomingRecords, false)
-  ).map(r => r.get({ plain: true }));
+  const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
+    r.get({ plain: true }),
+  );
   const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
   // follow the same pattern for incoming records
   // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
