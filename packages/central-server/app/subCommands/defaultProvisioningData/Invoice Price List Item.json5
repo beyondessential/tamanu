@@ -102,24 +102,8 @@
       "invoicePriceList-1": 433
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Bicarbonate",
-      "invoicePriceList-1": 370
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Bilibubin",
-      "invoicePriceList-1": 290
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-BloodGlucose",
-      "invoicePriceList-1": 118
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-Calcium",
       "invoicePriceList-1": 14
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-CD4",
-      "invoicePriceList-1": 342
     },
     {
       "invoiceProductId": "invoiceProduct-labTestType-Chloride",
@@ -130,36 +114,8 @@
       "invoicePriceList-1": 77
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-COVID",
-      "invoicePriceList-1": 68
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVID19NasalSwab",
-      "invoicePriceList-1": 494
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDEndotrachealaspirate",
-      "invoicePriceList-1": 248
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasalSwab",
-      "invoicePriceList-1": 199
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasopharyngealSwab",
-      "invoicePriceList-1": 456
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDOropharyngealSwab",
-      "invoicePriceList-1": 111
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-Creatinine",
       "invoicePriceList-1": 241
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-eGFR",
-      "invoicePriceList-1": 20
     },
     {
       "invoiceProductId": "invoiceProduct-labTestType-Eosinophils",
@@ -170,40 +126,12 @@
       "invoicePriceList-1": 190
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-HbA1C",
-      "invoicePriceList-1": 115
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HBsAG",
-      "invoicePriceList-1": 414
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HGB",
-      "invoicePriceList-1": 152
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HIV",
-      "invoicePriceList-1": 286
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HIVViralload",
-      "invoicePriceList-1": 459
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-INR",
       "invoicePriceList-1": 24
     },
     {
       "invoiceProductId": "invoiceProduct-labTestType-Lymphocytes",
       "invoicePriceList-1": 142
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Magnesium",
-      "invoicePriceList-1": 472
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Malariatype",
-      "invoicePriceList-1": 10
     },
     {
       "invoiceProductId": "invoiceProduct-labTestType-MCH",
@@ -226,22 +154,6 @@
       "invoicePriceList-1": 76
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Papsmear",
-      "invoicePriceList-1": 216
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Parasitecount",
-      "invoicePriceList-1": 185
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-PCV",
-      "invoicePriceList-1": 313
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Phosphate",
-      "invoicePriceList-1": 64
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-PLT",
       "invoicePriceList-1": 386
     },
@@ -250,24 +162,8 @@
       "invoicePriceList-1": 415
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Prothrombin",
-      "invoicePriceList-1": 16
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-RapidHIVTest",
-      "invoicePriceList-1": 317
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-RBC",
       "invoicePriceList-1": 454
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-RDTNegativenofurthertestingneeded",
-      "invoicePriceList-1": 455
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-RDTPositive",
-      "invoicePriceList-1": 424
     },
     {
       "invoiceProductId": "invoiceProduct-labTestType-RDWCV",
@@ -278,16 +174,8 @@
       "invoicePriceList-1": 315
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Urea",
-      "invoicePriceList-1": 445
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-WBC",
       "invoicePriceList-1": 39
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Woundswab",
-      "invoicePriceList-1": 94
     },
     {
       "invoiceProductId": "invoiceProduct-mammogram",

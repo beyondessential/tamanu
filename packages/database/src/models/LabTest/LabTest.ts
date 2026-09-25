@@ -6,6 +6,7 @@ import { dateTimeType, dateType, type InitOptions, type Models } from '../../typ
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import type { SessionConfig } from '../../types/sync';
 import type { LabTestType } from '../../models/LabTestType';
+import type { LabTestPanelRequest } from '../../models/LabTestPanelRequest';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
@@ -21,10 +22,12 @@ export class LabTest extends Model {
   declare verification?: string;
   declare completedDate?: string;
   declare labRequestId?: string;
+  declare labTestPanelRequestId?: string;
   declare categoryId?: string;
   declare labTestMethodId?: string;
   declare labTestTypeId?: string;
   declare labTestType?: LabTestType;
+  declare labTestPanelRequest?: LabTestPanelRequest;
   declare referenceRangeMin?: number;
   declare referenceRangeMax?: number;
   declare referenceRangeText?: string;
@@ -74,6 +77,10 @@ export class LabTest extends Model {
   }
 
   static initRelations(models: Models) {
+    // A test always belongs directly to its request, and — if it's a panel member — also to its
+    // panel request. The direct labRequestId is kept on every test (not just loose ones) so "all
+    // tests of a request" stays a single indexed lookup; the two links are kept consistent by
+    // createWithTests.
     this.belongsTo(models.LabRequest, {
       foreignKey: 'labRequestId',
       as: 'labRequest',
@@ -92,6 +99,11 @@ export class LabTest extends Model {
     this.belongsTo(models.LabTestType, {
       foreignKey: 'labTestTypeId',
       as: 'labTestType',
+    });
+
+    this.belongsTo(models.LabTestPanelRequest, {
+      foreignKey: 'labTestPanelRequestId',
+      as: 'labTestPanelRequest',
     });
   }
 

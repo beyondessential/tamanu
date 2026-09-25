@@ -28,6 +28,7 @@ reference range is flagged for clinicians.
 
 - [ ] The lab request results table shows each test's result, unit, reference range, method, lab officer, verification and completed date.
 - [ ] A result that also carries a secondary result shows the secondary result on hover.
+- [ ] The lab request results table can be exported.
 
 ## Edited entries
 
