@@ -216,7 +216,6 @@ describe('FacilitySyncManager integration', () => {
   // tick (destroy()/restore() left updated_at_sync_tick out of the statement), so a bulk delete on
   // central was echoed straight back to it by every facility that pulled it.
   describe('records persisted from a central pull are never pushed back', () => {
-    const SESSION_ID = sessionId;
     const PATIENT_ID = 'sync-integration-pulled-patient';
     const patientData = () =>
       fake(models.Patient, { id: PATIENT_ID, displayId: 'SYNCPULL', firstName: 'Pulled' });
@@ -236,7 +235,7 @@ describe('FacilitySyncManager integration', () => {
       mockCentralServer.pull.mockResolvedValueOnce([
         { id: '1', recordType: 'patients', recordId: PATIENT_ID, ...record },
       ]);
-      await syncManager.pullChanges(SESSION_ID);
+      await syncManager.pullChanges(sessionId);
     };
 
     // snapshot from the beginning of time so the check is about the row's own tick, not the
@@ -254,8 +253,9 @@ describe('FacilitySyncManager integration', () => {
     });
 
     afterEach(async () => {
-      await dropSnapshotTable(sequelize, SESSION_ID);
+      await dropSnapshotTable(sequelize, sessionId);
       await removePatient();
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '0');
     });
 
     it('does not push a pulled delete back to central', async () => {
@@ -264,7 +264,7 @@ describe('FacilitySyncManager integration', () => {
       // a local write is pushable until central has seen it
       expect(await outgoingPatientIds()).toContain(PATIENT_ID);
 
-      await pullOneRecord({ isDeleted: true, data: { ...data, updatedAtSyncTick: -1 } });
+      await pullOneRecord({ isDeleted: true, data });
 
       const patient = await models.Patient.findByPk(PATIENT_ID, { paranoid: false });
       expect(patient.deletedAt).not.toBeNull();
@@ -277,7 +277,7 @@ describe('FacilitySyncManager integration', () => {
       const created = await models.Patient.create(data);
       await created.destroy();
 
-      await pullOneRecord({ isDeleted: false, data: { ...data, updatedAtSyncTick: -1 } });
+      await pullOneRecord({ isDeleted: false, data });
 
       const patient = await models.Patient.findByPk(PATIENT_ID);
       expect(patient).not.toBeNull();
