@@ -59,10 +59,10 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
     }
   }, []);
 
-  const onNavigateToSearchPatient = useCallback(() => {
+  const onNavigateToSearchPatient = () => {
     setSelectedPatient(null);
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
-  }, []);
+  };
 
   useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
