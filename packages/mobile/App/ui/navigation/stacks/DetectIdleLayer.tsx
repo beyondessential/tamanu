@@ -1,13 +1,12 @@
-import { debounce } from 'es-toolkit/compat';
-import React, { type ReactElement, type ReactNode, useCallback, useEffect, useRef } from 'react';
-import {
-  AppState,
-  type AppStateStatus,
-  type EmitterSubscription,
-  Keyboard,
-  type NativeEventSubscription,
-  PanResponder,
-} from 'react-native';
+import React, {
+  type ReactElement,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+} from 'react';
+import { AppState, Keyboard } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -19,79 +18,45 @@ interface DetectIdleLayerProps {
 const UI_EXPIRY_TIME = 1_800_000;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
-  const lastActivityRef = useRef(Date.now());
-  const screenOffTimeRef = useRef<number | null>(null);
-  const appStateRef = useRef(AppState.currentState);
+  const lastActivityRef = useRef(0);
   const { signOutClient, signedIn } = useAuth();
-  const signOutClientRef = useRef(signOutClient);
-  signOutClientRef.current = signOutClient;
 
-  const resetIdle = useCallback((): void => {
+  /** Returns false so this view never claims the touch responder from its children */
+  const recordActivity = useCallback((): boolean => {
     lastActivityRef.current = Date.now();
+    return false;
   }, []);
 
-  const debouncedResetIdle = useCallback(debounce(resetIdle, 300), [resetIdle]);
-
-  const handleResetIdleRef = useRef((): boolean => {
-    debouncedResetIdle();
-    return false;
+  const signOutIfExpired = useEffectEvent((): void => {
+    if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) signOutClient(true);
   });
-  handleResetIdleRef.current = (): boolean => {
-    debouncedResetIdle();
-    return false;
-  };
-
-  const stableHandleResetIdle = useCallback((): boolean => handleResetIdleRef.current(), []);
 
   useEffect(() => {
     if (!signedIn) return;
+    lastActivityRef.current = Date.now();
 
-    const handleStateChange = (nextAppState: AppStateStatus): void => {
-      if (appStateRef.current === 'active' && nextAppState.match(/^(inactive|background)$/)) {
-        screenOffTimeRef.current = Date.now();
-      } else if (
-        appStateRef.current.match(/^(inactive|background)$/) &&
-        nextAppState === 'active'
-      ) {
-        if (screenOffTimeRef.current) {
-          screenOffTimeRef.current = null;
-          if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
-            signOutClientRef.current(true);
-          }
-        }
-      }
-      appStateRef.current = nextAppState;
-    };
-
-    const subscriptions: (EmitterSubscription | NativeEventSubscription)[] = [
-      AppState.addEventListener('change', handleStateChange),
-      Keyboard.addListener('keyboardDidHide', stableHandleResetIdle),
-      Keyboard.addListener('keyboardDidShow', stableHandleResetIdle),
+    // Timers are suspended while backgrounded, so also check on returning to the foreground
+    const subscriptions = [
+      AppState.addEventListener('change', nextAppState => {
+        if (nextAppState === 'active') signOutIfExpired();
+      }),
+      Keyboard.addListener('keyboardDidHide', recordActivity),
+      Keyboard.addListener('keyboardDidShow', recordActivity),
     ];
-
-    const intervalId = setInterval(() => {
-      if (Date.now() - lastActivityRef.current >= UI_EXPIRY_TIME) {
-        signOutClientRef.current(true);
-      }
-    }, 60000);
+    const intervalId = setInterval(() => signOutIfExpired(), 60_000);
 
     return () => {
       clearInterval(intervalId);
-      for (const subscription of subscriptions) subscription?.remove();
-      debouncedResetIdle.cancel();
+      for (const subscription of subscriptions) subscription.remove();
     };
-  }, [signedIn, stableHandleResetIdle, debouncedResetIdle]);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponderCapture: stableHandleResetIdle,
-      onStartShouldSetPanResponderCapture: stableHandleResetIdle,
-      onPanResponderTerminationRequest: stableHandleResetIdle,
-    }),
-  );
+  }, [recordActivity, signedIn]);
 
   return (
-    <StyledView height="100%" {...panResponder.current.panHandlers}>
+    <StyledView
+      height="100%"
+      onStartShouldSetResponderCapture={recordActivity}
+      onMoveShouldSetResponderCapture={recordActivity}
+    >
       {children}
     </StyledView>
   );
