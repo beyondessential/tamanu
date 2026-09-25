@@ -123,14 +123,7 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
       : formatStringDate(firstData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
   const todayFormatted = formatStringDate(lastData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
 
-  const { max, min } = visitData.data.reduce(
-    (acc, item) => {
-      acc.max = Math.max(acc.max, item.value);
-      acc.min = Math.min(acc.min, item.value);
-      return acc;
-    },
-    { max: 0, min: 0 },
-  );
+  const numberOfTicks = Math.max(0, ...visitData.data.map(item => item.value));
 
   return (
     <StyledView>
@@ -198,7 +191,7 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
             data={visitData.data}
             contentInset={verticalContentInset}
             svg={axesSvg}
-            numberOfTicks={max - min}
+            numberOfTicks={numberOfTicks}
           />
         </RowView>
       </StyledView>
