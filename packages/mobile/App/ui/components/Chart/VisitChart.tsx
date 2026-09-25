@@ -36,23 +36,11 @@ const CustomGrid = ({ x, data }: CustomGridProps): ReactElement => (
 );
 
 const DateRangeIndexes = [
-  {
-    startDate: 0,
-    endDate: 6,
-  },
-  {
-    startDate: 7,
-    endDate: 13,
-  },
-  {
-    startDate: 14,
-    endDate: 20,
-  },
-  {
-    startDate: 21,
-    endDate: 27,
-  },
-];
+  { startDate: 0, endDate: 6 },
+  { startDate: 7, endDate: 13 },
+  { startDate: 14, endDate: 20 },
+  { startDate: 21, endDate: 27 },
+] as const;
 
 interface DateRangeLabelsProps {
   data: BarChartData[];
