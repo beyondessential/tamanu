@@ -129,7 +129,6 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
     { max: 0, min: 0 },
   );
 
-  const numTicks = max - min;
   return (
     <StyledView>
       <RowView
@@ -196,7 +195,7 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
             data={visitData.data}
             contentInset={verticalContentInset}
             svg={axesSvg}
-            numberOfTicks={numTicks}
+            numberOfTicks={max - min}
           />
         </RowView>
       </StyledView>
