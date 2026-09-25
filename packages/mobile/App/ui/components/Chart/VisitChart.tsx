@@ -117,6 +117,8 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
 
   const firstData = visitData.data.at(0);
   const lastData = visitData.data.at(-1);
+  if (firstData === undefined || lastData === undefined) return null;
+
   const oneMonthAgoFormatted =
     parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
       ? formatStringDate(firstData.date, DateFormats.DAY_MONTH)
