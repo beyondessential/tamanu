@@ -4,7 +4,7 @@ import React, { type ReactElement, useCallback, useState } from 'react';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import type { BaseInputProps } from '../../interfaces/BaseInputProps';
-import * as Icons from '../Icons';
+import { CalendarIcon, ClockIcon } from '../Icons';
 import { RequiredIndicator } from '../RequiredIndicator';
 import { InputContainer } from '../TextField/styles';
 import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
@@ -156,7 +156,7 @@ export const DateField = React.memo(
       return null;
     }, [mode, value, dateValue, formatDate]);
 
-    const IconComponent = mode === 'time' ? Icons.ClockIcon : Icons.CalendarIcon;
+    const IconComponent = mode === 'time' ? ClockIcon : CalendarIcon;
 
     const formattedValue = formatValue();
 
