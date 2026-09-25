@@ -1,14 +1,14 @@
-import React, { memo, type ReactElement, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
-import { BarChart, YAxis } from 'react-native-svg-charts';
-import { G, Line } from 'react-native-svg';
 import { parseISO } from 'date-fns';
-import { DateFormats } from '../../helpers/constants';
+import React, { memo, useMemo } from 'react';
+import { StyleSheet } from 'react-native';
+import { G, Line } from 'react-native-svg';
+import { BarChart, YAxis } from 'react-native-svg-charts';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+import { DateFormats } from '../../helpers/constants';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import type { BarChartData } from '../../interfaces/BarChartProps';
 import { RowView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
-import type { BarChartData } from '../../interfaces/BarChartProps';
 import { TranslatedText } from '../Translations/TranslatedText';
 
 interface CustomGridProps {
@@ -16,7 +16,7 @@ interface CustomGridProps {
   data: any[];
 }
 
-const CustomGrid = ({ x, data }: CustomGridProps): ReactElement => (
+const CustomGrid = ({ x, data }: CustomGridProps) => (
   <G>
     {data?.map(
       (_, index: number) =>
@@ -101,7 +101,7 @@ const barStyle = {
 };
 
 interface BarChartProps {
-  visitData: {
+  visitData?: {
     totalVisits: number;
     data: BarChartData[];
   };
@@ -112,9 +112,11 @@ const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
 export const VisitChart = ({ visitData }: BarChartProps) => {
   const { formatStringDate } = useDateFormatter();
-  const lastData = visitData.data[visitData.data.length - 1];
-  const firstData = visitData.data[0];
 
+  if (visitData === undefined) return null;
+
+  const firstData = visitData.data.at(0);
+  const lastData = visitData.data.at(-1);
   const oneMonthAgoFormatted =
     parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
       ? formatStringDate(firstData.date, DateFormats.DAY_MONTH)

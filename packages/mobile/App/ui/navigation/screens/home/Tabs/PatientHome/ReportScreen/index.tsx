@@ -7,7 +7,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import type { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
-import { SummaryBoard } from './SummaryBoard';
+import { SummaryBoard, type SummaryInfo } from './SummaryBoard';
 import { Dropdown } from './components/Dropdown';
 import { Button } from '/components/Button';
 import { VisitChart } from '/components/Chart/VisitChart';
@@ -54,17 +54,31 @@ const ReportTypeButtons = ({ isReportWeekly, onPress }: IReportTypeButtons): Rea
   </RowView>
 );
 
+const buildVisitReport = (rows: SummaryInfo[]) => {
+  const today = addHours(startOfToday(), 3);
+  const rowsByDate = new Map(rows.map(row => [row.encounterDate, row]));
+
+  const data: BarChartData[] = Array.from({ length: 28 }, (_, index) => {
+    const date = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
+    return { date, value: rowsByDate.get(date)?.totalEncounters ?? 0 };
+  });
+
+  return {
+    visitData: {
+      totalVisits: data.reduce((sum, day) => sum + day.value, 0),
+      data,
+    },
+    todayData: rowsByDate.get(format(today, 'yyyy-MM-dd')),
+  };
+};
+
 interface ReportChartProps {
   isReportWeekly: boolean;
   visitData?: {
     totalVisits: number;
     data: BarChartData[];
   };
-  todayData: {
-    totalEncounters: number;
-    totalSurveys: number;
-    encounterDate: string;
-  };
+  todayData?: SummaryInfo;
   selectedSurveyId: string;
 }
 
@@ -104,40 +118,14 @@ export const ReportScreen = (): ReactElement => {
   // Default to the first survey until the user picks one
   const selectedSurveyId = userSelectedSurveyId ?? surveys?.[0]?.id;
 
-  const { data } = useQuery({
+  const { data: report } = useQuery({
     queryKey: reportKeys.encounterSummary(selectedSurveyId),
     queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
     enabled: selectedSurveyId !== undefined,
+    select: buildVisitReport,
   });
 
   const reportList = surveys?.map(s => ({ label: s.name, value: s.id }));
-
-  const today = addHours(startOfToday(), 3);
-  const todayString = format(today, 'yyyy-MM-dd');
-  const todayData = data?.find(item => item.encounterDate === todayString);
-
-  const visitData = new Array(28).fill('').reduce(
-    (accum, _, index) => {
-      const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
-      const receivedValueForDay =
-        data?.find(item => item.encounterDate === currentDate)?.totalEncounters || 0;
-
-      return {
-        totalVisits: accum.totalVisits + receivedValueForDay,
-        data: [
-          ...accum.data,
-          {
-            date: currentDate,
-            value: receivedValueForDay,
-          },
-        ],
-      };
-    },
-    {
-      totalVisits: 0,
-      data: [],
-    },
-  );
 
   useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
@@ -169,9 +157,7 @@ export const ReportScreen = (): ReactElement => {
           {reportList && (
             <Dropdown
               options={reportList}
-              handleSelect={(value): void => {
-                setUserSelectedSurveyId(value);
-              }}
+              handleSelect={setUserSelectedSurveyId}
               selectedItem={selectedSurveyId}
             />
           )}
@@ -184,8 +170,8 @@ export const ReportScreen = (): ReactElement => {
       {selectedSurveyId !== undefined ? (
         <ReportChart
           isReportWeekly={isReportWeekly}
-          visitData={visitData}
-          todayData={todayData}
+          visitData={report?.visitData}
+          todayData={report?.todayData}
           selectedSurveyId={selectedSurveyId}
         />
       ) : null}
