@@ -19,7 +19,6 @@ import { TextField } from './TextField/TextField';
 import { TranslatedText } from './Translations/TranslatedText';
 
 interface AuthenticationModelProps {
-  open: boolean;
   onClose: () => void;
 }
 
@@ -27,7 +26,7 @@ type AuthenticationValues = {
   password: string;
 };
 
-const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
+const AuthenticationModal = ({ onClose }: AuthenticationModelProps): JSX.Element => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
@@ -40,14 +39,8 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
     }
   };
 
-  useEffect(() => {
-    if (errorMessage) {
-      setErrorMessage(null);
-    }
-  }, [open]);
-
   return (
-    <Modal isVisible={open} onBackdropPress={onClose}>
+    <Modal isVisible onBackdropPress={onClose}>
       <StyledView
         padding={screenPercentageToDP(3.6, Orientation.Width)}
         background={theme.colors.WHITE}
@@ -197,7 +190,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
-      <AuthenticationModal open={openAuthenticationModel} onClose={handleCloseModal} />
+      {openAuthenticationModel && <AuthenticationModal onClose={handleCloseModal} />}
     </>
   );
 };
