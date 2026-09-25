@@ -168,7 +168,7 @@ export const DateField = React.memo(
 
     return (
       <StyledView marginBottom={screenPercentageToDP(2.24, Orientation.Height)} width="100%">
-        {!!label && (
+        {label && (
           <StyledText fontSize={labelFontSize} fontWeight={600} marginBottom={2} color={labelColor}>
             {label}
             {required && <RequiredIndicator />}
