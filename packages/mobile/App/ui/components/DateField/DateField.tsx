@@ -1,17 +1,17 @@
-import React, { type ReactElement, useCallback, useState } from 'react';
-import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { parseISO } from 'date-fns';
-import { StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
+import React, { type ReactElement, useCallback, useState } from 'react';
+import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
+import * as Icons from '../Icons';
+import { RequiredIndicator } from '../RequiredIndicator';
+import { InputContainer } from '../TextField/styles';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import * as Icons from '../Icons';
-import { InputContainer } from '../TextField/styles';
-import type { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
-import { RequiredIndicator } from '../RequiredIndicator';
-import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+import { StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 // Spinner mode ignores colorAccent from styles.xml — set button colours explicitly.
 // See https://github.com/react-native-datetimepicker/datetimepicker/issues/543
