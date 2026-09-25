@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Alert } from 'react-native';
@@ -85,8 +86,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
 
   const [condition, setCondition] = useState(value?.condition);
   const [category, setCategory] = useState(value?.category);
-  const [hasOpenedConditionScreenImmediately, setHasOpenedConditionScreenImmediately] =
-    useState(false);
+  const hasOpenedConditionScreenImmediately = useRef(false);
 
   const label = (() => {
     if (!condition || !category) return '';
@@ -173,16 +173,11 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   }, [openCategoryScreen, getTranslation, conditionSuggester, navigation]);
 
   useEffect(() => {
-    if (isNewlyCreated && !hasOpenedConditionScreenImmediately) {
+    if (isNewlyCreated && !hasOpenedConditionScreenImmediately.current) {
       openConditionScreen();
-      setHasOpenedConditionScreenImmediately(true);
+      hasOpenedConditionScreenImmediately.current = true;
     }
-  }, [
-    openConditionScreen,
-    isNewlyCreated,
-    hasOpenedConditionScreenImmediately,
-    setHasOpenedConditionScreenImmediately,
-  ]);
+  }, [openConditionScreen, isNewlyCreated]);
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
