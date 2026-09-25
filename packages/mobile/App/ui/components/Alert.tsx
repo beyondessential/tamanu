@@ -9,21 +9,17 @@ export const AlertSeverity = {
   Error: 'error',
   Warning: 'warning',
 } as const;
+
 export type AlertSeverity = (typeof AlertSeverity)[keyof typeof AlertSeverity];
 
-type SyncInactiveBannerProps = {
+interface SyncInactiveBannerProps {
   severity?: AlertSeverity;
   children: ReactNode;
   open: boolean;
   onClose: () => void;
-};
+}
 
-const SEVERITY_TO_COLORS: {
-  [key in AlertSeverity]: {
-    background: string;
-    color: string;
-  };
-} = {
+const SEVERITY_TO_COLORS = {
   info: {
     background: '#dce3ec',
     color: theme.colors.PRIMARY_MAIN,
@@ -36,7 +32,7 @@ const SEVERITY_TO_COLORS: {
     background: '#FCF8E2',
     color: '#8B6E37',
   },
-};
+} as const;
 
 export const Alert = ({
   severity = AlertSeverity.Info,
