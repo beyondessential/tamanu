@@ -47,8 +47,8 @@ const ReportTypeButtons = ({ isReportWeekly, onPress }: IReportTypeButtons): Rea
         height={screenPercentageToDP(3.76, Orientation.Height)}
         width={screenPercentageToDP(44.52, Orientation.Width)}
         buttonText={<TranslatedText stringId="report.heading.dataTable" fallback="Data Table" />}
-        backgroundColor={!isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE}
-        textColor={!isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID}
+        backgroundColor={isReportWeekly ? theme.colors.BOX_OUTLINE : theme.colors.WHITE}
+        textColor={isReportWeekly ? theme.colors.TEXT_MID : theme.colors.PRIMARY_MAIN}
         onPress={onPress}
       />
     </RowView>
