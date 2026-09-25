@@ -1,9 +1,9 @@
 import { keyBy, mapValues } from 'es-toolkit/compat';
-import { DataTypes, QueryTypes } from 'sequelize';
+import { literal, Op } from 'sequelize';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
-import type { Appointment, AppointmentSchedule } from '../models';
+import type { AppointmentSchedule } from '../models';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { sanitizeRecord } from './sanitizeRecord';
 
@@ -28,45 +28,24 @@ export const resolveAppointmentSchedules = async (
     'data.generatedUntilDate',
   );
 
-  // Select only the model's own columns and map them onto the Appointment model so the snapshot
-  // data has camel case keys. A raw `SELECT *` row would carry `deleted_at`, but `sanitizeRecord`
-  // expects (and strips) `deletedAt`; it would also carry legacy columns the model no longer
-  // declares, which `mapToModel` passes through under their raw names.
-  const { Appointment: AppointmentModel } = AppointmentScheduleModel.sequelize.models;
-  /**
-   * Get attributes from Sequelize model, because `SELECT *` includes `start_time_legacy` and
-   * `end_time_legacy`, which we don’t want.
-   */
-  const appointmentColumns = Object.values(AppointmentModel.getAttributes())
-    .filter(attribute => !(attribute.type instanceof DataTypes.VIRTUAL))
-    .map(attribute => `appointments.${attribute.field}`)
-    .join(', ');
-  const outOfBoundAppointments = await AppointmentScheduleModel.sequelize.query(
-    `
-    WITH schedule_generated_until_dates AS (
-     SELECT value::date_string AS date, key::uuid AS id from json_each_text(:generatedUntilDates)
-    )
-    SELECT
-      ${appointmentColumns}
-    FROM
-      appointments
-    WHERE
-      schedule_id IN (:scheduleIds)
-      AND status <> :canceledStatus
-    AND
-      start_time::date_string > (SELECT date FROM schedule_generated_until_dates WHERE id = schedule_id)
-    `,
-    {
-      type: QueryTypes.SELECT,
-      model: AppointmentModel as typeof Appointment,
-      mapToModel: true,
-      replacements: {
-        canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
-        scheduleIds: Object.keys(generatedUntilDates),
-        generatedUntilDates: JSON.stringify(generatedUntilDates),
-      },
+  // A model query selects only the declared attributes, under their camel case names, so the
+  // snapshot data can't carry a raw column name (`deleted_at`, undeclared legacy columns) into the
+  // persist step, where it would be written to the SET clause as-is.
+  const { sequelize } = AppointmentScheduleModel;
+  const outOfBoundAppointments = await sequelize.models.Appointment.findAll({
+    where: {
+      scheduleId: { [Op.in]: Object.keys(generatedUntilDates) },
+      status: { [Op.ne]: APPOINTMENT_STATUSES.CANCELLED },
+      [Op.and]: literal(
+        `start_time::date_string > (
+          SELECT value::date_string
+          FROM json_each_text(${sequelize.escape(JSON.stringify(generatedUntilDates))})
+          WHERE key::uuid = schedule_id
+        )`,
+      ),
     },
-  );
+    raw: true,
+  });
 
   if (outOfBoundAppointments.length === 0) {
     return;
@@ -77,7 +56,7 @@ export const resolveAppointmentSchedules = async (
     recordType: 'appointments',
     recordId: a.id,
     isDeleted: true,
-    data: sanitizeRecord(a.get({ plain: true })),
+    data: sanitizeRecord(a),
   }));
 
   return {
