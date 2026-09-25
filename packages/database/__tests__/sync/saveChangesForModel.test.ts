@@ -327,7 +327,8 @@ describe('saveChangesForModel', () => {
       const changes = [
         {
           // the device never saw the delete, so it echoes deletedAt: null alongside its edit; the
-          // newer per-field tick lets the edit win the field-wise merge
+          // newer per-field ticks let the edit win the field-wise merge, and would let the null win
+          // too (restoring the record) if the client’s deletedAt weren’t stripped first
           data: {
             ...pushedAdditionalData,
             deletedAt: null,
@@ -335,6 +336,7 @@ describe('saveChangesForModel', () => {
             updatedAtByField: {
               ...pushedAdditionalData.updatedAtByField,
               place_of_birth: currentSyncTick + 1,
+              deleted_at: currentSyncTick + 1,
             },
           },
           isDeleted: false,
