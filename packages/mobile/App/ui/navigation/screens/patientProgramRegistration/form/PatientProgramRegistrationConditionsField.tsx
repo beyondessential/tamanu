@@ -1,31 +1,31 @@
+import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import React, {
-  type ReactElement,
   type FC,
-  useState,
-  useEffect,
+  type ReactElement,
   useCallback,
+  useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
-import { theme } from '~/ui/styled/theme';
-import { useQuery } from '@tanstack/react-query';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import { Database } from '~/infra/db';
-import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
-import { useBackend } from '~/ui/hooks';
-import { Suggester } from '~/ui/helpers/suggester';
-import { Routes } from '~/ui/helpers/routes';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
-import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
+import type { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
+import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
-import type { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { theme } from '~/ui/styled/theme';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 
 interface FieldValue {
   label: string;
@@ -88,7 +88,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   const [hasOpenedConditionScreenImmediately, setHasOpenedConditionScreenImmediately] =
     useState(false);
 
-  const buildLabel = useCallback(() => {
+  const label = (() => {
     if (!condition || !category) return '';
 
     const conditionStringId = getReferenceDataStringId(condition.value, 'programRegistryCondition');
@@ -100,13 +100,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
     const categoryLabel = getTranslation(categoryStringId, category.label);
 
     return `${conditionLabel} (${categoryLabel})`;
-  }, [condition, category, getTranslation]);
-
-  const [label, setLabel] = useState(buildLabel());
-
-  useEffect(() => {
-    setLabel(buildLabel());
-  }, [setLabel, buildLabel]);
+  })();
 
   const openCategoryScreen = useCallback(
     newCondition => {
