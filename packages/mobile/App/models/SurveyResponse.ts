@@ -159,13 +159,15 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       where: { id: surveyResponseId },
       relations: ['survey', 'encounter', 'encounter.patient'],
     });
-    const questions = await response.survey.getComponents({ includeAllVitals: true });
-    const answers = await SurveyResponseAnswer.getRepository().find({
-      where: {
-        response: { id: response.id },
-      },
-      relations: ['dataElement'],
-    });
+    const [questions, answers] = await Promise.all([
+      response.survey.getComponents({ includeAllVitals: true }),
+      SurveyResponseAnswer.getRepository().find({
+        where: {
+          response: { id: response.id },
+        },
+        relations: ['dataElement'],
+      }),
+    ]);
 
     return {
       ...response,
