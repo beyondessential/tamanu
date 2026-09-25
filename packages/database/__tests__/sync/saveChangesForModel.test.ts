@@ -84,6 +84,32 @@ describe('saveChangesForModel', () => {
       expect(newRecordInDb.deletedAt).not.toBeNull();
       expect(Number.parseInt(newRecordInDb.updatedAtSyncTick, 10)).toBe(currentSyncTick);
     });
+
+    it('soft deletes a duplicated create when any copy is deleted, whichever sorts first', async () => {
+      // e.g. with syncAllLabRequests on, an encounter can arrive twice in one batch: once for a
+      // marked-for-sync patient and once because it has a lab request attached
+      const newRecord = {
+        id: 'new_record_id',
+        text: 'new_record_name',
+        updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER,
+      };
+      const changes = [
+        { data: newRecord, isDeleted: false },
+        { data: newRecord, isDeleted: true },
+      ];
+      // act
+      await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
+      // assertions
+      const rowsInDb = await models.SurveyScreenComponent.findAll({
+        where: { id: newRecord.id },
+        paranoid: false,
+      });
+      expect(rowsInDb).toHaveLength(1);
+      expect(rowsInDb[0].deletedAt).not.toBeNull();
+      expect(Number.parseInt(rowsInDb[0].updatedAtSyncTick, 10)).toBe(
+        SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE,
+      );
+    });
   });
 
   describe('saveUpdates', () => {
