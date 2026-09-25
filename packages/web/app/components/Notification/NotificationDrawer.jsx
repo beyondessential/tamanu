@@ -26,6 +26,7 @@ const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
   [NOTIFICATION_TYPES.IMAGING_REQUEST]: radiologyIcon,
   [NOTIFICATION_TYPES.PHARMACY_NOTE]: medicationIcon,
+  [NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED]: medicationIcon,
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
@@ -79,6 +80,14 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',
+      { replacements: { displayId, patientName } },
+    );
+  }
+
+  if (type === NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED) {
+    return getTranslation(
+      'notification.content.medicationNotDispensed',
+      'Medication for :patientName (:displayId) recorded as <strong>not dispensed</strong>',
       { replacements: { displayId, patientName } },
     );
   }
@@ -176,7 +185,7 @@ const Card = ({ notification }) => {
   const dispatch = useDispatch();
   const { mutateAsync: markAsRead, isLoading: isMarkingAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
-  const { encounterId, id } = metadata;
+  const { encounterId, id, pharmacyOrderPrescriptionId } = metadata;
 
   const navigate = useNavigate();
 
@@ -196,6 +205,10 @@ const Card = ({ notification }) => {
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
+      );
+    } else if (type === NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED) {
+      navigate(
+        `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openNotDispensedId=${pharmacyOrderPrescriptionId}`,
       );
     } else {
       navigate(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);

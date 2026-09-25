@@ -1905,7 +1905,7 @@ medication.get(
         {
           association: 'prescription',
           where: prescriptionFilters,
-          attributes: ['id'],
+          attributes: ['id', 'date'],
           include: [
             {
               association: 'medication',
@@ -1942,6 +1942,11 @@ medication.get(
               : []),
           ],
           required: true,
+        },
+        {
+          association: 'medicationDispenses',
+          attributes: ['id', 'dispensedAt'],
+          separate: true,
         },
       ],
       where: {
@@ -1980,7 +1985,10 @@ medication.get(
 
     res.send({
       count,
-      data,
+      data: data.map(row => ({
+        ...row.toJSON(),
+        remainingRepeats: row.getRemainingRepeats(),
+      })),
     });
   }),
 );
@@ -1992,7 +2000,6 @@ medication.delete(
     const { PharmacyOrderPrescription } = models;
 
     req.checkPermission('delete', 'MedicationRequest');
-    req.checkPermission('delete', 'MedicationDispense');
 
     const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
       include: [
@@ -2011,6 +2018,140 @@ medication.delete(
     await pharmacyOrderPrescription.destroy();
 
     res.send({ success: true });
+  }),
+);
+
+const notDispensedInputSchema = z
+  .object({
+    notDispensedReasonId: z.string().min(1, { message: 'Not dispensed reason ID is required' }),
+  })
+  .strip();
+
+medication.post(
+  '/medication-requests/:id/not-dispensed',
+  asyncHandler(async (req, res) => {
+    const { models, params, body, user } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('delete', 'MedicationRequest');
+
+    const { notDispensedReasonId } = await notDispensedInputSchema.parseAsync(body);
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['id', 'prescriberId'],
+        },
+        {
+          association: 'pharmacyOrder',
+          attributes: ['id', 'encounterId', 'isDischargePrescription'],
+          include: [{ association: 'encounter', attributes: ['id', 'patientId'] }],
+        },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription) {
+      throw new NotFoundError(`Medication request with id ${params.id} not found`);
+    }
+
+    const notDispensedAt = getCurrentDateTimeString();
+
+    await PharmacyOrderPrescription.sequelize.transaction(async () => {
+      // The destroy() below re-runs the same invoice-quantity recalculation with the final
+      // state, so skip it here to avoid running the whole chain twice for one action.
+      await pharmacyOrderPrescription.update(
+        {
+          notDispensedReasonId,
+          notDispensedById: user.id,
+          notDispensedAt,
+        },
+        { hooks: false },
+      );
+      await pharmacyOrderPrescription.destroy();
+
+      const prescriberId = pharmacyOrderPrescription.prescription?.prescriberId;
+      const patientId = pharmacyOrderPrescription.pharmacyOrder?.encounter?.patientId;
+      if (!prescriberId || !patientId) {
+        throw new InvalidOperationError(
+          `Pharmacy order prescription ${pharmacyOrderPrescription.id} is missing prescriber or patient data required to notify the prescriber`,
+        );
+      }
+      await models.Notification.pushNotification(NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED, {
+        prescriberId,
+        patientId,
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        encounterId: pharmacyOrderPrescription.pharmacyOrder?.encounterId,
+      });
+    });
+
+    res.send({ success: true });
+  }),
+);
+
+medication.get(
+  '/medication-requests/:id/not-dispensed',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('read', 'MedicationRequest');
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      paranoid: false,
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['id', 'date'],
+          include: [{ association: 'medication', attributes: ['id', 'name', 'type'] }],
+        },
+        {
+          // The parent pharmacy order is soft deleted along with its last remaining
+          // request (see the afterDestroy hook on PharmacyOrderPrescription), so this
+          // needs its own paranoid: false to still be found.
+          association: 'pharmacyOrder',
+          attributes: ['id', 'isDischargePrescription'],
+          paranoid: false,
+          include: [
+            {
+              association: 'encounter',
+              attributes: ['id'],
+              include: [
+                { association: 'patient', attributes: ['id', 'displayId', 'firstName', 'lastName'] },
+              ],
+            },
+          ],
+        },
+        { association: 'notDispensedReason', attributes: ['id', 'name'] },
+        { association: 'medicationDispenses', attributes: ['id', 'dispensedAt'], required: false },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription || !pharmacyOrderPrescription.notDispensedAt) {
+      throw new NotFoundError(`Not dispensed record with id ${params.id} not found`);
+    }
+
+    // forResponse() only remaps associations a model declares via getListReferenceAssociations,
+    // and does so one level deep — it can't walk the pharmacyOrder -> encounter -> patient chain
+    // this modal needs, so the response is shaped explicitly instead.
+    res.send({
+      id: pharmacyOrderPrescription.id,
+      displayId: pharmacyOrderPrescription.displayId,
+      remainingRepeats: pharmacyOrderPrescription.getRemainingRepeats(),
+      notDispensedAt: pharmacyOrderPrescription.notDispensedAt,
+      notDispensedReason: pharmacyOrderPrescription.notDispensedReason ?? null,
+      prescription: pharmacyOrderPrescription.prescription
+        ? {
+            date: pharmacyOrderPrescription.prescription.date,
+            medication: pharmacyOrderPrescription.prescription.medication ?? null,
+          }
+        : null,
+      pharmacyOrder: {
+        encounter: {
+          patient: pharmacyOrderPrescription.pharmacyOrder?.encounter?.patient ?? null,
+        },
+      },
+    });
   }),
 );
 

@@ -69,3 +69,12 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in pharmacy_order_prescriptions."
             data_tests:
               - not_null
+          - name: not_dispensed_reason_id
+            data_type: character varying(255)
+            description: "{{ doc('pharmacy_order_prescriptions__not_dispensed_reason_id') }}"
+          - name: not_dispensed_by_id
+            data_type: character varying(255)
+            description: "{{ doc('pharmacy_order_prescriptions__not_dispensed_by_id') }}"
+          - name: not_dispensed_at
+            data_type: character(19)
+            description: "{{ doc('pharmacy_order_prescriptions__not_dispensed_at') }}"
