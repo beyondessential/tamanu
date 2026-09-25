@@ -8,16 +8,13 @@ const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
 // We use hooks: false in all transactions here to avoid triggering side effects that may violate other records in the sync payload
 
-type RecordWithIsDeleted<T = { [attr: string]: unknown }> = {
-  id: string;
-  /** Non-nullable in most tables */
-  createdAt: Date | null;
-  /** Non-nullable in most tables */
-  updatedAt: Date | null;
-  deletedAt: Date | Utils.Fn | null;
-  updatedAtSyncTick: string;
+type RecordWithIsDeleted = {
+  [attr: string]: any;
+  /** Only on records being created: whether to insert them soft deleted */
   isDeleted?: boolean;
-} & T;
+  /** Only present when {@link saveChangesForModel} attached a delete (`Fn`) or restore (`null`) */
+  deletedAt?: Date | Utils.Fn | null;
+};
 
 /**
  * Soft deletes, restores and field changes all land in the one write per record, so `deleted_at`
@@ -73,7 +70,7 @@ export const saveUpdates = async (
         // when saveChangesForModel attached a delete/restore decision — it strips any value the
         // client sent — so that decision is written as-is.
         const { deletedAt, ...incomingFields } = incoming;
-        const merged = mergeRecord(idToExistingRecord[incoming.id], incomingFields);
+        const merged = mergeRecord(idToExistingRecord[incoming.id]!, incomingFields);
         return 'deletedAt' in incoming ? { ...merged, deletedAt } : merged;
       })
     : // on the facility server, trust the resolved central server version
