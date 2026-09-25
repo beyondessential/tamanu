@@ -49,10 +49,10 @@ export const saveUpdates = async (
     ? // on the central server, merge the records coming in from different clients
       incomingRecords.map(incoming => {
         // deleted_at is not tracked in updated_at_by_field, so the field-wise merge can’t
-        // arbitrate it (it would keep the existing value, and record a bogus deleted_at entry in
-        // updated_at_by_field). Keep it out of the merge. A `deletedAt` key is only ever present
-        // when saveChangesForModel attached a delete/restore decision — it strips any value the
-        // client sent — so that decision is written as-is.
+        // arbitrate it: on a tick tie it would keep the existing value and drop the decision. Keep
+        // the decision out of the merge and reapply it afterwards. A `deletedAt` key is only ever
+        // present when saveChangesForModel attached a delete/restore decision — it strips any value
+        // the client sent — so that decision is written as-is.
         const { deletedAt, ...incomingFields } = incoming;
         const merged = mergeRecord(idToExistingRecord[incoming.id]!, incomingFields);
         return 'deletedAt' in incoming ? { ...merged, deletedAt } : merged;
