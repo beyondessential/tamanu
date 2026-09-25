@@ -122,10 +122,11 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
   const todayFormatted = formatStringDate(lastData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
 
   const { max, min } = visitData.data.reduce(
-    (accum, item) => ({
-      max: accum.max < item.value ? item.value : accum.max,
-      min: accum.min > item.value ? item.value : accum.min,
-    }),
+    (acc, item) => {
+      acc.max = Math.max(acc.max, item.value);
+      acc.min = Math.min(acc.min, item.value);
+      return acc;
+    },
     { max: 0, min: 0 },
   );
 
