@@ -77,10 +77,9 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
           textAlign="center"
           fontSize={screenPercentageToDP('2.5', Orientation.Width)}
         >
-          {`${formatStringDate(dateInterval.start, DateFormats.DAY_MONTH)} - \n ${formatStringDate(
-            dateInterval.end,
-            DateFormats.DAY_MONTH_YEAR_SHORT,
-          )}`}
+          {formatStringDate(dateInterval.start, DateFormats.DAY_MONTH)}
+          &thinsp;&ndash;&thinsp;
+          {formatStringDate(dateInterval.end, DateFormats.DAY_MONTH_YEAR_SHORT)}
         </StyledText>
       ))}
     </RowView>
