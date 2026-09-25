@@ -82,6 +82,9 @@ Report data-migration requirements and FHIR rematerialisation impact between the
    - `UPDATE` with no `WHERE`, or a broad `WHERE`
    - backfilling data across all/most rows
    Do **not** flag migrations that only update a small subset of rows.
+   Migrations run with **sync stopped**, so these long-running operations do **not** lock out or
+   stall live sync or live traffic — they extend the **upgrade's own downtime window**. The thing to
+   flag and size is that downtime on large tables, not a live-sync stall.
 3. **FHIR rematerialisation impact** — do **not** investigate the FHIR system; apply these rules
    directly. Tamanu uses database triggers on upstream tables to queue FHIR rematerialisation jobs;
    large-scale rematerialisation happens when a migration or reference-data change affects many rows
