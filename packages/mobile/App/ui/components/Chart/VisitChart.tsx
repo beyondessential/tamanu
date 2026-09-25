@@ -110,7 +110,7 @@ interface BarChartProps {
 const verticalContentInset = { top: 10, right: 0, bottom: 5 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
-export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
+export const VisitChart = ({ visitData }: BarChartProps) => {
   const { formatStringDate } = useDateFormatter();
   const lastData = visitData.data[visitData.data.length - 1];
   const firstData = visitData.data[0];
