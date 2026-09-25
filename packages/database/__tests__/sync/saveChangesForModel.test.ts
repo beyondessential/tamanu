@@ -1,11 +1,22 @@
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  onTestFinished,
+  vitest,
+} from 'vitest';
+
 import { INVOICE_ITEMS_CATEGORIES, INVOICE_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
-import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
-import { sanitizeRecord, saveChangesForModel, SYNC_TICK_FLAGS } from '../../src/sync';
+import { SYNC_TICK_FLAGS, sanitizeRecord, saveChangesForModel } from '../../src/sync';
 import * as saveChangeModules from '../../src/sync/saveChanges';
 import { closeDatabase, createTestDatabase } from '../utilities';
-import { describe, expect, it, vitest, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
 
 vitest.mock('../../src/sync/saveChanges', async () => ({
   __esModule: true,
@@ -282,6 +293,13 @@ describe('saveChangesForModel', () => {
       const additionalData = await models.PatientAdditionalData.create(
         fake(models.PatientAdditionalData, { patientId: patient.id, placeOfBirth: 'Here' }),
       );
+      onTestFinished(async () => {
+        await models.PatientAdditionalData.destroy({
+          where: { id: additionalData.id },
+          force: true,
+        });
+        await models.Patient.destroy({ where: { id: patient.id }, force: true });
+      });
       await additionalData.reload();
       const {
         createdAt: _createdAt,
@@ -316,9 +334,6 @@ describe('saveChangesForModel', () => {
       expect(deleted.deletedAt).not.toBeNull();
       expect(deleted.placeOfBirth).toBe('There');
       expect(Number.parseInt(deleted.updatedAtSyncTick, 10)).toBe(currentSyncTick);
-
-      await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
-      await models.Patient.destroy({ where: { id: patient.id }, force: true });
     });
   });
 
@@ -334,6 +349,13 @@ describe('saveChangesForModel', () => {
       const additionalData = await models.PatientAdditionalData.create(
         fake(models.PatientAdditionalData, { patientId: patient.id, placeOfBirth: 'Here' }),
       );
+      onTestFinished(async () => {
+        await models.PatientAdditionalData.destroy({
+          where: { id: additionalData.id },
+          force: true,
+        });
+        await models.Patient.destroy({ where: { id: patient.id }, force: true });
+      });
       // e.g. the unwanted side of a patient merge, deleted on central before the device pulled it
       await additionalData.destroy();
       await additionalData.reload({ paranoid: false });
@@ -373,9 +395,6 @@ describe('saveChangesForModel', () => {
       });
       expect(stillDeleted.deletedAt).not.toBeNull();
       expect(stillDeleted.placeOfBirth).toBe('There');
-
-      await models.PatientAdditionalData.destroy({ where: { id: additionalData.id }, force: true });
-      await models.Patient.destroy({ where: { id: patient.id }, force: true });
     });
 
     it('does not restore a centrally deleted record from a stale edit (no field merge)', async () => {
