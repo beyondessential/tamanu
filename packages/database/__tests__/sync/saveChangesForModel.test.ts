@@ -53,7 +53,7 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
       expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
-        { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
+        newRecord,
       ]);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
 
@@ -72,7 +72,7 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
       expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
-        { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
+        { ...newRecord, deletedAt: expect.anything() }, // soft deleted in the same INSERT
       ]);
       expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
 
@@ -415,7 +415,7 @@ describe('saveChangesForModel', () => {
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
 
       expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
-        { id: 'new_record_id', text: 'new', isDeleted: true },
+        { id: 'new_record_id', text: 'new', deletedAt: expect.anything() },
       ]);
       const created = await models.SurveyScreenComponent.findByPk('new_record_id', {
         paranoid: false,

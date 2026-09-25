@@ -77,30 +77,38 @@ export const saveChangesForModel = async (
       // is deleted and existing record is already deleted
     }
   });
-  const recordsForCreate = changes
-    .filter(c => idToExistingRecord[c.data.id] === undefined)
-    .map(({ data, isDeleted }) => {
-      // validateRecord(data, null); TODO add in validation
-      // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
-      return { ...sanitizeData(data), isDeleted };
-    });
+
   /**
-   * The soft-delete/restore decision travels with the update so `deleted_at` is written in the same
-   * statement as the rest of the record (see {@link saveUpdates}). Records with no decision leave
-   * `deleted_at` untouched.
+   * A new record is inserted immediately soft-deleted if any copy of it in the payload is deleted .
+   * (The same record can turn up more than once, see {@link saveCreates}.)
+   */
+  for (const c of changes) {
+    if (c.isDeleted && idToExistingRecord[c.data.id] === undefined) {
+      idsForDelete.add(c.data.id);
+    }
+  }
+
+  /**
+   * The delete/restore decision travels on the record itself so `deleted_at` is written in the same
+   * statement as the rest of it (see note in {@link saveCreates}). No decision leaves it untouched.
    */
   const getDeletedAt = (id: SyncSnapshotData['id']) => {
     if (idsForDelete.has(id)) return fn('now');
     if (idsForRestore.has(id)) return null;
     return undefined;
   };
+  const toRecordToWrite = (data: SyncSnapshotData) => {
+    // validateRecord(data, null); TODO add in validation
+    const sanitized = sanitizeData(data);
+    const deletedAt = getDeletedAt(data.id);
+    return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
+  };
+  const recordsForCreate = changes
+    .filter(c => idToExistingRecord[c.data.id] === undefined)
+    .map(c => toRecordToWrite(c.data));
   const recordsForUpdate = changes
-    .filter(r => idsForUpdate.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      const deletedAt = getDeletedAt(data.id);
-      return deletedAt === undefined ? sanitizeData(data) : { ...sanitizeData(data), deletedAt };
-    });
+    .filter(c => idsForUpdate.has(c.data.id))
+    .map(c => toRecordToWrite(c.data));
 
   // run each import process
   log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });

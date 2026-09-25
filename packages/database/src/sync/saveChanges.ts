@@ -1,52 +1,36 @@
+/*
+ * We use `hooks: false` in all transactions here to avoid triggering side effects that may violate
+ * other records in the sync payload.
+ *
+ * Soft deletes and restores ride along on the record’s own INSERT/UPDATE, so `deleted_at` always
+ * lands in the same statement as `updated_at_sync_tick`. Records pulled from central carry tick -1,
+ * which the `set_updated_at_sync_tick` trigger stores as -999 so the facility never pushes them
+ * them back. A separate paranoid `destroy()`/`restore()` would leave the tick out of its `SET`
+ * clause; the trigger would then stamp the current tick and the facility would echo central’s own
+ * delete straight back to it. On central, incoming records carry no tick, so the trigger stamps the
+ * current one as usual.
+ */
+
 import config from 'config';
-import { fn, Utils } from 'sequelize';
+import { uniqBy } from 'es-toolkit';
+import type { Utils } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 import type { Model } from '../models/Model';
 import { mergeRecord } from './mergeRecord';
 
 const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
 
-// We use hooks: false in all transactions here to avoid triggering side effects that may violate other records in the sync payload
-
-type RecordWithIsDeleted = {
+interface IncomingRecord {
   [attr: string]: any;
-  /** Only on records being created: whether to insert them soft deleted */
-  isDeleted?: boolean;
   /** Only present when {@link saveChangesForModel} attached a delete (`Fn`) or restore (`null`) */
   deletedAt?: Date | Utils.Fn | null;
-};
+}
 
-/**
- * Soft deletes, restores and field changes all land in the one write per record, so `deleted_at`
- * is always written in the same statement as `updated_at_sync_tick`.
- *
- * Records pulled from central carry `SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER` (-1), which the
- * `set_updated_at_sync_tick` trigger stores as `LAST_UPDATED_ELSEWHERE` (-999) so the record isn’t
- * needlessly pushed back. (A paranoid `destroy()`/`restore()` leaves the column out of the `SET`
- * clause, so the trigger sees the row’s existing tick instead and stamps the current one. The
- * facility then echoes central’s own delete straight back to it.)
- *
- * Incoming records on the central server carry no tick, so the column is omitted there and the
- * trigger stamps the current tick as usual (the change still has to reach other devices).
- */
-export const saveCreates = async (model: typeof Model, records: RecordWithIsDeleted[]) => {
+export const saveCreates = async (model: typeof Model, records: IncomingRecord[]) => {
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
-  const deduplicated = [];
-  const idsAdded = new Set();
-  const idsSoftDeleted = new Set(records.filter(row => row.isDeleted).map(row => row.id));
-
-  for (const record of records) {
-    if (!idsAdded.has(record.id)) {
-      const { isDeleted: _, ...data } = record;
-      // Insert soft-deleted records with `deleted_at` & `updated_at_sync_tick` landing in this
-      // INSERT. (A separate `saveDeletes` step risks needlessly bumping `updated_at_sync_tick`,
-      // which would cause facility to needlessly re-push the record.)
-      deduplicated.push(idsSoftDeleted.has(data.id) ? { ...data, deletedAt: fn('now') } : data);
-      idsAdded.add(data.id);
-    }
-  }
+  const deduplicated = uniqBy(records, record => record.id);
   await model.bulkCreate(deduplicated, { hooks: false });
 };
 
@@ -57,8 +41,8 @@ export const saveCreates = async (model: typeof Model, records: RecordWithIsDele
  */
 export const saveUpdates = async (
   model: typeof Model,
-  incomingRecords: RecordWithIsDeleted[],
-  idToExistingRecord: Record<string, RecordWithIsDeleted>,
+  incomingRecords: IncomingRecord[],
+  idToExistingRecord: Record<string, IncomingRecord>,
   isCentralServer: boolean,
 ) => {
   const recordsToSave = isCentralServer
