@@ -1,36 +1,36 @@
-import React, { type ReactElement, useMemo } from 'react';
-import * as yup from 'yup';
 import { StackActions } from '@react-navigation/native';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useMemo } from 'react';
+import * as yup from 'yup';
+import { Database } from '~/infra/db';
+import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
+import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
+import { Button } from '~/ui/components/Button';
 import { DateField } from '~/ui/components/DateField/DateField';
+import { Dropdown } from '~/ui/components/Dropdown';
+import { Form } from '~/ui/components/Forms/Form';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
-import { Suggester } from '~/ui/helpers/suggester';
-import { useBackend } from '~/ui/hooks';
-import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
-import { FullView, StyledScrollView, StyledView } from '~/ui/styled/common';
-import { Dropdown } from '~/ui/components/Dropdown';
-import { Button } from '~/ui/components/Button';
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { Form } from '~/ui/components/Forms/Form';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import type { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
-import { getCompleteRegistrationConditions } from '~/ui/helpers/programRegistration';
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { PatientProgramRegistration } from '~/models/PatientProgramRegistration';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Database } from '~/infra/db';
-import { patientKeys, programRegistryKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
-import { PatientProgramRegistrationCondition } from '~/models/PatientProgramRegistrationCondition';
-import { Routes } from '~/ui/helpers/routes';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import {
   TranslatedReferenceData,
   getReferenceDataStringId,
 } from '~/ui/components/Translations/TranslatedReferenceData';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { getCompleteRegistrationConditions } from '~/ui/helpers/programRegistration';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
+import { patientKeys, programRegistryKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import { FullView, StyledScrollView, StyledView } from '~/ui/styled/common';
+import { theme } from '~/ui/styled/theme';
+import { VisibilityStatus } from '~/visibilityStatuses';
+import type { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
