@@ -1,0 +1,77 @@
+<!-- spec: documentation/user-manuals.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>User manuals as GitHub renders them</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; background:#f6f8fa; color:#1f2328; font-size:16px; line-height:1.5;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif; }
+  .wrap { max-width:920px; margin:0 auto; padding:32px 16px 64px; }
+  .page-title { font-size:20px; margin:0 0 4px; }
+  .intro { color:#59636e; font-size:14px; margin:0 0 8px; }
+  .filenote { color:#59636e; font-size:13px; margin:28px 0 6px; }
+  .filebar { display:flex; align-items:center; padding:12px 16px; background:#f6f8fa;
+    border:1px solid #d1d9e0; border-bottom:0; border-radius:6px 6px 0 0; font-size:14px; }
+  .path { color:#59636e; } .path b { color:#1f2328; font-weight:600; }
+  .file { background:#fff; border:1px solid #d1d9e0; border-radius:0 0 6px 6px; padding:24px 40px 32px; }
+  .md h1 { font-size:2em; font-weight:600; margin:0 0 16px; padding-bottom:.3em; border-bottom:1px solid #d1d9e0; }
+  .md h2 { font-size:1.5em; font-weight:600; margin:24px 0 16px; padding-bottom:.3em; border-bottom:1px solid #d1d9e0; }
+  .md p { margin:0 0 16px; }
+  .md ol, .md ul { padding-left:2em; margin:0 0 16px; }
+  .md ol > li { margin-bottom:4px; }
+  .md ol > li > p { margin:8px 0; }
+  .md ul > li { margin-bottom:4px; }
+  .md ul > li > p { margin:0 0 16px; }
+  .md strong { font-weight:600; }
+  .md a { color:#0969da; text-decoration:none; }
+  .note { margin-top:32px; padding:16px 18px; background:#fff; border:1px solid #d1d9e0;
+    border-left:4px solid #bf8700; border-radius:6px; font-size:14px; color:#59636e; }
+  .note b { color:#1f2328; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="page-title">The manual as GitHub renders it</h2>
+  <p class="intro">The three pages a reader passes through, converted from the committed
+  markdown rather than hand-written, so this shows what the files actually produce.</p>
+
+  <p class="filenote">The platform index: 22 numbered modules, each linking down to its own page.</p>
+  <div class="filebar"><span class="path">docs / user-manuals / desktop /<b> index.md</b></span></div>
+  <div class="file"><div class="md">
+<h1>Desktop</h1>
+<p>Using Tamanu on a computer.</p>
+<h2>Modules</h2>
+<ul><li><a href="#">1. Accessing Tamanu Desktop</a>: Signing in, signing out, and changing your language.</li><li><a href="#">2. Navigating Tamanu</a>: Finding your way around: the sidebar, search, and how the screens fit together.</li><li><a href="#">3. Clinician Dashboard</a>: The overview you land on after signing in.</li><li><a href="#">4. Patients</a>: Finding, registering, and managing patient records.</li><li><a href="#">5. Scheduling</a>: Outpatient appointments and location bookings.</li><li><a href="#">6. Program Registries</a>: Enrolling patients in program registries and tracking them.</li><li><a href="#">7. Immunisations</a>: Recording vaccines and using the immunisation register.</li><li><a href="#">8. Encounters</a>: Admitting, moving, and discharging patients, and managing beds across the facility.</li><li><a href="#">9. Diagnoses</a>: Recording and managing a patient's diagnoses.</li><li><a href="#">10. Vitals</a>: Recording and reviewing a patient's observations during an encounter.</li><li><a href="#">11. Charts</a>: Recording and reviewing charted clinical data.</li><li><a href="#">12. Notes</a>: Written clinical notes on an encounter.</li><li><a href="#">13. Forms</a>: Completing program forms and surveys for a patient.</li><li><a href="#">14. Tasks</a>: Clinical tasks raised and completed during an encounter.</li><li><a href="#">15. Medications</a>: Prescribing, dispensing, and administering medication.</li><li><a href="#">16. Procedures</a>: Procedures carried out during an encounter.</li><li><a href="#">17. Labs</a>: Requesting lab tests and reading results.</li><li><a href="#">18. Imaging</a>: Requesting imaging and reading results.</li><li><a href="#">19. Referrals</a>: Referring a patient and tracking referrals.</li><li><a href="#">20. Documents</a>: Files attached to a patient or an encounter.</li><li><a href="#">21. Invoicing</a>: Invoices raised against an encounter.</li><li><a href="#">22. Reports</a>: Running facility reports.</li></ul>
+  </div></div>
+
+  <p class="filenote">The module index: its guides, numbered within the module.</p>
+  <div class="filebar"><span class="path">docs / user-manuals / desktop / vitals /<b> index.md</b></span></div>
+  <div class="file"><div class="md">
+<h1>10. Vitals</h1>
+<p>Recording and reviewing a patient's observations during an encounter.</p>
+<h2>Guides</h2>
+<ul><li><a href="#">10.1 Record a set of vitals</a></li></ul>
+  </div></div>
+
+  <p class="filenote">The guide itself, with the link back to the module above the title.</p>
+  <div class="filebar"><span class="path">docs / user-manuals / desktop / vitals /<b> record-vitals.md</b></span></div>
+  <div class="file"><div class="md">
+<p><a href="#">← Vitals</a></p>
+<h1>10.1 Record a set of vitals</h1>
+<p>Record a patient's observations against the encounter they are admitted under. Start from the patient's encounter.</p>
+<p><strong>[Screenshot: the encounter view with the Vitals tab visible]</strong></p>
+<h2>Steps</h2>
+<ol><li><p>Open the <strong>Vitals</strong> tab.</p><p>The table lists every set of vitals already recorded for this encounter. If none have been recorded yet, it shows <strong>No data found</strong>.</p></li><li><p>Select <strong>Record vitals</strong>.</p><p>The <strong>Record vitals</strong> window opens.</p><p><strong>[Screenshot: the Record vitals window, showing the empty form]</strong></p></li><li><p>Check <strong>Date recorded</strong>.</p><p>This is filled in with the current date and time. Change it if the observations were taken earlier.</p></li><li><p>Enter the measurements you have taken.</p><p>Fill in only the fields you have readings for and leave the rest blank. Some fields work themselves out from other measurements and cannot be typed into.</p></li><li><p>Select <strong>Record</strong>.</p><p>The window closes and your readings appear as a new column at the left of the table. The most recent set of vitals is always the first column.</p><p>A reading outside the normal range for the patient's age is highlighted. Rest your pointer on it to see the normal range.</p><p><strong>[Screenshot: the vitals table with the newly recorded column highlighted]</strong></p></li></ol>
+  </div></div>
+  <div class="note">
+    <b>For review.</b> Worth checking: that the numbering reads correctly at both levels, that
+    each step keeps its supporting detail as an indented paragraph beneath it, that every error
+    bullet still opens with the product's own wording in bold, and that the screenshot
+    placeholders stand out as gaps to fill. The guide carries no previous/next footer because
+    Vitals holds only one guide so far.
+  </div>
+</div>
+</body>
+</html>
