@@ -1,10 +1,9 @@
-import { QueryTypes } from 'sequelize';
 import { keyBy, mapValues } from 'es-toolkit/compat';
+import { literal, Op } from 'sequelize';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-
-import type { Appointment, AppointmentSchedule } from 'models';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
+import type { AppointmentSchedule } from '../models';
 import { SYNC_SESSION_DIRECTION } from './constants';
 import { sanitizeRecord } from './sanitizeRecord';
 
@@ -17,7 +16,7 @@ export const resolveAppointmentSchedules = async (
   AppointmentScheduleModel: typeof AppointmentSchedule,
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
-  const relevantChanges = changes.filter((c) => !c.isDeleted && c.data.cancelledAtDate);
+  const relevantChanges = changes.filter(c => !c.isDeleted && c.data.cancelledAtDate);
 
   if (relevantChanges.length === 0) {
     return;
@@ -29,36 +28,30 @@ export const resolveAppointmentSchedules = async (
     'data.generatedUntilDate',
   );
 
-  const outOfBoundAppointments = (await AppointmentScheduleModel.sequelize.query(
-    `
-    WITH schedule_generated_until_dates AS (
-     SELECT value::date_string AS date, key::uuid AS id from json_each_text(:generatedUntilDates)
-    )
-    SELECT
-      *
-    FROM
-      appointments
-    WHERE
-      schedule_id IN (:scheduleIds)
-      AND status <> :canceledStatus
-    AND
-      start_time::date_string > (SELECT date FROM schedule_generated_until_dates WHERE id = schedule_id)
-    `,
-    {
-      type: QueryTypes.SELECT,
-      replacements: {
-        canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
-        scheduleIds: Object.keys(generatedUntilDates),
-        generatedUntilDates: JSON.stringify(generatedUntilDates),
-      },
+  // A model query selects only the declared attributes, under their camel case names, so the
+  // snapshot data can't carry a raw column name (`deleted_at`, undeclared legacy columns) into the
+  // persist step, where it would be written to the SET clause as-is.
+  const { sequelize } = AppointmentScheduleModel;
+  const outOfBoundAppointments = await sequelize.models.Appointment.findAll({
+    where: {
+      scheduleId: { [Op.in]: Object.keys(generatedUntilDates) },
+      status: { [Op.ne]: APPOINTMENT_STATUSES.CANCELLED },
+      [Op.and]: literal(
+        `start_time::date_string > (
+          SELECT value::date_string
+          FROM json_each_text(${sequelize.escape(JSON.stringify(generatedUntilDates))})
+          WHERE key::uuid = schedule_id
+        )`,
+      ),
     },
-  )) as Appointment[];
+    raw: true,
+  });
 
   if (outOfBoundAppointments.length === 0) {
     return;
   }
 
-  const inserts = outOfBoundAppointments.map((a) => ({
+  const inserts = outOfBoundAppointments.map(a => ({
     direction: SYNC_SESSION_DIRECTION.INCOMING,
     recordType: 'appointments',
     recordId: a.id,
