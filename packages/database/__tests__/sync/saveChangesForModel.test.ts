@@ -2,7 +2,7 @@ import { INVOICE_ITEMS_CATEGORIES, INVOICE_STATUSES, REFERENCE_TYPES } from '@ta
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
-import { saveChangesForModel, SYNC_TICK_FLAGS } from '../../src/sync';
+import { sanitizeRecord, saveChangesForModel, SYNC_TICK_FLAGS } from '../../src/sync';
 import * as saveChangeModules from '../../src/sync/saveChanges';
 import { closeDatabase, createTestDatabase } from '../utilities';
 import { describe, expect, it, vitest, beforeAll, beforeEach, afterEach, afterAll } from 'vitest';
@@ -577,6 +577,37 @@ describe('saveChangesForModel', () => {
       const updatedRecord = await models.SurveyScreenComponent.findByPk(existingRecord.id);
       expect(updatedRecord.text).toBe('current');
       expectNotPushable(updatedRecord);
+    });
+
+    it('persists a pulled delete whose data would fail validation as a live record', async () => {
+      // model validators such as Department's mustHaveFacility are gated on `!this.deletedAt`,
+      // so a record central has deleted may be invalid as a live one; because the delete rides
+      // along on the same write, the validator sees the record as deleted and lets it through
+      const facility = await models.Facility.create(fake(models.Facility));
+      const department = await models.Department.create(
+        fake(models.Department, { facilityId: facility.id }),
+      );
+      const changes = [
+        {
+          data: incomingFromCentral({
+            ...sanitizeRecord(department.get({ plain: true })),
+            facilityId: null,
+          }),
+          isDeleted: true,
+        },
+      ];
+
+      await saveChangesForModel(models.Department, changes, false, log);
+
+      const deletedDepartment = await models.Department.findByPk(department.id, {
+        paranoid: false,
+      });
+      expect(deletedDepartment.deletedAt).not.toBeNull();
+      expect(deletedDepartment.facilityId).toBeNull();
+      expectNotPushable(deletedDepartment);
+
+      await models.Department.destroy({ where: { id: department.id }, force: true });
+      await models.Facility.destroy({ where: { id: facility.id }, force: true });
     });
   });
 
