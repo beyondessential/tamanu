@@ -1,13 +1,17 @@
-import React, { type ReactElement, useCallback, useEffect } from 'react';
+import React, { type ReactElement, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
-import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
-import { TamanuComboMark, SearchIcon } from '/components/Icons';
-import { UserAvatar } from '/components/UserAvatar';
-import { withAuth } from '/containers/Auth';
+import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
+import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
+import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
+import { SearchIcon, TamanuComboMark } from '/components/Icons';
+import { TranslatedText } from '/components/Translations/TranslatedText';
+import { UserAvatar } from '/components/UserAvatar';
+import { withAuth } from '/containers/Auth';
 import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
@@ -21,11 +25,6 @@ import {
   StyledView,
 } from '/styled/common';
 import { theme } from '/styled/theme';
-
-import { ConditionalRegisterPatientButton } from './RegisterPatientButton';
-import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
-import { TranslatedText } from '/components/Translations/TranslatedText';
-import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 
 const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElement => (
   <StyledTouchableOpacity testID="search-patients-button" onPress={onPress}>
