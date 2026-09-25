@@ -1,28 +1,27 @@
-import React, { type ReactElement, useCallback, useMemo } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
-
-//Components
-import { CenterView, StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
-import { theme } from '../../../styled/theme';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Button } from '../../../components/Button';
 import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '../../../components/Icons';
 import { StepMarker } from '../../../components/StepMarker';
-import { Button } from '../../../components/Button';
-//helpers
-import { authUserSelector } from '../../../helpers/selectors';
-import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { useDisableAndroidBackButton } from '../../../helpers/android';
-// Props
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
+import { authUserSelector } from '../../../helpers/selectors';
 import type { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { CenterView, StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
+import { theme } from '../../../styled/theme';
 
-export const Intro = (props: IntroScreenProps): ReactElement => {
-  const { navigation, route } = props;
-  const { title, message, step, nextRoute } = route.params;
+export const Intro = ({
+  navigation,
+  route: {
+    params: { message, nextRoute, step, title },
+  },
+}: IntroScreenProps) => {
   const user = useSelector(authUserSelector);
 
   useDisableAndroidBackButton(step === 1);
 
-  const Icon = useMemo(() => {
+  const Icon = () => {
     switch (step) {
       case 1:
         return AppIntro1Icon;
@@ -33,11 +32,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
       default:
         return AppIntro1Icon;
     }
-  }, []);
-
-  const onPressButton = useCallback(() => {
-    navigation.navigate(nextRoute);
-  }, []);
+  };
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} alignItems="center">
@@ -87,7 +82,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
           outline
           borderColor={theme.colors.WHITE}
           buttonText={<TranslatedText stringId="general.action.next" fallback="Next" />}
-          onPress={onPressButton}
+          onPress={() => void navigation.navigate(nextRoute)}
         />
       </CenterView>
     </StyledSafeAreaView>

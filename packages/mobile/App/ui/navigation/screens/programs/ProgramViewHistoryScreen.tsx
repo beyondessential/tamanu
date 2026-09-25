@@ -1,26 +1,24 @@
-import React, { type ReactElement, useEffect } from 'react';
-import { theme } from '/styled/theme';
-import { FlatList } from 'react-native';
 import { subject } from '@casl/ability';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import React, { type ReactElement, useEffect } from 'react';
+import { FlatList } from 'react-native';
 import { useSelector } from 'react-redux';
-
-import type { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
-import { Routes } from '../../../helpers/routes';
+import { Database } from '~/infra/db';
+import { SurveyTypes } from '~/types';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
+import type { PatientStateProps } from '~/ui/store/ducks/patient';
+import { StyledText } from '~/ui/styled/common';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { LoadingScreen } from '../../../components/LoadingScreen';
 import { Separator } from '../../../components/Separator';
 import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
-
-import { useQuery } from '@tanstack/react-query';
-import { Database } from '~/infra/db';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { StyledText } from '~/ui/styled/common';
-import { SurveyTypes } from '~/types';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import type { PatientStateProps } from '~/ui/store/ducks/patient';
-import { navigateAfterTimeout } from '~/ui/helpers/navigators';
+import { Routes } from '../../../helpers/routes';
+import type { SurveyResponseScreenProps } from '../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import { theme } from '/styled/theme';
 
 export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): ReactElement => {
   const { latestResponseId } = route.params ?? {};
