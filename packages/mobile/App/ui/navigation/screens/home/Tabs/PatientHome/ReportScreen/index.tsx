@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
 import React, { type FC, type ReactElement, useState } from 'react';
 import { Database } from '~/infra/db';
@@ -128,6 +128,7 @@ export const ReportScreen = (): ReactElement => {
     queryKey: reportKeys.encounterSummary(selectedSurveyId),
     queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
     enabled: selectedSurveyId !== undefined,
+    placeholderData: keepPreviousData,
     select: buildVisitReport,
   });
 
