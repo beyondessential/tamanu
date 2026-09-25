@@ -50,9 +50,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
       new Suggester({
         model: models.Facility,
         options: {
-          where: {
-            visibilityStatus: VisibilityStatus.Current,
-          },
+          where: { visibilityStatus: VisibilityStatus.Current },
         },
       }),
     [models.Facility],
