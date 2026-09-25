@@ -113,32 +113,33 @@ export const DateField = React.memo(
 
     const onAndroidDateChange = useCallback(
       (_event, selectedDate) => {
-        if (selectedDate) {
-          if (mode === 'datetime') {
-            if (currentPickerMode === 'date') {
-              // Store the selected date and switch to time picker
-              setTempDate(selectedDate);
-              setCurrentPickerMode('time');
-              setDatePickerVisible(true);
-              return;
-            } else {
-              // Combine the stored date with the selected time
-              const combinedDateTime = new Date(tempDate!);
-              combinedDateTime.setHours(selectedDate.getHours());
-              combinedDateTime.setMinutes(selectedDate.getMinutes());
-              combinedDateTime.setSeconds(selectedDate.getSeconds());
-              setDatePickerVisible(false);
-              setTempDate(null);
-              onChange(combinedDateTime);
-              return;
-            }
-          }
-          setDatePickerVisible(false);
-          onChange(selectedDate);
-        } else {
+        if (!selectedDate) {
           setDatePickerVisible(false);
           setTempDate(null);
+          return;
         }
+
+        if (mode === 'datetime') {
+          if (currentPickerMode === 'date') {
+            // Store the selected date and switch to time picker
+            setTempDate(selectedDate);
+            setCurrentPickerMode('time');
+            setDatePickerVisible(true);
+            return;
+          } else {
+            // Combine the stored date with the selected time
+            const combinedDateTime = new Date(tempDate!);
+            combinedDateTime.setHours(selectedDate.getHours());
+            combinedDateTime.setMinutes(selectedDate.getMinutes());
+            combinedDateTime.setSeconds(selectedDate.getSeconds());
+            setDatePickerVisible(false);
+            setTempDate(null);
+            onChange(combinedDateTime);
+            return;
+          }
+        }
+        setDatePickerVisible(false);
+        onChange(selectedDate);
       },
       [onChange, mode, currentPickerMode, tempDate],
     );
