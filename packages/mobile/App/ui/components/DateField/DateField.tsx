@@ -106,14 +106,10 @@ export const DateField = React.memo(
     const [currentPickerMode, setCurrentPickerMode] = useState<'date' | 'time'>('date');
     const [tempDate, setTempDate] = useState<Date | null>(null);
 
-    const showDatePicker = useCallback(() => {
+    const showDatePicker = () => {
       setDatePickerVisible(true);
-      if (mode === 'datetime') {
-        setCurrentPickerMode('date');
-      } else {
-        setCurrentPickerMode(mode as 'date' | 'time');
-      }
-    }, [mode]);
+      setCurrentPickerMode(mode === 'datetime' ? 'date' : mode);
+    };
 
     const onAndroidDateChange = useCallback(
       (_event, selectedDate) => {
