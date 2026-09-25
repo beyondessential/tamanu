@@ -1,75 +1,45 @@
-import React, { type ReactElement, useCallback, useEffect, useMemo } from 'react';
-import { Platform, StatusBar } from 'react-native';
-import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
-import { Popup } from 'popup-ui';
-import { type IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
-// Components
-import * as Icons from '/components/Icons';
-import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
-import { Screen } from './Screen';
-// Helpers
-import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
-// Containers
-import { withPatient } from '/containers/Patient';
-import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
+import React, { type ReactElement, useCallback, useMemo, useRef } from 'react';
+import { Alert, Platform, StatusBar } from 'react-native';
+import { compose } from 'redux';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { PatientFromRoute } from '~/ui/helpers/constants';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { PatientFromRoute } from '~/ui/helpers/constants';
+import usePatientIssuesQuery from '~/ui/hooks/queries/usePatientIssuesQuery';
+import { Screen } from './Screen';
+import * as Icons from '/components/Icons';
+import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import type { PatientHomeScreenProps } from '/interfaces/Screens/HomeStack/PatientHomeProps';
+import { theme } from '/styled/theme';
+import { PatientIssueType } from '/types/IPatientIssue';
 
-interface IPopup {
-  title: string;
-  textBody: string;
+interface PatientModuleLayout {
+  sortPriority: number;
+  hidden: boolean;
 }
 
-// TODO: declare this
-type PatientModule = {};
+interface PatientModulesLayout {
+  diagnosisAndTreatment: PatientModuleLayout;
+  programs: PatientModuleLayout;
+  /** Lives in the patient menu rather than the module grid, so it has no sort priority */
+  programRegistries: Pick<PatientModuleLayout, 'hidden'>;
+  referral: PatientModuleLayout;
+  tests: PatientModuleLayout;
+  vaccine: PatientModuleLayout;
+  vitals: PatientModuleLayout;
+}
 
-const showPopupChain = (popups: IPopup[]): void => {
-  if (popups.length === 0) return;
-  const [currentPopup, ...restOfChain] = popups;
-  const { title, textBody } = currentPopup;
-
-  Popup.show({
-    type: 'Warning',
-    title,
-    textBody,
-    callback: () => {
-      if (restOfChain.length > 0) {
-        showPopupChain(restOfChain);
-      } else {
-        Popup.hide();
-      }
-    },
-  });
-};
-
-const formatNoteToPopup = (note: string): IPopup => {
-  const [firstPart, secondPart] = note.split(/:(.+)/);
-  return secondPart
-    ? {
-        title: firstPart,
-        textBody: secondPart,
-      }
-    : {
-        title: '',
-        textBody: firstPart,
-      };
-};
-
-const showPatientWarningPopups = (issues: Pick<IPatientIssue, 'type' | 'note'>[]): void =>
-  showPopupChain(
-    issues
-      .filter(({ type }) => type === PatientIssueType.Warning)
-      .map(({ note }) => formatNoteToPopup(note)),
-  );
+function formatWarningsAsUnorderedList(notes: string[]): string {
+  return notes.map(note => `• ${note}`).join('\n');
+}
 
 const usePatientModules = navigation => {
   const { getSetting } = useSettings();
-  const config = getSetting<PatientModule>('layouts.mobilePatientModules');
+  const config = getSetting<PatientModulesLayout>('layouts.mobilePatientModules');
 
   return useMemo(() => {
     return [
@@ -122,11 +92,12 @@ const usePatientModules = navigation => {
 
 const usePatientMenuButtons = navigation => {
   const { ability } = useAuth();
+  const canViewProgramRegistries =
+    ability.can('list', 'PatientProgramRegistration') ||
+    ability.can('create', 'PatientProgramRegistration');
+
   const { getSetting } = useSettings();
-  const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
-  const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
-  const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
-  const config = getSetting('layouts.mobilePatientModules');
+  const config = getSetting<PatientModulesLayout>('layouts.mobilePatientModules');
 
   return useMemo(
     () =>
@@ -173,6 +144,7 @@ const PatientHomeContainer = ({
   const { from } = route.params || {};
 
   const patientMenuButtons = usePatientMenuButtons(navigation);
+  const { getTranslation } = useTranslation();
 
   const onNavigateToSearchPatients = useCallback(() => {
     if (from === PatientFromRoute.ALL_PATIENT || from === PatientFromRoute.RECENTLY_VIEWED) {
@@ -180,7 +152,7 @@ const PatientHomeContainer = ({
         screen: Routes.HomeStack.SearchPatientStack.Index,
         params: {
           screen: Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-          from: from,
+          from,
         },
       });
     } else {
@@ -204,17 +176,31 @@ const PatientHomeContainer = ({
     }, []),
   );
 
-  useEffect(() => {
-    showPatientWarningPopups(patientIssues || []);
-  }, [patientIssues]);
+  const lastAlertedPatientId = useRef<string | null>(null);
+  useFocusEffect(
+    useCallback(
+      function showPatientWarningsAlert() {
+        if (!selectedPatient || lastAlertedPatientId.current === selectedPatient.id) return;
+
+        const warningNotes = patientIssues
+          ?.filter(pi => pi.type === PatientIssueType.Warning)
+          .map(pi => pi.note);
+        if (warningNotes === undefined || warningNotes.length === 0) return;
+
+        lastAlertedPatientId.current = selectedPatient.id;
+        Alert.alert(
+          getTranslation('patient.warning.title', 'Patient warnings'),
+          formatWarningsAsUnorderedList(warningNotes),
+        );
+      },
+      [getTranslation, patientIssues, selectedPatient],
+    ),
+  );
 
   const patientModules = usePatientModules(navigation);
 
   if (patientIssuesError) return <ErrorScreen error={patientIssuesError} />;
-
-  if (!selectedPatient) {
-    return null;
-  }
+  if (!selectedPatient) return null;
 
   return (
     <Screen
@@ -225,4 +211,5 @@ const PatientHomeContainer = ({
     />
   );
 };
+
 export const PatientHome = compose(withPatient)(PatientHomeContainer);
