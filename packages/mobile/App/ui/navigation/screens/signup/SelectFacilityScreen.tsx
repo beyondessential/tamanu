@@ -1,6 +1,24 @@
-import React, { type FunctionComponent, type ReactElement, useCallback, useEffect, useState } from 'react';
-import * as Yup from 'yup';
+import React, {
+  type FunctionComponent,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
+import * as Yup from 'yup';
+import { Form } from '~/ui/components/Forms/Form';
+import { Field } from '~/ui/components/Forms/FormField';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { useFacility } from '~/ui/contexts/FacilityContext';
+import { useBackend } from '~/ui/hooks';
+import { FacilitySelectField } from './FacilitySelectField';
+import { Button } from '/components/Button';
+import { HomeBottomLogoIcon } from '/components/Icons';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import {
   FullView,
   StyledSafeAreaView,
@@ -8,21 +26,7 @@ import {
   StyledTouchableOpacity,
   StyledView,
 } from '/styled/common';
-import { HomeBottomLogoIcon } from '/components/Icons';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
-
-import { Routes } from '/helpers/routes';
-import { Button } from '/components/Button';
-import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
-import { useAuth } from '~/ui/contexts/AuthContext';
-
-import { Form } from '~/ui/components/Forms/Form';
-import { Field } from '~/ui/components/Forms/FormField';
-import { useFacility } from '~/ui/contexts/FacilityContext';
-import { useBackend } from '~/ui/hooks';
-import { FacilitySelectField } from './FacilitySelectField';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 const horizontalInset = screenPercentageToDP(2.43, Orientation.Width);
 
