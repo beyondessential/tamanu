@@ -1,23 +1,12 @@
-import React, {
-  type ReactElement,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useEffectEvent,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useEffectEvent, useRef } from 'react';
 import { AppState, Keyboard } from 'react-native';
 import { StyledView } from '~/ui/styled/common';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface DetectIdleLayerProps {
-  children: ReactNode;
-}
-
 /** 30 minutes */
 const UI_EXPIRY_TIME = 1_800_000;
 
-export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
+export const DetectIdleLayer = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const lastActivityRef = useRef(0);
   const { signOutClient, signedIn } = useAuth();
 
