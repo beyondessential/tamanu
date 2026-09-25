@@ -164,99 +164,95 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           })}
           onSubmit={submitPatientProgramRegistration}
         >
-          {({ handleSubmit, values }): ReactElement => {
-            return (
-              <>
-                <StyledView marginTop={20} marginLeft={20} marginRight={20}>
-                  <LocalisedField
-                    label={
-                      <TranslatedText
-                        stringId="programRegistry.registrationDate.label"
-                        fallback="Date of registration"
-                      />
-                    }
-                    labelFontSize={14}
-                    component={DateField}
-                    name="date"
-                    required
-                  />
-                </StyledView>
-                <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
-                    label={
-                      <TranslatedText
-                        stringId="programRegistry.registeredBy.label"
-                        fallback="Registered by"
-                      />
-                    }
-                    labelFontSize={14}
-                    component={AutocompleteModalField}
-                    placeholder={getTranslation('general.placeholder.search', 'Search')}
-                    navigation={navigation}
-                    suggester={practitionerSuggester}
-                    name="clinicianId"
-                    required
-                  />
-                </StyledView>
-                <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
-                    label={
-                      <TranslatedText
-                        stringId="programRegistry.registeringFacility.label"
-                        fallback="Registering facility"
-                      />
-                    }
-                    labelFontSize={14}
-                    component={AutocompleteModalField}
-                    placeholder={getTranslation('general.placeholder.search', 'Search')}
-                    navigation={navigation}
-                    suggester={facilitySuggester}
-                    name="registeringFacilityId"
-                    required
-                  />
-                </StyledView>
-                <StyledView marginLeft={20} marginRight={20}>
-                  <LocalisedField
-                    label={getTranslation('programRegistry.clinicalStatus.label', 'Status')}
-                    labelFontSize={14}
-                    component={Dropdown}
-                    name="clinicalStatusId"
-                    options={
-                      clinicalStatusOptions?.map(x => ({
-                        label: x.translatedName,
-                        value: x.id,
-                      })) || []
-                    }
-                  />
-                </StyledView>
-                <StyledView marginLeft={20} marginRight={20}>
-                  <PatientProgramRegistrationConditionsField
-                    label={
-                      <TranslatedText
-                        stringId="programRegistry.relatedConditions.label"
-                        fallback="Related conditions"
-                      />
-                    }
-                    programRegistryId={programRegistry.id}
-                    values={values.conditions}
-                    onChange={newValue => {
-                      values.conditions = newValue;
-                    }}
-                  />
-                </StyledView>
-                <Button
-                  buttonText={
-                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+          {({ handleSubmit, values }) => (
+            <>
+              <StyledView marginTop={20} marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  label={
+                    <TranslatedText
+                      stringId="programRegistry.registrationDate.label"
+                      fallback="Date of registration"
+                    />
                   }
-                  backgroundColor={theme.colors.PRIMARY_MAIN}
-                  marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
-                  marginRight={screenPercentageToDP(7, Orientation.Width)}
-                  marginBottom={screenPercentageToDP(2, Orientation.Height)}
-                  onPress={handleSubmit}
+                  labelFontSize={14}
+                  component={DateField}
+                  name="date"
+                  required
                 />
-              </>
-            );
-          }}
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  label={
+                    <TranslatedText
+                      stringId="programRegistry.registeredBy.label"
+                      fallback="Registered by"
+                    />
+                  }
+                  labelFontSize={14}
+                  component={AutocompleteModalField}
+                  placeholder={getTranslation('general.placeholder.search', 'Search')}
+                  navigation={navigation}
+                  suggester={practitionerSuggester}
+                  name="clinicianId"
+                  required
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  label={
+                    <TranslatedText
+                      stringId="programRegistry.registeringFacility.label"
+                      fallback="Registering facility"
+                    />
+                  }
+                  labelFontSize={14}
+                  component={AutocompleteModalField}
+                  placeholder={getTranslation('general.placeholder.search', 'Search')}
+                  navigation={navigation}
+                  suggester={facilitySuggester}
+                  name="registeringFacilityId"
+                  required
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <LocalisedField
+                  label={getTranslation('programRegistry.clinicalStatus.label', 'Status')}
+                  labelFontSize={14}
+                  component={Dropdown}
+                  name="clinicalStatusId"
+                  options={
+                    clinicalStatusOptions?.map(x => ({
+                      label: x.translatedName,
+                      value: x.id,
+                    })) ?? []
+                  }
+                />
+              </StyledView>
+              <StyledView marginLeft={20} marginRight={20}>
+                <PatientProgramRegistrationConditionsField
+                  label={
+                    <TranslatedText
+                      stringId="programRegistry.relatedConditions.label"
+                      fallback="Related conditions"
+                    />
+                  }
+                  programRegistryId={programRegistry.id}
+                  values={values.conditions}
+                  onChange={newValue => {
+                    values.conditions = newValue;
+                  }}
+                />
+              </StyledView>
+              <Button
+                buttonText={<TranslatedText stringId="general.action.confirm" fallback="Confirm" />}
+                backgroundColor={theme.colors.PRIMARY_MAIN}
+                marginLeft={screenPercentageToDP(2.43, Orientation.Width)}
+                marginRight={screenPercentageToDP(7, Orientation.Width)}
+                marginBottom={screenPercentageToDP(2, Orientation.Height)}
+                onPress={handleSubmit}
+              />
+            </>
+          )}
         </Form>
       </StyledScrollView>
     </FullView>
