@@ -1,21 +1,20 @@
-import React, { type FC, type ReactElement, useCallback, useEffect, useState } from 'react';
-import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
-import { Button } from '/components/Button';
-import { TamanuComboMark } from '/components/Icons';
-import { VisitChart } from '/components/Chart/VisitChart';
-import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
-import { addHours, format, startOfToday, subDays } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
+import { addHours, format, startOfToday, subDays } from 'date-fns';
+import React, { type FC, type ReactElement, useCallback, useState } from 'react';
 import { Database } from '~/infra/db';
-import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
-import { SummaryBoard } from './SummaryBoard';
-import type { BarChartData } from '~/ui/interfaces/BarChartProps';
-import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
-import { Dropdown } from './components/Dropdown';
-
 import { SurveyTypes } from '~/types';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import type { BarChartData } from '~/ui/interfaces/BarChartProps';
+import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
+import { SummaryBoard } from './SummaryBoard';
+import { Dropdown } from './components/Dropdown';
+import { Button } from '/components/Button';
+import { VisitChart } from '/components/Chart/VisitChart';
+import { TamanuComboMark } from '/components/Icons';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 interface IReportTypeButtons {
   isReportWeekly: boolean;
@@ -91,13 +90,8 @@ const ReportChart: FC<ReportChartProps> = ({
   );
 
 export const ReportScreen = (): ReactElement => {
-  const [selectedSurveyId, setSelectedSurveyId] = useState('');
+  const [userSelectedSurveyId, setUserSelectedSurveyId] = useState<string>();
   const [isReportWeekly, setReportType] = useState<boolean>(true);
-
-  const { data } = useQuery({
-    queryKey: reportKeys.encounterSummary(selectedSurveyId),
-    queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
-  });
 
   const { data: surveys } = useQuery({
     queryKey: surveyKeys.list({ surveyType: SurveyTypes.Programs }),
@@ -107,12 +101,14 @@ export const ReportScreen = (): ReactElement => {
       }),
   });
 
-  useEffect(() => {
-    // automatically select the first survey as soon as surveys are loaded
-    if (!selectedSurveyId && surveys && surveys.length > 0) {
-      setSelectedSurveyId(surveys[0].id);
-    }
-  }, [surveys, selectedSurveyId]);
+  // Default to the first survey until the user picks one
+  const selectedSurveyId = userSelectedSurveyId ?? surveys?.[0]?.id;
+
+  const { data } = useQuery({
+    queryKey: reportKeys.encounterSummary(selectedSurveyId),
+    queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
+    enabled: selectedSurveyId !== undefined,
+  });
 
   const reportList = surveys?.map(s => ({ label: s.name, value: s.id }));
 
@@ -182,7 +178,7 @@ export const ReportScreen = (): ReactElement => {
             <Dropdown
               options={reportList}
               handleSelect={(value): void => {
-                setSelectedSurveyId(value);
+                setUserSelectedSurveyId(value);
               }}
               selectedItem={selectedSurveyId}
             />
@@ -190,7 +186,7 @@ export const ReportScreen = (): ReactElement => {
         </StyledView>
       </StyledSafeAreaView>
       <ReportTypeButtons onPress={onChangeReportType} isReportWeekly={isReportWeekly} />
-      {selectedSurveyId ? (
+      {selectedSurveyId !== undefined ? (
         <ReportChart
           isReportWeekly={isReportWeekly}
           visitData={visitData}
