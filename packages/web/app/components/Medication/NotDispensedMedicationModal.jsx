@@ -29,12 +29,16 @@ const Text = styled.div`
 `;
 
 const ActionRow = styled(Box)`
-  margin: 10px -32px -8px;
-  padding: 20px 40px 0 40px;
+  margin: 0 -32px -18px;
+  padding: 20px 32px 20px 40px;
   border-top: 1px solid ${Colors.outline};
   display: flex;
   justify-content: flex-end;
   grid-column: span 2;
+
+  > * {
+    margin-top: 0;
+  }
 `;
 
 const StyledFormGrid = styled(FormGrid)`

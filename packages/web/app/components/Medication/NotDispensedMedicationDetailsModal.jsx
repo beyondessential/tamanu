@@ -16,8 +16,8 @@ const Text = styled.div`
 `;
 
 const ActionRow = styled(Box)`
-  margin: 20px -32px -8px;
-  padding: 20px 40px 0 40px;
+  margin: 0 -32px -18px;
+  padding: 20px 32px 20px 40px;
   border-top: 1px solid ${Colors.outline};
   display: flex;
   justify-content: flex-end;
@@ -139,7 +139,9 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
           fallback="The below medication was marked as not dispensed."
         />
       </Text>
-      <MedicationDetailsColumns leftDetails={leftDetails} rightDetails={rightDetails} />
+      <Box mb={2.5}>
+        <MedicationDetailsColumns leftDetails={leftDetails} rightDetails={rightDetails} />
+      </Box>
       <ActionRow>
         <Button onClick={onClose}>
           <TranslatedText stringId="general.action.close" fallback="Close" />
