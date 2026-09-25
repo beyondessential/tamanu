@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 /** 30 minutes */
 const UI_EXPIRY_TIME = 1_800_000;
 
-export const DetectIdleLayer = ({ children }: Readonly<{ children: React.ReactNode }>) => {
+export default function DetectIdleLayer({ children }: Readonly<{ children: React.ReactNode }>) {
   const lastActivityRef = useRef(0);
   const { signOutClient, signedIn } = useAuth();
 
@@ -49,4 +49,4 @@ export const DetectIdleLayer = ({ children }: Readonly<{ children: React.ReactNo
       {children}
     </StyledView>
   );
-};
+}

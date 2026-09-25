@@ -11,7 +11,7 @@ import { LocalisationProvider } from '../../contexts/LocalisationContext';
 import { TranslationProvider } from '../../contexts/TranslationContext';
 import { persistor, store } from '../../store/index';
 import { Core, type RootStackParamList } from './Core';
-import { DetectIdleLayer } from './DetectIdleLayer';
+import DetectIdleLayer from './DetectIdleLayer';
 
 const gestureHandlerRootViewStyle = { flex: 1 };
 
