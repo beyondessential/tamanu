@@ -1,5 +1,5 @@
 import { FormHelperText, Typography } from '@mui/material';
-import React, { useCallback, useId, useRef, useState } from 'react';
+import React, { useCallback, useId, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -94,13 +94,38 @@ const clientPointToViewBox = (clientX, clientY, rect) => {
   return { x, y };
 };
 
+const INITIAL_DRAWING_STATE = { sessionStrokes: [], currentStroke: null };
+
+function drawingReducer(state, action) {
+  switch (action.type) {
+    case 'strokeStarted':
+      return { ...state, currentStroke: [action.point] };
+    case 'strokeExtended':
+      if (!state.currentStroke) return state;
+      return { ...state, currentStroke: [...state.currentStroke, action.point] };
+    case 'strokeFinished':
+      if (!state.currentStroke) return state;
+      return {
+        sessionStrokes: state.currentStroke.length
+          ? [...state.sessionStrokes, state.currentStroke]
+          : state.sessionStrokes,
+        currentStroke: null,
+      };
+    case 'reset':
+      return INITIAL_DRAWING_STATE;
+    default:
+      throw new Error(`Unknown signature drawing action: ${action.type}`);
+  }
+}
+
 export function SignatureField({ disabled, error, field, helperText, label, required }) {
   const value = field.value || '';
   const drawAreaRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [sessionStrokes, setSessionStrokes] = useState([]);
-  const [currentStroke, setCurrentStroke] = useState(null);
-  const isDrawingRef = useRef(false);
+  const [{ sessionStrokes, currentStroke }, dispatch] = useReducer(
+    drawingReducer,
+    INITIAL_DRAWING_STATE,
+  );
   const helperTextId = useId();
 
   const setValue = useCallback(
@@ -116,7 +141,6 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
       if (!strokes.length) return;
 
       setValue(mergeStrokesIntoBody(value, strokes));
-      setSessionStrokes([]);
     },
     [sessionStrokes, setValue, value],
   );
@@ -133,22 +157,19 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
      * pendingStroke handles the edge case where the tab loses focus mid-stroke, ensuring the last
      * stroke is persisted to the session. This could happen if the user Alt+Tabs out. More likely,
      * another app may steal focus from the browser.
+     *
+     * Strokes are read from the last render, so a pointer move dispatched just before the blur may
+     * be missed. Accepted, as it needs the blur to land within milliseconds of that move.
      */
-    const pendingStroke = isDrawingRef.current ? currentStroke : null;
-    if (isDrawingRef.current) {
-      isDrawingRef.current = false;
-      setCurrentStroke(null);
-    }
-    commitSessionToValue(pendingStroke);
+    commitSessionToValue(currentStroke);
+    dispatch({ type: 'reset' });
     setIsFocused(false);
     field.onBlur({ target: { name: field.name } });
   };
 
   const handleClear = () => {
     setValue('');
-    setSessionStrokes([]);
-    setCurrentStroke(null);
-    isDrawingRef.current = false;
+    dispatch({ type: 'reset' });
   };
 
   const handlePointerDown = event => {
@@ -158,25 +179,20 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     event.currentTarget.setPointerCapture(event.pointerId);
     const rect = drawAreaRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
-    isDrawingRef.current = true;
-    setCurrentStroke([point]);
+    dispatch({ type: 'strokeStarted', point });
   };
 
   const handlePointerMove = event => {
-    if (!isDrawingRef.current || !isFocused) return;
+    if (!isFocused || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
 
     event.preventDefault();
     const rect = drawAreaRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
-    setCurrentStroke(prev => [...(prev ?? []), point]);
+    dispatch({ type: 'strokeExtended', point });
   };
 
   const finishStroke = () => {
-    if (!isDrawingRef.current) return;
-
-    isDrawingRef.current = false;
-    if (currentStroke?.length) setSessionStrokes(prev => [...prev, currentStroke]);
-    setCurrentStroke(null);
+    dispatch({ type: 'strokeFinished' });
   };
 
   const handlePointerUp = event => {
