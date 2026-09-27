@@ -39,11 +39,12 @@ export const resolveAppointmentSchedules = async (
       [Op.and]: literal(
         `start_time::date_string > (
           SELECT value::date_string
-          FROM json_each_text(${sequelize.escape(JSON.stringify(generatedUntilDates))})
+          FROM json_each_text(:generatedUntilDates)
           WHERE key::uuid = schedule_id
         )`,
       ),
     },
+    replacements: { generatedUntilDates: JSON.stringify(generatedUntilDates) },
     raw: true,
   });
 
