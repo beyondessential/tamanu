@@ -44,14 +44,15 @@ export const ProgramViewHistoryScreen = ({ route }: SurveyResponseScreenProps): 
 
     queryFn: async () => {
       const { models } = Database;
-      const surveyResponses = await models.SurveyResponse.getForPatient({
-        patientId: selectedPatient.id,
-      });
-
-      const surveys = await models.Survey.find({
-        select: ['id'],
-        where: { surveyType: SurveyTypes.Programs },
-      });
+      const [surveyResponses, surveys] = await Promise.all([
+        models.SurveyResponse.getForPatient({
+          patientId: selectedPatient.id,
+        }),
+        models.Survey.find({
+          select: ['id'],
+          where: { surveyType: SurveyTypes.Programs },
+        }),
+      ]);
       const surveyIds = new Set(surveys.map(survey => survey.id));
 
       return surveyResponses.filter(
