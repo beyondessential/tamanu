@@ -7,6 +7,4 @@ export type GenericFormValues = {
 
 export type FormOnSubmit<T> = (data: T, formikHelpers: FormikHelpers<T>) => Promise<void>;
 
-export type FormValidate<T> = (data: T) => { [Key in keyof T | 'form']: string };
-
 export type FormValidationSchema = Yup.AnyObjectSchema;
