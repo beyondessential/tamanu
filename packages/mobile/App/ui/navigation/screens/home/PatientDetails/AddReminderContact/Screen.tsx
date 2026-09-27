@@ -16,7 +16,7 @@ import {
   StyledText,
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Form } from '~/ui/components/Forms/Form';
+import Form from '~/ui/components/Forms/Form';
 import { Button } from '~/ui/components/Button';
 import { TextField } from '~/ui/components/TextField/TextField';
 import { Routes } from '~/ui/helpers/routes';

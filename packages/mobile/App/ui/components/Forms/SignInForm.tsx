@@ -13,7 +13,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { Form } from './Form';
+import Form from './Form';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';

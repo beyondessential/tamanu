@@ -1,36 +1,19 @@
-import React, { type ReactElement } from 'react';
-import { Formik, type FormikConfig, type FormikProps } from 'formik';
+import { Formik, type FormikConfig } from 'formik';
+import React from 'react';
 import type { FormOnSubmit, FormValidationSchema, GenericFormValues } from '~/types/Forms';
 
-type FormProps<T extends GenericFormValues> = {
-  initialValues: T;
-  validateOnChange?: boolean;
-  validateOnBlur?: boolean;
-  validationSchema?: FormValidationSchema<T>;
+interface FormProps<T extends GenericFormValues> extends Pick<
+  FormikConfig<T>,
+  'children' | 'initialValues' | 'validate' | 'validateOnBlur' | 'validateOnChange'
+> {
   onSubmit: FormOnSubmit<T>;
-  children: (props: FormikProps<T>) => ReactElement;
-  validate?: FormikConfig<T>['validate'];
-};
+  validationSchema?: FormValidationSchema<T>;
+}
 
-export function Form<T>({
-  initialValues,
-  validationSchema,
-  validateOnChange = false,
+export default function Form<T>({
   validateOnBlur = false,
-  onSubmit,
-  children,
-  validate,
-}: FormProps<T>): JSX.Element {
-  return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      validate={validate}
-      validateOnChange={validateOnChange}
-      validateOnBlur={validateOnBlur}
-      onSubmit={onSubmit}
-    >
-      {children}
-    </Formik>
-  );
+  validateOnChange = false,
+  ...props
+}: FormProps<T>) {
+  return <Formik validateOnBlur={validateOnBlur} validateOnChange={validateOnChange} {...props} />;
 }

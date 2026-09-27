@@ -12,7 +12,7 @@ import { useFormikContext, validateYupSchema, yupToFormErrors } from 'formik';
 import type * as Yup from 'yup';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
-import { Form } from '../Form';
+import Form from '../Form';
 import { FormFields } from './FormFields';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { runCalculations } from '~/ui/helpers/calculations';
@@ -235,18 +235,16 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validateVisibleFields}
     >
-      {() => (
-        <SurveyFormInner
-          components={components}
-          hasCalculations={hasCalculations}
-          patient={patient}
-          encounterProp={encounterProp}
-          onCancel={onCancel}
-          setCurrentScreenIndex={setCurrentScreenIndex}
-          currentScreenIndex={currentScreenIndex}
-          onGoBack={onGoBack}
-        />
-      )}
+      <SurveyFormInner
+        components={components}
+        hasCalculations={hasCalculations}
+        patient={patient}
+        encounterProp={encounterProp}
+        onCancel={onCancel}
+        setCurrentScreenIndex={setCurrentScreenIndex}
+        currentScreenIndex={currentScreenIndex}
+        onGoBack={onGoBack}
+      />
     </Form>
   );
 };

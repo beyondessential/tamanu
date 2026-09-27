@@ -9,7 +9,7 @@ import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/Autoco
 import { Button } from '~/ui/components/Button';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { Dropdown } from '~/ui/components/Dropdown';
-import { Form } from '~/ui/components/Forms/Form';
+import Form from '~/ui/components/Forms/Form';
 import { LocalisedField } from '~/ui/components/Forms/LocalisedField';
 import { EmptyStackHeader } from '~/ui/components/StackHeader';
 import {
