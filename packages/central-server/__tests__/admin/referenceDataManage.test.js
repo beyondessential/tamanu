@@ -1,6 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_VALUES,
+  DRUG_UNIT_VALUES,
   REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   SYSTEM_DATA_TYPES,
@@ -206,6 +209,42 @@ describe('Reference Data Manage', () => {
         route: 'telepathic',
       });
       expect(response).toHaveRequestError();
+    });
+
+    it('should create a medication template with its detail record', async () => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+      });
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        code: 'test-medication-template-code',
+        name: 'Test Medication Template',
+        medicationId: drug.id,
+        route: DRUG_ROUTE_VALUES[0],
+        dosingUnit: DRUG_UNIT_VALUES[0],
+        frequency: Object.values(ADMINISTRATION_FREQUENCIES)[0],
+      });
+      expect(response).toHaveSucceeded();
+
+      const template = await models.ReferenceMedicationTemplate.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(template).toMatchObject({ medicationId: drug.id, route: DRUG_ROUTE_VALUES[0] });
+    });
+
+    it('should reject a medication template missing its required detail fields', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        code: 'test-medication-template-bare-code',
+        name: 'Test Medication Template Bare',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findOne({
+        where: { code: 'test-medication-template-bare-code' },
+      });
+      expect(record).toBe(null);
     });
 
     it('should reject creating a record with a duplicate unique field', async () => {

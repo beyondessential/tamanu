@@ -37,45 +37,50 @@ export const ReferenceDataForm = ({
   isEditMode,
   selectedType,
 }) => {
-  const validationSchema = useMemo(() => buildValidationSchema(columns, isEditMode), [columns, isEditMode]);
+  const validationSchema = useMemo(
+    () => buildValidationSchema(columns, isEditMode),
+    [columns, isEditMode],
+  );
   const renderForm = useCallback(
     ({ submitForm }) => {
       const visibleColumns = columns.filter(col => !col.readOnly);
       const firstDetailKey = visibleColumns.find(col => col.detail)?.key;
 
       return (
-      <FormGrid data-testid="formgrid-refdata">
-        {visibleColumns.map(col => (
-          <React.Fragment key={col.key}>
-            {col.key === firstDetailKey && (
-              <>
-                <FormSeparatorLine data-testid="formseparatorline-refdata-detail" />
-                <DetailHeading data-testid="detailheading-refdata">
-                  <TranslatedText
-                    stringId="admin.referenceData.detailsHeading"
-                    fallback=":type details"
-                    replacements={{ type: startCase(selectedType) }}
-                    data-testid="translatedtext-refdata-details-heading"
-                  />
-                </DetailHeading>
-              </>
-            )}
-            <FormField col={col} isEditMode={isEditMode} />
-          </React.Fragment>
-        ))}
-        <ModalFormActionRow
-          confirmText={
-            <TranslatedText
-              stringId={isEditMode ? 'admin.referenceData.editSave' : 'admin.referenceData.addNew'}
-              fallback={isEditMode ? 'Confirm' : 'Add Reference Data'}
-              data-testid="translatedtext-confirm-refdata"
-            />
-          }
-          onConfirm={submitForm}
-          onCancel={onCancel}
-          data-testid="modalformactionrow-refdata"
-        />
-      </FormGrid>
+        <FormGrid data-testid="formgrid-refdata">
+          {visibleColumns.map(col => (
+            <React.Fragment key={col.key}>
+              {col.key === firstDetailKey && (
+                <>
+                  <FormSeparatorLine data-testid="formseparatorline-refdata-detail" />
+                  <DetailHeading data-testid="detailheading-refdata">
+                    <TranslatedText
+                      stringId="admin.referenceData.detailsHeading"
+                      fallback=":type details"
+                      replacements={{ type: startCase(selectedType) }}
+                      data-testid="translatedtext-refdata-details-heading"
+                    />
+                  </DetailHeading>
+                </>
+              )}
+              <FormField col={col} isEditMode={isEditMode} />
+            </React.Fragment>
+          ))}
+          <ModalFormActionRow
+            confirmText={
+              <TranslatedText
+                stringId={
+                  isEditMode ? 'admin.referenceData.editSave' : 'admin.referenceData.addNew'
+                }
+                fallback={isEditMode ? 'Confirm' : 'Add Reference Data'}
+                data-testid="translatedtext-confirm-refdata"
+              />
+            }
+            onConfirm={submitForm}
+            onCancel={onCancel}
+            data-testid="modalformactionrow-refdata"
+          />
+        </FormGrid>
       );
     },
     [columns, isEditMode, onCancel, selectedType],
