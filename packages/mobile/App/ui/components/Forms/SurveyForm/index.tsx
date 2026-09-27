@@ -1,16 +1,15 @@
 import React, {
   type Dispatch,
-  type MutableRefObject,
   type ReactElement,
   type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext } from 'formik';
+import { useFormikContext, validateYupSchema, yupToFormErrors } from 'formik';
+import type * as Yup from 'yup';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import { Form } from '../Form';
@@ -44,8 +43,6 @@ interface SurveyFormInnerProps {
   hasCalculations: boolean;
   patient: any;
   encounterProp?: { encounterType?: string };
-  formValuesRef: MutableRefObject<Record<string, any>>;
-  setVisibleComponentKey: React.Dispatch<React.SetStateAction<string>>;
   onCancel?: () => void;
   onGoBack?: () => void;
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
@@ -57,8 +54,6 @@ const SurveyFormInner = ({
   hasCalculations,
   patient,
   encounterProp,
-  formValuesRef,
-  setVisibleComponentKey,
   onCancel,
   onGoBack,
   setCurrentScreenIndex,
@@ -70,11 +65,6 @@ const SurveyFormInner = ({
   const calculatedValues = useMemo(
     () => (hasCalculations ? runCalculations(components, values) : EMPTY_CALCULATED_VALUES),
     [components, hasCalculations, values],
-  );
-
-  const mergedValues = useMemo(
-    () => (hasCalculations ? { ...values, ...calculatedValues } : values),
-    [values, calculatedValues, hasCalculations],
   );
 
   // Write calculated values back into Formik so they persist
@@ -96,13 +86,6 @@ const SurveyFormInner = ({
       setValues({ ...values, ...changedCalculatedValues }, false);
     }
   }, [calculatedValues, setValues, values]);
-
-  // Update the ref (cheap, no render) and only setState when visibility changes
-  useEffect(() => {
-    formValuesRef.current = mergedValues;
-    const nextKey = computeVisibleKey(components, mergedValues);
-    setVisibleComponentKey(prev => (prev === nextKey ? prev : nextKey));
-  }, [components, mergedValues, formValuesRef, setVisibleComponentKey]);
 
   return (
     <FormFields
@@ -185,18 +168,42 @@ export const SurveyForm = ({
   );
   const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
 
-  const formValuesRef = useRef(initialValues);
-  const [visibleComponentKey, setVisibleComponentKey] = useState(() =>
-    computeVisibleKey(components, initialValues),
-  );
+  // Only rebuild the Yup schema when the set of visible components changes
+  const getVisibleFieldsSchema = useMemo(() => {
+    const schemasByVisibleKey = new Map<string, Yup.ObjectSchema<any>>();
+    return (values: Record<string, any>): Yup.ObjectSchema<any> => {
+      const visibleKey = computeVisibleKey(components, values);
+      const cachedSchema = schemasByVisibleKey.get(visibleKey);
+      if (cachedSchema) return cachedSchema;
 
-  const formValidationSchema = useMemo(() => {
-    const visible = components.filter(c =>
-      checkVisibilityCriteria(c, components, formValuesRef.current),
-    );
-    return getFormSchema(visible, { encounterType: encounter?.encounterType }, getTranslation);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleComponentKey, encounter?.encounterType, getTranslation]);
+      const visibleComponents = components.filter(c =>
+        checkVisibilityCriteria(c, components, values),
+      );
+      const schema = getFormSchema(
+        visibleComponents,
+        { encounterType: encounter?.encounterType },
+        getTranslation,
+      );
+      schemasByVisibleKey.set(visibleKey, schema);
+      return schema;
+    };
+  }, [components, encounter?.encounterType, getTranslation]);
+
+  const validateVisibleFields = useCallback(
+    async (values: Record<string, any>) => {
+      const schemaErrors = await (async () => {
+        try {
+          await validateYupSchema(values, getVisibleFieldsSchema(values));
+          return {};
+        } catch (error) {
+          if (error.name !== 'ValidationError') throw error;
+          return yupToFormErrors(error);
+        }
+      })();
+      return { ...schemaErrors, ...validate?.(values) };
+    },
+    [getVisibleFieldsSchema, validate],
+  );
 
   const submitVisibleValues = useCallback(
     (values: any) => {
@@ -224,10 +231,9 @@ export const SurveyForm = ({
   return (
     <Form
       validateOnBlur
-      validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
-      validate={validate}
+      validate={validateVisibleFields}
     >
       {() => (
         <SurveyFormInner
@@ -235,8 +241,6 @@ export const SurveyForm = ({
           hasCalculations={hasCalculations}
           patient={patient}
           encounterProp={encounterProp}
-          formValuesRef={formValuesRef}
-          setVisibleComponentKey={setVisibleComponentKey}
           onCancel={onCancel}
           setCurrentScreenIndex={setCurrentScreenIndex}
           currentScreenIndex={currentScreenIndex}

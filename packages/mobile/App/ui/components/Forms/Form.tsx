@@ -1,15 +1,15 @@
 import React, { type ReactElement } from 'react';
-import { Formik, type FormikProps } from 'formik';
-import type { FormOnSubmit, FormValidate, FormValidationSchema, GenericFormValues } from '~/types/Forms';
+import { Formik, type FormikConfig, type FormikProps } from 'formik';
+import type { FormOnSubmit, FormValidationSchema, GenericFormValues } from '~/types/Forms';
 
 type FormProps<T extends GenericFormValues> = {
   initialValues: T;
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
-  validationSchema: FormValidationSchema<T>;
+  validationSchema?: FormValidationSchema<T>;
   onSubmit: FormOnSubmit<T>;
   children: (props: FormikProps<T>) => ReactElement;
-  validate?: FormValidate<T>;
+  validate?: FormikConfig<T>['validate'];
 };
 
 export function Form<T>({
