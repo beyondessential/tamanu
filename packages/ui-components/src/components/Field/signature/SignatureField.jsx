@@ -175,10 +175,8 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
     if (!isDrawingRef.current) return;
 
     isDrawingRef.current = false;
-    setCurrentStroke(stroke => {
-      if (stroke?.length) setSessionStrokes(prev => [...prev, stroke]);
-      return null;
-    });
+    if (currentStroke?.length) setSessionStrokes(prev => [...prev, currentStroke]);
+    setCurrentStroke(null);
   };
 
   const handlePointerUp = event => {
