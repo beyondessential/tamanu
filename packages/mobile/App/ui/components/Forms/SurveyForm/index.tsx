@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
+import { type FormikConfig, useFormikContext, validateYupSchema, yupToFormErrors } from 'formik';
 import React, {
   type Dispatch,
   type ReactElement,
@@ -8,23 +10,22 @@ import React, {
   useRef,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext, validateYupSchema, yupToFormErrors } from 'formik';
 import type * as Yup from 'yup';
-import { getFormInitialValues, getFormSchema } from './helpers';
-import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
-import Form from '../Form';
-import { FormFields } from './FormFields';
-import { checkVisibilityCriteria } from '/helpers/fields';
-import { runCalculations } from '~/ui/helpers/calculations';
-import { authUserSelector } from '/helpers/selectors';
-import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { ErrorScreen } from '../../ErrorScreen';
-import { LoadingScreen } from '../../LoadingScreen';
+import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
+import type { GenericFormValues } from '~/types/Forms';
 import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { runCalculations } from '~/ui/helpers/calculations';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
+import { ErrorScreen } from '../../ErrorScreen';
+import { LoadingScreen } from '../../LoadingScreen';
+import Form from '../Form';
+import { FormFields } from './FormFields';
+import { getFormInitialValues, getFormSchema } from './helpers';
+import { checkVisibilityCriteria } from '/helpers/fields';
+import { authUserSelector } from '/helpers/selectors';
 
 function computeVisibleKey(
   components: ISurveyScreenComponent[],
@@ -107,7 +108,7 @@ export type SurveyFormProps = {
   onCancel?: () => void;
   onGoBack?: () => void;
   patient: any;
-  validate?: any;
+  validate?: FormikConfig<GenericFormValues>['validate'];
   patientAdditionalData: IPatientAdditionalData;
   patientProgramRegistration?: IPatientProgramRegistration;
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
@@ -200,7 +201,7 @@ export const SurveyForm = ({
           return yupToFormErrors(error);
         }
       })();
-      return { ...schemaErrors, ...validate?.(values) };
+      return { ...schemaErrors, ...(await validate?.(values)) };
     },
     [getVisibleFieldsSchema, validate],
   );
