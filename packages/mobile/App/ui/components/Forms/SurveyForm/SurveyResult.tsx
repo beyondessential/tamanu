@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useFormikContext } from 'formik';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { Field } from '../FormField';
 import { SurveyResultBadge } from '../../SurveyResultBadge';
+import { Field } from '../FormField';
 
 const SurveyBadgeField = ({ resultText }) => (
   <View>
