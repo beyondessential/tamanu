@@ -37,7 +37,7 @@ export const SurveyResult = ({ patient, config, name }) => {
   return (
     <Field
       component={SurveyBadgeField}
-      label={`CVD Risk`}
+      label="CVD Risk"
       name="surveyResult"
       value={surveyResponse.resultText || surveyResponse.result}
       resultText={surveyResponse.resultText}
