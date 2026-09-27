@@ -7,7 +7,7 @@ interface FormProps<T extends GenericFormValues> extends Pick<
   'children' | 'initialValues' | 'validate' | 'validateOnBlur' | 'validateOnChange'
 > {
   onSubmit: FormOnSubmit<T>;
-  validationSchema?: FormValidationSchema<T>;
+  validationSchema?: FormValidationSchema;
 }
 
 export default function Form<T>({
