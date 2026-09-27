@@ -1,9 +1,9 @@
 import type { FormikHelpers } from 'formik';
 import type * as Yup from 'yup';
 
-export type GenericFormValues = {
+export interface GenericFormValues {
   [key: string]: any;
-};
+}
 
 export type FormOnSubmit<T> = (data: T, formikHelpers: FormikHelpers<T>) => Promise<void>;
 
