@@ -10,7 +10,6 @@ import React, {
   useRef,
 } from 'react';
 import { useSelector } from 'react-redux';
-import type * as Yup from 'yup';
 import { Database } from '~/infra/db';
 import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
 import type { GenericFormValues } from '~/types/Forms';
@@ -26,16 +25,6 @@ import { FormFields } from './FormFields';
 import { getFormInitialValues, getFormSchema } from './helpers';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { authUserSelector } from '/helpers/selectors';
-
-function computeVisibleKey(
-  components: ISurveyScreenComponent[],
-  values: Record<string, any>,
-): string {
-  return components
-    .filter(c => checkVisibilityCriteria(c, components, values))
-    .map(c => c.id)
-    .join(',');
-}
 
 const EMPTY_CALCULATED_VALUES = {};
 
@@ -169,32 +158,19 @@ export const SurveyForm = ({
   );
   const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
 
-  // Only rebuild the Yup schema when the set of visible components changes
-  const getVisibleFieldsSchema = useMemo(() => {
-    const schemasByVisibleKey = new Map<string, Yup.ObjectSchema<any>>();
-    return (values: Record<string, any>): Yup.ObjectSchema<any> => {
-      const visibleKey = computeVisibleKey(components, values);
-      const cachedSchema = schemasByVisibleKey.get(visibleKey);
-      if (cachedSchema) return cachedSchema;
-
+  const validateVisibleFields = useCallback(
+    async (values: Record<string, any>) => {
       const visibleComponents = components.filter(c =>
         checkVisibilityCriteria(c, components, values),
       );
-      const schema = getFormSchema(
+      const visibleFieldsSchema = getFormSchema(
         visibleComponents,
         { encounterType: encounter?.encounterType },
         getTranslation,
       );
-      schemasByVisibleKey.set(visibleKey, schema);
-      return schema;
-    };
-  }, [components, encounter?.encounterType, getTranslation]);
-
-  const validateVisibleFields = useCallback(
-    async (values: Record<string, any>) => {
       const schemaErrors = await (async () => {
         try {
-          await validateYupSchema(values, getVisibleFieldsSchema(values));
+          await validateYupSchema(values, visibleFieldsSchema);
           return {};
         } catch (error) {
           if (error.name !== 'ValidationError') throw error;
@@ -203,7 +179,7 @@ export const SurveyForm = ({
       })();
       return { ...schemaErrors, ...(await validate?.(values)) };
     },
-    [getVisibleFieldsSchema, validate],
+    [components, encounter?.encounterType, getTranslation, validate],
   );
 
   const submitVisibleValues = useCallback(
