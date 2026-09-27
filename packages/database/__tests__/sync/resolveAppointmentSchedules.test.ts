@@ -9,6 +9,8 @@ import { closeDatabase, createTestDatabase } from '../utilities';
 describe('resolveAppointmentSchedules', () => {
   let models;
   let patient;
+  const createdAppointmentIds = [];
+  const createdScheduleIds = [];
 
   beforeAll(async () => {
     const database = await createTestDatabase();
@@ -17,16 +19,20 @@ describe('resolveAppointmentSchedules', () => {
   });
 
   afterEach(async () => {
-    await models.Appointment.destroy({ where: {}, force: true });
-    await models.AppointmentSchedule.destroy({ where: {}, force: true });
+    // drain first so the next test starts with empty lists
+    const appointmentIds = createdAppointmentIds.splice(0);
+    const scheduleIds = createdScheduleIds.splice(0);
+    await models.Appointment.destroy({ where: { id: appointmentIds }, force: true });
+    await models.AppointmentSchedule.destroy({ where: { id: scheduleIds }, force: true });
   });
 
   afterAll(async () => {
+    await models.Patient.destroy({ where: { id: patient.id }, force: true });
     await closeDatabase();
   });
 
-  const createSchedule = async () =>
-    models.AppointmentSchedule.create({
+  const createSchedule = async () => {
+    const schedule = await models.AppointmentSchedule.create({
       ...fake(models.AppointmentSchedule),
       interval: 1,
       frequency: REPEAT_FREQUENCY.WEEKLY,
@@ -37,15 +43,21 @@ describe('resolveAppointmentSchedules', () => {
       cancelledAtDate: null,
       isFullyGenerated: true,
     });
+    createdScheduleIds.push(schedule.id);
+    return schedule;
+  };
 
-  const createAppointment = (schedule, date, status = APPOINTMENT_STATUSES.CONFIRMED) =>
-    models.Appointment.create({
+  const createAppointment = async (schedule, date, status = APPOINTMENT_STATUSES.CONFIRMED) => {
+    const appointment = await models.Appointment.create({
       startTime: `${date} 12:00:00`,
       endTime: `${date} 13:00:00`,
       status,
       patientId: patient.id,
       scheduleId: schedule.id,
     });
+    createdAppointmentIds.push(appointment.id);
+    return appointment;
+  };
 
   // the facility cancels the schedule while only aware of appointments up to generatedUntilDate
   const cancelledScheduleChange = schedule => ({
