@@ -213,37 +213,29 @@ const SettingsForm = ({
       setShowWarningModal(true);
     });
 
+  const confirmDiscardChanges = async () => {
+    if (!hasUnsavedChanges) return true;
+    const dismissChanges = await handleShowWarningModal();
+    if (dismissChanges) setHasUnsavedJsonEdit(false);
+    return dismissChanges;
+  };
+
   const handleChangeTab = async newTab => {
-    if (newTab === currentTab) return;
-    if (hasUnsavedChanges) {
-      const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-      await resetForm();
-    }
-    setHasUnsavedJsonEdit(false);
+    if (newTab === currentTab || !(await confirmDiscardChanges())) return;
+    if (dirty) await resetForm();
     setCurrentTab(newTab);
   };
 
   const handleChangeScope = async e => {
     const newScope = e.target.value;
-    if (newScope === scope) return;
-    if (hasUnsavedChanges) {
-      const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-    }
-    setHasUnsavedJsonEdit(false);
+    if (newScope === scope || !(await confirmDiscardChanges())) return;
     setScope(newScope);
     setFacilityId(null);
   };
 
   const handleFacilityChange = async e => {
     const newFacilityId = e.target.value;
-    if (newFacilityId === facilityId) return;
-    if (hasUnsavedChanges) {
-      const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-    }
-    setHasUnsavedJsonEdit(false);
+    if (newFacilityId === facilityId || !(await confirmDiscardChanges())) return;
     setFacilityId(newFacilityId);
   };
 
