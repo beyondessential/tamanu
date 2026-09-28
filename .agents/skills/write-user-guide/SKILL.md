@@ -29,37 +29,18 @@ one-line description each, and get the list approved before writing.
    labels are the `fallback` strings on `TranslatedText` and `getTranslation`; copy them exactly.
 2. **Read the relevant spec** under `specs/`, but expect it to be thin. Much of the tree is stubs,
    so the code is the source of truth.
-3. **Run the app and click the flow through** before publishing. This confirms what each action
-   does, and it's when you capture screenshots.
+3. **Run the app and click the flow through** before publishing, to confirm what each action does.
 
 Report anything you couldn't confirm by clicking as unverified.
 
 ### Screenshots
 
-Write placeholders first, then fill the ones you can. A placeholder is better than a wrong or stale
-image.
+Write every screenshot as a placeholder. There's no capture tooling, so a person takes the shots
+and replaces the placeholders. When you hand the work back, list the placeholders that need filling.
 
-**Desktop:** `scripts/capture-user-manual-screenshot.mjs` takes one shot per run. It reads
-`FACILITY_FRONTEND_URL`, `TEST_EMAIL` and `TEST_PASSWORD` from `packages/e2e-tests/.env`, with
-shell variables taking precedence. Install browsers with `npx playwright install chromium`; options
-are in the script header.
-
-```
-node scripts/capture-user-manual-screenshot.mjs \
-  --path /patients/all \
-  --out docs/user-manuals/desktop/patients/images/find-a-patient-list.png
-```
-
-The hard part is having a Tamanu to point at. Ask which environment to use, since that decides
-whether the shots can be published. Standing up a local stack is covered in
-`packages/e2e-tests/README.md`.
-
-**Mobile:** there's no capture tooling. Leave placeholders and say a person needs to take them.
-
-Demonstration data is thin, so enter plausible data first where a screen would otherwise photograph
-empty. Check every image before committing: never publish one that shows a real patient.
-
-If you can't get a shot, leave its placeholder and list it as outstanding.
+Whoever takes them should use an environment where the shots can be published, and enter plausible
+data first where a screen would otherwise look empty. Check every image before committing: never
+publish one that shows a real patient.
 
 ### Navigation is generated
 
