@@ -23,8 +23,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
   const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
 
-  // TODO: These fields aren't on the patient model yet.
-  const image = null;
+  // TODO: This field isn't on the patient model yet.
   const lastViewed = new Date();
 
   const name = joinNames({ firstName, lastName });
@@ -43,7 +42,6 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
           <UserAvatar
             size={screenPercentageToDP(4.86, Orientation.Height)}
             displayName={name}
-            image={image}
             sex={sex}
           />
           <StyledText
