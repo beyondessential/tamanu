@@ -45,14 +45,18 @@ Report anything you couldn't confirm by clicking as unverified.
 The Slab guides are being retired. Use them to see what an area covered, but write from the app, not
 from Slab's wording.
 
-### 3. Leave screenshot placeholders
+### 3. Capture screenshots
 
-Write every screenshot as a placeholder. There's no capture tooling, so a person takes the shots
-and replaces the placeholders.
+Write every screenshot as a placeholder first. While clicking the flow through on the author's demo
+site, capture the shot each placeholder asks for. Save the shots outside the repository and show
+them to the author; only the ones they approve go into the module's `images/` folder, replacing
+their placeholders.
 
-Whoever takes them should use an environment where the shots can be published, and enter plausible
-data first where a screen would otherwise look empty. Check every image before committing: never
-publish one that shows a real patient.
+Everything in the frame is published, so choose or set up a patient whose record reads plausibly,
+and enter plausible data where a screen would otherwise look empty. Never publish an image that
+shows a real patient.
+
+If you can't drive a browser, leave the placeholders for a person to fill.
 
 ### 4. Update the navigation
 
