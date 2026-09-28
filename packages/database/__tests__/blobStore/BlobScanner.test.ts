@@ -126,6 +126,7 @@ describe('BlobScanner', () => {
             // Read the bytes as a real driver would, so unreachable content fails here.
             const stream = await open();
             for await (const _chunk of stream) {
+              // drained
             }
             scanned.push(hash);
             return verdicts.get(hash) ?? BLOB_SCAN_VERDICTS.CLEAN;
