@@ -44,9 +44,20 @@ const HeadCellWrapper = styled.div`
   width: fit-content;
 `;
 
+// Only a wholly numeric value counts as a number here: a partial parse would truncate a result
+// like "12 colonies" to 12, both on screen and when comparing it against a reference range.
+function toNumber(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const number = Number(trimmed);
+  return Number.isFinite(number) ? number : null;
+}
+
 function round(float, { rounding } = {}) {
-  const floatNumber = parseFloat(float);
-  if (isNaN(floatNumber) || !isNumber(rounding)) {
+  const floatNumber = toNumber(float);
+  if (floatNumber === null || !isNumber(rounding)) {
     return float;
   }
 
@@ -84,17 +95,22 @@ export function getValidationState(normalizedValue, config = {}, visibilityCrite
     return tooltip ? { tooltip, severity: ALERT } : { severity: INFO };
   }
 
-  if (normalRange && normalizedValue < normalRange.min) {
-    return {
-      tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
-      severity: ALERT,
-    };
-  }
-  if (normalRange && normalizedValue > normalRange.max) {
-    return {
-      tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
-      severity: ALERT,
-    };
+  // A value that isn't wholly numeric can't be judged against a numeric range, so it falls
+  // through to the qualitative check below.
+  const numericValue = toNumber(normalizedValue);
+  if (normalRange && numericValue !== null) {
+    if (numericValue < normalRange.min) {
+      return {
+        tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
+        severity: ALERT,
+      };
+    }
+    if (numericValue > normalRange.max) {
+      return {
+        tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
+        severity: ALERT,
+      };
+    }
   }
   if (rangeText && normalizedValue !== rangeText) {
     return {
@@ -102,7 +118,7 @@ export function getValidationState(normalizedValue, config = {}, visibilityCrite
       severity: ALERT,
     };
   }
-  if (unit?.length > 2 && !isNaN(normalizedValue)) {
+  if (unit?.length > 2 && toNumber(normalizedValue) !== null) {
     return {
       tooltip: `${round(normalizedValue, config)}${unit}`,
       severity: INFO,
@@ -115,9 +131,9 @@ export function getValidationState(normalizedValue, config = {}, visibilityCrite
 
 export const formatValue = (value, config) => {
   const { rounding = 0, unit = '' } = config || {};
-  const float = Number.parseFloat(value);
+  const float = toNumber(value);
 
-  if (isNaN(float)) {
+  if (float === null) {
     return value || '—'; // em dash
   }
 

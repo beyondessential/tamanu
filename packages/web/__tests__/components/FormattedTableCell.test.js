@@ -58,6 +58,18 @@ describe('formatValue', () => {
       config: { rounding: null },
       expected: '36.64',
     },
+    {
+      title: 'preserves free-text that starts with a number rather than truncating it',
+      value: '12 colonies',
+      config: { rounding: null },
+      expected: '12 colonies',
+    },
+    {
+      title: 'preserves free-text that starts with a number even when rounding is configured',
+      value: '12 colonies',
+      config: { rounding: 1, unit: 'C' },
+      expected: '12 colonies',
+    },
   ])('$title', ({ value, config, expected }) => {
     expect(formatValue(value, config)).toBe(expected);
   });
@@ -98,5 +110,21 @@ describe('getValidationState', () => {
 
   test('leaves an in-range plain numeric result informational', () => {
     expect(getValidationState('2', {}, { normalRange: { min: 0.3, max: 5 } }).severity).toBe('info');
+  });
+
+  test('flags a numeric result entered against a free-text test type', () => {
+    expect(
+      getValidationState('120', { unit: 'U/L' }, { normalRange: { min: 5, max: 35 } }),
+    ).toEqual({ tooltip: 'Outside normal range\n >35U/L', severity: 'alert' });
+  });
+
+  test('does not flag a result that is only partly numeric', () => {
+    expect(
+      getValidationState('12 colonies', {}, { normalRange: { min: 0, max: 5 } }).severity,
+    ).toBe('info');
+  });
+
+  test('flags a qualitative result that does not match its text range', () => {
+    expect(getValidationState('Positive', {}, { rangeText: 'Negative' }).severity).toBe('alert');
   });
 });
