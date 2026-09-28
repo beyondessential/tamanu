@@ -19,7 +19,7 @@ export interface PatientCardProps {
   onPress: Function;
 }
 
-export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element => {
+export const PatientCard = ({ patient, onPress }: PatientCardProps) => {
   const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
 
