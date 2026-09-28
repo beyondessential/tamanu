@@ -210,13 +210,16 @@ Inference alone isn't trustworthy here — a call site tells you a permission gu
 what the user-facing capability is called ("pause and resume a medication"), and the guide's value is
 precisely that translation. Confirmation is where that lands.
 
-## Screenshots are captured manually
+## Screenshots: manual, or captured from a demo site
 
-The skill leaves a placeholder for each image, naming the file and what it must show, and the guide's
-author captures and adds the screenshots by hand. An automated capture spec was designed and part-tested
-against the e2e page objects, then dropped: it needs a full local stack to run, and some screens (the
-medication administration record) have no page object, so the cost outweighed hand capture for a
-documentation workflow.
+The skill leaves a placeholder for each image, naming the file and what it must show. If the author
+provides a demo site and login, the skill captures the images itself with a throwaway headless-browser
+script; otherwise the author captures them by hand. An automated capture spec in the e2e suite was
+designed first and dropped: it needed a full local stack and some screens have no page object. A demo
+site removes both problems, since it is already running and a one-off script needs no page objects.
+
+The safeguards are what make this acceptable: synthetic data only (the images are published), the
+login kept to the session, nothing saved, and the author's go-ahead before invalid input or new records.
 
 ## Resulting run shape
 

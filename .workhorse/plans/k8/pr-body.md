@@ -41,7 +41,8 @@ No product code is touched, and there are no config or settings changes.
   module (16) and owns the pharmacy order settings, the `MedicationDispense` and `MedicationRequest`
   permissions, and two reference data types. Its scope is recorded in the plan for when it is written.
 - **The guides carry 11 screenshot placeholders**, each naming the image file it awaits and what it
-  must show. Authors capture and add screenshots by hand.
+  must show. The skill captures them from a demo site when the author provides one; otherwise the
+  author adds them by hand.
 - **Test cases are unticked on purpose.** They specify the coverage the skill owes; the first real run
   exercises them.
 

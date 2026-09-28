@@ -65,8 +65,21 @@ not get used.
 
 ### 4. Screenshots
 
-Leave a placeholder for each image the guide needs, per the format doc. The author captures the
-screenshots and adds them to the guide's `images/` folder under the names the placeholders give.
+Leave a placeholder for each image the guide needs, per the format doc. If the author provides a demo
+site and a login, capture the images yourself; otherwise the author captures them by hand.
+
+To capture from a demo site:
+
+- **Confirm first** that the site holds synthetic data only, since the images are published; that it
+  runs the version the guide documents; and which address serves the admin panel, since settings
+  screens are there rather than on the facility frontend
+- **Keep the login to the session.** Never write it to a file, commit it, or put it in the PR
+- **Browse, do not change.** Never save a setting. Get the author's go-ahead before typing invalid
+  input for an error-state image, or creating records a screen needs; without it, leave that
+  placeholder
+- **Use a throwaway headless-browser script outside the repository**, not a spec in the e2e suite
+- **Check each image before using it**: it shows what its placeholder describes, and no real names.
+  Save it to the guide's `images/` folder under the placeholder's name, then replace the placeholder
 
 ### 5. Report gaps, never widen scope
 
@@ -86,4 +99,4 @@ someone wrote deliberately.
 Update the module README and the section README, then open a **pull request for review**. Title it to
 Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
 type, use `chore`) with the repository template. In the PR, summarise what you wrote, report the
-configuration gaps you found, and list any screenshot placeholders still to be filled.
+configuration gaps you found, and list any screenshot placeholders still to be filled and why.
