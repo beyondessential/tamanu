@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { type ReactElement, useCallback } from 'react';
+import React from 'react';
 import { ScrollView } from 'react-native';
 import { compose } from 'redux';
 import { SETTING_KEYS } from '~/constants';
@@ -11,7 +11,7 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { UserAvatar } from '~/ui/components/UserAvatar';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
-import { getDisplayAge } from '~/ui/helpers/date';
+import { type AgeDisplayFormat, getDisplayAge } from '~/ui/helpers/date';
 import { Routes } from '~/ui/helpers/routes';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { getGender, joinNames } from '~/ui/helpers/user';
@@ -26,11 +26,11 @@ import {
   StyledView,
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { useSettings } from '/contexts/SettingsContext';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { PatientDetails } from './PatientDetails';
-import { useSettings } from '/contexts/SettingsContext';
 
-const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
+const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
   const { ability } = useAuth();
   const canReadReminderContacts = ability.can('read', 'Patient');
 
@@ -40,16 +40,16 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
       Database.models.Setting.getByKey<boolean>(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
   });
 
-  const onEditPatientIssues = useCallback(() => {
+  const onEditPatientIssues = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
-  }, [navigation]);
+  };
 
   const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
-  const onNavigateReminder = useCallback(() => {
+  const onNavigateReminder = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
-  }, [navigation]);
+  };
 
   return (
     <FullView>

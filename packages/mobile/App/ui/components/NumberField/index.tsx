@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { ReturnKeyTypeOptions } from 'react-native';
 import type { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextField } from '../TextField/TextField';
@@ -6,7 +6,7 @@ import { TextField } from '../TextField/TextField';
 export interface NumberFieldProps extends BaseInputProps {
   label: string;
   required?: boolean;
-  value?: string;
+  value?: string | number;
   onChange?: (text: any) => void;
   isOpen?: boolean;
   placeholder?: '' | string;
@@ -23,68 +23,50 @@ export interface NumberFieldProps extends BaseInputProps {
   fieldFontSize?: string | number;
 }
 
-export const NumberField = (props: NumberFieldProps): JSX.Element => {
-  const {
-    isOpen,
-    placeholder,
-    disabled,
-    secure,
-    hints,
-    returnKeyType,
-    autoFocus,
-    onFocus,
-    onBlur,
-    label,
-    error,
-    required,
-    labelColor,
-    labelFontSize,
-    fieldFontSize,
-  } = props;
-  const [number, setNumber] = useState(undefined);
-  const onChangeNumber = (newNumber: string): void => {
-    const value = parseFloat(newNumber);
-    if (Number.isNaN(value)) {
-      setNumber(undefined);
-    } else {
-      setNumber(newNumber);
-    }
+function isEmpty(value: string | number | null | undefined): boolean {
+  return value === undefined || value === null || value === '';
+}
 
-    if (props.onChange) {
-      if (Number.isNaN(value)) {
-        props.onChange('');
-      } else {
-        props.onChange(value);
-      }
+function toText(value: string | number | null | undefined): string | undefined {
+  return isEmpty(value) ? undefined : value.toString();
+}
+
+function isEquivalent(text: string | undefined, value: string | number | null | undefined) {
+  if (isEmpty(value)) return isEmpty(text);
+  if (isEmpty(text)) return false;
+  return Number.parseFloat(text) === Number.parseFloat(value.toString());
+}
+
+export const NumberField = ({ onChange, value, ...props }: NumberFieldProps) => {
+  const [typedText, setTypedText] = useState(() => toText(value));
+  const [prevValue, setPrevValue] = useState(value);
+
+  // Basically `value !== prevValue`, but considers NaN equivalent to NaN. Otherwise we get an
+  // infinite loop render loop from `setPrevValue(NaN)`
+  if (!Object.is(value, prevValue)) {
+    setPrevValue(value);
+    // The parent holds a parsed number. If it matches what was typed, it is just echoing our own
+    // input back, so keep the raw text (e.g. `1.`). Otherwise the parent changed the value.
+    if (!isEquivalent(typedText, value)) setTypedText(toText(value));
+  }
+
+  const onChangeNumber = (next: string): void => {
+    const parsed = Number.parseFloat(next);
+    if (Number.isNaN(parsed)) {
+      setTypedText(undefined);
+      onChange?.('');
+    } else {
+      setTypedText(next);
+      onChange?.(parsed);
     }
   };
 
-  useEffect((): void => {
-    if (props.value !== number) {
-      setNumber(props.value);
-    }
-  }, [props.value]);
-
   return (
     <TextField
-      required={required}
-      label={label}
-      isOpen={isOpen}
-      placeholder={placeholder}
-      disabled={disabled}
-      secure={secure}
-      hints={hints}
-      returnKeyType={returnKeyType}
-      autoFocus={autoFocus}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      error={error}
-      value={number === undefined || number === null ? '' : number.toString()}
-      onChange={onChangeNumber}
       keyboardType="numeric"
-      labelFontSize={labelFontSize}
-      labelColor={labelColor}
-      fieldFontSize={fieldFontSize}
+      onChange={onChangeNumber}
+      value={typedText ?? ''}
+      {...props}
     />
   );
 };

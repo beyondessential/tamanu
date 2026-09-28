@@ -14,7 +14,7 @@ import { VaccineStatus } from '~/ui/helpers/patient';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { SETTING_KEYS } from '../../../../constants';
-import { Form } from '../Form';
+import Form from '../Form';
 import { SubmitButton } from '../SubmitButton';
 import { VaccineFormGiven } from './VaccineFormGiven';
 import { VaccineFormNotGiven } from './VaccineFormNotGiven';
@@ -52,7 +52,7 @@ export interface VaccineFormValues {
   notGivenReasonId?: string;
 }
 
-// Shape of the `vaccinations.defaults` setting (see @tamanu/settings vaccinations schema)
+/** Shape of the `vaccinations.defaults` setting (see @tamanu/settings vaccinations schema) */
 interface VaccinationDefaults {
   locationGroupId: string | null;
   locationId: string | null;

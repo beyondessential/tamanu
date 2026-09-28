@@ -23,7 +23,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [syncStage, setSyncStage] = useState(syncManager.syncStage);
   const [progress, setProgress] = useState(syncManager.progress);
   const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
-  const [formattedLastSuccessfulSyncTime, setFormattedLastSuccessfulSyncTime] = useState(
+  const [formattedLastSuccessfulSyncTime, setFormattedLastSuccessfulSyncTime] = useState(() =>
     formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
   );
   const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);

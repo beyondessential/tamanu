@@ -12,7 +12,7 @@ import { theme } from '~/ui/styled/theme';
 import { useBackend } from '../hooks';
 import { Alert, AlertSeverity } from './Alert';
 import { Button } from './Button';
-import { Form } from './Forms/Form';
+import Form from './Forms/Form';
 import { Field } from './Forms/FormField';
 import { CrossIcon } from './Icons';
 import { TextField } from './TextField/TextField';

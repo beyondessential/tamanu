@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Patient } from '~/models/Patient';
 import { type IPatient, SurveyTypes } from '~/types';
 import { useBackend } from '~/ui/hooks';
+import { surveyKeys } from '~/ui/hooks/queries/queryKeys';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
 import useSurveySubmitMutation, { type SurveySubmitVariables } from './useSurveySubmitMutation';
@@ -61,8 +62,10 @@ const variables = {
 const createQueryClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
 
-const renderSubmitSurvey = async (surveyType: SurveyTypes = SurveyTypes.Programs) => {
-  const queryClient = createQueryClient();
+const renderSubmitSurvey = async (
+  surveyType: SurveyTypes = SurveyTypes.Programs,
+  queryClient = createQueryClient(),
+) => {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
@@ -118,6 +121,16 @@ describe('useSurveySubmitMutation', () => {
 
     expect(mockSubmitReferral).toHaveBeenCalledTimes(1);
     expect(mockSubmitSurveyResponse).not.toHaveBeenCalled();
+  });
+
+  it('invalidates the program form list so dependent forms appear', async () => {
+    const queryClient = createQueryClient();
+    const invalidateQueries = jest.spyOn(queryClient, 'invalidateQueries');
+    const submitSurvey = await renderSubmitSurvey(SurveyTypes.Programs, queryClient);
+
+    await act(() => submitSurvey(variables));
+
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: surveyKeys.all });
   });
 
   it('reloads the selected patient into the store after submitting', async () => {
