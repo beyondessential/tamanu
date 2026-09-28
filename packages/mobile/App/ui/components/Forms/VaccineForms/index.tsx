@@ -1,32 +1,29 @@
+import type { NavigationProp } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
+import type { FormikProps } from 'formik';
 import React, { type FC, useMemo } from 'react';
 import { ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import type { FormikProps } from 'formik';
-import type { NavigationProp } from '@react-navigation/native';
-
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { RowView } from '/styled/common';
-import { VaccineFormNotGiven } from './VaccineFormNotGiven';
-import { VaccineFormGiven } from './VaccineFormGiven';
-import { SubmitButton } from '../SubmitButton';
-import { theme } from '/styled/theme';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import type { InjectionSiteType } from '~/types';
-import { Form } from '../Form';
-import { Button } from '/components/Button';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { ErrorScreen } from '/components/ErrorScreen';
-
-import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { SETTING_KEYS } from '../../../../constants';
+import type { ScheduledVaccine } from '~/models/ScheduledVaccine';
+import type { InjectionSiteType } from '~/types';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-
-import type { ScheduledVaccine } from '~/models/ScheduledVaccine';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { SETTING_KEYS } from '../../../../constants';
+import { Form } from '../Form';
+import { SubmitButton } from '../SubmitButton';
+import { VaccineFormGiven } from './VaccineFormGiven';
+import { VaccineFormNotGiven } from './VaccineFormNotGiven';
+import { Button } from '/components/Button';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { RowView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   switch (status) {
@@ -39,7 +36,7 @@ const getFormType = (status: VaccineStatus): { Form: FC<any> } => {
   }
 };
 
-export type VaccineFormValues = {
+export interface VaccineFormValues {
   date: Date;
   reason?: string;
   batch?: string;
@@ -53,7 +50,14 @@ export type VaccineFormValues = {
   consent?: boolean;
   scheduledVaccine?: ScheduledVaccine;
   notGivenReasonId?: string;
-};
+}
+
+/** Shape of the `vaccinations.defaults` setting (see @tamanu/settings vaccinations schema) */
+interface VaccinationDefaults {
+  locationGroupId: string | null;
+  locationId: string | null;
+  departmentId: string | null;
+}
 
 interface VaccineFormProps {
   status: VaccineStatus;
@@ -86,8 +90,6 @@ export const VaccineForm = ({
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
 
-  const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
-
   const {
     data: locationAndDepartment,
     error,
@@ -105,19 +107,15 @@ export const VaccineForm = ({
       const { models } = Database;
       const { locationId, departmentId } =
         (await models.Encounter.getCurrentEncounterForPatient(patientId)) ??
-        (await models.Setting.getByKey(SETTING_KEYS.VACCINATION_DEFAULTS)) ??
+        (await models.Setting.getByKey<VaccinationDefaults>(SETTING_KEYS.VACCINATION_DEFAULTS)) ??
         {};
       return { locationId, departmentId };
     },
   });
 
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
+  if (error) return <ErrorScreen error={error} />;
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
 
   const { locationId, departmentId } = locationAndDepartment || {};
 
@@ -130,6 +128,7 @@ export const VaccineForm = ({
     consent: false,
   });
 
+  const vaccineConsentEnabled = getSetting<boolean>('features.enableVaccineConsent');
   const consentSchema =
     status === VaccineStatus.GIVEN
       ? Yup.boolean().when([], {

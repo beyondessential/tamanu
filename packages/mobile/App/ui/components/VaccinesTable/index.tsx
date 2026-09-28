@@ -1,27 +1,29 @@
+import { useQuery } from '@tanstack/react-query';
+import { uniqBy } from 'es-toolkit/compat';
 import React, { useMemo, useRef } from 'react';
 import { type NativeScrollEvent, type NativeSyntheticEvent, ScrollView } from 'react-native';
-import { uniqBy } from 'es-toolkit/compat';
-import { useQuery } from '@tanstack/react-query';
+import { SETTING_KEYS } from '~/constants';
 import { Database } from '~/infra/db';
-import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
-import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
-import { Table } from '../Table';
-import { VaccineRowHeader } from './VaccineRowHeader';
-import { VaccinesTableTitle } from './VaccinesTableTitle';
-import { vaccineTableHeader } from './VaccineTableHeader';
-import { ErrorScreen } from '../ErrorScreen';
-import { LoadingScreen } from '../LoadingScreen';
-import { VaccineStatus } from '~/ui/helpers/patient';
-import { CellContent, VaccineTableCell, type VaccineTableCellData } from './VaccinesTableCell';
 import type { IScheduledVaccine } from '~/types';
-import { StyledView } from '~/ui/styled/common';
-import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
-import { SETTING_KEYS } from '~/constants';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import usePatientAdministeredVaccinesQuery from '~/ui/hooks/queries/usePatientAdministeredVaccinesQuery';
+import { StyledView } from '~/ui/styled/common';
+import { VisibilityStatus } from '~/visibilityStatuses';
+import { ErrorScreen } from '../ErrorScreen';
+import { LoadingScreen } from '../LoadingScreen';
+import { Table } from '../Table';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { VaccineRowHeader } from './VaccineRowHeader';
+import { CellContent, VaccineTableCell, type VaccineTableCellData } from './VaccinesTableCell';
+import { VaccinesTableTitle } from './VaccinesTableTitle';
+import { vaccineTableHeader } from './VaccineTableHeader';
 
-type VaccineTableCells = Record<string, VaccineTableCellData[]>;
+interface VaccineTableCells {
+  [key: string]: VaccineTableCellData[];
+}
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -55,6 +57,7 @@ export const VaccinesTable = ({
       (await Database.models.ScheduledVaccine.find({
         order: { index: 'ASC' },
         where: { category: categoryName },
+        relations: ['vaccine'],
       })) as IScheduledVaccine[],
   });
   const { data: patientAdministeredVaccines, error: administeredError } =

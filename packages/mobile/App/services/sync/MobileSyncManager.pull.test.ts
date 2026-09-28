@@ -24,10 +24,6 @@ jest.mock('./utils/pullRecordsInBatches', () => ({
   pullRecordsInBatches: jest.fn(),
 }));
 
-jest.mock('./utils/sortInDependencyOrder', () => ({
-  sortInDependencyOrder: jest.fn(async (models: any) => models),
-}));
-
 jest.mock('./utils/checkForeignKeys', () => ({
   checkForeignKeys: jest.fn(async () => true),
 }));

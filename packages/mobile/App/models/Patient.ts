@@ -1,23 +1,23 @@
-import { Column, Entity, Index, OneToMany, In } from 'typeorm';
-import { getUniqueId } from 'react-native-device-info';
 import { addHours, parseISO, startOfDay, subYears } from 'date-fns';
 import { groupBy } from 'es-toolkit/compat';
-import { readConfig } from '~/services/config';
-import { BaseModel, IdRelation } from './BaseModel';
-import { Encounter } from './Encounter';
-import { PatientIssue } from './PatientIssue';
-import { PatientSecondaryId } from './PatientSecondaryId';
-import type { IPatient, IPatientAdditionalData } from '~/types';
+import { getUniqueId } from 'react-native-device-info';
+import { Column, Entity, In, Index, OneToMany } from 'typeorm';
 import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
+import { readConfig } from '~/services/config';
+import type { IPatient, IPatientAdditionalData } from '~/types';
 import { VitalsDataElements } from '~/ui/helpers/constants';
+import { BaseModel, IdRelation } from './BaseModel';
+import { DateStringColumn } from './DateColumns';
+import { Encounter } from './Encounter';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { PatientAllergy } from './PatientAllergy';
+import { PatientContact } from './PatientContact';
 import { PatientFacility } from './PatientFacility';
+import { PatientIssue } from './PatientIssue';
+import { PatientOngoingPrescription } from './PatientOngoingPrescription';
+import { PatientSecondaryId } from './PatientSecondaryId';
 import { NullableReferenceDataRelation, type ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
-import { DateStringColumn } from './DateColumns';
-import { PatientContact } from './PatientContact';
-import { PatientOngoingPrescription } from './PatientOngoingPrescription';
-import { PatientAllergy } from './PatientAllergy';
 
 const TIME_OFFSET = 3;
 
@@ -94,7 +94,10 @@ export class Patient extends BaseModel implements IPatient {
     const patientIds: string[] = JSON.parse(await readConfig('recentlyViewedPatients', '[]'));
     if (patientIds.length === 0) return [];
 
-    const list = await Patient.getRepository().find({ where: { id: In(patientIds) } });
+    const list = await Patient.getRepository().find({
+      where: { id: In(patientIds) },
+      relations: ['village'],
+    });
 
     return (
       patientIds
