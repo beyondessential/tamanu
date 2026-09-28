@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render as renderComponent } from '@testing-library/react-native';
-import { Popup } from 'popup-ui';
+import { Alert } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useNetInfo } from '@react-native-community/netinfo';
 
@@ -21,8 +21,6 @@ jest.mock('react-native-fs', () => ({
   __esModule: true,
   default: { DocumentDirectoryPath: '/documents' },
 }));
-
-jest.mock('popup-ui', () => ({ Popup: { show: jest.fn(), hide: jest.fn() } }));
 
 jest.mock('@react-native-community/netinfo', () => ({ useNetInfo: jest.fn() }));
 
@@ -149,6 +147,7 @@ describe('<UploadPhoto />', () => {
   // verifies spec: MOB, CAP
   it('shows the device-storage message and creates no attachment when the store is full', async () => {
     fs.freeSpace = 1024 ** 2;
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
     const { getByText, queryByText } = await render(
       <UploadPhoto onChange={onChange} value={null} />,
@@ -156,9 +155,9 @@ describe('<UploadPhoto />', () => {
 
     await takePhoto(getByText);
 
-    const [popup] = (Popup.show as jest.Mock).mock.calls[0];
-    expect(popup.title).toMatch(/storage space on this device/i);
-    expect(popup.textBody).toMatch(/free up space on the device/i);
+    const [title, text] = alert.mock.calls[0];
+    expect(title).toMatch(/storage space on this device/i);
+    expect(text).toMatch(/free up space on the device/i);
     expect(queryByText(/Error loading image/)).toBeNull();
 
     expect(await Database.models.Attachment.getRepository().count()).toBe(0);

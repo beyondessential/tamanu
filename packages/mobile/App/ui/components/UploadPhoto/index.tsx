@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Dimensions, Text } from 'react-native';
+import { Alert, Dimensions, Text } from 'react-native';
 import RNFS from 'react-native-fs';
-import { Popup } from 'popup-ui';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { useMutation } from '@tanstack/react-query';
 import { ERROR_TYPE, NotFoundError } from '@tamanu/errors';
@@ -296,13 +295,10 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         await deleteFileInDocuments(path);
         if (error?.type === ERROR_TYPE.STORAGE_INSUFFICIENT) {
           // spec: CAP
-          Popup.show({
-            type: 'Warning',
-            title: 'Not enough storage space on this device',
-            textBody:
-              'This device is running out of storage space, so the photo cannot be saved. Free up space on the device and try again.',
-            callback: (): void => Popup.hide(),
-          });
+          Alert.alert(
+            'Not enough storage space on this device',
+            'This device is running out of storage space, so the photo cannot be saved. Free up space on the device and try again.',
+          );
           return;
         }
         setPhoto({ ...NO_PHOTO, error });
