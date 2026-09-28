@@ -137,7 +137,12 @@ export class FhirDiagnosticReport extends FhirResource {
 
     if (this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
       labRequest.set({ status: newStatus });
-      if (newStatus === LAB_REQUEST_STATUSES.PUBLISHED) {
+      // publishedDate is the completion timestamp shown in the finalised table, so stamp it on
+      // rejection too — a rejected request is terminal and would otherwise show a blank date.
+      if (
+        newStatus === LAB_REQUEST_STATUSES.PUBLISHED ||
+        newStatus === LAB_REQUEST_STATUSES.REJECTED
+      ) {
         labRequest.set({ publishedDate: getCurrentDateTimeString() });
       }
       if (this.conclusion) {

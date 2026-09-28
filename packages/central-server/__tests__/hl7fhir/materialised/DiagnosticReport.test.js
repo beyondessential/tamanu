@@ -200,6 +200,35 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.resultsInterpretation).toBe('Positive for markers X and Y');
     });
 
+    it('stamps publishedDate when a DiagnosticReport rejects a ServiceRequest', async () => {
+      const fakeDate = new Date('2020-01-01');
+      vi.useFakeTimers().setSystemTime(fakeDate);
+
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = postBody(serviceRequestId);
+      body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED;
+
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.REJECTED);
+      expect(labRequest.publishedDate).toBe(dateFnsTz.format(fakeDate, 'yyyy-MM-dd HH:mm:ss'));
+    });
+
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
       // Once published, only entered-in-error can transition to invalidated; all others are ignored
       const statuses = [
