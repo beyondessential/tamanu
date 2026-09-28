@@ -1,18 +1,20 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-
-import { StyledText, StyledView } from '/styled/common';
+import { Database } from '~/infra/db';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
+import { theme } from '~/ui/styled/theme';
+import type { BaseInputProps } from '../../interfaces/BaseInputProps';
+import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import {
+  type TranslatedTextElement,
+  getTranslatedTextFallback,
+} from '../Translations/TranslatedText';
 import { MultiSelect } from './MultipleSelect';
 import type { MultiSelectProps } from './MultipleSelect/types';
-import type { BaseInputProps } from '../../interfaces/BaseInputProps';
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { TextFieldErrorMessage } from '../TextField/TextFieldErrorMessage';
-import { useQuery } from '@tanstack/react-query';
-import { Database } from '~/infra/db';
-import { referenceKeys } from '~/ui/hooks/queries/queryKeys';
-import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import { StyledText, StyledView } from '/styled/common';
 
 const MIN_COUNT_FILTERABLE_BY_DEFAULT = 8;
 
@@ -104,10 +106,7 @@ export const Dropdown = React.memo(
     allowResetSingleValue,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(() => {
-      if (!value) {
-        return [];
-      }
-
+      if (!value) return [];
       return Array.isArray(value) ? value : [value];
     });
 
@@ -200,7 +199,6 @@ export const Dropdown = React.memo(
           }}
           styleListContainer={{ maxHeight: 300 }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
-          searchIcon={filterable ? undefined : null}
           disabled={disabled}
           clearable={clearable}
           fontSize={fieldFontSize}
@@ -212,9 +210,9 @@ export const Dropdown = React.memo(
   },
 );
 
-export const MultiSelectDropdown = ({ ...props }): ReactElement => (
-  <Dropdown multiselect {...props} />
-);
+export const MultiSelectDropdown = (
+  props: Omit<React.ComponentPropsWithRef<typeof Dropdown>, 'multiselect'>,
+) => <Dropdown multiselect {...props} />;
 
 export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
   const { getTranslation } = useTranslation();

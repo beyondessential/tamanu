@@ -1,37 +1,38 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId, getConnection } from 'typeorm';
-
-import { EncounterType, type ICreateSurveyResponse, type ISurveyResponse } from '~/types';
-
+import { readConfig } from '~/services/config';
 import {
-  FieldTypes,
-  getResultValue,
-  getStringValue,
-  getPatientDataDbLocation,
-} from '~/ui/helpers/fields';
-
+  EncounterType,
+  type IVitalsSurvey,
+  type ICreateSurveyResponse,
+  type ISurveyResponse,
+} from '~/types';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
-
+import {
+  FieldTypes,
+  getPatientDataDbLocation,
+  getResultValue,
+  getStringValue,
+} from '~/ui/helpers/fields';
+import { VisibilityStatus } from '../visibilityStatuses';
 import { BaseModel } from './BaseModel';
-import { Survey } from './Survey';
+import { DateTimeStringColumn } from './DateColumns';
 import { Encounter } from './Encounter';
-import { ProgramRegistry } from './ProgramRegistry';
-import { SurveyResponseAnswer } from './SurveyResponseAnswer';
-import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { PatientProgramRegistration } from './PatientProgramRegistration';
+import { ProgramRegistry } from './ProgramRegistry';
+import { Referral } from './Referral';
+import { Survey } from './Survey';
+import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
-import { DateTimeStringColumn } from './DateColumns';
-import { PatientProgramRegistration } from './PatientProgramRegistration';
-import { VisibilityStatus } from '../visibilityStatuses';
-import { readConfig } from '~/services/config';
 
-type RecordValuesByModel = {
+interface RecordValuesByModel {
   Patient?: Record<string, string>;
   PatientAdditionalData?: Record<string, string>;
   PatientProgramRegistration?: Record<string, string>;
-};
+}
 
 const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
   const recordValuesByModel = {};
@@ -58,7 +59,7 @@ const getFieldsToWrite = (questions, answers): RecordValuesByModel => {
     if (!modelName) {
       throw new Error(`Unknown fieldName: ${configFieldName}`);
     }
-    if (!recordValuesByModel[modelName]) recordValuesByModel[modelName] = {};
+    recordValuesByModel[modelName] ??= {};
     recordValuesByModel[modelName][fieldName] = value;
   }
   return recordValuesByModel;
@@ -87,10 +88,12 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientProgramRegistration) {
-    const facilityId = await readConfig('facilityId', '');
-    const { programId } = await Survey.findOne({ where: { id: surveyId } });
     const programRegistryDetail = await ProgramRegistry.findOne({
-      where: { program: { id: programId }, visibilityStatus: VisibilityStatus.Current },
+      select: ['id'],
+      where: {
+        program: { surveys: { id: surveyId } },
+        visibilityStatus: VisibilityStatus.Current,
+      },
     });
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
@@ -101,7 +104,8 @@ async function writeToPatientFields(
       {
         ...valuesByModel.PatientProgramRegistration,
         registeringFacilityId:
-          valuesByModel.PatientProgramRegistration.registeringFacilityId || facilityId,
+          valuesByModel.PatientProgramRegistration.registeringFacilityId ||
+          (await readConfig('facilityId', '')),
         clinicianId: valuesByModel.PatientProgramRegistration.clinicianId || userId,
       },
       submittedTime,
@@ -216,7 +220,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         setNote('Attaching answers...');
 
         // figure out if its a vital survey response
-        let vitalsSurvey;
+        let vitalsSurvey: IVitalsSurvey;
         try {
           vitalsSurvey = await Survey.getVitalsSurvey({ includeAllVitals: false });
         } catch (e) {

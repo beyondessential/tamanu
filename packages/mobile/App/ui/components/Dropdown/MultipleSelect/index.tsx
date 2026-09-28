@@ -1,6 +1,8 @@
 // Originally from:
 // https://github.com/toystars/react-native-multiple-select
 
+import { find, get, reject } from 'es-toolkit/compat';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   FlatList,
@@ -10,23 +12,12 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import { find, get, reject } from 'es-toolkit/compat';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import styles, { colorPack } from './styles';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
-
-const nodeTypes = PropTypes.oneOfType([
-  PropTypes.element,
-  PropTypes.object,
-  PropTypes.bool,
-  PropTypes.func,
-]);
 
 const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
 const largeFontSize = screenPercentageToDP(3, Orientation.Height);
-
-const defaultSearchIcon = () => null;
 
 type MultiSelectState = {
   selector: boolean;
@@ -51,7 +42,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     itemTextColor: PropTypes.string,
     itemFontSize: PropTypes.number,
     selectedItemIconColor: PropTypes.string,
-    searchIcon: nodeTypes,
     searchInputPlaceholderText: PropTypes.string,
     searchInputStyle: PropTypes.object,
     selectText: PropTypes.string,
@@ -102,7 +92,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     tagRemoveIconColor: colorPack.danger,
     selectedItemFontFamily: '',
     selectedItemTextColor: colorPack.primary,
-    searchIcon: defaultSearchIcon,
     itemFontFamily: '',
     itemTextColor: colorPack.textPrimary,
     itemFontSize: 16,
@@ -557,7 +546,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
       styleSelectorContainer,
       styleTextDropdown,
       styleTextDropdownSelected,
-      searchIcon,
       styleIndicator,
       disabled,
       clearable,
@@ -580,7 +568,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
             ]}
           >
             <View style={[styles.inputGroup, styleInputGroup && styleInputGroup]}>
-              {searchIcon}
               <TextInput
                 autoFocus
                 onChangeText={this._onChangeInput}

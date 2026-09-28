@@ -12,7 +12,7 @@ import { createTestContext } from '../utilities';
 
 const BASE_URL = '/api/admin/referenceData/manage';
 const COLUMNS_URL = `${BASE_URL}/columns`;
-const TEST_TYPE = REFERENCE_TYPES.DRUG;
+const TEST_TYPE = REFERENCE_TYPES.VILLAGE;
 
 describe('Reference Data Manage', () => {
   let ctx;
@@ -132,6 +132,21 @@ describe('Reference Data Manage', () => {
       const record = await models.ReferenceData.findByPk(response.body.id);
       expect(record).toBeTruthy();
       expect(record.name).toBe('Test Create Drug');
+    });
+
+    it('should refuse to create a type whose record needs a detail row', async () => {
+      for (const referenceDataType of [
+        REFERENCE_TYPES.DRUG,
+        REFERENCE_TYPES.TASK_TEMPLATE,
+        REFERENCE_TYPES.MEDICATION_TEMPLATE,
+      ]) {
+        const response = await adminApp.post(BASE_URL).send({
+          referenceDataType,
+          code: `test-blocked-${referenceDataType}`,
+          name: 'Test Blocked',
+        });
+        expect(response).toHaveRequestError();
+      }
     });
 
     it('should reject creating a record with a duplicate unique field', async () => {
