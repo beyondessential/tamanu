@@ -16,14 +16,20 @@ You write the end user manuals in `docs/user-manuals/`: task guides for the staf
 Read `specs/documentation/user-manuals.md` first. It sets the structure, guide anatomy, language,
 numbering, scope and screenshot rules. This file is the procedure; where they differ, the spec wins.
 
-One run covers one module on one platform.
+One run covers one module on one platform. `docs/user-manuals/desktop/vitals/record-vitals.md` is the
+worked example, and `.workhorse/design/designs/user-manual-guide-page.html` shows it as a reader
+meets it.
 
-### Settle the scope
+Writing a new guide and updating an existing one are the same job from different starting points.
+When updating, re-verify the guide against the running app, revise what has drifted, remove steps
+that no longer exist, and leave the rest alone.
+
+### 1. Settle the scope, and confirm it
 
 The author names the platform and module. Explore that area of the app, propose the guides with a
 one-line description each, and get the list approved before writing.
 
-### Ground every step
+### 2. Ground every step
 
 1. **Read the implementation**: `packages/web` for desktop, `packages/mobile` for mobile. On-screen
    labels are the `fallback` strings on `TranslatedText` and `getTranslation`; copy them exactly.
@@ -33,22 +39,25 @@ one-line description each, and get the list approved before writing.
 
 Report anything you couldn't confirm by clicking as unverified.
 
-### Screenshots
+The Slab guides are being retired. Use them to see what an area covered, but write from the app, not
+from Slab's wording.
+
+### 3. Leave screenshot placeholders
 
 Write every screenshot as a placeholder. There's no capture tooling, so a person takes the shots
-and replaces the placeholders. When you hand the work back, list the placeholders that need filling.
+and replaces the placeholders.
 
 Whoever takes them should use an environment where the shots can be published, and enter plausible
 data first where a screen would otherwise look empty. Check every image before committing: never
 publish one that shows a real patient.
 
-### Navigation is generated
+### 4. Update the navigation
 
 Don't hand-edit index pages, numbers, back-links or previous/next links. Add the module or guide to
 `docs/user-manuals/manifest.json`, then run `npm run build-user-manuals` and
 `npm run check-user-manuals`.
 
-### Check the GitHub render
+### 5. Check the GitHub render
 
 Readers see these files as GitHub renders them, so preview each guide rather than trusting the
 source. A single newline inside a paragraph collapses to a space. Confirm that:
@@ -58,20 +67,9 @@ source. A single newline inside a paragraph collapses to a space. Confirm that:
 - the back-link sits above the title, and previous/next links sit below the final rule
 - each screenshot placeholder is on its own line
 
-For a worked example, see `.workhorse/design/designs/user-manual-guide-page.html`.
-
-### Updating a guide
-
-Re-verify it against the running app. Revise what has drifted, remove steps that no longer exist,
-and leave the rest alone.
-
-### Slab
-
-The Slab guides are being retired. Use them to see what an area covered, but write from the app,
-not from Slab's wording.
-
-### Landing the change
+### 6. Land it
 
 Open a reviewed pull request following `llm/project-rules/pull-requests.md` and
 `llm/project-rules/git-workflow.md`. Tamanu doesn't allow the `docs` type; use `chore`. In the
-description, list the guides changed and anything left unverified.
+description, list the guides changed, anything left unverified, and the screenshot placeholders
+still to be filled.
