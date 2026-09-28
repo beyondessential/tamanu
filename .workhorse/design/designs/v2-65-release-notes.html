@@ -1,0 +1,451 @@
+<!-- Styled rendering of the Tamanu v2.65 release notes. -->
+<!-- Companion to docs/release-notes/v2-65.md, which is the source of truth for the wording. -->
+<!-- Content sourced from origin/release/2.64...origin/release/2.65 (cherry-picks already on 2.64 excluded), -->
+<!-- the Linear v2.65.0 label, and Workhorse cards G8/L6. -->
+<!-- Feature detail verified against commits d1ca5bdfdc, b5b3217fc7, 01c8cee3d7, -->
+<!-- 05c25d717d, e44071a26e, 8167e92986. Format follows docs/release-notes/v2-64.md. -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu v2.65 release notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --text: #1c1917;
+    --text-secondary: #57534e;
+    --text-muted: #78716c;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --accent: #c2410c;
+    --accent-soft: #fff7ed;
+    --accent-border: #fed7aa;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* Masthead */
+  .masthead {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .released {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* Section rhythm */
+  section { margin-top: 48px; }
+
+  h2 {
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h2 .marker { margin-right: 8px; }
+
+  h3 {
+    margin: 32px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  h3:first-of-type { margin-top: 0; }
+
+  /* Feature cards */
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .feature-title {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .feature p {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+  }
+
+  .label {
+    margin: 20px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+  }
+
+  li:last-child { margin-bottom: 0; }
+
+  li strong, p strong { color: var(--text); font-weight: 600; }
+
+  li ul { margin-top: 8px; }
+
+  /* Plain grouped list (enhancements, fixes) */
+  .group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .group > ul > li { margin-bottom: 12px; }
+
+  .platform {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Documentation placeholders */
+  .docs {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .placeholder {
+    display: inline-block;
+    background: #fafaf9;
+    border: 1px dashed var(--border-strong);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* Upgrade notes */
+  .required-tag, .optional-tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .required-tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+
+  .optional-tag {
+    background: #f5f5f4;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+  }
+
+  .upgrade-item {
+    margin-bottom: 20px;
+  }
+
+  .upgrade-item:last-child { margin-bottom: 0; }
+
+  .upgrade-item .name {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  /* Behaviour-change callout */
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 14px;
+    color: #7c2d12;
+  }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-strong);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">
+      <span class="released">Released <span class="placeholder">[RELEASE_DATE_PLACEHOLDER]</span></span>
+    </div>
+    <h1>Tamanu v2.65 release notes</h1>
+    <p class="lede">
+      Tamanu v2.65 moves server errors that staff cannot act on out of red toasts and into
+      a new 'System errors' view, where they can be reviewed and sent to support. The send
+      to pharmacy workflow now shows each medication's request status, and insurance plans
+      can be limited to particular facilities. Tamanu Mobile gets a round of work on
+      dialogs, sign-in and form responsiveness.
+    </p>
+  </div>
+
+  <section>
+    <h2><span class="marker">🌟</span>Major Features and Changes</h2>
+
+    <h3>Tamanu Desktop</h3>
+
+    <div class="feature">
+      <p class="feature-title">System errors view</p>
+      <p>
+        Unexpected server errors no longer interrupt staff with a red toast that gives them
+        nothing to act on. These errors are now recorded quietly and collected in a new
+        'System errors' view under 'Facility admin', where anyone can review them and send
+        them to the support team. Errors that call for a specific action, such as the server
+        being unreachable or a record having been edited by someone else, still show as a
+        toast.
+      </p>
+
+      <p class="label">Key features</p>
+      <ul>
+        <li><strong>Available to every user</strong> - 'System errors' is listed under 'Facility admin' in the sidebar for all users, with no permission required.</li>
+        <li><strong>Unread indicator</strong> - A red dot appears next to 'System errors' whenever there is a new error, and stays visible when the sidebar section is collapsed or the sidebar is retracted. Opening the view marks the current errors as read.</li>
+        <li><strong>Sortable error list</strong> - Each error shows its date and time and a message describing the failed request, most recent first. The list covers the current login session only: it clears on logout, and errors older than 24 hours are removed.</li>
+        <li><strong>Send error log</strong> - The 'Send error log' action sends the listed errors to support, with space for additional information and an optional email address for follow-up. Only the user's ID is included, with no other identifying details. Sent errors are removed from the list.</li>
+        <li><strong>Configurable recipients</strong> - Reports go to the Tamanu support team by default. Each facility can send them to its own recipients instead.</li>
+        <li><strong>Admin panel unchanged</strong> - Errors raised in the admin panel still show as toasts.</li>
+      </ul>
+
+      <div class="docs">
+        <p class="label" style="margin-top:0">Supporting documentation</p>
+        <ul>
+          <li>Feature overview - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+          <li>Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🔧</span>System Enhancements</h2>
+
+    <div class="group">
+      <ul>
+        <li>
+          <strong>Request status in send to pharmacy</strong> - The 'Last sent' column on the
+          encounter medications table and the 'Send to pharmacy' modal shows whether a
+          medication's request is an 'Active request' or 'Dispensed', with the date and time
+          it was sent on hover. Where a medication has several requests awaiting dispensing,
+          the earliest is shown until it is dispensed or cancelled. Medications never sent to
+          pharmacy show 'n/a'.
+        </li>
+        <li>
+          <strong>Insurance plans by facility</strong> - Insurance plans can be restricted to
+          a set of facilities through the reference data import, in the same way as drugs.
+          Only plans available at the invoice's facility are offered when adding an insurance
+          plan to an invoice. A plan with no facilities set remains available everywhere.
+        </li>
+        <li>
+          <strong>Portable X-ray areas</strong> - The 'X-ray portable' imaging type has its
+          own list of areas to be imaged, supplied with default reference data.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🐛</span>Tweaks and Bug Fixes</h2>
+
+    <div class="group">
+      <p class="platform">Desktop</p>
+      <ul>
+        <li><strong>Forms and dialogs</strong> - The date picker no longer overflows for months that span six weeks, confirmation modals use the correct colour for their primary button, and 'OK' is spelled consistently throughout.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">Mobile</p>
+      <ul>
+        <li><strong>Dialogs and sign-in</strong> - Confirmations, warnings and notifications use the device's own dialogs and toasts, giving a consistent look across the app. 'Sign out' is now 'Log out', and the sign-in screen explains when a user has been logged out for inactivity. The 'Update' link in the 'Update required' alert works, and the sign-in screen shows the current Tamanu logo and colours.</li>
+        <li><strong>Forms</strong> - Autocomplete fields no longer lag or overlap neighbouring content, survey forms check answers when leaving a field rather than on every keystroke, and the photo question no longer gets stuck loading.</li>
+        <li><strong>Sync and performance</strong> - Sync sends less data by compressing what the device uploads, and skips unnecessary work when there is nothing new to receive. Further rendering and database work keeps screens responsive on lower-end devices.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">System</p>
+      <ul>
+        <li><strong>Sync</strong> - A clash between patient display IDs no longer stops sync, and a record renamed while another takes its old name in the same sync no longer fails. Facility server setup is more robust against misconfiguration.</li>
+        <li><strong>FHIR</strong> - Changes to reference data no longer trigger a rebuild of every FHIR resource that uses it, which keeps reference data imports from flooding the FHIR job queue on integrated deployments.</li>
+        <li><strong>Data integrity</strong> - Record updates from Tamanu Desktop accept only the fields each screen is meant to change.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">⚠️</span>Critical Upgrade Notes</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">System errors view</p>
+        <ul>
+          <li>Staff will stop seeing red toasts for unexpected server errors on Tamanu Desktop. Let teams, and anyone who supports them, know that these now appear in 'System errors' under 'Facility admin', marked by a red dot.</li>
+          <li>Error reports go to the Tamanu support team by default. Decide whether any facility should send them elsewhere, and set its recipients if so.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Database changes</p>
+        <ul>
+          <li>The upgrade rebuilds a number of uniqueness rules on synced tables, including patients. Allow additional time in the upgrade window on large deployments.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+
+      <div class="upgrade-item">
+        <p class="name">FHIR integrations</p>
+        <ul>
+          <li>Existing FHIR resources no longer update when the reference data they use changes, such as a renamed lab test type. They pick up the change the next time the resource itself is rebuilt. If an integration depends on reference data names being current, discuss this with the support team before upgrading.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Insurance plans by facility</p>
+        <ul>
+          <li>No action is needed: existing plans stay available at every facility. Add facilities to a plan in the reference data import only where you want to restrict it.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Upgrade Steps and Recommended Testing</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">System errors view</p>
+        <ul>
+          <li>Confirm 'System errors' appears under 'Facility admin' for a user with minimal permissions.</li>
+          <li>Where errors are listed, send an error log and confirm it reaches the expected recipients.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+
+      <div class="upgrade-item">
+        <p class="name">Request status in send to pharmacy</p>
+        <ul>
+          <li>Send a medication to pharmacy and confirm the 'Last sent' column shows 'Active request', then 'Dispensed' once it has been dispensed.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Insurance plans by facility</p>
+        <ul>
+          <li>If you restrict an insurance plan to certain facilities, confirm it is offered on invoices at those facilities and not at others.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">General</p>
+        <ul>
+          <li>Sync a Tamanu Mobile device and confirm it completes normally.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Supporting documentation links and the release date are placeholders awaiting a human.
+  </footer>
+
+</div>
+</body>
+</html>
