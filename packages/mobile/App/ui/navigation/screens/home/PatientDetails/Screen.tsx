@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { ScrollView } from 'react-native';
 import { compose } from 'redux';
 import { SETTING_KEYS } from '~/constants';
@@ -40,16 +40,16 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
       Database.models.Setting.getByKey<boolean>(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
   });
 
-  const onEditPatientIssues = useCallback(() => {
+  const onEditPatientIssues = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.AddPatientIssue);
-  }, [navigation]);
+  };
 
   const { getSetting } = useSettings();
   const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
-  const onNavigateReminder = useCallback(() => {
+  const onNavigateReminder = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
-  }, [navigation]);
+  };
 
   return (
     <FullView>
