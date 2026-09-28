@@ -19,13 +19,9 @@ export interface PatientCardProps {
   onPress: Function;
 }
 
-export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element => {
+export const PatientCard = ({ patient, onPress }: PatientCardProps) => {
   const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
-
-  // TODO: These fields aren't on the patient model yet.
-  const image = null;
-  const lastViewed = new Date();
 
   const name = joinNames({ firstName, lastName });
 
@@ -43,7 +39,6 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
           <UserAvatar
             size={screenPercentageToDP(4.86, Orientation.Height)}
             displayName={name}
-            image={image}
             sex={sex}
           />
           <StyledText
@@ -52,7 +47,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
             fontWeight={500}
           >
             <TranslatedText stringId="patient.lastViewed.title" fallback="Last viewed" />
-            {` \n${formatDate(lastViewed, DateFormats.short)}`}
+            {` \n${formatDate(new Date(), DateFormats.short)}`}
           </StyledText>
         </RowView>
         <ColumnView width="100%" marginTop={screenPercentageToDP(1.82, Orientation.Height)}>
