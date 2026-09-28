@@ -177,8 +177,11 @@ export const LabRequestRecordSampleModal = React.memo(
           initialValues={{
             sampleTime: labRequest.sampleTime || getCurrentDateTime(),
             labSampleSiteId: labRequest.labSampleSiteId,
-            // Default the specimen type to the category's default unless one is already recorded.
-            specimenTypeId: labRequest.specimenTypeId ?? labRequest.category?.defaultSpecimenTypeId,
+            // Only pre-fill the category's default when first recording a sample. An already-collected
+            // sample keeps its recorded specimen type, even if it was deliberately cleared on creation.
+            specimenTypeId: sampleNotCollected
+              ? (labRequest.specimenTypeId ?? labRequest.category?.defaultSpecimenTypeId)
+              : labRequest.specimenTypeId,
             // Default the collector to the current user unless one is already recorded.
             collectedById: labRequest.collectedById ?? currentUser?.id,
             mandateSpecimenType,

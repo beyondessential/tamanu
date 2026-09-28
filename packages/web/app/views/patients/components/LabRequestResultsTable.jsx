@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
 import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
@@ -92,13 +91,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'result',
         accessor: row => {
           const { labTestType, result, secondaryResult, editedFields = [] } = row;
-          const {
-            options,
-            id: labTestTypeId,
-            supportsSecondaryResults,
-            unit,
-            resultType,
-          } = labTestType;
+          const { options, id: labTestTypeId, supportsSecondaryResults, unit } = labTestType;
           // This cell surfaces the result and, on hover, the secondary result, so an edit to
           // either one marks it.
           const isEdited =
@@ -110,37 +103,33 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
             { replacements: { secondaryResult } },
           );
 
-          // Only numeric results are range-checked. Option and free-text results are shown
-          // verbatim — free-text must not pass through numeric formatting — and never flagged.
-          if (resultType !== LAB_TEST_RESULT_TYPES.NUMBER) {
-            const displayResult =
-              options && options.length > 0 ? (
-                <TranslatedOption
-                  value={result}
-                  referenceDataId={labTestTypeId}
-                  referenceDataCategory="labTestType"
-                />
-              ) : (
-                result || '-'
-              );
+          // Option results are qualitative, so they are shown as their translated label and
+          // never range-checked. Every other result is checked against the reference range
+          // whatever the test type's configured result type, since a test typed as free text
+          // still holds a number often enough to matter clinically.
+          if (options && options.length > 0) {
             return (
               <ResultCell>
                 <ConditionalTooltip visible={hasSecondaryResult} title={secondaryResultTooltip}>
-                  {displayResult}
+                  <TranslatedOption
+                    value={result}
+                    referenceDataId={labTestTypeId}
+                    referenceDataCategory="labTestType"
+                  />
                   {isEdited && <EditedOrnament />}
                 </ConditionalTooltip>
               </ResultCell>
             );
           }
 
-          // An empty numeric result would otherwise fall back to formatValue's em dash; keep it a
+          // An empty result would otherwise fall back to formatValue's em dash; keep it a
           // hyphen like the other columns. Guard on nullish/empty only, so a real 0 still renders.
           if (result === null || result === undefined || result === '') {
             return <ResultCell>-</ResultCell>;
           }
 
-          // Where a numeric result also carries a secondary result, its tooltip takes over
-          // from the out-of-range tooltip; the highlight still shows either way.
+          // Where a result also carries a secondary result, its tooltip takes over from the
+          // out-of-range tooltip; the highlight still shows either way.
           const resultCell = (
             <RangeValidatedCell
               value={result}

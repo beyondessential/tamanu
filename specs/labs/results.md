@@ -9,11 +9,14 @@ reference range is flagged for clinicians.
 
 ## Out-of-range flagging
 
-- [ ] A numeric result that falls outside its reference range is visually flagged wherever results are shown — both the patient's results table and an individual lab request's results table.
+- [ ] A result that falls outside its reference range is visually flagged wherever results are shown — both the patient's results table and an individual lab request's results table.
 - [ ] The flag is a highlight on the result itself, consistent across both tables.
 - [ ] The flag appears as soon as results are saved, regardless of the lab request's status.
 - [ ] Results that are still being entered are not flagged; the flag appears only once results are saved.
 - [ ] Hovering a flagged result shows that it is outside the normal range, naming the bound it breaches and the unit.
+- [ ] Whether a result is range-checked depends on the result itself, not on the result type configured for the test: a result that reads as a number is checked against a numeric range even where its test type is configured to record free text.
+- [ ] A result that is only partly numeric, such as "12 colonies", is shown as entered and is not checked against a numeric range.
+- [ ] A result on a test whose reference range is text rather than numeric is flagged when the result does not match that text.
 - [ ] Option/select (qualitative) results are not flagged.
 - [ ] A result with no reference range defined is not flagged.
 
