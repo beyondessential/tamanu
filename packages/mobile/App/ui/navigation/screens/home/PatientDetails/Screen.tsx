@@ -1,12 +1,22 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { type ReactElement, useCallback } from 'react';
-
-import { compose } from 'redux';
-import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
-import { Routes } from '~/ui/helpers/routes';
-import { withPatient } from '~/ui/containers/Patient';
-import { getGender, joinNames } from '~/ui/helpers/user';
-import { getDisplayAge } from '~/ui/helpers/date';
 import { ScrollView } from 'react-native';
+import { compose } from 'redux';
+import { SETTING_KEYS } from '~/constants';
+import { Database } from '~/infra/db';
+import { Button } from '~/ui/components/Button';
+import { ArrowLeftIcon } from '~/ui/components/Icons';
+import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { UserAvatar } from '~/ui/components/UserAvatar';
+import { withPatient } from '~/ui/containers/Patient';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { getDisplayAge } from '~/ui/helpers/date';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { getGender, joinNames } from '~/ui/helpers/user';
+import { settingKeys } from '~/ui/hooks/queries/queryKeys';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import {
   FullView,
   RowView,
@@ -16,19 +26,8 @@ import {
   StyledView,
 } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { ArrowLeftIcon } from '~/ui/components/Icons';
-import { UserAvatar } from '~/ui/components/UserAvatar';
 import { HealthIdentificationRow, PatientIssues } from './CustomComponents';
 import { PatientDetails } from './PatientDetails';
-import { Button } from '~/ui/components/Button';
-import { ReminderBellIcon } from '~/ui/components/Icons/ReminderBellIcon';
-import { useAuth } from '~/ui/contexts/AuthContext';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useQuery } from '@tanstack/react-query';
-import { Database } from '~/infra/db';
-import { settingKeys } from '~/ui/hooks/queries/queryKeys';
-import { SETTING_KEYS } from '~/constants';
 import { useSettings } from '/contexts/SettingsContext';
 
 const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => {
@@ -37,7 +36,8 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
 
   const { data: isReminderContactEnabled } = useQuery({
     queryKey: settingKeys.byKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
-    queryFn: () => Database.models.Setting.getByKey(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
+    queryFn: () =>
+      Database.models.Setting.getByKey<boolean>(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED),
   });
 
   const onEditPatientIssues = useCallback(() => {

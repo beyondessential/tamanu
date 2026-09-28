@@ -1,35 +1,32 @@
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
+import { SETTING_KEYS } from '~/constants/settings';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
+import { SYNC_DIRECTIONS } from '../../models/types';
+import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
+import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTransactingModelsForDirection,
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
-  getTransactingModelsForDirection,
 } from './utils';
+import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
+import { checkForeignKeys } from './utils/checkForeignKeys';
+import { deferForeignKeys } from './utils/deferForeignKeys';
 import {
-  dropSnapshotTable,
   createSnapshotTable,
+  dropSnapshotTable,
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
-import { SYNC_DIRECTIONS } from '../../models/types';
-import { SYNC_EVENT_ACTIONS } from './types';
-import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
-import { SETTING_KEYS } from '~/constants/settings';
-import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
-import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
-
-import type { TransactingModel } from './utils/getModelsForDirection';
-import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { deferForeignKeys } from './utils/deferForeignKeys';
-import { checkForeignKeys } from './utils/checkForeignKeys';
+import { saveChangesFromMemory, saveChangesFromSnapshot } from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -432,15 +429,19 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
+        /**
+         * @privateRemarks Foreign key checks are deferred for the whole transaction, so these
+         * models don’t need to be topologically ordered.
+         */
+        const modelsToSave = Object.values(incomingModels);
         const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
+          await saveChangesFromMemory(records, modelsToSave, this.syncSettings, progressCallback);
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
         await checkForeignKeys(
           transactionEntityManager,
-          sortedModels.map(model => model.getTableName()),
+          modelsToSave.map(model => model.getTableName()),
         );
         await this.postPull(transactionEntityManager, pullUntil);
       });
@@ -505,11 +506,15 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
-        await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
+        /**
+         * @privateRemarks Foreign key checks are deferred for the whole transaction, so these
+         * models don’t need to be topologically ordered.
+         */
+        const modelsToSave = Object.values(incomingModels);
+        await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
         await checkForeignKeys(
           transactionEntityManager,
-          sortedModels.map(model => model.getTableName()),
+          modelsToSave.map(model => model.getTableName()),
         );
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
