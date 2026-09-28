@@ -20,9 +20,9 @@ the patient's encounter.
 
    **[Screenshot: the Record vitals window, showing the empty form]**
 
-3. Check **Date recorded**.
+3. Check the date and time at the top of the form.
 
-   This is filled in with the current date and time. Change it if the observations were
+   They are filled in with the current date and time. Change them if the observations were
    taken earlier.
 
 4. Enter the measurements you have taken.
