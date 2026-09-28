@@ -65,20 +65,8 @@ not get used.
 
 ### 4. Screenshots
 
-Screenshots come from a running Tamanu instance, so you write a capture spec rather than capturing
-them. Leave a placeholder for each image per the format doc, then write a Playwright spec at
-`packages/e2e-tests/tests/docs/{module}-guide-screenshots.spec.ts` that writes each image into the
-guide's `images/` folder under its placeholder's name. Follow `llm/project-rules/playwright-e2e.md`,
-keep the spec out of the normal test run (it captures, it does not assert), and use synthetic data only.
-
-- **Seed data first.** Most screens need records to exist; create them with the API helpers and
-  fixtures, as the feature specs do
-- **Settings screens are the cheap majority.** `SettingsPage` selects by scope, category and
-  sub-category, the same fields as the settings block. The admin panel is a separate frontend origin
-- **Reuse page objects, and check one exists.** Where a screen has none, agree with the author whether
-  to add one or skip the image, rather than writing raw selectors into the capture spec
-
-Capturing needs a local stack, so tell the author what to run.
+Leave a placeholder for each image the guide needs, per the format doc. The author captures the
+screenshots and adds them to the guide's `images/` folder under the names the placeholders give.
 
 ### 5. Report gaps, never widen scope
 
@@ -86,8 +74,8 @@ You will find configuration a guide does not document. Report it and leave it ou
 for it: an omission is often deliberate, because the configuration belongs to an adjacent module or is
 not yet supported. Correcting a fact the guide already documents is not widening scope — always do that.
 
-On an update, also report screenshots sitting in sections whose code has changed, so the author can
-judge whether to recapture.
+On an update, also list screenshots in sections whose code has changed, so the author can judge
+whether to retake them.
 
 ### 6. Land it
 
@@ -98,4 +86,4 @@ someone wrote deliberately.
 Update the module README and the section README, then open a **pull request for review**. Title it to
 Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
 type, use `chore`) with the repository template. In the PR, summarise what you wrote, report the
-configuration gaps you found, and name the capture spec to run where placeholders are outstanding.
+configuration gaps you found, and list any screenshot placeholders still to be filled.

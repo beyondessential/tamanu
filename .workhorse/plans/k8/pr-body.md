@@ -40,9 +40,8 @@ No product code is touched, and there are no config or settings changes.
 - **Medications points at Dispensing guides that do not exist yet**, in two places. Dispensing is its own
   module (16) and owns the pharmacy order settings, the `MedicationDispense` and `MedicationRequest`
   permissions, and two reference data types. Its scope is recorded in the plan for when it is written.
-- **The guides carry 11 screenshot placeholders**, each naming the image file it awaits. Screenshots
-  are captured by a Playwright spec reusing the page objects in `packages/e2e-tests/pages/`; that spec
-  isn't written yet, so it's the first follow-up. 9 of the 11 are in the settings guide.
+- **The guides carry 11 screenshot placeholders**, each naming the image file it awaits and what it
+  must show. Authors capture and add screenshots by hand.
 - **Test cases are unticked on purpose.** They specify the coverage the skill owes; the first real run
   exercises them.
 

@@ -184,8 +184,8 @@ Where an image does not exist yet, leave a placeholder naming **both the file an
 > new prescription form, showing drugs reference data populating the dropdown.
 ```
 
-Naming the file is what lets the capture spec and the guide agree without a separate manifest. Once
-captured it becomes `![caption](images/new-prescription-medication-field.png)`.
+Naming the file tells the author exactly what to capture and where to save it. Once added it becomes
+`![caption](images/new-prescription-medication-field.png)`.
 
 ## Cross-references
 
