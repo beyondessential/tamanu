@@ -64,7 +64,7 @@ const calculateCoverageValue = (discountedPrice, coverageValue) => {
 const InsuranceSection = ({ item, discountedPrice }) => {
   if (!item) return null;
 
-  const { product, insurancePlanItems, productId } = item;
+  const { insurancePlanItems, product, productId } = item;
   if (!product?.insurable || !insurancePlanItems?.length || !productId) return null;
 
   return (
