@@ -25,14 +25,14 @@ const getDifferenceFnByUnit = {
   months: differenceInMonths,
   weeks: differenceInWeeks,
   days: differenceInDays,
-};
+} as const;
 
 const comparators = {
   '>': (left, right) => left > right,
   '<': (left, right) => left < right,
   '>=': (left, right) => left >= right,
   '<=': (left, right) => left <= right,
-};
+} as const;
 
 export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
