@@ -208,7 +208,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                 color: tagTextColor,
                 fontSize: regularFontSize,
               },
-              styleTextTag && styleTextTag,
+              styleTextTag,
               fontFamily ? { fontFamily } : {},
             ]}
             numberOfLines={1}
@@ -355,7 +355,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
       <TouchableOpacity
         disabled={item.disabled}
         onPress={() => this._toggleItem(item)}
-        style={[styleRowList && styleRowList, { paddingLeft: 20, paddingRight: 20 }]}
+        style={[styleRowList, { paddingLeft: 20, paddingRight: 20 }]}
       >
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -513,7 +513,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
       addItemRow = this._getRowNew({ name: searchTerm });
     }
     component = (
-      <View style={styleListContainer && styleListContainer}>
+      <View style={styleListContainer}>
         {itemList}
         {addItemRow}
       </View>
@@ -564,10 +564,10 @@ export class MultiSelect extends Component<any, MultiSelectState> {
             style={[
               // height should be dynamic when there is search text
               styles.selectorView(fixedHeight && !searchTerm.length),
-              styleSelectorContainer && styleSelectorContainer,
+              styleSelectorContainer,
             ]}
           >
-            <View style={[styles.inputGroup, styleInputGroup && styleInputGroup]}>
+            <View style={[styles.inputGroup, styleInputGroup]}>
               <TextInput
                 autoFocus
                 onChangeText={this._onChangeInput}
@@ -587,7 +587,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                       styles.indicator,
                       { paddingLeft: 15, paddingRight: 15 },
                       { fontSize: largeFontSize },
-                      styleIndicator && styleIndicator,
+                      styleIndicator,
                     ]}
                   />
                 </TouchableOpacity>
@@ -602,7 +602,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                     { marginRight: 10 },
                     styles.indicator,
                     { fontSize: largeFontSize },
-                    styleIndicator && styleIndicator,
+                    styleIndicator,
                   ]}
                 />
               )}
@@ -613,7 +613,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                 backgroundColor: '#fafafa',
               }}
             >
-              <View style={styleItemsContainer && styleItemsContainer}>{this._renderItems()}</View>
+              <View style={styleItemsContainer}>{this._renderItems()}</View>
               {!single && !hideSubmitButton && (
                 <TouchableOpacity
                   onPress={() => this._submitSelection()}
@@ -628,12 +628,12 @@ export class MultiSelect extends Component<any, MultiSelectState> {
           </View>
         ) : (
           <View>
-            <View style={[styles.dropdownView, styleDropdownMenu && styleDropdownMenu]}>
+            <View style={[styles.dropdownView, styleDropdownMenu]}>
               <View
                 style={[
                   styles.subSection,
                   { paddingTop: 10, paddingBottom: 10 },
-                  styleDropdownMenuSubsection && styleDropdownMenuSubsection,
+                  styleDropdownMenuSubsection,
                 ]}
               >
                 <TouchableWithoutFeedback onPress={this._toggleSelector}>
@@ -653,7 +653,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                                 fontSize: fontSize || 16,
                                 color: textColor || colorPack.placeholderTextColor,
                               },
-                              styleTextDropdown && styleTextDropdown,
+                              styleTextDropdown,
                               altFontFamily
                                 ? { fontFamily: altFontFamily }
                                 : fontFamily
@@ -666,7 +666,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                                 fontSize: fontSize || 16,
                                 color: textColor || colorPack.placeholderTextColor,
                               },
-                              styleTextDropdownSelected && styleTextDropdownSelected,
+                              styleTextDropdownSelected,
                             ]
                       }
                       numberOfLines={1}
@@ -680,7 +680,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                           style={[
                             styles.removeIndicator,
                             { fontSize: regularFontSize },
-                            styleIndicator && styleIndicator,
+                            styleIndicator,
                           ]}
                         />
                       </TouchableWithoutFeedback>
@@ -692,7 +692,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                         { marginRight: -7 },
                         styles.indicator,
                         { fontSize: largeFontSize },
-                        styleIndicator && styleIndicator,
+                        styleIndicator,
                       ]}
                     />
                   </View>

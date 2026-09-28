@@ -48,7 +48,7 @@ export const UserAvatar = ({
       ) : (
         <StyledImage source={{ uri: image }} width={size} height={size} />
       )}
-      {Icon && Icon}
+      {Icon}
     </StyledView>
   );
 };
