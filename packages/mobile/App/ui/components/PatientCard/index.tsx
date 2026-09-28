@@ -1,18 +1,18 @@
 import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
-import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
-import { DateFormats } from '/helpers/constants';
-import { getDisplayAge } from '/helpers/date';
-import { UserAvatar } from '../UserAvatar';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import * as styles from './styles';
-import { theme } from '/styled/theme';
-import { getGender, joinNames } from '../../helpers/user';
 import type { IPatient } from '~/types';
-import { TranslatedText } from '/components/Translations/TranslatedText';
-import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
-import { useSettings } from '/contexts/SettingsContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+import { getGender, joinNames } from '../../helpers/user';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { UserAvatar } from '../UserAvatar';
+import * as styles from './styles';
+import { TranslatedText } from '/components/Translations/TranslatedText';
+import { useSettings } from '/contexts/SettingsContext';
+import { DateFormats } from '/helpers/constants';
+import { type AgeDisplayFormat, getDisplayAge } from '/helpers/date';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export interface PatientCardProps {
   patient: IPatient;
@@ -26,7 +26,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps) => {
   const name = joinNames({ firstName, lastName });
 
   const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
   return (
     <TouchableWithoutFeedback onPress={(): void => onPress()}>
