@@ -7,6 +7,7 @@ import {
   DRUG_STOCK_STATUSES,
   DRUG_UNITS,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
@@ -337,14 +338,31 @@ export async function labTestPanelLoader(item, { models, pushError }) {
     });
   });
 
-  // A panel's test types must all belong to one lab test category, so an ordered panel can be
-  // grouped under a single category.
   if (testTypeIds.length) {
     const testTypes = await models.LabTestType.findAll({
       where: { id: { [Op.in]: testTypeIds } },
-      attributes: ['labTestCategoryId'],
+      attributes: ['name', 'visibilityStatus', 'labTestCategoryId'],
     });
-    const categoryIds = [...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean))];
+
+    // Reflex tests exist in reference data only so a LIMS can attach results; they can't be ordered
+    // as part of a panel.
+    const reflexTestTypes = testTypes.filter(
+      testType => testType.visibilityStatus === LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+    );
+    if (reflexTestTypes.length) {
+      pushError(
+        `Reflex tests cannot be added to a lab test panel: ${reflexTestTypes
+          .map(testType => testType.name)
+          .join(', ')}`,
+        'LabTestPanel',
+      );
+    }
+
+    // A panel's test types must all belong to one lab test category, so an ordered panel can be
+    // grouped under a single category.
+    const categoryIds = [
+      ...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean)),
+    ];
     if (categoryIds.length > 1) {
       pushError('Lab test panel test types must all belong to one lab test category', 'LabTestPanel');
     }
