@@ -1,5 +1,5 @@
 import type { NavigationProp } from '@react-navigation/native';
-import React, { type ReactElement, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { type AgeDisplayFormat, getDisplayAge } from '~/ui/helpers/date';
 import { getGender, joinNames } from '~/ui/helpers/user';
 import { store } from '~/ui/store';
@@ -15,33 +15,28 @@ export const NewPatientScreen = ({ navigation }: { navigation: NavigationProp<an
   // Snapshot patient at mount so clearing Redux on back from patient view
   // does not re-render this screen while RegisterPatientStack is still mounted.
   const [patient] = useState(() => store.getState().patient.selectedPatient);
+  const { getSetting } = useSettings();
+
+  if (!patient) return null;
+
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
   const homeStackNavigation = navigation.getParent();
-
-  const onNavigateToHome = useCallback(() => {
-    // Navigate within the Home stack so RegisterPatientStack is popped off.
+  /** Navigate within the Home stack so RegisterPatientStack is popped off */
+  const onNavigateToHome = () => {
     homeStackNavigation?.navigate(Routes.HomeStack.HomeTabs.Index);
-  }, [homeStackNavigation]);
-
-  const onAddAnotherPatient = useCallback(() => {
+  };
+  const onAddAnotherPatient = () => {
     navigation.navigate(Routes.HomeStack.Index, {
       screen: Routes.HomeStack.RegisterPatientStack.Index,
-      params: {
-        screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
-      },
+      params: { screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo },
     });
-  }, [navigation]);
-
-  const onStartVisit = useCallback(() => {
+  };
+  const onStartVisit = () => {
     homeStackNavigation?.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
     });
-  }, [homeStackNavigation]);
-
-  const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
-
-  if (!patient) return null;
+  };
 
   return (
     <FullView>
