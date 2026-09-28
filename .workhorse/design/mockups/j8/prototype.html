@@ -691,7 +691,7 @@
          column, and the horizontal axis is replaced by a left rail ---- */
   @media (max-width:900px) {
     .rmx-nav { display:none; }
-    .rmx-scroll { overflow:visible; padding:0; }
+    .rmx-scroll { overflow:visible; padding:0; margin-top:28px; }
     .rmx-track { width:auto; position:relative; padding-left:26px; }
     .rmx-track::before { content:""; position:absolute; left:6px; top:10px; bottom:10px;
       width:2px; background:var(--brand-30); }
@@ -700,8 +700,13 @@
     .rmx-cell { width:auto; flex:none; padding:0; display:block; position:relative;
       margin-bottom:16px; }
     .rmx-cell:empty { display:none; }
-    .rmx-cell::before { content:""; position:absolute; left:-25px; top:22px; width:10px; height:10px;
-      border-radius:999px; background:var(--brand-30); border:2px solid var(--page); }
+    /* the left rail carries the same status markers as the desktop axis:
+       green filled = released, dashed green ring = planned */
+    .rmx-cell::before { content:""; position:absolute; left:-27px; top:20px; width:14px; height:14px;
+      border-radius:999px; background:var(--brand-30); border:2px solid var(--page); box-sizing:border-box; }
+    .rmx-cell:has(.rmx-badge.done)::before { background:var(--c-green); border-color:var(--page); }
+    .rmx-cell:has(.rmx-badge.planned)::before { background:var(--c-green-10);
+      border:1.5px dashed var(--c-green); }
     .rmx-cell:nth-child(1) { order:1; }
     .rmx-cell:nth-child(2) { order:2; }
     .rmx-cell:nth-child(3) { order:3; }
