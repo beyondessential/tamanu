@@ -40,9 +40,11 @@ No product code is touched, and there are no config or settings changes.
 - **Medications points at Dispensing guides that do not exist yet**, in two places. Dispensing is its own
   module (16) and owns the pharmacy order settings, the `MedicationDispense` and `MedicationRequest`
   permissions, and two reference data types. Its scope is recorded in the plan for when it is written.
-- **The guides carry 11 screenshot placeholders**, each naming the image file it awaits and what it
-  must show. The skill captures them from a demo site when the author provides one; otherwise the
-  author adds them by hand.
+- **7 of the 11 screenshots are in place**, captured from a 2.60 test site using the dummy patient Roy
+  Antonini. 4 placeholders remain: two error screens (skipped by choice), the details modal end date
+  (none of the test patient's prescriptions shows one), and the dashboard due task (the test patient's
+  tasks are at a different facility). The skill captures from a demo site when the author provides one;
+  otherwise the author adds screenshots by hand.
 - **Test cases are unticked on purpose.** They specify the coverage the skill owes; the first real run
   exercises them.
 

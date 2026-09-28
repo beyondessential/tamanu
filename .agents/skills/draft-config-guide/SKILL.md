@@ -73,10 +73,13 @@ To capture from a demo site:
 - **Confirm first** that the site holds synthetic data only, since the images are published; that it
   runs the version the guide documents; and which address serves the admin panel, since settings
   screens are there rather than on the facility frontend
-- **Keep the login to the session.** Never write it to a file, commit it, or put it in the PR
-- **Browse, do not change.** Never save a setting. Get the author's go-ahead before typing invalid
-  input for an error-state image, or creating records a screen needs; without it, leave that
-  placeholder
+- **Keep the login to the session.** Never write it to a file, commit it, or put it in the PR. If a
+  login fails, stop and check rather than retrying: repeated failures can lock a shared account
+- **Browse, do not change.** Never save a setting, and close forms without submitting them. Get the
+  author's go-ahead before typing invalid input for an error-state image, or creating records a
+  screen needs; without it, leave that placeholder
+- **Use only the test patient the author names.** Where that patient's records cannot show a screen,
+  leave the placeholder rather than using another patient
 - **Use a throwaway headless-browser script outside the repository**, not a spec in the e2e suite
 - **Check each image before using it**: it shows what its placeholder describes, and no real names.
   Save it to the guide's `images/` folder under the placeholder's name, then replace the placeholder

@@ -26,7 +26,7 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
 | Setting | Toggle the required frequency off to disable it |
 | Default | All frequencies enabled |
 
-> **Screenshot needed:** `images/setting-frequencies-enabled.png` — the frequencies enabled setting.
+![The frequencies enabled setting.](images/setting-frequencies-enabled.png)
 
 ## Default administration schedule
 
@@ -40,8 +40,7 @@ For each frequency, the default administration schedule and ideal administration
 | Setting | For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window. |
 | Default | The standard administration times for each frequency, as listed under [Frequency](reference-data.md#frequency) |
 
-> **Screenshot needed:** `images/setting-default-administration-times.png` — the default administration
-> times setting.
+![The default administration times setting.](images/setting-default-administration-times.png)
 
 `Immediately`, `As directed`, `Hourly` and `Half-hourly` are not listed, because their administration
 times are either not scheduled or fixed.
@@ -95,8 +94,7 @@ patient during an episode of care. The MAR displays 12 two-hour administration w
 The schedule displayed on the MAR depends on the selected frequency and administration schedule for
 the prescribed medication.
 
-> **Screenshot needed:** `images/medication-administration-record.png` — the medication administration
-> record showing the 12 two-hour administration windows.
+![The medication administration record showing the 12 two-hour administration windows.](images/medication-administration-record.png)
 
 Four windows carry a period label, used where the design shows the time of day rather than the hours:
 06:00 to 08:00 is breakfast, 12:00 to 14:00 is lunch, 18:00 to 20:00 is dinner, and 22:00 to midnight
@@ -105,16 +103,14 @@ is night.
 Ideal administration times can be set for each frequency within each administration window. The ideal
 administration time displays in a tooltip when hovering over a due dose on the MAR.
 
-> **Screenshot needed:** `images/ideal-administration-time-tooltip.png` — tooltip on a due dose showing
-> the ideal administration time within its window.
+![Tooltip on a due dose showing the ideal administration time within its window.](images/ideal-administration-time-tooltip.png)
 
 ## Administration schedule
 
 The administration schedule is set when prescribing. A default schedule is applied based on the
 selected frequency and can be edited if required.
 
-> **Screenshot needed:** `images/administration-schedule-prescription-form.png` — the medication
-> administration schedule within the new prescription form.
+![The medication administration schedule within the new prescription form.](images/administration-schedule-prescription-form.png)
 
 For each frequency, the default schedule and ideal administration time can be changed. See
 [Default administration schedule](#default-administration-schedule).

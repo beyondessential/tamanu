@@ -91,12 +91,12 @@ manual verification of a skill run rather than automated tests, since the output
       not delete them.
 - [ ] A guide published with outstanding placeholders says so in the pull request and lists the
       placeholders still to fill, with the reason each is outstanding.
-- [ ] Given a demo site and login, the skill confirms the site holds synthetic data only, runs the
+- [x] Given a demo site and login, the skill confirms the site holds synthetic data only, runs the
       documented version, and which address serves the admin panel, before capturing anything.
-- [ ] The demo site login never appears in a file, a commit or the pull request.
-- [ ] Capturing never saves a setting, and invalid input or new records are only entered with the
+- [x] The demo site login never appears in a file, a commit or the pull request.
+- [x] Capturing never saves a setting, and invalid input or new records are only entered with the
       author's go-ahead; without it, the affected placeholder is left in place.
-- [ ] Each captured image shows what its placeholder describes, contains no real names, and replaces
+- [x] Each captured image shows what its placeholder describes, contains no real names, and replaces
       its placeholder under the placeholder's file name.
 
 ## Version flagging
