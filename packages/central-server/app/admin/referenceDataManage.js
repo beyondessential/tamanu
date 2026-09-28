@@ -1,7 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
-import { SEARCHABLE_COLUMN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES_WITH_A_DETAIL_RECORD,
+  SEARCHABLE_COLUMN_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
@@ -21,6 +25,12 @@ referenceDataManageRouter.post(
     const { referenceDataType, ...rawData } = req.body;
 
     assertValidType(referenceDataType);
+
+    if (REFERENCE_TYPES_WITH_A_DETAIL_RECORD.includes(referenceDataType)) {
+      throw new InvalidOperationError(
+        `${referenceDataType} must be added through the reference data importer`,
+      );
+    }
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const columns = await getColumnsForModel(model);

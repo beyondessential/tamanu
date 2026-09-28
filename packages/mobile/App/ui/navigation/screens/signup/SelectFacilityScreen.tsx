@@ -17,7 +17,7 @@ import { Button } from '/components/Button';
 import type { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
 
-import { Form } from '~/ui/components/Forms/Form';
+import Form from '~/ui/components/Forms/Form';
 import { Field } from '~/ui/components/Forms/FormField';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';

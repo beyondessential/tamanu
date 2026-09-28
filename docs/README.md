@@ -81,7 +81,7 @@ treated as a hard pre-filter on any suggested action.
 | Runbook | Situation | Status |
 | --- | --- | --- |
 | [senaite-integration-delay](runbooks/senaite-integration-delay.md) | Lab results delayed between Tamanu and SENAITE | Complete |
-| [rispacs-imaging-not-received](runbooks/rispacs-imaging-not-received.md) | Imaging request created in Tamanu but not received in RIS/PACS | Complete |
+| [rispacs-imaging-not-received](runbooks/rispacs-imaging-not-received.md) | Imaging request not received in RIS/PACS, or its results not coming back | Complete |
 | [sync-facility-stale](runbooks/sync-facility-stale.md) | A facility has not synced recently (`sync_facility_stale` check) | Complete |
 | [sync-restart-loop](runbooks/sync-restart-loop.md) | A facility's sync keeps restarting (`sync_restart_loop` check) | Complete |
 | [sync-pull-page-limit](runbooks/sync-pull-page-limit.md) | Sync pull page limit stuck in a degenerate low loop | Complete |
