@@ -12,8 +12,7 @@ import { settingsCache } from '@tamanu/settings';
 import { createTestContext } from './utilities';
 import { ApplicationContext } from '../app/ApplicationContext';
 
-// The host daemon is the one part of a scan the context cannot supply, so the
-// driver is replaced and everything above it is the context's own wiring.
+// The host daemon is the one part the context can't supply, so only the driver is replaced.
 vi.mock('@tamanu/database/blobStore', async () => ({
   ...(await vi.importActual('@tamanu/database/blobStore')),
   createScannerDriver: vi.fn(),
@@ -21,8 +20,7 @@ vi.mock('@tamanu/database/blobStore', async () => ({
 
 const VERSIONS = { scannerVersion: 'test-scanner 1.0', signatureVersion: '27100' };
 
-// 16+2 shards of 4 KiB at the default proportion, so the content is large
-// enough for the store to cover it with parity.
+// Large enough for the store to cover it with parity.
 const COVERED_BYTES = 64 * 1024;
 
 const coveredContent = () => {
@@ -35,8 +33,6 @@ const coveredContent = () => {
   return blob;
 };
 
-// The scheduled scrub and antivirus pass as the central application context
-// builds them: the settings each reads, and what an infected verdict does.
 describe('central scheduled blob passes', () => {
   let ctx;
   let models;
@@ -102,14 +98,11 @@ describe('central scheduled blob passes', () => {
     verdict = BLOB_SCAN_VERDICTS.CLEAN;
     await models.Blob.destroy({ where: {}, force: true });
     await models.BlobQuarantine.destroy({ where: {}, force: true });
-    // Bytes left behind would be adopted as orphans by the scrub's
-    // reconciliation and counted alongside the blobs a case admits itself.
+    // Leftover bytes would be adopted as orphans and counted with a case's own blobs.
     await fs.rm(path.join(root, 'sha256'), { recursive: true, force: true });
   });
 
-  // verifies spec: AV, FEC — a quarantined blob is never served and never
-  // repaired, so the disk its parity occupies is protecting content nothing
-  // will ever reconstruct.
+  // verifies spec: AV, FEC
   it('discards a blob’s parity when the scan finds it infected', async () => {
     const { hash } = await admit(coveredContent());
     expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(true);
@@ -132,8 +125,7 @@ describe('central scheduled blob passes', () => {
     await expect(fs.access(`${pathOf(hash)}.parity`)).resolves.toBeUndefined();
   });
 
-  // The per-pass bounds are read through a settings path each pass, and a typo
-  // in one would only surface when a scheduled pass first ran on a real server.
+  // A typo in a settings path would only surface when a pass first ran on a real server.
   describe('per-pass bounds from settings', () => {
     it('bounds the scrub by the blobs-per-pass setting', async () => {
       for (let i = 0; i < 3; i++) await admit();

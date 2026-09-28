@@ -27,9 +27,8 @@ export const useAssetQuery = (assetName) => {
   });
 
   // spec: ASSET
-  // The asset exists but its bytes have not reached this facility yet. That is
-  // not the same as never having been uploaded, so the fallback asset must not
-  // stand in for it — showing a different image would misrepresent the document.
+  // Pending isn't never-uploaded, so the fallback must not stand in: a different image would
+  // misrepresent the document.
   const isPending = queryData?.availability === BLOB_AVAILABILITY_STATES.AWAITING_FETCH;
 
   const { data: fallbackQueryData, isFetching: isFallbackFetching } = useQuery({

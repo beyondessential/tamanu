@@ -15,7 +15,6 @@ import {
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import type { Blob } from '../../src/models/Blob';
 
-// SHA-256 of empty content, and of 'hello world'
 const EMPTY_HASH = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const HELLO_HASH = 'sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
 
@@ -27,9 +26,6 @@ interface FakeRow {
   lastScrubbedAt: Date | null;
 }
 
-// In-memory stand-in for the Blob registry model, covering the calls the
-// store makes: findOne, update, destroy, and the raw upsert via
-// sequelize.query.
 function makeFakeBlobModel() {
   const rows = new Map<string, FakeRow>();
   return {
@@ -41,10 +37,7 @@ function makeFakeBlobModel() {
       values: Partial<FakeRow>,
       { where }: { where: { hash: string | string[]; integrityState?: { [key: symbol]: string } } },
     ) {
-      // The store updates a single hash on the heal paths and a batch of them
-      // from the scrub's end-of-pass flush.
       const hashes = Array.isArray(where.hash) ? where.hash : [where.hash];
-      // The only operator the store uses here is Op.ne on integrityState.
       const excluded = where.integrityState
         ? Object.getOwnPropertySymbols(where.integrityState).map(
             symbol => (where.integrityState as Record<symbol, string>)[symbol],
@@ -117,8 +110,6 @@ describe('BlobStore', () => {
     return path.join(root, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4));
   };
 
-  // Rewrite a stored blob's bytes in place, leaving its registry row and its
-  // path untouched: bit rot as the store would meet it.
   const corruptStoredBytes = async (hash: string, replacement: string) => {
     await fs.writeFile(storedPath(hash), replacement);
   };
@@ -201,7 +192,7 @@ describe('BlobStore', () => {
     it('adopts an orphan file left by a crash between placement and registration', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      // simulate a crash after the rename but before the registry insert
+      // A crash after the rename but before the registry insert.
       fakeBlob.rows.clear();
 
       const again = await store.put(Readable.from(Buffer.from('hello world')));
@@ -214,7 +205,7 @@ describe('BlobStore', () => {
 
   // spec: CAP
   describe('store root', () => {
-    // blobStorage.root ships relative, so this is where an unconfigured store lands.
+    // blobStorage.root ships relative.
     it('resolves a relative root against the working directory', async () => {
       const relativeRoot = path.relative(
         process.cwd(),
@@ -248,9 +239,7 @@ describe('BlobStore', () => {
   });
 
   // spec: CAS
-  // Renaming over an occupied destination, and transient sharing violations from
-  // an antivirus or indexer handle, only happen on Windows/NTFS: POSIX never
-  // raises them here, so a faked rename is the only exercise this branch gets.
+  // These are Windows-only failures, so a faked rename is the only exercise this branch gets.
   describe('atomic placement', () => {
     const realRename = fs.rename;
 
@@ -275,7 +264,6 @@ describe('BlobStore', () => {
 
     it('keeps the bytes a concurrent put placed and drops its own', async () => {
       vi.spyOn(fs, 'rename').mockImplementationOnce(async (_from, to) => {
-        // The other put won between this one's presence check and its rename.
         await fs.writeFile(to as string, 'placed by the concurrent put');
         throw renameFailure('EEXIST');
       });
@@ -350,8 +338,7 @@ describe('BlobStore', () => {
     it('serves from a provided stat without re-querying the registry', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      // Drop the registry row but keep the file: a provided stat lets get
-      // serve, proving it did not look the row up again.
+      // A provided stat lets get serve without the row, proving it didn't look it up again.
       fakeBlob.rows.clear();
 
       const content = await readAll(
@@ -485,8 +472,7 @@ describe('BlobStore', () => {
     it('never overwrites a concurrently corrupt blob, so known-bad bytes stay unserved', async () => {
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
-      // A read-path corruption record lands after this blob verified earlier in the
-      // pass but before the end-of-pass flush.
+      // A read-path corruption record landing before the end-of-pass flush.
       fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
 
       await store.recordVerified([hash]);
@@ -530,9 +516,7 @@ describe('BlobStore', () => {
     it('skips a file misplaced under the fan-out directories of another blob', async () => {
       const store = makeStore();
       const digest = HELLO_HASH.split(':')[1];
-      // The same characters as a stored blob's path, split a byte along: joined
-      // up they name a real blob, so only the location the fan-out actually
-      // encodes tells this apart from content.
+      // Joined up these name a real blob, so only the fan-out location tells it apart.
       const misplaced = path.join(
         root,
         'sha256',
@@ -555,13 +539,11 @@ describe('BlobStore', () => {
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       expect(await store.has(hash)).toBe(true);
 
-      // registry row without bytes on disk is not usable content
       await fs.rm(path.join(root, 'sha256'), { recursive: true, force: true });
       expect(await store.has(hash)).toBe(false);
     });
 
     it('reports a corrupt blob as present', async () => {
-      // presence, not servability: get refuses the same blob
       const store = makeStore();
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       fakeBlob.rows.get(hash)!.integrityState = 'corrupt';
@@ -820,8 +802,7 @@ describe('BlobStore', () => {
         store.stage(HELLO_HASH, Readable.from(slowSource('world')), { offset: 0 }),
       ]);
 
-      // the first append wins in full; the second fails its offset check
-      // cleanly instead of interleaving, and can resume from the new size
+      // The second append fails its offset check rather than interleaving.
       expect(first.status).toBe('fulfilled');
       expect(second.status).toBe('rejected');
       expect((second as PromiseRejectedResult).reason).toBeInstanceOf(InvalidParameterError);
@@ -865,8 +846,6 @@ describe('BlobStore', () => {
         yield Buffer.from('llo');
       }
 
-      // maxBytes 3: 'he' fits (2), 'llo' would reach 5, so the append stops
-      // before writing the overrun and the whole staging is discarded.
       await expect(
         store.stage(HELLO_HASH, Readable.from(twoChunks()), { offset: 0, maxBytes: 3 }),
       ).rejects.toThrow(InvalidParameterError);

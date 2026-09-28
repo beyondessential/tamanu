@@ -33,8 +33,7 @@ describe('ViewPhotoLink', () => {
   });
 
   // spec: ATCH
-  // A 202 is an ok response carrying no bytes, so the modal would otherwise sit
-  // on its loading indicator forever.
+  // A 202 carries no bytes, so the modal would otherwise load forever.
   it('tells the clinician the photo is not available yet', async () => {
     apiGet.mockResolvedValue({ availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH });
 

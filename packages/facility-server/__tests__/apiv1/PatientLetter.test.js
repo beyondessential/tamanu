@@ -158,8 +158,7 @@ describe('PatientLetter', () => {
       });
 
     afterEach(async () => {
-      // The letterhead name is shared with the asset endpoint suite, which runs
-      // against the same worker database.
+      // Shared with the asset endpoint suite, which runs against the same worker database.
       await models.Asset.destroy({ where: { name: ASSET_NAMES.LETTERHEAD_LOGO }, force: true });
     });
 

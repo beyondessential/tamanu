@@ -74,8 +74,7 @@ describe('<ViewPhotoLink />', () => {
     (useNetInfo as jest.Mock).mockReturnValue({ isInternetReachable: true });
   });
 
-  // verifies spec: MOB — a read resolves the hash against the device's store,
-  // and content the device holds is read without connectivity
+  // verifies spec: MOB
   it('displays content the device holds without asking the central server', async () => {
     fs.seed('/documents/captured.jpg', PHOTO_BYTES);
     await cache.putOutbox('/documents/captured.jpg');
@@ -90,8 +89,7 @@ describe('<ViewPhotoLink />', () => {
     expect(centralServer.get).not.toHaveBeenCalled();
   });
 
-  // verifies spec: MOB, XFER — content pending at its origin is distinct from
-  // content this device simply has not fetched
+  // verifies spec: MOB, XFER
   it('reports content still awaiting upload from the device that captured it', async () => {
     cache.setTransferChannel({
       fetchFromCentral: jest.fn(async () => {
@@ -111,8 +109,7 @@ describe('<ViewPhotoLink />', () => {
     expect(centralServer.get).not.toHaveBeenCalled();
   });
 
-  // verifies spec: MOB — content the device does not hold and cannot fetch
-  // presents as a file awaiting its content, not as a missing record
+  // verifies spec: MOB
   it('reports content not yet on this device when there is no connectivity', async () => {
     (useNetInfo as jest.Mock).mockReturnValue({ isInternetReachable: false });
     const attachment = await seedAttachment(PHOTO_HASH);
@@ -127,7 +124,6 @@ describe('<ViewPhotoLink />', () => {
     expect(centralServer.get).not.toHaveBeenCalled();
   });
 
-  // A record with no hash is reachable only over the central attachment route.
   it('reports that a hashless record needs a live connection when offline', async () => {
     (useNetInfo as jest.Mock).mockReturnValue({ isInternetReachable: false });
     const attachment = await seedAttachment(null);
@@ -143,8 +139,7 @@ describe('<ViewPhotoLink />', () => {
     expect(centralServer.get).not.toHaveBeenCalled();
   });
 
-  // verifies spec: MOB, ATCH — a record carrying no hash falls back to the
-  // central attachment route, which serves it by id
+  // verifies spec: MOB, ATCH
   it('serves a hashless record from the central attachment route', async () => {
     const attachment = await seedAttachment(null);
     centralServer.get.mockResolvedValue({ data: PHOTO_BASE64 });

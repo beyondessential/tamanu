@@ -8,27 +8,18 @@ import { log } from '@tamanu/shared/services/logging';
 import { blobOutboxStatus } from './outboxStatus';
 
 // spec: CAP
-// How far the push cursor may advance past a blob's eligibility point before the
-// outbox is reported as dysfunctional. Expressed in sync ticks: central advances
-// the push cursor by a small amount each successful session, so this is roughly
-// several sync cycles. Central-side monitoring is the authoritative signal (see
-// specs/blob-storage/capacity.md); this local escalation is a coarse aid.
+// In sync ticks, roughly several sync cycles. Central-side monitoring is the authoritative signal;
+// this is a coarse aid.
 const DYSFUNCTION_PUSH_TICK_GAP = 6;
 
 // spec: CACHE
-// Drains the outbox to the central server: oldest-first among blobs whose
-// referencing record has synchronised, skipping past failures, one transfer in
-// flight per blob. Runs on its own schedule, independent of sync sessions
-// (see tasks/BlobOutboxPusherTask); sync sessions call recordSyncCycle so the
-// outbox dysfunction measure advances with sync progress, not wall-clock time.
-//
-// The pass itself lives in @tamanu/blobs; this class is the server's host for
-// it, holding the registry queries and the sync-progress measure.
+// sync sessions call recordSyncCycle so the dysfunction measure advances with sync progress, not
+// wall-clock time.
 export class BlobOutboxPusher {
   #models;
   #transferChannel;
   #blobCache;
-  /** Live array; consumers (attachments, assets) append theirs at startup. */
+  /** Live array; consumers append theirs at startup. */
   #referenceResolvers;
   #outbox;
 
@@ -55,7 +46,6 @@ export class BlobOutboxPusher {
     return await this.#outbox.eligibleHashes(hashes);
   }
 
-  /** One pass over the outbox; the scheduled task calls this. */
   async runOnce() {
     const counts = await this.#outbox.runOnce();
     if (counts.pushed > 0 || counts.failed > 0 || counts.skipped > 0) {
@@ -67,7 +57,7 @@ export class BlobOutboxPusher {
   async #listOutbox(limit) {
     const outbox = await this.#models.Blob.findAll({
       where: { tier: BLOB_TIERS.OUTBOX },
-      // spec: CACHE — oldest-first: the longest-unacknowledged blob is offered first
+      // spec: CACHE
       order: [['createdAt', 'ASC']],
       attributes: ['hash'],
       limit,
@@ -77,24 +67,17 @@ export class BlobOutboxPusher {
 
   // spec: CAP
   /**
-   * Called after each successful sync cycle. Marks the sync progress at which
-   * each eligible outbox blob was first seen eligible, then reports dysfunction
-   * by comparing the oldest such marker against the current push cursor — a
-   * blob still unpushed while syncs keep succeeding. Set once per blob and
-   * compared against live sync state, rather than accumulated per cycle.
+   * Each blob's marker is set once and compared against live sync state, rather than accumulated
+   * per cycle.
    */
   async recordSyncCycle() {
-    // Bounded and oldest-first, like runOnce: the longest-waiting blobs are
-    // marked first; a larger backlog is marked across successive cycles.
+    // A larger backlog is marked across successive cycles.
     const outbox = await this.#listOutbox(DEFAULT_OUTBOX_SCAN_LIMIT);
     if (outbox.length === 0) {
       return;
     }
     const eligible = await this.eligibleHashes(outbox);
     if (eligible.size > 0) {
-      // Stamp the eligibility marker once: the push cursor at the first cycle a
-      // blob was seen eligible. Blobs already marked keep their original value,
-      // so the measure counts from when eligibility began, not this cycle.
       await this.#models.Blob.update(
         { eligibleSinceTick: await this.#currentPushTick() },
         {
@@ -111,9 +94,7 @@ export class BlobOutboxPusher {
   }
 
   // spec: CAP
-  // A blob whose transfer is actively in flight is healthy accumulation, so it
-  // is excluded here: dysfunction is the oldest marker among eligible outbox
-  // blobs not currently being pushed, measured against the current push cursor.
+  // A blob actively in flight is healthy accumulation.
   async #reportDysfunction() {
     const inFlight = this.#outbox.inFlight;
     const oldestEligibleTick = await this.#models.Blob.min('eligibleSinceTick', {
@@ -129,8 +110,7 @@ export class BlobOutboxPusher {
     const ticksSinceEligible = (await this.#currentPushTick()) - Number(oldestEligibleTick);
     if (ticksSinceEligible >= DYSFUNCTION_PUSH_TICK_GAP) {
       const status = await blobOutboxStatus(this.#models);
-      // spec: CAP — escalates with both sync progress since eligibility and the
-      // space the outbox is consuming
+      // spec: CAP
       log.error('BlobOutboxPusher: outbox dysfunction — blobs unpushed across successful syncs', {
         ticksSinceEligible,
         outboxCount: status.count,

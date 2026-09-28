@@ -51,9 +51,7 @@ describe('capture stranded before its record, then captured again', () => {
     });
   });
 
-  // verifies spec: MOB, CACHE — content demoted after its record was never
-  // created rejoins the outbox on the capture that does reference it, so the
-  // pusher still delivers bytes central has never been offered
+  // verifies spec: MOB, CACHE
   it('pushes the content once a later capture gives it a record', async () => {
     fs.seed('/tmp/photo.jpg', 'photo bytes');
     const { hash } = await cache.putOutbox('/tmp/photo.jpg');
@@ -68,7 +66,6 @@ describe('capture stranded before its record, then captured again', () => {
     await pusher.runOnce();
 
     expect(pushed).toEqual([hash]);
-    // acknowledged, so it is cache the central server holds rather than lost
     expect(await tierOf(hash)).toBe(BLOB_TIERS.CACHE);
   });
 

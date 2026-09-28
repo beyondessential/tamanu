@@ -61,8 +61,7 @@ describe('Patient profile picture', () => {
   const uniqueContent = () =>
     Buffer.from(`a profile photo captured on the facility ${(uniqueSuffix += 1)}`, 'utf8');
 
-  // Stands in for central: local content is available without consulting it,
-  // mirroring the real channel, so only the remote half is faked here.
+  // Local content is available without consulting central, so only the remote half is faked.
   const setCentral = ({ holds = null } = {}) => {
     ctx.blobCache.setTransferChannel({
       availability: async (hash, { stat } = {}) => {
@@ -98,8 +97,6 @@ describe('Patient profile picture', () => {
   afterAll(() => ctx.close());
 
   // spec: ATCH
-  // A profile picture is a survey photo answer, so it reads from the facility's
-  // own store like any other attachment rather than through central.
   it('should retrieve a profile picture where one exists', async () => {
     const image = uniqueContent();
     const { hash } = await ctx.blobStore.put(Readable.from([image]));
@@ -129,8 +126,7 @@ describe('Patient profile picture', () => {
     expect(result.body.data).toBe(image.toString('base64'));
   });
 
-  // spec: ATCH — an existing file awaiting its content, rather than a response
-  // that carries no data and says nothing about why.
+  // spec: ATCH
   it('should present content neither server holds as awaiting its content', async () => {
     const image = uniqueContent();
     const attachment = await makeAttachment(hashOf(image), image.length);
@@ -144,10 +140,7 @@ describe('Patient profile picture', () => {
     expect(result.body.data).toBeUndefined();
   });
 
-  // A legacy attachment holds its bytes on central and has no hash, so it is read
-  // through rather than resolved locally. Central answering with no data is the
-  // same awaiting-content state, and used to reach the client as a 200 carrying
-  // an undefined `data`.
+  // A legacy attachment has no hash, so it's read through central.
   it('should present a legacy attachment central cannot supply as awaiting its content', async () => {
     const attachment = await models.Attachment.create(
       fake(models.Attachment, { hash: null, data: null, type: 'image/jpeg', size: 0 }),

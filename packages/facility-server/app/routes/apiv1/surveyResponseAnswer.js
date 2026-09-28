@@ -331,17 +331,11 @@ surveyResponseAnswer.put(
     );
 
     // spec: ATCH, CAS
-    // Blanking a photo overwrites it with empty content, admitted to the store
-    // like any other blob (empty content has a defined zero-byte hash), so the
-    // emptied attachment stays hash-backed and synchronises.
+    // Empty content has a defined hash, so a blanked photo stays hash-backed and syncs.
     const { hash, size } = await req.blobCache.putOutbox(Readable.from([Buffer.from([])]));
 
     // spec: ATCH, BLAC
-    // The upsert may be creating the row, since the attachment need not exist on
-    // this facility. It carries the answer's patient and encounter so a created
-    // row is scoped like any other attachment: an unscoped row sits outside every
-    // facility's scope, which leaves its blob unpushable and stranded in the
-    // outbox.
+    // The upsert may create the row; an unscoped row would leave its blob unpushable in the outbox.
     const { encounterId } = answerObject.surveyResponse;
     const encounter = await models.Encounter.findByPk(encounterId, {
       attributes: ['patientId'],

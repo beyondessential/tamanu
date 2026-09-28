@@ -23,14 +23,14 @@ describe('deviceStorage', () => {
   });
 
   describe('deriveCacheBudgetBytes', () => {
-    // verifies spec: CACHE — two devices of different capacity get different budgets
+    // verifies spec: CACHE
     it('gives a larger-capacity device a larger budget', () => {
       const small = deriveCacheBudgetBytes({ totalSpace: 16 * GIB, freeSpace: 8 * GIB }, 0);
       const large = deriveCacheBudgetBytes({ totalSpace: 128 * GIB, freeSpace: 64 * GIB }, 0);
       expect(large).toBeGreaterThan(small);
     });
 
-    // verifies spec: CACHE — a device filling with unrelated data gives cache space back
+    // verifies spec: CACHE
     it('shrinks the budget as free space falls, counting the current cache as reclaimable', () => {
       const info = { totalSpace: 64 * GIB, freeSpace: 64 * GIB };
       const roomy = deriveCacheBudgetBytes(info, 0);

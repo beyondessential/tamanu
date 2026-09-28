@@ -58,9 +58,6 @@ describe('Blob transfer channel', () => {
 
   let token;
 
-  // The requesting server declares the facilities it acts for on every call,
-  // the same scope record sync would use; the helpers thread the default home
-  // facility unless a scenario supplies its own.
   const offer = (hash, size, { token: asToken = token, facilityIds = defaultFacilityIds } = {}) =>
     authed(baseApp.post(`/api/blob/${encodeURIComponent(hash)}/offer`), asToken)
       .query({ facilityIds })
@@ -87,12 +84,8 @@ describe('Blob transfer channel', () => {
     authed(baseApp.get(`/api/blob/${encodeURIComponent(hash)}`), asToken).query({ facilityIds });
 
   // spec: BLAC
-  // A record referencing the hash, present in sync_lookup: what "a
-  // synchronised record central holds" looks like to the access gate. The
-  // scratch reference table stands in for the consumer tables (attachments,
-  // assets) until they carry hash columns. A reference with neither patient nor
-  // facility is in scope for any requesting server, standing in for a plainly
-  // referenced blob in the non-scoping cases.
+  // The scratch reference table stands in for the consumer tables. A reference with neither patient
+  // nor facility is in scope for any server.
   let referenceSeq = 0;
   const reference = async (hash, { patientId = null, facilityId = null } = {}) => {
     const recordId = `blob-ref-${referenceSeq++}`;
@@ -116,10 +109,8 @@ describe('Blob transfer channel', () => {
     );
   };
 
-  // Bytes held by central without going through the push gate.
   const seedHeldBlob = async content => (await ctx.blobStore.put(Readable.from(content))).hash;
 
-  // Where the store keeps a hash's bytes, for tests that need to damage them.
   const storedPath = hash => {
     const digest = hash.split(':')[1];
     return path.join(
@@ -131,10 +122,7 @@ describe('Blob transfer channel', () => {
     );
   };
 
-  // Responses must be identical modulo the hash they were asked about. The
-  // stack is dropped before comparing: it is a debug field that production
-  // error bodies exclude, and the one field allowed to vary between the two
-  // refusals.
+  // The stack is a debug field production bodies exclude, and the one allowed to vary.
   const withHashRedacted = (body, hash) => {
     const rest = { ...body };
     delete rest.stack;
@@ -176,10 +164,7 @@ describe('Blob transfer channel', () => {
   });
 
   describe('authorisation', () => {
-    // every transfer-channel operation: availability probe, fetch, offer,
-    // content delivery. Each entry builds a fresh request when called, so the
-    // request is created and awaited one at a time rather than a batch of
-    // pending supertest requests being opened at once.
+    // Built one at a time rather than opening a batch of pending supertest requests.
     const operations = () => [
       () => baseApp.get(`/api/blob/${encodeURIComponent(HELLO_HASH)}/availability`),
       () => baseApp.get(`/api/blob/${encodeURIComponent(HELLO_HASH)}`),
@@ -200,8 +185,7 @@ describe('Blob transfer channel', () => {
     });
 
     it('rejects an authenticated user with no device', async () => {
-      // A webapp token carries no device, so req.device is absent and the
-      // missing-device guard fires before any scope check.
+      // A webapp token carries no device, so the missing-device guard fires first.
       const agent = await baseApp.asRole('practitioner');
       const response = await agent.get(
         `/api/blob/${encodeURIComponent(HELLO_HASH)}/availability`,
@@ -210,8 +194,7 @@ describe('Blob transfer channel', () => {
     });
 
     it('rejects an authenticated user whose device lacks the sync-client scope, on every operation', async () => {
-      // A registered device that holds a different scope: req.device is
-      // present, so the ensureHasScope(SYNC_CLIENT) assertion is what rejects.
+      // The device is present, so the SYNC_CLIENT scope assertion is what rejects.
       const { token: unscopedToken } = await asDeviceWithScopes('blob-transfer-unscoped-device', []);
       for (const makeRequest of operations()) {
         const response = await authed(makeRequest(), unscopedToken);
@@ -269,7 +252,6 @@ describe('Blob transfer channel', () => {
       expect(first).toHaveSucceeded();
       expect(first.body).toEqual({ acknowledged: false, receivedBytes: 10 });
 
-      // an interrupted push re-offers and resumes from the staged bytes
       const reoffered = await offer(hash, content.length);
       expect(reoffered.body).toEqual({ status: BLOB_OFFER_STATUSES.WANTED, receivedBytes: 10 });
 
@@ -304,7 +286,6 @@ describe('Blob transfer channel', () => {
       expect(put.status).toBe(409);
       expect(put.body.type).toContain('blob-hash-mismatch');
 
-      // staging was discarded, so a clean retry starts over
       const reoffered = await offer(claimed, wrong.length);
       expect(reoffered.body).toEqual({ status: BLOB_OFFER_STATUSES.WANTED, receivedBytes: 0 });
     });
@@ -389,9 +370,6 @@ describe('Blob transfer channel', () => {
   });
 
   // spec: BLAC, SCRUB
-  // A corrupt blob is retained but never served, so on the channel it is
-  // indistinguishable from one central does not hold — availability and fetch
-  // agree, and neither discloses that it is corrupt.
   describe('corrupt content', () => {
     it('answers a corrupt hash as absent on availability and fetch', async () => {
       const content = Buffer.from('corrupt content');
@@ -408,14 +386,10 @@ describe('Blob transfer channel', () => {
       const fetched = await getBlob(hash);
       expect(fetched.status).toBe(404);
       expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD);
-      // and does not disclose the corruption in the message
       expect(JSON.stringify(fetched.body)).not.toContain('corrupt');
     });
 
     // spec: SCRUB
-    // Central's peer healing. It cannot reach a facility on demand and keeps no
-    // index of what facilities hold, so a replacement is taken on a connection
-    // the facility makes anyway, whenever one happens to offer the content.
     it('wants a hash whose held copy is corrupt, rather than declining it', async () => {
       const content = Buffer.from('content central found to be bad');
       const hash = await seedHeldBlob(content);
@@ -434,8 +408,6 @@ describe('Blob transfer channel', () => {
       const content = Buffer.from('content central found to be bad, replaced');
       const hash = await seedHeldBlob(content);
       await reference(hash);
-      // Corrupt the stored bytes as the scrub would have found them, so the
-      // replacement is a real repair rather than a no-op over good content.
       await fs.writeFile(storedPath(hash), Buffer.from('rotted'));
       await models.Blob.update(
         { integrityState: BLOB_INTEGRITY_STATES.CORRUPT },
@@ -452,7 +424,6 @@ describe('Blob transfer channel', () => {
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
       expect(await fs.readFile(storedPath(hash))).toEqual(content);
 
-      // and it serves again
       const fetched = await getBlob(hash);
       expect(fetched).toHaveSucceeded();
     });
@@ -468,9 +439,6 @@ describe('Blob transfer channel', () => {
   });
 
   // spec: AV
-  // Known-bad content is settled rather than faulty. Where a corrupt copy is
-  // wanted so central can be repaired, a quarantined hash is refused in both
-  // directions: it is never sent, and a fresh copy of it is never taken.
   describe('quarantined content', () => {
     const quarantine = async hash =>
       await models.BlobQuarantine.create({
@@ -519,9 +487,7 @@ describe('Blob transfer channel', () => {
       expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
     });
 
-    // verifies spec: AV — the transfer channel answers the serve policy too,
-    // which is what keeps a facility's cache to content central was willing to
-    // serve: it cannot fetch what central has not scanned.
+    // spec: AV
     it('withholds unscanned content from the channel under serve-only-when-known-good', async () => {
       const content = Buffer.from('content central has not scanned yet');
       const hash = await seedHeldBlob(content);
@@ -537,7 +503,6 @@ describe('Blob transfer channel', () => {
         expect(fetched.status).toBe(404);
         expect(fetched.body.availability).toBe(BLOB_AVAILABILITY_STATES.AWAITING_SCAN);
 
-        // and the same content serves once it has been scanned clean
         await ctx.blobStore.recordScanVerdict(hash, {
           verdict: BLOB_SCAN_VERDICTS.CLEAN,
           scannerVersion: 'ClamAV 1.0.5',
@@ -565,10 +530,6 @@ describe('Blob transfer channel', () => {
   });
 
   // spec: BLAC, SCRUB
-  // Only verified content is servable, so an absent copy is withheld on the
-  // channel exactly as a corrupt one is: availability and fetch answer as
-  // for content central does not hold, and an offer is wanted so the bytes can
-  // be restored.
   describe('absent content', () => {
     it('answers an absent hash as not held on availability and fetch', async () => {
       const content = Buffer.from('absent content');
@@ -603,10 +564,8 @@ describe('Blob transfer channel', () => {
   });
 
   // spec: BLAC
-  // The scope is the declared facility set, not the user's entitlement. With
-  // facility restriction off, the sync user may access every facility, yet a
-  // server that declares only its own facility must still be scoped to it —
-  // otherwise blob access would be wider than record sync.
+  // With facility restriction off the sync user may access every facility, yet the scope must stay
+  // the declared one.
   describe('scope is the declared facility, not the entitlement', () => {
     it('does not serve a blob referenced only outside the declared facilities', async () => {
       const otherFacility = await models.Facility.create(fake(models.Facility));
@@ -620,19 +579,13 @@ describe('Blob transfer channel', () => {
       const hash = await seedHeldBlob(content);
       await reference(hash, { patientId: patientElsewhere.id });
 
-      // the default device is entitled to every facility (restriction off) but
-      // declares only its home facility, so the blob is out of scope
       const response = await availability(hash);
       expect(response.body).toEqual({ availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD });
     });
   });
 
   // spec: BLAC
-  // Reference-layer scoping over the channel with facility restriction on, so
-  // each device's declared facilities are constrained to what it may access
-  // and the sensitive facility exercises the same restriction record sync
-  // applies. Kept last: the restriction setting and sensitive facility change
-  // what users may access.
+  // Kept last: the restriction setting and sensitive facility change what users may access.
   describe('reference scoping', () => {
     let facilityA;
     let facilityB;
@@ -677,8 +630,6 @@ describe('Blob transfer channel', () => {
     });
 
     it('refuses a request that declares a facility the user cannot access', async () => {
-      // the sensitive facility is inaccessible to a user not linked to it even
-      // when facility restriction would otherwise grant every non-sensitive one
       const response = await availability(HELLO_HASH, {
         token: tokenA,
         facilityIds: [sensitiveFacility.id],
@@ -687,9 +638,6 @@ describe('Blob transfer channel', () => {
     });
 
     // spec: BLAC
-    // One inaccessible facility refuses the whole list, whichever position it
-    // holds: a check that accepted the request because some declared facility
-    // was accessible would then scope the operation to the inaccessible one too.
     it('refuses a facility list mixing one the user can access with one it cannot', async () => {
       const content = Buffer.from('referenced at the sensitive facility alone');
       const hash = await seedHeldBlob(content);
@@ -776,9 +724,6 @@ describe('Blob transfer channel', () => {
       });
 
       it('scopes to every facility a multi-facility server declares', async () => {
-        // A server running several facilities declares them all; a blob
-        // referenced at any one is in scope, and each declared facility is
-        // validated against the user's entitlement.
         const user = await models.User.create(fake(models.User, { password: 'password' }));
         for (const facilityId of [facilityA.id, facilityB.id]) {
           await models.UserFacility.create(fake(models.UserFacility, { userId: user.id, facilityId }));
@@ -859,7 +804,6 @@ describe('Blob transfer channel', () => {
         const put = await putChunk(hash, content, 0, content.length, scopeA);
         expect(put.status).toBe(403);
 
-        // once the reference arrives, staging starts from zero: nothing stuck
         await reference(hash, { patientId: patientAtA.id });
         const offered = await offer(hash, content.length, scopeA);
         expect(offered.body).toEqual({ status: BLOB_OFFER_STATUSES.WANTED, receivedBytes: 0 });
@@ -896,9 +840,7 @@ describe('Blob transfer channel', () => {
         expect(row).toMatchObject({ size: content.length });
       });
     });
-    // The device speaks the same subprotocol as a facility server, with two
-    // differences worth pinning down: it declares one facility as a scalar
-    // rather than a list, and it always resumes with an open-ended range.
+    // The device declares one facility as a scalar and always resumes with an open-ended range.
     describe('device-shaped requests', () => {
       const asDevice = () => ({ token: tokenA, facilityIds: facilityA.id });
 
@@ -935,9 +877,7 @@ describe('Blob transfer channel', () => {
     });
 
     // spec: BLAC, ATCH
-    // Everything above scopes through the scratch reference table, so this runs
-    // the same gate over the `attachments` registration that ships: real rows,
-    // entering sync_lookup through the same build a pull reads from.
+    // The same gate over real `attachments` rows rather than the scratch table.
     describe('attachment references', () => {
       let inScopeHash;
       let sensitiveHash;

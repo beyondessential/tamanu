@@ -8,7 +8,6 @@ import { getSyncTick } from '~/services/sync/utils';
 import { LAST_SUCCESSFUL_PUSH } from '~/services/sync/constants';
 import { MobileBlobStore, BlobFileSystem } from './MobileBlobStore';
 
-// Legacy rows adopted per query, bounding how many are held in memory at once.
 const LEGACY_ADOPTION_BATCH_SIZE = 50;
 
 export interface ReconcileAttachmentsOptions {
@@ -18,11 +17,7 @@ export interface ReconcileAttachmentsOptions {
 }
 
 // spec: MOB
-// Startup reconciliation of the attachment world: adopt pre-blob-store rows
-// into the store, and demote outbox blobs stranded without a referencing
-// record. Idempotent and resumable — a pass interrupted partway leaves rows
-// that the next start picks up, and a device with nothing to reconcile pays
-// two cheap queries.
+// Idempotent and resumable; a device with nothing to reconcile pays two cheap queries.
 export async function reconcileAttachments({
   models,
   blobStore,
@@ -32,21 +27,9 @@ export async function reconcileAttachments({
   await demoteStrandedOutboxBlobs(models);
 }
 
-// Legacy rows hold their content as a file in the documents directory, pointed
-// at by filePath. Adoption admits the file into the store and hands the record
-// its hash. The tier and the sync handling split on whether the record has
-// reached the central server:
-//
-// - A row not yet pushed is adopted into the outbox and saved normally, so it
-//   re-syncs carrying its hash and central receives a hash-backed record ahead
-//   of the byte push, as for any new capture.
-// - A row already pushed exists on central as a legacy in-database attachment,
-//   whose reader prefers a hash when one is set. Central already durably holds
-//   the bytes in-row, so the local copy is adopted as evictable cache, and the
-//   hash is set by raw update so the sync tick is untouched and central's
-//   legacy row is left alone.
-// - A row whose file is gone has lost its content; the pointer is cleared and
-//   the record presents as awaiting content.
+// An unpushed row goes to the outbox and re-syncs carrying its hash. A pushed row already exists on
+// central with its bytes in-row, so it's adopted as cache and the hash set by raw update, leaving
+// the sync tick alone. A row whose file is gone is cleared to awaiting content.
 async function adoptLegacyAttachments({
   models,
   blobStore,
@@ -55,11 +38,8 @@ async function adoptLegacyAttachments({
   const repository = models.Attachment.getRepository();
   const lastPush = await getSyncTick(models, LAST_SUCCESSFUL_PUSH);
 
-  // Walked in id order with a cursor rather than loaded whole: a device that
-  // captured many photos before the upgrade can hold hundreds of legacy rows,
-  // and the work is sequential anyway since each row hashes a file. The cursor
-  // advances past a row that fails to adopt, which a plain limit would not — a
-  // failure leaves filePath set, so the same batch would be re-read forever.
+  // A cursor rather than a plain limit: a failed row keeps filePath set, so the same batch would be
+  // re-read forever.
   let cursor = '';
   for (;;) {
     const legacyRows = await repository.find({
@@ -78,8 +58,6 @@ async function adoptLegacyAttachments({
         const filePath = row.filePath;
 
         if (row.deletedAt || !(await fs.exists(filePath))) {
-          // A removed attachment's file is dead weight; a live row without its
-          // file has lost its content and presents as awaiting it.
           if (await fs.exists(filePath)) {
             await fs.unlink(filePath);
           }
@@ -107,8 +85,7 @@ async function adoptLegacyAttachments({
           );
         }
       } catch (error) {
-        // Likely insufficient storage or an unreadable file; leave the row for
-        // the next start rather than failing the rest of the pass.
+        // Leave the row for the next start rather than failing the pass.
         console.warn(
           `reconcileAttachments: could not adopt legacy attachment ${row.id}: ${error.message}`,
         );
@@ -118,10 +95,8 @@ async function adoptLegacyAttachments({
 }
 
 // spec: MOB, CACHE
-// An outbox blob no live attachment record references is stranded — a crash
-// between admission and record creation, or a removed draft photo. It can
-// never become eligible for push, so demote it to cache where the LRU budget
-// reclaims it.
+// A stranded outbox blob can never become eligible for push, so demote it for the LRU budget to
+// reclaim.
 async function demoteStrandedOutboxBlobs(models: typeof MODELS_MAP): Promise<void> {
   await models.Blob.getRepository().query(
     `

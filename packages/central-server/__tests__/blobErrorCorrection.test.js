@@ -11,8 +11,7 @@ import { BLOB_FAULTS, BlobStore } from '@tamanu/database/blobStore';
 import { CentralBlobHealer } from '../app/blobIntegrity';
 import { createTestContext } from './utilities';
 
-// 16+2 shards of 4 KiB at the default proportion, so two damaged shards are the
-// budget and three are past it.
+// 16+2 shards of 4 KiB at the default proportion, so two damaged shards are the budget.
 const COVERED_BYTES = 64 * 1024;
 const geometry = parityGeometry(COVERED_BYTES, 0.1);
 
@@ -27,9 +26,6 @@ const coveredContent = seed => {
 };
 
 // spec: FEC
-// Central's healer with parity available. Every copy central holds is
-// authoritative, so error correction is the rung that keeps a recoverable blob
-// from becoming an escalation nobody can resolve without a backup.
 describe('central blob error correction', () => {
   let ctx;
   let models;
@@ -71,7 +67,6 @@ describe('central blob error correction', () => {
     return path.join(root, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4));
   };
 
-  // Bit rot over whole shards: the bytes change, the path and the row do not.
   const damageShards = async (hash, shards) => {
     const handle = await fs.open(pathOf(hash), 'r+');
     try {
@@ -99,8 +94,7 @@ describe('central blob error correction', () => {
     });
 
   it('covers a blob whatever tier its row carries', async () => {
-    // Central's registry is authoritative for everything it holds, so unlike a
-    // facility the tier does not narrow coverage.
+    // Unlike a facility, the tier doesn't narrow central's coverage.
     const { hash, size } = await admit(coveredContent(1));
     expect(await blobStore.coversWithParity({ size, tier: BLOB_TIERS.CACHE })).toBe(true);
     expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(true);
@@ -131,10 +125,8 @@ describe('central blob error correction', () => {
     expect(row.correctionCount).toBe(0);
   });
 
-  // verifies spec: AV, FEC — a repair ends in the same bytes being held again,
-  // which for content the deployment has recorded as malware is the one outcome
-  // to avoid. The damage here is inside the parity budget, so the only reason
-  // not to reconstruct it is the quarantine.
+  // verifies spec: AV, FEC
+  // The damage is within budget, so the quarantine is the only reason not to reconstruct.
   it('refuses to reconstruct quarantined content its parity could restore', async () => {
     const content = coveredContent(5);
     const { hash } = await admit(content);

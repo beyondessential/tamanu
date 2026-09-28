@@ -60,9 +60,6 @@ patientProfilePicture.get(
     const localAttachment = await req.models.Attachment.findByPk(attachmentId);
 
     // spec: ATCH
-    // A hash-backed attachment reads from the local store, resolving the bytes
-    // from central on a miss, so a picture the facility already holds displays
-    // without connectivity.
     if (localAttachment?.hash) {
       const { hash } = localAttachment;
       const { availability, size } = await resolveBlobForRead(req, hash);
@@ -79,15 +76,12 @@ patientProfilePicture.get(
     }
 
     // spec: ATCH
-    // Legacy attachments reside only on the central server, so one with no local
-    // hash is read through it.
     const centralServer = new CentralServerConnection({ deviceId });
     const response = await centralServer.fetch(`attachment/${attachmentId}?base64=true`, {
       method: 'GET',
     });
 
-    // Absence, not falsiness: a zero-byte attachment reads back as an empty
-    // string and is forwarded rather than reported as pending.
+    // Absence, not falsiness: a zero-byte attachment reads back as an empty string.
     if (response?.data == null) {
       res.status(202).send({ attachmentId, availability: response?.availability });
       return;

@@ -19,8 +19,7 @@ describe('Asset GET endpoint', () => {
   let ctx;
   let models;
   let app;
-  // The web client always scopes the asset lookup to its facility (useAuth), so
-  // the request carries the facility id the same way here.
+  // The web client always scopes the asset lookup to its facility.
   const [facilityId] = selectFacilityIds(config);
 
   beforeAll(async () => {
@@ -50,8 +49,7 @@ describe('Asset GET endpoint', () => {
   });
 
   it('reports content-pending for a hash row whose bytes are not held', async () => {
-    // A hash the store has never been given, so resolution misses locally and,
-    // with no central to fetch from in this harness, cannot be filled.
+    // Never given to the store, and there's no central in this harness.
     await models.Asset.create({
       name: PENDING_NAME,
       type: 'image/png',

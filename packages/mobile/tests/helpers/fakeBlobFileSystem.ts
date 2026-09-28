@@ -5,9 +5,7 @@ import { TransferFileSystem } from '~/services/blobs/BlobTransferChannel';
 type DownloadOptions = Parameters<TransferFileSystem['downloadFile']>[0];
 type UploadOptions = Parameters<TransferFileSystem['uploadFiles']>[0];
 
-// An in-memory stand-in for the react-native-fs surface the blob services use.
-// Paths are plain string keys; directories are not modelled since RNFS's mkdir
-// is recursive and tolerant of existing directories.
+// Directories aren't modelled: RNFS mkdir is recursive and tolerates existing directories.
 export class FakeBlobFileSystem implements TransferFileSystem {
   files = new Map<string, Buffer>();
 

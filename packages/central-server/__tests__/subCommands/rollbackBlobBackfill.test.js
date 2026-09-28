@@ -8,16 +8,11 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 import { rollbackBlobBackfill } from '../../app/subCommands/rollbackBlobBackfill';
 
-// The pause between batches is the whole of the command's pacing, so it is
-// observed rather than waited out.
 vi.mock('@tamanu/utils/sleepAsync', () => ({
   sleepAsync: vi.fn().mockResolvedValue(undefined),
 }));
 
 // spec: BKFL
-// Reverses the backfill by re-inflating the database from the blob store, ahead
-// of a version downgrade. It restores from the store rather than a backup, and
-// paces itself so a live deployment is not starved while it runs.
 describe('rollbackBlobBackfill', () => {
   let ctx;
   let models;

@@ -135,8 +135,7 @@ class MockApplicationContext extends ApplicationContext {
       });
     }
 
-    // Temp-rooted and reserve-free so route tests exercise the blob-backed
-    // attachment and asset paths without depending on the test host's disk headroom.
+    // Reserve-free, so route tests don't depend on the host's disk headroom.
     const blobRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'facility-blob-store-test-'));
     this.blobStore = new BlobStore({
       root: blobRoot,

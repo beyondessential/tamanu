@@ -15,8 +15,7 @@ import { createTestContext } from '../utilities';
 import { ApplicationContext } from '../../app/ApplicationContext';
 import { initServerConfig } from '../../app/serverConfig';
 
-// The store root is only ever read through the application context, so this
-// suite boots one rather than injecting a root the way the rest do.
+// The root is only read through the application context, so this suite boots one.
 describe('blob store root from facility settings', () => {
   let ctx;
   let models;
@@ -41,8 +40,7 @@ describe('blob store root from facility settings', () => {
   });
 
   it('sites the store at the configured root', async () => {
-    // verifies spec: CAP — the root is configurable so the store can sit on a
-    // volume of its own
+    // verifies spec: CAP
     const appContext = await new ApplicationContext().init();
     expect(appContext.blobStore.root).toBe(root);
 
@@ -59,8 +57,7 @@ describe('blob store root from facility settings', () => {
   });
 
   it('falls back to the schema default when no facility has synced', async () => {
-    // verifies spec: CAP — the root is facility-scoped, so a server with no
-    // facility yet has no reader to ask for it
+    // verifies spec: CAP
     const syncedFacilityIds = await models.LocalSystemFact.get(FACT_FACILITY_IDS);
     await models.LocalSystemFact.set(FACT_FACILITY_IDS, '[]');
     try {

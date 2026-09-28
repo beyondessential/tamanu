@@ -3,9 +3,6 @@ import { MigrationInterface, QueryRunner, TableColumn, TableIndex } from 'typeor
 const TABLE_NAME = 'blobs';
 
 // spec: CACHE
-// The outbox-and-cache dimensions of the blob registry, mirroring the server
-// migration of the same name: durability tier, LRU recency, and the outbox
-// dysfunction measure.
 const NEW_COLUMNS = [
   new TableColumn({
     name: 'tier',

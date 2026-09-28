@@ -9,9 +9,8 @@ import { BLOB_HOST_CONTRACT, type BlobHostUnderTest } from '@tamanu/blobs/contra
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import { closeDatabase, createTestDatabase } from '../utilities';
 
-// The server's side of the shared host contract, run against the real registry
-// so the upsert and recency semantics are exercised as SQL rather than as a
-// description of it. Mobile runs the same cases against its own host.
+// Against the real registry, so upsert and recency run as SQL. Mobile runs the same cases against
+// its own host.
 describe('blob host contract (server)', () => {
   let models: any;
   let sequelize: any;
@@ -75,9 +74,6 @@ describe('blob host contract (server)', () => {
       await fs.rename(fromPath, toPath);
     },
     async register(content, tier) {
-      // Admission through the store itself, so the contract drives the same
-      // upsert production does. The store hashes the content it is given, so the
-      // stored identity is the content's real hash rather than a fixed one.
       await store.put(Readable.from([Buffer.from(content)]), { tier });
     },
     async row(hash) {

@@ -5,9 +5,7 @@ import { BlobHashMismatchError, InsufficientStorageError, NotFoundError } from '
 
 import { BlobAdmission, type BlobAdmissionHost } from '../src/admission';
 
-// Content is identified by what the fake hasher says the file holds: a test
-// writes `files[path] = 'abc'` and the file hashes to `sha256:abc000…`, padded
-// to the digest width a real sha256 hash has.
+// A test writes `files[path] = 'abc'` and the file hashes to `sha256:abc000…`.
 const digestOf = (content: string) => content.padEnd(64, '0');
 const hashOf = (content: string) => `sha256:${digestOf(content)}`;
 const ABC = hashOf('abc');
@@ -60,7 +58,6 @@ function createHost(overrides: Partial<BlobAdmissionHost> = {}) {
     },
     async stat(hash) {
       const row = state.registry.get(hash);
-      // Bytes gone means nothing held, however the row still reads.
       return row && state.files.has(`store/${hash}`)
         ? { size: row.size, ...(row.integrityState ? { integrityState: row.integrityState } : {}) }
         : null;
@@ -74,7 +71,7 @@ function createHost(overrides: Partial<BlobAdmissionHost> = {}) {
     },
     async register(hash, size, tier) {
       state.calls.push(`register:${hash}`);
-      // Contract: a live row is left alone; this fake has no soft deletes.
+      // This fake has no soft deletes.
       if (!state.registry.has(hash)) {
         state.registry.set(hash, { size, tier });
       }
@@ -123,7 +120,6 @@ describe('admitting written content', () => {
     expect(state.files.has(`store/${ABC}`)).toBe(true);
     expect(state.registry.has(ABC)).toBe(false);
 
-    // The orphan is adopted rather than re-placed by the next admission.
     state.files.set('tmp/2', 'abc');
     const result = await new BlobAdmission(host).admitFile('tmp/2');
 
@@ -142,7 +138,6 @@ describe('admitting written content', () => {
     expect(result).toEqual({ hash: ABC, size: 3, existed: true });
     expect(state.calls).toContain('removeFile:tmp/1');
     expect(state.calls).not.toContain(`place:tmp/1->store/${ABC}`);
-    // The live row keeps its tier: the register call is a no-op against it.
     expect(state.registry.get(ABC)?.tier).toBe(BLOB_TIERS.OUTBOX);
   });
 
@@ -167,7 +162,6 @@ describe('committing staged content', () => {
       `hashFile:staging/${ABC}`,
       `place:staging/${ABC}->store/${ABC}`,
       `register:${ABC}`,
-      // Fires on every commit; the host's own update leaves a verified row alone.
       `markVerified:${ABC}`,
     ]);
     expect(result).toEqual({ hash: ABC, size: 3, existed: false });
@@ -198,7 +192,7 @@ describe('committing staged content', () => {
 
   it('heals a row standing as absent, whose bytes had gone', async () => {
     const { host, state } = createHost();
-    // The row survives, its bytes do not: what a refetch arrives to heal.
+    // What a refetch arrives to heal.
     state.registry.set(ABC, {
       size: 3,
       tier: BLOB_TIERS.CACHE,

@@ -8,17 +8,13 @@ import { sleepAsync } from '~/services/sync/utils';
 import { MobileBlobStore, BlobFileSystem, FILE_COPY_CHUNK_BYTES, PutResult } from './MobileBlobStore';
 
 // spec: XFER
-// A referenced blob whose bytes have not reached the central server yet: the
-// content is awaiting upload from its origin, so a fetch cannot resolve it.
-// Distinct from a transfer fault — there is nothing to retry until the origin
-// pushes.
+// Nothing to retry until the origin pushes.
 export class BlobAwaitingUploadError extends NotFoundError {
   constructor(hash: string) {
     super(`Content for ${hash} has not reached the central server yet`);
   }
 }
 
-/** The file-transfer subset of react-native-fs the channel uses. */
 export interface TransferFileSystem extends BlobFileSystem {
   downloadFile(options: {
     fromUrl: string;
@@ -37,23 +33,14 @@ export interface TransferFileSystem extends BlobFileSystem {
 export interface BlobTransferChannelOptions {
   blobStore: MobileBlobStore;
   centralServer: CentralServerConnection;
-  /** The device's facility, declared to central to scope blob access (spec: BLAC). */
+  // spec: BLAC
   getFacilityId: () => Promise<string>;
   fs?: TransferFileSystem;
 }
 
 // spec: XFER
-// The device side of the blob transfer channel: availability (with the
-// awaiting-upload/awaiting-fetch distinction), resumable fetch from central,
-// and resumable push to central. The device counterpart of the facility
-// server's channel, reshaped for a filesystem transfer API: bytes move through
-// files on disk (a ranged download into staging, an upload streamed from a
-// file) rather than through in-memory streams, so a large blob never loads
+// Bytes move through files on disk rather than in-memory streams, so a large blob never loads
 // whole.
-//
-// This is the primitive layer: it moves one blob per call and resumes across
-// interruptions within the call. Scheduling — the post-sync pusher, retry over
-// sync cycles, eviction — belongs to the cache tier above it.
 export class BlobTransferChannel {
   #blobStore: MobileBlobStore;
   #centralServer: CentralServerConnection;
@@ -75,10 +62,8 @@ export class BlobTransferChannel {
         remoteAvailability: hash => this.#probeCentral(hash),
         offer: (hash, { size }) => this.#offer(hash, size),
         pushChunk: (hash, { offset, length, totalSize }) => {
-          // The device uploads whole files (pushChunkBytes is unbounded), so a
-          // chunk must always be the entire remainder. Assert it rather than
-          // silently sending offset-to-end: if pushChunkBytes is ever lowered,
-          // this fails loudly instead of over-delivering past what central staged.
+          // The device uploads whole files. Assert it, so lowering pushChunkBytes fails loudly
+          // instead of over-delivering past what central staged.
           if (length !== totalSize - offset) {
             throw new Error(
               `Mobile blob push delivers whole files; expected length ${totalSize - offset} at offset ${offset}, got ${length}`,
@@ -90,50 +75,28 @@ export class BlobTransferChannel {
         awaitingUploadError: hash => new BlobAwaitingUploadError(hash),
       },
       {
-        // The upload API sends whole files, so the remainder goes in one
-        // delivery rather than in chunks.
         pushChunkBytes: Number.MAX_SAFE_INTEGER,
-        // downloadFile reports bytes written, not the content's total, so the
-        // size has to come from the availability probe.
+        // downloadFile reports bytes written, not the content's total.
         probeTotalSize: 'always',
       },
     );
   }
 
   // spec: XFER
-  // Availability of a referenced hash as served from here: bytes held locally
-  // are available; bytes central holds are awaiting our fetch; bytes central
-  // lacks are awaiting upload from their origin.
   async availability(hash: string): Promise<{ availability: string; size?: number }> {
     return await this.#transfer.availability(hash);
   }
 
   // spec: XFER
-  /**
-   * Fetch a blob's bytes from the central server into the device's store.
-   * Idempotent: content already held skips the transfer. An interrupted
-   * download resumes from the bytes already staged, including across calls
-   * and app restarts, and the complete content is verified against the hash
-   * before it is admitted. Bytes that cannot be resolved because central does
-   * not hold them raise BlobAwaitingUploadError: content-pending at the
-   * source, not a transfer fault.
-   */
   async fetchFromCentral(hash: string): Promise<PutResult> {
     return await this.#transfer.fetch(hash);
   }
 
   // spec: XFER
+  // spec: SCRUB, MOB
   /**
-   * Deliver a locally held blob's bytes to the central server. Idempotent:
-   * content central already holds is acknowledged without transfer. The
-   * acknowledgement arrives only once central has verified and durably stored
-   * the content, so the caller may treat the local copy as evictable. An
-   * interrupted push resumes from the bytes central has already staged.
-   *
-   * The outbox blob is verified against its hash before it is offered
-   * (spec: SCRUB, MOB): the device holds the only copy of captured content, so
-   * local corruption is recorded and surfaced as a fault on the device
-   * rather than as a push refused over and over.
+   * Verified before it's offered: the device holds the only copy, so corruption surfaces as a
+   * device fault rather than an endlessly refused push.
    */
   async pushToCentral(hash: string): Promise<{ acknowledged: boolean; existed?: boolean }> {
     const held = await this.#blobStore.stat(hash);
@@ -149,9 +112,7 @@ export class BlobTransferChannel {
     return await this.#transfer.push(hash);
   }
 
-  // One download attempt from `offset`, appending whatever arrives to the
-  // staging. Whatever bytes landed are progress even when the attempt fails:
-  // the caller counts a stall only when the staged size did not move.
+  // Bytes that landed are progress even when the attempt fails.
   async #fetchInto(hash: string, offset: number): Promise<{ totalSize?: number }> {
     const partPath = await this.#blobStore.prepareStagingPart(hash);
     let statusCode: number | undefined;
@@ -167,19 +128,15 @@ export class BlobTransferChannel {
         },
       }).promise);
     } catch (error) {
-      // The connection dropped with no status; whatever bytes arrived are
-      // still progress, so salvage them before the retry. If the interrupted
-      // response wasn't the content after all, commit's verification discards
-      // the staging and the next fetch starts clean.
+      // No status, but whatever arrived is still progress. If it wasn't the content, commit's
+      // verification discards it.
       await this.#salvagePart(hash, partPath, offset);
       throw error;
     }
 
     if (statusCode === 401) {
-      // Token expired mid-transfer: refresh so the retry from the same offset
-      // carries fresh credentials. A refresh that doesn't clear the rejection
-      // stalls out like any other attempt that delivered nothing, instead of
-      // spinning the request loop on a battery-powered device.
+      // A refresh that doesn't clear the rejection stalls out like any other attempt, rather than
+      // spinning the loop on battery.
       await this.#centralServer.refresh();
       throw new RemoteCallError(`Blob fetch of ${hash} was refused as unauthenticated`);
     }
@@ -220,10 +177,7 @@ export class BlobTransferChannel {
   ): Promise<{ acknowledged: boolean; existed?: boolean }> {
     const storePath = await this.#blobStore.servablePath(hash);
 
-    // The whole blob streams straight from the store file; a resume from a
-    // non-zero offset copies the remainder to a temporary file first, since
-    // the upload API sends whole files. A completed staging (offset at size)
-    // finalises with one empty delivery.
+    // A resume copies the remainder to a temp file first, since the upload API sends whole files.
     let uploadPath = storePath;
     let tempPath: string | null = null;
     if (offset > 0 || size === 0) {
@@ -256,7 +210,6 @@ export class BlobTransferChannel {
       }).promise;
 
       if (statusCode === 401) {
-        // Refresh and let the outer loop retry via re-offer.
         await this.#centralServer.refresh();
         throw new RemoteCallError(`Blob push of ${hash} needs re-authentication`);
       }
@@ -266,8 +219,7 @@ export class BlobTransferChannel {
           new RemoteCallError(`Blob push of ${hash} failed with status ${statusCode}`);
       }
       if (!response?.acknowledged) {
-        // Every byte was delivered but central still expects more: the sizes
-        // disagree. Retriable via re-offer, which resets the shared position.
+        // Every byte delivered but central still expects more: the sizes disagree.
         throw new RemoteCallError(
           `Push of ${hash} delivered ${size - offset} bytes without acknowledgement`,
         );

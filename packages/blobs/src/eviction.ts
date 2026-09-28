@@ -1,7 +1,4 @@
-// Upper bound on cache rows scanned per eviction pass, so a host with a very
-// large cache population never materialises the whole tier in memory. A cache
-// bigger than this is trimmed across successive passes, which is fine: eviction
-// need not converge in one pass.
+// A cache bigger than this is trimmed across successive passes.
 export const DEFAULT_EVICTION_SCAN_LIMIT = 10000;
 
 export interface EvictionResult {
@@ -16,13 +13,11 @@ export interface CacheRow {
 
 export interface BlobEvictionHost {
   /**
-   * The cache size budget in bytes. Takes the current cache size because a
-   * budget may be a function of it: a host sizing the cache against free space
-   * counts the space the cache itself occupies as available to it.
+   * Takes the current cache size: a host sizing against free space counts the cache's own space as
+   * available.
    */
   budgetBytes(cacheSizeBytes: number): Promise<number>;
   cacheSizeBytes(): Promise<number>;
-  /** Cache rows least-recently-used first, at most `limit`. */
   cacheRowsLruFirst(limit: number): Promise<CacheRow[]>;
   mostRecentlyUsedHash(): Promise<string | null>;
   delete(hash: string): Promise<void>;
@@ -31,15 +26,9 @@ export interface BlobEvictionHost {
 }
 
 // spec: CACHE
-/**
- * Eviction over the cache tier: LRU ordering, the withheld most-recently-used
- * blob, deferral while a read is in progress, and the budget-as-target versus
- * free-disk-floor-as-hard-bound distinction.
- */
 export class BlobEviction {
   #host: BlobEvictionHost;
   #scanLimit: number;
-  /** hash -> count of reads currently streaming, so eviction defers removal. */
   #activeReads = new Map<string, number>();
 
   constructor(host: BlobEvictionHost, { scanLimit }: { scanLimit?: number } = {}) {
@@ -62,18 +51,14 @@ export class BlobEviction {
 
   // spec: CACHE
   /**
-   * Evict least-recently-used cache blobs until the cache fits its size budget.
-   * The budget is a target, not a hard limit: the single most recently used blob
-   * is never evicted merely to satisfy it, so a blob larger than the whole
-   * budget serves reads while it is in use rather than cycling through eviction
-   * and refetch.
+   * The budget is a target: the most recently used blob is never evicted for it, so an oversized
+   * in-use blob isn't thrashed.
    */
   async enforceBudget(): Promise<EvictionResult> {
     const cacheSize = await this.#host.cacheSizeBytes();
     const budget = await this.#host.budgetBytes(cacheSize);
     if (!Number.isFinite(budget)) {
-      // A misconfigured or unset budget must not be read as "evict everything";
-      // leave the cache untouched and let the periodic task retry once fixed.
+      // An unset budget must not read as "evict everything".
       this.#host.onWarning?.('cache size budget is not a finite number', { budget });
       return { evictedBytes: 0, evictedCount: 0 };
     }
@@ -81,20 +66,13 @@ export class BlobEviction {
     if (excess <= 0) {
       return { evictedBytes: 0, evictedCount: 0 };
     }
-    // Withhold the single most-recently-used cache blob from budget eviction so
-    // an oversized in-use blob isn't thrashed. Identified explicitly (rather
-    // than as the tail of the scanned rows) because the scan is a bounded
-    // oldest-first batch that need not contain the newest blob.
+    // Looked up explicitly: the bounded oldest-first scan need not contain the newest blob.
     const protectHash = await this.#host.mostRecentlyUsedHash();
     return await this.#evict(excess, { protectHash });
   }
 
   // spec: CAP
-  /**
-   * Free at least bytesNeeded for the free-disk floor. The floor is the hard
-   * bound, so unlike budget enforcement every cache blob is a candidate: only
-   * blobs with a read in progress are untouchable.
-   */
+  /** The floor is the hard bound, so only blobs with a read in progress are untouchable. */
   async evictBytes(bytesNeeded: number): Promise<EvictionResult> {
     return await this.#evict(bytesNeeded);
   }
@@ -109,13 +87,11 @@ export class BlobEviction {
     for (const { hash, size } of rows) {
       if (evictedBytes >= bytesTarget) break;
       if (hash === protectHash) {
-        // spec: CACHE — the most-recently-used blob is withheld from budget
-        // eviction (not from the free-disk floor, which passes no protectHash).
+        // spec: CACHE
         continue;
       }
       if (this.#activeReads.has(hash)) {
-        // spec: CACHE — a blob with a read in progress is removed only once that
-        // read completes; it stays a candidate for a later pass.
+        // spec: CACHE
         continue;
       }
       try {

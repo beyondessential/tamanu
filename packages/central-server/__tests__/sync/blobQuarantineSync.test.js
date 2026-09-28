@@ -10,11 +10,7 @@ import {
 } from '../utilities';
 
 // spec: AV
-// Central scans and its verdict is authoritative, so a quarantine is written on
-// central and pulled everywhere: a facility or device that runs no scanner of
-// its own still knows not to serve, fetch or heal the content. The record
-// carries no scope, so it reaches a server whether or not that server holds the
-// bytes or shares a patient with whoever uploaded them.
+// The record carries no scope, so it reaches every server whether or not it holds the bytes.
 describe('Blob quarantine propagation', () => {
   let ctx;
   let models;
@@ -108,8 +104,8 @@ describe('Blob quarantine propagation', () => {
   });
 
   it('sends it through the sync lookup table', async () => {
-    // The deployed configuration snapshots from sync_lookup rather than the
-    // source tables, so an unscoped record has to reach the lookup to propagate.
+    // Deployed config snapshots from sync_lookup, so an unscoped record must reach the lookup to
+    // propagate.
     vi.doMock('@tamanu/shared/utils/withConfig', () => ({
       withConfig: fn => {
         const inner = (...args) => fn(...args, lookupEnabledConfig);

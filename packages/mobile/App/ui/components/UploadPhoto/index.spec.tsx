@@ -59,8 +59,6 @@ const CAPTURED_URI = `data:image/jpeg;base64, ${CAPTURED_IMAGE.base64}`;
 const displayedImageUri = (container): string | undefined =>
   container.queryAll(node => node.type === 'Image')[0]?.props?.source?.uri;
 
-// The device reports connectivity through the hook's own state, which is what
-// re-renders a mounted component when it changes.
 const connectivity = {
   current: { isInternetReachable: true } as { isInternetReachable: boolean | null },
   subscribers: new Set<(value: { isInternetReachable: boolean | null }) => void>(),
@@ -130,9 +128,7 @@ describe('<UploadPhoto />', () => {
     fs.seed(RESIZED_PATH, PHOTO_BYTES);
   });
 
-  // verifies spec: MOB, CACHE — capture admits to the outbox tier and the
-  // record carries the hash and the admitted size, never the bytes or a
-  // pointer to a file outside the store
+  // verifies spec: MOB, CACHE
   it('stores a captured photo in the outbox and records only its hash and size', async () => {
     const { getByText } = await render(<UploadPhoto onChange={onChange} value={null} />);
 
@@ -150,8 +146,7 @@ describe('<UploadPhoto />', () => {
     expect(fs.contentsOf(RESIZED_PATH)).toBeUndefined();
   });
 
-  // verifies spec: MOB, CAP — a capture the store cannot admit names the
-  // device's storage as the cause and leaves nothing behind
+  // verifies spec: MOB, CAP
   it('shows the device-storage message and creates no attachment when the store is full', async () => {
     fs.freeSpace = 1024 ** 2;
 
@@ -170,8 +165,7 @@ describe('<UploadPhoto />', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  // verifies spec: MOB — a read resolves the record's hash against the device's
-  // store, so an answer that already holds a photo shows it and can drop it
+  // verifies spec: MOB
   it('shows a photo the answer already holds and offers to remove it', async () => {
     const attachment = await holdPhotoOnDevice();
 
@@ -186,8 +180,7 @@ describe('<UploadPhoto />', () => {
     expect(queryByText('Upload photo')).toBeNull();
   });
 
-  // verifies spec: MOB — content the device does not hold is fetched by hash
-  // and admitted to the cache tier
+  // verifies spec: MOB
   it('fetches a photo the device does not hold', async () => {
     const attachment = await seedAttachment();
     fetchesPhoto();
@@ -200,8 +193,7 @@ describe('<UploadPhoto />', () => {
     expect(blob.tier).toBe(BLOB_TIERS.CACHE);
   });
 
-  // verifies spec: MOB, XFER — content pending at its origin presents as a
-  // photo awaiting its content, never as an answer with no photo
+  // verifies spec: MOB, XFER
   it('reports a photo still awaiting upload from the device that captured it', async () => {
     const attachment = await seedAttachment();
     cache.setTransferChannel({
@@ -220,8 +212,7 @@ describe('<UploadPhoto />', () => {
     expect(queryByText('Upload photo')).toBeNull();
   });
 
-  // verifies spec: MOB — content this device could not fetch is distinct from
-  // content pending at its origin, and neither reads as a missing photo
+  // verifies spec: MOB
   it('reports a photo not on this device when the fetch cannot reach the network', async () => {
     deviceIsOffline();
     const attachment = await seedAttachment();
@@ -242,8 +233,7 @@ describe('<UploadPhoto />', () => {
     expect(queryByText('Upload photo')).toBeNull();
   });
 
-  // verifies spec: MOB — a record whose content this device cannot resolve is
-  // a photo awaiting its content, not an answer with no photo
+  // verifies spec: MOB
   it('reports a photo whose record has not reached this device', async () => {
     const { getByText, queryByText } = await render(
       <UploadPhoto onChange={onChange} value="an-answer-from-another-device" />,
@@ -255,8 +245,7 @@ describe('<UploadPhoto />', () => {
     expect(queryByText('Upload photo')).toBeNull();
   });
 
-  // The connectivity the device reports arrives after the first render, so a
-  // photo already being read must not be stranded by it.
+  // Connectivity arrives after the first render and must not strand a read in flight.
   it('shows the photo when connectivity is reported while the read is in flight', async () => {
     connectivityIsUnknown();
     const attachment = await seedAttachment();
@@ -271,8 +260,7 @@ describe('<UploadPhoto />', () => {
     expect(contentReads).toBe(1);
   });
 
-  // verifies spec: MOB — content the device could not fetch is fetched again
-  // once it has connectivity, so the advice to connect can be acted on
+  // verifies spec: MOB
   it('fetches the photo again once connectivity returns', async () => {
     deviceIsOffline();
     const attachment = await seedAttachment();
@@ -298,8 +286,6 @@ describe('<UploadPhoto />', () => {
     expect(displayedImageUri(container)).toBe(PHOTO_URI);
   });
 
-  // A photo captured here is already on screen, so the value the form hands
-  // back is not read from the store again.
   it('does not read back a photo it just captured', async () => {
     const { container, getByText, rerender } = await render(
       <UploadPhoto onChange={onChange} value={null} />,
@@ -314,8 +300,7 @@ describe('<UploadPhoto />', () => {
     expect(contentReads).toBe(0);
   });
 
-  // verifies spec: MOB, CACHE — a removed photo's blob has no referencing
-  // record left, so it can never become eligible for push
+  // verifies spec: MOB, CACHE
   it("demotes the removed photo's blob to reclaimable cache", async () => {
     const attachment = await holdPhotoOnDevice();
 
@@ -332,9 +317,9 @@ describe('<UploadPhoto />', () => {
     expect(blob.tier).toBe(BLOB_TIERS.CACHE);
   });
 
-  // verifies spec: MOB, CACHE — content addressing lets two attachments share
-  // one blob, so demoting on the first removal would make content another
-  // record still references evictable before it has been pushed
+  // verifies spec: MOB, CACHE
+  // Two attachments can share one blob, so the first removal mustn't make it evictable before it's
+  // pushed.
   it('leaves the blob in the outbox while another attachment references its hash', async () => {
     const attachment = await holdPhotoOnDevice();
     const sharer = await seedAttachment();
@@ -352,8 +337,6 @@ describe('<UploadPhoto />', () => {
     expect(blob.tier).toBe(BLOB_TIERS.OUTBOX);
   });
 
-  // A read that lands after the photo is removed must not put it back on
-  // screen, since the record it belonged to is gone.
   it('discards content that arrives after the photo is removed', async () => {
     const attachment = await seedAttachment();
     const releaseFetch = deferPhotoFetch();
@@ -369,8 +352,6 @@ describe('<UploadPhoto />', () => {
     expect(getByText('Upload photo')).toBeTruthy();
   });
 
-  // A capture owns the field from the moment it completes, so a read of the
-  // photo it replaced must not put the old one back on screen.
   it('keeps the captured photo when the read it replaced lands afterwards', async () => {
     const attachment = await seedAttachment();
     const releaseFetch = deferPhotoFetch();
@@ -424,9 +405,8 @@ describe('<UploadPhoto />', () => {
     return () => release();
   }
 
-  // A photo resolves behind six or more database round trips. Draining the
-  // calls the component makes, rather than polling what it has rendered,
-  // keeps these assertions off a wall-clock budget.
+  // A photo resolves behind six or more database round trips; draining the calls keeps these off a
+  // wall-clock budget.
   function trackBackendCalls(): void {
     backendCalls = [];
     contentReads = 0;

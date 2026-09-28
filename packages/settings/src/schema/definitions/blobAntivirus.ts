@@ -5,11 +5,8 @@ import type { Setting, SettingsSchema } from '../../types';
 import { msDurationSchema } from './msDuration';
 
 // spec: AV
-// Which scanner this server drives, and how to reach it. A server opts in by
-// naming a scanner: left at none it starts no scanner, runs no scan pass, and
-// leaves every blob unscanned, which is what makes the feature inert on a
-// deployment that has not turned it on. The serve policy is deployment-wide and
-// lives in the global scope.
+// Left at none, the feature is inert. The serve policy is deployment-wide and lives in the global
+// scope.
 export const blobAntivirusProperties = (): Record<string, Setting | SettingsSchema> => ({
   antivirus: {
     name: 'Antivirus',
@@ -52,10 +49,8 @@ export const blobAntivirusProperties = (): Record<string, Setting | SettingsSche
 });
 
 // spec: AV
-// Per-pass bounds for the antivirus scan, matching the integrity scrub's shape.
-// Its own bounds rather than the scrub's, because scanning is bound by the
-// scanner's throughput while scrubbing is bound by disk reads, and a signature
-// update makes the whole store due for a re-scan at once.
+// Separate from the scrub's bounds: scanning is bound by scanner throughput, and a signature update
+// makes the whole store due at once.
 export const blobScanProperties = (): Record<string, Setting> => ({
   maxBlobsPerPass: {
     name: 'Blobs per pass',

@@ -87,8 +87,7 @@ describe('serveBlob', () => {
     expect(res.body).toEqual(CONTENT);
   });
 
-  // A shared cache holding clinical content would outlive the permission check
-  // that released it, so the directive has to stay private.
+  // A shared cache would outlive the permission check that released the content.
   it('does not let a shared cache keep a copy', async () => {
     const res = await serve();
     expect(res.headers['cache-control']).not.toMatch(/public/);
@@ -101,9 +100,6 @@ describe('serveBlob', () => {
     expect(res.body).toHaveLength(0);
   });
 
-  // A cache updates its stored entry from the headers a 304 carries, so leaving
-  // freshness off it means a client that cached before this existed revalidates
-  // on every read forever.
   it('repeats the freshness a 200 would carry on the 304', async () => {
     const served = await serve();
     const notModified = await serve({ headers: { 'if-none-match': ETAG } });
@@ -122,8 +118,7 @@ describe('serveBlob', () => {
     expect(res.body).toEqual(CONTENT);
   });
 
-  // spec: BKFL — a row the backfill has not reached has no content hash, so there
-  // is nothing to validate against, but everything else matches the moved form.
+  // spec: BKFL
   it('serves content with no hash without a validator, and still supports ranges', async () => {
     const res = await serve({ hash: null });
     expect(res.statusCode).toBe(200);
@@ -151,9 +146,8 @@ describe('serveBlob', () => {
     const released = new Promise(resolve => {
       release = resolve;
     });
-    // Released on the first write, or shortly after regardless, so a serve that
-    // reads the whole blob before writing any of it fails the assertion below
-    // rather than waiting on a write that is never coming.
+    // Released on the first write or after a timeout, so a serve that buffers the whole blob fails
+    // the assertion rather than hanging.
     const fallback = setTimeout(() => release(), 100);
     res.onWrite = () => {
       finishedAtFirstWrite ??= sourceFinished;
@@ -189,8 +183,7 @@ describe('serveBlob', () => {
     beforeAll(async () => {
       root = await fs.mkdtemp(path.join(os.tmpdir(), 'serve-blob-'));
       filePath = path.join(root, 'content');
-      // Past the read stream's buffer, so the download is still in flight when
-      // the client disconnects.
+      // Past the read stream's buffer, so the download is still in flight at disconnect.
       await fs.writeFile(filePath, Buffer.alloc(256 * 1024, 'a'));
     });
 
@@ -198,8 +191,6 @@ describe('serveBlob', () => {
       await fs.rm(root, { recursive: true, force: true });
     });
 
-    // How an interrupted fetch pauses before resuming with a range request, so
-    // it must not surface as a failure, and it must not leave the file open.
     it('is not an error, and leaves no open file handle', async () => {
       const res = new FakeResponse();
       res.onWrite = () => res.destroy();

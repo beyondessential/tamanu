@@ -3,9 +3,7 @@ import * as yup from 'yup';
 import type { Setting } from '../../types';
 
 // spec: FEC
-// Error correction over the blob store, per server. Off by default, and worth
-// turning on where a copy is effectively isolated — bare metal and NTFS, where
-// the filesystem cannot repair bit rot and a restore is a human action.
+// Worth turning on where a copy is isolated, e.g. bare metal and NTFS, which can't repair bit rot.
 export const errorCorrectionProperties = (): Record<string, Setting> => ({
   enabled: {
     name: 'Error correction',

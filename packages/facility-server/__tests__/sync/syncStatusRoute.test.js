@@ -8,9 +8,7 @@ import { createTestContext } from '../utilities';
 import { createSyncApp } from '../../app/createSyncApp';
 
 // verifies spec: CAP
-// Outbox backpressure is surfaced as a health signal visible to central-side
-// monitoring, and this route is the only thing that puts the figures where
-// monitoring can read them.
+// This route is the only thing that puts the outbox figures where monitoring can read them.
 describe('sync status route', () => {
   let ctx;
   let models;

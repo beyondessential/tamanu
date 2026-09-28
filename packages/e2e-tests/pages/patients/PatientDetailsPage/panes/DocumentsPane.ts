@@ -28,16 +28,12 @@ export class DocumentsPane {
     this.tableRows = this.documentsTable.locator('tbody tr');
   }
 
-  /**
-   * @param rowIndex - The row index (0-based)
-   * @param columnIndex - The column index (0-based): name, type, upload date,
-   * owner, department
-   */
+  /** @param columnIndex - 0-based: name, type, upload date, owner, department */
   getTableCell(rowIndex: number, columnIndex: number): Locator {
     return this.tableRows.nth(rowIndex).locator('td').nth(columnIndex);
   }
 
-  /** Clicking a row is what opens the preview; there is no separate control. */
+  /** Clicking a row opens the preview; there is no separate control. */
   async openDocumentPreview(rowIndex = 0): Promise<DocumentPreviewModal> {
     await this.tableRows.nth(rowIndex).click();
     const previewModal = this.getDocumentPreviewModal();

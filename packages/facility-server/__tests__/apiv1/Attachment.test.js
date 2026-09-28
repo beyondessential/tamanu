@@ -19,9 +19,6 @@ import { CentralServerConnection } from '../../app/sync/CentralServerConnection'
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
 // spec: ATCH
-// A facility serves a hash-backed attachment from its own store, resolving the
-// bytes from central on a miss; content neither server holds presents as an
-// existing file awaiting its content.
 describe('Attachment (facility-server)', () => {
   let ctx;
   let app;
@@ -37,8 +34,7 @@ describe('Attachment (facility-server)', () => {
       fake(models.Attachment, { hash, data: null, type: 'text/plain', size }),
     );
 
-  // Stands in for central: local content is available without consulting it,
-  // mirroring the real channel, so only the remote half is faked here.
+  // Local content is available without consulting central, so only the remote half is faked.
   const setCentral = ({ holds = null } = {}) => {
     ctx.blobCache.setTransferChannel({
       availability: async (hash, { stat } = {}) => {
@@ -91,7 +87,6 @@ describe('Attachment (facility-server)', () => {
     const result = await app.get(`/api/attachment/${attachment.id}`);
     expect(result).toHaveSucceeded();
     expect(result.text).toBe(content.toString('utf8'));
-    // The fetched bytes are cached, so the next read needs no central call.
     expect(await ctx.blobStore.stat(hash)).not.toBeNull();
   });
 
@@ -130,9 +125,6 @@ describe('Attachment (facility-server)', () => {
   });
 
   // spec: AV
-  // The quarantine record reaches the facility by ordinary synchronisation, so
-  // it applies to content already cached here and applies without central
-  // having to be reachable.
   it('withholds a quarantined attachment it already holds, without asking central', async () => {
     const content = uniqueContent();
     const { hash } = await ctx.blobStore.put(Readable.from([content]));
@@ -153,9 +145,7 @@ describe('Attachment (facility-server)', () => {
   });
 
   // spec: AV
-  // The posture is deployment-wide but a facility only has verdicts for content
-  // it holds and scanned itself, so the two legs of this route answer
-  // differently: its own gate for content it has, central's answer for the rest.
+  // A facility only has verdicts for content it scanned itself, so the two legs answer differently.
   describe('under serve-only-when-known-good', () => {
     beforeEach(async () => {
       await models.Setting.set(
@@ -215,9 +205,8 @@ describe('Attachment (facility-server)', () => {
       expect(result.text).toBe(content.toString('utf8'));
     });
 
-    // A blob it has yet to hold cannot be waited on for a local verdict: the
-    // scan reads stored content, so withholding it here would keep it from ever
-    // being fetched, and so from ever being scanned.
+    // The scan reads stored content, so withholding unheld content here would keep it from ever
+    // being scanned.
     it('still resolves content it does not hold from central', async () => {
       const content = uniqueContent();
       const hash = hashOf(content);
@@ -244,8 +233,6 @@ describe('Attachment (facility-server)', () => {
       });
     });
 
-    // The two answers a facility forwards read the same way to the route but not
-    // to the client: a wait that ends against content that is never coming.
     it('forwards withheld-infected when central is the one withholding', async () => {
       const content = uniqueContent();
       const attachment = await makeAttachment(hashOf(content), content.length);
@@ -274,8 +261,6 @@ describe('Attachment (facility-server)', () => {
   });
 
   // spec: SERVE
-  // Inline encoding holds the whole content in memory, so content past the limit
-  // is refused that way and the caller directed to stream it.
   it('refuses to encode a locally held attachment past the inline limit', async () => {
     const content = uniqueContent();
     const { hash } = await ctx.blobStore.put(Readable.from([content]));

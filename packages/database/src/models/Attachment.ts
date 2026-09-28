@@ -24,7 +24,7 @@ export class Attachment extends Model {
         id: primaryKey,
         type: DataTypes.TEXT,
         size: DataTypes.INTEGER,
-        // spec: BKFL — bytes until the backfill moves them, hash afterwards.
+        // spec: BKFL
         data: DataTypes.BLOB,
         hash: DataTypes.TEXT,
       },
@@ -50,15 +50,12 @@ export class Attachment extends Model {
     data,
     ...restOfValues
   }: ModelSanitizeArgs<{ data: string; type?: string; size?: number }>) {
-    // A backfilled attachment carries its hash instead of its bytes (spec: BKFL).
     if (data === null || data === undefined) {
       return { ...restOfValues, data: null };
     }
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
 
-  // A record carrying base64 bytes rather than a hash is a legacy in-database
-  // attachment and is stored as one.
   static sanitizeForCentralServer(
     values: ModelSanitizeArgs<{ data?: string; type?: string; size?: number }>,
   ) {
@@ -90,10 +87,8 @@ export class Attachment extends Model {
       select: await buildEncounterLinkedLookupSelect(this, {
         patientId: 'COALESCE(attachments.patient_id, encounters.patient_id)',
       }),
-      // A legacy attachment keeps its bytes in the row and stays on the central
-      // server, so only hash-carrying attachments enter the lookup. The filter is
-      // a join rather than a where clause because a full lookup rebuild replaces
-      // the where clause with its own.
+      // Legacy attachments stay on central, so only hash-carrying ones enter the lookup. A join,
+      // since a full lookup rebuild replaces the where clause.
       joins: `
         ${buildEncounterLinkedLookupJoins(this)}
         JOIN attachments hash_backed

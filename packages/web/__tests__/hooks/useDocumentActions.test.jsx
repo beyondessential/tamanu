@@ -97,9 +97,7 @@ describe('useDocumentActions', () => {
       expect(Buffer.from(writtenBytes).toString('base64')).toBe(PDF);
     });
 
-    // The save picker needs the click's transient user activation, which an
-    // awaited network call can outlive, so the fetch belongs inside saveFile's
-    // data callback and must not be hoisted above it.
+    // The save picker needs the click's transient activation, which an awaited fetch can outlive.
     it('opens the save picker before fetching anything', async () => {
       apiGet.mockResolvedValue({ data: PDF });
 

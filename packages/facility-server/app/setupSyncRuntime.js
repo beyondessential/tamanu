@@ -38,19 +38,14 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
   context.centralServer = new CentralServerConnection(context);
 
   // spec: CACHE
-  // The blob transfer channel and outbox pusher need a central connection, so
-  // they arrive with the sync runtime; the cache itself (context.blobCache)
-  // works local-only from boot.
   context.blobTransferChannel = new BlobTransferChannel({
     blobStore: context.blobStore,
     centralServer: context.centralServer,
-    // Central scopes every fetch and push to the facilities the caller declares,
-    // and refuses a caller that declares none.
+    // Central refuses a caller that declares no facilities.
     facilityIds: getServerFacilityIds() ?? [],
   });
   context.blobCache.setTransferChannel(context.blobTransferChannel);
-  // spec: SCRUB — central is the peer rung of the self-heal ladder, so the
-  // healer can only reach it once the sync runtime is up.
+  // spec: SCRUB
   context.blobHealer.setTransferChannel(context.blobTransferChannel);
   context.blobOutboxPusher = new BlobOutboxPusher({
     models: context.models,

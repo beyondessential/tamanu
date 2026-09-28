@@ -3,12 +3,8 @@ import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 const TABLE = 'blob_quarantines';
 
 // spec: AV
-// Content known to be malware, named by hash. Separate from the `blobs`
-// registry because the two answer different questions: `blobs` is what this
-// server holds and never leaves it, while this is what is known about content
-// anywhere and syncs out from central to every server and device. A row here
-// stops the content being served, fetched, or healed wherever it is held, and
-// outlives every copy of it.
+// Separate from `blobs`: this is what's known about content anywhere, syncs out from central, and
+// outlives every copy.
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE, {
     id: {
@@ -44,9 +40,8 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
   });
-  // The read path asks "is this hash known bad" on every serve, and the hash is
-  // the identity of the record. Sync-apply defers unique checks to the end of its
-  // transaction, so every unique constraint on a syncable table is deferrable.
+  // Sync-apply defers unique checks to the end of its transaction, so every unique constraint on a
+  // syncable table is deferrable.
   await query.sequelize.query(`
     ALTER TABLE ${TABLE}
     ADD CONSTRAINT blob_quarantines_hash

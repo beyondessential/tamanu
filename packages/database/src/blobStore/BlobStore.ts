@@ -30,24 +30,17 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import type { Blob } from '../models/Blob';
 
-// Windows/NTFS refuses to rename over an existing file (EEXIST/EPERM), and
-// antivirus or indexer handles can surface transient sharing violations
-// (EPERM/EBUSY) even on a fresh destination; POSIX never raises these here.
+// NTFS refuses to rename over an existing file, and antivirus or indexer handles raise transient
+// sharing violations.
 const RETRIABLE_RENAME_CODES = ['EEXIST', 'EPERM', 'EACCES', 'EBUSY'];
 const RENAME_ATTEMPTS = 5;
 const RENAME_RETRY_BASE_MS = 50;
 
-// How often the free-disk floor is rechecked while streaming content of
-// unknown size, so a very large put aborts early instead of filling the volume
-// before the post-write check.
 const FLOOR_CHECK_INTERVAL_BYTES = 64 * 1024 * 1024;
 
 const TEMP_DIR = 'tmp';
 
 // spec: XFER
-// Partially received transfers live here, named by their offered hash, so an
-// interrupted transfer resumes from the bytes already delivered — including
-// across a server restart.
 const STAGING_DIR = 'staging';
 
 export interface VolumeStats {
@@ -56,27 +49,14 @@ export interface VolumeStats {
 }
 
 export interface BlobStoreOptions {
-  /** Store root directory; may sit on a separate volume from the database. */
   root: string;
   models: { Blob: typeof Blob };
-  /** Free disk space (bytes) the store must leave available on its volume. */
   getFreeDiskReserveBytes: () => Promise<number>;
-  /**
-   * Cache-eviction hook (spec: CAP): asked to free at least bytesNeeded before
-   * the store refuses a new blob. Supplied by the facility cache tier; absent
-   * on servers with nothing evictable.
-   */
+  // spec: CAP
   evictCache?: (bytesNeeded: number) => Promise<void>;
-  /**
-   * Self-heal hook (spec: SCRUB): called with the hash of a blob whose bytes
-   * failed verification on the read path. Supplied by the server, which owns
-   * severity grading and the repair ladder.
-   */
+  // spec: SCRUB
   onCorruptionDetected?: (hash: string) => Promise<void>;
-  /**
-   * Error correction (spec: FEC): the per-server settings and the tiers this
-   * server's coverage includes. Absent on a server that carries no parity.
-   */
+  // spec: FEC
   errorCorrection?: {
     getSettings: () => Promise<ErrorCorrectionSettings>;
     coveredTiers: readonly BlobTier[];
@@ -85,12 +65,10 @@ export interface BlobStoreOptions {
     error: (message: string, meta?: object) => void;
     warn?: (message: string, meta?: object) => void;
   };
-  /** Injectable for tests; defaults to fs.statfs on the store root. */
   statfs?: (root: string) => Promise<VolumeStats>;
 }
 
 export interface ParityRetrofitResult {
-  /** Whether the blob now carries parity. */
   protected: boolean;
   bytesRead: number;
 }
@@ -98,32 +76,23 @@ export interface ParityRetrofitResult {
 export interface PutResult {
   hash: string;
   size: number;
-  /** True when identical content was already stored, making this put a no-op. */
   existed: boolean;
 }
 
 export interface BlobStat {
   size: number;
   integrityState: string;
-  /** What a scan found, or null when the blob has not been scanned. */
   scanVerdict: BlobScanVerdict | null;
 }
 
 export interface VerifyResult {
-  /** Whether the store holds bytes for the hash at all. */
   held: boolean;
   matches: boolean;
   size: number;
-  /** What the held bytes actually hash to, or null when none are held. */
   actualHash: string | null;
 }
 
 // spec: CAS, CAP
-// The content-addressed blob store primitive: bytes on disk under an
-// algorithm-namespaced two-level fan-out, and a row per blob in the local
-// `blobs` registry. Consumers (attachments, assets), transfer, and cache
-// management live elsewhere; this class owns storage, identity, and the
-// free-disk floor.
 export class BlobStore {
   readonly root: string;
 
@@ -167,9 +136,7 @@ export class BlobStore {
         reserve: await this.#getFreeDiskReserveBytes(),
       }),
       ...(evictCache ? { evict: evictCache } : {}),
-      // spec: SCRUB — these bytes just verified, so a row still standing as
-      // corrupt or absent is now out of date. A row already verified is
-      // left alone.
+      // spec: SCRUB
       markVerified: async (hash, size) => {
         await this.#models.Blob.update(
           { integrityState: BLOB_INTEGRITY_STATES.VERIFIED, size, lastScrubbedAt: new Date() },
@@ -189,9 +156,8 @@ export class BlobStore {
   }
 
   /**
-   * Presence, not servability: a corrupt blob is present (has → true) but
-   * is never served (get refuses). A malformed hash throws rather than
-   * reporting absent, on every operation alike.
+   * A corrupt blob is present but never served. A malformed hash throws rather than reporting
+   * absent.
    */
   async has(hash: string): Promise<boolean> {
     const filePath = this.#pathFor(hash);
@@ -202,16 +168,8 @@ export class BlobStore {
     return await fileExists(filePath);
   }
 
-  /**
-   * Stream a blob's bytes.
-   *
-   * spec: SCRUB — a read of the whole blob re-verifies it: the bytes are hashed
-   * as they stream and the stream fails at the end if they do not match, so
-   * corrupt content is never served as complete. A ranged read cannot be
-   * verified this way and relies on receipt verification and the scrub instead.
-   * `verify: false` opts out for callers that are themselves the verification
-   * (the scrub) or that must read corrupt bytes.
-   */
+  // spec: SCRUB
+  /** A whole read fails at end of stream on a hash mismatch; ranged reads are unverified. */
   async get(
     hash: string,
     {
@@ -222,16 +180,12 @@ export class BlobStore {
     }: { start?: number; end?: number; stat?: BlobStat | null; verify?: boolean } = {},
   ): Promise<Readable> {
     const filePath = this.#pathFor(hash);
-    // A caller that has just run stat() for this hash (the serving path, which
-    // needs the size for range handling) passes it back so the primary read
-    // path queries the registry once, not twice.
     const registered = stat ?? (await this.#models.Blob.findOne({ where: { hash } }));
     if (!registered) {
       // Bytes with no registry row are a crash orphan, not admitted content.
       throw new NotFoundError(`Blob not found: ${hash}`);
     }
     if (registered.integrityState === BLOB_INTEGRITY_STATES.CORRUPT) {
-      // Corrupt content is retained for investigation but never served.
       throw new NotFoundError(`Blob is corrupt: ${hash}`);
     }
     let handle;
@@ -244,8 +198,6 @@ export class BlobStore {
       throw error;
     }
     const stream = handle.createReadStream({ start, end });
-    // A read bounded at either end covers part of the content, so its bytes
-    // cannot be checked against a hash of the whole.
     const isWholeBlob = (start ?? 0) === 0 && end === undefined;
     if (!verify || !isWholeBlob) {
       return stream;
@@ -254,16 +206,13 @@ export class BlobStore {
   }
 
   async #onReadCorruption(hash: string): Promise<void> {
-    // The read path detects; the healer decides severity and repair, since that
-    // differs between an authoritative copy and a refetchable cache one.
     if (!this.#onCorruptionDetected) {
       return;
     }
     try {
       await this.#onCorruptionDetected(hash);
     } catch (error) {
-      // A failed heal must not replace the mismatch error the reader is about
-      // to see with one about the repair attempt.
+      // A failed heal must not mask the mismatch error the reader is about to see.
       this.#log?.error('BlobStore: self-heal after a failed read verification threw', {
         hash,
         error: (error as Error).message,
@@ -272,11 +221,7 @@ export class BlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * Re-hash the stored bytes for a hash and report whether they still match it.
-   * Reads the file directly, so it verifies corrupt content too — a repair
-   * needs to be able to re-check what it replaced.
-   */
+  /** Reads the file directly, so it can re-check corrupt content after a repair. */
   async verify(hash: string): Promise<VerifyResult> {
     const { algorithm } = parseBlobHash(hash);
     let handle;
@@ -306,37 +251,22 @@ export class BlobStore {
   }
 
   // spec: FEC
-  /** Whether error correction is on for this server at all. */
   async parityEnabled(): Promise<boolean> {
     return (await this.#parity?.enabled()) ?? false;
   }
 
   // spec: FEC
-  /** Whether this server carries parity for a blob, by its tier and its size. */
   async coversWithParity(blob: { size: number; tier: BlobTier }): Promise<boolean> {
     return (await this.#parity?.covers(blob)) ?? false;
   }
 
   // spec: FEC
-  /**
-   * The blobs this server could carry parity for, as bounds a query can narrow
-   * to. `coversWithParity` stays the per-blob authority; this only keeps a scan
-   * off the rows it would refuse.
-   */
   get parityCoverage(): { minimumSize: number; tiers: readonly BlobTier[] } {
     return this.#parity?.coverage ?? { minimumSize: 0, tiers: [] };
   }
 
   // spec: FEC
-  /**
-   * Compute and store parity for a covered blob the store already holds — the
-   * scrub's retrofit, which is what brings content admitted before error
-   * correction was enabled under protection.
-   *
-   * The encode verifies the blob as it reads it, so a blob whose bytes no longer
-   * hash to their name gets no parity and is reported unprotected. That fault
-   * belongs to the verification pass, which reaches the blob on its own.
-   */
+  /** Retrofits parity onto existing content. A blob that no longer matches its hash gets none. */
   async writeParity({
     hash,
     size,
@@ -367,11 +297,6 @@ export class BlobStore {
   }
 
   // spec: FEC
-  /**
-   * Drop a blob's parity. Parity is derived from content this server no longer
-   * needs to protect: the blob has gone, or it has been demoted out of the outbox
-   * and is now durable on central.
-   */
   async discardParity(hash: string): Promise<void> {
     if (!this.#parity) {
       return;
@@ -382,13 +307,8 @@ export class BlobStore {
 
   // spec: FEC
   /**
-   * Repair a blob from its parity, correcting the bytes on disk rather than only
-   * the bytes served. Returns whether the blob is now whole.
-   *
-   * The reconstruction is verified against the blob's hash unconditionally, and
-   * one that does not match is discarded: locating the damaged region is part of
-   * the repair, and a region located wrongly reconstructs "successfully" into
-   * different bytes, which the hash is the only check that detects.
+   * The reconstruction is always checked against the hash: a wrongly located damaged region
+   * reconstructs "successfully" into different bytes.
    */
   async repairFromParity(hash: string): Promise<boolean> {
     if (!this.#parity) {
@@ -407,8 +327,7 @@ export class BlobStore {
         });
         return false;
       }
-      // Placed by the same atomic move admission uses, replacing the damaged
-      // bytes, so a reader never observes a partially repaired blob.
+      // Atomic replace, so a reader never sees a partially repaired blob.
       await this.#placeAtFinalPath(tempPath, this.#pathFor(hash), { replace: true });
     } catch (error) {
       this.#log?.error('BlobStore: repair from parity failed', {
@@ -425,12 +344,6 @@ export class BlobStore {
   }
 
   // spec: FEC
-  // A repair is recorded against the blob so the rate of correction over a period
-  // can be derived: a rising rate is failing media, which calls for replacing the
-  // disk rather than for recovering content.
-  //
-  // The blob is recorded verified — the reconstruction was checked against its
-  // hash — and so is neither recorded corrupt nor escalated.
   async #recordCorrection(hash: string): Promise<void> {
     await this.#models.Blob.sequelize.query(
       `
@@ -451,13 +364,7 @@ export class BlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * Every hash the store holds bytes for, read from the fan-out layout rather
-   * than the registry, so bytes no registry entry names are found. Yields as it
-   * walks: a store with a very large population is never materialised whole.
-   * Paths that do not parse as a hash are skipped — the staging and temp
-   * directories live under the same root, and neither is content.
-   */
+  /** Walks the fan-out layout rather than the registry, so unregistered bytes are found. */
   async *storedHashes(): AsyncGenerator<string> {
     for (const algorithm of Object.values(BLOB_HASH_ALGORITHMS)) {
       const algorithmRoot = path.join(this.root, algorithm);
@@ -472,11 +379,6 @@ export class BlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * Record a blob's standing against its hash, stamping the scrub time. The
-   * result of a scrub is the state it leaves behind, so the two are written
-   * together and never drift.
-   */
   async recordIntegrityState(hash: string, integrityState: BlobIntegrityState): Promise<void> {
     await this.#models.Blob.update(
       { integrityState, lastScrubbedAt: new Date() },
@@ -485,35 +387,15 @@ export class BlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * Record content this store is expected to be able to serve but holds no
-   * registry row for at all — the referential pass's fault, where a
-   * synchronised record references a hash the store has never admitted.
-   *
-   * Registering it absent is what makes the fault visible to everything that
-   * reads the registry, and it stops the referential pass re-finding the same
-   * hash every pass and spending its limit on it. From here the ordinary absent
-   * machinery applies: cheap to re-check (there are no bytes to hash), and an
-   * arriving copy settles it on commit, size included.
-   */
+  /** Registering it absent stops the referential pass re-finding it every pass. */
   async recordAbsentReference(hash: string): Promise<void> {
     parseBlobHash(hash);
-    // Size is unknown until the content arrives; the commit that admits it
-    // writes the real one.
+    // Size is unknown until the content arrives.
     await this.#register(hash, 0, { integrityState: BLOB_INTEGRITY_STATES.ABSENT });
   }
 
   // spec: SCRUB
-  /**
-   * Stamp a batch of blobs as verified as of now, in one statement. The scrub's
-   * common case is that most blobs pass, so this keeps a pass to a single write
-   * for the verified set rather than one per blob.
-   *
-   * spec: SCRUB — a read-path corruption record landing between a blob's
-   * verify() and this end-of-pass flush must win: its bytes are known-bad now,
-   * whatever they hashed to earlier in the pass. So this never overwrites a
-   * corrupt row, only the verified/absent ones the scrub actually re-checked.
-   */
+  /** Never overwrites a corrupt row: a read-path corruption record landing mid-pass must win. */
   async recordVerified(hashes: string[]): Promise<void> {
     if (hashes.length === 0) {
       return;
@@ -530,12 +412,6 @@ export class BlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * Record that a batch of blobs was scrubbed just now without changing their
-   * integrity state — for a fault the scrub re-checked and found unchanged, so
-   * it moves to the back of the least-recently-scrubbed queue rather than being
-   * re-examined every pass.
-   */
   async touchScrubbed(hashes: string[]): Promise<void> {
     if (hashes.length === 0) {
       return;
@@ -545,16 +421,13 @@ export class BlobStore {
 
   // spec: SCRUB
   /**
-   * Register bytes already sitting in their fan-out path — content admitted by
-   * a process that died between placing the file and recording it, or restored
-   * from a store backup taken after its database. The caller has verified the
-   * bytes against the hash their location encodes.
+   * For bytes already in their fan-out path, e.g. after a crash between placing and registering.
+   * The caller has verified them.
    */
   async adopt(hash: string, size: number): Promise<void> {
     await this.#register(hash, size);
   }
 
-  /** The registry's record of a held blob, or null when the blob is not held. */
   async stat(hash: string): Promise<BlobStat | null> {
     const registered = await this.#models.Blob.findOne({ where: { hash } });
     if (!registered || !(await fileExists(this.#pathFor(hash)))) {
@@ -568,12 +441,6 @@ export class BlobStore {
   }
 
   // spec: AV
-  /**
-   * Record what a scan found, with the scanner and signatures that found it.
-   * Written together because a verdict without the versions behind it cannot be
-   * aged: a re-scan is decided by comparing the recorded signature version
-   * against the scanner's current one.
-   */
   async recordScanVerdict(
     hash: string,
     {
@@ -589,17 +456,10 @@ export class BlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * The registry's record of a blob this store can serve. A corrupt or
-   * absent copy is retained but never served, so every read path treats it as
-   * not held: that is what withholds the bad bytes, keeps the state itself
-   * undisclosed, and on a facility lets a refetch replace the copy rather than
-   * the read failing against it.
-   */
+  /** Corrupt and absent copies count as not held, so a facility refetch replaces them. */
   async servableStat(hash: string): Promise<BlobStat | null> {
     const held = await this.stat(hash);
-    // An allow-list, so a state added later is withheld until it is
-    // deliberately allowed rather than served by omission.
+    // An allow-list, so a new state is withheld until deliberately allowed.
     if (held?.integrityState !== BLOB_INTEGRITY_STATES.VERIFIED) {
       return null;
     }
@@ -607,17 +467,8 @@ export class BlobStore {
   }
 
   /**
-   * Admit content into the store: stream it to a temporary file within the
-   * store, hash what landed there, then atomically rename into the fan-out path
-   * and record it in the registry. Idempotent — identical content resolves to the one
-   * stored blob, keeping its existing tier, which a caller that needs the
-   * admitted tier applied sets itself. Refuses (InsufficientStorageError) rather than take
-   * the volume's free space below the configured reserve. On any failure the
-   * source stream is destroyed; it cannot be reused.
-   *
-   * Cannot replace bytes already stored under the hash: an existing blob wins
-   * (`existed: true`), including a corrupt one, whose bytes and state are
-   * kept. Repair is delete-then-put.
+   * Idempotent: identical content resolves to the stored blob and keeps its tier, even if corrupt.
+   * Refuses below the free-disk reserve. The source stream is destroyed on failure.
    */
   async put(
     source: Readable,
@@ -659,11 +510,7 @@ export class BlobStore {
   }
 
   // spec: CAP
-  /**
-   * What admission has to fit: the blob, plus the parity it will carry where this
-   * server covers it. Reserving only the blob would let a covered admission take
-   * the volume into the reserve by the size of its sidecar.
-   */
+  /** Includes the parity sidecar, or a covered admission could dip into the reserve. */
   async #admissionBytesNeeded(sizeHint: number, tier: BlobTier): Promise<number> {
     if (sizeHint === 0 || !(await this.#parity?.covers({ size: sizeHint, tier }))) {
       return sizeHint;
@@ -672,23 +519,13 @@ export class BlobStore {
   }
 
   // spec: FEC
-  /**
-   * Parity for freshly admitted content, computed as a second pass now the size
-   * is known. Content that was already stored keeps whatever parity it has; the
-   * scrub is what brings an uncovered blob under protection.
-   *
-   * A failure here does not fail the admission. Storing the content is the
-   * guarantee and parity is a protection over it, so the blob stands unprotected
-   * and the scrub generates its parity later.
-   */
+  /** A parity failure doesn't fail the admission; the scrub adds parity later. */
   async #writeParityOnAdmission({ hash, size, existed }: PutResult): Promise<void> {
     if (existed || !this.#parity || !(await this.#parity.enabled())) {
       return;
     }
     try {
-      // The tier the registry recorded, not the one admission asked for: a live
-      // row keeps its own tier, so what parity covers follows the row rather
-      // than the intent.
+      // The registered tier, not the requested one: a live row keeps its own.
       const registered = await this.#models.Blob.findOne({ where: { hash } });
       if (!registered || !(await this.#parity.covers({ size, tier: registered.tier }))) {
         return;
@@ -696,8 +533,6 @@ export class BlobStore {
       await this.#ensureFloor(await this.#parity.sidecarBytesFor(size));
       const { verified } = await this.#parity.write(hash, this.#pathFor(hash), size);
       if (!verified) {
-        // The bytes hashed to this name on the way in, so failing here is
-        // corruption within the admission itself.
         this.#log?.error('BlobStore: admitted content no longer matches its hash', { hash });
         return;
       }
@@ -717,7 +552,6 @@ export class BlobStore {
   }
 
   // spec: XFER
-  /** Bytes already staged for a hash, so an interrupted transfer resumes from them. */
   async stagedSize(hash: string): Promise<number> {
     const stagingPath = this.#stagingPathFor(hash);
     try {
@@ -733,17 +567,8 @@ export class BlobStore {
 
   // spec: XFER
   /**
-   * Append received content for a hash to its staging file. The caller states
-   * the offset it is delivering from, which must equal the bytes already
-   * staged — on mismatch nothing is written and the caller should re-check
-   * stagedSize and resume from there. A failure partway through the source
-   * keeps the bytes already appended as the resume point. Refuses rather than
-   * take the volume below the free-disk reserve, like put.
-   *
-   * `maxBytes` bounds how many bytes this append may add. A source that would
-   * exceed it is a protocol violation (a peer sending more than it declared):
-   * the append stops before writing the overrun, the staging is discarded, and
-   * it throws — so the store never writes unbounded excess ahead of the check.
+   * `offset` must equal the bytes already staged, or nothing is written.
+   * Exceeding `maxBytes` discards the staging and throws.
    */
   async stage(
     hash: string,
@@ -780,16 +605,12 @@ export class BlobStore {
     try {
       for await (const chunk of source) {
         if (overran) {
-          // Keep draining the source without writing more. Destroying it
-          // mid-body instead would tear down the request socket, which the
-          // response-logging middleware then dereferences on finish.
+          // Keep draining: destroying the source mid-body tears down the socket, which the
+          // response-logging middleware then dereferences.
           continue;
         }
         const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
         if (maxBytes !== undefined && written + buffer.length > maxBytes) {
-          // A peer sending more than it declared is a protocol violation: stop
-          // writing here (so the store never commits unbounded excess to disk)
-          // and drain the rest before discarding the staging and refusing.
           overran = true;
           continue;
         }
@@ -817,19 +638,11 @@ export class BlobStore {
   }
 
   // spec: XFER
-  /**
-   * Verify the staged content against its hash and admit it into the store.
-   * Verification covers the complete staged file, including any bytes
-   * delivered before an interruption. On mismatch the staged content is
-   * discarded and BlobHashMismatchError thrown. Idempotent: a hash the store
-   * already holds commits as a no-op and drops the staging.
-   */
+  /** On mismatch the staging is discarded and BlobHashMismatchError thrown. */
   async commitStaged(hash: string): Promise<PutResult> {
     parseBlobHash(hash);
     const result = await this.#withStagingLock(hash, () => this.#commitStagedLocked(hash));
-    // Outside the lock, as in put: parity is a second pass over content that is
-    // already admitted, and holding the staging lock across it would serialise
-    // transfers of the same hash on an encode.
+    // Outside the staging lock, so transfers of the same hash don't serialise on an encode.
     await this.#writeParityOnAdmission(result);
     return result;
   }
@@ -849,9 +662,8 @@ export class BlobStore {
 
   // spec: CACHE
   /**
-   * Refresh a blob's recency, coalesced: a no-op while the recorded access is
-   * still within the window, so hot blobs don't rewrite the registry on every
-   * read. Losing the most recent refreshes degrades eviction ordering only.
+   * No-op while the last access is within the window, so hot blobs don't rewrite the registry on
+   * every read.
    */
   async touch(hash: string, { coalesceSeconds }: { coalesceSeconds: number }): Promise<void> {
     await this.#models.Blob.sequelize.query(
@@ -867,19 +679,17 @@ export class BlobStore {
 
   async delete(hash: string): Promise<void> {
     const filePath = this.#pathFor(hash);
-    // spec: FEC — parity dies with its blob. Before the row goes, since the
-    // registry is what records that the sidecar exists.
+    // spec: FEC
+    // Before deleting the row, which is what records that the sidecar exists.
     await this.discardParity(hash);
-    // Hard delete: a soft-deleted row would shadow re-admission of the same
-    // hash. Registry first, so a crash leaves an adoptable orphan file.
+    // Hard delete: a soft-deleted row would shadow re-admission. Registry first, so a crash leaves
+    // an adoptable orphan.
     await this.#models.Blob.destroy({ where: { hash }, force: true });
     try {
       await fs.rm(filePath, { force: true });
     } catch (error) {
       const code = (error as NodeJS.ErrnoException).code ?? '';
-      // Windows refuses to unlink a file a reader still has open. The row is
-      // already gone, so the file is an adoptable orphan — the same outcome
-      // as a crash between the two steps — rather than a failed delete.
+      // Windows can't unlink a file a reader holds open; it's left as an adoptable orphan.
       if (!['EPERM', 'EACCES', 'EBUSY'].includes(code)) {
         throw error;
       }
@@ -891,12 +701,8 @@ export class BlobStore {
   }
 
   // spec: XFER
-  // Staging mutations for one hash are serialised within this process: the
-  // offset check and the append must be atomic against concurrent transfers
-  // of the same content, or interleaved appends corrupt the staging file. A
-  // waiter that loses the race fails the offset check cleanly and resumes
-  // from the new staged size. Writers in other processes are not covered;
-  // commit verification remains the backstop there.
+  // Serialised per hash within this process only; commit verification is the backstop across
+  // processes.
   async #withStagingLock<T>(hash: string, operation: () => Promise<T>): Promise<T> {
     const previous = this.#stagingLocks.get(hash) ?? Promise.resolve();
     const run = previous.catch(() => {}).then(operation);
@@ -912,8 +718,6 @@ export class BlobStore {
   }
 
   #stagingPathFor(hash: string): string {
-    // parseBlobHash constrains the hash to lowercase alphanumerics and a
-    // colon, so the flat filename is path-safe on every filesystem.
     const { algorithm, digest } = parseBlobHash(hash);
     return path.join(this.root, STAGING_DIR, `${algorithm}-${digest}`);
   }
@@ -921,8 +725,8 @@ export class BlobStore {
   async #writeTemp(source: Readable, tempPath: string): Promise<void> {
     let bytesSinceFloorCheck = 0;
 
-    // Written through the handle, not a write stream from it: such a stream
-    // holds a reference that handle.close() never resolves past.
+    // Write through the handle: a write stream from it holds a reference handle.close() never
+    // resolves past.
     const handle = await fs.open(tempPath, 'wx');
     try {
       for await (const chunk of source) {
@@ -942,10 +746,7 @@ export class BlobStore {
   }
 
   /**
-   * `replace` is for content that must land even where the destination is
-   * occupied — a repair over damaged bytes, or a regenerated sidecar. POSIX
-   * renames over the destination atomically; Windows refuses, so the occupant is
-   * removed and the rename retried.
+   * `replace` overwrites an occupant. Windows refuses to rename over one, so it's removed first.
    */
   async #placeAtFinalPath(
     tempPath: string,
@@ -966,13 +767,11 @@ export class BlobStore {
         }
         if (await fileExists(finalPath)) {
           if (replace) {
-            // A destination that cannot be removed yet (a reader still holds it
-            // open on Windows) fails the next rename, so the retry cap below is
-            // what bounds the wait.
+            // On Windows a held destination fails the next rename, so the retry cap bounds the
+            // wait.
             await fs.rm(finalPath, { force: true }).catch(() => {});
           } else {
-            // A concurrent put of the same content won the rename; the stored
-            // bytes are identical by content addressing, so ours is redundant.
+            // A concurrent put of the same content won; ours is redundant.
             await fs.rm(tempPath, { force: true });
             return;
           }
@@ -985,8 +784,7 @@ export class BlobStore {
       }
     }
 
-    // Persist the rename itself. Windows cannot open a directory for fsync;
-    // NTFS journals the rename, so skipping is safe there.
+    // Windows can't fsync a directory; NTFS journals the rename.
     try {
       const dirHandle = await fs.open(path.dirname(finalPath), 'r');
       try {
@@ -1004,19 +802,9 @@ export class BlobStore {
     size: number,
     { tier, integrityState }: { tier?: BlobTier; integrityState?: BlobIntegrityState } = {},
   ): Promise<void> {
-    // Race-safe against concurrent puts of the same content; the loser's
-    // insert is a no-op against the winner's identical live row, which keeps
-    // its tier. A tier a re-admission needs applied is the caller's to set. A
-    // soft-deleted row still occupies the unique index and would otherwise
-    // shadow re-admission forever (invisible to has/get, conflicting here), so
-    // resurrect it as the fresh admission it is: take the incoming tier (an
-    // outbox re-admission must not stay evictable cache) and reset recency to
-    // now (so it is not instantly the oldest LRU victim). Live rows are left
-    // untouched.
-    //
-    // Admission hashes the content it stores, so the blob is verified as at
-    // now: stamping the scrub time here keeps freshly admitted content from
-    // going straight to the front of the scrub queue ahead of colder blobs.
+    // Resurrects a soft-deleted row, which still holds the unique index, with the incoming tier and
+    // fresh recency.
+    // Stamps the scrub time so fresh content doesn't jump the scrub queue.
     await this.#models.Blob.sequelize.query(
       `
         INSERT INTO blobs (id, hash, size, integrity_state, tier, last_scrubbed_at)
@@ -1051,10 +839,7 @@ export class BlobStore {
   }
 }
 
-// A single write may persist fewer bytes than given (e.g. the kernel keeps what
-// fits as the volume fills and returns a short count), so loop until the whole
-// buffer is down: a short write must never truncate content that a hash or a
-// staged byte count has already accounted for.
+// A write can persist fewer bytes than given as the volume fills, so loop until it's all down.
 async function writeAll(handle: fs.FileHandle, buffer: Buffer): Promise<void> {
   for (let offset = 0; offset < buffer.length; ) {
     const { bytesWritten } = await handle.write(buffer, offset);
@@ -1088,12 +873,6 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 // spec: SCRUB
-// Hash the bytes as they pass and fail the stream at the end if they do not
-// match, so a reader either gets content that verified or gets an error — never
-// a clean end-of-stream over corrupt bytes. The mismatch surfaces after the
-// bytes have gone out, which is unavoidable when verification is of the whole:
-// what it protects is the reader's ability to tell a complete blob from a
-// corrupt one.
 function verifyingStream(source: Readable, hash: string, onMismatch: () => Promise<void>): Readable {
   const { algorithm } = parseBlobHash(hash);
   const hasher = createHash(algorithm);
@@ -1108,25 +887,21 @@ function verifyingStream(source: Readable, hash: string, onMismatch: () => Promi
         callback();
         return;
       }
-      // Heal in the background: the reader's error must not wait on a repair,
-      // and the repair must not be skipped because the reader gave up.
+      // Heal in the background: the reader's error mustn't wait on it, and it mustn't be skipped if
+      // the reader gives up.
       void onMismatch();
       callback(
         new BlobHashMismatchError(`Stored content for ${hash} hashed to ${actualHash} on read`),
       );
     },
   });
-  // The file handle must close whether the reader finished, errored, or walked
-  // away, and a read error on the file must reach the reader rather than ending
-  // the stream cleanly and failing verification instead.
+  // A read error must reach the reader rather than end the stream cleanly.
   verifier.on('close', () => source.destroy());
   source.on('error', error => verifier.destroy(error));
   return source.pipe(verifier);
 }
 
-// Every file beneath a directory, depth-first, yielded as it goes. A missing
-// directory is empty rather than an error: an algorithm's tree only exists once
-// content has been stored under it.
+// A missing directory is empty: an algorithm's tree exists only once content is stored under it.
 async function* walkFiles(directory: string): AsyncGenerator<string> {
   let entries;
   try {

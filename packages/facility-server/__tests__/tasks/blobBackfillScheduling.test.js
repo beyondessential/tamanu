@@ -5,9 +5,6 @@ import { createTestContext } from '../utilities';
 import { startScheduledTasks } from '../../app/tasks';
 
 // spec: BKFL
-// A facility runs the backfill from server start with no operator action, so the
-// task belongs to the set the server schedules on boot rather than to something
-// someone has to kick off on each site.
 describe('BlobBackfillTask scheduling', () => {
   let ctx;
 

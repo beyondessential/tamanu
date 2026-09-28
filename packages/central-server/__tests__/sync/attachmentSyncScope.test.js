@@ -5,9 +5,7 @@ import { createTestContext } from '../utilities';
 import { CentralSyncManager } from '../../app/sync/CentralSyncManager';
 
 // spec: ATCH
-// Attachments synchronise as ordinary patient-scoped records carrying only their
-// hash. A legacy attachment holds its bytes in the row and stays on the central
-// server, so it must never enter the lookup and reach a facility.
+// A legacy attachment holds its bytes in the row, so it must never enter the lookup.
 describe('Attachment sync scope', () => {
   let ctx;
   let models;

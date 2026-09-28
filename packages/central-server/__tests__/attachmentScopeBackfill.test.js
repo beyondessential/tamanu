@@ -9,12 +9,8 @@ import { up as backfillAttachmentScope } from '../../database/src/migrations/178
 import { createTestContext } from './utilities';
 
 // spec: ATCH
-// Attachments predating the epic carry no patient or encounter, and that scope is
-// what decides which facilities an attachment synchronises to. The migration
-// recovers it from whichever record references the attachment. It runs once,
-// against real data, on the upgrade, so each arm of the recovery is asserted here
-// rather than discovered afterwards: an attachment given the wrong patient reaches
-// a facility that should not hold it.
+// The migration runs once against real data, and a wrong patient sends an attachment to a facility
+// that shouldn't hold it.
 describe('attachment scope backfill', () => {
   let ctx;
   let models;
@@ -39,8 +35,7 @@ describe('attachment scope backfill', () => {
     ctx = await createTestContext();
     models = ctx.store.models;
 
-    // Central's test database seeds no reference data, so the encounter's
-    // department and location have to be built before it.
+    // Central's test database seeds no reference data.
     const facility = await models.Facility.create(fake(models.Facility));
     const department = await models.Department.create(
       fake(models.Department, { facilityId: facility.id }),
@@ -83,8 +78,6 @@ describe('attachment scope backfill', () => {
     expect(attachment.encounterId).toBe(encounter.id);
   });
 
-  // A document attached to a patient rather than an encounter: the patient comes
-  // straight off the document, and there is no encounter to record.
   it('recovers scope from a document held against a patient', async () => {
     const attachment = await unscopedAttachment();
     await models.DocumentMetadata.create(
@@ -121,8 +114,7 @@ describe('attachment scope backfill', () => {
     expect(attachment.encounterId).toBe(encounter.id);
   });
 
-  // The photo arm joins on the answer body, which holds the attachment id as text
-  // rather than through a foreign key.
+  // The answer body holds the attachment id as text, not a foreign key.
   it('recovers scope from a survey photo answer', async () => {
     const attachment = await unscopedAttachment();
     const response = await models.SurveyResponse.create(
@@ -143,8 +135,7 @@ describe('attachment scope backfill', () => {
     expect(attachment.encounterId).toBe(encounter.id);
   });
 
-  // Scope is what lets an attachment leave central, so one that nothing references
-  // has to keep none: unscoped is what keeps it central-only.
+  // Unscoped is what keeps an unreferenced attachment central-only.
   it('leaves an attachment nothing references unscoped', async () => {
     const attachment = await unscopedAttachment();
 

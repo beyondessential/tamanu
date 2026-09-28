@@ -367,9 +367,7 @@ const BLANK_PIXEL =
 async function getPatientProfileImage(api, patientId) {
   try {
     const { data } = await api.get(`patient/${patientId}/profilePicture`);
-    // The route answers with an availability state and no data when the picture
-    // exists but its bytes have not arrived; an ID card prints without it, the
-    // same as for a patient who has none.
+    // A picture whose bytes haven't arrived prints blank, as for a patient with none.
     return data ?? BLANK_PIXEL;
   } catch (e) {
     return BLANK_PIXEL;

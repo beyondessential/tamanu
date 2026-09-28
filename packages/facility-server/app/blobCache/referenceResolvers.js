@@ -3,10 +3,7 @@ import { QueryTypes } from 'sequelize';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 
-// Table and column names cannot be bound as query parameters, so they are
-// interpolated. Consumers pass code literals, never user input; this still
-// validates the shape and double-quotes, so a malformed identifier fails loudly
-// rather than reaching the database.
+// Identifiers can't be bound, so they're validated and quoted.
 function quoteIdentifier(identifier) {
   if (!/^[a-z_][a-z0-9_]*$/i.test(identifier)) {
     throw new Error(`Unsafe SQL identifier: ${identifier}`);
@@ -16,15 +13,12 @@ function quoteIdentifier(identifier) {
 
 // spec: CACHE
 /**
- * The tables that reference blobs by hash on a facility. The pusher's
- * eligibility resolvers and the stranded-outbox sweep are both built from this
- * one list, so a consumer registered for the first is registered for the
- * second: a table missing here has its outbox blobs demoted as unreferenced.
+ * The pusher's resolvers and the stranded-outbox sweep share this list: a table missing here has
+ * its outbox blobs demoted as unreferenced.
  */
 export const BLOB_REFERENCE_TABLES = [{ tableName: 'attachments', hashColumn: 'hash' }];
 
 // spec: CACHE
-/** Matches a blob no live record references, for use against the blobs table. */
 export const UNREFERENCED_BLOB_CONDITION = BLOB_REFERENCE_TABLES.map(
   ({ tableName, hashColumn }) => {
     const table = quoteIdentifier(tableName);
@@ -38,30 +32,18 @@ export const UNREFERENCED_BLOB_CONDITION = BLOB_REFERENCE_TABLES.map(
 
 // spec: CACHE
 /**
- * Builds a reference resolver for a consumer table that references blobs by
- * hash: given candidate hashes, returns those with at least one referencing
- * record that has synchronised to the central server. Synchronised is
- * determined from the server's own sync progress: the record either arrived
- * via sync (last updated elsewhere) or was included in a completed push (a
- * real, positive sync tick at or below the last successful push cursor). Flag
- * ticks (0, -1, -2) are not treated as pushed.
- *
- * Consumers append their resolver to `context.blobReferenceResolvers` at
- * startup, e.g. attachments: `makeSyncedReferenceResolver({ tableName:
- * 'attachments', hashColumn: 'hash' })`. Table and column names are code
- * literals, never user input.
+ * Synced means arrived via sync, or a positive tick at or below the last push cursor. Flag ticks
+ * (0, -1, -2) don't count.
  */
 export function makeSyncedReferenceResolver({ tableName, hashColumn }) {
   const table = quoteIdentifier(tableName);
   const column = quoteIdentifier(hashColumn);
   return async (models, hashes) => {
-    // An empty IN list is a syntax error in Postgres; nothing is eligible anyway.
+    // An empty IN list is a syntax error in Postgres.
     if (hashes.length === 0) {
       return [];
     }
-    // The push cursor is a single scalar that changes at most once per sync
-    // cycle. Read it once and bind it, rather than a correlated subquery
-    // re-evaluated against local_system_facts for every candidate row.
+    // Read once and bound, rather than a correlated subquery per candidate row.
     const pushCursor = Number(
       (await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) ?? -1,
     );

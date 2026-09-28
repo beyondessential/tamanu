@@ -6,9 +6,7 @@ import { BLOB_SCAN_VERDICTS, BLOB_SCANNERS } from '@tamanu/constants';
 
 import { createScannerDriver } from '../../src/blobStore/scanning/createScannerDriver';
 
-// clamd answers zVERSION as soon as the command arrives, and zINSTREAM only once
-// the zero-length frame has ended the content, so a fake has to read the framing
-// to know when a request is complete.
+// clamd answers zINSTREAM only after the zero-length frame, so the fake must read the framing.
 function completedCommand(request: Buffer): string | null {
   const terminator = request.indexOf(0);
   if (terminator === -1) {

@@ -257,9 +257,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
           if (dataElement.type === FieldTypes.PHOTO && body) {
             // spec: ATCH
-            // The attachment takes the patient linkage of the record it was
-            // created for, so its synchronisation scope matches the survey
-            // answer that references it.
             await Attachment.updateValues(body, {
               patientId,
               encounterId: encounter.id,

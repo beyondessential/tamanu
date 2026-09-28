@@ -16,8 +16,7 @@ import { useAssetQuery } from '../../../app/api/queries/useAssetQuery';
 const ASSET_NAME = ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER;
 const FALLBACK_NAME = ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG;
 
-// Express serialises the row's image buffer this way, so it is what the browser
-// actually receives.
+// How Express serialises a Buffer.
 const uploaded = (...bytes) => ({ type: 'image/png', data: { type: 'Buffer', data: bytes } });
 const neverUploaded = () => ({});
 const contentPending = () => ({
@@ -50,8 +49,6 @@ describe('useAssetQuery', () => {
   });
 
   // spec: ASSET
-  // A fallback stands in only for an asset that was never uploaded, so a
-  // pending asset must never be substituted with a different image.
   it('never asks for the fallback of a content-pending asset', async () => {
     respondWith({ [ASSET_NAME]: contentPending(), [FALLBACK_NAME]: uploaded(9, 9, 9) });
 

@@ -32,11 +32,8 @@ import type { Survey } from './Survey';
 import type { User } from './User';
 
 // spec: ATCH
-// An attachment carries the patient linkage of the record it is created for. A
-// caller that knows only the encounter has the patient resolved here, so a photo
-// attachment is scoped the same way the scope backfill scopes existing rows —
-// both columns populated, rather than leaving readers to reach the patient
-// through the encounter.
+// A caller that knows only the encounter has the patient resolved here, matching the scope
+// backfill.
 async function resolveAttachmentScope(
   models: Models,
   { encounterId, patientId }: { encounterId?: string; patientId?: string },
@@ -518,9 +515,6 @@ export class SurveyResponse extends Model {
       if (typeof value === 'string') return value;
 
       // spec: ATCH
-      // The photo is admitted to the blob store and the attachment records only
-      // its hash, so it synchronises with the survey answer that references it
-      // rather than carrying its bytes through sync.
       const { size, data } = value as unknown as { size: number; data: string };
       const { hash, size: storedSize } = await models.Attachment.sequelize.admitAttachmentBlob(
         Readable.from([Buffer.from(data, 'base64')]),

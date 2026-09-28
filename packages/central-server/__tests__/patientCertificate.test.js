@@ -204,9 +204,7 @@ describe('Certificate', () => {
 
   // spec: ASSET
   describe('artwork from the blob store', () => {
-    // The rendered element is captured rather than a PDF produced, so the
-    // asset's bytes can be compared with what was admitted. spyOn mutates the
-    // shared ReactPDF object, so it reaches the module-scoped call site.
+    // spyOn mutates the shared ReactPDF object, so it reaches the module-scoped call site.
     let render;
 
     beforeEach(() => {

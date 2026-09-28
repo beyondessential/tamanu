@@ -48,8 +48,7 @@ assetRoutes.put(
     }
 
     // spec: ASSET
-    // The image bytes go to the blob store; the row records only the hash. A
-    // replaced legacy row drops its inline bytes as it converts to hash form.
+    // A replaced legacy row drops its inline bytes.
     const { hash } = await req.ctx.blobStore.put(Readable.from([data]), { sizeHint: data.length });
     const record = { name, type, facilityId, hash, data: null };
 

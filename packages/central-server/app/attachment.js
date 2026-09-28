@@ -16,10 +16,7 @@ export const attachmentRoutes = express.Router();
 attachmentRoutes.use(ensurePermissionCheck);
 
 // spec: ATCH
-// Attachment content resolves by hash from the blob store; a legacy row instead
-// holds its bytes in the database column, so a reader resolves the hash when one
-// is present and the in-database bytes otherwise. The base64 mode is retained for
-// clients that consume the content inline (profile pictures, photo answers).
+// The base64 mode is for clients that consume content inline (profile pictures, photo answers).
 attachmentRoutes.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -36,15 +33,10 @@ attachmentRoutes.get(
 
     if (attachment.hash) {
       const { blobStore } = req.ctx;
-      // spec: SCRUB — servableStat, so a copy the store retains but will not
-      // serve reads as content pending rather than as a failure that discloses
-      // that it is corrupt. Matches how the transfer routes answer for it.
+      // spec: SCRUB
       const stat = await blobStore.servableStat(attachment.hash);
       // spec: ATCH
-      // Central holds the record but its origin may not have pushed the bytes
-      // yet: present it as an existing file awaiting its content rather than
-      // reading a null stat. Central is authoritative and never fetches, so
-      // absent bytes are always awaiting upload from the origin.
+      // Central never fetches, so absent bytes are always awaiting upload from the origin.
       if (!stat) {
         res.status(202).send({
           attachmentId: id,
@@ -53,9 +45,7 @@ attachmentRoutes.get(
         return;
       }
       // spec: AV
-      // Content the server holds but will not serve answers in the same shape,
-      // so a client tells "wait" from "gone" without a second request. Infected
-      // content says so rather than presenting as pending: it is never coming.
+      // Infected content says so rather than presenting as pending: it's never coming.
       const withheld = await blobServeGate(
         { settings: req.settings, models: req.store.models },
         attachment.hash,
@@ -87,10 +77,8 @@ attachmentRoutes.get(
       return;
     }
 
-    // spec: BKFL — a row the backfill has not reached yet serves the same way a
-    // moved one does, so a reader cannot tell which form it got. The length comes
-    // from the bytes rather than the column, since the range arithmetic depends
-    // on it.
+    // spec: BKFL
+    // The length comes from the bytes, not the column: the range arithmetic depends on it.
     const bytes = Buffer.from(attachment.data);
     await serveBlob(req, res, {
       size: bytes.length,
@@ -102,21 +90,14 @@ attachmentRoutes.get(
 );
 
 // spec: ATCH
-// A new attachment's bytes are admitted to the blob store, and its recorded size
-// is taken from the bytes actually admitted rather than the caller's declaration.
-// The store refuses admission with an insufficient-storage error rather than
-// cross the host's free-disk reserve (see capacity.md).
+// The recorded size is the admitted bytes', not the caller's declaration.
 attachmentRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Attachment');
 
-    // Scope is never taken from the request body: this route has no caller that
-    // is entitled to set another patient's or encounter's scope, and trusting the
-    // body would let a client scope an attachment to any patient. Attachments are
-    // scoped by the server-side writer that owns the referencing record (a
-    // document, letter, survey answer, or lab report); one created here carries no
-    // scope and stays central-only until such a writer references it.
+    // Scope is never taken from the body, or a client could scope an attachment to any patient. One
+    // created here stays central-only until a server-side writer references it.
     const { Attachment } = req.store.models;
     const { type, data } = Attachment.sanitizeForDatabase(req.body);
     const { hash, size } = await req.ctx.blobStore.put(Readable.from([data]));

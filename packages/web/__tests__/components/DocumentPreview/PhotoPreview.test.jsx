@@ -22,8 +22,6 @@ describe('PhotoPreview', () => {
   });
 
   // spec: ATCH
-  // A 202 carries no bytes, so without this the src is
-  // `data:image/jpeg;base64,undefined` and the clinician sees a broken image.
   it('tells the clinician the photo is not available yet instead of showing a broken image', async () => {
     apiGet.mockResolvedValue({ availability: BLOB_AVAILABILITY_STATES.AWAITING_FETCH });
 

@@ -10,27 +10,21 @@ import {
   type ScannerVersions,
 } from './types';
 
-// clamd's stream framing: each chunk is a big-endian length followed by that
-// many bytes, and a zero length ends the stream.
+// clamd stream framing: big-endian length then bytes; a zero length ends the stream.
 const CHUNK_HEADER_BYTES = 4;
 const END_OF_STREAM = Buffer.alloc(CHUNK_HEADER_BYTES);
 const STREAM_CHUNK_BYTES = 64 * 1024;
 
-// Replies are NUL-terminated when the command was sent in the `z` form.
 const REPLY_TERMINATOR = 0;
 
 export interface ClamdScannerOptions {
-  /** An absolute path for a unix socket, or `host:port` for TCP. */
   address: string;
   timeoutMs: number;
 }
 
 // spec: AV
-// Drives ClamAV's daemon over its own socket protocol. Content is streamed to
-// clamd (INSTREAM) rather than named to it by path, so the daemon needs no
-// access to the blob store's filesystem: it can run in its own container or on
-// another host. The cost is clamd's stream limit, which is why blobs above the
-// configured size are left unscanned rather than sent.
+// Streamed (INSTREAM) rather than named by path, so clamd needs no access to the store's
+// filesystem. Its stream limit is why oversized blobs stay unscanned.
 export class ClamdScanner implements BlobScannerDriver {
   readonly #address: string;
   readonly #timeoutMs: number;
@@ -62,8 +56,7 @@ export class ClamdScanner implements BlobScannerDriver {
     } finally {
       source.destroy();
     }
-    // "stream: OK" or "stream: Eicar-Signature FOUND"; anything else (a size
-    // limit, a permission problem) is the scanner failing to give a verdict.
+    // Anything but OK or FOUND is the scanner failing to give a verdict.
     if (reply.endsWith('OK')) {
       return BLOB_SCAN_VERDICTS.CLEAN;
     }
@@ -84,11 +77,7 @@ export class ClamdScanner implements BlobScannerDriver {
     });
   }
 
-  /**
-   * One command and its reply on a fresh connection. clamd closes the socket
-   * after answering, so a connection is never reused and a hung scan cannot
-   * poison a later one.
-   */
+  /** A fresh connection per command, so a hung scan can't poison a later one. */
   async #request(command: string, source?: Readable): Promise<string> {
     const socket = this.#connect();
     socket.setTimeout(this.#timeoutMs);
@@ -127,9 +116,8 @@ export class ClamdScanner implements BlobScannerDriver {
 
   async #streamTo(socket: net.Socket, source: Readable): Promise<void> {
     for await (const chunk of chunked(source, STREAM_CHUNK_BYTES)) {
-      // A header per chunk rather than one reused across them: a queued write
-      // holds its buffer by reference, so a reused header can be rewritten
-      // before it reaches the socket.
+      // A header per chunk: a queued write holds its buffer by reference, so a reused header can be
+      // rewritten before it's sent.
       const header = Buffer.alloc(CHUNK_HEADER_BYTES);
       header.writeUInt32BE(chunk.length);
       socket.write(header);
@@ -143,10 +131,6 @@ export class ClamdScanner implements BlobScannerDriver {
   }
 }
 
-/**
- * Re-chunks the source so one clamd frame never carries more than the daemon
- * expects, whatever size the filesystem hands back.
- */
 async function* chunked(source: Readable, size: number): AsyncGenerator<Buffer> {
   for await (const chunk of source) {
     let buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string);

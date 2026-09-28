@@ -41,7 +41,7 @@ describe('BlobTransferChannel', () => {
   });
 
   describe('availability', () => {
-    // verifies spec: XFER — held locally is available
+    // verifies spec: XFER
     it('reports available when the blob is held locally', async () => {
       fs.seed('/tmp/a.jpg', 'here');
       const { hash } = await store.putFile('/tmp/a.jpg');
@@ -51,7 +51,7 @@ describe('BlobTransferChannel', () => {
       expect(centralServer.get).not.toHaveBeenCalled();
     });
 
-    // verifies spec: XFER — central holds it → awaiting our fetch
+    // verifies spec: XFER
     it('reports awaiting-fetch when central holds a blob the device does not', async () => {
       const hash = sha256Hash('remote');
       centralServer.get.mockResolvedValue({
@@ -64,7 +64,7 @@ describe('BlobTransferChannel', () => {
       });
     });
 
-    // verifies spec: XFER — central lacks it → awaiting upload from origin
+    // verifies spec: XFER
     it('reports awaiting-upload when neither the device nor central holds it', async () => {
       const hash = sha256Hash('nowhere');
       centralServer.get.mockResolvedValue({
@@ -77,7 +77,7 @@ describe('BlobTransferChannel', () => {
   });
 
   describe('fetchFromCentral', () => {
-    // verifies spec: XFER, MOB — fetch by hash, verify, admit
+    // verifies spec: XFER, MOB
     it('downloads a blob, verifies it, and admits it to the store', async () => {
       const content = 'downloaded content';
       const hash = sha256Hash(content);
@@ -95,7 +95,7 @@ describe('BlobTransferChannel', () => {
       expect(await store.has(hash)).toBe(true);
     });
 
-    // verifies spec: XFER — an interrupted download resumes from staged bytes
+    // verifies spec: XFER
     it('resumes a ranged download from the bytes already staged', async () => {
       const content = 'abcdefghij';
       const hash = sha256Hash(content);
@@ -107,11 +107,9 @@ describe('BlobTransferChannel', () => {
       fs.onDownload = async ({ toFile, headers }) => {
         call += 1;
         if (call === 1) {
-          // first response delivers only the first half, then "drops"
           fs.seed(toFile, content.slice(0, 5));
           return { statusCode: 200, bytesWritten: 5 };
         }
-        // resume request carries a range header for the remainder
         expect(headers.range).toBe('bytes=5-');
         fs.seed(toFile, content.slice(5));
         return { statusCode: 206, bytesWritten: 5 };
@@ -123,7 +121,7 @@ describe('BlobTransferChannel', () => {
       expect(call).toBe(2);
     });
 
-    // verifies spec: MOB, XFER — content-pending at the source raises awaiting-upload
+    // verifies spec: MOB, XFER
     it('raises awaiting-upload when central does not hold the bytes', async () => {
       const hash = sha256Hash('pending');
       centralServer.get.mockResolvedValue({
@@ -140,9 +138,7 @@ describe('BlobTransferChannel', () => {
       expect(centralServer.get).not.toHaveBeenCalled();
     });
 
-    // A refresh that doesn't clear the rejection must give up rather than spin the
-    // request loop forever on a battery-powered device. Uses real timers because
-    // the give-up path backs off between attempts.
+    // Real timers: the give-up path backs off between attempts.
     it('gives up on repeated unauthenticated responses instead of looping', async () => {
       jest.useRealTimers();
       try {
@@ -167,7 +163,7 @@ describe('BlobTransferChannel', () => {
   });
 
   describe('pushToCentral', () => {
-    // verifies spec: XFER — deliver a held blob and receive acknowledgement
+    // verifies spec: XFER
     it('offers and delivers a held blob, returning acknowledgement', async () => {
       fs.seed('/tmp/push.jpg', 'push me up');
       const { hash } = await store.putFile('/tmp/push.jpg', { tier: BLOB_TIERS.OUTBOX });
@@ -182,7 +178,7 @@ describe('BlobTransferChannel', () => {
       expect(centralServer.post).toHaveBeenCalled();
     });
 
-    // verifies spec: XFER — idempotent when central already holds it
+    // verifies spec: XFER
     it('acknowledges without transfer when central already stores the content', async () => {
       fs.seed('/tmp/dup.jpg', 'already there');
       fs.onUpload = jest.fn();
@@ -194,11 +190,10 @@ describe('BlobTransferChannel', () => {
       expect(fs.onUpload).not.toHaveBeenCalled();
     });
 
-    // verifies spec: SCRUB, MOB — verify an outbox blob before offering it
+    // verifies spec: SCRUB, MOB
     it('marks corrupt outbox content rather than offering it', async () => {
       fs.seed('/tmp/good.jpg', 'good bytes');
       const { hash } = await store.putFile('/tmp/good.jpg', { tier: BLOB_TIERS.OUTBOX });
-      // corrupt the stored bytes after admission
       fs.seed(store.pathFor(hash), 'tampered');
 
       await expect(channel.pushToCentral(hash)).rejects.toThrow(/corrupt/i);

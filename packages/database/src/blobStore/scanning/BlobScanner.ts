@@ -7,11 +7,10 @@ import type { Blob } from '../../models/Blob';
 import { BlobScannerUnavailableError, type BlobScannerDriver, type ScannerVersions } from './types';
 
 export interface BlobScanPassLimits {
-  /** Blobs sent to the scanner in one pass. */
   maxBlobs: number;
-  /** Bytes sent to the scanner in one pass; the last blob may take it past. */
+  /** The last blob may take it past. */
   maxBytes: number;
-  /** Blobs larger than this are left unscanned rather than sent. */
+  /** Left unscanned rather than sent. */
   maxScanBytes: number;
 }
 
@@ -20,9 +19,7 @@ export interface BlobScanResult {
   clean: number;
   infected: number;
   bytesScanned: number;
-  /** True when the pass stopped on a limit rather than exhausting its work. */
   ratelimited: boolean;
-  /** True when the pass stopped because the scanner could not be reached. */
   unavailable: boolean;
 }
 
@@ -31,11 +28,6 @@ export interface BlobScannerOptions {
   models: { Blob: typeof Blob };
   driver: BlobScannerDriver;
   getLimits: () => Promise<BlobScanPassLimits>;
-  /**
-   * Quarantine and propagation, supplied by the server: what a server does with
-   * an infected hash beyond recording it differs between the authoritative
-   * store and a facility serving on central's verdict.
-   */
   onInfected: (hash: string, versions: ScannerVersions) => Promise<void>;
   log: {
     info: (message: string, meta?: object) => void;
@@ -44,14 +36,8 @@ export interface BlobScannerOptions {
 }
 
 // spec: AV
-// The scheduled antivirus pass: send stored blobs to the host scanner and
-// record what it found. Admission never waits on this, so the pass carries both
-// the first scan of newly admitted content and the re-scan of content whose
-// verdict predates the scanner's current signatures.
-//
-// Detection only. Quarantining an infected hash and propagating it are the
-// server's, through onInfected, because the deployment-wide record is central's
-// to write.
+// Admission never waits on this. Quarantine is the server's, through onInfected, since the
+// deployment-wide record is central's to write.
 export class BlobScanner {
   #blobStore: BlobStore;
   #models: { Blob: typeof Blob };
@@ -83,8 +69,7 @@ export class BlobScanner {
     try {
       versions = await this.#driver.versions();
     } catch (error) {
-      // Nothing is recorded and nothing is retried here: the next pass tries
-      // again, and until it succeeds the content stays unscanned.
+      // Nothing is retried here: the next pass tries again.
       this.#log.warn('BlobScanner: scanner unavailable, pass skipped', {
         error: (error as Error).message,
       });
@@ -108,17 +93,8 @@ export class BlobScanner {
   }
 
   // spec: AV
-  // Never-scanned blobs first, then those scanned longest ago. A blob scanned
-  // clean under signatures the scanner has since moved past is due again, which
-  // is what makes a signature update a re-scan of the store rather than an
-  // event the pass has to be told about.
-  //
-  // Infected blobs are not re-scanned: the verdict is terminal, the content is
-  // quarantined, and a later signature set has nothing to add. Corrupt and
-  // absent blobs are skipped too, having no servable bytes to have a verdict
-  // about. Blobs over the size cap are left out of the scan entirely rather
-  // than picked up and skipped, so they cannot occupy the head of the queue
-  // pass after pass and starve content the scanner can take.
+  // A verdict under older signatures is due again, which makes a signature update a re-scan of the
+  // store. Oversized blobs are left out of the query so they can't starve the head of the queue.
   async #candidates(limits: BlobScanPassLimits, versions: ScannerVersions): Promise<Blob[]> {
     return await this.#models.Blob.findAll({
       where: {
@@ -140,24 +116,21 @@ export class BlobScanner {
     });
   }
 
-  /** False when the scanner went away, which ends the pass. */
   async #scanOne(blob: Blob, versions: ScannerVersions, result: BlobScanResult): Promise<boolean> {
     const { hash, size } = blob;
     try {
       const verdict = await this.#driver.scan({
         hash,
         size,
-        // spec: SCRUB — verification is the scrub's job and its own budget. A
-        // scan reads the bytes as they are, so corruption arriving mid-pass
-        // does not abort the scan of everything queued behind it.
+        // spec: SCRUB
+        // Verification is the scrub's job, so mid-pass corruption doesn't abort the scan of the
+        // rest.
         open: () => this.#blobStore.get(hash, { verify: false }),
       });
       if (verdict === BLOB_SCAN_VERDICTS.INFECTED) {
         this.#log.warn('BlobScanner: infected content found', { hash, ...versions });
-        // Quarantined before the verdict is recorded, which is terminal and
-        // takes the blob out of every later pass: a quarantine that fails to
-        // write leaves the blob to be found again rather than confining a known
-        // infection to this server.
+        // Quarantined before the terminal verdict, so a failed quarantine write leaves the blob to
+        // be found again.
         await this.#onInfected(hash, versions);
         result.infected += 1;
       } else {
@@ -175,8 +148,7 @@ export class BlobScanner {
         });
         return false;
       }
-      // One unreadable blob (deleted or evicted since the query) is not a
-      // reason to abandon the rest of the pass.
+      // Deleted or evicted since the query; carry on with the rest.
       this.#log.warn('BlobScanner: could not scan a blob', { hash, error: (error as Error).message });
       return true;
     }

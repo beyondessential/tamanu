@@ -59,7 +59,6 @@ describe('Blob backfill', () => {
     const recordData = {
       id: recordId,
       type: 'image/png',
-      // Postgres renders a bytea into JSON in its hex format.
       data: `\\x${content.toString('hex')}`,
     };
     await sequelize.query(
@@ -199,8 +198,8 @@ describe('Blob backfill', () => {
       const presentId = await insertAttachment(present);
       const vanishingId = await insertAttachment(vanishing);
 
-      // Delete the row just before its per-row data read, the way an attachment
-      // hard-deleted after push would vanish mid-batch.
+      // Deleted just before its data read, as an attachment hard-deleted after push would vanish
+      // mid-batch.
       const realQuery = sequelize.query.bind(sequelize);
       let deleted = false;
       vi.spyOn(sequelize, 'query').mockImplementation(async (sql, opts) => {
@@ -218,7 +217,6 @@ describe('Blob backfill', () => {
         sequelize.query.mockRestore();
       }
 
-      // The run completes rather than throwing, and the surviving row is moved.
       expect(moved).toBe(1);
       expect((await rowOf('attachments', presentId)).hash).toBe(hashOf(present));
     });
@@ -226,7 +224,6 @@ describe('Blob backfill', () => {
     it('resumes after an interrupted run without duplicating content', async () => {
       const content = Buffer.from('interrupted midway');
       const id = await insertAttachment(content);
-      // The bytes reach the store before the row changes; simulate dying in between.
       await blobStore.put(
         (await import('node:stream')).Readable.from([content]),
       );
@@ -247,8 +244,7 @@ describe('Blob backfill', () => {
         );
         return Number(row.count);
       };
-      // The insert itself is logged, bytes and all; that entry is what the
-      // changelog rewrite deals with. The move must not add a second one.
+      // The insert is logged with its bytes; the move must not add a second entry.
       const beforeMove = await countEntries();
       expect(beforeMove).toBe(1);
 
@@ -300,8 +296,6 @@ describe('Blob backfill', () => {
 
       await backfill.seedReferenceRows('assets', 10);
 
-      // Central computes the same hash from the same bytes, so the updated row
-      // arriving later finds its blob already present.
       expect(await blobStore.has(hashOf(content))).toBe(true);
     });
   });
@@ -333,9 +327,8 @@ describe('Blob backfill', () => {
       expect(await readAll(await blobStore.get(hashOf(current)))).toEqual(current);
     });
 
-    // Entries never re-synchronise, so each server rewrites its own copy. The
-    // two only stay in agreement because the rewrite is derived from the bytes
-    // and nothing else: same content, same hash, same resulting snapshot.
+    // Entries never re-sync, so each server rewrites its own copy; they agree only because the
+    // rewrite derives from the bytes.
     it('rewrites to identical content on two servers working independently', async () => {
       const content = Buffer.from('the same entry on both servers');
       const recordId = randomUUID();
@@ -352,8 +345,6 @@ describe('Blob backfill', () => {
       });
 
       try {
-        // A batch of one each, taken in id order, so the two servers rewrite
-        // one entry apiece into stores that share nothing.
         await backfill.rewriteChangelogEntries(1);
         await otherServer.rewriteChangelogEntries(1);
 
@@ -390,9 +381,7 @@ describe('Blob backfill', () => {
       const before = await backfill.countRemaining();
       expect(before.rows.attachments).toBe(1);
       expect(before.rows.assets).toBe(1);
-      // The two inserts above are themselves logged with their bytes inline,
-      // which is the duplication this backfill exists to undo, so they count
-      // alongside the entry written directly.
+      // The two inserts above are logged with their bytes too.
       expect(before.changelogEntries).toBe(3);
 
       await backfill.moveReferenceRows('attachments', 10);
@@ -451,9 +440,8 @@ describe('Blob backfill', () => {
     });
 
     it('restores a row left carrying both a hash and stale bytes', async () => {
-      // The shape a crashed earlier rollback attempt would leave behind. The
-      // hash is what marks the row as not yet rolled back, so this must restore
-      // rather than skip, whatever the data column happens to hold.
+      // A crashed earlier rollback's leftover: the hash marks the row as not yet rolled back, so it
+      // must restore.
       const content = Buffer.from('the authoritative bytes');
       const id = await insertAttachment(content);
       await backfill.moveReferenceRows('attachments', 10);
@@ -487,7 +475,6 @@ describe('Blob backfill', () => {
       const untouched = Buffer.from('this one did not');
       const movedId = await insertAttachment(moved);
       const untouchedId = await insertAttachment(untouched);
-      // Only the first row is moved, leaving the backfill half done.
       await backfill.moveReferenceRows('attachments', 1);
 
       await backfill.rollbackReferenceRows('attachments', 10);
@@ -501,10 +488,8 @@ describe('Blob backfill', () => {
       expect(Number(rows.count)).toBe(0);
     });
 
-    // The spec makes an intact store the precondition: rollback is a database
-    // restore from the store, not from a backup. Content the store cannot
-    // supply has to stop the run, since the alternative is a row silently
-    // restored to nothing on the way into a downgrade.
+    // Content the store can't supply must stop the run, or a row is silently restored to nothing
+    // before a downgrade.
     it('fails rather than restoring a row whose content has left the store', async () => {
       const content = Buffer.from('this one has gone from the store');
       const id = await insertAttachment(content);

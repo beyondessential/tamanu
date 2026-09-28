@@ -30,8 +30,6 @@ const KIB = 1024;
 const MIB = 1024 * 1024;
 const DEFAULT_PROPORTION = 0.1;
 
-// Deterministic pseudo-random content, so a seeded-corruption case fails the
-// same way every run.
 function content(bytes: number, seed = 1): Uint8Array {
   const blob = new Uint8Array(bytes);
   let state = seed;
@@ -42,8 +40,7 @@ function content(bytes: number, seed = 1): Uint8Array {
   return blob;
 }
 
-// Byte arrays here run to hundreds of kilobytes, which a structural matcher
-// cannot diff without exhausting the heap.
+// A structural matcher can't diff arrays this size without exhausting the heap.
 function expectSameBytes(actual: Uint8Array, expected: Uint8Array): void {
   expect(actual.length).toBe(expected.length);
   expect(actual.findIndex((byte, index) => byte !== expected[index])).toBe(-1);
@@ -64,7 +61,7 @@ function dataShardBytes(
   return blob.subarray(start, Math.min(blob.length, start + geometry.shardSize));
 }
 
-/** A group's data shard slots, padded out: a slot past the blob's end is zeros. */
+/** A slot past the blob's end is zeros. */
 function paddedDataShards(
   blob: Uint8Array,
   geometry: ParityGeometry,
@@ -91,11 +88,8 @@ function encodeGroupParity(
 }
 
 /**
- * What the store's repair path does, in memory. `corrupt` names shards whose
- * bytes are overwritten as a bad cluster would overwrite them; `erase` names the
- * shards the caller tells the decoder about, which is a separate thing — locating
- * damage is the caller's job and it can get it wrong. Indices run across the
- * group, data shards first then parity.
+ * `corrupt` overwrites shards; `erase` is what the decoder is told, which can be wrong. Indices run
+ * data shards first, then parity.
  */
 function recoverGroup(
   blob: Uint8Array,
@@ -208,7 +202,6 @@ describe('shard geometry', () => {
   it('scales the parity shard count with the proportion', () => {
     expect(parityGeometry(MIB, 0.03).parityShards).toBe(1);
     expect(parityGeometry(MIB, 0.5).parityShards).toBe(16);
-    // A proportion small enough to round to nothing still buys one shard.
     expect(parityGeometry(MIB, 0.001).parityShards).toBe(1);
   });
 });
@@ -319,9 +312,8 @@ describe('reconstruction from seeded corruption', () => {
   });
 
   // spec: FEC
-  // Why the repair path's hash check can never be made conditional: shard 7 is
-  // the damaged one, but told it was shard 6, the decoder reports success and
-  // emits bytes that are not the blob.
+  // Shard 7 is damaged but the decoder is told shard 6: it reports success and emits the wrong
+  // bytes.
   it('emits wrong bytes when the damage is located wrongly', () => {
     const emitted = joinShards(
       recoverGroup(blob, geometry, 0, { corrupt: [7], erase: [6] }),
@@ -331,8 +323,7 @@ describe('reconstruction from seeded corruption', () => {
   });
 });
 
-// Real geometry only groups a blob above 32 MiB, which is too much to allocate
-// per case; these drive the same paths through a hand-built geometry.
+// Real geometry only groups a blob above 32 MiB, too much to allocate per case.
 describe('reconstruction across shard groups', () => {
   const geometry: ParityGeometry = {
     shardSize: 4 * KIB,
@@ -401,7 +392,6 @@ describe('sidecar layout', () => {
   // spec: FEC
   it('rejects a geometry no encode could have produced', () => {
     const header = encodeParityHeader(geometry, MIB);
-    // Unbounded, a groupCount damaged by bit rot sizes the digest table's read.
     new DataView(header.buffer).setUint32(12, 0xffffffff, true);
 
     expect(() => decodeParityHeader(header)).toThrow('impossible geometry');

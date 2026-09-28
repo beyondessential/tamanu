@@ -33,9 +33,6 @@ const BaseColumns = [
 ];
 
 // spec: AV
-// Content known to be malware, named by hash and pulled from central. The
-// device runs no scanner, so this is the whole of what it knows about content:
-// enough to refuse to serve or fetch it, with the link down as much as up.
 const BlobQuarantinesTable = new Table({
   name: TABLE_NAME,
   columns: [

@@ -12,18 +12,13 @@ import { createTestContext } from './utilities';
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
 // spec: SCRUB
-// The central referential-integrity query behind the scrub's referential pass:
-// which synchronised references point at bytes central does not hold, once they
-// are past the delivery grace. Exercised against a real database and a scratch
-// reference source, since the query's load-bearing parts — the grace-time
-// filter and the missing-bytes join — cannot be covered by mocking it.
+// Against a real database: the grace-time filter and missing-bytes join can't be covered by
+// mocking.
 describe('findUndeliverableReferences', () => {
   let ctx;
   let sequelize;
   let unregister;
 
-  // A reference standing in for a consumer record: a row in the scratch table
-  // with an update time, plus the sync_lookup entry that marks it synchronised.
   let seq = 0;
   const reference = async (hash, { updatedAt, deletedAt = null, lookupDeleted = false }) => {
     const recordId = `undeliverable-ref-${seq++}`;
@@ -53,8 +48,7 @@ describe('findUndeliverableReferences', () => {
     ctx = await createTestContext();
     sequelize = ctx.store.sequelize;
     await sequelize.query(
-      // Shaped like the synced tables a real source must be: every one of them
-      // carries deleted_at, which the query relies on.
+      // Every synced table carries deleted_at, which the query relies on.
       `CREATE TABLE test_undeliverable_refs (
          id TEXT PRIMARY KEY,
          blob_hash TEXT NOT NULL,
@@ -145,8 +139,7 @@ describe('findUndeliverableReferences', () => {
     expect(result).toHaveLength(2);
   });
 
-  // A deleted record references nothing, so its content is not owed. Left in,
-  // these accumulate forever and hold the limit ahead of live references.
+  // Left in, deleted references accumulate forever and hold the limit ahead of live ones.
   it('does not report a reference whose record is deleted', async () => {
     await reference(hashOf('deleted record content'), {
       updatedAt: BEFORE_GRACE,
@@ -165,8 +158,6 @@ describe('findUndeliverableReferences', () => {
     expect(result).toEqual([]);
   });
 
-  // Longest-undelivered first, so a backlog past the limit reports the same
-  // worst cases every pass rather than an arbitrary slice of itself.
   it('reports the longest-undelivered references first, and repeatably', async () => {
     const oldest = hashOf('oldest undelivered');
     const middle = hashOf('middle undelivered');
@@ -186,10 +177,6 @@ describe('findUndeliverableReferences', () => {
   });
 
   // spec: SCRUB
-  // A referential fault names content with no registry row at all, so there is
-  // nothing for the ordinary state stamp to update. Recording it as an absent
-  // blob is what puts the fault where the state model and its monitoring can see
-  // it, and it hands the blob to the machinery that already handles absence.
   describe('recording the fault', () => {
     const healAsMissing = async hash =>
       await new CentralBlobHealer({ blobStore: ctx.blobStore, models: ctx.store.models }).heal({
@@ -213,8 +200,6 @@ describe('findUndeliverableReferences', () => {
 
       const recorded = await ctx.store.models.Blob.findOne({ where: { hash } });
       expect(recorded.integrityState).toBe(BLOB_INTEGRITY_STATES.ABSENT);
-      // The row is what takes it out of the pass, freeing the limit for faults
-      // not yet recorded.
       expect(await undeliverable()).toEqual([]);
     });
 
@@ -229,7 +214,6 @@ describe('findUndeliverableReferences', () => {
       await ctx.blobStore.stage(hash, Readable.from(content), { offset: 0 });
       await ctx.blobStore.commitStaged(hash);
 
-      // The commit settles the state and the size the placeholder row lacked.
       expect(await ctx.blobStore.servableStat(hash)).toEqual({
         size: content.length,
         integrityState: BLOB_INTEGRITY_STATES.VERIFIED,

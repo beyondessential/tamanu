@@ -58,8 +58,7 @@ interface UploadPhotoComponentProps {
 
 const IMAGE_WIDTH = Dimensions.get('window').width * 0.6;
 
-// One fact, so a read that lands late can be told from the photo the field
-// holds now.
+// One fact, so a late read can be told from the photo the field holds now.
 interface Photo {
   attachmentId: string | null;
   status: 'empty' | 'loading' | 'ready' | 'unavailable';
@@ -96,11 +95,9 @@ const photoMessage = (
     return null;
   }
   if (!attachmentId) {
-    // Nothing attached, so the failure came from a capture rather than a read.
     return `Error loading image: ${error.message}`;
   }
-  // spec: MOB, XFER — an existing file awaiting its content, with the
-  // awaiting-upload and awaiting-fetch cases distinguished
+  // spec: MOB, XFER
   if (error instanceof BlobAwaitingUploadError) {
     return AWAITING_UPLOAD_MESSAGE;
   }
@@ -203,8 +200,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         return;
       }
       await deleteAttachment(value);
-      // A removed draft photo's blob has no referencing record left, so it can
-      // never become eligible for push; demote it to reclaimable cache.
+      // A removed draft photo's blob can never become eligible for push.
       if (attachment.hash) {
         const stillReferenced = await models.Attachment.findOne({
           where: { hash: attachment.hash },
@@ -233,9 +229,6 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   }, [value]);
 
   // spec: MOB
-  // A photo the answer already holds resolves through its record's hash:
-  // content the device holds reads without connectivity, content it does not
-  // hold is fetched by hash.
   useEffect(() => {
     const { attachmentId, status } = photo;
     if (status !== 'loading' || !attachmentId) {
@@ -243,15 +236,14 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
     }
     (async (): Promise<void> => {
       const read = await readPhoto(attachmentId, { models, blobCache });
-      // A capture or removal that lands first owns the field; this read is stale.
+      // A capture or removal that landed first owns the field.
       setPhoto(current =>
         current.attachmentId === attachmentId && current.status === 'loading' ? read : current,
       );
     })();
   }, [photo, models, blobCache]);
 
-  // spec: MOB — content the device could not fetch is retried once it has
-  // connectivity, so the advice to connect is one the component can act on.
+  // spec: MOB
   useEffect(() => {
     if (!isInternetReachable) {
       return;
@@ -295,10 +287,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       });
 
       // spec: MOB
-      // The photo is admitted to the device's blob store at the outbox tier and
-      // the record carries only its hash. Capture completes without
-      // connectivity: the central server's own capacity governs the blob when
-      // it is pushed, not at capture.
+      // Central's capacity governs the blob when it's pushed, not at capture.
       let putResult;
       try {
         putResult = await blobCache.putOutbox(path);
@@ -306,7 +295,7 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
         setPhoto(NO_PHOTO);
         await deleteFileInDocuments(path);
         if (error?.type === ERROR_TYPE.STORAGE_INSUFFICIENT) {
-          // spec: CAP — the refusal names the device's storage as the cause
+          // spec: CAP
           Popup.show({
             type: 'Warning',
             title: 'Not enough storage space on this device',

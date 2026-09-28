@@ -97,8 +97,7 @@ export class ApplicationContext {
     this.settings.global = ReadSettings.forGlobal(this.models);
 
     // spec: CAS, CAP
-    // The root is facility-scoped but server-wide, so the first facility's value
-    // applies; a server that has not synced a facility yet falls back to the default.
+    // Facility-scoped but server-wide, so the first facility's value applies.
     this.blobStore = new BlobStore({
       root: facilityIds.length
         ? await this.settings[facilityIds[0]].get('blobStorage.root')
@@ -106,13 +105,12 @@ export class ApplicationContext {
       models: this.models,
       getFreeDiskReserveBytes: async () =>
         (await this.settings.global.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
-      // spec: CAP — as free disk approaches the reserve, cache is evicted
-      // before any other measure. Late-bound: blobCache is built just below.
+      // spec: CAP
+      // Late-bound: blobCache is built just below.
       evictCache: async bytesNeeded => {
         await this.blobCache?.evictBytes(bytesNeeded);
       },
-      // spec: SCRUB — a whole-blob read that fails verification heals by the
-      // same ladder the scrub uses. Late-bound for the same reason as above.
+      // spec: SCRUB
       onCorruptionDetected: async hash => {
         await this.blobHealer?.heal({
           hash,
@@ -120,8 +118,7 @@ export class ApplicationContext {
           blob: await this.models.Blob.findOne({ where: { hash } }),
         });
       },
-      // spec: FEC — the outbox is this server's only durable content; a cache
-      // copy is durable on central and costs a refetch.
+      // spec: FEC
       errorCorrection: {
         coveredTiers: FACILITY_PARITY_TIERS,
         getSettings: async () => {
@@ -138,9 +135,7 @@ export class ApplicationContext {
     });
 
     // spec: CACHE
-    // The budget is a facility setting; tasks convention applies on a
-    // multi-facility server (first facility's value). A server booted before
-    // setup has no facility yet and runs on the schema default.
+    // A server booted before setup has no facility yet and runs on the schema default.
     const [primaryFacilityId] = facilityIds;
     this.blobCache = new FacilityBlobCache({
       blobStore: this.blobStore,
@@ -154,17 +149,12 @@ export class ApplicationContext {
     });
 
     // spec: ATCH
-    // Shared model code admits attachment content through this so it reaches the
-    // store from deep in a write (a survey photo answer) with no request to carry
-    // it. On a facility, origin content lands in the outbox and the pusher
-    // delivers it once the referencing record has synchronised.
+    // Shared model code admits content through this from deep in a write, with no request to carry
+    // it.
     this.sequelize.admitAttachmentBlob = (source, options) =>
       this.blobCache.putOutbox(source, options);
 
     // spec: SCRUB
-    // Detection is server-agnostic; grading and repair are not. The facility
-    // grades on the cache/outbox tier, since that already records whether a
-    // copy is the only durable one.
     this.blobHealer = new FacilityBlobHealer({ blobStore: this.blobStore, models: this.models });
     this.blobScrubber = new BlobScrubber({
       blobStore: this.blobStore,
@@ -183,9 +173,8 @@ export class ApplicationContext {
     });
 
     // spec: AV
-    // A facility scans only where it has a scanner of its own. Without one it
-    // records no verdicts and serves on central's, which reach it as quarantine
-    // records rather than as verdicts of its own.
+    // Without its own scanner a facility serves on central's verdicts, which arrive as quarantine
+    // records.
     const antivirusSettings = async () =>
       primaryFacilityId
         ? await this.settings[primaryFacilityId].get('blobStorage.antivirus')
@@ -217,9 +206,7 @@ export class ApplicationContext {
         log,
       });
 
-    // spec: CACHE — consumers (attachments, assets) register in
-    // BLOB_REFERENCE_TABLES; these resolvers report which of their references
-    // have synchronised, so the blobs behind them become eligible for push.
+    // spec: CACHE
     this.blobReferenceResolvers = BLOB_REFERENCE_TABLES.map(table =>
       makeSyncedReferenceResolver(table),
     );

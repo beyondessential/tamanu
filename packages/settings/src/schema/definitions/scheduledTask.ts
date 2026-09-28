@@ -72,10 +72,7 @@ export const batchingProperties = (
 });
 
 // spec: SCRUB
-// Per-pass bounds for the blob integrity scrub. The scrub is incremental, so
-// these decide how quickly the store is covered rather than whether it is: a
-// pass takes the least-recently-scrubbed blobs until it hits either bound, and
-// the next pass carries on from wherever that left the population.
+// These decide how quickly the store is covered, not whether.
 export const blobScrubProperties = (): Record<string, Setting> => ({
   maxBlobsPerPass: {
     name: 'Blobs per pass',

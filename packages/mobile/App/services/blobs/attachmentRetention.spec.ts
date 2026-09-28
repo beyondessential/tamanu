@@ -56,8 +56,7 @@ describe('attachment records after their bytes reach central', () => {
     });
   });
 
-  // verifies spec: MOB — the push that makes the bytes evictable leaves the
-  // record alone
+  // verifies spec: MOB
   it('retains the record once the push is acknowledged', async () => {
     const hash = await captureAndPush();
 
@@ -67,8 +66,7 @@ describe('attachment records after their bytes reach central', () => {
     expect(retained.hash).toBe(hash);
   });
 
-  // verifies spec: MOB — reclaiming the space takes the bytes and not the
-  // record, so the hash it carries fetches the content back
+  // verifies spec: MOB
   it('refetches the content by the retained hash once the blob is reclaimed', async () => {
     const hash = await captureAndPush();
     const { size } = await store.stat(hash);
@@ -82,8 +80,6 @@ describe('attachment records after their bytes reach central', () => {
     expect(fetched).toEqual([hash]);
   });
 
-  // A captured photo, its synchronised record, and the pass that delivers the
-  // bytes to central.
   async function captureAndPush(): Promise<string> {
     fs.seed('/tmp/photo.jpg', PHOTO_BYTES);
     const { hash, size } = await cache.putOutbox('/tmp/photo.jpg');

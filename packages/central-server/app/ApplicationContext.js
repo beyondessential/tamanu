@@ -35,9 +35,7 @@ import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 // spec: SCRUB
-// How long after a record syncs its blob is still expected to be on its way.
-// Push is sync-first, so every reference is briefly ahead of its bytes; only a
-// reference older than this counts as content central should already hold.
+// Push is sync-first, so every reference is briefly ahead of its bytes.
 const UNDELIVERED_REFERENCE_GRACE_MS = 24 * 60 * 60 * 1000;
 
 export const CENTRAL_SERVER_APP_TYPES = {
@@ -116,15 +114,13 @@ export class ApplicationContext {
     }
 
     // spec: CAS, CAP
-    // No evictCache hook: central is the authoritative store, nothing is
-    // evictable, so the free-disk floor refuses new blobs directly.
+    // No evictCache hook: central holds nothing evictable.
     this.blobStore = new BlobStore({
       root: await this.settings.get('blobStorage.root'),
       models: this.store.models,
       getFreeDiskReserveBytes: async () =>
         (await this.settings.get('blobStorage.freeDiskReserveGB')) * 1024 ** 3,
-      // spec: SCRUB — a whole-blob read that fails verification heals by the
-      // same ladder the scrub uses.
+      // spec: SCRUB
       onCorruptionDetected: async hash => {
         await this.blobHealer?.heal({
           hash,
@@ -132,8 +128,7 @@ export class ApplicationContext {
           blob: await this.store.models.Blob.findOne({ where: { hash } }),
         });
       },
-      // spec: FEC — every blob central holds is a durable copy, so coverage is
-      // not narrowed by tier.
+      // spec: FEC
       errorCorrection: {
         coveredTiers: CENTRAL_PARITY_TIERS,
         getSettings: async () => {
@@ -148,9 +143,8 @@ export class ApplicationContext {
     });
 
     // spec: SCRUB
-    // Every copy central holds is authoritative, so the healer has no
-    // low-severity case: it records the blob corrupt and escalates, and repair
-    // arrives either opportunistically from a facility or from a backup.
+    // Every copy central holds is authoritative, so the healer records corrupt and escalates;
+    // repair comes from a facility or a backup.
     this.blobHealer = new CentralBlobHealer({
       blobStore: this.blobStore,
       models: this.store.models,
@@ -169,19 +163,13 @@ export class ApplicationContext {
       findUndeliverableReferences: async limit =>
         await findUndeliverableReferences(this.store.sequelize, {
           limit,
-          // A reference is only undelivered once its record has been synced
-          // long enough for the push to have happened; before that it is
-          // ordinary content-pending, since push is sync-first.
           deliveredBefore: new Date(Date.now() - UNDELIVERED_REFERENCE_GRACE_MS),
         }),
       log,
     });
 
     // spec: AV
-    // Central scans every blob it holds and its verdict is authoritative, so an
-    // infected hash is quarantined here and pulled from here. No scanner
-    // configured means no driver, which means no pass and no verdicts: the
-    // ingest path, the serve path and the scrub all run as they would have.
+    // Central's verdict is authoritative, so infected hashes are quarantined here.
     const antivirus = await this.settings.get('blobStorage.antivirus');
     const scannerDriver = createScannerDriver({
       scanner: antivirus.scanner,
@@ -205,22 +193,19 @@ export class ApplicationContext {
         },
         onInfected: async (hash, versions) => {
           await quarantineBlob(this.store.models, hash, versions);
-          // spec: FEC — quarantined content is never served and never repaired.
+          // spec: FEC
           await this.blobStore.discardParity(hash);
         },
         log,
       });
 
     // spec: ATCH
-    // Model and shared route code admits attachment content through this, so it
-    // reaches the store from deep in an upstream write (a FHIR DiagnosticReport's
-    // report PDF, a survey photo answer) with no request to carry it. Central is
-    // the authoritative store, so admission is direct.
+    // Model and shared route code admit content through this from deep in a write, with no request
+    // to carry it.
     this.store.sequelize.admitAttachmentBlob = (source, options) =>
       this.blobStore.put(source, options);
 
-    // spec: ASSET, BLAC — assets reference blobs by hash; a facility's fetch of
-    // an asset's bytes is authorised against the referencing asset row.
+    // spec: ASSET, BLAC
     registerBlobReferenceSource({ recordType: 'assets', hashColumn: 'hash' });
 
     await initFhirSettingsFromDb(this.settings);

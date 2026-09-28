@@ -17,13 +17,11 @@ import { ERROR_TYPE, Problem } from '@tamanu/errors';
 
 import { BlobTransferChannel } from '../../app/blobTransfer/BlobTransferChannel';
 
-// The shared test environment auto-mocks this, which would answer every call
-// with undefined; the point here is the request the real one builds.
+// The shared test environment auto-mocks this; the point here is the request the real one builds.
 const { CentralServerConnection } = await vi.importActual('../../app/sync/CentralServerConnection');
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
-// In-memory stand-in for the Blob registry, as in the BlobStore unit tests.
 function makeFakeBlobModel() {
   const rows = new Map();
   return {
@@ -34,7 +32,6 @@ function makeFakeBlobModel() {
     async update(values, { where }) {
       const row = rows.get(where.hash);
       if (!row) return;
-      // The only operator the store uses here is Op.ne on integrityState.
       const excluded = where.integrityState
         ? Object.getOwnPropertySymbols(where.integrityState).map(s => where.integrityState[s])
         : [];
@@ -72,23 +69,17 @@ async function readAll(stream) {
   return Buffer.concat(chunks);
 }
 
-// Stands in for CentralServerConnection, implementing the central blob routes
-// against a second BlobStore. Failure injection simulates the poor links the
-// channel is built for: dropped fetch streams and pushes cut mid-chunk.
+// Implements the central blob routes against a second BlobStore, with failure injection for poor
+// links.
 class FakeCentralConnection {
-  // stop each fetch stream (with an error) after this many bytes; null = off
+  // null = off, as for the other injected failures.
   dropFetchStreamsAfter = null;
-  // accept only this many bytes of each pushed chunk, then fail; null = off
   cutPushChunksAfter = null;
-  // refuse offers/content deliveries as the central access gate does when the
-  // hash is not expected (see specs/blob-storage/access-control.md)
   refuseOffers = false;
   refuseContent = false;
 
   fetchCalls = 0;
-  // Transient one-shot failures the push loop must survive: each throws a
-  // remote error and decrements. failReoffersRemaining fails only re-offers
-  // (offer calls after the first), leaving the initial offer intact.
+  // One-shot failures. failReoffersRemaining fails only offers after the first.
   failPutsRemaining = 0;
   failReoffersRemaining = 0;
   failFetchGetsRemaining = 0;
@@ -199,12 +190,7 @@ class FakeCentralConnection {
     const start = parseInt(headers.range?.match(/^bytes=(\d+)-$/)?.[1] ?? '0', 10);
     const full = await readAll(await this.store.get(hash, start > 0 ? { start } : {}));
 
-    // Model a dropped connection the way the client actually observes one: the
-    // headers promise the full remaining size, but the body delivers fewer
-    // bytes and then ends. The channel stages the short read, sees it is under
-    // the known size, and resumes with a range request. A clean early close
-    // (rather than an errored stream) keeps the simulation free of the
-    // web-stream error-propagation hazards.
+    // A dropped connection as the client observes it: full content-length, short body, clean close.
     const delivered =
       this.dropFetchStreamsAfter !== null && full.length > this.dropFetchStreamsAfter
         ? full.subarray(0, this.dropFetchStreamsAfter)
@@ -218,8 +204,6 @@ class FakeCentralConnection {
       },
     });
 
-    // content-length always reports the full remaining bytes, so the channel
-    // learns the true size even when the body is short.
     const length = full.length;
     const responseHeaders = new Map([['content-length', String(length)]]);
     if (start > 0) {
@@ -259,9 +243,6 @@ describe('BlobTransferChannel', () => {
   });
 
   // spec: BLAC
-  // Central scopes blob access to the facilities the caller declares and refuses
-  // a caller declaring none, so a channel built without them would forbid every
-  // transfer. It refuses to construct instead.
   describe('construction', () => {
     it('refuses to build without the server facility ids', () => {
       for (const facilityIds of [undefined, []]) {
@@ -273,12 +254,8 @@ describe('BlobTransferChannel', () => {
   });
 
   // spec: BLAC, XFER
-  // Central scopes every blob operation to the facilities the caller declares
-  // in its query string, so the ids have to reach the query slot of each call
-  // rather than its request config. The channel addresses the api client two
-  // ways — a local two-argument form and the api-client three-argument form —
-  // which is where a call can lose them without any local check noticing. This
-  // reads the calls as the client turns them into a URL.
+  // The channel uses both the two- and three-argument api-client forms, which is where a call can
+  // lose the ids.
   describe('facility scoping on the wire', () => {
     // Declaring a token so the request goes out rather than pausing to log in.
     class SignedInCentralConnection extends CentralServerConnection {
@@ -373,8 +350,7 @@ describe('BlobTransferChannel', () => {
       });
     });
 
-    // spec: SCRUB — a copy the store retains but will not serve is not local
-    // availability, so the servable copy central holds is what is reported.
+    // spec: SCRUB
     it('does not advertise a corrupt local copy as available', async () => {
       const content = Buffer.from('corrupt locally');
       const { hash, size } = await localStore.put(Readable.from(content));
@@ -430,9 +406,8 @@ describe('BlobTransferChannel', () => {
     it('survives a re-offer that itself fails transiently after an interruption', async () => {
       const content = Buffer.from('pushed despite a flaky re-offer on the way');
       const { hash } = await localStore.put(Readable.from(content));
-      // the first push chunk fails, and the re-offer that follows fails too:
-      // the re-offer failure must be treated as a stalled attempt, not abort
-      // the push and swallow the original error
+      // The re-offer failure must count as a stalled attempt rather than abort the push and swallow
+      // the original error.
       central.failPutsRemaining = 1;
       central.failReoffersRemaining = 1;
 
@@ -444,7 +419,6 @@ describe('BlobTransferChannel', () => {
     it('surfaces a hash mismatch without retrying', async () => {
       const content = Buffer.from('honest content');
       const { hash } = await localStore.put(Readable.from(content));
-      // corrupt the local bytes so what we deliver no longer matches the hash
       const digest = hash.split(':')[1];
       await fs.writeFile(
         path.join(localRoot, 'sha256', digest.slice(0, 2), digest.slice(2, 4), digest.slice(4)),
@@ -463,8 +437,7 @@ describe('BlobTransferChannel', () => {
       });
     });
 
-    // spec: SCRUB — the read that feeds a push refuses corrupt bytes, so
-    // offering them only spends a round of offers and backoff to be refused.
+    // spec: SCRUB
     it('refuses to push a corrupt blob, without offering it', async () => {
       const { hash } = await localStore.put(Readable.from(Buffer.from('bad bytes')));
       await localStore.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.CORRUPT);
@@ -523,8 +496,7 @@ describe('BlobTransferChannel', () => {
       expect(central.fetchCalls).toBe(0);
     });
 
-    // spec: SCRUB — the self-heal path: a hash occupied by a copy the store will
-    // not serve is fetched, and the replacement settles the state on commit.
+    // spec: SCRUB
     it('replaces a corrupt local copy rather than reporting it held', async () => {
       const content = Buffer.from('a copy central can replace');
       const { hash } = await localStore.put(Readable.from(content));
@@ -574,9 +546,7 @@ describe('BlobTransferChannel', () => {
       expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);
     });
 
-    // spec: XFER — many small blobs transfer as concurrent requests over one
-    // shared connection, so a blob held up in transit must not hold up the
-    // blobs behind it. Serialising per hash is enough for staging integrity.
+    // spec: XFER
     it('lets a transfer of another hash finish while one is still in flight', async () => {
       const held = Buffer.from('a blob whose delivery is held open');
       const behind = Buffer.from('the blob queued behind it');
@@ -618,7 +588,6 @@ describe('BlobTransferChannel', () => {
         type: ERROR_TYPE.BLOB_HASH_MISMATCH,
       });
 
-      // the mismatch discarded the staging, so a retry downloads cleanly
       const result = await channel.fetchFromCentral(hash);
       expect(result).toMatchObject({ hash, size: content.length, existed: false });
       expect((await readAll(await localStore.get(hash))).equals(content)).toBe(true);

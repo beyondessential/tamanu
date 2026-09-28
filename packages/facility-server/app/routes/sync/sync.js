@@ -56,7 +56,7 @@ sync.get(
     const isSyncRunning = syncManager.isSyncRunning();
     const currentDuration = isSyncRunning ? new Date().getTime() - syncManager.currentStartTime : 0;
 
-    // spec: CAP — outbox backpressure surfaced as a health signal
+    // spec: CAP
     const blobOutbox = await blobOutboxStatus(models);
 
     res.send({

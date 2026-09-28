@@ -17,8 +17,7 @@ vi.mock('react-redux', () => ({ useSelector: () => ({ displayName: 'Test Clinici
 
 import { useCertificate } from '../../app/utils/useCertificate';
 
-// Express serialises the row's image buffer this way, so it is what the browser
-// actually receives.
+// How Express serialises a Buffer.
 const uploaded = (...bytes) => ({ type: 'image/png', data: { type: 'Buffer', data: bytes } });
 const neverUploaded = () => ({});
 const contentPending = () => ({
@@ -45,8 +44,6 @@ describe('useCertificate', () => {
   });
 
   // spec: ASSET
-  // The document must not print without artwork it is meant to carry, so
-  // consumers gating on isFetching hold it until the bytes arrive.
   it('stays not-ready while an asset is awaiting its content', async () => {
     respondWith({ [ASSET_NAMES.LETTERHEAD_LOGO]: contentPending() }, uploaded(1, 2, 3));
 
@@ -69,8 +66,6 @@ describe('useCertificate', () => {
   });
 
   // spec: ASSET
-  // Artwork is an optional element, so a deployment that uploaded none still
-  // prints; only a pending asset holds the document back.
   it('becomes ready when no asset was ever uploaded', async () => {
     respondWith({}, neverUploaded());
 

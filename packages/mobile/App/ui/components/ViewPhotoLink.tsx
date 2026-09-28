@@ -50,16 +50,11 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
 
       if (attachment?.hash) {
         // spec: MOB
-        // The read resolves the record's hash against the device's blob store.
-        // Content the device holds displays without connectivity; content it
-        // does not hold is fetched by hash and admitted to the cache, so a
-        // later read needs no connectivity.
         try {
           setImageData(await blobCache.readBase64(attachment.hash));
           return;
         } catch (error) {
-          // spec: MOB, XFER — an existing file awaiting its content, with the
-          // awaiting-upload and awaiting-fetch cases distinguished
+          // spec: MOB, XFER
           if (error instanceof BlobAwaitingUploadError) {
             setErrorMessage(
               'This image has not finished uploading from the device that captured it.\nTry again later.',
@@ -75,8 +70,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
         }
       }
 
-      // No hash: a legacy attachment served from the central server by id, or
-      // a record this device does not hold at all. Both need live internet.
+      // No hash: a legacy attachment served from central, or a record this device doesn't hold.
       if (!netInfo.isInternetReachable) {
         setErrorMessage(
           'You do not currently have an internet connection.\n Images require live internet for viewing.',
@@ -90,7 +84,6 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
       if (response?.data) {
         setImageData(response.data);
       } else {
-        // Central holds the record but its bytes have not arrived there yet.
         setErrorMessage(
           'This image has not finished uploading from the device that captured it.\nTry again later.',
         );

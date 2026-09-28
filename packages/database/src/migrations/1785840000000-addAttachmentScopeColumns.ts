@@ -3,11 +3,8 @@ import { DataTypes, QueryInterface } from 'sequelize';
 const TABLE = { tableName: 'attachments', schema: 'public' };
 
 // spec: ATCH
-// An attachment carries the patient linkage of the record it is created for and,
-// where that record is pinned to an encounter, that encounter — copied on at
-// creation so the attachment's synchronisation scope matches its owning record's.
-// Both are nullable: an attachment may hang off a patient directly, off an
-// encounter, or (for legacy rows) off neither until backfilled.
+// Nullable: an attachment may hang off a patient, an encounter, or (legacy rows) neither until
+// backfilled.
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn(TABLE, 'patient_id', {
     type: DataTypes.STRING,

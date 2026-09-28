@@ -49,8 +49,7 @@ class MockApplicationContext {
       await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled: true });
     }
 
-    // Temp-rooted and reserve-free so endpoint tests exercise the transfer
-    // channel without depending on the test host's real disk headroom.
+    // Reserve-free, so endpoint tests don't depend on the host's disk headroom.
     const blobRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'central-blob-store-test-'));
     this.blobStore = new BlobStore({
       root: blobRoot,

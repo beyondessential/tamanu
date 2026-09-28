@@ -29,10 +29,7 @@ attachment.get(
     const localAttachment = await req.models.Attachment.findByPk(id);
 
     // spec: ATCH
-    // A hash-backed attachment is served from the local store, resolving the
-    // bytes from central on a miss and caching them. Serving goes through the
-    // cache's open so the read defers eviction for its whole window and counts
-    // as a use.
+    // Through the cache's open, so the read defers eviction and counts as a use.
     if (localAttachment?.hash) {
       const { hash, type } = localAttachment;
 
@@ -62,9 +59,8 @@ attachment.get(
         return;
       }
 
-      // spec: BKFL — served the same way a moved row is, so a reader cannot tell
-      // which form it got. The length comes from the bytes rather than the
-      // column, since the range arithmetic depends on it.
+      // spec: BKFL
+      // The length comes from the bytes, not the column: the range arithmetic depends on it.
       const bytes = Buffer.from(localAttachment.data);
       await serveBlob(req, res, {
         size: bytes.length,
@@ -76,8 +72,6 @@ attachment.get(
     }
 
     // spec: ATCH
-    // Legacy attachments reside only on the central server, so an attachment
-    // with no local record is served by reading it through central.
     const centralServer = new CentralServerConnection({ deviceId });
     try {
       const response = await centralServer.fetch(
@@ -89,8 +83,8 @@ attachment.get(
       );
       res.send(response);
     } catch (error) {
-      // Central answers an id it doesn't hold as forbidden, which is also what a
-      // row still on its way here looks like.
+      // Central answers an id it doesn't hold as forbidden, which is also what a row still on its
+      // way looks like.
       if (error?.status !== 403 && error?.status !== 404) throw error;
       res.status(202).send({
         attachmentId: id,

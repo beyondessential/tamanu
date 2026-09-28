@@ -61,8 +61,6 @@ describe('facility blob outbox and LRU cache', () => {
     await models.Blob.destroy({ where: {}, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-cache-test-'));
     cacheBudgetBytes = 10 * GB;
-    // Off by default, as on a server that has not enabled it; the parity case
-    // below switches it on before admitting anything.
     errorCorrection = { enabled: false, proportion: 0.1 };
     blobStore = new BlobStore({
       root,
@@ -121,8 +119,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('returns cache-tier content to the outbox when it is admitted locally', async () => {
-      // verifies spec: CACHE — a cache copy central holds cannot be told apart
-      // from one demoted after its referencing record was never created
+      // verifies spec: CACHE
       const content = uniqueContent();
       await putCache(content);
       const { hash } = await putOutbox(content);
@@ -150,8 +147,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('discards the parity of a demoted blob, since the cache tier carries none', async () => {
-      // verifies spec: FEC — central holds the content once it acknowledges the
-      // push, so a corrupt cache copy costs a refetch rather than needing parity
+      // verifies spec: FEC
       errorCorrection = { enabled: true, proportion: 0.1 };
       const { hash } = await putOutbox(Buffer.alloc(64 * 1024, 'o'));
       const sidecar = sidecarPathFor(hash);
@@ -166,8 +162,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('covers content promoted back to the outbox with parity again', async () => {
-      // verifies spec: FEC — a blob back in the outbox is again the only durable
-      // copy, so it is protected rather than left on the cache tier's terms
+      // verifies spec: FEC
       errorCorrection = { enabled: true, proportion: 0.1 };
       const content = Buffer.alloc(64 * 1024, 'p');
       const { hash } = await putOutbox(content);
@@ -183,7 +178,7 @@ describe('facility blob outbox and LRU cache', () => {
 
   describe('read-through open', () => {
     it('serves local bytes and refreshes stale recency', async () => {
-      // verifies spec: CACHE — any read refreshes recency
+      // verifies spec: CACHE
       const { hash, content } = await putCache();
       await setLastAccessed(hash, 10 * 60 * 1000);
 
@@ -195,7 +190,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('coalesces recency updates within the window', async () => {
-      // verifies spec: CACHE — recency updates may be coalesced
+      // verifies spec: CACHE
       const { hash } = await putCache();
       await setLastAccessed(hash, 30 * 1000);
       const before = (await models.Blob.findOne({ where: { hash } })).lastAccessedAt;
@@ -207,7 +202,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('fetches from central on a local miss, then serves', async () => {
-      // verifies spec: CACHE, XFER — evicted or absent content refetches on demand
+      // verifies spec: CACHE, XFER
       const content = uniqueContent();
       const hash = hashOf(content);
       blobCache.setTransferChannel({
@@ -226,8 +221,7 @@ describe('facility blob outbox and LRU cache', () => {
       await expect(blobCache.open(hashOf('never anywhere'))).rejects.toThrow(/no central/);
     });
 
-    // spec: SCRUB, CACHE — a copy the store will not serve is a miss, so the
-    // read resolves it from central instead of failing against the local copy.
+    // spec: SCRUB, CACHE
     it('refetches a corrupt local copy rather than failing the read', async () => {
       const content = uniqueContent();
       const { hash } = await blobStore.put(Readable.from(content));
@@ -247,8 +241,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('evicts least-recently-used content when a fetch takes the cache over budget', async () => {
-      // verifies spec: CACHE — the budget is enforced when a blob is admitted,
-      // and never at the expense of the arrival that triggered the admission
+      // verifies spec: CACHE
       const stale = await putCache();
       const recent = await putCache();
       await setLastAccessed(stale.hash, 3 * 60 * 60 * 1000);
@@ -279,7 +272,6 @@ describe('facility blob outbox and LRU cache', () => {
       await setLastAccessed(oldest.hash, 3 * 60 * 60 * 1000);
       await setLastAccessed(middle.hash, 2 * 60 * 60 * 1000);
       await setLastAccessed(newest.hash, 60 * 60 * 1000);
-      // budget forces roughly one blob's worth of eviction
       cacheBudgetBytes = middle.content.length + newest.content.length;
 
       await blobCache.enforceBudget();
@@ -290,7 +282,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('never evicts the most recently used blob merely to satisfy the budget', async () => {
-      // verifies spec: CACHE — a blob larger than the budget serves reads while in use
+      // verifies spec: CACHE
       const only = await putCache();
       cacheBudgetBytes = 1; // the lone cache blob exceeds the whole budget
 
@@ -322,22 +314,20 @@ describe('facility blob outbox and LRU cache', () => {
       cacheBudgetBytes = newest.content.length;
 
       const inProgress = await blobCache.open(oldest.hash);
-      // the open refreshed recency; re-pin it as the LRU so only the active
-      // read protects it
+      // The open refreshed recency; re-pin it as the LRU so only the active read protects it.
       await setLastAccessed(oldest.hash, 2 * 60 * 60 * 1000);
 
       await blobCache.enforceBudget();
       expect(await blobStore.has(oldest.hash)).toBe(true);
 
-      await readAll(inProgress); // completes and closes the stream
-      // the close event lands a tick later; wait for the guard to release
+      await readAll(inProgress);
       await waitFor(() => inProgress.closed);
       await blobCache.enforceBudget();
       expect(await blobStore.has(oldest.hash)).toBe(false);
     });
 
     it('evicts even the most recently used blob under free-disk floor pressure', async () => {
-      // verifies spec: CAP — the floor is the hard bound, the budget is a target
+      // verifies spec: CAP
       const only = await putCache();
 
       const result = await blobCache.evictBytes(1);
@@ -347,10 +337,10 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('applies a budget change on the next enforcement pass', async () => {
-      // verifies spec: CACHE — budget is read per pass, no restart needed
+      // verifies spec: CACHE
       const blob = await putCache();
       await setLastAccessed(blob.hash, 2 * 60 * 60 * 1000);
-      await putCache(); // newer MRU blob so the first is a candidate
+      await putCache();
       await blobCache.enforceBudget();
       expect(await blobStore.has(blob.hash)).toBe(true);
 
@@ -383,7 +373,7 @@ describe('facility blob outbox and LRU cache', () => {
     const eligibleAll = async (_models, hashes) => hashes;
 
     it('pushes only blobs whose referencing record has synchronised', async () => {
-      // verifies spec: CACHE — eligibility gate
+      // verifies spec: CACHE
       const synced = await putOutbox();
       const unsynced = await putOutbox();
       const pushed = [];
@@ -425,7 +415,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('continues past a failed push and leaves the blob in the outbox', async () => {
-      // verifies spec: CACHE — a refused or failed offer does not block the queue
+      // verifies spec: CACHE
       const failing = await putOutbox();
       const fine = await putOutbox();
       await models.Blob.update(
@@ -448,7 +438,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('starts no second transfer for a blob whose push is in flight', async () => {
-      // verifies spec: CACHE — at most one transfer in flight per blob
+      // verifies spec: CACHE
       const { hash } = await putOutbox();
       let resolvePush;
       let attempts = 0;
@@ -463,7 +453,7 @@ describe('facility blob outbox and LRU cache', () => {
       });
 
       const firstRun = pusher.runOnce();
-      await waitFor(() => attempts === 1); // the first push is in flight
+      await waitFor(() => attempts === 1);
       const secondRun = pusher.runOnce();
 
       resolvePush();
@@ -474,7 +464,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('leaves a blob in the outbox when a push returns without acknowledgement', async () => {
-      // verifies spec: CACHE — only an acknowledged push demotes the blob
+      // verifies spec: CACHE
       const { hash } = await putOutbox();
       const pusher = makePusher({
         resolvers: [eligibleAll],
@@ -488,8 +478,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('counts a push as done even if the local demotion fails', async () => {
-      // spec: XFER — an acknowledgement means the bytes are durable on central,
-      // so a failed local demote does not undo the push; it re-demotes next pass
+      // spec: XFER
       const { hash } = await putOutbox();
       const pusher = new BlobOutboxPusher({
         models,
@@ -505,8 +494,6 @@ describe('facility blob outbox and LRU cache', () => {
       const counts = await pusher.runOnce();
 
       expect(counts).toMatchObject({ pushed: 1, failed: 0 });
-      // demote threw, so the blob is still outbox — a later pass re-offers and
-      // re-demotes it (central's store is idempotent).
       expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
   });
@@ -541,7 +528,7 @@ describe('facility blob outbox and LRU cache', () => {
       });
 
     it('marks an eligible outbox blob once, at the push cursor when first eligible', async () => {
-      // verifies spec: CAP — the measure counts from eligibility, set once
+      // verifies spec: CAP
       const eligible = await putOutbox();
       const unsynced = await putOutbox();
       const pusher = makeCyclePusher(eligible.hash);
@@ -551,7 +538,6 @@ describe('facility blob outbox and LRU cache', () => {
       expect(await eligibleSinceOf(eligible.hash)).toBe(100);
       expect(await eligibleSinceOf(unsynced.hash)).toBeNull();
 
-      // a later cycle leaves the existing marker untouched
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '200');
       await pusher.recordSyncCycle();
       expect(await eligibleSinceOf(eligible.hash)).toBe(100);
@@ -559,7 +545,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('clears the marker when a pushed blob is demoted', async () => {
-      // verifies spec: CACHE — demotion resets the eligibility marker
+      // verifies spec: CACHE
       const { hash } = await putOutbox();
       const pusher = makeCyclePusher(hash);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '5');
@@ -571,10 +557,10 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('reports outbox size and the oldest eligibility marker', async () => {
-      // verifies spec: CAP — surfaced as a health signal
+      // verifies spec: CAP
       const eligible = await putOutbox();
-      await putOutbox(); // stays unsynced → no marker
-      await putCache(); // cache blobs are outside the outbox
+      await putOutbox();
+      await putCache();
       const pusher = makeCyclePusher(eligible.hash);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '42');
       await pusher.recordSyncCycle();
@@ -600,8 +586,6 @@ describe('facility blob outbox and LRU cache', () => {
       const dysfunctionCalls = () =>
         errorLog.mock.calls.filter(([message]) => /outbox dysfunction/i.test(message));
 
-      // A blob eligible at the given cursor, with the cursor left where the
-      // caller wants it for the cycle under test.
       const eligibleSince = async (pusher, tick) => {
         await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, String(tick));
         await pusher.recordSyncCycle();
@@ -609,7 +593,7 @@ describe('facility blob outbox and LRU cache', () => {
       };
 
       it('escalates a blob left unpushed across several successful syncs', async () => {
-        // verifies spec: CAP — the connection is working but the push path is not
+        // verifies spec: CAP
         const { hash } = await putOutbox();
         const pusher = makeCyclePusher(hash);
         await eligibleSince(pusher, 10);
@@ -625,8 +609,7 @@ describe('facility blob outbox and LRU cache', () => {
       });
 
       it('stays quiet while a blob has only just become eligible', async () => {
-        // verifies spec: CAP — accumulation is measured against sync progress,
-        // so a blob that has not yet outlived several cycles is not dysfunction
+        // verifies spec: CAP
         const { hash } = await putOutbox();
         const pusher = makeCyclePusher(hash);
         await eligibleSince(pusher, 10);
@@ -638,8 +621,7 @@ describe('facility blob outbox and LRU cache', () => {
       });
 
       it('treats a blob whose transfer is in flight as healthy accumulation', async () => {
-        // verifies spec: CAP — escalation applies to eligible blobs that are not
-        // being attempted, so a slow but progressing transfer is not dysfunction
+        // verifies spec: CAP
         const { hash } = await putOutbox();
         let resolvePush;
         let attempts = 0;
@@ -672,8 +654,7 @@ describe('facility blob outbox and LRU cache', () => {
   });
 
   describe('synced reference resolver eligibility', () => {
-    // A throwaway stand-in for a consumer table (attachments arrive in a later
-    // card); rows carry a hash and a raw sync tick, no triggers.
+    // A stand-in consumer table: rows carry a hash and a raw sync tick, no triggers.
     const TABLE = 'blob_ref_resolver_test';
     let originalPushCursor;
 
@@ -707,7 +688,7 @@ describe('facility blob outbox and LRU cache', () => {
     };
 
     it('is synced only when pushed (positive tick at or under the cursor) or arrived from elsewhere', async () => {
-      // verifies spec: CACHE — the eligibility gate; flag ticks are not "pushed"
+      // verifies spec: CACHE
       await seed([
         ['pushed', 5], // eligible: a real tick at or below the push cursor
         ['fromElsewhere', -999], // eligible: LAST_UPDATED_ELSEWHERE
@@ -730,7 +711,7 @@ describe('facility blob outbox and LRU cache', () => {
     });
 
     it('treats nothing as pushed before the first successful push completes', async () => {
-      // verifies spec: CACHE — with no push cursor, only from-elsewhere records qualify
+      // verifies spec: CACHE
       await seed([
         ['pushed', 5],
         ['fromElsewhere', -999],

@@ -1,9 +1,9 @@
 import { BLOB_TIERS, CURRENT_BLOB_HASH_ALGORITHM, type BlobTier } from '@tamanu/constants';
-// Root import, not the `blobs` subpath: see the note in admission.ts.
+// Root import, not the `blobs` subpath: metro can't follow subpath exports.
 import { formatBlobHash } from '@tamanu/utils';
 
-// Known digests, so a host that hashes differently fails here rather than
-// silently storing content under an identity the other host can't resolve.
+// Known digests, so a host that hashes differently fails here rather than storing content the other
+// host can't resolve.
 const EMPTY_CONTENT_HASH = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const HELLO_WORLD = 'hello world';
 const HELLO_WORLD_HASH =
@@ -12,33 +12,24 @@ const HELLO_WORLD_HASH =
 export interface RegistryRow {
   tier: string;
   /**
-   * An instant, not a raw storage string: hosts store timestamps in their own
-   * formats, and SQLite's `datetime('now')` in particular reads back as a
-   * timezone-less string that parses as local time. Each harness normalises.
+   * SQLite's `datetime('now')` reads back as a timezone-less string that parses as local time, so
+   * each harness normalises.
    */
   lastAccessedAt: Date | number;
   deletedAt: Date | number | null;
 }
 
 /**
- * What a host has to expose for the contract suite to drive it. Beyond the
- * ports the package uses in anger, it includes the few hooks a test needs to
- * arrange state (soft-delete a row, age an access) — hosts implement those in
- * their own test harness, not in production code.
+ * Includes a few arrange-only hooks that hosts implement in their test harness, not production
+ * code.
  */
 export interface BlobHostUnderTest {
-  /** Writes content to a scratch file and returns its path. */
   writeScratchFile(content: string): Promise<string>;
   hashFile(path: string, algorithm: string): Promise<string>;
   fileExists(path: string): Promise<boolean>;
   pathFor(hash: string): string;
   place(fromPath: string, toPath: string): Promise<void>;
-  /**
-   * Admits the given content under the tier, storing it so its computed hash is
-   * the one the suite then looks up. Takes the content rather than a hash so the
-   * stored identity genuinely matches, instead of the host faking admission with
-   * fixed bytes that only happen to hash to what each case expects.
-   */
+  /** Takes the content rather than a hash, so the stored identity genuinely matches. */
   register(content: string, tier: BlobTier): Promise<void>;
   row(hash: string): Promise<RegistryRow | null>;
   softDelete(hash: string): Promise<void>;
@@ -46,7 +37,6 @@ export interface BlobHostUnderTest {
   touch(hash: string, options: { coalesceSeconds: number }): Promise<void>;
   setLastAccessedAt(hash: string, when: Date): Promise<void>;
   stagedSize(hash: string): Promise<number>;
-  /** Appends a received part to the staging, returning the new staged size. */
   stageAppendPart(hash: string, content: string): Promise<number>;
   discardStaged(hash: string): Promise<void>;
 }
@@ -68,12 +58,7 @@ function assertEqual(actual: unknown, expected: unknown, message: string): void 
 
 const timeOf = (value: Date | number) => new Date(value).getTime();
 
-/**
- * The suite every host implementation must pass, so a divergence fails on the
- * host that diverged rather than surfacing as content one side cannot resolve.
- * Framework-agnostic: each case throws on failure, and the host's own test file
- * feeds them to whatever runner it uses.
- */
+/** Each case throws on failure; the host's test file feeds them to its runner. */
 export const BLOB_HOST_CONTRACT: ContractCase[] = [
   {
     // spec: CAS

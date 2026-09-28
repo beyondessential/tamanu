@@ -608,11 +608,7 @@ describe('SurveyResponseAnswer', () => {
     });
 
     // spec: ATCH, CAS
-    // Blanking a photo overwrites its attachment with empty content, admitted to
-    // the store like any other blob, so the emptied attachment stays hash-backed
-    // and synchronises rather than reverting to an in-database row.
     describe('PUT /photo/:id', () => {
-      // sha256 of zero bytes
       const EMPTY_HASH = `sha256:${'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}`;
 
       it('re-admits the photo attachment as empty, hash-backed content', async () => {
@@ -656,9 +652,7 @@ describe('SurveyResponseAnswer', () => {
         expect(blanked.hash).toBe(EMPTY_HASH);
         expect(blanked.data).toBeFalsy();
         expect(Number(blanked.size)).toBe(0);
-        // spec: ATCH, BLAC — the upsert scopes the row it may be creating, so the
-        // emptied attachment stays inside the facility's scope and its blob is
-        // pushable rather than stranded in the outbox
+        // spec: ATCH, BLAC
         expect(blanked.patientId).toBe(patient.id);
         expect(blanked.encounterId).toBe(encounter.id);
         await answer.reload();

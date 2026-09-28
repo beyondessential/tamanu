@@ -18,8 +18,7 @@ const decide = (overrides: Partial<Parameters<typeof blobWithholdReason>[0]>) =>
   });
 
 describe('blobWithholdReason', () => {
-  // verifies spec: AV — with the policy off, blobs are served subject only to
-  // access control, so a verdict is recorded but never acted on
+  // verifies spec: AV
   describe('off', () => {
     const policy = BLOB_SERVE_POLICIES.OFF;
 
@@ -31,9 +30,7 @@ describe('blobWithholdReason', () => {
       expect(decide({ policy, ...overrides })).toBeNull();
     });
 
-    // verifies spec: AV — a quarantine is the deployment's standing record of
-    // confirmed malware rather than one server's verdict, so the posture that
-    // holds back enforcement of verdicts does not license serving it
+    // verifies spec: AV
     it('still withholds quarantined content', () => {
       expect(decide({ policy, quarantined: true })).toBe(
         BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
@@ -41,8 +38,7 @@ describe('blobWithholdReason', () => {
     });
   });
 
-  // verifies spec: AV — serve-unless-known-bad serves any blob that does not
-  // have an infected verdict, including not-yet-scanned content
+  // verifies spec: AV
   describe('unless known bad', () => {
     const policy = BLOB_SERVE_POLICIES.UNLESS_KNOWN_BAD;
 
@@ -56,8 +52,7 @@ describe('blobWithholdReason', () => {
       );
     });
 
-    // verifies spec: AV — quarantine is content-addressed and propagates, so a
-    // server that never scanned the content still withholds it
+    // verifies spec: AV
     it('withholds a hash quarantined elsewhere, unscanned here', () => {
       expect(decide({ policy, scanVerdict: null, quarantined: true, scans: false })).toBe(
         BLOB_AVAILABILITY_STATES.WITHHELD_INFECTED,
@@ -65,8 +60,7 @@ describe('blobWithholdReason', () => {
     });
   });
 
-  // verifies spec: AV — serve-only-when-known-good serves a blob only once it
-  // has a clean verdict; not-yet-scanned content is withheld until scanned
+  // verifies spec: AV
   describe('only known good', () => {
     const policy = BLOB_SERVE_POLICIES.ONLY_KNOWN_GOOD;
 
@@ -84,9 +78,7 @@ describe('blobWithholdReason', () => {
       );
     });
 
-    // verifies spec: AV — a server without a scanner of its own holds no
-    // verdicts, so it serves on central's known-bad records rather than
-    // withholding everything it has
+    // verifies spec: AV
     it('falls back to unless-known-bad on a server that runs no scanner', () => {
       expect(decide({ policy, scanVerdict: null, scans: false })).toBeNull();
       expect(decide({ policy, quarantined: true, scans: false })).toBe(
@@ -94,9 +86,7 @@ describe('blobWithholdReason', () => {
       );
     });
 
-    // verifies spec: AV — content the server does not hold cannot be waited on
-    // for a verdict: the scan reads what is on disk, so withholding it before
-    // it is fetched would keep it from ever being fetched or scanned
+    // verifies spec: AV
     it('does not withhold content this server has yet to hold', () => {
       expect(decide({ policy, scanVerdict: null, scans: false })).toBeNull();
     });

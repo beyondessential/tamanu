@@ -68,14 +68,11 @@ export class BackendManager {
     this.syncManager = new MobileSyncManager(this.centralServer, this.settings);
 
     // spec: MOB, CAS
-    // The device's blob world: a content-addressed store on the app's private
-    // storage, an outbox/cache tiering over it, a transfer channel to central,
-    // and a pusher that drains the outbox after each successful sync.
     this.blobStore = new MobileBlobStore({
       root: `${RNFS.DocumentDirectoryPath}/blobs`,
       models,
       getFreeDiskReserveBytes: deriveFreeDiskReserveBytes,
-      // spec: CAP — evict cache before refusing a new blob for the floor
+      // spec: CAP
       evictCache: bytesNeeded => this.blobCache.evictBytes(bytesNeeded),
     });
     this.blobCache = new MobileBlobCache({ blobStore: this.blobStore, models });
@@ -91,8 +88,8 @@ export class BackendManager {
       blobCache: this.blobCache,
     });
 
-    // spec: CACHE, MOB — a sync is the moment records are known to be on
-    // central, so push outbox bytes and re-derive the cache budget then.
+    // spec: CACHE, MOB
+    // A sync is when records are known to be on central.
     this.syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, () => {
       this.runBlobMaintenance().catch(error => {
         console.warn(`BackendManager: blob maintenance after sync failed: ${error.message}`);
@@ -102,8 +99,8 @@ export class BackendManager {
 
   async initialise(): Promise<void> {
     await Database.connect();
-    // spec: MOB — adopt pre-blob-store attachments and demote stranded outbox
-    // blobs before the first sync of the session can push their records.
+    // spec: MOB
+    // Before the session's first sync can push their records.
     try {
       await reconcileAttachments({ models: this.models, blobStore: this.blobStore });
     } catch (error) {
@@ -131,8 +128,7 @@ export class BackendManager {
   }
 
   async runBlobMaintenance(): Promise<void> {
-    // Push first, then measure: the dysfunction signal should reflect what is
-    // still unpushed after this cycle's attempt, not before it.
+    // Push first, so the dysfunction signal reflects what's still unpushed after this attempt.
     await this.blobPusher.runOnce();
     await this.blobPusher.recordSyncCycle();
     await this.blobCache.enforceBudget();

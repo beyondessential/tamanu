@@ -9,9 +9,6 @@ import { deleteRedundantLocalCopies } from '../../app/sync/deleteRedundantLocalC
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
 // verifies spec: ATCH
-// Attachment records synchronise as ordinary persistent records, so a facility
-// still holds them once they have reached the central server. Nothing else
-// resolves their content from here afterwards: the hash lives on the row.
 describe('attachment retention after a push', () => {
   let ctx;
   let models;

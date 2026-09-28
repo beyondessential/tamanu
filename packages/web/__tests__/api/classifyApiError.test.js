@@ -45,8 +45,7 @@ const EXPECTED_BY_TYPE = {
   [ERROR_TYPE.STORAGE_INSUFFICIENT]: API_ERROR_TOAST.SERVER,
   [ERROR_TYPE.UNIMPLEMENTED]: API_ERROR_TOAST.SERVER,
   [ERROR_TYPE.UNKNOWN]: API_ERROR_TOAST.SERVER,
-  // A blob transfer integrity failure is server-side and not something the user
-  // can act on, so it takes the generic server toast.
+  // Server-side and not actionable by the user.
   [ERROR_TYPE.BLOB_HASH_MISMATCH]: API_ERROR_TOAST.SERVER,
 };
 

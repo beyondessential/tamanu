@@ -24,9 +24,6 @@ interface FakeRow {
   hasParity: boolean;
 }
 
-// In-memory Blob registry covering what the store and the scrubber ask of it:
-// findOne, findAll with the least-recently-scrubbed ordering, update, destroy,
-// and the raw upsert.
 function makeFakeBlobModel() {
   const rows = new Map<string, FakeRow>();
   let inserted = 0;
@@ -34,7 +31,6 @@ function makeFakeBlobModel() {
   const matches = (row: FakeRow, where: Record<string, unknown> = {}) =>
     Object.entries(where).every(([field, expected]) => {
       const value = row[field as keyof FakeRow];
-      // An array value is an IN check (the batched existence lookup).
       if (Array.isArray(expected)) {
         return expected.includes(value);
       }
@@ -44,7 +40,6 @@ function makeFakeBlobModel() {
           if (symbol === Op.gte) {
             return (value as number) >= (operand as number);
           }
-          // Op.ne (a scalar) and Op.notIn (an array) alike.
           return ![operand].flat().includes(value);
         });
       }
@@ -59,8 +54,7 @@ function makeFakeBlobModel() {
     async findAll({ where, limit }: { where?: Record<string, unknown>; limit?: number } = {}) {
       const found = [...rows.values()]
         .filter(row => matches(row, where))
-        // Mirrors the scrubber's order: never-scrubbed first, then oldest scrub,
-        // then oldest row.
+        // Mirrors the scrubber's order: never-scrubbed first, then oldest scrub, then oldest row.
         .sort((a, b) => {
           const left = a.lastScrubbedAt?.getTime() ?? -Infinity;
           const right = b.lastScrubbedAt?.getTime() ?? -Infinity;
@@ -92,7 +86,6 @@ function makeFakeBlobModel() {
             integrityState: bind.integrityState,
             tier: bind.tier,
             lastScrubbedAt: new Date(),
-            // Distinct and increasing, so createdAt is a stable tiebreak.
             createdAt: new Date(inserted * 1000),
             hasParity: false,
           });
@@ -134,7 +127,7 @@ describe('BlobScrubber', () => {
       log: { info: () => {}, warn: () => {} },
     });
 
-  // spec: FEC — a store with error correction switched on, for the retrofit pass.
+  // spec: FEC
   const makeParityStore = ({ enabled = true } = {}) =>
     new BlobStore({
       root,
@@ -206,23 +199,19 @@ describe('BlobScrubber', () => {
       const result = await makeScrubber().run();
 
       expect(result.verified).toBe(5);
-      // One stamp call carrying all five, not one write per blob.
       const stampCalls = calls.filter(hashes => hashes.length > 0);
       expect(stampCalls).toHaveLength(1);
       expect(stampCalls[0]).toHaveLength(5);
     });
 
     it('leaves a blob corrupt mid-pass corrupt, not stamped verified by the flush', async () => {
-      // Two intact blobs, so the first has verified and is sitting in the
-      // pending batch while the second is still being read.
+      // The first has verified and is pending in the batch while the second is read.
       const { hash: first } = await store.put(Readable.from(Buffer.from('first content')));
       const { hash: second } = await store.put(Readable.from(Buffer.from('second content')));
       const original = store.verify.bind(store);
       store.verify = async hash => {
         const outcome = await original(hash);
         if (hash === second) {
-          // A read-path corruption on the first blob lands between its verify()
-          // and the end-of-pass flush.
           fakeBlob.rows.get(first)!.integrityState = 'corrupt';
         }
         return outcome;
@@ -277,9 +266,7 @@ describe('BlobScrubber', () => {
     });
 
     it('re-checks an absent blob without re-reporting it while it stays missing', async () => {
-      // A registry row whose bytes are gone, recorded absent by an earlier pass.
-      // The scrub still looks at it (that is how it would notice recovery) but
-      // does not re-escalate or re-heal, and re-stamps it so it yields its slot.
+      // Recorded absent by an earlier pass: looked at but not re-escalated, and re-stamped.
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       await removeStoredBytes(hash);
       fakeBlob.rows.get(hash)!.integrityState = 'absent';
@@ -294,8 +281,7 @@ describe('BlobScrubber', () => {
     });
 
     it('restores an absent blob to verified once its bytes return', async () => {
-      // The bytes come back (e.g. a backup restore drops the file into place)
-      // while the registry row still stands absent; the scrub flips it back.
+      // As after a backup restore drops the file back into place.
       const { hash } = await store.put(Readable.from(Buffer.from('hello world')));
       fakeBlob.rows.get(hash)!.integrityState = 'absent';
 
@@ -392,8 +378,6 @@ describe('BlobScrubber', () => {
     });
 
     it('partitions a batch of stored hashes into registered and orphan', async () => {
-      // A registered blob and two orphans interleaved: the batched existence
-      // check must reconcile only the orphans and leave the registered one.
       const registered = await store.put(Readable.from(Buffer.from('registered content')));
       const orphanA = await store.put(Readable.from(Buffer.from('orphan a')));
       const orphanB = await store.put(Readable.from(Buffer.from('orphan b')));
@@ -405,7 +389,6 @@ describe('BlobScrubber', () => {
       expect(result.adopted).toBe(2);
       expect(fakeBlob.rows.get(orphanA.hash)!.integrityState).toBe('verified');
       expect(fakeBlob.rows.get(orphanB.hash)!.integrityState).toBe('verified');
-      // The registered blob was verified by the verification pass, not adopted.
       expect(fakeBlob.rows.get(registered.hash)!.integrityState).toBe('verified');
     });
 
@@ -418,8 +401,6 @@ describe('BlobScrubber', () => {
 
       const result = await makeScrubber({ maxBlobs: 2 }).run();
 
-      // Two adopted this pass; the third stays unregistered on disk and is found
-      // again next pass, so coverage is not lost.
       expect(result.adopted).toBe(2);
       expect(result.ratelimited).toBe(true);
       const stillOrphan = orphans.filter(hash => !fakeBlob.rows.has(hash));
@@ -446,7 +427,7 @@ describe('BlobScrubber', () => {
   });
   // spec: FEC
   describe('parity pass', () => {
-    // A blob big enough to be covered: below the size floor parity is skipped.
+    // Below the size floor parity is skipped.
     const covered = Buffer.alloc(64 * 1024, 'c');
     const sidecarOf = (hash: string) => {
       const digest = hash.split(':')[1];
@@ -460,11 +441,9 @@ describe('BlobScrubber', () => {
     };
 
     it('brings a store that predates error correction under protection', async () => {
-      // Admitted with error correction off, so the content is stored unprotected.
       const { hash } = await makeParityStore({ enabled: false }).put(Readable.from(covered));
       await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
 
-      // Switched on: the scrub retrofits what is already stored.
       const result = await makeScrubber({ blobStore: makeParityStore() }).run();
 
       expect(result.protected).toBe(1);
@@ -516,8 +495,6 @@ describe('BlobScrubber', () => {
 
       const result = await makeScrubber({ blobStore: makeParityStore() }).run();
 
-      // The verification pass owns the fault; parity is never computed over bytes
-      // that would protect the corruption instead of the content.
       expect(result.protected).toBe(0);
       expect(result.faults).toBe(1);
       await expect(fs.access(sidecarOf(hash))).rejects.toThrow();
@@ -529,7 +506,6 @@ describe('BlobScrubber', () => {
         await disabled.put(Readable.from(Buffer.alloc(64 * 1024, `p${index}`)));
       }
 
-      // Enough for one blob's verify-then-encode, not for three.
       const result = await makeScrubber({
         blobStore: makeParityStore(),
         maxBytes: 64 * 1024,

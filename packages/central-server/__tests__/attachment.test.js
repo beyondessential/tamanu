@@ -59,12 +59,9 @@ describe('Attachment (central-server)', () => {
   });
 
   // spec: BKFL
-  // A row the backfill has not reached yet is served the same way a moved one is,
-  // so a reader cannot tell which form it got. Ranged reads are what a PDF viewer
-  // does, and they used to work only once the row had moved.
+  // A PDF viewer makes ranged reads, so an unmoved row must serve them too.
   it('serves a requested byte range of a row still holding its bytes', async () => {
-    // Taken from the response rather than the row's `size`, which the store no
-    // longer trusts either: the extent has to come from the bytes themselves.
+    // The extent comes from the bytes, not the row's `size`.
     const whole = await app.get(`/api/attachment/${attachment.id}`);
     const bytes = Buffer.from(whole.body);
 
@@ -75,8 +72,7 @@ describe('Attachment (central-server)', () => {
     expect(Buffer.from(result.body)).toEqual(bytes.subarray(5, 15));
   });
 
-  // The one difference that remains, and it has a reason: a row that still holds
-  // its bytes has no content hash, so there is nothing to validate against.
+  // A row still holding its bytes has no content hash to validate against.
   it('serves a row still holding its bytes without a validator', async () => {
     const result = await app.get(`/api/attachment/${attachment.id}`);
     expect(result).toHaveSucceeded();
@@ -97,8 +93,6 @@ describe('Attachment (central-server)', () => {
   });
 
   // spec: ATCH
-  // The store refuses admission rather than cross the host's free-disk reserve,
-  // and the route surfaces that as the upload's rejection (see capacity.md).
   it('should send error if there is no enough disk space', async () => {
     vi
       .spyOn(ctx.blobStore, 'put')
@@ -127,8 +121,6 @@ describe('Attachment (central-server)', () => {
   });
 
   // spec: ATCH, BLAC
-  // Scope cannot be set from the request body: a client must not be able to
-  // scope an attachment to an arbitrary patient or encounter.
   it('ignores patient and encounter scope supplied in the request body', async () => {
     const result = await app.post('/api/attachment').send({
       type: 'image/jpeg',
@@ -169,7 +161,7 @@ describe('Attachment (central-server)', () => {
     it('records the size of the bytes actually admitted, not the declared size', async () => {
       const result = await app.post('/api/attachment').send({
         type: 'image/jpeg',
-        size: 7, // a caller's declaration the admitted bytes contradict
+        size: 7,
         data: FILEDATA,
       });
       expect(result).toHaveSucceeded();
@@ -186,8 +178,7 @@ describe('Attachment (central-server)', () => {
       expect(result.text).toBe(CONTENT.toString('utf8'));
     });
 
-    // spec: SERVE — a hash names immutable content, so a client that already holds
-    // it is told so rather than sent the bytes a second time.
+    // spec: SERVE
     it('sends no bytes to a client that already holds the content', async () => {
       const first = await app.get(`/api/attachment/${stored.id}`);
       expect(first.headers['cache-control']).toBe('private, max-age=31536000, immutable');
@@ -221,8 +212,6 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: SERVE
-    // Inline encoding holds the whole content in memory, so content past the
-    // limit is refused that way and the caller directed to stream it.
     it('refuses to encode content past the inline limit', async () => {
       vi.spyOn(ctx.blobStore, 'servableStat').mockResolvedValueOnce({
         size: MAX_INLINE_BLOB_BYTES + 1,
@@ -237,9 +226,7 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: ATCH
-    // Central holds the record but not yet the bytes: the origin has synced its
-    // attachment but not pushed its content. It presents as awaiting upload, not
-    // a crash on the missing blob.
+    // The origin has synced the record but not pushed its content.
     it('presents a hash-backed attachment whose bytes central lacks as awaiting content', async () => {
       const pending = await models.Attachment.create({
         type: 'application/pdf',
@@ -256,10 +243,6 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: SCRUB
-    // A corrupt copy is retained but never served, and the transfer routes
-    // answer for it exactly as they do for content central does not hold. This
-    // route answers the same way, so reading an attachment neither serves the
-    // bad bytes nor discloses that it is corrupt.
     it('presents a corrupt blob as awaiting content, without disclosing that it is corrupt', async () => {
       const { hash, size } = await ctx.blobStore.put(
         Readable.from([Buffer.from('bytes that later fail verification', 'utf8')]),
@@ -277,8 +260,6 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: AV
-    // Infected content is answered as its own state rather than as pending, so
-    // a reader is told the content is not coming instead of waiting on it.
     it('presents a quarantined blob as withheld, not as pending', async () => {
       const { hash, size } = await ctx.blobStore.put(
         Readable.from([Buffer.from('content found to be malware', 'utf8')]),
@@ -295,9 +276,6 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: AV
-    // Serve-only-when-known-good withholds content until it has been scanned
-    // clean, and answers it in the content-pending shape so a client can tell
-    // it apart from content that is gone.
     describe('under serve-only-when-known-good', () => {
       let unscanned;
 
@@ -372,9 +350,7 @@ describe('Attachment (central-server)', () => {
     });
 
     // spec: BLAC, ATCH
-    // The permission check governs the referencing record and runs ahead of the
-    // hash branch, so a blob-backed attachment is refused exactly as a row
-    // holding its own bytes is.
+    // The permission check runs ahead of the hash branch.
     describe('on a hash-backed attachment', () => {
       let blobBacked;
 

@@ -35,12 +35,8 @@ describe('snapshotOutgoingChanges', () => {
   );
 
   // spec: BKFL
-  // An attachment held locally and not yet pushed when the server upgrades keeps
-  // its bytes in the row: the push selects on sync tick alone, so the record goes
-  // to central inline exactly as it did before the epic, and central's own backfill
-  // relocates the content. A facility converting it locally instead would create a
-  // hash reference to content only that facility holds, pinned un-evictable in its
-  // cache for as long as the reference stood.
+  // Converting locally would reference content only this facility holds, pinned in its cache while
+  // the reference stood.
   it(
     'pushes an attachment still holding its bytes, carrying them inline',
     withErrorShown(async () => {

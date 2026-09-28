@@ -1,19 +1,9 @@
 // spec: BLAC
-// The tables that reference blobs by hash. Access to blob content is authorised
-// against these references: a hash is in scope for a requesting server when at
-// least one referencing record lies within that server's synchronisation scope,
-// mirroring the pull filter over sync_lookup (see snapshotOutgoingChanges), so
-// blob scoping cannot drift from record scoping. A source registered here must
-// be a synced table (present in sync_lookup), or its references never authorise
-// anything.
-//
-// Assets join this list as they move onto the blob store.
+// Scoping mirrors the pull filter over sync_lookup, so a source must be a synced table or its
+// references authorise nothing.
 const BLOB_REFERENCE_SOURCES = [{ recordType: 'attachments', hashColumn: 'hash' }];
 
-// Table and column names are interpolated into SQL as identifiers (which can't
-// be parameterised); anything else goes through replacements. The pattern
-// admits digits after the first character so names like `document_metadata_v2`
-// register.
+// Identifiers are interpolated into SQL, since they can't be parameterised.
 const SAFE_IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
 
 export function registerBlobReferenceSource({ recordType, hashColumn }) {
@@ -22,9 +12,7 @@ export function registerBlobReferenceSource({ recordType, hashColumn }) {
       `Blob reference source must use plain snake_case identifiers: ${recordType}.${hashColumn}`,
     );
   }
-  // Idempotent: a server process may build its context more than once (notably
-  // across test contexts), and the same source must not stack duplicate UNION
-  // branches into the scope query.
+  // Idempotent: a process may build its context more than once, notably across test contexts.
   const existing = BLOB_REFERENCE_SOURCES.find(
     s => s.recordType === recordType && s.hashColumn === hashColumn,
   );
@@ -47,15 +35,8 @@ export function registerBlobReferenceSource({ recordType, hashColumn }) {
 }
 
 // spec: SCRUB
-// Referential integrity in the direction the verification pass cannot see. That
-// pass walks the registry, so it finds rows whose bytes have gone; this finds
-// synchronised records referencing a hash the registry does not name at all,
-// which is central advertising content it cannot serve.
-//
-// `deliveredBefore` is what separates a fault from ordinary content-pending:
-// push is sync-first, so every reference is briefly ahead of its bytes, and
-// only a reference whose record synced long enough ago for the upload to have
-// happened counts as undelivered.
+// Push is sync-first, so every reference is briefly ahead of its bytes: `deliveredBefore` separates
+// a fault from content-pending.
 export async function findUndeliverableReferences(sequelize, { limit, deliveredBefore }) {
   if (BLOB_REFERENCE_SOURCES.length === 0) {
     return [];
@@ -64,9 +45,8 @@ export async function findUndeliverableReferences(sequelize, { limit, deliveredB
   const replacements = { limit, deliveredBefore };
   const perSource = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {
     replacements[`recordType${index}`] = recordType;
-    // A deleted record references nothing, so its content is not undelivered.
-    // Both sides are checked: the lookup keeps `data` populated for a deleted
-    // row, and a source table may be tombstoned ahead of its lookup entry.
+    // Both sides are checked: the lookup keeps `data` for a deleted row, and a source may be
+    // tombstoned ahead of its lookup entry.
     return `
       SELECT record.${hashColumn} AS hash, record.updated_at AS referenced_at
       FROM ${recordType} record
@@ -80,8 +60,7 @@ export async function findUndeliverableReferences(sequelize, { limit, deliveredB
       AND record.updated_at < :deliveredBefore`;
   });
 
-  // Longest-undelivered first, so a backlog past the limit reports the same
-  // worst cases every pass rather than an arbitrary slice of itself.
+  // Longest-undelivered first, so a backlog past the limit reports the same worst cases every pass.
   const [rows] = await sequelize.query(
     `
       SELECT referenced.hash
@@ -98,14 +77,7 @@ export async function findUndeliverableReferences(sequelize, { limit, deliveredB
 }
 
 // spec: BLAC
-// Whether a hash is referenced by a record within the given facility scope.
-// `facilityIds` is the set of facilities the requesting server operates as —
-// the same set record synchronisation scopes a pull to, declared by the client
-// and validated against its entitlement by the caller, never the user's whole
-// entitlement (which may be every facility). The scope predicate is the sync
-// pull filter's: a record is in scope when its patient is marked for sync at one
-// of the facilities and, for records pinned to a (sensitive) facility, that
-// facility is among them.
+// `facilityIds` is the declared, validated scope, never the user's whole entitlement.
 export async function isHashReferencedInScope(sequelize, { hash, facilityIds }) {
   if (BLOB_REFERENCE_SOURCES.length === 0 || facilityIds.length === 0) {
     return false;
@@ -122,9 +94,6 @@ export async function isHashReferencedInScope(sequelize, { hash, facilityIds }) 
         sync_lookup.facility_id IS NULL
         OR sync_lookup.facility_id IN (:facilityIds)
       )`;
-  // Table and column names must be interpolated (SQL identifiers can't be
-  // bound), and are constrained to SAFE_IDENTIFIER at registration. The
-  // record_type value is a bound parameter per source.
   const replacements = { hash, facilityIds };
   const perSource = BLOB_REFERENCE_SOURCES.map(({ recordType, hashColumn }, index) => {
     replacements[`recordType${index}`] = recordType;

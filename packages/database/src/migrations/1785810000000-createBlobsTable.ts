@@ -3,9 +3,7 @@ import { DataTypes, QueryInterface } from 'sequelize';
 const TABLE = { tableName: 'blobs', schema: 'public' };
 
 // spec: CAS
-// The local blob registry: which blobs this server holds on disk, their size,
-// and their integrity state. Local to each server — never synced and excluded
-// from change logging (see services/migrations/constants.ts).
+// Never synced and excluded from change logging (see services/migrations/constants.ts).
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE, {
     id: {

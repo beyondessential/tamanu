@@ -3,14 +3,10 @@ import { pipeline } from 'node:stream/promises';
 import { MAX_INLINE_BLOB_BYTES } from '@tamanu/constants';
 import { InvalidParameterError } from '@tamanu/errors';
 
-// Resume-oriented subset of HTTP ranges: a single open-ended or closed range.
-// Anything else is ignored and the full blob served, as RFC 9110 permits.
+// A single open-ended or closed range; anything else serves the full blob, as RFC 9110 permits.
 const RANGE_PATTERN = /^bytes=(?<start>\d+)-(?<end>\d*)$/;
 
 // spec: SERVE
-// Read a stored blob into a base64 string for a caller that consumes the content
-// inline. The whole blob and its encoding are held in memory at once, so content
-// past the inline limit is refused rather than served this way.
 export async function readBlobAsBase64({ size, open }) {
   if (size > MAX_INLINE_BLOB_BYTES) {
     throw new InvalidParameterError(
@@ -25,9 +21,7 @@ export async function readBlobAsBase64({ size, open }) {
 }
 
 // spec: SERVE
-// spec: SERVE
-// Whether the client already holds this content. Weak comparison per RFC 9110,
-// which is what If-None-Match takes, so a `W/` prefix still matches.
+// Weak comparison per RFC 9110, so a `W/` prefix still matches.
 function clientHoldsContent(req, etag) {
   const header = req.headers['if-none-match'];
   if (!etag || !header) {
@@ -39,29 +33,16 @@ function clientHoldsContent(req, etag) {
   return header.split(',').some(candidate => candidate.trim().replace(/^W\//, '') === etag);
 }
 
-// Stream a stored blob over HTTP: range support for large files, the hash as a
-// strong entity tag since it names immutable content, and a pipeline that
-// destroys the source when either side terminates so a dropped download does not
-// leak the open file handle. The caller supplies `open`, which returns the byte
-// stream for a range, and a facility passes its cache's read-through open, so a
-// served blob is fetched on a local miss and counts as a use.
-//
-// A legacy attachment, whose bytes are still in its database row, has no content
-// hash and so nothing to validate against. It passes no `hash` and is served
-// without a validator, but with everything else the same (see backfill.md).
 // spec: SERVE
-// A hash names immutable content, so a client holding it never needs the bytes
-// again. Private, since blob content is clinical data and a shared cache must not
-// keep a copy.
+// Private: blob content is clinical data, so a shared cache must not keep a copy.
 const IMMUTABLE = 'private, max-age=31536000, immutable';
 
 export async function serveBlob(req, res, { hash, size, contentType, open }) {
   const etag = hash ? `"${hash}"` : null;
 
   if (clientHoldsContent(req, etag)) {
-    // Carries the freshness a 200 would: a cache updates its stored entry from
-    // the headers the 304 arrives with, so omitting it leaves a client that
-    // cached before this existed revalidating on every read forever.
+    // Carries the freshness a 200 would, or a client that cached earlier revalidates on every read
+    // forever.
     res.status(304).setHeader('etag', etag).setHeader('cache-control', IMMUTABLE).end();
     return;
   }
@@ -94,8 +75,7 @@ export async function serveBlob(req, res, { hash, size, contentType, open }) {
   try {
     await pipeline(stream, res);
   } catch (error) {
-    // A client going away mid-download is routine: it is how an interrupted
-    // fetch pauses before resuming with a range request.
+    // Routine: an interrupted fetch pauses this way before resuming with a range request.
     if (error?.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
       throw error;
     }

@@ -10,11 +10,7 @@ export interface ScannerConfig {
 }
 
 // spec: AV
-/**
- * The driver for a server's configured scanner, or null where none is
- * configured. Null is the whole of "no-op when unconfigured": no driver means
- * no scan pass, no verdicts, and a serve policy with nothing to act on.
- */
+/** Null when unconfigured, which is the whole of the no-op: no pass, no verdicts. */
 export function createScannerDriver({
   scanner,
   address,

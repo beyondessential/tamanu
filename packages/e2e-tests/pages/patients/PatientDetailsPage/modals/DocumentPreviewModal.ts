@@ -11,9 +11,8 @@ export class DocumentPreviewModal {
   constructor(page: Page) {
     this.page = page;
 
-    // The modal container carries no id of its own to wait on: `Modal` hardcodes
-    // its own `data-testid` after spreading props, so the one this modal passes
-    // is discarded. These are the preview's own elements instead.
+    // `Modal` hardcodes its own `data-testid` after spreading props, so the preview's own elements
+    // are the wait targets.
     const testIds = {
       downloadButton: 'button-54bc',
       pdfDocument: 'pdfdocument-qcy9',
@@ -24,7 +23,6 @@ export class DocumentPreviewModal {
       (this as any)[key] = page.getByTestId(testId);
     }
 
-    // Every rendered page carries this id, so the locator matches all of them.
     this.pdfPages = this.pdfDocument.getByTestId('page-jwi7');
   }
 
@@ -34,9 +32,8 @@ export class DocumentPreviewModal {
   }
 
   /**
-   * A rendered page proves the bytes arrived and decoded, which a visible modal
-   * alone does not: an attachment awaiting its content renders the modal with a
-   * message in place of the pages.
+   * A visible modal alone doesn't prove the bytes arrived: an awaiting attachment renders it with a
+   * message.
    */
   async waitForFirstPageToRender(): Promise<void> {
     await this.pdfPages.first().waitFor({ state: 'visible', timeout: 15000 });

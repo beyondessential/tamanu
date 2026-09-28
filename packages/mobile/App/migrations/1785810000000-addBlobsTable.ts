@@ -33,8 +33,7 @@ const BaseColumns = [
 ];
 
 // spec: CAS
-// The local blob registry: which blobs this device holds on disk, their size,
-// and their integrity state. Local to the device — never synced.
+// Never synced.
 const BlobsTable = new Table({
   name: TABLE_NAME,
   columns: [

@@ -6,10 +6,6 @@ import { log } from '../services/logging';
 import { ScheduledTask } from './ScheduledTask';
 
 // spec: BKFL
-// Moves legacy in-database attachment and asset content into the blob store,
-// a batch at a time with a pause between, until nothing is left to move. Runs
-// from server start with no operator action and no-ops once complete, which is
-// also what makes it resumable: each run rediscovers its work from the data.
 export class BlobBackfillTask extends ScheduledTask {
   getName() {
     return 'BlobBackfillTask';
@@ -20,23 +16,15 @@ export class BlobBackfillTask extends ScheduledTask {
     super(conf.schedule, log, conf.jitterTime, conf.enabled);
     this.config = conf;
     this.sequelize = context.sequelize ?? context.store?.sequelize;
-    // The server's own store, not one of this task's making: on a facility it
-    // carries the cache-eviction hook, so a backfill admission that runs the
-    // volume down to the reserve evicts cache instead of refusing.
+    // The server's own store: on a facility it carries the cache-eviction hook.
     this.blobStore = context.blobStore;
-    // Only central owns the rows: it holds the attachment and asset bytes and
-    // rewrites the rows in place. A facility holds only pulled asset bytes, so
-    // it seeds its store for assets and leaves the rows for central's synced
-    // updates; its attachments push inline and are the outbox's concern.
-    // `global.serverInfo.serverType` is set at boot in each server package.
+    // A facility only seeds its store for assets and leaves the rows for central's synced updates.
     this.ownsRows = global.serverInfo?.serverType === 'central';
     this.tables = this.ownsRows ? ['attachments', 'assets'] : ['assets'];
   }
 
   async countQueue() {
-    // Once nothing remains, the backfill is permanently done: new writes carry
-    // only a hash, so no fresh legacy content can appear. Latch it so later ticks
-    // don't keep scanning the changelog for the life of the process.
+    // New writes carry only a hash, so once nothing remains the backfill is done for good.
     if (this.complete) return 0;
     const backfill = this.getBackfill();
     const { rows, changelogEntries } = await backfill.countRemaining();
@@ -60,8 +48,7 @@ export class BlobBackfillTask extends ScheduledTask {
 
     try {
       for (const tableName of this.tables) {
-        // Seeding leaves the rows in place, so it walks them by offset;
-        // moving consumes them, so the same query keeps returning fresh work.
+        // Seeding leaves the rows in place, so it walks them by offset.
         let seeded = 0;
         await this.drain(`rows:${tableName}`, batchSize, sleepMs, async () => {
           if (this.ownsRows) return await backfill.moveReferenceRows(tableName, batchSize);
@@ -71,19 +58,14 @@ export class BlobBackfillTask extends ScheduledTask {
         });
       }
 
-      // Scoped to this server's tables, so a facility rewrites only asset
-      // changelog entries. Its attachment changelog entries are deliberately
-      // left inline: those attachments are pushed then deleted, so relocating
-      // their historical bytes would admit blobs for gone rows that a changelog
-      // reference then pins un-evictable in the facility cache forever.
+      // A facility leaves attachment changelog entries inline: relocating them would pin blobs for
+      // pushed-and-deleted rows in the cache forever.
       await this.drain('changelog', batchSize, sleepMs, () =>
         backfill.rewriteChangelogEntries(batchSize),
       );
     } catch (error) {
       if (error instanceof InsufficientStorageError) {
-        // The store grows before the database gives the space back, so a tight
-        // volume stops the job rather than eating into the system's reserve.
-        // Remaining content stays where it is and the next run picks it up.
+        // The store grows before the database gives space back, so a tight volume pauses the job.
         log.warn('BlobBackfillTask: paused, not enough free disk to admit more content', {
           message: error.message,
         });
@@ -95,7 +77,6 @@ export class BlobBackfillTask extends ScheduledTask {
     await this.reportCompletion(backfill);
   }
 
-  /** Work one unit until a batch comes back short, pausing between batches. */
   async drain(unit, batchSize, sleepMs, doBatch) {
     let total = 0;
     for (;;) {
@@ -118,8 +99,7 @@ export class BlobBackfillTask extends ScheduledTask {
       return;
     }
 
-    // Nothing left holding bytes is only half of done: every hash now referenced
-    // must resolve to content this server actually holds.
+    // Every referenced hash must also resolve to content this server holds.
     const unbacked = await backfill.findUnbackedHashes();
     if (unbacked.length > 0) {
       log.warn('BlobBackfillTask: complete except for content this server does not hold', {

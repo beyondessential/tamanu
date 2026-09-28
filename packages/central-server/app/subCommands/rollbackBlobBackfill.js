@@ -11,10 +11,7 @@ const DEFAULT_BATCH_SIZE = 50;
 const DEFAULT_DELAY_MS = 1000;
 
 // spec: BKFL
-// Reverses the backfill by re-inflating the database from the blob store. The
-// store keeps every byte it was given, so this works at any stage — mid-run as
-// well as complete — but it needs the store intact: it restores from the store,
-// not from a backup.
+// Works at any stage, but restores from the store, so the store must be intact.
 export const rollbackBlobBackfill = async ({ batchSize, delay }) => {
   const batch = Number(batchSize) || DEFAULT_BATCH_SIZE;
   // Not `||`: an explicit 0 means run without pausing.
@@ -23,9 +20,8 @@ export const rollbackBlobBackfill = async ({ batchSize, delay }) => {
 
   const { sequelize, models } = await initDatabase({ testMode: false });
   const settings = new ReadSettings(models);
-  // Built here rather than taken from an application context: this runs as a
-  // standalone command with no server started. Central is the authoritative
-  // store, so there is nothing evictable and no evictCache hook.
+  // A standalone command with no server context, so it builds its own; central has nothing
+  // evictable.
   const backfill = new BlobBackfill({
     sequelize,
     blobStore: new BlobStore({

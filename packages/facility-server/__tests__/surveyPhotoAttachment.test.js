@@ -9,9 +9,6 @@ import { createTestContext } from './utilities';
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
 // spec: ATCH
-// A survey photo answer creates a blob-backed attachment: the image is admitted
-// to the facility outbox and the row records only its hash, so it synchronises
-// with the answer that references it rather than carrying its bytes through sync.
 describe('Survey photo attachments (facility-server)', () => {
   let ctx;
   let models;
@@ -45,8 +42,7 @@ describe('Survey photo attachments (facility-server)', () => {
     expect(attachment.encounterId).toBe(encounter.id);
     expect(Number(attachment.size)).toBe(image.length);
 
-    // spec: ATCH — a caller that knows only the encounter still gets the patient
-    // linkage copied on, so the row is scoped like every other attachment
+    // spec: ATCH
     expect(attachment.patientId).toBe(patient.id);
 
     const blob = await models.Blob.findOne({ where: { hash: attachment.hash } });

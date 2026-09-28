@@ -8,14 +8,11 @@ import { deriveFreeDiskReserveBytes } from './deviceStorage';
 
 const ROOT = '/blobs';
 
-// SQLite stores datetime('now') as a timezone-less UTC string, which Date would
-// otherwise read as local time.
+// SQLite stores datetime('now') as timezone-less UTC, which Date would read as local.
 const asInstant = (value: string | null | undefined): Date | null =>
   value ? new Date(`${value.replace(' ', 'T')}Z`) : null;
 
-// The device's side of the shared host contract. The server runs the same cases
-// against Postgres, so a registry or hashing divergence fails on whichever host
-// diverged rather than surfacing later as content one side cannot resolve.
+// The server runs the same cases against Postgres.
 describe('blob host contract (mobile)', () => {
   let fs: FakeBlobFileSystem;
   let store: MobileBlobStore;

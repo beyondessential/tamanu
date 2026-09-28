@@ -177,9 +177,8 @@ export const globalSettings = {
           defaultValue: 10,
           unit: 'GB',
         },
-        // spec: AV — the posture is deployment-wide so a facility cannot serve
-        // what central withholds; which scanner each server drives is its own
-        // setting (central.ts, facility.ts)
+        // spec: AV
+        // Deployment-wide, so a facility can't serve what central withholds.
         antivirus: {
           name: 'Antivirus',
           description: 'Malware scanning of stored blobs',

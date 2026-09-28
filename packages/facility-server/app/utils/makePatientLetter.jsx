@@ -58,12 +58,8 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
 };
 
 // spec: ASSET
-// The letterhead read-through: bytes held locally, or fetched from central on a
-// miss. When the bytes cannot be resolved (absent locally and not fetchable) the
-// letter fails rather than printing without the letterhead, so an unbranded
-// document never goes out unnoticed. Reported as unreachable-upstream rather
-// than not-found, so it stays distinguishable from this route's 404s for a
-// missing encounter or clinician.
+// Fails rather than printing unbranded. Reported as unreachable-upstream so it's distinct from this
+// route's 404s.
 async function openAssetBlob(blobCache, hash) {
   if (!blobCache) {
     throw new RemoteUnreachableError(`Asset image ${hash} is not yet available`);

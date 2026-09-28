@@ -107,7 +107,7 @@ describe('asset blobs on a facility', () => {
       const { hash } = await seedAsset();
       await prefetch();
       cacheBudgetBytes = 1;
-      // Eviction protects the most recently used blob, so give it company.
+      // Eviction protects the most recently used blob.
       await blobStore.put(Readable.from(Buffer.from(`unrelated ${randomUUID()}`)));
 
       await blobCache.enforceBudget();
@@ -130,9 +130,6 @@ describe('asset blobs on a facility', () => {
   });
 
   // verifies spec: CAP, XFER
-  // A background fetch the store refuses for capacity is an ordinary failed
-  // fetch: nothing is admitted, the asset row stands with its bytes unresolved,
-  // and the next pass tries again rather than the reference being written off.
   describe('a fetch refused for capacity', () => {
     it('leaves the asset awaiting its content and fetches it again next pass', async () => {
       const { hash, content } = await seedAsset();

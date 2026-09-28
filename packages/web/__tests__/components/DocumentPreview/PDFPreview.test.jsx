@@ -10,8 +10,7 @@ const { apiGet, getDocument } = vi.hoisted(() => ({ apiGet: vi.fn(), getDocument
 vi.mock('../../../app/api', () => ({ useApi: () => ({ get: apiGet }) }));
 vi.mock('pdfjs-dist', () => ({ GlobalWorkerOptions: {}, getDocument }));
 
-// Rendering a page needs a real canvas, which jsdom does not provide; stand in
-// with the page number so the assertions read as what is on screen.
+// jsdom has no canvas.
 vi.mock('../../../app/components/DocumentPreview/PDFPage', () => ({
   PDFPage: ({ page }) => <div>{`Page ${page.pageNumber}`}</div>,
 }));
@@ -46,8 +45,7 @@ describe('PDFPreview', () => {
   });
 
   // spec: ATCH
-  // A 202 carries no bytes, so the base64 decode would be handed `undefined`
-  // and the document would fail to open with no explanation.
+  // A 202 carries no bytes, so the decode would get `undefined`.
   it('tells the clinician the document is not available yet', async () => {
     apiGet.mockResolvedValue({ availability: BLOB_AVAILABILITY_STATES.AWAITING_UPLOAD });
 

@@ -68,8 +68,7 @@ describe('UploadAttachment', () => {
 
   it('abort uploading file if its above permitted max file size', async () => {
     await expect(uploadAttachment(mockReq, 1000)).rejects.toThrow(InvalidParameterError);
-    // spec: ATCH — nothing is admitted for a rejected upload, so an oversized
-    // file leaves no unreferenced blob in the outbox.
+    // spec: ATCH
     expect(mockReq.blobCache.putOutbox).not.toHaveBeenCalled();
     expect(mockReq.models.Attachment.create).not.toHaveBeenCalled();
   });

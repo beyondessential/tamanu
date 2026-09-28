@@ -145,8 +145,7 @@ describe('FacilitySyncManager edge cases', () => {
       });
     });
 
-    // A local update only counts as "between snapshot and pull" once the push
-    // phase has been entered, so the test moves on that rather than on a timer.
+    // Moves on the push phase starting rather than a timer.
     const heldPush = () => {
       let started;
       let release;

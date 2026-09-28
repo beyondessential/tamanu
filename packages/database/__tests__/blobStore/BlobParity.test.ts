@@ -23,8 +23,7 @@ import { InsufficientStorageError } from '@tamanu/errors';
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import type { Blob } from '../../src/models/Blob';
 
-// 16+2 shards of 4 KiB at the default proportion, so two damaged shards are
-// exactly the budget and three are past it.
+// 16+2 shards of 4 KiB at the default proportion, so two damaged shards are exactly the budget.
 const BLOB_BYTES = 64 * 1024;
 const DEFAULT_PERCENT = 0.1;
 
@@ -40,8 +39,6 @@ interface FakeRow {
   lastCorrectedAt: Date | null;
 }
 
-// In-memory Blob registry covering what the store asks of it, including the two
-// raw statements: the admission upsert and the correction stamp.
 function makeFakeBlobModel() {
   const rows = new Map<string, FakeRow>();
   return {
@@ -94,7 +91,6 @@ function makeFakeBlobModel() {
   };
 }
 
-// Deterministic content, so a seeded-corruption case fails the same way each run.
 function content(bytes = BLOB_BYTES, seed = 1): Buffer {
   const blob = Buffer.alloc(bytes);
   let state = seed;
@@ -145,8 +141,6 @@ describe('blob parity', () => {
   };
   const sidecarPath = (hash: string) => `${storedPath(hash)}${PARITY_SIDECAR_SUFFIX}`;
 
-  // Bit rot over one shard's worth of a stored blob: its bytes change, its path
-  // and its registry row do not.
   const damageShards = async (hash: string, shards: number[]) => {
     const handle = await fs.open(storedPath(hash), 'r+');
     try {
@@ -257,7 +251,6 @@ describe('blob parity', () => {
     it('refuses an admission that the blob plus its parity would not fit', async () => {
       const blob = content();
       const sidecarBytes = paritySidecarByteCount(geometry);
-      // Room for the blob but not for the blob and its sidecar together.
       const reserveBytes = 100_000;
       volumeFreeBytes = reserveBytes + BLOB_BYTES + sidecarBytes - 1;
 
@@ -265,8 +258,7 @@ describe('blob parity', () => {
         makeStore({ reserveBytes }).put(Readable.from(blob), { sizeHint: BLOB_BYTES }),
       ).rejects.toThrow(InsufficientStorageError);
 
-      // The same volume admits it once nothing is reserved for parity, so it is
-      // the sidecar that made the difference rather than the blob alone.
+      // The same volume admits it with parity off, so the sidecar made the difference.
       const withoutParity = makeStore({ enabled: false, reserveBytes });
       await expect(
         withoutParity.put(Readable.from(content()), { sizeHint: BLOB_BYTES }),
@@ -276,9 +268,8 @@ describe('blob parity', () => {
     // spec: FEC
     it('stores the blob unprotected rather than failing when parity cannot be written', async () => {
       const blob = content();
-      // Room to admit the blob, but not enough left above the reserve for the
-      // sidecar. With no size hint the admission cannot know that up front, so
-      // this is a failed parity write rather than a refused admission.
+      // With no size hint the admission can't know up front, so this is a failed parity write
+      // rather than a refused admission.
       const reserveBytes = 100_000;
       volumeFreeBytes = reserveBytes + paritySidecarByteCount(geometry) - 1;
       const store = makeStore({ reserveBytes });
@@ -342,9 +333,8 @@ describe('blob parity', () => {
     });
 
     // spec: FEC
-    // The unconditional hash check earning its place: with a damaged parity shard
-    // whose digest has been forged to match, the decode reports success and emits
-    // bytes that are not the blob.
+    // With a damaged parity shard whose digest is forged to match, the decode reports success and
+    // emits the wrong bytes.
     it('discards a reconstruction that does not match the blob hash', async () => {
       const blob = content();
       const store = makeStore();
@@ -354,8 +344,6 @@ describe('blob parity', () => {
       try {
         const rotted = content(geometry.shardSize, 77);
         await sidecar.write(rotted, 0, rotted.length, parityShardOffset(geometry, 0, 0));
-        // Forge the digest so the damaged parity shard passes as intact and the
-        // decode trusts it.
         await sidecar.write(
           createHash('sha256').update(rotted).digest().subarray(0, SHARD_DIGEST_BYTES),
           0,
@@ -370,8 +358,7 @@ describe('blob parity', () => {
 
       expect(await store.repairFromParity(hash)).toBe(false);
 
-      // Rejected by the hash check specifically: the decode itself reported
-      // success, so nothing else here would have caught it.
+      // The decode itself reported success, so nothing else would have caught it.
       expect(loggedErrors).toContain(
         'BlobStore: reconstruction from parity did not match the blob hash',
       );
@@ -380,9 +367,7 @@ describe('blob parity', () => {
     });
 
     // spec: FEC, CAS
-    // A repair lands over bytes that are already there. POSIX renames over them;
-    // Windows/NTFS refuses, so the occupant has to go before the rename can win,
-    // and only a faked rename reaches that on a POSIX test host.
+    // Only a faked rename reaches the Windows occupant-removal path on a POSIX test host.
     it('replaces damaged bytes where they cannot be renamed over', async () => {
       const blob = content();
       const store = makeStore();
@@ -425,7 +410,6 @@ describe('blob parity', () => {
       const { hash, size } = await admit(blob, BLOB_TIERS.CACHE, store);
       await expect(fs.access(sidecarPath(hash))).rejects.toThrow();
 
-      // The retrofit the scrub performs once error correction is switched on.
       const enabled = makeStore();
       expect((await enabled.writeParity({ hash, size, tier: BLOB_TIERS.CACHE })).protected).toBe(
         true,
@@ -478,9 +462,7 @@ describe('blob parity', () => {
       const store = makeStore();
       const { hash } = await admit(content(), BLOB_TIERS.CACHE, store);
 
-      // Bounded against a blob size the same header carries, so this geometry
-      // passes every check that reads the header alone: one shard per group
-      // across four billion groups, with a blob size to match.
+      // This geometry passes every check that reads the header alone.
       const geometry = { shardSize: 4096, dataShards: 1, parityShards: 1, groupCount: 2 ** 32 - 1 };
       const handle = await fs.open(sidecarPath(hash), 'r+');
       try {
@@ -490,7 +472,6 @@ describe('blob parity', () => {
       }
 
       expect(await store.repairFromParity(hash)).toBe(false);
-      // Rejected on the header rather than part-way through a 68 GB allocation.
       expect(loggedWarnings).toEqual([]);
     });
 

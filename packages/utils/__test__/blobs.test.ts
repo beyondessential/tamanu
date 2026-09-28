@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { blobPathSegments, formatBlobHash, parseBlobHash } from '../src/blobs';
 
-// SHA-256 of empty content
 const EMPTY_DIGEST = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const EMPTY_HASH = `sha256:${EMPTY_DIGEST}`;
 

@@ -214,9 +214,7 @@ export class FacilitySyncManager {
     }
 
     // spec: CAP
-    // A completed cycle proves the connection works, so any outbox blob that
-    // is eligible for push yet not transferring advances the dysfunction
-    // measure. Never fails the sync it rode in on.
+    // Never fails the sync it rode in on.
     try {
       await this.blobOutboxPusher?.recordSyncCycle();
     } catch (error) {
@@ -224,8 +222,7 @@ export class FacilitySyncManager {
     }
 
     // spec: ASSET
-    // Pull-side assets arrive as rows referencing blob content; fetch their
-    // bytes now so printing never waits on a first use. Never fails the sync.
+    // Never fails the sync.
     try {
       await prefetchAssets({
         models: this.models,

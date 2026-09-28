@@ -15,10 +15,7 @@ interface HostState {
   sleeps: number[];
 }
 
-/**
- * Records the port calls it received and returns scripted results, so each case
- * asserts on the sequence of decisions rather than on bytes moved.
- */
+/** Asserts on the sequence of decisions rather than bytes moved. */
 function createHost(overrides: Partial<BlobTransferHost> = {}) {
   const state: HostState = {
     held: new Map(),
@@ -149,8 +146,7 @@ describe('fetch', () => {
       async fetchInto(hash, { offset }) {
         state.calls.push(`fetchInto:${hash}@${offset}`);
         attempt += 1;
-        // Alternates: a failure that moved bytes, then one that moved none, so
-        // the run never reaches the limit and the transfer completes.
+        // Alternating progress and stalls never reaches the limit.
         if (attempt % 2 === 1) {
           state.staged.set(hash, (state.staged.get(hash) ?? 0) + 30);
           throw new Error('connection reset');

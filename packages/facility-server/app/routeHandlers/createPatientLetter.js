@@ -38,9 +38,6 @@ export const createPatientLetter = (modelName, idField) =>
     const { size } = fs.statSync(filePath);
 
     // spec: ATCH
-    // The generated letter is admitted to this server's outbox and its
-    // attachment record created together, so the letter exists without central
-    // connectivity and the blob always has its referencing record.
     const { hash, size: storedSize } = await req.blobCache.putOutbox(
       fs.createReadStream(filePath),
       { sizeHint: size },

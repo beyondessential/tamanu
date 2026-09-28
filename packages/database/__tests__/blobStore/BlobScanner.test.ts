@@ -26,9 +26,6 @@ interface FakeRow {
   signatureVersion: string | null;
 }
 
-// In-memory Blob registry covering the scan pass's query shape: the integrity
-// and size filters, the never-scanned-or-signatures-moved-on disjunction, and
-// the never-scanned-first ordering.
 function makeFakeBlobModel() {
   const rows = new Map<string, FakeRow>();
   let inserted = 0;
@@ -126,11 +123,9 @@ describe('BlobScanner', () => {
         scan:
           scan ??
           (async ({ hash, open }: any) => {
-            // Read the bytes the way a real driver would, so a scan that cannot
-            // reach the content fails here rather than passing silently.
+            // Read the bytes as a real driver would, so unreachable content fails here.
             const stream = await open();
             for await (const _chunk of stream) {
-              // drained
             }
             scanned.push(hash);
             return verdicts.get(hash) ?? BLOB_SCAN_VERDICTS.CLEAN;
@@ -165,8 +160,7 @@ describe('BlobScanner', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  // verifies spec: AV — a blob is admitted unscanned and the pass records the
-  // verdict afterwards, with the versions that produced it
+  // verifies spec: AV
   it('records a verdict with the scanner and signature versions behind it', async () => {
     const hash = await put('hello world');
 
@@ -180,8 +174,7 @@ describe('BlobScanner', () => {
     expect(row.scannedAt).toBeInstanceOf(Date);
   });
 
-  // verifies spec: AV — an infected verdict is recorded and handed to the
-  // server, which is what quarantines the hash and propagates it
+  // verifies spec: AV
   it('hands an infected hash to the server for quarantine', async () => {
     const hash = await put('infected content');
 
@@ -194,9 +187,9 @@ describe('BlobScanner', () => {
     expect(fakeBlob.rows.get(hash)!.scanVerdict).toBe(BLOB_SCAN_VERDICTS.INFECTED);
   });
 
-  // verifies spec: AV — the quarantine record is what carries the infection off
-  // this server, and an infected verdict is never revisited, so a pass that
-  // cannot write the record leaves the blob for the next pass to find
+  // verifies spec: AV
+  // An infected verdict is never revisited, so without the quarantine record the blob must stay
+  // unscanned.
   it('leaves an infected blob unscanned when the quarantine cannot be written', async () => {
     const hash = await put('infected content');
     const verdicts = new Map([[hash, BLOB_SCAN_VERDICTS.INFECTED]]);
@@ -228,9 +221,7 @@ describe('BlobScanner', () => {
     expect(scanned).toHaveLength(1);
   });
 
-  // verifies spec: AV — blobs are re-scanned when the scanner's signatures are
-  // updated, which the pass notices by comparing versions rather than by being
-  // told
+  // verifies spec: AV
   it('re-scans a clean blob once the signatures have moved on', async () => {
     const hash = await put('hello world');
     await makeScanner().run();
@@ -250,8 +241,7 @@ describe('BlobScanner', () => {
     expect(second.scanned).toBe(0);
   });
 
-  // verifies spec: AV — content over the cap is left unscanned rather than sent,
-  // and does not consume the pass it would otherwise sit at the head of
+  // verifies spec: AV
   it('leaves content over the size cap unscanned without starving the rest', async () => {
     const big = await put('a blob larger than the cap');
     const small = await put('small');
@@ -263,8 +253,7 @@ describe('BlobScanner', () => {
     expect(fakeBlob.rows.get(big)!.scanVerdict).toBeNull();
   });
 
-  // verifies spec: AV — a scanner that cannot be reached leaves content
-  // unscanned; nothing is recorded and nothing is refused
+  // verifies spec: AV
   it('ends the pass when the scanner goes away mid-pass', async () => {
     const first = await put('hello world');
     await put('second blob');
@@ -304,8 +293,7 @@ describe('BlobScanner', () => {
     expect(result).toMatchObject({ scanned: 1, ratelimited: true });
   });
 
-  // verifies spec: AV, SCRUB — a corrupt blob has no servable bytes to hold a
-  // verdict about, so the scan leaves it to the scrub
+  // verifies spec: AV, SCRUB
   it('does not scan corrupt content', async () => {
     const hash = await put('hello world');
     fakeBlob.rows.get(hash)!.integrityState = BLOB_INTEGRITY_STATES.CORRUPT;

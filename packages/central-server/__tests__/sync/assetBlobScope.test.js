@@ -13,12 +13,8 @@ import { isHashReferencedInScope } from '../../app/blobReferences';
 import { createTestContext } from '../utilities';
 
 // spec: ASSET, BLAC
-// A facility fetches an asset's bytes by hash, and central authorises that fetch
-// against the referencing asset row. Assets only reach the reference layer
-// because the application context registers them there at boot; the module's
-// static list holds attachments alone. Nothing else exercises that registration,
-// so without this the whole asset arm can be removed and the suite stays green,
-// while every facility silently stops receiving letterhead and logo bytes.
+// Assets reach the reference layer only through the context's boot registration, which nothing else
+// exercises.
 describe('Asset blob scope', () => {
   let ctx;
   let models;
@@ -70,9 +66,7 @@ describe('Asset blob scope', () => {
     expect(await inScope(hash, [otherFacility.id])).toBe(true);
   });
 
-  // A facility-specific asset is preferred over the deployment-wide one by the
-  // renderer, which is a different question from who may fetch its bytes: assets
-  // sync to every facility, so every facility server is entitled to any of them.
+  // Assets sync to every facility, so every facility server may fetch any of them.
   it('authorises a facility-specific asset for a facility it does not belong to', async () => {
     const hash = await assetCarryingHash('facility letterhead', { facilityId: facility.id });
     await new CentralSyncManager(ctx).updateLookupTable();
@@ -81,8 +75,7 @@ describe('Asset blob scope', () => {
     expect(await inScope(hash, [otherFacility.id])).toBe(true);
   });
 
-  // Without this the two cases above would pass against a predicate that
-  // admitted everything, which is what an over-broad registration looks like.
+  // Without this the cases above would pass against a predicate admitting everything.
   it('refuses a hash no asset references', async () => {
     expect(await inScope(`sha256:${fakeUUID().replace(/-/g, '')}`, [facility.id])).toBe(false);
   });

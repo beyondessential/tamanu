@@ -48,8 +48,8 @@ export const facilitySettings = {
           defaultValue: 20,
           unit: 'GB',
         },
-        // spec: FEC — outbox blobs only: a cache copy is durable on central, so
-        // parity over it would spend disk the cache budget needs.
+        // spec: FEC
+        // Outbox only: parity over a cache copy would spend disk the cache budget needs.
         errorCorrection: {
           name: 'Error correction',
           description:
@@ -271,20 +271,16 @@ export const facilitySettings = {
           { schedule: '0 * * * *' },
           batchingProperties(100, 50),
         ),
-        // every minute so a blob follows its record to central promptly; a push
-        // still in flight is skipped, not doubled up
+        // A push still in flight is skipped, not doubled up.
         blobOutboxPusher: scheduledTaskSchema({ schedule: '* * * * *', jitterTime: '30s' }),
-        // periodic backstop for the cache size budget; admission-time
-        // enforcement does the routine work
+        // Backstop: admission-time enforcement does the routine work.
         blobCacheEvictor: scheduledTaskSchema({ schedule: '23 * * * *' }),
-        // hourly and incremental: each pass takes the least-recently-scrubbed
-        // blobs, so the store is covered over many passes rather than one sweep
+        // Incremental: each pass takes the least-recently-scrubbed blobs.
         blobIntegrityScrub: scheduledTaskSchema(
           { schedule: '41 * * * *', jitterTime: '5m' },
           blobScrubProperties(),
         ),
-        // spec: AV — a facility scans only what it holds, and only where it has
-        // a scanner of its own; without one it serves on central's verdict
+        // spec: AV
         blobAntivirusScan: scheduledTaskSchema(
           { schedule: '*/15 * * * *', jitterTime: '2m' },
           blobScanProperties(),
@@ -316,8 +312,7 @@ export const facilitySettings = {
           schedule: '0 * * * *',
           enabled: false,
         }),
-        // Seeds this server's store from the content it already holds, so a
-        // backfilled row arriving from central finds its blob already present.
+        // Seeds the store so a backfilled row arriving from central finds its blob present.
         blobBackfill: scheduledTaskSchema(
           { schedule: '*/5 * * * *', jitterTime: '30s' },
           batchingProperties(50, 1000),

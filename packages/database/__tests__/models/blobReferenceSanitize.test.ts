@@ -4,9 +4,6 @@ import { Asset } from '../../src/models/Asset';
 import { Attachment } from '../../src/models/Attachment';
 
 // spec: BKFL
-// A backfilled row syncs carrying its hash and no bytes. The sanitizers run on
-// every synced row, so they have to accept that shape rather than assuming
-// there is always content to turn into a Buffer.
 describe('sanitizing a reference row with no bytes', () => {
   it('passes a backfilled asset through to the central server', () => {
     const sanitized = Asset.sanitizeForCentralServer({

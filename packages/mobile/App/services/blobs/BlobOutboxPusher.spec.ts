@@ -29,17 +29,17 @@ describe('BlobOutboxPusher', () => {
     });
   });
 
-  // verifies spec: CACHE — only blobs whose record has synced are eligible
+  // verifies spec: CACHE
   it('treats an outbox blob as eligible once its record is at or behind the push cursor', async () => {
-    const synced = await seedOutboxAttachment('synced', 5); // tick <= 10
-    const notYet = await seedOutboxAttachment('not-yet', 20); // tick > 10
+    const synced = await seedOutboxAttachment('synced', 5);
+    const notYet = await seedOutboxAttachment('not-yet', 20);
 
     const eligible = await pusher.eligibleOutboxHashes();
     expect(eligible).toContain(synced);
     expect(eligible).not.toContain(notYet);
   });
 
-  // verifies spec: CACHE, XFER — push then demote on acknowledgement
+  // verifies spec: CACHE, XFER
   it('pushes eligible blobs and demotes them once acknowledged', async () => {
     const hash = await seedOutboxAttachment('acked', 5);
 
@@ -49,7 +49,7 @@ describe('BlobOutboxPusher', () => {
     expect(blobCache.demote).toHaveBeenCalledWith(hash);
   });
 
-  // verifies spec: CACHE — a blob whose record has not synced is left in the outbox
+  // verifies spec: CACHE
   it('counts a blob whose record is ahead of the push cursor as ineligible', async () => {
     await seedOutboxAttachment('not-yet', 20);
 
@@ -58,7 +58,7 @@ describe('BlobOutboxPusher', () => {
     expect(transferChannel.pushToCentral).not.toHaveBeenCalled();
   });
 
-  // verifies spec: BLAC — a forbidden offer does not block the queue
+  // verifies spec: BLAC
   it('continues past a refused push without demoting it', async () => {
     const forbidden = await seedOutboxAttachment('forbidden', 5);
     const ok = await seedOutboxAttachment('ok', 5);
@@ -76,13 +76,11 @@ describe('BlobOutboxPusher', () => {
     expect(blobCache.demote).not.toHaveBeenCalledWith(forbidden);
   });
 
-  // verifies spec: CAP — a blob unpushed across successful syncs escalates
+  // verifies spec: CAP
   it('flags outbox dysfunction once a blob stays eligible past the tick gap', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     await seedOutboxAttachment('stuck', 1);
-    // eligible marker gets stamped at the current push cursor (10)…
     await pusher.recordSyncCycle();
-    // …and by a much later cursor it has gone unpushed across many cycles
     await setPushTick(100);
     await pusher.recordSyncCycle();
 
@@ -99,7 +97,6 @@ describe('BlobOutboxPusher', () => {
     );
   }
 
-  // An outbox blob with a referencing attachment record at the given sync tick.
   async function seedOutboxAttachment(label: string, syncTick: number) {
     const hash = sha256Hash(label);
     await Database.models.Blob.getRepository().query(

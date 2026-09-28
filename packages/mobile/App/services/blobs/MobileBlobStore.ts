@@ -10,17 +10,11 @@ import { Blob } from '~/models/Blob';
 import { DeviceStorageInfo } from './deviceStorage';
 
 // spec: XFER
-// Partially received transfers live here, named by their offered hash, so an
-// interrupted transfer resumes from the bytes already delivered — including
-// across an app restart.
 const STAGING_DIR = 'staging';
 
-// Bytes moved per read/append step when shuffling file content through memory
-// (staging appends, push remainders). Content passes through as base64, so the
-// in-memory string is ~4/3 of this.
+// Content passes through as base64, so the in-memory string is ~4/3 of this.
 export const FILE_COPY_CHUNK_BYTES = 2 * 1024 * 1024;
 
-/** The subset of react-native-fs the store uses, injectable for tests. */
 export interface BlobFileSystem {
   exists(path: string): Promise<boolean>;
   stat(path: string): Promise<{ size: number | string }>;
@@ -36,14 +30,10 @@ export interface BlobFileSystem {
 }
 
 export interface MobileBlobStoreOptions {
-  /** Store root directory, under the app's private storage. */
   root: string;
   models: { Blob: typeof Blob };
   getFreeDiskReserveBytes: (info: DeviceStorageInfo) => number;
-  /**
-   * Cache-eviction hook (spec: CAP): asked to free at least bytesNeeded before
-   * the store refuses a new blob. Supplied by the cache tier.
-   */
+  // spec: CAP
   evictCache?: (bytesNeeded: number) => Promise<unknown>;
   fs?: BlobFileSystem;
 }
@@ -51,7 +41,6 @@ export interface MobileBlobStoreOptions {
 export interface PutResult {
   hash: string;
   size: number;
-  /** True when identical content was already stored, making this put a no-op. */
   existed: boolean;
 }
 
@@ -62,12 +51,8 @@ export interface BlobStat {
 }
 
 // spec: CAS, CAP
-// The device's content-addressed blob store: bytes on the app's private storage
-// under an algorithm-namespaced two-level fan-out, and a row per blob in the
-// local `blobs` registry. The device counterpart of the server BlobStore
-// primitive, reshaped for a filesystem API that works on whole files rather
-// than streams: content is admitted from a file already on disk and hashed in
-// place, rather than hashed while streaming.
+// The device counterpart of the server BlobStore: content is admitted from a file already on disk
+// and hashed in place.
 export class MobileBlobStore {
   readonly root: string;
 
@@ -104,9 +89,7 @@ export class MobileBlobStore {
         return { free: info.freeSpace, reserve: this.#getFreeDiskReserveBytes(info) };
       },
       ...(evictCache ? { evict: async (bytes: number) => void (await evictCache(bytes)) } : {}),
-      // spec: SCRUB — a row left corrupt, or standing as absent after its
-      // bytes went, is out of date once a replacement verifies. A row already
-      // verified is left alone.
+      // spec: SCRUB
       markVerified: async (hash, size) => {
         await this.#models.Blob.getRepository().query(
           `
@@ -131,14 +114,13 @@ export class MobileBlobStore {
   }
 
   /**
-   * Presence, not servability: a corrupt blob is present (has → true) but
-   * is never served. A malformed hash throws rather than reporting absent.
+   * A corrupt blob is present but never served. A malformed hash throws rather than reporting
+   * absent.
    */
   async has(hash: string): Promise<boolean> {
     return Boolean(await this.stat(hash));
   }
 
-  /** The registry's record of a held blob, or null when the blob is not held. */
   async stat(hash: string): Promise<BlobStat | null> {
     parseBlobHash(hash);
     const registered = await this.#models.Blob.findOne({ where: { hash } });
@@ -152,15 +134,10 @@ export class MobileBlobStore {
     };
   }
 
+  // spec: AV
   /**
-   * The on-disk path of a held blob, for reading or uploading. Refuses a
-   * corrupt blob: its bytes are retained for investigation, never served.
-   * A caller that already holds the blob's stat passes it rather than paying
-   * for a second lookup.
-   *
-   * spec: AV — refuses known-bad content too. The device runs no scanner, so
-   * the quarantine record pulled from central is all it knows, and it is enough
-   * to refuse whether or not the device can reach central right now.
+   * Refuses corrupt and quarantined content. The device runs no scanner, so central's quarantine
+   * record is all it knows.
    */
   async servablePath(hash: string, known?: BlobStat | null): Promise<string> {
     const stat = known ?? (await this.stat(hash));
@@ -177,16 +154,12 @@ export class MobileBlobStore {
   }
 
   // spec: AV
-  /** Whether the deployment has found this content to be malware. */
   async isQuarantined(hash: string): Promise<boolean> {
     return Boolean(await this.#models.BlobQuarantine.findOne({ where: { hash } }));
   }
 
   // spec: SCRUB
-  /**
-   * Whether the stored bytes still hash to the blob's name. Reads the whole file,
-   * so callers on the read path should consult verifiedWithin first.
-   */
+  /** Reads the whole file, so read-path callers should check verifiedWithin first. */
   async verify(hash: string): Promise<boolean> {
     const { algorithm, digest } = parseBlobHash(hash);
     const actual = await this.#fs.hash(this.pathFor(hash), algorithm);
@@ -201,11 +174,7 @@ export class MobileBlobStore {
   }
 
   // spec: SCRUB
-  /**
-   * Whether the blob's content was confirmed to match its hash within the given
-   * window. Compared in the database so the stored time needs no timezone
-   * interpretation on the way out.
-   */
+  /** Compared in the database so the stored time needs no timezone interpretation. */
   async verifiedWithin(hash: string, seconds: number): Promise<boolean> {
     const [row] = await this.#models.Blob.getRepository().query(
       `
@@ -221,7 +190,6 @@ export class MobileBlobStore {
   }
 
   // spec: SCRUB
-  /** Retain a corrupt blob's bytes for investigation but never serve or offer it. */
   async markCorrupt(hash: string): Promise<void> {
     await this.#models.Blob.getRepository().update(
       { hash },
@@ -230,22 +198,16 @@ export class MobileBlobStore {
   }
 
   // spec: CAS
+  // spec: MOB
   /**
-   * Admit a file already on the device into the store: hash it in place, move
-   * it into the fan-out path, and record it in the registry. The source file is
-   * consumed — moved in, or removed when identical content is already stored —
-   * so the device never keeps a second copy outside the store (spec: MOB).
-   * Idempotent: identical content resolves to the one stored blob, keeping its
-   * existing tier. Refuses (InsufficientStorageError) when the device's free
-   * space is already below the reserve; the source file is left for the caller
-   * to clean up with the rest of the failed operation.
+   * Consumes the source file, so the device never keeps a second copy outside the store. On
+   * InsufficientStorageError the source is left for the caller to clean up.
    */
   async putFile(sourcePath: string, { tier }: { tier?: string } = {}): Promise<PutResult> {
     return await this.#admission.admitFile(sourcePath, { tier: tier ?? BLOB_TIERS.CACHE });
   }
 
   // spec: XFER
-  /** Bytes already staged for a hash, so an interrupted transfer resumes from them. */
   async stagedSize(hash: string): Promise<number> {
     const stagingPath = this.#stagingPathFor(hash);
     if (!(await this.#fs.exists(stagingPath))) {
@@ -255,12 +217,7 @@ export class MobileBlobStore {
   }
 
   // spec: XFER
-  /**
-   * Append a downloaded part file's content to the hash's staging file,
-   * consuming the part. Content moves through memory in bounded chunks, so a
-   * large part never loads whole. Refuses rather than take the device below
-   * the free-disk reserve.
-   */
+  /** Content moves through memory in bounded chunks, so a large part never loads whole. */
   async appendStagedFromFile(hash: string, partPath: string): Promise<number> {
     parseBlobHash(hash);
     const stagingPath = this.#stagingPathFor(hash);
@@ -278,7 +235,6 @@ export class MobileBlobStore {
   }
 
   // spec: XFER
-  /** Replace any staged bytes with a part file holding the complete content. */
   async replaceStagedWithFile(hash: string, partPath: string): Promise<number> {
     parseBlobHash(hash);
     const stagingPath = this.#stagingPathFor(hash);
@@ -291,14 +247,7 @@ export class MobileBlobStore {
   }
 
   // spec: XFER
-  /**
-   * Verify the staged content against its hash and admit it into the store.
-   * Verification covers the complete staged file, including any bytes
-   * delivered before an interruption. On mismatch the staged content is
-   * discarded and BlobHashMismatchError thrown, so the next attempt starts
-   * clean. Idempotent: a hash the store already holds commits as a no-op and
-   * drops the staging.
-   */
+  /** On mismatch the staging is discarded and BlobHashMismatchError thrown. */
   async commitStaged(hash: string): Promise<PutResult> {
     return await this.#admission.commitStaged(hash);
   }
@@ -312,8 +261,8 @@ export class MobileBlobStore {
   }
 
   async delete(hash: string): Promise<void> {
-    // Hard delete: a soft-deleted row would shadow re-admission of the same
-    // hash. Registry first, so a crash leaves an adoptable orphan file.
+    // Hard delete: a soft-deleted row would shadow re-admission. Registry first, so a crash leaves
+    // an adoptable orphan.
     await this.#models.Blob.getRepository().delete({ hash });
     const filePath = this.pathFor(hash);
     if (await this.#fs.exists(filePath)) {
@@ -322,35 +271,24 @@ export class MobileBlobStore {
   }
 
   // spec: CAP
-  /**
-   * Keep the device's free space above the derived reserve, measured against
-   * actual free space so growth in the database and unrelated apps' data is
-   * accounted for. Evict cache first where a hook is available; refuse rather
-   * than cross into the reserve.
-   */
+  /** Measured against actual free space, so database growth and other apps' data count. */
   async ensureFloor(bytesNeeded: number): Promise<void> {
     await this.#admission.ensureFloor(bytesNeeded);
   }
 
   #stagingPathFor(hash: string): string {
-    // parseBlobHash constrains the hash to lowercase alphanumerics and a
-    // colon, so the flat filename is path-safe.
     const { algorithm, digest } = parseBlobHash(hash);
     return [this.root, STAGING_DIR, `${algorithm}-${digest}`].join('/');
   }
 
-  /** A part file's path for a transfer in progress; sits beside the staging file. */
   stagingPartPathFor(hash: string): string {
     return `${this.#stagingPathFor(hash)}.part`;
   }
 
-  // spec: XFER
-  /** Ready the staging area for a fresh part download, clearing any leftover part. */
   // spec: CACHE
   /**
-   * Refresh a blob's recency, coalesced: a no-op while the recorded access is
-   * still within the window, so hot blobs don't rewrite the registry on every
-   * read. Losing the most recent refreshes degrades eviction ordering only.
+   * No-op while the last access is within the window, so hot blobs don't rewrite the registry on
+   * every read.
    */
   async touch(hash: string, { coalesceSeconds }: { coalesceSeconds: number }): Promise<void> {
     await this.#models.Blob.getRepository().query(
@@ -375,21 +313,14 @@ export class MobileBlobStore {
   }
 
   async #mkdirs(dir: string): Promise<void> {
-    // react-native-fs mkdir creates intermediate directories and does not
-    // error when the directory already exists.
     await this.#fs.mkdir(dir);
   }
 
   async #register(hash: string, size: number, tier?: string): Promise<void> {
-    // Race-safe against concurrent puts of the same content: the loser's
-    // insert is a no-op against the winner's identical live row, which keeps
-    // its tier — content already held as cache is durable on central and stays
-    // cache even when re-admitted with outbox intent (spec: CACHE). A
-    // soft-deleted row still occupies the unique index and would otherwise
-    // shadow re-admission forever, so resurrect it as the fresh admission it
-    // is: take the incoming tier and reset recency to now.
-    // spec: SCRUB — admission hashes the content, so it counts as a verification
-    // and a first read of freshly admitted content need not re-hash it.
+    // A live row keeps its tier: content held as cache is durable on central and stays cache even
+    // under outbox intent. A soft-deleted row still holds the unique index, so it's resurrected
+    // with the incoming tier and fresh recency.
+    // spec: SCRUB
     await this.#models.Blob.getRepository().query(
       `
         INSERT INTO blobs (id, hash, size, integrityState, tier, lastAccessedAt, lastVerifiedAt)

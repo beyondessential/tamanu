@@ -1,18 +1,9 @@
 import { QueryInterface } from 'sequelize';
 
 // spec: ATCH
-// Existing attachments were created without their owner's linkage, so their scope
-// is recovered from the records that reference them: uploaded documents and
-// patient letters through document_metadata, lab report PDFs through
-// lab_request_attachments, and survey photo answers through the answer whose body
-// holds the attachment id. An attachment no record references keeps null scope and
-// stays central-only.
+// An attachment no record references keeps null scope and stays central-only.
 export async function up(query: QueryInterface): Promise<void> {
-  // This one-time backfill can touch many rows on a large deployment. The sync
-  // tick trigger already runs in its disabled/rebuild-flagging mode during
-  // migrations, so this does not re-queue rows for sync. Pausing the change-log
-  // audit for the transaction keeps it from writing an audit row per attachment
-  // as well; the setting is transaction-local and reverts on commit.
+  // Pausing the audit stops a changelog row per attachment; the setting is transaction-local.
   await query.sequelize.query(`SELECT set_config('tamanu.audit.pause', 'true', true);`);
   await query.sequelize.query(`
     WITH owners AS (
@@ -60,8 +51,8 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // DESTRUCTIVE: scope written at creation is indistinguishable from scope
-  // recovered by this backfill, so rolling back clears both.
+  // DESTRUCTIVE: scope written at creation is indistinguishable from recovered scope, so rolling
+  // back clears both.
   await query.sequelize.query(`
     UPDATE attachments SET patient_id = NULL, encounter_id = NULL;
   `);

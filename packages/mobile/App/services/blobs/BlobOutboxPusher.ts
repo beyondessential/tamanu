@@ -8,15 +8,11 @@ import { BlobTransferChannel } from './BlobTransferChannel';
 import { MobileBlobCache } from './MobileBlobCache';
 
 // spec: CAP
-// How far the push cursor may advance past a blob's eligibility point before the
-// outbox is reported as dysfunctional. Expressed in sync ticks — roughly several
-// sync cycles. Central-side monitoring is the authoritative signal; this local
-// escalation is a coarse aid.
+// In sync ticks, roughly several sync cycles. Central-side monitoring is the authoritative signal;
+// this is a coarse aid.
 const DYSFUNCTION_PUSH_TICK_GAP = 6;
 
-// Upper bound on outbox rows handled per pass, so an outbox that grew large
-// during an extended outage is drained across successive sync cycles.
-// Oldest-first, so the longest-waiting blobs are always handled.
+// An outbox grown during a long outage drains across successive sync cycles.
 const OUTBOX_SCAN_LIMIT = 100;
 
 export interface BlobOutboxPusherOptions {
@@ -26,11 +22,8 @@ export interface BlobOutboxPusherOptions {
 }
 
 // spec: CACHE, MOB
-// Drains the device's outbox to the central server: oldest-first among blobs
-// whose referencing attachment record has synchronised, skipping past failures.
-// Runs after each successful sync cycle rather than on its own schedule — the
-// device is intermittently awake and a sync is the moment records are known to
-// be on central, so a push attempted then is the one most likely to be accepted.
+// Runs after each successful sync rather than on a schedule: that's when records are known to be on
+// central.
 export class BlobOutboxPusher {
   #models: typeof MODELS_MAP;
   #transferChannel: BlobTransferChannel;
@@ -58,7 +51,6 @@ export class BlobOutboxPusher {
   }
 
   // spec: CACHE
-  /** Which outbox blobs are eligible for push, oldest-first among those scanned. */
   async eligibleOutboxHashes(): Promise<string[]> {
     const outbox = await this.#listOutbox(OUTBOX_SCAN_LIMIT);
     const eligible = await this.#outbox.eligibleHashes(outbox);
@@ -81,11 +73,7 @@ export class BlobOutboxPusher {
   }
 
   // spec: CACHE
-  /**
-   * The device's one reference resolver: a live attachment record carries the
-   * hash and has itself reached the central server — its sync tick is at or
-   * behind the push cursor, or it arrived through sync in the first place.
-   */
+  /** Synced means the tick is at or behind the push cursor, or the record arrived through sync. */
   async #syncedAttachmentHashes(hashes: string[]): Promise<string[]> {
     const lastPush = await getSyncTick(this.#models, LAST_SUCCESSFUL_PUSH);
     const rows: { hash: string }[] = await this.#models.Attachment.getRepository().query(
@@ -101,11 +89,10 @@ export class BlobOutboxPusher {
     return rows.map(row => row.hash);
   }
 
-  /** One pass over the outbox; run after each successful sync cycle. */
   async runOnce(): Promise<OutboxCounts> {
     if (this.#running) {
-      // The device runs this off sync cycles, which can overlap when one runs
-      // long; a second pass would offer blobs the first is still pushing.
+      // Sync cycles can overlap when one runs long; a second pass would offer blobs the first is
+      // still pushing.
       return { pushed: 0, failed: 0, skipped: 0, ineligible: 0, inFlight: 0 };
     }
     this.#running = true;
@@ -117,18 +104,11 @@ export class BlobOutboxPusher {
   }
 
   // spec: CAP
-  /**
-   * Called after each successful sync cycle. Marks the push cursor at which
-   * each eligible outbox blob was first seen eligible, then reports
-   * dysfunction by comparing the oldest such marker against the current push
-   * cursor — a blob still unpushed while syncs keep succeeding.
-   */
   async recordSyncCycle(): Promise<void> {
     const eligible = await this.eligibleOutboxHashes();
     const lastPush = await getSyncTick(this.#models, LAST_SUCCESSFUL_PUSH);
     if (eligible.length > 0) {
-      // Stamp the eligibility marker once: blobs already marked keep their
-      // original value, so the measure counts from when eligibility began.
+      // Stamped once, so the measure counts from when eligibility began.
       await this.#models.Blob.getRepository().query(
         `
           UPDATE blobs
@@ -156,8 +136,7 @@ export class BlobOutboxPusher {
     }
     const ticksSinceEligible = lastPush - Number(row.oldest);
     if (ticksSinceEligible >= DYSFUNCTION_PUSH_TICK_GAP) {
-      // spec: CAP — escalates with both sync progress since eligibility and
-      // the space the outbox is consuming
+      // spec: CAP
       console.error(
         `BlobOutboxPusher: outbox dysfunction — blobs unpushed across successful syncs ` +
           `(ticksSinceEligible=${ticksSinceEligible}, outboxCount=${row.count}, outboxBytes=${row.totalBytes})`,

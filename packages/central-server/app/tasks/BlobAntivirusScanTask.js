@@ -2,9 +2,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 
 // spec: AV
-// Central's scheduled antivirus pass. Central scans every blob it holds and its
-// verdict is authoritative for the deployment, so this is where an infected
-// hash is found and quarantined.
+// Central's verdict is authoritative, so infected hashes are found and quarantined here.
 export class BlobAntivirusScanTask extends ScheduledTask {
   getName() {
     return 'BlobAntivirusScanTask';
@@ -18,8 +16,7 @@ export class BlobAntivirusScanTask extends ScheduledTask {
 
   async run() {
     const { blobScanner } = this.context;
-    // Absent when no scanner is configured, which is what makes the feature
-    // inert rather than merely idle on a deployment that has not turned it on.
+    // Absent when no scanner is configured, which keeps the feature inert.
     if (!blobScanner) {
       return;
     }

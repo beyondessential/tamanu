@@ -11,10 +11,8 @@ interface ClamdRequest {
   chunks: Buffer[];
 }
 
-// Reads clamd's INSTREAM framing off the wire: the command, then each chunk as
-// a big-endian length followed by that many bytes, ended by a zero length.
-// Returns null until the whole stream has arrived, so the fake answers on the
-// end-of-stream frame the way the daemon does.
+// Returns null until the whole stream has arrived, so the fake answers on the end-of-stream frame
+// as the daemon does.
 function readStream(request: Buffer): ClamdRequest | null {
   const terminator = request.indexOf(0);
   if (terminator === -1) {
@@ -48,8 +46,6 @@ describe('ClamdScanner', () => {
     server = null;
   });
 
-  // Answers one request and hands back what it was sent, so a test asserts on
-  // the bytes that reached the daemon rather than on how they were written.
   const fakeClamd = async (reply: string) => {
     const requests: ClamdRequest[] = [];
     server = net.createServer(socket => {
@@ -88,8 +84,6 @@ describe('ClamdScanner', () => {
 
     const { command, chunks } = requests[0]!;
     expect(command).toBe('zINSTREAM');
-    // Re-chunked to the daemon's limit rather than passed through at whatever
-    // size the read produced.
     expect(chunks.map(chunk => chunk.length)).toEqual([64 * 1024, 17]);
     expect(Buffer.concat(chunks).equals(content)).toBe(true);
   });

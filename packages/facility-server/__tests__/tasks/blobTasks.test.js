@@ -62,8 +62,7 @@ describe('blob cache scheduled tasks', () => {
 
   describe('BlobCacheEvictorTask', () => {
     it('brings the cache back within its budget', async () => {
-      // verifies spec: CACHE — the budget is enforced by a periodic check as
-      // well as at admission
+      // verifies spec: CACHE
       const stale = await putCache();
       const recent = await putCache();
       await setLastAccessed(stale.hash, 2 * 60 * 60 * 1000);
@@ -77,8 +76,7 @@ describe('blob cache scheduled tasks', () => {
     });
 
     it('demotes an outbox blob left without a referencing record', async () => {
-      // verifies spec: CACHE — nothing else reclaims a stranded outbox blob, so
-      // the periodic pass demotes it into the budget's reach
+      // verifies spec: CACHE
       const { hash } = await blobCache.putOutbox(Readable.from(uniqueContent()));
       await setLastAccessed(hash, 2 * 60 * 60 * 1000);
 
@@ -97,8 +95,7 @@ describe('blob cache scheduled tasks', () => {
 
   describe('BlobOutboxPusherTask', () => {
     it('drains the outbox', async () => {
-      // verifies spec: CACHE — the pusher runs on its own schedule, independent
-      // of sync sessions
+      // verifies spec: CACHE
       const content = uniqueContent();
       const { hash } = await blobCache.putOutbox(Readable.from(content));
       const blobOutboxPusher = new BlobOutboxPusher({

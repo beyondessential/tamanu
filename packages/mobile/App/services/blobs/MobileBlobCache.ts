@@ -9,20 +9,15 @@ import { MobileBlobStore, BlobFileSystem, PutResult } from './MobileBlobStore';
 import { deriveCacheBudgetBytes } from './deviceStorage';
 import type { BlobTransferChannel } from './BlobTransferChannel';
 
-// Reads within this window of the last recorded access don't rewrite recency.
-// spec: CACHE — recency updates may be coalesced; losing the most recent
-// refreshes degrades eviction ordering only.
+// spec: CACHE
 const RECENCY_COALESCE_SECONDS = 60;
 
 // spec: SCRUB
-// Cache content confirmed to match its hash within this window is served without
-// re-hashing. Long enough that browsing back and forth over a patient's photos
-// hashes each file once, short enough that a corrupt cache copy is caught on a
-// later visit. Outbox content is exempt and verified on every read.
+// Long enough that browsing a patient's photos hashes each file once. Outbox content is verified on
+// every read.
 const VERIFICATION_COALESCE_SECONDS = 60 * 60;
 
-// Upper bound on cache rows scanned per eviction pass; a cache bigger than this
-// is trimmed across successive passes.
+// A cache bigger than this is trimmed across successive passes.
 const EVICTION_SCAN_LIMIT = 1000;
 
 export interface MobileBlobCacheOptions {
@@ -32,13 +27,6 @@ export interface MobileBlobCacheOptions {
 }
 
 // spec: CACHE, MOB
-// The device store's two durability tiers over the blob store primitive: the
-// outbox (un-pushed content the device alone holds, never evicted) and the
-// cache (durable on central, evictable under a size budget derived from the
-// device's own storage). This class owns admission to the outbox, read-through
-// with lazy fetch and verification, demotion once central acknowledges, and
-// eviction; the post-sync pusher drives it from the outbox side (see
-// BlobOutboxPusher).
 export class MobileBlobCache {
   #blobStore: MobileBlobStore;
   #models: { Blob: typeof Blob };
@@ -63,23 +51,17 @@ export class MobileBlobCache {
     }, { scanLimit: EVICTION_SCAN_LIMIT });
   }
 
-  /** Wired once the central connection is up; reads work local-only without it. */
   setTransferChannel(transferChannel: BlobTransferChannel): void {
     this.#transferChannel = transferChannel;
   }
 
   // spec: CACHE, MOB
   /**
-   * Admit device-captured content into the outbox, consuming the source file
-   * so no second copy remains outside the store. Call within the operation
-   * that creates the blob's referencing record; a blob stranded by a crash in
-   * between is demoted to cache by the startup reconciliation. Content the
-   * store already holds joins the outbox with it: a device capture means
-   * central is not known to hold the bytes.
+   * Call within the operation that creates the referencing record; startup reconciliation demotes a
+   * blob stranded by a crash between them.
    */
   async putOutbox(sourcePath: string): Promise<PutResult> {
     const admitted = await this.#blobStore.putFile(sourcePath, { tier: BLOB_TIERS.OUTBOX });
-    // Admission leaves a row it already holds untouched, so the tier is set here.
     if (admitted.existed) {
       await this.#models.Blob.getRepository().update(
         { hash: admitted.hash },
@@ -91,18 +73,12 @@ export class MobileBlobCache {
 
   // spec: MOB, SCRUB
   /**
-   * Read-through: resolve the hash to a readable on-disk path, fetching from
-   * the central server on a local miss and admitting the bytes to the cache
-   * tier, so a later read of the same content needs no connectivity. Every
-   * read verifies the bytes against the hash — the device runs no scheduled
-   * scrub, so receipt and read verification carry integrity. Corrupt cache
-   * content is dropped and refetched within the same read; corrupt outbox
-   * content, the only copy of what the device captured, is retained and
-   * surfaced as a fault.
+   * The device runs no scheduled scrub, so every read verifies. Corrupt cache content is refetched;
+   * corrupt outbox content is the only copy, so it's kept and surfaced.
    */
   async open(hash: string): Promise<string> {
-    // spec: AV — checked before the fetch, so known-bad content is never pulled
-    // onto the device in the first place, not merely refused once it is here.
+    // spec: AV
+    // Before the fetch, so known-bad content is never pulled onto the device.
     if (await this.#blobStore.isQuarantined(hash)) {
       throw new NotFoundError(`Blob is quarantined: ${hash}`);
     }
@@ -119,7 +95,6 @@ export class MobileBlobCache {
           `Captured content for ${hash} is corrupt on this device; retained`,
         );
       }
-      // Cache content is disposable: drop the corrupt copy and refetch.
       await this.#blobStore.delete(hash);
       await this.#fetchIntoCache(hash);
       if (!(await this.#blobStore.verify(hash))) {
@@ -132,7 +107,6 @@ export class MobileBlobCache {
     return await this.#blobStore.servablePath(hash, held);
   }
 
-  /** Read-through to the blob's content as base64, for inline display. */
   async readBase64(hash: string): Promise<string> {
     const path = await this.open(hash);
     return await this.#fs.readFile(path, 'base64');
@@ -140,11 +114,8 @@ export class MobileBlobCache {
 
   // spec: SCRUB
   /**
-   * Whether the content may be served as matching its hash. Content the device
-   * alone holds is verified on every read, since corruption of it is unrecoverable
-   * and must surface. Cache content, being refetchable, is verified no more often
-   * than the coalescing window, so repeated reads of the same photo do not each
-   * re-hash the whole file on a constrained device.
+   * Cache content is refetchable, so it's verified at most once per window to spare a constrained
+   * device.
    */
   async #verifiedForRead(hash: string, tier?: string): Promise<boolean> {
     if (tier !== BLOB_TIERS.OUTBOX) {
@@ -162,8 +133,7 @@ export class MobileBlobCache {
       );
     }
     await this.#transferChannel.fetchFromCentral(hash);
-    // A fetch admission may take the cache over budget; enforcement never
-    // evicts the most recently used blob, which the new arrival is.
+    // Enforcement never evicts the most recently used blob, which the new arrival is.
     try {
       await this.enforceBudget();
     } catch (error) {
@@ -174,7 +144,6 @@ export class MobileBlobCache {
   }
 
   // spec: CACHE
-  /** Move an acknowledged blob from outbox to cache: durable on central, evictable. */
   async demote(hash: string): Promise<void> {
     await this.#models.Blob.getRepository().update(
       { hash, tier: BLOB_TIERS.OUTBOX },
@@ -192,23 +161,18 @@ export class MobileBlobCache {
 
   // spec: CACHE
   /**
-   * Evict least-recently-used cache blobs until the cache fits its budget. The
-   * budget is derived fresh from the device's storage on every enforcement, so
-   * a device filling up with unrelated data gives cache space back rather than
-   * holding to a budget it can no longer afford.
+   * The budget is re-derived from device storage each time, so a filling device gives cache space
+   * back.
    */
   async enforceBudget(): Promise<{ evictedBytes: number; evictedCount: number }> {
     return await this.#eviction.enforceBudget();
   }
 
   // spec: CAP
-  /** Free at least bytesNeeded for the free-disk floor. */
   async evictBytes(bytesNeeded: number): Promise<{ evictedBytes: number; evictedCount: number }> {
     return await this.#eviction.evictBytes(bytesNeeded);
   }
 
-  // Outbox blobs are absent by construction: they are the only durable copy on
-  // the device and are never eviction candidates.
   async #cacheRowsLruFirst(limit: number): Promise<{ hash: string; size: number }[]> {
     const rows = await this.#models.Blob.getRepository().find({
       where: { tier: BLOB_TIERS.CACHE },

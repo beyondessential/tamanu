@@ -12,7 +12,6 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from './utilities';
 
-// The pause between batches is observed rather than waited out.
 vi.mock('@tamanu/utils/sleepAsync', () => ({
   sleepAsync: vi.fn().mockResolvedValue(undefined),
 }));
@@ -122,12 +121,10 @@ describe('BlobBackfillTask', () => {
       global.serverInfo = previous;
     }
 
-    // Asset bytes are seeded into the store so the hash-carrying row central
-    // sends later resolves locally; the row itself is left for that sync.
+    // Seeded so the hash-carrying row central sends later resolves locally.
     expect(await ctx.blobStore.has(hashOf(assetContent))).toBe(true);
     expect((await rowOf('assets', assetId)).data).not.toBeNull();
-    // Attachments are not the facility's to move, and are not seeded either:
-    // they push inline and become outbox blobs elsewhere (G2/J2).
+    // Attachments push inline through the outbox, so the facility neither moves nor seeds them.
     expect(await ctx.blobStore.has(hashOf(attachmentContent))).toBe(false);
     expect((await rowOf('attachments', attachmentId)).data).not.toBeNull();
   });
@@ -165,7 +162,6 @@ describe('BlobBackfillTask', () => {
     for (let i = 0; i < 4; i++) await insertAttachment(Buffer.from(`document ${i}`));
     const task = makeTask({ batchSize: 10, batchSleepAsyncDurationInMilliseconds: 0 });
     const backfill = task.getBackfill();
-    // One batch's worth, as though the process died straight afterwards.
     await backfill.moveReferenceRows('attachments', 2);
 
     await task.run();
@@ -179,7 +175,6 @@ describe('BlobBackfillTask', () => {
 
   it('pauses instead of failing when the free-disk reserve is reached', async () => {
     const id = await insertAttachment(Buffer.from('no room for this'));
-    // A store whose volume cannot satisfy its reserve, so admission refuses.
     const starvedStore = new BlobStore({
       root: await fs.mkdtemp(path.join(os.tmpdir(), 'tamanu-backfill-starved-')),
       models,
@@ -200,8 +195,6 @@ describe('BlobBackfillTask', () => {
   });
 
   // spec: BKFL
-  // The pause between batches is what keeps a long run off the back of a live
-  // deployment, so it has to be taken and be the configured length.
   describe('batch pacing', () => {
     it('pauses for the configured length between batches', async () => {
       for (let i = 0; i < 3; i++) await insertAttachment(Buffer.from(`document ${i}`));
@@ -222,8 +215,6 @@ describe('BlobBackfillTask', () => {
   });
 
   // spec: BKFL
-  // The report a run ends on is the only operator-visible completion signal, and
-  // no bytes left in the database is only half of done.
   describe('completion reporting', () => {
     let info;
     let warn;

@@ -38,7 +38,6 @@ describe('MobileBlobStore', () => {
       const result = await store.putFile('/tmp/capture.jpg', { tier: BLOB_TIERS.OUTBOX });
 
       expect(result).toMatchObject({ hash: sha256Hash('hello world'), size: 11, existed: false });
-      // one copy, in the store, none left at the source
       expect(await fs.exists('/tmp/capture.jpg')).toBe(false);
       expect(await fs.exists(store.pathFor(result.hash))).toBe(true);
 
@@ -46,7 +45,7 @@ describe('MobileBlobStore', () => {
       expect(row).toMatchObject({ tier: BLOB_TIERS.OUTBOX, size: 11 });
     });
 
-    // verifies spec: CAS, MOB — identical content resolves to a single stored blob
+    // verifies spec: CAS, MOB
     it('deduplicates identical content and keeps the existing tier', async () => {
       fs.seed('/tmp/a.jpg', 'same bytes');
       const first = await store.putFile('/tmp/a.jpg', { tier: BLOB_TIERS.CACHE });
@@ -59,20 +58,19 @@ describe('MobileBlobStore', () => {
       expect(await fs.exists('/tmp/b.jpg')).toBe(false);
       const rows = await Database.models.Blob.getRepository().find({ where: { hash: first.hash } });
       expect(rows).toHaveLength(1);
-      // content already held as cache stays cache
       expect(rows[0].tier).toBe(BLOB_TIERS.CACHE);
     });
 
-    // verifies spec: CAP — refuse rather than cross the reserve, error names device storage
+    // verifies spec: CAP
     it('refuses admission when the device is below its free-disk reserve', async () => {
       fs.totalSpace = 20 * 1024 ** 3;
-      fs.freeSpace = 100 * 1024 ** 2; // below the ~1 GB reserve
+      fs.freeSpace = 100 * 1024 ** 2;
       fs.seed('/tmp/big.jpg', 'content');
 
       await expect(store.putFile('/tmp/big.jpg')).rejects.toThrow(/device storage/i);
     });
 
-    // verifies spec: CAP — evict cache before refusing for the floor
+    // verifies spec: CAP
     it('evicts cache before refusing, and admits once space is freed', async () => {
       fs.totalSpace = 20 * 1024 ** 3;
       fs.freeSpace = 100 * 1024 ** 2;
@@ -97,7 +95,6 @@ describe('MobileBlobStore', () => {
       expect(await store.servablePath(hash)).toBe(store.pathFor(hash));
 
       await store.markCorrupt(hash);
-      // still present, never served
       expect(await store.has(hash)).toBe(true);
       await expect(store.servablePath(hash)).rejects.toThrow(/corrupt/i);
     });
@@ -108,9 +105,7 @@ describe('MobileBlobStore', () => {
       expect(await store.has(orphanHash)).toBe(false);
     });
 
-    // verifies spec: AV — quarantine propagates from central, so a device that
-    // runs no scanner still refuses content the deployment found to be malware,
-    // and refuses it whether or not it can reach central
+    // verifies spec: AV
     it('refuses a quarantined hash from serving, though the bytes verify', async () => {
       fs.seed('/tmp/d.jpg', 'infected');
       const { hash } = await store.putFile('/tmp/d.jpg');
@@ -123,7 +118,7 @@ describe('MobileBlobStore', () => {
   });
 
   describe('staging and commit', () => {
-    // verifies spec: XFER — verification covers the complete staged content
+    // verifies spec: XFER
     it('commits staged content that matches its hash', async () => {
       const hash = sha256Hash('transferred');
       fs.seed('/tmp/part', 'transferred');
@@ -146,7 +141,7 @@ describe('MobileBlobStore', () => {
       expect(await store.has(hash)).toBe(true);
     });
 
-    // verifies spec: XFER, SCRUB — mismatch discards the staging, does not admit
+    // verifies spec: XFER, SCRUB
     it('rejects staged content that does not hash to the requested hash', async () => {
       const claimedHash = sha256Hash('the real content');
       fs.seed('/tmp/wrong', 'tampered content');
@@ -168,8 +163,7 @@ describe('MobileBlobStore', () => {
       expect(await store.stagedSize(hash)).toBe(0);
     });
 
-    // verifies spec: SCRUB — good bytes arriving for a corrupt row clear the
-    // fault, so the healed blob is servable rather than withheld forever
+    // verifies spec: SCRUB
     it('clears a corrupt row when replacement bytes verify', async () => {
       fs.seed('/tmp/captured.jpg', 'captured');
       const { hash } = await store.putFile('/tmp/captured.jpg');
@@ -186,7 +180,7 @@ describe('MobileBlobStore', () => {
   });
 
   describe('verify', () => {
-    // verifies spec: SCRUB — detect corruption on read
+    // verifies spec: SCRUB
     it('detects when stored bytes no longer match the hash', async () => {
       fs.seed('/tmp/ok.jpg', 'good');
       const { hash } = await store.putFile('/tmp/ok.jpg');
@@ -212,7 +206,6 @@ describe('MobileBlobStore', () => {
   it('resurrects a soft-deleted registry row on re-admission with the fresh tier', async () => {
     fs.seed('/tmp/r.jpg', 'resurrect');
     const { hash } = await store.putFile('/tmp/r.jpg', { tier: BLOB_TIERS.CACHE });
-    // soft-delete the row but leave the bytes as an adoptable orphan
     await Database.models.Blob.getRepository().softDelete({ hash });
 
     fs.seed('/tmp/r2.jpg', 'resurrect');

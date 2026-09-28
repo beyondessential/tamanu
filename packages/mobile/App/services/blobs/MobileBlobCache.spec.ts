@@ -31,7 +31,7 @@ describe('MobileBlobCache', () => {
   });
 
   describe('putOutbox', () => {
-    // verifies spec: MOB, CACHE — capture admits to the outbox tier
+    // verifies spec: MOB, CACHE
     it('admits captured content to the outbox tier', async () => {
       fs.seed('/tmp/photo.jpg', 'captured');
       const { hash } = await cache.putOutbox('/tmp/photo.jpg');
@@ -39,8 +39,7 @@ describe('MobileBlobCache', () => {
       expect(row.tier).toBe(BLOB_TIERS.OUTBOX);
     });
 
-    // verifies spec: MOB, CACHE — a cache copy central holds cannot be told
-    // apart from one demoted after its referencing record was never created
+    // verifies spec: MOB, CACHE
     it('returns cache-tier content to the outbox when the device captures it', async () => {
       fs.seed('/tmp/held.jpg', 'same photo');
       const { hash } = await store.putFile('/tmp/held.jpg', { tier: BLOB_TIERS.CACHE });
@@ -54,7 +53,7 @@ describe('MobileBlobCache', () => {
   });
 
   describe('open', () => {
-    // verifies spec: MOB — content the device holds reads without connectivity
+    // verifies spec: MOB
     it('reads held content without touching the transfer channel', async () => {
       const channel = { fetchFromCentral: jest.fn() };
       cache.setTransferChannel(channel as any);
@@ -66,7 +65,7 @@ describe('MobileBlobCache', () => {
       expect(channel.fetchFromCentral).not.toHaveBeenCalled();
     });
 
-    // verifies spec: MOB, XFER — a miss fetches by hash and admits to cache
+    // verifies spec: MOB, XFER
     it('fetches a missing blob and admits it so a later read is local', async () => {
       const hash = sha256Hash('fetched');
       const channel = {
@@ -82,11 +81,10 @@ describe('MobileBlobCache', () => {
       expect(channel.fetchFromCentral).toHaveBeenCalledTimes(1);
 
       await cache.open(hash);
-      // second read is local; no further fetch
       expect(channel.fetchFromCentral).toHaveBeenCalledTimes(1);
     });
 
-    // verifies spec: SCRUB — corrupt cache content refetches rather than displaying
+    // verifies spec: SCRUB
     it('drops and refetches corrupt cache content', async () => {
       const hash = sha256Hash('good content');
       await insertVerified(hash, 'good content', BLOB_TIERS.CACHE);
@@ -107,7 +105,7 @@ describe('MobileBlobCache', () => {
       expect(path).toBe(store.pathFor(hash));
     });
 
-    // verifies spec: SCRUB — cache verification is coalesced across reads
+    // verifies spec: SCRUB
     it('does not re-hash recently verified cache content on a second read', async () => {
       const hash = sha256Hash('cache content');
       fs.seed(store.pathFor(hash), 'cache content');
@@ -118,12 +116,11 @@ describe('MobileBlobCache', () => {
       await cache.open(hash);
       expect(hashSpy).toHaveBeenCalledTimes(1);
       await cache.open(hash);
-      // second read is served on the recorded verification, not a fresh hash
       expect(hashSpy).toHaveBeenCalledTimes(1);
       hashSpy.mockRestore();
     });
 
-    // verifies spec: SCRUB — content the device alone holds is verified every read
+    // verifies spec: SCRUB
     it('re-hashes outbox content on every read', async () => {
       fs.seed('/tmp/captured.jpg', 'captured bytes');
       const { hash } = await cache.putOutbox('/tmp/captured.jpg');
@@ -135,7 +132,7 @@ describe('MobileBlobCache', () => {
       hashSpy.mockRestore();
     });
 
-    // verifies spec: SCRUB, MOB — corrupt outbox content is retained and surfaced
+    // verifies spec: SCRUB, MOB
     it('marks corrupt outbox content rather than refetching', async () => {
       const hash = sha256Hash('captured content');
       await insertVerified(hash, 'captured content', BLOB_TIERS.OUTBOX);
@@ -149,7 +146,7 @@ describe('MobileBlobCache', () => {
   });
 
   describe('demote', () => {
-    // verifies spec: CACHE — an acknowledged blob moves from outbox to cache
+    // verifies spec: CACHE
     it('moves an outbox blob to the cache tier', async () => {
       fs.seed('/tmp/e.jpg', 'push me');
       const { hash } = await cache.putOutbox('/tmp/e.jpg');
@@ -160,9 +157,9 @@ describe('MobileBlobCache', () => {
   });
 
   describe('enforceBudget', () => {
-    // verifies spec: CACHE — LRU eviction, outbox untouched, MRU protected
+    // verifies spec: CACHE
     it('evicts least-recently-used cache blobs and leaves the outbox alone', async () => {
-      // budget derives to something small by squeezing free space
+      // The budget derives from free space.
       fs.totalSpace = 16 * 1024 ** 3;
       fs.freeSpace = 1 * 1024 ** 3;
 
@@ -172,15 +169,12 @@ describe('MobileBlobCache', () => {
 
       await cache.enforceBudget();
 
-      // least-recently-used cache blob goes first; the most-recent is protected
       expect(await store.has(oldCache)).toBe(false);
       expect(await store.has(newCache)).toBe(true);
-      // outbox never counts against the budget nor is evicted
       expect(await store.has(outbox)).toBe(true);
     });
   });
 
-  // Insert a verified registry row for content the fake fs already holds.
   async function insertVerified(hash: string, contents: string, tier = BLOB_TIERS.CACHE) {
     await Database.models.Blob.getRepository().query(
       `INSERT INTO blobs (id, hash, size, integrityState, tier, lastAccessedAt)

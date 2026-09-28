@@ -9,9 +9,7 @@ import { uploadAttachment } from '../../app/utils/uploadAttachment';
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 
-// The route suites stand uploadAttachment down and assert it was called, so the
-// limit the route hands it has never been applied to a real request. This one
-// puts the real implementation back.
+// The route suites stub uploadAttachment, so this one puts the real implementation back.
 const actual = await vi.importActual('../../app/utils/uploadAttachment');
 
 describe('document upload size limit', () => {
@@ -41,8 +39,7 @@ describe('document upload size limit', () => {
       )
       .attach('file', content, 'scan.pdf');
 
-  // verifies spec: ATCH — an upload larger than the configured maximum file
-  // size is rejected, and nothing is admitted on the way to the refusal.
+  // verifies spec: ATCH
   it('refuses an upload past the maximum and admits nothing', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     const content = Buffer.alloc(DOCUMENT_SIZE_LIMIT + 1, 'o');

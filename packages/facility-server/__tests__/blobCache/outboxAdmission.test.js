@@ -17,8 +17,7 @@ import { FacilityBlobCache } from '../../app/blobCache/FacilityBlobCache';
 
 vi.mock('@tamanu/shared/utils/getUploadedData');
 
-// The route suites run against a mocked uploadAttachment; this one is about the
-// real thing, so it reaches past that mock.
+// The route suites mock uploadAttachment; this one is about the real thing.
 const { uploadAttachment } = await vi.importActual('../../app/utils/uploadAttachment');
 
 const hashOf = content => `sha256:${createHash('sha256').update(content).digest('hex')}`;
@@ -58,7 +57,6 @@ describe('outbox admission and the referencing record', () => {
       models,
       getCacheBudgetBytes: async () => 10 * 1024 ** 3,
     });
-    // Central is unreachable throughout: creating an attachment must not need it.
     blobCache.setTransferChannel({
       fetchFromCentral: async () => {
         throw new Error('central is unreachable');
@@ -97,8 +95,7 @@ describe('outbox admission and the referencing record', () => {
   const BEYOND_SAFETY_WINDOW_MS = 2 * 60 * 60 * 1000;
 
   it('admits an uploaded document to the outbox alongside its attachment', async () => {
-    // verifies spec: ATCH — creation completes without central connectivity, at
-    // the outbox tier, and the background pusher delivers the bytes afterwards
+    // verifies spec: ATCH
     const patient = await models.Patient.create(fake(models.Patient));
     const { hash, content } = await stageUpload();
 
@@ -112,8 +109,7 @@ describe('outbox admission and the referencing record', () => {
   });
 
   it('rejects an upload the store cannot admit without crossing the free-disk reserve', async () => {
-    // verifies spec: ATCH, CAP — the refusal fails the upload at the time it is
-    // attempted, leaving neither an attachment nor a blob behind
+    // verifies spec: ATCH, CAP
     const patient = await models.Patient.create(fake(models.Patient));
     const { hash } = await stageUpload();
     const starvedCache = new FacilityBlobCache({
@@ -137,8 +133,7 @@ describe('outbox admission and the referencing record', () => {
   });
 
   it('leaves no outbox row once the sweep reaches an attachment write that failed', async () => {
-    // verifies spec: CACHE — a blob whose referencing record is never created is
-    // not left in the outbox, where a facility can neither push it nor evict it
+    // verifies spec: CACHE
     const { hash } = await stageUpload();
 
     await expect(
@@ -154,8 +149,7 @@ describe('outbox admission and the referencing record', () => {
   });
 
   it('keeps the bytes of a blob whose attachment write failed, as evictable cache', async () => {
-    // verifies spec: CACHE — the blob is demoted, never deleted: admission is
-    // idempotent, so the same content may already back a live reference
+    // verifies spec: CACHE
     const { hash } = await stageUpload();
 
     await expect(
@@ -171,10 +165,9 @@ describe('outbox admission and the referencing record', () => {
   });
 
   it('keeps content pushable when another upload of the same file fails', async () => {
-    // verifies spec: CACHE — the upload that succeeds admits its content first
-    // and writes its record last, so the failing upload of the same bytes sees a
-    // blob nothing references yet. Its admission and record write are split to
-    // hold that ordering, which is what the two uploads race for.
+    // verifies spec: CACHE
+    // The successful upload admits first and writes its record last, so the failing upload of the
+    // same bytes sees an unreferenced blob.
     const patient = await models.Patient.create(fake(models.Patient));
     const content = Buffer.from(`uploaded document ${randomUUID()}`);
     const { hash, size } = await blobCache.putOutbox(Readable.from(content));
@@ -207,9 +200,7 @@ describe('outbox admission and the referencing record', () => {
 
   describe('stranded outbox sweep', () => {
     it('demotes an outbox blob no record references', async () => {
-      // verifies spec: CACHE — a blob whose reference was never created (a crash
-      // between admission and the record write) does not stay in the outbox,
-      // where it can be neither pushed nor evicted
+      // verifies spec: CACHE
       const { hash } = await blobCache.putOutbox(Readable.from(uniqueContent()));
       await ageBlob(hash, BEYOND_SAFETY_WINDOW_MS);
 
@@ -232,8 +223,7 @@ describe('outbox admission and the referencing record', () => {
     });
 
     it('leaves an outbox blob admitted within the safety window', async () => {
-      // verifies spec: RECL — a reference lands after its blob is admitted, so a
-      // recent admission may have its record write still in flight
+      // verifies spec: RECL
       const { hash } = await blobCache.putOutbox(Readable.from(uniqueContent()));
 
       expect(await blobCache.demoteStrandedOutbox()).toEqual([]);
@@ -242,8 +232,9 @@ describe('outbox admission and the referencing record', () => {
     });
 
     it('reopens the safety window when content already held is admitted again', async () => {
-      // verifies spec: RECL — an age window measured from first admission would
-      // miss content deduplicated onto a moment before its new reference commits
+      // verifies spec: RECL
+      // A window from first admission would miss content deduplicated onto a moment before its new
+      // reference commits.
       const content = uniqueContent();
       const { hash } = await blobCache.putOutbox(Readable.from(content));
       await ageBlob(hash, BEYOND_SAFETY_WINDOW_MS);

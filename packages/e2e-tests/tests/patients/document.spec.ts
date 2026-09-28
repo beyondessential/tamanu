@@ -11,11 +11,7 @@ const TEST_PDF = path.join(
 test.setTimeout(60000);
 
 // spec: ATCH
-// Attachment bytes live in the blob store rather than a database column, so the
-// journey that proves it end to end is uploading a document and reading it back:
-// the upload admits the bytes and records the hash, and the preview resolves that
-// hash and decodes the content. A rendered page is what shows the bytes made the
-// round trip; the row alone would pass on a hash pointing at nothing.
+// A rendered page proves the round trip; the row alone would pass on a hash pointing at nothing.
 test.describe('Documents', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
@@ -61,8 +57,7 @@ test.describe('Documents', () => {
 
     await expect(documentsPane.tableRows).toHaveCount(fileNames.length);
 
-    // Identical bytes deduplicate to one stored blob, so each row must still
-    // resolve its own content rather than the last writer's.
+    // Identical bytes deduplicate, so each row must still resolve its own content.
     const previewModal = await documentsPane.openDocumentPreview();
     await previewModal.waitForFirstPageToRender();
     await expect(previewModal.pdfPages.first()).toBeVisible();

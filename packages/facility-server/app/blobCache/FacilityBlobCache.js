@@ -7,25 +7,17 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { UNREFERENCED_BLOB_CONDITION } from './referenceResolvers';
 
-// Reads within this window of the last recorded access don't rewrite recency.
-// spec: CACHE — recency updates may be coalesced; losing the most recent
-// refreshes degrades eviction ordering only.
+// spec: CACHE
 const RECENCY_COALESCE_SECONDS = 60;
 
 // spec: RECL
-// A reference is written after the blob it points at is admitted, so content
-// admitted within this window may have a reference still in flight and the
-// sweep leaves it alone. Long enough to cover a write inside a slow enclosing
-// transaction, since the record is invisible until that transaction commits.
+// A reference is written after its blob is admitted, and stays invisible until a slow enclosing
+// transaction commits.
 const STRANDED_SAFETY_WINDOW_MS = 60 * 60 * 1000;
 
 // spec: CACHE
-// The facility store's two durability tiers over the blob store primitive: the
-// outbox (un-pushed blobs, the only durable copy, never evicted) and the cache
-// (durable on central, evictable under an LRU size budget). This class owns
-// admission to the outbox, read-through with recency, demotion once central
-// acknowledges, and eviction; the background pusher drives it from the outbox
-// side (see BlobOutboxPusher).
+// Outbox: un-pushed, the only durable copy, never evicted. Cache: durable on central, evictable
+// under an LRU budget.
 export class FacilityBlobCache {
   #blobStore;
   #models;
@@ -48,55 +40,43 @@ export class FacilityBlobCache {
     });
   }
 
-  /** Wired once the sync runtime is up; reads work local-only without it. */
   setTransferChannel(transferChannel) {
     this.#transferChannel = transferChannel;
   }
 
-  /** The channel, where one is wired — the API process supplies its own. */
   get transferChannel() {
     return this.#transferChannel;
   }
 
   // spec: CACHE
   /**
-   * Admit locally originated content into the outbox. Call within the
-   * operation that creates the blob's referencing record — outbox admission
-   * without a reference strands the blob, since facility servers run no
-   * orphan collection. Content the store already holds joins the outbox with
-   * it: a local origin means central is not known to hold the bytes.
+   * Call within the operation that creates the referencing record: facility servers run no orphan
+   * collection.
    */
   async putOutbox(source, { sizeHint } = {}) {
     const admitted = await this.#blobStore.put(source, { sizeHint, tier: BLOB_TIERS.OUTBOX });
-    // Admission leaves a row it already holds untouched, so the tier is set here.
     if (admitted.existed) {
       await this.#promoteToOutbox(admitted.hash);
     }
     return admitted;
   }
 
-  // spec: CACHE — locally admitted content belongs in the outbox whatever tier
-  // its row held; the recency bump keeps the sweep's window over it (spec: RECL).
+  // spec: CACHE, RECL
   async #promoteToOutbox(hash) {
     const [, [blob]] = await this.#models.Blob.update(
       { tier: BLOB_TIERS.OUTBOX, lastAccessedAt: new Date() },
       { where: { hash }, returning: true },
     );
     if (blob && !blob.hasParity) {
-      // spec: FEC — the outbox is this server's only durable copy, so it carries parity.
+      // spec: FEC
       await this.#blobStore.writeParity({ hash, size: blob.size, tier: blob.tier });
     }
   }
 
   // spec: CACHE
   /**
-   * Demote every outbox blob no live record references, which nothing else
-   * reclaims: a crash between admission and the record write leaves no catch to
-   * run, and the blob would otherwise persist forever.
-   *
-   * Demotes rather than deletes, and tests the reference in the same statement
-   * as the update: admission is content-addressed and idempotent, so these bytes
-   * may be the only copy backing a reference this pass cannot see.
+   * Demotes rather than deletes, testing the reference in the same statement: these bytes may back
+   * a reference this pass can't see.
    */
   async demoteStrandedOutbox() {
     const [, demoted] = await this.#models.Blob.update(
@@ -111,7 +91,7 @@ export class FacilityBlobCache {
       },
     );
     for (const blob of demoted) {
-      // spec: FEC — a facility covers only its outbox with parity.
+      // spec: FEC
       await this.#blobStore.discardParity(blob.hash);
     }
     const hashes = demoted.map(blob => blob.hash);
@@ -122,21 +102,12 @@ export class FacilityBlobCache {
   }
 
   // spec: CACHE
-  /**
-   * Read-through: stream the blob's bytes, fetching from the central server
-   * on a local miss, refreshing recency, and holding off eviction while the
-   * read is in progress.
-   */
   async open(hash, { start, end } = {}) {
-    // Retain before the stat check so eviction defers for the whole open
-    // window: without this, a concurrent eviction between stat and get could
-    // hard-delete the blob and turn a refetchable read into a not-found.
+    // Retain before the stat check, or a concurrent eviction could turn a refetchable read into a
+    // not-found.
     this.#retainRead(hash);
     try {
-      // spec: SCRUB — servableStat, so a local copy the store will not serve
-      // (corrupt, or absent bytes under a live row) is a miss and resolves
-      // from central like any other, rather than failing the read against the
-      // copy it already has.
+      // spec: SCRUB
       if (!(await this.#blobStore.servableStat(hash))) {
         if (!this.#transferChannel) {
           throw new NotFoundError(
@@ -144,8 +115,7 @@ export class FacilityBlobCache {
           );
         }
         await this.#transferChannel.fetchFromCentral(hash);
-        // A fetch admission may take the cache over budget; enforcement never
-        // evicts the most recently used blob, which the new arrival is.
+        // Enforcement never evicts the most recently used blob, which the new arrival is.
         try {
           await this.enforceBudget();
         } catch (error) {
@@ -157,7 +127,6 @@ export class FacilityBlobCache {
       }
       await this.#touch(hash);
       const stream = await this.#blobStore.get(hash, { start, end });
-      // Hand the retain over to the stream: it is released once reading ends.
       this.#releaseReadOnClose(hash, stream);
       return stream;
     } catch (error) {
@@ -167,16 +136,13 @@ export class FacilityBlobCache {
   }
 
   // spec: CACHE
-  /** Move an acknowledged blob from outbox to cache: durable on central, evictable. */
   async demote(hash) {
     const [demoted] = await this.#models.Blob.update(
       { tier: BLOB_TIERS.CACHE, eligibleSinceTick: null },
       { where: { hash, tier: BLOB_TIERS.OUTBOX } },
     );
     if (demoted) {
-      // spec: FEC — the cache tier is uncovered: central holds the content now,
-      // so a corrupt copy costs a refetch and the parity's disk is the cache
-      // budget's to spend.
+      // spec: FEC
       await this.#blobStore.discardParity(hash);
     }
   }
@@ -185,8 +151,7 @@ export class FacilityBlobCache {
     const total = await this.#models.Blob.sum('size', {
       where: { tier: BLOB_TIERS.CACHE },
     });
-    // SUM over BIGINT can arrive as a string from the pg driver; coerce so
-    // callers compare numbers, not a string against a number.
+    // SUM over BIGINT can arrive as a string from the pg driver.
     return Number(total ?? 0);
   }
 
@@ -198,9 +163,6 @@ export class FacilityBlobCache {
     return await this.#eviction.evictBytes(bytesNeeded);
   }
 
-  // The least-recently-used cache blobs, bounded so memory stays flat regardless
-  // of cache population. Outbox blobs are absent by construction: they are the
-  // only durable copy and are never eviction candidates.
   async #cacheRowsLruFirst(limit) {
     const rows = await this.#models.Blob.findAll({
       where: { tier: BLOB_TIERS.CACHE },
@@ -211,8 +173,6 @@ export class FacilityBlobCache {
       attributes: ['hash', 'size'],
       limit,
     });
-    // size arrives via the model's BIGINT getter as a number, but coerce
-    // defensively so the accumulator can never become a string.
     return rows.map(({ hash, size }) => ({ hash, size: Number(size) }));
   }
 
@@ -241,8 +201,7 @@ export class FacilityBlobCache {
   }
 
   #releaseReadOnClose(hash, stream) {
-    // 'close' fires on both completion and destruction (error or abandoned
-    // stream), so the retain always releases exactly once.
+    // 'close' fires on completion and destruction, so the retain releases exactly once.
     stream.once('close', () => this.#releaseRead(hash));
   }
 }

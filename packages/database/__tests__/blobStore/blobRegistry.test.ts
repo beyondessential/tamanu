@@ -45,8 +45,7 @@ describe('blob registry', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  // Content no other case shares, so every admission is a fresh row rather than
-  // an upsert onto one an earlier case or an earlier run left behind.
+  // Unique content, so every admission is a fresh row rather than an upsert onto an earlier one.
   const admit = async () => {
     const { hash } = await store.put(Readable.from(Buffer.from(`blob ${randomUUID()}`)));
     return hash;
@@ -87,8 +86,8 @@ describe('blob registry', () => {
     });
 
     it('records nothing to the change log when a blob is admitted', async () => {
-      // A logged write alongside it, so the case fails rather than passes
-      // vacuously if change logging is off in this session.
+      // A logged write alongside, so the case fails rather than passes vacuously if change logging
+      // is off.
       const referenceData = await models.ReferenceData.create(fake(models.ReferenceData));
       const hash = await admit();
       const blob = await models.Blob.findOne({ where: { hash } });
@@ -136,8 +135,7 @@ describe('blob registry', () => {
         scanVerdict: BLOB_SCAN_VERDICTS.INFECTED,
       });
 
-      // Bytes that verify again say nothing about what they contain: the blob is
-      // still the malware it was found to be.
+      // Bytes that verify say nothing about what they contain.
       await store.recordIntegrityState(hash, BLOB_INTEGRITY_STATES.VERIFIED);
       expect(await store.stat(hash)).toMatchObject({
         integrityState: BLOB_INTEGRITY_STATES.VERIFIED,
@@ -159,7 +157,7 @@ describe('blob registry', () => {
 
   // spec: AV
   describe('scan pass ordering', () => {
-    // The pass draws on the whole registry, so rows other cases admitted would order into it.
+    // The pass draws on the whole registry.
     beforeEach(async () => {
       await models.Blob.destroy({ where: {}, force: true });
     });

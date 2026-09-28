@@ -12,7 +12,7 @@ import { BlobScanner, BlobStore } from '@tamanu/database/blobStore';
 import { createTestContext } from '../utilities';
 import { onBlobInfected } from '../../app/blobIntegrity';
 
-// Large enough to carry parity: 16+2 shards of 4 KiB at the default proportion.
+// Large enough to carry parity.
 const COVERED_BYTES = 64 * 1024;
 
 const coveredContent = () => Buffer.alloc(COVERED_BYTES, randomUUID());
@@ -86,9 +86,7 @@ describe('facility antivirus scan', () => {
     );
   };
 
-  // verifies spec: AV — the propagating record names the hash rather than any
-  // copy of it, is written by the central server whose verdict is
-  // authoritative, and reaches a facility by synchronisation.
+  // verifies spec: AV
   it('leaves the quarantine record alone when its own scan finds malware', async () => {
     const { hash } = await putOutbox();
 
@@ -101,8 +99,7 @@ describe('facility antivirus scan', () => {
     expect(row.signatureVersion).toBe('27100');
   });
 
-  // verifies spec: AV, FEC — infected content is retained but never served and
-  // never repaired, so the disk its parity occupies buys nothing.
+  // verifies spec: AV, FEC
   it('discards the parity of content an infected verdict covers', async () => {
     const { hash } = await putOutbox();
     await expect(fs.access(sidecarPathFor(hash))).resolves.toBeUndefined();
@@ -123,9 +120,7 @@ describe('facility antivirus scan', () => {
     expect((await models.Blob.findOne({ where: { hash } })).hasParity).toBe(true);
   });
 
-  // The application context resolves the scan's per-pass bounds and its size cap
-  // through these settings paths, and a typo in one would only surface when a
-  // scheduled pass first ran on a real server.
+  // A typo in these settings paths would only surface when a pass first ran on a real server.
   describe('scan settings', () => {
     it('resolves the per-pass bounds and size cap the context reads', async () => {
       const [facilityId] = Object.keys(ctx.settings).filter(key => key !== 'global');

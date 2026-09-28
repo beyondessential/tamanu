@@ -316,16 +316,14 @@ describe('Create DiagnosticReport', () => {
       });
       expect(response).toHaveSucceeded();
 
-      // spec: ATCH — the report PDF lands in the blob store, and the attachment
-      // records its hash and the encounter it is scoped to, not the bytes.
+      // spec: ATCH
       const attachment = await ctx.store.models.Attachment.findByPk(
         requestAttachment.attachmentId,
       );
       expect(attachment.hash).toBeTruthy();
       expect(attachment.data).toBeFalsy();
       expect(attachment.encounterId).toBe(labRequest.encounterId);
-      // spec: ATCH — scoped to the lab request's patient as well as its encounter,
-      // so the row matches how every other attachment is scoped
+      // spec: ATCH
       const reportEncounter = await ctx.store.models.Encounter.findByPk(labRequest.encounterId);
       expect(attachment.patientId).toBe(reportEncounter.patientId);
       expect(await ctx.blobStore.has(attachment.hash)).toBe(true);

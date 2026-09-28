@@ -24,11 +24,9 @@ import {
 import { type BlobTier } from '@tamanu/constants';
 import { formatBlobHash, parseBlobHash } from '@tamanu/utils/blobs';
 
-// Bytes of each shard held resident while recovering a group, so a repair's
-// memory is bounded by the geometry rather than by the blob's size.
 const RECOVERY_SLICE_BYTES = 64 * 1024;
 
-/** Bytes a shard really covers: a blob's final data shard may be short. */
+/** A blob's final data shard may be short. */
 function shardLength(
   geometry: ParityGeometry,
   blobSize: number,
@@ -43,20 +41,18 @@ function shardLength(
 }
 
 export interface ParityWriteResult {
-  /** Whether the bytes the encode read still hash to the blob's name. */
   verified: boolean;
   bytesRead: number;
 }
 
 export interface ErrorCorrectionSettings {
   enabled: boolean;
-  /** Parity as a proportion of the blob, e.g. 0.1 for the 10% default. */
   proportion: number;
 }
 
 export interface BlobParityOptions {
   getSettings: () => Promise<ErrorCorrectionSettings>;
-  /** spec: FEC — the tiers this server's coverage includes. */
+  // spec: FEC
   coveredTiers: readonly BlobTier[];
   pathFor: (hash: string) => string;
   createTempPath: () => Promise<string>;
@@ -65,14 +61,8 @@ export interface BlobParityOptions {
 }
 
 // spec: FEC
-// The parity sidecar's io: which blobs are covered, writing a sidecar from a
-// blob's bytes, and reconstructing a damaged blob from one. The codec and the
-// sidecar's layout are sans-io in @tamanu/blobs; everything here is file access
-// around them.
-//
-// Parity is derived data. A sidecar that cannot be written, is missing, or is
-// itself damaged is never a fault of its own: the blob is stored or served
-// unprotected and the scrub regenerates the sidecar.
+// Parity is derived data: a missing or damaged sidecar is never a fault of its own, and the scrub
+// regenerates it.
 export class BlobParity {
   readonly #getSettings: () => Promise<ErrorCorrectionSettings>;
   readonly #coveredTiers: readonly BlobTier[];
@@ -98,19 +88,16 @@ export class BlobParity {
   }
 
   // spec: FEC
-  /** Whether error correction is on for this server at all. */
   async enabled(): Promise<boolean> {
     return (await this.#getSettings()).enabled;
   }
 
   // spec: FEC
-  /** What could be covered here, for narrowing a query to candidates. */
   get coverage(): { minimumSize: number; tiers: readonly BlobTier[] } {
     return { minimumSize: MINIMUM_COVERED_BLOB_SIZE, tiers: this.#coveredTiers };
   }
 
   // spec: FEC
-  /** Whether this server computes parity for a blob, by its tier and its size. */
   async covers({ size, tier }: { size: number; tier: BlobTier }): Promise<boolean> {
     const { enabled } = await this.#getSettings();
     return enabled && isParityCovered({ size, tier }, { coveredTiers: this.#coveredTiers });
@@ -118,9 +105,8 @@ export class BlobParity {
 
   // spec: CAP
   /**
-   * Disk a covered blob's sidecar will occupy, for the free-disk floor to account
-   * for alongside the blob itself. Exact rather than a fixed proportion, so
-   * raising the parity setting raises what admission reserves.
+   * Exact rather than a fixed proportion, so raising the parity setting raises what admission
+   * reserves.
    */
   async sidecarBytesFor(size: number): Promise<number> {
     const { proportion } = await this.#getSettings();
@@ -141,25 +127,15 @@ export class BlobParity {
   }
 
   // spec: FEC
-  /** Parity dies with its blob: on delete, and on demotion out of the outbox. */
+  /** On delete, and on demotion out of the outbox. */
   async remove(hash: string): Promise<void> {
     await fs.rm(this.sidecarPathFor(hash), { force: true });
   }
 
   // spec: FEC
   /**
-   * Compute parity for a blob from a file holding its bytes, and place the
-   * sidecar beside it. A second pass over the file rather than part of the write,
-   * because the shard geometry needs the blob's size, which streaming admission
-   * only knows once the bytes are down.
-   *
-   * The encode reads every byte of the blob in order, so it hashes it in the same
-   * pass and reports whether the bytes still hash to the blob's name. Parity over
-   * a blob that has rotted since its last scrub would protect the corruption
-   * instead of the content, so an unverified blob gets no sidecar at all.
-   *
-   * The sidecar is built at a temporary path and moved into place, so a partial
-   * one is never read as a whole one.
+   * A second pass, since the geometry needs the size. It hashes as it reads: parity over a rotted
+   * blob would protect the corruption, so an unverified blob gets no sidecar.
    */
   async write(hash: string, sourcePath: string, size: number): Promise<ParityWriteResult> {
     const { algorithm } = parseBlobHash(hash);
@@ -194,8 +170,7 @@ export class BlobParity {
             const length = Math.min(geometry.shardSize, size - at);
             const read = await source.read(shard, 0, length, at);
             const bytes = shard.subarray(0, read.bytesRead);
-            // The data shards ascend contiguously from the blob's first byte, so
-            // hashing them in this order hashes the blob itself.
+            // The data shards ascend from the first byte, so this hashes the blob itself.
             content.update(bytes);
             bytesRead += bytes.length;
             encoder.addDataShard(index, bytes);
@@ -217,9 +192,7 @@ export class BlobParity {
           }
         }
 
-        // Written last: the table's slot for a shard is only known once that
-        // shard has been read or computed, and it sits ahead of the parity so a
-        // repair reads it in one go.
+        // Written last: a shard's slot is known only once it's read or computed.
         await sidecar.write(digests, 0, digests.length, PARITY_HEADER_BYTES);
         await sidecar.sync();
       } finally {
@@ -243,16 +216,8 @@ export class BlobParity {
 
   // spec: FEC
   /**
-   * Reconstruct a damaged blob from its parity into `destinationPath`, returning
-   * whether it could. False covers every way parity cannot help — no sidecar, a
-   * damaged sidecar, or corruption beyond the parity budget — because the
-   * response is the same in each case: fall through to the rest of the self-heal
-   * ladder.
-   *
-   * The reconstruction is NOT verified here. Locating the damaged region is part
-   * of the repair, and a region located wrongly decodes "successfully" into
-   * different bytes, so the caller must check the result against the blob's hash
-   * unconditionally.
+   * Unverified: a wrongly located damaged region decodes "successfully" into different bytes, so
+   * the caller must check the hash.
    */
   async reconstruct(hash: string, destinationPath: string): Promise<boolean> {
     const { algorithm } = parseBlobHash(hash);
@@ -317,10 +282,7 @@ export class BlobParity {
       return null;
     }
     const decoded = decodeParityHeader(header.subarray(0, bytesRead));
-    // The geometry sizes every allocation and read below it, and it is bounded
-    // only against a blob size the same header carries. The file it describes is
-    // the one bound that does not come from the header, so a geometry claiming
-    // more than the sidecar holds is corrupt whatever else it decodes to.
+    // The file size is the one bound not taken from the header itself.
     const { size } = await sidecar.stat();
     if (paritySidecarByteCount(decoded.geometry) > size) {
       return null;
@@ -328,11 +290,7 @@ export class BlobParity {
     return decoded;
   }
 
-  /**
-   * The group's data shards as they should be: recomputed digests locate the
-   * damage, and the erased shards are decoded from those that survived. Null when
-   * the damage is beyond what the parity covers.
-   */
+  /** Null when the damage is beyond what the parity covers. */
   async #recoverGroup({
     geometry,
     blobSize,
@@ -359,14 +317,12 @@ export class BlobParity {
 
     for (let index = 0; index < geometry.dataShards + geometry.parityShards; index++) {
       if (index >= dataShards && index < geometry.dataShards) {
-        // A slot past the blob's end holds no bytes: it is zeros, and zeros are
-        // what the encode used, so it counts as a shard that survived.
+        // A slot past the blob's end is zeros, as in the encode, so it counts as surviving.
         present.push(index);
         continue;
       }
       const bytes = await readShard(index, 0, geometry.shardSize);
-      // Digested over the shard's real length, which is what the encode hashed: a
-      // short final shard padded out to a whole one would never match.
+      // Over the real length: a short final shard padded out would never match.
       const real = bytes.subarray(0, shardLength(geometry, blobSize, group, index));
       if (this.#digestMatches(digests, geometry, group, index, real, algorithm)) {
         present.push(index);
@@ -403,10 +359,7 @@ export class BlobParity {
     return recovered;
   }
 
-  /**
-   * A slice of one shard, zero-filled past the blob's end so a truncated blob
-   * reads the way the encode saw it rather than short.
-   */
+  /** Zero-filled past the blob's end, the way the encode saw it. */
   async #readShardSlice({
     geometry,
     blobSize,
@@ -440,7 +393,6 @@ export class BlobParity {
     return slice;
   }
 
-  /** The blob's bytes for a group: what survived, plus what was reconstructed. */
   async #writeGroup({
     geometry,
     blobSize,

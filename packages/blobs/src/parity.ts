@@ -1,39 +1,26 @@
 import { BLOB_TIERS, BLOB_TIERS_VALUES, type BlobTier } from '@tamanu/constants';
 
 // spec: FEC
-// Systematic Reed-Solomon over GF(256): a blob's own bytes are the data shards,
-// and the parity shards computed from them are stored beside it. Pure
-// computation over typed arrays — no io and no dependencies, so it runs wherever
-// the store does.
+// Systematic Reed-Solomon over GF(256): the blob's bytes are the data shards.
 
-// A parity shard is at least one filesystem cluster, so below this the sidecar
-// outgrows the blob it protects: 32 KiB gives 8+1 at 12.8% overhead, 8 KiB gives
-// 2+1 at 50%. Blobs under the floor rely on the rest of the self-heal ladder.
+// A parity shard is at least one filesystem cluster, so below this the sidecar outgrows the blob:
+// 32 KiB gives 8+1 at 12.8% overhead.
 export const MINIMUM_COVERED_BLOB_SIZE = 32 * 1024;
 
 // spec: FEC
-// Which tiers each server's coverage includes. Central's registry is
-// authoritative for every blob it holds, so the tier does not narrow it; a
-// facility covers its outbox, because a cache copy is durable on central and a
-// corrupt one costs only a refetch (spec: CACHE). Widening a facility to its
-// cache tier is a change here and nowhere else.
+// A facility covers only its outbox: a corrupt cache copy costs just a refetch from central.
 export const CENTRAL_PARITY_TIERS: readonly BlobTier[] = BLOB_TIERS_VALUES;
 export const FACILITY_PARITY_TIERS: readonly BlobTier[] = [BLOB_TIERS.OUTBOX];
 
-// Shard size is cluster-aligned and bounded, so one bad cluster damages exactly
-// one shard and a shard never grows past a comfortable read.
+// Cluster-aligned, so one bad cluster damages exactly one shard.
 const CLUSTER_SIZE = 4 * 1024;
 const MAX_SHARD_SIZE = 1024 * 1024;
 
-// GF(256) holds 255 shards in total. Capping a group well below that keeps
-// encode throughput flat, since cost is parityShards × blobSize regardless of
-// how the data shards divide up.
+// Encode cost is parityShards × blobSize, so capping the group keeps throughput flat.
 const MAX_SHARDS_PER_GROUP = 32;
 
-// Indices in this module are in range by construction — the tables are exactly
-// FIELD_SIZE wide and every subscript is a byte or a bounded shard index — so the
-// non-null assertions below are what noUncheckedIndexedAccess needs, not a
-// judgement that a read might be absent.
+// Every subscript here is in range by construction; the non-null assertions are for
+// noUncheckedIndexedAccess.
 const FIELD_SIZE = 256;
 // x^8 + x^4 + x^3 + x^2 + 1, for which 2 is a primitive root.
 const FIELD_POLYNOMIAL = 0x11d;
@@ -70,31 +57,22 @@ function divide(dividend: number, divisor: number): number {
   return EXPONENTIALS[LOGARITHMS[dividend]! - LOGARITHMS[divisor]! + (FIELD_SIZE - 1)]!;
 }
 
-// The 256 products of one coefficient, so an inner loop over bytes is a lookup
-// and an xor.
 function productsOf(coefficient: number): Uint8Array {
   return PRODUCTS.subarray(coefficient * FIELD_SIZE, (coefficient + 1) * FIELD_SIZE);
 }
 
 export interface ParityGeometry {
-  /** Bytes per shard, cluster-aligned. */
   shardSize: number;
   /**
-   * Data shard slots per group. The blob's last group may hold fewer real
-   * shards; the slots past its end are zeros and are never stored.
+   * The last group may hold fewer real shards; the slots past its end are zeros and never stored.
    */
   dataShards: number;
   parityShards: number;
-  /** Independent groups, so a large blob keeps small shards and flat throughput. */
   groupCount: number;
 }
 
 // spec: FEC
-/**
- * The shard geometry for a blob, derived from its size and the operator's parity
- * proportion. The proportion sets how much of a blob is recoverable: at the 10%
- * default a 1 MiB blob is 32+3, recovering any 3 of its 35 shards.
- */
+/** At the 10% default a 1 MiB blob is 32+3, recovering any 3 of its 35 shards. */
 export function parityGeometry(blobSize: number, proportion: number): ParityGeometry {
   const shardSize = Math.min(
     MAX_SHARD_SIZE,
@@ -102,8 +80,7 @@ export function parityGeometry(blobSize: number, proportion: number): ParityGeom
   );
   const totalDataShards = Math.max(1, Math.ceil(blobSize / shardSize));
   const groupCount = Math.ceil(totalDataShards / MAX_SHARDS_PER_GROUP);
-  // Spread over the groups rather than filling each in turn, so the last group
-  // is never a runt carrying a full group's worth of parity.
+  // Spread over the groups so the last is never a runt carrying a full group's parity.
   const dataShards = Math.ceil(totalDataShards / groupCount);
   const parityShards = Math.min(
     MAX_SHARDS_PER_GROUP,
@@ -116,15 +93,10 @@ function roundUpToCluster(bytes: number): number {
   return Math.ceil(bytes / CLUSTER_SIZE) * CLUSTER_SIZE;
 }
 
-/** Where a group's data starts within the blob. */
 export function groupStart(geometry: ParityGeometry, groupIndex: number): number {
   return groupIndex * geometry.dataShards * geometry.shardSize;
 }
 
-/**
- * Data shards a group really holds. Only the last group of a blob can hold fewer
- * than the geometry's slots.
- */
 export function groupDataShardCount(
   geometry: ParityGeometry,
   groupIndex: number,
@@ -135,11 +107,7 @@ export function groupDataShardCount(
 }
 
 // spec: FEC
-/**
- * Whether a geometry is one `parityGeometry` could have produced for a blob of
- * this size. A sidecar's header is bytes on disk like any other, and a damaged
- * one sizes the digest table and every read that follows it.
- */
+/** A sidecar header is bytes on disk too, and a damaged one sizes every read that follows. */
 export function isEncodableGeometry(geometry: ParityGeometry, blobSize: number): boolean {
   const { shardSize, dataShards, parityShards, groupCount } = geometry;
   return (
@@ -151,8 +119,7 @@ export function isEncodableGeometry(geometry: ParityGeometry, blobSize: number):
     shardSize <= MAX_SHARD_SIZE &&
     shardSize % CLUSTER_SIZE === 0 &&
     groupCount >= 1 &&
-    // The groups span the blob and the last holds at least one shard, which is
-    // what bounds a groupCount claiming billions of them.
+    // Bounds a groupCount claiming billions of groups.
     groupStart(geometry, groupCount - 1) < blobSize &&
     groupCount * dataShards * shardSize >= blobSize
   );
@@ -163,11 +130,6 @@ export interface ParityCoverage {
 }
 
 // spec: FEC
-/**
- * Whether a blob is covered: one predicate over its tier and its size, so what
- * a server protects is decided in a single place. Coverage is over durable
- * copies above the size floor.
- */
 export function isParityCovered(
   { size, tier }: { size: number; tier: BlobTier },
   { coveredTiers }: ParityCoverage,
@@ -176,9 +138,8 @@ export function isParityCovered(
 }
 
 // spec: FEC
-// Any dataShards of the (dataShards + parityShards) shards reconstruct the blob:
-// the top rows are the identity, so a data shard that survives is itself, and
-// the parity rows are a Cauchy matrix, every square submatrix of which inverts.
+// The top rows are the identity and the parity rows a Cauchy matrix, so any dataShards of the
+// shards reconstruct the blob.
 function encodingMatrix({ dataShards, parityShards }: ParityGeometry): Uint8Array {
   const rows = dataShards + parityShards;
   const matrix = new Uint8Array(rows * dataShards);
@@ -200,9 +161,8 @@ function encodingMatrix({ dataShards, parityShards }: ParityGeometry): Uint8Arra
 
 // spec: FEC
 /**
- * Accumulates one group's parity from its data shards. Only the parity
- * accumulators stay resident, so memory is shardSize × parityShards whatever the
- * blob's size, and the caller streams the blob through shard by shard.
+ * Only the parity accumulators stay resident, so memory is shardSize × parityShards whatever the
+ * blob's size.
  */
 export class ParityEncoder {
   readonly #geometry: ParityGeometry;
@@ -218,17 +178,13 @@ export class ParityEncoder {
     );
   }
 
-  /** Start a group, discarding the previous one's accumulators. */
   beginGroup(): void {
     for (const shard of this.#parity) {
       shard.fill(0);
     }
   }
 
-  /**
-   * Add one data shard of the current group. A short final shard contributes
-   * only the bytes it has, which is the same as padding it with zeros.
-   */
+  /** A short final shard is equivalent to zero padding. */
   addDataShard(index: number, bytes: Uint8Array): void {
     const { dataShards, parityShards } = this.#geometry;
     if (index < 0 || index >= dataShards) {
@@ -243,7 +199,7 @@ export class ParityEncoder {
     }
   }
 
-  /** The current group's parity shards, valid until the next beginGroup. */
+  /** Valid until the next beginGroup. */
   groupParity(): readonly Uint8Array[] {
     return this.#parity;
   }
@@ -251,17 +207,12 @@ export class ParityEncoder {
 
 // spec: FEC
 /**
- * Reconstructs a group's damaged data shards from the shards that survived.
- *
- * Reed-Solomon corrects erasures, so the caller must first work out which shards
- * are damaged — and a shard located wrongly yields a reconstruction that reports
- * success while emitting different bytes. The whole-blob hash is the only thing
- * that detects that, so a caller must verify against it unconditionally.
+ * This corrects erasures only: a wrongly located damaged shard reconstructs "successfully" into
+ * different bytes, so callers must verify against the blob hash.
  */
 export class ParityDecoder {
   readonly #presentShards: number[];
   readonly #erasedDataShards: number[];
-  /** Row per erased data shard, coefficient per present shard. */
   readonly #recovery: Uint8Array;
 
   constructor(
@@ -274,8 +225,7 @@ export class ParityDecoder {
         `${present.length} of ${dataShards + parityShards} shards present, ${dataShards} needed`,
       );
     }
-    // Any dataShards of them will do, so take the cheapest set: surviving data
-    // shards first, whose rows are the identity.
+    // Surviving data shards first: their rows are the identity.
     this.#presentShards = [...present].sort((a, b) => a - b).slice(0, dataShards);
     this.#erasedDataShards = [...erased].sort((a, b) => a - b);
 
@@ -292,16 +242,11 @@ export class ParityDecoder {
     });
   }
 
-  /** The shard indices whose bytes the caller must supply, in order. */
   get requiredShards(): readonly number[] {
     return this.#presentShards;
   }
 
-  /**
-   * Recover the erased shards over one aligned slice of the group. Every present
-   * slice must be the same length, so the caller reads the same byte range from
-   * each shard and gets that range of each erased shard back.
-   */
+  /** Every present slice must be the same length. */
   recoverSlice(presentSlices: readonly Uint8Array[]): Uint8Array[] {
     if (presentSlices.length !== this.#presentShards.length) {
       throw new Error(
@@ -330,9 +275,7 @@ export class ParityDecoder {
 }
 
 // spec: FEC
-// Corruption beyond what the parity can recover. Distinguished from a codec
-// misuse so the healer can fall through to the rest of the self-heal ladder
-// rather than treating it as a fault of its own.
+// Distinct from codec misuse, so the healer falls through to the rest of the self-heal ladder.
 export class ParityBudgetExceededError extends Error {
   constructor(message: string) {
     super(`Parity cannot recover this blob: ${message}`);
@@ -340,9 +283,7 @@ export class ParityBudgetExceededError extends Error {
   }
 }
 
-// Gauss-Jordan over GF(256). The matrix is dataShards rows of a systematic
-// Reed-Solomon generator, which is invertible for any choice of rows, so a
-// singular pivot means the caller passed a set that is not one.
+// Gauss-Jordan over GF(256). A singular pivot means the caller passed an invalid row set.
 function invert(matrix: Uint8Array, order: number): Uint8Array {
   const work = Uint8Array.from(matrix);
   const inverse = new Uint8Array(order * order);

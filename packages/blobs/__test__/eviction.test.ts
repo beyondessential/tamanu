@@ -37,8 +37,7 @@ function createHost(overrides: Partial<BlobEvictionHost> = {}) {
   return { host, state };
 }
 
-// Rows are given least-recently-used first, so the last one is the most
-// recently used.
+// Least-recently-used first.
 const rows = (...sizes: number[]): CacheRow[] =>
   sizes.map((size, index) => ({ hash: `blob-${index}`, size }));
 

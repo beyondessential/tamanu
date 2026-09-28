@@ -16,8 +16,7 @@ import { ApplicationContext } from '../../app/ApplicationContext';
 
 const uniqueContent = () => Buffer.from(`blob content ${randomUUID()}`);
 
-// The cache budget is only ever read through the application context, so this
-// suite boots one rather than injecting a budget the way the rest do.
+// The budget is only read through the application context, so this suite boots one.
 describe('cache size budget from facility settings', () => {
   let ctx;
   let models;
@@ -72,12 +71,10 @@ describe('cache size budget from facility settings', () => {
     );
 
   it('evicts once the cache exceeds the configured budget', async () => {
-    // verifies spec: CACHE — the budget is an administrator setting scoped to
-    // the facility
+    // verifies spec: CACHE
     const stale = await putCache();
     const recent = await putCache();
     await setLastAccessed(stale.hash, 2 * 60 * 60 * 1000);
-    // a budget in bytes just under what the two blobs occupy, expressed in GB
     await setBudgetGB((stale.content.length + recent.content.length - 1) / 1024 ** 3);
 
     await appContext.blobCache.enforceBudget();
@@ -87,8 +84,7 @@ describe('cache size budget from facility settings', () => {
   });
 
   it('reads the setting as gigabytes rather than bytes', async () => {
-    // verifies spec: CACHE — a budget of a fraction of a gigabyte still leaves
-    // room for content a byte-denominated reading of the same number would evict
+    // verifies spec: CACHE
     const stale = await putCache();
     const recent = await putCache();
     await setLastAccessed(stale.hash, 2 * 60 * 60 * 1000);

@@ -2,10 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { saveFile } from '../../app/utils/fileSystemAccess';
 
-// A save that cannot produce its content has to leave nothing behind. Content is
-// resolved through a callback, and an attachment whose bytes have not arrived
-// rejects there routinely rather than exceptionally, so the failure path is the
-// common one rather than the edge.
+// An attachment whose bytes haven't arrived rejects in the content callback routinely, so the
+// failure path is the common one.
 describe('saveFile', () => {
   let writable;
   let fileHandle;
@@ -34,8 +32,6 @@ describe('saveFile', () => {
 
     await expect(save(async () => Promise.reject(failure))).rejects.toBe(failure);
 
-    // Nothing to abort, because nothing was opened: a writable created alongside
-    // the content would be unreachable once the pair rejected.
     expect(fileHandle.createWritable).not.toHaveBeenCalled();
   });
 

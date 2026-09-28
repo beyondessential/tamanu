@@ -59,8 +59,6 @@ describe('facility blob integrity', () => {
     await models.Blob.destroy({ where: {}, force: true });
     await models.BlobQuarantine.destroy({ where: {}, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-integrity-test-'));
-    // Off by default, as on a server that has not enabled it; the parity cases
-    // below switch it on before they admit anything.
     errorCorrection = { enabled: false, proportion: 0.1 };
     blobStore = new BlobStore({
       root,
@@ -118,8 +116,7 @@ describe('facility blob integrity', () => {
       await expect(fs.access(pathOf(hash))).rejects.toThrow();
     });
 
-    // spec: SCRUB — the dropped row is indistinguishable from an eviction, so
-    // the count is the only thing left that says the fault happened.
+    // spec: SCRUB
     it('counts a dropped cache blob, since its row is gone', async () => {
       const before = Number((await models.LocalSystemFact.get(FACT_BLOB_CACHE_FAULTS)) ?? 0);
       const { hash } = await put(BLOB_TIERS.CACHE);
@@ -139,14 +136,10 @@ describe('facility blob integrity', () => {
 
       const blob = await models.Blob.findOne({ where: { hash } });
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
-      // Retained for investigation, per the spec: the bytes are still there.
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
     });
 
-    // verifies spec: AV, SCRUB — every repair below ends in the same bytes being
-    // held again, which for content the deployment has recorded as malware is
-    // the one outcome to avoid. A cache copy would otherwise be dropped and
-    // refetched, which is exactly resurrecting it.
+    // verifies spec: AV, SCRUB
     it('leaves a quarantined cache blob unrepaired rather than refetching it', async () => {
       const { hash } = await put(BLOB_TIERS.CACHE);
       await models.BlobQuarantine.create({ hash });
@@ -154,7 +147,6 @@ describe('facility blob integrity', () => {
 
       await makeScrubber().run();
 
-      // Neither dropped nor refetched: the healer declined to touch it.
       expect(await models.Blob.findOne({ where: { hash } })).not.toBeNull();
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
     });
@@ -183,7 +175,6 @@ describe('facility blob integrity', () => {
 
       const blob = await models.Blob.findOne({ where: { hash } });
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
-      // Central had it, so it is a replica now rather than the only copy.
       expect(blob.tier).toBe(BLOB_TIERS.CACHE);
       expect((await readAll(await blobStore.get(hash))).equals(content)).toBe(true);
     });
@@ -241,7 +232,6 @@ describe('facility blob integrity', () => {
 
     it('registers bytes left on disk by an interrupted admission', async () => {
       const { hash, content } = await put(BLOB_TIERS.CACHE);
-      // Exactly what a crash between placing the file and recording it leaves.
       await models.Blob.destroy({ where: { hash }, force: true });
 
       const result = await makeScrubber().run();
@@ -253,9 +243,7 @@ describe('facility blob integrity', () => {
     });
 
     it('restores an absent blob to verified once its bytes return', async () => {
-      // A registry row left absent by an earlier loss, whose bytes are then
-      // back on disk (a backup restore). The scrub notices and flips it back
-      // rather than leaving usable content marked absent forever.
+      // Absent in the registry but back on disk, as after a backup restore.
       const { hash } = await put(BLOB_TIERS.CACHE);
       await models.Blob.update(
         { integrityState: BLOB_INTEGRITY_STATES.ABSENT },
@@ -282,14 +270,12 @@ describe('facility blob integrity', () => {
       expect(result.faults).toBe(0);
       const blob = await models.Blob.findOne({ where: { hash } });
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.ABSENT);
-      // Re-stamped so it doesn't monopolise the next pass's scan.
       expect(blob.lastScrubbedAt.getTime()).toBeGreaterThan(new Date('2020-01-01T00:00:00Z').getTime());
     });
 
     it('retains a corrupt orphan rather than the cache healer deleting it', async () => {
-      // A corrupt orphan has no reference and no known provenance, so it cannot
-      // be assumed a refetchable replica: it must be retained, not let the
-      // cache path drop it.
+      // A corrupt orphan has no known provenance, so it must be retained rather than dropped as a
+      // replica.
       const { hash } = await put(BLOB_TIERS.CACHE);
       await corrupt(hash);
       await models.Blob.destroy({ where: { hash }, force: true });
@@ -299,7 +285,6 @@ describe('facility blob integrity', () => {
       expect(result.faults).toBe(1);
       const blob = await models.Blob.findOne({ where: { hash } });
       expect(blob.integrityState).toBe(BLOB_INTEGRITY_STATES.CORRUPT);
-      // The bytes are retained on disk for investigation, not deleted.
       await expect(fs.access(pathOf(hash))).resolves.toBeUndefined();
     });
   });
@@ -307,9 +292,6 @@ describe('facility blob integrity', () => {
   // spec: SCRUB
   describe('legitimately absent content', () => {
     it('reports no fault for a cache blob eviction has taken', async () => {
-      // An evicted cache blob is durable on central and refetches on demand, so
-      // the scrub that follows must leave it alone rather than escalating a
-      // reclamation the cache budget asked for.
       const blobCache = new FacilityBlobCache({
         blobStore,
         models,
@@ -333,9 +315,8 @@ describe('facility blob integrity', () => {
     });
   });
 
-  // The application context resolves the scrub's per-pass bounds through this
-  // settings path, and a typo in it would only surface when a scheduled pass
-  // first ran on a real server.
+  // A typo in this settings path would only surface when a scheduled pass first ran on a real
+  // server.
   describe('scrub settings', () => {
     it('resolves the per-pass bounds the context reads', async () => {
       const [facilityId] = Object.keys(ctx.settings).filter(key => key !== 'global');
@@ -354,16 +335,13 @@ describe('facility blob integrity', () => {
       await corrupt(hash);
 
       await expect(readAll(await blobStore.get(hash))).rejects.toThrow(BlobHashMismatchError);
-      // The cache grading applies on the read path too, so it is gone and will
-      // refetch rather than being served corrupt a second time. Healing runs
-      // clear of the read, so the reader gets its error without waiting on the
-      // repair — hence waiting for it here rather than asserting immediately.
+      // Healing runs clear of the read, hence waiting rather than asserting immediately.
       await waitFor(async () => (await models.Blob.findOne({ where: { hash } })) === null);
     });
   });
   // spec: FEC
   describe('error correction', () => {
-    // 16+2 shards of 4 KiB, so two damaged shards are the budget and three are past it.
+    // 16+2 shards of 4 KiB, so two damaged shards are the budget.
     const COVERED_BYTES = 64 * 1024;
     const geometry = parityGeometry(COVERED_BYTES, 0.1);
 
@@ -377,7 +355,6 @@ describe('facility blob integrity', () => {
       return blob;
     };
 
-    // Bit rot over whole shards: the bytes change, the path and the row do not.
     const damageShards = async (hash, shards) => {
       const handle = await fs.open(pathOf(hash), 'r+');
       try {
@@ -405,8 +382,6 @@ describe('facility blob integrity', () => {
 
       await makeScrubber().run();
 
-      // The scrub counts the detection; what matters is that the ladder resolved
-      // it, which is what the registry records and the health signals read.
       const row = await models.Blob.findOne({ where: { hash } });
       expect(row.integrityState).toBe(BLOB_INTEGRITY_STATES.VERIFIED);
       expect(row.correctionCount).toBe(1);
@@ -426,8 +401,7 @@ describe('facility blob integrity', () => {
       expect(row.correctionCount).toBe(0);
     });
 
-    // verifies spec: AV, FEC — quarantined content is retained but never served
-    // and never repaired, so the retrofit spends no disk protecting it.
+    // verifies spec: AV, FEC
     it('writes no parity for content quarantined as malware', async () => {
       const { hash } = await put(BLOB_TIERS.OUTBOX, coveredContent());
       await models.Blob.update({ hasParity: false }, { where: { hash } });
@@ -447,8 +421,6 @@ describe('facility blob integrity', () => {
 
       await makeScrubber().run();
 
-      // Uncovered, so there was nothing to repair from and the ordinary cache
-      // grading applies: drop it and refetch on demand.
       expect(await models.Blob.findOne({ where: { hash } })).toBeNull();
     });
   });

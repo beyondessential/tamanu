@@ -3,10 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Asset } from '../../src/models/Asset';
 
 // spec: ASSET
-// Assets sync from central to every facility. A row stored on the blob store
-// carries its hash and no inline bytes, so the sanitisers on both sides have to
-// let a null through — coercing it strands the row (and its hash) at ingest,
-// leaving the facility unable to fetch or print the image.
+// Both sanitisers must let a null `data` through, or the row is stranded at ingest.
 describe('Asset sync sanitisers', () => {
   const bytes = Buffer.from('image-bytes');
 

@@ -17,13 +17,8 @@ import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges'
 import { createTestContext } from '../utilities';
 
 // spec: BLAC
-// Blob access is authorised at the reference layer against the same data scoping
-// record synchronisation applies, and `isHashReferencedInScope` reproduces the
-// pull filter's scope predicate by hand. The two are covered separately
-// elsewhere; what this asserts is that they agree, over a fixture spanning every
-// dimension the predicate turns on. Drift between them widens blob access past
-// what record sync grants, which is a facility fetching bytes for a record it is
-// not entitled to hold.
+// `isHashReferencedInScope` reproduces the pull filter's predicate by hand; drift would widen blob
+// access past record sync.
 describe('Blob scope agrees with the record sync pull filter', () => {
   let ctx;
   let models;
@@ -71,8 +66,6 @@ describe('Blob scope agrees with the record sync pull filter', () => {
     );
   };
 
-  // Each attachment gets its own hash, so a set of admitted hashes names a set of
-  // records and the two scopings are comparable record for record.
   let hashSeq = 0;
   const attachmentCarryingHash = async (label, overrides) => {
     const hash = `sha256:${String(hashSeq++).padStart(2, '0').repeat(32)}`;
@@ -82,8 +75,7 @@ describe('Blob scope agrees with the record sync pull filter', () => {
     return { label, hash };
   };
 
-  // The set of hashes a pull for these facilities admits, taken from the records
-  // the snapshot actually holds rather than from a re-derived predicate.
+  // Taken from the records the snapshot holds rather than a re-derived predicate.
   const syncPullAdmits = async facilityIds => {
     const sessionId = fakeUUID();
     const startTime = new Date();
@@ -145,8 +137,6 @@ describe('Blob scope agrees with the record sync pull filter', () => {
     return admitted.sort();
   };
 
-  // Named rather than compared as bare digests, so a failure says which record
-  // the two scopings disagree about.
   const labelsOf = hashes =>
     hashes.map(hash => attachments.find(a => a.hash === hash)?.label ?? hash).sort();
 
@@ -204,9 +194,8 @@ describe('Blob scope agrees with the record sync pull filter', () => {
     expect(labelsOf(await blobScopeAdmits(scope))).toEqual(labelsOf(await syncPullAdmits(scope)));
   });
 
-  // The agreement above is only worth asserting if the fixture actually
-  // discriminates: were every record in scope everywhere, the two predicates
-  // could differ arbitrarily and still agree here.
+  // Only meaningful if the fixture discriminates: with every record in scope everywhere, the
+  // predicates could differ and still agree.
   it('spans records the scope both admits and refuses', async () => {
     for (const admitted of [
       await blobScopeAdmits([facilityA.id]),

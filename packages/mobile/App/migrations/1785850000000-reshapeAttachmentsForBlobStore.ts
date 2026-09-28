@@ -4,14 +4,8 @@ import { getTable } from './utils/queryRunner';
 const TABLE_NAME = 'attachments';
 
 // spec: MOB, ATCH
-// Attachment records carry the hash of their content and the patient linkage of
-// the record they were created for, mirroring the server migrations of the same
-// era (addAttachmentHash, addAttachmentScopeColumns). The `data` blob column is
-// dropped: the device holds no binary column for attachment content — bytes live
-// in the device's blob store and are reached through the record's hash. The
-// column was only ever populated in memory on load, never written, so no stored
-// content is lost. `filePath` stays as the local-only legacy pointer that the
-// startup adoption pass consumes.
+// The `data` column was only ever populated in memory on load, never written, so dropping it loses
+// nothing.
 export class reshapeAttachmentsForBlobStore1785850000000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const table = await getTable(queryRunner, TABLE_NAME);
@@ -76,8 +70,8 @@ export class reshapeAttachmentsForBlobStore1785850000000 implements MigrationInt
     }
     await queryRunner.dropColumn(table, 'encounterId');
     await queryRunner.dropColumn(table, 'patientId');
-    // DESTRUCTIVE: hashes assigned to attachment records are lost; adopted legacy
-    // rows whose filePath was cleared can no longer locate their content.
+    // DESTRUCTIVE: hashes are lost, and adopted legacy rows whose filePath was cleared can no
+    // longer find their content.
     await queryRunner.dropColumn(table, 'hash');
   }
 }
