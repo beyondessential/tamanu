@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import { isArray } from 'es-toolkit/compat';
 
 import { getSortParameterName, isValidIdentifier } from './utils';
 import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
@@ -139,12 +138,9 @@ export const diagnosticReport = {
       _include: yup
         .array()
         .of(yup.string().oneOf(Object.values(DIAGNOSTIC_REPORT_INCLUDES)))
-        .transform((_, originalValue) => {
-          if (isArray(originalValue)) {
-            return originalValue;
-          }
-          return [originalValue];
-        }),
+        .transform((_, originalValue) =>
+          Array.isArray(originalValue) ? originalValue : [originalValue],
+        ),
       status: yup.string().oneOf(['final']),
     })
     .noUnknown(true, noUnknownValidationMessage),
