@@ -69,7 +69,7 @@ const InsuranceSection = ({ item, discountedPrice }) => {
 
   return (
     <Box mt={1}>
-      {item.insurancePlanItems.map(insurancePlanItem => {
+      {insurancePlanItems.map(insurancePlanItem => {
         const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
         const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
         return (
