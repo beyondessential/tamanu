@@ -1,8 +1,8 @@
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import styled from 'styled-components';
-import { isEmpty } from 'es-toolkit/compat';
+import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
+import { isEmpty } from 'es-toolkit/compat';
+import React from 'react';
+import styled from 'styled-components';
 
 import { Colors } from '../constants';
 import { useApi } from '../api';
