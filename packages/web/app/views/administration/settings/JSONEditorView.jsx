@@ -50,7 +50,8 @@ const buildSettingsString = settings => {
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope, facilityId }) => {
+export const JSONEditorView = React.memo(props => {
+  const { values, setValues, submitForm, scope, facilityId, onUnsavedEditChange } = props;
   const [settingsEditString, setSettingsEditString] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
@@ -61,6 +62,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
   const updateSettingsEditString = value => {
     setSettingsEditString(value);
     setJsonError(null);
+    onUnsavedEditChange(value !== null && value !== settingsViewString);
   };
 
   const turnOnEditMode = () =>
