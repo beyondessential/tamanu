@@ -33,6 +33,8 @@ one-line description each, and get the list approved before writing.
 
 1. **Read the implementation**: `packages/web` for desktop, `packages/mobile` for mobile. On-screen
    labels are the `fallback` strings on `TranslatedText` and `getTranslation`; copy them exactly.
+   A fallback is only a label if the screen displays it: fields in survey-driven forms, such as
+   vitals, take their labels from the site's configuration, not from the code.
 2. **Read the relevant spec** under `specs/`, but expect it to be thin. Much of the tree is stubs,
    so the code is the source of truth.
 3. **Run the app and click the flow through** before publishing, to confirm what each action does.
