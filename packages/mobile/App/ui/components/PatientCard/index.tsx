@@ -23,8 +23,6 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps) => {
   const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
 
-  const lastViewed = new Date();
-
   const name = joinNames({ firstName, lastName });
 
   const { getSetting } = useSettings();
@@ -49,7 +47,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps) => {
             fontWeight={500}
           >
             <TranslatedText stringId="patient.lastViewed.title" fallback="Last viewed" />
-            {` \n${formatDate(lastViewed, DateFormats.short)}`}
+            {` \n${formatDate(new Date(), DateFormats.short)}`}
           </StyledText>
         </RowView>
         <ColumnView width="100%" marginTop={screenPercentageToDP(1.82, Orientation.Height)}>
