@@ -38,6 +38,7 @@ one-line description each, and get the list approved before writing.
 2. **Read the relevant spec** under `specs/`, but expect it to be thin. Much of the tree is stubs,
    so the code is the source of truth.
 3. **Run the app and click the flow through** before publishing, to confirm what each action does.
+   Use a demo environment the author provides; ask for its address and a login.
 
 Report anything you couldn't confirm by clicking as unverified.
 
