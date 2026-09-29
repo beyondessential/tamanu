@@ -48,12 +48,9 @@ export class SettingsPage extends BasePage {
     await this.chooseOption(SCOPE, label);
   }
 
-  // facility scope needs a facility chosen before the editor appears. The
-  // facility picker is a DynamicSelectField; with more than a handful of
-  // facilities (as in the e2e DB) it renders as an autocomplete, so focus its
-  // input and take the first suggestion.
+  // facility scope needs a facility chosen before the editor appears
   async selectFirstFacility(): Promise<void> {
-    await this.page.getByTestId(`${FACILITY}-input`).click();
+    await this.page.getByTestId(`${FACILITY}-select`).click();
     await this.page.getByTestId(`${FACILITY}-option`).first().click();
   }
 
