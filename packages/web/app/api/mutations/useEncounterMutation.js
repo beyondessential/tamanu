@@ -27,7 +27,7 @@ export const useUpdateEncounterMutation = (encounterId, { onSuccess } = {}) => {
     mutationKey: ['updateEncounter', encounterId],
     mutationFn: data => api.put(`encounter/${encounterId}`, data),
     onSuccess: async encounter => {
-      await queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId]);
+      await queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId], { exact: true });
       await onSuccess?.(encounter);
     },
   });

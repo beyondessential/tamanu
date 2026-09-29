@@ -44,11 +44,15 @@ export const useEncounterQuery = encounterId => {
 
 /**
  * Refetches an encounter after a write that changes one of its related records.
+ *
+ * Exact, because `useGraphDataQuery` keys its vitals and chart graphs under this same prefix and
+ * a partial match would refetch every one of them on each save.
  */
 export const useInvalidateEncounter = () => {
   const queryClient = useQueryClient();
   return useCallback(
-    encounterId => queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId]),
+    encounterId =>
+      queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId], { exact: true }),
     [queryClient],
   );
 };
