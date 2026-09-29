@@ -44,16 +44,12 @@ export const createEncounter = async ({
       locationId: locationId || (await randomRecordId(models, 'Location')),
       examinerId: userId || (await randomRecordId(models, 'User')),
       startDate,
-      // Only override when given: `fake` treats any key present in the overrides as
-      // authoritative, so passing `undefined` would blank the generated value.
+      // `fake` treats any key present as authoritative, so an undefined override blanks it.
       ...(encounterType ? { encounterType } : {}),
       ...(endDate !== undefined ? { endDate } : {}),
       ...(reasonForEncounter ? { reasonForEncounter } : {}),
     }),
   );
-
-  // No EncounterHistory here: `Encounter.create` already writes the initial
-  // snapshot from the encounter itself.
 
   for (const _ of times(diagnosisCount)) {
     await EncounterDiagnosis.create(

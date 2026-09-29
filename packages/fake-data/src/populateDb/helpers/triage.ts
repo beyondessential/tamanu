@@ -25,9 +25,7 @@ export const createTriage = async ({
     randomReferenceDataId(models, REFERENCE_TYPES.TRIAGE_REASON),
     randomReferenceDataId(models, REFERENCE_TYPES.ARRIVAL_MODE),
   ]);
-  // Both complaints are picked from the same pool, so they can land on the same row.
-  // A patient doesn't present with the same complaint twice — record no secondary
-  // complaint rather than "…with chest pain and chest pain".
+  // Both complaints come from one pool, so they can pick the same row.
   const secondaryComplaintId =
     pickedSecondaryComplaintId === chiefComplaintId ? null : pickedSecondaryComplaintId;
 
@@ -39,24 +37,16 @@ export const createTriage = async ({
     score: chance.pickone(['1', '2', '3', '4', '5']),
   });
 
-  // `fake` draws every datetime column independently, so left alone a triage gets an
-  // arrival, a triage and a close time years apart and in any order. Anchor the other
-  // two to triageTime: the patient arrives shortly before being triaged, and the triage
-  // closes between 20 minutes and 24 hours after being raised.
+  // `fake` draws each datetime independently, so anchor arrival and close to triageTime.
   const triageTime = parseDate(triageData.triageTime);
   const arrivalTime = toDateTimeString(
     subMinutes(triageTime, chance.integer({ min: 1, max: 120 })),
   );
-  // Closing an encounter stamps the same timestamp onto its triage (see
-  // `Encounter.closeTriage`), so the two must match.
+  // Must equal the encounter's endDate: `Encounter.closeTriage` stamps it onto the triage.
   const closedTime = toDateTimeString(
     addMinutes(triageTime, chance.integer({ min: 20, max: 24 * 60 })),
   );
 
-  // A triage always creates its own encounter (see `Triage.create`), so a triage
-  // encounter never has more than one triage on it. Seed a dedicated encounter
-  // per triage rather than attaching to an existing one, which would otherwise
-  // let two triages land on the same encounter.
   const [chiefComplaint, secondaryComplaint] = await Promise.all(
     [chiefComplaintId, secondaryComplaintId].map(id =>
       id ? models.ReferenceData.findByPk(id) : null,
@@ -70,18 +60,13 @@ export const createTriage = async ({
     startDate: triageData.triageTime,
     endDate: closedTime,
     reasonForEncounter: Triage.buildReasonForEncounter(chiefComplaint, secondaryComplaint),
-    // Every path that closes an encounter writes a discharge alongside it (see
-    // `Encounter.onDischarge` and `dischargeOutpatientEncounters`), so a closed
-    // encounter without one is a state the app can't produce.
+    // Every path that closes an encounter also writes a discharge.
     isDischarged: true,
-    // `POST /triage` records no diagnoses, and exactly one note — the triage score,
-    // added below. `createEncounter` would otherwise throw in a handful of random
-    // ones each, inflating the seed well past the Note tally it is driven by.
+    // `POST /triage` writes no diagnoses and only the triage-score note below.
     noteCount: 0,
     diagnosisCount: 0,
   });
 
-  // The one note a triage really does leave on its encounter (see `POST /triage`).
   const department = await models.Department.findByPk(encounter.departmentId);
   await encounter.addSystemNote(
     `${department.name} triage score: ${triageData.score}`,
@@ -89,7 +74,6 @@ export const createTriage = async ({
     { id: examinerId },
   );
 
-  // `Triage.create` has business logic that creates the encounter itself — bypass
-  // it with build().save() now that we have supplied the encounter above.
+  // `Triage.create` would create a second encounter.
   await Triage.build({ ...triageData, arrivalTime, closedTime, encounterId: encounter.id }).save();
 };
