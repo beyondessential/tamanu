@@ -12,12 +12,8 @@ describe('FHIR route authentication', () => {
   let ctx;
   let baseApp;
   let deviceLessToken;
-  let originalFhirEnabled;
 
   beforeAll(async () => {
-    // The FHIR routes are only mounted when enabled at app creation
-    originalFhirEnabled = config.integrations.fhir.enabled;
-    config.integrations.fhir.enabled = true;
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
 
@@ -27,10 +23,7 @@ describe('FHIR route authentication', () => {
     deviceLessToken = await buildToken({ user, facilityId, expiresIn: '1d' });
   });
 
-  afterAll(async () => {
-    config.integrations.fhir.enabled = originalFhirEnabled;
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it.each(['/api/integration/fhir/mat/Patient', '/v1/integration/fhir/mat/Patient'])(
     'accepts a token without a device (%s)',
