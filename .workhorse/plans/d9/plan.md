@@ -13,7 +13,14 @@ The coupling is a protocol, not string substitution. Nothing substitutes placeho
 
 Additive protocol changes are compatible. Removals and renames are breaking.
 
-## Candidate approaches (undecided)
+## Approach: protocol ledger
 
-- Protocol snapshot: tokens declared per context in one module, committed snapshot, removals fail CI
-- Past-defaults corpus: every shipped default prompt frozen as a fixture; current code must still emit every token each fixture references
+Scope is the minimal protocol surface: delimiter tags, bracketed markers, and structured-output field paths. Data field names described in prose (e.g. "DIAGNOSES") are out of scope for now.
+
+- `packages/central-server/app/ai/protocol.js` declares each context's tags and markers. `summaryUserMessage.js` and the form builder message builders import from it rather than inlining strings, so the declared set is the emitted set
+- Structured-output field paths are derived by walking the zod schemas (`formBuilderChatResponseSchema`, `programDefinitionSchema`, `formBuilderTweakResponseSchema`), not declared by hand
+- A committed ledger records every token and path that has shipped, per context. Breaking changes are allowed through by moving the entry to a `removed` list with `removedIn` and `reason`
+- A pure test (no DB, no model calls) enforces: every current token is in the ledger (additive, just add it); every active ledger token is still current (breaking, restore or mark removed); no token is both active and removed
+- The upgrade-check skill lists ledger removals between versions, prompting a check of deployments with overridden AI prompts
+
+Open: whether to add a CI step that diffs the ledger against `origin/main` to catch an active entry deleted outright alongside the code.
