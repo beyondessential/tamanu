@@ -1,6 +1,5 @@
 import { pick } from 'es-toolkit/compat';
 import React, { useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -37,6 +36,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
+import { useImagingRequestQuery } from '../../../api/queries/useImagingRequestQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { usePatient } from '../../../contexts/Patient';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -346,10 +346,12 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 });
 
 export const ImagingRequestView = () => {
-  const imagingRequest = useSelector(state => state.imagingRequest);
+  const params = useParams();
+  const { data: imagingRequest, isLoading: isImagingRequestLoading } = useImagingRequestQuery(
+    params.imagingRequestId,
+  );
   const { patient, isLoading } = usePatient();
 
-  const params = useParams();
   const navigate = useNavigate();
   const onNavigateBackToImaging = () => {
     navigate(
@@ -357,14 +359,14 @@ export const ImagingRequestView = () => {
     );
   };
 
+  if (isLoading || !patient || isImagingRequestLoading || !imagingRequest)
+    return <LoadingIndicator data-testid="loadingindicator-31bz" />;
+
   const isCancellable = ![
     IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
     IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
     IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(imagingRequest.status);
-
-  if (isLoading || !patient || imagingRequest.loading)
-    return <LoadingIndicator data-testid="loadingindicator-31bz" />;
 
   return (
     <>

@@ -4,13 +4,11 @@ import storage from 'redux-persist/lib/storage';
 import { persistCombineReducers } from 'redux-persist';
 
 import { authReducer } from './auth';
-import { imagingRequestReducer } from './imagingRequest';
 import { systemErrorsReducer } from './systemErrors';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 export const createReducers = () => ({
   auth: authReducer,
-  imagingRequest: imagingRequestReducer,
   systemErrors: systemErrorsReducer,
 });
 
