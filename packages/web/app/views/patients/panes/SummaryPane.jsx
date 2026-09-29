@@ -28,8 +28,6 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showLocationBookings = showLocationBookingsSetting && canViewAppointments;
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
-  const onViewEncounter = useCallback(id => navigateToEncounter(id), [navigateToEncounter]);
-
   const onCloseCheckInModal = useCallback(() => {
     setIsCheckInModalOpen(false);
     updateEncounterRefreshCount();
@@ -40,7 +38,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       <Box height={5} />
       <ContentPane data-testid="contentpane-3jxx">
         <PatientEncounterSummary
-          viewEncounter={onViewEncounter}
+          viewEncounter={navigateToEncounter}
           openCheckIn={() => setIsCheckInModalOpen(true)}
           patient={patient}
           disabled={disabled}
@@ -64,7 +62,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         <PatientHistory
           patient={patient}
           refreshCount={encounterRefreshCount}
-          onItemClick={onViewEncounter}
+          onItemClick={navigateToEncounter}
           data-testid="patienthistory-yw6n"
         />
       </ContentPane>
