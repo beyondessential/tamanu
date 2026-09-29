@@ -38,7 +38,8 @@ one-line description each, and get the list approved before writing.
 2. **Read the relevant spec** under `specs/`, but expect it to be thin. Much of the tree is stubs,
    so the code is the source of truth.
 3. **Run the app and click the flow through** before publishing, to confirm what each action does.
-   Use a demo environment the author provides; ask for its address and a login.
+   Use a demo environment the author provides; ask for its address, a login, and the name of the
+   test patient to use.
 
 Report anything you couldn't confirm by clicking as unverified.
 
@@ -52,9 +53,10 @@ site, capture the shot each placeholder asks for. Save the shots outside the rep
 them to the author; only the ones they approve go into the module's `images/` folder, replacing
 their placeholders.
 
-Everything in the frame is published, so choose or set up a patient whose record reads plausibly,
-and enter plausible data where a screen would otherwise look empty. Never publish an image that
-shows a real patient.
+Everything in the frame is published, so use only the test patient the author names. If their record
+can't show a screen, leave that placeholder rather than using another patient. Get the author's
+agreement before creating records for them, and enter plausible data where a screen would otherwise
+look empty. Never publish an image that shows a real patient.
 
 If you can't drive a browser, leave the placeholders for a person to fill.
 
