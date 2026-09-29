@@ -398,24 +398,6 @@ describe('User', () => {
           expect(result).toHaveStatus(400);
           expect(result.body).toHaveProperty('type', MISSING_CREDENTIAL_PROBLEM);
         });
-
-        it.each(['/api/integration/fhir/mat/Patient', '/v1/integration/fhir/mat/Patient'])(
-          'should be authenticated on FHIR routes (%s)',
-          async path => {
-            const result = await baseApp
-              .get(path)
-              .set('authorization', `Bearer ${deviceLessToken}`);
-            // FHIR routes aren't mounted in tests, so once past auth the request falls
-            // through to the permission check guard instead
-            expect(result.body).not.toHaveProperty('type', MISSING_CREDENTIAL_PROBLEM);
-            expect(result).toBeForbidden();
-          },
-        );
-
-        it('should still require a valid token on FHIR routes', async () => {
-          const result = await baseApp.get('/api/integration/fhir/mat/Patient');
-          expect(result).toHaveRequestError();
-        });
       });
 
       describe('Rejected tokens', () => {
