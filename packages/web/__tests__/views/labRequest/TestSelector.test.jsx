@@ -18,17 +18,26 @@ describe('groupByCategory', () => {
     expect(groups[0].items.map(item => item.id)).toEqual(['panel-1', 'test-1']);
   });
 
-  it('orders categories alphabetically and mixes panels and tests alphabetically within each', () => {
+  it('orders categories alphabetically, and within each the panels then the individual tests', () => {
     const chemistry = category('cat-chem', 'Chemistry');
     const haematology = category('cat-haem', 'Haematology');
     const groups = groupByCategory([
       { kind: 'test', id: 'test-sodium', name: 'Sodium', category: chemistry },
       { kind: 'test', id: 'test-fbc', name: 'FBC', category: haematology },
+      { kind: 'panel', id: 'panel-renal', name: 'Renal function', category: chemistry },
+      { kind: 'test', id: 'test-albumin', name: 'Albumin', category: chemistry },
       { kind: 'panel', id: 'panel-elec', name: 'Electrolytes', category: chemistry },
     ]);
 
     expect(groups.map(group => group.category.name)).toEqual(['Chemistry', 'Haematology']);
-    expect(groups[0].items.map(item => item.name)).toEqual(['Electrolytes', 'Sodium']);
+    // Both panels first (alphabetically), then both tests (alphabetically) — Albumin sorts before
+    // either panel by name alone, so this only passes if panels rank ahead of tests.
+    expect(groups[0].items.map(item => item.name)).toEqual([
+      'Electrolytes',
+      'Renal function',
+      'Albumin',
+      'Sodium',
+    ]);
   });
 
   it('groups items with no category under a single uncategorised bucket', () => {
