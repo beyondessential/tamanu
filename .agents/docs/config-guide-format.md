@@ -81,9 +81,13 @@ control its colours or borders there.
 | Tables | GitHub's styling | Tamanu blue headers |
 | Required marker | A plain `*` | Coloured `*` |
 | Screenshot placeholders | A bold `[Screenshot: ...]` line | Marked placeholder panel |
+| Image borders and outlines | Drawn into the image, so identical | Drawn into the image, so identical |
+| Image captions | Centred, bold front-end text | Centred, bold front-end text |
 
 Consequences: **never rely on styling to carry meaning** (which is why the `*` convention is stated in
-words above each table), and **do not hand-write HTML to recover a design** GitHub will strip. Put
+words above each table), and **do not hand-write HTML to recover a design** GitHub will strip. The one exception is the
+image caption: GitHub keeps `align="center"` and `<b>` on a paragraph, though it strips `style`, so a
+border or outline has to be part of the image rather than styling around it. Put
 structured content in **tables**, the one grouping construct that survives both renderings.
 
 ## Settings blocks
@@ -187,6 +191,15 @@ so outstanding shots across all Tamanu documentation are found by one search.
   they show, in kebab-case: `settings-frequencies-enabled.png`
 - **Every image has alt text** describing what the shot shows:
   `![The frequencies enabled setting.](images/settings-frequencies-enabled.png)`
+- **Every image has a centred caption** on the line below it, naming what it shows with the Tamanu
+  front-end text word for word in bold:
+  `<p align="center">The <b>Frequencies enabled</b> sub-category of <b>Medications</b> in <b>Settings</b></p>`
+- **Crop a modal to the modal.** When a shot is of a dialog or form window, capture that window
+  alone, not the page behind it
+- **Capture at twice screen resolution**, so text stays legible when the image is scaled down
+- **Every image has a black border**, drawn into the image itself
+- **Outline in red the action buttons the reader should find**, drawn into the image. Which buttons
+  are outlined is the author's call, so ask
 
 Screenshots are published, so they are taken against demonstration or test data and never show a real
 patient.

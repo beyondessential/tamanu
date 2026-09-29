@@ -88,6 +88,11 @@ manual verification of a skill run rather than automated tests, since the output
 - [ ] Where a screenshot is needed, the placeholder is a bold `[Screenshot: ...]` on its own line
       describing the shot, matching the end user manuals.
 - [ ] Each image is named for its guide and what it shows, and carries alt text describing the shot.
+- [x] Each image has a centred caption naming what it shows, with front-end text word for word in bold,
+      and the caption renders centred on GitHub.
+- [x] A shot of a modal is cropped to the modal, and every image has a black border drawn into it.
+- [x] The author is asked which action buttons to outline, and those buttons carry a red outline drawn
+      into the image.
 - [ ] An update run reports screenshots sitting in sections whose underlying code has changed, and does
       not delete them.
 - [ ] A guide published with outstanding placeholders says so in the pull request and lists the

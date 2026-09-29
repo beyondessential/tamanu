@@ -55,13 +55,13 @@ them. Never invent clinical guidance: where you have nothing to go on, leave a m
 
 ### 3. Batch the author's checkpoints
 
-Three things need the author: scope, the capabilities listed under each permission (inferred from
-`req.ability.can()` call sites), and version flags (from release branch history, see
-`llm/project-rules/release-branches.md`).
+Four things need the author: scope, the capabilities listed under each permission (inferred from
+`req.ability.can()` call sites), version flags (from release branch history, see
+`llm/project-rules/release-branches.md`), and which action buttons each screenshot outlines in red.
 
-Settle **scope first**, then present the drafted permission capabilities, version flags and lead
-paragraph **together as one review**. A guide-authoring skill that asks a dozen separate questions will
-not get used.
+Settle **scope first**, then present the drafted permission capabilities, version flags, lead
+paragraph and proposed red outlines **together as one review**. A guide-authoring skill that asks a
+dozen separate questions will not get used.
 
 ### 4. Screenshots
 
@@ -81,8 +81,11 @@ To capture from a demo site:
 - **Use only the test patient the author names.** Where that patient's records cannot show a screen,
   leave the placeholder rather than using another patient
 - **Use a throwaway headless-browser script outside the repository**, not a spec in the e2e suite
+- **Capture per the format doc**: modals cropped to the modal, at twice screen resolution, with the
+  red outlines the author chose drawn in at capture and a black border drawn around the image
 - **Check each image before using it**: it shows what its placeholder describes, and no real names.
-  Save it to the `images/` folder named for its guide and what it shows, then replace the placeholder
+  Save it to the `images/` folder named for its guide and what it shows, replace the placeholder, and
+  add its centred caption
 
 ### 5. Report gaps, never widen scope
 

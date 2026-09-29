@@ -28,6 +28,8 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
 
 ![The frequencies enabled setting.](images/settings-frequencies-enabled.png)
 
+<p align="center">The <b>Frequencies enabled</b> sub-category of <b>Medications</b> in <b>Settings</b></p>
+
 ## Default administration schedule
 
 For each frequency, the default administration schedule and ideal administration time can be changed.
@@ -41,6 +43,8 @@ For each frequency, the default administration schedule and ideal administration
 | Default | The standard administration times for each frequency, as listed under [Frequency](reference-data.md#frequency) |
 
 ![The default administration times setting.](images/settings-default-administration-times.png)
+
+<p align="center">The <b>Default administration times</b> sub-category of <b>Medications</b> in <b>Settings</b></p>
 
 `Immediately`, `As directed`, `Hourly` and `Half-hourly` are not listed, because their administration
 times are either not scheduled or fixed.
@@ -94,6 +98,8 @@ the prescribed medication.
 
 ![The medication administration record showing the 12 two-hour administration windows.](images/settings-medication-administration-record.png)
 
+<p align="center">The <b>Medication admin record</b></p>
+
 Four windows carry a period label, used where the design shows the time of day rather than the hours:
 06:00 to 08:00 is breakfast, 12:00 to 14:00 is lunch, 18:00 to 20:00 is dinner, and 22:00 to midnight
 is night.
@@ -103,12 +109,16 @@ administration time displays in a tooltip when hovering over a due dose on the M
 
 ![Tooltip on a due dose showing the ideal administration time within its window.](images/settings-ideal-administration-time-tooltip.png)
 
+<p align="center">Hovering over <b>Dose due</b> shows <b>Cannot record future dose. Due at 2:00pm.</b></p>
+
 ## Administration schedule
 
 The administration schedule is set when prescribing. A default schedule is applied based on the
 selected frequency and can be edited if required.
 
 ![The medication administration schedule within the new prescription form.](images/settings-administration-schedule-prescription-form.png)
+
+<p align="center">The <b>Medication administration schedule</b> in <b>New prescription</b></p>
 
 For each frequency, the default schedule and ideal administration time can be changed. See
 [Default administration schedule](#default-administration-schedule).

@@ -17,6 +17,8 @@ The `Drug` reference data type configures the medication list available when pre
 
 ![The Medications field in the new prescription form, showing drugs reference data populating the dropdown.](images/reference-data-new-prescription-medication-field.png)
 
+<p align="center">The <b>Medication</b> field in <b>New prescription</b>, listing drugs from reference data</p>
+
 For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
 essential medicines list.
 
@@ -265,6 +267,8 @@ synonym shown in brackets, so the meaning stays clear while supporting the medic
 in common use.
 
 ![Frequency search showing a query for BID returning Two times daily (BD).](images/reference-data-frequency-synonym-search.png)
+
+<p align="center">Searching <b>Frequency</b> for BID returns <b>Two times daily (BD)</b></p>
 
 | Frequency | Synonyms |
 | --- | --- |
