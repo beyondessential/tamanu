@@ -7,7 +7,7 @@ import { useDateTime } from '@tamanu/ui-components';
 import { FormModal } from './FormModal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
-import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledModal = styled(FormModal)`
@@ -40,7 +40,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const api = useApi();
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequestsQuery(newLabRequestIds);
   const practitionerSuggester = useSuggester('practitioner');
   const specimenTypeSuggester = useSuggester('specimenType');
@@ -68,7 +68,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const handleClose = async () => {
     if (newLabRequests.length > 0) {
       setNewLabRequestIds([]);
-      await loadEncounter(encounter.id);
+      await invalidateEncounter(encounter.id);
     }
 
     setRequestFormType(null);

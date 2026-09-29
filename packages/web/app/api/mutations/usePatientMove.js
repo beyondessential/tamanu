@@ -1,12 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
-import { useEncounter } from '../../contexts/Encounter';
+import { useInvalidateEncounter } from '../queries/useEncounterQuery';
 
 export const usePatientMove = (encounterId, onClose) => {
   const { getCurrentDateTime } = useDateTime();
   const api = useApi();
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
 
   return useMutation({
     mutationKey: ['patientMove', encounterId],
@@ -18,7 +18,7 @@ export const usePatientMove = (encounterId, onClose) => {
     },
     onSuccess: async () => {
       onClose();
-      await loadEncounter(encounterId);
+      await invalidateEncounter(encounterId);
     },
   });
 };

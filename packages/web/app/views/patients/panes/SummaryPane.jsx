@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { useEncounter } from '../../../contexts/Encounter';
 import { Box } from '@material-ui/core';
 
 import { CompactContentPane as ContentPane } from '../../../components';
@@ -17,7 +16,6 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [encounterRefreshCount, updateEncounterRefreshCount] = useRefreshCount();
   const { navigateToEncounter } = usePatientNavigation();
-  const { loadEncounter } = useEncounter();
   const { ability } = useAuth();
   const { getSetting } = useSettings();
 
@@ -30,15 +28,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showLocationBookings = showLocationBookingsSetting && canViewAppointments;
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
-  const onViewEncounter = useCallback(
-    id => {
-      (async () => {
-        await loadEncounter(id);
-        navigateToEncounter(id);
-      })();
-    },
-    [loadEncounter, navigateToEncounter],
-  );
+  const onViewEncounter = useCallback(id => navigateToEncounter(id), [navigateToEncounter]);
 
   const onCloseCheckInModal = useCallback(() => {
     setIsCheckInModalOpen(false);

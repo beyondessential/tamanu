@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { DiagnosisForm } from '../forms/DiagnosisForm';
 import { useApi } from '../api';
 import { FormModal } from './FormModal';
@@ -7,7 +7,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 
 export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...props }) => {
   const api = useApi();
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const onSaveDiagnosis = async (data) => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
@@ -17,7 +17,7 @@ export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...
         encounterId,
       });
     }
-    await loadEncounter(encounterId);
+    await invalidateEncounter(encounterId);
     onClose();
   };
 

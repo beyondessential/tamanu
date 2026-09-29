@@ -11,14 +11,12 @@ import {
 } from '../components';
 import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
 
 const StyledContentPane = styled(ContentPane)`
   position: relative;
 `;
 
 const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKeys.All }) => {
-  const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
 
   return (
@@ -32,7 +30,6 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
       </SearchTableTitle>
       <LabRequestsSearchBar statuses={statuses} data-testid="labrequestssearchbar-xktv" />
       <LabRequestsTable
-        loadEncounter={loadEncounter}
         loadLabRequest={loadLabRequest}
         searchParameters={searchParameters}
         statuses={statuses}

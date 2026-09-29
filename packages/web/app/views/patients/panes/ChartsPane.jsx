@@ -34,7 +34,7 @@ import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useChartData } from '../../../contexts/ChartData';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useInvalidateEncounter } from '../../../api/queries/useEncounterQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
 import {
@@ -98,7 +98,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
   const { getCurrentDateTime } = useDateTime();
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const {
     isLoading: isLoadingChartData,
     selectedChartTypeId,
@@ -253,7 +253,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       setCurrentComplexChartTab(null);
 
       reloadChartInstances();
-      await loadEncounter(encounter.id);
+      await invalidateEncounter(encounter.id);
     } catch (e) {
       toast.error(`Failed to remove chart with error: ${e.message}`);
     }
@@ -262,7 +262,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     encounter.id,
     currentComplexChartInstance?.chartInstanceId,
     reloadChartInstances,
-    loadEncounter,
+    invalidateEncounter,
   ]);
 
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;

@@ -18,7 +18,6 @@ import { useTranslation } from '../../contexts/Translation';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useEncounter } from '../../contexts/Encounter';
 import { reloadImagingRequest } from '../../store';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
@@ -172,7 +171,6 @@ const NoDataContainer = styled.div`
 const Card = ({ notification }) => {
   const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
-  const { loadEncounter } = useEncounter();
   const dispatch = useDispatch();
   const { mutateAsync: markAsRead, isLoading: isMarkingAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
@@ -191,8 +189,6 @@ const Card = ({ notification }) => {
     if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
       await dispatch(reloadImagingRequest(metadata.id));
     }
-    await loadEncounter(encounterId);
-
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,

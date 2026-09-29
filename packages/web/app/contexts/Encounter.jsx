@@ -1,130 +1,47 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../api';
-import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../api/queries/useAiPatientSummaryQuery';
+import React, { createContext, useContext, useMemo } from 'react';
+import { generatePath, matchPath, Navigate, useLocation } from 'react-router';
+import { PATIENT_PATHS } from '../constants/patientPaths';
+import { useEncounterQuery } from '../api/queries/useEncounterQuery';
 
-/*
-  When loading an encounter, the user can't access the encounter view
-  if they have permission to see related records (diagnoses, procedures, medications).
+const EncounterContext = createContext(null);
 
-  This is a try/catch block wrapper that returns records or a default value.
-*/
-async function getDataOrDefaultOnError(getDataFn, defaultData) {
-  try {
-    const data = await getDataFn();
-    return data;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-    return defaultData;
+export const useEncounter = () => {
+  const context = useContext(EncounterContext);
+  if (!context) {
+    throw new Error('useEncounter must be used within an EncounterProvider');
   }
-}
+  return context;
+};
 
-export const EncounterContext = React.createContext({
-  encounter: null,
-  setEncounterData: () => {},
-  isLoadingEncounter: false,
-  setIsLoadingEncounter: () => {},
-  writeAndViewEncounter: async () => {},
-  loadEncounter: async () => {},
-  createEncounter: async () => {},
-});
+const useRouteParams = path => {
+  const { pathname } = useLocation();
+  return matchPath({ path, end: false }, pathname)?.params ?? {};
+};
 
-export const useEncounter = () => useContext(EncounterContext);
-
+// Owns "load the encounter for the current route": the `:encounterId` in the URL is the single
+// source of truth, so navigating is the only way to change which encounter is on screen, and
+// back/forward, refresh and deep links all resolve without any state to reconcile.
 export const EncounterProvider = ({ children }) => {
-  const [isLoadingEncounter, setIsLoadingEncounter] = useState(false);
-  const [encounter, setEncounterData] = useState(null);
+  const { encounterId } = useRouteParams(PATIENT_PATHS.ENCOUNTER);
+  const patientParams = useRouteParams(PATIENT_PATHS.PATIENT);
+  const { data: encounter, isLoading, error } = useEncounterQuery(encounterId);
 
-  const api = useApi();
-  const queryClient = useQueryClient();
-
-  const invalidateAiPatientSummary = useCallback(
-    updatedEncounter => {
-      if (!updatedEncounter?.patientId) {
-        return;
-      }
-
-      queryClient.invalidateQueries([AI_PATIENT_SUMMARY_QUERY_KEY, updatedEncounter.patientId]);
-    },
-    [queryClient],
+  const value = useMemo(
+    () => ({
+      encounterId,
+      encounter: encounter ?? null,
+      // A disabled query reports as loading, so off an encounter route there's nothing to wait for.
+      isLoadingEncounter: Boolean(encounterId) && isLoading,
+      error,
+    }),
+    [encounterId, encounter, isLoading, error],
   );
 
-  // write encounter data to the central server.
-  const saveEncounter = async (encounterId, data) => {
-    await api.put(`encounter/${encounterId}`, data);
-  };
+  // An encounter that can't be fetched — deleted, mistyped, or not visible to this user — has no
+  // view to show, so fall back to the patient it was reached through.
+  if (error) {
+    return <Navigate to={generatePath(PATIENT_PATHS.PATIENT, patientParams)} replace />;
+  }
 
-  // get encounter data from the central server and save it to state.
-  const loadEncounter = useCallback(
-    async (encounterId, shouldUpdateLoading = true) => {
-      if (shouldUpdateLoading) {
-        setIsLoadingEncounter(true);
-      }
-      try {
-        const [
-          data,
-          { data: diagnoses },
-          { data: procedures },
-          { data: medications },
-          { data: triages },
-        ] = await Promise.all([
-          api.get(`encounter/${encounterId}`),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/diagnoses`), {
-            data: [],
-          }),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/procedures`), {
-            data: [],
-          }),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/medications`), {
-            data: [],
-          }),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/triages`), {
-            data: [],
-          }),
-        ]);
-        setEncounterData({ ...data, diagnoses, procedures, medications, triages });
-      } finally {
-        if (shouldUpdateLoading) {
-          setIsLoadingEncounter(false);
-        }
-      }
-    },
-    [api],
-  );
-
-  // write, fetch and set encounter.
-  const writeAndViewEncounter = async (encounterId, data) => {
-    await saveEncounter(encounterId, data);
-    await loadEncounter(encounterId);
-  };
-
-  // create, fetch and set encounter then navigate to encounter view.
-  const createEncounter = async data => {
-    setIsLoadingEncounter(true);
-    try {
-      const createdEncounter = await api.post('encounter', data);
-      invalidateAiPatientSummary(createdEncounter);
-      // createEncounter already owns isLoadingEncounter via its own try/finally,
-      // so tell loadEncounter not to touch it too.
-      await loadEncounter(createdEncounter.id, false);
-      return createdEncounter;
-    } finally {
-      setIsLoadingEncounter(false);
-    }
-  };
-
-  return (
-    <EncounterContext.Provider
-      value={{
-        encounter,
-        isLoadingEncounter,
-        writeAndViewEncounter,
-        loadEncounter,
-        createEncounter,
-      }}
-    >
-      {children}
-    </EncounterContext.Provider>
-  );
+  return <EncounterContext.Provider value={value}>{children}</EncounterContext.Provider>;
 };
