@@ -146,6 +146,17 @@ The writing carries no assumed knowledge of Tamanu's internals.
       they belong to and what they show, so a guide and its pictures travel together.
 - [ ] Every image carries alt text describing what the shot shows, since the description
       is what a reader who cannot see the image is left with.
+- [ ] A screenshot is cropped to the part of the screen its step is about, so the words
+      the step names are readable in the image.
+- [ ] Every screenshot has a thin black border.
+- [ ] Where a screenshot shows the control its step asks the reader to select, that control
+      is outlined in a bold red square.
+- [ ] The border and any red outline are part of the image itself, so they appear wherever
+      the guide is read.
+- [ ] A screenshot is shown centred and smaller than the guide's text column, with a
+      caption in small text centred beneath it.
+- [ ] A caption is one short sentence describing what the image shows or the action it
+      illustrates. Words quoted from the product are in bold, as they are in the steps.
 - [ ] A guide referring to an image that is not there is reported, the same way an
       unlisted guide is.
 

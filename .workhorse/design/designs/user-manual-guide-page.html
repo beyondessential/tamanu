@@ -104,17 +104,6 @@
   .step-main { font-weight: 500; }
   .step-note { color: #57534e; margin-top: 6px; }
 
-  .shot {
-    margin: 16px 0;
-    font-weight: 700;
-  }
-  .shot-hint {
-    display: block;
-    font-weight: 400;
-    font-size: 12px;
-    color: #a8a29e;
-    margin-top: 2px;
-  }
 
   /* Annotation, not part of the page */
   .annotation {
@@ -127,6 +116,10 @@
     color: #78716c;
   }
   .annotation b { color: #57534e; }
+  .shot-fig { margin: 20px 0; text-align: center; }
+  .shot-fig img { display: inline-block; max-width: 100%; height: auto; }
+  .shot-fig figcaption { font-size: 12.5px; color: #57534e; margin-top: 6px; }
+  .shot-fig figcaption b { color: #1c1917; }
 </style>
 </head>
 <body>
@@ -177,10 +170,7 @@
         Start from the patient's encounter.
       </p>
 
-      <p class="shot">
-        [Screenshot: the encounter view with the Vitals tab visible]
-        <span class="shot-hint">Placeholder, rendered as it appears in the markdown</span>
-      </p>
+      <figure class="shot-fig"><img src="../../../docs/user-manuals/desktop/vitals/images/record-vitals-vitals-tab.png" alt="The encounter's Vitals tab, with the Record vitals button outlined in red" width="479"><figcaption>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</figcaption></figure>
 
       <h2>Steps</h2>
 
@@ -196,7 +186,7 @@
         <li>
           <div class="step-main">Select <b>Record vitals</b>.</div>
           <div class="step-note">The <b>Record vitals</b> window opens.</div>
-          <p class="shot">[Screenshot: the Record vitals window, showing the empty form]</p>
+          <figure class="shot-fig"><img src="../../../docs/user-manuals/desktop/vitals/images/record-vitals-empty-form.png" alt="The empty Record vitals window, with the date and time filled in" width="372"><figcaption>The <b>Record vitals</b> window opens with the date and time filled in.</figcaption></figure>
         </li>
 
         <li>
@@ -226,19 +216,11 @@
             A reading outside the normal range for the patient's age is highlighted. Rest
             your pointer on it to see the normal range.
           </div>
-          <p class="shot">[Screenshot: the vitals table with the newly recorded column highlighted]</p>
+          <figure class="shot-fig"><img src="../../../docs/user-manuals/desktop/vitals/images/record-vitals-new-reading.png" alt="The vitals table with the new reading as its first column" width="478"><figcaption>Your new reading appears as the first column of the table.</figcaption></figure>
         </li>
       </ol>
 
-      <div class="annotation">
-        <b>Reference: what a user manual guide looks like.</b> This is the worked example
-        behind the End user manuals spec, showing a guide as a reader meets it. Note the
-        conventions it demonstrates: numbered steps carrying one action each, on-screen
-        labels in bold, and screenshot placeholders left visible
-        until a shot is captured. The site chrome
-        shows how the index structure reads as navigation, and is illustrative rather than
-        a design for a documentation site.
-      </div>
+      <div class="annotation"><b>Reference: what a user manual guide looks like.</b> The worked example behind the End user manuals spec, showing 10.1 Record a set of vitals as a reader meets it: numbered steps with one action each, on-screen labels in bold, and screenshots cropped to their step with a thin border, a red outline on the control to select, and a caption. The site chrome is illustrative, not a design for a documentation site.</div>
 
     </article>
   </main>

@@ -214,10 +214,23 @@ for (const platform of manifest.platforms) {
 
       // An image reference that points at nothing renders as a broken picture, which is
       // worse than the placeholder it replaced. Catch it here rather than in review.
-      for (const [, alt, rawTarget] of source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)) {
-        // Markdown allows an optional title after the path — ![alt](x.png "Title") — and
-        // angle brackets around it. Neither is part of the filename.
-        const target = rawTarget.trim().replace(/^<(.*)>$/, '$1').split(/\s+/)[0];
+      // Screenshots are written as HTML <img> tags so they can be sized and captioned; plain
+      // markdown images are checked too.
+      const markdownImages = [...source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)].map(([, alt, rawTarget]) => ({
+        alt,
+        // Markdown allows an optional title after the path, ![alt](x.png "Title"), and angle
+        // brackets around it. Neither is part of the filename.
+        target: rawTarget.trim().replace(/^<(.*)>$/, '$1').split(/\s+/)[0],
+      }));
+      const htmlImages = [...source.matchAll(/<img\b[^>]*>/gi)].map(([tag]) => ({
+        alt: tag.match(/\balt\s*=\s*"([^"]*)"/i)?.[1] ?? '',
+        target: tag.match(/\bsrc\s*=\s*"([^"]*)"/i)?.[1] ?? '',
+      }));
+      for (const { alt, target } of [...markdownImages, ...htmlImages]) {
+        if (!target) {
+          problems.push(`${display(path)} has an image with no src`);
+          continue;
+        }
         if (/^https?:/.test(target)) continue;
         try {
           await fs.access(join(moduleDir, target));

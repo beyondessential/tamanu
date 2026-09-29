@@ -5,7 +5,10 @@
 Record a patient's observations against the encounter they are admitted under. Start from
 the patient's encounter.
 
-**[Screenshot: the encounter view with the Vitals tab visible]**
+<p align="center">
+  <img src="images/record-vitals-vitals-tab.png" alt="The encounter's Vitals tab, with the Record vitals button outlined in red" width="479"><br>
+  <sub>Select <b>Record vitals</b> on the encounter's <b>Vitals</b> tab.</sub>
+</p>
 
 ## Steps
 
@@ -18,7 +21,10 @@ the patient's encounter.
 
    The **Record vitals** window opens.
 
-   **[Screenshot: the Record vitals window, showing the empty form]**
+   <p align="center">
+     <img src="images/record-vitals-empty-form.png" alt="The empty Record vitals window, with the date and time filled in" width="372"><br>
+     <sub>The <b>Record vitals</b> window opens with the date and time filled in.</sub>
+   </p>
 
 3. Check the date and time at the top of the form.
 
@@ -39,4 +45,7 @@ the patient's encounter.
    A reading outside the normal range for the patient's age is highlighted. Rest your
    pointer on it to see the normal range.
 
-   **[Screenshot: the vitals table with the newly recorded column highlighted]**
+   <p align="center">
+     <img src="images/record-vitals-new-reading.png" alt="The vitals table with the new reading as its first column" width="478"><br>
+     <sub>Your new reading appears as the first column of the table.</sub>
+   </p>

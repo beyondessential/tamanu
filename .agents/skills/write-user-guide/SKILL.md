@@ -53,6 +53,12 @@ site, capture the shot each placeholder asks for. Save the shots outside the rep
 them to the author; only the ones they approve go into the module's `images/` folder, replacing
 their placeholders.
 
+Frame each shot on the part of the screen its step is about, and capture at double resolution so
+text stays sharp when shown smaller. Suggest which shots need a red outline, one for each control a
+step asks the reader to select, and let the author confirm. Draw the border and any outline into
+the image, since GitHub strips styling from markdown images. Add each image with its caption as the
+spec describes; the worked example shows the markup.
+
 Everything in the frame is published, so use only the test patient the author names. If their record
 can't show a screen, leave that placeholder rather than using another patient. Get the author's
 agreement before creating records for them, and enter plausible data where a screen would otherwise
