@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../../api';
-import { DynamicSelectField, SelectInput } from '../../../../components';
+import { SelectInput } from '../../../../components';
 import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const ScopeDynamicSelectInput = styled(DynamicSelectField)`
+const FacilitySelectInput = styled(SelectInput)`
   width: 300px;
   margin-top: 0.5rem;
 `;
@@ -35,6 +35,9 @@ const SCOPE_OPTIONS = [
 export const ScopeSelectorFields = React.memo(
   ({ scope, onScopeChange, facilityId, onFacilityChange }) => {
     const api = useApi();
+    // Shows the picked value while the unsaved-changes warning is open; the real one after
+    const [pendingScope, setPendingScope] = useState(null);
+    const [pendingFacilityId, setPendingFacilityId] = useState(null);
     const { data: facilitiesArray = [], error } = useQuery(
       ['facilitiesList'],
       () => api.get('admin/facilities'),
@@ -60,14 +63,18 @@ export const ScopeSelectorFields = React.memo(
             />
           }
           options={SCOPE_OPTIONS}
-          value={scope}
-          onChange={onScopeChange}
+          value={pendingScope ?? scope}
+          onChange={async event => {
+            setPendingScope(event.target.value);
+            await onScopeChange(event);
+            setPendingScope(null);
+          }}
           isClearable={false}
           error={!!error}
           data-testid="scopeselectinput-zxel"
         />
         {scope === SETTINGS_SCOPES.FACILITY && (
-          <ScopeDynamicSelectInput
+          <FacilitySelectInput
             name="facilityId"
             options={facilityOptions}
             label={
@@ -77,8 +84,12 @@ export const ScopeSelectorFields = React.memo(
                 data-testid="translatedtext-yz34"
               />
             }
-            value={facilityId}
-            onChange={onFacilityChange}
+            value={pendingFacilityId ?? facilityId}
+            onChange={async event => {
+              setPendingFacilityId(event.target.value);
+              await onFacilityChange(event);
+              setPendingFacilityId(null);
+            }}
             required
             isClearable={false}
             error={!!error}
