@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { generatePath, matchPath, Navigate, useLocation } from 'react-router';
+import { generatePath, Navigate } from 'react-router';
 import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useEncounterQuery } from '../api/queries/useEncounterQuery';
+import { useRouteParams } from '../utils/useRouteParams';
 
 const EncounterContext = createContext(null);
 
@@ -11,11 +12,6 @@ export const useEncounter = () => {
     throw new Error('useEncounter must be used within an EncounterProvider');
   }
   return context;
-};
-
-const useRouteParams = path => {
-  const { pathname } = useLocation();
-  return matchPath({ path, end: false }, pathname)?.params ?? {};
 };
 
 // Owns "load the encounter for the current route": the `:encounterId` in the URL is the single
