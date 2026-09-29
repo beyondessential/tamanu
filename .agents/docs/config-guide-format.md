@@ -80,7 +80,7 @@ control its colours or borders there.
 | Callouts | Coloured, with icon | Coloured, per the design |
 | Tables | GitHub's styling | Tamanu blue headers |
 | Required marker | A plain `*` | Coloured `*` |
-| Screenshot placeholders | A plain blockquote | Marked placeholder panel |
+| Screenshot placeholders | A bold `[Screenshot: ...]` line | Marked placeholder panel |
 
 Consequences: **never rely on styling to carry meaning** (which is why the `*` convention is stated in
 words above each table), and **do not hand-write HTML to recover a design** GitHub will strip. Put
@@ -175,17 +175,21 @@ in the specific table cell. Where the consequence needs spelling out, follow the
 
 ## Screenshots
 
-Images live in an `images/` folder beside the guide, named for what they show in kebab-case.
+Screenshots follow the same convention as the end user manuals (`specs/documentation/user-manuals.md`),
+so outstanding shots across all Tamanu documentation are found by one search.
 
-Where an image does not exist yet, leave a placeholder naming **both the file and what it must show**:
+- **A shot not yet captured is a placeholder**: a bold `[Screenshot: ...]` on its own line, describing
+  what the shot must show, e.g. `**[Screenshot: the frequencies enabled setting]**`
+- **Place a screenshot where a visual helps**, typically on reaching a new screen or where words
+  describe a step poorly, rather than at a fixed rate
+- **Capturing replaces the placeholder with the image**, so a guide holds one or the other, never both
+- **Images live in an `images/` folder** beside the guides, named for the guide they belong to and what
+  they show, in kebab-case: `settings-frequencies-enabled.png`
+- **Every image has alt text** describing what the shot shows:
+  `![The frequencies enabled setting.](images/settings-frequencies-enabled.png)`
 
-```markdown
-> **Screenshot needed:** `images/new-prescription-medication-field.png` — the Medications field in the
-> new prescription form, showing drugs reference data populating the dropdown.
-```
-
-Naming the file tells the author exactly what to capture and where to save it. Once added it becomes
-`![caption](images/new-prescription-medication-field.png)`.
+Screenshots are published, so they are taken against demonstration or test data and never show a real
+patient.
 
 ## Cross-references
 

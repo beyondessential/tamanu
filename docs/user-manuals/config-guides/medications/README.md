@@ -9,7 +9,7 @@ setting, read the Medications Module Implementation Guide first.
 | # | Guide | Covers |
 | --- | --- | --- |
 | 15.1 | [Reference data](reference-data.md) | Drug, medication sets, not given reasons, and the hard coded values those columns accept |
-| 15.2 | [Settings](settings.md) | Pharmacy orders, frequencies, administration schedules, and the automated workflows they drive |
+| 15.2 | [Settings](settings.md) | Frequencies, administration schedules, and the automated workflows they drive |
 | 15.3 | [Permissions](permissions.md) | Prescribing, administration, pharmacy notes, and sensitive medication access |
 
 > [!WARNING]

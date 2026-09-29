@@ -85,8 +85,9 @@ manual verification of a skill run rather than automated tests, since the output
 
 ## Screenshots
 
-- [ ] Where a screenshot is needed, the placeholder names both the image file it is waiting for and
-      what the image must show.
+- [ ] Where a screenshot is needed, the placeholder is a bold `[Screenshot: ...]` on its own line
+      describing the shot, matching the end user manuals.
+- [ ] Each image is named for its guide and what it shows, and carries alt text describing the shot.
 - [ ] An update run reports screenshots sitting in sections whose underlying code has changed, and does
       not delete them.
 - [ ] A guide published with outstanding placeholders says so in the pull request and lists the
@@ -97,7 +98,7 @@ manual verification of a skill run rather than automated tests, since the output
 - [x] Capturing never saves a setting, and invalid input or new records are only entered with the
       author's go-ahead; without it, the affected placeholder is left in place.
 - [x] Each captured image shows what its placeholder describes, contains no real names, and replaces
-      its placeholder under the placeholder's file name.
+      its placeholder, never leaving both.
 
 ## Version flagging
 
