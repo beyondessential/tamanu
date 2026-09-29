@@ -191,9 +191,11 @@ const EmptyText = styled(BodyText)`
 `;
 
 const collator = new Intl.Collator();
-// A single alphabetical order mixing tests and panels within a category.
 const byName = (a, b) => collator.compare(a.name, b.name);
 const byCategoryName = (a, b) => collator.compare(a.category?.name ?? '', b.category?.name ?? '');
+// Panels come as a block ahead of the individual tests, each block alphabetical.
+const rank = item => (item.kind === 'panel' ? 0 : 1);
+const byPanelsThenName = (a, b) => rank(a) - rank(b) || byName(a, b);
 
 const buildPanelItem = panel => {
   const members = [...(panel.labTestTypes ?? [])].sort(
@@ -218,7 +220,8 @@ const buildTestItem = test => ({
   category: test.category,
 });
 
-// Group items by category, categories alphabetical, items alphabetical within each.
+// Group items by category: categories alphabetical, and within each the panels alphabetically
+// followed by the individual tests alphabetically.
 export const groupByCategory = items => {
   const groups = new Map();
   items.forEach(item => {
@@ -228,7 +231,7 @@ export const groupByCategory = items => {
   });
   return [...groups.values()]
     .sort(byCategoryName)
-    .map(group => ({ ...group, items: [...group.items].sort(byName) }));
+    .map(group => ({ ...group, items: [...group.items].sort(byPanelsThenName) }));
 };
 
 const referenceName = (item, category) => (
@@ -341,8 +344,8 @@ export const CombinedTestSelector = ({ onSelectionChange }) => {
   );
 
   // Feed sample-details: one entry per category (keyed by categoryId downstream), covering every
-  // selected panel and individual test in that category. Categories alphabetical, and testNames is
-  // the alphabetical list of the category's selected panel + test names shown in the Test column.
+  // selected panel and individual test in that category. Categories alphabetical, and testNames
+  // lists the category's selected panels then its individual tests, as shown in the Test column.
   // One entry per category (keyed by the real categoryId the backend resolves — no client-only
   // sentinel), carrying the raw category so the row decides how to render/translate it.
   const samples = useMemo(
