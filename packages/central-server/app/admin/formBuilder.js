@@ -7,7 +7,7 @@ import { Op } from 'sequelize';
 import { readFile, utils } from 'xlsx';
 import { z } from 'zod';
 
-import { AI_CONTEXT_NAMES } from '@tamanu/constants';
+import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
@@ -71,7 +71,7 @@ const partialQuestionSchema = z
   })
   .passthrough();
 
-const formBuilderTweakResponseSchema = z.object({
+export const formBuilderTweakResponseSchema = z.object({
   message: z.string().describe('A concise assistant message describing only the latest changes.'),
   operations: z
     .array(
@@ -179,12 +179,15 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
   const extension = extname(fileName || '').toLowerCase();
   const contentType = fileContentType?.split(';')[0].trim().toLowerCase();
   if (WORKBOOK_FILE_EXTENSIONS.has(extension)) {
-    return `[XLSX DOCUMENT LOADED]\n${truncateFileContext(readWorkbookContext(file))}`;
+    return `${AI_PROMPT_MARKERS.XLSX_DOCUMENT_LOADED}\n${truncateFileContext(readWorkbookContext(file))}`;
   }
 
   if (TEXT_FILE_EXTENSIONS.has(extension)) {
-    const tag = extension === '.csv' ? 'CSV DOCUMENT LOADED' : 'TEXT DOCUMENT LOADED';
-    return `[${tag}]\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
+    const marker =
+      extension === '.csv'
+        ? AI_PROMPT_MARKERS.CSV_DOCUMENT_LOADED
+        : AI_PROMPT_MARKERS.TEXT_DOCUMENT_LOADED;
+    return `${marker}\n${truncateFileContext(await fs.readFile(file, 'utf8'))}`;
   }
 
   const fileBuffer = await fs.readFile(file);
@@ -195,10 +198,10 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
         pdfBase64: fileBuffer.toString('base64'),
         fileName: sanitizeFileNameForPrompt(fileName),
       });
-      return `[PDF DOCUMENT INTERPRETED]\n${interpretedPdf}`;
+      return `${AI_PROMPT_MARKERS.PDF_DOCUMENT_INTERPRETED}\n${interpretedPdf}`;
     } catch (error) {
       log.warn({ error }, 'AI form builder failed to interpret uploaded PDF');
-      return `[PDF DOCUMENT LOADED]\nUploaded PDF "${fileName || 'attachment'}". PDF interpretation failed. Do not stop to ask for another upload; make a best-effort draft from the filename and conversation, and mention that the PDF content could not be interpreted.`;
+      return `${AI_PROMPT_MARKERS.PDF_DOCUMENT_LOADED}\nUploaded PDF "${fileName || 'attachment'}". PDF interpretation failed. Do not stop to ask for another upload; make a best-effort draft from the filename and conversation, and mention that the PDF content could not be interpreted.`;
     }
   }
 
@@ -212,10 +215,10 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
       mediaType,
       fileName: sanitizeFileNameForPrompt(fileName),
     });
-    return `[FORM IMAGE INTERPRETED]\n${interpretedImage}`;
+    return `${AI_PROMPT_MARKERS.FORM_IMAGE_INTERPRETED}\n${interpretedImage}`;
   }
 
-  return `[TEXT DOCUMENT LOADED]\n${truncateFileContext(fileBuffer.toString('utf8'))}`;
+  return `${AI_PROMPT_MARKERS.TEXT_DOCUMENT_LOADED}\n${truncateFileContext(fileBuffer.toString('utf8'))}`;
 };
 
 const buildUserMessage = ({ message, fileContext }) => {
@@ -244,20 +247,20 @@ const buildProgramDefinitionInput = async ({
   }
 
   return [
-    '[CURRENT PROGRAM DEFINITION]',
+    AI_PROMPT_MARKERS.CURRENT_PROGRAM_DEFINITION,
     JSON.stringify(currentProgramDefinition),
-    '[LATEST USER REQUEST]',
+    AI_PROMPT_MARKERS.LATEST_USER_REQUEST,
     userMessage,
-    '[ASSISTANT RESPONSE]',
+    AI_PROMPT_MARKERS.ASSISTANT_RESPONSE,
     responseMessage,
   ].join('\n\n');
 };
 
 const buildProgramDefinitionTweakInput = ({ currentProgramDefinition, userMessage }) =>
   [
-    '[CURRENT PROGRAM DEFINITION]',
+    AI_PROMPT_MARKERS.CURRENT_PROGRAM_DEFINITION,
     JSON.stringify(currentProgramDefinition),
-    '[LATEST USER REQUEST]',
+    AI_PROMPT_MARKERS.LATEST_USER_REQUEST,
     userMessage,
   ].join('\n\n');
 

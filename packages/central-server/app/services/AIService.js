@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 
-import { AI_CONTEXT_NAMES } from '@tamanu/constants';
+import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
@@ -21,7 +21,7 @@ const FAST_MODEL_CONTEXTS = new Set([
   AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
 ]);
 
-const formBuilderChatResponseSchema = z.object({
+export const formBuilderChatResponseSchema = z.object({
   message: z.string().describe('The assistant message to display to the implementer.'),
   attach_to_program_code: z
     .string()
@@ -46,6 +46,11 @@ const normalizeMessageContent = content => {
       .join('\n');
   }
   return String(content ?? '');
+};
+
+const TRANSCRIPT_ROLE_MARKERS = {
+  human: AI_PROMPT_MARKERS.TRANSCRIPT_HUMAN,
+  ai: AI_PROMPT_MARKERS.TRANSCRIPT_AI,
 };
 
 const sessionExpiry = () => new Date(Date.now() + SESSION_TTL_SECONDS * 1000);
@@ -364,7 +369,10 @@ export class AIService {
 
     return session.messages
       .filter(message => message.role !== 'system')
-      .map(message => `[${message.role}]\n${normalizeMessageContent(message.content)}`)
+      .map(
+        message =>
+          `${TRANSCRIPT_ROLE_MARKERS[message.role]}\n${normalizeMessageContent(message.content)}`,
+      )
       .join('\n\n');
   }
 
