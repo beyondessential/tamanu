@@ -34,11 +34,11 @@ export const AddReferenceDataModal = ({ open, onClose, columns, selectedType, on
     >
       <ReferenceDataForm
         columns={columns}
+        selectedType={selectedType}
         onSubmit={createRecord}
         onCancel={onClose}
         initialValues={DEFAULT_VALUES}
         isEditMode={false}
-        selectedType={selectedType}
         data-testid="form-add-refdata"
       />
     </FormModal>

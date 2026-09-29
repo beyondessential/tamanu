@@ -41,11 +41,11 @@ export const EditReferenceDataModal = ({
     >
       <ReferenceDataForm
         columns={columns}
+        selectedType={selectedType}
         onSubmit={handleSubmit}
         onCancel={onClose}
         initialValues={record}
         isEditMode
-        selectedType={selectedType}
         data-testid="form-edit-refdata"
       />
     </FormModal>

@@ -25,8 +25,10 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
       columns
         .filter(
           col =>
-            // Relation-backed columns aren't real columns, so they can't be searched server-side.
+            // Relation-backed and detail columns aren't real columns on the model, so they
+            // can't be searched server-side.
             !col.isRelationBacked &&
+            !col.detail &&
             (SEARCHABLE_COLUMN_TYPES.includes(col.type) ||
               col.suggesterEndpoint ||
               col.enumValues ||

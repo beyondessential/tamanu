@@ -2,18 +2,21 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
 import {
-  REFERENCE_TYPES_WITH_A_DETAIL_RECORD,
-  SEARCHABLE_COLUMN_TYPES,
-  VISIBILITY_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
+  SEARCHABLE_COLUMN_TYPES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
 import {
   getModelForType,
   getColumnsForModel,
+  getDetailAssociation,
+  getDetailModel,
   assertValidType,
-  getWritableData,
+  assertValidEnumValues,
+  splitWritableData,
+  pickDetailValues,
   createMultiSelectRecords,
   attachRelationBackedValues,
   applyRelationBackedWrite,
@@ -30,28 +33,29 @@ referenceDataManageRouter.post(
 
     assertValidType(referenceDataType);
 
-    if (REFERENCE_TYPES_WITH_A_DETAIL_RECORD.includes(referenceDataType)) {
-      throw new InvalidOperationError(
-        `${referenceDataType} must be added through the reference data importer`,
-      );
-    }
-
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model, referenceDataType);
-    const data = getWritableData(columns, rawData, false);
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    const columns = await getColumnsForModel(model, referenceDataType, detailModel);
+    const { base, detail } = splitWritableData(columns, rawData, false);
+    assertValidEnumValues(columns, { ...base, ...detail });
 
     try {
       if (columns.some(c => c.multiSelect)) {
-        const records = await createMultiSelectRecords(model, columns, data, typeFilter);
+        const records = await createMultiSelectRecords(model, columns, base, typeFilter);
         return res.send(records);
       }
 
-      const record = await req.store.sequelize.transaction(async () => {
-        const created = await model.create({ ...typeFilter, ...data });
+      const { record, detailRecord } = await model.sequelize.transaction(async () => {
+        const created = await model.create({ ...typeFilter, ...base });
         await applyRelationBackedWrite(req.store.models, referenceDataType, created.id, rawData);
-        return created;
+        return {
+          record: created,
+          detailRecord: detailModel
+            ? await detailModel.create({ ...detail, referenceDataId: created.id })
+            : null,
+        };
       });
-      res.send(record.forResponse());
+      res.send({ ...record.forResponse(), ...pickDetailValues(columns, detailRecord) });
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
         const field = err.errors?.[0]?.path ?? 'field';
@@ -80,14 +84,24 @@ referenceDataManageRouter.put(
       throw new InvalidOperationError(`Record with id "${id}" not found`);
     }
 
-    const columns = await getColumnsForModel(model, referenceDataType);
-    const data = getWritableData(columns, rawData, true);
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    const columns = await getColumnsForModel(model, referenceDataType, detailModel);
+    const { base, detail } = splitWritableData(columns, rawData, true);
+    assertValidEnumValues(columns, { ...base, ...detail });
 
-    await req.store.sequelize.transaction(async () => {
-      await record.update(data);
+    let detailRecord = null;
+    await model.sequelize.transaction(async () => {
+      await record.update(base);
       await applyRelationBackedWrite(req.store.models, referenceDataType, record.id, rawData);
+      if (detailModel) {
+        [detailRecord] = await detailModel.findOrCreate({
+          where: { referenceDataId: record.id },
+          defaults: { ...detail, referenceDataId: record.id },
+        });
+        await detailRecord.update(detail);
+      }
     });
-    res.send(record.forResponse());
+    res.send({ ...record.forResponse(), ...pickDetailValues(columns, detailRecord) });
   }),
 );
 
@@ -116,7 +130,8 @@ referenceDataManageRouter.get(
     const { referenceDataType } = req.query;
     assertValidType(referenceDataType);
     const { model } = getModelForType(req.store.models, referenceDataType);
-    res.send(await getColumnsForModel(model, referenceDataType));
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    res.send(await getColumnsForModel(model, referenceDataType, detailModel));
   }),
 );
 
@@ -139,30 +154,35 @@ referenceDataManageRouter.get(
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
-    const columns = await getColumnsForModel(model, referenceDataType);
+    const detailModel = getDetailModel(req.store.models, referenceDataType);
+    const detailAssociation = getDetailAssociation(referenceDataType);
+    const columns = await getColumnsForModel(model, referenceDataType, detailModel);
 
     // Relation-backed columns aren't real columns on the model, so they can't be searched or
     // ordered by the generic query below; they're populated after the fact (see attachRelationBackedValues).
-    const relationBackedKeys = new Set(
-      columns.filter(c => c.isRelationBacked).map(c => c.key),
-    );
+    const relationBackedKeys = new Set(columns.filter(c => c.isRelationBacked).map(c => c.key));
 
     // Read-only companion columns that surface each FK's associated name (see getColumnsForModel).
     // The list query eager-loads those associations so the name can be displayed in the row.
-    const fkNameColumns = columns.filter(c => c.isFkName);
+    const fkNameColumns = columns.filter(c => c.isFkName && !c.detail);
     const fkNameByKey = new Map(fkNameColumns.map(c => [c.key, c]));
     const include = fkNameColumns.map(c => ({
       association: c.key,
       attributes: ['id', 'name'],
       required: false,
     }));
+    if (detailAssociation) {
+      include.push({ association: detailAssociation, required: false });
+    }
 
     // Build search filters from query params
     const searchWhere = {};
     const searchableKeys = new Set(
       columns
         .filter(
-          c => SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues,
+          c =>
+            !c.detail &&
+            (SEARCHABLE_COLUMN_TYPES.includes(c.type) || c.suggesterEndpoint || c.enumValues),
         )
         .map(c => c.key),
     );
@@ -249,6 +269,10 @@ referenceDataManageRouter.get(
       const row = record.forResponse();
       for (const c of fkNameColumns) {
         row[c.key] = record[c.key]?.name ?? null;
+      }
+      if (detailAssociation) {
+        Object.assign(row, pickDetailValues(columns, record[detailAssociation]));
+        delete row[detailAssociation];
       }
       return row;
     });
