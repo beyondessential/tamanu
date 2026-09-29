@@ -27,49 +27,51 @@ Deleting an active ledger entry outright, alongside the code, is left to review.
 
 ### Findings from grounding
 
-- Markers are emitted from three places: `admin/formBuilder.js` (file-context, build and tweak markers, and the `[Sheet: <name>]` prefix inside workbook context), `AIService.getSessionTranscript` (`[human]` and `[ai]` role markers, which feed the build input when there is no current definition), and the web client (`[PROGRAM SELECTED]`)
+- Markers are emitted from three places: `admin/formBuilder.js` (file-context, build and tweak markers), `AIService.getSessionTranscript` (`[human]` and `[ai]` role markers, which feed the build input when there is no current definition), and the web client (`[PROGRAM SELECTED]`)
 - `[CSV DOCUMENT LOADED]` and `[TEXT DOCUMENT LOADED]` are chosen by a dynamic `tag` variable in `formBuilder.js`, so a grep for the literal misses them. The refactor makes both explicit constants
 - Central-server tests run on vitest. The setup file only closes database connections if a suite opened one, so a pure test needs no test context
 - Ledger tokens take their natural form, so the kind is readable from the token: `<encounter_data>` for tags, `[LATEST USER REQUEST]` for markers, `surveySheets[].questions[].code` for output field paths
+- Annotations with a baked-in value (`[Sheet: <name>]` in workbook context, `[File content truncated to N characters]`) are not section markers and no prompt refers to them, so they are outside the protocol
+- Structured-output paths come from `toJsonSchema` in `@langchain/core/utils/json_schema`, which `ChatAnthropic.withStructuredOutput` uses for its default function-calling method. Literal values a field is constrained to are recorded too (e.g. `operations[].type=updateSurvey`), since renaming a tweak operation type breaks prompts that describe it
 - The ledger's initial content is the current surface. TAM-7068's earlier change replaced free-text feedback formatting that had no markers, so there is no history to backfill
 
 ## Implementation
 
 ### Protocol constants
 
-- [ ] Add `AI_PROMPT_PROTOCOL` to `packages/constants/src/ai.ts`, keyed by `AI_CONTEXT_NAMES` value, each entry listing that context's `tags` and `markers`
+- [x] Add `AI_PROMPT_PROTOCOL` to `packages/constants/src/ai.ts`, keyed by `AI_CONTEXT_NAMES` value, each entry listing that context's `tags` and `markers`
   - patient summary: `patient_data`, `clinician_feedback`, `correction`, `ai_generated`, `clinician_edited`
   - encounter summary: `encounter_data` plus the same feedback tags
-  - form builder: `[PROGRAM SELECTED]`, `[FORM IMAGE INTERPRETED]`, `[PDF DOCUMENT INTERPRETED]`, `[PDF DOCUMENT LOADED]`, `[CSV DOCUMENT LOADED]`, `[TEXT DOCUMENT LOADED]`, `[XLSX DOCUMENT LOADED]`, `[Sheet: ]` prefix
+  - form builder: `[PROGRAM SELECTED]`, `[FORM IMAGE INTERPRETED]`, `[PDF DOCUMENT INTERPRETED]`, `[PDF DOCUMENT LOADED]`, `[CSV DOCUMENT LOADED]`, `[TEXT DOCUMENT LOADED]`, `[XLSX DOCUMENT LOADED]`
   - build: `[CURRENT PROGRAM DEFINITION]`, `[LATEST USER REQUEST]`, `[ASSISTANT RESPONSE]`, `[human]`, `[ai]`
   - tweak: `[CURRENT PROGRAM DEFINITION]`, `[LATEST USER REQUEST]`
-- [ ] Export named marker and tag constants that emitters import, so a single constant backs both the declaration and the emitted string
+- [x] Export named marker and tag constants that emitters import, so a single constant backs both the declaration and the emitted string
 
 ### Emitters use the constants
 
-- [ ] `packages/central-server/app/ai/summaryUserMessage.js`: build `DELIMITER_TAGS` from the summary contexts' declared tags, and emit tags through the constants
-- [ ] `packages/central-server/app/admin/formBuilder.js`: replace inline markers in the file-context builder, `readWorkbookContext`, `buildProgramDefinitionInput` and `buildProgramDefinitionTweakInput` with the constants, including the CSV/text `tag` branch
-- [ ] `packages/central-server/app/services/AIService.js`: emit `getSessionTranscript` role markers through the constants
-- [ ] `packages/web/app/views/administration/programs/surveys/aiFormBuilder/AiFormBuilderView.jsx`: emit `[PROGRAM SELECTED]` through the constant
-- [ ] Export `formBuilderChatResponseSchema` from `AIService.js` and `formBuilderTweakResponseSchema` from `formBuilder.js` so the test can read them (`programDefinitionSchema` is already exported)
+- [x] `packages/central-server/app/ai/summaryUserMessage.js`: build `DELIMITER_TAGS` from the summary contexts' declared tags, and emit tags through the constants
+- [x] `packages/central-server/app/admin/formBuilder.js`: replace inline markers in the file-context builder, `readWorkbookContext`, `buildProgramDefinitionInput` and `buildProgramDefinitionTweakInput` with the constants, including the CSV/text `tag` branch
+- [x] `packages/central-server/app/services/AIService.js`: emit `getSessionTranscript` role markers through the constants
+- [x] `packages/web/app/views/administration/programs/surveys/aiFormBuilder/AiFormBuilderView.jsx`: emit `[PROGRAM SELECTED]` through the constant
+- [x] Export `formBuilderChatResponseSchema` from `AIService.js` and `formBuilderTweakResponseSchema` from `formBuilder.js` so the test can read them (`programDefinitionSchema` is already exported)
 
 ### Ledger and test
 
-- [ ] Install dependencies in the worktree (`npm install`) and confirm which zod-to-JSON-schema conversion `withStructuredOutput` uses for Anthropic in the installed `@langchain/anthropic`; use the same conversion in the test
-- [ ] Add `packages/central-server/app/ai/promptProtocolLedger.json`: per context, `active` tokens and a `removed` list of `{ token, removedIn, reason }`, populated with the current surface
-- [ ] Add `packages/central-server/__tests__/ai/promptProtocol.test.js`, which gathers the current surface per context (declared tags and markers, plus output field paths flattened from the JSON schema) and enforces:
+- [x] Install dependencies in the worktree (`npm install`) and confirm which zod-to-JSON-schema conversion `withStructuredOutput` uses for Anthropic in the installed `@langchain/anthropic`; use the same conversion in the test
+- [x] Add `packages/central-server/app/ai/promptProtocolLedger.json`: per context, `active` tokens and a `removed` list of `{ token, removedIn, reason }`, populated with the current surface
+- [x] Add `packages/central-server/__tests__/ai/promptProtocol.test.js`, which gathers the current surface per context (declared tags and markers, plus output field paths flattened from the JSON schema) and enforces:
   - every current token is `active` in the ledger; the failure message says the addition is compatible and to add it
   - every `active` token is current; the failure message says this breaks deployment prompt overrides, and to restore the token or move it to `removed` with `removedIn` and `reason`
   - no token is both `active` and `removed`, and every `removed` entry has a version-shaped `removedIn` and a non-empty `reason`
-- [ ] Prove the test bites: temporarily rename a tag, a marker and an output field in turn, and confirm each fails with the breaking-change message; then revert
+- [x] Prove the test bites: temporarily rename a tag, a marker and an output field in turn, and confirm each fails with the breaking-change message; then revert
 
 ### Upgrade surfacing
 
-- [ ] `.agents/skills/upgrade-check/SKILL.md`: add a category under the configuration and data check that diffs the ledger's `removed` entries between the two versions (a source version predating the ledger counts every removal in the target), and flags that deployments with overridden prompts for those contexts need checking
-- [ ] `llm/project-rules/coding-rules.md`: add a one-line antipattern pointing at the ledger, so agents know removing or renaming a prompt protocol token is a breaking change
+- [x] `.agents/skills/upgrade-check/SKILL.md`: add a category under the configuration and data check that diffs the ledger's `removed` entries between the two versions (a source version predating the ledger counts every removal in the target), and flags that deployments with overridden prompts for those contexts need checking
+- [x] `llm/project-rules/coding-rules.md`: add a one-line antipattern pointing at the ledger, so agents know removing or renaming a prompt protocol token is a breaking change
 
 ### Verification
 
-- [ ] Run the new test plus `__tests__/ai/encounterSummary.test.js` and `patientSummary.test.js` in central-server
-- [ ] Build `@tamanu/constants` and confirm the web client still imports and emits `[PROGRAM SELECTED]` (no web unit test covers `AiFormBuilderView`)
-- [ ] Lint the changed files with eslint
+- [x] Run the new test plus `__tests__/ai/encounterSummary.test.js` and `patientSummary.test.js` in central-server
+- [x] Confirm the web client still emits `[PROGRAM SELECTED]` (no web unit test covers `AiFormBuilderView`; `@tamanu/constants` is consumed from source, so no build step)
+- [x] Lint the changed files with eslint
