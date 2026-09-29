@@ -110,8 +110,9 @@ export async function centralServerLogin({
   facilityDeviceId,
   settings,
 }) {
-  // try logging in to central server
-  const centralServer = new CentralServerConnection({ deviceId });
+  // try logging in to central server. Central requires a deviceId from internal clients like
+  // this server, so a device-less login (e.g. a FHIR integration) goes via this server's device
+  const centralServer = new CentralServerConnection({ deviceId: deviceId ?? facilityDeviceId });
   const response = await centralServer.login(email, password, {
     scopes: [],
     body: {
@@ -183,9 +184,8 @@ async function centralServerLoginWithLocalFallback({
   deviceId,
   facilityDeviceId,
 }) {
-  // always log in locally when testing, and when there's no device: central requires a
-  // deviceId from internal clients (which includes this server proxying the login)
-  if (shouldSkipCentralLoginForTest() || !deviceId) {
+  // always log in locally when testing
+  if (shouldSkipCentralLoginForTest()) {
     return await localLogin({ models, settings, email, password, deviceId });
   }
 

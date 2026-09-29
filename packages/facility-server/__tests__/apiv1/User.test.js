@@ -177,23 +177,61 @@ describe('User', () => {
         expect(result.body).toHaveProperty('token');
       });
 
-      it('should log in locally without a deviceId', async () => {
-        centralServer.login.mockClear();
-        const restoreCentralLoginShortcut = enableCentralLoginForTest();
-        let result;
-        try {
-          result = await baseApp.post('/api/login').send({
-            email: authUser.email,
-            password: rawPassword,
-          });
-        } finally {
-          restoreCentralLoginShortcut();
-        }
+      describe('without a deviceId', () => {
+        const loginWithoutDevice = async () => {
+          const restoreCentralLoginShortcut = enableCentralLoginForTest();
+          try {
+            return await baseApp.post('/api/login').send({
+              email: authUser.email,
+              password: rawPassword,
+            });
+          } finally {
+            restoreCentralLoginShortcut();
+          }
+        };
 
-        expect(result).toHaveSucceeded();
-        expect(result.body.central).toBe(false);
-        expect(centralServer.login).not.toHaveBeenCalled();
-        expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
+        beforeEach(() => {
+          CentralServerConnection.mockClear();
+          centralServer.login.mockClear();
+        });
+
+        it('should log in through central using the facility server device', async () => {
+          centralServer.login.mockResolvedValueOnce({
+            user: pick(authUser, ['id', 'role', 'email', 'displayName']),
+            localisation,
+            allowedFacilities: [facility1],
+          });
+
+          const result = await loginWithoutDevice();
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.central).toBe(true);
+          expect(CentralServerConnection).toHaveBeenCalledWith({ deviceId: ctx.deviceId });
+          expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
+        });
+
+        it('should not fall back to local login when central rejects the credentials', async () => {
+          centralServer.login.mockRejectedValueOnce(
+            new Problem(ERROR_TYPE.AUTH_CREDENTIAL_INVALID, 'Invalid credentials', 401),
+          );
+
+          const result = await loginWithoutDevice();
+
+          expect(centralServer.login).toHaveBeenCalledTimes(1);
+          expect(result).toHaveRequestError();
+        });
+
+        it('should fall back to local login when central is incompatible', async () => {
+          centralServer.login.mockRejectedValueOnce(
+            new Problem(ERROR_TYPE.REMOTE_INCOMPATIBLE, 'Central login unavailable', 400),
+          );
+
+          const result = await loginWithoutDevice();
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.central).toBe(false);
+          expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
+        });
       });
 
       it('should be case insensitive', async () => {
