@@ -10,6 +10,7 @@ import { LoginView, FacilitySelectionView, SetupWizardView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { ForbiddenErrorProvider } from './contexts/ForbiddenError';
 import {
   LoadingStatusPage,
   UnavailableStatusPage,
@@ -76,14 +77,16 @@ export function App({ sidebar, children }) {
   return (
     <AppContainer>
       {sidebar}
-      <PromiseErrorBoundary>
-        <ErrorBoundary errorKey={location.pathname}>
-          <AppContentsContainer>
-            {children}
-            <ForbiddenErrorModal />
-          </AppContentsContainer>
-        </ErrorBoundary>
-      </PromiseErrorBoundary>
+      <ForbiddenErrorProvider>
+        <PromiseErrorBoundary>
+          <ErrorBoundary errorKey={location.pathname}>
+            <AppContentsContainer>
+              {children}
+              <ForbiddenErrorModal />
+            </AppContentsContainer>
+          </ErrorBoundary>
+        </PromiseErrorBoundary>
+      </ForbiddenErrorProvider>
     </AppContainer>
   );
 }
