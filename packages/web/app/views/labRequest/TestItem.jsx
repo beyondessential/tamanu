@@ -35,9 +35,16 @@ const StyledCheckbox = styled(Checkbox)`
   }
 `;
 
+// Wears the checkbox's margins itself so the anchor box is just the box, not the box
+// plus its uneven margins — otherwise the tooltip centres 2.5px right of the checkbox.
 const CheckboxTooltipTarget = styled.span`
   display: inline-flex;
   align-items: center;
+  margin: 0 8px 0 3px;
+
+  ${StyledCheckbox} {
+    margin: 0;
+  }
 `;
 
 // Honour explicit newlines in the tooltip copy so the line break lands where design wants it
@@ -201,7 +208,6 @@ export const SelectableTestRow = ({ id, label, checked, disabled, disabledToolti
         {disabled && disabledTooltip ? (
           <ThemedTooltip
             title={<TooltipText>{disabledTooltip}</TooltipText>}
-            placement="top-start"
             data-testid={`testrow-tooltip-${id}`}
           >
             {/* span wrapper: a disabled checkbox emits no hover events for the tooltip */}
