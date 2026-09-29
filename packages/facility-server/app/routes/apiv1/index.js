@@ -12,6 +12,7 @@ import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/brow
 import {
   authMiddleware,
   buildToken,
+  deviceOptionalAuthMiddleware,
   loginHandler,
   refreshHandler,
   setFacilityHandler,
@@ -76,6 +77,10 @@ import { random } from './random';
 import { ai } from './ai';
 
 const passthrough = (_req, _res, next) => next();
+
+export const FHIR_MOUNT_PATH = '/integration/fhir/mat';
+
+const isFhirPath = path => path === FHIR_MOUNT_PATH || path.startsWith(`${FHIR_MOUNT_PATH}/`);
 
 /**
  * @param {{ authLimiter?: import('express').RequestHandler }} [limiters]
@@ -166,7 +171,13 @@ export function createApiv1({ authLimiter } = {}) {
     }),
   );
 
-  apiv1.use(authMiddleware);
+  // The FHIR routes are mounted after this router (see createApiApp), so they are authenticated
+  // here. FHIR API clients are not devices, so their tokens may not carry a deviceId.
+  apiv1.use((req, res, next) =>
+    isFhirPath(req.path)
+      ? deviceOptionalAuthMiddleware(req, res, next)
+      : authMiddleware(req, res, next),
+  );
 
   apiv1.use(constructPermission);
 

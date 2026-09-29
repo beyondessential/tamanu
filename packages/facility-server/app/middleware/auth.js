@@ -183,8 +183,9 @@ async function centralServerLoginWithLocalFallback({
   deviceId,
   facilityDeviceId,
 }) {
-  // always log in locally when testing
-  if (shouldSkipCentralLoginForTest()) {
+  // always log in locally when testing, and when there's no device: central requires a
+  // deviceId from internal clients (which includes this server proxying the login)
+  if (shouldSkipCentralLoginForTest() || !deviceId) {
     return await localLogin({ models, settings, email, password, deviceId });
   }
 
@@ -215,7 +216,9 @@ export async function loginHandler(req, res, next) {
   try {
     const { deviceId, email, password } = await z
       .object({
-        deviceId: z.string().min(1),
+        // optional so that API clients (e.g. FHIR integrations) can log in without a device;
+        // the resulting token is only accepted by device-optional routes
+        deviceId: z.string().min(1).optional(),
         email: z.email(),
         password: z.string().min(1),
       })
@@ -384,3 +387,4 @@ function createAuthMiddleware({ requireDeviceId }) {
 }
 
 export const authMiddleware = createAuthMiddleware({ requireDeviceId: true });
+export const deviceOptionalAuthMiddleware = createAuthMiddleware({ requireDeviceId: false });
