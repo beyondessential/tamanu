@@ -73,5 +73,5 @@ Deleting an active ledger entry outright, alongside the code, is left to review.
 ### Verification
 
 - [x] Run the new test plus `__tests__/ai/encounterSummary.test.js` and `patientSummary.test.js` in central-server
-- [x] Confirm the web client still emits `[PROGRAM SELECTED]` (no web unit test covers `AiFormBuilderView`; `@tamanu/constants` is consumed from source, so no build step)
+- [x] Check the web client's `[PROGRAM SELECTED]` emitter by inspection and eslint (no web unit test covers `AiFormBuilderView`; `@tamanu/constants` is consumed from source, so no build step). Running it in the app is the manual test case
 - [x] Lint the changed files with eslint
