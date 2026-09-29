@@ -57,15 +57,17 @@ export const JSONEditorView = React.memo(props => {
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
   const settingsViewString = buildSettingsString(values.settings);
-  const hasSettingsChanged = settingsViewString !== settingsEditString;
+  const editBaselineString = settingsViewString || '{}';
+  const isChangedEdit = editString => editString !== null && editString !== editBaselineString;
+  const hasSettingsChanged = isChangedEdit(settingsEditString);
 
   const updateSettingsEditString = value => {
     setSettingsEditString(value);
     setJsonError(null);
-    onUnsavedEditChange(value !== null && value !== (settingsViewString || '{}'));
+    onUnsavedEditChange(isChangedEdit(value));
   };
 
-  const turnOnEditMode = () => updateSettingsEditString(settingsViewString || '{}');
+  const turnOnEditMode = () => updateSettingsEditString(editBaselineString);
   const turnOffEditMode = () => updateSettingsEditString(null);
 
   const onChangeSettings = newValue => updateSettingsEditString(newValue);
