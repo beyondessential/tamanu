@@ -14,13 +14,18 @@ export const useEncounter = () => {
   return context;
 };
 
+// A 404 or 403 means this encounter will never be viewable by this user, so there is nothing to
+// show and nothing worth retrying. Every other failure — a 500, a timeout, an offline moment —
+// might not recur, and must not move the clinician off the encounter they asked for.
+const isUnviewable = error => error?.status === 404 || error?.status === 403;
+
 // Owns "load the encounter for the current route": the `:encounterId` in the URL is the single
 // source of truth, so navigating is the only way to change which encounter is on screen, and
 // back/forward, refresh and deep links all resolve without any state to reconcile.
 export const EncounterProvider = ({ children }) => {
   const { encounterId } = useRouteParams(PATIENT_PATHS.ENCOUNTER);
   const patientParams = useRouteParams(PATIENT_PATHS.PATIENT);
-  const { data: encounter, isLoading, error } = useEncounterQuery(encounterId);
+  const { data: encounter, isLoading, error, refetch } = useEncounterQuery(encounterId);
 
   const value = useMemo(
     () => ({
@@ -28,14 +33,15 @@ export const EncounterProvider = ({ children }) => {
       encounter: encounter ?? null,
       // A disabled query reports as loading, so off an encounter route there's nothing to wait for.
       isLoadingEncounter: Boolean(encounterId) && isLoading,
-      error,
+      error: isUnviewable(error) ? null : error,
+      refetch,
     }),
-    [encounterId, encounter, isLoading, error],
+    [encounterId, encounter, isLoading, error, refetch],
   );
 
-  // An encounter that can't be fetched — deleted, mistyped, or not visible to this user — has no
-  // view to show, so fall back to the patient it was reached through.
-  if (error) {
+  // An encounter this user can never view has nothing to show, so fall back to the patient it was
+  // reached through. Everything else stays put and surfaces through `error`.
+  if (isUnviewable(error)) {
     return <Navigate to={generatePath(PATIENT_PATHS.PATIENT, patientParams)} replace />;
   }
 

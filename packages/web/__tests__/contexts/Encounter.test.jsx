@@ -17,7 +17,7 @@ const PATIENT_ROUTE = '/patients/all/patient-1';
 const encounterRoute = encounterId => `${PATIENT_ROUTE}/encounter/${encounterId}`;
 
 const EncounterProbe = () => {
-  const { encounterId, encounter, isLoadingEncounter } = useEncounter();
+  const { encounterId, encounter, isLoadingEncounter, error } = useEncounter();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   return (
@@ -27,6 +27,7 @@ const EncounterProbe = () => {
       <span data-testid="encounter-reason">{encounter?.reasonForEncounter ?? 'none'}</span>
       <span data-testid="diagnosis-count">{encounter?.diagnoses?.length ?? 'none'}</span>
       <span data-testid="loading-state">{isLoadingEncounter ? 'loading' : 'idle'}</span>
+      <span data-testid="error-status">{error ? String(error.status) : 'none'}</span>
       <button type="button" onClick={() => navigate(encounterRoute('encounter-2'))}>
         go to encounter 2
       </button>
@@ -47,13 +48,17 @@ const renderAt = initialEntry =>
     </QueryClientProvider>,
   );
 
+const httpError = status => Object.assign(new Error(`HTTP ${status}`), { status });
+
 // Answers `encounter/:id` with the named encounter, and its related-record endpoints with nothing.
+// An entry can be a status number instead, to fail that encounter's fetch with it.
 const respondWithEncounters = encounters => {
   mockGet.mockImplementation(async path => {
     const [, encounterId, relation] = path.split('/');
     if (relation) return { data: [] };
     const encounter = encounters[encounterId];
-    if (!encounter) throw new Error(`no such encounter: ${encounterId}`);
+    if (typeof encounter === 'number') throw httpError(encounter);
+    if (!encounter) throw httpError(404);
     return encounter;
   });
 };
@@ -100,12 +105,29 @@ describe('EncounterProvider', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('redirects to the patient when the encounter cannot be loaded', async () => {
+  it('redirects to the patient when the encounter is not viewable', async () => {
+    respondWithEncounters({ 'no-permission': 403 });
+
+    renderAt(encounterRoute('no-permission'));
+
+    await waitFor(() => expect(screen.getByTestId('pathname').textContent).toBe(PATIENT_ROUTE));
+    expect(screen.getByTestId('encounter-reason').textContent).toBe('none');
+  });
+
+  it('redirects to the patient when the encounter does not exist', async () => {
     respondWithEncounters({});
 
     renderAt(encounterRoute('deleted-encounter'));
 
     await waitFor(() => expect(screen.getByTestId('pathname').textContent).toBe(PATIENT_ROUTE));
-    expect(screen.getByTestId('encounter-reason').textContent).toBe('none');
+  });
+
+  it('stays put and surfaces the error when the fetch fails for any other reason', async () => {
+    respondWithEncounters({ 'encounter-1': 500 });
+
+    renderAt(encounterRoute('encounter-1'));
+
+    await waitFor(() => expect(screen.getByTestId('error-status').textContent).toBe('500'));
+    expect(screen.getByTestId('pathname').textContent).toBe(encounterRoute('encounter-1'));
   });
 });
