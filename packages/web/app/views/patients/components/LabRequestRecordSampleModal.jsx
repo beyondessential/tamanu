@@ -161,10 +161,7 @@ export const LabRequestRecordSampleModal = React.memo(
               fallback="Record sample details"
             />
           ) : (
-            <TranslatedText
-              stringId="lab.modal.editSample.title"
-              fallback="Edit sample date and time"
-            />
+            <TranslatedText stringId="lab.modal.editSample.title" fallback="Edit sample" />
           )
         }
         data-testid="styledmodal-8ee1"
