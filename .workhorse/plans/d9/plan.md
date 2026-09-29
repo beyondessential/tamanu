@@ -23,4 +23,4 @@ Scope is the minimal protocol surface: delimiter tags, bracketed markers, and st
 - A pure test (no DB, no model calls) enforces: every current token is in the ledger (additive, just add it); every active ledger token is still current (breaking, restore or mark removed); no token is both active and removed
 - The upgrade-check skill lists ledger removals between versions, prompting a check of deployments with overridden AI prompts
 
-Open: whether to add a CI step that diffs the ledger against `origin/main` to catch an active entry deleted outright alongside the code.
+Deleting an active ledger entry outright, alongside the code, is left to review. No CI step diffs the ledger against `origin/main`.
