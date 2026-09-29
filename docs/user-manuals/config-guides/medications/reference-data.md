@@ -15,9 +15,10 @@ See the Tamanu Reference Data Manual for how importing works.
 
 The `Drug` reference data type configures the medication list available when prescribing.
 
-![The Medications field in the new prescription form, showing drugs reference data populating the dropdown.](images/reference-data-new-prescription-medication-field.png)
-
-<p align="center">The <b>Medication</b> field in <b>New prescription</b>, listing drugs from reference data</p>
+<p align="center">
+  <img src="images/reference-data-new-prescription-medication-field.png" alt="The Medication field in the new prescription form, listing drugs from reference data" width="415"><br>
+  <sub>The <b>Medication</b> field lists the drugs imported as reference data.</sub>
+</p>
 
 For a deployment where mSupply is also in use, the drugs list should be copied from the mSupply
 essential medicines list.
@@ -266,9 +267,10 @@ Frequency selection supports searching by synonym. For example `Daily at night` 
 synonym shown in brackets, so the meaning stays clear while supporting the medical abbreviations still
 in common use.
 
-![Frequency search showing a query for BID returning Two times daily (BD).](images/reference-data-frequency-synonym-search.png)
-
-<p align="center">Searching <b>Frequency</b> for BID returns <b>Two times daily (BD)</b></p>
+<p align="center">
+  <img src="images/reference-data-frequency-synonym-search.png" alt="Frequency search for BID returning Two times daily (BD)" width="415"><br>
+  <sub>Searching <b>Frequency</b> for BID returns <b>Two times daily (BD)</b>.</sub>
+</p>
 
 | Frequency | Synonyms |
 | --- | --- |

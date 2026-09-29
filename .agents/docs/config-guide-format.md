@@ -82,12 +82,12 @@ control its colours or borders there.
 | Required marker | A plain `*` | Coloured `*` |
 | Screenshot placeholders | A bold `[Screenshot: ...]` line | Marked placeholder panel |
 | Image borders and outlines | Drawn into the image, so identical | Drawn into the image, so identical |
-| Image captions | Centred, bold front-end text | Centred, bold front-end text |
+| Images and captions | Centred, sized, small caption | Centred, sized, small caption |
 
 Consequences: **never rely on styling to carry meaning** (which is why the `*` convention is stated in
-words above each table), and **do not hand-write HTML to recover a design** GitHub will strip. The one exception is the
-image caption: GitHub keeps `align="center"` and `<b>` on a paragraph, though it strips `style`, so a
-border or outline has to be part of the image rather than styling around it. Put
+words above each table), and **do not hand-write HTML to recover a design** GitHub will strip. The one
+exception is images: GitHub keeps `align="center"`, `width`, `<sub>` and `<b>`, though it strips
+`style`, so a border or outline has to be part of the image rather than styling around it. Put
 structured content in **tables**, the one grouping construct that survives both renderings.
 
 ## Settings blocks
@@ -189,17 +189,25 @@ so outstanding shots across all Tamanu documentation are found by one search.
 - **Capturing replaces the placeholder with the image**, so a guide holds one or the other, never both
 - **Images live in an `images/` folder** beside the guides, named for the guide they belong to and what
   they show, in kebab-case: `settings-frequencies-enabled.png`
-- **Every image has alt text** describing what the shot shows:
-  `![The frequencies enabled setting.](images/settings-frequencies-enabled.png)`
-- **Every image has a centred caption** on the line below it, naming what it shows with the Tamanu
-  front-end text word for word in bold:
-  `<p align="center">The <b>Frequencies enabled</b> sub-category of <b>Medications</b> in <b>Settings</b></p>`
-- **Crop a modal to the modal.** When a shot is of a dialog or form window, capture that window
-  alone, not the page behind it
-- **Capture at twice screen resolution**, so text stays legible when the image is scaled down
-- **Every image has a black border**, drawn into the image itself
+- **Crop to the part of the screen the section is about**, so the words it names are readable. A
+  shot of a dialog or form window is that window alone; a settings shot is the settings editor
+  without the sidebar
+- **Capture at twice screen resolution**, so text stays sharp when shown smaller
+- **Every image has a thin black border**, drawn into the image itself
 - **Outline in red the action buttons the reader should find**, drawn into the image. Which buttons
   are outlined is the author's call, so ask
+- **Show each image centred and smaller than the text column**, at a `width` of about 0.31 times
+  its pixel width, which matches the end user manuals
+- **Every image has alt text** describing what the shot shows, including any red outline
+- **Every image has a caption** in small text beneath it: one short sentence describing what the
+  image shows or the action it illustrates, with Tamanu front-end text word for word in bold
+
+```html
+<p align="center">
+  <img src="images/settings-frequencies-enabled.png" alt="Frequencies enabled in Settings, with Save changes outlined in red" width="712"><br>
+  <sub>Turn a frequency off, then select <b>Save changes</b>.</sub>
+</p>
+```
 
 Screenshots are published, so they are taken against demonstration or test data and never show a real
 patient.

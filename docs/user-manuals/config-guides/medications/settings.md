@@ -26,9 +26,10 @@ relevant to your deployment. Updates apply to all facilities in the deployment.
 | Setting | Toggle the required frequency off to disable it |
 | Default | All frequencies enabled |
 
-![The frequencies enabled setting.](images/settings-frequencies-enabled.png)
-
-<p align="center">The <b>Frequencies enabled</b> sub-category of <b>Medications</b> in <b>Settings</b></p>
+<p align="center">
+  <img src="images/settings-frequencies-enabled.png" alt="Frequencies enabled in Settings, with Save changes and Reset to default outlined in red" width="712"><br>
+  <sub>Turn a frequency off, then select <b>Save changes</b>.</sub>
+</p>
 
 ## Default administration schedule
 
@@ -42,9 +43,10 @@ For each frequency, the default administration schedule and ideal administration
 | Setting | For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window. |
 | Default | The standard administration times for each frequency, as listed under [Frequency](reference-data.md#frequency) |
 
-![The default administration times setting.](images/settings-default-administration-times.png)
-
-<p align="center">The <b>Default administration times</b> sub-category of <b>Medications</b> in <b>Settings</b></p>
+<p align="center">
+  <img src="images/settings-default-administration-times.png" alt="Default administration times in Settings, with Save changes and Reset to default outlined in red" width="712"><br>
+  <sub>Each frequency lists its ideal times under <b>Default administration times</b>.</sub>
+</p>
 
 `Immediately`, `As directed`, `Hourly` and `Half-hourly` are not listed, because their administration
 times are either not scheduled or fixed.
@@ -96,9 +98,10 @@ patient during an episode of care. The MAR displays 12 two-hour administration w
 The schedule displayed on the MAR depends on the selected frequency and administration schedule for
 the prescribed medication.
 
-![The medication administration record showing the 12 two-hour administration windows.](images/settings-medication-administration-record.png)
-
-<p align="center">The <b>Medication admin record</b></p>
+<p align="center">
+  <img src="images/settings-medication-administration-record.png" alt="The medication admin record showing its 12 two-hour administration windows, with New prescription outlined in red" width="531"><br>
+  <sub>The <b>Medication admin record</b> shows 12 two-hour windows.</sub>
+</p>
 
 Four windows carry a period label, used where the design shows the time of day rather than the hours:
 06:00 to 08:00 is breakfast, 12:00 to 14:00 is lunch, 18:00 to 20:00 is dinner, and 22:00 to midnight
@@ -107,18 +110,20 @@ is night.
 Ideal administration times can be set for each frequency within each administration window. The ideal
 administration time displays in a tooltip when hovering over a due dose on the MAR.
 
-![Tooltip on a due dose showing the ideal administration time within its window.](images/settings-ideal-administration-time-tooltip.png)
-
-<p align="center">Hovering over <b>Dose due</b> shows <b>Cannot record future dose. Due at 2:00pm.</b></p>
+<p align="center">
+  <img src="images/settings-ideal-administration-time-tooltip.png" alt="Tooltip on a due dose showing its ideal administration time" width="531"><br>
+  <sub>Hovering over <b>Dose due</b> shows <b>Cannot record future dose. Due at 2:00pm.</b></sub>
+</p>
 
 ## Administration schedule
 
 The administration schedule is set when prescribing. A default schedule is applied based on the
 selected frequency and can be edited if required.
 
-![The medication administration schedule within the new prescription form.](images/settings-administration-schedule-prescription-form.png)
-
-<p align="center">The <b>Medication administration schedule</b> in <b>New prescription</b></p>
+<p align="center">
+  <img src="images/settings-administration-schedule-prescription-form.png" alt="The medication administration schedule in the new prescription form" width="415"><br>
+  <sub>The <b>Medication administration schedule</b> fills in from the chosen frequency.</sub>
+</p>
 
 For each frequency, the default schedule and ideal administration time can be changed. See
 [Default administration schedule](#default-administration-schedule).
