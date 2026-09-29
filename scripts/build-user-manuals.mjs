@@ -28,6 +28,20 @@ const checkOnly = process.argv.includes('--check');
 const problems = [];
 const drifted = [];
 
+/**
+ * A directory that does not exist yet is expected: a module can be listed in the manifest
+ * before its folder is written. Any other failure is real and must not pass silently as
+ * "nothing here", which would make the checks below report a clean scan.
+ */
+async function readDirectory(path) {
+  try {
+    return await fs.readdir(path, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+}
+
 async function readIfExists(path) {
   try {
     // Normalised to LF. Generated content is always LF, so without this a checkout with
@@ -148,7 +162,7 @@ await writeFile(
  * is a far rarer event than renaming a module.
  */
 async function reportUnlistedEntries(parent, listedSlugs) {
-  const entries = await fs.readdir(parent, { withFileTypes: true }).catch(() => []);
+  const entries = await readDirectory(parent);
   for (const entry of entries) {
     const path = display(join(parent, entry.name));
     if (entry.isDirectory()) {
@@ -192,7 +206,7 @@ for (const platform of manifest.platforms) {
     // A guide file on disk that the manifest does not list has no place in the order,
     // so say so rather than quietly leaving it unreachable.
     // Only guides are listed in the manifest; the images folder beside them is not.
-    const onDisk = await fs.readdir(moduleDir, { withFileTypes: true }).catch(() => []);
+    const onDisk = await readDirectory(moduleDir);
     for (const entry of onDisk) {
       if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
       if (entry.name !== 'README.md' && !guideFiles.includes(entry.name)) {
@@ -216,12 +230,13 @@ for (const platform of manifest.platforms) {
       // worse than the placeholder it replaced. Catch it here rather than in review.
       // Screenshots are written as HTML <img> tags so they can be sized and captioned; plain
       // markdown images are checked too.
-      const markdownImages = [...source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)].map(([, alt, rawTarget]) => ({
-        alt,
-        // Markdown allows an optional title after the path, ![alt](x.png "Title"), and angle
-        // brackets around it. Neither is part of the filename.
-        target: rawTarget.trim().replace(/^<(.*)>$/, '$1').split(/\s+/)[0],
-      }));
+      const markdownImages = [...source.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)].map(([, alt, rawTarget]) => {
+        // Markdown allows an optional title after the path, ![alt](x.png "Title"). Angle
+        // brackets wrap a path that contains spaces, in which case all of it is the path.
+        const trimmed = rawTarget.trim();
+        const bracketed = trimmed.match(/^<(.*)>$/);
+        return { alt, target: bracketed ? bracketed[1] : trimmed.split(/\s+/)[0] };
+      });
       const htmlImages = [...source.matchAll(/<img\b[^>]*>/gi)].map(([tag]) => ({
         alt: tag.match(/\balt\s*=\s*"([^"]*)"/i)?.[1] ?? '',
         target: tag.match(/\bsrc\s*=\s*"([^"]*)"/i)?.[1] ?? '',
@@ -283,13 +298,13 @@ if (checkOnly) {
   if (drifted.length) {
     console.error(`${drifted.length} file(s) differ from the manifest:`);
     for (const f of drifted) console.error(`  ${display(f)}`);
-  } else {
-    console.log('User manuals are up to date.');
   }
+  // Only say the manual is well when nothing above was reported, so a failing run never
+  // also claims to be healthy.
+  if (!drifted.length && !problems.length) console.log('User manuals are up to date.');
   process.exit(drifted.length || problems.length ? 1 : 0);
 }
 
-console.log(
-  drifted.length ? `Wrote ${drifted.length} file(s).` : 'User manuals already up to date.',
-);
+if (drifted.length) console.log(`Wrote ${drifted.length} file(s).`);
+else if (!problems.length) console.log('User manuals already up to date.');
 process.exit(problems.length ? 1 : 0);
