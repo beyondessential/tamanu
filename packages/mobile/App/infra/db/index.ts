@@ -107,7 +107,7 @@ class DatabaseHelper {
       // (sqlite has to fully delete and recreate a table to alter a column;
       // it preserves data fine but if any other tables have a FK constraint
       // pointed to the table being altered, the query will fail)
-      await this.client.query(`PRAGMA foreign_keys = OFF;`);
+      await this.client.query('PRAGMA foreign_keys = OFF;');
 
       // TODO: Remove this once all supported deployments are >= v1.21.0
       // Get the list of tables named 'migrations' and tables named 'patient'
@@ -136,7 +136,7 @@ class DatabaseHelper {
       throw e;
     } finally {
       // Restore FK constraint checks once everything is done
-      await this.client.query(`PRAGMA foreign_keys = ON;`);
+      await this.client.query('PRAGMA foreign_keys = ON;');
     }
   }
 
@@ -178,12 +178,12 @@ class DatabaseHelper {
 
   async setDefaultPragma(): Promise<void> {
     try {
-      await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
-      await this.client.query(`PRAGMA synchronous = 2;`);
+      await this.client.query('PRAGMA journal_mode = TRUNCATE;');
+      await this.client.query('PRAGMA synchronous = 2;');
       const cacheSizeKiB = await getCacheSizeKiB();
       await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
-      await this.client.query(`PRAGMA locking_mode = NORMAL;`);
-      await this.client.query(`PRAGMA temp_store = 0;`);
+      await this.client.query('PRAGMA locking_mode = NORMAL;');
+      await this.client.query('PRAGMA temp_store = 0;');
       console.log(`Applied default pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying default pragma settings:', e);
