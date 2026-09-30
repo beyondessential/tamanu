@@ -325,6 +325,38 @@ describe('getLabRequestTestAndPanelNames', () => {
     ]);
   });
 
+  it('reads a historical single-panel request as covering all its tests', () => {
+    // Migrated requests hold one panel request whose member tests were never stamped with it.
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Hemodialysis Post')],
+        tests: [test('Creatinine'), test('BUN'), test('Potassium')],
+      }),
+    ).toEqual(['Hemodialysis Post']);
+  });
+
+  it('treats a row carrying an inferred panel as covered', () => {
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Full blood count'), panelRequest('Liver function tests')],
+        tests: [
+          { labTestPanelRequestId: null, labTestPanel: { name: 'Full blood count' }, labTestType: { name: 'Haemoglobin' } },
+          test('Amylase'),
+        ],
+      }),
+    ).toEqual(['Amylase', 'Full blood count', 'Liver function tests']);
+  });
+
+  it('still lists loose tests when several panels are attributed', () => {
+    // More than one panel request means the historical inference must not kick in.
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Full blood count'), panelRequest('Coagulation')],
+        tests: [test('Haemoglobin', 'panel-request-1'), test('Amylase')],
+      }),
+    ).toEqual(['Amylase', 'Coagulation', 'Full blood count']);
+  });
+
   it('skips names it cannot resolve, and handles a missing request', () => {
     expect(
       getLabRequestTestAndPanelNames({

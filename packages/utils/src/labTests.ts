@@ -217,22 +217,41 @@ export const parseLabTestResult = (result: unknown): ParsedLabTestResult => {
 export type LabRequestCompositionLike = {
   labTestPanelRequests?: { labTestPanel?: { name?: string | null } | null }[] | null;
   tests?:
-    | { labTestPanelRequestId?: string | null; labTestType?: { name?: string | null } | null }[]
+    | {
+        labTestPanelRequestId?: string | null;
+        labTestPanel?: { name?: string | null } | null;
+        labTestType?: { name?: string | null } | null;
+      }[]
     | null;
 };
 
 // The tests and panels a lab request holds, as a single alphabetical list of names: each panel by
 // its name, plus the individual tests not attributed to a panel (a panel's own member tests are
 // represented by the panel, so they are not listed again).
+//
+// A request migrated from the single-panel structure holds one panel request and tests that were
+// never stamped with it, so the same inference the rest of the lab code makes applies here: one
+// panel request and no attributed test means every test belongs to that panel. Without it a
+// historical request would list its panel and then each of that panel's members again.
 export const getLabRequestTestAndPanelNames = ({
   labTestPanelRequests,
   tests,
 }: LabRequestCompositionLike = {}): string[] => {
-  const panelNames = (labTestPanelRequests ?? [])
+  const panelRequests = labTestPanelRequests ?? [];
+  const labTests = tests ?? [];
+  const panelNames = panelRequests
     .map(panelRequest => panelRequest.labTestPanel?.name)
     .filter((name): name is string => Boolean(name));
-  const individualTestNames = (tests ?? [])
-    .filter(test => !test.labTestPanelRequestId)
+
+  const isHistoricalSinglePanel =
+    panelRequests.length === 1 && labTests.every(test => !test.labTestPanelRequestId);
+  // Some callers resolve the panel onto the row itself rather than leaving the foreign key to
+  // speak for it, so a row carrying a panel counts as covered too.
+  const isCoveredByPanel = (test: (typeof labTests)[number]) =>
+    isHistoricalSinglePanel || Boolean(test.labTestPanelRequestId) || Boolean(test.labTestPanel);
+
+  const individualTestNames = labTests
+    .filter(test => !isCoveredByPanel(test))
     .map(test => test.labTestType?.name)
     .filter((name): name is string => Boolean(name));
   return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
