@@ -1,4 +1,4 @@
-// Mock for react-native-quick-sqlite
+// Mock for react-native-nitro-sqlite
 export const typeORMDriver = {
   openDatabase: jest.fn(),
   deleteDatabase: jest.fn(),
