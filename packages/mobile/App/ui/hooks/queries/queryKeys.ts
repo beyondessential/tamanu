@@ -122,7 +122,7 @@ export const reportKeys = {
   recentVisitors: (surveyId: string) =>
     [...reportKeys.all, 'recentVisitors', surveyId] as const satisfies QueryKey,
   referralList: () => [...reportKeys.all, 'referralList'] as const satisfies QueryKey,
-  encounterSummary: (surveyId: MaybeId) =>
+  encounterSummary: (surveyId: string) =>
     [...reportKeys.all, 'encounterSummary', surveyId] as const satisfies QueryKey,
 };
 
