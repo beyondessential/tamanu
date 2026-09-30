@@ -24,7 +24,7 @@ import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'];
-const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate'];
+const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate', 'status'];
 const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
 
 // Terminal and published statuses aren't offered as active-request filter options.
@@ -40,6 +40,12 @@ const FacilityCheckbox = styled.div`
   display: flex;
   align-items: center;
   margin-top: 20px;
+`;
+
+// Fills the last cell of the first row so the filters sit four per row, leaving the search
+// actions alongside the second row.
+const Spacer = styled.div`
+  width: 100%;
 `;
 
 export const LabRequestsSearchBar = ({ statuses }) => {
@@ -82,10 +88,27 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         statusFilterOptions.filter(option =>
           option.label.toLowerCase().includes((search ?? '').toLowerCase()),
         ),
-      fetchCurrentOption: async value =>
-        statusFilterOptions.find(option => option.value === value),
+      fetchCurrentOption: async value => statusFilterOptions.find(option => option.value === value),
     }),
     [statusFilterOptions],
+  );
+
+  const statusField = (
+    <LocalisedField
+      name="status"
+      label={
+        <TranslatedText
+          stringId="general.localisedField.status.label"
+          fallback="Status"
+          data-testid="translatedtext-763d"
+        />
+      }
+      component={MultiAutocompleteField}
+      suggester={statusSuggester}
+      individualChips
+      size="small"
+      data-testid="localisedfield-2it8"
+    />
   );
 
   return (
@@ -128,18 +151,21 @@ export const LabRequestsSearchBar = ({ statuses }) => {
             data-testid="field-r8d2"
           />
           {publishedStatus ? (
-            <Field
-              name="publishedDate"
-              label={
-                <TranslatedText
-                  stringId="lab.results.table.column.completedDate"
-                  fallback="Completed"
-                  data-testid="translatedtext-v0cq"
-                />
-              }
-              component={DateField}
-              data-testid="field-ifhe"
-            />
+            <>
+              <Field
+                name="publishedDate"
+                label={
+                  <TranslatedText
+                    stringId="lab.publishedDate.label.short"
+                    fallback="Published"
+                    data-testid="translatedtext-v0cq"
+                  />
+                }
+                component={DateField}
+                data-testid="field-ifhe"
+              />
+              {statusField}
+            </>
           ) : (
             <>
               <LocalisedField
@@ -230,20 +256,21 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         name="requestId"
         label={
           <TranslatedText
-            stringId="lab.requestId.label.short"
-            fallback="Test ID"
+            stringId="lab.requestId.label"
+            fallback="Request ID"
             data-testid="translatedtext-8b9r"
           />
         }
         component={SearchField}
         data-testid="field-jpmb"
       />
+      <Spacer />
       <Field
         name="category"
         label={
           <TranslatedText
-            stringId="lab.category.label"
-            fallback="Category"
+            stringId="lab.testCategory.label"
+            fallback="Test category"
             data-testid="translatedtext-iate"
           />
         }
@@ -252,26 +279,12 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         size="small"
         data-testid="field-84q8"
       />
-      <Field
-        name="labTestPanelId"
-        label={
-          <TranslatedText
-            stringId="lab.panel.label"
-            fallback="Panel"
-            data-testid="translatedtext-6w50"
-          />
-        }
-        component={SuggesterSelectField}
-        endpoint="labTestPanel"
-        size="small"
-        data-testid="field-vqdd"
-      />
       <LocalisedField
         name="requestedDateFrom"
         label={
           <TranslatedText
-            stringId="general.localisedField.requestedDateFrom.label"
-            fallback="Requested from"
+            stringId="lab.requestFrom.label"
+            fallback="Request from"
             data-testid="translatedtext-0gk7"
           />
         }
@@ -283,29 +296,15 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         name="requestedDateTo"
         label={
           <TranslatedText
-            stringId="general.localisedField.requestedDateTo.label"
-            fallback="Requested to"
+            stringId="lab.requestTo.label"
+            fallback="Request to"
             data-testid="translatedtext-l4xg"
           />
         }
         component={DateField}
         data-testid="localisedfield-kswp"
       />
-      <LocalisedField
-        name="status"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.status.label"
-            fallback="Status"
-            data-testid="translatedtext-763d"
-          />
-        }
-        component={MultiAutocompleteField}
-        suggester={statusSuggester}
-        individualChips
-        size="small"
-        data-testid="localisedfield-2it8"
-      />
+      {!publishedStatus && statusField}
       {publishedStatus && (
         <LocalisedField
           name="laboratory"
