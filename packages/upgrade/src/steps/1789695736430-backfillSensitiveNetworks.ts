@@ -3,6 +3,7 @@ import { QueryTypes, type Sequelize } from 'sequelize';
 import {
   BETWEEN_SCHEMA_MIGRATIONS,
   ENCOUNTER_SCOPED_RECORD_TYPES,
+  hasFacilityIsSensitive,
   hasFijiSrhFacilities,
 } from '../sensitiveNetworks.js';
 import type { Steps, StepArgs } from '../step.js';
@@ -77,6 +78,7 @@ export const STEPS: Steps = [
   {
     ...BETWEEN_SCHEMA_MIGRATIONS,
     async check({ sequelize }: StepArgs) {
+      if (!(await hasFacilityIsSensitive(sequelize))) return false;
       return !(await hasFijiSrhFacilities(sequelize));
     },
     async run({ sequelize, log }: StepArgs) {

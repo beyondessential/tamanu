@@ -5,6 +5,7 @@ import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 import {
   BETWEEN_SCHEMA_MIGRATIONS,
   ENCOUNTER_SCOPED_RECORD_TYPES,
+  hasFacilityIsSensitive,
   hasFijiSrhFacilities,
   FIJI_SRH_FACILITY_IDS,
   FIJI_SRH_NETWORK,
@@ -74,7 +75,9 @@ export const STEPS: Steps = [
     // Central only: sync_lookup is populated there, and the tick this takes is central's clock. A
     // Fiji facility server receives both the networks and the membership by sync.
     async check({ sequelize, serverType }: StepArgs) {
-      return serverType === 'central' && (await hasFijiSrhFacilities(sequelize));
+      if (serverType !== 'central') return false;
+      if (!(await hasFacilityIsSensitive(sequelize))) return false;
+      return hasFijiSrhFacilities(sequelize);
     },
     async run({ sequelize, models, log }: StepArgs) {
       await sequelize.transaction(async () => {

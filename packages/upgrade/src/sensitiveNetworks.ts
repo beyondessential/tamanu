@@ -87,6 +87,24 @@ export const BETWEEN_SCHEMA_MIGRATIONS = {
   before: [needsMigration('1789695736426-dropFacilityIsSensitive.ts')],
 };
 
+// Whether the pre-network state is still there, which is what both steps convert. The runner calls
+// every step's check on every upgrade (the after:/before: gates compare a prefixed name against the
+// migration's file name and never match, so nothing is sunset), so each step has to answer for
+// itself whether its work is done. dropFacilityIsSensitive removes this column immediately after
+// both steps, so its absence means the conversion already happened.
+export const hasFacilityIsSensitive = async (sequelize: Sequelize) => {
+  const [{ exists }] = await sequelize.query<{ exists: boolean }>(
+    `
+    SELECT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_name = 'facilities' AND column_name = 'is_sensitive'
+    );
+    `,
+    { type: QueryTypes.SELECT },
+  );
+  return exists;
+};
+
 // What decides the path, and it takes all three. With only some of them present this is not the
 // deployment the SRH step describes, and claiming it would skip the ordinary backfill for every
 // other sensitive facility — which dropFacilityIsSensitive then leaves with no scoping at all.

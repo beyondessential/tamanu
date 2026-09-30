@@ -7,7 +7,7 @@ import { STEPS } from '../../src/steps/1789695736431-fijiSrhSensitiveNetwork.js'
 
 const [fijiSrhStep] = STEPS;
 
-const makeArgs = ({ hasFijiSrh = false, serverType = 'central' } = {}) => {
+const makeArgs = ({ hasFijiSrh = false, isSensitiveDropped = false, serverType = 'central' } = {}) => {
   const queries: { sql: string; replacements: any }[] = [];
   return {
     args: {
@@ -16,6 +16,9 @@ const makeArgs = ({ hasFijiSrh = false, serverType = 'central' } = {}) => {
         transaction: async (callback: () => Promise<void>) => callback(),
         query: vi.fn(async (sql: string, options: any = {}) => {
           queries.push({ sql, replacements: options.replacements });
+          if (sql.includes('information_schema.columns')) {
+            return [{ exists: !isSensitiveDropped }];
+          }
           if (sql.includes('count(*) FROM facilities')) return [{ count: hasFijiSrh ? 3 : 2 }];
           return [[], 0];
         }),
@@ -44,6 +47,12 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
 
   it('leaves every other deployment to the ordinary backfill', async () => {
     const { args } = makeArgs({ hasFijiSrh: false });
+
+    await expect(fijiSrhStep.check(args)).resolves.toBe(false);
+  });
+
+  it('stands down on a later upgrade, once is_sensitive has been dropped', async () => {
+    const { args } = makeArgs({ hasFijiSrh: true, isSensitiveDropped: true });
 
     await expect(fijiSrhStep.check(args)).resolves.toBe(false);
   });
