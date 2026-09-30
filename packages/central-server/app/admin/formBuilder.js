@@ -125,7 +125,21 @@ const isPdfBuffer = buffer => buffer.subarray(0, 5).toString('ascii') === '%PDF-
 
 export const formBuilderRouter = express.Router();
 
-const truncateFileContext = content => {
+// Uploaded content, and the model's interpretation of it, sits after a marker in
+// a message the prompt splits on those markers. Any literal marker inside it
+// would forge a section boundary (e.g. a fake [LATEST USER REQUEST]), so it is
+// stripped before interpolation.
+const PROMPT_MARKER_PATTERN = new RegExp(
+  Object.values(AI_PROMPT_MARKERS)
+    .map(marker => marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|'),
+  'gi',
+);
+
+const stripPromptMarkers = text => text.replace(PROMPT_MARKER_PATTERN, '');
+
+const truncateFileContext = rawContent => {
+  const content = stripPromptMarkers(rawContent);
   const truncated = content.length > MAX_FILE_CONTEXT_LENGTH;
   const fileContent = truncated ? content.slice(0, MAX_FILE_CONTEXT_LENGTH) : content;
   const truncationNotice = truncated
@@ -198,10 +212,10 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
         pdfBase64: fileBuffer.toString('base64'),
         fileName: sanitizeFileNameForPrompt(fileName),
       });
-      return `${AI_PROMPT_MARKERS.PDF_DOCUMENT_INTERPRETED}\n${interpretedPdf}`;
+      return `${AI_PROMPT_MARKERS.PDF_DOCUMENT_INTERPRETED}\n${stripPromptMarkers(interpretedPdf)}`;
     } catch (error) {
       log.warn({ error }, 'AI form builder failed to interpret uploaded PDF');
-      return `${AI_PROMPT_MARKERS.PDF_DOCUMENT_LOADED}\nUploaded PDF "${fileName || 'attachment'}". PDF interpretation failed. Do not stop to ask for another upload; make a best-effort draft from the filename and conversation, and mention that the PDF content could not be interpreted.`;
+      return `${AI_PROMPT_MARKERS.PDF_DOCUMENT_LOADED}\nUploaded PDF "${sanitizeFileNameForPrompt(fileName) || 'attachment'}". PDF interpretation failed. Do not stop to ask for another upload; make a best-effort draft from the filename and conversation, and mention that the PDF content could not be interpreted.`;
     }
   }
 
@@ -215,7 +229,7 @@ const getFileContext = async ({ aiService, file, fileName, fileContentType }) =>
       mediaType,
       fileName: sanitizeFileNameForPrompt(fileName),
     });
-    return `${AI_PROMPT_MARKERS.FORM_IMAGE_INTERPRETED}\n${interpretedImage}`;
+    return `${AI_PROMPT_MARKERS.FORM_IMAGE_INTERPRETED}\n${stripPromptMarkers(interpretedImage)}`;
   }
 
   return `${AI_PROMPT_MARKERS.TEXT_DOCUMENT_LOADED}\n${truncateFileContext(fileBuffer.toString('utf8'))}`;

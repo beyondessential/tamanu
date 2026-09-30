@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { AI_CONTEXT_NAMES, AI_PROMPT_PROTOCOL } from '@tamanu/constants';
+
 import ledger from '../../app/ai/promptProtocolLedger.json';
 import { getPromptProtocolSurface } from './promptProtocolSurface';
 
@@ -13,12 +15,21 @@ const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const surface = getPromptProtocolSurface();
 const contextNames = [...new Set([...Object.keys(surface), ...Object.keys(ledger)])].sort();
 
-const ledgerEntryFor = contextName => ledger[contextName] ?? { active: [], removed: [] };
-
 describe('AI prompt protocol backward compatibility', () => {
+  it('declares a protocol for every AI context', () => {
+    const undeclared = Object.values(AI_CONTEXT_NAMES).filter(
+      contextName => !AI_PROMPT_PROTOCOL[contextName],
+    );
+    expect(
+      undeclared,
+      'Add an entry for each of these contexts to AI_PROMPT_PROTOCOL in @tamanu/constants, ' +
+        'listing the tags and markers its user message carries (empty lists if none).',
+    ).toEqual([]);
+  });
+
   describe.each(contextNames)('%s', contextName => {
     const currentTokens = surface[contextName] ?? [];
-    const { active, removed } = ledgerEntryFor(contextName);
+    const { active = [], removed = [] } = ledger[contextName] ?? {};
     const removedTokens = removed.map(entry => entry.token);
 
     it('records every current token in the ledger', () => {

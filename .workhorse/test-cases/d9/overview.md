@@ -16,6 +16,13 @@ Scenarios run against `packages/central-server/__tests__/ai/promptProtocol.test.
 - [x] A new token fails until it is added to the ledger's `active` list, with a message saying the addition is compatible
 - [x] A `removed` entry without an x.y.z `removedIn` or a reason fails
 - [x] A token listed as both active and removed fails
+- [x] A ledger entry missing its `active` or `removed` list is treated as empty, not a crash
+- [x] A context in `AI_CONTEXT_NAMES` with no `AI_PROMPT_PROTOCOL` entry fails with a message naming it, not a crash
+
+## Uploaded content cannot forge markers
+
+- [x] Protocol markers inside uploaded file text are stripped before it reaches the model
+- [x] Protocol markers inside the model's interpretation of an uploaded image or PDF are stripped, while the admin's own `[PROGRAM SELECTED]` is kept
 
 ## Refactor preserves output
 

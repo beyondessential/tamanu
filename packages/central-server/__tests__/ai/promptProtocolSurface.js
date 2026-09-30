@@ -73,7 +73,9 @@ const getOutputFieldPaths = outputSchema => {
 export const getPromptProtocolSurface = () =>
   Object.fromEntries(
     Object.values(AI_CONTEXT_NAMES).map(contextName => {
-      const { tags, markers } = AI_PROMPT_PROTOCOL[contextName];
+      // A context missing from AI_PROMPT_PROTOCOL is reported by its own test
+      // rather than crashing collection here.
+      const { tags = [], markers = [] } = AI_PROMPT_PROTOCOL[contextName] ?? {};
       const tokens = [
         ...tags.map(tag => `<${tag}>`),
         ...markers,
