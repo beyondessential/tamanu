@@ -22,7 +22,7 @@ A facility server and a mobile device hold data only for the patients marked for
 ## Marking a patient for sync on desktop
 
 - [ ] A user viewing a patient who is not marked for sync at their facility is offered a "Sync patient records" action in place of the patient's encounter history.
-- [ ] The action is offered only to a user holding `create` `SyncPatient`. Without it, nothing is rendered in place of the encounter history: no action, no table, and no empty panel. The rest of the patient summary is unaffected.
+- [ ] The action is offered only to a user holding `create` `SyncPatient`. Without it, the encounter history area instead shows the message "This patient record is not marked for sync at your facility. Please speak with your system administrator if this patient record should be synced." The rest of the patient summary is unaffected.
 - [ ] Marking a patient for sync requires both `read` `Patient` and `create` `SyncPatient`. A request from a user missing either is refused.
 - [ ] Marking a patient for sync is idempotent: marking a patient already marked at that facility succeeds and changes nothing.
 - [ ] Marking a patient for sync triggers an urgent sync so their records begin arriving immediately, and the user is told the patient is being synced while records are still incomplete.
@@ -30,7 +30,8 @@ A facility server and a mobile device hold data only for the patients marked for
 ## Marking a patient for sync on mobile
 
 - [ ] A patient's sync status is shown on the patient's details, and tapping it offers to sync an unsynced patient or reports the last successful sync for a synced one.
-- [ ] The sync status is shown for an unsynced patient only to a user holding `create` `SyncPatient`. Without it, an unsynced patient shows no sync status and no way to sync them.
+- [ ] For a patient not marked for sync on the device, the sync status is shown only to a user holding `create` `SyncPatient`. Without it, no sync status is shown and there is no way to sync the patient.
+- [ ] For a patient marked for sync on the device, the sync status is shown to every user, whatever their sync-marking permission.
 - [ ] Mobile enforces the permission in the client only, consistent with how mobile applies its other permissions.
 
 ## Sync status elsewhere

@@ -114,13 +114,25 @@
   }
   .sync-tile svg { stroke: var(--primary); }
 
-  .nothing {
-    border: 1px dashed var(--outline);
-    border-radius: 3px;
-    color: var(--soft-text);
-    font-style: italic;
-    padding: 14px 16px;
+  .not-synced {
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-radius: 5px;
+    padding: 20px;
   }
+  .not-synced-message {
+    align-items: center;
+    background: var(--background);
+    color: var(--primary);
+    display: flex;
+    font-weight: 500;
+    justify-content: center;
+    line-height: 1.5;
+    min-height: 420px;
+    padding: 24px;
+    text-align: center;
+  }
+  .not-synced-message p { margin: 0; max-width: 46ch; }
   .annotation {
     color: var(--mid-text);
     font-size: 12px;
@@ -132,7 +144,7 @@
   <h1>Patient summary — encounter history area by sync state</h1>
   <p class="intro">
     The three states of the lower part of the patient summary. Everything above it is unchanged in all
-    three. The dashed outline in the third state is an annotation, not a rendered element.
+    three.
   </p>
 
   <div class="states">
@@ -209,10 +221,13 @@
             <h2>No current visit</h2>
             <button class="btn-primary">Admit or check-in</button>
           </div>
-          <div class="nothing">nothing rendered here</div>
+          <div class="not-synced">
+            <div class="not-synced-message">
+              <p>This patient record is not marked for sync at your facility. Please speak with your system administrator if this patient record should be synced.</p>
+            </div>
+          </div>
         </div>
       </div>
-      <p class="annotation">The summary ends after the encounter summary. No tile, no table, no empty panel.</p>
     </div>
 
   </div>
