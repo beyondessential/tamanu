@@ -1,21 +1,21 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import React, { type FC, type ReactElement, useCallback, useEffect, useState } from 'react';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import { Button } from '/components/Button';
+import { TamanuComboMark } from '/components/Icons';
+import { VisitChart } from '/components/Chart/VisitChart';
+import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
-import React, { type FC, type ReactElement, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import type { Survey } from '~/models/Survey';
-import { SurveyTypes } from '~/types';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { reportKeys, surveyKeys } from '~/ui/hooks/queries/queryKeys';
+import { SummaryBoard } from './SummaryBoard';
 import type { BarChartData } from '~/ui/interfaces/BarChartProps';
 import { RecentPatientSurveyReport } from './RecentPatientSurveyReport';
-import { SummaryBoard, type SummaryInfo } from './SummaryBoard';
 import { Dropdown } from './components/Dropdown';
-import { Button } from '/components/Button';
-import { VisitChart } from '/components/Chart/VisitChart';
-import { TamanuComboMark } from '/components/Icons';
-import { Orientation, screenPercentageToDP, useStatusBarStyle } from '/helpers/screen';
-import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
+
+import { SurveyTypes } from '~/types';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
 interface IReportTypeButtons {
   isReportWeekly: boolean;
@@ -47,35 +47,13 @@ const ReportTypeButtons = ({ isReportWeekly, onPress }: IReportTypeButtons): Rea
         height={screenPercentageToDP(3.76, Orientation.Height)}
         width={screenPercentageToDP(44.52, Orientation.Width)}
         buttonText={<TranslatedText stringId="report.heading.dataTable" fallback="Data Table" />}
-        backgroundColor={isReportWeekly ? theme.colors.BOX_OUTLINE : theme.colors.WHITE}
-        textColor={isReportWeekly ? theme.colors.TEXT_MID : theme.colors.PRIMARY_MAIN}
+        backgroundColor={!isReportWeekly ? theme.colors.WHITE : theme.colors.BOX_OUTLINE}
+        textColor={!isReportWeekly ? theme.colors.PRIMARY_MAIN : theme.colors.TEXT_MID}
         onPress={onPress}
       />
     </RowView>
   </RowView>
 );
-
-function buildReportOptions(surveys: Survey[]) {
-  return surveys.map(survey => ({ label: survey.name, value: survey.id }));
-}
-
-function buildVisitReport(rows: SummaryInfo[]) {
-  const today = addHours(startOfToday(), 3);
-  const rowsByDate = new Map(rows.map(row => [row.encounterDate, row]));
-
-  const data: BarChartData[] = Array.from({ length: 28 }, (_, index) => {
-    const date = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
-    return { date, value: rowsByDate.get(date)?.totalEncounters ?? 0 };
-  });
-
-  return {
-    visitData: {
-      totalVisits: data.reduce((sum, day) => sum + day.value, 0),
-      data,
-    },
-    todayData: rowsByDate.get(format(today, 'yyyy-MM-dd')),
-  };
-}
 
 interface ReportChartProps {
   isReportWeekly: boolean;
@@ -83,7 +61,11 @@ interface ReportChartProps {
     totalVisits: number;
     data: BarChartData[];
   };
-  todayData?: SummaryInfo;
+  todayData: {
+    totalEncounters: number;
+    totalSurveys: number;
+    encounterDate: string;
+  };
   selectedSurveyId: string;
 }
 
@@ -109,28 +91,65 @@ const ReportChart: FC<ReportChartProps> = ({
   );
 
 export const ReportScreen = (): ReactElement => {
-  const [userSelectedSurveyId, setUserSelectedSurveyId] = useState<string>();
+  const [selectedSurveyId, setSelectedSurveyId] = useState('');
   const [isReportWeekly, setReportType] = useState<boolean>(true);
 
-  const { data: reportOptions } = useQuery({
+  const { data } = useQuery({
+    queryKey: reportKeys.encounterSummary(selectedSurveyId),
+    queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
+  });
+
+  const { data: surveys } = useQuery({
     queryKey: surveyKeys.list({ surveyType: SurveyTypes.Programs }),
     queryFn: () =>
       Database.models.Survey.find({
         where: { surveyType: SurveyTypes.Programs },
       }),
-    select: buildReportOptions,
   });
 
-  // Default to the first survey until the user picks one
-  const selectedSurveyId = userSelectedSurveyId ?? reportOptions?.[0]?.value;
+  useEffect(() => {
+    // automatically select the first survey as soon as surveys are loaded
+    if (!selectedSurveyId && surveys && surveys.length > 0) {
+      setSelectedSurveyId(surveys[0].id);
+    }
+  }, [surveys, selectedSurveyId]);
 
-  const { data: report } = useQuery({
-    queryKey: reportKeys.encounterSummary(selectedSurveyId),
-    queryFn: () => Database.models.Encounter.getTotalEncountersAndResponses(selectedSurveyId),
-    enabled: selectedSurveyId !== undefined,
-    placeholderData: keepPreviousData,
-    select: buildVisitReport,
-  });
+  const reportList = surveys?.map(s => ({ label: s.name, value: s.id }));
+
+  const today = addHours(startOfToday(), 3);
+  const todayString = format(today, 'yyyy-MM-dd');
+  const todayData = data?.find(item => item.encounterDate === todayString);
+
+  const visitData = new Array(28).fill('').reduce(
+    (accum, _, index) => {
+      const currentDate = format(subDays(today, 28 - index - 1), 'yyyy-MM-dd');
+      const receivedValueForDay =
+        data?.find(item => item.encounterDate === currentDate)?.totalEncounters || 0;
+
+      return {
+        totalVisits: accum.totalVisits + receivedValueForDay,
+        data: [
+          ...accum.data,
+          {
+            date: currentDate,
+            value: receivedValueForDay,
+          },
+        ],
+      };
+    },
+    {
+      totalVisits: 0,
+      data: [],
+    },
+  );
+
+  const onChangeReportType = useCallback(() => {
+    if (isReportWeekly) {
+      setReportType(false);
+    } else {
+      setReportType(true);
+    }
+  }, [isReportWeekly]);
 
   useStatusBarStyle('light-content', theme.colors.PRIMARY_MAIN);
 
@@ -159,24 +178,23 @@ export const ReportScreen = (): ReactElement => {
           >
             <TranslatedText stringId="report.title" fallback="Reports" />
           </StyledText>
-          {reportOptions && (
+          {reportList && (
             <Dropdown
-              options={reportOptions}
-              handleSelect={setUserSelectedSurveyId}
+              options={reportList}
+              handleSelect={(value): void => {
+                setSelectedSurveyId(value);
+              }}
               selectedItem={selectedSurveyId}
             />
           )}
         </StyledView>
       </StyledSafeAreaView>
-      <ReportTypeButtons
-        onPress={() => setReportType(prev => !prev)}
-        isReportWeekly={isReportWeekly}
-      />
-      {selectedSurveyId !== undefined ? (
+      <ReportTypeButtons onPress={onChangeReportType} isReportWeekly={isReportWeekly} />
+      {selectedSurveyId ? (
         <ReportChart
           isReportWeekly={isReportWeekly}
-          visitData={report?.visitData}
-          todayData={report?.todayData}
+          visitData={visitData}
+          todayData={todayData}
           selectedSurveyId={selectedSurveyId}
         />
       ) : null}

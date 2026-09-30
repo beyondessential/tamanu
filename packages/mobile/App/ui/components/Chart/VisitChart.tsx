@@ -1,14 +1,14 @@
-import { parseISO } from 'date-fns';
-import React, { memo, useMemo } from 'react';
+import React, { memo, type ReactElement, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { G, Line } from 'react-native-svg';
 import { BarChart, YAxis } from 'react-native-svg-charts';
-import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+import { G, Line } from 'react-native-svg';
+import { parseISO } from 'date-fns';
 import { DateFormats } from '../../helpers/constants';
+import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
-import type { BarChartData } from '../../interfaces/BarChartProps';
 import { RowView, StyledText, StyledView } from '../../styled/common';
 import { theme } from '../../styled/theme';
+import type { BarChartData } from '../../interfaces/BarChartProps';
 import { TranslatedText } from '../Translations/TranslatedText';
 
 interface CustomGridProps {
@@ -16,7 +16,7 @@ interface CustomGridProps {
   data: any[];
 }
 
-const CustomGrid = ({ x, data }: CustomGridProps) => (
+const CustomGrid = ({ x, data }: CustomGridProps): ReactElement => (
   <G>
     {data?.map(
       (_, index: number) =>
@@ -36,11 +36,23 @@ const CustomGrid = ({ x, data }: CustomGridProps) => (
 );
 
 const DateRangeIndexes = [
-  { startDate: 0, endDate: 6 },
-  { startDate: 7, endDate: 13 },
-  { startDate: 14, endDate: 20 },
-  { startDate: 21, endDate: 27 },
-] as const;
+  {
+    startDate: 0,
+    endDate: 6,
+  },
+  {
+    startDate: 7,
+    endDate: 13,
+  },
+  {
+    startDate: 14,
+    endDate: 20,
+  },
+  {
+    startDate: 21,
+    endDate: 27,
+  },
+];
 
 interface DateRangeLabelsProps {
   data: BarChartData[];
@@ -77,9 +89,10 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
           textAlign="center"
           fontSize={screenPercentageToDP('2.5', Orientation.Width)}
         >
-          {formatStringDate(dateInterval.start, DateFormats.DAY_MONTH)}
-          &thinsp;&ndash;&thinsp;
-          {formatStringDate(dateInterval.end, DateFormats.DAY_MONTH_YEAR_SHORT)}
+          {`${formatStringDate(dateInterval.start, DateFormats.DAY_MONTH)} - \n ${formatStringDate(
+            dateInterval.end,
+            DateFormats.DAY_MONTH_YEAR_SHORT,
+          )}`}
         </StyledText>
       ))}
     </RowView>
@@ -101,7 +114,7 @@ const barStyle = {
 };
 
 interface BarChartProps {
-  visitData?: {
+  visitData: {
     totalVisits: number;
     data: BarChartData[];
   };
@@ -110,14 +123,10 @@ interface BarChartProps {
 const verticalContentInset = { top: 10, right: 0, bottom: 5 };
 const axesSvg = { fontSize: 12, fill: theme.colors.TEXT_DARK };
 
-export const VisitChart = ({ visitData }: BarChartProps) => {
+export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
   const { formatStringDate } = useDateFormatter();
-
-  if (visitData === undefined) return null;
-
-  const firstData = visitData.data.at(0);
-  const lastData = visitData.data.at(-1);
-  if (firstData === undefined || lastData === undefined) return null;
+  const lastData = visitData.data[visitData.data.length - 1];
+  const firstData = visitData.data[0];
 
   const oneMonthAgoFormatted =
     parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
@@ -125,8 +134,15 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
       : formatStringDate(firstData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
   const todayFormatted = formatStringDate(lastData.date, DateFormats.DAY_MONTH_YEAR_SHORT);
 
-  const numberOfTicks = Math.max(0, ...visitData.data.map(item => item.value));
+  const { max, min } = visitData.data.reduce(
+    (accum, item) => ({
+      max: accum.max < item.value ? item.value : accum.max,
+      min: accum.min > item.value ? item.value : accum.min,
+    }),
+    { max: 0, min: 0 },
+  );
 
+  const numTicks = max - min;
   return (
     <StyledView>
       <RowView
@@ -142,8 +158,9 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
             color={theme.colors.TEXT_MID}
             fontSize={screenPercentageToDP(1.45, Orientation.Height)}
           >
-            <TranslatedText stringId="report.subHeading.total" fallback="Total" casing="upper" />
+            <TranslatedText stringId="report.subHeading.total" fallback="TOTAL" casing="upper" />
           </StyledText>
+
           <StyledText
             fontWeight="bold"
             color={theme.colors.TEXT_DARK}
@@ -164,7 +181,7 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
           color={theme.colors.PRIMARY_MAIN}
           fontWeight={500}
         >
-          {oneMonthAgoFormatted}&thinsp;&ndash;&thinsp;{todayFormatted}
+          {oneMonthAgoFormatted} - {todayFormatted}
         </StyledText>
       </RowView>
       <StyledView
@@ -193,7 +210,7 @@ export const VisitChart = ({ visitData }: BarChartProps) => {
             data={visitData.data}
             contentInset={verticalContentInset}
             svg={axesSvg}
-            numberOfTicks={numberOfTicks}
+            numberOfTicks={numTicks}
           />
         </RowView>
       </StyledView>
