@@ -1,0 +1,220 @@
+<!-- spec: sync/marking-patients-for-sync.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Patient summary sync states</title>
+<style>
+  :root {
+    --primary: #326699;
+    --darkest-text: #444444;
+    --dark-text: #666666;
+    --mid-text: #888888;
+    --soft-text: #b8b8b8;
+    --outline: #dedede;
+    --soft-outline: #ebebeb;
+    --background: #f3f5f7;
+    --white: #ffffff;
+    --safe: #47ca80;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--background);
+    color: var(--darkest-text);
+    font-family: Roboto, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 32px;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .intro {
+    color: var(--dark-text);
+    margin: 0 0 28px;
+    max-width: 70ch;
+  }
+  .states { display: flex; flex-direction: column; gap: 28px; }
+  .state-label {
+    color: var(--dark-text);
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0 0 8px;
+  }
+  .state-label span { color: var(--mid-text); font-weight: 400; }
+  .screen {
+    background: var(--background);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .pane { padding: 10px 30px 30px; }
+  .pane > * + * { margin-top: 20px; }
+
+  /* encounter summary — no current visit */
+  .no-visit {
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--outline);
+    border-inline-start: 10px solid var(--soft-text);
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    padding: 28px 30px;
+  }
+  .no-visit h2 { font-size: 18px; font-weight: 500; margin: 0; }
+  .btn-primary {
+    background: var(--primary);
+    border: none;
+    border-radius: 3px;
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 18px;
+  }
+
+  /* tables */
+  .table-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0 0 10px;
+  }
+  table { border-collapse: collapse; width: 100%; }
+  th {
+    color: var(--mid-text);
+    font-weight: 400;
+    padding: 8px 30px 8px 0;
+    text-align: start;
+  }
+  td {
+    border-block-start: 1px solid var(--soft-outline);
+    padding: 12px 30px 12px 0;
+  }
+  .empty-row { color: var(--mid-text); }
+
+  /* mark for sync tile */
+  .sync-tile {
+    align-items: center;
+    background: var(--white);
+    border: none;
+    border-radius: 3px;
+    color: var(--primary);
+    display: flex;
+    flex-direction: column;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    gap: 1em;
+    justify-content: center;
+    min-block-size: 9rem;
+    min-inline-size: 10.5rem;
+    padding: 16px;
+  }
+  .sync-tile svg { stroke: var(--primary); }
+
+  .nothing {
+    border: 1px dashed var(--outline);
+    border-radius: 3px;
+    color: var(--soft-text);
+    font-style: italic;
+    padding: 14px 16px;
+  }
+  .annotation {
+    color: var(--mid-text);
+    font-size: 12px;
+    margin: 8px 0 0;
+  }
+</style>
+</head>
+<body>
+  <h1>Patient summary — encounter history area by sync state</h1>
+  <p class="intro">
+    The three states of the lower part of the patient summary. Everything above it is unchanged in all
+    three. The dashed outline in the third state is an annotation, not a rendered element.
+  </p>
+
+  <div class="states">
+
+    <div>
+      <p class="state-label">1. Patient marked for sync <span>— unchanged by this work</span></p>
+      <div class="screen">
+        <div class="pane">
+          <div class="no-visit">
+            <h2>No current visit</h2>
+            <button class="btn-primary">Admit or check-in</button>
+          </div>
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Facility</th>
+                  <th>Start date</th>
+                  <th>End date</th>
+                  <th>Reason for encounter</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Clinic</td>
+                  <td>Nadi Hospital</td>
+                  <td>12/03/2026</td>
+                  <td>12/03/2026</td>
+                  <td>Routine review</td>
+                </tr>
+                <tr>
+                  <td>Hospital admission</td>
+                  <td>Nadi Hospital</td>
+                  <td>02/11/2025</td>
+                  <td>09/11/2025</td>
+                  <td>Post-operative recovery</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="state-label">2. Not marked for sync, user holds <code>create SyncPatient</code> <span>— current behaviour, retained</span></p>
+      <div class="screen">
+        <div class="pane">
+          <div class="no-visit">
+            <h2>No current visit</h2>
+            <button class="btn-primary">Admit or check-in</button>
+          </div>
+          <div>
+            <button class="sync-tile">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M8 16H3v5"/>
+              </svg>
+              Sync patient records
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="state-label">3. Not marked for sync, user lacks <code>create SyncPatient</code></p>
+      <div class="screen">
+        <div class="pane">
+          <div class="no-visit">
+            <h2>No current visit</h2>
+            <button class="btn-primary">Admit or check-in</button>
+          </div>
+          <div class="nothing">nothing rendered here</div>
+        </div>
+      </div>
+      <p class="annotation">The summary ends after the encounter summary. No tile, no table, no empty panel.</p>
+    </div>
+
+  </div>
+</body>
+</html>
