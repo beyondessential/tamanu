@@ -170,10 +170,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
               </FormGrid>
             </Box>
             <StyledFormActions data-testid="styledformactions-pause-abc123">
-              <FormCancelButton 
-                onClick={onClose}
-                data-testid="formcancelbutton-cancel-abc123"
-              >
+              <FormCancelButton onClick={onClose} data-testid="formcancelbutton-cancel-abc123">
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton
