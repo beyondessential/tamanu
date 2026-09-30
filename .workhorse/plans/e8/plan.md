@@ -11,3 +11,7 @@ Grant `create SyncPatient` to every role holding `read Patient`, so behaviour is
 - `down` deletes rows by that ID pattern, which also removes any grants an admin made after upgrade. Mark it `// DESTRUCTIVE:`.
 - The importer only touches cells the sheet fills in, so re-importing an older sheet won't remove the migrated rows.
 - Release notes need to tell restricted deployments to revoke `SyncPatient` from the roles that shouldn't have it.
+
+## Endpoint facility check
+
+`POST /patientFacility` takes `facilityId` from the body without checking it. Refuse the request when it differs from the session facility (`req.facilityId`, set in `middleware/auth.js`), alongside the `read Patient` and `create SyncPatient` checks. The web client already sends the session facility, so its call is unchanged.

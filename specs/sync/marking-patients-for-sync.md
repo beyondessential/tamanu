@@ -24,6 +24,7 @@ A facility server and a mobile device hold data only for the patients marked for
 - [ ] A user viewing a patient who is not marked for sync at their facility is offered a "Sync patient records" action in place of the patient's encounter history.
 - [ ] The action is offered only to a user holding `create` `SyncPatient`. Without it, the encounter history area instead shows the message "This patient record is not marked for sync at your facility. Please speak with your system administrator if this patient record should be synced." The rest of the patient summary is unaffected.
 - [ ] Marking a patient for sync requires both `read` `Patient` and `create` `SyncPatient`. A request from a user missing either is refused.
+- [ ] A user marks a patient for sync only at the facility they are signed in to. A request naming any other facility is refused.
 - [ ] Marking a patient for sync is idempotent: marking a patient already marked at that facility succeeds and changes nothing.
 - [ ] Marking a patient for sync triggers an urgent sync so their records begin arriving immediately, and the user is told the patient is being synced while records are still incomplete.
 
