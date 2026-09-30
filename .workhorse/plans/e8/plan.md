@@ -25,7 +25,9 @@ Grant `create SyncPatient` to every role holding `read Patient`, so behaviour is
 - The admin role needs no row (it has `manage all`).
 - `down` deletes rows by that ID pattern, which also removes any grants an admin made after upgrade. Mark it `// DESTRUCTIVE:`.
 - The importer only touches cells the sheet fills in, so re-importing an older sheet won't remove the migrated rows.
-- Release notes need to tell restricted deployments to revoke `SyncPatient` from the roles that shouldn't have it.
+- Release notes need to cover both directions, because permissions come entirely from each deployment's permissions sheet:
+  - **Upgrading deployments**: the migration grants `SyncPatient` to every role with `read Patient`, so restricted sites revoke it (`n`) from the roles that shouldn't have it.
+  - **New/implementing deployments**: the migration runs against an empty `permissions` table, so a greenfield site that imports a sheet without a `SyncPatient` column gets no grant at all and every desktop user sees the not-marked-for-sync message instead of the sync action. Their sheet needs a `SyncPatient` column with `create` for the roles that should have it.
 
 ## Endpoint facility check
 

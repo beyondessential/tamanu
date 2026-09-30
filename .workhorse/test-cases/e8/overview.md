@@ -10,6 +10,7 @@ Scenarios verifying who can deliberately mark a patient for sync, and that autom
 - [x] A user with `create SyncPatient` but not `read Patient` is refused (verifies spec: MFS)
 - [x] A request naming a facility other than the signed-in one is refused, and no mark is created (verifies spec: MFS)
 - [x] Marking a patient that does not exist returns not found
+- [x] An unauthenticated request is rejected and creates no mark (verifies spec: MFS)
 
 ## Upgrade migration
 
@@ -27,6 +28,7 @@ Scenarios verifying who can deliberately mark a patient for sync, and that autom
 - [x] A user without `create SyncPatient` viewing an unsynced patient sees the not-marked-for-sync message instead of the action (verifies spec: MFS)
 - [ ] With the not-marked-for-sync message showing, the rest of the patient summary is unchanged (verifies spec: MFS)
 - [ ] A user without `create SyncPatient` viewing a synced patient sees the encounter history as normal
+- [ ] End-to-end: a permitted user opens an unsynced patient, clicks "Sync patient records", and the encounter history replaces the action (verifies spec: MFS)
 - [ ] Desktop patient lists show the sync status column to a user without `create SyncPatient` (verifies spec: MFS)
 - [ ] The admin permissions screen lists `SyncPatient` with the `create` verb (verifies spec: MFS)
 

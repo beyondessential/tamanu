@@ -118,6 +118,19 @@ describe('PatientFacility', () => {
       expect(runSyncSpy).not.toHaveBeenCalled();
     });
 
+    it('rejects an unauthenticated request', async () => {
+      const patient = await createPatient();
+
+      const result = await baseApp
+        .post('/api/patientFacility')
+        .send({ patientId: patient.id, facilityId });
+
+      expect(result).toHaveRequestError();
+      const marks = await models.PatientFacility.count({ where: { patientId: patient.id } });
+      expect(marks).toBe(0);
+      expect(runSyncSpy).not.toHaveBeenCalled();
+    });
+
     it('returns not found for a patient that does not exist', async () => {
       const app = await baseApp.asNewRole(MARK_FOR_SYNC_PERMISSIONS);
 
