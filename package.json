@@ -125,6 +125,9 @@
     },
     "vitest": {
       "@opentelemetry/api": "1.4.1"
+    },
+    "react-native-nitro-sqlite": {
+      "typeorm": "^0.3.28"
     }
   }
 }

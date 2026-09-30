@@ -45,7 +45,6 @@
     "mathjs": "^12.1.0",
     "mitt": "^2.1.0",
     "nanoid": "^3.3.8",
-    "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
     "react": "19.2.3",
     "react-native": "0.85.3",
@@ -65,12 +64,13 @@
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-keychain": "^10.0.0",
     "react-native-modal": "^14.0.0-rc.1",
+    "react-native-nitro-modules": "^0.37.1",
+    "react-native-nitro-sqlite": "^10.0.0",
     "react-native-orientation-locker": "^1.7.0",
     "react-native-pager-view": "^8.0.2",
     "react-native-paper": "^5.15.3",
     "react-native-permissions": "^5.5.3",
     "react-native-qrcode-svg": "^6.3.1",
-    "react-native-quick-sqlite": "^8.2.7",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.25.2",
     "react-native-sqlite-storage": "^5.0.0",
@@ -129,5 +129,8 @@
     "source-map": "^0.5.7",
     "sqlite3": "^6.0.1",
     "ts-jest": "^29.1.2"
+  },
+  "nitroSQLite": {
+    "performanceMode": false
   }
 }

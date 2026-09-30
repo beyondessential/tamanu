@@ -99,6 +99,7 @@ import { dedupeLocalSystemFacts1787706000000 } from './1787706000000-dedupeLocal
 import { enforceUniqueLocalSystemFactKeys1787706001000 } from './1787706001000-enforceUniqueLocalSystemFactKeys';
 import { resetQueryPlannerStats1789608077000 } from './1789608077000-resetQueryPlannerStats';
 import { addQuantityToProcedures1789674206539 } from './1789674206539-addQuantityToProcedures';
+import { addPerPatientLookupIndexes1789611060000 } from './1789611060000-addPerPatientLookupIndexes';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -201,4 +202,5 @@ export const migrationList = [
   enforceUniqueLocalSystemFactKeys1787706001000,
   resetQueryPlannerStats1789608077000,
   addQuantityToProcedures1789674206539,
+  addPerPatientLookupIndexes1789611060000,
 ];
