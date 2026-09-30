@@ -4,6 +4,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
+import { getLabRequestTestAndPanelNames } from '@tamanu/utils/labTests';
 
 export const getLabRequestList = (foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
@@ -35,16 +36,7 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
     // Each request's panels + individual (non-panel) tests, for the Category cell tooltip. Built
     // from the associations the list query already loaded, so it adds no query.
     for (const labRequest of permittedLabRequests) {
-      const panelNames = (labRequest.labTestPanelRequests ?? [])
-        .map(panelRequest => panelRequest.labTestPanel?.name)
-        .filter(Boolean);
-      const individualTestNames = (labRequest.tests ?? [])
-        .filter(test => !test.labTestPanelRequestId)
-        .map(test => test.labTestType?.name)
-        .filter(Boolean);
-      labRequest.testsAndPanelNames = [...panelNames, ...individualTestNames]
-        .sort((a, b) => a.localeCompare(b))
-        .join(', ');
+      labRequest.testsAndPanelNames = getLabRequestTestAndPanelNames(labRequest).join(', ');
     }
 
     /**

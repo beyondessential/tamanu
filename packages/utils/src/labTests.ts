@@ -213,3 +213,27 @@ export const parseLabTestResult = (result: unknown): ParsedLabTestResult => {
   const value = Number.parseFloat(result);
   return { comparator: null, value: Number.isNaN(value) ? null : value };
 };
+
+export type LabRequestCompositionLike = {
+  labTestPanelRequests?: { labTestPanel?: { name?: string | null } | null }[] | null;
+  tests?:
+    | { labTestPanelRequestId?: string | null; labTestType?: { name?: string | null } | null }[]
+    | null;
+};
+
+// The tests and panels a lab request holds, as a single alphabetical list of names: each panel by
+// its name, plus the individual tests not attributed to a panel (a panel's own member tests are
+// represented by the panel, so they are not listed again).
+export const getLabRequestTestAndPanelNames = ({
+  labTestPanelRequests,
+  tests,
+}: LabRequestCompositionLike = {}): string[] => {
+  const panelNames = (labTestPanelRequests ?? [])
+    .map(panelRequest => panelRequest.labTestPanel?.name)
+    .filter((name): name is string => Boolean(name));
+  const individualTestNames = (tests ?? [])
+    .filter(test => !test.labTestPanelRequestId)
+    .map(test => test.labTestType?.name)
+    .filter((name): name is string => Boolean(name));
+  return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
+};
