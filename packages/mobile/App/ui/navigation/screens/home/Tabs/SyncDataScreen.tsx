@@ -92,9 +92,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
       }
     };
     syncManager.emitter.on('*', handler);
-    return () => {
-      syncManager.emitter.off('*', handler);
-    };
+    return () => syncManager.emitter.off('*', handler);
   });
 
   useEffect(() => {
@@ -103,10 +101,8 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
         formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
       );
     }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [syncManager.lastSuccessfulSyncTime]);
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
