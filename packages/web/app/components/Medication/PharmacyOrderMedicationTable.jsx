@@ -200,7 +200,7 @@ const getColumns = (
       key: COLUMN_KEYS.STOCK,
       title: <TranslatedText stringId="medication-requests.table.column.stockStatus" fallback="Stock" />,
       sortable: false,
-      accessor: prescription => getStockStatus({ prescription }, false),
+      accessor: prescription => getStockStatus({ prescription }),
     },
     {
       key: COLUMN_KEYS.DATE,
