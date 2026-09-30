@@ -1,5 +1,5 @@
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import React, { type ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
@@ -12,7 +12,7 @@ import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../.
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
-export const SyncDataScreen = ({ navigation }): ReactElement => {
+export const SyncDataScreen = ({ navigation }) => {
   const backend = useContext(BackendContext);
   const syncManager = backend.syncManager;
 
