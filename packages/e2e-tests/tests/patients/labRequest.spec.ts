@@ -153,7 +153,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       const requestedDateTime = await labRequestModal.validateRequestedDateTimeIsToday();
-      const department = await labRequestModal.validateDepartment();
+      await labRequestModal.validateDepartment();
       const requestingClinician = await labRequestModal.validateRequestingClinician();
 
       await labRequestModal.selectIndividualTests(INDIVIDUAL_TESTS);
@@ -162,12 +162,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.finalise();
 
       const categories = await labRequestModal.getFinalisedCategories(INDIVIDUAL_TESTS.length);
-      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
       await labRequestModal.validateRequestFinalisedPage({
-        requestingClinician,
-        requestedDateTime: formattedDate,
-        priority: '-',
-        department: department || 'Unknown',
         expectedCategories: categories,
         expectedSampleDate: 'Sample not collected',
       });
@@ -188,7 +183,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       const requestedDateTime = await labRequestModal.validateRequestedDateTimeIsToday();
-      const department = await labRequestModal.validateDepartment();
+      await labRequestModal.validateDepartment();
       const requestingClinician = await labRequestModal.validateRequestingClinician();
       await selectFieldOption(labRequestModal.page, labRequestModal.prioritySelect, {
         selectFirst: true,
@@ -212,12 +207,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.finalise();
 
       const categories = await labRequestModal.getFinalisedCategories(sampleRowCount);
-      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
       await labRequestModal.validateRequestFinalisedPage({
-        requestingClinician,
-        requestedDateTime: formattedDate,
-        priority: priority || '-',
-        department: department || 'Unknown',
         expectedCategories: categories,
         expectedSampleDate: currentDateTime,
       });

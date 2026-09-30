@@ -11,10 +11,6 @@ import {
 } from '../../../../utils/testHelper';
 
 export interface ValidateRequestFinalisedPageParams {
-  requestingClinician: string;
-  requestedDateTime: string;
-  department: string;
-  priority?: string;
   expectedCategories: string[];
   expectedSampleDate?: string;
 }
@@ -70,10 +66,6 @@ export class LabRequestModal {
   readonly sampleDetailsCategories: Locator;
 
   // Request finalised summary
-  readonly requestingClinicianValue: Locator;
-  readonly requestDateTimeValue: Locator;
-  readonly departmentValue: Locator;
-  readonly priorityValue: Locator;
   readonly closeButton: Locator;
 
   constructor(page: Page) {
@@ -83,7 +75,10 @@ export class LabRequestModal {
     this.requestingClinicianInput = page.getByTestId('field-requestedby-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-requesteddate').locator('input');
     this.departmentInput = page.getByTestId('field-department-input').locator('input');
-    this.prioritySelect = page.getByTestId('field-priority-select');
+    // SuggesterSelectField overrides the Field's own data-testid with its own, so the priority
+    // select carries selectinput-phtg rather than field-priority. Scoped to the multi-step form so
+    // it can't match a select on the page behind the modal.
+    this.prioritySelect = page.getByTestId('form-pcjr').getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
     this.notesTextarea = page.getByTestId('field-notes-input');
 
@@ -122,19 +117,6 @@ export class LabRequestModal {
     this.sampleDetailsTests = page.getByTestId('typography-test');
     this.sampleDetailsCategories = page.getByTestId('typography-category');
 
-    // Request finalised summary
-    const clinicianLabel = page
-      .getByTestId('cardlabel-6kys')
-      .filter({ hasText: 'Requesting clinician' });
-    this.requestingClinicianValue = clinicianLabel.locator('..').getByTestId('cardvalue-lcni');
-    const dateTimeLabel = page
-      .getByTestId('cardlabel-6kys')
-      .filter({ hasText: 'Request date & time' });
-    this.requestDateTimeValue = dateTimeLabel.locator('..').getByTestId('cardvalue-lcni');
-    const departmentLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Department' });
-    this.departmentValue = departmentLabel.locator('..').getByTestId('cardvalue-lcni');
-    const priorityLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Priority' });
-    this.priorityValue = priorityLabel.locator('..').getByTestId('cardvalue-lcni');
     this.closeButton = page.getByTestId('button-9vga');
   }
 
@@ -253,10 +235,9 @@ export class LabRequestModal {
    * disabled (i.e. covered by an already-selected panel).
    */
   disabledTestTooltip(name: string): Locator {
-    return this.selectorList
-      .locator('[data-testid^="testrow-tooltip-"]')
-      .filter({ hasText: name })
-      .first();
+    // The tooltip wraps only the checkbox - the test's label is its sibling - so scope by the row
+    // rather than filtering the tooltip itself on the name.
+    return this.testRowByName(name).locator('[data-testid^="testrow-tooltip-"]').first();
   }
 
   /**
@@ -427,19 +408,12 @@ export class LabRequestModal {
     return [...new Set(categories.map(category => category.trim()).filter(Boolean))];
   }
 
+  // The finalised screen is a table of the requests that were created - one row per category -
+  // rather than a set of request-detail cards, so only the rows are asserted here.
   async validateRequestFinalisedPage({
-    requestingClinician,
-    requestedDateTime,
-    department,
-    priority,
     expectedCategories,
     expectedSampleDate,
   }: ValidateRequestFinalisedPageParams) {
-    await expect(this.requestingClinicianValue).toHaveText(requestingClinician || 'Unknown');
-    await expect(this.requestDateTimeValue).toHaveText(requestedDateTime);
-    await expect(this.departmentValue).toHaveText(department || 'Unknown');
-    await expect(this.priorityValue).toHaveText(priority || '-');
-
     const finalisedCategories = await this.getRequestFinalisedTableItems(
       expectedCategories.length,
       'labTestCategory',
