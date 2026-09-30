@@ -7,6 +7,7 @@ import {
   administeredVaccineLoader,
   drugLoaderFactory,
   invoiceProductLoader,
+  labTestCategoryLoader,
   labTestPanelLoader,
   medicationSetLoader,
   medicationTemplateLoader,
@@ -68,6 +69,12 @@ export default {
   labTestPanel: {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
+  },
+  // The reference-data pass creates the labTestCategory rows; this second pass reads the optional
+  // defaultSpecimenType column into a relation. Specimen types are guaranteed present as they are
+  // imported in the reference-data pass, which completes before this one.
+  [REFERENCE_TYPES.LAB_TEST_CATEGORY]: {
+    loader: labTestCategoryLoader,
   },
   invoiceProduct: {
     loader: invoiceProductLoader,

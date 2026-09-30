@@ -63,7 +63,7 @@ export const ReferenceDataForm = ({
                   </DetailHeading>
                 </>
               )}
-              <FormField col={col} isEditMode={isEditMode} />
+              <FormField col={col} isEditMode={isEditMode} selectedType={selectedType} />
             </React.Fragment>
           ))}
           <ModalFormActionRow

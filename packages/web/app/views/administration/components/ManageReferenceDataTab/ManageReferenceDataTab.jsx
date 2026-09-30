@@ -122,9 +122,9 @@ export const ManageReferenceDataTab = () => {
       const column = {
         key: col.key,
         title: col.key,
-        // FK name and detail columns are computed from an association, not a sortable DB column
+        // FK name, relation-backed and detail columns are computed, not sortable DB columns
         // on this model
-        sortable: !col.isFkName && !col.detail,
+        sortable: !col.isFkName && !col.isRelationBacked && !col.detail,
       };
       if (col.type === 'BOOLEAN') {
         column.accessor = row => (row[col.key] ? 'Yes' : 'No');
@@ -212,7 +212,12 @@ export const ManageReferenceDataTab = () => {
       </TopRow>
       {selectedType && columns.length > 0 && (
         <>
-          <SearchBar columns={columns} onSearch={handleSearch} data-testid="searchbar-refdata" />
+          <SearchBar
+            columns={columns}
+            selectedType={selectedType}
+            onSearch={handleSearch}
+            data-testid="searchbar-refdata"
+          />
           <TableWrapper>
             <DataFetchingTable
               endpoint={ENDPOINT}

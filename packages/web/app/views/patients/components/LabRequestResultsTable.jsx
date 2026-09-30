@@ -1,18 +1,18 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
 import { EditedEntryLegend, EditedOrnament } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../../../components';
 import { RangeValidatedCell } from '../../../components/FormattedTableCell';
-import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { getCompletedDate, getMethod, renderLabResultGroupHeader } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { LabTestResultModal } from '../LabTestResultModal';
+import { Colors } from '../../../constants/styles';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   cursor: pointer;
@@ -20,14 +20,23 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
     border-bottom: none;
   }
 
-  table thead tr th {
+  table thead tr th.MuiTableCell-head {
     position: sticky;
     top: 0;
+    font-weight: 400;
+    color: ${Colors.midText};
+    background: ${Colors.white};
   }
 `;
 
 const ResultCell = styled.span`
   display: inline-block;
+`;
+
+// Tests belonging to a panel sit under the panel's group header and are indented from it.
+const TestName = styled.span`
+  display: inline-block;
+  padding-left: ${({ $indented }) => ($indented ? '20px' : '0')};
 `;
 
 const ValueWithEditedMarker = ({ value, isEdited }) => (
@@ -60,12 +69,14 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         ),
         key: 'labTestType.name',
         accessor: row => (
-          <TranslatedReferenceData
-            fallback={row.labTestType.name}
-            value={row.labTestType.id}
-            category="labTestType"
-            data-testid="translatedreferencedata-kplb"
-          />
+          <TestName $indented={Boolean(row.labTestPanel)}>
+            <TranslatedReferenceData
+              fallback={row.labTestType.name}
+              value={row.labTestType.id}
+              category="labTestType"
+              data-testid="translatedreferencedata-kplb"
+            />
+          </TestName>
         ),
         sortable: false,
       },
@@ -80,13 +91,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'result',
         accessor: row => {
           const { labTestType, result, secondaryResult, editedFields = [] } = row;
-          const {
-            options,
-            id: labTestTypeId,
-            supportsSecondaryResults,
-            unit,
-            resultType,
-          } = labTestType;
+          const { options, id: labTestTypeId, supportsSecondaryResults, unit } = labTestType;
           // This cell surfaces the result and, on hover, the secondary result, so an edit to
           // either one marks it.
           const isEdited =
@@ -98,31 +103,33 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
             { replacements: { secondaryResult } },
           );
 
-          // Only numeric results are range-checked. Option and free-text results are shown
-          // verbatim — free-text must not pass through numeric formatting — and never flagged.
-          if (resultType !== LAB_TEST_RESULT_TYPES.NUMBER) {
-            const displayResult =
-              options && options.length > 0 ? (
-                <TranslatedOption
-                  value={result}
-                  referenceDataId={labTestTypeId}
-                  referenceDataCategory="labTestType"
-                />
-              ) : (
-                result || '–'
-              );
+          // Option results are qualitative, so they are shown as their translated label and
+          // never range-checked. Every other result is checked against the reference range
+          // whatever the test type's configured result type, since a test typed as free text
+          // still holds a number often enough to matter clinically.
+          if (options && options.length > 0) {
             return (
               <ResultCell>
                 <ConditionalTooltip visible={hasSecondaryResult} title={secondaryResultTooltip}>
-                  {displayResult}
+                  <TranslatedOption
+                    value={result}
+                    referenceDataId={labTestTypeId}
+                    referenceDataCategory="labTestType"
+                  />
                   {isEdited && <EditedOrnament />}
                 </ConditionalTooltip>
               </ResultCell>
             );
           }
 
-          // Where a numeric result also carries a secondary result, its tooltip takes over
-          // from the out-of-range tooltip; the highlight still shows either way.
+          // An empty result would otherwise fall back to formatValue's em dash; keep it a
+          // hyphen like the other columns. Guard on nullish/empty only, so a real 0 still renders.
+          if (result === null || result === undefined || result === '') {
+            return <ResultCell>-</ResultCell>;
+          }
+
+          // Where a result also carries a secondary result, its tooltip takes over from the
+          // out-of-range tooltip; the highlight still shows either way.
           const resultCell = (
             <RangeValidatedCell
               value={result}
@@ -192,7 +199,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'labTestMethod',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.labTestMethod ? getMethod(row) : '–'}
+            value={row.labTestMethod ? getMethod(row) : '-'}
             isEdited={row.editedFields?.includes('labTestMethodId')}
           />
         ),
@@ -209,7 +216,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'laboratoryOfficer',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.laboratoryOfficer || '–'}
+            value={row.laboratoryOfficer || '-'}
             isEdited={row.editedFields?.includes('laboratoryOfficer')}
           />
         ),
@@ -226,7 +233,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'verification',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.verification || '–'}
+            value={row.verification || '-'}
             isEdited={row.editedFields?.includes('verification')}
           />
         ),
@@ -243,7 +250,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         key: 'completedDate',
         accessor: row => (
           <ValueWithEditedMarker
-            value={row.completedDate ? getCompletedDate(row) : '–'}
+            value={row.completedDate ? getCompletedDate(row) : '-'}
             isEdited={row.editedFields?.includes('completedDate')}
           />
         ),
@@ -259,15 +266,16 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         columns={columns}
         endpoint={`labRequest/${labRequest.id}/tests`}
         initialSort={{ order: 'asc', orderBy: 'id' }}
-        disablePagination
         elevated={false}
         refreshCount={refreshCount}
         onRowClick={handleRowClick}
+        getRowGroupHeader={renderLabResultGroupHeader}
         onDataFetched={({ data }) =>
           setShowEditedEntryLegend(data.some(row => row.editedFields?.length > 0))
         }
         data-testid="styleddatafetchingtable-brdm"
-        allowExport={false}
+        allowExport
+        exportName={`Lab results-${labRequest.displayId}`}
       />
       {showEditedEntryLegend && <EditedEntryLegend data-testid="editedentrylegend-labrequest" />}
       <LabTestResultModal

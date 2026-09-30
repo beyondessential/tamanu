@@ -103,6 +103,10 @@ const ModalTitle = styled(DialogTitle).attrs({ 'data-testid': 'modaltitle-ojhf' 
     padding: 0;
     max-inline-size: 100%;
     line-height: 1.2;
+    // Zero flex basis so a long title wraps within the space left by Actions,
+    // rather than claiming a whole line and pushing the close button below it.
+    flex: 1 1 0;
+    min-inline-size: 0;
   }
 `;
 

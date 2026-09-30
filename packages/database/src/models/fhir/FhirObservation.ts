@@ -334,8 +334,10 @@ export class FhirObservation extends FhirResource {
 
   getValue() {
     if (this.valueQuantity) {
-      const validatedValueQuantity = FhirQuantity.SCHEMA().validateSync(this.valueQuantity);
-      return `${validatedValueQuantity.value}`;
+      const { value, comparator } = FhirQuantity.SCHEMA().validateSync(this.valueQuantity);
+      // A result outside the analyser's detection limit arrives with a comparator, e.g.
+      // { value: 0.3, comparator: '<' } → stored as "< 0.3" so it displays and flags as such.
+      return comparator ? `${comparator} ${value}` : `${value}`;
     }
 
     if (this.valueCodeableConcept) {

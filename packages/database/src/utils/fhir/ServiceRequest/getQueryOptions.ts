@@ -92,6 +92,10 @@ export function getQueryOptions(models: Models) {
         as: 'priority',
       },
       {
+        model: ReferenceData,
+        as: 'category',
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -113,7 +117,9 @@ export function getQueryOptions(models: Models) {
       },
       {
         model: LabTestPanelRequest,
-        as: 'labTestPanelRequest',
+        as: 'labTestPanelRequests',
+        // Fetched separately so this has-many does not multiply rows against the tests has-many.
+        separate: true,
         include: [
           {
             model: LabTestPanel,
