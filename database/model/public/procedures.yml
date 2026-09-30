@@ -150,3 +150,8 @@ sources:
           - name: time_out
             data_type: character(19)
             description: "{{ doc('procedures__time_out') }}"
+          - name: quantity
+            data_type: integer
+            description: "{{ doc('procedures__quantity') }}"
+            data_tests:
+              - not_null

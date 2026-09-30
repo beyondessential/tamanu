@@ -59,6 +59,51 @@ describe('Procedures', () => {
     expect(record).toHaveProperty('note', 'test');
   });
 
+  it('should default quantity to 1 when not provided', async () => {
+    const result = await app.post('/api/procedure').send({
+      encounterId: encounter.id,
+      note: 'default quantity',
+      date: new Date(),
+    });
+    expect(result).toHaveSucceeded();
+
+    const record = await models.Procedure.findByPk(result.body.id);
+    expect(record).toHaveProperty('quantity', 1);
+  });
+
+  it('should record a procedure with a specified quantity', async () => {
+    const result = await app.post('/api/procedure').send({
+      encounterId: encounter.id,
+      note: 'test',
+      date: new Date(),
+      quantity: 3,
+    });
+    expect(result).toHaveSucceeded();
+
+    const record = await models.Procedure.findByPk(result.body.id);
+    expect(record).toHaveProperty('quantity', 3);
+  });
+
+  it('should reject a non-integer quantity', async () => {
+    const result = await app.post('/api/procedure').send({
+      encounterId: encounter.id,
+      note: 'test',
+      date: new Date(),
+      quantity: 1.5,
+    });
+    expect(result).toHaveRequestError();
+  });
+
+  it('should reject a quantity less than 1', async () => {
+    const result = await app.post('/api/procedure').send({
+      encounterId: encounter.id,
+      note: 'test',
+      date: new Date(),
+      quantity: 0,
+    });
+    expect(result).toHaveRequestError();
+  });
+
   it('should update a procedure', async () => {
     const record = await models.Procedure.create({
       ...(await createDummyProcedure(models)),
