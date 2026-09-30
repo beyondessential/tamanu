@@ -30,6 +30,7 @@ const addToInvoice = async (instance: Procedure) => {
     instance.encounterId,
     invoiceProduct,
     supervisingClinicianId ?? undefined,
+    { quantity: instance.quantity },
   );
 };
 

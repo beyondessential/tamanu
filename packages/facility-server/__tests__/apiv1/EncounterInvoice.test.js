@@ -335,6 +335,90 @@ describe('Encounter invoice', () => {
         });
       });
 
+      it('should use the procedure quantity for the automatically added invoice item', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: procedure } = await app.post(`/api/procedure`).send({
+          encounterId: encounter.id,
+          procedureTypeId: procedureType1.id,
+          date: new Date(),
+          physicianId: user.id,
+          quantity: 3,
+        });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [
+            {
+              sourceRecordId: procedure.id,
+              sourceRecordType: 'Procedure',
+              productId: procedureProduct1.id,
+              orderedByUserId: user.id,
+              quantity: 3,
+              insurancePlanItems: [],
+            },
+          ],
+        });
+      });
+
+      it('should update the invoice item quantity when the procedure quantity changes', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: procedure } = await app.post(`/api/procedure`).send({
+          encounterId: encounter.id,
+          procedureTypeId: procedureType1.id,
+          date: new Date(),
+          physicianId: user.id,
+          quantity: 1,
+        });
+
+        await app.put(`/api/procedure/${procedure.id}`).send({
+          quantity: 5,
+        });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [
+            {
+              sourceRecordId: procedure.id,
+              sourceRecordType: 'Procedure',
+              productId: procedureProduct1.id,
+              orderedByUserId: user.id,
+              quantity: 5,
+              insurancePlanItems: [],
+            },
+          ],
+        });
+      });
+
       it('should automatically update items on the invoice when a procedure type changes', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
