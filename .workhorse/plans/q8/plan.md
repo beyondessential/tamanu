@@ -35,7 +35,7 @@ No "bootstrapped" marker is needed; the sync process re-fetching a small bundle 
 
 - The state is "configured, pull cursor unset". No new fact.
 - `/public/ping` reports it, alongside `setupRequired`.
-- Web: after login, and ahead of facility selection, a logged-in user sees the setting-up screen, polled until the first sync completes, with a log out action. It is a `StatusPageWithHeroImage` (as `UnsupportedBrowserStatusPage` uses), which already has the wizard's split layout with left-aligned text; it needs to accept children for the filled Log out button. The heading carries the animated ellipsis from `LoadingStatusPage`; left-aligned, the dots grow to the right without shifting the heading. Everyone is held there; there's nothing to let people into early.
+- Web: after login, and ahead of facility selection, a logged-in user sees the setting-up screen, polled until the first sync completes, with a log out action. It is a `StatusPageWithHeroImage` (as `UnsupportedBrowserStatusPage` uses), which already has the wizard's split layout with left-aligned text; it needs to accept children for the filled Log out button. Bring it in line with the Figma frame for this screen: heading 38px, description 14px, button 14px text with 8px/20px padding and no minimum width. Content positioning stays as the component has it. This also restyles `UnsupportedBrowserStatusPage`, which shares the component. The heading carries the animated ellipsis from `LoadingStatusPage`; left-aligned, the dots grow to the right without shifting the heading. Everyone is held there; there's nothing to let people into early.
 - Because the screen is driven by server state, closing the wizard and coming back lands on the same screen.
 
 ## Follow-up
