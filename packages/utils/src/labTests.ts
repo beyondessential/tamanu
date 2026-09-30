@@ -217,11 +217,7 @@ export const parseLabTestResult = (result: unknown): ParsedLabTestResult => {
 export type LabRequestCompositionLike = {
   labTestPanelRequests?: { labTestPanel?: { name?: string | null } | null }[] | null;
   tests?:
-    | {
-        labTestPanelRequestId?: string | null;
-        labTestPanel?: { name?: string | null } | null;
-        labTestType?: { name?: string | null } | null;
-      }[]
+    | { labTestPanelRequestId?: string | null; labTestType?: { name?: string | null } | null }[]
     | null;
 };
 
@@ -245,13 +241,9 @@ export const getLabRequestTestAndPanelNames = ({
 
   const isHistoricalSinglePanel =
     panelRequests.length === 1 && labTests.every(test => !test.labTestPanelRequestId);
-  // Some callers resolve the panel onto the row itself rather than leaving the foreign key to
-  // speak for it, so a row carrying a panel counts as covered too.
-  const isCoveredByPanel = (test: (typeof labTests)[number]) =>
-    isHistoricalSinglePanel || Boolean(test.labTestPanelRequestId) || Boolean(test.labTestPanel);
 
   const individualTestNames = labTests
-    .filter(test => !isCoveredByPanel(test))
+    .filter(test => !isHistoricalSinglePanel && !test.labTestPanelRequestId)
     .map(test => test.labTestType?.name)
     .filter((name): name is string => Boolean(name));
   return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));

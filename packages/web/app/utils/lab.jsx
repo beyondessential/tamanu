@@ -6,8 +6,6 @@ import { FormFieldTag } from '../components/Tag';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { ThemedTooltip } from '../components/Tooltip';
 
-export { getLabRequestTestAndPanelNames } from '@tamanu/utils/labTests';
-
 export const StatusDisplay = React.memo(({ status }) => {
   const { background, color } = LAB_REQUEST_STATUS_CONFIG[status];
   return (

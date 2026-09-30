@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
+import { getLabRequestTestAndPanelNames } from '@tamanu/utils/labTests';
 import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
@@ -21,7 +22,6 @@ import { useSettings } from '../../../contexts/Settings';
 import { usePatient } from '../../../contexts/Patient';
 import { useLabRequestNotesQuery } from '../../../api/queries';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
-import { getLabRequestTestAndPanelNames } from '../../../utils/lab';
 
 const Container = styled.div`
   padding-top: 20px;

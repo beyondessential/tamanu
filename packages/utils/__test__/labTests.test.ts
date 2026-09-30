@@ -335,18 +335,6 @@ describe('getLabRequestTestAndPanelNames', () => {
     ).toEqual(['Hemodialysis Post']);
   });
 
-  it('treats a row carrying an inferred panel as covered', () => {
-    expect(
-      getLabRequestTestAndPanelNames({
-        labTestPanelRequests: [panelRequest('Full blood count'), panelRequest('Liver function tests')],
-        tests: [
-          { labTestPanelRequestId: null, labTestPanel: { name: 'Full blood count' }, labTestType: { name: 'Haemoglobin' } },
-          test('Amylase'),
-        ],
-      }),
-    ).toEqual(['Amylase', 'Full blood count', 'Liver function tests']);
-  });
-
   it('still lists loose tests when several panels are attributed', () => {
     // More than one panel request means the historical inference must not kick in.
     expect(
