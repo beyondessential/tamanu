@@ -104,7 +104,10 @@ export class LabRequestModal {
     this.backButton = page.getByTestId('styledbackbutton-016f');
     this.nextButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
     this.finaliseButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
-    this.cancelButton = page.getByTestId('formsubmitcancelrow-aaiz-cancelButton');
+    // FormCancelButton overrides the data-testid ButtonRow gives it with its own shared one, so
+    // there is no unique test id to target - fall back to role and accessible name, scoped to the
+    // form so it can't match the Back button or anything behind the modal.
+    this.cancelButton = page.getByTestId('form-pcjr').getByRole('button', { name: 'Cancel' });
 
     // Step 2: sample details
     this.dateTimeCollectedInputs = page.getByTestId('styledfield-sampletime-input');
