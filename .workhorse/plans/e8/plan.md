@@ -1,10 +1,25 @@
 # Create new permission to restrict marking patient for sync
 
+## Build steps
+
+- [x] Register `SyncPatient: [Create]` in `PERMISSION_SCHEMA`
+- [x] `POST /patientFacility`: require `read Patient` and `create SyncPatient`; refuse a facility other than the session's
+- [x] Migration granting `create SyncPatient` to roles with `read Patient`, run on every server
+- [x] Web: show the sync button only with the permission; otherwise show the not-synced message
+- [x] Mobile: hide the sync status for an unsynced patient without the permission
+- [x] Give the hardcoded `practitioner` role (dev/test permissions mode) `create SyncPatient`, matching the migration
+- [x] Endpoint integration tests
+- [x] Migration test
+- [x] Web and mobile component tests
+- [x] Test-cases file
+- [x] Lint and run the touched test suites
+
 ## Rollout migration
 
 Grant `create SyncPatient` to every role holding `read Patient`, so behaviour is unchanged at upgrade and restricted deployments opt out by marking `n` in their permissions sheet.
 
-- Central only. `permissions` is pull-from-central, so the migration returns early on facility servers (guard with `selectFacilityIds(config)`, as in `1782024666353-cleanupFhirJobsOnFacilityServers.ts`). Facilities receive the rows on next sync; mobile picks them up at next sign-in.
+- Runs on every server, not central only. Migrations run with the sync tick trigger disabled, so a row inserted on central keeps tick 0, and its lookup stub heals at tick 0 too. Existing facilities would never pull it; only initial syncs would. Instead each server inserts the same rows from its own copy of `permissions` under deterministic IDs, following `1759894448776-migrateNoteTypesToReferenceData.ts`. Later changes on central bump the tick and update the rows in place. Mobile reads permissions from central at sign-in, so it needs nothing further.
+- A facility whose copy of `permissions` is behind central at upgrade time (e.g. a role granted `read Patient` on central but not yet pulled) won't get that role's grant locally. Acceptable: upgrades normally follow a sync, and an administrator can grant it.
 - DML only: one `INSERT ... SELECT` from `permissions` where `noun = 'Patient'`, `verb = 'read'`, `object_id IS NULL`, `deleted_at IS NULL`.
 - IDs match `Permission.generatePermissionId`: `lower(role_id || '-create-syncpatient-any')`, with `ON CONFLICT DO NOTHING`.
 - The admin role needs no row (it has `manage all`).

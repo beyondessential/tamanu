@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Button, TranslatedText, useApi } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { useAuth } from '../contexts/Auth';
 import { useSyncState } from '../contexts/SyncState';
 import { notifyError } from '../utils';
@@ -52,3 +53,36 @@ export const MarkPatientForSync = ({ patient }) => {
     </MarkPatientForSyncButton>
   );
 };
+
+const NotMarkedForSyncContainer = styled.div`
+  background-color: ${p => p.theme.palette.background.paper};
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  padding: 20px;
+`;
+
+const NotMarkedForSyncMessage = styled.p`
+  align-items: center;
+  background-color: ${Colors.background};
+  color: ${Colors.primary};
+  display: flex;
+  font-weight: 500;
+  justify-content: center;
+  line-height: 1.5;
+  margin: 0;
+  min-block-size: 25rem;
+  padding: 24px;
+  text-align: center;
+`;
+
+// spec: MFS#marking-a-patient-for-sync-on-desktop
+export const PatientNotMarkedForSync = () => (
+  <NotMarkedForSyncContainer data-testid="patientnotmarkedforsync-3kq8">
+    <NotMarkedForSyncMessage>
+      <TranslatedText
+        stringId="patient.history.notMarkedForSync"
+        fallback="This patient record is not marked for sync at your facility. Please speak with your system administrator if this patient record should be synced."
+      />
+    </NotMarkedForSyncMessage>
+  </NotMarkedForSyncContainer>
+);

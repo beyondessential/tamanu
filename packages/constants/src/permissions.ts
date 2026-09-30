@@ -150,6 +150,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   Signer: [List, Read],
   Survey: [List, Read, Write, Create, Submit],
   SurveyResponse: [List, Read, Write, Create, Delete],
+  SyncPatient: [Create],
   Tasking: [List, Read, Write, Create, Delete],
   Template: [List, Read, Write, Create],
   Translation: [Write],

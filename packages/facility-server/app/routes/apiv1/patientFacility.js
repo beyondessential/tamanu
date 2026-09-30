@@ -1,15 +1,20 @@
 import express from 'express';
-import { NotFoundError } from '@tamanu/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 
 export const patientFacility = express.Router();
 
+// spec: MFS#marking-a-patient-for-sync-on-desktop
 patientFacility.post('/', async (req, res) => {
   const { syncConnection, models, body } = req;
   const { patientId, facilityId } = body;
 
-  // slightly unusual to check read permissions in a post endpoint, but if you can read patients,
-  // you can mark them for sync
   req.checkPermission('read', 'Patient');
+  req.checkPermission('create', 'SyncPatient');
+
+  // a session on a multi-facility server has no facility until one is chosen
+  if (!req.facilityId || facilityId !== req.facilityId) {
+    throw new ForbiddenError('Patients can only be marked for sync at the current facility');
+  }
 
   const patient = await models.Patient.findByPk(patientId);
   if (!patient) {
