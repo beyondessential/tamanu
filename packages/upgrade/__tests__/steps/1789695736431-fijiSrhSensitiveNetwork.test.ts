@@ -16,7 +16,7 @@ const makeArgs = ({ hasFijiSrh = false, serverType = 'central' } = {}) => {
         transaction: async (callback: () => Promise<void>) => callback(),
         query: vi.fn(async (sql: string, options: any = {}) => {
           queries.push({ sql, replacements: options.replacements });
-          if (sql.includes('SELECT EXISTS')) return [{ exists: hasFijiSrh }];
+          if (sql.includes('count(*) FROM facilities')) return [{ count: hasFijiSrh ? 3 : 2 }];
           return [[], 0];
         }),
       },

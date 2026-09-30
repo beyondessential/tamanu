@@ -87,12 +87,17 @@ export const BETWEEN_SCHEMA_MIGRATIONS = {
   before: [needsMigration('1789695736426-dropFacilityIsSensitive.ts')],
 };
 
-// What decides the path. A deleted facility does not count: it gained no network, so the ordinary
-// path is what applies to it.
+// What decides the path, and it takes all three. With only some of them present this is not the
+// deployment the SRH step describes, and claiming it would skip the ordinary backfill for every
+// other sensitive facility — which dropFacilityIsSensitive then leaves with no scoping at all.
+// Falling back to the ordinary path instead preserves each facility's isolation, and the merge can
+// be run again once the deployment is whole.
+//
+// A deleted facility does not count: it gained no network, so the ordinary path applies to it.
 export const hasFijiSrhFacilities = async (sequelize: Sequelize) => {
-  const [{ exists }] = await sequelize.query<{ exists: boolean }>(
-    `SELECT EXISTS (SELECT 1 FROM facilities WHERE id IN (:facilityIds) AND deleted_at IS NULL);`,
+  const [{ count }] = await sequelize.query<{ count: string }>(
+    `SELECT count(*) FROM facilities WHERE id IN (:facilityIds) AND deleted_at IS NULL;`,
     { replacements: { facilityIds: FIJI_SRH_FACILITY_IDS }, type: QueryTypes.SELECT },
   );
-  return exists;
+  return Number(count) === FIJI_SRH_FACILITY_IDS.length;
 };

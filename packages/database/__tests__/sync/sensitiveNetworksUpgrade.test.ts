@@ -3,7 +3,10 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { closeDatabase, createTestDatabase } from '../utilities';
-import { hasFijiSrhFacilities } from '../../../upgrade/src/sensitiveNetworks.js';
+import {
+  FIJI_SRH_FACILITY_IDS,
+  hasFijiSrhFacilities,
+} from '../../../upgrade/src/sensitiveNetworks.js';
 import { rescopeSyncLookup } from '../../../upgrade/src/steps/1789695736430-backfillSensitiveNetworks.js';
 
 // spec: specs/sync/sensitive-networks.md
@@ -28,6 +31,11 @@ describe('rescoping sync_lookup to sensitive networks', () => {
   const createNetwork = () => models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
   const createFacility = (sensitiveNetworkId = null) =>
     models.Facility.create(fake(models.Facility, { sensitiveNetworkId }));
+
+  const createSrhFacilities = () =>
+    Promise.all(
+      FIJI_SRH_FACILITY_IDS.map(id => models.Facility.create(fake(models.Facility, { id }))),
+    );
 
   // Written straight in, the shape the old facility-based population left behind.
   const createLookupRow = async ({ recordType, facilityId, updatedAtSyncTick = 5 }) => {
@@ -128,16 +136,20 @@ describe('rescoping sync_lookup to sensitive networks', () => {
       expect(await hasFijiSrhFacilities(sequelize)).toBe(false);
     });
 
-    it('takes the Fiji path once an SRH facility is there', async () => {
-      await models.Facility.create(fake(models.Facility, { id: 'facility-SRHCentral' }));
+    it('takes the Fiji path once all three SRH facilities are there', async () => {
+      await createSrhFacilities();
 
       expect(await hasFijiSrhFacilities(sequelize)).toBe(true);
     });
 
-    it('ignores a deleted SRH facility', async () => {
-      const facility = await models.Facility.create(
-        fake(models.Facility, { id: 'facility-SRHWestern' }),
-      );
+    it('takes the ordinary path when only some of them are there', async () => {
+      await models.Facility.create(fake(models.Facility, { id: 'facility-SRHCentral' }));
+
+      expect(await hasFijiSrhFacilities(sequelize)).toBe(false);
+    });
+
+    it('ignores a deleted SRH facility, so a partial deployment takes the ordinary path', async () => {
+      const [facility] = await createSrhFacilities();
       await facility.destroy();
 
       expect(await hasFijiSrhFacilities(sequelize)).toBe(false);
