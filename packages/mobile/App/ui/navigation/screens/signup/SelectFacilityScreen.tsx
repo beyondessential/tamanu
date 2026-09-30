@@ -1,10 +1,4 @@
-import React, {
-  type FunctionComponent,
-  type ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import React, { type ReactElement, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import * as Yup from 'yup';
 import { Form } from '~/ui/components/Forms/Form';
@@ -70,17 +64,14 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
     };
   }, [backend]);
 
-  const onSubmit = useCallback(
-    async ({ facilityId }) => {
-      const selected = facilityOptions.find(x => x.value === facilityId);
-      if (selected) {
-        onSubmitForm({ facilityId, facilityName: selected.label });
-      } else {
-        throw new Error('Submitted a facility that does not exist');
-      }
-    },
-    [facilityOptions, onSubmitForm],
-  );
+  const onSubmit = async ({ facilityId }) => {
+    const selected = facilityOptions.find(x => x.value === facilityId);
+    if (selected) {
+      onSubmitForm({ facilityId, facilityName: selected.label });
+    } else {
+      throw new Error('Submitted a facility that does not exist');
+    }
+  };
 
   return (
     <Form
@@ -128,30 +119,24 @@ export const SelectFacilityScreen = ({ navigation }: SignInProps) => {
   const { signOut } = useAuth();
   const backend = useBackend();
 
-  const onSubmitForm = useCallback(
-    async (values: { facilityId: string; facilityName: string }) => {
-      // Fetch facility-specific settings before assigning facility
-      const { settings } = await backend.centralServer.setFacility(values.facilityId);
-      if (settings) {
-        await backend.settings.setSettings(settings);
-      }
-      await assignFacility(values.facilityId, values.facilityName);
-      // trigger sync when user finish selecting the facility for the device
-      await backend.syncManager.triggerSync();
+  useEffect(
+    /** If we already have a facility ID, immediately navigate onward */
+    function autoAdvance() {
+      if (facilityId) navigation.replace(Routes.HomeStack.Index);
     },
-    [assignFacility, backend.centralServer, backend.settings, backend.syncManager],
+    [facilityId, navigation],
   );
 
-  useEffect(() => {
-    // if we already have a facility id, immediately navigate onward to the home screen
-    if (facilityId) {
-      navigation.replace(Routes.HomeStack.Index);
-    }
-  }, [facilityId, navigation]);
+  if (facilityId) return null;
 
-  if (facilityId) {
-    return null;
-  }
+  const onSubmitForm = async (values: { facilityId: string; facilityName: string }) => {
+    // Fetch facility-specific settings before assigning facility
+    const { settings } = await backend.centralServer.setFacility(values.facilityId);
+    if (settings) await backend.settings.setSettings(settings);
+    await assignFacility(values.facilityId, values.facilityName);
+    // trigger sync when user finish selecting the facility for the device
+    await backend.syncManager.triggerSync();
+  };
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
