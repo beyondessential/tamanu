@@ -121,6 +121,18 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     [components, navigation, selectedPatient.id, submitSurveyResponse, surveyId, surveyType],
   );
 
+  const isLoading =
+    !survey ||
+    !components ||
+    isSurveyLoading ||
+    areComponentsLoading ||
+    isPadLoading ||
+    isPprLoading;
+  if (isLoading) return <LoadingScreen />;
+
+  const error = surveyError || componentsError || padError || pprError;
+  if (error) return <ErrorScreen error={error} />;
+
   const confirmExit = () => {
     Alert.alert(
       getTranslation('program.survey.exit.heading', 'Exit form?'),
@@ -146,21 +158,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
       confirmExit();
     }
   };
-
-  const error = surveyError || componentsError || padError || pprError;
-  const isLoading =
-    !survey ||
-    !components ||
-    isSurveyLoading ||
-    areComponentsLoading ||
-    isPadLoading ||
-    isPprLoading;
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
 
   return (
     <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}>
