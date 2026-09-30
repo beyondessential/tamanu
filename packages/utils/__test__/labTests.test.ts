@@ -352,6 +352,7 @@ describe('getLabRequestTestAndPanelNames', () => {
         tests: [{ labTestPanelRequestId: null, labTestType: null }],
       }),
     ).toEqual(['Full blood count']);
+    expect(getLabRequestTestAndPanelNames({})).toEqual([]);
     expect(getLabRequestTestAndPanelNames()).toEqual([]);
   });
 });
