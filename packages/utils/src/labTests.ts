@@ -213,3 +213,38 @@ export const parseLabTestResult = (result: unknown): ParsedLabTestResult => {
   const value = Number.parseFloat(result);
   return { comparator: null, value: Number.isNaN(value) ? null : value };
 };
+
+export type LabRequestCompositionLike = {
+  labTestPanelRequests?: { labTestPanel?: { name?: string | null } | null }[] | null;
+  tests?:
+    | { labTestPanelRequestId?: string | null; labTestType?: { name?: string | null } | null }[]
+    | null;
+};
+
+// The tests and panels a lab request holds, as a single alphabetical list of names: each panel by
+// its name, plus the individual tests not attributed to a panel (a panel's own member tests are
+// represented by the panel, so they are not listed again).
+//
+// A request migrated from the single-panel structure holds one panel request and tests that were
+// never stamped with it, so the same inference the rest of the lab code makes applies here: one
+// panel request and no attributed test means every test belongs to that panel. Without it a
+// historical request would list its panel and then each of that panel's members again.
+export const getLabRequestTestAndPanelNames = ({
+  labTestPanelRequests,
+  tests,
+}: LabRequestCompositionLike = {}): string[] => {
+  const panelRequests = labTestPanelRequests ?? [];
+  const labTests = tests ?? [];
+  const panelNames = panelRequests
+    .map(panelRequest => panelRequest.labTestPanel?.name)
+    .filter((name): name is string => Boolean(name));
+
+  const isHistoricalSinglePanel =
+    panelRequests.length === 1 && labTests.every(test => !test.labTestPanelRequestId);
+
+  const individualTestNames = labTests
+    .filter(test => !isHistoricalSinglePanel && !test.labTestPanelRequestId)
+    .map(test => test.labTestType?.name)
+    .filter((name): name is string => Boolean(name));
+  return [...panelNames, ...individualTestNames].sort((a, b) => a.localeCompare(b));
+};

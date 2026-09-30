@@ -5,6 +5,7 @@ import {
   getLabTestValidationCriteriaFromNormalRanges,
   getReferenceRange,
   getReferenceRangeWithUnit,
+  getLabRequestTestAndPanelNames,
   parseLabTestResult,
 } from '../src/labTests';
 
@@ -294,5 +295,64 @@ describe('parseLabTestResult', () => {
     expect(parseLabTestResult('')).toEqual({ comparator: null, value: null });
     expect(parseLabTestResult(null)).toEqual({ comparator: null, value: null });
     expect(parseLabTestResult(undefined)).toEqual({ comparator: null, value: null });
+  });
+});
+
+describe('getLabRequestTestAndPanelNames', () => {
+  const panelRequest = (name: string) => ({ labTestPanel: { name } });
+  const test = (name: string, labTestPanelRequestId: string | null = null) => ({
+    labTestPanelRequestId,
+    labTestType: { name },
+  });
+
+  it('lists every panel plus the tests not covered by one, alphabetically', () => {
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Liver function tests'), panelRequest('Full blood count')],
+        tests: [
+          test('Haemoglobin', 'panel-request-1'),
+          test('C-reactive protein'),
+          test('Amylase'),
+        ],
+      }),
+    ).toEqual(['Amylase', 'C-reactive protein', 'Full blood count', 'Liver function tests']);
+  });
+
+  it('returns the individual tests when there are no panels', () => {
+    expect(getLabRequestTestAndPanelNames({ tests: [test('Amylase'), test('Bilirubin')] })).toEqual([
+      'Amylase',
+      'Bilirubin',
+    ]);
+  });
+
+  it('reads a historical single-panel request as covering all its tests', () => {
+    // Migrated requests hold one panel request whose member tests were never stamped with it.
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Hemodialysis Post')],
+        tests: [test('Creatinine'), test('BUN'), test('Potassium')],
+      }),
+    ).toEqual(['Hemodialysis Post']);
+  });
+
+  it('still lists loose tests when several panels are attributed', () => {
+    // More than one panel request means the historical inference must not kick in.
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Full blood count'), panelRequest('Coagulation')],
+        tests: [test('Haemoglobin', 'panel-request-1'), test('Amylase')],
+      }),
+    ).toEqual(['Amylase', 'Coagulation', 'Full blood count']);
+  });
+
+  it('skips names it cannot resolve, and handles a missing request', () => {
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [{ labTestPanel: null }, panelRequest('Full blood count')],
+        tests: [{ labTestPanelRequestId: null, labTestType: null }],
+      }),
+    ).toEqual(['Full blood count']);
+    expect(getLabRequestTestAndPanelNames({})).toEqual([]);
+    expect(getLabRequestTestAndPanelNames()).toEqual([]);
   });
 });

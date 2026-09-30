@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
+import { getLabRequestTestAndPanelNames } from '@tamanu/utils/labTests';
 
 import { Col, Row } from './Layout';
 import { P } from './Typography';
@@ -91,14 +92,6 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
 export const FullLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShortDateTime } = useDateTime();
-  const labTestTypeAccessor = ({ labTestPanelRequests, tests }) => {
-    const labTestPanelRequest = labTestPanelRequests?.[0];
-    if (labTestPanelRequest) {
-      return labTestPanelRequest.labTestPanel.name;
-    }
-    return tests?.map(test => test.labTestType?.name).join(', ') || '';
-  };
-
   const notesAccessor = ({ notes }) => {
     return (
       notes
@@ -134,7 +127,9 @@ export const FullLabRequestDetailsSection = ({ request }) => {
           />
           <DataItem
             label={getTranslation('lab.tests.label', 'Tests')}
-            value={labTestTypeAccessor(request)}
+            // A request can hold several panels alongside individual tests: list every panel by
+            // name plus the tests not covered by one, rather than naming a single panel.
+            value={getLabRequestTestAndPanelNames(request).join(', ')}
           />
         </Col>
         <Col>

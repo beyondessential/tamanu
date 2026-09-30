@@ -2,6 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
 import { selectFieldOption } from '../../../../utils/fieldHelpers';
+import { labTestData } from '../../../../utils/labTestData';
 import {
   fillMuiDateTimeField,
   formatDateTimeForDisplay,
@@ -10,10 +11,6 @@ import {
 } from '../../../../utils/testHelper';
 
 export interface ValidateRequestFinalisedPageParams {
-  requestingClinician: string;
-  requestedDateTime: string;
-  department: string;
-  priority?: string;
   expectedCategories: string[];
   expectedSampleDate?: string;
 }
@@ -69,20 +66,24 @@ export class LabRequestModal {
   readonly sampleDetailsCategories: Locator;
 
   // Request finalised summary
-  readonly requestingClinicianValue: Locator;
-  readonly requestDateTimeValue: Locator;
-  readonly departmentValue: Locator;
-  readonly priorityValue: Locator;
   readonly closeButton: Locator;
+  private readonly stepForm: Locator;
 
   constructor(page: Page) {
     this.page = page;
+
+    // The multi-step form's grid: it wraps the current step's fields and the button row. The Form
+    // component overwrites its own data-testid, so this grid is the closest stable container.
+    this.stepForm = page.getByTestId('formgrid-wses');
 
     // Step 1: request details
     this.requestingClinicianInput = page.getByTestId('field-requestedby-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-requesteddate').locator('input');
     this.departmentInput = page.getByTestId('field-department-input').locator('input');
-    this.prioritySelect = page.getByTestId('field-priority-select');
+    // SuggesterSelectField overrides the Field's own data-testid with its own, so the priority
+    // select carries selectinput-phtg rather than field-priority. Both are shared across the app,
+    // so everything here is scoped to the step's form grid.
+    this.prioritySelect = this.stepForm.getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
     this.notesTextarea = page.getByTestId('field-notes-input');
 
@@ -108,7 +109,9 @@ export class LabRequestModal {
     this.backButton = page.getByTestId('styledbackbutton-016f');
     this.nextButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
     this.finaliseButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
-    this.cancelButton = page.getByTestId('formsubmitcancelrow-aaiz-cancelButton');
+    // FormCancelButton overrides the data-testid ButtonRow gives it with its own shared one, so
+    // there is no unique test id to target - fall back to role and accessible name.
+    this.cancelButton = this.stepForm.getByRole('button', { name: 'Cancel' });
 
     // Step 2: sample details
     this.dateTimeCollectedInputs = page.getByTestId('styledfield-sampletime-input');
@@ -121,19 +124,6 @@ export class LabRequestModal {
     this.sampleDetailsTests = page.getByTestId('typography-test');
     this.sampleDetailsCategories = page.getByTestId('typography-category');
 
-    // Request finalised summary
-    const clinicianLabel = page
-      .getByTestId('cardlabel-6kys')
-      .filter({ hasText: 'Requesting clinician' });
-    this.requestingClinicianValue = clinicianLabel.locator('..').getByTestId('cardvalue-lcni');
-    const dateTimeLabel = page
-      .getByTestId('cardlabel-6kys')
-      .filter({ hasText: 'Request date & time' });
-    this.requestDateTimeValue = dateTimeLabel.locator('..').getByTestId('cardvalue-lcni');
-    const departmentLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Department' });
-    this.departmentValue = departmentLabel.locator('..').getByTestId('cardvalue-lcni');
-    const priorityLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Priority' });
-    this.priorityValue = priorityLabel.locator('..').getByTestId('cardvalue-lcni');
     this.closeButton = page.getByTestId('button-9vga');
   }
 
@@ -252,10 +242,9 @@ export class LabRequestModal {
    * disabled (i.e. covered by an already-selected panel).
    */
   disabledTestTooltip(name: string): Locator {
-    return this.selectorList
-      .locator('[data-testid^="testrow-tooltip-"]')
-      .filter({ hasText: name })
-      .first();
+    // The tooltip wraps only the checkbox - the test's label is its sibling - so scope by the row
+    // rather than filtering the tooltip itself on the name.
+    return this.testRowByName(name).locator('[data-testid^="testrow-tooltip-"]').first();
   }
 
   /**
@@ -426,19 +415,12 @@ export class LabRequestModal {
     return [...new Set(categories.map(category => category.trim()).filter(Boolean))];
   }
 
+  // The finalised screen is a table of the requests that were created - one row per category -
+  // rather than a set of request-detail cards, so only the rows are asserted here.
   async validateRequestFinalisedPage({
-    requestingClinician,
-    requestedDateTime,
-    department,
-    priority,
     expectedCategories,
     expectedSampleDate,
   }: ValidateRequestFinalisedPageParams) {
-    await expect(this.requestingClinicianValue).toHaveText(requestingClinician || 'Unknown');
-    await expect(this.requestDateTimeValue).toHaveText(requestedDateTime);
-    await expect(this.departmentValue).toHaveText(department || 'Unknown');
-    await expect(this.priorityValue).toHaveText(priority || '-');
-
     const finalisedCategories = await this.getRequestFinalisedTableItems(
       expectedCategories.length,
       'labTestCategory',
@@ -470,10 +452,9 @@ export class LabRequestModal {
    * @returns the selected test names.
    */
   async createBasicIndividualLabRequest(testsToSelect?: string[]): Promise<string[]> {
-    const selectedTests = testsToSelect || [
-      'AgRDT Negative, no further testing needed',
-      'AgRDT Positive, no further testing needed',
-    ];
+    // One test, so the submission creates a single lab request: callers read the first row
+    // of the listing and expect it to hold everything they selected.
+    const selectedTests = testsToSelect || [labTestData.singleTest];
     await this.waitForModalToLoad();
     await this.selectIndividualTests(selectedTests);
     await this.proceedToSampleDetails();
