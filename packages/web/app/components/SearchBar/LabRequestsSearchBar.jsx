@@ -42,6 +42,12 @@ const FacilityCheckbox = styled.div`
   margin-top: 20px;
 `;
 
+// Fills the last cell of the first row so the filters sit four per row, leaving the search
+// actions alongside the second row.
+const Spacer = styled.div`
+  width: 100%;
+`;
+
 export const LabRequestsSearchBar = ({ statuses }) => {
   const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
   const { searchParameters, setSearchParameters } = useLabRequest(
@@ -82,8 +88,7 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         statusFilterOptions.filter(option =>
           option.label.toLowerCase().includes((search ?? '').toLowerCase()),
         ),
-      fetchCurrentOption: async value =>
-        statusFilterOptions.find(option => option.value === value),
+      fetchCurrentOption: async value => statusFilterOptions.find(option => option.value === value),
     }),
     [statusFilterOptions],
   );
@@ -259,6 +264,7 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         component={SearchField}
         data-testid="field-jpmb"
       />
+      <Spacer />
       <Field
         name="category"
         label={
@@ -273,22 +279,6 @@ export const LabRequestsSearchBar = ({ statuses }) => {
         size="small"
         data-testid="field-84q8"
       />
-      {!publishedStatus && (
-        <Field
-          name="labTestPanelId"
-          label={
-            <TranslatedText
-              stringId="lab.panel.label"
-              fallback="Panel"
-              data-testid="translatedtext-6w50"
-            />
-          }
-          component={SuggesterSelectField}
-          endpoint="labTestPanel"
-          size="small"
-          data-testid="field-vqdd"
-        />
-      )}
       <LocalisedField
         name="requestedDateFrom"
         label={
