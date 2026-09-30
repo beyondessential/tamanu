@@ -70,7 +70,7 @@ class DatabaseHelper {
     for (const m of MODELS_ARRAY) m.injectAllModels(this.models);
   }
 
-  async forceSync(): Promise<any> {
+  async forceSync(): Promise<void> {
     try {
       console.log('Updating database schema');
       if (this.syncError) {
@@ -121,7 +121,7 @@ class DatabaseHelper {
     return this.client;
   }
 
-  async createClient(): Promise<ConnectionOptions | void> {
+  async createClient(): Promise<void> {
     try {
       this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
