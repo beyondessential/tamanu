@@ -15,7 +15,9 @@ A facility server and a mobile device hold data only for the patients marked for
 ## The SyncPatient permission
 
 - [ ] `create` `SyncPatient` grants a user the ability to deliberately mark a patient for sync. It is the only verb the noun carries.
-- [ ] The permission is granted per deployment through the usual role and permission configuration, and no role holds it until an administrator grants it. Administrators see it in the permissions screen under its own name, `SyncPatient`, alongside the other nouns.
+- [ ] The permission is granted and revoked through the usual role and permission configuration. Administrators see it in the permissions screen under its own name, `SyncPatient`, alongside the other nouns.
+- [ ] Upgrading a deployment grants the permission to every existing role that can read patients, so no user loses the action at upgrade. A deployment that wants the restriction revokes it from the relevant roles.
+- [ ] Re-importing a permissions configuration that does not mention `SyncPatient` leaves existing grants of it in place.
 
 ## Marking a patient for sync on desktop
 
