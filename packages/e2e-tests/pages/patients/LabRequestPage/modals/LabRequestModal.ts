@@ -67,18 +67,23 @@ export class LabRequestModal {
 
   // Request finalised summary
   readonly closeButton: Locator;
+  private readonly stepForm: Locator;
 
   constructor(page: Page) {
     this.page = page;
+
+    // The multi-step form's grid: it wraps the current step's fields and the button row. The Form
+    // component overwrites its own data-testid, so this grid is the closest stable container.
+    this.stepForm = page.getByTestId('formgrid-wses');
 
     // Step 1: request details
     this.requestingClinicianInput = page.getByTestId('field-requestedby-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-requesteddate').locator('input');
     this.departmentInput = page.getByTestId('field-department-input').locator('input');
     // SuggesterSelectField overrides the Field's own data-testid with its own, so the priority
-    // select carries selectinput-phtg rather than field-priority. Scoped to the multi-step form so
-    // it can't match a select on the page behind the modal.
-    this.prioritySelect = page.getByTestId('form-pcjr').getByTestId('selectinput-phtg-select');
+    // select carries selectinput-phtg rather than field-priority. Both are shared across the app,
+    // so everything here is scoped to the step's form grid.
+    this.prioritySelect = this.stepForm.getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
     this.notesTextarea = page.getByTestId('field-notes-input');
 
@@ -105,9 +110,8 @@ export class LabRequestModal {
     this.nextButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
     this.finaliseButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
     // FormCancelButton overrides the data-testid ButtonRow gives it with its own shared one, so
-    // there is no unique test id to target - fall back to role and accessible name, scoped to the
-    // form so it can't match the Back button or anything behind the modal.
-    this.cancelButton = page.getByTestId('form-pcjr').getByRole('button', { name: 'Cancel' });
+    // there is no unique test id to target - fall back to role and accessible name.
+    this.cancelButton = this.stepForm.getByRole('button', { name: 'Cancel' });
 
     // Step 2: sample details
     this.dateTimeCollectedInputs = page.getByTestId('styledfield-sampletime-input');
