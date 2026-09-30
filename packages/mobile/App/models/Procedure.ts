@@ -37,6 +37,9 @@ export class Procedure extends BaseModel implements IProcedure {
   @DateTimeStringColumn({ nullable: true })
   timeOut?: string;
 
+  @Column({ type: 'int', default: 1 })
+  quantity: number;
+
   @ManyToOne(() => Encounter)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)

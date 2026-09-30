@@ -91,6 +91,8 @@ export const practitioner = [
   { verb: 'create', noun: 'MedicationAdministration' },
   { verb: 'list', noun: 'MedicationAdministration' },
 
+  { verb: 'read', noun: 'MedicationDueTask' },
+
   { verb: 'list', noun: 'Program' },
   { verb: 'read', noun: 'Program' },
   { verb: 'create', noun: 'Program' },

@@ -13,7 +13,7 @@ import {
   LocationField,
   TimeField,
 } from '../../components/Field';
-import { TextField, FormGrid } from '@tamanu/ui-components';
+import { NumberField, TextField, FormGrid } from '@tamanu/ui-components';
 import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSuggester } from '../../api';
@@ -104,6 +104,15 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             data-testid="field-3a5v"
           />
           <Field
+            name="quantity"
+            label={<TranslatedText stringId="procedure.quantity.label" fallback="Quantity" />}
+            required
+            component={NumberField}
+            min={1}
+            step={1}
+            data-testid="field-quantity"
+          />
+          <Field
             name="departmentId"
             label={<TranslatedText stringId="procedure.department.label" fallback="Department" />}
             suggester={departmentSuggester}
@@ -181,8 +190,6 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             suggester={anaestheticSuggester}
             data-testid="field-w9b5"
           />
-          {/* Empty div to make the time in field start on a new row */}
-          <div />
           <Field
             name="timeIn"
             label={<TranslatedText stringId="procedure.timeIn.label" fallback="Time in" />}
