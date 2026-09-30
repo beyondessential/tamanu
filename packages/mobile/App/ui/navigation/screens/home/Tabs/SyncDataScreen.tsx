@@ -109,7 +109,6 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
-        {/* Circular progress */}
         {(isSyncing || isQueuing) && !hasError ? (
           <ActivityIndicator
             size="large"
