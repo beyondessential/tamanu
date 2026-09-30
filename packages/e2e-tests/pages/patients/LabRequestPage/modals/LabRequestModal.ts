@@ -2,6 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { createApiContext, getUser } from '../../../../utils/apiHelpers';
 import { selectFieldOption } from '../../../../utils/fieldHelpers';
+import { labTestData } from '../../../../utils/labTestData';
 import {
   fillMuiDateTimeField,
   formatDateTimeForDisplay,
@@ -470,10 +471,9 @@ export class LabRequestModal {
    * @returns the selected test names.
    */
   async createBasicIndividualLabRequest(testsToSelect?: string[]): Promise<string[]> {
-    const selectedTests = testsToSelect || [
-      'AgRDT Negative, no further testing needed',
-      'AgRDT Positive, no further testing needed',
-    ];
+    // One test, so the submission creates a single lab request: callers read the first row
+    // of the listing and expect it to hold everything they selected.
+    const selectedTests = testsToSelect || [labTestData.singleTest];
     await this.waitForModalToLoad();
     await this.selectIndividualTests(selectedTests);
     await this.proceedToSampleDetails();
