@@ -369,10 +369,15 @@ export class AIService {
 
     return session.messages
       .filter(message => message.role !== 'system')
-      .map(
-        message =>
-          `${TRANSCRIPT_ROLE_MARKERS[message.role]}\n${normalizeMessageContent(message.content)}`,
-      )
+      .map(message => {
+        const roleMarker = TRANSCRIPT_ROLE_MARKERS[message.role];
+        if (!roleMarker) {
+          throw new Error(
+            `AI session "${sessionId}" has a message with unknown role "${message.role}"`,
+          );
+        }
+        return `${roleMarker}\n${normalizeMessageContent(message.content)}`;
+      })
       .join('\n\n');
   }
 

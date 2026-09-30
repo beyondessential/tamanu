@@ -13,11 +13,16 @@ const OUTPUT_SCHEMAS = {
   [AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK]: formBuilderTweakResponseSchema,
 };
 
-const resolveRef = (rootSchema, ref) =>
-  ref
-    .replace(/^#\//, '')
+const resolveRef = (rootSchema, ref) => {
+  const resolved = ref
+    .replace(/^#\/?/, '')
     .split('/')
+    .filter(Boolean)
     .reduce((node, segment) => node?.[segment], rootSchema);
+  // An unresolved ref would silently drop every field path beneath it.
+  if (!resolved) throw new Error(`Cannot resolve JSON schema $ref "${ref}"`);
+  return resolved;
+};
 
 /**
  * Flatten a JSON schema into the field paths a prompt can refer to, e.g.
