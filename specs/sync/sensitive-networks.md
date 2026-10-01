@@ -91,9 +91,9 @@ Network membership scopes which data reaches a facility. It does not widen which
 
 ## Facilities that were sensitive before networks existed
 
-Facilities previously marked sensitive were isolated from each other as well as from the rest of the deployment: each pulled its own confidential data and no other facility's. Networks preserve that.
+Facilities previously marked sensitive were isolated from each other as well as from the rest of the deployment: each pulled its own confidential data and no other facility's. Networks preserve that everywhere except Fiji, whose SRH facilities are merged instead — see below.
 
-- [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before.
+- [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before. Fiji's SRH facilities are the single exception.
 - [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import, and an id derived from that facility's id.
 - [ ] Facility codes and names are not unique, so where two of those facilities share one, the network's is qualified to keep it distinct from its sibling's.
 - [ ] Their lookup rows carry that network in place of the facility, so a facility later created into one of those networks receives the confidential data recorded before it existed.
@@ -102,6 +102,19 @@ Facilities previously marked sensitive were isolated from each other as well as 
 - [ ] Rescoping leaves each row's sync tick alone, so no facility re-pulls a record it already holds.
 - [ ] A facility that was deleted while sensitive gains no network, since it receives nothing.
 - [ ] A deployment with no sensitive facilities gains no networks.
+
+### Fiji's SRH facilities
+
+Fiji asked for their three SRH facilities to share one network rather than keep the isolation they had. That is a deliberate widening of confidentiality, and it cannot be undone once synced, so it is confined to those three facilities on the one deployment and happens once, during the upgrade that introduces networks. It is the only sanctioned membership change: the reference data import and provisioning still refuse one, on Fiji as everywhere else.
+
+- [ ] The facilities `facility-SRHCentral`, `facility-SRHWestern` and `facility-SRHNorthern` are enrolled together in one network instead of receiving a network of one each.
+- [ ] They are named by id rather than by code, because an import can change a code and an id names the same facility for its lifetime.
+- [ ] All three, or none: a deployment holding only some of them is not the one this describes, so it takes the ordinary path and each facility keeps its own network. A deleted facility does not count.
+- [ ] The shared network carries an id, code and name of its own rather than any member's, since an id cannot be corrected once other rows reference it.
+- [ ] A deployment already holding a network under that id fails the upgrade rather than enrolling the facilities into something this does not describe.
+- [ ] Their lookup rows carry the shared network, so each facility receives what the other two recorded before the merge.
+- [ ] Those rows are re-ticked, unlike every other rescoped row: each facility has already pulled past them, so without a fresh tick none of that history would ever arrive.
+- [ ] Every other deployment is untouched, including one that later creates a facility with one of those ids.
 
 ## Mobile
 
