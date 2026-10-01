@@ -43,24 +43,32 @@ describe('sensitive network upgrade ordering', () => {
     return row.exists;
   };
 
-  // Back to before the networks existed, with one sensitive facility waiting, so the upgrade has
-  // real work to do and both boundaries are live.
-  const upgradeFromPreNetworkSchema = async () => {
+  // Back to before the networks existed, so both boundaries are live.
+  const downToPreNetworkSchema = async () => {
     await umzug.down({ to: '1789695736424-createSensitiveNetworks.ts' });
     expect(await columnExists('is_sensitive')).toBe(true);
     expect(await columnExists('sensitive_network_id')).toBe(false);
+  };
 
-    await database.sequelize.query(
-      `INSERT INTO facilities (id, code, name, is_sensitive)
-       VALUES ('facility-confidential', 'CONF', 'Confidential Clinic', TRUE);`,
+  const addSensitiveFacility = (id: string, code: string, name: string) =>
+    database.sequelize.query(
+      `INSERT INTO facilities (id, code, name, is_sensitive) VALUES (:id, :code, :name, TRUE);`,
+      { replacements: { id, code, name } },
     );
 
-    await upgrade({
+  const runUpgrade = () =>
+    upgrade({
       sequelize: database.sequelize,
       models: database.models,
       toVersion: '0.0.0',
       serverType: 'central',
     });
+
+  // One sensitive facility waiting, so the ordinary backfill has real work to do.
+  const upgradeFromPreNetworkSchema = async () => {
+    await downToPreNetworkSchema();
+    await addSensitiveFacility('facility-confidential', 'CONF', 'Confidential Clinic');
+    await runUpgrade();
   };
 
   // Run before createSensitiveNetworks and the step has nowhere to write: the insert fails on a
@@ -84,5 +92,62 @@ describe('sensitive network upgrade ordering', () => {
       `SELECT sensitive_network_id FROM facilities WHERE id = 'facility-confidential';`,
     );
     expect(facility.sensitive_network_id).toBe('sensitiveNetwork-CONF');
+  });
+
+  // The Fiji path runs in the same window and is chosen from the deployment's data, but it is only
+  // ever driven directly or with mocked gating — nothing else runs the real runner with the three
+  // SRH facilities present, so nothing proves it is selected over the ordinary backfill.
+  it('takes the Fiji path when the three SRH facilities are there, leaving the ordinary backfill nothing to do', async () => {
+    await downToPreNetworkSchema();
+    await addSensitiveFacility('facility-SRHCentral', 'SRHCentral', 'SRH Central');
+    await addSensitiveFacility('facility-SRHWestern', 'SRHWestern', 'SRH Western');
+    await addSensitiveFacility('facility-SRHNorthern', 'SRHNorthern', 'SRH Northern');
+
+    await runUpgrade();
+
+    // one shared network, not the network of one each the ordinary backfill would have built
+    const [networks] = await database.sequelize.query(
+      `SELECT id FROM sensitive_networks ORDER BY id;`,
+    );
+    expect(networks.map((network: any) => network.id)).toEqual(['sensitiveNetwork-srh']);
+
+    const [members] = await database.sequelize.query(
+      `SELECT id FROM facilities WHERE sensitive_network_id = 'sensitiveNetwork-srh' ORDER BY id;`,
+    );
+    expect(members.map((facility: any) => facility.id)).toEqual([
+      'facility-SRHCentral',
+      'facility-SRHNorthern',
+      'facility-SRHWestern',
+    ]);
+
+    // the step reads is_sensitive to decide it is wanted, so it has to have run before this
+    expect(await columnExists('is_sensitive')).toBe(false);
+  });
+
+  // The mirror of the case above, and the rule that decides between them: all three or none. Two of
+  // them is not the deployment the Fiji step describes, so the ordinary backfill takes it and each
+  // facility keeps its own network — isolation preserved rather than widened by accident.
+  it('takes the ordinary path when only some of the SRH facilities are there', async () => {
+    await downToPreNetworkSchema();
+    await addSensitiveFacility('facility-SRHCentral', 'SRHCentral', 'SRH Central');
+    await addSensitiveFacility('facility-SRHWestern', 'SRHWestern', 'SRH Western');
+
+    await runUpgrade();
+
+    const [networks] = await database.sequelize.query(
+      `SELECT id FROM sensitive_networks ORDER BY id;`,
+    );
+    expect(networks.map((network: any) => network.id)).toEqual([
+      'sensitiveNetwork-SRHCentral',
+      'sensitiveNetwork-SRHWestern',
+    ]);
+
+    const [members] = await database.sequelize.query(
+      `SELECT id, sensitive_network_id FROM facilities ORDER BY id;`,
+    );
+    expect(members).toEqual([
+      { id: 'facility-SRHCentral', sensitive_network_id: 'sensitiveNetwork-SRHCentral' },
+      { id: 'facility-SRHWestern', sensitive_network_id: 'sensitiveNetwork-SRHWestern' },
+    ]);
   });
 });
