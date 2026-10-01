@@ -60,6 +60,8 @@ The main improvement to general documentation, serving every audience — config
 - Reached from the Ask AI control or handed off from the search palette
 - Retrieves over the full hub content — user guides, configuration guides, release notes, and roadmap
 - Fast response time — answers are quick and in-context on the hub
+- **Directs users to their system administrator** for questions about patient care, clinical guidelines, or workflows that may be specific to their deployment, rather than answering them directly
+- **Warns the user when they enter patient-identifiable data**, discouraging it before the message is sent
 - In v1 scope; model, retrieval, and hosting _to be decided during card shaping_
 
 ---
