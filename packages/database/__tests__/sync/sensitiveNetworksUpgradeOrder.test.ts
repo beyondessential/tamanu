@@ -50,11 +50,14 @@ describe('sensitive network upgrade ordering', () => {
     expect(await columnExists('sensitive_network_id')).toBe(false);
   };
 
-  const addSensitiveFacility = (id: string, code: string, name: string) =>
+  const addFacility = (id: string, code: string, name: string, isSensitive = true) =>
     database.sequelize.query(
-      `INSERT INTO facilities (id, code, name, is_sensitive) VALUES (:id, :code, :name, TRUE);`,
-      { replacements: { id, code, name } },
+      `INSERT INTO facilities (id, code, name, is_sensitive) VALUES (:id, :code, :name, :isSensitive);`,
+      { replacements: { id, code, name, isSensitive } },
     );
+
+  const addSensitiveFacility = (id: string, code: string, name: string) =>
+    addFacility(id, code, name);
 
   const runUpgrade = () =>
     upgrade({
@@ -149,5 +152,22 @@ describe('sensitive network upgrade ordering', () => {
       { id: 'facility-SRHCentral', sensitive_network_id: 'sensitiveNetwork-SRHCentral' },
       { id: 'facility-SRHWestern', sensitive_network_id: 'sensitiveNetwork-SRHWestern' },
     ]);
+  });
+
+  // The common case: nearly every deployment upgrades with nothing sensitive at all, and should
+  // come out of it with no networks rather than an empty one or a network per facility.
+  it('creates no networks on a deployment with nothing sensitive', async () => {
+    await downToPreNetworkSchema();
+    await addFacility('facility-ordinary', 'ORD', 'Ordinary Clinic', false);
+
+    await runUpgrade();
+
+    const [networks] = await database.sequelize.query(`SELECT id FROM sensitive_networks;`);
+    expect(networks).toEqual([]);
+
+    const [[facility]] = await database.sequelize.query(
+      `SELECT sensitive_network_id FROM facilities WHERE id = 'facility-ordinary';`,
+    );
+    expect(facility.sensitive_network_id).toBeNull();
   });
 });
