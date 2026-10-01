@@ -24,11 +24,11 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 | # | Original request | Feature | Design work |
 | --- | --- | --- | --- |
 | 1 | Project brief | Site platform & scaffold | — |
-| 2 | J8, L8, K8 | User manuals | J8 (index, article, config pages) |
-| 3 | J8 | Release notes | J8 |
-| 4 | Project goal, J8 | Global search | J8 (search overlay) |
-| 5 | J8 | Home / landing | J8 (home) |
-| 6 | J8 | Ask AI | J8 (ask-ai) |
+| 2 | J8 | Ask AI | J8 (ask-ai) |
+| 3 | J8, L8, K8 | User manuals | J8 (index, article, config pages) |
+| 4 | J8 | Release notes | J8 |
+| 5 | Project goal, J8 | Global search | J8 (search overlay) |
+| 6 | J8 | Home / landing | J8 (home) |
 | 7 | J8 | Roadmap & authoring interface | J8 (timeline); authoring UI needed |
 | 8 | J8 | Report an issue | J8 (report-issue) |
 | 9 | J8 | Branding & shared design system | J8 |
@@ -51,7 +51,17 @@ The foundation: a public site built from monorepo markdown.
 
 ---
 
-### 2. User manuals
+### 2. Ask AI
+
+In v1 scope, and a headline capability of the hub.
+
+- Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
+- Reached from the Ask AI control or handed off from the search palette
+- Model, retrieval over the docs, and hosting _to be decided during card shaping_
+
+---
+
+### 3. User manuals
 
 The bulk of the content moving off Slab, in three principal categories, each with its own accent:
 
@@ -65,7 +75,7 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 
 ---
 
-### 3. Release notes
+### 4. Release notes
 
 - Source is `docs/release-notes/*.md` in the repo, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings)
 - `[SLAB_LINK_PLACEHOLDER]` links in the source files need resolving as part of this work
@@ -74,7 +84,7 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 
 ---
 
-### 4. Global search
+### 5. Global search
 
 Directly serves goal 2 — improving search across all documentation.
 
@@ -82,16 +92,6 @@ Directly serves goal 2 — improving search across all documentation.
 - Index built across the parsed content _implementation to be decided_
 
 **Design updates.** Command palette (`/` or ⌘K): an Ask AI assist card at the top, a Popular list when nothing is typed, and results grouped by manuals / release notes once typing.
-
----
-
-### 5. Ask AI
-
-In v1 scope.
-
-- Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
-- Reached from the Ask AI control or handed off from the search palette
-- Model, retrieval over the docs, and hosting _to be decided during card shaping_
 
 ---
 
