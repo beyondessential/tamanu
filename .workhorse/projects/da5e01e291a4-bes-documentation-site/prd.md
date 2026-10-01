@@ -8,13 +8,13 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 
 1. Replace Slab as the single home for external-facing Tamanu documentation
 2. Improve searchability across all documentation
-3. Give PMs an AI-assisted resource to configure Tamanu and understand what is coming in each release
+3. Give every audience an AI-assisted resource for configuring, operating, using, and keeping up with Tamanu
 
 **Site identity & scope:**
 
 - **Name:** Tamanu Knowledge Hub — Tamanu mark and wordmark with "Knowledge Hub" as secondary label
 - **Deployment:** standalone public site, independent of the Tamanu application, built from the monorepo
-- **Audience:** implementation / project managers (config guides), clinical / end users (desktop and mobile manuals), system administrators and partners (release notes, upgrade guidance, roadmap)
+- **Audience:** the full range of Tamanu users — implementation / project managers (config guides), clinical / end users (desktop and mobile manuals), system administrators and IT staff (deployment, upgrade guidance), and implementation partners and country teams (release notes, roadmap). No single audience is primary
 - **In scope:** user manuals, release notes, roadmap, a Report an issue form, global search, Ask AI
 - **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal
 
@@ -54,7 +54,7 @@ The foundation: a public site built from monorepo markdown.
 
 ### 2. Ask AI
 
-The main improvement to general documentation, and the primary resource PMs will reach for — to configure Tamanu and to understand what is coming in a new release. The core problem it solves (alongside global search) is the poor searchability of documentation in Slab across all content. Ask AI answers over the hub's content so a PM can ask a question and get a direct, cited answer rather than hunting across pages.
+The main improvement to general documentation, serving every audience — configuring, operating, using, and keeping up with Tamanu. The core problem it solves (alongside global search) is the poor searchability of documentation in Slab across all content. Ask AI answers over the hub's content so anyone can ask a question and get a direct, cited answer rather than hunting across pages.
 
 - Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
 - Reached from the Ask AI control or handed off from the search palette
