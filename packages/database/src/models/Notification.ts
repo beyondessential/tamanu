@@ -4,11 +4,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import {
-  buildPatientSyncFilterViaPatientId,
-  buildSyncLookupSelect,
-  ENCOUNTER_SENSITIVE_NETWORK_ID,
-} from '../sync';
+import { buildPatientSyncFilterViaPatientId, buildSyncLookupSelect } from '../sync';
 
 const NOTIFICATION_TYPE_VALUES = Object.values(NOTIFICATION_TYPES);
 const NOTIFICATION_STATUS_VALUES = Object.values(NOTIFICATION_STATUSES);
@@ -68,7 +64,7 @@ export class Notification extends Model {
     return {
       select: await buildSyncLookupSelect(this, {
         patientId: `${this.tableName}.patient_id`,
-        sensitiveNetworkId: ENCOUNTER_SENSITIVE_NETWORK_ID,
+        sensitiveNetworkId: 'facilities.sensitive_network_id',
       }),
       joins: `
         LEFT JOIN encounters

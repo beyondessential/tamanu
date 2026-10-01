@@ -3,11 +3,6 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { getModelsForPull } from '../../src/sync';
 import { closeDatabase, createTestDatabase } from '../utilities';
 
-// facilities.sensitive_network_id reaches sync_lookup only through
-// ENCOUNTER_SENSITIVE_NETWORK_ID, so its presence in a model's select is what makes that model's
-// rows network scoped
-const SENSITIVE_SCOPE_MARKER = 'facilities.sensitive_network_id';
-
 describe('sync lookup facility scope', () => {
   let models;
 
@@ -31,7 +26,8 @@ describe('sync lookup facility scope', () => {
       const isEncounterLinked =
         model.tableName === 'encounters' || /JOIN\s+encounters\b/.test(joins ?? '');
 
-      if (isEncounterLinked && !select?.includes(SENSITIVE_SCOPE_MARKER)) {
+      // a model's rows are network scoped exactly when its select carries this column
+      if (isEncounterLinked && !select?.includes('facilities.sensitive_network_id')) {
         unscopedTables.push(model.tableName);
       }
     }
