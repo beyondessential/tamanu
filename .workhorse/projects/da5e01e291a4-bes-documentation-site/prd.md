@@ -45,7 +45,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 The foundation: a public site built from monorepo markdown.
 
 - Content and site live in **this Tamanu monorepo** (docs markdown under `docs/`), so docs version and PR alongside the code they describe
-- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, site-wide search, the Ask AI drawer, and the roadmap authoring interface (so a purely static generator alone will not suffice)
+- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, site-wide search, the Ask AI drawer, and authenticated authoring interfaces for curated content (roadmap and Recent features), so a purely static generator alone will not suffice
 - **Hosting & deployment** — where the built site is served and how it deploys on release _to be decided_
 - **Versioning** — the site presents **one current set** of guides (always the latest); only release notes are per-version
 - Shared top bar (Search + separate Ask AI control) and footer across all surfaces
@@ -99,7 +99,9 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 
 ### 6. Home / landing
 
-**Design updates.** Search-led landing (Stripe pattern): hero with a navy search capsule holding a search pill and a gold Ask AI pill. **Popular** — outlined rows mixing user guides and release notes, generated from what the hub measures as popular. **Recent features** — carousel of the most recent major features, pulled from the `### _Feature_` headings in release notes, each linking to the release notes and a mapped user guide (the feature-to-guide mapping needs confirming). **Browse** — bento on the brand dark: User guides (leads, spanning both rows), Release notes, Roadmap.
+- **Recent features is maintained through a dedicated interface** — a content-editing surface for curating which features appear, rather than purely auto-pulled from release notes. Shares the same authenticated-editing need as the roadmap interface (requirement 7), so the two should be considered together
+
+**Design updates.** Search-led landing (Stripe pattern): hero with a navy search capsule holding a search pill and a gold Ask AI pill. **Popular** — outlined rows mixing user guides and release notes, generated from what the hub measures as popular. **Recent features** — carousel of the most recent major features, each linking to the release notes and a mapped user guide (the feature-to-guide mapping needs confirming). **Browse** — bento on the brand dark: User guides (leads, spanning both rows), Release notes, Roadmap.
 
 ---
 
@@ -156,7 +158,7 @@ Fully explored in J8; modelled on the Figma help centre over the real Tamanu pal
 - **Platform:** which static site generator (must meet the constraints in requirement 1, including the roadmap authoring interface)
 - **Hosting & deployment:** where the built site is served and how it deploys on release
 - **Ask AI:** model, retrieval, and hosting for the chat drawer
-- **Roadmap interface:** where authored content is stored, who can edit, and how the editing route authenticates
+- **Authoring interfaces (roadmap and Recent features):** where curated content is stored, who can edit, and how the editing routes authenticate
 - **Home vs guides landing:** distinct search-led home, or does the guides landing double as home?
 - **Typeface:** Inter vs matching the Tamanu app's Roboto
 - **Feature-to-guide mapping** for the home Recent features carousel
