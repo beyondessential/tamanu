@@ -13,6 +13,12 @@ Scenarios verifying that a new facility can be logged into before its first sync
 - [x] Each record has the shape of a pulled change, including deleted records marked as deleted (verifies spec: FBOOT)
 - [x] A request without facility ids is refused (verifies spec: FBOOT)
 - [x] A request without a sync client device is refused (verifies spec: FBOOT)
+- [x] The bootstrap is refused for a facility the user cannot access (verifies spec: FBOOT)
+
+## Sync session facility access
+
+- [x] A user restricted to their linked facilities can start a sync session for one of them
+- [x] Starting a sync session is refused for a facility the user cannot access, alone or alongside one they can
 
 ## Applying the bootstrap (facility)
 
