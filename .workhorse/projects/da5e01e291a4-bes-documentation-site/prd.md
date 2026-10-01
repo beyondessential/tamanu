@@ -157,7 +157,8 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 
 Content is markdown under `docs/user-manuals/`, written by the `write-user-guide` skill (L8, with a `manifest.json` the hub reads for navigation) and the `draft-config-guide` skill (K8). The hub **parses this markdown** rather than carrying copies.
 
-**Design updates.** Shared collapsible sidebar across index, article and config-guide pages; category header band on the index. Article page uses the Linear docs layout (left grouped nav, centre content, right "On this page" rail). Every module has an overview page (its README), reached from the module breadcrumb. Config-guide pages are titled with the module and carry a tab strip switching between the three guides. Guides **render exactly as GitHub renders the source markdown** (GitHub light markdown theme, GitHub alerts, heading slugs), with the site's chrome around them. Responsive: the On-this-page rail drops at tablet width, the sidebar below 900px.
+**Design updates.** 
+TBC once 
 
 ---
 
