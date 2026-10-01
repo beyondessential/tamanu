@@ -158,7 +158,7 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 Content is markdown under `docs/user-manuals/`, written by the `write-user-guide` skill (L8, with a `manifest.json` the hub reads for navigation) and the `draft-config-guide` skill (K8). The hub **parses this markdown** rather than carrying copies.
 
 **Design updates.** 
-TBC once 
+TBC once document producing 
 
 ---
 
