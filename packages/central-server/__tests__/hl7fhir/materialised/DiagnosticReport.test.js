@@ -317,6 +317,73 @@ describe('Create DiagnosticReport', () => {
       expect(response).toHaveSucceeded();
     });
 
+    it('replaces the PDF when a DiagnosticReport is republished for a published Lab Request', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const firstResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'first report' }],
+      });
+      expect(firstResponse).toHaveSucceeded();
+      const firstAttachment = await labRequest.getLatestAttachment();
+
+      const republishResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'republished report' }],
+        conclusion: 'Sensitive to amoxicillin',
+      });
+      expect(republishResponse).toHaveSucceeded();
+
+      await labRequest.reload();
+      await firstAttachment.reload();
+      const latestAttachment = await labRequest.getLatestAttachment();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect(labRequest.resultsInterpretation).toBe('Sensitive to amoxicillin');
+      expect(latestAttachment).toMatchObject({
+        title: 'republished report',
+        replacedById: null,
+      });
+      expect(firstAttachment.replacedById).toBe(latestAttachment.id);
+    });
+
+    it('does not replace the PDF of a published Lab Request with an interim report', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'final report' }],
+      });
+
+      const response = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        status: FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
+        presentedForm: [{ ...testAttachment, title: 'interim report' }],
+      });
+      expect(response).toHaveSucceeded();
+
+      await labRequest.reload();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect((await labRequest.getLatestAttachment()).title).toBe('final report');
+    });
+
     describe('errors', () => {
       it('error if attach a diagnosticReport to an ImagingRequest', async () => {
         const { FhirServiceRequest } = ctx.store.models;
