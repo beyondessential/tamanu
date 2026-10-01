@@ -135,6 +135,18 @@ export class FhirDiagnosticReport extends FhirResource {
     await this.sequelize.transaction(async () => {
       const newStatus = this.getLabRequestStatus();
 
+      // A republished report (e.g. SENAITE adding partition results to the parent sample) keeps
+      // the status but carries a newer PDF, which must replace the one already attached, along
+      // with any revised conclusion.
+      if (this.presentedForm && labRequest.status === newStatus) {
+        if (this.conclusion) {
+          labRequest.set({ resultsInterpretation: this.conclusion });
+          await labRequest.save();
+        }
+        await this.saveAttachment(labRequest);
+        return;
+      }
+
       if (!this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
         return;
       }
