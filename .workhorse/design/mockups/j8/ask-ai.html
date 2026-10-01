@@ -58,6 +58,7 @@
   .feedback { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--ink-4); }
   .feedback button { border: 1px solid var(--line); background: var(--bg); border-radius: 7px; padding: 5px 8px; color: inherit; cursor: pointer; display: grid; place-items: center; }
   .feedback button:hover { border-color: #cfcfd4; color: var(--ink-2); }
+  .feedback button { font-size:14px; line-height:1; }
 
   /* footer input */
   .d-foot { border-top: 1px solid var(--line); padding: 12px 14px 14px; }
@@ -374,8 +375,9 @@
 
         <div class="feedback">
           <button title="Copy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
-          <button title="Helpful"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2l-2 7a2 2 0 0 1-2 1H7"/></svg></button>
-          <button title="Not helpful"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 13V4h3v9zM17 13l-4 8a2 2 0 0 1-2-2v-4H6a2 2 0 0 1-2-2l2-7a2 2 0 0 1 2-1h9"/></svg></button>
+          <button title="Not helpful" aria-label="Not helpful">☹️</button>
+          <button title="Somewhat helpful" aria-label="Somewhat helpful">😐</button>
+          <button title="Helpful" aria-label="Helpful">🙂</button>
         </div>
       </div>
     </div>
