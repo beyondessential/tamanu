@@ -124,6 +124,7 @@
   .feedback .btns { margin-left:auto; display:flex; gap:8px; }
   .feedback .b { border:1px solid var(--line); border-radius:8px; padding:7px 12px; color:var(--ink-2); font-size:13px; cursor:pointer; }
   .feedback .b:hover { border-color:#d0d0d5; color:var(--ink); }
+  .feedback .b { font-size:16px; line-height:1; padding:6px 10px; }
 
   aside.toc { padding:40px 20px; position:sticky; top:58px; align-self:start; height:calc(100vh - 58px); overflow:auto; }
   .toc .label { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-3); font-weight:650; margin-bottom:12px; }
@@ -1760,7 +1761,7 @@
       </ol>
 
       </div>
-      <div class="feedback">Was this page helpful?<div class="btns"><span class="b">Yes</span><span class="b">No</span></div></div>
+      <div class="feedback">Was this page helpful?<div class="btns"><span class="b" title="Not helpful" aria-label="Not helpful">☹️</span><span class="b" title="Somewhat helpful" aria-label="Somewhat helpful">😐</span><span class="b" title="Helpful" aria-label="Helpful">🙂</span></div></div>
       <nav class="pager" aria-label="Previous and next guides"></nav>
     </main>
 
@@ -2991,7 +2992,7 @@
       </ul>
 
       </div>
-      <div class="feedback">Was this page helpful?<div class="btns"><span class="b">Yes</span><span class="b">No</span></div></div>
+      <div class="feedback">Was this page helpful?<div class="btns"><span class="b" title="Not helpful" aria-label="Not helpful">☹️</span><span class="b" title="Somewhat helpful" aria-label="Somewhat helpful">😐</span><span class="b" title="Helpful" aria-label="Helpful">🙂</span></div></div>
       <nav class="pager" aria-label="Previous and next guides"></nav>
     </main>
 

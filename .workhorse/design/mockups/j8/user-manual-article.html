@@ -83,6 +83,7 @@
   .feedback .btns { margin-left: auto; display: flex; gap: 8px; }
   .feedback .b { border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; color: var(--ink-2); font-size: 13px; cursor: pointer; }
   .feedback .b:hover { border-color: #d0d0d5; color: var(--ink); }
+  .feedback .b { font-size:16px; line-height:1; padding:6px 10px; }
 
   /* right toc */
   aside.toc { padding: 40px 20px; position: sticky; top: 56px; align-self: start; height: calc(100vh - 56px); overflow: auto; }
@@ -532,8 +533,9 @@
     <div class="feedback">
       Was this page helpful?
       <div class="btns">
-        <span class="b">Yes</span>
-        <span class="b">No</span>
+        <span class="b" title="Not helpful" aria-label="Not helpful">☹️</span>
+        <span class="b" title="Somewhat helpful" aria-label="Somewhat helpful">😐</span>
+        <span class="b" title="Helpful" aria-label="Helpful">🙂</span>
       </div>
     </div>
   </main>
