@@ -1171,13 +1171,12 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       );
     });
 
-    it('syncs to a session covering several facilities everything scoped to any of their networks', async () => {
-      const { facility: memberA, encounter: encounterA } = await createFacilityWithEncounter(
-        await createNetworkId(),
-      );
-      const { facility: memberB, encounter: encounterB } = await createFacilityWithEncounter(
-        await createNetworkId(),
-      );
+    it('syncs to a session covering several facilities everything scoped to the network they share', async () => {
+      const networkId = await createNetworkId();
+      const { facility: memberA, encounter: encounterA } =
+        await createFacilityWithEncounter(networkId);
+      const { facility: memberB, encounter: encounterB } =
+        await createFacilityWithEncounter(networkId);
       const { encounter: otherNetworkEncounter } = await createFacilityWithEncounter(
         await createNetworkId(),
       );
@@ -1190,6 +1189,27 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       expect(encounterIds).toContain(encounterA.id);
       expect(encounterIds).toContain(encounterB.id);
       expect(encounterIds).not.toContain(otherNetworkEncounter.id);
+    });
+
+    it('refuses a session whose facilities span two networks', async () => {
+      // Serving it would hand each facility the other network's confidential data, so the session
+      // errors rather than snapshotting. spec: specs/sync/sensitive-networks.md
+      const { facility: memberA } = await createFacilityWithEncounter(await createNetworkId());
+      const { facility: memberB } = await createFacilityWithEncounter(await createNetworkId());
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        { since: 1, facilityIds: [memberA.id, memberB.id] },
+        () => true,
+      );
+
+      const session = await models.SyncSession.findByPk(sessionId);
+      expect(session.errors.join(' ')).toMatch(/must all belong to the same network/);
     });
 
     it('keeps a row network scoped when an incremental build rebuilds it', async () => {
@@ -1261,16 +1281,16 @@ describe('CentralSyncManager Sensitive Facilities', () => {
   });
 
   // The import and provisioning both refuse a membership change, so the only way a facility moves
-  // network in production is this upgrade step's raw SQL. That makes it the one reachable path for the two
-  // behaviours a network change turns on: historical lookup rows following the facility to its new
-  // network, and those rows flowing again to a facility that has already pulled past them. The
-  // step's own test mocks sequelize, so it asserts SQL text rather than either of these.
-  // The import and provisioning both refuse a membership change, so the only way a facility moves
   // network in production is this upgrade step's raw SQL. That makes it the one reachable path for
   // the two behaviours a shared network turns on: historical lookup rows carrying the network, and
-  // those rows flowing to a facility that has already pulled past them.
+  // those rows flowing to a facility that has already pulled past them. The step's own test mocks
+  // sequelize, so it asserts SQL text rather than either of these.
   describe('the Fiji SRH upgrade step', () => {
-    const FIJI_SRH_FACILITY_IDS = ['facility-SRHCentral', 'facility-SRHWestern', 'facility-SRHNorthern'];
+    const FIJI_SRH_FACILITY_IDS = [
+      'facility-SRHCentral',
+      'facility-SRHWestern',
+      'facility-SRHNorthern',
+    ];
     const FIJI_SRH_NETWORK_ID = 'sensitiveNetwork-srh';
 
     // The step runs mid-upgrade, between the migration that adds the network columns and the one

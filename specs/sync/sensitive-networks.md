@@ -81,10 +81,11 @@ Network membership scopes which data reaches a facility. It does not widen which
 
 ### Admitting a record to a facility
 
-- [ ] A sync session names the facilities it is pulling for, and resolves the networks those facilities belong to. A facility belonging to no network contributes no network.
-- [ ] An outgoing snapshot admits a record when it carries neither a facility nor a network, when its facility is one the session names, or when its network is one the session's facilities belong to.
-- [ ] A session whose facilities belong to no network resolves an empty set of networks, so only the first two conditions can admit a record.
-- [ ] A session covering several facilities admits every record scoped to any of them, and every record scoped to any network they belong to.
+- [ ] A sync session names the facilities it is pulling for, and resolves the network those facilities belong to. A facility belonging to no network contributes no network.
+- [ ] An outgoing snapshot admits a record when it carries neither a facility nor a network, when its facility is one the session names, or when its network is the one the session's facilities belong to.
+- [ ] A session whose facilities belong to no network resolves no network, so only the first two conditions can admit a record.
+- [ ] A session covering several facilities admits every record scoped to any of them, and every record scoped to the network they share.
+- [ ] A server's sensitive facilities all belong to the same network. A session whose facilities span more than one is refused rather than served, because a snapshot for it would hand each facility the other network's confidential data.
 - [ ] A facility configured to sync all lab requests receives every lab request, ahead of patient and network scoping.
 - [ ] Network scoping widens which facilities a record can reach, and nothing else. A facility receives its network's confidential data only for the patients it syncs, following the same patient scoping every other record does.
 

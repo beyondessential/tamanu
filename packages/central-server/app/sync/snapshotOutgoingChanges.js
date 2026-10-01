@@ -229,7 +229,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
     const snapshotTableName = getSnapshotTableName(sessionId);
     const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
     const { avoidRepull } = config.sync.lookupTable;
-    const { syncAllLabRequests, sensitiveNetworkIds } = sessionConfig;
+    const { syncAllLabRequests, sensitiveNetworkId } = sessionConfig;
     const recordTypes = Object.values(outgoingModels).map(m => m.tableName);
     while (fromId != null) {
       const [[{ maxId, count }]] = await store.sequelize.query(
@@ -276,10 +276,10 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             OR
             facility_id IN (:facilityIds)
             ${
-              sensitiveNetworkIds?.length
+              sensitiveNetworkId
                 ? `
             OR
-            sensitive_network_id IN (:sensitiveNetworkIds)`
+            sensitive_network_id = :sensitiveNetworkId`
                 : ''
             }
           )
@@ -313,7 +313,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
             // include replacement params used in some model specific sync filters outside of this file
             // see e.g. Referral.buildSyncFilter
             facilityIds,
-            ...(sensitiveNetworkIds?.length ? { sensitiveNetworkIds } : {}),
+            ...(sensitiveNetworkId ? { sensitiveNetworkId } : {}),
             limit: CHUNK_SIZE,
             fromId,
             recordTypes,
