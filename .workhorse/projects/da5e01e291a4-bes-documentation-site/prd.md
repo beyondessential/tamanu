@@ -16,7 +16,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 - **Deployment:** standalone public site, independent of the Tamanu application, built from the monorepo
 - **Audience:** the full range of Tamanu users, with a slight focus on system administrators and IT staff (deployment, upgrade guidance, release notes, roadmap) — alongside implementation / project managers (config guides), clinical / end users (desktop and mobile guides), and implementation partners and country teams
 - **In scope:** user guides, release notes, roadmap, a Report an issue form, global search, Ask AI
-- **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. T
+- **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. To be confirmed
 
 ---
 
