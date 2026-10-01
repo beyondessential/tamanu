@@ -660,6 +660,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
     idealTimes: null,
     pharmacyNotes: null,
   }),
+  PharmacyOrderPrescription: () => ({
+    notDispensedReasonId: null,
+    notDispensedById: null,
+    notDispensedAt: null,
+  }),
   User: () => ({
     email: chance.email({ length: 20 }),
     phoneNumber: chance.phone(),

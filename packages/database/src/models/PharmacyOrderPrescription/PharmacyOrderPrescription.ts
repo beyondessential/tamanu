@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { Model } from '../Model';
-import type { InitOptions, Models } from '../../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import type { MedicationDispense } from '../MedicationDispense';
 import type { PharmacyOrder } from '../PharmacyOrder';
 import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../../sync';
@@ -24,6 +24,9 @@ export class PharmacyOrderPrescription extends Model {
   declare quantity?: number;
   declare repeats?: number;
   declare isCompleted: boolean;
+  declare notDispensedAt?: string | null;
+  declare notDispensedReasonId?: string | null;
+  declare notDispensedById?: string | null;
   declare medicationDispenses?: MedicationDispense[];
   declare pharmacyOrder?: PharmacyOrder;
 
@@ -51,6 +54,7 @@ export class PharmacyOrderPrescription extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        notDispensedAt: dateTimeType('notDispensedAt'),
       },
       {
         ...options,
@@ -86,6 +90,16 @@ export class PharmacyOrderPrescription extends Model {
     this.hasMany(models.MedicationDispense, {
       foreignKey: 'pharmacyOrderPrescriptionId',
       as: 'medicationDispenses',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'notDispensedReasonId',
+      as: 'notDispensedReason',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'notDispensedById',
+      as: 'notDispensedBy',
     });
   }
 

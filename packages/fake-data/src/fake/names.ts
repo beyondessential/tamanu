@@ -275,6 +275,13 @@ export const REFERENCE_DATA_NAMES: Record<string, string[]> = {
     'Withheld by clinician',
     'Dose already given',
   ],
+  [REFERENCE_TYPES.MEDICATION_NOT_DISPENSED_REASON]: [
+    'Out of stock',
+    'Patient not available',
+    'Prescription cancelled',
+    'Patient declined',
+    'Prescriber contacted',
+  ],
   [REFERENCE_TYPES.MEDICATION_PRESET_LABEL]: [
     'Post-operative analgesia',
     'Antenatal supplements',
