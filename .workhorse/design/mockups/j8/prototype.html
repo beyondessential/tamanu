@@ -523,7 +523,7 @@
   .foot-bar { color:rgba(255,255,255,.45); border-top-color:rgba(255,255,255,.14); }
 
   /* ---- Popular: outlined rows, distinct from the filled Browse cards.
-         Accent encodes the kind: blue for a user manual, amber for a release note. ---- */
+         Accent encodes the kind: blue for a user guide, amber for a release note. ---- */
   .pgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
   @media (max-width:1080px){ .pgrid{ grid-template-columns:repeat(2,1fr);} }
   @media (max-width:700px){ .pgrid{ grid-template-columns:1fr;} }
@@ -580,7 +580,7 @@
          text on white beneath ---- */
 
   /* ---- kind accents are semantic, not decorative:
-         user manuals purple, release notes pink, roadmap green ---- */
+         user guides purple, release notes pink, roadmap green ---- */
   .pcard { --a:var(--c-purple); --a-10:var(--c-purple-10); }
   .pcard.release { --a:var(--c-pink); --a-10:var(--c-pink-10); }
 
@@ -846,7 +846,7 @@
     .feat-track { grid-auto-columns:86%; }
   }
 
-  /* ======================= User manuals: three categories =======================
+  /* ======================= User guides: three categories =======================
      Tamanu desktop, Tamanu mobile and Configuration guides. Each category keeps one
      accent across its sidebar group, its dark section header and its tiles.
      Configuration guides list modules, each holding its reference data, settings
@@ -1069,7 +1069,7 @@
     <a class="brand" data-goto="home"><span class="mark"></span> Tamanu <span class="sub">Knowledge Hub</span></a>
     <button class="navtoggle" type="button" aria-label="Menu" aria-expanded="false"><svg class="ic-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="ic-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <nav class="links">
-      <a data-goto="manuals" data-nav="manuals">User manuals</a>
+      <a data-goto="manuals" data-nav="manuals">User guides</a>
       <a data-goto="releases" data-nav="releases">Release notes</a>
       <a data-goto="roadmap" data-nav="roadmap">Roadmap</a>
       <a data-goto="report" data-nav="report">Report an issue</a>
@@ -1085,7 +1085,7 @@
 <section data-view="home">
   <div class="hero">
     <h1>Hello, need a hand?</h1>
-    <p class="lede">Get answers to all things Tamanu. Search user manuals or ask AI a question directly.</p>
+    <p class="lede">Get answers to all things Tamanu. Search user guides or ask AI a question directly.</p>
     <div class="hero-search">
       <div class="big-search" data-open="search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -1099,11 +1099,11 @@
     <div class="pgrid">
       <div class="pcard manual" data-goto="article">
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-        <div><span class="kind">User manual</span><h3>Sending medications to pharmacy</h3><p>Medication</p></div>
+        <div><span class="kind">User guide</span><h3>Sending medications to pharmacy</h3><p>Medication</p></div>
       </div>
       <div class="pcard manual" data-goto="article">
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-        <div><span class="kind">User manual</span><h3>Recording an encounter</h3><p>Clinical workflows</p></div>
+        <div><span class="kind">User guide</span><h3>Recording an encounter</h3><p>Clinical workflows</p></div>
       </div>
       <div class="pcard release" data-goto="releases">
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></span>
@@ -1111,7 +1111,7 @@
       </div>
       <div class="pcard manual" data-goto="article">
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-        <div><span class="kind">User manual</span><h3>Creating a lab request</h3><p>Labs &amp; imaging</p></div>
+        <div><span class="kind">User guide</span><h3>Creating a lab request</h3><p>Labs &amp; imaging</p></div>
       </div>
       <div class="pcard release" data-goto="releases">
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v5H4z"/><path d="M4 13h10v7H4z"/><path d="M18 13h2v7h-2z"/></svg></span>
@@ -1119,7 +1119,7 @@
       </div>
       <div class="pcard manual" data-goto="article">
         <span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-        <div><span class="kind">User manual</span><h3>Finding a patient</h3><p>Getting started</p></div>
+        <div><span class="kind">User guide</span><h3>Finding a patient</h3><p>Getting started</p></div>
       </div>
     </div>
 
@@ -1206,7 +1206,7 @@
     <div class="bento">
       <div class="bcard lead">
         <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-        <a data-goto="manuals"><h3>User manuals</h3></a>
+        <a data-goto="manuals"><h3>User guides</h3></a>
         <p>Step-by-step guides for clinical, administrative and configuration workflows.</p>
         <nav class="links">
           <a data-goto="manuals">Tamanu desktop <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -1433,8 +1433,8 @@
       </div>
     </aside>
     <div class="m-index">
-      <div class="crumbs">User manuals</div>
-      <h1>User manuals</h1>
+      <div class="crumbs">User guides</div>
+      <h1>User guides</h1>
       <p class="subtitle">Guides for using Tamanu on desktop and mobile, and for configuring a deployment.</p>
 
       <div class="cat-head cat-desktop" id="m-desktop">
@@ -1726,7 +1726,7 @@
     </aside>
 
     <main class="article manual cat-desktop">
-      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <a id="a-crumb-platform" data-goto="manuals" data-jump="m-desktop">Tamanu desktop</a> <span class="sep">/</span> <a id="a-crumb-module" data-goto="module" data-cat="desktop" data-module="10">Vitals</a> <span class="sep">/</span> <span aria-current="page">Record a set of vitals</span></nav>
+      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User guides</a> <span class="sep">/</span> <a id="a-crumb-platform" data-goto="manuals" data-jump="m-desktop">Tamanu desktop</a> <span class="sep">/</span> <a id="a-crumb-module" data-goto="module" data-cat="desktop" data-module="10">Vitals</a> <span class="sep">/</span> <span aria-current="page">Record a set of vitals</span></nav>
       <h1><span class="h-num" id="a-num">10.1</span>Record a set of vitals</h1>
       <div class="markdown-body">
       <p>Record a patient&#39;s observations against the encounter they are admitted under. Start from
@@ -1977,7 +1977,7 @@
     </aside>
 
     <main class="article guide cat-config">
-      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <a data-goto="manuals" data-jump="m-config">Configuration guides</a> <span class="sep">/</span> <a id="g-crumb-module" data-goto="module" data-cat="config" data-module="15">Medications</a> <span class="sep">/</span> <span id="g-crumb-surface" aria-current="page">Settings</span></nav>
+      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User guides</a> <span class="sep">/</span> <a data-goto="manuals" data-jump="m-config">Configuration guides</a> <span class="sep">/</span> <a id="g-crumb-module" data-goto="module" data-cat="config" data-module="15">Medications</a> <span class="sep">/</span> <span id="g-crumb-surface" aria-current="page">Settings</span></nav>
       <h1 id="g-title">Medications</h1>
       <nav class="g-tabs" aria-label="Guides for this module">
         <a data-goto="guide" data-surface="reference-data" data-module="15">Reference data <span class="n">15.1</span></a>
@@ -3245,7 +3245,7 @@
     </aside>
 
     <main class="article module-page">
-      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User manuals</a> <span class="sep">/</span> <a id="m-crumb-cat" data-goto="manuals" data-jump="m-config">Configuration guides</a> <span class="sep">/</span> <span id="m-crumb-module" aria-current="page">Medications</span></nav>
+      <nav class="crumbs" aria-label="Breadcrumb"><a data-goto="manuals">User guides</a> <span class="sep">/</span> <a id="m-crumb-cat" data-goto="manuals" data-jump="m-config">Configuration guides</a> <span class="sep">/</span> <span id="m-crumb-module" aria-current="page">Medications</span></nav>
       <h1><span class="h-num" id="m-num">15</span><span id="m-title">Medications</span></h1>
       <div class="mod" data-key="config-1" hidden>
         <div class="markdown-body">
@@ -4117,7 +4117,7 @@
           <p class="rn-lead">Supporting documentation</p>
           <ul>
             <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
-            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
           </ul>
           <hr class="rn-hr">
           <h2 class="rn-sec sec-enh">🔧 System Enhancements</h2>
@@ -4211,7 +4211,7 @@
           <ul>
             <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
             <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
-            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
           </ul>
           <p class="rn-lead">Keen to implement automatic encounter fees?</p>
           <p>Please reach out to your Tamanu system administrator/project manager to discuss implementation. This feature requires reference data and price list setup before it can be enabled.</p>
@@ -4231,7 +4231,7 @@
           <ul>
             <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
             <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
-            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
           </ul>
           <hr class="rn-hr">
           <h4 class="rn-feat" id="feat-v261-medication-dispensing-quantity-autocalculation">Medication Dispensing Quantity Autocalculation</h4>
@@ -4249,7 +4249,7 @@
           <ul>
             <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
             <li>Configuration guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
-            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
           </ul>
           <hr class="rn-hr">
           <h4 class="rn-feat" id="feat-v261-encounter-notes-search-and-filters">Encounter Notes Search and Filters</h4>
@@ -4266,7 +4266,7 @@
           <p class="rn-lead">Supporting documentation</p>
           <ul>
             <li>Feature overview - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
-            <li>User manual - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
+            <li>User guide - <span class="slab">[SLAB_LINK_PLACEHOLDER]</span></li>
           </ul>
           <hr class="rn-hr">
           <h4 class="rn-feat" id="feat-v261-emergency-patients-board-enhancements">'Emergency Patients' Board Enhancements</h4>
@@ -4561,7 +4561,7 @@
     </div>
     <div class="foot-col">
       <h4>Documentation</h4>
-      <a data-goto="manuals">User manuals</a>
+      <a data-goto="manuals">User guides</a>
       <a data-goto="releases">Release notes</a>
       <a data-goto="roadmap">Roadmap</a>
       <a data-goto="report">Report an issue</a>
@@ -4599,12 +4599,12 @@
         <div class="group-label">Popular</div>
         <div class="prow" data-goto="article">
           <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-          <div><div class="t">Sending medications to pharmacy</div><div class="crumb">User manual · Medication</div></div>
+          <div><div class="t">Sending medications to pharmacy</div><div class="crumb">User guide · Medication</div></div>
           <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
         </div>
         <div class="prow" data-goto="article">
           <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-          <div><div class="t">Recording an encounter</div><div class="crumb">User manual · Clinical workflows</div></div>
+          <div><div class="t">Recording an encounter</div><div class="crumb">User guide · Clinical workflows</div></div>
           <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
         </div>
         <div class="prow" data-goto="releases">
@@ -4614,7 +4614,7 @@
         </div>
         <div class="prow" data-goto="article">
           <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-          <div><div class="t">Creating a lab request</div><div class="crumb">User manual · Labs</div></div>
+          <div><div class="t">Creating a lab request</div><div class="crumb">User guide · Labs</div></div>
           <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
         </div>
         <div class="prow" data-goto="releases">
@@ -4642,7 +4642,7 @@
         <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
       </div>
 
-      <div class="group-label">User manuals</div>
+      <div class="group-label">User guides</div>
       <div class="prow" data-goto="article">
         <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
         <div><div class="t">Sending medications to <mark>pharmacy</mark></div><div class="crumb">Medication · Dispensing</div></div>
@@ -4688,7 +4688,7 @@
   <div class="d-body">
     <div id="drawer-empty" class="d-empty" hidden>
       <div class="d-empty-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></div>
-      <p>Ask a question about Tamanu and get an answer drawn from the user manuals and release notes.</p>
+      <p>Ask a question about Tamanu and get an answer drawn from the user guides and release notes.</p>
     </div>
     <div id="drawer-answer">
     <div class="msg user" id="drawer-question">How do I send a medication to pharmacy at discharge?</div>
@@ -4706,7 +4706,7 @@
           <div class="lbl">Sources</div>
           <div class="src" data-goto="article">
             <span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z"/><path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/></svg></span>
-            <span><span class="t">Sending medications to pharmacy</span><br><span class="s">User manuals · Medication</span></span>
+            <span><span class="t">Sending medications to pharmacy</span><br><span class="s">User guides · Medication</span></span>
             <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span>
           </div>
           <div class="src" data-goto="releases">
@@ -4902,7 +4902,7 @@
   });
 </script>
 <script>
-  // User manuals sidebar: category groups and module rows each open and close on their own
+  // User guides sidebar: category groups and module rows each open and close on their own
   document.addEventListener('click', (e)=>{
     const head = e.target.closest('.mgroup-head, .mgroup-list button.top');
     if (!head) return;

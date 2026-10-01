@@ -1,8 +1,8 @@
 # Tamanu documentation and knowledge hub
 
 A public-facing documentation website for Tamanu, leading with a global search that spans
-user manuals and release notes, with an "ask AI" option. Design references: Stripe docs for
-the search-led home and command palette; Linear for the user manual and release notes layout.
+user guides and release notes, with an "ask AI" option. Design references: Stripe docs for
+the search-led home and command palette; Linear for the user guide and release notes layout.
 
 **Current phase:** nailing down architecture and navigation. Black-and-white palette only until
 that settles, then colour and brand come later.
@@ -16,8 +16,8 @@ Mockups under `.workhorse/design/mockups/j8/`:
   drawer. The single-page files below remain as the per-surface references.
 - `home.html` — search-led landing. Top bar carries Search and a separate Ask AI control (Stripe
   pattern). Hero leads with a large search + Ask AI, then two deliberately different grids.
-  **Popular** is six real entries — a mix of user manuals and release notes — as outlined rows,
-  each carrying the icon and label of its kind (user manual or release notes) rather than a
+  **Popular** is six real entries — a mix of user guides and release notes — as outlined rows,
+  each carrying the icon and label of its kind (user guide or release notes) rather than a
   per-article icon, so the kind is readable at a glance and the list can be generated from
   whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
   destinations. The two treatments are distinct so the sections do not read as one long grid.
@@ -32,7 +32,7 @@ Mockups under `.workhorse/design/mockups/j8/`:
   "Dispensing quantity autocalculation" section). The feature-to-guide mapping is a proposal to
   confirm.
 - `manuals-index.html` — the manuals section landing. **Superseded by the prototype's manuals view**,
-  which carries the three-category structure (see "User manuals structure"); this standalone file
+  which carries the three-category structure (see "User guides structure"); this standalone file
   still shows the earlier topic-card grid.
 - The prototype also has a **configuration guide** view, reached from the Configuration guides tiles
   and sidebar entries.
@@ -60,11 +60,11 @@ Mockups under `.workhorse/design/mockups/j8/`:
 - `report-issue.html` — a "Report an issue" support form: Name, Email, Country or deployment (select),
   Describe the issue (textarea), Screenshots drop zone (optional) with a "obscure patient details"
   warning, and a Submit button. Reachable from the top nav and the manuals sidebar (not in the
-  home Browse row, which holds User manuals, Release notes and Roadmap). Rendered in the mono palette
+  home Browse row, which holds User guides, Release notes and Roadmap). Rendered in the mono palette
   (the reference's amber warning and blue link kept monochrome for now).
 - `search-overlay.html` — global search palette. An "Ask AI assist" card sits at the top and always
   opens the Ask AI drawer. With nothing typed, the body shows a single **Popular** list: the top five
-  most-accessed items across both user manuals and release notes. Once the user types, it switches to
+  most-accessed items across both user guides and release notes. Once the user types, it switches to
   the query view: a suggested question echoing the typed term, then document results grouped by
   manuals / release notes.
 - `ask-ai.html` — Stripe-style Ask AI: a right-hand chat drawer with an answer, inline source citations, and a follow-up input. In the prototype the drawer carries the search query: opened from Ask AI assist it shows the typed question and its answer, or an empty chat state when nothing was typed.
@@ -79,16 +79,16 @@ Stripe Ask AI chat drawer, Linear docs home (sidebar + card grid). Mockups follo
   mockup (the user supplied it). Decision still open: whether the real hub fetches it live from
   bes.au or mirrors it into the repo. The cards carry no "View details" affordance — each card states
   its own contents, so there is nothing further to open.
-- **User manuals** — markdown in the repo under `docs/user-manuals/`, written by two skills on other
+- **User guides** — markdown in the repo under `docs/user-manuals/`, written by two skills on other
   cards: L8 (`write-user-guide`) for the desktop and mobile end-user guides, K8
   (`draft-config-guide`) for configuration guides under `config-guides/`. Both bring existing Slab
   content across. L8 also carries a `manifest.json` listing platforms, modules and guides, which the
   hub can read for its navigation. Like release notes, the hub parses this markdown rather than
   carrying copies.
 
-## User manuals structure
+## User guides structure
 
-User manuals has three principal categories. Their module lists come from the cards writing the
+User guides has three principal categories. Their module lists come from the cards writing the
 content, copied verbatim:
 
 - **Tamanu desktop** — 22 numbered modules from card L8's `docs/user-manuals/desktop` (1 Accessing
@@ -112,7 +112,7 @@ Design notes:
   category is expanded and the others collapse.
 - **Selected and hover never look alike in a sidebar**: hover is the light blue tint, and the
   selected row (current release version, current guide or article) is the brand navy with white text,
-  matching the selected guide tab. This holds across the release notes, User manuals and article
+  matching the selected guide tab. This holds across the release notes, User guides and article
   sidebars.
 - **A guide reads on white**: on the article and configuration guide pages everything right of the
   sidebar, the guide and its "On this page" rail, is one white page reaching the window's right
@@ -186,7 +186,7 @@ around it.
 - **Deployment: standalone public docs site**, independent of the Tamanu app.
 - **Site name: Tamanu Knowledge Hub**, shown as the Tamanu mark and wordmark with "Knowledge Hub" as
   the secondary label in the top bar and footer, and in page titles.
-- **Hub scope: user manuals, release notes, a Roadmap, and a Report an issue support form.** API
+- **Hub scope: user guides, release notes, a Roadmap, and a Report an issue support form.** API
   reference and the operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) stay out.
 - **Tamanu-branded palette** over a mostly white page, Inter typeface, subtle 1px borders, generous
   whitespace. Colour is applied as a layer over the original neutral mockups (see "Branding" below),
@@ -216,7 +216,7 @@ light display type, and a dark capsule around the search.
   embedded as a data URI in a `--logo` custom property rather than redrawn.
 - **Each card sets a local `--a` and `--a-10` pair** that colours its icon, panel tint, label and
   hover state. On the manuals index these rotate by `nth-child` as decorative wayfinding; on the home
-  page they are **semantic and fixed**: user manuals purple `#4101C9`, release notes pink `#D10580`,
+  page they are **semantic and fixed**: user guides purple `#4101C9`, release notes pink `#D10580`,
   roadmap green `#19934E`. The same three hold across both the Popular rows and the Browse tiles, so
   a kind keeps one colour wherever it appears.
 - **Type is black and greyscale only.** Colour never lands on the words: it carries on icons, panel
@@ -237,7 +237,7 @@ light display type, and a dark capsule around the search.
 - **Browse is a bento on the brand dark.** Five directions were explored (full tint, accent edge,
   dark with accent glow, bento, editorial rows) in a throwaway options sheet; the chosen combination
   is the bento layout wearing the dark treatment. Each cell is navy with a blurred wash of its kind's
-  accent bleeding from the top corner. **User manuals leads**, spanning both rows, because it is what
+  accent bleeding from the top corner. **User guides leads**, spanning both rows, because it is what
   most people came for, and it earns the larger cell by listing its top sections as links rather than
   padding the space. Release notes and Roadmap stack beside it.
 - **Popular wears the same dark treatment in its own layout.** Five uplifts were explored (light
@@ -245,7 +245,7 @@ light display type, and a dark capsule around the search.
   colour — navy with the kind's accent blurred from the top corner — while keeping Popular's compact
   row: icon chip at the left, kind label, title and section stacked beside it. The two sections now
   read as one family. **Popular is the light inverse of a Browse tile**: no fill at all, so the page
-  canvas shows through, outlined in its own kind colour at 40% strength — purple for a user manual,
+  canvas shows through, outlined in its own kind colour at 40% strength — purple for a user guide,
   pink for a release note — with the same blurred accent wash from the same corner, the same lift on hover, ink type, and
   the accent repeated in the icon chip. The outline makes the kind readable from the card's edge
   rather than only from its label. Holding Popular at a percentage of the brand dark was tried first and abandoned — the
@@ -293,7 +293,7 @@ light display type, and a dark capsule around the search.
 
 ## Open questions
 
-- **User manual content source** — Markdown in-repo / Slab / CMS. Undecided; decide once layout
+- **User guide content source** — Markdown in-repo / Slab / CMS. Undecided; decide once layout
   settles. Structure of manual sections depends on this.
 - Versioning: do manuals track Tamanu versions, or is there one current manual set?
 - Home vs manuals-index: whether the hub home is a distinct search-led page (current `home.html`)
