@@ -7,7 +7,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 **Goals:**
 
 1. Replace Slab as the single home for external-facing Tamanu documentation
-2. Improve search across all documentation
+2. Improve search across all documentation — above all, make release-note content findable across versions
 3. Give PMs an AI-assisted resource to configure Tamanu and understand what is coming in each release
 
 **Site identity & scope:**
@@ -54,7 +54,7 @@ The foundation: a public site built from monorepo markdown.
 
 ### 2. Ask AI
 
-The main improvement to general documentation, and the primary resource PMs will reach for — to configure Tamanu and to understand what is coming in a new release. It answers over the hub's content (config guides, release notes, roadmap) so PMs get a direct answer rather than hunting across pages.
+The main improvement to general documentation, and the primary resource PMs will reach for — to configure Tamanu and to understand what is coming in a new release. The core problem it solves (alongside global search) is the poor searchability of release notes: content accumulates across many versions and is hard to find in Slab. Ask AI answers over the hub's content so a PM can ask "when did X change" or "is Y in this release" and get a direct, cited answer rather than hunting across pages.
 
 - Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
 - Reached from the Ask AI control or handed off from the search palette
@@ -88,9 +88,9 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 
 ### 5. Global search
 
-Directly serves goal 2 — improving search across all documentation.
+Directly serves goal 2 — improving search across all documentation, and above all making release-note content findable across versions (its weakest point in Slab).
 
-- Spans user manuals and release notes
+- Spans user manuals and release notes, with release notes searchable across every version
 - Index built across the parsed content _implementation to be decided_
 
 **Design updates.** Command palette (`/` or ⌘K): an Ask AI assist card at the top, a Popular list when nothing is typed, and results grouped by manuals / release notes once typing.
