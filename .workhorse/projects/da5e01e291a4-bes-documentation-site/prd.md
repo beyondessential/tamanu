@@ -136,6 +136,7 @@ Fully explored in J8; modelled on the Figma help centre over the real Tamanu pal
 
 ### 10. Migration & cutover from Slab
 
+- **Megan owns the migration of documents and the retirement of Slab**
 - **Tamanu documentation is fully cut over** to the hub in one launch — Slab is retired for Tamanu content
 - End-user guides and configuration guides are brought across from Slab by cards L8 and K8 as repo markdown
 - Handle existing Slab links (README runbook links, external references) — redirect or update
