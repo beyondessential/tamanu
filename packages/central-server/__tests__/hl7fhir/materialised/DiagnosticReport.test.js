@@ -338,6 +338,7 @@ describe('Create DiagnosticReport', () => {
       const republishResponse = await app.post(endpoint).send({
         ...postBody(serviceRequestId),
         presentedForm: [{ ...testAttachment, title: 'republished report' }],
+        conclusion: 'Sensitive to amoxicillin',
       });
       expect(republishResponse).toHaveSucceeded();
 
@@ -345,6 +346,7 @@ describe('Create DiagnosticReport', () => {
       await firstAttachment.reload();
       const latestAttachment = await labRequest.getLatestAttachment();
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect(labRequest.resultsInterpretation).toBe('Sensitive to amoxicillin');
       expect(latestAttachment).toMatchObject({
         title: 'republished report',
         replacedById: null,
