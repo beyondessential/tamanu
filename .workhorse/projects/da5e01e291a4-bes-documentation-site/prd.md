@@ -15,7 +15,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 
 - **Implementation / project managers** — configuration guides for setting up modules
 - **Clinical / end users** — desktop and mobile user manuals for day-to-day use
-- **System administrators & implementation partners** — release notes, upgrade guidance, roadmap
+- **System administrators & IT staff** — release notes, upgrade guidance, roadmap
 - **Anyone hitting a problem** — self-serve search, Ask AI, and a route to report an issue
 
 ## Surfaces
