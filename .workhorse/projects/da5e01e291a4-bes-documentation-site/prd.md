@@ -175,7 +175,7 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 - Linear changelog, master-detail: the left version list is the contents, one release shown at a time, latest selected by default
 - One section header above the list and notes; each release opens with its version and `Released DD-MM-YYYY` line
 - Section headings keep the source emoji (🌟 major features, 🔧 enhancements, 🐛 fixes, ⚠️ critical upgrade notes) with colour-coded rules
-- Reads on white
+
 
 ---
 
