@@ -1167,11 +1167,12 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       );
     });
 
-    it('syncs to a session covering several facilities everything scoped to any of their networks', async () => {
+    it('syncs to a session covering several facilities everything scoped to the network they share', async () => {
+      const networkId = await createNetworkId();
       const { facility: memberA, encounter: encounterA } =
-        await createFacilityWithEncounter(await createNetworkId());
+        await createFacilityWithEncounter(networkId);
       const { facility: memberB, encounter: encounterB } =
-        await createFacilityWithEncounter(await createNetworkId());
+        await createFacilityWithEncounter(networkId);
       const { encounter: otherNetworkEncounter } = await createFacilityWithEncounter(
         await createNetworkId(),
       );
@@ -1184,6 +1185,27 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       expect(encounterIds).toContain(encounterA.id);
       expect(encounterIds).toContain(encounterB.id);
       expect(encounterIds).not.toContain(otherNetworkEncounter.id);
+    });
+
+    it('refuses a session whose facilities span two networks', async () => {
+      // Serving it would hand each facility the other network's confidential data, so the session
+      // errors rather than snapshotting. spec: specs/sync/sensitive-networks.md
+      const { facility: memberA } = await createFacilityWithEncounter(await createNetworkId());
+      const { facility: memberB } = await createFacilityWithEncounter(await createNetworkId());
+
+      const centralSyncManager = await initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const { sessionId } = await centralSyncManager.startSession();
+      await waitForSession(centralSyncManager, sessionId);
+      await centralSyncManager.setupSnapshotForPull(
+        sessionId,
+        { since: 1, facilityIds: [memberA.id, memberB.id] },
+        () => true,
+      );
+
+      const session = await models.SyncSession.findByPk(sessionId);
+      expect(session.errors.join(' ')).toMatch(/must all belong to the same network/);
     });
 
     it('keeps a row network scoped when an incremental build rebuilds it', async () => {
