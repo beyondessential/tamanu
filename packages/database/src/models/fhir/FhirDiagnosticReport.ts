@@ -135,7 +135,16 @@ export class FhirDiagnosticReport extends FhirResource {
 
     const newStatus = this.getLabRequestStatus();
 
-    if (this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
+    // A republished report (e.g. SENAITE adding partition results to the parent sample) keeps
+    // the status but carries a newer PDF, which must replace the one already attached, along
+    // with any revised conclusion.
+    if (this.presentedForm && labRequest.status === newStatus) {
+      if (this.conclusion) {
+        labRequest.set({ resultsInterpretation: this.conclusion });
+        await labRequest.save();
+      }
+      await this.saveAttachment(labRequest);
+    } else if (this.shouldUpdateLabRequest(labRequest, this.status, newStatus)) {
       labRequest.set({ status: newStatus });
       // publishedDate is the completion timestamp shown in the finalised table, so stamp it on
       // rejection too — a rejected request is terminal and would otherwise show a blank date.
