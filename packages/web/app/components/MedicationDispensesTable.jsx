@@ -65,6 +65,10 @@ const getPatientDisplayId = ({ pharmacyOrderPrescription }) =>
 const getPatientName = ({ pharmacyOrderPrescription }) => (
   <PatientNameDisplay patient={pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient} />
 );
+const getArea = ({ currentAreaName }) =>
+  currentAreaName ?? (
+    <TranslatedText stringId="medication-dispenses.table.area.discharged" fallback="Discharged" />
+  );
 const getMedication = dispense => <DispensedMedicationName dispense={dispense} />;
 const getDateDispensed = ({ dispensedAt }) => (
   <DateDisplay date={dispensedAt} timeOnlyTooltip shortYear data-testid="datedisplay-date-sent" />
@@ -194,6 +198,12 @@ export const MedicationDispensesTable = () => {
       ),
       accessor: getPatientName,
       sortable: false,
+    },
+    {
+      key: 'currentAreaName',
+      title: <TranslatedText stringId="medication-dispenses.table.column.area" fallback="Area" />,
+      accessor: getArea,
+      sortable: true,
     },
     {
       key: 'pharmacyOrderPrescription.prescription.medication.name',
