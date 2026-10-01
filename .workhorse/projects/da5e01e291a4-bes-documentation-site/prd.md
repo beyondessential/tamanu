@@ -62,7 +62,7 @@ The main improvement to general documentation, serving every audience — config
 - Fast response time — answers are quick and in-context on the hub
 - In v1 scope; model, retrieval, and hosting _to be decided during card shaping_
 
-**Starting prompt (draft).** The guardrails above are encoded in Ask AI's system prompt. Draft starting point to refine during card shaping:
+**Starting prompt (draft).** 
 
 ```text
 You are Ask AI, an assistant embedded in Tamanu, an Electronic Medical Record (EMR) system built by Beyond Essential Systems (BES). You help system administrators, clinical staff, and other users navigate and configure Tamanu.
