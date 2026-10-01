@@ -16,7 +16,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 - **Deployment:** standalone public site, independent of the Tamanu application, built from the monorepo
 - **Audience:** the full range of Tamanu users, with a slight focus on system administrators and IT staff (deployment, upgrade guidance, release notes, roadmap) — alongside implementation / project managers (config guides), clinical / end users (desktop and mobile guides), and implementation partners and country teams
 - **In scope:** user guides, release notes, roadmap, a Report an issue form, global search, Ask AI
-- **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. To be confirmed.2
+- **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. To be confirmed.
 
 ---
 
@@ -39,6 +39,8 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 ---
 
 ## Requirements
+
+> **Design source of truth:** Card **J8** and its mockups (`.workhorse/design/mockups/j8/`) are the source of truth for all design requirements. The **Design updates** notes in each requirement are summaries of intent only — where they differ from J8, J8 wins.
 
 ### 1. Site platform & scaffold
 
@@ -157,8 +159,9 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 
 Content is markdown under `docs/user-manuals/`, written by the `write-user-guide` skill (L8, with a `manifest.json` the hub reads for navigation) and the `draft-config-guide` skill (K8). The hub **parses this markdown** rather than carrying copies.
 
-**Design updates.** 
-TBC once skills to produce documents are complete. 
+**Design updates.**
+
+- TBC once the skills producing the content (L8, K8) are complete
 
 ---
 
@@ -167,7 +170,12 @@ TBC once skills to produce documents are complete.
 - Source is `docs/release-notes/*.md` in the repo, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings)
 - `[SLAB_LINK_PLACEHOLDER]` links in the source files need resolving as part of this work
 
-**Design updates.** Linear changelog, master-detail: the left version list is the contents, one release shown at a time, latest selected by default. One section header above the list and notes; each release opens with its version and `Released DD-MM-YYYY` line. Section headings keep the source emoji (🌟 major features, 🔧 enhancements, 🐛 fixes, ⚠️ critical upgrade notes) with colour-coded rules. Reads on white.
+**Design updates.**
+
+- Linear changelog, master-detail: the left version list is the contents, one release shown at a time, latest selected by default
+- One section header above the list and notes; each release opens with its version and `Released DD-MM-YYYY` line
+- Section headings keep the source emoji (🌟 major features, 🔧 enhancements, 🐛 fixes, ⚠️ critical upgrade notes) with colour-coded rules
+- Reads on white
 
 ---
 
@@ -178,7 +186,12 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - Spans all content — user guides, configuration guides, and release notes (across every version)
 - Index built across the parsed content _implementation to be decided_
 
-**Design updates.** Command palette (`/` or ⌘K): an Ask AI assist card at the top, a Popular list when nothing is typed, and results grouped by guides / release notes once typing.
+**Design updates.**
+
+- Command palette (`/` or ⌘K)
+- An Ask AI assist card at the top
+- A Popular list when nothing is typed
+- Results grouped by guides / release notes once typing
 
 ---
 
@@ -186,7 +199,12 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 
 - **Recent features is maintained through a dedicated interface** — a content-editing surface for curating which features appear, rather than purely auto-pulled from release notes. Shares the same authenticated-editing need as the roadmap interface (requirement 7), so the two should be considered together
 
-**Design updates.** Search-led landing (Stripe pattern): hero with a navy search capsule holding a search pill and a gold Ask AI pill. **Popular** — outlined rows mixing user guides and release notes, generated from what the hub measures as popular. **Recent features** — carousel of the most recent major features, each linking to the release notes and a mapped user guide (the feature-to-guide mapping needs confirming). **Browse** — bento on the brand dark: User guides (leads, spanning both rows), Release notes, Roadmap.
+**Design updates.**
+
+- Search-led landing (Stripe pattern): hero with a navy search capsule holding a search pill and a gold Ask AI pill
+- **Popular** — outlined rows mixing user guides and release notes, generated from what the hub measures as popular
+- **Recent features** — carousel of the most recent major features, each linking to the release notes and a mapped user guide (the feature-to-guide mapping needs confirming)
+- **Browse** — bento on the brand dark: User guides (leads, spanning both rows), Release notes, Roadmap
 
 ---
 
@@ -195,7 +213,11 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - Each card states its own contents; content is the Tamanu roadmap
 - **Roadmap content is maintained through a dedicated interface** — a content-editing surface within the hub, not static repo markdown or a live fetch from bes.au. Implies a stored content store and an authenticated editing route
 
-**Design updates.** Horizontal timeline (Microsoft 365 pattern): period cards zig-zag above/below a central status axis (Released = filled, Planned = dashed), prev/next navigation; vertical single column on small screens. The authoring interface itself still needs design.
+**Design updates.**
+
+- Horizontal timeline (Microsoft 365 pattern): period cards zig-zag above/below a central status axis (Released = filled, Planned = dashed), with prev/next navigation
+- Vertical single column on small screens
+- The authoring interface itself still needs design
 
 ---
 
@@ -205,7 +227,9 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - **Submits by email to the BES support inbox**
 - Reachable from top nav and guides sidebar
 
-**Design updates.** Form layout prototyped in J8 (`report-issue.html`).
+**Design updates.**
+
+- Form layout prototyped in J8 (`report-issue.html`)
 
 ---
 
@@ -237,7 +261,7 @@ Fully explored in J8; modelled on the Figma help centre over the real Tamanu pal
 - _Confirm the exact in-app location(s) during card shaping_
 
 ---
-"
+
 ## Open questions
 
 - **Platform:** which static site generator (must meet the constraints in requirement 1, including the roadmap authoring interface)
