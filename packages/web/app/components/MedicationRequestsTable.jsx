@@ -167,7 +167,6 @@ export const MedicationRequestsTable = () => {
   const isInvoicingEnabled = getSetting('features.invoicing.enabled');
   const canDeleteMedicationRequest = ability.can('delete', 'MedicationRequest');
   const canDispenseMedication = ability.can('create', 'MedicationDispense');
-  const canDeleteMedicationDispense = ability.can('delete', 'MedicationDispense');
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
@@ -324,7 +323,7 @@ export const MedicationRequestsTable = () => {
       accessor: getStockStatus,
       sortable: true,
     },
-    ...(canDeleteMedicationRequest && canDeleteMedicationDispense
+    ...(canDeleteMedicationRequest
       ? [
           {
             key: 'actions',
