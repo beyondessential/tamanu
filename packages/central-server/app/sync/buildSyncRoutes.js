@@ -8,6 +8,7 @@ import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
+import { buildFacilityBootstrap } from './buildFacilityBootstrap';
 import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
@@ -138,6 +139,33 @@ export const buildSyncRoutes = ctx => {
       } finally {
         await releaseCreateSessionLock();
       }
+    }),
+  );
+
+  // spec: FBOOT#serving-the-bootstrap
+  // the records a facility needs to be logged into before its first sync completes
+  syncRoutes.post(
+    '/bootstrap',
+    asyncHandler(async (req, res) => {
+      const { store, user } = req;
+      const { facilityIds } = z
+        .object({ facilityIds: z.array(z.string().min(1)).min(1) })
+        .parse(req.body);
+
+      const userInstance = await store.models.User.findByPk(user.id);
+      if (!(await userInstance.canSync(facilityIds, req))) {
+        throw new ForbiddenError('User cannot sync');
+      }
+      for (const facilityId of facilityIds) {
+        if (!(await userInstance.canAccessFacility(facilityId))) {
+          throw new ForbiddenError('User does not have access to facility');
+        }
+      }
+
+      const records = await buildFacilityBootstrap(store.models, facilityIds);
+      log.info('FacilityBootstrap.served', { deviceId: req.device.id, count: records.length });
+      // carries password hashes, as a pull does: keep it out of any intermediary cache
+      res.set('Cache-Control', 'no-store').json({ records });
     }),
   );
 

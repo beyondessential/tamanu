@@ -21,6 +21,7 @@ The wizard connects the server to central. From then until its first sync comple
 ## Setting-up state
 
 - [ ] A facility server is setting up while it is configured and its first sync has not completed, that is, while its pull cursor is unset.
+- [ ] A server with sync turned off is never setting up.
 - [ ] The server's liveness check reports whether it is setting up, alongside whether setup is required.
 - [ ] Logging in while the server is setting up follows the same path as at any other time: through central, falling back to local credentials when central cannot be reached.
 
