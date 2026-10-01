@@ -21,7 +21,7 @@ Mockups under `.workhorse/design/mockups/j8/`:
   per-article icon, so the kind is readable at a glance and the list can be generated from
   whatever the hub measures as popular. **Browse** stays as filled colour cards for the three
   destinations. The two treatments are distinct so the sections do not read as one long grid.
-- **Home: Recent features** sits between Popular and Browse. It is a carousel of the six most recent
+- **Home: What's new** sits between Popular and Browse. It is a carousel of the six most recent
   major features (the `### _Feature_` headings in `docs/release-notes`, newest first; v2.63 has
   none, so they are v2.62's two and v2.61's first four). Three cards show at a time, stepped by
   arrows in the section header that switch off at either end. Each card has a 16:9 video area (the
