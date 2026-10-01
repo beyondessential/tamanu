@@ -116,6 +116,15 @@ export class CentralServerConnection extends TamanuApi {
     return Boolean((await this.loginData())?.settings?.sync?.streaming?.enabled);
   }
 
+  // spec: FBOOT#when-a-facility-bootstraps
+  async fetchBootstrap() {
+    const { records } = await this.fetch('sync/bootstrap', {
+      method: 'POST',
+      body: { facilityIds: getServerFacilityIds() },
+    });
+    return records;
+  }
+
   async startSyncSession({ urgent, lastSyncedTick }) {
     const facilityIds = getServerFacilityIds();
     const { sessionId, status } = await this.fetch('sync', {

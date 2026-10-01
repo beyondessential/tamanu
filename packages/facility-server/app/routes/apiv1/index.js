@@ -56,7 +56,7 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { setupSyncHandler } from './setup';
-import { isServerConfigured } from '../../serverConfig';
+import { isServerConfigured, isSettingUp } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -101,11 +101,16 @@ export function createApiv1({ authLimiter } = {}) {
 
   apiv1.get(
     '/public/ping',
-    asyncHandler((req, res) => {
+    asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
-      // setupRequired drives the first-run setup wizard, folded into the alive
-      // check the web app already makes rather than a separate endpoint/request.
-      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
+      // setupRequired drives the first-run setup wizard, and isSettingUp the screen that holds
+      // logged-in users until the first sync completes. Both are folded into the alive check the
+      // web app already makes rather than a separate endpoint/request.
+      return res.send({
+        ok: 'ok',
+        setupRequired: !isServerConfigured(),
+        isSettingUp: await isSettingUp(req.models),
+      });
     }),
   );
 
