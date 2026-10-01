@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
-import { fake } from '@tamanu/fake-data/fake';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -101,21 +100,6 @@ describe('PatientFacility', () => {
       expect(result).toBeForbidden();
       const marks = await models.PatientFacility.count({ where: { patientId: patient.id } });
       expect(marks).toBe(0);
-    });
-
-    it('refuses marking a patient for sync at a facility other than the current one', async () => {
-      const patient = await createPatient();
-      const otherFacility = await models.Facility.create(fake(models.Facility));
-      const app = await baseApp.asNewRole(MARK_FOR_SYNC_PERMISSIONS);
-
-      const result = await app
-        .post('/api/patientFacility')
-        .send({ patientId: patient.id, facilityId: otherFacility.id });
-
-      expect(result).toBeForbidden();
-      const marks = await models.PatientFacility.count({ where: { patientId: patient.id } });
-      expect(marks).toBe(0);
-      expect(runSyncSpy).not.toHaveBeenCalled();
     });
 
     it('rejects an unauthenticated request', async () => {

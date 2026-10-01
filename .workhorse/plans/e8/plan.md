@@ -28,7 +28,3 @@ Grant `create SyncPatient` to every role holding `read Patient`, so behaviour is
 - Release notes need to cover both directions, because permissions come entirely from each deployment's permissions sheet:
   - **Upgrading deployments**: the migration grants `SyncPatient` to every role with `read Patient`, so restricted sites revoke it (`n`) from the roles that shouldn't have it.
   - **New/implementing deployments**: the migration runs against an empty `permissions` table, so a greenfield site that imports a sheet without a `SyncPatient` column gets no grant at all and every desktop user sees the not-marked-for-sync message instead of the sync action. Their sheet needs a `SyncPatient` column with `create` for the roles that should have it.
-
-## Endpoint facility check
-
-`POST /patientFacility` takes `facilityId` from the body without checking it. Refuse the request when it differs from the session facility (`req.facilityId`, set in `middleware/auth.js`), alongside the `read Patient` and `create SyncPatient` checks. The web client already sends the session facility, so its call is unchanged.

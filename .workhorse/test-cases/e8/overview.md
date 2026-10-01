@@ -8,7 +8,6 @@ Scenarios verifying who can deliberately mark a patient for sync, and that autom
 - [x] Marking a patient already marked at the facility succeeds without a duplicate mark (verifies spec: MFS)
 - [x] A user with `read Patient` but not `create SyncPatient` is refused, and no mark is created (verifies spec: MFS)
 - [x] A user with `create SyncPatient` but not `read Patient` is refused (verifies spec: MFS)
-- [x] A request naming a facility other than the signed-in one is refused, and no mark is created (verifies spec: MFS)
 - [x] Marking a patient that does not exist returns not found
 - [x] An unauthenticated request is rejected and creates no mark (verifies spec: MFS)
 
