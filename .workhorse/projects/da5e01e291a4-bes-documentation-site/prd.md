@@ -150,7 +150,7 @@ Fully explored in J8; modelled on the Figma help centre over the real Tamanu pal
 - _Confirm the exact in-app location(s) during card shaping_
 
 ---
-
+"
 ## Open questions
 
 - **Platform:** which static site generator (must meet the constraints in requirement 1, including the roadmap authoring interface)
