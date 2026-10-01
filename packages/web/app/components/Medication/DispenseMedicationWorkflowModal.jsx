@@ -17,6 +17,7 @@ import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { PATIENT_TABS } from '../../constants/patientPaths';
 import { notifyError, notifySuccess } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
@@ -44,7 +45,6 @@ const MODAL_STEPS = {
   DISPENSE: 'dispense',
   REVIEW: 'review',
 };
-
 
 const REVIEW_MODAL_MAX_WIDTH = 'min(720px, calc(100vw - 48px))';
 
@@ -185,7 +185,6 @@ const PatientSummaryViewPatientLink = styled.button`
     text-decoration: underline;
   }
 `;
-
 
 export const DispenseMedicationWorkflowModal = memo(
   ({ open, onClose, patient, onDispenseSuccess }) => {
@@ -438,14 +437,12 @@ export const DispenseMedicationWorkflowModal = memo(
         await api.post('medication/dispense', {
           dispensedByUserId,
           facilityId,
-          items: selectedItems.map(
-            ({ id, quantity, instructions, medicationPresetLabelId }) => ({
-              pharmacyOrderPrescriptionId: id,
-              quantity,
-              instructions,
-              medicationPresetLabelId: medicationPresetLabelId || null,
-            }),
-          ),
+          items: selectedItems.map(({ id, quantity, instructions, medicationPresetLabelId }) => ({
+            pharmacyOrderPrescriptionId: id,
+            quantity,
+            instructions,
+            medicationPresetLabelId: medicationPresetLabelId || null,
+          })),
         });
 
         await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
@@ -697,7 +694,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (!name && !patientIdentifier) return null;
       const handleViewPatient = () => {
         if (!patient.id) return;
-        navigateToPatient(patient.id);
+        navigateToPatient(patient.id, { tab: PATIENT_TABS.MEDICATION });
       };
       return (
         <PatientSummaryPanel data-testid="dispense-modal-patient-context">
