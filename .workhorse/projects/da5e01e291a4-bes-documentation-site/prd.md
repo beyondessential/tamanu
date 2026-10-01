@@ -59,6 +59,7 @@ The main improvement to general documentation, serving every audience — config
 - Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
 - Reached from the Ask AI control or handed off from the search palette
 - Retrieves over the full hub content — user guides, configuration guides, release notes, and roadmap
+- Improves on the current Claude-on-Slack workflow, chiefly on response time — answers are quick and in-context on the hub rather than waiting on a Slack round-trip
 - In v1 scope; model, retrieval, and hosting _to be decided during card shaping_
 
 ---
