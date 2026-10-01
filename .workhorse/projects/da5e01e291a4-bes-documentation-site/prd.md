@@ -8,6 +8,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 
 1. Replace Slab as the single home for external-facing Tamanu documentation
 2. Improve search across all documentation
+3. Give PMs an AI-assisted resource to configure Tamanu and understand what is coming in each release
 
 **Site identity & scope:**
 
@@ -53,11 +54,12 @@ The foundation: a public site built from monorepo markdown.
 
 ### 2. Ask AI
 
-In v1 scope, and a headline capability of the hub.
+The main improvement to general documentation, and the primary resource PMs will reach for — to configure Tamanu and to understand what is coming in a new release. It answers over the hub's content (config guides, release notes, roadmap) so PMs get a direct answer rather than hunting across pages.
 
 - Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
 - Reached from the Ask AI control or handed off from the search palette
-- Model, retrieval over the docs, and hosting _to be decided during card shaping_
+- Retrieves over the full hub content — user manuals, configuration guides, release notes, and roadmap
+- In v1 scope; model, retrieval, and hosting _to be decided during card shaping_
 
 ---
 
