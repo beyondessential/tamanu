@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router';
 
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
 
@@ -60,6 +60,7 @@ const getPriority = ({ priority }) => capitaliseFirstLetter(priority || 'Unknown
 export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, statuses = [] }) => {
   const dispatch = useDispatch();
   const params = useParams();
+  const location = useLocation();
   const { facilityId } = useAuth();
   const { getSetting } = useSettings();
   const { loadEncounter } = useEncounter();
@@ -209,7 +210,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       const category = params.category || 'all';
       const path = `/patients/${category}/${patientId}/encounter/${encounterId || encounter.id
         }/imaging-request/${imagingRequest.id}`;
-      navigate(path);
+      const suffix = encounterId && location.search ? location.search : '';
+      navigate(`${path}${suffix}`);
       setIsRowsDisabled(false);
     },
     [
@@ -220,6 +222,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       encounterId,
       isRowsDisabled,
       navigate,
+      location.search,
     ],
   );
 
