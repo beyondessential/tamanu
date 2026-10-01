@@ -197,7 +197,7 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 
 ### 6. Home / landing
 
--
+- 
 - **Recent features is maintained through a dedicated interface** — a content-editing surface for curating which features appear, rather than purely auto-pulled from release notes. Shares the same authenticated-editing need as the roadmap interface (requirement 7), so the two should be considered together
 
 **Design updates.**
