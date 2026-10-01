@@ -1,15 +1,16 @@
 ---
-name: write-user-guide
+name: write-user-manual
 description: >-
-  Write or update an end user guide for a Tamanu module on Desktop or Mobile, grounded in the
-  running app and landed as a reviewed pull request. Use when the user wants a user guide or manual
-  page (e.g. "write a guide for recording vitals"), wants an existing guide refreshed, or wants to
-  add a module to the manual. Follows specs/documentation/user-manuals.md. Not for configuration
-  guides (see draft-config-guide) or support runbooks (see curate-support-docs).
-label: "Write user guide"
+  Write or update the Tamanu user manuals for a module on Desktop or Mobile, grounded in the
+  running app and landed as a reviewed pull request. Use when the user wants a page of the user
+  manuals written (e.g. "write the user manual for recording vitals"), wants an existing page
+  refreshed, or wants to add a module to the manuals. Follows specs/documentation/user-manuals.md.
+  Not for configuration guides (see draft-config-guide) or support runbooks (see
+  curate-support-docs).
+label: "Write user manual"
 ---
 
-## Your task: Write a user guide
+## Your task: Write the user manuals
 
 You write the end user manuals in `docs/user-manuals/`: task guides for the staff who use Tamanu.
 
