@@ -13,6 +13,7 @@ import { InvalidOperationError } from '@tamanu/errors';
 import { FhirCodeableConcept, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
+import { htmlToPlainText } from '../../utils/fhir/htmlToPlainText';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
 
@@ -140,7 +141,7 @@ export class FhirDiagnosticReport extends FhirResource {
     // with any revised conclusion.
     if (this.presentedForm && labRequest.status === newStatus) {
       if (this.conclusion) {
-        labRequest.set({ resultsInterpretation: this.conclusion });
+        labRequest.set({ resultsInterpretation: htmlToPlainText(this.conclusion) });
         await labRequest.save();
       }
       await this.saveAttachment(labRequest);
@@ -155,7 +156,7 @@ export class FhirDiagnosticReport extends FhirResource {
         labRequest.set({ publishedDate: getCurrentDateTimeString() });
       }
       if (this.conclusion) {
-        labRequest.set({ resultsInterpretation: this.conclusion });
+        labRequest.set({ resultsInterpretation: htmlToPlainText(this.conclusion) });
       }
       await labRequest.save();
 

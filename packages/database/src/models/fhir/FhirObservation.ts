@@ -13,6 +13,7 @@ import {
 
 import { Invalid, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
+import { htmlToPlainText } from '../../utils/fhir/htmlToPlainText';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
 import { FhirDiagnosticReport } from './FhirDiagnosticReport';
@@ -361,7 +362,7 @@ export class FhirObservation extends FhirResource {
         },
       );
     }
-    return this.valueString;
+    return htmlToPlainText(this.valueString);
   }
 
   getLaboratoryOfficerFromPerformer(): string | null {
