@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-import { convert as convertHtmlToText } from 'html-to-text';
 import * as yup from 'yup';
 
 import {
@@ -14,10 +13,9 @@ import { InvalidOperationError } from '@tamanu/errors';
 import { FhirCodeableConcept, FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
+import { htmlToPlainText } from '../../utils/fhir/htmlToPlainText';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
-
-const HTML_TAG_PATTERN = /<\/?[a-z][a-z0-9]*\b[^>]*>/i;
 
 export class FhirDiagnosticReport extends FhirResource {
   declare basedOn: { type: string; reference: string }[];
@@ -143,7 +141,7 @@ export class FhirDiagnosticReport extends FhirResource {
     // with any revised conclusion.
     if (this.presentedForm && labRequest.status === newStatus) {
       if (this.conclusion) {
-        labRequest.set({ resultsInterpretation: this.getConclusionAsPlainText() });
+        labRequest.set({ resultsInterpretation: htmlToPlainText(this.conclusion) });
         await labRequest.save();
       }
       await this.saveAttachment(labRequest);
@@ -158,7 +156,7 @@ export class FhirDiagnosticReport extends FhirResource {
         labRequest.set({ publishedDate: getCurrentDateTimeString() });
       }
       if (this.conclusion) {
-        labRequest.set({ resultsInterpretation: this.getConclusionAsPlainText() });
+        labRequest.set({ resultsInterpretation: htmlToPlainText(this.conclusion) });
       }
       await labRequest.save();
 
@@ -175,20 +173,6 @@ export class FhirDiagnosticReport extends FhirResource {
     }
 
     return labRequest;
-  }
-
-  // Labs may send the conclusion as HTML, but resultsInterpretation is displayed and edited as
-  // plain text (web and PDF), so flatten it on the way in. Conclusions without tags are left
-  // as-is, as html-to-text would collapse their line breaks.
-  getConclusionAsPlainText() {
-    if (!HTML_TAG_PATTERN.test(this.conclusion)) return this.conclusion;
-
-    return convertHtmlToText(this.conclusion, {
-      wordwrap: false,
-      selectors: [{ selector: 'table', format: 'dataTable' }],
-    })
-      .replaceAll('\u00a0', ' ')
-      .trim();
   }
 
   getLabRequestStatus() {

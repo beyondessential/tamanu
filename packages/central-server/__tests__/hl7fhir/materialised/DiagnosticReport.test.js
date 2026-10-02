@@ -451,6 +451,35 @@ describe('Create DiagnosticReport', () => {
       expect(firstAttachment.replacedById).toBe(latestAttachment.id);
     });
 
+    it('flattens an HTML conclusion on a republished DiagnosticReport', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const firstResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'first report' }],
+      });
+      expect(firstResponse).toHaveSucceeded();
+
+      const republishResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'republished report' }],
+        conclusion: '<p>Sensitive to&nbsp;<b>amoxicillin</b></p>',
+      });
+      expect(republishResponse).toHaveSucceeded();
+
+      await labRequest.reload();
+      expect(labRequest.resultsInterpretation).toBe('Sensitive to amoxicillin');
+    });
+
     it('does not replace the PDF of a published Lab Request with an interim report', async () => {
       const { FhirServiceRequest } = ctx.store.models;
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
