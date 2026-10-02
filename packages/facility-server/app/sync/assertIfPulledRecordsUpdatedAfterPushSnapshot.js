@@ -4,6 +4,9 @@ import { getSnapshotTableName, SYNC_SESSION_DIRECTION } from '@tamanu/database/s
 /**
  * If a pulled record was also updated between push and pull, it would get overwritten by pullings if we proceed.
  * Throw an error so that the sync restarts and the updated record is not forgotten and pushed to central in the next sync.
+ *
+ * This includes pulled deletes: a pulled delete is persisted with the not-to-push sentinel, so a
+ * local edit it overwrites (and that edit’s changelog) would otherwise never reach central.
  */
 const assertModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, sessionId) => {
   const snapshotTableName = getSnapshotTableName(sessionId);
@@ -16,7 +19,6 @@ const assertModelIfPulledRecordsUpdatedAfterPushSnapshot = async (model, session
         ON ${snapshotTableName}.record_id::text = ${model.tableName}.id::text
         AND ${snapshotTableName}.record_type = $recordType
       WHERE direction = $direction
-        AND is_deleted IS FALSE
         AND ${model.tableName}.updated_at_sync_tick > (SELECT value::bigint FROM local_system_facts WHERE key = $lastSuccessfulSyncPushKey);
     `,
     {
