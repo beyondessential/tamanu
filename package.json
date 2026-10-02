@@ -44,6 +44,8 @@
     "dbt-generate-model": "NODE_CONFIG_DIR=packages/central-server/config tsx packages/scripts/src/dbt/generateModel.js",
     "dbt-generate-docs": "NODE_CONFIG_DIR=packages/central-server/config tsx packages/scripts/src/dbt/generateDocs.js",
     "dbt-check-todos": "NODE_CONFIG_DIR=packages/central-server/config tsx packages/scripts/src/dbt/checkTodos.js",
+    "build-user-manuals": "node scripts/build-user-manuals.mjs",
+    "check-user-manuals": "node scripts/build-user-manuals.mjs --check",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
     "synthetic-test:facility": "npm run --workspace @tamanu/synthetic-tests test:facility",

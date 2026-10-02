@@ -1,0 +1,232 @@
+{
+  "title": "Tamanu user manuals",
+  "intro": "Step-by-step guides to using Tamanu, written for the staff who use it day to day.\n\nGuides describe how Tamanu works. How your own site has been set up is separate, so some\nscreens and options look different depending on your site's configuration. If you cannot\ndo something you believe you should be able to, contact your system administrator.",
+  "platforms": [
+    {
+      "slug": "desktop",
+      "title": "Desktop",
+      "description": "Using Tamanu on a computer.",
+      "modules": [
+        {
+          "slug": "accessing-tamanu",
+          "title": "Accessing Tamanu Desktop",
+          "description": "Signing in, signing out, and changing your language.",
+          "guides": []
+        },
+        {
+          "slug": "navigating-tamanu",
+          "title": "Navigating Tamanu",
+          "description": "Finding your way around: the sidebar, search, and how the screens fit together.",
+          "guides": []
+        },
+        {
+          "slug": "clinician-dashboard",
+          "title": "Clinician Dashboard",
+          "description": "The overview you land on after signing in.",
+          "guides": []
+        },
+        {
+          "slug": "patients",
+          "title": "Patients",
+          "description": "Finding, registering, and managing patient records.",
+          "guides": []
+        },
+        {
+          "slug": "scheduling",
+          "title": "Scheduling",
+          "description": "Outpatient appointments and location bookings.",
+          "guides": []
+        },
+        {
+          "slug": "program-registries",
+          "title": "Program Registries",
+          "description": "Enrolling patients in program registries and tracking them.",
+          "guides": []
+        },
+        {
+          "slug": "immunisations",
+          "title": "Immunisations",
+          "description": "Recording vaccines and using the immunisation register.",
+          "guides": []
+        },
+        {
+          "slug": "encounters",
+          "title": "Encounters",
+          "description": "Admitting, moving, and discharging patients, and managing beds across the facility.",
+          "guides": []
+        },
+        {
+          "slug": "diagnoses",
+          "title": "Diagnoses",
+          "description": "Recording and managing a patient's diagnoses.",
+          "guides": []
+        },
+        {
+          "slug": "vitals",
+          "title": "Vitals",
+          "description": "Recording and reviewing a patient's observations during an encounter.",
+          "guides": [
+            "record-vitals.md"
+          ]
+        },
+        {
+          "slug": "charts",
+          "title": "Charts",
+          "description": "Recording and reviewing charted clinical data.",
+          "guides": []
+        },
+        {
+          "slug": "notes",
+          "title": "Notes",
+          "description": "Written clinical notes on an encounter.",
+          "guides": []
+        },
+        {
+          "slug": "forms",
+          "title": "Forms",
+          "description": "Completing program forms and surveys for a patient.",
+          "guides": []
+        },
+        {
+          "slug": "tasks",
+          "title": "Tasks",
+          "description": "Clinical tasks raised and completed during an encounter.",
+          "guides": []
+        },
+        {
+          "slug": "medications",
+          "title": "Medications",
+          "description": "Prescribing, dispensing, and administering medication.",
+          "guides": []
+        },
+        {
+          "slug": "procedures",
+          "title": "Procedures",
+          "description": "Procedures carried out during an encounter.",
+          "guides": []
+        },
+        {
+          "slug": "labs",
+          "title": "Labs",
+          "description": "Requesting lab tests and reading results.",
+          "guides": []
+        },
+        {
+          "slug": "imaging",
+          "title": "Imaging",
+          "description": "Requesting imaging and reading results.",
+          "guides": []
+        },
+        {
+          "slug": "referrals",
+          "title": "Referrals",
+          "description": "Referring a patient and tracking referrals.",
+          "guides": []
+        },
+        {
+          "slug": "documents",
+          "title": "Documents",
+          "description": "Files attached to a patient or an encounter.",
+          "guides": []
+        },
+        {
+          "slug": "invoicing",
+          "title": "Invoicing",
+          "description": "Invoices raised against an encounter.",
+          "guides": []
+        },
+        {
+          "slug": "reports",
+          "title": "Reports",
+          "description": "Running facility reports.",
+          "guides": []
+        }
+      ]
+    },
+    {
+      "slug": "mobile",
+      "title": "Mobile",
+      "description": "Using Tamanu on a mobile device.",
+      "modules": [
+        {
+          "slug": "accessing-tamanu",
+          "title": "Accessing Tamanu Mobile",
+          "description": "Signing in, choosing a facility, and signing out.",
+          "guides": []
+        },
+        {
+          "slug": "navigating-tamanu",
+          "title": "Navigating Tamanu",
+          "description": "Finding your way around: the bottom tabs and a patient's modules.",
+          "guides": []
+        },
+        {
+          "slug": "patients",
+          "title": "Patients",
+          "description": "Finding patients, registering them, and viewing their details.",
+          "guides": []
+        },
+        {
+          "slug": "vitals",
+          "title": "Vitals",
+          "description": "Recording and reviewing a patient's observations.",
+          "guides": []
+        },
+        {
+          "slug": "diagnosis-and-treatment",
+          "title": "Diagnosis and Treatment",
+          "description": "Recording a diagnosis and prescribing medication.",
+          "guides": []
+        },
+        {
+          "slug": "programs",
+          "title": "Programs",
+          "description": "Completing program forms for a patient.",
+          "guides": []
+        },
+        {
+          "slug": "referral",
+          "title": "Referral",
+          "description": "Referring a patient and viewing referrals.",
+          "guides": []
+        },
+        {
+          "slug": "vaccine",
+          "title": "Vaccine",
+          "description": "Recording vaccines given to a patient.",
+          "guides": []
+        },
+        {
+          "slug": "tests",
+          "title": "Tests",
+          "description": "Requesting lab tests and viewing request history.",
+          "guides": []
+        },
+        {
+          "slug": "program-registries",
+          "title": "Program Registries",
+          "description": "Enrolling patients in program registries.",
+          "guides": []
+        },
+        {
+          "slug": "history",
+          "title": "History",
+          "description": "A patient's visit and vaccine history.",
+          "guides": []
+        },
+        {
+          "slug": "reports",
+          "title": "Reports",
+          "description": "The survey activity summary.",
+          "guides": []
+        },
+        {
+          "slug": "sync",
+          "title": "Sync",
+          "description": "Syncing the device with the central server.",
+          "guides": []
+        }
+      ]
+    }
+  ]
+}
