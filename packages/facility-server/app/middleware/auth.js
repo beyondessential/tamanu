@@ -9,6 +9,7 @@ import { context, propagation, trace } from '@opentelemetry/api';
 import { AuthPermissionError, ERROR_TYPE, MissingCredentialError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { isFhirPermission } from '@tamanu/shared/permissions/buildAbility';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { getServerFacilityIds } from '../serverConfig';
@@ -216,8 +217,8 @@ export async function loginHandler(req, res, next) {
   try {
     const { deviceId, email, password } = await z
       .object({
-        // optional so that API clients (e.g. FHIR integrations) can log in without a device;
-        // the resulting token is only accepted by device-optional routes
+        // only FHIR integration users may omit this (checked once authenticated); the
+        // resulting token is only accepted by device-optional routes
         deviceId: z.string().min(1).optional(),
         email: z.email(),
         password: z.string().min(1),
@@ -253,8 +254,12 @@ export async function loginHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to any facilities on this server');
     }
 
-    const [permissions, token, role] = await Promise.all([
-      getPermissionsForRoles(models, user.role),
+    const permissions = await getPermissionsForRoles(models, user.role);
+    if (!deviceId && !permissions.some(isFhirPermission)) {
+      throw new MissingCredentialError('Missing deviceId');
+    }
+
+    const [token, role] = await Promise.all([
       buildToken({ user, deviceId, expiresIn: await globalSettings.get('auth.tokenDuration') }),
       models.Role.findByPk(user.role),
     ]);

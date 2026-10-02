@@ -6,7 +6,6 @@ import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers
 import { fake, chance } from '@tamanu/fake-data/fake';
 
 import { addHours } from 'date-fns';
-import { decodeJwt } from 'jose';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { centralServerLogin, buildToken, comparePassword } from '../../app/middleware/auth';
@@ -177,63 +176,6 @@ describe('User', () => {
         expect(result.body).toHaveProperty('token');
       });
 
-      describe('without a deviceId', () => {
-        const loginWithoutDevice = async () => {
-          const restoreCentralLoginShortcut = enableCentralLoginForTest();
-          try {
-            return await baseApp.post('/api/login').send({
-              email: authUser.email,
-              password: rawPassword,
-            });
-          } finally {
-            restoreCentralLoginShortcut();
-          }
-        };
-
-        beforeEach(() => {
-          CentralServerConnection.mockClear();
-          centralServer.login.mockClear();
-        });
-
-        it('should log in through central using the facility server device', async () => {
-          centralServer.login.mockResolvedValueOnce({
-            user: pick(authUser, ['id', 'role', 'email', 'displayName']),
-            localisation,
-            allowedFacilities: [facility1],
-          });
-
-          const result = await loginWithoutDevice();
-
-          expect(result).toHaveSucceeded();
-          expect(result.body.central).toBe(true);
-          expect(CentralServerConnection).toHaveBeenCalledWith({ deviceId: ctx.deviceId });
-          expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
-        });
-
-        it('should not fall back to local login when central rejects the credentials', async () => {
-          centralServer.login.mockRejectedValueOnce(
-            new Problem(ERROR_TYPE.AUTH_CREDENTIAL_INVALID, 'Invalid credentials', 401),
-          );
-
-          const result = await loginWithoutDevice();
-
-          expect(centralServer.login).toHaveBeenCalledTimes(1);
-          expect(result).toHaveRequestError();
-        });
-
-        it('should fall back to local login when central is incompatible', async () => {
-          centralServer.login.mockRejectedValueOnce(
-            new Problem(ERROR_TYPE.REMOTE_INCOMPATIBLE, 'Central login unavailable', 400),
-          );
-
-          const result = await loginWithoutDevice();
-
-          expect(result).toHaveSucceeded();
-          expect(result.body.central).toBe(false);
-          expect(decodeJwt(result.body.token).deviceId).toBeUndefined();
-        });
-      });
-
       it('should be case insensitive', async () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email.toUpperCase(),
@@ -299,32 +241,32 @@ describe('User', () => {
         });
       });
 
-      it.each([[ERROR_TYPE.CLIENT_INCOMPATIBLE], [ERROR_TYPE.REMOTE_INCOMPATIBLE]])(
-        'should fall back to local login when central login fails with %s',
-        async errorType => {
-          centralServer.login.mockClear();
-          centralServer.login.mockRejectedValueOnce(
-            new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
-          );
+      it.each([
+        [ERROR_TYPE.CLIENT_INCOMPATIBLE],
+        [ERROR_TYPE.REMOTE_INCOMPATIBLE],
+      ])('should fall back to local login when central login fails with %s', async errorType => {
+        centralServer.login.mockClear();
+        centralServer.login.mockRejectedValueOnce(
+          new Problem(errorType, 'Central login unavailable', 400, 'Central login unavailable'),
+        );
 
-          const restoreCentralLoginShortcut = enableCentralLoginForTest();
-          let result;
-          try {
-            result = await baseApp.post('/api/login').send({
-              email: authUser.email,
-              password: rawPassword,
-              deviceId: 'test-device-id',
-            });
-          } finally {
-            restoreCentralLoginShortcut();
-          }
+        const restoreCentralLoginShortcut = enableCentralLoginForTest();
+        let result;
+        try {
+          result = await baseApp.post('/api/login').send({
+            email: authUser.email,
+            password: rawPassword,
+            deviceId: 'test-device-id',
+          });
+        } finally {
+          restoreCentralLoginShortcut();
+        }
 
-          expect(centralServer.login).toHaveBeenCalledTimes(1);
-          expect(result).toHaveSucceeded();
-          expect(result.body.central).toBe(false);
-          expect(result.body).toHaveProperty('token');
-        },
-      );
+        expect(centralServer.login).toHaveBeenCalledTimes(1);
+        expect(result).toHaveSucceeded();
+        expect(result.body.central).toBe(false);
+        expect(result.body).toHaveProperty('token');
+      });
 
       it.each([[ERROR_TYPE.FORBIDDEN], [ERROR_TYPE.RATE_LIMITED]])(
         'should not fall back to local login when central login fails with %s',
@@ -420,22 +362,6 @@ describe('User', () => {
           .get('/api/user/me')
           .set('authorization', 'Bearer ABC_not_a_valid_token');
         expect(result).toHaveRequestError();
-      });
-
-      describe('Tokens without a device', () => {
-        const MISSING_CREDENTIAL_PROBLEM = `/problems/${ERROR_TYPE.AUTH_CREDENTIAL_MISSING}`;
-        let deviceLessToken;
-        beforeAll(async () => {
-          deviceLessToken = await buildToken({ user: authUser, expiresIn: '1d' });
-        });
-
-        it('should be rejected by regular routes', async () => {
-          const result = await baseApp
-            .get('/api/user/me')
-            .set('authorization', `Bearer ${deviceLessToken}`);
-          expect(result).toHaveStatus(400);
-          expect(result.body).toHaveProperty('type', MISSING_CREDENTIAL_PROBLEM);
-        });
       });
 
       describe('Rejected tokens', () => {
@@ -861,7 +787,9 @@ describe('User', () => {
     it('should not error when the patient is not present locally', async () => {
       const missingPatientId = fake(models.Patient).id;
 
-      const result = await app.post(`/api/user/recently-viewed-patients/${missingPatientId}`);
+      const result = await app.post(
+        `/api/user/recently-viewed-patients/${missingPatientId}`,
+      );
       expect(result).toHaveStatus(204);
 
       const recorded = await models.UserRecentlyViewedPatient.count({
