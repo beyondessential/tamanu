@@ -437,41 +437,42 @@ export const fakeSurveyAnswerBody = ({ name, type }) => {
     : chance.sentence({ words: 4 });
 };
 
+const FACILITY_NAME_SUFFIXES = {
+  hospital: 'Hospital',
+  clinic: 'Clinic',
+  health_centre: 'Health Centre',
+  aid_post: 'Aid Post',
+  dispensary: 'Dispensary',
+  district_hospital: 'District Hospital',
+  provincial_hospital: 'Provincial Hospital',
+  urban_clinic: 'Urban Clinic',
+};
+
+const FACILITY_NAME_PREFIXES = [
+  () => chance.city(),
+  () => `${chance.last()} Memorial`,
+  () => `St. ${chance.first()}`,
+  () => `${chance.city()} District`,
+  () => 'Central',
+  () => 'National',
+  () => `Port ${chance.last()}`,
+  () => chance.company(),
+];
+
+// Real deployments don't repeat facility names, and migrations may rely on that.
+const usedFacilityNames = new Set<string>();
+const fakeFacilityName = (facilityType: string): string => {
+  const name = `${chance.pickone(FACILITY_NAME_PREFIXES)()} ${FACILITY_NAME_SUFFIXES[facilityType]}`;
+  if (usedFacilityNames.has(name)) return fakeFacilityName(facilityType);
+  usedFacilityNames.add(name);
+  return name;
+};
+
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: ({ name: passedName }) => {
-    const facilityType = chance.pickone([
-      'hospital',
-      'clinic',
-      'health_centre',
-      'aid_post',
-      'dispensary',
-      'district_hospital',
-      'provincial_hospital',
-      'urban_clinic',
-    ]);
-    const namePrefixGenerators = [
-      () => chance.city(),
-      () => `${chance.last()} Memorial`,
-      () => `St. ${chance.first()}`,
-      () => `${chance.city()} District`,
-      () => 'Central',
-      () => 'National',
-      () => `Port ${chance.last()}`,
-      () => chance.company(),
-    ];
-    const namePrefix = chance.pickone(namePrefixGenerators)();
-    const nameSuffix = {
-      hospital: 'Hospital',
-      clinic: 'Clinic',
-      health_centre: 'Health Centre',
-      aid_post: 'Aid Post',
-      dispensary: 'Dispensary',
-      district_hospital: 'District Hospital',
-      provincial_hospital: 'Provincial Hospital',
-      urban_clinic: 'Urban Clinic',
-    }[facilityType];
+    const facilityType = chance.pickone(Object.keys(FACILITY_NAME_SUFFIXES));
     return {
-      ...named(passedName ?? `${namePrefix} ${nameSuffix}`),
+      ...named(passedName ?? fakeFacilityName(facilityType)),
       email: chance.email(),
       contactNumber: chance.phone(),
       streetAddress: chance.address(),
