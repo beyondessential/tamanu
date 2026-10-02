@@ -40,7 +40,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 
 ## Requirements
 
-> **Design source of truth:** Card **J8** and its mockups (`.workhorse/design/mockups/j8/`) are the source of truth for all design requirements. The **Design notes** in each requirement are summaries of intent only — where they differ from J8, J8 wins.
+> **Design source of truth:** Card **J8** and its mockups (`.workhorse/design/mockups/j8/`) are the source of truth for all design requirements. The **Design updates** notes in each requirement are summaries of intent only — where they differ from J8, J8 wins.
 
 ### 1. Site platform & scaffold
 
@@ -159,7 +159,7 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 
 Content is markdown under `docs/user-manuals/`, written by the `write-user-guide` skill (L8, with a `manifest.json` the hub reads for navigation) and the `draft-config-guide` skill (K8). The hub **parses this markdown** rather than carrying copies.
 
-**Design notes.**
+**Design updates.**
 
 - TBC once the skills producing the content (L8, K8) are complete
 
@@ -170,12 +170,12 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 - Source is `docs/release-notes/*.md` in the repo, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings)
 - `[SLAB_LINK_PLACEHOLDER]` links in the source files need resolving as part of this work
 
-**Design notes.**
+**Design updates.**
 
 - Linear changelog, master-detail: the left version list is the contents, one release shown at a time, latest selected by default
 - One section header above the list and notes; each release opens with its version and `Released DD-MM-YYYY` line
 - Section headings keep the source emoji (🌟 major features, 🔧 enhancements, 🐛 fixes, ⚠️ critical upgrade notes) with colour-coded rules
-
+- Reads on white
 
 ---
 
@@ -186,7 +186,7 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - Spans all content — user guides, configuration guides, and release notes (across every version)
 - Index built across the parsed content _implementation to be decided_
 
-**Design notes.**
+**Design updates.**
 
 - Command palette (`/` or ⌘K)
 - An Ask AI assist card at the top
@@ -199,7 +199,7 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 
 - **Recent features is maintained through a dedicated interface** — a content-editing surface for curating which features appear, rather than purely auto-pulled from release notes. Shares the same authenticated-editing need as the roadmap interface (requirement 7), so the two should be considered together
 
-**Design notes.**
+**Design updates.**
 
 - Search-led landing (Stripe pattern): hero with a navy search capsule holding a search pill and a gold Ask AI pill
 - **Popular** — outlined rows mixing user guides and release notes, generated from what the hub measures as popular
@@ -213,9 +213,9 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - Each card states its own contents; content is the Tamanu roadmap
 - **Roadmap content is maintained through a dedicated interface** — a content-editing surface within the hub, not static repo markdown or a live fetch from bes.au. Implies a stored content store and an authenticated editing route
 
-**Design notes.**
+**Design updates.**
 
-- Horizontal timeline (Microsoft 365 pattern): period cards zig-zag above/below a central status axis (Released = filled, Planned = dashed), with prev/next navigation
+- Horizontal timeline: period cards zig-zag above/below a central status axis (Released = filled, Planned = dashed), with prev/next navigation
 - Vertical single column on small screens
 - The authoring interface itself still needs design
 
@@ -227,7 +227,7 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - **Submits by email to the BES support inbox**
 - Reachable from top nav and guides sidebar
 
-**Design notes.**
+**Design updates.**
 
 - Form layout prototyped in J8 (`report-issue.html`)
 
