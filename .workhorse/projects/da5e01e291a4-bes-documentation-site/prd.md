@@ -235,8 +235,7 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 
 ### 9. Branding & shared design system
 
-Fully explored in J8; modelled on the Figma help centre over the real Tamanu palette.
-
+Fully explored in J8
 - Real Tamanu palette from `packages/ui-components/src/constants/colors.js` — primary blue `#326699` and gold `#FFCC24`, category accents (user guides purple, release notes pink, roadmap green)
 - Shipped Tamanu logo; Inter typeface (confirm vs the Tamanu app's Roboto); soft neutral canvas with white surfaces
 - Sticky navy top bar bracketing a navy footer; search + Ask AI as two distinct controls
