@@ -80,7 +80,7 @@ describe('sensitive network upgrade ordering', () => {
     await upgradeFromPreNetworkSchema();
 
     const [[network]] = await database.sequelize.query(
-      `SELECT code, name FROM sensitive_networks WHERE id = 'sensitiveNetwork-CONF';`,
+      `SELECT code, name FROM sensitive_networks WHERE id = 'sensitiveNetwork-facility-confidential';`,
     );
     expect(network).toMatchObject({ code: 'CONF', name: 'Confidential Clinic' });
   });
@@ -94,7 +94,7 @@ describe('sensitive network upgrade ordering', () => {
     const [[facility]] = await database.sequelize.query(
       `SELECT sensitive_network_id FROM facilities WHERE id = 'facility-confidential';`,
     );
-    expect(facility.sensitive_network_id).toBe('sensitiveNetwork-CONF');
+    expect(facility.sensitive_network_id).toBe('sensitiveNetwork-facility-confidential');
   });
 
   // The Fiji path runs in the same window and is chosen from the deployment's data, but it is only
@@ -141,16 +141,16 @@ describe('sensitive network upgrade ordering', () => {
       `SELECT id FROM sensitive_networks ORDER BY id;`,
     );
     expect(networks.map((network: any) => network.id)).toEqual([
-      'sensitiveNetwork-SRHCentral',
-      'sensitiveNetwork-SRHWestern',
+      'sensitiveNetwork-facility-SRHCentral',
+      'sensitiveNetwork-facility-SRHWestern',
     ]);
 
     const [members] = await database.sequelize.query(
       `SELECT id, sensitive_network_id FROM facilities ORDER BY id;`,
     );
     expect(members).toEqual([
-      { id: 'facility-SRHCentral', sensitive_network_id: 'sensitiveNetwork-SRHCentral' },
-      { id: 'facility-SRHWestern', sensitive_network_id: 'sensitiveNetwork-SRHWestern' },
+      { id: 'facility-SRHCentral', sensitive_network_id: 'sensitiveNetwork-facility-SRHCentral' },
+      { id: 'facility-SRHWestern', sensitive_network_id: 'sensitiveNetwork-facility-SRHWestern' },
     ]);
   });
 
@@ -169,5 +169,32 @@ describe('sensitive network upgrade ordering', () => {
       `SELECT sensitive_network_id FROM facilities WHERE id = 'facility-ordinary';`,
     );
     expect(facility.sensitive_network_id).toBeNull();
+  });
+
+  // A network's code and name are unique and a facility's are not, so two sensitive facilities
+  // sharing either would collide on the insert and take the whole upgrade down with them. CI caught
+  // this on seeded data holding two facilities called the same thing.
+  it('qualifies the network code and name where two sensitive facilities share one', async () => {
+    await downToPreNetworkSchema();
+    await addFacility('facility-dispensary-north', 'DISP-N', 'National Dispensary');
+    await addFacility('facility-dispensary-south', 'DISP-S', 'National Dispensary');
+
+    await runUpgrade();
+
+    const [networks] = await database.sequelize.query(
+      `SELECT id, code, name FROM sensitive_networks ORDER BY id;`,
+    );
+    expect(networks).toEqual([
+      {
+        id: 'sensitiveNetwork-facility-dispensary-north',
+        code: 'DISP-N',
+        name: 'National Dispensary 1',
+      },
+      {
+        id: 'sensitiveNetwork-facility-dispensary-south',
+        code: 'DISP-S',
+        name: 'National Dispensary 2',
+      },
+    ]);
   });
 });

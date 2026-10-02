@@ -60,7 +60,7 @@ describe('1789695736430-backfillSensitiveNetworks', () => {
     await ordinaryStep.run(args);
 
     expect(findQuery(queries, 'INSERT INTO sensitive_networks')!.sql).toContain(
-      "'sensitiveNetwork-' || code",
+      "'sensitiveNetwork-' || id",
     );
     expect(findQuery(queries, 'UPDATE facilities')!.sql).toContain('is_sensitive = TRUE');
   });

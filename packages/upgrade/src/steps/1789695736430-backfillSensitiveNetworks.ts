@@ -15,17 +15,31 @@ import type { Steps, StepArgs } from '../step.js';
 // Exclusive with the SRH path — a Fiji deployment runs that one instead, which enrols its three
 // facilities and then does this work for anything else.
 // spec: specs/sync/sensitive-networks.md
-// Derived from the facility code, so the id stays readable and the backfill stays deterministic —
-// a facility server and central land on the same id for the same facility. Codes are unique in
-// practice, and no deployment holding a sensitive facility has one carrying the . or / that an id
-// may not.
+// The id comes from the facility's id, which is unique and already restricted to the characters an
+// id may hold — unlike a code, which admits . and / and is not unique. That also keeps the backfill
+// deterministic: a facility server and central land on the same id for the same facility.
+//
+// A network's code and name are each unique, and a facility's are not, so where two sensitive
+// facilities share one it is numbered to keep them apart, in facility id order. An administrator
+// renames them afterwards through the reference data import.
 //
 // Only facilities with no network, so this is safe to run after the SRH enrolment has claimed its
 // three.
 export const backfillNetworksOfOne = async (sequelize: Sequelize) => {
   await sequelize.query(`
     INSERT INTO sensitive_networks (id, code, name)
-    SELECT 'sensitiveNetwork-' || code, code, name
+    SELECT
+      'sensitiveNetwork-' || id,
+      CASE
+        WHEN count(*) OVER (PARTITION BY code) > 1
+        THEN code || '-' || row_number() OVER (PARTITION BY code ORDER BY id)
+        ELSE code
+      END,
+      CASE
+        WHEN count(*) OVER (PARTITION BY name) > 1
+        THEN name || ' ' || row_number() OVER (PARTITION BY name ORDER BY id)
+        ELSE name
+      END
     FROM facilities
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL
@@ -34,7 +48,7 @@ export const backfillNetworksOfOne = async (sequelize: Sequelize) => {
 
   await sequelize.query(`
     UPDATE facilities
-    SET sensitive_network_id = 'sensitiveNetwork-' || code
+    SET sensitive_network_id = 'sensitiveNetwork-' || id
     WHERE is_sensitive = TRUE
       AND deleted_at IS NULL
       AND sensitive_network_id IS NULL;
