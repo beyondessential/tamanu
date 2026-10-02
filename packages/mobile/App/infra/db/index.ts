@@ -188,8 +188,6 @@ class DatabaseHelper {
   }
 
   private deleteSnapshotDatabaseFile(): void {
-    // The Jest file is a per-run temp file like the test database itself; nothing to clean up
-    if (isJest()) return;
     try {
       // Through `native`: the methods of the spread `NitroSQLite` object are missing at runtime,
       // because the hybrid object they’re spread from keeps them on its prototype
