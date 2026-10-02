@@ -3,6 +3,7 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import React, { useCallback, useState } from 'react';
 import { Alert, Dimensions, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
+import { BlobAwaitingUploadError } from '~/services/blobs';
 import { useBackend } from '~/ui/hooks';
 import type { BaseInputProps } from '../interfaces/BaseInputProps';
 import { deleteFileInDocuments, saveFileInDocuments } from '/helpers/file';
@@ -36,39 +37,59 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
   const [imageData, setImageData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const { centralServer, models } = useBackend();
+  const { centralServer, models, blobCache } = useBackend();
   const netInfo = useNetInfo();
   const openModalCallback = useCallback(async () => {
     setLoading(true);
     setShowModal(true);
+    setImageData(null);
+    setErrorMessage(null);
+
     try {
-      const image = await models.Attachment.findOne({ where: { id: imageId } });
-      // Use local image if it still exist locally and has not been synced up
-      if (image) {
-        const localImageData = image.data.toString('base64');
-        setImageData(localImageData);
-        setErrorMessage(null);
-        return;
+      const attachment = await models.Attachment.findOne({ where: { id: imageId } });
+
+      if (attachment?.hash) {
+        // spec: MOB
+        try {
+          setImageData(await blobCache.readBase64(attachment.hash));
+          return;
+        } catch (error) {
+          // spec: MOB, XFER
+          if (error instanceof BlobAwaitingUploadError) {
+            setErrorMessage(
+              'This image has not finished uploading from the device that captured it.\nTry again later.',
+            );
+          } else if (!netInfo.isInternetReachable) {
+            setErrorMessage(
+              'This image is not on this device yet.\nConnect to the internet to fetch it.',
+            );
+          } else {
+            setErrorMessage(error.message);
+          }
+          return;
+        }
       }
 
+      // No hash: a legacy attachment served from central, or a record this device doesn't hold.
       if (!netInfo.isInternetReachable) {
-        setImageData(null);
         setErrorMessage(
           'You do not currently have an internet connection.\n Images require live internet for viewing.',
         );
         return;
       }
 
-      try {
-        const { data } = await centralServer.get(`attachment/${imageId}`, {
-          base64: true,
-        });
-        setImageData(data);
-        setErrorMessage(null);
-      } catch (error) {
-        setImageData(null);
-        setErrorMessage(error.message);
+      const response = await centralServer.get<{ data?: string }>(`attachment/${imageId}`, {
+        base64: true,
+      });
+      if (response?.data) {
+        setImageData(response.data);
+      } else {
+        setErrorMessage(
+          'This image has not finished uploading from the device that captured it.\nTry again later.',
+        );
       }
+    } catch (error) {
+      setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }

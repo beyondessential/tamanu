@@ -361,13 +361,16 @@ const PrintOption = ({ label, caption, icon: Icon, onPress }) => (
   </PrintOptionButton>
 );
 
+const BLANK_PIXEL =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 async function getPatientProfileImage(api, patientId) {
   try {
     const { data } = await api.get(`patient/${patientId}/profilePicture`);
-    return data;
+    // A picture whose bytes haven't arrived prints blank, as for a patient with none.
+    return data ?? BLANK_PIXEL;
   } catch (e) {
-    // 1x1 blank pixel
-    return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    return BLANK_PIXEL;
   }
 }
 

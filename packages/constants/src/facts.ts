@@ -54,5 +54,12 @@ export const FACT_REPORTING_ROLE_SECRET = 'reportingRoleSecret';
 // When that secret was last (re)generated, for automatic age-based rotation.
 export const FACT_REPORTING_SECRET_ROTATED_AT = 'reportingSecretRotatedAt';
 
+// spec: SCRUB
+// A dropped cache blob leaves no registry row, so these are the only durable record of it.
+export const FACT_BLOB_CACHE_FAULTS = 'blobCacheFaults';
+export const FACT_BLOB_CACHE_FAULT_AT = 'blobCacheFaultAt';
+// Only a completed scrub pass writes this; blobs.last_scrubbed_at is also stamped on admission.
+export const FACT_BLOB_SCRUB_COMPLETED_AT = 'blobScrubCompletedAt';
+
 // Materialised views
 export const FACT_MV_UPCOMING_VACCINATIONS = `${MATERIALIZED_VIEW_LAST_REFRESHED_AT_KEY_NAMESPACE}:${MATERIALIZED_VIEWS.UPCOMING_VACCINATIONS}`;

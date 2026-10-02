@@ -159,6 +159,22 @@ export class CentralServerConnection {
     return this.fetch(path, query, { ...options, method: 'GET' }) as Promise<T>;
   }
 
+  /** For transfers through react-native-fs, which take a plain URL. */
+  apiUrl(path: string, query: Record<string, string | number> = {}): string {
+    const queryString = Object.entries(query)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    return `${this.host}/${API_PREFIX}/${path}${queryString ? `?${queryString}` : ''}`;
+  }
+
+  authHeaders(): Record<string, string> {
+    return {
+      Authorization: `Bearer ${this.token}`,
+      'X-Tamanu-Client': 'Tamanu Mobile',
+      'X-Version': version,
+    };
+  }
+
   async post<T>(
     path: string,
     query: Record<string, string | number>,
