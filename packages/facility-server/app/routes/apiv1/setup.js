@@ -4,6 +4,7 @@ import ipaddr from 'ipaddr.js';
 
 import { TamanuApi } from '@tamanu/api-client';
 import {
+  DEVICE_SCOPES,
   SERVER_TYPES,
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
@@ -21,6 +22,7 @@ import {
   initServerConfig,
 } from '../../serverConfig';
 import { version } from '../../serverInfo';
+import { applyBootstrap } from '../../sync/facilityBootstrap';
 
 // POST /public/setup/sync is unauthenticated (a fresh server has no users), so it's
 // gated three ways: trusted source network, server still unconfigured, and valid
@@ -165,6 +167,32 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
       .send({ error: { message: 'Could not provision sync credentials on the central server' } });
   }
 
+  // spec: FSETUP#setup-wizard
+  // Log in as the minted sync user, which proves its credentials work end to end, and fetch what
+  // the facility needs to be logged into before its first sync completes.
+  let bootstrapRecords;
+  try {
+    const syncApi = new TamanuApi({
+      endpoint: `${normalisedHost}/api`,
+      agentName: SERVER_TYPES.FACILITY,
+      agentVersion: version,
+      deviceId: req.deviceId,
+      logger: log,
+    });
+    await syncApi.login(syncCredentials.email, syncCredentials.password, {
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      backoff: { maxAttempts: 1 },
+    });
+    ({ records: bootstrapRecords } = await syncApi.post('sync/bootstrap', {
+      facilityIds: uniqueFacilityIds,
+    }));
+  } catch (error) {
+    log.warn(`Facility bootstrap failed: ${error.type ?? error.name}`);
+    return res.status(502).send({
+      error: { message: "Could not load this facility's data from the central server" },
+    });
+  }
+
   const { LocalSystemFact, LocalSystemSecret } = req.models;
   // Atomic write; advisory lock + re-check closes the TOCTOU with the
   // isServerConfigured() check above so concurrent requests can't both configure.
@@ -191,6 +219,9 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
       // legacy config fallback so reads pick up the pulled PSK without a restart.
       clearSettingsPskCache();
     }
+    // spec: FSETUP#setup-wizard
+    // In the same transaction as the configuration, so a server is never configured without it.
+    await applyBootstrap({ sequelize: req.db, models: req.models }, bootstrapRecords);
   });
 
   if (alreadyConfigured) {

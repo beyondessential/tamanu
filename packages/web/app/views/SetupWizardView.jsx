@@ -4,6 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import { useQueryClient } from '@tanstack/react-query';
 import { FieldArray } from 'formik';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -22,6 +23,7 @@ import { useApi } from '../api';
 import { BodyText, LogoDark } from '../components';
 import { Colors } from '../constants';
 import { splashImages } from '../constants/images';
+import { login } from '../store/auth';
 import { getBrandId, notifySuccess } from '../utils';
 import { FULL_VERSION } from '../utils/env';
 
@@ -136,6 +138,7 @@ const cleanFacilityIds = facilityIds => [
 
 export const SetupWizardView = () => {
   const api = useApi();
+  const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const { getTranslation } = useTranslation();
   const [errorMessage, setErrorMessage] = useState(null);
@@ -153,10 +156,12 @@ export const SetupWizardView = () => {
         },
         { useAuthToken: false, waitForAuth: false, showUnknownErrorToast: false },
       );
-      notifySuccess(
-        getTranslation('setup.success', 'Server set up successfully. Please log in to continue.'),
-      );
-      // Refetch the alive/setup status so the app drops into login — no full reload,
+      notifySuccess(getTranslation('setup.complete', 'Server set up successfully.'));
+      // spec: FSETUP#setup-wizard
+      // The credentials just worked against central, so log in with them before leaving the
+      // wizard: the app then goes straight to the setting-up screen rather than via login.
+      await dispatch(login(values.email.trim(), values.password));
+      // Refetch the alive/setup status so the app leaves the wizard — no full reload,
       // which would re-run auth refresh and surface a misleading "session expired".
       await queryClient.invalidateQueries(['serverAlive']);
     } catch (error) {
