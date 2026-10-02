@@ -1,4 +1,5 @@
 import { Database, PLANNER_STATS_REFRESHED_AT_KEY } from './index';
+import { SNAPSHOT_SCHEMA, SNAPSHOT_TABLE } from './snapshotDatabase';
 
 const ONE_DAY_MS = 86_400_000;
 
@@ -12,7 +13,7 @@ const sqlCalls = (querySpy: jest.SpyInstance): string[] =>
   querySpy.mock.calls.map(([sql]) => sql).filter((sql): sql is string => typeof sql === 'string');
 
 const optimizeCalls = (querySpy: jest.SpyInstance) =>
-  sqlCalls(querySpy).filter(sql => sql.trim() === 'PRAGMA optimize;');
+  sqlCalls(querySpy).filter(sql => sql.trim() === 'PRAGMA main.optimize;');
 
 const didRunOptimize = (querySpy: jest.SpyInstance) => optimizeCalls(querySpy).length > 0;
 
@@ -29,7 +30,7 @@ const mockFailingOptimize = (): jest.SpyInstance => {
   return jest
     .spyOn(Database.client, 'query')
     .mockImplementation((sql: string, parameters?: any[]) => {
-      if (typeof sql === 'string' && sql.includes('PRAGMA optimize')) {
+      if (typeof sql === 'string' && sql.includes('.optimize')) {
         return Promise.reject(new Error('database is locked'));
       }
       return originalQuery(sql, parameters);
@@ -125,6 +126,68 @@ describe('DatabaseHelper', () => {
       } finally {
         querySpy.mockRestore();
       }
+    });
+  });
+  describe('resetSnapshotDatabase()', () => {
+    const readSnapshotPragma = async (name: string) => {
+      const [row] = await Database.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.${name};`);
+      return row[name];
+    };
+
+    it('attaches an empty snapshot database with staging-friendly pragmas at connect', async () => {
+      const schemas: { name: string }[] = await Database.client.query('PRAGMA database_list;');
+      expect(schemas.map(({ name }) => name)).toContain(SNAPSHOT_SCHEMA);
+
+      const tables = await Database.client.query(
+        `SELECT name FROM ${SNAPSHOT_SCHEMA}.sqlite_master WHERE type = 'table'`,
+      );
+      expect(tables).toHaveLength(0);
+      expect(await readSnapshotPragma('journal_mode')).toBe('off');
+      expect(await readSnapshotPragma('synchronous')).toBe(0);
+      // FULL
+      expect(await readSnapshotPragma('auto_vacuum')).toBe(1);
+      expect(await readSnapshotPragma('page_size')).toBe(16384);
+    });
+
+    it('lets the snapshot table be written and read through the main connection', async () => {
+      await Database.client.query(
+        `CREATE TABLE ${SNAPSHOT_TABLE} (id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT NOT NULL)`,
+      );
+      await Database.client.query(`INSERT INTO ${SNAPSHOT_TABLE} (data) VALUES (?)`, ['["a"]']);
+
+      const rows = await Database.client.query(`SELECT id, data FROM ${SNAPSHOT_TABLE}`);
+      expect(rows).toEqual([{ id: 1, data: '["a"]' }]);
+    });
+
+    it('starts over from an empty file when reset again', async () => {
+      await Database.resetSnapshotDatabase();
+
+      const tables = await Database.client.query(
+        `SELECT name FROM ${SNAPSHOT_SCHEMA}.sqlite_master WHERE type = 'table'`,
+      );
+      expect(tables).toHaveLength(0);
+      expect(await readSnapshotPragma('journal_mode')).toBe('off');
+    });
+
+    it('reports whether the snapshot database is attached', async () => {
+      expect(await Database.isSnapshotDatabaseAttached()).toBe(true);
+
+      await Database.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
+      expect(await Database.isSnapshotDatabaseAttached()).toBe(false);
+
+      await Database.resetSnapshotDatabase();
+      expect(await Database.isSnapshotDatabaseAttached()).toBe(true);
+    });
+
+    it('reattaches with staging-friendly pragmas when it was not attached', async () => {
+      await Database.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
+
+      await expect(Database.resetSnapshotDatabase()).resolves.toBeUndefined();
+
+      expect(await readSnapshotPragma('journal_mode')).toBe('off');
+      expect(await readSnapshotPragma('synchronous')).toBe(0);
+      expect(await readSnapshotPragma('auto_vacuum')).toBe(1);
+      expect(await readSnapshotPragma('page_size')).toBe(16384);
     });
   });
 });
