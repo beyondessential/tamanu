@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useParams, useNavigate, useLocation } from 'react-router';
 
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
@@ -8,7 +7,6 @@ import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { useEncounter } from '../contexts/Encounter';
-import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
@@ -59,7 +57,6 @@ const getPriority = ({ priority }) =>
   );
 
 export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ...props }) => {
-  const dispatch = useDispatch();
   const params = useParams();
   const location = useLocation();
   const { facilityId } = useAuth();
@@ -156,7 +153,6 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
       if (encounter) {
         await loadEncounter(encounter.id);
       }
-      await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
       const path = `/patients/${category}/${patientId}/encounter/${
         encounterId || encounter.id
@@ -167,7 +163,6 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
     },
     [
       loadEncounter,
-      dispatch,
       params.patientId,
       params.category,
       encounterId,

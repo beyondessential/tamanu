@@ -1,19 +1,18 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { ForbiddenError } from '@tamanu/errors';
-import { setForbiddenError } from '../store';
+import { useForbiddenError } from '../contexts/ForbiddenError';
 
 // This will catch all unhandled promise rejections.
 // The intent is to open the Forbidden Error catch-all modal
 // when the caller didn't handle the error.
 export const PromiseErrorBoundary = ({ children }) => {
-  const dispatch = useDispatch();
+  const { setForbiddenError } = useForbiddenError();
 
   useEffect(() => {
     const handleUnhandledRejection = (event) => {
       event.preventDefault();
       if (event.reason instanceof ForbiddenError) {
-        dispatch(setForbiddenError());
+        setForbiddenError();
       } else {
         // eslint-disable-next-line no-console
         console.error(event.reason);
@@ -24,7 +23,7 @@ export const PromiseErrorBoundary = ({ children }) => {
     return () => {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
-  }, [dispatch]);
+  }, [setForbiddenError]);
 
   return <>{children}</>;
 };
