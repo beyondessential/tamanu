@@ -59,7 +59,6 @@
   .ai-suggest .ic { width: 34px; height: 34px; border-radius: 8px; background: var(--ink); color: #fff; display: grid; place-items: center; flex: none; }
   .ai-suggest .t { font-size: 14px; font-weight: 580; color: var(--ink); }
   .ai-suggest .s { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
-  .ai-suggest .go { margin-left: auto; font-size: 11px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; background: var(--bg); white-space: nowrap; }
   .row.qrow .ic { background: var(--fill); border-color: var(--line); color: var(--ink); }
 
   .row { display: flex; align-items: center; gap: 12px; padding: 10px 10px; border-radius: 9px; cursor: pointer; }
@@ -85,13 +84,6 @@
   .badge { margin-left: auto; font-size: 11px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; background: var(--bg); }
 
   .pill { font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
-
-  /* footer */
-  .p-foot { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); }
-  .p-foot .k { border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; background: var(--fill); margin-right: 5px; }
-  .p-foot .spacer { margin-left: auto; }
-  .ask-handoff { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); background: var(--bg); border-radius: 7px; padding: 4px 9px; cursor: pointer; }
-  .ask-handoff:hover { border-color: var(--ink); color: var(--ink); }
 
   /* ======================= Tamanu brand layer =======================
      Palette taken from packages/ui-components/src/constants/colors.js;
@@ -201,7 +193,6 @@
   .prow .ic { background:var(--brand-05); border-color:var(--brand-30); color:var(--brand); }
   .prow .t mark { color:var(--brand); }
   .qrow .ic { color:var(--brand); }
-  .ask-handoff:hover { border-color:var(--brand); color:var(--brand); }
 
   /* ---- ask AI ---- */
   .d-empty-ic { background:var(--brand-10); border-color:var(--brand-30); color:var(--brand); }
@@ -326,7 +317,7 @@
   .rmx-period, .rmx-details, .rmx-nav button:hover { color:var(--ink); }
   .dropzone .browse { color:var(--ink); }
   .note { color:var(--ink-2); }
-  .feedback .b:hover, .ask-handoff:hover { color:var(--ink); }
+  .feedback .b:hover { color:var(--ink); }
   .big-ai, header.nav .askai, header.nav .askai svg { color:var(--ink); }
   /* on the navy bar and footer, greyscale reads as white */
   header.nav .brand .sub, .foot-brand .fb .sub { color:rgba(255,255,255,.72); }
@@ -348,7 +339,6 @@
       <div class="ai-suggest">
         <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span>
         <div><div class="t">Ask AI assist</div><div class="s">Get an instant answer to “send to pharmacy”</div></div>
-        <span class="go">Ask AI</span>
       </div>
 
       <div id="p-empty">
@@ -438,13 +428,6 @@
         <span class="pill">Aug 2026</span>
       </div>
       </div>
-    </div>
-
-    <div class="p-foot">
-      <span><span class="k">↑</span><span class="k">↓</span> to navigate</span>
-      <span><span class="k">↵</span> to open</span>
-      <button class="ask-handoff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/></svg> Ask AI instead</button>
-      <span class="spacer">Tamanu Knowledge Hub</span>
     </div>
   </div>
   <script>
