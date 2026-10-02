@@ -46,6 +46,7 @@
   .p-x:hover { background: var(--fill); color: var(--ink); }
 
   .p-body { max-height: 64vh; overflow: auto; padding: 8px; }
+  .note { display: flex; gap: 9px; border-left: 3px solid var(--ink); background: var(--fill); border-radius: 0 8px 8px 0; padding: 9px 12px; font-size: 13px; color: var(--ink-2); margin: 2px 2px 10px; }
 
   .group-label {
     font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3);
@@ -343,6 +344,7 @@
     </div>
 
     <div class="p-body">
+      <div class="note">Don't enter patient details into search.</div>
       <div class="ai-suggest">
         <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span>
         <div><div class="t">Ask AI assist</div><div class="s">Get an instant answer to “send to pharmacy”</div></div>
