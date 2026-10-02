@@ -30,7 +30,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 | 4 | J8 | Release notes | J8 |
 | 5 | Project goal, J8 | Global search | J8 (search overlay) |
 | 6 | J8 | Home / landing | J8 (home) |
-| 7 | J8 | Roadmap & authoring interface | J8 (timeline); authoring UI needed |
+| 7 | J8 | Roadmap | J8 (timeline) |
 | 8 | J8 | Report an issue | J8 (report-issue) |
 | 9 | J8 | Branding & shared design system | J8 |
 | 10 | Project brief | Migration & cutover from Slab | — |
@@ -40,14 +40,14 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 
 ## Requirements
 
-> **Design source of truth:** Card **J8** and its mockups (`.workhorse/design/mockups/j8/`) are the source of truth for all design requirements. The **Design updates** notes in each requirement are summaries of intent only — where they differ from J8, J8 wins.
+> **Design source of truth:** Card **J8** and its mockups (`.workhorse/design/mockups/j8/`) are the source of truth for all design requirements. This PRD describes product behaviour and scope — refer to J8 for all design detail.
 
 ### 1. Site platform & scaffold
 
 The foundation: a public site built from monorepo markdown.
 
 - Content and site live in **this Tamanu monorepo** (docs markdown under `docs/`), so docs version and PR alongside the code they describe
-- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, site-wide search, the Ask AI drawer, and authenticated authoring interfaces for curated content (roadmap and Recent features), so a purely static generator alone will not suffice
+- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, site-wide search, and the Ask AI drawer. Curated content (roadmap and Recent features) is maintained through Workhorse and read from the repo like the rest of the docs, so no in-hub authoring interface is needed
 - **Hosting & deployment** — where the built site is served and how it deploys on release _to be decided_
 - **Versioning** — the site presents **one current set** of guides (always the latest); only release notes are per-version
 - Shared top bar (Search + separate Ask AI control) and footer across all surfaces
@@ -159,23 +159,12 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 
 Content is markdown under `docs/user-manuals/`, written by the `write-user-guide` skill (L8, with a `manifest.json` the hub reads for navigation) and the `draft-config-guide` skill (K8). The hub **parses this markdown** rather than carrying copies.
 
-**Design updates.**
-
-- TBC once the skills producing the content (L8, K8) are complete
-
 ---
 
 ### 4. Release notes
 
 - Source is `docs/release-notes/*.md` in the repo, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings)
 - `[SLAB_LINK_PLACEHOLDER]` links in the source files need resolving as part of this work
-
-**Design updates.**
-
-- Linear changelog, master-detail: the left version list is the contents, one release shown at a time, latest selected by default
-- One section header above the list and notes; each release opens with its version and `Released DD-MM-YYYY` line
-- Section headings keep the source emoji (🌟 major features, 🔧 enhancements, 🐛 fixes, ⚠️ critical upgrade notes) with colour-coded rules
-- Reads on white
 
 ---
 
@@ -186,38 +175,19 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - Spans all content — user guides, configuration guides, and release notes (across every version)
 - Index built across the parsed content _implementation to be decided_
 
-**Design updates.**
-
-- Command palette (`/` or ⌘K)
-- An Ask AI assist card at the top
-- A Popular list when nothing is typed
-- Results grouped by guides / release notes once typing
-
 ---
 
 ### 6. Home / landing
 
-- **Recent features is maintained through a dedicated interface** — a content-editing surface for curating which features appear, rather than purely auto-pulled from release notes. Shares the same authenticated-editing need as the roadmap interface (requirement 7), so the two should be considered together
-
-**Design updates.**
-
-- Search-led landing (Stripe pattern): hero with a navy search capsule holding a search pill and a gold Ask AI pill
-- **Popular** — outlined rows mixing user guides and release notes, generated from what the hub measures as popular
-- **Recent features** — carousel of the most recent major features, each linking to the release notes and a mapped user guide (the feature-to-guide mapping needs confirming)
-- **Browse** — bento on the brand dark: User guides (leads, spanning both rows), Release notes, Roadmap
+- **Recent features is curated, not auto-pulled from release notes** — which features appear is maintained through Workhorse and read from the repo, like the rest of the docs
+- Carries the home's core sections: a search-led hero (search + Ask AI), Popular, Recent features, and Browse
 
 ---
 
-### 7. Roadmap & authoring interface
+### 7. Roadmap
 
 - Each card states its own contents; content is the Tamanu roadmap
-- **Roadmap content is maintained through a dedicated interface** — a content-editing surface within the hub, not static repo markdown or a live fetch from bes.au. Implies a stored content store and an authenticated editing route
-
-**Design updates.**
-
-- Horizontal timeline: period cards zig-zag above/below a central status axis (Released = filled, Planned = dashed), with prev/next navigation
-- Vertical single column on small screens
-- The authoring interface itself still needs design
+- **Roadmap content is maintained through Workhorse** and read from the repo, not a live fetch from bes.au — no in-hub authoring interface
 
 ---
 
@@ -226,10 +196,6 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 - Support form: Name, Email, Country or deployment, Describe the issue, optional Screenshots drop zone (with an "obscure patient details" warning), Submit
 - **Submits by email to the BES support inbox**
 - Reachable from top nav and guides sidebar
-
-**Design updates.**
-
-- Form layout prototyped in J8 (`report-issue.html`)
 
 ---
 
@@ -263,11 +229,10 @@ Fully explored in J8
 
 ## Open questions
 
-- **Platform:** which static site generator (must meet the constraints in requirement 1, including the roadmap authoring interface)
+- **Platform:** which static site generator (must meet the constraints in requirement 1)
 - **Hosting & deployment:** where the built site is served and how it deploys on release
 - **Ask AI:** model, retrieval, and hosting for the chat drawer
 - **Ask AI technical scope:** will Ask AI support generating import spreadsheets in this initial phase, and what is the scope? (It otherwise declines SQL, scripts, config files, and direct DB changes)
-- **Authoring interfaces (roadmap and Recent features):** where curated content is stored, who can edit, and how the editing routes authenticate
 - **Home vs guides landing:** distinct search-led home, or does the guides landing double as home?
 - **Typeface:** Inter vs matching the Tamanu app's Roboto
 - **Feature-to-guide mapping** for the home Recent features carousel
