@@ -11,6 +11,7 @@ jest.mock('../../../infra/db', () => ({
     client: {
       query: jest.fn(),
     },
+    isSnapshotDatabaseAttached: jest.fn(),
     resetSnapshotDatabase: jest.fn(),
   },
 }));
@@ -20,6 +21,7 @@ const mockDatabase = require('../../../infra/db').Database;
 describe('manageSnapshotTable', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDatabase.isSnapshotDatabaseAttached.mockResolvedValue(true);
   });
 
   describe('insertSnapshotRecords', () => {
@@ -130,6 +132,15 @@ describe('manageSnapshotTable', () => {
       await expect(dropSnapshotTable()).resolves.toBeUndefined();
 
       expect(mockDatabase.resetSnapshotDatabase).toHaveBeenCalledTimes(1);
+    });
+
+    it('should attach the snapshot database instead of dropping when it is not attached', async () => {
+      mockDatabase.isSnapshotDatabaseAttached.mockResolvedValue(false);
+
+      await dropSnapshotTable();
+
+      expect(mockDatabase.resetSnapshotDatabase).toHaveBeenCalledTimes(1);
+      expect(mockDatabase.client.query).not.toHaveBeenCalled();
     });
   });
 });

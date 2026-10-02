@@ -48,8 +48,16 @@ export const createSnapshotTable = async () => {
 /**
  * The snapshot file has `auto_vacuum = FULL`, so dropping the table truncates the file back to
  * (almost) nothing rather than leaving free pages behind.
+ *
+ * Also (re)attaches the snapshot database if it’s missing, e.g. because attaching it at connect
+ * failed. `DROP TABLE IF EXISTS` on an unattached schema succeeds silently, so the failure would
+ * otherwise only surface when creating the table.
  */
 export const dropSnapshotTable = async () => {
+  if (!(await Database.isSnapshotDatabaseAttached())) {
+    await Database.resetSnapshotDatabase();
+    return;
+  }
   try {
     await Database.client.query(`DROP TABLE IF EXISTS ${SNAPSHOT_TABLE}`);
   } catch (error) {

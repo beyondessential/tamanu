@@ -8,9 +8,9 @@ export const typeORMDriver = {
 };
 
 export const NitroSQLite = {
-  attach: jest.fn(),
-  detach: jest.fn(),
-  drop: jest.fn(),
+  native: {
+    drop: jest.fn(),
+  },
 };
 
 export default {
