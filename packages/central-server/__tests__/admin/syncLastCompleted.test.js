@@ -26,6 +26,7 @@ describe('GET /admin/sync/lastCompleted', () => {
       startTime: completedAt,
       lastConnectionTime: completedAt,
       completedAt,
+      debugInfo: { totalToPull: 0 },
       parameters: { facilityIds },
     });
     if (deletedAt) {
