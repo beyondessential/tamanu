@@ -13,6 +13,7 @@ import { fhirRoutes } from '@tamanu/shared/routes/fhir';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
+import { FHIR_MOUNT_PATH } from './routes/apiv1';
 import { getServerFacilityIds } from './serverConfig';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
@@ -120,8 +121,8 @@ export async function createApiApp({
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
     log.info('FHIR integration enabled, mounting routes');
-    routes.use('/api/integration/fhir/mat', fhir);
-    routes.use('/v1/integration/fhir/mat', fhir);
+    routes.use(`/api${FHIR_MOUNT_PATH}`, fhir);
+    routes.use(`/v1${FHIR_MOUNT_PATH}`, fhir);
   }
 
   // Dis-allow all other routes
