@@ -1,9 +1,10 @@
 import { Op, literal } from 'sequelize';
 
-import { BLOB_INTEGRITY_STATES } from '@tamanu/constants';
+import { BLOB_INTEGRITY_STATES, FACT_BLOB_SCRUB_COMPLETED_AT } from '@tamanu/constants';
 
 import type { BlobStore } from './BlobStore';
 import type { Blob } from '../models/Blob';
+import type { LocalSystemFact } from '../models/LocalSystemFact';
 
 // spec: SCRUB
 // Both are faults only where the content must be durably present, which is the healer's call.
@@ -39,7 +40,7 @@ export interface ScrubResult {
 
 export interface BlobScrubberOptions {
   blobStore: BlobStore;
-  models: { Blob: typeof Blob };
+  models: { Blob: typeof Blob; LocalSystemFact: typeof LocalSystemFact };
   getLimits: () => Promise<ScrubPassLimits>;
   heal: (report: BlobFaultReport) => Promise<void>;
   /** A facility supplies none: its outbox is already covered by the verification pass. */
@@ -55,7 +56,7 @@ export interface BlobScrubberOptions {
 // healer decides.
 export class BlobScrubber {
   #blobStore: BlobStore;
-  #models: { Blob: typeof Blob };
+  #models: { Blob: typeof Blob; LocalSystemFact: typeof LocalSystemFact };
   #getLimits: () => Promise<ScrubPassLimits>;
   #heal: (report: BlobFaultReport) => Promise<void>;
   #findUndeliverableReferences?: (limit: number) => Promise<string[]>;
@@ -94,6 +95,7 @@ export class BlobScrubber {
     await this.#referentialPass(limits, result);
     await this.#parityPass(limits, result);
 
+    await this.#models.LocalSystemFact.set(FACT_BLOB_SCRUB_COMPLETED_AT, new Date().toISOString());
     this.#log.info('BlobScrubber: pass complete', { ...result });
     return result;
   }

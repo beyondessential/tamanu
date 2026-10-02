@@ -3,13 +3,16 @@ import os from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { Op } from 'sequelize';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { CENTRAL_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
+import { FACT_BLOB_SCRUB_COMPLETED_AT } from '@tamanu/constants';
 
 import { BLOB_FAULTS, BlobScrubber } from '../../src/blobStore/BlobScrubber';
 import { BlobStore } from '../../src/blobStore/BlobStore';
 import type { Blob } from '../../src/models/Blob';
+import type { LocalSystemFact } from '../../src/models/LocalSystemFact';
+import { closeDatabase, createTestDatabase } from '../utilities';
 
 const HELLO_HASH = 'sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
 
@@ -100,6 +103,7 @@ describe('BlobScrubber', () => {
   let fakeBlob: ReturnType<typeof makeFakeBlobModel>;
   let store: BlobStore;
   let healed: Array<{ hash: string; fault: string; tier?: string }>;
+  let localSystemFact: typeof LocalSystemFact;
 
   const makeScrubber = ({
     maxBlobs = 100,
@@ -116,7 +120,7 @@ describe('BlobScrubber', () => {
   } = {}) =>
     new BlobScrubber({
       blobStore,
-      models: { Blob: fakeBlob as unknown as typeof Blob },
+      models: { Blob: fakeBlob as unknown as typeof Blob, LocalSystemFact: localSystemFact },
       getLimits: async () => ({ maxBlobs, maxBytes }),
       heal:
         heal ??
@@ -157,7 +161,16 @@ describe('BlobScrubber', () => {
     );
   };
 
+  beforeAll(async () => {
+    ({ LocalSystemFact: localSystemFact } = (await createTestDatabase()).models);
+  });
+
+  afterAll(async () => {
+    await closeDatabase();
+  });
+
   beforeEach(async () => {
+    await localSystemFact.destroy({ where: { key: FACT_BLOB_SCRUB_COMPLETED_AT }, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-scrubber-test-'));
     fakeBlob = makeFakeBlobModel();
     healed = [];
@@ -171,6 +184,45 @@ describe('BlobScrubber', () => {
 
   afterEach(async () => {
     await fs.rm(root, { recursive: true, force: true });
+  });
+
+  describe('pass completion', () => {
+    const completedAt = async () =>
+      (await localSystemFact.findOne({ where: { key: FACT_BLOB_SCRUB_COMPLETED_AT } }))?.updatedAt;
+
+    it('records a completed pass over an empty store, and advances it on the next', async () => {
+      await makeScrubber().run();
+      expect(await completedAt()).toBeInstanceOf(Date);
+
+      await localSystemFact.sequelize.query(
+        `UPDATE local_system_facts SET updated_at = updated_at - interval '1 hour' WHERE key = :key`,
+        { replacements: { key: FACT_BLOB_SCRUB_COMPLETED_AT } },
+      );
+      const before = (await completedAt())!;
+      await makeScrubber().run();
+
+      expect((await completedAt())!.getTime()).toBeGreaterThan(before.getTime());
+    });
+
+    it('records a pass that stops at its budget', async () => {
+      await store.put(Readable.from(Buffer.from('first content')));
+      await store.put(Readable.from(Buffer.from('second content')));
+
+      const result = await makeScrubber({ maxBlobs: 1 }).run();
+
+      expect(result.ratelimited).toBe(true);
+      expect(await completedAt()).toBeInstanceOf(Date);
+    });
+
+    it('does not record a pass that throws', async () => {
+      fakeBlob.findAll = async () => {
+        throw new Error('database unavailable');
+      };
+
+      await expect(makeScrubber().run()).rejects.toThrow('database unavailable');
+
+      expect(await completedAt()).toBeUndefined();
+    });
   });
 
   describe('verification pass', () => {

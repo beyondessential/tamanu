@@ -606,6 +606,18 @@ FROM local_system_facts
 WHERE key IN ('blobCacheFaults', 'blobCacheFaultAt');
 ```
 
+### Last completed scrub pass
+
+When the scrub last finished a pass on this server, including one cut short by its
+per-pass budget. `blobs.last_scrubbed_at` cannot answer this, since admission
+stamps it too. Read `updated_at`; `value` is the same time for humans.
+
+```sql
+SELECT updated_at, value
+FROM local_system_facts
+WHERE key = 'blobScrubCompletedAt';
+```
+
 ### Return a restored blob to the scrub (dev-OTS)
 
 **[dev-OTS]** The one mutating statement in this section, and only as step 2 of the
