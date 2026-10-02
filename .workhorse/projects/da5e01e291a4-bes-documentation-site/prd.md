@@ -234,4 +234,4 @@ Fully explored in J8
 - **Ask AI technical scope:** will Ask AI support generating import spreadsheets in this initial phase, and what is the scope? (It otherwise declines SQL, scripts, config files, and direct DB changes)
 - **Typeface:** Inter vs matching the Tamanu app's Roboto
 - **Feature-to-guide mapping** for the home Recent features carousel
-- User guides feedback - we ask if the user guide was helpful. where will this data captured?
+- User guides feedback - we ask if the user guide was helpful. Where will this data captured?
