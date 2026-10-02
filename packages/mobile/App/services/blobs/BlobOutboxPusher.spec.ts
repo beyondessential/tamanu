@@ -18,6 +18,7 @@ describe('BlobOutboxPusher', () => {
   beforeEach(async () => {
     await Database.models.Blob.getRepository().clear();
     await Database.models.Attachment.getRepository().clear();
+    await Database.models.BlobQuarantine.getRepository().clear();
     await Database.models.LocalSystemFact.getRepository().clear();
     await setPushTick(10);
     transferChannel = { pushToCentral: jest.fn(async () => ({ acknowledged: true })) };
@@ -87,6 +88,42 @@ describe('BlobOutboxPusher', () => {
     expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/outbox dysfunction/i));
     errorSpy.mockRestore();
   });
+
+  // verifies spec: AV
+  it('withholds quarantined content from the push and keeps it in the outbox', async () => {
+    const clean = await seedOutboxAttachment('clean', 5);
+    const quarantined = await seedOutboxAttachment('quarantined', 5);
+    await quarantine(quarantined);
+
+    const counts = await pusher.runOnce();
+    expect(counts).toMatchObject({ pushed: 1, failed: 0 });
+    expect(transferChannel.pushToCentral).toHaveBeenCalledWith(clean);
+    expect(transferChannel.pushToCentral).not.toHaveBeenCalledWith(quarantined);
+    expect(await pusher.eligibleOutboxHashes()).not.toContain(quarantined);
+
+    const held = await Database.models.Blob.findOne({ where: { hash: quarantined } });
+    expect(held).toMatchObject({ tier: BLOB_TIERS.OUTBOX, deletedAt: null });
+  });
+
+  // verifies spec: AV, CAP
+  it('does not flag withheld quarantined content as outbox dysfunction', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const hash = await seedOutboxAttachment('stuck-quarantined', 1);
+    await pusher.recordSyncCycle();
+    await quarantine(hash);
+    await setPushTick(100);
+    await pusher.recordSyncCycle();
+
+    expect(errorSpy).not.toHaveBeenCalledWith(expect.stringMatching(/outbox dysfunction/i));
+    errorSpy.mockRestore();
+  });
+
+  async function quarantine(hash: string) {
+    await Database.models.BlobQuarantine.getRepository().query(
+      `INSERT INTO blob_quarantines (id, hash) VALUES (?, ?)`,
+      [`quarantine-${hash}`, hash],
+    );
+  }
 
   async function setPushTick(tick: number) {
     await Database.models.LocalSystemFact.getRepository().query(

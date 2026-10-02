@@ -15,6 +15,9 @@ const DYSFUNCTION_PUSH_TICK_GAP = 6;
 // An outbox grown during a long outage drains across successive sync cycles.
 const OUTBOX_SCAN_LIMIT = 100;
 
+// spec: AV
+const NOT_QUARANTINED = 'hash NOT IN (SELECT hash FROM blob_quarantines WHERE deletedAt IS NULL)';
+
 export interface BlobOutboxPusherOptions {
   models: typeof MODELS_MAP;
   transferChannel: BlobTransferChannel;
@@ -64,6 +67,7 @@ export class BlobOutboxPusher {
         FROM blobs
         WHERE tier = ?
           AND deletedAt IS NULL
+          AND ${NOT_QUARANTINED}
         ORDER BY createdAt ASC
         LIMIT ?
       `,
@@ -128,6 +132,7 @@ export class BlobOutboxPusher {
                COALESCE(SUM(size), 0) AS totalBytes
         FROM blobs
         WHERE tier = ? AND deletedAt IS NULL AND eligibleSinceTick IS NOT NULL
+          AND ${NOT_QUARANTINED}
       `,
       [BLOB_TIERS.OUTBOX],
     );

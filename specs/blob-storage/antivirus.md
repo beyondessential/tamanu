@@ -95,6 +95,7 @@ is designed to accommodate it.
   accept it when offered, and does not fetch it.
 - [ ] A facility does not push content its own scanner found infected. It stays in the
   outbox, withheld locally and retained, so central never holds it to quarantine.
+  Quarantined content is withheld the same way, on a facility or a device.
 - [ ] A copy of known-bad content arriving from any source — an upload, a peer's
   copy, a restored backup — leaves the quarantine standing. The hash names the same
   content, so a copy that verifies is the same malware verified.
