@@ -1,0 +1,89 @@
+name: Codex Review
+
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      requested: ${{ steps.plan.outputs.requested }}
+    steps:
+      - uses: actions/github-script@v9
+        id: plan
+        with:
+          script: |
+            const marker = /^\s*-\s+\[x\]\s+.*<!--\s*#codex-review\s*-->/im;
+            const ticked = marker.test(context.payload.pull_request?.body ?? '');
+            // An edit only counts when it ticks the box, so other edits don't re-run the review.
+            const previousBody = context.payload.changes?.body?.from;
+            const newlyTicked =
+              context.payload.action !== 'edited' ||
+              (previousBody !== undefined && !marker.test(previousBody));
+            core.setOutput('requested', String(ticked && newlyTicked));
+
+  review:
+    needs: plan
+    if: needs.plan.outputs.requested == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      final_message: ${{ steps.codex.outputs.final-message }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          persist-credentials: false
+
+      - name: Fetch base and head
+        env:
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "$PR_BASE_REF" "+refs/pull/$PR_NUMBER/head"
+
+      - name: Write prompt
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          {
+            echo "Carefully review PR #$PR_NUMBER. The change is $BASE_SHA...$HEAD_SHA."
+            echo
+            echo "PR title and description, written by the author:"
+            echo "----"
+            echo "$PR_TITLE"
+            echo
+            echo "$PR_BODY"
+          } > "$RUNNER_TEMP/codex-prompt.md"
+
+      - uses: openai/codex-action@v1
+        id: codex
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          permission-profile: ":read-only"
+          prompt-file: ${{ runner.temp }}/codex-prompt.md
+
+  post:
+    needs: review
+    if: needs.review.outputs.final_message != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v9
+        env:
+          CODEX_FINAL_MESSAGE: ${{ needs.review.outputs.final_message }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `## Codex review\n\n${process.env.CODEX_FINAL_MESSAGE}`,
+            });
