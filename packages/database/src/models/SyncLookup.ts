@@ -31,8 +31,6 @@ export class SyncLookup extends Model {
         patientId: { type: DataTypes.STRING },
         encounterId: { type: DataTypes.STRING },
         facilityId: { type: DataTypes.STRING },
-        // Scopes a record to every facility in one sensitive network, where facilityId scopes to a
-        // single facility. spec: specs/sync/sensitive-networks.md
         sensitiveNetworkId: { type: DataTypes.STRING },
         isLabRequest: { type: DataTypes.BOOLEAN },
         isDeleted: { type: DataTypes.BOOLEAN },

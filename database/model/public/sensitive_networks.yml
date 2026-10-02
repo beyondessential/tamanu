@@ -40,11 +40,13 @@ sources:
             data_type: text
             description: "{{ doc('sensitive_networks__code') }}"
             data_tests:
+              - unique
               - not_null
           - name: name
             data_type: text
             description: "{{ doc('sensitive_networks__name') }}"
             data_tests:
+              - unique
               - not_null
           - name: updated_at_sync_tick
             data_type: bigint
