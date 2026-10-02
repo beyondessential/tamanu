@@ -14,6 +14,7 @@ export const practitioner = [
   { verb: 'create', noun: 'Patient' },
   { verb: 'write', noun: 'Patient' },
   { verb: 'list', noun: 'Patient' },
+  { verb: 'create', noun: 'SyncPatient' },
 
   { verb: 'list', noun: 'ImagingRequest' },
   { verb: 'read', noun: 'ImagingRequest' },
