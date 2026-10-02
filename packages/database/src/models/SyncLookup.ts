@@ -13,6 +13,7 @@ export class SyncLookup extends Model {
   declare patientId?: string;
   declare encounterId?: string;
   declare facilityId?: string;
+  declare sensitiveNetworkId?: string;
   declare isLabRequest?: boolean;
   declare isDeleted?: boolean;
   declare updatedAtByFieldSum?: number;
@@ -30,6 +31,7 @@ export class SyncLookup extends Model {
         patientId: { type: DataTypes.STRING },
         encounterId: { type: DataTypes.STRING },
         facilityId: { type: DataTypes.STRING },
+        sensitiveNetworkId: { type: DataTypes.STRING },
         isLabRequest: { type: DataTypes.BOOLEAN },
         isDeleted: { type: DataTypes.BOOLEAN },
         updatedAtByFieldSum: { type: DataTypes.BIGINT },
