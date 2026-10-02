@@ -31,8 +31,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
-  const isReferral = surveyType === SurveyTypes.Referral;
-  const selectedPatientId = selectedPatient.id;
   const navigation = useNavigation();
   const { ability } = useAuth();
   const canReadRegistration = ability.can('read', 'PatientProgramRegistration');
@@ -108,20 +106,32 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     async (values: GenericFormValues) => {
       const response = await submitSurveyResponse({
         components,
-        patientId: selectedPatientId,
+        patientId: selectedPatient.id,
         surveyId,
         values,
       });
 
       if (!response) return;
-      if (isReferral) {
+      if (surveyType === SurveyTypes.Referral) {
         resetToReferralHistory(navigation);
       } else {
         resetToProgramSurveyHistory(navigation, response.id);
       }
     },
-    [components, isReferral, navigation, selectedPatientId, submitSurveyResponse, surveyId],
+    [components, navigation, selectedPatient.id, submitSurveyResponse, surveyId, surveyType],
   );
+
+  const isLoading =
+    !survey ||
+    !components ||
+    isSurveyLoading ||
+    areComponentsLoading ||
+    isPadLoading ||
+    isPprLoading;
+  if (isLoading) return <LoadingScreen />;
+
+  const error = surveyError || componentsError || padError || pprError;
+  if (error) return <ErrorScreen error={error} />;
 
   const confirmExit = () => {
     Alert.alert(
@@ -148,21 +158,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
       confirmExit();
     }
   };
-
-  const error = surveyError || componentsError || padError || pprError;
-  const isLoading =
-    !survey ||
-    !components ||
-    isSurveyLoading ||
-    areComponentsLoading ||
-    isPadLoading ||
-    isPprLoading;
-  if (error) {
-    return <ErrorScreen error={error} />;
-  }
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
 
   return (
     <ErrorBoundary resetRoute={Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails}>
