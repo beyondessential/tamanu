@@ -6,7 +6,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 
 import { FACILITY_PARITY_TIERS, PARITY_SIDECAR_SUFFIX } from '@tamanu/blobs';
-import { BLOB_INTEGRITY_STATES, BLOB_TIERS } from '@tamanu/constants';
+import { BLOB_INTEGRITY_STATES, BLOB_SCAN_VERDICTS, BLOB_TIERS } from '@tamanu/constants';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { BlobStore } from '@tamanu/database/blobStore';
 import { log } from '@tamanu/shared/services/logging';
@@ -59,6 +59,7 @@ describe('facility blob outbox and LRU cache', () => {
 
   beforeEach(async () => {
     await models.Blob.destroy({ where: {}, force: true });
+    await models.BlobQuarantine.destroy({ where: {}, force: true });
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'blob-cache-test-'));
     cacheBudgetBytes = 10 * GB;
     errorCorrection = { enabled: false, proportion: 0.1 };
@@ -91,6 +92,13 @@ describe('facility blob outbox and LRU cache', () => {
     const { hash } = await blobCache.putOutbox(Readable.from(content));
     return { hash, content };
   };
+
+  const markInfected = hash =>
+    blobStore.recordScanVerdict(hash, {
+      verdict: BLOB_SCAN_VERDICTS.INFECTED,
+      scannerVersion: 'test',
+      signatureVersion: 'test',
+    });
 
   const tierOf = async hash => (await models.Blob.findOne({ where: { hash } })).tier;
 
@@ -496,6 +504,48 @@ describe('facility blob outbox and LRU cache', () => {
       expect(counts).toMatchObject({ pushed: 1, failed: 0 });
       expect(await tierOf(hash)).toBe(BLOB_TIERS.OUTBOX);
     });
+
+    it('withholds content this facility found infected, keeping it in the outbox', async () => {
+      // verifies spec: AV
+      const infected = await putOutbox();
+      const clean = await putOutbox();
+      await markInfected(infected.hash);
+      const pushed = [];
+      const pusher = makePusher({
+        resolvers: [eligibleAll],
+        pushToCentral: async hash => {
+          pushed.push(hash);
+          return { acknowledged: true };
+        },
+      });
+
+      await pusher.runOnce();
+
+      expect(pushed).toEqual([clean.hash]);
+      expect(await tierOf(infected.hash)).toBe(BLOB_TIERS.OUTBOX);
+      expect(await readAll(await blobStore.get(infected.hash))).toEqual(infected.content);
+    });
+
+    it('withholds quarantined content, keeping it in the outbox', async () => {
+      // verifies spec: AV
+      const quarantined = await putOutbox();
+      const clean = await putOutbox();
+      await models.BlobQuarantine.create({ hash: quarantined.hash });
+      const pushed = [];
+      const pusher = makePusher({
+        resolvers: [eligibleAll],
+        pushToCentral: async hash => {
+          pushed.push(hash);
+          return { acknowledged: true };
+        },
+      });
+
+      await pusher.runOnce();
+
+      expect(pushed).toEqual([clean.hash]);
+      expect(await tierOf(quarantined.hash)).toBe(BLOB_TIERS.OUTBOX);
+      expect(await readAll(await blobStore.get(quarantined.hash))).toEqual(quarantined.content);
+    });
   });
 
   describe('outbox dysfunction measure', () => {
@@ -572,6 +622,19 @@ describe('facility blob outbox and LRU cache', () => {
       expect(status.oldestEligibleTick).toBe(42);
     });
 
+    it('leaves withheld content out of the outbox status', async () => {
+      // verifies spec: CAP
+      const { hash } = await putOutbox();
+      const pusher = makeCyclePusher(hash);
+      await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '42');
+      await pusher.recordSyncCycle();
+      await markInfected(hash);
+
+      const status = await blobOutboxStatus(models);
+
+      expect(status).toEqual({ count: 0, totalBytes: 0, oldestEligibleTick: null });
+    });
+
     describe('escalation', () => {
       let errorLog;
 
@@ -606,6 +669,19 @@ describe('facility blob outbox and LRU cache', () => {
           ticksSinceEligible: 90,
           outboxCount: 1,
         });
+      });
+
+      it('does not escalate infected content withheld in the outbox', async () => {
+        // verifies spec: CAP
+        const { hash } = await putOutbox();
+        const pusher = makeCyclePusher(hash);
+        await eligibleSince(pusher, 10);
+        await markInfected(hash);
+
+        await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '100');
+        await pusher.recordSyncCycle();
+
+        expect(dysfunctionCalls()).toHaveLength(0);
       });
 
       it('stays quiet while a blob has only just become eligible', async () => {
