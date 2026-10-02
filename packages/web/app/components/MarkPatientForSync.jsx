@@ -61,28 +61,36 @@ const NotMarkedForSyncContainer = styled.div`
   padding: 20px;
 `;
 
-const NotMarkedForSyncMessage = styled.p`
+const NotMarkedForSyncMessageArea = styled.div`
   align-items: center;
   background-color: ${Colors.background};
-  color: ${Colors.primary};
   display: flex;
-  font-weight: 500;
   justify-content: center;
-  line-height: 1.5;
-  margin: 0;
-  min-block-size: 25rem;
+  min-block-size: 38rem;
   padding: 24px;
+`;
+
+const NotMarkedForSyncMessage = styled.p`
+  color: ${Colors.primary};
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+  max-inline-size: 34em;
   text-align: center;
+  text-wrap: balance;
 `;
 
 // spec: MFS#marking-a-patient-for-sync-on-desktop
 export const PatientNotMarkedForSync = () => (
   <NotMarkedForSyncContainer data-testid="patientnotmarkedforsync-3kq8">
-    <NotMarkedForSyncMessage>
-      <TranslatedText
-        stringId="patient.history.notMarkedForSync"
-        fallback="This patient record is not marked for sync at your facility. Please speak with your system administrator if this patient record should be synced."
-      />
-    </NotMarkedForSyncMessage>
+    <NotMarkedForSyncMessageArea>
+      <NotMarkedForSyncMessage>
+        <TranslatedText
+          stringId="patient.history.notMarkedForSync"
+          fallback="This patient record is not marked for sync at your facility. Please speak with your system administrator if this patient record should be synced."
+        />
+      </NotMarkedForSyncMessage>
+    </NotMarkedForSyncMessageArea>
   </NotMarkedForSyncContainer>
 );
