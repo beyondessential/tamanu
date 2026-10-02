@@ -33,8 +33,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 | 7 | J8 | Roadmap | J8 (timeline) |
 | 8 | J8 | Report an issue | J8 (report-issue) |
 | 9 | J8 | Branding & shared design system | J8 |
-| 10 | Project brief | Migration & cutover from Slab | — |
-| 11 | Project brief | Update Tamanu in-app support hub link | — |
+| 10 | Project brief | Update Tamanu in-app support hub link | — |
 
 ---
 
@@ -209,17 +208,7 @@ Fully explored in J8
 
 ---
 
-### 10. Migration & cutover from Slab
-
-- **Megan owns the migration of documents and the retirement of Slab**
-- **Tamanu documentation is fully cut over** to the hub in one launch — Slab is retired for Tamanu content
-- End-user guides and configuration guides are brought across from Slab by cards L8 and K8 as repo markdown
-- Handle existing Slab links (README runbook links, external references) — redirect or update
-- **Other products are not migrated** — related-products footer links point Tupaia and SENAITE at the current Knowledge Center site (still on Slab), and mSupply at the mSupply site
-
----
-
-### 11. Update Tamanu in-app support hub link
+### 10. Update Tamanu in-app support hub link
 
 - Tamanu's in-app support hub link currently points at Slab; update it to the Tamanu Knowledge Hub as part of this work
 - _Confirm the exact in-app location(s) during card shaping_
