@@ -232,7 +232,6 @@ Fully explored in J8
 - **Hosting & deployment:** where the built site is served and how it deploys on release
 - **Ask AI:** model, retrieval, and hosting for the chat drawer
 - **Ask AI technical scope:** will Ask AI support generating import spreadsheets in this initial phase, and what is the scope? (It otherwise declines SQL, scripts, config files, and direct DB changes)
-- **Home vs guides landing:** distinct search-led home, or does the guides landing double as home?
 - **Typeface:** Inter vs matching the Tamanu app's Roboto
 - **Feature-to-guide mapping** for the home Recent features carousel
 - User guides feedback - we ask if the user guide was helpful. where will this data captured?
