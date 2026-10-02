@@ -271,4 +271,4 @@ Fully explored in J8
 - **Home vs guides landing:** distinct search-led home, or does the guides landing double as home?
 - **Typeface:** Inter vs matching the Tamanu app's Roboto
 - **Feature-to-guide mapping** for the home Recent features carousel
-- User guides feedback - we ask if the user guide was helpful. where wi
+- User guides feedback - we ask if the user guide was helpful. where will this data captured?
