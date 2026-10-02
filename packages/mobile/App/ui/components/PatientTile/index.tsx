@@ -1,20 +1,20 @@
 import React from 'react';
-import { RowView, StyledText, StyledView } from '/styled/common';
-import { UserAvatar } from '../UserAvatar';
-import { getDisplayAge } from '/helpers/date';
-import { theme } from '/styled/theme';
-import { getGender, joinNames } from '/helpers/user';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import type { IPatient } from '~/types';
-import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { getReferenceDataStringId } from '../Translations/TranslatedReferenceData';
+import { UserAvatar } from '../UserAvatar';
 import { useSettings } from '/contexts/SettingsContext';
+import { type AgeDisplayFormat, getDisplayAge } from '/helpers/date';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { getGender, joinNames } from '/helpers/user';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export const PatientTile = (patient: IPatient): JSX.Element => {
   const { firstName, lastName, sex } = patient;
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
   return (
     <RowView
@@ -55,7 +55,7 @@ export const PatientTile = (patient: IPatient): JSX.Element => {
 
 const getSecondaryInfoString = (
   getTranslation,
-  ageDisplayFormat,
+  ageDisplayFormat: AgeDisplayFormat | undefined,
   { displayId, sex, dateOfBirth, village }: IPatient,
 ) => {
   const secondaryInfo = {

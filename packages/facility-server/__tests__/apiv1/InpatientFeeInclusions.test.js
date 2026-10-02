@@ -60,7 +60,7 @@ describe('Inpatient fee inclusions', () => {
     } = await app.post('/api/labRequest').send({
       encounterId: encounter.id,
       panelIds: [labPanel.id],
-      sampleDetails: { [labPanel.id]: { sampleTime: new Date() } },
+      sampleDetails: { [labPanel.categoryId]: { sampleTime: new Date() } },
       requestedById: user.id,
       date: new Date(),
     });
@@ -139,7 +139,9 @@ describe('Inpatient fee inclusions', () => {
     const labType = await models.LabTestType.create(
       fake(models.LabTestType, { code: 'INC-EXC-BLOODS', labTestCategoryId: labCategory.id }),
     );
-    labPanel = await models.LabTestPanel.create(fake(models.LabTestPanel, { code: 'INC-EXC-PANEL' }));
+    labPanel = await models.LabTestPanel.create(
+      fake(models.LabTestPanel, { code: 'INC-EXC-PANEL', categoryId: labCategory.id }),
+    );
     await models.LabTestPanelLabTestTypes.create({
       labTestPanelId: labPanel.id,
       labTestTypeId: labType.id,
@@ -267,7 +269,7 @@ describe('Inpatient fee inclusions', () => {
     } = await app.post('/api/labRequest').send({
       encounterId: encounter.id,
       panelIds: [labPanel.id],
-      sampleDetails: { [labPanel.id]: { sampleTime: new Date() } },
+      sampleDetails: { [labPanel.categoryId]: { sampleTime: new Date() } },
       requestedById: user.id,
       date: new Date(),
     });

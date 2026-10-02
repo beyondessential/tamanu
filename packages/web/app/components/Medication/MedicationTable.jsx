@@ -15,6 +15,7 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { LastSentCell } from './LastSentCell';
 import { MedicationDetails } from './MedicationDetails';
+import { NotDispensedMedicationDetailsModal } from './NotDispensedMedicationDetailsModal';
 import { useApi } from '../../api';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { singularize } from '../../utils';
@@ -258,6 +259,7 @@ export const EncounterMedicationTable = ({
   const { ability } = useAuth();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const [selectedMedication, setSelectedMedication] = useState(null);
+  const [selectedNotDispensedRecord, setSelectedNotDispensedRecord] = useState(null);
   const [medications, setMedications] = useState([]);
 
   const queryClient = useQueryClient();
@@ -268,14 +270,22 @@ export const EncounterMedicationTable = ({
   const canCreatePrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
 
-  // Consumes the one-time openMedicationId deep-link param on mount only
+  // Consumes the one-time openMedicationId/openNotDispensedId deep-link params on mount only
   // must not re-run when navigate() rewrites the URL below.
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const openMedicationId = searchParams.get('openMedicationId');
+    const openNotDispensedId = searchParams.get('openNotDispensedId');
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
       searchParams.delete('openMedicationId');
+      navigate(
+        { pathname: location.pathname, search: searchParams.toString() },
+        { replace: true },
+      );
+    } else if (openNotDispensedId) {
+      handleInitialNotDispensedRecord(openNotDispensedId);
+      searchParams.delete('openNotDispensedId');
       navigate(
         { pathname: location.pathname, search: searchParams.toString() },
         { replace: true },
@@ -287,6 +297,11 @@ export const EncounterMedicationTable = ({
   const handleInitialMedication = async id => {
     const medication = await api.get(`medication/${id}`);
     setSelectedMedication(medication);
+  };
+
+  const handleInitialNotDispensedRecord = async id => {
+    const record = await api.get(`medication/medication-requests/${id}/not-dispensed`);
+    setSelectedNotDispensedRecord(record);
   };
 
   const handleRefreshTable = () => {
@@ -326,6 +341,11 @@ export const EncounterMedicationTable = ({
           onClose={() => setSelectedMedication(null)}
         />
       )}
+      <NotDispensedMedicationDetailsModal
+        open={!!selectedNotDispensedRecord}
+        record={selectedNotDispensedRecord}
+        onClose={() => setSelectedNotDispensedRecord(null)}
+      />
       <StyledDataFetchingTable
         columns={getMedicationColumns(
           getTranslation,

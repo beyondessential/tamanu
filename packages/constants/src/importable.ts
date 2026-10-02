@@ -51,6 +51,7 @@ export const REFERENCE_TYPES = {
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
+  MEDICATION_NOT_DISPENSED_REASON: 'medicationNotDispensedReason',
   MEDICATION_DISPENSE_MODIFY_REASON: 'medicationDispenseModifyReason',
   MEDICATION_PRESET_LABEL: 'medicationPresetLabel',
   MEDICATION_TEMPLATE: 'medicationTemplate',
@@ -61,13 +62,6 @@ export const REFERENCE_TYPES = {
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
-
-// Half of each record lives in a detail table that only the importer writes.
-export const REFERENCE_TYPES_WITH_A_DETAIL_RECORD = [
-  REFERENCE_TYPES.DRUG,
-  REFERENCE_TYPES.TASK_TEMPLATE,
-  REFERENCE_TYPES.MEDICATION_TEMPLATE,
-];
 
 /**
  * Reference data stored in its own table (not in `reference_data` table)

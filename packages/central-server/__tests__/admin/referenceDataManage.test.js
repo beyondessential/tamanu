@@ -1,10 +1,15 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { fake } from '@tamanu/fake-data/fake';
 import {
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_VALUES,
+  DRUG_UNIT_VALUES,
   REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   SYSTEM_DATA_TYPES,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  OTHER_REFERENCE_TYPES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
 } from '@tamanu/constants';
@@ -12,7 +17,7 @@ import { createTestContext } from '../utilities';
 
 const BASE_URL = '/api/admin/referenceData/manage';
 const COLUMNS_URL = `${BASE_URL}/columns`;
-const TEST_TYPE = REFERENCE_TYPES.VILLAGE;
+const TEST_TYPE = REFERENCE_TYPES.DRUG;
 
 describe('Reference Data Manage', () => {
   let ctx;
@@ -49,6 +54,25 @@ describe('Reference Data Manage', () => {
 
       const nameCol = response.body.find(c => c.key === 'name');
       expect(nameCol).toMatchObject({ type: 'TEXT', readOnly: false });
+    });
+
+    it('should offer the constant values for columns stored as plain strings', async () => {
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      expect(response).toHaveSucceeded();
+
+      const route = response.body.find(c => c.key === 'route');
+      expect(route.enumValues).toContain('oral');
+      expect(route.enumValues).not.toContain('telepathic');
+      expect(route.enumName).toBe('DRUG_ROUTE_LABELS');
+    });
+
+    it('should include the detail model columns for a type that has one', async () => {
+      const response = await adminApp.get(COLUMNS_URL).query({ referenceDataType: TEST_TYPE });
+      expect(response).toHaveSucceeded();
+
+      const isSensitive = response.body.find(c => c.key === 'isSensitive');
+      expect(isSensitive).toMatchObject({ detail: true, type: 'BOOLEAN' });
+      expect(response.body.map(c => c.key)).not.toContain('referenceDataId');
     });
 
     it('should reject an invalid type', async () => {
@@ -134,19 +158,95 @@ describe('Reference Data Manage', () => {
       expect(record.name).toBe('Test Create Drug');
     });
 
-    it('should refuse to create a type whose record needs a detail row', async () => {
-      for (const referenceDataType of [
-        REFERENCE_TYPES.DRUG,
-        REFERENCE_TYPES.TASK_TEMPLATE,
-        REFERENCE_TYPES.MEDICATION_TEMPLATE,
-      ]) {
-        const response = await adminApp.post(BASE_URL).send({
-          referenceDataType,
-          code: `test-blocked-${referenceDataType}`,
-          name: 'Test Blocked',
-        });
-        expect(response).toHaveRequestError();
-      }
+    it('should create a drug with its detail record from one payload', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-detail-code',
+        name: 'Test Drug Detail',
+        route: 'oral',
+        isSensitive: true,
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug).toMatchObject({ route: 'oral', isSensitive: true });
+    });
+
+    it('should create a detail record even when no detail fields were filled in', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-bare-code',
+        name: 'Test Drug Bare',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug).toBeTruthy();
+      expect(referenceDrug.isSensitive).toBe(false);
+    });
+
+    it('should not create a detail record for a type that has none', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.VILLAGE,
+        code: 'test-village-code',
+        name: 'Test Village',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug).toBe(null);
+    });
+
+    it('should reject a detail value outside its constant', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-bad-route-code',
+        name: 'Test Drug Bad Route',
+        route: 'telepathic',
+      });
+      expect(response).toHaveRequestError();
+    });
+
+    it('should create a medication template with its detail record', async () => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+      });
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        code: 'test-medication-template-code',
+        name: 'Test Medication Template',
+        medicationId: drug.id,
+        route: DRUG_ROUTE_VALUES[0],
+        dosingUnit: DRUG_UNIT_VALUES[0],
+        frequency: Object.values(ADMINISTRATION_FREQUENCIES)[0],
+      });
+      expect(response).toHaveSucceeded();
+
+      const template = await models.ReferenceMedicationTemplate.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(template).toMatchObject({ medicationId: drug.id, route: DRUG_ROUTE_VALUES[0] });
+    });
+
+    it('should reject a medication template missing its required detail fields', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        code: 'test-medication-template-bare-code',
+        name: 'Test Medication Template Bare',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findOne({
+        where: { code: 'test-medication-template-bare-code' },
+      });
+      expect(record).toBe(null);
     });
 
     it('should reject creating a record with a duplicate unique field', async () => {
@@ -235,6 +335,47 @@ describe('Reference Data Manage', () => {
       expect(record.name).toBe('Updated Name');
     });
 
+    it('should update a drug detail field', async () => {
+      const created = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-edit-code',
+        name: 'Test Drug Edit',
+        route: 'oral',
+      });
+      expect(created).toHaveSucceeded();
+
+      const response = await adminApp.put(`${BASE_URL}/${created.body.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        name: 'Test Drug Edited',
+        route: 'topical',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: created.body.id },
+      });
+      expect(referenceDrug.route).toBe('topical');
+    });
+
+    it('should create a missing detail record when editing an orphaned drug', async () => {
+      const orphan = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-orphan-code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${orphan.id}`).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        route: 'oral',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: orphan.id },
+      });
+      expect(referenceDrug.route).toBe('oral');
+    });
+
     it('should return an error for a non-existent record', async () => {
       const response = await adminApp.put(`${BASE_URL}/non-existent-id`).send({
         referenceDataType: TEST_TYPE,
@@ -310,6 +451,40 @@ describe('Reference Data Manage', () => {
       expect(response.body).toHaveProperty('count');
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toBeInstanceOf(Array);
+    });
+
+    it('should merge detail fields into each row', async () => {
+      const drug = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'search-detail',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+      await models.ReferenceDrug.create({
+        ...fake(models.ReferenceDrug),
+        referenceDataId: drug.id,
+        route: 'topical',
+        isSensitive: true,
+      });
+
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'search-detail',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.find(r => r.id === drug.id)).toMatchObject({
+        route: 'topical',
+        isSensitive: true,
+      });
+    });
+
+    it('should return null detail fields for a record with no detail row', async () => {
+      const response = await adminApp.get(BASE_URL).query({
+        referenceDataType: TEST_TYPE,
+        code: 'search-alpha',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data[0]).toMatchObject({ route: null, isSensitive: null });
     });
 
     it('should support pagination', async () => {
@@ -389,9 +564,159 @@ describe('Reference Data Manage', () => {
       expect(response).toHaveRequestError();
     });
 
+    it('lists panelOnly lab test types by default so they can be managed', async () => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const panelOnlyType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+      });
+
+      const response = await adminApp
+        .get(BASE_URL)
+        .query({ referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.some(record => record.id === panelOnlyType.id)).toBe(true);
+    });
+
+    it('lists reflexTest lab test types by default so they can be managed', async () => {
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const reflexTestType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        visibilityStatus: LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      });
+
+      const response = await adminApp
+        .get(BASE_URL)
+        .query({ referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.some(record => record.id === reflexTestType.id)).toBe(true);
+    });
+
     it('should forbid access without permission', async () => {
       const response = await noPermissionApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
       expect(response).toBeForbidden();
+    });
+  });
+
+  describe('default specimen type (relation-backed column)', () => {
+    const LAB_TEST_CATEGORY = REFERENCE_TYPES.LAB_TEST_CATEGORY;
+
+    const createSpecimenType = () =>
+      models.ReferenceData.create({ ...fake(models.ReferenceData), type: REFERENCE_TYPES.SPECIMEN_TYPE });
+
+    const createCategory = () =>
+      models.ReferenceData.create({ ...fake(models.ReferenceData), type: LAB_TEST_CATEGORY });
+
+    const getDefault = categoryId =>
+      models.ReferenceDataRelation.findOne({
+        where: {
+          referenceDataParentId: categoryId,
+          type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+        },
+      });
+
+    it('exposes a writable id column and a read-only name column for lab test category', async () => {
+      const response = await adminApp
+        .get(COLUMNS_URL)
+        .query({ referenceDataType: LAB_TEST_CATEGORY });
+      expect(response).toHaveSucceeded();
+
+      const idCol = response.body.find(c => c.key === 'defaultSpecimenTypeId');
+      const nameCol = response.body.find(c => c.key === 'defaultSpecimenType');
+      expect(idCol).toMatchObject({ suggesterEndpoint: 'specimenType', readOnly: false });
+      expect(nameCol).toMatchObject({ readOnly: true });
+    });
+
+    it('creates the relation when a category is created with a default specimen type', async () => {
+      const specimenType = await createSpecimenType();
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: LAB_TEST_CATEGORY,
+        code: 'cat-with-default',
+        name: 'Category with default',
+        defaultSpecimenTypeId: specimenType.id,
+      });
+      expect(response).toHaveSucceeded();
+
+      const relation = await getDefault(response.body.id);
+      expect(relation?.referenceDataId).toBe(specimenType.id);
+    });
+
+    it('sets, replaces and clears the default on edit (at most one)', async () => {
+      const category = await createCategory();
+      const first = await createSpecimenType();
+      const second = await createSpecimenType();
+
+      // set
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, defaultSpecimenTypeId: first.id });
+      expect((await getDefault(category.id))?.referenceDataId).toBe(first.id);
+
+      // replace — still exactly one
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, defaultSpecimenTypeId: second.id });
+      expect((await getDefault(category.id))?.referenceDataId).toBe(second.id);
+      const count = await models.ReferenceDataRelation.count({
+        where: {
+          referenceDataParentId: category.id,
+          type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+        },
+      });
+      expect(count).toBe(1);
+
+      // clear
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, defaultSpecimenTypeId: '' });
+      expect(await getDefault(category.id)).toBeNull();
+    });
+
+    it('leaves the default untouched when a partial edit omits the field', async () => {
+      const specimenType = await createSpecimenType();
+      const category = await createCategory();
+      await models.ReferenceDataRelation.create({
+        referenceDataParentId: category.id,
+        referenceDataId: specimenType.id,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      });
+
+      // A PUT that changes another field but omits defaultSpecimenTypeId must not clear it.
+      await adminApp
+        .put(`${BASE_URL}/${category.id}`)
+        .send({ referenceDataType: LAB_TEST_CATEGORY, name: 'Renamed category' });
+
+      expect((await getDefault(category.id))?.referenceDataId).toBe(specimenType.id);
+    });
+
+    it('returns the default specimen type id and name in the list', async () => {
+      const specimenType = await createSpecimenType();
+      const category = await createCategory();
+      await models.ReferenceDataRelation.create({
+        referenceDataParentId: category.id,
+        referenceDataId: specimenType.id,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      });
+
+      const response = await adminApp
+        .get(BASE_URL)
+        .query({ referenceDataType: LAB_TEST_CATEGORY, code: category.code });
+      expect(response).toHaveSucceeded();
+      const row = response.body.data.find(r => r.id === category.id);
+      expect(row).toMatchObject({
+        defaultSpecimenTypeId: specimenType.id,
+        defaultSpecimenType: specimenType.name,
+      });
     });
   });
 });

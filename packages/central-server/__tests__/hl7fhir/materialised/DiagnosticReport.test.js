@@ -200,6 +200,35 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.resultsInterpretation).toBe('Positive for markers X and Y');
     });
 
+    it('stamps publishedDate when a DiagnosticReport rejects a ServiceRequest', async () => {
+      const fakeDate = new Date('2020-01-01');
+      vi.useFakeTimers().setSystemTime(fakeDate);
+
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = postBody(serviceRequestId);
+      body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED;
+
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.REJECTED);
+      expect(labRequest.publishedDate).toBe(dateFnsTz.format(fakeDate, 'yyyy-MM-dd HH:mm:ss'));
+    });
+
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
       // Once published, only entered-in-error can transition to invalidated; all others are ignored
       const statuses = [
@@ -315,6 +344,73 @@ describe('Create DiagnosticReport', () => {
         title: testAttachment.title,
       });
       expect(response).toHaveSucceeded();
+    });
+
+    it('replaces the PDF when a DiagnosticReport is republished for a published Lab Request', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const firstResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'first report' }],
+      });
+      expect(firstResponse).toHaveSucceeded();
+      const firstAttachment = await labRequest.getLatestAttachment();
+
+      const republishResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'republished report' }],
+        conclusion: 'Sensitive to amoxicillin',
+      });
+      expect(republishResponse).toHaveSucceeded();
+
+      await labRequest.reload();
+      await firstAttachment.reload();
+      const latestAttachment = await labRequest.getLatestAttachment();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect(labRequest.resultsInterpretation).toBe('Sensitive to amoxicillin');
+      expect(latestAttachment).toMatchObject({
+        title: 'republished report',
+        replacedById: null,
+      });
+      expect(firstAttachment.replacedById).toBe(latestAttachment.id);
+    });
+
+    it('does not replace the PDF of a published Lab Request with an interim report', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'final report' }],
+      });
+
+      const response = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        status: FHIR_DIAGNOSTIC_REPORT_STATUS.PARTIAL._,
+        presentedForm: [{ ...testAttachment, title: 'interim report' }],
+      });
+      expect(response).toHaveSucceeded();
+
+      await labRequest.reload();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.PUBLISHED);
+      expect((await labRequest.getLatestAttachment()).title).toBe('final report');
     });
 
     describe('errors', () => {

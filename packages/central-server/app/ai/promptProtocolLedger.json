@@ -1,0 +1,128 @@
+{
+  "patientSummary": {
+    "active": [
+      "<ai_generated>",
+      "<clinician_edited>",
+      "<clinician_feedback>",
+      "<correction>",
+      "<patient_data>"
+    ],
+    "removed": []
+  },
+  "encounterSummary": {
+    "active": [
+      "<ai_generated>",
+      "<clinician_edited>",
+      "<clinician_feedback>",
+      "<correction>",
+      "<encounter_data>"
+    ],
+    "removed": []
+  },
+  "formBuilder": {
+    "active": [
+      "[CSV DOCUMENT LOADED]",
+      "[FORM IMAGE INTERPRETED]",
+      "[PDF DOCUMENT INTERPRETED]",
+      "[PDF DOCUMENT LOADED]",
+      "[PROGRAM SELECTED]",
+      "[TEXT DOCUMENT LOADED]",
+      "[XLSX DOCUMENT LOADED]",
+      "attach_to_program_code",
+      "message",
+      "ready"
+    ],
+    "removed": []
+  },
+  "formBuilderBuildSurveyDefinition": {
+    "active": [
+      "[ASSISTANT RESPONSE]",
+      "[CSV DOCUMENT LOADED]",
+      "[CURRENT PROGRAM DEFINITION]",
+      "[FORM IMAGE INTERPRETED]",
+      "[LATEST USER REQUEST]",
+      "[PDF DOCUMENT INTERPRETED]",
+      "[PDF DOCUMENT LOADED]",
+      "[PROGRAM SELECTED]",
+      "[TEXT DOCUMENT LOADED]",
+      "[XLSX DOCUMENT LOADED]",
+      "[ai]",
+      "[human]",
+      "programCode",
+      "programName",
+      "surveySheets",
+      "surveySheets[].questions",
+      "surveySheets[].questions[].calculation",
+      "surveySheets[].questions[].code",
+      "surveySheets[].questions[].config",
+      "surveySheets[].questions[].detail",
+      "surveySheets[].questions[].name",
+      "surveySheets[].questions[].newScreen",
+      "surveySheets[].questions[].options",
+      "surveySheets[].questions[].text",
+      "surveySheets[].questions[].type",
+      "surveySheets[].questions[].validationCriteria",
+      "surveySheets[].questions[].visibilityCriteria",
+      "surveySheets[].questions[].visibilityStatus",
+      "surveySheets[].questions[].visualisationConfig",
+      "surveySheets[].surveyName",
+      "surveys",
+      "surveys[].code",
+      "surveys[].isSensitive",
+      "surveys[].name",
+      "surveys[].notifiable",
+      "surveys[].notifyEmailAddresses",
+      "surveys[].status",
+      "surveys[].surveyType",
+      "surveys[].visibilityCriteria",
+      "surveys[].visibilityStatus",
+      "title"
+    ],
+    "removed": []
+  },
+  "formBuilderTweakSurveyDefinition": {
+    "active": [
+      "[CURRENT PROGRAM DEFINITION]",
+      "[LATEST USER REQUEST]",
+      "message",
+      "operations",
+      "operations[].question",
+      "operations[].question.calculation",
+      "operations[].question.code",
+      "operations[].question.config",
+      "operations[].question.detail",
+      "operations[].question.name",
+      "operations[].question.newScreen",
+      "operations[].question.options",
+      "operations[].question.text",
+      "operations[].question.type",
+      "operations[].question.validationCriteria",
+      "operations[].question.visibilityCriteria",
+      "operations[].question.visibilityStatus",
+      "operations[].question.visualisationConfig",
+      "operations[].questionCode",
+      "operations[].survey",
+      "operations[].survey.code",
+      "operations[].survey.isSensitive",
+      "operations[].survey.name",
+      "operations[].survey.notifiable",
+      "operations[].survey.notifyEmailAddresses",
+      "operations[].survey.status",
+      "operations[].survey.surveyType",
+      "operations[].survey.visibilityCriteria",
+      "operations[].survey.visibilityStatus",
+      "operations[].surveyName",
+      "operations[].type",
+      "operations[].type=addQuestionAfter",
+      "operations[].type=addQuestionBefore",
+      "operations[].type=removeQuestion",
+      "operations[].type=replaceQuestion",
+      "operations[].type=updateSurvey"
+    ],
+    "removed": []
+  },
+  "formBuilderInterpretFormImage": {
+    "active": [],
+    "removed": []
+  }
+}

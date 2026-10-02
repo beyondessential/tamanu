@@ -1,35 +1,48 @@
 import config from 'config';
-import { Sequelize } from 'sequelize';
+import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { log } from '@tamanu/shared/services/logging/log';
 
-import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
-import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
-import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { saveCreates, saveDeletes, saveRestores, saveUpdates } from './saveChanges';
-import type { Models } from '../types/model';
+import { log } from '@tamanu/shared/services/logging/log';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import type { Model } from '../models/Model';
-import type { ModelSanitizeArgs, RecordType } from '../types/sync';
+import type { Models } from '../types/model';
+import type {
+  ModelSanitizeArgs,
+  RecordType,
+  SyncSnapshotAttributes,
+  SyncSnapshotData,
+} from '../types/sync';
 import { extractChangelogFromSnapshotRecords } from '../utils/audit/extractChangelogFromSnapshotRecords';
 import { insertChangelogRecords } from '../utils/audit/insertChangelogRecords';
+import { sortInDependencyOrder } from '../utils/sortInDependencyOrder';
+import { SYNC_SESSION_DIRECTION } from './constants';
+import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
+import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
+import { saveCreates, saveUpdates } from './saveChanges';
 
 const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
 
 export const saveChangesForModel = async (
   model: typeof Model,
-  changes: Awaited<ReturnType<typeof findSyncSnapshotRecords>>,
+  changes: SyncSnapshotAttributes[],
   isCentralServer: boolean,
   log: Logger,
 ) => {
   const sanitizeContext = await model.prepareSanitizeContext(changes);
-  const sanitizeData = (d: ModelSanitizeArgs) =>
-    isCentralServer
+  const sanitizeData = (d: ModelSanitizeArgs) => {
+    /**
+     * Discard value from client. (Applies only to mobile, which doesn’t strip deleted_at.) Enforces
+     * that the delete/restore decision below is the only thing that sets/unsets deleted_at.
+     * (Otherwise a stale edit pushed against a record central has since deleted would carry
+     * `deletedAt: null` and silently restore it.)
+     */
+    const { deletedAt: _, ...sanitized }: ModelSanitizeArgs = isCentralServer
       ? model.sanitizeForCentralServer(d, sanitizeContext)
       : model.sanitizeForFacilityServer(d, sanitizeContext);
+    return sanitized;
+  };
 
-  // split changes into create, update, delete
+  // split changes into creates and updates; soft deletes and restores ride along on the update
   const incomingRecords = changes.filter(c => c.data.id).map(c => c.data);
   const idsForIncomingRecords = incomingRecords.map(r => r.id);
   // add all records that already exist in the db to the list to be updated
@@ -37,12 +50,10 @@ export const saveChangesForModel = async (
   const existingRecords = (await model.findByIds(idsForIncomingRecords, false)).map(r =>
     r.get({ plain: true }),
   );
-  const idToExistingRecord: Record<number, (typeof existingRecords)[0]> = Object.fromEntries(
-    existingRecords.map(e => [e.id, e]),
-  );
+  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
   // follow the same pattern for incoming records
   // https://github.com/beyondessential/tamanu/pull/4854#discussion_r1403828225
-  const idToIncomingRecord: { [key: number]: (typeof changes)[0] } = Object.fromEntries(
+  const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data.id).map(e => [e.data.id, e]),
   );
   const idsForUpdate = new Set();
@@ -66,31 +77,38 @@ export const saveChangesForModel = async (
       // is deleted and existing record is already deleted
     }
   });
+
+  /**
+   * A new record is inserted immediately soft-deleted if any copy of it in the payload is deleted .
+   * (The same record can turn up more than once, see {@link saveCreates}.)
+   */
+  for (const c of changes) {
+    if (c.isDeleted && idToExistingRecord[c.data.id] === undefined) {
+      idsForDelete.add(c.data.id);
+    }
+  }
+
+  /**
+   * The delete/restore decision travels on the record itself so `deleted_at` is written in the same
+   * statement as the rest of it (see note in {@link saveCreates}). No decision leaves it untouched.
+   */
+  const getDeletedAt = (id: SyncSnapshotData['id']) => {
+    if (idsForDelete.has(id)) return fn('now');
+    if (idsForRestore.has(id)) return null;
+    return undefined;
+  };
+  const toRecordToWrite = (data: SyncSnapshotData) => {
+    // validateRecord(data, null); TODO add in validation
+    const sanitized = sanitizeData(data);
+    const deletedAt = getDeletedAt(data.id);
+    return deletedAt === undefined ? sanitized : { ...sanitized, deletedAt };
+  };
   const recordsForCreate = changes
     .filter(c => idToExistingRecord[c.data.id] === undefined)
-    .map(({ data, isDeleted }) => {
-      // validateRecord(data, null); TODO add in validation
-      // pass in 'isDeleted' to be able to create new records even if they are soft deleted.
-      return { ...sanitizeData(data), isDeleted };
-    });
+    .map(c => toRecordToWrite(c.data));
   const recordsForUpdate = changes
-    .filter(r => idsForUpdate.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const recordsForRestore = changes
-    .filter(r => idsForRestore.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
-  const recordsForDelete = changes
-    .filter(r => idsForDelete.has(r.data.id))
-    .map(({ data }) => {
-      // validateRecord(data, null); TODO add in validation
-      return sanitizeData(data);
-    });
+    .filter(c => idsForUpdate.has(c.data.id))
+    .map(c => toRecordToWrite(c.data));
 
   // run each import process
   log.debug('Sync: saveIncomingChanges: Creating new records', { count: recordsForCreate.length });
@@ -100,23 +118,11 @@ export const saveChangesForModel = async (
 
   log.debug('Sync: saveIncomingChanges: Updating existing records', {
     count: recordsForUpdate.length,
+    deleting: idsForDelete.size,
+    restoring: idsForRestore.size,
   });
   if (recordsForUpdate.length > 0) {
     await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
-  }
-
-  log.debug('Sync: saveIncomingChanges: Soft deleting old records', {
-    count: recordsForDelete.length,
-  });
-  if (recordsForDelete.length > 0) {
-    await saveDeletes(model, recordsForDelete);
-  }
-
-  log.debug('Sync: saveIncomingChanges: Restoring deleted records', {
-    count: recordsForRestore.length,
-  });
-  if (recordsForRestore.length > 0) {
-    await saveRestores(model, recordsForRestore);
   }
 };
 

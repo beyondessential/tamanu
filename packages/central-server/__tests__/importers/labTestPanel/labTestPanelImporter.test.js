@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { LAB_TEST_TYPE_VISIBILITY_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 
 import { importerTransaction } from '../../../app/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../../app/admin/referenceDataImporter';
@@ -82,6 +82,57 @@ describe('Lab Test Panel import', () => {
         2,
         'categoryId is a required field on labTestPanel at row 2',
       );
+    });
+
+    it('should reject a panel whose test types span multiple lab test categories', async () => {
+      const { id: otherCategoryId } = await models.ReferenceData.create({
+        id: 'labTestCategory-XCAT',
+        code: 'labTestCategory-XCAT',
+        name: 'labTestCategory-XCAT',
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        visibilityStatus: 'current',
+      });
+      await models.LabTestType.create({
+        id: 'labTestType-XHEART',
+        code: 'labTestType-XHEART',
+        name: 'labTestType-XHEART',
+        labTestCategoryId: otherCategoryId,
+        visibilityStatus: 'current',
+      });
+
+      const { didntSendReason, errors } = await doImport({
+        file: 'lab-test-panel-cross-category',
+        dryRun: true,
+      });
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(
+        errors.some(error =>
+          error.message.includes('test types must all belong to one lab test category'),
+        ),
+      ).toBe(true);
+    });
+
+    it('should reject a panel that includes a reflex test', async () => {
+      await models.LabTestType.create({
+        id: 'labTestType-REFLEX',
+        code: 'labTestType-REFLEX',
+        name: 'labTestType-REFLEX',
+        labTestCategoryId: 'labTestCategory-LFT',
+        visibilityStatus: LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      });
+
+      const { didntSendReason, errors } = await doImport({
+        file: 'lab-test-panel-reflex-test',
+        dryRun: true,
+      });
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(
+        errors.some(error =>
+          error.message.includes('Reflex tests cannot be added to a lab test panel'),
+        ),
+      ).toBe(true);
     });
   });
 });

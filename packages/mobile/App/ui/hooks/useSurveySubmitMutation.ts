@@ -8,7 +8,13 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { useBackend } from '~/ui/hooks';
 import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { actions } from '~/ui/store/ducks/patient';
-import { patientKeys, patientListKeys, registrationKeys, reportKeys } from './queries/queryKeys';
+import {
+  patientKeys,
+  patientListKeys,
+  registrationKeys,
+  reportKeys,
+  surveyKeys,
+} from './queries/queryKeys';
 
 export interface SurveySubmitVariables {
   patientId: string;
@@ -31,6 +37,8 @@ async function invalidateRelevantQueries(queryClient: QueryClient, patientId: st
     queryClient.invalidateQueries({ queryKey: registrationKeys.all }),
     // Recent visitors, referral list and encounter summary reports
     queryClient.invalidateQueries({ queryKey: reportKeys.all }),
+    // Program form list, whose form visibility criteria depend on this patient's latest answers
+    queryClient.invalidateQueries({ queryKey: surveyKeys.all }),
   ]);
 }
 

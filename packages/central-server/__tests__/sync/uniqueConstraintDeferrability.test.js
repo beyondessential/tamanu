@@ -10,6 +10,7 @@ const EXCLUDED_FROM_DEFERRABLE_UNIQUE_CHECK = [
   'patient_invoice_insurance_plans_id_key',
   'patient_ongoing_prescriptions_id_key',
   'patient_program_registrations_id_key',
+  'patient_invoice_insurance_plans_id_key',
   'idx_patient_invoice_insurance_plans_patient_id_invoice_insuranc',
   'permissions_role_id_noun_verb',
   'permissions_role_id_noun_verb_object_id',

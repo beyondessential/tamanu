@@ -1,6 +1,6 @@
 import { BasePage } from '../BasePage';
 
-export class PublishedLabRequestsPage extends BasePage {
+export class FinalisedLabRequestsPage extends BasePage {
   constructor(page) {
     super(page);
   }

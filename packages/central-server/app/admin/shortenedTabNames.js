@@ -3,4 +3,5 @@
 export const SHORTENED_TAB_NAMES = {
   patientFieldDefinitionCategory: 'Patient Field Def Category',
   medicationDispenseModifyReason: 'Medication Dispense Mod Reason',
+  medicationNotDispensedReason: 'Medication Not Dispensed Rsn',
 };
