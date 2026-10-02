@@ -84,7 +84,8 @@ The two things worth establishing before anything else:
 
 Nothing to do. The server drops the copy and refetches on demand, and the count
 should return to zero without help. **[diagnose]** Re-run the corrupt-blob
-query after the next scrub pass to confirm it cleared.
+query after the next scrub pass to confirm it cleared; the last completed pass is
+in `../reference/query-cookbook.md`.
 
 If the count does **not** clear, the refetch path is the problem, not the storage:
 work the facility's sync and transfer health (`sync-facility-stale.md`) instead.
