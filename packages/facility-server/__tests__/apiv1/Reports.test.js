@@ -105,8 +105,8 @@ describe('Reports', () => {
       // Assert
       expect(res).toHaveSucceeded();
       expect(res.body).toHaveLength(permittedReports.length);
-      expect(res.body.map((r) => r.id).sort()).toEqual(
-        permittedReports.map((r) => `${r.id}_version-1`).sort(),
+      expect(res.body.map(r => r.id).sort()).toEqual(
+        permittedReports.map(r => `${r.id}_version-1`).sort(),
       );
     });
   });
@@ -166,7 +166,9 @@ describe('Reports', () => {
         },
       });
       expect(res).toHaveStatus(400);
-      expect(res.body).toMatchObject({ error: { message: 'Not a valid date' } });
+      expect(res.body).toMatchObject({
+        error: { message: '“invalid-date” (string) can’t be parsed into a Date' },
+      });
     });
   });
 });
