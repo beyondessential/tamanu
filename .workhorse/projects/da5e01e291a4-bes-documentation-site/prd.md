@@ -164,7 +164,6 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 ### 4. Release notes
 
 - Source is `docs/release-notes/*.md` in the repo, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings)
-- `[SLAB_LINK_PLACEHOLDER]` links in the source files need resolving as part of this work
 
 ---
 
