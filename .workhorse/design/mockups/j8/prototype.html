@@ -297,7 +297,6 @@
   #drawer { position:fixed; top:0; right:0; height:100vh; width:430px; max-width:92vw; background:var(--bg); border-left:1px solid var(--line); box-shadow:-12px 0 40px rgba(0,0,0,0.12); display:flex; flex-direction:column; z-index:50; }
   .d-head { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line); }
   .d-head .title { display:flex; align-items:center; gap:8px; font-weight:600; font-size:14.5px; }
-  .d-head .caret { color:var(--ink-4); }
   .d-head .tools { margin-left:auto; display:flex; gap:6px; color:var(--ink-3); }
   .d-head .tools button { border:none; background:transparent; padding:6px; border-radius:7px; color:inherit; cursor:pointer; display:grid; place-items:center; }
   .d-head .tools button:hover { background:var(--fill); color:var(--ink); }
@@ -329,8 +328,6 @@
   .inputrow input { flex:1; border:none; outline:none; font:inherit; font-size:14px; background:transparent; }
   .inputrow input::placeholder { color:var(--ink-4); }
   .send { width:28px; height:28px; border-radius:999px; background:var(--ink); color:#fff; border:none; display:grid; place-items:center; cursor:pointer; }
-  .tip { font-size:11.5px; color:var(--ink-4); margin-top:10px; text-align:center; }
-  .tip .k { border:1px solid var(--line); border-radius:5px; padding:0 5px; background:var(--fill); }
 
 
   /* ======================= Tamanu brand layer =======================
@@ -4673,10 +4670,8 @@
 
 <aside id="drawer" hidden>
   <div class="d-head">
-    <div class="title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg> New chat <span class="caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span></div>
+    <div class="title"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg> New chat</div>
     <div class="tools">
-      <button title="New chat"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-      <button title="Expand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
       <button title="Close" data-close><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
   </div>
@@ -4718,7 +4713,6 @@
   <div class="d-foot">
     <div class="note" style="margin-top:0;margin-bottom:10px;">Please do not enter patient details into the chat.</div>
     <div class="inputrow"><input placeholder="Ask a follow-up question" /><button class="send"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>
-    <div class="tip">New chat with <span class="k">⌘</span> <span class="k">E</span></div>
   </div>
 </aside>
 
