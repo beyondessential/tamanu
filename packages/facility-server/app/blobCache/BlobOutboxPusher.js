@@ -18,12 +18,11 @@ const PUSHABLE_OUTBOX = {
   tier: BLOB_TIERS.OUTBOX,
   [Op.and]: [
     {
-      [Op.or]: [
-        { scanVerdict: null },
-        { scanVerdict: { [Op.ne]: BLOB_SCAN_VERDICTS.INFECTED } },
-      ],
+      [Op.or]: [{ scanVerdict: null }, { scanVerdict: { [Op.ne]: BLOB_SCAN_VERDICTS.INFECTED } }],
     },
-    { hash: { [Op.notIn]: literal('(SELECT hash FROM blob_quarantines WHERE deleted_at IS NULL)') } },
+    {
+      hash: { [Op.notIn]: literal('(SELECT hash FROM blob_quarantines WHERE deleted_at IS NULL)') },
+    },
   ],
 };
 
