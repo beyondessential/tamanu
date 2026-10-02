@@ -19,11 +19,12 @@ jobs:
           script: |
             const marker = /^\s*-\s+\[x\]\s+.*<!--\s*#codex-review\s*-->/im;
             const ticked = marker.test(context.payload.pull_request?.body ?? '');
-            // An edit only counts when it ticks the box, so other body edits don't re-run the review.
-            const wasTicked =
-              context.payload.action === 'edited' &&
-              marker.test(context.payload.changes?.body?.from ?? '');
-            core.setOutput('requested', String(ticked && !wasTicked));
+            // An edit only counts when it ticks the box, so other edits don't re-run the review.
+            const previousBody = context.payload.changes?.body?.from;
+            const newlyTicked =
+              context.payload.action !== 'edited' ||
+              (previousBody !== undefined && !marker.test(previousBody));
+            core.setOutput('requested', String(ticked && newlyTicked));
 
   review:
     needs: plan
