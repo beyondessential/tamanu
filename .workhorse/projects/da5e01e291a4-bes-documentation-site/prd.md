@@ -58,7 +58,7 @@ The foundation: a public site built from monorepo markdown.
 
 The main improvement to general documentation, serving every audience — configuring, operating, using, and keeping up with Tamanu. The core problem it solves (alongside global search) is the poor searchability of documentation in Slab across all content. Ask AI answers over the hub's content so anyone can ask a question and get a direct, cited answer rather than hunting across pages.
 
-- Page-aware chat drawer (Stripe pattern): answer with inline source citations and a follow-up input
+- Page-aware chat drawer: answer with inline source citations and a follow-up input
 - Reached from the Ask AI control or handed off from the search palette
 - Retrieves over the full hub content — user guides, configuration guides, release notes, and roadmap
 - Fast response time — answers are quick and in-context on the hub
