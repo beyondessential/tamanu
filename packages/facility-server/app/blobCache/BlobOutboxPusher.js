@@ -1,7 +1,7 @@
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 
 import { BlobOutbox, DEFAULT_OUTBOX_SCAN_LIMIT } from '@tamanu/blobs';
-import { BLOB_TIERS } from '@tamanu/constants';
+import { BLOB_SCAN_VERDICTS, BLOB_TIERS } from '@tamanu/constants';
 import { FACT_LAST_SUCCESSFUL_SYNC_PUSH } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -11,6 +11,20 @@ import { blobOutboxStatus } from './outboxStatus';
 // In sync ticks, roughly several sync cycles. Central-side monitoring is the authoritative signal;
 // this is a coarse aid.
 const DYSFUNCTION_PUSH_TICK_GAP = 6;
+
+// spec: AV
+// A local verdict never propagates, so withholding the push is what keeps the content off central.
+const PUSHABLE_OUTBOX = {
+  tier: BLOB_TIERS.OUTBOX,
+  [Op.and]: [
+    {
+      [Op.or]: [{ scanVerdict: null }, { scanVerdict: { [Op.ne]: BLOB_SCAN_VERDICTS.INFECTED } }],
+    },
+    {
+      hash: { [Op.notIn]: literal('(SELECT hash FROM blob_quarantines WHERE deleted_at IS NULL)') },
+    },
+  ],
+};
 
 // spec: CACHE
 // sync sessions call recordSyncCycle so the dysfunction measure advances with sync progress, not
@@ -56,7 +70,7 @@ export class BlobOutboxPusher {
 
   async #listOutbox(limit) {
     const outbox = await this.#models.Blob.findAll({
-      where: { tier: BLOB_TIERS.OUTBOX },
+      where: PUSHABLE_OUTBOX,
       // spec: CACHE
       order: [['createdAt', 'ASC']],
       attributes: ['hash'],
@@ -99,7 +113,7 @@ export class BlobOutboxPusher {
     const inFlight = this.#outbox.inFlight;
     const oldestEligibleTick = await this.#models.Blob.min('eligibleSinceTick', {
       where: {
-        tier: BLOB_TIERS.OUTBOX,
+        ...PUSHABLE_OUTBOX,
         eligibleSinceTick: { [Op.not]: null },
         ...(inFlight.length > 0 ? { hash: { [Op.notIn]: inFlight } } : {}),
       },

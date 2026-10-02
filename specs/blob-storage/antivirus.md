@@ -93,6 +93,8 @@ is designed to accommodate it.
   content refuses it without needing to reach central.
 - [ ] Known-bad content is never transferred: a server does not offer it, does not
   accept it when offered, and does not fetch it.
+- [ ] A facility does not push content its own scanner found infected. It stays in the
+  outbox, withheld locally and retained, so central never holds it to quarantine.
 - [ ] A copy of known-bad content arriving from any source — an upload, a peer's
   copy, a restored backup — leaves the quarantine standing. The hash names the same
   content, so a copy that verifies is the same malware verified.

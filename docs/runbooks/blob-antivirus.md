@@ -17,6 +17,7 @@ differently.
 | What you see | What it is | Where to go |
 | --- | --- | --- |
 | A hash in `blob_quarantines` | Content found to be malware | §3 |
+| `blob_antivirus` warns of infected blobs with no quarantine record | Malware a facility's own scanner found in content created there, withheld and never pushed, so central has no record of it | §3 |
 | Files not opening, nothing quarantined | The posture is ahead of the scanning | §4 |
 | No verdicts recorded for hours | The scanner is not being reached | §5 |
 
