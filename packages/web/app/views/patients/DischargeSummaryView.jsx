@@ -1,5 +1,4 @@
 import React from 'react';
-import { Navigate } from 'react-router';
 import styled from 'styled-components';
 import PrintIcon from '@mui/icons-material/Print';
 
@@ -52,13 +51,14 @@ export const DischargeSummaryView = React.memo(() => {
     data: patientConditions,
     isFetching: isLoadingPatientConditions,
   } = usePatientConditionsQuery(patient?.id);
-  // If there is no encounter loaded then this screen can't be displayed
-  if (!encounter?.id) {
-    return <Navigate to="/patients/all" replace data-testid="redirect-imzj" />;
-  }
-
+  // The provider redirects away when the encounter can't be fetched, so no encounter here just
+  // means it hasn't arrived yet.
   const isLoading =
-    isPADLoading || isDischargeLoading || isLoadingPatientConditions || isCertificateFetching;
+    !encounter ||
+    isPADLoading ||
+    isDischargeLoading ||
+    isLoadingPatientConditions ||
+    isCertificateFetching;
 
   return (
     <Container data-testid="container-ogda">

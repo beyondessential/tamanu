@@ -20,6 +20,7 @@ import { AutocompleteField, Field } from '..';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { useEncounter } from '../../contexts/Encounter';
+import { useInvalidateEncounter } from '../../api/queries/useEncounterQuery';
 import { useAuth } from '../../contexts/Auth';
 
 const StyledBaseModal = styled(BaseModal)`
@@ -48,7 +49,8 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
   const api = useApi();
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounterId } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
 
   const onSubmit = async data => {
     const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
@@ -56,9 +58,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
       discontinuingDate: getCurrentDateTime(),
     });
     onDiscontinue(updatedMedication);
-    if (loadEncounter && encounter) {
-      loadEncounter(encounter.id, false);
-    }
+    await invalidateEncounter(encounterId);
     onClose();
   };
 

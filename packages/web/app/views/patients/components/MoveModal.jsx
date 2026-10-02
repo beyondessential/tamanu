@@ -31,7 +31,7 @@ import {
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { useSettings } from '../../../contexts/Settings';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
@@ -367,7 +367,7 @@ const HospitalAdmissionFields = () => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
-  const { writeAndViewEncounter } = useEncounter();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   const { getCurrentDateTime } = useDateTime();
 
   const clinicianSuggester = useSuggester('practitioner');
@@ -393,8 +393,8 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
-    await writeAndViewEncounter(encounter.id, {
-        submittedTime: getCurrentDateTime(),
+    await updateEncounter({
+      submittedTime: getCurrentDateTime(),
       ...rest,
       ...locationData,
       ...encounterTypeData,

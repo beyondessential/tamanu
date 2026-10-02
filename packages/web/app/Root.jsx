@@ -16,7 +16,6 @@ import { StyleSheetManager, ThemeProvider } from 'styled-components';
 import { ApiContext, CustomToastContainer, DateTimeProvider } from '@tamanu/ui-components';
 import { ClearIcon } from './components/Icons/ClearIcon';
 import { AuthProvider } from './contexts/Auth';
-import { EncounterProvider } from './contexts/Encounter';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
@@ -34,25 +33,23 @@ const StateContextProviders = ({ children, store }) => (
   <AuthProvider>
     <SettingsProvider>
       <DateTimeProvider>
-        <EncounterProvider store={store}>
-          <ImagingRequestsProvider>
-            <MedicationsProvider>
-              <ProgramRegistryProvider>
-                <LabRequestProvider store={store}>
-                  <PatientSearchProvider>
-                    <SyncStateProvider>
-                      <TranslationProvider>
-                        <LocalisationProvider store={store}>
-                          <NoteModalProvider>{children}</NoteModalProvider>
-                        </LocalisationProvider>
-                      </TranslationProvider>
-                    </SyncStateProvider>
-                  </PatientSearchProvider>
-                </LabRequestProvider>
-              </ProgramRegistryProvider>
-            </MedicationsProvider>
-          </ImagingRequestsProvider>
-        </EncounterProvider>
+        <ImagingRequestsProvider>
+          <MedicationsProvider>
+            <ProgramRegistryProvider>
+              <LabRequestProvider store={store}>
+                <PatientSearchProvider>
+                  <SyncStateProvider>
+                    <TranslationProvider>
+                      <LocalisationProvider store={store}>
+                        <NoteModalProvider>{children}</NoteModalProvider>
+                      </LocalisationProvider>
+                    </TranslationProvider>
+                  </SyncStateProvider>
+                </PatientSearchProvider>
+              </LabRequestProvider>
+            </ProgramRegistryProvider>
+          </MedicationsProvider>
+        </ImagingRequestsProvider>
       </DateTimeProvider>
     </SettingsProvider>
   </AuthProvider>

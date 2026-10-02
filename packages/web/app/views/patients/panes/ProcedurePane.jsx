@@ -3,14 +3,14 @@ import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { TableButtonRow } from '../../../components';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useInvalidateEncounter } from '../../../api/queries/useEncounterQuery';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
 
   const onCreateNewProcedure = () => {
     setEditedProcedure({});
@@ -26,7 +26,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {
           setEditedProcedure(null);
-          await loadEncounter(encounter.id);
+          await invalidateEncounter(encounter.id);
         }}
         data-testid="proceduremodal-xq2p"
       />

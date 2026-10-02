@@ -31,7 +31,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
   const [changelogOpen, setChangelogOpen] = useState(false);
@@ -44,12 +44,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [surveys, setSurveys] = useState(null);
   const [programReadError, setProgramReadError] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
-
-  useEffect(() => {
-    if (params.encounterId) {
-      loadEncounter(params.encounterId);
-    }
-  }, [loadEncounter, params.encounterId]);
 
   useEffect(() => {
     (async () => {

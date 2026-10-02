@@ -71,6 +71,7 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
@@ -616,7 +617,8 @@ export const MedicationForm = ({
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
@@ -724,7 +726,7 @@ export const MedicationForm = ({
     }
 
     if (encounterId) {
-      loadEncounter?.(encounterId, false);
+      invalidateEncounter(encounterId);
       queryClient.invalidateQueries(['encounterMedication', encounterId]);
     }
     if (patient) {

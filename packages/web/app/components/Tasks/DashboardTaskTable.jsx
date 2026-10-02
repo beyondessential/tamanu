@@ -14,7 +14,6 @@ import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { Paginator } from '../Table/Paginator';
 import { useTablePaginator } from '../Table/useTablePaginator';
 import { useTableSorting } from '../Table/useTableSorting';
-import { useEncounter } from '../../contexts/Encounter';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { DrugIcon } from '../../assets/icons/DrugIcon';
 import { StyledPriorityHighIcon, TaskNameContainer, PriorityIconSlot } from './TaskPriorityIcon';
@@ -328,7 +327,6 @@ const COLUMNS = [
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser, facilityId } = useAuth();
   const navigate = useNavigate();
-  const { loadEncounter } = useEncounter();
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
     resetPage: searchParameters,
@@ -363,8 +361,7 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     );
   }
 
-  const onRowClick = async ({ encounter, taskType }) => {
-    await loadEncounter(encounter?.id);
+  const onRowClick = ({ encounter, taskType }) => {
     if (taskType === TASK_TYPES.MEDICATION_DUE_TASK) {
       navigate(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}/mar/view`);
       return;
