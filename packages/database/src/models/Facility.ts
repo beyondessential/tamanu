@@ -14,7 +14,7 @@ export class Facility extends Model {
   declare division?: string;
   declare type?: string;
   declare visibilityStatus: string;
-  declare isSensitive: boolean;
+  declare sensitiveNetworkId?: string;
   declare catchmentId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -38,11 +38,6 @@ export class Facility extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
-        },
-        isSensitive: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
         },
       },
       {
@@ -79,6 +74,12 @@ export class Facility extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'catchmentId',
       as: 'catchment',
+    });
+
+    // A facility is sensitive exactly when this is set.
+    this.belongsTo(models.SensitiveNetwork, {
+      foreignKey: 'sensitiveNetworkId',
+      as: 'sensitiveNetwork',
     });
 
     this.belongsToMany(models.User, {

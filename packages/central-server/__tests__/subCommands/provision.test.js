@@ -6,7 +6,12 @@ import { join } from 'node:path';
 import { chance, fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
-import { provision } from '../../app/subCommands/provision';
+import {
+  DEFAULT_PROVISIONING_DATA_DIRECTORY,
+  parseDefaultProvisioningJsonSheets,
+  provision,
+  validateFullReferenceDataImport,
+} from '../../app/subCommands/provision';
 
 const ADMIN_EMAIL = 'admin@tamanu.io';
 
@@ -70,8 +75,89 @@ describe('provision subCommand', () => {
   it('throws when the provisioned admin already exists and skipIfNotNeeded is false', async () => {
     await User.create(fake(User, { email: ADMIN_EMAIL }));
 
-    await expect(
-      provision(provisioningPath, { skipIfNotNeeded: false }),
-    ).rejects.toThrow(/already in the database/);
+    await expect(provision(provisioningPath, { skipIfNotNeeded: false })).rejects.toThrow(
+      /already in the database/,
+    );
+  });
+
+  // Provisioning and the reference data import are the only things that write a facility, so the
+  // fixed-membership rule lives on both.
+  // spec: specs/sync/sensitive-networks.md
+  describe('facility sensitive network', () => {
+    const paths = [];
+
+    afterAll(async () => {
+      await Promise.all(paths.map(path => fs.rm(path, { force: true })));
+    });
+
+    const provisionFacility = async facilities => {
+      const path = await writeProvisioningFile({
+        users: { [ADMIN_EMAIL]: { role: 'admin', password: 'admin', displayName: 'Admin' } },
+        facilities,
+      });
+      paths.push(path);
+      return provision(path, { skipIfNotNeeded: false });
+    };
+
+    const seed = async sensitiveNetworkId => {
+      const { Facility, SensitiveNetwork } = ctx.store.models;
+      const network = await SensitiveNetwork.create(fake(SensitiveNetwork));
+      const other = await SensitiveNetwork.create(fake(SensitiveNetwork));
+      const facility = await Facility.create(
+        fake(Facility, { sensitiveNetworkId: sensitiveNetworkId ? network.id : null }),
+      );
+      return { facility, network, other };
+    };
+
+    it('refuses to move an existing facility to a different network', async () => {
+      const { facility, network, other } = await seed(true);
+
+      await expect(
+        provisionFacility({ [facility.id]: { sensitiveNetworkId: other.id } }),
+      ).rejects.toThrow(/cannot change sensitive network/);
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses to enrol an existing facility that belongs to no network', async () => {
+      const { facility, network } = await seed(false);
+
+      await expect(
+        provisionFacility({ [facility.id]: { sensitiveNetworkId: network.id } }),
+      ).rejects.toThrow(/cannot change sensitive network/);
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('leaves membership alone when the facility names no network', async () => {
+      const { facility, network } = await seed(true);
+
+      await provisionFacility({ [facility.id]: { name: 'Renamed facility' } });
+
+      await facility.reload();
+      expect(facility.name).toBe('Renamed facility');
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+  });
+
+  // provision validates the default spreadsheet for completeness before importing it, and a
+  // general importable data type with neither a sheet here nor an entry in
+  // EXCLUDED_FROM_FULL_IMPORT_CHECK makes it throw — failing the central-provisioner deploy job,
+  // so central-api never starts. Asserted against the parsed workbook rather than by provisioning,
+  // which imports every sheet and takes minutes.
+  describe('default provisioning data completeness', () => {
+    it('passes the completeness check with no Sensitive Network sheet present', () => {
+      const workbook = parseDefaultProvisioningJsonSheets(DEFAULT_PROVISIONING_DATA_DIRECTORY);
+
+      // the exclusion is what carries this, not a sheet nobody noticed was added
+      const sheetNames = Object.keys(workbook.Sheets).map(name =>
+        name.toLowerCase().replace(/[^a-z]/g, ''),
+      );
+      expect(sheetNames).not.toContain('sensitivenetwork');
+
+      expect(() => validateFullReferenceDataImport(workbook)).not.toThrow();
+    });
   });
 });

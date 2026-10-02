@@ -101,6 +101,8 @@ import { enforceUniqueLocalSystemFactKeys1787706001000 } from './1787706001000-e
 import { resetQueryPlannerStats1789608077000 } from './1789608077000-resetQueryPlannerStats';
 import { addQuantityToProcedures1789674206539 } from './1789674206539-addQuantityToProcedures';
 import { addPerPatientLookupIndexes1789611060000 } from './1789611060000-addPerPatientLookupIndexes';
+import { addSensitiveNetworksTable1789695736424 } from './1789695736424-addSensitiveNetworksTable';
+import { replaceFacilityIsSensitiveWithNetwork1789695736425 } from './1789695736425-replaceFacilityIsSensitiveWithNetwork';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -205,4 +207,6 @@ export const migrationList = [
   resetQueryPlannerStats1789608077000,
   addQuantityToProcedures1789674206539,
   addPerPatientLookupIndexes1789611060000,
+  addSensitiveNetworksTable1789695736424,
+  replaceFacilityIsSensitiveWithNetwork1789695736425,
 ];

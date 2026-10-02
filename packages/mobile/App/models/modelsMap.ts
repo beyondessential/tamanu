@@ -33,6 +33,7 @@ import { AdministeredVaccine } from './AdministeredVaccine';
 import { Referral } from './Referral';
 import { Prescription } from './Prescription';
 import { Attachment } from './Attachment';
+import { SensitiveNetwork } from './SensitiveNetwork';
 import { Facility } from './Facility';
 import { Department } from './Department';
 import { Location } from './Location';
@@ -96,6 +97,8 @@ export const MODELS_MAP = {
   MedicationAdministrationRecord,
   Referral,
   Attachment,
+  // ahead of Facility, which references it
+  SensitiveNetwork,
   Facility,
   Department,
   Location,

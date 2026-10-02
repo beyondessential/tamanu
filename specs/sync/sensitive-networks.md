@@ -1,0 +1,122 @@
+---
+id: SENSNET
+---
+
+# Sensitive networks
+
+A sensitive network is a named group of facilities that share confidential data. Data recorded at a facility in a network reaches every facility in that network and nowhere else, while data recorded at a facility outside any network syncs normally. A facility holding confidential data on its own is a network of one.
+
+## The network record
+
+- [ ] A sensitive network is identified by an id and carries a code and a name, both required and each unique across networks. The id is a readable string chosen by whoever defines the network, as every other reference record's is.
+- [ ] Networks are reference data, defined on the central server and pulled down to facility servers and mobile devices. They are never pushed upwards.
+- [ ] Networks carry the record lifecycle fields every synced Tamanu record has: creation and update timestamps, soft deletion, and a sync tick.
+- [ ] Deleting a network that has member facilities is refused. Deletion would otherwise leave those facilities pointing at a deleted network, and either they stay sensitive with nothing to name them or they turn ordinary and begin syncing confidential data everywhere.
+- [ ] A network with no members can be deleted, such as one defined ahead of the facilities that will be created into it.
+- [ ] A deleted facility still counts as a member, because restoring it would otherwise leave it pointing at a network that no longer exists.
+
+## Facility membership
+
+- [ ] A facility belongs to at most one sensitive network, held as a nullable reference from the facility to the network.
+- [ ] A facility is sensitive exactly when it belongs to a network. There is no separate sensitivity flag, so every reader of facility sensitivity tests network membership instead.
+- [ ] Placing a facility in a network is therefore the only way to make it sensitive.
+
+## Membership does not change
+
+A facility's network is fixed for its lifetime. Confidential data that has already synced to a
+facility cannot be recalled, and data the facility recorded before joining a network already exists
+elsewhere in the deployment, so changing membership would leave the deployment in a state the
+network boundary no longer describes.
+
+- [ ] A facility's network is chosen when the facility is created, and never changes afterwards.
+- [ ] A facility belonging to no network cannot be placed in one. Making a facility sensitive means creating a new facility already enrolled in the network.
+- [ ] A facility cannot be removed from its network. Un-networking a facility means wiping its local data and resyncing it from scratch.
+- [ ] A facility cannot be moved from one network to another, whether or not it is the sole member of its current network.
+- [ ] A facility joining an existing network is therefore always a new facility, which holds no history of its own. It receives what the network recorded before it was created, so the members it joins have nothing to pull from it.
+- [ ] A deleted facility is an existing facility, so restoring one cannot enrol it in a network. It returns with the membership it had when it was deleted.
+
+### Refusing a membership change
+
+- [ ] A membership change is refused on both paths that write a facility: the reference data import and provisioning. Nothing else in the application writes one.
+- [ ] Incoming sync is not one of those paths and is never refused. A facility server applies whatever membership central sends, because central is where the rule is enforced and a migration there can legitimately change membership.
+- [ ] A refusal names the facility and states that only a new facility can be enrolled in a network.
+
+## Administering networks
+
+Networks and facility membership are defined through the reference data import, alongside every other reference data type.
+
+- [ ] Networks are imported from a sheet of their own, each row carrying the network's id, code and name.
+- [ ] A facility's network is set from a column on the facility sheet holding the id of the network the facility belongs to.
+- [ ] The reference data export writes networks to the same sheet and facilities with the same network column, so a deployment can export its reference data, edit it, and import it back with every facility's membership intact.
+- [ ] A single file can define a network and create the facilities that belong to it, because networks are imported ahead of the facilities that reference them.
+- [ ] A facility row that leaves the network column empty leaves that facility's membership as it stands. An empty cell is an absence of instruction, not an instruction to remove the facility from its network.
+- [ ] A facility row naming a network that does not exist fails on that row.
+- [ ] Importing a network again under its own id changes its code and name. Both are labels, and changing them moves no data.
+- [ ] Importing networks is permission-checked as its own reference data type.
+- [ ] An import that would change a facility's network fails on that row, and the import as a whole is abandoned, so a file that changes one facility's network imports none of its other rows either.
+- [ ] Validating a file without importing it reports the same failure, so the refusal is visible before anything is written.
+- [ ] A deployment with no confidential data defines no networks, so a reference data file is complete without a network sheet.
+
+## Facility access for users
+
+Network membership scopes which data reaches a facility. It does not widen which facilities a user may log in to, which stays a per-facility relationship.
+
+- [ ] A user linked to one member of a network gains no access to that network's other members.
+- [ ] A user who may access all non-sensitive facilities reaches every facility belonging to no network, combined with the facilities they are explicitly linked to.
+- [ ] When no facility belongs to any network, a user who may access all non-sensitive facilities reaches every facility, without the system enumerating them.
+- [ ] A user restricted to their explicitly linked facilities reaches exactly those, whether or not they belong to a network.
+- [ ] Facility servers and mobile devices resolve facility access the same way.
+
+## Scoping sync by network
+
+- [ ] The sync lookup table carries the sensitive network a record belongs to, alongside the facility column that scopes genuinely facility-bound records such as patient facility links and facility-scoped settings.
+- [ ] The network column is indexed over the rows that carry a network. Records belonging to no network leave it unset, and a snapshot narrowing to one network is the only case the index has to serve.
+
+### What carries a network
+
+- [ ] A record that hangs off an encounter carries the network of the facility that encounter took place at, and carries no facility. Where that facility belongs to no network, the record carries neither, and so reaches every facility.
+- [ ] Notifications resolve their network the same way, through the encounter their metadata names.
+- [ ] A record's network follows the facility its encounter is currently at, rather than the facility it was recorded at. Moving an encounter to a facility in another network, or to a facility in no network, takes its records and everything already recorded against them along with it.
+- [ ] Encounter data is the only data a network scopes. A record that is genuinely facility-bound — an appointment, an appointment schedule, a location assignment, a patient facility link, a facility-scoped setting — keeps its facility and carries no network, so it reaches that facility alone whether or not the facility belongs to a network.
+
+### Admitting a record to a facility
+
+- [ ] A sync session names the facilities it is pulling for, and resolves the network those facilities belong to. A facility belonging to no network contributes no network.
+- [ ] An outgoing snapshot admits a record when it carries neither a facility nor a network, when its facility is one the session names, or when its network is the one the session's facilities belong to.
+- [ ] A session whose facilities belong to no network resolves no network, so only the first two conditions can admit a record.
+- [ ] A session covering several facilities admits every record scoped to any of them, and every record scoped to the network they share.
+- [ ] A server's sensitive facilities all belong to the same network. A session whose facilities span more than one is refused rather than served, because a snapshot for it would hand each facility the other network's confidential data.
+- [ ] A facility configured to sync all lab requests receives every lab request, ahead of patient and network scoping.
+- [ ] Network scoping widens which facilities a record can reach, and nothing else. A facility receives its network's confidential data only for the patients it syncs, following the same patient scoping every other record does.
+
+## Facilities that were sensitive before networks existed
+
+Facilities previously marked sensitive were isolated from each other as well as from the rest of the deployment: each pulled its own confidential data and no other facility's. Networks preserve that everywhere except Fiji, whose SRH facilities are merged instead — see below.
+
+- [ ] Each facility that was sensitive before networks existed belongs to its own network of one, so it continues to receive exactly the data it received before. Fiji's SRH facilities are the single exception.
+- [ ] Each of those networks takes the code and name of its facility, which an administrator can change through the reference data import, and an id derived from that facility's id.
+- [ ] Facility codes and names are not unique, so where two of those facilities share one, the network's is qualified to keep it distinct from its sibling's.
+- [ ] Their lookup rows carry that network in place of the facility, so a facility later created into one of those networks receives the confidential data recorded before it existed.
+- [ ] Only the lookup rows scoped to a facility that belongs to a network are rescoped. A deployment with no networked facility rescopes nothing.
+- [ ] Rows scoped to a facility deleted while it was sensitive keep their facility, because that facility has no network to move them to. They reach no facility, as they did before.
+- [ ] Rescoping leaves each row's sync tick alone, so no facility re-pulls a record it already holds.
+- [ ] A facility that was deleted while sensitive gains no network, since it receives nothing.
+- [ ] A deployment with no sensitive facilities gains no networks.
+
+### Fiji's SRH facilities
+
+Fiji asked for their three SRH facilities to share one network rather than keep the isolation they had. That is a deliberate widening of confidentiality, and it cannot be undone once synced, so it is confined to those three facilities on the one deployment and happens once, during the upgrade that introduces networks. It is the only sanctioned membership change: the reference data import and provisioning still refuse one, on Fiji as everywhere else.
+
+- [ ] The facilities `facility-SRHCentral`, `facility-SRHWestern` and `facility-SRHNorthern` are enrolled together in one network instead of receiving a network of one each.
+- [ ] They are named by id rather than by code, because an import can change a code and an id names the same facility for its lifetime.
+- [ ] All three, or none: a deployment holding only some of them is not the one this describes, so it takes the ordinary path and each facility keeps its own network. A deleted facility does not count.
+- [ ] The shared network carries an id, code and name of its own rather than any member's, since an id cannot be corrected once other rows reference it.
+- [ ] A deployment already holding a network under that id fails the upgrade rather than enrolling the facilities into something this does not describe.
+- [ ] Their lookup rows carry the shared network, so each facility receives what the other two recorded before the merge.
+- [ ] Those rows are re-ticked, unlike every other rescoped row: each facility has already pulled past them, so without a fresh tick none of that history would ever arrive.
+- [ ] Every other deployment is untouched, including one that later creates a facility with one of those ids.
+
+## Mobile
+
+- [ ] Mobile devices hold the network records and each facility's membership, pulled as reference data.
+- [ ] Membership is the only facility sensitivity mobile records, and it feeds the same facility access rules as elsewhere.
