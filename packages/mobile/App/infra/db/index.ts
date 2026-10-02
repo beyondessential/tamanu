@@ -144,18 +144,16 @@ class DatabaseHelper {
 
   /**
    * (Re)attaches the throwaway file that incremental sync stages its snapshot in, starting from an
-   * empty file. Safe to call whenever no transaction is open on the connection: at connect, and to
-   * recover from a corrupt snapshot file (it has no journal, so a kill mid-write can leave one).
+   * empty file. Only call it when no transaction is open on the connection, since SQLite refuses to
+   * `ATTACH` or `DETACH` inside one: at connect, when sync finds it missing, and to recover from a
+   * corrupt snapshot file (it has no journal, so a kill mid-write can leave one).
    * @see {@link SNAPSHOT_SCHEMA}
    */
   async resetSnapshotDatabase(): Promise<void> {
     await this.detachSnapshotDatabase();
     this.deleteSnapshotDatabaseFile();
-    if (isJest()) {
-      await this.client.query(`ATTACH DATABASE ? AS ${SNAPSHOT_SCHEMA}`, [getTestSnapshotDbPath()]);
-    } else {
-      NitroSQLite.attach(DB_NAME, SNAPSHOT_DB_NAME, SNAPSHOT_SCHEMA, DB_LOCATION);
-    }
+    const snapshotDbPath = await this.getSnapshotDbPath();
+    await this.client.query(`ATTACH DATABASE ? AS ${SNAPSHOT_SCHEMA}`, [snapshotDbPath]);
     // page_size and auto_vacuum only apply while the file is still empty, hence the delete above.
     // Snapshot rows are large JSON blobs, so bigger pages mean far fewer overflow pages to chase.
     await this.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.page_size = 16384;`);
@@ -168,24 +166,37 @@ class DatabaseHelper {
     await this.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.synchronous = OFF;`);
   }
 
+  async isSnapshotDatabaseAttached(): Promise<boolean> {
+    const schemas = await this.client.query<{ name: string }[]>('PRAGMA database_list;');
+    return schemas.some(schema => schema.name === SNAPSHOT_SCHEMA);
+  }
+
+  /** On device, a sibling of the main database file, which is where `NitroSQLite.native.drop` looks */
+  private async getSnapshotDbPath(): Promise<string> {
+    if (isJest()) return getTestSnapshotDbPath();
+    const schemas =
+      await this.client.query<{ name: string; file: string }[]>('PRAGMA database_list;');
+    const mainDbPath = schemas.find(schema => schema.name === 'main').file;
+    const mainDbDirectory = mainDbPath.slice(0, mainDbPath.lastIndexOf('/') + 1);
+    return `${mainDbDirectory}${SNAPSHOT_DB_NAME}`;
+  }
+
   private async detachSnapshotDatabase(): Promise<void> {
-    try {
-      if (isJest()) {
-        await this.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
-      } else {
-        NitroSQLite.detach(DB_NAME, SNAPSHOT_SCHEMA);
-      }
-    } catch {
-      // Not attached (yet), which is the normal case at connect
-    }
+    // Not attached at connect, nor if a previous attach failed
+    if (!(await this.isSnapshotDatabaseAttached())) return;
+    await this.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
   }
 
   private deleteSnapshotDatabaseFile(): void {
     // The Jest file is a per-run temp file like the test database itself; nothing to clean up
     if (isJest()) return;
     try {
-      NitroSQLite.drop(SNAPSHOT_DB_NAME, DB_LOCATION);
+      // Through `native`: the methods of the spread `NitroSQLite` object are missing at runtime,
+      // because the hybrid object they’re spread from keeps them on its prototype
+      NitroSQLite.native.drop(SNAPSHOT_DB_NAME, DB_LOCATION);
     } catch (e) {
+      // No file yet on a fresh install. Swallow expected error.
+      if (e?.message?.includes('Database file not found')) return;
       console.warn('Error deleting snapshot database file:', e);
     }
   }

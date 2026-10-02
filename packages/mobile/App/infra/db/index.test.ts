@@ -168,5 +168,26 @@ describe('DatabaseHelper', () => {
       expect(tables).toHaveLength(0);
       expect(await readSnapshotPragma('journal_mode')).toBe('off');
     });
+
+    it('reports whether the snapshot database is attached', async () => {
+      expect(await Database.isSnapshotDatabaseAttached()).toBe(true);
+
+      await Database.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
+      expect(await Database.isSnapshotDatabaseAttached()).toBe(false);
+
+      await Database.resetSnapshotDatabase();
+      expect(await Database.isSnapshotDatabaseAttached()).toBe(true);
+    });
+
+    it('reattaches with staging-friendly pragmas when it was not attached', async () => {
+      await Database.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
+
+      await expect(Database.resetSnapshotDatabase()).resolves.toBeUndefined();
+
+      expect(await readSnapshotPragma('journal_mode')).toBe('off');
+      expect(await readSnapshotPragma('synchronous')).toBe(0);
+      expect(await readSnapshotPragma('auto_vacuum')).toBe(1);
+      expect(await readSnapshotPragma('page_size')).toBe(16384);
+    });
   });
 });
