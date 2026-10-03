@@ -44,8 +44,8 @@ one-line description each, and get the list approved before writing.
 
 Report anything you couldn't confirm by clicking as unverified.
 
-The Slab guides are being retired. Use them to see what an area covered, but write from the app, not
-from Slab's wording.
+Tamanu's old user guides are in Slab, which you can't reach. If the author pastes one in, read it to
+see what the area used to cover, but write from the app rather than from its wording.
 
 ### 3. Capture screenshots
 
