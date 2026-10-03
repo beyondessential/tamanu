@@ -99,11 +99,10 @@ whether to retake them.
 
 ### 6. Land it
 
-**Updating proposes a diff**: present changes for the author to accept rather than editing a guide
-directly. The risk worth designing against is not missing an update, it is silently overwriting prose
-someone wrote deliberately.
+Write the guides, update the module README and the section README, and commit. The author reviews the
+diff and raises the pull request, so name the card to Tamanu's conventional commit format
+(`llm/project-rules/pull-requests.md`; `docs` is not an allowed type, use `chore`) rather than opening
+one yourself.
 
-Update the module README and the section README, then open a **pull request for review**. Title it to
-Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
-type, use `chore`) with the repository template. In the PR, summarise what you wrote, report the
-configuration gaps you found, and list any screenshot placeholders still to be filled and why.
+Then tell the author what you wrote, the configuration gaps you found, and any screenshot placeholders
+still to be filled and why, so that goes in the pull request.

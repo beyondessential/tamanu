@@ -39,6 +39,8 @@ manual verification of a skill run rather than automated tests, since the output
       identifiers, and a near-miss such as `Settings` for `Setting` grants nothing without erroring.
 - [ ] Reference data column descriptions state the required input format where the importer parses the
       cell, such as `availableFacilities` needing a JSON array rather than a plain list.
+- [ ] A guide covers both reference data configuration routes, the import spreadsheet and the admin
+      panel's **Manage** tab, and version-flags the Manage tab as supported from v2.54 onwards.
 - [ ] A column description does not claim enforcement the importer does not perform. Where a column is
       unvalidated, such as the Drug sheet's `route` or a medication set's `medicationTemplates`, the
       description says so, since an unvalidated value is accepted silently rather than erroring.
@@ -70,8 +72,8 @@ manual verification of a skill run rather than automated tests, since the output
 
 ## Update mode
 
-- [ ] Updating a guide presents the proposed changes for acceptance rather than writing to the file
-      directly.
+- [ ] Updating a guide edits it in place and commits, leaving the author to accept or reject the
+      changes by reviewing the diff.
 - [ ] Author-written narrative, clinical caveats and screenshot placeholders survive an update
       unchanged.
 - [ ] After a setting is added to the schema, an update run surfaces it.

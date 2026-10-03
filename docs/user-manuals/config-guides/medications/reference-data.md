@@ -1,6 +1,11 @@
 The reference data the Tamanu Medications Module needs, and the values each column accepts. Reference
 data is configured through the reference data import spreadsheet, downloaded from and uploaded to your
-Tamanu system.
+Tamanu system. Records can also be added and edited one at a time on the **Manage** tab of the
+**Reference data** screen in the admin panel.
+
+> [!NOTE]
+> The **Manage** tab is supported from v2.54 onwards. Earlier deployments configure reference data by
+> import spreadsheet only.
 
 For the settings that govern prescribing and administration see [Settings](settings.md), and for the
 permissions required see [Permissions](permissions.md).

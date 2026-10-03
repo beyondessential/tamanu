@@ -12,8 +12,10 @@ Assume basic Tamanu and digital literacy, not clinical or developer knowledge.
   validation and automatic behaviour. Never guess or carry a claim over from an existing document
 - **Keep out developer detail.** No database tables, schema, internals or architecture. Do include
   concrete steps, what each field means and when to use it, realistic examples, and what staff see
-- **Reference data is configured by spreadsheet**, not a UI form. Write "download the reference data
-  export, open the Drug tab, add rows with these columns", not "navigate to Drugs and click Add"
+- **Reference data has two configuration routes.** The import spreadsheet, and the **Manage** tab of
+  the admin panel's reference data screen (supported from v2.54 onwards), which creates and edits
+  records one at a time. Work out which a reader will use before writing the steps, and name the
+  spreadsheet tab and its columns where it is the spreadsheet
 - **Distinguish similar actions.** Where two actions look alike, say what differs and when to use each
 - **Say it once.** If it is explained elsewhere, cross-reference instead of restating
 - **Do not tell project managers their job.** No best-practice sections, training advice,
@@ -70,25 +72,12 @@ accepts them; behaviour a setting turns on with that setting; a permission-gated
 permissions, even when switched on elsewhere. Where a section spans two guides, put it where its first
 configuration step happens and cross-reference the other.
 
-## How guides render
+## Formatting
 
-Markdown carries structure, not styling. GitHub strips style and class attributes, so a guide cannot
-control its colours or borders there.
-
-| Element | On GitHub | On the docs site |
-| --- | --- | --- |
-| Callouts | Coloured, with icon | Coloured, per the design |
-| Tables | GitHub's styling | Tamanu blue headers |
-| Required marker | A plain `*` | Coloured `*` |
-| Screenshot placeholders | A bold `[Screenshot: ...]` line | Marked placeholder panel |
-| Image borders and outlines | Drawn into the image, so identical | Drawn into the image, so identical |
-| Images and captions | Centred, sized, small caption | Centred, sized, small caption |
-
-Consequences: **never rely on styling to carry meaning** (which is why the `*` convention is stated in
-words above each table), and **do not hand-write HTML to recover a design** GitHub will strip. The one
-exception is images: GitHub keeps `align="center"`, `width`, `<sub>` and `<b>`, though it strips
-`style`, so a border or outline has to be part of the image rather than styling around it. Put
-structured content in **tables**, the one grouping construct that survives both renderings.
+Guides are markdown. Stick to the standard set of structure and formatting options, apart from the
+callouts and image blocks below. Markdown carries no styling, so **never rely on styling to carry
+meaning**: an image's border and outlines are drawn into the image itself, and the `*` marking a
+required column is explained in words above its table.
 
 ## Settings blocks
 
@@ -156,7 +145,7 @@ cannot sit in a table cell, so anything needing a callout goes outside the table
 
 ## Callouts
 
-Use GitHub's alert syntax, which renders in colour on both surfaces:
+Use GitHub's alert syntax, which the Tamanu Knowledge Base supports:
 
 | Kind | Syntax | Renders | Use for |
 | --- | --- | --- | --- |
@@ -167,8 +156,8 @@ Use GitHub's alert syntax, which renders in colour on both surfaces:
 
 `[!IMPORTANT]` is unused: it renders purple, outside the palette, so required content takes
 `[!CAUTION]`. **Alerts cannot nest inside other elements**, though lists and code blocks inside an
-alert are fine. **Do not stack alerts** — GitHub advises against consecutive ones. Where two would sit
-together, merge them or leave one as prose.
+alert are fine. **Do not stack alerts.** Where two would sit together, merge them or leave one as
+prose.
 
 ## Version flagging
 
