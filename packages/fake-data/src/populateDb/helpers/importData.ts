@@ -10,7 +10,7 @@ import {
 import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 import { pooled, pooledWithChild } from '../pool.js';
-import { createReferenceData } from './referenceData.js';
+import { backfillReferenceDrugs, createReferenceData } from './referenceData.js';
 
 import type {
   Department,
@@ -60,6 +60,9 @@ export const generateImportData = async ({
   user: User;
   programRegistry: ProgramRegistry;
 }> => {
+  // Before any drug is picked this round (here or via randomReferenceDataId).
+  await backfillReferenceDrugs({ ReferenceData, ReferenceDrug });
+
   // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
   // bare fake(ReferenceDataRelation) leaves referenceDataId null: central allows it (nullable
   // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
