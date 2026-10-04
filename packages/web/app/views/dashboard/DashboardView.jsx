@@ -167,7 +167,7 @@ const WelcomePane = ({ patientPerPage }) => {
   const api = useApi();
   const { data: { data: recentlyViewedPatients = [] } = {} } = useQuery(
     ['recentlyViewedPatients'],
-    () => api.get('user/recently-viewed-patients'),
+    () => api.get('user/recently-viewed-patients', {}, { timeout: 2000 }),
   );
 
   let subtitle = (

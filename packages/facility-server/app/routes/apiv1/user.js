@@ -20,6 +20,7 @@ import { add, sub } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
 import { ForbiddenError } from '@tamanu/errors';
 import { dateCustomValidation } from '@tamanu/utils/dateTime';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 export const user = express.Router();
 
@@ -36,6 +37,8 @@ user.get(
 
 user.get('/permissions', asyncHandler(getPermissions));
 
+let demoCallCount = 0;
+
 user.get(
   '/recently-viewed-patients',
   asyncHandler(async (req, res) => {
@@ -47,6 +50,16 @@ user.get(
 
     req.checkPermission('read', currentUser);
     req.checkPermission('list', 'Patient');
+
+    // DEMO (System errors): the Dashboard calls this twice per visit. Only the first call of each
+    // visit misbehaves, alternating between failing and stalling; the second passes through.
+    const demoCallIndex = demoCallCount++;
+    const isFirstCallOfVisit = demoCallIndex % 2 === 0;
+    if (isFirstCallOfVisit) {
+      const isFailureVisit = demoCallIndex % 4 === 0;
+      if (isFailureVisit) throw new Error('Simulated server failure');
+      await sleepAsync(3000);
+    }
 
     const filters = [
       makeFilter(
