@@ -282,9 +282,11 @@ const NoteTable = ({
   encounterId,
   hasPermission: hasEncounterNoteWritePermission,
   noteModalOnSaved,
-  noteTypeId,
+  searchParameters = {},
+  refreshCount,
 }) => {
   const { currentUser } = useAuth();
+  const { noteTypeId } = searchParameters;
   const { openNoteModal } = useNoteModal();
   const [selectedNote, setSelectedNote] = useState(null);
   const [isNoteChangelogModalOpen, setIsNoteChangelogModalOpen] = useState(false);
@@ -361,10 +363,13 @@ const NoteTable = ({
         hideHeader
         allowExport={false}
         columns={COLUMNS}
-        key={noteTypeId}
         endpoint={`encounter/${encounterId}/notes`}
-        fetchOptions={{ noteTypeId }}
+        fetchOptions={searchParameters}
+        // Remount to fully reload (rather than lazy-append) when a note is saved.
+        // Filter state lives in the parent, so remounting here preserves the filters.
+        key={refreshCount}
         elevated={false}
+        containerStyle="border: none; border-radius: 0;"
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage data-testid="nodatamessage-78ud">

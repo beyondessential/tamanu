@@ -416,5 +416,48 @@ test.describe('Notes Tests', () => {
         notes[2].content,
       );
     });
+
+    test('[T-0188][AT-0089]should filter notes by free text search and clear the filter', async ({
+      patientDetailsPage,
+    }) => {
+      test.setTimeout(60000);
+      const notes = [
+        { type: NOTE_TYPES.OTHER, content: 'Alpha apple note' },
+        { type: NOTE_TYPES.OTHER, content: 'Beta banana note' },
+      ];
+      const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
+
+      for (const note of notes) {
+        await patientDetailsPage.notesPane?.newNoteButton.click();
+        await newNoteModal?.createBasicNote(note.type, note.content);
+      }
+      await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(2);
+      expect(patientDetailsPage.notesPane).toBeDefined();
+
+      // Free-text search narrows the table to the matching note
+      await patientDetailsPage.notesPane?.searchNotes('banana');
+      await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(1);
+      await expect(patientDetailsPage.notesPane!.noteRows).toHaveCount(1);
+      await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(
+        'Beta banana note',
+      );
+
+      // Clearing the filters restores all notes
+      await patientDetailsPage.notesPane?.clearFilters();
+      await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(2);
+      await expect(patientDetailsPage.notesPane!.noteRows).toHaveCount(2);
+    });
+
+    test('[T-0188][AT-0090]should reveal the date range fields via advanced search', async ({
+      patientDetailsPage,
+    }) => {
+      expect(patientDetailsPage.notesPane).toBeDefined();
+      await expect(patientDetailsPage.notesPane!.dateFromField).toBeHidden();
+
+      await patientDetailsPage.notesPane?.openAdvancedSearch();
+
+      await expect(patientDetailsPage.notesPane!.dateFromField).toBeVisible();
+      await expect(patientDetailsPage.notesPane!.dateToField).toBeVisible();
+    });
   });
 });

@@ -5,6 +5,7 @@ export * from './ImagingRequestsSearchBar';
 export * from './ImmunisationSearchBar';
 export * from './LabRequestsSearchBar';
 export * from './MedicationRequestsSearchBar';
+export * from './NotesSearchBar';
 export * from './PatientSearchBar';
 export * from './BedManagementSearchBar';
 export * from './UserSearchBar';

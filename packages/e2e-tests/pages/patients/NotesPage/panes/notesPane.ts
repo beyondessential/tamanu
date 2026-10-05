@@ -16,6 +16,15 @@ export class NotesPane {
   readonly newNoteButton!: Locator;
   readonly noteTypeOptions!: Locator;
 
+  // Search bar filters
+  readonly searchInput!: Locator;
+  readonly authorSelect!: Locator;
+  readonly authorOptions!: Locator;
+  readonly advancedSearchToggle!: Locator;
+  readonly clearButton!: Locator;
+  readonly dateFromField!: Locator;
+  readonly dateToField!: Locator;
+
   // Individual note elements
   readonly noteRows!: Locator;
   readonly noteHeaderTexts!: Locator;
@@ -42,15 +51,21 @@ export class NotesPane {
     // TestId mapping for NotesPane elements
     const testIds = {
       notesTab: 'styledtab-ccs8-notes',
-      noteTypeSelect: 'styledtranslatedselectfield-oy9y-input-outerlabelfieldwrapper',
       readMoreButton: 'readmorespan-dpwv',
       showLessButton: 'showlessspan-7kuw',
       editIcons: 'styledediticon-nmdz',
       editedButtons: 'editedbutton-jn5i',
       tooltips: 'tooltip-b4e8',
       notesTable: 'datafetchingtable-qdej',
-      noteTypeOptions: 'styledtranslatedselectfield-oy9y-suggestionslist',
+      noteTypeOptions: 'field-notes-type-suggestionslist',
       noDataMessage: 'nodatamessage-78ud',
+      // Search bar filters
+      searchInput: 'field-notes-search-input',
+      authorOptions: 'field-notes-author-suggestionslist',
+      advancedSearchToggle: 'notes-search-expand',
+      clearButton: 'notes-search-clear',
+      dateFromField: 'field-notes-from-date',
+      dateToField: 'field-notes-to-date',
     } as const;
 
     // Create locators using the testId mapping
@@ -58,9 +73,17 @@ export class NotesPane {
       (this as any)[key] = page.getByTestId(id);
     }
 
-    // `withPermissionCheck` forces `data-testid="component-enxe"` on permission buttons (same as Prepare discharge, etc.).
-    // The notes toolbar is `row-v55c` (note-type filter + New note).
-    this.newNoteButton = page.getByTestId('row-v55c').getByRole('button', { name: 'New note' });
+    // The note-type and author filters are AutocompleteFields. The bare `field-notes-type` /
+    // `field-notes-author` data-testid is only a prefix; the clickable input is exposed under the
+    // `-input` suffix (the suggestions list stays `-suggestionslist`). Clicking the input focuses it,
+    // which fetches and shows the full option list.
+    this.noteTypeSelect = page.getByTestId('field-notes-type-input').locator('input');
+    this.authorSelect = page.getByTestId('field-notes-author-input').locator('input');
+
+    // The New note button now lives in the notes search bar alongside the filters.
+    this.newNoteButton = page
+      .getByTestId('notes-search-bar')
+      .getByRole('button', { name: 'New note' });
 
     // Special cases that need additional processing
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
@@ -82,6 +105,24 @@ export class NotesPane {
   async selectNoteType(noteType: string) {
     await this.noteTypeSelect.click();
     await this.noteTypeOptions.getByText(noteType).click();
+  }
+
+  // Free-text search over note content (debounced; assertions auto-wait for the result).
+  async searchNotes(text: string) {
+    await this.searchInput.fill(text);
+  }
+
+  async selectAuthor(author: string) {
+    await this.authorSelect.click();
+    await this.authorOptions.getByText(author).click();
+  }
+
+  async openAdvancedSearch() {
+    await this.advancedSearchToggle.click();
+  }
+
+  async clearFilters() {
+    await this.clearButton.click();
   }
 
   // Modal getters
