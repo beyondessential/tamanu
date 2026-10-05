@@ -171,4 +171,4 @@ Baseline gathering and testing will surface performance problems that are cheap 
 
    Issues:
    - Alerts severity doesn't always line up with reality
-        - Noisy aler
+        - Noisy alerts that we igno
