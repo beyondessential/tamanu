@@ -47,6 +47,10 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
       }
 
       queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
+      // Registering a patient marks them for sync at this facility
+      if (id === PANE_SECTION_IDS.PROGRAM_REGISTRY) {
+        queryClient.invalidateQueries(['patientDetails', patient?.id]);
+      }
       onClose();
     },
     [api, endpoint, onClose, patient?.id, id, queryClient],

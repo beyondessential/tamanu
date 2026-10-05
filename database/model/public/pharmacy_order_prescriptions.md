@@ -29,3 +29,15 @@ Number of repeats for the prescription.
 {% docs pharmacy_order_prescriptions__is_completed %}
 Indicates whether this prescription has been fully completed. Set to `true` when all repeats have been dispensed for a discharge prescription (outpatient medication). Used to filter completed prescriptions from active medication request lists.
 {% enddocs %}
+
+{% docs pharmacy_order_prescriptions__not_dispensed_reason_id %}
+Reference to a [reference_data](#!/source/source.tamanu.tamanu.reference_data) row of type `medicationNotDispensedReason` — the reason this request was recorded as not dispensed instead of being dispensed. Null unless the request was recorded as not dispensed.
+{% enddocs %}
+
+{% docs pharmacy_order_prescriptions__not_dispensed_by_id %}
+Reference to the [user](#!/model/model.public.users) who recorded this request as not dispensed. Null unless the request was recorded as not dispensed.
+{% enddocs %}
+
+{% docs pharmacy_order_prescriptions__not_dispensed_at %}
+When this request was recorded as not dispensed. A non-null value marks the request as not dispensed rather than deleted or dispensed; the request is soft deleted at the same time. Null unless the request was recorded as not dispensed.
+{% enddocs %}

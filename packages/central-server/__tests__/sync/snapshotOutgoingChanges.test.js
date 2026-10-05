@@ -590,4 +590,154 @@ describe('snapshotOutgoingChanges', () => {
       expect(outgoingSnapshotRecords.length).toEqual(0);
     });
   });
+
+  describe('merged multi-panel lab request (card Y3)', () => {
+    // Y3 turned the single lab_requests.lab_test_panel_request_id link into a one-to-many on
+    // lab_test_panel_requests.lab_request_id: one request can now hold several panel requests plus
+    // loose tests. Sync must carry every panel request (each pointing at the one request) and keep
+    // each test's panel attribution, so the merged request rebuilds identically downstream.
+    it('captures every panel request and attributed test of a merged request in the outgoing snapshot', async () => {
+      const {
+        Department,
+        Encounter,
+        Facility,
+        LabRequest,
+        LabTest,
+        LabTestPanel,
+        LabTestPanelRequest,
+        LabTestType,
+        LocalSystemFact,
+        Location,
+        Patient,
+        ReferenceData,
+        SyncSession,
+        User,
+      } = models;
+
+      const tock = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
+
+      const user = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({ ...fake(Location), facilityId: facility.id });
+      const department = await Department.create({ ...fake(Department), facilityId: facility.id });
+      const encounter = await Encounter.create({
+        ...fake(Encounter),
+        examinerId: user.id,
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+
+      const category = await ReferenceData.create({
+        ...fake(ReferenceData),
+        type: 'labTestCategory',
+      });
+      const labRequest = await LabRequest.create({
+        ...fake(LabRequest),
+        requestedById: user.id,
+        encounterId: encounter.id,
+        labTestCategoryId: category.id,
+      });
+      const testType = await LabTestType.create({
+        ...fake(LabTestType),
+        labTestCategoryId: category.id,
+      });
+
+      // two panels in the one category (sharing a test type), plus a loose individual test
+      const createPanelRequest = async () => {
+        const panel = await LabTestPanel.create({ ...fake(LabTestPanel), categoryId: category.id });
+        return LabTestPanelRequest.create({
+          ...fake(LabTestPanelRequest),
+          labTestPanelId: panel.id,
+          encounterId: encounter.id,
+          labRequestId: labRequest.id,
+        });
+      };
+      const panelRequest1 = await createPanelRequest();
+      const panelRequest2 = await createPanelRequest();
+
+      const panelTest1 = await LabTest.create({
+        ...fake(LabTest),
+        labTestTypeId: testType.id,
+        labRequestId: labRequest.id,
+        labTestPanelRequestId: panelRequest1.id,
+      });
+      const panelTest2 = await LabTest.create({
+        ...fake(LabTest),
+        labTestTypeId: testType.id,
+        labRequestId: labRequest.id,
+        labTestPanelRequestId: panelRequest2.id,
+      });
+      const looseTest = await LabTest.create({
+        ...fake(LabTest),
+        labTestTypeId: testType.id,
+        labRequestId: labRequest.id,
+      });
+
+      const startTime = new Date();
+      const syncSession = await SyncSession.create({ startTime, lastConnectionTime: startTime });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
+
+      const facilityId = fakeUUID();
+      const markedForSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        [facilityId],
+        tock - 1,
+      );
+
+      await snapshotOutgoingChanges(
+        ctx.store,
+        { Encounter, LabRequest, LabTest, LabTestPanelRequest },
+        tock - 1,
+        1,
+        markedForSyncPatientsTable,
+        syncSession.id,
+        [facilityId],
+        null,
+        { ...simplestSessionConfig, syncAllLabRequests: true },
+      );
+
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
+        syncSession.id,
+        SYNC_SESSION_DIRECTION.OUTGOING,
+      );
+      const recordIds = outgoingSnapshotRecords.map(record => record.recordId);
+
+      // the request, its encounter, both panel requests, and every test all sync
+      expect(recordIds).toEqual(
+        expect.arrayContaining([
+          encounter.id,
+          labRequest.id,
+          panelRequest1.id,
+          panelRequest2.id,
+          panelTest1.id,
+          panelTest2.id,
+          looseTest.id,
+        ]),
+      );
+
+      // both panel requests point at the single merged request (the one-to-many holds over sync)
+      const syncedPanelRequests = outgoingSnapshotRecords.filter(record =>
+        [panelRequest1.id, panelRequest2.id].includes(record.recordId),
+      );
+      expect(syncedPanelRequests).toHaveLength(2);
+      for (const record of syncedPanelRequests) {
+        expect(record.data.labRequestId).toBe(labRequest.id);
+      }
+
+      // each test keeps its panel attribution over sync; the loose test carries none
+      const syncedTests = Object.fromEntries(
+        outgoingSnapshotRecords
+          .filter(record => [panelTest1.id, panelTest2.id, looseTest.id].includes(record.recordId))
+          .map(record => [record.recordId, record.data]),
+      );
+      expect(syncedTests[panelTest1.id].labTestPanelRequestId).toBe(panelRequest1.id);
+      expect(syncedTests[panelTest2.id].labTestPanelRequestId).toBe(panelRequest2.id);
+      expect(syncedTests[looseTest.id].labTestPanelRequestId ?? null).toBeNull();
+    });
+  });
 });

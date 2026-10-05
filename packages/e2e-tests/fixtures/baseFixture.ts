@@ -11,7 +11,7 @@ import {
   CompletedImagingRequestsPage,
   ImmunisationRegisterPage,
   ActiveLabRequestsPage,
-  PublishedLabRequestsPage,
+  FinalisedLabRequestsPage,
   MedicationRequestsPage,
   MedicationDispensesPage,
   AllPatientsPage,
@@ -40,7 +40,7 @@ type BaseFixtures = {
   completedImagingRequestsPage: CompletedImagingRequestsPage;
   immunisationRegisterPage: ImmunisationRegisterPage;
   activeLabRequestsPage: ActiveLabRequestsPage;
-  publishedLabRequestsPage: PublishedLabRequestsPage;
+  finalisedLabRequestsPage: FinalisedLabRequestsPage;
   medicationRequestsPage: MedicationRequestsPage;
   medicationDispensesPage: MedicationDispensesPage;
   allPatientsPage: AllPatientsPage;
@@ -142,8 +142,8 @@ export const test = base.extend<BaseFixtures>({
     await use(new ActiveLabRequestsPage(page));
   },
 
-  publishedLabRequestsPage: async ({ page }, use) => {
-    await use(new PublishedLabRequestsPage(page));
+  finalisedLabRequestsPage: async ({ page }, use) => {
+    await use(new FinalisedLabRequestsPage(page));
   },
 
   medicationRequestsPage: async ({ page }, use) => {

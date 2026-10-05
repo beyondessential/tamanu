@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { Op, Sequelize, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -55,6 +55,31 @@ export class ReferenceDataRelation extends Model {
       foreignKey: 'referenceDataParentId',
       as: 'referenceDataParent',
     });
+  }
+
+  // Map each parent id to its single related child ({ id, name }) for a relation type. Assumes at
+  // most one child per parent for that type (e.g. a lab test category's default specimen type); if
+  // several exist, the first is kept. Centralises the read behind the (parent_id, type) index.
+  static async getSingleChildByParentIds(
+    parentIds: string[],
+    type: string,
+  ): Promise<Map<string, { id: string; name: string | null }>> {
+    const byParentId = new Map<string, { id: string; name: string | null }>();
+    if (parentIds.length === 0) return byParentId;
+
+    const relations = await this.findAll({
+      attributes: ['referenceDataParentId', 'referenceDataId'],
+      where: { type, referenceDataParentId: { [Op.in]: parentIds } },
+      include: [{ association: 'referenceData', attributes: ['id', 'name'] }],
+    });
+    for (const relation of relations) {
+      if (byParentId.has(relation.referenceDataParentId!)) continue;
+      byParentId.set(relation.referenceDataParentId!, {
+        id: relation.referenceDataId!,
+        name: (relation as any).referenceData?.name ?? null,
+      });
+    }
+    return byParentId;
   }
 
   static buildSyncFilter() {

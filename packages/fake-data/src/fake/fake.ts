@@ -437,41 +437,42 @@ export const fakeSurveyAnswerBody = ({ name, type }) => {
     : chance.sentence({ words: 4 });
 };
 
+const FACILITY_NAME_SUFFIXES = {
+  hospital: 'Hospital',
+  clinic: 'Clinic',
+  health_centre: 'Health Centre',
+  aid_post: 'Aid Post',
+  dispensary: 'Dispensary',
+  district_hospital: 'District Hospital',
+  provincial_hospital: 'Provincial Hospital',
+  urban_clinic: 'Urban Clinic',
+};
+
+const FACILITY_NAME_PREFIXES = [
+  () => chance.city(),
+  () => `${chance.last()} Memorial`,
+  () => `St. ${chance.first()}`,
+  () => `${chance.city()} District`,
+  () => 'Central',
+  () => 'National',
+  () => `Port ${chance.last()}`,
+  () => chance.company(),
+];
+
+// Real deployments don't repeat facility names, and migrations may rely on that.
+const usedFacilityNames = new Set<string>();
+const fakeFacilityName = (facilityType: string): string => {
+  const name = `${chance.pickone(FACILITY_NAME_PREFIXES)()} ${FACILITY_NAME_SUFFIXES[facilityType]}`;
+  if (usedFacilityNames.has(name)) return fakeFacilityName(facilityType);
+  usedFacilityNames.add(name);
+  return name;
+};
+
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: ({ name: passedName }) => {
-    const facilityType = chance.pickone([
-      'hospital',
-      'clinic',
-      'health_centre',
-      'aid_post',
-      'dispensary',
-      'district_hospital',
-      'provincial_hospital',
-      'urban_clinic',
-    ]);
-    const namePrefixGenerators = [
-      () => chance.city(),
-      () => `${chance.last()} Memorial`,
-      () => `St. ${chance.first()}`,
-      () => `${chance.city()} District`,
-      () => 'Central',
-      () => 'National',
-      () => `Port ${chance.last()}`,
-      () => chance.company(),
-    ];
-    const namePrefix = chance.pickone(namePrefixGenerators)();
-    const nameSuffix = {
-      hospital: 'Hospital',
-      clinic: 'Clinic',
-      health_centre: 'Health Centre',
-      aid_post: 'Aid Post',
-      dispensary: 'Dispensary',
-      district_hospital: 'District Hospital',
-      provincial_hospital: 'Provincial Hospital',
-      urban_clinic: 'Urban Clinic',
-    }[facilityType];
+    const facilityType = chance.pickone(Object.keys(FACILITY_NAME_SUFFIXES));
     return {
-      ...named(passedName ?? `${namePrefix} ${nameSuffix}`),
+      ...named(passedName ?? fakeFacilityName(facilityType)),
       email: chance.email(),
       contactNumber: chance.phone(),
       streetAddress: chance.address(),
@@ -660,6 +661,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
     idealTimes: null,
     pharmacyNotes: null,
   }),
+  PharmacyOrderPrescription: () => ({
+    notDispensedReasonId: null,
+    notDispensedById: null,
+    notDispensedAt: null,
+  }),
   User: () => ({
     email: chance.email({ length: 20 }),
     phoneNumber: chance.phone(),
@@ -686,6 +692,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
+  SensitiveNetwork: ({ name }) =>
+    named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
+  // A lookup row is unscoped unless a test deliberately scopes it. The outgoing snapshot admits a
+  // row only when facility_id and sensitive_network_id are both null, so generating a random
+  // network here would withhold every faked row from every facility.
+  SyncLookup: () => ({ sensitiveNetworkId: null }),
   Discharge: () => ({
     note: chance.pickone(DISCHARGE_NOTES),
     facilityName: null,

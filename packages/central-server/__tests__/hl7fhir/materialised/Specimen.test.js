@@ -4,12 +4,14 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { formatRFC7231 } from 'date-fns';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../../utilities';
 import {
   ALL_FHIR_PERMISSIONS,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirSpecimen,
+  fakeTestTypes,
 } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
@@ -171,6 +173,87 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         formatRFC7231(new Date(materialiseSpecimen.lastUpdated)),
       );
       expect(response).toHaveSucceeded();
+    });
+
+    it('materialises a single specimen for a merged multi-panel request (card Y3)', async () => {
+      // Y3 folds every panel of a category into one lab request. SENAITE consumes the FHIR
+      // Specimen, which materialises one-per-request — so a merged request holding several panels
+      // must still map to exactly one sample, carrying that one request's collection details.
+      const {
+        FhirSpecimen,
+        FhirServiceRequest,
+        LabTestPanel,
+        LabTestPanelRequest,
+        LabTest,
+        LabTestType,
+      } = ctx.store.models;
+
+      const { labRequest, specimenType } = await fakeResourcesOfFhirSpecimen(
+        ctx.store.models,
+        resources,
+      );
+      const categoryId = labRequest.labTestCategoryId;
+
+      // a second panel on the same request, plus a loose individual test — the merged shape that
+      // only exists under the per-category model
+      const secondPanel = await LabTestPanel.create({ ...fake(LabTestPanel), categoryId });
+      const secondPanelRequest = await LabTestPanelRequest.create({
+        ...fake(LabTestPanelRequest),
+        labTestPanelId: secondPanel.id,
+        encounterId: resources.encounter.id,
+        labRequestId: labRequest.id,
+      });
+      const [panelTestType] = await fakeTestTypes(1, LabTestType, categoryId);
+      await LabTest.create({
+        labRequestId: labRequest.id,
+        labTestTypeId: panelTestType.id,
+        labTestPanelRequestId: secondPanelRequest.id,
+      });
+      const [looseTestType] = await fakeTestTypes(1, LabTestType, categoryId);
+      await LabTest.create({ labRequestId: labRequest.id, labTestTypeId: looseTestType.id });
+
+      const materialisedServiceRequest = await FhirServiceRequest.materialiseFromUpstream(
+        labRequest.id,
+      );
+      const materialiseSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+      await FhirSpecimen.resolveUpstreams();
+
+      // exactly one specimen for the whole merged request, no matter how many panels it holds
+      const specimensForRequest = await FhirSpecimen.findAll({
+        where: { upstreamId: labRequest.id },
+      });
+      expect(specimensForRequest).toHaveLength(1);
+
+      // act
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/Specimen/${materialiseSpecimen.id}`,
+      );
+
+      // assert — the one sample carries the request's collection details and references the single
+      // service request
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({
+        resourceType: 'Specimen',
+        collection: {
+          collectedDateTime: formatFhirDate(labRequest.sampleTime),
+        },
+        type: {
+          coding: [
+            {
+              code: specimenType.code,
+              system: 'http://www.senaite.com/data/sample_types',
+              display: specimenType.name,
+            },
+          ],
+        },
+        request: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${materialisedServiceRequest.id}`,
+          },
+        ],
+      });
+      expect(response.body.request).toHaveLength(1);
     });
   });
 

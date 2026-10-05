@@ -73,7 +73,11 @@ describe('Medication', () => {
     return { medication, referenceDrug };
   };
 
-  const createPharmacyOrderWithPrescription = async ({ patientId, repeats = 1 }) => {
+  const createPharmacyOrderWithPrescription = async ({
+    patientId,
+    repeats = 1,
+    isDischargePrescription = true,
+  }) => {
     const { medication } = await createDrug();
     const encounter = await models.Encounter.create(
       fake(models.Encounter, {
@@ -101,7 +105,7 @@ describe('Medication', () => {
       fake(models.PharmacyOrder, {
         orderingClinicianId: app.user.id,
         encounterId: encounter.id,
-        isDischargePrescription: true,
+        isDischargePrescription,
         date: getCurrentDateTimeString(),
         facilityId,
       }),
@@ -112,6 +116,7 @@ describe('Medication', () => {
         prescriptionId: prescription.id,
         quantity: 10,
         repeats,
+        isCompleted: false,
       }),
       id: crypto.randomUUID(),
     });
@@ -136,6 +141,7 @@ describe('Medication', () => {
         prescriptionId: prescription.id,
         quantity: 10,
         repeats: 1,
+        isCompleted: false,
       }),
       id: crypto.randomUUID(),
     });
@@ -1591,6 +1597,179 @@ describe('Medication', () => {
         expect(visible.body.data.find(d => d.id === dispense.id)).toBeDefined();
       });
     });
+
+    describe('area', () => {
+      // The pharmacy order chain's own encounter is always discharged (endDate set), so these
+      // tests give the patient a second, currently active encounter in a different location
+      // group to prove the area column reflects the patient's CURRENT encounter, not the one
+      // tied to the dispense.
+      const createActiveEncounter = ({ patientId, locationId }) =>
+        models.Encounter.create(
+          fake(models.Encounter, {
+            patientId,
+            locationId,
+            departmentId: department.id,
+            examinerId: app.user.id,
+            endDate: null,
+          }),
+        );
+
+      it("should return the patient's current area, not the dispense's own encounter location", async () => {
+        const areaPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: areaPatient.id,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+        const dispenseId = dispenseResult.body[0].id;
+
+        const currentLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId }),
+        );
+        const currentLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: currentLocationGroup.id, facilityId }),
+        );
+        await createActiveEncounter({
+          patientId: areaPatient.id,
+          locationId: currentLocation.id,
+        });
+
+        const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
+
+        const row = result.body.data.find(d => d.id === dispenseId);
+        expect(row).toBeDefined();
+        expect(row.currentAreaName).toBe(currentLocationGroup.name);
+      });
+
+      it('should return a null currentAreaName when the patient has no active encounter', async () => {
+        const areaPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: areaPatient.id,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+        const dispenseId = dispenseResult.body[0].id;
+
+        const result = await app.get(`/api/medication/medication-dispenses?facilityId=${facilityId}`);
+        expect(result).toHaveSucceeded();
+
+        const row = result.body.data.find(d => d.id === dispenseId);
+        expect(row).toBeDefined();
+        expect(row.currentAreaName).toBeFalsy();
+      });
+
+      it('should filter by locationGroupId, matching the current encounter, not the dispensed one', async () => {
+        const areaPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: areaPatient.id,
+        });
+        const dispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(dispenseResult).toHaveSucceeded();
+        const dispenseId = dispenseResult.body[0].id;
+
+        const currentLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId }),
+        );
+        const currentLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: currentLocationGroup.id, facilityId }),
+        );
+        await createActiveEncounter({
+          patientId: areaPatient.id,
+          locationId: currentLocation.id,
+        });
+
+        const matching = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&locationGroupId=${currentLocationGroup.id}`,
+        );
+        expect(matching).toHaveSucceeded();
+        expect(matching.body.data.find(d => d.id === dispenseId)).toBeDefined();
+
+        const other = await models.LocationGroup.create(fake(models.LocationGroup, { facilityId }));
+        const notMatching = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&locationGroupId=${other.id}`,
+        );
+        expect(notMatching).toHaveSucceeded();
+        expect(notMatching.body.data.find(d => d.id === dispenseId)).toBeUndefined();
+      });
+
+      it('should sort by currentAreaName', async () => {
+        const firstLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId, name: 'Area A' }),
+        );
+        const firstLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: firstLocationGroup.id, facilityId }),
+        );
+        const secondLocationGroup = await models.LocationGroup.create(
+          fake(models.LocationGroup, { facilityId, name: 'Area B' }),
+        );
+        const secondLocation = await models.Location.create(
+          fake(models.Location, { locationGroupId: secondLocationGroup.id, facilityId }),
+        );
+
+        const firstPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription: firstPharmacyOrderPrescription } =
+          await createPharmacyOrderWithPrescription({ patientId: firstPatient.id });
+        const firstDispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: firstPharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(firstDispenseResult).toHaveSucceeded();
+        await createActiveEncounter({ patientId: firstPatient.id, locationId: firstLocation.id });
+
+        const secondPatient = await models.Patient.create(fake(models.Patient));
+        const { pharmacyOrderPrescription: secondPharmacyOrderPrescription } =
+          await createPharmacyOrderWithPrescription({ patientId: secondPatient.id });
+        const secondDispenseResult = await dispenseItems([
+          {
+            pharmacyOrderPrescriptionId: secondPharmacyOrderPrescription.id,
+            quantity: 5,
+            instructions: 'Take as directed',
+          },
+        ]);
+        expect(secondDispenseResult).toHaveSucceeded();
+        await createActiveEncounter({ patientId: secondPatient.id, locationId: secondLocation.id });
+
+        const ascending = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&orderBy=currentAreaName&order=ASC&rowsPerPage=100`,
+        );
+        expect(ascending).toHaveSucceeded();
+        const ascendingIds = ascending.body.data.map(d => d.id);
+        expect(ascendingIds.indexOf(firstDispenseResult.body[0].id)).toBeLessThan(
+          ascendingIds.indexOf(secondDispenseResult.body[0].id),
+        );
+
+        const descending = await app.get(
+          `/api/medication/medication-dispenses?facilityId=${facilityId}&orderBy=currentAreaName&order=DESC&rowsPerPage=100`,
+        );
+        expect(descending).toHaveSucceeded();
+        const descendingIds = descending.body.data.map(d => d.id);
+        expect(descendingIds.indexOf(secondDispenseResult.body[0].id)).toBeLessThan(
+          descendingIds.indexOf(firstDispenseResult.body[0].id),
+        );
+      });
+    });
   });
 
   describe('GET /api/patient/:id/dispensed-medications', () => {
@@ -2084,6 +2263,272 @@ describe('Medication', () => {
     });
   });
 
+  describe('POST /api/medication/medication-requests/:id/not-dispensed', () => {
+    const createNotDispensedReason = () =>
+      models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_NOT_DISPENSED_REASON }),
+      );
+
+    it('records the reason, soft deletes the request, and notifies the prescriber', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, prescription, encounter } =
+        await createPharmacyOrderWithPrescription({ patientId: localPatient.id });
+      const notDispensedReason = await createNotDispensedReason();
+
+      const result = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      expect(result).toHaveSucceeded();
+
+      const reloaded = await models.PharmacyOrderPrescription.findByPk(
+        pharmacyOrderPrescription.id,
+        { paranoid: false },
+      );
+      expect(reloaded.notDispensedReasonId).toBe(notDispensedReason.id);
+      expect(reloaded.notDispensedById).toBe(app.user.id);
+      expect(reloaded.notDispensedAt).toBeTruthy();
+      expect(reloaded.deletedAt).toBeTruthy();
+
+      // Dropped from the active list (paranoid excludes it by default)
+      expect(await models.PharmacyOrderPrescription.findByPk(pharmacyOrderPrescription.id)).toBeNull();
+
+      const notifications = await models.Notification.findAll({
+        where: { type: NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED, patientId: localPatient.id },
+      });
+      expect(notifications).toHaveLength(1);
+      expect(notifications[0].userId).toBe(prescription.prescriberId);
+      expect(notifications[0].metadata).toMatchObject({
+        prescriberId: prescription.prescriberId,
+        patientId: localPatient.id,
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        encounterId: encounter.id,
+      });
+    });
+
+    it('does not alter the original prescription', async () => {
+      const { pharmacyOrderPrescription, prescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+
+      const result = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      expect(result).toHaveSucceeded();
+
+      const reloadedPrescription = await models.Prescription.findByPk(prescription.id);
+      expect(reloadedPrescription.discontinued).not.toBe(true);
+    });
+
+    it('returns 404 when the medication request does not exist', async () => {
+      const notDispensedReason = await createNotDispensedReason();
+
+      const result = await app
+        .post(`/api/medication/medication-requests/${crypto.randomUUID()}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      expect(result).toHaveStatus(404);
+    });
+
+    it('returns 404 on a repeat call, since the request is already soft deleted', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const firstReason = await createNotDispensedReason();
+      const secondReason = await createNotDispensedReason();
+
+      const firstResult = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: firstReason.id });
+      expect(firstResult).toHaveSucceeded();
+
+      const secondResult = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: secondReason.id });
+      expect(secondResult).toHaveStatus(404);
+
+      // The original reason/notifier from the first call must not have been overwritten.
+      const reloaded = await models.PharmacyOrderPrescription.findByPk(
+        pharmacyOrderPrescription.id,
+        { paranoid: false },
+      );
+      expect(reloaded.notDispensedReasonId).toBe(firstReason.id);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('rejects a user without delete MedicationRequest permission', async () => {
+        const noPermsApp = await baseApp.asNewRole([]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+
+        const result = await noPermsApp
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+
+        expect(result).toBeForbidden();
+      });
+
+      it('allows a user with only delete MedicationRequest permission', async () => {
+        const limitedApp = await baseApp.asNewRole([['delete', 'MedicationRequest']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+
+        const result = await limitedApp
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+
+        expect(result).toHaveSucceeded();
+      });
+    });
+  });
+
+  describe('GET /api/medication/medication-requests/:id/not-dispensed', () => {
+    const createNotDispensedReason = () =>
+      models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.MEDICATION_NOT_DISPENSED_REASON }),
+      );
+
+    it('returns the not-dispensed record after it has been soft deleted', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription, medication } = await createPharmacyOrderWithPrescription({
+        patientId: localPatient.id,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+      const postResult = await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+      expect(postResult).toHaveSucceeded();
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.id).toBe(pharmacyOrderPrescription.id);
+      expect(result.body.notDispensedReason.id).toBe(notDispensedReason.id);
+      expect(result.body.prescription.medication.id).toBe(medication.id);
+      expect(result.body.pharmacyOrder.encounter.patient.id).toBe(localPatient.id);
+      expect(result.body.pharmacyOrder.encounter.patient.displayId).toBe(localPatient.displayId);
+      expect(result.body.pharmacyOrder.encounter.patient.firstName).toBe(localPatient.firstName);
+    });
+
+    it('does not expose the raw repeats column, only remainingRepeats', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 3,
+        isDischargePrescription: true,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+      await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.remainingRepeats).toBe(3);
+      expect(result.body.repeats).not.toBeDefined();
+    });
+
+    // getRemainingRepeats() treats a non-discharge (inpatient) request as never having
+    // repeats to consume, regardless of the repeats value on the row — see
+    // PharmacyOrderPrescription.getRemainingRepeats().
+    it('returns 0 remainingRepeats for an inpatient request regardless of repeats', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 3,
+        isDischargePrescription: false,
+      });
+      const notDispensedReason = await createNotDispensedReason();
+      await app
+        .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+        .send({ notDispensedReasonId: notDispensedReason.id });
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.remainingRepeats).toBe(0);
+    });
+
+    it('returns 404 when the request was deleted but never marked not dispensed', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const deleteResult = await app.delete(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}`,
+      );
+      expect(deleteResult).toHaveSucceeded();
+
+      const result = await app.get(
+        `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+      );
+
+      expect(result).toHaveStatus(404);
+    });
+
+    it('returns 404 when the medication request does not exist', async () => {
+      const result = await app.get(
+        `/api/medication/medication-requests/${crypto.randomUUID()}/not-dispensed`,
+      );
+
+      expect(result).toHaveStatus(404);
+    });
+
+    describe('permissions', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('rejects a user without read MedicationRequest permission', async () => {
+        const noPermsApp = await baseApp.asNewRole([]);
+        const arrangingApp = await baseApp.asNewRole([['delete', 'MedicationRequest']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+        const postResult = await arrangingApp
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+        expect(postResult).toHaveSucceeded();
+
+        const result = await noPermsApp.get(
+          `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+        );
+
+        expect(result).toBeForbidden();
+      });
+
+      it('allows a user with only read MedicationRequest permission', async () => {
+        const limitedApp = await baseApp.asNewRole([['read', 'MedicationRequest']]);
+        const arrangingApp = await baseApp.asNewRole([['delete', 'MedicationRequest']]);
+        const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+        });
+        const notDispensedReason = await createNotDispensedReason();
+        const postResult = await arrangingApp
+          .post(`/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`)
+          .send({ notDispensedReasonId: notDispensedReason.id });
+        expect(postResult).toHaveSucceeded();
+
+        const result = await limitedApp.get(
+          `/api/medication/medication-requests/${pharmacyOrderPrescription.id}/not-dispensed`,
+        );
+
+        expect(result).toHaveSucceeded();
+      });
+    });
+  });
+
   describe('Approved column', () => {
     let patient;
     let testEncounter;
@@ -2249,6 +2694,29 @@ describe('Medication', () => {
       expect(found).toBeDefined();
       expect(found.prescription.invoiceItem).toBeDefined();
       expect(found.prescription.invoiceItem.approved).toBe(false);
+    });
+  });
+
+  describe('GET /api/medication/medication-requests remainingRepeats', () => {
+    // A row here is always an active, not-yet-dispensed request (isCompleted: false), so it can
+    // never carry a medicationDispense and remainingRepeats always equals raw repeats for an
+    // outpatient row. The only behaviour this endpoint can exercise is the inpatient guard on
+    // getRemainingRepeats() — the dispense-driven divergence is covered against
+    // GET /api/medication/medication-dispenses instead, where it's actually reachable.
+    it('returns 0 remainingRepeats for an inpatient request regardless of repeats', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 3,
+        isDischargePrescription: false,
+      });
+
+      const result = await app.get(`/api/medication/medication-requests?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(item => item.id === pharmacyOrderPrescription.id);
+      expect(found).toBeDefined();
+      expect(found.remainingRepeats).toBe(0);
+      expect(found.repeats).toBe(3);
     });
   });
 

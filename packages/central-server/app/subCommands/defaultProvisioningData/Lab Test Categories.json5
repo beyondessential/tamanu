@@ -4,38 +4,30 @@
     "id",
     "code",
     "name",
-    "visibilityStatus"
+    "visibilityStatus",
+    "defaultSpecimenType"
   ],
   "data": [
     {
-      "id": "labTestCategory-FBC",
-      "code": "FBC",
-      "name": "FBC",
-      "visibilityStatus": "current"
+      "id": "labTestCategory-Biochemistry",
+      "code": "Biochemistry",
+      "name": "Biochemistry",
+      "visibilityStatus": "current",
+      "defaultSpecimenType": "SpecimenType-Serum"
     },
     {
-      "id": "labTestCategory-Other",
-      "code": "Other",
-      "name": "Other",
-      "visibilityStatus": "current"
+      "id": "labTestCategory-Haematology",
+      "code": "Haematology",
+      "name": "Haematology",
+      "visibilityStatus": "current",
+      "defaultSpecimenType": "SpecimenType-EDTA"
     },
     {
-      "id": "labTestCategory-LFT",
-      "code": "LFT",
-      "name": "LFT",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "labTestCategory-UE",
-      "code": "UE",
-      "name": "U&E",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "labTestCategory-Malaria",
-      "code": "Malaria",
-      "name": "Malaria microscopy",
-      "visibilityStatus": "current"
+      "id": "labTestCategory-BloodBank",
+      "code": "BloodBank",
+      "name": "Blood Bank",
+      "visibilityStatus": "current",
+      "defaultSpecimenType": "SpecimenType-BloodDonor"
     },
     {
       "id": "labTestCategory-Microbiology",
@@ -44,40 +36,17 @@
       "visibilityStatus": "current"
     },
     {
-      "id": "labTestCategory-Serology",
-      "code": "Serology",
-      "name": "Serology",
+      "id": "labTestCategory-Cytology",
+      "code": "Cytology",
+      "name": "Cytology",
       "visibilityStatus": "current"
     },
     {
-      "id": "labTestCategory-COVID",
-      "code": "COVID",
-      "name": "COVID-19 Swab",
-      "visibilityStatus": "historical"
-    },
-    {
-      "id": "labTestCategory-COVIDRAT",
-      "code": "COVIDRAT",
-      "name": "Point-of-care",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "labTestCategory-Malariamicroscopy",
-      "code": "Malariamicroscopy",
-      "name": "Malaria microscopy",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "labTestCategory-POCT",
-      "code": "POCT",
-      "name": "POCT",
-      "visibilityStatus": "current"
-    },
-    {
-      "id": "labTestCategory-Integration",
-      "code": "Integration",
-      "name": "Integration",
-      "visibilityStatus": "current"
+      "id": "labTestCategory-Coagulation",
+      "code": "Coagulation",
+      "name": "Coagulation",
+      "visibilityStatus": "current",
+      "defaultSpecimenType": "SpecimenType-SodiumCitrate"
     }
   ]
 }

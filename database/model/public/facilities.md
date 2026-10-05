@@ -46,6 +46,9 @@ Street address of the facility.
 Catchment area ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)).
 {% enddocs %}
 
-{% docs facilities__is_sensitive %}
-If set to `true`, encounters created on this facility will only be viewable when logged into this facility
+{% docs facilities__sensitive_network_id %}
+The [sensitive network](#!/source/source.tamanu.tamanu.sensitive_networks) this facility belongs to, if any.
+
+A facility is sensitive exactly when this is set. Encounter-linked data recorded here reaches only
+the facilities in the same network.
 {% enddocs %}

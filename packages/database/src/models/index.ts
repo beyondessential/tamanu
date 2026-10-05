@@ -100,6 +100,7 @@ export * from './PatientCommunication';
 
 export * from './Facility';
 export * from './FacilitySettingMigration';
+export * from './SensitiveNetwork';
 export * from './Department';
 export * from './Location';
 export * from './LocationGroup';

@@ -7,6 +7,7 @@ import {
   DRUG_STOCK_STATUSES,
   DRUG_UNITS,
   VISIBILITY_STATUSES,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
@@ -307,7 +308,7 @@ export async function permissionLoader(item, { models, pushError }) {
     });
 }
 
-export function labTestPanelLoader(item) {
+export async function labTestPanelLoader(item, { models, pushError }) {
   const { id, testTypesInPanel, availableFacilities, ...otherFields } = item;
   const rows = [];
 
@@ -320,23 +321,113 @@ export function labTestPanelLoader(item) {
     },
   });
 
-  (testTypesInPanel || '')
+  const testTypeIds = (testTypesInPanel || '')
     .split(',')
     .map(t => t.trim())
-    .forEach((testType, index) => {
-      rows.push({
-        model: 'LabTestPanelLabTestTypes',
-        values: {
-          id: `${id};${testType}`,
-          labTestPanelId: id,
-          labTestTypeId: testType,
-          order: index,
-        },
-      });
+    .filter(Boolean);
+
+  testTypeIds.forEach((testType, index) => {
+    rows.push({
+      model: 'LabTestPanelLabTestTypes',
+      values: {
+        id: `${id};${testType}`,
+        labTestPanelId: id,
+        labTestTypeId: testType,
+        order: index,
+      },
     });
+  });
+
+  if (testTypeIds.length) {
+    const testTypes = await models.LabTestType.findAll({
+      where: { id: { [Op.in]: testTypeIds } },
+      attributes: ['name', 'visibilityStatus', 'labTestCategoryId'],
+    });
+
+    // Reflex tests exist in reference data only so a LIMS can attach results; they can't be ordered
+    // as part of a panel.
+    const reflexTestTypes = testTypes.filter(
+      testType => testType.visibilityStatus === LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+    );
+    if (reflexTestTypes.length) {
+      pushError(
+        `Reflex tests cannot be added to a lab test panel: ${reflexTestTypes
+          .map(testType => testType.name)
+          .join(', ')}`,
+        'LabTestPanel',
+      );
+    }
+
+    // A panel's test types must all belong to one lab test category, so an ordered panel can be
+    // grouped under a single category.
+    const categoryIds = [
+      ...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean)),
+    ];
+    if (categoryIds.length > 1) {
+      pushError('Lab test panel test types must all belong to one lab test category', 'LabTestPanel');
+    }
+  }
 
   return rows;
 }
+
+// The labTestCategory reference_data row is created by the generic reference-data pass; this
+// second pass reads the optional defaultSpecimenType column and keeps the category's default
+// specimen type as an at-most-one ReferenceDataRelation (parent = category, child = specimen type).
+export const labTestCategoryLoader = async (item, { models, header, pushError }) => {
+  const { id: categoryId, defaultSpecimenType } = item;
+
+  // Only touch the relation when the column is present, so imports that omit it leave existing
+  // defaults untouched. The column being present with an empty cell clears the default.
+  const hasColumn = (header ?? []).some(column => column.trim() === 'defaultSpecimenType');
+  if (!hasColumn) return [];
+
+  const specimenTypeId =
+    typeof defaultSpecimenType === 'number'
+      ? `${defaultSpecimenType}`
+      : (defaultSpecimenType ?? '').trim();
+
+  if (!specimenTypeId) {
+    await models.ReferenceDataRelation.destroy({
+      where: {
+        referenceDataParentId: categoryId,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      },
+    });
+    return [];
+  }
+
+  const specimenType = await models.ReferenceData.findOne({
+    attributes: ['id'],
+    where: { id: specimenTypeId, type: REFERENCE_TYPES.SPECIMEN_TYPE },
+  });
+  if (!specimenType) {
+    pushError(
+      `Default specimen type "${specimenTypeId}" for category "${categoryId}" not found or not of type specimenType`,
+    );
+    return [];
+  }
+
+  // At most one default per category: drop any existing default that isn't the one now specified.
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: categoryId,
+      type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      referenceDataId: { [Op.ne]: specimenTypeId },
+    },
+  });
+
+  return [
+    {
+      model: 'ReferenceDataRelation',
+      values: {
+        referenceDataParentId: categoryId,
+        referenceDataId: specimenTypeId,
+        type: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+      },
+    },
+  ];
+};
 
 export const taskSetLoader = async (item, { models, pushError }) => {
   const { id: taskSetId, tasks: taskIdsString } = item;
