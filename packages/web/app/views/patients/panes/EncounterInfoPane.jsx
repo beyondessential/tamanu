@@ -133,7 +133,10 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
     >
       <Form
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={({ estimatedEndDate }) => updateEncounter({ estimatedEndDate })}
+        onSubmit={async ({ estimatedEndDate }) => {
+          await updateEncounter({ estimatedEndDate });
+          onClose();
+        }}
         render={({ submitForm }) => (
           <>
             <DischargeDateFieldContainer>

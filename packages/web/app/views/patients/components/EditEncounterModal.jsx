@@ -351,6 +351,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
     // Keep the encounter start date in sync with the triage start date when using this form
     await updateEncounter({ startDate, skipSystemNotes: true });
+    onClose();
   };
 
   const onSubmitEncounterForm = async ({
@@ -370,6 +371,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       reasonForEncounter,
       estimatedEndDate,
     });
+    onClose();
   };
 
   return (

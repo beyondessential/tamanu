@@ -399,6 +399,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
       ...locationData,
       ...encounterTypeData,
     });
+    onClose();
   };
 
   const { initialValues, validationSchema } = getFormProps({

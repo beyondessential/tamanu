@@ -8,18 +8,24 @@ import {
 } from '../../../components';
 import { PrintMultipleLabRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
+  // The table fetches its own endpoint, so invalidating the encounter query doesn't reach it.
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   return (
     <TabPane data-testid="tabpane-zm0o">
       <LabRequestModal
         open={newRequestModalOpen}
         encounter={encounter}
-        onClose={() => setNewRequestModalOpen(false)}
+        onClose={() => {
+          setNewRequestModalOpen(false);
+          updateRefreshCount();
+        }}
         data-testid="labrequestmodal-axnl"
       />
       <PrintMultipleLabRequestsSelectionModal
@@ -66,6 +72,7 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
       </TableButtonRow>
       <EncounterLabRequestsTable
         encounterId={encounter.id}
+        refreshCount={refreshCount}
         data-testid="encounterlabrequeststable-hd7x"
       />
     </TabPane>

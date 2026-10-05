@@ -7,6 +7,7 @@ import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
 import { PrintMultipleImagingRequestsSelectionModal } from '../../../components/PatientPrinting';
 import { TabPane } from '../components';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 const StyledImagingRequestsTable = styled(ImagingRequestsTable)`
   border-block-start: 1px solid ${p => p.theme.palette.divider};
@@ -17,6 +18,8 @@ const StyledImagingRequestsTable = styled(ImagingRequestsTable)`
 export const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [newRequestModalOpen, setNewRequestModalOpen] = useState(false);
   const [printRequestsModalOpen, setPrintRequestsModalOpen] = useState(false);
+  // The table fetches its own endpoint, so invalidating the encounter query doesn't reach it.
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   // TODO: should these be ButtonWithPermissionCheck?
   return (
@@ -24,7 +27,10 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
       <ImagingRequestModal
         open={newRequestModalOpen}
         encounter={encounter}
-        onClose={() => setNewRequestModalOpen(false)}
+        onClose={() => {
+          setNewRequestModalOpen(false);
+          updateRefreshCount();
+        }}
         data-testid="imagingrequestmodal-p374"
       />
       <PrintMultipleImagingRequestsSelectionModal
@@ -68,6 +74,7 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
       <StyledImagingRequestsTable
         data-testid="imagingrequeststable-csir"
         encounterId={encounter.id}
+        refreshCount={refreshCount}
       />
     </TabPane>
   );
