@@ -50,6 +50,7 @@ A user can send some or all of the system errors currently in the table to the T
 - [ ] The "Send error log" action is not shown when the table has no system errors, since there is nothing to report.
 - [ ] The modal collects free-text additional information and an optional email address for the support team to use for follow-up; the email address, if entered, must be a valid email address.
 - [ ] Submitting sends every system error currently in the table, the additional information, the follow-up email address (if entered), and the id of the user sending the report — no other information identifying the user is included.
+- [ ] The report also identifies where it came from, so support can triage without asking: the deployment (the central server's public host name), the reporting facility's name and id, and the Tamanu version of both the facility server and the central server.
 - [ ] The report is emailed to the recipients configured for the reporting facility, defaulting to the Tamanu support address when the facility has not configured its own.
 - [ ] On successful submission, the errors included in that submission are removed from the table, the modal closes, and the user sees a confirmation (singular or plural wording matching the count sent).
 - [ ] If submission fails, the table is left unchanged, the modal stays open with the user's entered information intact, and the user sees a failure notification — a failed submission does not itself appear as a new system error.
