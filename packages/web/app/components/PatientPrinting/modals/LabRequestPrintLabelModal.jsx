@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useSettings } from '../../../contexts/Settings';
+import { usePatient } from '../../../contexts/Patient';
 
 const Container = styled.div`
   display: flex;
@@ -28,9 +28,11 @@ const Container = styled.div`
 `;
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
   const { getSetting } = useSettings();
   const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
+
+  if (!patient) return null;
 
   return (
     <Modal

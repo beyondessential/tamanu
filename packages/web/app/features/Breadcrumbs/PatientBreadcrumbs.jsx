@@ -1,8 +1,8 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { matchPath, useLocation, useParams } from 'react-router';
 import styled from 'styled-components';
 import { useProgramRegistryQuery } from '../../api/queries';
+import { usePatient } from '../../contexts/Patient';
 import {
   getPatientNameAsString,
   TranslatedReferenceData,
@@ -29,9 +29,9 @@ export const Breadcrumb = ({ title, ...props }) => (
 );
 
 export const PatientBreadcrumb = props => {
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { navigateToPatient } = usePatientNavigation();
-  const onClick = () => navigateToPatient(patient.id);
+  const onClick = () => navigateToPatient(patient?.id);
   return <Breadcrumb {...props} onClick={onClick} title={getPatientNameAsString(patient || {})} />;
 };
 

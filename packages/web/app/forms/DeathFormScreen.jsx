@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { getVisibleQuestions } from '../utils';
+import { usePatient } from '../contexts/Patient';
 import { SummaryScreenOne } from './DeathFormSummaryScreens';
 
 const Actions = styled(Box)`
@@ -31,7 +31,7 @@ export const DeathFormScreen = ({
   onCancel,
 }) => {
   const [showSummary, setShowSummary] = useState(false);
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
   const { children } = screenReactElement.props;
   const screenQuestionReactElements = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
@@ -40,7 +40,7 @@ export const DeathFormScreen = ({
     screenQuestionReactElements,
   );
   const showBackButton = screenIndex > 0;
-  const showSaveAndClose = screenIndex === 0 && !patient.dateOfDeath;
+  const showSaveAndClose = screenIndex === 0 && !patient?.dateOfDeath;
 
   const updatedScreenReactElement = {
     ...screenReactElement,

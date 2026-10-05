@@ -1,10 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
+import { usePatient } from '../../contexts/Patient';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistrationQuery } from '../../api/queries/usePatientProgramRegistrationQuery';
@@ -65,7 +65,7 @@ const Grid = styled.div`
 
 export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { data, isLoading, isError, isFetching } = usePatientProgramRegistrationQuery(
     patientId,
     programRegistryId,

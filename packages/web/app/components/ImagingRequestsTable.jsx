@@ -7,7 +7,6 @@ import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/c
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
-import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
@@ -156,7 +155,6 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
       const patientId = params.patientId || encounter.patient.id;
       if (encounter) {
         await loadEncounter(encounter.id);
-        await dispatch(reloadPatient(patientId));
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';

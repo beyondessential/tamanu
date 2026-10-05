@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useParams } from 'react-router';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
+import { usePatient } from '../../contexts/Patient';
 import { useSyncedTabSearchParam } from '../../utils/useSyncedTabSearchParam';
 import { ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -167,7 +167,7 @@ export const EncounterView = () => {
   const api = useApi();
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
-  const patient = useSelector(state => state.patient);
+  const { patient, isLoading } = usePatient();
   const { loadEncounter, encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences } = useUserPreferencesQuery();
@@ -175,7 +175,7 @@ export const EncounterView = () => {
 
   const { encounterId } = useParams();
   const [tabs, setTabs] = useState(TABS);
-  const disabled = encounter?.endDate || !!patient.dateOfDeath;
+  const disabled = encounter?.endDate || Boolean(patient?.dateOfDeath);
 
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
   const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
@@ -188,9 +188,9 @@ export const EncounterView = () => {
   // The patient is loaded into the store asynchronously, so patient.id is null on the first
   // render when this view is opened directly by URL. Only record the view once we have an id.
   useEffect(() => {
-    if (!patient.id) return;
+    if (!patient?.id) return;
     api.post(`user/recently-viewed-patients/${patient.id}`);
-  }, [api, patient.id]);
+  }, [api, patient?.id]);
 
   useEffect(() => {
     if (!userPreferences?.encounterTabOrders) return;
@@ -240,7 +240,7 @@ export const EncounterView = () => {
     );
   };
 
-  if (!encounter || isLoadingEncounter || patient.loading)
+  if (!encounter || isLoadingEncounter || isLoading || !patient)
     return <LoadingIndicator data-testid="loadingindicator-032s" />;
 
   return (

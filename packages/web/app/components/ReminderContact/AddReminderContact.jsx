@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -11,6 +10,7 @@ import { LocalisedField, SuggesterSelectField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
+import { usePatient } from '../../contexts/Patient';
 import { useApi } from '../../api';
 import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
 
@@ -62,7 +62,9 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
   const { getTranslation } = useTranslation();
   const api = useApi();
 
-  const patient = useSelector((state) => state.patient);
+  const { patient } = usePatient();
+
+  if (!patient) return null;
 
   const patientName = joinNames(patient);
 

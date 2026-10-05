@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { getAnswersFromData, FormGrid, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
-import { reloadPatient } from '../../store/patient';
 import { SurveyView } from '../programs/SurveyView';
-import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -16,6 +14,7 @@ import { getCurrentUser } from '../../store';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
+import { usePatient } from '../../contexts/Patient';
 import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
@@ -118,18 +117,10 @@ const ReferralFlow = ({ patient, currentUser }) => {
 };
 
 export const ReferralsView = () => {
-  const patient = useSelector(state => state.patient);
+  const { patient, isLoading } = usePatient();
   const currentUser = useSelector(getCurrentUser);
-  const dispatch = useDispatch();
-  if (!patient.id) {
-    return (
-      <PatientListingView
-        onViewPatient={id => {
-          dispatch(reloadPatient(id));
-        }}
-        data-testid="patientlistingview-o7jr"
-      />
-    );
+  if (isLoading || !patient) {
+    return <LoadingIndicator data-testid="loadingindicator-o7jr" />;
   }
 
   return (

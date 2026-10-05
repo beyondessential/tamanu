@@ -1,12 +1,10 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm/PatientDetailsForm';
-import { reloadPatient } from '../../../store/patient';
 import { invalidatePatientDataQueries, notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
@@ -35,7 +33,6 @@ export const PatientDetailsPane = React.memo(
   ({ patient, additionalData, birthData, patientFields, insurancePlans }) => {
     const api = useApi();
     const queryClient = useQueryClient();
-    const dispatch = useDispatch();
     const { ability, facilityId } = useAuth();
 
     const handleSubmit = async data => {
@@ -48,7 +45,6 @@ export const PatientDetailsPane = React.memo(
 
       // invalidate the cache of patient data queries to reload the patient data
       await invalidatePatientDataQueries(queryClient, patient.id);
-      dispatch(reloadPatient(patient.id));
     };
 
     // Display form if user can read, write or create patient additional data.

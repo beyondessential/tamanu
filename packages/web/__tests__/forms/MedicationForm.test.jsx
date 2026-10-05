@@ -41,8 +41,8 @@ vi.mock('../../app/contexts/Encounter', () => ({
   useEncounter: () => ({ encounter, loadEncounter: vi.fn() }),
 }));
 
-vi.mock('react-redux', () => ({
-  useSelector: selector => selector({ patient: { id: 'patient-1', dateOfBirth: '1990-01-01' } }),
+vi.mock('../../app/contexts/Patient', () => ({
+  usePatient: () => ({ patient: { id: 'patient-1', dateOfBirth: '1990-01-01' } }),
 }));
 
 vi.mock('../../app/api/queries/useEncounterMedicationQuery', () => ({

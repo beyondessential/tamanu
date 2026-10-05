@@ -5,7 +5,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { TASK_STATUSES, TASK_TYPES, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
 
 import { BodyText, SmallBodyText, TranslatedText, Table, DateDisplay, TimeDisplay } from '../.';
 import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
@@ -15,7 +14,6 @@ import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
 import { Paginator } from '../Table/Paginator';
 import { useTablePaginator } from '../Table/useTablePaginator';
 import { useTableSorting } from '../Table/useTableSorting';
-import { reloadPatient } from '../../store';
 import { useEncounter } from '../../contexts/Encounter';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { DrugIcon } from '../../assets/icons/DrugIcon';
@@ -329,7 +327,6 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser, facilityId } = useAuth();
   const navigate = useNavigate();
   const { loadEncounter } = useEncounter();
-  const dispatch = useDispatch();
 
   const { page, rowsPerPage, handleChangePage, handleChangeRowsPerPage } = useTablePaginator({
     resetPage: searchParameters,
@@ -363,7 +360,6 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
 
   const onRowClick = async ({ encounter, taskType }) => {
     await loadEncounter(encounter?.id);
-    if (encounter?.patientId) await dispatch(reloadPatient(encounter.patientId));
     if (taskType === TASK_TYPES.MEDICATION_DUE_TASK) {
       navigate(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}/mar/view`);
       return;

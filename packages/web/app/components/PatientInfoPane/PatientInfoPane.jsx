@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Button } from '@tamanu/ui-components';
@@ -26,6 +25,7 @@ import { AiPatientSummary } from '../AiPatientSummary';
 import { useSettings } from '../../contexts/Settings';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
+import { usePatient } from '../../contexts/Patient';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -254,7 +254,7 @@ export const PatientInfoPane = () => {
   const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const { getSetting } = useSettings();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const api = useApi();
   const { ability } = useAuth();
   const patientDeathsEnabled = getSetting('features.enablePatientDeaths');
@@ -262,12 +262,12 @@ export const PatientInfoPane = () => {
     ability?.can('create', 'PatientDeath') && ability?.can('write', 'Patient');
   const canReadPatientDeath = ability?.can('read', 'PatientDeath');
   const { data: deathData, isFetching } = useQuery(
-    ['patientDeathSummary', patient.id],
-    () => api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
-    { enabled: patientDeathsEnabled && !!patient.dateOfDeath },
+    ['patientDeathSummary', patient?.id],
+    () => api.get(`patient/${patient?.id}/death`, {}, { showUnknownErrorToast: false }),
+    { enabled: patientDeathsEnabled && Boolean(patient?.dateOfDeath) },
   );
 
-  const readonly = !!patient.dateOfDeath;
+  const readonly = Boolean(patient?.dateOfDeath);
   const isPatientDeceased = readonly;
   // Reverting a death record requires read as well as create: the revert link is only
   // valid for a non-final record, and isFinal can only be determined with read access.
@@ -281,7 +281,7 @@ export const PatientInfoPane = () => {
 
   // Wait for the mark-for-sync pull to finish before mounting the AI summary, so it
   // generates from a complete record rather than a partially-pulled one.
-  const isPatientSyncing = useSyncState().isPatientSyncing(patient.id);
+  const isPatientSyncing = useSyncState().isPatientSyncing(patient?.id);
   const patientSummaryEnabled = getSetting('patientSummary.enabled');
   const canReadPatientSummary = ability?.can('read', 'PatientSummary');
   const canWritePatientSummary = ability?.can('write', 'PatientSummary');
@@ -289,8 +289,10 @@ export const PatientInfoPane = () => {
     patientSummaryEnabled &&
     canReadPatientSummary &&
     canWritePatientSummary &&
-    patient.markedForSync &&
+    patient?.markedForSync &&
     !isPatientSyncing;
+
+  if (!patient) return null;
 
   return (
     <Container data-testid="container-qhh8">

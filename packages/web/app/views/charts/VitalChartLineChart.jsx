@@ -1,9 +1,9 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { matchPath, useLocation } from 'react-router';
 import { LineChart } from '../../components/Charts/LineChart';
 import { getVitalChartProps } from '../../components/Charts/helpers/getVitalChartProps';
 import { useEncounter } from '../../contexts/Encounter';
+import { usePatient } from '../../contexts/Patient';
 import { useGraphDataQuery } from '../../api/queries/useGraphDataQuery';
 import { useProgramRegistryGraphDataQuery } from '../../api/queries/useProgramRegistryGraphDataQuery';
 import { useVitalChartData } from '../../contexts/VitalChartData';
@@ -12,7 +12,7 @@ export const VitalChartLineChart = props => {
   const { chartKey, visualisationConfig, dateRange, isInMultiChartsView } = props;
   const { encounter } = useEncounter();
   const { isVital } = useVitalChartData();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const location = useLocation();
   const isProgramRegistryRoute = !!matchPath(
     { path: '/patients/:category/:patientId/program-registry/:programRegistryId', end: false },

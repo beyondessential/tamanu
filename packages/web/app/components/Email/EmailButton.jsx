@@ -5,7 +5,7 @@ import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmati
 import { FormModal } from '../FormModal';
 import { TranslatedText } from '../Translation/TranslatedText';
 
-export const EmailButton = ({ onEmail }) => {
+export const EmailButton = ({ onEmail, email }) => {
   const [openModal, setOpenModal] = useState(false);
   return (
     <>
@@ -40,6 +40,7 @@ export const EmailButton = ({ onEmail }) => {
             setOpenModal(false);
           }}
           onCancel={() => setOpenModal(false)}
+          defaultEmail={email}
           data-testid="emailaddressconfirmationform-a6dk"
         />
       </FormModal>

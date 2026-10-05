@@ -38,6 +38,7 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 import { useAuth } from '../../../contexts/Auth';
+import { usePatient } from '../../../contexts/Patient';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
@@ -350,7 +351,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 
 export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
-  const patient = useSelector(state => state.patient);
+  const { patient, isLoading } = usePatient();
 
   const params = useParams();
   const navigate = useNavigate();
@@ -366,7 +367,7 @@ export const ImagingRequestView = () => {
     IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(imagingRequest.status);
 
-  if (patient.loading || imagingRequest.loading)
+  if (isLoading || !patient || imagingRequest.loading)
     return <LoadingIndicator data-testid="loadingindicator-31bz" />;
 
   return (

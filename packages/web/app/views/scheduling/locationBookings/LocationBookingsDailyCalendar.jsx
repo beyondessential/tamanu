@@ -1187,7 +1187,7 @@ export const LocationBookingsDailyCalendar = ({
             setEmailModalState(null);
           }}
           onCancel={() => setEmailModalState(null)}
-          emailOverride={emailModalState?.email}
+          defaultEmail={emailModalState?.email}
         />
       </FormModal>
     </Box>

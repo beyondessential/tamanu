@@ -303,7 +303,7 @@ export const OutpatientBookingCalendar = ({
             setEmailModalState(null);
           }}
           onCancel={() => setEmailModalState(null)}
-          emailOverride={emailModalState?.email}
+          defaultEmail={emailModalState?.email}
           data-testid="emailaddressconfirmationform-yhdd"
         />
       </FormModal>

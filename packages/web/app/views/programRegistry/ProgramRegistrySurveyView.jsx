@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { SurveyView } from '../programs/SurveyView';
 import { useParams } from 'react-router';
-import { useSelector } from 'react-redux';
 import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
 import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
 import { useAuth } from '../../contexts/Auth';
+import { usePatient } from '../../contexts/Patient';
 import {
   usePatientAdditionalDataQuery,
   usePatientProgramRegistrationQuery,
@@ -21,15 +21,15 @@ export const ProgramRegistrySurveyView = () => {
   const { navigateToProgramRegistry } = usePatientNavigation();
   const { currentUser, facilityId } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
-    patient.id,
+    patient?.id,
   );
 
   const {
     data: patientProgramRegistration,
     isLoading: patientProgramRegistrationLoading,
-  } = usePatientProgramRegistrationQuery(patient.id, programRegistryId);
+  } = usePatientProgramRegistrationQuery(patient?.id, programRegistryId);
 
   const { data: survey, isLoading, isError } = usePatientProgramRegistrySurveysQuery(
     patientId,
@@ -41,7 +41,7 @@ export const ProgramRegistrySurveyView = () => {
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,
-      patientId: patient.id,
+      patientId: patient?.id,
       facilityId,
       endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, survey),
@@ -50,7 +50,7 @@ export const ProgramRegistrySurveyView = () => {
     navigateToProgramRegistry();
   };
 
-  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading) {
+  if (isLoading || additionalDataLoading || patientProgramRegistrationLoading || !patient) {
     return <LoadingIndicator data-testid="loadingindicator-z681" />;
   }
 

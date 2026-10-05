@@ -1,10 +1,8 @@
 import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { reloadPatient } from '../../store/patient';
 import {
   AllPatientsSearchBar,
   ContentPane,
@@ -90,7 +88,6 @@ const INPATIENT_COLUMNS = [displayId, firstName, lastName, dateOfBirth, inpatien
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
-  const dispatch = useDispatch();
   const { facilityId } = useAuth();
   const fetchOptionsWithSearchParameters = {
     ...searchParameters,
@@ -98,8 +95,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
     facilityId,
   };
 
-  const handleViewPatient = async row => {
-    await dispatch(reloadPatient(row.id));
+  const handleViewPatient = row => {
     navigateToPatient(row.id);
   };
 
@@ -124,19 +120,16 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 const NewPatientButton = ({ onCreateNewPatient }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
-  const dispatch = useDispatch();
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
 
   const showNewPatient = useCallback(() => {
     setCreatingPatient(true);
   }, []);
 
-  const handleCreateNewPatient = async newPatient => {
+  const handleCreateNewPatient = newPatient => {
     setCreatingPatient(false);
     if (onCreateNewPatient) {
       onCreateNewPatient(newPatient.id);
-    } else {
-      await dispatch(reloadPatient(newPatient.id));
     }
     navigateToPatient(newPatient.id);
   };

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES, REFERRAL_STATUS_LABELS } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
@@ -8,6 +7,7 @@ import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatient } from '../contexts/Patient';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { ConfirmModal } from './ConfirmModal';
@@ -88,7 +88,7 @@ const MODAL_IDS = {
 
 export const ReferralTable = React.memo(({ patientId }) => {
   const api = useApi();
-  const patient = useSelector(state => state.patient);
+  const { patient } = usePatient();
   const { ability } = useAuth();
   const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);

@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { SearchTableWithPermissionCheck } from '../components';
-import { reloadPatient } from '../store/patient';
 import {
   getDateWithTimeTooltip,
   getPanelType,
@@ -101,15 +99,11 @@ export const LabRequestsTable = React.memo(
         },
       ];
     }, [isPublishedTable, isInvoicingEnabled]);
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const selectLab = async lab => {
       await loadEncounter(lab.encounterId);
 
-      if (lab.patientId) {
-        await dispatch(reloadPatient(lab.patientId));
-      }
       const { patientId } = lab;
       await loadLabRequest(lab.id);
       navigate(`/patients/all/${patientId}/encounter/${lab.encounterId}/lab-request/${lab.id}`);
