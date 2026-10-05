@@ -165,3 +165,5 @@ Baseline gathering and testing will surface performance problems that are cheap 
 - **Telemetry reporting approach** — how metrics should be shaped and reported to Canopy (chat with Felix).
 - **Degradation thresholds** — how baselines translate into pass/fail bounds for the automated regression checks, and where those bounds are stored.
 - **Billing code** — unknown at time of writing.
+
+----
