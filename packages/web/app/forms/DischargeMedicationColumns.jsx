@@ -107,7 +107,9 @@ export const OrderingPrescriberField = ({ practitionerSuggester }) => {
             />
           </Box>
         }
-        required
+        // Only required, and only marked so, once something is being sent to pharmacy — the field
+        // is disabled and cannot be filled in while nothing is selected.
+        required={isSendingAnyMedication}
         disabled={!isSendingAnyMedication}
         data-testid="field-orderingprescriber"
       />
