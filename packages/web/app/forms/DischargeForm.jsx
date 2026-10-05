@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { useFormikContext } from 'formik';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -24,6 +25,7 @@ import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicati
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { TableFormFields } from '../components/Table';
 import { Colors } from '../constants';
@@ -206,6 +208,34 @@ const getMedicationsInitialValues = ({
 };
 
 /**
+ * Keeps the form's per-medication values in step with the medications actually listed, without
+ * touching any other field. When a medication is discontinued it drops out of the list, so its
+ * entry is removed here rather than by reinitialising the whole form — which would otherwise revert
+ * the user's edits to sibling fields such as the ordering prescriber.
+ */
+const ReconcileMedicationValues = ({ medicationInitialValues }) => {
+  const { values, setFieldValue } = useFormikContext();
+  const medicationIdsKey = Object.keys(medicationInitialValues).sort().join(',');
+
+  useEffect(() => {
+    const currentValues = values.medications ?? {};
+    const reconciled = {};
+    for (const id of Object.keys(medicationInitialValues)) {
+      // Preserve the clinician's edits for medications still listed; seed defaults for new ones.
+      reconciled[id] = currentValues[id] ?? medicationInitialValues[id];
+    }
+    const currentKeys = Object.keys(currentValues);
+    const hasStaleEntry = currentKeys.some(id => !(id in reconciled));
+    if (currentKeys.length !== Object.keys(reconciled).length || hasStaleEntry) {
+      setFieldValue('medications', reconciled);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medicationIdsKey]);
+
+  return null;
+};
+
+/**
  * Medications selected to be sent to pharmacy that have already been sent recently, so the
  * clinician can be asked to confirm them before the order goes out.
  */
@@ -248,7 +278,6 @@ export const DischargeForm = ({
   const [dischargeNotes, setDischargeNotes] = useState(null);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
   const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
-  const [enableReinitialize, setEnableReinitialize] = useState(true);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -262,11 +291,17 @@ export const DischargeForm = ({
     d => !['error', 'disproven'].includes(d.certainty),
   );
 
-  const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
-  const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
-    encounter.patientId,
-    facilityId,
-  );
+  const { data: encounterMedications, isLoading: isLoadingEncounterMedications } =
+    useEncounterMedicationQuery(encounter.id);
+  const { data: ongoingPrescriptions, isLoading: isLoadingOngoingPrescriptions } =
+    usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
+
+  // The form is initialised once from data that arrives asynchronously — encounter medications,
+  // ongoing prescriptions, and discharge notes. Waiting for all of it before mounting means the
+  // form never needs to reinitialise later, so a medication being discontinued can't clobber the
+  // clinician's edits to fields like the ordering prescriber.
+  const isInitialDataReady =
+    !isLoadingEncounterMedications && !isLoadingOngoingPrescriptions && dischargeNotes !== null;
 
   const activeMedications = (encounterMedications?.data || []).filter(
     medication => !medication.discontinued,
@@ -305,8 +340,13 @@ export const DischargeForm = ({
 
   useEffect(() => {
     (async () => {
-      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+      try {
+        const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
+        setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
+      } catch {
+        // A failed notes fetch must not leave the form stuck behind its loading gate.
+        setDischargeNotes([]);
+      }
     })();
   }, [api, encounter.id]);
 
@@ -322,20 +362,6 @@ export const DischargeForm = ({
     }
     onTitleChange(<TranslatedText stringId="discharge.modal.title" fallback="Discharge patient" />);
   }, [showWarningScreen, onTitleChange]);
-
-  useEffect(() => {
-    const hasEncounterMeds = Boolean(encounterMedications);
-    const hasOngoingMeds = Boolean(ongoingPrescriptions);
-    const hasNotes = Boolean(dischargeNotes);
-    if (enableReinitialize && hasEncounterMeds && hasOngoingMeds && hasNotes) {
-      setEnableReinitialize(false);
-    }
-  }, [
-    Boolean(encounterMedications),
-    Boolean(ongoingPrescriptions),
-    Boolean(dischargeNotes),
-    enableReinitialize,
-  ]);
 
   const handleDiscontinueMedication = medication => {
     setDiscontinuedMedication(medication);
@@ -355,6 +381,10 @@ export const DischargeForm = ({
     queryClient.invalidateQueries(['patient-ongoing-prescriptions', encounter.patientId]);
     queryClient.invalidateQueries(['encounterMedication', encounter.id]);
   };
+
+  if (!isInitialDataReady) {
+    return <LoadingIndicator data-testid="dischargeform-loading" />;
+  }
 
   return (
     <>
@@ -454,13 +484,14 @@ export const DischargeForm = ({
             ),
         })}
         formProps={{
-          enableReinitialize,
+          enableReinitialize: false,
           showInlineErrorsOnly: true,
           validateOnChange: true,
         }}
         data-testid="paginatedform-ghn7"
       >
         <FormGrid data-testid="formgrid-menu">
+          <ReconcileMedicationValues medicationInitialValues={medicationInitialValues} />
           <EncounterOverview
             encounter={encounter}
             currentDiagnoses={currentDiagnoses}
