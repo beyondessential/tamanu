@@ -3,6 +3,7 @@ import { COMMUNICATION_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { getCanonicalHostName } from '@tamanu/shared/utils';
 import { version } from '../app/serverInfo';
+import { MAX_CLIENT_VERSION } from '../app/middleware/versionCompatibility';
 import { createTestContext } from './utilities';
 
 describe('systemErrorReport', () => {
@@ -68,14 +69,14 @@ describe('systemErrorReport', () => {
   it('identifies the deployment, facility and versions in the email body', async () => {
     const response = await app
       .post('/api/systemErrorReport')
-      .set('x-version', '2.66.1')
+      .set('x-version', MAX_CLIENT_VERSION)
       .send(validBody());
 
     expect(response).toHaveSucceeded();
     const { text } = emailService.sendEmail.mock.calls[0][0];
     expect(text).toContain(`Deployment: ${getCanonicalHostName()}`);
     expect(text).toContain(`Facility: ${facility.name} (${facility.id})`);
-    expect(text).toContain('Facility server version: 2.66.1');
+    expect(text).toContain(`Facility server version: ${MAX_CLIENT_VERSION}`);
     expect(text).toContain(`Central server version: ${version}`);
   });
 
