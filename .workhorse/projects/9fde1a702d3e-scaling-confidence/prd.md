@@ -167,4 +167,5 @@ Baseline gathering and testing will surface performance problems that are cheap 
 - **Billing code** — unknown at time of writing.
 
 ----
-8.  
+8.  Make Tamanu alerting more practically actionable
+   
