@@ -1,12 +1,8 @@
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['@react-native/babel-preset'],
   plugins: [
     'babel-plugin-transform-typescript-metadata',
     '@babel/plugin-transform-export-namespace-from',
-    // Metro 0.73's bundled terser cannot parse logical assignment operators (??=, ||=, &&=)
-    // emitted by our own packages and some deps (e.g. typeorm); transpile them before minification.
-    '@babel/plugin-transform-logical-assignment-operators',
-    'react-native-reanimated/plugin',
     ['@babel/plugin-proposal-decorators', { legacy: true }],
     [
       'module-resolver',
@@ -35,5 +31,7 @@ module.exports = {
         },
       },
     ],
+    // react-native-worklets/plugin must be last
+    'react-native-worklets/plugin',
   ],
 };

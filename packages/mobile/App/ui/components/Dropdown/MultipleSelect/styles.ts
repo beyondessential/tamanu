@@ -4,6 +4,8 @@
  * MIT Licensed
  */
 
+import { StyleSheet } from 'react-native';
+
 export const colorPack = {
   primary: '#00A5FF',
   primaryDark: '#215191',
@@ -15,7 +17,7 @@ export const colorPack = {
   backgroundColor: '#b1b1b1',
 };
 
-export default {
+const sheetStyles = StyleSheet.create({
   footerWrapper: {
     flexWrap: 'wrap',
     alignItems: 'flex-start',
@@ -71,17 +73,6 @@ export default {
     color: colorPack.light,
     fontSize: 14,
   },
-  selectorView: (fixedHeight) => {
-    const style = {
-      flexDirection: 'column',
-      marginBottom: 10,
-      elevation: 2,
-    };
-    if (fixedHeight) {
-      style.height = 250;
-    }
-    return style;
-  },
   inputGroup: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -93,5 +84,25 @@ export default {
     alignItems: 'center',
     height: 40,
     marginBottom: 10,
+  },
+});
+
+export default {
+  ...sheetStyles,
+  selectorView: (fixedHeight: boolean) => {
+    const style: {
+      flexDirection: 'column';
+      marginBottom: number;
+      elevation: number;
+      height?: number;
+    } = {
+      flexDirection: 'column',
+      marginBottom: 10,
+      elevation: 2,
+    };
+    if (fixedHeight) {
+      style.height = 250;
+    }
+    return style;
   },
 };

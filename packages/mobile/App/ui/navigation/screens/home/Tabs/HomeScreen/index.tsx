@@ -8,7 +8,7 @@ import { withAuth } from '/containers/Auth';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { disableAndroidBackButton } from '/helpers/android';
+import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
@@ -49,7 +49,7 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
 );
 
 const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps): ReactElement => {
-  disableAndroidBackButton();
+  useDisableAndroidBackButton();
   const { checkFirstSession, setUserFirstSignIn } = useAuth();
   const { facilityName, facilityId } = useFacility();
 
@@ -73,7 +73,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
   }
 
   return (
-    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN}>
+    <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} edges={['top']}>
       <FullView>
         <StatusBar barStyle="light-content" />
         <StyledView

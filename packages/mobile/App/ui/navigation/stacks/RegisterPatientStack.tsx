@@ -10,7 +10,7 @@ const Stack = createStackNavigator();
 
 export const RegisterPatientStack = (): ReactElement => (
   <ErrorBoundary>
-    <Stack.Navigator headerMode="none">
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name={Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo}
         component={EditPatientScreen}

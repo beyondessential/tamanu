@@ -1,6 +1,5 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
-import { act } from '@testing-library/react-hooks';
 import { BaseStory } from './fixture';
 
 describe('<SearchInput />', () => {
@@ -8,18 +7,16 @@ describe('<SearchInput />', () => {
     placeholder: 'Search for patients',
   };
 
-  it('should render correctly', () => {
-    const { getByPlaceholderText } = render(<BaseStory />);
+  it('should render correctly', async () => {
+    const { getByPlaceholderText } = await render(<BaseStory />);
     expect(getByPlaceholderText(props.placeholder)).not.toBeNull();
   });
 
-  it('should change value', () => {
+  it('should change value', async () => {
     const searchText = 'patient0';
-    const { getByPlaceholderText } = render(<BaseStory />);
+    const { getByPlaceholderText } = await render(<BaseStory />);
     const input = getByPlaceholderText(props.placeholder);
-    act(() => {
-      fireEvent.changeText(input, searchText);
-    });
+    await fireEvent.changeText(input, searchText);
     expect(input.props['value']).toBe(searchText);
   });
 });

@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { ReactElement } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
@@ -8,7 +8,7 @@ import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
 import { PatientCard } from '/components/PatientCard';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { RowView, StyledText, StyledView } from '/styled/common';
+import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { PatientFromRoute } from '~/ui/helpers/constants';
 import { TranslatedText } from '/components/Translations/TranslatedText';
@@ -68,8 +68,8 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
           casing="upper"
         />
       </StyledText>
-      <ScrollView horizontal>
-        <RowView flex={1}>{recentPatients}</RowView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{ flexDirection: 'row' }}>{recentPatients}</View>
       </ScrollView>
     </StyledView>
   );

@@ -1,20 +1,23 @@
 import React, { ReactElement, useState } from 'react';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { TextField } from '~/ui/components/TextField/TextField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 
+const horizontalPadding = screenPercentageToDP(2.43, Orientation.Width);
+const verticalPadding = screenPercentageToDP(3.43, Orientation.Width);
+
 const FacilityItem = ({ label, selected, onPress }): ReactElement => (
   <TouchableOpacity onPress={onPress}>
     <StyledView
-      paddingRight={screenPercentageToDP(2.43, Orientation.Width)}
-      paddingLeft={screenPercentageToDP(2.43, Orientation.Width)}
-      paddingTop={screenPercentageToDP(3.43, Orientation.Width)}
-      paddingBottom={screenPercentageToDP(3.43, Orientation.Width)}
-      background={selected ? theme.colors.LIGHT_BLUE : theme.colors.WHITE}
+      style={{
+        paddingHorizontal: horizontalPadding,
+        paddingVertical: verticalPadding,
+        backgroundColor: selected ? theme.colors.LIGHT_BLUE : theme.colors.WHITE,
+      }}
     >
       <StyledText color={theme.colors.TEXT_DARK}>{label}</StyledText>
     </StyledView>
@@ -22,7 +25,7 @@ const FacilityItem = ({ label, selected, onPress }): ReactElement => (
 );
 
 const LoadingIndicator = (): ReactElement => (
-  <StyledView padding={10}>
+  <StyledView style={{ padding: 10 }}>
     <StyledText color={theme.colors.TEXT_DARK}>
       <TranslatedText stringId="login.facilitySelect.loading" fallback="Loading facilities..." />
     </StyledText>
@@ -30,7 +33,7 @@ const LoadingIndicator = (): ReactElement => (
 );
 
 const NoFacilitiesIndicator = (): ReactElement => (
-  <StyledView padding={10}>
+  <StyledView style={{ padding: 10 }}>
     <StyledText color={theme.colors.TEXT_DARK}>
       <TranslatedText
         stringId="login.facilitySelect.error.noneFound"

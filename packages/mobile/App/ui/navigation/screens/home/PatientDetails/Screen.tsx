@@ -6,11 +6,11 @@ import { Routes } from '~/ui/helpers/routes';
 import { withPatient } from '~/ui/containers/Patient';
 import { getGender, joinNames } from '~/ui/helpers/user';
 import { getDisplayAge } from '~/ui/helpers/date';
+import { ScrollView } from 'react-native';
 import {
   FullView,
   RowView,
   StyledSafeAreaView,
-  StyledScrollView,
   StyledText,
   StyledTouchableOpacity,
   StyledView,
@@ -120,10 +120,10 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
       </StyledSafeAreaView>
       <FullView>
-        <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
+        <ScrollView style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND_GREY }}>
           <PatientDetails navigation={navigation} patient={selectedPatient} />
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
-        </StyledScrollView>
+        </ScrollView>
       </FullView>
     </FullView>
   );

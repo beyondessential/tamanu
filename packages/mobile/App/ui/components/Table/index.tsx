@@ -1,7 +1,6 @@
 import React from 'react';
-import { RowView, StyledView } from '/styled/common';
-import { ScrollView } from 'react-native-gesture-handler';
-import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from 'react-native';
+import { StyledView } from '/styled/common';
 
 export type TableHeader = {
   key: string;
@@ -42,26 +41,24 @@ export const Table = ({
   onPressItem,
   scrollHandler,
 }: TableProps): JSX.Element => (
-  <RowView>
+  <View style={{ flexDirection: 'row' }}>
     <StyledView>
       {Title && <Title />}
       {rows.map((r, i) => r.rowHeader(i))}
     </StyledView>
     <ScrollView bounces={false} showsHorizontalScrollIndicator onScroll={scrollHandler} horizontal>
-      <RowView>
-        {columns.map((column: any) => (
-          <StyledView key={`${column}`}>
-            {tableHeader?.accessor(column, onPressItem)}
-            {cells[column] &&
-              rows.map((row, i) =>
-                row.cell(
-                  cells[column].find(c => c[row.rowKey] === row.rowTitle),
-                  i,
-                ),
-              )}
-          </StyledView>
-        ))}
-      </RowView>
+      {columns.map((column: any) => (
+        <View key={`${column}`}>
+          {tableHeader?.accessor(column, onPressItem)}
+          {cells[column] &&
+            rows.map((row, i) =>
+              row.cell(
+                cells[column].find(c => c[row.rowKey] === row.rowTitle),
+                i,
+              ),
+            )}
+        </View>
+      ))}
     </ScrollView>
-  </RowView>
+  </View>
 );

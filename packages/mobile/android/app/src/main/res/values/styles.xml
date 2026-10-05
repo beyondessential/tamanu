@@ -8,6 +8,7 @@
     </style>
 
     <style name="Dialog.Theme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">#326699</item>
+        <item name="colorAccent">#009688</item>
+        <item name="android:textColor">#009688</item>
     </style>
 </resources>

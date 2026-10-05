@@ -41,7 +41,7 @@ export const Screen = ({
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
-      <StyledSafeAreaView flex={1}>
+      <StyledSafeAreaView flex={1} edges={['top']}>
         <StyledView
           height={screenPercentageToDP(28.5, Orientation.Height)}
           background={theme.colors.PRIMARY_MAIN}

@@ -4,7 +4,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { PencilIcon } from '/components/Icons';
 
 interface EditButtonProps {
-  sectionTitle: Element;
+  sectionTitle: string;
   onPress: () => void;
 }
 
