@@ -38,7 +38,7 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in patient_issues."
           - name: note
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('patient_issues__note') }}"
             config:
               meta:
