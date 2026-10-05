@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { COMMUNICATION_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
+import { version } from '../app/serverInfo';
 import { createTestContext } from './utilities';
 
 describe('systemErrorReport', () => {
@@ -61,6 +63,20 @@ describe('systemErrorReport', () => {
     expect(email.text).toContain('clinician@example.org');
     expect(email.text).toContain('It keeps happening after login');
     expect(email.text).toContain('Something went wrong on the server.');
+  });
+
+  it('identifies the deployment, facility and versions in the email body', async () => {
+    const response = await app
+      .post('/api/systemErrorReport')
+      .set('x-version', '2.66.1')
+      .send(validBody());
+
+    expect(response).toHaveSucceeded();
+    const { text } = emailService.sendEmail.mock.calls[0][0];
+    expect(text).toContain(`Deployment: ${getCanonicalHostName()}`);
+    expect(text).toContain(`Facility: ${facility.name} (${facility.id})`);
+    expect(text).toContain('Facility server version: 2.66.1');
+    expect(text).toContain(`Central server version: ${version}`);
   });
 
   it('joins multiple recipients configured for the facility', async () => {
