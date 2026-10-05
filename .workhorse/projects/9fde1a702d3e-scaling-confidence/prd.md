@@ -1,4 +1,4 @@
-# Scaling Confidence
+# System Health Dashboard
 
 ## Overview
 
