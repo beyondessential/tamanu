@@ -10,6 +10,7 @@ import {
   TextField,
   TranslatedText,
 } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
 
 import { BodyText, FormModal } from '../../components';
 import { Field } from '../../components/Field';
@@ -34,6 +35,16 @@ const ReportingSubtitleText = styled(BodyText)`
   font-size: 16px;
   font-weight: 500;
   margin-top: 26px;
+`;
+
+const PatientDetailsWarning = styled(BodyText)`
+  margin-top: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: ${Colors.darkestText};
+  background-color: #fef9eb;
+  border-left: 4px solid ${Colors.secondary};
+  border-radius: 3px;
 `;
 
 export const SendErrorLogButtonLabel = ({ count }) =>
@@ -83,9 +94,15 @@ export const SendErrorLogModal = ({ open, onClose, errors, onSentSuccessfully })
     onClose();
     notifySuccess(
       count === 1 ? (
-        <TranslatedText stringId="systemErrors.modal.success.singular" fallback="Error log sent" />
+        <TranslatedText
+          stringId="systemErrors.modal.success.singular"
+          fallback="Error log successfully sent"
+        />
       ) : (
-        <TranslatedText stringId="systemErrors.modal.success.plural" fallback="Error logs sent" />
+        <TranslatedText
+          stringId="systemErrors.modal.success.plural"
+          fallback="Error logs successfully sent"
+        />
       ),
     );
   };
@@ -125,6 +142,12 @@ export const SendErrorLogModal = ({ open, onClose, errors, onSentSuccessfully })
                 minRows={3}
               />
             </FormGrid>
+            <PatientDetailsWarning data-testid="send-error-log-patient-details-warning">
+              <TranslatedText
+                stringId="systemErrors.modal.additionalInformation.warning"
+                fallback="Please do not enter patient details into the above additional information."
+              />
+            </PatientDetailsWarning>
             <StyledDivider />
             <BodyText color="textSecondary" mb={1}>
               <TranslatedText
