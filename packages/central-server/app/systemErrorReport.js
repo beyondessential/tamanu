@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
-import { AuthPermissionError } from '@tamanu/errors';
+import { AuthPermissionError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ReadSettings } from '@tamanu/settings';
@@ -53,11 +53,15 @@ systemErrorReport.post(
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
+    // Users with access to all facilities pass the check above without the facility existing
+    const facility = await models.Facility.findByPk(facilityId);
+    if (!facility) {
+      throw new NotFoundError('Facility not found');
+    }
+
     const recipients = await new ReadSettings(models, facilityId).get(
       'systemAdmin.support.recipients',
     );
-
-    const facility = await models.Facility.findByPk(facilityId);
 
     const emailText = buildEmailText({
       errors,
