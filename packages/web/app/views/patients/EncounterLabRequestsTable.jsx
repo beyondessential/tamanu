@@ -84,7 +84,7 @@ const columns = [
   },
 ];
 
-export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
+export const EncounterLabRequestsTable = React.memo(({ encounterId, refreshCount }) => {
   const { patientId, category } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -109,6 +109,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
       }
       onRowClick={selectLab}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      refreshCount={refreshCount}
       data-testid="datafetchingtable-1jgd"
     />
   );

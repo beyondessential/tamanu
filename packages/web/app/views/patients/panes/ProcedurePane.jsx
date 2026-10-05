@@ -4,6 +4,7 @@ import { TableButtonRow } from '../../../components';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
 import { useInvalidateEncounter } from '../../../api/queries/useEncounterQuery';
+import { useRefreshCount } from '../../../hooks/useRefreshCount';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
@@ -11,6 +12,8 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const invalidateEncounter = useInvalidateEncounter();
+  // The table fetches its own endpoint, so invalidating the encounter query doesn't reach it.
+  const [refreshCount, updateRefreshCount] = useRefreshCount();
 
   const onCreateNewProcedure = () => {
     setEditedProcedure({});
@@ -26,6 +29,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {
           setEditedProcedure(null);
+          updateRefreshCount();
           await invalidateEncounter(encounter.id);
         }}
         data-testid="proceduremodal-xq2p"
@@ -50,6 +54,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
       <ProcedureTable
         encounterId={encounter.id}
         onItemClick={item => setEditedProcedure(item)}
+        refreshCount={refreshCount}
         data-testid="proceduretable-4661"
       />
     </TabPane>
