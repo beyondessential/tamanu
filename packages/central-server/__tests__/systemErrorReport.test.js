@@ -147,6 +147,17 @@ describe('systemErrorReport', () => {
     expect(emailService.sendEmail).not.toHaveBeenCalled();
   });
 
+  it('rejects a request for a facility that does not exist, even for a user with access to all facilities', async () => {
+    const adminApp = await baseApp.asRole('admin');
+
+    const response = await adminApp
+      .post('/api/systemErrorReport')
+      .send({ ...validBody(), userId: adminApp.user.id, facilityId: 'facility-does-not-exist' });
+
+    expect(response.status).toBe(404);
+    expect(emailService.sendEmail).not.toHaveBeenCalled();
+  });
+
   it('rejects an invalid follow-up email', async () => {
     const response = await app
       .post('/api/systemErrorReport')
