@@ -174,4 +174,4 @@ Baseline gathering and testing will surface performance problems that are cheap 
         - Noisy alerts that we ignore because they're not clearly actionable
 - Introduce lightweight AI agent in Canopy that makes alerting more actionable
   - Adding overview of what an alert means when sent to Slack
-      - We can add a commment system to incidents themselves so that over time humans/AI can add more context to
+      - We can add a commment system to incidents themselves so that over time humans/AI can add more context 
