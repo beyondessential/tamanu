@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { log } from '@tamanu/shared/services/logging';
 import { FACT_CURRENT_VERSION } from '@tamanu/constants';
 import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
@@ -30,7 +29,7 @@ export async function upgrade({
     })) ?? '0.0.0';
   log.info('Upgrading Tamanu installation', { from: fromVersion, to: toVersion });
 
-  const upgradeRunId = randomUUID();
+  const upgradeRunId = crypto.randomUUID();
   log.info('Upgrade run id', { upgradeRunId });
 
   const { migrations: migrationsUmzug, getDurationStats } = createMigrationInterface(log, sequelize);

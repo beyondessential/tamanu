@@ -5,7 +5,6 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { addDays, addWeeks, addMonths, getISODay, parseISO, subDays } from 'date-fns';
 import { generateFrequencyDates, getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { Op } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
 
 describe('Location Assignment API', () => {
   let ctx;
@@ -31,7 +30,7 @@ describe('Location Assignment API', () => {
     });
     testUser = await models.User.create({
       ...fake(models.User),
-      id: uuidv4(),
+      id: crypto.randomUUID(),
     });
   });
 
@@ -191,7 +190,7 @@ describe('Location Assignment API', () => {
 
     it('Should reject when assign to non-existent user', async () => {
       const tomorrow = toDateString(addDays(new Date(), 1));
-      const nonExistentUserId = uuidv4();
+      const nonExistentUserId = crypto.randomUUID();
 
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: nonExistentUserId,
@@ -508,7 +507,7 @@ describe('Location Assignment API', () => {
 
       const testUser2 = await User.create({
         ...fake(User),
-        id: uuidv4(),
+        id: crypto.randomUUID(),
       });
 
       const startDate = toDateString(new Date());

@@ -21,7 +21,6 @@ import {
   NOTE_TYPES,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
-import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
@@ -348,7 +347,7 @@ const referenceDataBodyBuilder = ({ type, name }) => {
   const code = `${camelCase(name)}-${customAlphabet('1234567890ABCDEFGHIJKLMNPQRSTUVWXYZ', 3)()}`;
 
   return {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     code,
     type,
     name,

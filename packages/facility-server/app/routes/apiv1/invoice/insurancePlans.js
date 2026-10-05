@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { NotFoundError, InvalidOperationError, ValidationError } from '@tamanu/errors';
 
@@ -61,7 +60,7 @@ insurancePlansRoute.put(
 
       if (toCreate.length) {
         await req.models.InvoicesInvoiceInsurancePlan.bulkCreate(
-          toCreate.map(planId => ({ id: uuidv4(), invoiceId, invoiceInsurancePlanId: planId })),
+          toCreate.map(planId => ({ id: crypto.randomUUID(), invoiceId, invoiceInsurancePlanId: planId })),
           { transaction },
         );
       }

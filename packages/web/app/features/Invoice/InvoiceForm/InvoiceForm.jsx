@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
@@ -63,7 +62,7 @@ const FormFooter = styled.div`
 `;
 
 const getDefaultRow = (getCurrentDate, orderedByUserId) => ({
-  id: uuidv4(),
+  id: crypto.randomUUID(),
   quantity: 1,
   orderDate: getCurrentDate(),
   orderedByUserId,
