@@ -119,6 +119,7 @@ export default async () => {
       clearMocks: true,
       globals: true,
       environment: 'jsdom',
+      setupFiles: ['./__tests__/setup.js'],
     },
   });
 };
