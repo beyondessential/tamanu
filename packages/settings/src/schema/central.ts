@@ -4,9 +4,13 @@ import { SETTING_EDITORS } from '@tamanu/constants';
 
 import {
   batchingProperties,
+  blobAntivirusProperties,
+  blobScanProperties,
+  blobScrubProperties,
   cronExpressionSchema,
   durationStringSchema,
   dhis2IdSchemeSchema,
+  errorCorrectionProperties,
   emailSchema,
   formBuilderProperties,
   limitProperty,
@@ -75,6 +79,26 @@ export const centralSettings = {
           type: yup.string(),
           defaultValue: '',
         },
+      },
+    },
+    blobStorage: {
+      name: 'Blob storage',
+      description: 'Content-addressed blob storage',
+      highRisk: true,
+      properties: {
+        root: {
+          name: 'Store root',
+          description:
+            'Root directory of the content-addressed blob store on this server, resolved against the working directory when not absolute. Point it at a dedicated volume to keep blob IO off the database disk. Changing it does not move existing blobs; applies on restart.',
+          type: yup.string(),
+          defaultValue: 'data/blobs',
+        },
+        errorCorrection: {
+          name: 'Error correction',
+          description: 'Parity data over stored blobs, so limited corruption is repaired in place',
+          properties: errorCorrectionProperties(),
+        },
+        ...blobAntivirusProperties(),
       },
     },
     disk: {
@@ -853,6 +877,17 @@ export const centralSettings = {
           { schedule: '*/30 * * * * *' },
           limitProperty(100),
         ),
+        // spec: SCRUB
+        blobIntegrityScrub: scheduledTaskSchema(
+          { schedule: '17 * * * *', jitterTime: '5m' },
+          blobScrubProperties(),
+        ),
+        // spec: AV
+        // Often enough that serve-only-when-known-good is usable; a no-op with no scanner.
+        blobAntivirusScan: scheduledTaskSchema(
+          { schedule: '*/15 * * * *', jitterTime: '2m' },
+          blobScanProperties(),
+        ),
         vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),
         certificateNotificationProcessor: scheduledTaskSchema(
@@ -975,6 +1010,12 @@ export const centralSettings = {
         programRegistryPltfuFlagger: scheduledTaskSchema(
           { schedule: '0 3 * * *' },
           batchingProperties(100, 50),
+        ),
+        // Often, so a mid-day upgrade starts moving content without waiting; small batches and a
+        // long pause, since there's no deadline.
+        blobBackfill: scheduledTaskSchema(
+          { schedule: '*/5 * * * *', jitterTime: '30s' },
+          batchingProperties(50, 1000),
         ),
       },
     },

@@ -6,12 +6,14 @@ import { get } from 'es-toolkit/compat';
 import { Op } from 'sequelize';
 
 import { ASSET_NAMES, SETTING_KEYS } from '@tamanu/constants';
+import { NotFoundError, RemoteUnreachableError } from '@tamanu/errors';
 import { PatientLetter } from '@tamanu/shared/utils/patientLetters/PatientLetter';
 import { tmpdir } from '@tamanu/shared/utils/tmpdir';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { resolveAssetImageData } from '@tamanu/shared/utils/assets';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
-  const { getLocalisation, models, language, dateTimeLocale, settings } = req;
+  const { getLocalisation, models, language, dateTimeLocale, settings, blobCache } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
   const settingsObj = await settings[facilityId].getAll();
@@ -29,6 +31,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
     },
     order: [['facilityId', 'ASC NULLS LAST']],
   });
+  const logoData = await resolveAssetImageData(logo, hash => openAssetBlob(blobCache, hash));
 
   const folder = await tmpdir();
   const fileName = `patient-letter-${id}-${crypto.randomUUID()}.pdf`;
@@ -38,7 +41,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
     <PatientLetter
       getLocalisation={getLocalisationData}
       data={data}
-      logoSrc={logo?.data}
+      logoSrc={logoData}
       letterheadConfig={letterheadConfig}
       language={language}
       dateTimeLocale={dateTimeLocale}
@@ -53,3 +56,20 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
     mimeType: 'application/pdf',
   };
 };
+
+// spec: ASSET
+// Fails rather than printing unbranded. Reported as unreachable-upstream so it's distinct from this
+// route's 404s.
+async function openAssetBlob(blobCache, hash) {
+  if (!blobCache) {
+    throw new RemoteUnreachableError(`Asset image ${hash} is not yet available`);
+  }
+  try {
+    return await blobCache.open(hash);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      throw new RemoteUnreachableError(`Asset image ${hash} is not yet available`);
+    }
+    throw error;
+  }
+}

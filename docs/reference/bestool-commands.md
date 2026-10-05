@@ -52,6 +52,27 @@ for the syntax that differs (read-only default, `COMMIT;` in write mode,
 bestool tamanu config -p facility-server   # dump merged config for a process
 ```
 
+## Blob store root
+
+```
+bestool tamanu blob-root                      # print the blob store root
+bestool tamanu blob-root -p facility-server   # for a specific package
+```
+
+Attachment and asset bytes live in a content-addressed store on disk, not in the
+database. The root is Tamanu's `blobStorage.root` setting, database-backed and
+editable in the admin panel, so no config file carries it and the package is
+detected from the config and database when not given.
+
+Use it to confirm where the store actually is before looking at its contents, or
+when checking a restore landed in the right place
+(`../runbooks/facility-restored-from-backup.md`). For the store's own registry, see
+"Blob store" in `query-cookbook.md`.
+
+Backups of the store are scheduled and orchestrated by Canopy, not run by hand
+here. Restoring one is an ops procedure with downtime planning, not a support
+action (`../ruled-out-actions.md`).
+
 ## Find the current release
 
 ```

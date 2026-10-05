@@ -5,6 +5,7 @@ export const ERROR_TYPE = {
   AUTH_PERMISSION_REQUIRED: 'auth-permission-required',
   AUTH_QUOTA_EXCEEDED: 'auth-quota-exceeded',
   AUTH_TOKEN_INVALID: 'auth-token-invalid',
+  BLOB_HASH_MISMATCH: 'blob-hash-mismatch',
   CLIENT_INCOMPATIBLE: 'client-incompatible',
   DATABASE: 'database',
   EDIT_CONFLICT: 'conflict',
