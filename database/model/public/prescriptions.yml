@@ -91,7 +91,7 @@ sources:
             data_type: integer
             description: "{{ doc('prescriptions__repeats') }}"
           - name: discontinued_date
-            data_type: character varying(255)
+            data_type: character(19)
             description: "{{ doc('prescriptions__discontinued_date') }}"
             config:
               meta:
