@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, ButtonWithPermissionCheck, TranslatedText } from '@tamanu/ui-components';
+import {
+  Button,
+  ButtonWithPermissionCheck,
+  TableCellTag,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { MoveModal } from './MoveModal';
@@ -11,6 +16,7 @@ import { EncounterRecordModal } from '../../../components/PatientPrinting/modals
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
 import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
+import { useEncounterDischargeDraftQuery } from '../../../api/queries/useEncounterDischargeDraftQuery';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { PATIENT_STATUS } from '../../../constants';
 
@@ -41,6 +47,10 @@ const ActionsContainer = styled.div`
   gap: 10px;
 `;
 
+const DraftTag = styled(TableCellTag)`
+  align-self: center;
+`;
+
 const ENCOUNTER_TYPE_PROGRESSION = {
   [ENCOUNTER_TYPES.TRIAGE]: 0,
   [ENCOUNTER_TYPES.OBSERVATION]: 1,
@@ -60,6 +70,13 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const onViewSummary = () => navigateToSummary();
 
   const { data: discharge } = useEncounterDischargeQuery(encounter)
+
+  // Scoped to the logged-in clinician by the endpoint, so this only lights up for someone
+  // returning to their own interrupted discharge.
+  const { data: dischargeDraftData } = useEncounterDischargeDraftQuery(encounter.id, {
+    enabled: !encounter.endDate,
+  });
+  const hasDischargeDraft = Boolean(dischargeDraftData?.draft);
 
   const canWriteEncounter = ability.can('write', 'Encounter');
 
@@ -203,6 +220,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
           </>
         ) : (
           <>
+            {hasDischargeDraft && (
+              <DraftTag data-testid="dischargedrafttag-p3wq">
+                <TranslatedText stringId="discharge.draft.tag" fallback="Draft" />
+              </DraftTag>
+            )}
             <StyledButtonWithPermissionCheck
               size="small"
               variant="outlined"

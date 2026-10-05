@@ -70,23 +70,27 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   const handleDischarge = useCallback(
     async (data) => {
-      if (!data.dischargeDraft) {
-        // add facility details to discharge details
-        data.discharge = {
-          ...data.discharge,
-          facilityName: facility.name,
-          facilityAddress: facility.streetAddress,
-          facilityTown: facility.cityTown,
-        };
-      }
+      // add facility details to discharge details
+      data.discharge = {
+        ...data.discharge,
+        facilityName: facility.name,
+        facilityAddress: facility.streetAddress,
+        facilityTown: facility.cityTown,
+      };
       await writeAndViewEncounter(encounter.id, data);
       queryClient.invalidateQueries(['patientDetails', patient?.id]);
-      if (!data.dischargeDraft) {
-        navigateToPatient(patient?.id);
-      }
+      navigateToPatient(patient?.id);
       onClose();
     },
-    [writeAndViewEncounter, encounter.id, queryClient, patient?.id, onClose, navigateToPatient],
+    [
+      writeAndViewEncounter,
+      encounter.id,
+      queryClient,
+      patient?.id,
+      onClose,
+      navigateToPatient,
+      facility,
+    ],
   );
 
   if (!patient) return null;

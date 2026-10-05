@@ -1,5 +1,6 @@
 import { Divider as BaseDivider, IconButton as BaseIconButton, Box } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
+import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -91,8 +92,13 @@ export const DischargeFormScreen = props => {
     onCancel,
     currentDiagnoses,
     values,
-    onSubmit,
+    onSaveDraft,
+    setShowWarningScreen,
+    dischargeNotesFailed,
   } = props;
+  const { dirty } = useFormikContext();
+  const { ability } = useAuth();
+  const canWriteDischarge = ability.can('write', 'Discharge');
   const { getSetting } = useSettings();
   const { encounter } = useEncounter();
 
@@ -100,12 +106,12 @@ export const DischargeFormScreen = props => {
     getSetting('features.discharge.dischargeDiagnosisMandatory') &&
     getPatientStatus(encounter.encounterType) !== PATIENT_STATUS.OUTPATIENT;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
+  // The treatment plan field seeds from the encounter's discharge planning notes. If that fetch
+  // failed the field is empty for the wrong reason, and finalising would write a discharge note
+  // with none of the admission's planning content in it.
+  const isBlocked = isDiagnosisEmpty || dischargeNotesFailed;
 
-  const handleStepForward = async isSavedForm => {
-    if (isSavedForm) {
-      await onSubmit({ ...values, isDischarged: false });
-      return;
-    }
+  const handleStepForward = async () => {
     const formErrors = await validateForm();
     delete formErrors.isCanceled;
 
@@ -119,8 +125,16 @@ export const DischargeFormScreen = props => {
     }
   };
 
+  // Leaving with edits in hand routes to the unsaved-changes screen so the clinician can save
+  // them as a draft instead of losing them. An untouched form just closes, and so does one
+  // belonging to a clinician who cannot save a draft, since that screen exists to offer the save.
   const handleCancelAttempt = () => {
-    onCancel();
+    if (dirty && canWriteDischarge) {
+      onStepForward();
+      setShowWarningScreen(true);
+    } else {
+      onCancel();
+    }
   };
 
   return (
@@ -132,16 +146,23 @@ export const DischargeFormScreen = props => {
         customBottomRow={
           <FormConfirmCancelBackRow
             onCancel={handleCancelAttempt}
-            onConfirm={() => handleStepForward(false)}
+            onConfirm={handleStepForward}
             CustomConfirmButton={props => (
               <ConditionalTooltip
-                visible={isDiagnosisEmpty}
+                visible={isBlocked}
                 title={
                   <SmallBodyText maxWidth={135} fontWeight={400} data-testid="smallbodytext-cujc">
-                    <TranslatedText
-                      stringId="discharge.diagnosisMustBeRecord.tooltip"
-                      fallback="Diagnosis must be recorded to finalise discharge"
-                    />
+                    {dischargeNotesFailed ? (
+                      <TranslatedText
+                        stringId="discharge.notesUnavailable.tooltip"
+                        fallback="Discharge planning notes could not be loaded. Reopen the form to try again."
+                      />
+                    ) : (
+                      <TranslatedText
+                        stringId="discharge.diagnosisMustBeRecord.tooltip"
+                        fallback="Diagnosis must be recorded to finalise discharge"
+                      />
+                    )}
                   </SmallBodyText>
                 }
                 data-testid="conditionaltooltip-d52d"
@@ -156,8 +177,12 @@ export const DischargeFormScreen = props => {
                 </FormSubmitButton>
               </ConditionalTooltip>
             )}
-            confirmDisabled={isDiagnosisEmpty}
+            confirmDisabled={isBlocked}
             cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+            {...(canWriteDischarge && !dischargeNotesFailed && { onBack: () => onSaveDraft(values) })}
+            backButtonText={
+              <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
+            }
             data-testid="formconfirmcancelbackrow-xkrs"
           />
         }
@@ -237,11 +262,16 @@ export const DischargeSummaryScreen = ({
   </div>
 );
 
-export const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
-  const { ability } = useAuth();
-  const canWriteDischarge = ability.can('write', 'Discharge');
+/**
+ * Offered when a clinician leaves a form they have edited.
+ *
+ * Only reachable for a clinician who can save a draft: the form screen sends everyone else
+ * straight out, since this screen exists to offer that save. The permission is decided there
+ * rather than re-derived here.
+ */
+export const UnsavedChangesScreen = ({ onDiscardDraft, onSaveDraft, values, onStepBack }) => {
   const onSave = async () => {
-    await onSubmit({ ...values, isDischarged: false });
+    await onSaveDraft(values);
   };
   return (
     <div>
@@ -256,7 +286,7 @@ export const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack })
       </UnsavedContent>
       <StyledDivider data-testid="styleddivider-0thc" />
       <FormConfirmCancelBackRow
-        onConfirm={onCancel}
+        onConfirm={onDiscardDraft}
         confirmText={
           <Box whiteSpace="nowrap" data-testid="box-gxxv">
             <TranslatedText stringId="general.action.discardChanges" fallback="Discard changes" />
@@ -264,7 +294,7 @@ export const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack })
         }
         onCancel={onStepBack}
         cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
-        {...(canWriteDischarge && { onBack: onSave })}
+        onBack={onSave}
         backButtonText={
           <TranslatedText stringId="general.action.saveAndExit" fallback="Save & exit" />
         }

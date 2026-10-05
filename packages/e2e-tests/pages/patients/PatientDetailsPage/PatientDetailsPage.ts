@@ -31,6 +31,7 @@ import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
+  readonly dischargeDraftTag: Locator;
   readonly dischargeSummaryButton: Locator;
   readonly vaccineTab: Locator;
   readonly patientMedicationTab: Locator;
@@ -136,6 +137,8 @@ export class PatientDetailsPage extends BasePatientPage {
       name: 'Prepare discharge',
       exact: true,
     });
+    // Shown beside the discharge action when the logged-in clinician has a saved draft waiting.
+    this.dischargeDraftTag = this.page.getByTestId('dischargedrafttag-p3wq');
     // A discharged encounter offers its summary in place of the discharge action.
     this.dischargeSummaryButton = this.page.getByRole('button', {
       name: 'Discharge summary',

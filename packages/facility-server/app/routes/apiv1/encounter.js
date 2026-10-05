@@ -52,6 +52,11 @@ import {
 } from '../../utils/medication';
 import { validate } from '../../utils/validate';
 import { invoiceForResponse } from './invoice/invoiceForResponse';
+import {
+  discardDischargeDraft,
+  getDischargeDraft,
+  saveDischargeDraft,
+} from './encounterDischargeDraft';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -301,6 +306,10 @@ encounter.put(
     res.send(encounterObject);
   }),
 );
+
+encounter.get('/:id/dischargeDraft', getDischargeDraft);
+encounter.put('/:id/dischargeDraft', saveDischargeDraft);
+encounter.delete('/:id/dischargeDraft', discardDischargeDraft);
 
 encounter.post(
   '/:id/notes',
