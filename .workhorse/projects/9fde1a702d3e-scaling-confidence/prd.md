@@ -175,4 +175,5 @@ Baseline gathering and testing will surface performance problems that are cheap 
 - Introduce lightweight AI agent in Canopy that makes alerting more actionable
   - Adding overview of what an alert means when sent to Slack
       - We can add a commment system to incidents themselves so that over time humans/AI can add more context
-  - Potentially have the AI agent reviewing incoming alerts and sending messages to Slack even if there's no explicit failure (ie. syncs ge
+  - Potentially have the AI agent reviewing incoming alerts and sending messages to Slack even if there's no explicit failure (ie. syncs getting slower over time)
+  - 
