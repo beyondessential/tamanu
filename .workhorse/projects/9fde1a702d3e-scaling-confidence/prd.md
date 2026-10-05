@@ -173,4 +173,5 @@ Baseline gathering and testing will surface performance problems that are cheap 
    - Alerts severity doesn't always line up with reality
         - Noisy alerts that we ignore because they're not clearly actionable
 - Introduce lightweight AI agent in Canopy that makes alerting more actionable
-  - Adding overview of what an alert means awh
+  - Adding overview of what an alert means when sent to Slack
+  - 
