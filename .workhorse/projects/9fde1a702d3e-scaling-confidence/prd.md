@@ -61,7 +61,35 @@ Use the regression harness to collect baseline metrics for the sync scenarios th
 - Baselines feed automated tests that flag performance degradation during regression
   - Where the thresholds live and how much variance is tolerated: to be settled during card shaping
 
-**Expected outcome.** Greater understanding of and confidence in sync performance; automated testing catches sync degradation.
+**Expected outcome.** Greater understanding of and confidence in sync performance; automated testing catches sync degradation.Bake synthetic data into the regression process￼￼
+
+
+Every regression cycle should exercise Tamanu at scale, so performance and migration problems surface before release rather than in production.
+
+￼
+￼Regression testing runs against a sufficiently large database
+￼
+￼Validate that every model is represented in the generated data (the `generate` subcommand / `@tamanu/fake-data` coverage), not just the common ones
+￼
+￼Migrations are validated on a large database
+￼
+￼New migrations run smoothly against the large dataset
+￼
+￼Migrations complete within an acceptable time frame — the harness flags migrations that are too slow
+￼
+￼Regression runs alongside high synthetic activity, simulating many simultaneous users and high throughput (the `@tamanu/synthetic-tests` Artillery scenarios)
+￼
+￼Synthetic activity runs against the e2e test suite
+￼
+￼The setup must not be annoying for testers — synthetic load is opt-in / automatic, not a manual chore
+￼
+￼**Validation:** introduce a genuine performance regression and confirm the process catches it
+
+**Expected outcomes.**
+￼
+￼Regression testing catches performance issues introduced by a change
+￼
+￼Regression testing catches invalid or poorly performant migrations
 
 ---
 
