@@ -97,6 +97,11 @@ export const styles = StyleSheet.create({
   },
   lightDivider: {
     borderTop: '0.5 solid #000000',
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  fixedFooterDivider: {
+    borderTop: '0.5 solid #888888',
     marginTop: 10,
     marginBottom: 10,
   },
@@ -139,7 +144,9 @@ export const CertificateLogo = ({ logoSrc }) => (
 
 export const CertificateHeader = props => <View style={styles.certificateHeader} {...props} />;
 export const CertificateFooter = props => <View style={styles.certificateFooter} {...props} />;
-export const LightDivider = props => <View style={styles.lightDivider} {...props} />;
+export const LightDivider = ({ style, ...props }) => (
+  <View style={[styles.lightDivider, style]} {...props} />
+);
 export const CertificateContent = props => <View style={styles.certificateContent} {...props} />;
 
 export const FixedHeader = ({ children, props }) => (
@@ -150,7 +157,7 @@ export const FixedHeader = ({ children, props }) => (
 
 export const FixedFooter = ({ children, props }) => (
   <View fixed style={styles.fixedFooter} {...props}>
-    <View style={{ ...styles.lightDivider, borderTopColor: '#888888' }} />
+    <View style={styles.fixedFooterDivider} />
     {children}
   </View>
 );
