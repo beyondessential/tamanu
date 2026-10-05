@@ -170,4 +170,4 @@ Baseline gathering and testing will surface performance problems that are cheap 
 8.  Make Tamanu alerting more practically actionable
 
    Issues:
-   - Some 
+   - Alerts 
