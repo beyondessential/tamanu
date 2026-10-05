@@ -7,10 +7,16 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
+import Brightness2Icon from '@mui/icons-material/Brightness2';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { TranslatedText, useDateTime } from '@tamanu/ui-components';
+import {
+  RangeEndDisplay,
+  TranslatedText,
+  useDateRangeSpan,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -22,6 +28,7 @@ import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
+import { useTranslation } from '../../../contexts/Translation';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
 
@@ -52,24 +59,31 @@ const ActionLink = styled.span`
   font-size: 14px;
 `;
 
+/**
+ * One grid for the whole list, with each row a subgrid of it, so the time column is
+ * a single track as wide as the widest row needs and every card starts at the same
+ * place. The track's floor is in `ch` rather than pixels because the times and dates
+ * are locale-formatted and their width belongs to the reader, not to the design.
+ */
 const StyledTimeline = styled(Timeline)`
+  display: grid;
+  grid-template-columns: auto minmax(15ch, max-content) 1fr;
+  column-gap: 5px;
   padding-top: 0;
   padding-right: 20px;
   padding-left: 12px;
   margin: 0;
   margin-bottom: -16px;
   overflow-y: auto;
-  ${({ length }) => `max-height: calc(60px * ${length} + 21px);`}
 `;
 
 const StyledTimelineContent = styled(TimelineContent)`
-  font-size: 14px;
-  display: flex;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 2 / -1;
   align-items: center;
-  gap: 5px;
+  font-size: 14px;
   padding: 0;
-  padding-left: 6px;
-  width: 0;
 `;
 
 const StyledTimelineConnector = styled(TimelineConnector)`
@@ -78,6 +92,9 @@ const StyledTimelineConnector = styled(TimelineConnector)`
 `;
 
 const StyledTimelineItem = styled(TimelineItem)`
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   min-height: 60px;
   &:before {
     content: none;
@@ -101,13 +118,12 @@ const StyledTimelineSeparator = styled(TimelineSeparator)`
   top: 21px;
 `;
 
+/* Sized in lines of text, so it grows rather than clipping when a row wraps */
 const Card = styled.div`
-  background-color: ${Colors.outline};
-  height: 54px;
+  min-block-size: 3lh;
   border-radius: 3px;
-  padding: 8px 16px;
-  flex-grow: 0;
-  flex-shrink: 0;
+  padding-block: 8px;
+  padding-inline: 1rem;
   background-color: ${({ $color }) => `${$color}1a`};
 `;
 
@@ -124,10 +140,26 @@ const CardBody = styled(CardHeading)`
 `;
 
 const TimeText = styled.div`
-  flex-grow: 0;
-  flex-shrink: 0;
-  width: 122px;
-  text-transform: lowercase;
+  padding-left: 6px;
+`;
+
+/**
+ * Each end of the range is its own line rather than one inline run that wraps. An
+ * icon is an atomic inline, so line breaks are allowed either side of it: left to
+ * wrap on its own it lands on a line of its own, and the width the grid track needs
+ * becomes hard to predict. As explicit lines, each one is unbreakable and the track
+ * is simply as wide as the wider of the two.
+ */
+const RangeLine = styled.div`
+  white-space: nowrap;
+`;
+
+const OvernightIcon = styled(Brightness2Icon)`
+  /* Tracks the text beside it rather than pinning a pixel size against 14px type */
+  font-size: 1em;
+  color: ${Colors.primary};
+  vertical-align: -0.1em;
+  margin-left: 0.3em;
 `;
 
 const Footer = styled.div`
@@ -158,10 +190,16 @@ const Link = styled.div`
   cursor: pointer;
 `;
 
-const BookingsTimelineItem = ({ appointment }) => {
-  const { formatTime } = useDateTime();
+const BookingsTimelineItem = ({ appointment, today }) => {
+  const { getTranslation } = useTranslation();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
+
+  const { spansMultipleDays, hasEnd, showStartDate, showEndDate } = useDateRangeSpan({
+    start: startTime,
+    end: endTime,
+    onDate: today,
+  });
 
   const [headingRef, isHeadingOverflowing] = useOverflow();
   const [bodyRef, isBodyOverflowing] = useOverflow();
@@ -181,10 +219,35 @@ const BookingsTimelineItem = ({ appointment }) => {
         <StyledTimelineConnector data-testid="styledtimelineconnector-qmh4" />
       </StyledTimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
+        {/* A booking within the day keeps its single line. One that spans days takes
+            two, so neither line has to be broken to fit the column. */}
+        {/* A booking within the day keeps its single line. One that spans days puts
+            its end on a second line, so neither line has to be broken to fit. */}
         <TimeText data-testid="timetext-4k7e">
-          {formatTime(startTime)} - {formatTime(endTime)}
+          <RangeLine data-testid="rangeline-start-8ptz">
+            <RangeEndDisplay date={startTime} dateFormat={showStartDate ? 'dayMonth' : null} />
+            {hasEnd && <>&nbsp;&ndash;</>}
+            {hasEnd && !spansMultipleDays && (
+              <>
+                {' '}
+                <RangeEndDisplay date={endTime} />
+              </>
+            )}
+          </RangeLine>
+          {spansMultipleDays && (
+            <RangeLine data-testid="rangeline-end-4vqx">
+              <RangeEndDisplay date={endTime} dateFormat={showEndDate ? 'dayMonth' : null} />
+              <OvernightIcon
+                aria-label={getTranslation('scheduling.bookingType.overnight', 'Overnight')}
+                aria-hidden={undefined}
+                data-testid="overnighticon-p8ka"
+              />
+            </RangeLine>
+          )}
         </TimeText>
-        <Box width={0} flex={1} data-testid="box-i72x">
+        {/* min-width rather than width: in a grid track it is what lets the card
+            shrink below its content so the headings can ellipsise */}
+        <Box minWidth={0} data-testid="box-i72x">
           <ConditionalTooltip
             visible={showTooltip}
             title={
@@ -291,6 +354,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
               <BookingsTimelineItem
                 key={appointment.id}
                 appointment={appointment}
+                today={todayFacility}
                 data-testid={`bookingstimelineitem-kl6a-${index}`}
               />
             ))}

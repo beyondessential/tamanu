@@ -1,0 +1,585 @@
+<!-- spec: scheduling/overview.md -->
+<!DOCTYPE html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <title>Today's bookings overnight times</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+      :root {
+        --primary: #326699;
+        --darkest-text: #444444;
+        --dark-text: #666666;
+        --mid-text: #888888;
+        --outline: #dedede;
+        --white: #ffffff;
+        --background: #f3f5f7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px 40px 64px;
+        background-color: var(--background);
+        font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+        color: var(--darkest-text);
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      h1 {
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 32px;
+        margin: 0 0 8px;
+      }
+
+      .intro {
+        max-width: 780px;
+        margin: 0 0 8px;
+        color: var(--dark-text);
+      }
+
+      .intro-note {
+        max-width: 780px;
+        margin: 0 0 40px;
+        color: var(--mid-text);
+        font-size: 11px;
+        line-height: 15px;
+      }
+
+      .section {
+        margin-bottom: 44px;
+      }
+
+      .section-title {
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 24px;
+        margin: 0 0 4px;
+      }
+
+      .section-caption {
+        max-width: 780px;
+        margin: 0 0 16px;
+        color: var(--dark-text);
+      }
+
+      .section-caption code {
+        font-size: 13px;
+        color: var(--darkest-text);
+      }
+
+      .panes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .pane-with-label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .pane-label {
+        font-size: 11px;
+        line-height: 15px;
+        color: var(--mid-text);
+      }
+
+      /* Faithful to TodayBookingsPane */
+
+      /* Boxes are sized in rem so the pane grows with the reader's font-size
+         preference rather than staying put while the text inside it grows.
+         Anything that must line up with text uses a text-relative unit, and
+         every inset is logical so the RTL pane mirrors correctly. */
+
+      .container {
+        min-inline-size: 22.875rem; /* 366px */
+        inline-size: 22.875rem;
+        border: 1px solid var(--outline);
+        border-radius: 3px;
+        padding-block-start: 0.9375rem; /* 15px */
+        background-color: var(--white);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-block-end: 1px solid var(--outline);
+        padding-block-end: 6px;
+        margin-inline: 1.25rem; /* 20px */
+        margin-block-end: 11px;
+      }
+
+      .heading4 {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 21px;
+        margin: 0;
+      }
+
+      .action-link {
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .timeline {
+        padding-inline: 0.75rem 1.25rem; /* start 12px, end 20px */
+        margin-block-end: -1rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .timeline-item {
+        display: flex;
+        min-block-size: 3.75rem; /* 60px of vertical rhythm */
+      }
+
+      .timeline-separator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 0 0 auto;
+        position: relative;
+        top: 21px;
+      }
+
+      .timeline-dot {
+        display: flex;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .timeline-connector {
+        flex-grow: 1;
+        inline-size: 1px;
+        background-color: var(--outline);
+      }
+
+      .timeline-item:last-child .timeline-connector {
+        display: none;
+      }
+
+      .timeline-content {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding-inline-start: 6px;
+        flex: 1;
+        min-inline-size: 0;
+      }
+
+      /* Deliberately still 122px: the panes using this class depict the column
+         exactly as it is today, including its overflow. */
+      .time-text {
+        flex-grow: 0;
+        flex-shrink: 0;
+        width: 122px;
+        text-transform: lowercase;
+      }
+
+      /* Today's fixed column has no clipping rule, so a wider locale runs over
+         the card */
+      .time-text.overflowing {
+        white-space: nowrap;
+      }
+
+      /* Content-sized per row: nothing clips, but each row picks its own width
+         and the cards no longer line up */
+      .time-text.ragged {
+        width: max-content;
+        text-transform: none;
+      }
+
+      /* One grid for the whole list, so the time track is as wide as the widest
+         row and every card starts at the same place. minmax keeps today's 122px
+         as the floor. */
+      /* The floor is in ch, so it tracks the font rather than pinning a pixel
+         count: 15ch is about the 122px the column has today. `auto` above it
+         means the track only ever grows to what the widest row needs. */
+      .timeline.aligned {
+        display: grid;
+        grid-template-columns: auto minmax(15ch, auto) 1fr;
+        column-gap: 5px;
+      }
+
+      .timeline.aligned .timeline-item {
+        display: grid;
+        grid-template-columns: subgrid;
+        grid-column: 1 / -1;
+      }
+
+      .timeline.aligned .timeline-content {
+        display: grid;
+        grid-template-columns: subgrid;
+        grid-column: 2 / -1;
+        padding: 0;
+        gap: 0;
+      }
+
+      .timeline.aligned .time-text {
+        width: auto;
+        text-transform: none;
+        align-self: center;
+      }
+
+      .timeline.aligned .card-slot {
+        align-self: center;
+      }
+
+      .card-slot {
+        flex: 1;
+        min-inline-size: 0;
+      }
+
+      /* 3lh is the 54px it has today, but as "three lines of text", so the card
+         grows instead of clipping if the text wraps or the reader's font grows */
+      .card {
+        min-block-size: 3lh;
+        border-radius: 3px;
+        padding-block: 8px;
+        padding-inline: 1rem;
+      }
+
+      .card-heading {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .card-body {
+        font-size: 14px;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .footer {
+        margin-inline: 1.25rem;
+        margin-block-start: 4px;
+        flex-grow: 1;
+        min-block-size: 1.25rem;
+        border-block-start: 1px solid var(--outline);
+        background-color: var(--white);
+      }
+
+      /* 1em, so the icon tracks the text beside it instead of being a number
+         chosen against one font size */
+      .moon {
+        flex: 0 0 auto;
+        color: var(--primary);
+        display: inline-flex;
+        vertical-align: -2px;
+      }
+
+      .moon svg {
+        inline-size: 1em;
+        block-size: 1em;
+      }
+
+      .nowrap {
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Today's bookings overnight times</h1>
+    <p class="intro">
+      One booking runs 12 Aug 10:00am to 14 Aug 11:30am. The row shows the two times with the date
+      on whichever end is not today, an overnight icon closing the second line, and the list laid
+      out as a single grid so every card starts at the same place. Each set is shown on all three
+      days of the stay, alongside a same-day booking.
+    </p>
+    <p class="intro-note">
+      Dates and times come from Intl, so they follow the date/time locale setting and fall back to
+      each user's browser locale. Interface copy comes from the translation layer and is left in
+      English here: only the parts Intl controls vary between the locale panes below.
+    </p>
+
+    <div id="sections"></div>
+
+    <script>
+      const moon = (size = 13) =>
+        `<span class="moon" aria-label="Overnight booking"><svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2z"/></svg></span>`;
+
+      const MOON = moon();
+
+      const STATUS = {
+        arrived: {
+          colour: '#4101c9',
+          icon: colour =>
+            `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-label="Arrived"><circle cx="12" cy="12" r="9" stroke="${colour}"/></svg>`,
+        },
+        seen: {
+          colour: '#19934e',
+          icon: colour =>
+            `<svg width="13" height="13" viewBox="0 0 24 24" aria-label="Seen"><path d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" fill="white"/><path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM17.5833 9.25L10.9167 15.9167C10.75 16.0833 10.5833 16.1667 10.3333 16.1667C10.0833 16.1667 9.91667 16.0833 9.75 15.9167L6.41667 12.5833C6.08333 12.25 6.08333 11.75 6.41667 11.4167C6.75 11.0833 7.25 11.0833 7.58333 11.4167L10.3333 14.1667L16.4167 8.08333C16.75 7.75 17.25 7.75 17.5833 8.08333C17.9167 8.41667 17.9167 8.91667 17.5833 9.25Z" fill="${colour}"/></svg>`,
+        },
+      };
+
+      const DAY_LABELS = [
+        'Wed 12 Aug · first day',
+        'Thu 13 Aug · middle day',
+        'Fri 14 Aug · last day',
+      ];
+
+      // Produced by Intl with the format options the app passes: timeStyle short
+      // with hour12 forced on, and month short / day numeric for the date.
+      const LOCALES = {
+        'en-AU': {
+          startDate: '12 Aug',
+          startTime: '10:00am',
+          endDate: '14 Aug',
+          endTime: '11:30am',
+          sameDay: '8:30am – 9:00am',
+          today: '10:00am - 11:30am',
+          todaySameDay: '8:30am - 9:00am',
+        },
+        'es-ES': {
+          startDate: '12 ago',
+          startTime: '10:00a. m.',
+          endDate: '14 ago',
+          endTime: '11:30a. m.',
+          sameDay: '8:30a. m. – 9:00a. m.',
+          today: '10:00a. m. - 11:30a. m.',
+          todaySameDay: '8:30a. m. - 9:00a. m.',
+        },
+        'pt-BR': {
+          startDate: '12 de ago.',
+          startTime: '10:00am',
+          endDate: '14 de ago.',
+          endTime: '11:30am',
+          sameDay: '8:30am – 9:00am',
+        },
+        'ja-JP': {
+          startDate: '8月12日',
+          startTime: '午前10:00',
+          endDate: '8月14日',
+          endTime: '午前11:30',
+          sameDay: '午前8:30 – 午前9:00',
+          today: '午前10:00 - 午前11:30',
+          todaySameDay: '午前8:30 - 午前9:00',
+        },
+        'hu-HU': {
+          startDate: 'aug. 12.',
+          startTime: 'de.10:00',
+          endDate: 'aug. 14.',
+          endTime: 'de.11:30',
+          sameDay: 'de.8:30 – de.9:00',
+        },
+        'ur-PK': {
+          startDate: '12 اگست',
+          startTime: '10:00am',
+          endDate: '14 اگست',
+          endTime: '11:30am',
+          sameDay: '8:30am – 9:00am',
+        },
+        'ur-IN': {
+          startDate: '۱۲ اگست',
+          startTime: '۱۰:۰۰am',
+          endDate: '۱۴ اگست',
+          endTime: '۱۱:۳۰am',
+          sameDay: '۸:۳۰am – ۹:۰۰am',
+        },
+      };
+
+      const overnight = time => ({
+        time,
+        heading: 'Outpatient Outpatient',
+        body: 'Barton Aufderhar',
+        status: 'arrived',
+      });
+
+      const sameDay = time => ({
+        time,
+        heading: 'Ward 1 Bed 2',
+        body: 'Marisol Frami',
+        status: 'seen',
+      });
+
+      // Day 0: the overnight booking starts at 10:00am, so it sorts after the
+      // 8:30am booking. Days 1 and 2: it started on 12 Aug, so it sorts first.
+      const order = (dayIndex, overnightRow, sameDayRow) =>
+        dayIndex === 0 ? [sameDayRow, overnightRow] : [overnightRow, sameDayRow];
+
+      /**
+       * The date is dropped from whichever end falls on today. `isolate` wraps
+       * each formatted part so it cannot merge into a neighbouring bidi run.
+       */
+      const timeCell = (locale, dayIndex, isolate = false) => {
+        const { startDate, startTime, endDate, endTime } = LOCALES[locale];
+        // The isolate goes around a whole end, date and time together. Isolating the
+        // date and the time separately keeps each intact but forces them into
+        // left-to-right order against each other, which is wrong for the locale.
+        const isolated = text => (isolate ? `<bdi>${text}</bdi>` : text);
+        const start = isolated(dayIndex === 0 ? startTime : `${startDate} ${startTime}`);
+        const end = isolated(dayIndex === 2 ? endTime : `${endDate} ${endTime}`);
+        return `${start} –<br /><span class="nowrap">${end} ${MOON}</span>`;
+      };
+
+      const proposedRows = (locale, dayIndex, isolate = false) =>
+        order(
+          dayIndex,
+          overnight(timeCell(locale, dayIndex, isolate)),
+          sameDay(LOCALES[locale].sameDay),
+        );
+
+      const currentRows = (locale, dayIndex) =>
+        order(
+          dayIndex,
+          overnight(LOCALES[locale].today),
+          sameDay(LOCALES[locale].todaySameDay),
+        );
+
+      const renderRow = (row, timeClass) => {
+        const { colour, icon } = STATUS[row.status];
+        return `
+          <div class="timeline-item">
+            <div class="timeline-separator">
+              <span class="timeline-dot">${icon(colour)}</span>
+              <span class="timeline-connector"></span>
+            </div>
+            <div class="timeline-content">
+              <div class="time-text ${timeClass ?? ''}">${row.time}</div>
+              <div class="card-slot">
+                <div class="card" style="background-color: ${colour}1a">
+                  <div class="card-heading">${row.heading}</div>
+                  <div class="card-body">${row.body}</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      };
+
+      const renderPane = ({ label, rows, timeClass, aligned = true, dir }) => `
+        <div class="pane-with-label">
+          <div class="pane-label">${label}</div>
+          <div class="container"${dir ? ` dir="${dir}"` : ''}>
+            <div class="title-container">
+              <h4 class="heading4">Today's bookings</h4>
+              <span class="action-link">View all…</span>
+            </div>
+            <div class="timeline${aligned ? ' aligned' : ''}">
+              ${rows.map(row => renderRow(row, timeClass)).join('')}
+            </div>
+            <div class="footer"></div>
+          </div>
+        </div>`;
+
+      const SECTIONS = [
+        {
+          title: 'The bug today',
+          caption:
+            'Two bare times of day in a fixed 122px column. It reads as a 90-minute booking on every day of the stay, and in a wider locale the range runs over the card whether the booking is overnight or not.',
+          panes: [
+            ...DAY_LABELS.map((label, dayIndex) => ({
+              label,
+              rows: currentRows('en-AU', dayIndex),
+              aligned: false,
+            })),
+            {
+              label: 'es-ES · 148px of text in a 122px column',
+              rows: currentRows('es-ES', 1),
+              timeClass: 'overflowing',
+              aligned: false,
+            },
+            {
+              label: 'ja-JP · 139px of text in a 122px column',
+              rows: currentRows('ja-JP', 1),
+              timeClass: 'overflowing',
+              aligned: false,
+            },
+          ],
+        },
+        {
+          title: 'The fix',
+          caption:
+            'The date appears on whichever end is not today, so a same-day row keeps the times it has now. The icon closes the second line, inside a nowrap span so it can never be pushed onto a line of its own.',
+          panes: DAY_LABELS.map((label, dayIndex) => ({
+            label,
+            rows: proposedRows('en-AU', dayIndex),
+          })),
+        },
+        {
+          title: 'Keeping the cards aligned',
+          caption:
+            'Sizing each row to its own content stops the clipping but leaves the card edges ragged. Making the list one grid, with each row a <code>subgrid</code> of it, gives the time column a single track as wide as the widest row, so the cards line up again and the whole list resizes together. <code>minmax(15ch, auto)</code> holds today\'s width as a floor without pinning it to a pixel count. Subgrid is Chrome 117 and up, well inside the Chrome 149 floor this app targets.',
+          panes: [
+            {
+              label: 'pt-BR · content-sized per row · ragged',
+              rows: proposedRows('pt-BR', 1),
+              timeClass: 'ragged',
+              aligned: false,
+            },
+            {
+              label: 'pt-BR · one grid, rows as subgrid · aligned',
+              rows: proposedRows('pt-BR', 1),
+            },
+            {
+              label: 'en-AU · aligned, for reference',
+              rows: proposedRows('en-AU', 1),
+            },
+          ],
+        },
+        {
+          title: 'Across locales',
+          caption:
+            'The middle day, where neither end is today and both dates show, in five locales. The time track takes what it needs and the card gives up width only where the locale asks for it.',
+          panes: ['en-AU', 'es-ES', 'pt-BR', 'ja-JP', 'hu-HU'].map(locale => ({
+            label: locale,
+            rows: proposedRows(locale, 1),
+          })),
+        },
+        {
+          title: 'Urdu, and a bidi defect it exposes',
+          caption:
+            'ur-PK localises the month name and keeps Western digits and a Latin am/pm marker; ur-IN uses Extended Arabic-Indic digits throughout. In the first two panes the row is broken, not merely unmirrored: an Arabic-script month turns the digits that follow it into an Arabic number, so the time joins the month\'s right-to-left run and renders to its left, stranding the am/pm marker on the far side. "14 اگست 11:30am" comes out as "14 11:30 اگستam". That is the whole date column today, in every locale written right to left, overnight or not.',
+          panes: [
+            { label: 'ur-PK · middle day, as it renders today', rows: proposedRows('ur-PK', 1) },
+            { label: 'ur-IN · middle day, as it renders today', rows: proposedRows('ur-IN', 1) },
+            {
+              label: 'ur-PK · each end isolated in a bdi',
+              rows: proposedRows('ur-PK', 1, true),
+            },
+            {
+              label: 'ur-PK · isolated, and dir="rtl" on the pane',
+              rows: proposedRows('ur-PK', 1, true),
+              dir: 'rtl',
+            },
+          ],
+        },
+        {
+          title: 'Fixing the direction',
+          caption:
+            'Wrapping each end of the range in a <code>bdi</code>, date and time together, keeps it from merging with what sits beside it: that is the third pane above, and it is cheap enough to do wherever a date is rendered. Measured left to right, that end renders in exactly the order a native right-to-left container gives it. Isolating the date and the time separately instead would keep each intact but order them left to right against each other. Setting the pane\'s direction from the locale is the fuller answer, and the setting already carries what is needed: <code>new Intl.Locale(locale).getTextInfo().direction</code>. The fourth pane above is both together, and it is the only one that reads correctly to an Urdu speaker: the grid mirrors, the dot and connector move to the right, and the dash and icon land at the visual end of their lines.',
+          panes: [],
+        },
+      ];
+
+      document.getElementById('sections').innerHTML = SECTIONS.map(
+        ({ title, caption, panes }) => `
+          <section class="section">
+            <h2 class="section-title">${title}</h2>
+            <p class="section-caption">${caption}</p>
+            <div class="panes">${panes.map(renderPane).join('')}</div>
+          </section>`,
+      ).join('');
+    </script>
+  </body>
+</html>
