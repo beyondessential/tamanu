@@ -26,45 +26,52 @@ type State = NavigationState<CustomRoute>;
 
 type TabBarProps = SceneRendererProps & { navigationState: State };
 
-const TabLabel = React.memo(
-  ({ route, focused }: LabelProps): JSX.Element => {
-    const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
-    return (
-      <StyledView
-        height={screenPercentageToDP(7.36, Orientation.Height)}
-        alignItems="center"
-        paddingTop={screenPercentageToDP(1.03, Orientation.Height)}
-      >
-        <StyledView>
-          {focused ? (
-            <Icon size={screenPercentageToDP(2.5, Orientation.Height)} />
-          ) : (
-              <Icons.ScheduledVaccine
-                size={screenPercentageToDP(2.5, Orientation.Height)}
-              />
-            )}
-        </StyledView>
-        <StyledText
-          marginTop={screenPercentageToDP(1.21, Orientation.Height)}
-          textAlign="center"
-          fontSize={screenPercentageToDP(1.57, Orientation.Height)}
-          color={focused ? route.color : theme.colors.TEXT_SOFT}
-        >
-          {route.title}
-        </StyledText>
-      </StyledView>
-    );
-  },
-);
+const tabIconSize = screenPercentageToDP(2.5, Orientation.Height);
 
-const VaccineTabLabel = (props: LabelProps): JSX.Element => (
-  <TabLabel {...props} />
-);
-
-interface LabelProps {
+const VaccineTabLabel = ({
+  route,
+  focused,
+}: {
   route: CustomRoute;
   focused: boolean;
-}
+}): JSX.Element => {
+  const Icon: FunctionComponent<IconWithSizeProps> = route.icon;
+  return (
+    <StyledView
+      height={screenPercentageToDP(7.36, Orientation.Height)}
+      alignItems="center"
+      paddingTop={screenPercentageToDP(1.03, Orientation.Height)}
+    >
+      <StyledView>
+        {focused ? (
+          <Icon size={tabIconSize} />
+        ) : (
+          <Icons.ScheduledVaccine size={tabIconSize} />
+        )}
+      </StyledView>
+      <StyledText
+        marginTop={screenPercentageToDP(1.21, Orientation.Height)}
+        textAlign="center"
+        fontSize={screenPercentageToDP(1.57, Orientation.Height)}
+        color={focused ? route.color : theme.colors.TEXT_SOFT}
+      >
+        {route.title}
+      </StyledText>
+    </StyledView>
+  );
+};
+
+const getTabOptions = (routes: CustomRoute[]) =>
+  Object.fromEntries(
+    routes.map(route => [
+      route.key,
+      {
+        label: ({ focused }: { focused: boolean }) => (
+          <VaccineTabLabel route={route} focused={focused} />
+        ),
+      },
+    ]),
+  );
 
 /* eslint-disable implicit-arrow-linebreak */
 
@@ -87,13 +94,14 @@ const CustomTabBar = React.memo(
     const {
       navigationState: { routes, index },
     } = props;
+    const options = React.useMemo(() => getTabOptions(routes), [routes]);
     return (
       <TabBar
+        {...props}
         style={TabBarStyle.tabBar}
         activeColor={routes[index].color}
-        renderLabel={VaccineTabLabel}
         inactiveColor={theme.colors.TEXT_SOFT}
-        {...props}
+        options={options}
         indicatorStyle={customIndicatorStyle(routes[index].color).indicator}
       />
     );

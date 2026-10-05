@@ -1,6 +1,7 @@
-import React, { useMemo, useRef } from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import React, { createContext, useContext, useMemo, useRef } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
 import { uniqBy } from 'lodash';
+import { useIsFocused } from '@react-navigation/native';
 import { useBackendEffect } from '~/ui/hooks';
 import { Table } from '../Table';
 import { VaccineRowHeader } from './VaccineRowHeader';
@@ -11,16 +12,16 @@ import { LoadingScreen } from '../LoadingScreen';
 import { VaccineStatus } from '~/ui/helpers/patient';
 import { CellContent, VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
 import { IScheduledVaccine } from '~/types';
-import { ScrollView } from 'react-native-gesture-handler';
 import { StyledView } from '~/ui/styled/common';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { getVaccineStatus, parseThresholdsSetting } from '~/ui/helpers/getVaccineStatus';
 import { SETTING_KEYS } from '~/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
-import { useIsFocused } from '@react-navigation/native';
 
 type VaccineTableCells = Record<string, VaccineTableCellData[]>;
+
+export const VaccineTableRefreshContext = createContext<string | undefined>(undefined);
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -41,6 +42,7 @@ export const VaccinesTable = ({
 
   const scrollViewRef = useRef(null);
   const isFocused = useIsFocused();
+  const latestAdministeredVaccineId = useContext(VaccineTableRefreshContext);
 
   // This manages the horizontal scroll of the header. This handler is passed down
   // to the scrollview in the generic table. That gets the horizontal scroll coordinate
@@ -59,7 +61,7 @@ export const VaccinesTable = ({
   );
   const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
-    [isFocused],
+    [isFocused, latestAdministeredVaccineId, selectedPatient.id],
   );
 
   const [nonHistoricalOrAdministeredScheduledVaccines, cells] = useMemo(() => {

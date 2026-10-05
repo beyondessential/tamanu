@@ -10,9 +10,9 @@ interface TextFieldErrorMessageProps {
 
 const StyledErrorMessage = styled(StyledText)`
     color: ${theme.colors.ALERT};
-    font-size: ${screenPercentageToDP(1.82, Orientation.Height)};
+    font-size: ${screenPercentageToDP(1.82, Orientation.Height)}px;
     font-weight: 400;
-    padding-left: ${screenPercentageToDP(1, Orientation.Width)};
+    padding-left: ${screenPercentageToDP(1, Orientation.Width)}px;
 `;
 
 export const TextFieldErrorMessage = ({ children }: TextFieldErrorMessageProps): JSX.Element => (

@@ -1,8 +1,27 @@
-import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
-import { Dimensions, Platform, StatusBar } from 'react-native';
+import { Dimensions, PixelRatio, Platform, StatusBar } from 'react-native';
 import { VerticalPosition } from '/interfaces/VerticalPosition';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+
+// Inline replacements for react-native-responsive-screen (uses removed Dimensions.removeEventListener API)
+let screenWidth = Dimensions.get('window').width;
+let screenHeight = Dimensions.get('window').height;
+
+Dimensions.addEventListener('change', ({ window }) => {
+  screenWidth = window.width;
+  screenHeight = window.height;
+});
+
+const widthPercentageToDP = (widthPercent: string | number): number => {
+  const elemWidth = typeof widthPercent === 'number' ? widthPercent : parseFloat(String(widthPercent));
+  return PixelRatio.roundToNearestPixel((screenWidth * elemWidth) / 100);
+};
+
+const heightPercentageToDP = (heightPercent: string | number): number => {
+  const elemHeight =
+    typeof heightPercent === 'number' ? heightPercent : parseFloat(String(heightPercent));
+  return PixelRatio.roundToNearestPixel((screenHeight * elemHeight) / 100);
+};
 
 export const dropdownSize = {
   itemHeight: 44,

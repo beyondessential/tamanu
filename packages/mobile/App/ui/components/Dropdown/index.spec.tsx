@@ -4,20 +4,20 @@ import { BaseStory, dropdownItems } from './fixture';
 import { SelectOption } from '.';
 
 describe.skip('<Dropdown />', () => {
-  const { getByText, getByTestId } = render(<BaseStory />);
-
-  it('should render <Dropdown />', () => {
+  it('should render <Dropdown />', async () => {
+    const { getByText, getByTestId } = await render(<BaseStory />);
     const floatingLabel = getByText('Type');
-    fireEvent.press(floatingLabel);
+    await fireEvent.press(floatingLabel);
 
     dropdownItems.forEach((item: SelectOption) => {
       expect(getByTestId(item.value)).not.toBeNull();
     });
   });
 
-  it('should select an item', () => {
+  it('should select an item', async () => {
+    const { getByText, getByTestId } = await render(<BaseStory />);
     const Picker = getByTestId('ios-picker');
-    fireEvent.valueChange(Picker, dropdownItems[0].value);
+    await fireEvent(Picker, 'onValueChange', dropdownItems[0].value);
     expect(getByText(dropdownItems[0].label)).not.toBeNull();
   });
 });

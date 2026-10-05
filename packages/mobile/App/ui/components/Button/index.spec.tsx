@@ -8,22 +8,22 @@ describe('<Button />', () => {
     onPress: jest.fn(),
   };
 
-  it('should Render <Button/> ', () => {
-    const { getByText } = render(
+  it('should Render <Button/> ', async () => {
+    const { getByText } = await render(
       <Button {...props}>
         <Text>123456</Text>
-      </Button>
+      </Button>,
     );
     expect(getByText('123456')).not.toBe(null);
   });
 
-  it('should trigger onPress ', () => {
-    const { getByText } = render(
+  it('should trigger onPress ', async () => {
+    const { getByText } = await render(
       <Button {...props}>
         <Text>123456</Text>
-      </Button>
+      </Button>,
     );
-    fireEvent.press(getByText('123456'));
+    await fireEvent.press(getByText('123456'));
     expect(props.onPress).toHaveBeenCalled();
   });
 });

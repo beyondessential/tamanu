@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { Platform, StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
-import { setStatusBar } from '/helpers/screen';
 import { Popup } from 'popup-ui';
 import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
@@ -167,7 +167,6 @@ const PatientHomeContainer = ({
   const patientMenuButtons = usePatientMenuButtons(navigation);
 
   const onNavigateToSearchPatients = useCallback(() => {
-    setSelectedPatient(null);
     if (from === PatientFromRoute.ALL_PATIENT || from === PatientFromRoute.RECENTLY_VIEWED) {
       navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
         screen: Routes.HomeStack.SearchPatientStack.Index,
@@ -177,8 +176,13 @@ const PatientHomeContainer = ({
         },
       });
     } else {
-      navigation.goBack();
+      // Don't use goBack() — it bubbles to the Home stack and can land on
+      // RegisterPatientStack after patient registration. Navigate explicitly instead.
+      navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
+        screen: Routes.HomeStack.HomeTabs.Home,
+      });
     }
+    setSelectedPatient(null);
   }, [from, navigation, setSelectedPatient]);
 
   const { models } = useBackend();
@@ -186,6 +190,10 @@ const PatientHomeContainer = ({
   const [patientIssues, setPatientIssues] = useState(null);
   useFocusEffect(
     useCallback(() => {
+      if (!selectedPatient) {
+        return;
+      }
+
       let mounted = true;
       (async (): Promise<void> => {
         try {
@@ -207,10 +215,15 @@ const PatientHomeContainer = ({
       return (): void => {
         mounted = false;
       };
-    }, [models, selectedPatient.id]),
+    }, [models, selectedPatient?.id]),
   );
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'android') StatusBar.setBackgroundColor(theme.colors.PRIMARY_MAIN);
+      StatusBar.setBarStyle('light-content');
+    }, []),
+  );
 
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
@@ -219,6 +232,10 @@ const PatientHomeContainer = ({
   const patientModules = usePatientModules(navigation);
 
   if (errorMessage) return <ErrorScreen error={errorMessage} />;
+
+  if (!selectedPatient) {
+    return null;
+  }
 
   return (
     <Screen

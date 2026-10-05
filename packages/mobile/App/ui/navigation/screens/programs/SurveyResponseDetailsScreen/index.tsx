@@ -62,7 +62,7 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   });
 
   return (
-    <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
+    <StyledText color={theme.colors.TEXT_DARK}>
       {displayName}
     </StyledText>
   );
@@ -109,7 +109,7 @@ function getAnswerText(type, answer, locale?: string): string | number {
 const TextAnswer = ({ type, answer }): ReactElement => {
   const { locale } = useDateFormatter();
   return (
-    <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
+    <StyledText color={theme.colors.TEXT_DARK}>
       {getAnswerText(type, answer, locale)}
     </StyledText>
   );
@@ -140,17 +140,16 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
   <StyledView
     minHeight={40}
     maxWidth="100%"
-    justifyContent="space-between"
-    flexDirection="row"
+    flexDirection="column"
     flexGrow={1}
-    alignItems="center"
+    alignItems="flex-start"
     paddingHorizontal={16}
     paddingVertical={8}
     background={index % 2 ? theme.colors.WHITE : theme.colors.BACKGROUND_GREY}
   >
     {question.dataElement.type === FieldTypes.DISPLAY_TEXT ? (
       <StyledView width="100%">
-        <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
+        <StyledText fontWeight="bold" fontSize={16} color={theme.colors.TEXT_DARK}>
           {question.dataElement.name}
         </StyledText>
         <StyledText color={theme.colors.TEXT_DARK}>{question.dataElement.defaultText}</StyledText>
@@ -158,12 +157,10 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
       </StyledView>
     ) : (
       <>
-        <StyledView maxWidth="40%">
-          <StyledText fontWeight="bold" color={theme.colors.LIGHT_BLUE}>
-            {question.dataElement.name}
-          </StyledText>
-        </StyledView>
-        <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
+        <StyledText fontWeight="bold" fontSize={16} color={theme.colors.TEXT_DARK}>
+          {question.dataElement.name}
+        </StyledText>
+        <StyledView alignItems="flex-start" width="100%" marginTop={4}>
           {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
         </StyledView>
       </>

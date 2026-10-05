@@ -1,6 +1,7 @@
 import React, { ReactElement, useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { RowView, StyledText, StyledView } from '/styled/common';
+import { RowView, StyledText } from '/styled/common';
 import { Dot } from './Dot';
 import { theme } from '/styled/theme';
 import { PatientSection } from './PatientSection';
@@ -13,6 +14,19 @@ interface PatientIssuesProps {
   onEdit: () => void;
   patientId: string;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 40,
+  },
+  content: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  issueRow: {
+    marginTop: 20,
+  },
+});
 
 export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactElement => {
   const backend = useBackend();
@@ -55,7 +69,7 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
     patientIssuesContent = <LoadingScreen />;
   } else if (patientIssues) {
     patientIssuesContent = patientIssues.map(({ id, note }) => (
-      <RowView key={id} alignItems="center" marginTop={10}>
+      <RowView key={id} alignItems="center" style={styles.issueRow}>
         <Dot />
         <StyledText marginLeft={10} color={theme.colors.TEXT_MID}>
           {note}
@@ -64,7 +78,7 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
     ));
   }
   return (
-    <StyledView marginBottom={40}>
+    <View style={styles.container}>
       <PatientSection
         title={
           <TranslatedText
@@ -74,8 +88,8 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
         }
         onEdit={onEdit}
       >
-        {patientIssuesContent}
+        <View style={styles.content}>{patientIssuesContent}</View>
       </PatientSection>
-    </StyledView>
+    </View>
   );
 };

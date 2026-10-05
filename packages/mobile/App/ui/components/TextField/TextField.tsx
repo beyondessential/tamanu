@@ -8,13 +8,13 @@ import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { TextFieldErrorMessage } from './TextFieldErrorMessage';
 import { theme } from '~/ui/styled/theme';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { TranslatedTextElement } from '../Translations/TranslatedText';
+import { TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
 
 export interface RefObject<T> {
   readonly current: T | null;
 }
 
-export interface TextFieldProps extends BaseInputProps {
+export interface TextFieldProps extends Omit<BaseInputProps, 'label'> {
   value: string;
   onChange: (text: string) => void;
   isOpen?: boolean;
@@ -124,7 +124,7 @@ export const TextField = React.memo(
             focused={focused}
             hasValue={value?.length > 0}
             error={error}
-            testID={label?.props?.fallback || label}
+            testID={getTranslatedTextFallback(label)}
             value={!hideValue && value}
             height={inputHeight}
             fieldFontSize={fieldFontSize}
@@ -133,16 +133,16 @@ export const TextField = React.memo(
             autoFocus={autoFocus}
             returnKeyType={returnKeyType}
             autoCorrect={hints}
-            accessibilityLabel={label?.props?.fallback || label}
+            accessibilityLabel={getTranslatedTextFallback(label)}
             keyboardType={keyboardType}
             onChangeText={onChange}
             onFocus={onFocusInput}
             onBlur={onBlurInput}
             multiline={multiline}
             editable={!readOnly && !disabled}
-            style={multiline ? styles.multiLineText : styles.singleLineText}
+            style={multiline ? styles.multiLineText : undefined}
             secureTextEntry={secure}
-            placeholder={placeholder?.props?.fallback || placeholder}
+            placeholder={getTranslatedTextFallback(placeholder)}
             blurOnSubmit={blurOnSubmit !== undefined ? blurOnSubmit : !multiline}
             maxLength={charLimit}
             onSubmitEditing={onSubmitEditing}

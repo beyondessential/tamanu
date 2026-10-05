@@ -12,57 +12,78 @@ import { MaterialTopTabView } from '@react-navigation/material-top-tabs';
 import { theme } from '/styled/theme';
 
 type TabNavigationConfig = {
-  tabBarStyle: StyleProp<ViewStyle>;
-  contentStyle: StyleProp<ViewStyle>;
-  swipeEnabled: boolean;
-  lazy: boolean;
+  tabBarStyle?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
+  swipeEnabled?: boolean;
+  lazy?: boolean;
 };
 
 type TabNavigationOptions = {
   title?: string;
+  tabBarLabel?: string | ((props: { focused: boolean; color: string }) => React.ReactNode);
+  tabBarLabelStyle?: object;
 };
 
 type TabNavigationEventMap = {
   tabPress: { isAlreadyFocused: boolean };
 };
 
-type Props = DefaultNavigatorOptions<TabNavigationOptions> & TabRouterOptions & TabNavigationConfig;
+type Props = DefaultNavigatorOptions<any, any, TabNavigationOptions, any, any> &
+  TabRouterOptions &
+  TabNavigationConfig;
+
+const defaultScreenOptions: TabNavigationOptions = {
+  tabBarStyle: { height: 50 },
+  tabBarActiveTintColor: theme.colors.PRIMARY_MAIN,
+  tabBarInactiveTintColor: theme.colors.TEXT_MID,
+  tabBarIndicatorStyle: {
+    height: 4,
+    backgroundColor: theme.colors.PRIMARY_MAIN,
+  },
+  tabBarLabelStyle: {
+    fontWeight: '500',
+    textTransform: 'none',
+  },
+};
 
 function TabNavigator({
   initialRouteName,
   children,
   screenOptions,
+  swipeEnabled = false,
+  lazy,
   ...rest
 }: Props): React.ReactElement {
+  const lazyScreenOptions = lazy === undefined ? {} : { lazy };
+
   const { state, navigation, descriptors } = useNavigationBuilder<
-    TabNavigationState,
+    TabNavigationState<any>,
     TabRouterOptions,
+    {},
     TabNavigationOptions,
     TabNavigationEventMap
   >(TabRouter, {
     children,
-    screenOptions,
+    screenOptions:
+      typeof screenOptions === 'function'
+        ? props => ({
+            ...defaultScreenOptions,
+            swipeEnabled,
+            ...lazyScreenOptions,
+            ...screenOptions(props),
+          })
+        : {
+            ...defaultScreenOptions,
+            swipeEnabled,
+            ...lazyScreenOptions,
+            ...screenOptions,
+          },
     initialRouteName,
   });
 
   return (
     <MaterialTopTabView
       {...rest}
-      tabBarOptions={{
-        style: {
-          height: 50,
-        },
-        activeTintColor: theme.colors.PRIMARY_MAIN,
-        inactiveTintColor: theme.colors.TEXT_MID,
-        indicatorStyle: {
-          height: 4,
-          backgroundColor: theme.colors.PRIMARY_MAIN,
-        },
-        labelStyle: {
-          fontWeight: '500',
-          textTransform: 'none',
-        },
-      }}
       state={state}
       navigation={navigation}
       descriptors={descriptors}

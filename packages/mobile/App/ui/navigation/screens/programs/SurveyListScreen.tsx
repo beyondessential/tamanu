@@ -70,7 +70,6 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
   const onNavigateToSurvey = (survey: Survey): void => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails, {
       surveyId: survey.id,
-      selectedPatient,
       surveyType: survey.surveyType,
     });
   };
