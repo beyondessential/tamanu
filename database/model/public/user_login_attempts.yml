@@ -10,7 +10,6 @@ sources:
           tags: []
           meta:
             triggers:
-              - notify_user_login_attempts_changed
               - record_user_login_attempts_changelog
               - set_user_login_attempts_updated_at
               - set_user_login_attempts_updated_at_sync_tick

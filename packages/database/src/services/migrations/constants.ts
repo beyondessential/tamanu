@@ -74,3 +74,17 @@ export const NON_LOGGED_TABLES = [
   // request idempotency records — ephemeral, and response bodies may hold PII
   'public.idempotency_keys',
 ];
+
+// Tables with a `table_changed` listener on central: the settings cache and admin SettingsRefresher.
+// Add a table here before listening for its changes.
+export const CENTRAL_NOTIFY_CHANGE_TABLES = ['public.settings'];
+
+// Tables with a `table_changed` listener on facility: the settings cache and SettingsRefresher
+// (settings), the websocket fan-out (tasks, appointments) and the web dashboard (notifications).
+// Add a table here before listening for its changes.
+export const FACILITY_NOTIFY_CHANGE_TABLES = [
+  'public.appointments',
+  'public.notifications',
+  'public.settings',
+  'public.tasks',
+];

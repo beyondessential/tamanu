@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_lab_test_panel_requests_from_sync_lookup
-              - notify_lab_test_panel_requests_changed
               - record_lab_test_panel_requests_changelog
               - set_lab_test_panel_requests_updated_at
               - set_lab_test_panel_requests_updated_at_sync_tick
