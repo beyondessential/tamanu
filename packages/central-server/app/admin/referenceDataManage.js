@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
 import {
-  REFERENCE_TYPES_WITH_A_DETAIL_RECORD,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   OTHER_REFERENCE_TYPES,
   SEARCHABLE_COLUMN_TYPES,
@@ -33,12 +32,6 @@ referenceDataManageRouter.post(
     const { referenceDataType, ...rawData } = req.body;
 
     assertValidType(referenceDataType);
-
-    if (REFERENCE_TYPES_WITH_A_DETAIL_RECORD.includes(referenceDataType)) {
-      throw new InvalidOperationError(
-        `${referenceDataType} must be added through the reference data importer`,
-      );
-    }
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
     const detailModel = getDetailModel(req.store.models, referenceDataType);
