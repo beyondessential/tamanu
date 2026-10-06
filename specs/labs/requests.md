@@ -59,3 +59,8 @@ Recording sample collection is grouped by category: each category the request co
 ## Recording a sample from the lab request view
 
 - [ ] Recording a sample against an existing request from the lab request view uses the same category-grouped sample details, under a "Record sample details" heading, and shows the request's category.
+
+## Requesting lab tests on mobile
+
+- [ ] The test category picker lists only categories that have at least one current test the user can order; a category whose only tests are sensitive is listed only for users who can create sensitive lab requests.
+- [ ] Tests that fail to load for the chosen category show an error message rather than an empty list.
