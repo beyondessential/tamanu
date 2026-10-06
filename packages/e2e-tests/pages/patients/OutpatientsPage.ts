@@ -74,4 +74,21 @@ export class OutpatientsPage extends BasePatientListPage {
     await expect(this.departmentInput.locator('input')).toHaveValue('');
     await expect(this.clinicianInput.locator('input')).toHaveValue('');
   }
+
+  // Outpatient-specific sorting methods
+  async sortByArea() {
+    await this.sortByColumn('locationGroupName');
+  }
+
+  async sortByLocation() {
+    await this.sortByColumn('locationName');
+  }
+
+  async sortByDepartment() {
+    await this.sortByColumn('departmentName');
+  }
+
+  async sortByClinician() {
+    await this.sortByColumn('clinician');
+  }
 }
