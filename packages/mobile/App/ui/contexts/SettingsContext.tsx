@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { BackendContext } from './BackendContext';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { SettingsService } from '~/services/settings';
+import { BackendContext } from './BackendContext';
 
 interface SettingsContextData {
   getSetting<T>(key: string): T | undefined;
@@ -14,24 +14,15 @@ const SettingsContext = createContext<SettingsContextData>({} as SettingsContext
 
 export const useSettings = () => useContext(SettingsContext);
 
-export const SettingsProvider = ({ children }) => {
+export const SettingsProvider = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const backend = useContext(BackendContext);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const defaultHelpers = useMemo(() => makeHelpers(backend.settings), [backend, backend.settings]);
-  const [helpers, setHelpers] = useState(defaultHelpers);
+  const [helpers, setHelpers] = useState(() => makeHelpers(backend.settings));
 
   useEffect(() => {
-    const onChanged = (): void => {
-      // updates the helper functions whenever the localisation changes,
-      // in order to make components update with the new value
-      setHelpers(makeHelpers(backend.settings));
-    };
-    backend.localisation.emitter.on('settingsChanged', onChanged);
-    return () => {
-      backend.localisation.emitter.off('settingsChanged', onChanged);
-    };
-  }, [backend, backend.localisation]);
+    const onChanged = () => void setHelpers(makeHelpers(backend.settings));
+    backend.settings.emitter.on('settingsChanged', onChanged);
+    return () => void backend.settings.emitter.off('settingsChanged', onChanged);
+  }, [backend]);
 
   return <SettingsContext.Provider value={helpers}>{children}</SettingsContext.Provider>;
 };

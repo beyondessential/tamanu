@@ -3,7 +3,7 @@ import __cjs_bcrypt from 'bcrypt';
 const { compare, hash } = __cjs_bcrypt;
 import * as jose from 'jose';
 import { unionBy } from 'es-toolkit/compat';
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes, Op, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import * as z from 'zod';
 import type { Subject } from '@casl/ability';
@@ -326,7 +326,12 @@ export class User extends Model {
     const hasLoginPermission = await this.hasPermission('login', 'Facility');
     const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
 
-    const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
+    // A facility is sensitive exactly when it belongs to a sensitive network. Network membership
+    // scopes which data reaches a facility, not who may log in to it, so a user linked to one
+    // member gains nothing for its siblings. spec: specs/sync/sensitive-networks.md
+    const sensitiveFacilities = await Facility.count({
+      where: { sensitiveNetworkId: { [Op.ne]: null } },
+    });
     if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
       return CAN_ACCESS_ALL_FACILITIES;
 
@@ -340,7 +345,7 @@ export class User extends Model {
     if (hasAllNonSensitiveFacilityAccess) {
       // Combine any explicitly linked facilities with all non-sensitive facilities
       const nonSensitiveFacilities = await Facility.findAll({
-        where: { isSensitive: false },
+        where: { sensitiveNetworkId: null },
         attributes: ['id', 'name'],
         raw: true,
       });

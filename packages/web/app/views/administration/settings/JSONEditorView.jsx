@@ -1,16 +1,19 @@
+import Settings from '@mui/icons-material/Settings';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Settings from '@mui/icons-material/Settings';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { TextButton, ButtonRow, Button, JSONEditor } from '@tamanu/ui-components';
+import {
+  Button,
+  ButtonRow,
+  JSONEditor,
+  notifyError,
+  TextButton,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
-import { notifyError } from '../../../utils';
 import { notifyValidationErrors } from './notifyValidationErrors';
-import { TranslatedText } from '../../../components/Translation';
-import { isNull } from 'es-toolkit/compat';
 
 const SettingsWrapper = styled.div`
   background-color: ${Colors.white};
@@ -42,32 +45,35 @@ const DefaultSettingsButton = styled(TextButton)`
   white-space: nowrap;
 `;
 
-const buildSettingsString = (settings) => {
+const buildSettingsString = settings => {
   if (Object.keys(settings).length === 0) return '';
   return JSON.stringify(settings, null, 2);
 };
 
-export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope, facilityId }) => {
+export const JSONEditorView = React.memo(props => {
+  const { values, setValues, submitForm, scope, facilityId, onUnsavedEditChange } = props;
   const [settingsEditString, setSettingsEditString] = useState(null);
   const [jsonError, setJsonError] = useState(null);
   const [isDefaultModalOpen, setIsDefaultModalOpen] = useState(false);
 
   const settingsViewString = buildSettingsString(values.settings);
-  const hasSettingsChanged = settingsViewString !== settingsEditString;
+  const editBaselineString = settingsViewString || '{}';
+  const isChangedEdit = editString => editString !== null && editString !== editBaselineString;
+  const hasSettingsChanged = isChangedEdit(settingsEditString);
 
-  const updateSettingsEditString = (value) => {
+  const updateSettingsEditString = value => {
     setSettingsEditString(value);
     setJsonError(null);
+    onUnsavedEditChange(isChangedEdit(value));
   };
 
-  const turnOnEditMode = () =>
-    updateSettingsEditString(buildSettingsString(values.settings) || '{}');
+  const turnOnEditMode = () => updateSettingsEditString(editBaselineString);
   const turnOffEditMode = () => updateSettingsEditString(null);
 
-  const onChangeSettings = (newValue) => updateSettingsEditString(newValue);
+  const onChangeSettings = newValue => updateSettingsEditString(newValue);
 
   // Convert settings string from editor into object and post to backend
-  const saveSettings = async (event) => {
+  const saveSettings = async event => {
     // Check if the JSON is valid and notify if not
     try {
       JSON.parse(settingsEditString);
@@ -91,7 +97,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     }
   };
 
-  const editMode = !isNull(settingsEditString);
+  const editMode = settingsEditString !== null;
   const isEditorVisible = scope !== SETTINGS_SCOPES.FACILITY || facilityId;
 
   if (!isEditorVisible) {
@@ -109,38 +115,25 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
             stringId="admin.settings.viewDefaultScope.message"
             fallback="View default :scope settings"
             replacements={{ scope }}
-            data-testid="translatedtext-dstj"
           />
         </DefaultSettingsButton>
         <StyledButtonRow data-testid="styledbuttonrow-rzye">
           {editMode ? (
             <>
               <Button variant="outlined" onClick={turnOffEditMode} data-testid="button-uan3">
-                <TranslatedText
-                  stringId="general.action.cancel"
-                  fallback="Cancel"
-                  data-testid="translatedtext-jjde"
-                />
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </Button>
               <Button
                 onClick={saveSettings}
                 disabled={!hasSettingsChanged}
                 data-testid="button-n3bf"
               >
-                <TranslatedText
-                  stringId="general.action.save"
-                  fallback="Save"
-                  data-testid="translatedtext-lajm"
-                />
+                <TranslatedText stringId="general.action.save" fallback="Save" />
               </Button>
             </>
           ) : (
             <Button onClick={turnOnEditMode} disabled={!isEditorVisible} data-testid="button-308n">
-              <TranslatedText
-                stringId="general.action.edit"
-                fallback="Edit"
-                data-testid="translatedtext-6xu9"
-              />
+              <TranslatedText stringId="general.action.edit" fallback="Edit" />
             </Button>
           )}
         </StyledButtonRow>

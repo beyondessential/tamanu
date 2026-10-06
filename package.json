@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.65.1",
+  "version": "2.66.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -125,6 +125,9 @@
     },
     "vitest": {
       "@opentelemetry/api": "1.4.1"
+    },
+    "react-native-nitro-sqlite": {
+      "typeorm": "^0.3.28"
     }
   }
 }

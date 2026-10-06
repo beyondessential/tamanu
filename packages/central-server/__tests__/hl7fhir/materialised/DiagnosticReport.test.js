@@ -200,6 +200,102 @@ describe('Create DiagnosticReport', () => {
       expect(labRequest.resultsInterpretation).toBe('Positive for markers X and Y');
     });
 
+    it('stamps publishedDate when a DiagnosticReport rejects a ServiceRequest', async () => {
+      const fakeDate = new Date('2020-01-01');
+      vi.useFakeTimers().setSystemTime(fakeDate);
+
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = postBody(serviceRequestId);
+      body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED;
+
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.REJECTED);
+      expect(labRequest.publishedDate).toBe(dateFnsTz.format(fakeDate, 'yyyy-MM-dd HH:mm:ss'));
+    });
+
+    it('flattens an HTML conclusion to plain text', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const body = postBody(mat.id);
+      body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL;
+      body.conclusion = `<p>B-hcg : Refer to the table below</p>
+<table border="1"><colgroup><col><col></colgroup>
+<tbody>
+<tr><td>Weeks since LMP</td><td>Total &beta;-hCG level&nbsp; (mIU/mL)</td></tr>
+<tr><td>3</td><td width="225"><p>5 - 50</p></td></tr>
+<tr><td>7-8</td><td width="225"><p>1080 - 56,500</p></td></tr>
+</tbody>
+</table>
+<p>&nbsp;</p>`;
+
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.resultsInterpretation).toBe(
+        [
+          'B-hcg : Refer to the table below',
+          '',
+          'Weeks since LMP   Total β-hCG level  (mIU/mL)',
+          '3                 5 - 50',
+          '7-8               1080 - 56,500',
+        ].join('\n'),
+      );
+    });
+
+    it('keeps a plain text conclusion as-is', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        {
+          isWithPanels: true,
+        },
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      const conclusion = 'HbA1c <5% is normal\nRatio 3 < 4 & 5 > 2';
+      const body = postBody(mat.id);
+      body.status = FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL;
+      body.conclusion = conclusion;
+
+      const response = await app.post(endpoint).send(body);
+      await labRequest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labRequest.resultsInterpretation).toBe(conclusion);
+    });
+
     it('post a DiagnosticReport to a completed ServiceRequest (published Lab Request)', async () => {
       // Once published, only entered-in-error can transition to invalidated; all others are ignored
       const statuses = [
@@ -353,6 +449,35 @@ describe('Create DiagnosticReport', () => {
         replacedById: null,
       });
       expect(firstAttachment.replacedById).toBe(latestAttachment.id);
+    });
+
+    it('flattens an HTML conclusion on a republished DiagnosticReport', async () => {
+      const { FhirServiceRequest } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        { isWithPanels: true },
+        { status: LAB_REQUEST_STATUSES.RESULTS_PENDING },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+
+      const firstResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'first report' }],
+      });
+      expect(firstResponse).toHaveSucceeded();
+
+      const republishResponse = await app.post(endpoint).send({
+        ...postBody(serviceRequestId),
+        presentedForm: [{ ...testAttachment, title: 'republished report' }],
+        conclusion: '<p>Sensitive to&nbsp;<b>amoxicillin</b></p>',
+      });
+      expect(republishResponse).toHaveSucceeded();
+
+      await labRequest.reload();
+      expect(labRequest.resultsInterpretation).toBe('Sensitive to amoxicillin');
     });
 
     it('does not replace the PDF of a published Lab Request with an interim report', async () => {

@@ -10,7 +10,7 @@ const LabRequestContext = createContext({
 
 export const LabRequestSearchParamKeys = {
   All: 'LabRequestListingView',
-  Published: 'PublishedLabRequestsListingView',
+  Finalised: 'FinalisedLabRequestsListingView',
   Other: 'OtherView',
 };
 
@@ -41,7 +41,7 @@ export const LabRequestProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = useState({
     [LabRequestSearchParamKeys.All]: {},
-    [LabRequestSearchParamKeys.Published]: {},
+    [LabRequestSearchParamKeys.Finalised]: {},
     [LabRequestSearchParamKeys.Other]: {},
   });
 

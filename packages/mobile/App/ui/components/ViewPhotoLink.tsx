@@ -41,36 +41,36 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
   const openModalCallback = useCallback(async () => {
     setLoading(true);
     setShowModal(true);
-    const image = await models.Attachment.findOne({ where: { id: imageId } });
-    // Use local image if it still exist locally and has not been synced up
-    if (image) {
-      const localImageData = image.data.toString('base64');
-      setImageData(localImageData);
-      setLoading(false);
-      setErrorMessage(null);
-      return;
-    }
-
-    if (!netInfo.isInternetReachable) {
-      setImageData(null);
-      setLoading(false);
-      setErrorMessage(
-        'You do not currently have an internet connection.\n Images require live internet for viewing.',
-      );
-      return;
-    }
-
     try {
-      const { data } = await centralServer.get(`attachment/${imageId}`, {
-        base64: true,
-      });
-      setImageData(data);
+      const image = await models.Attachment.findOne({ where: { id: imageId } });
+      // Use local image if it still exist locally and has not been synced up
+      if (image) {
+        const localImageData = image.data.toString('base64');
+        setImageData(localImageData);
+        setErrorMessage(null);
+        return;
+      }
+
+      if (!netInfo.isInternetReachable) {
+        setImageData(null);
+        setErrorMessage(
+          'You do not currently have an internet connection.\n Images require live internet for viewing.',
+        );
+        return;
+      }
+
+      try {
+        const { data } = await centralServer.get(`attachment/${imageId}`, {
+          base64: true,
+        });
+        setImageData(data);
+        setErrorMessage(null);
+      } catch (error) {
+        setImageData(null);
+        setErrorMessage(error.message);
+      }
+    } finally {
       setLoading(false);
-      setErrorMessage(null);
-    } catch (error) {
-      setImageData(null);
-      setLoading(false);
-      setErrorMessage(error.message);
     }
   }, [netInfo]);
 

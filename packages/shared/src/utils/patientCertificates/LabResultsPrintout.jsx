@@ -96,7 +96,7 @@ const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getSetting }) => {
     const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
-    const { tests, labTestPanelRequest } = labRequest;
+    const { tests } = labRequest;
     const labResultsColumns = [
       {
         key: 'labTestType.name',
@@ -130,14 +130,12 @@ const LabResultsPrintoutComponent = React.memo(
       },
     ];
 
-    /**
-     * Currently it is only possible for one panel request per results printout
-     * To support multiple panels, we can ensure that rows with the same panel name are ordered together
-     * and then use the following to get the groups section label:
-     * @example
-     * getRowSectionLabel = (row) => row.panelName;
-     */
-    const getRowSectionLabel = () => labTestPanelRequest?.labTestPanel?.name;
+    // A request can hold several panels plus individual tests. Rows arrive grouped by panel and
+    // ordered panels-first, so labelling each row by its own panel gives one section per panel,
+    // matching the on-screen results table.
+    const getRowSectionLabel = ({ labTestPanel }) =>
+      labTestPanel?.name ??
+      getTranslation('lab.results.individualTests.label', 'Individual tests');
 
     return (
       <Document>

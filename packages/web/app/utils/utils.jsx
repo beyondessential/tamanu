@@ -1,17 +1,17 @@
-import { isValidElement } from 'react';
-import { createRoot } from 'react-dom/client';
-import { flushSync } from 'react-dom';
-import { each, isArray } from 'es-toolkit/compat';
 import deepEqual from 'deep-equal';
-import shortid from 'shortid';
+import { each } from 'es-toolkit/compat';
 import { singularize as singularizeFn } from 'inflection';
-import { MAX_REPEATS } from '@tamanu/constants';
+import { isValidElement } from 'react';
+import { flushSync } from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import shortid from 'shortid';
 
+import { MAX_REPEATS } from '@tamanu/constants';
 export {
   notify,
+  notifyError,
   notifyInfo,
   notifySuccess,
-  notifyError,
   prepareToastMessage,
 } from '@tamanu/ui-components';
 
@@ -27,7 +27,7 @@ export const getDeviceId = () => {
 export const flattenRequest = (object, deep = true) => {
   try {
     const newObject = object;
-    if (isArray(object) && deep) return object.map(obj => flattenRequest(obj, false));
+    if (Array.isArray(object) && deep) return object.map(obj => flattenRequest(obj, false));
     each(newObject, (value, key) => {
       if (typeof value === 'object') {
         if (!deep) {

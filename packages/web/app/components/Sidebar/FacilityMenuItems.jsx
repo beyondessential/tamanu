@@ -238,12 +238,12 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: (
           <TranslatedText
-            stringId="sidebar.labs.published"
-            fallback="Published"
+            stringId="sidebar.labs.finalised"
+            fallback="Finalised"
             data-testid="translatedtext-gtx9"
           />
         ),
-        path: '/lab-requests/published',
+        path: '/lab-requests/finalised',
         key: 'labsPublished',
         ability: { action: 'read' },
       },

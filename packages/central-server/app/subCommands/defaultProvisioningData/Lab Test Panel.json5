@@ -11,63 +11,174 @@
   ],
   "data": [
     {
-      "id": "labTestPanel-bloods",
-      "code": "bloods",
-      "name": "Bloods",
-      "visibilityStatus": "current",
-      "categoryId": "labTestCategory-Serology",
-      "testTypesInPanel": "labTestType-Sodium,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Cholesterol,labTestType-Magnesium"
-    },
-    {
-      "id": "labTestPanel-cmp",
-      "code": "cmp",
-      "name": "Comprehensive Metabolic Panel (CMP)",
-      "visibilityStatus": "current",
-      "categoryId": "labTestCategory-Other",
-      "testTypesInPanel": "labTestType-Bilibubin,labTestType-ALP,labTestType-AST,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Chloride,labTestType-Urea,labTestType-Calcium,labTestType-Creatinine,labTestType-ALT,labTestType-Albumin"
-    },
-    {
-      "id": "cfff2b48-45ca-4405-9ba5-10c180ff3307",
-      "code": "bloods",
-      "name": "Bloods",
-      "visibilityStatus": "current",
-      "externalCode": "external-testPanel-Bloods",
-      "categoryId": "labTestCategory-LFT",
-      "testTypesInPanel": "labTestType-ALP,labTestType-AST"
-    },
-    {
-      "id": "b7a10af7-7b58-46a9-8282-5f5db9bf7478",
-      "code": "Demo Test Panel",
-      "name": "Demo Test Panel",
-      "visibilityStatus": "current",
-      "externalCode": "external-Demo-Test-Panel",
-      "categoryId": "labTestCategory-UE",
-      "testTypesInPanel": "labTestType-Sodium,labTestType-Potassium"
-    },
-    {
-      "id": "8cb3dec3-c88f-4abf-a50e-314c1230cc6a",
-      "code": "others",
-      "name": "Others",
-      "visibilityStatus": "current",
-      "externalCode": "external-testPanel-Others",
-      "categoryId": "labTestCategory-Other",
-      "testTypesInPanel": "labTestType-Woundswab,labTestType-INR"
-    },
-    {
-      "id": "labTestPanel-Cardiacenzymes",
-      "code": "Cardiacenzymes",
+      "id": "labTestPanel-Cardiacenzymes1",
+      "code": "Cardiacenzymes1",
       "name": "Cardiac enzymes",
       "visibilityStatus": "current",
-      "categoryId": "labTestCategory-Integration",
-      "testTypesInPanel": "labTestType-AST,labTestType-CK,labTestType-CKMB,labTestType-TroponinI,labTestType-LDH"
+      "externalCode": "58254-4",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-AST,labTestType-CK,labTestType-CKMB,labTestType-TroponinI,labTestType-LDH,labTestType-CKMBP"
     },
     {
-      "id": "labTestPanel-Thyroidfunction",
-      "code": "Thyroidfunction",
-      "name": "Thyroid function",
+      "id": "labTestPanel-ArterialBloodGas",
+      "code": "ArterialBloodGas",
+      "name": "Arterial Blood Gas",
       "visibilityStatus": "current",
-      "categoryId": "labTestCategory-Integration",
-      "testTypesInPanel": "labTestType-TSH,labTestType-T3,labTestType-T4"
+      "externalCode": "EG52484-3",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-I-PHA,labTestType-PCO2A,labTestType-PO2A,labTestType-BecefA,labTestType-HCO3A,labTestType-TCO2A,labTestType-SO2A,labTestType-NAA,labTestType-KA,labTestType-iCaA,labTestType-HctA,labTestType-HgbA,labTestType-ClA,labTestType-BUNA,labTestType-CreatinineA,labTestType-UreaA,labTestType-GlucoseA,labTestType-LacA,labTestType-AnionGapA"
+    },
+    {
+      "id": "labTestPanel-HemodialysisPre2",
+      "code": "HemodialysisPre",
+      "name": "Hemodialysis Pre (Biochemistry)",
+      "visibilityStatus": "current",
+      "externalCode": "99714-8",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-CO2,labTestType-Chloride,labTestType-Potassium,labTestType-Sodium,labTestType-Mg,labTestType-Calcium,labTestType-Albumin,labTestType-ALP,labTestType-Phosphorus,labTestType-BUN,labTestType-TotalProtein,labTestType-Creatinine"
+    },
+    {
+      "id": "labTestPanel-CSFBiochemistry",
+      "code": "CSFBiochemistry",
+      "name": "CSF Biochemistry",
+      "visibilityStatus": "current",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-TotalProtein,labTestType-Glucose,labTestType-LDH"
+    },
+    {
+      "id": "labTestPanel-HemodialysisPost",
+      "code": "HemodialysisPost",
+      "name": "Hemodialysis Post",
+      "visibilityStatus": "current",
+      "externalCode": "99713-0",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-Creatinine,labTestType-BUN,labTestType-Potassium"
+    },
+    {
+      "id": "labTestPanel-Urinalysis",
+      "code": "Urinalysis",
+      "name": "Urinalysis",
+      "visibilityStatus": "current",
+      "externalCode": "24356-8",
+      "categoryId": "labTestCategory-Microbiology",
+      "testTypesInPanel": "labTestType-UrineColor,labTestType-UrineAppearance,labTestType-UrineGlucose,labTestType-UrineKetones,labTestType-UrineBilirubin,labTestType-SpecificGravity,labTestType-UrineBlood,labTestType-pH,labTestType-UrineProtein,labTestType-Urobilinogen,labTestType-UrineNitrite,labTestType-LeukocytesEsterase"
+    },
+    {
+      "id": "labTestPanel-LiverFunctiontest",
+      "code": "LiverFunctiontest",
+      "name": "Liver Function test",
+      "visibilityStatus": "current",
+      "externalCode": "24325-3",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-Albumin,labTestType-ALP,labTestType-ALT,labTestType-AST,labTestType-IndirectBilirubin,labTestType-TotalProtein,labTestType-DirectBilirubin,labTestType-TotalBilirubin,labTestType-GGT"
+    },
+    {
+      "id": "labTestPanel-CBC2",
+      "code": "FBC1",
+      "name": "Complete Blood Count (CBC)",
+      "visibilityStatus": "current",
+      "externalCode": "57022-6",
+      "categoryId": "labTestCategory-Haematology",
+      "testTypesInPanel": "labTestType-WBC,labTestType-RBC,labTestType-Haemoglobin,labTestType-Hct,labTestType-MCV,labTestType-MCH,labTestType-MCHC,labTestType-PLT,labTestType-RDWSD,labTestType-RDWCV,labTestType-MPV,labTestType-Neutrophils,labTestType-Lymphocytes,labTestType-Monocytes,labTestType-Eosinophils,labTestType-Basophils,labTestType-IG,labTestType-Neutrophils-1,labTestType-Lymphocytes-1,labTestType-Monocytes-1,labTestType-Eosinophils-1,labTestType-Basophils-1,labTestType-IGPercent"
+    },
+    {
+      "id": "labTestPanel-2HourPostPrandial",
+      "code": "PPG",
+      "name": "2 Hour Post Prandial",
+      "visibilityStatus": "current",
+      "externalCode": "95102-0",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-PostPrandial2Hour,labTestType-GlucoseFast"
+    },
+    {
+      "id": "labTestPanel-BasicMetabolicPanel",
+      "code": "BasicMetabolicPanel",
+      "name": "Basic Metabolic Panel",
+      "visibilityStatus": "current",
+      "externalCode": "51990-0",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-CO2,labTestType-Chloride,labTestType-Potassium,labTestType-Sodium,labTestType-Calcium,labTestType-BUN,labTestType-Creatinine,labTestType-Glucose"
+    },
+    {
+      "id": "labTestPanel-PeripheralBloodSmear",
+      "code": "PeripheralBloodSmear",
+      "name": "Peripheral Blood Smear",
+      "visibilityStatus": "current",
+      "externalCode": "34994-4",
+      "categoryId": "labTestCategory-Haematology",
+      "testTypesInPanel": "labTestType-PRBC,labTestType-PWBC,labTestType-PPLT"
+    },
+    {
+      "id": "labTestPanel-GlucoseToleranceTest",
+      "code": "OGTT",
+      "name": "Oral Glucose Tolerance Test",
+      "visibilityStatus": "current",
+      "externalCode": "50586-7",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-GTT3Hours,labTestType-GTT2Hours,labTestType-GTT1Hours,labTestType-GlucoseFast"
+    },
+    {
+      "id": "labTestPanel-NCDpanel4",
+      "code": "NCDpanel4",
+      "name": "NCD Biochemistry panel",
+      "visibilityStatus": "current",
+      "externalCode": "NCD",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-ALT,labTestType-AST,labTestType-BUN,labTestType-Cholesterol,labTestType-Creatinine,labTestType-HDL,labTestType-GlucoseFast,labTestType-LDL,labTestType-Triglycerides,labTestType-UricAcid,labTestType-Sodium,labTestType-Potassium,labTestType-Chloride"
+    },
+    {
+      "id": "labTestPanel-PapSmearTest",
+      "code": "PapSmearTest",
+      "name": "Pap Smear Test",
+      "visibilityStatus": "current",
+      "externalCode": "86662-4",
+      "categoryId": "labTestCategory-Cytology",
+      "testTypesInPanel": "labTestType-DateofLMP,labTestType-History,labTestType-Site,labTestType-SmearTechnique,labTestType-Contraception,labTestType-NumberofSlides,labTestType-MacroscopyExamination,labTestType-Isthisaroutinesmear,labTestType-Isthisyourfirstsmear,labTestType-Previousabnormalsmear,labTestType-PAPSmear,labTestType-PAPSmear2"
+    },
+    {
+      "id": "labTestPanel-CSFMicroscopyTests",
+      "code": "CSFMicroscopyTests",
+      "name": "CSF Microscopy Tests",
+      "visibilityStatus": "current",
+      "externalCode": "32190-1",
+      "categoryId": "labTestCategory-Microbiology",
+      "testTypesInPanel": "labTestType-CSFAppearance,labTestType-CSFProtein,labTestType-CSFGlucose,labTestType-WhiteBloodCellsCSF,labTestType-PolymorphsCSF,labTestType-MononuclearCSF,labTestType-RedBloodCellsCSF,labTestType-GramStainCSF"
+    },
+    {
+      "id": "labTestPanel-CrossMatch",
+      "code": "CrossMatch",
+      "name": "Cross Match",
+      "visibilityStatus": "current",
+      "externalCode": "34531-4",
+      "categoryId": "labTestCategory-BloodBank",
+      "testTypesInPanel": "labTestType-Anyhistoryoftransfusionreactionorjaundicedbabies,labTestType-Clinicalparticularsreasonfortransfusion,labTestType-Crossmatch,labTestType-Noofunitsrequired,labTestType-BloodComponent,labTestType-Requiredwhen,labTestType-Specimencollectedby,labTestType-PatientsBloodGroup,labTestType-DonorInfo,labTestType-RoomTemperatureIncubation,labTestType-37CIncubation,labTestType-IATLISSSalina,labTestType-CCcells"
+    },
+    {
+      "id": "labTestPanel-Coagulation",
+      "code": "Coagulation",
+      "name": "Coagulation",
+      "visibilityStatus": "current",
+      "externalCode": "43153-6",
+      "categoryId": "labTestCategory-Coagulation",
+      "testTypesInPanel": "labTestType-APTT,labTestType-PT,labTestType-INR"
+    },
+    {
+      "id": "labTestPanel-VenousBloodGas",
+      "code": "VenousBloodGas",
+      "name": "Venous Blood Gas",
+      "visibilityStatus": "current",
+      "externalCode": "EG24339-4",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-I-PHV,labTestType-PCO2V,labTestType-PO2V,labTestType-BecefV,labTestType-HCO3V,labTestType-TCO2V,labTestType-SO2V,labTestType-NAV,labTestType-KV,labTestType-iCaV,labTestType-HctV,labTestType-HgbV,labTestType-ClV,labTestType-BUNV,labTestType-CreatinineV,labTestType-UreaV,labTestType-GlucoseV,labTestType-LacV,labTestType-AnionGapV"
+    },
+    {
+      "id": "labTestPanel-UrineDrugScreen1",
+      "code": "UrineDrugScreen1",
+      "name": "Urine Drug Screen",
+      "visibilityStatus": "current",
+      "externalCode": "12286-1",
+      "categoryId": "labTestCategory-Biochemistry",
+      "testTypesInPanel": "labTestType-Amphetamine,labTestType-Cocaine,labTestType-Marijuana,labTestType-Methamphetamines,labTestType-Opiates,labTestType-OxazepamBZO"
     }
   ]
 }

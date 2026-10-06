@@ -7,7 +7,7 @@ import { getTableItems } from '@utils/testHelper';
 test.setTimeout(80_000);
 
 test.describe('Results', () => {
-  test('[AT-6829] flags an out-of-range numeric result in the lab request results table', async ({
+  test('[AT-6829] flags an out-of-range result in the lab request results table', async ({
     page,
     newPatientWithHospitalAdmission,
     patientDetailsPage,
@@ -18,9 +18,13 @@ test.describe('Results', () => {
     const labRequestModal = new LabRequestModal(page);
     const labRequestPane = new LabRequestPane(page);
 
-    // ALT is a numeric test with reference range 5–40 (both sexes), so 80 is always out of range.
+    // AST carries a reference range of 5–35 (male) / 13–43 (female), so 80 is always out of
+    // range. Like most analytes in the supplied reference data it is typed as free text, which
+    // is the point: the flag follows the result, not the configured result type.
     await labRequestPane.newLabRequestButton.click();
-    await labRequestModal.individualModal.createBasicIndividualLabRequest(['ALT']);
+    await labRequestModal.createBasicIndividualLabRequest([
+      'Aspartate Aminotransferase, AST | 84451',
+    ]);
     await labRequestPane.waitForTableToLoad();
     await labRequestPane.clickFirstRow();
 
@@ -42,5 +46,6 @@ test.describe('Results', () => {
     // ...and hovering it explains why, naming the breached bound.
     await resultCell.hover();
     await expect(page.getByText('Outside normal range')).toBeVisible();
+    await expect(page.getByText(/>(35|43)U\/L/)).toBeVisible();
   });
 });

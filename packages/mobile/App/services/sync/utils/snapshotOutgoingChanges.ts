@@ -1,11 +1,10 @@
+import { pick } from 'es-toolkit';
 import { MoreThan } from 'typeorm';
-import { pick } from 'es-toolkit/compat';
-
-import type { BaseModel } from '../../../models/BaseModel';
-import type { SyncRecord, SyncRecordData } from '../types';
-import type { MODELS_MAP } from '../../../models/modelsMap';
-import { extractIncludedColumns } from './extractIncludedColumns';
 import { Database } from '~/infra/db';
+import type { BaseModel } from '../../../models/BaseModel';
+import type { MODELS_MAP } from '../../../models/modelsMap';
+import type { SyncRecord, SyncRecordData } from '../types';
+import { extractIncludedColumns } from './extractIncludedColumns';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): Omit<SyncRecord, 'id'> => {
   const includedColumns = extractIncludedColumns(model);
@@ -30,18 +29,18 @@ export const snapshotOutgoingChanges = async (
   outgoingModels: Partial<typeof MODELS_MAP>,
   since: number,
 ): Promise<SyncRecord[]> => {
-  let outgoingChanges = [];
-
   // snapshot inside a transaction (Serializable is the default isolation level),
   // so that other changes made while this snapshot
   // is underway aren't included (as this could lead to a pair of foreign records with the child in
   // the snapshot and its parent missing)
   // as the snapshot only contains read queries, there will be no concurrent update issues :)
   return Database.client.transaction(async () => {
+    const outgoingChanges = [];
     for (const model of Object.values(outgoingModels)) {
       const changesForModel = await model.find({
         where: { updatedAtSyncTick: MoreThan(since) },
         withDeleted: true,
+        loadEagerRelations: false,
       });
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
       const hasSanitizeMethod = 'sanitizeRecordDataForPush' in model;
@@ -49,9 +48,8 @@ export const snapshotOutgoingChanges = async (
         ? model.sanitizeRecordDataForPush(syncRecordsForModel)
         : syncRecordsForModel;
 
-      outgoingChanges = outgoingChanges.concat(sanitizedSyncRecords);
+      for (const record of sanitizedSyncRecords) outgoingChanges.push(record);
     }
-
     return outgoingChanges;
   });
 };

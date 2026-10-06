@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { formatValue } from '../../app/components/FormattedTableCell';
+import { formatValue, getValidationState } from '../../app/components/FormattedTableCell';
 
 describe('formatValue', () => {
   test.each([
@@ -58,7 +58,73 @@ describe('formatValue', () => {
       config: { rounding: null },
       expected: '36.64',
     },
+    {
+      title: 'preserves free-text that starts with a number rather than truncating it',
+      value: '12 colonies',
+      config: { rounding: null },
+      expected: '12 colonies',
+    },
+    {
+      title: 'preserves free-text that starts with a number even when rounding is configured',
+      value: '12 colonies',
+      config: { rounding: 1, unit: 'C' },
+      expected: '12 colonies',
+    },
   ])('$title', ({ value, config, expected }) => {
     expect(formatValue(value, config)).toBe(expected);
+  });
+
+  test('displays a detection-limit result verbatim', () => {
+    expect(formatValue('< 0.3', { unit: 'mg/L' })).toBe('< 0.3');
+  });
+});
+
+describe('getValidationState', () => {
+  test('flags "< n" out of range when n reaches the lower bound', () => {
+    expect(
+      getValidationState('< 0.3', { unit: 'mg/L' }, { normalRange: { min: 0.3, max: 5 } }).severity,
+    ).toBe('alert');
+  });
+
+  test('does not flag "< n" when n sits inside the range', () => {
+    expect(
+      getValidationState('< 0.3', {}, { normalRange: { min: 0.1, max: 2 } }).severity,
+    ).toBe('info');
+  });
+
+  test('flags "> n" out of range when n reaches the upper bound', () => {
+    expect(getValidationState('> 100', {}, { normalRange: { min: 1, max: 50 } }).severity).toBe(
+      'alert',
+    );
+  });
+
+  test('does not flag a comparator result against a qualitative text range', () => {
+    expect(getValidationState('< 0.3', {}, { rangeText: 'Negative' }).severity).toBe('info');
+  });
+
+  test('still flags a plain numeric result below the range', () => {
+    expect(getValidationState('0.05', {}, { normalRange: { min: 0.3, max: 5 } }).severity).toBe(
+      'alert',
+    );
+  });
+
+  test('leaves an in-range plain numeric result informational', () => {
+    expect(getValidationState('2', {}, { normalRange: { min: 0.3, max: 5 } }).severity).toBe('info');
+  });
+
+  test('flags a numeric result entered against a free-text test type', () => {
+    expect(
+      getValidationState('120', { unit: 'U/L' }, { normalRange: { min: 5, max: 35 } }),
+    ).toEqual({ tooltip: 'Outside normal range\n >35U/L', severity: 'alert' });
+  });
+
+  test('does not flag a result that is only partly numeric', () => {
+    expect(
+      getValidationState('12 colonies', {}, { normalRange: { min: 0, max: 5 } }).severity,
+    ).toBe('info');
+  });
+
+  test('flags a qualitative result that does not match its text range', () => {
+    expect(getValidationState('Positive', {}, { rangeText: 'Negative' }).severity).toBe('alert');
   });
 });

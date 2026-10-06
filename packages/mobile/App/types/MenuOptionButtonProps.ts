@@ -3,8 +3,8 @@ import type { IconWithSizeProps } from '~/ui/interfaces/WithSizeProps';
 
 export interface MenuOptionButtonProps {
   Icon?: FC<IconWithSizeProps>;
-  key: string;
-  title: string;
+  key?: string;
+  title: React.ReactNode;
   onPress: () => void;
   fontWeight?: number;
   arrowForwardIconProps?: IconWithSizeProps;

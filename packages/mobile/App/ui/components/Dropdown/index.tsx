@@ -188,7 +188,6 @@ export const Dropdown = React.memo(
           }}
           styleListContainer={{ maxHeight: 300 }}
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
-          searchIcon={filterable ? undefined : null}
           disabled={disabled}
           clearable={clearable}
           fontSize={fieldFontSize}
@@ -200,9 +199,9 @@ export const Dropdown = React.memo(
   },
 );
 
-export const MultiSelectDropdown = ({ ...props }): ReactElement => (
-  <Dropdown multiselect {...props} />
-);
+export const MultiSelectDropdown = (
+  props: Omit<React.ComponentPropsWithRef<typeof Dropdown>, 'multiselect'>,
+) => <Dropdown multiselect {...props} />;
 
 export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement => {
   const { getTranslation } = useTranslation();

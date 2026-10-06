@@ -9,6 +9,8 @@ jest.mock('react-native-device-info', () => ({
 
 import { Database } from '~/infra/db';
 import { fakeEncounter, fakePatient, fakeSurvey, fakeUser } from '/root/tests/helpers/fake';
+import { Certainty, ReferenceDataType } from '~/types';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 beforeAll(async () => {
   await Database.connect();
@@ -23,14 +25,80 @@ describe('Encounter', () => {
       const user = fakeUser();
       await Database.models.User.insert(user);
 
+      const facility = await Database.models.Facility.createAndSaveOne({
+        id: 'facility-central',
+        code: 'central',
+        name: 'Central Hospital',
+      });
+      const location = await Database.models.Location.createAndSaveOne({
+        id: 'location-ward-a',
+        code: 'ward-a',
+        name: 'Ward A',
+        facility,
+      });
+
       const encounter = fakeEncounter();
       encounter.patient = patient;
       encounter.examiner = user;
+      encounter.location = location;
       await Database.models.Encounter.insert(encounter);
 
       const result = await Database.models.Encounter.getForPatient(patient.id);
-      delete encounter.examiner; // examiner is not eager-loaded from db
+      // getForPatient joins only what the visits history renders, not examiner or patient
+      delete encounter.examiner;
+      delete encounter.patient;
+      delete encounter.location;
       expect(result[0]).toMatchObject(encounter);
+      expect(result[0].location).toMatchObject({
+        id: location.id,
+        name: 'Ward A',
+        facility: { id: facility.id, name: 'Central Hospital' },
+      });
+      expect(result[0].notes).toEqual([]);
+    });
+
+    it('attaches each encounter’s diagnoses, with their reference data', async () => {
+      const patient = fakePatient();
+      await Database.models.Patient.insert(patient);
+      const user = fakeUser();
+      await Database.models.User.insert(user);
+
+      const diagnosedEncounter = fakeEncounter();
+      diagnosedEncounter.patient = patient;
+      diagnosedEncounter.examiner = user;
+      const undiagnosedEncounter = fakeEncounter();
+      undiagnosedEncounter.startDate = formatISO9075(subDays(new Date(), 1));
+      undiagnosedEncounter.patient = patient;
+      undiagnosedEncounter.examiner = user;
+      // Insert one at a time. Clanker says “TypeORM’s post-insert reload on SQLite merges rows back
+      // into the inserted objects by position, so a bulk insert of random-UUID rows can swap their
+      // ids.”
+      await Database.models.Encounter.insert(diagnosedEncounter);
+      await Database.models.Encounter.insert(undiagnosedEncounter);
+
+      const malaria = await Database.models.ReferenceData.createAndSaveOne({
+        id: 'diagnosis-malaria',
+        type: ReferenceDataType.Diagnosis,
+        code: 'B54',
+        name: 'Malaria',
+      });
+      await Database.models.Diagnosis.createAndSaveOne({
+        date: getCurrentDateTimeString(),
+        certainty: Certainty.Confirmed,
+        diagnosis: malaria,
+        encounter: diagnosedEncounter,
+        clinician: user,
+      });
+
+      const [first, second] = await Database.models.Encounter.getForPatient(patient.id);
+      expect(first.id).toBe(diagnosedEncounter.id);
+      expect(first.diagnoses).toHaveLength(1);
+      expect(first.diagnoses[0]).toMatchObject({
+        certainty: Certainty.Confirmed,
+        diagnosis: { id: malaria.id, name: 'Malaria' },
+      });
+      expect(second.id).toBe(undiagnosedEncounter.id);
+      expect(second.diagnoses).toEqual([]);
     });
   });
 

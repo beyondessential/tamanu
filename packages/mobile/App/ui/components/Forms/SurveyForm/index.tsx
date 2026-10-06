@@ -1,41 +1,30 @@
+import { useQuery } from '@tanstack/react-query';
+import { type FormikConfig, useFormikContext, validateYupSchema, yupToFormErrors } from 'formik';
 import React, {
   type Dispatch,
-  type MutableRefObject,
   type ReactElement,
   type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { useFormikContext } from 'formik';
-import { getFormInitialValues, getFormSchema } from './helpers';
-import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
-import { Form } from '../Form';
-import { FormFields } from './FormFields';
-import { checkVisibilityCriteria } from '/helpers/fields';
-import { runCalculations } from '~/ui/helpers/calculations';
-import { authUserSelector } from '/helpers/selectors';
-import { useQuery } from '@tanstack/react-query';
 import { Database } from '~/infra/db';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
-import { ErrorScreen } from '../../ErrorScreen';
-import { LoadingScreen } from '../../LoadingScreen';
+import type { IPatientAdditionalData, ISurveyScreenComponent } from '~/types';
+import type { GenericFormValues } from '~/types/Forms';
 import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { runCalculations } from '~/ui/helpers/calculations';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
-
-function computeVisibleKey(
-  components: ISurveyScreenComponent[],
-  values: Record<string, any>,
-): string {
-  return components
-    .filter(c => checkVisibilityCriteria(c, components, values))
-    .map(c => c.id)
-    .join(',');
-}
+import { ErrorScreen } from '../../ErrorScreen';
+import { LoadingScreen } from '../../LoadingScreen';
+import Form from '../Form';
+import { FormFields } from './FormFields';
+import { getFormInitialValues, getFormSchema } from './helpers';
+import { checkVisibilityCriteria } from '/helpers/fields';
+import { authUserSelector } from '/helpers/selectors';
 
 const EMPTY_CALCULATED_VALUES = {};
 
@@ -44,8 +33,6 @@ interface SurveyFormInnerProps {
   hasCalculations: boolean;
   patient: any;
   encounterProp?: { encounterType?: string };
-  formValuesRef: MutableRefObject<Record<string, any>>;
-  setVisibleComponentKey: React.Dispatch<React.SetStateAction<string>>;
   onCancel?: () => void;
   onGoBack?: () => void;
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
@@ -57,8 +44,6 @@ const SurveyFormInner = ({
   hasCalculations,
   patient,
   encounterProp,
-  formValuesRef,
-  setVisibleComponentKey,
   onCancel,
   onGoBack,
   setCurrentScreenIndex,
@@ -70,11 +55,6 @@ const SurveyFormInner = ({
   const calculatedValues = useMemo(
     () => (hasCalculations ? runCalculations(components, values) : EMPTY_CALCULATED_VALUES),
     [components, hasCalculations, values],
-  );
-
-  const mergedValues = useMemo(
-    () => (hasCalculations ? { ...values, ...calculatedValues } : values),
-    [values, calculatedValues, hasCalculations],
   );
 
   // Write calculated values back into Formik so they persist
@@ -97,13 +77,6 @@ const SurveyFormInner = ({
     }
   }, [calculatedValues, setValues, values]);
 
-  // Update the ref (cheap, no render) and only setState when visibility changes
-  useEffect(() => {
-    formValuesRef.current = mergedValues;
-    const nextKey = computeVisibleKey(components, mergedValues);
-    setVisibleComponentKey(prev => (prev === nextKey ? prev : nextKey));
-  }, [components, mergedValues, formValuesRef, setVisibleComponentKey]);
-
   return (
     <FormFields
       components={components}
@@ -124,7 +97,7 @@ export type SurveyFormProps = {
   onCancel?: () => void;
   onGoBack?: () => void;
   patient: any;
-  validate?: any;
+  validate?: FormikConfig<GenericFormValues>['validate'];
   patientAdditionalData: IPatientAdditionalData;
   patientProgramRegistration?: IPatientProgramRegistration;
   setCurrentScreenIndex: Dispatch<SetStateAction<number>>;
@@ -185,18 +158,29 @@ export const SurveyForm = ({
   );
   const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
 
-  const formValuesRef = useRef(initialValues);
-  const [visibleComponentKey, setVisibleComponentKey] = useState(() =>
-    computeVisibleKey(components, initialValues),
+  const validateVisibleFields = useCallback(
+    async (values: Record<string, any>) => {
+      const visibleComponents = components.filter(c =>
+        checkVisibilityCriteria(c, components, values),
+      );
+      const visibleFieldsSchema = getFormSchema(
+        visibleComponents,
+        { encounterType: encounter?.encounterType },
+        getTranslation,
+      );
+      const schemaErrors = await (async () => {
+        try {
+          await validateYupSchema(values, visibleFieldsSchema);
+          return {};
+        } catch (error) {
+          if (error.name !== 'ValidationError') throw error;
+          return yupToFormErrors(error);
+        }
+      })();
+      return { ...schemaErrors, ...(await validate?.(values)) };
+    },
+    [components, encounter?.encounterType, getTranslation, validate],
   );
-
-  const formValidationSchema = useMemo(() => {
-    const visible = components.filter(c =>
-      checkVisibilityCriteria(c, components, formValuesRef.current),
-    );
-    return getFormSchema(visible, { encounterType: encounter?.encounterType }, getTranslation);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleComponentKey, encounter?.encounterType, getTranslation]);
 
   const submitVisibleValues = useCallback(
     (values: any) => {
@@ -224,25 +208,20 @@ export const SurveyForm = ({
   return (
     <Form
       validateOnBlur
-      validationSchema={formValidationSchema}
       initialValues={initialValues}
       onSubmit={submitVisibleValues}
-      validate={validate}
+      validate={validateVisibleFields}
     >
-      {() => (
-        <SurveyFormInner
-          components={components}
-          hasCalculations={hasCalculations}
-          patient={patient}
-          encounterProp={encounterProp}
-          formValuesRef={formValuesRef}
-          setVisibleComponentKey={setVisibleComponentKey}
-          onCancel={onCancel}
-          setCurrentScreenIndex={setCurrentScreenIndex}
-          currentScreenIndex={currentScreenIndex}
-          onGoBack={onGoBack}
-        />
-      )}
+      <SurveyFormInner
+        components={components}
+        hasCalculations={hasCalculations}
+        patient={patient}
+        encounterProp={encounterProp}
+        onCancel={onCancel}
+        setCurrentScreenIndex={setCurrentScreenIndex}
+        currentScreenIndex={currentScreenIndex}
+        onGoBack={onGoBack}
+      />
     </Form>
   );
 };

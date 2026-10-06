@@ -5,7 +5,6 @@ import config from 'config';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { getTrustedProxy } from '@tamanu/shared/utils';
-
 import { version } from './serverInfo';
 
 export const addFacilityMiddleware = async express => {
@@ -34,5 +33,5 @@ export const addFacilityMiddleware = async express => {
     }
   }
 
-  return { errorMiddleware }
+  return { errorMiddleware };
 };

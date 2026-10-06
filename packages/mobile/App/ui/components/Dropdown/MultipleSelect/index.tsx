@@ -1,6 +1,8 @@
 // Originally from:
 // https://github.com/toystars/react-native-multiple-select
 
+import { find, get, reject } from 'es-toolkit/compat';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   FlatList,
@@ -10,28 +12,17 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import { find, get, reject } from 'es-toolkit/compat';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import styles, { colorPack } from './styles';
-import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
-
-const nodeTypes = PropTypes.oneOfType([
-  PropTypes.element,
-  PropTypes.object,
-  PropTypes.bool,
-  PropTypes.func,
-]);
 
 const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
 const largeFontSize = screenPercentageToDP(3, Orientation.Height);
 
-const defaultSearchIcon = () => null;
-
-type MultiSelectState = {
+interface MultiSelectState {
   selector: boolean;
   searchTerm: string;
-};
+}
 
 export class MultiSelect extends Component<any, MultiSelectState> {
   static propTypes = {
@@ -51,7 +42,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     itemTextColor: PropTypes.string,
     itemFontSize: PropTypes.number,
     selectedItemIconColor: PropTypes.string,
-    searchIcon: nodeTypes,
     searchInputPlaceholderText: PropTypes.string,
     searchInputStyle: PropTypes.object,
     selectText: PropTypes.string,
@@ -102,7 +92,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
     tagRemoveIconColor: colorPack.danger,
     selectedItemFontFamily: '',
     selectedItemTextColor: colorPack.primary,
-    searchIcon: defaultSearchIcon,
     itemFontFamily: '',
     itemTextColor: colorPack.textPrimary,
     itemFontSize: 16,
@@ -219,7 +208,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                 color: tagTextColor,
                 fontSize: regularFontSize,
               },
-              styleTextTag && styleTextTag,
+              styleTextTag,
               fontFamily ? { fontFamily } : {},
             ]}
             numberOfLines={1}
@@ -267,21 +256,14 @@ export class MultiSelect extends Component<any, MultiSelectState> {
   _clearSelectorCallback = () => {
     const { onClearSelector } = this.props;
     this._clearSelector();
-    if (onClearSelector) {
-      onClearSelector();
-    }
+    onClearSelector?.();
   };
 
   _toggleSelector = () => {
     const { onToggleList, disabled } = this.props;
     if (disabled) return;
-
-    this.setState({
-      selector: !this.state.selector,
-    });
-    if (onToggleList) {
-      onToggleList();
-    }
+    this.setState(prev => ({ selector: !prev.selector }));
+    onToggleList?.();
   };
 
   _clearSearchTerm = () => {
@@ -366,7 +348,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
       <TouchableOpacity
         disabled={item.disabled}
         onPress={() => this._toggleItem(item)}
-        style={[styleRowList && styleRowList, { paddingLeft: 20, paddingRight: 20 }]}
+        style={[styleRowList, { paddingLeft: 20, paddingRight: 20 }]}
       >
         <View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -524,7 +506,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
       addItemRow = this._getRowNew({ name: searchTerm });
     }
     component = (
-      <View style={styleListContainer && styleListContainer}>
+      <View style={styleListContainer}>
         {itemList}
         {addItemRow}
       </View>
@@ -557,7 +539,6 @@ export class MultiSelect extends Component<any, MultiSelectState> {
       styleSelectorContainer,
       styleTextDropdown,
       styleTextDropdownSelected,
-      searchIcon,
       styleIndicator,
       disabled,
       clearable,
@@ -576,11 +557,10 @@ export class MultiSelect extends Component<any, MultiSelectState> {
             style={[
               // height should be dynamic when there is search text
               styles.selectorView(fixedHeight && !searchTerm.length),
-              styleSelectorContainer && styleSelectorContainer,
+              styleSelectorContainer,
             ]}
           >
-            <View style={[styles.inputGroup, styleInputGroup && styleInputGroup]}>
-              {searchIcon}
+            <View style={[styles.inputGroup, styleInputGroup]}>
               <TextInput
                 autoFocus
                 onChangeText={this._onChangeInput}
@@ -600,7 +580,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                       styles.indicator,
                       { paddingLeft: 15, paddingRight: 15 },
                       { fontSize: largeFontSize },
-                      styleIndicator && styleIndicator,
+                      styleIndicator,
                     ]}
                   />
                 </TouchableOpacity>
@@ -615,7 +595,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                     { marginRight: 10 },
                     styles.indicator,
                     { fontSize: largeFontSize },
-                    styleIndicator && styleIndicator,
+                    styleIndicator,
                   ]}
                 />
               )}
@@ -626,7 +606,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                 backgroundColor: '#fafafa',
               }}
             >
-              <View style={styleItemsContainer && styleItemsContainer}>{this._renderItems()}</View>
+              <View style={styleItemsContainer}>{this._renderItems()}</View>
               {!single && !hideSubmitButton && (
                 <TouchableOpacity
                   onPress={() => this._submitSelection()}
@@ -641,12 +621,12 @@ export class MultiSelect extends Component<any, MultiSelectState> {
           </View>
         ) : (
           <View>
-            <View style={[styles.dropdownView, styleDropdownMenu && styleDropdownMenu]}>
+            <View style={[styles.dropdownView, styleDropdownMenu]}>
               <View
                 style={[
                   styles.subSection,
                   { paddingTop: 10, paddingBottom: 10 },
-                  styleDropdownMenuSubsection && styleDropdownMenuSubsection,
+                  styleDropdownMenuSubsection,
                 ]}
               >
                 <TouchableWithoutFeedback onPress={this._toggleSelector}>
@@ -666,7 +646,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                                 fontSize: fontSize || 16,
                                 color: textColor || colorPack.placeholderTextColor,
                               },
-                              styleTextDropdown && styleTextDropdown,
+                              styleTextDropdown,
                               altFontFamily
                                 ? { fontFamily: altFontFamily }
                                 : fontFamily
@@ -679,7 +659,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                                 fontSize: fontSize || 16,
                                 color: textColor || colorPack.placeholderTextColor,
                               },
-                              styleTextDropdownSelected && styleTextDropdownSelected,
+                              styleTextDropdownSelected,
                             ]
                       }
                       numberOfLines={1}
@@ -693,7 +673,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                           style={[
                             styles.removeIndicator,
                             { fontSize: regularFontSize },
-                            styleIndicator && styleIndicator,
+                            styleIndicator,
                           ]}
                         />
                       </TouchableWithoutFeedback>
@@ -705,7 +685,7 @@ export class MultiSelect extends Component<any, MultiSelectState> {
                         { marginRight: -7 },
                         styles.indicator,
                         { fontSize: largeFontSize },
-                        styleIndicator && styleIndicator,
+                        styleIndicator,
                       ]}
                     />
                   </View>

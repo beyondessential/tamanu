@@ -290,7 +290,9 @@ export class LabRequestDetailsPage {
   ): Promise<void> {
     await this.enterResultsButton.click();
     await this.enterResultsModal.waitForModalToLoad();
-    await this.enterResultsModal.selectResult(result);
+    // Result types in the provisioned reference data are all free text, so the result cell is a
+    // plain input rather than a dropdown.
+    await this.enterResultsModal.fillResultForFirstRow(result);
     await this.enterResultsModal.selectLabTestMethod(labTestMethod);
     await this.enterResultsModal.verificationFirstRow.fill(verification);
     const dateToUse = completedDate || format(new Date(), "yyyy-MM-dd'T'HH:mm");

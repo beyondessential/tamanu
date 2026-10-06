@@ -1,24 +1,34 @@
-import React, { type ReactElement, useCallback, useMemo, useState } from 'react';
-import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
+import React, { useMemo } from 'react';
+import type { LabTestType } from '~/models/LabTestType';
+import { ReferenceDataType } from '~/types';
+import { DateField } from '~/ui/components/DateField/DateField';
+import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
+import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
+import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
+import { TranslatedReferenceData } from '../../Translations/TranslatedReferenceData';
+import { TranslatedText } from '../../Translations/TranslatedText';
+import { SubmitButton } from '../SubmitButton';
+import useLabTestTypesQuery from './useLabTestTypesQuery';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
-import { ReadOnlyBanner } from '~/ui/components/ReadOnlyBanner';
-import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
-import { DateField } from '~/ui/components/DateField/DateField';
-import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
-import { SubmitButton } from '../SubmitButton';
-import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceDataType } from '~/types';
-import { useBackend } from '~/ui/hooks';
-import { VisibilityStatus } from '~/visibilityStatuses';
-import { TranslatedText } from '../../Translations/TranslatedText';
-import { TranslatedReferenceData } from '../../Translations/TranslatedReferenceData';
-import { useAuth } from '~/ui/contexts/AuthContext';
+import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 
-export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactElement => {
-  const { ability } = useAuth();
-  const canCreateSensitive = ability.can('create', 'SensitiveLabRequest');
-  const [labTestTypes, setLabTestTypes] = useState([]);
+const toMultiCheckboxOptions = (labTestTypes: LabTestType[]) =>
+  labTestTypes.map(labTestType => ({
+    id: labTestType.id,
+    text: (
+      <TranslatedReferenceData
+        value={labTestType.id}
+        fallback={labTestType.name}
+        category={ReferenceDataType.LabTestType}
+      />
+    ),
+  }));
+
+export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => {
   const { models } = useBackend();
 
   const labRequestCategorySuggester = useMemo(
@@ -26,9 +36,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.LabTestCategory,
-          },
+          where: { type: ReferenceDataType.LabTestCategory },
         },
       }),
     [models.ReferenceData],
@@ -38,9 +46,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.LabTestPriority,
-          },
+          where: { type: ReferenceDataType.LabTestPriority },
         },
       }),
     [models.ReferenceData],
@@ -50,9 +56,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.LabSampleSite,
-          },
+          where: { type: ReferenceDataType.LabSampleSite },
         },
       }),
     [models.ReferenceData],
@@ -62,14 +66,11 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       new Suggester({
         model: models.ReferenceData,
         options: {
-          where: {
-            type: ReferenceDataType.SpecimenType,
-          },
+          where: { type: ReferenceDataType.SpecimenType },
         },
       }),
     [models.ReferenceData],
   );
-
   const practitionerSuggester = useMemo(
     () =>
       new Suggester({
@@ -79,31 +80,12 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     [models.User],
   );
 
-  const handleLabRequestTypeSelected = useCallback(async selectedValue => {
-    const where: any = {
-      labTestCategory: { id: selectedValue },
-      visibilityStatus: VisibilityStatus.Current,
-    };
-    if (!canCreateSensitive) {
-      where.isSensitive = false;
-    }
-    const selectedLabTestTypes = await models.LabTestType.find({
-      where,
-      order: { name: 'ASC' },
-    });
-    const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
-      id: labTestType.id,
-      text: (
-        <TranslatedReferenceData
-          fallback={labTestType.name}
-          value={labTestType.id}
-          category="labTestType"
-        />
-      ),
-      value: false,
-    }));
-    setLabTestTypes(labTestTypeOptions);
-  }, []);
+  const { ability } = useAuth();
+  const includeSensitive = ability.can('create', 'SensitiveLabRequest');
+  const { data: labTestTypeOptions = [] } = useLabTestTypesQuery(
+    { labTestCategoryId: values.categoryId, includeSensitive },
+    { select: toMultiCheckboxOptions },
+  );
 
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
@@ -140,7 +122,6 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
                   stringId="general.localisedField.clinician.label.short"
                   fallback="Clinician"
                   casing="lower"
-                  data-testid="translatedtext-9ywm"
                 />
               ),
             }}
@@ -200,9 +181,8 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         navigation={navigation}
         suggester={labRequestCategorySuggester}
         name="categoryId"
-        onChange={handleLabRequestTypeSelected}
       />
-      <Field name="labTestTypeIds" component={MultiCheckbox} options={labTestTypes} />
+      <Field name="labTestTypeIds" component={MultiCheckbox} options={labTestTypeOptions} />
       <FormValidationMessage message={errors.form} />
       <SubmitButton marginTop={15} onSubmit={handleSubmit} />
     </FormScreenView>

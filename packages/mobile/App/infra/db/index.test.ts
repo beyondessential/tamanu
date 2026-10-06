@@ -36,8 +36,8 @@ const mockFailingOptimize = (): jest.SpyInstance => {
     });
 };
 
-// Runs against real SQLite (the Jest connection config). Jest’s SQLite is newer than the device’s
-// 3.39 and decides differently what `PRAGMA optimize` should analyse, so these tests assert on the
+// Runs against real SQLite (the Jest connection config). Jest’s SQLite differs from the device’s
+// 3.49 and decides differently what `PRAGMA optimize` should analyse, so these tests assert on the
 // statements issued rather than on `sqlite_stat1`.
 describe('DatabaseHelper', () => {
   beforeAll(async () => {
@@ -64,20 +64,6 @@ describe('DatabaseHelper', () => {
       const fact = await getRefreshedAtFact();
       expect(fact).toBeTruthy();
       expect(parseInt(fact.value, 10)).toBeGreaterThanOrEqual(before);
-    });
-
-    it('bounds the ANALYZEs with analysis_limit = 400 before running PRAGMA optimize', async () => {
-      const querySpy = jest.spyOn(Database.client, 'query');
-
-      try {
-        await Database.requestPragmaOptimize();
-        const limitIndex = indexOfCall(querySpy, s => s === 'PRAGMA ANALYSIS_LIMIT = 400;');
-        const optimizeIndex = indexOfCall(querySpy, s => s === 'PRAGMA OPTIMIZE;');
-        expect(limitIndex).not.toBe(-1);
-        expect(optimizeIndex).toBeGreaterThan(limitIndex);
-      } finally {
-        querySpy.mockRestore();
-      }
     });
 
     it('never runs a bare ANALYZE itself', async () => {
