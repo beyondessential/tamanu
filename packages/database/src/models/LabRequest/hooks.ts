@@ -4,6 +4,7 @@ import {
   NOTIFICATION_TYPES,
   INVOICEABLE_LAB_REQUEST_STATUSES,
   INPATIENT_BUNDLED_CATEGORIES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import type { LabRequest } from './LabRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
@@ -109,6 +110,7 @@ const getItemsForLabRequest = async (instance: LabRequest) => {
         where: {
           category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
           sourceRecordId: labTestPanelRequest.labTestPanelId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         },
       });
 
@@ -125,6 +127,7 @@ const getItemsForLabRequest = async (instance: LabRequest) => {
       where: {
         category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
         sourceRecordId: test.labTestTypeId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
 

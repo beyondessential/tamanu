@@ -5,6 +5,7 @@ import {
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
   REFERENCE_TYPES,
   INPATIENT_BUNDLED_CATEGORIES,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import type { ImagingRequest } from './ImagingRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
@@ -97,6 +98,7 @@ const getItemsForImagingRequest = async (instance: ImagingRequest) => {
       where: {
         category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
         sourceRecordId: requestType.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
   }
@@ -113,6 +115,7 @@ const getItemsForImagingRequest = async (instance: ImagingRequest) => {
         where: {
           category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
           sourceRecordId: area.areaId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         },
       });
       if (areaProduct) {

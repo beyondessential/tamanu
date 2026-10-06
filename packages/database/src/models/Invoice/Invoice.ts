@@ -11,6 +11,7 @@ import {
   SYSTEM_USER_UUID,
   AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
   ENCOUNTER_TYPES,
+  VISIBILITY_STATUSES,
   type EncounterType,
 } from '@tamanu/constants';
 import { Model } from '../Model';
@@ -474,7 +475,7 @@ export class Invoice extends Model {
   private static findEncounterFeeProduct(category: string, referenceType: string, code: string) {
     const { InvoiceProduct, ReferenceData } = this.sequelize.models;
     return InvoiceProduct.findOne({
-      where: { category },
+      where: { category, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       include: [
         {
           model: ReferenceData,
@@ -585,7 +586,11 @@ export class Invoice extends Model {
 
     for (const [locationId, nights] of nightsByLocation) {
       const product = await InvoiceProduct.findOne({
-        where: { category: INVOICE_ITEMS_CATEGORIES.BED_FEE, sourceRecordId: locationId },
+        where: {
+          category: INVOICE_ITEMS_CATEGORIES.BED_FEE,
+          sourceRecordId: locationId,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
       });
       if (!product) {
         continue; // location has no bed-fee product (e.g. an "open ward" placeholder) → not charged
