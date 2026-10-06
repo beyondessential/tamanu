@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_encounter_prescriptions_from_sync_lookup
-              - notify_encounter_prescriptions_changed
               - record_encounter_prescriptions_changelog
               - set_encounter_prescriptions_updated_at
               - set_encounter_prescriptions_updated_at_sync_tick
