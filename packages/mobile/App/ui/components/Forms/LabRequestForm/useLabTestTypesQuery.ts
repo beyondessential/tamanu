@@ -9,22 +9,6 @@ interface LabTestTypesQueryParams {
   includeSensitive: boolean;
 }
 
-/**
- * Suggester predicate that keeps only the categories this query would return a test for, so
- * picking a category never leads to an empty test list. Keep it in step with the query below.
- */
-export const categoryHasLabTestTypesFilter = ({
-  includeSensitive,
-}: Pick<LabTestTypesQueryParams, 'includeSensitive'>) => ({
-  sql: `EXISTS (
-    SELECT 1 FROM lab_test_types
-    WHERE lab_test_types.labTestCategoryId = entity.id
-      AND lab_test_types.visibilityStatus = :labTestTypeVisibilityStatus
-      ${includeSensitive ? '' : 'AND lab_test_types.isSensitive = 0'}
-  )`,
-  parameters: { labTestTypeVisibilityStatus: VisibilityStatus.Current },
-});
-
 export default function useLabTestTypesQuery(
   { labTestCategoryId, includeSensitive }: LabTestTypesQueryParams,
   useQueryOptions: Omit<UseQueryOptions<LabTestType[]>, 'queryKey' | 'queryFn'> = {},

@@ -62,5 +62,5 @@ Recording sample collection is grouped by category: each category the request co
 
 ## Requesting lab tests on mobile
 
-- [ ] The test category picker lists only categories that have at least one current test the user can order; a category whose only tests are sensitive is listed only for users who can create sensitive lab requests.
+- [ ] Choosing a test category with no tests the user can order shows "No tests or panels found", as on desktop.
 - [ ] Tests that fail to load for the chosen category show an error message rather than an empty list.

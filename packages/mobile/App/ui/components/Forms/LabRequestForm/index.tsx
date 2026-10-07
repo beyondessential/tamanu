@@ -11,7 +11,7 @@ import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModa
 import { TranslatedReferenceData } from '../../Translations/TranslatedReferenceData';
 import { TranslatedText } from '../../Translations/TranslatedText';
 import { SubmitButton } from '../SubmitButton';
-import useLabTestTypesQuery, { categoryHasLabTestTypesFilter } from './useLabTestTypesQuery';
+import useLabTestTypesQuery from './useLabTestTypesQuery';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
@@ -32,8 +32,6 @@ const toMultiCheckboxOptions = (labTestTypes: LabTestType[]) =>
 
 export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => {
   const { models } = useBackend();
-  const { ability } = useAuth();
-  const includeSensitive = ability.can('create', 'SensitiveLabRequest');
 
   const labRequestCategorySuggester = useMemo(
     () =>
@@ -41,10 +39,9 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
         model: models.ReferenceData,
         options: {
           where: { type: ReferenceDataType.LabTestCategory },
-          andWhere: categoryHasLabTestTypesFilter({ includeSensitive }),
         },
       }),
-    [models.ReferenceData, includeSensitive],
+    [models.ReferenceData],
   );
   const labRequestPrioritySuggester = useMemo(
     () =>
@@ -85,7 +82,13 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
     [models.User],
   );
 
-  const { data: labTestTypeOptions = [], isError: isLabTestTypesError } = useLabTestTypesQuery(
+  const { ability } = useAuth();
+  const includeSensitive = ability.can('create', 'SensitiveLabRequest');
+  const {
+    data: labTestTypeOptions = [],
+    isError: isLabTestTypesError,
+    isSuccess: isLabTestTypesSuccess,
+  } = useLabTestTypesQuery(
     { labTestCategoryId: values.categoryId, includeSensitive },
     { select: toMultiCheckboxOptions },
   );
@@ -192,6 +195,11 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
             stringId="lab.testType.error.couldNotLoad"
             fallback="Could not load the tests for this category."
           />
+        </StyledText>
+      )}
+      {isLabTestTypesSuccess && labTestTypeOptions.length === 0 && (
+        <StyledText marginTop={10} color={theme.colors.TEXT_MID}>
+          <TranslatedText stringId="lab.testSelect.noResults" fallback="No tests or panels found" />
         </StyledText>
       )}
       <FormValidationMessage message={errors.form} />
