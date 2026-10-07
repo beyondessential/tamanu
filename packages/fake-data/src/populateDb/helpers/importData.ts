@@ -7,7 +7,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { fake } from '../../fake/index.js';
+import { chance, fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 import { pooled, pooledWithChild } from '../pool.js';
 import { createReferenceData } from './referenceData.js';
@@ -194,9 +194,34 @@ export const generateImportData = async ({
     },
   );
 
-  const labTestType = await pooled(LabTestType, () =>
-    LabTestType.create(fake(LabTestType, { labTestCategoryId: referenceData.id })),
-  );
+  // The pool stops at the name pool's length so category names stay distinct. pickDistinct
+  // alone only keeps them apart within one process, and the seed tops up across many runs.
+  const labTestCategoryNames = REFERENCE_DATA_NAMES[REFERENCE_TYPES.LAB_TEST_CATEGORY];
+  const createLabTestCategory = async () => {
+    const takenNames = new Set(
+      (
+        (await ReferenceData.findAll({
+          where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
+          attributes: ['name'],
+          raw: true,
+        })) as unknown as Array<{ name: string }>
+      ).map(({ name }) => name),
+    );
+    const name = chance.pickone(
+      labTestCategoryNames.filter(candidate => !takenNames.has(candidate)),
+    );
+    return ReferenceData.create(
+      fake(ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY, name }),
+    );
+  };
+  // A category is only minted for a test to sit in, so the seed never adds one with no tests.
+  const labTestType = await pooled(LabTestType, async () => {
+    const labTestCategory = await pooled(ReferenceData, createLabTestCategory, {
+      size: labTestCategoryNames.length,
+      where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
+    });
+    return LabTestType.create(fake(LabTestType, { labTestCategoryId: labTestCategory.id }));
+  });
 
   const user = await pooled(User, () => User.create(fake(User)));
 

@@ -33,4 +33,16 @@ describe('Fake data generation', () => {
     const withRecord = await models.ReferenceDrug.count({ where: { referenceDataId: generated } });
     expect(withRecord).toBe(generated.length);
   });
+
+  it('files every generated lab test type under a lab test category', async () => {
+    await generateEachDataType(models);
+
+    const labTestTypes = await models.LabTestType.findAll({
+      include: [{ model: models.ReferenceData, as: 'category' }],
+    });
+    expect(labTestTypes.length).toBeGreaterThan(0);
+    for (const labTestType of labTestTypes) {
+      expect(labTestType.category?.type).toBe(REFERENCE_TYPES.LAB_TEST_CATEGORY);
+    }
+  });
 });
