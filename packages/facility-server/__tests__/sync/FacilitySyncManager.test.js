@@ -7,7 +7,7 @@ import {
   FACT_LAST_SUCCESSFUL_SYNC_PUSH,
   FACT_SETTINGS_PSK,
 } from '@tamanu/constants/facts';
-import { USER_KINDS } from '@tamanu/constants';
+import { SYNC_FACILITY_RUN_STATUSES, USER_KINDS } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
@@ -117,6 +117,9 @@ describe('FacilitySyncManager', () => {
         const factStore = new Map(Object.entries(facts));
         const syncManager = new FacilitySyncManager({
           models: {
+            SyncFacilityRun: {
+              create: async () => ({ update: vi.fn(), complete: vi.fn() }),
+            },
             LocalSystemFact: {
               get: async key => factStore.get(key) ?? null,
               set: async (key, value) => void factStore.set(key, value),
@@ -213,6 +216,157 @@ describe('FacilitySyncManager', () => {
     });
   });
 
+  describe('sync run history', () => {
+    const makeSyncManager = centralServerOverrides => {
+      const syncManager = new FacilitySyncManager({
+        models,
+        sequelize: {
+          getQueryInterface: () => ({ dropSchema: vi.fn(), createSchema: vi.fn() }),
+          query: () => true,
+        },
+        centralServer: {
+          streaming: () => false,
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: vi.fn(),
+          markSessionErrored: vi.fn(),
+          ...centralServerOverrides,
+        },
+      });
+      vi.spyOn(syncManager, 'pullChanges').mockImplementation(() => true);
+      vi.spyOn(syncManager, 'pushChanges').mockImplementation(() => true);
+      // Provisioning after the session is covered above and isn't under test here
+      syncManager.centralServer.fetch = vi.fn(async () => ({}));
+      return syncManager;
+    };
+
+    const latestSyncRun = () => models.SyncFacilityRun.findOne({ order: [['startTime', 'DESC']] });
+
+    beforeEach(async () => {
+      await models.SyncFacilityRun.destroy({ where: {}, force: true });
+    });
+
+    it('records a successful run with its session and trigger', async () => {
+      const syncManager = makeSyncManager();
+
+      await syncManager.triggerSync({ type: 'scheduled', urgent: false });
+
+      const syncRun = await latestSyncRun();
+      expect(syncRun).toMatchObject({
+        status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
+        sessionId: TEST_SESSION_ID,
+        triggerType: 'scheduled',
+        urgent: false,
+        error: null,
+      });
+      expect(syncRun.completedAt).toBeInstanceOf(Date);
+    });
+
+    it('keeps only the type of the trigger reason', async () => {
+      const syncManager = makeSyncManager();
+
+      await syncManager.triggerSync({
+        type: 'userRequested',
+        urgent: true,
+        userId: 'user-1',
+        userEmail: 'someone@example.com',
+      });
+
+      const syncRun = await latestSyncRun();
+      expect(syncRun).toMatchObject({ triggerType: 'userRequested', urgent: true });
+    });
+
+    it('records a queued run without a session', async () => {
+      const syncManager = makeSyncManager({
+        startSyncSession: () => ({ status: 'waitingInQueue' }),
+      });
+
+      await syncManager.triggerSync({ type: 'scheduled' });
+
+      const syncRun = await latestSyncRun();
+      expect(syncRun).toMatchObject({ status: SYNC_FACILITY_RUN_STATUSES.QUEUED, sessionId: null });
+      expect(syncRun.completedAt).toBeInstanceOf(Date);
+    });
+
+    it('records a failed run with its error and still throws', async () => {
+      const syncManager = makeSyncManager();
+      syncManager.pullChanges.mockImplementation(async () => {
+        throw new Error('pull exploded');
+      });
+
+      await expect(syncManager.triggerSync({ type: 'scheduled' })).rejects.toThrow('pull exploded');
+
+      const syncRun = await latestSyncRun();
+      expect(syncRun).toMatchObject({
+        status: SYNC_FACILITY_RUN_STATUSES.FAILED,
+        sessionId: TEST_SESSION_ID,
+        error: 'pull exploded',
+      });
+      expect(syncRun.completedAt).toBeInstanceOf(Date);
+    });
+
+    it('records the run as running while it is in progress', async () => {
+      const syncManager = makeSyncManager();
+      let finishPull;
+      syncManager.pullChanges.mockImplementation(
+        () =>
+          new Promise(resolve => {
+            finishPull = resolve;
+          }),
+      );
+
+      const syncPromise = syncManager.triggerSync({ type: 'scheduled' });
+      await vi.waitFor(() => expect(finishPull).toBeDefined());
+
+      const runningSyncRun = await latestSyncRun();
+      expect(runningSyncRun).toMatchObject({
+        status: SYNC_FACILITY_RUN_STATUSES.RUNNING,
+        sessionId: TEST_SESSION_ID,
+        completedAt: null,
+      });
+
+      finishPull();
+      await syncPromise;
+      expect(await latestSyncRun()).toMatchObject({ status: SYNC_FACILITY_RUN_STATUSES.SUCCEEDED });
+    });
+
+    it('completes the sync even when its outcome cannot be recorded', async () => {
+      const syncManager = makeSyncManager();
+      const complete = vi
+        .spyOn(models.SyncFacilityRun.prototype, 'complete')
+        .mockRejectedValue(new Error('db unavailable'));
+
+      try {
+        await expect(syncManager.triggerSync({ type: 'scheduled' })).resolves.toMatchObject({
+          ran: true,
+        });
+        expect(await latestSyncRun()).toMatchObject({ status: SYNC_FACILITY_RUN_STATUSES.RUNNING });
+      } finally {
+        complete.mockRestore();
+      }
+    });
+
+    it('records one run per sync, not per caller waiting on it', async () => {
+      const syncManager = makeSyncManager();
+      let finishPull;
+      syncManager.pullChanges.mockImplementationOnce(
+        () =>
+          new Promise(resolve => {
+            finishPull = resolve;
+          }),
+      );
+
+      const first = syncManager.triggerSync({ type: 'scheduled' });
+      await vi.waitFor(() => expect(finishPull).toBeDefined());
+      // Two callers during a running sync share the single follow-up sync
+      const second = syncManager.triggerSync({ type: 'userRequested' });
+      const third = syncManager.triggerSync({ type: 'userRequested' });
+      finishPull();
+      await Promise.all([first, second, third]);
+
+      expect(await models.SyncFacilityRun.count()).toBe(2);
+    });
+  });
+
   describe('pushChanges', () => {
     beforeEach(() => {
       vi.resetModules();
@@ -226,9 +380,8 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Imported inside the test so the doMock above is in place before the module is evaluated
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
       const { snapshotOutgoingChanges } = await import('../../app/sync/snapshotOutgoingChanges');
 
       const syncManager = new TestFacilitySyncManager({
@@ -266,9 +419,8 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Imported inside the test so the doMock above is in place before the module is evaluated
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
       const { pushOutgoingChanges } = await import('../../app/sync/pushOutgoingChanges');
       const { attachChangelogToSnapshotRecords } = await import('@tamanu/database/utils/audit');
 
@@ -326,9 +478,8 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Imported inside the test so the doMock above is in place before the module is evaluated
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
       const { createSnapshotTable } = await import('@tamanu/database/sync');
 
       const syncManager = new TestFacilitySyncManager({
@@ -342,7 +493,7 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      await syncManager.pullChanges(TEST_SESSION_ID);
+      await syncManager.pullChanges(TEST_SESSION_ID, { update: vi.fn() });
 
       expect(createSnapshotTable).toBeCalledTimes(1);
       expect(createSnapshotTable).toBeCalledWith(ctx.sequelize, TEST_SESSION_ID);
@@ -366,9 +517,8 @@ describe('FacilitySyncManager', () => {
       }));
 
       // Imported inside the test so the doMock above is in place before the module is evaluated
-      const {
-        FacilitySyncManager: TestFacilitySyncManager,
-      } = await import('../../app/sync/FacilitySyncManager');
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
       const { saveIncomingChanges } = await import('@tamanu/database/sync');
 
       const syncManager = new TestFacilitySyncManager({
@@ -382,13 +532,57 @@ describe('FacilitySyncManager', () => {
         },
       });
 
-      await syncManager.pullChanges(TEST_SESSION_ID);
+      await syncManager.pullChanges(TEST_SESSION_ID, { update: vi.fn() });
 
       expect(saveIncomingChanges).toBeCalledTimes(1);
       expect(saveIncomingChanges).toBeCalledWith(
         ctx.sequelize,
         expect.any(Object),
         TEST_SESSION_ID,
+      );
+    });
+
+    it('records when persisting pulled changes starts and completes', async () => {
+      const syncRun = await models.SyncFacilityRun.create({});
+      let persistStartedAtSeenOutsideTransaction;
+
+      vi.doMock('@tamanu/database/sync', async () => ({
+        ...(await vi.importActual('@tamanu/database/sync')),
+        createSnapshotTable: vi.fn(),
+        saveIncomingChanges: vi.fn().mockImplementation(async () => {
+          // transaction: null reads outside the save transaction, as alerting would
+          const runDuringSave = await models.SyncFacilityRun.findByPk(syncRun.id, {
+            transaction: null,
+          });
+          persistStartedAtSeenOutsideTransaction = runDuringSave.persistStartedAt;
+          expect(runDuringSave.persistCompletedAt).toBeNull();
+        }),
+      }));
+      vi.doMock('../../app/sync/pullIncomingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pullIncomingChanges')),
+        pullIncomingChanges: vi.fn().mockImplementation(() => ({ totalPulled: 3, tick: 1 })),
+      }));
+      vi.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', async () => ({
+        ...(await vi.importActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot')),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: vi.fn(),
+      }));
+
+      // Imported inside the test so the doMock above is in place before the module is evaluated
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
+
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize: ctx.sequelize,
+        centralServer: { streaming: () => false },
+      });
+
+      await syncManager.pullChanges(TEST_SESSION_ID, syncRun);
+
+      await syncRun.reload();
+      expect(persistStartedAtSeenOutsideTransaction).toBeInstanceOf(Date);
+      expect(syncRun.persistCompletedAt.getTime()).toBeGreaterThanOrEqual(
+        syncRun.persistStartedAt.getTime(),
       );
     });
   });

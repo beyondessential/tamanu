@@ -1,5 +1,6 @@
 import _config from 'config';
 import { log } from '@tamanu/shared/services/logging';
+import { SYNC_FACILITY_RUN_STATUSES } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
@@ -126,6 +127,41 @@ export class FacilitySyncManager {
       );
     }
 
+    // spec: SYNRUN
+    // Recorded before anything else so that an attempt which hangs, or whose
+    // process dies, still leaves a running row for alerting to find.
+    const syncRun = await this.models.SyncFacilityRun.create({
+      triggerType: this.reason?.type,
+      urgent: Boolean(this.reason?.urgent),
+    });
+
+    try {
+      const result = await this.runSyncSession(syncRun);
+      await this.recordSyncRunOutcome(
+        syncRun,
+        result.queued ? SYNC_FACILITY_RUN_STATUSES.QUEUED : SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
+      );
+      return result;
+    } catch (error) {
+      await this.recordSyncRunOutcome(syncRun, SYNC_FACILITY_RUN_STATUSES.FAILED, {
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+
+  // A failure to record the outcome must neither mask the sync's own error nor
+  // fail a sync that completed; the row is left running, which alerting treats
+  // as suspect anyway.
+  async recordSyncRunOutcome(syncRun, status, details) {
+    try {
+      await syncRun.complete(status, details);
+    } catch (error) {
+      log.warn('FacilitySyncManager.recordSyncRunOutcomeFailed', { error: error.message });
+    }
+  }
+
+  async runSyncSession(syncRun) {
     const { email, password } = getSyncConfig();
     if (!email || !password) {
       throw new Error('Sync credentials are not configured');
@@ -158,6 +194,7 @@ export class FacilitySyncManager {
     }
 
     log.info('FacilitySyncManager.startSession');
+    await syncRun.update({ sessionId });
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
@@ -170,7 +207,7 @@ export class FacilitySyncManager {
     try {
       await this.pushChanges(sessionId, newSyncClockTime);
 
-      await this.pullChanges(sessionId);
+      await this.pullChanges(sessionId, syncRun);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
       if (!(error instanceof Problem && error.response)) {
@@ -257,7 +294,7 @@ export class FacilitySyncManager {
     log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 
-  async pullChanges(sessionId) {
+  async pullChanges(sessionId, syncRun) {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
@@ -283,6 +320,8 @@ export class FacilitySyncManager {
       );
     }
 
+    // Recorded outside the save transaction so it is visible while the save runs
+    await syncRun.update({ persistStartedAt: new Date() });
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
@@ -298,5 +337,6 @@ export class FacilitySyncManager {
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
       await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, pullUntil);
     });
+    await syncRun.update({ persistCompletedAt: new Date() });
   }
 }
