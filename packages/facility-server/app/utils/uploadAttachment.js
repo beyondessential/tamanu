@@ -1,6 +1,7 @@
 import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { log } from '@tamanu/shared/services/logging';
 import { CentralServerConnection } from '../sync';
 
 // Helper function for uploading one file to the central server
@@ -16,8 +17,13 @@ export const uploadAttachment = async (req, maxFileSize) => {
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 
-  // Parsed file needs to be deleted from memory
-  if (deleteFileAfterImport) fs.unlink(file, () => null);
+  // Parsed file needs to be deleted from memory. Awaited so the delete can't land
+  // after this request has returned; a failed delete shouldn't fail the upload.
+  if (deleteFileAfterImport) {
+    await asyncFs.unlink(file).catch(error => {
+      log.warn('uploadAttachment: failed to delete uploaded file', { error: error.message });
+    });
+  }
 
   // Check file size constraint
   if (maxFileSize && size > maxFileSize) {
