@@ -426,11 +426,6 @@ export const globalSettings = {
       description: 'Syndromic surveillance settings',
       exposedToWeb: true,
       properties: {
-        enableSyndromicSurveillance: {
-          description: 'Enable the syndromic surveillance feature',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         mandatorySyndromicSurveillanceOnDischarge: {
           description:
             'Require syndromic surveillance to be completed before a patient can be manually discharged. Not enforced on the server, so an encounter that discharges automatically (e.g. outpatient) is unaffected.',

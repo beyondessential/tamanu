@@ -35,7 +35,6 @@ export * from './servers.js';
 export * from './statuses.js';
 export * from './suggesters.js';
 export * from './surveys.js';
-export * from './syndromicSurveillance.js';
 export * from './sync.js';
 export * from './templates.js';
 export * from './translations.js';

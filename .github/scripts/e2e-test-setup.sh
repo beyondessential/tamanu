@@ -114,9 +114,6 @@ EOF
                 encounterSummary: {
                     enabled: true,
                 },
-                syndromicSurveillance: {
-                    enableSyndromicSurveillance: true,
-                },
                 medications: {
                     dispensing: {
                         dispensingQuantityAutocalculation: true,

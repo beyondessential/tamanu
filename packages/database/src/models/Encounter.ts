@@ -266,11 +266,6 @@ export class Encounter extends Model {
       as: 'diagnoses',
     });
 
-    this.hasOne(models.EncounterSyndrome, {
-      foreignKey: 'encounterId',
-      as: 'syndromicSurveillance',
-    });
-
     this.belongsToMany(models.Prescription, {
       foreignKey: 'encounterId',
       as: 'medications',

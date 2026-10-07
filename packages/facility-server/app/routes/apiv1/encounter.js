@@ -60,10 +60,6 @@ import {
   getDischargeDraft,
   saveDischargeDraft,
 } from './encounterDischargeDraft';
-import {
-  getEncounterSyndromicSurveillance,
-  upsertEncounterSyndromicSurveillance,
-} from '../../routeHandlers/syndromicSurveillance';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -273,12 +269,6 @@ encounter.put(
             isDischargePrescription: true,
             lines: pharmacyOrderLines,
           });
-        }
-
-        const { noSyndrome, symptomIds } = req.body;
-        if (noSyndrome != null || symptomIds != null) {
-          // By design: gated on write Encounter (already checked above)
-          await upsertEncounterSyndromicSurveillance(models, id, { noSyndrome, symptomIds });
         }
       }
 
@@ -502,53 +492,6 @@ encounterRelations.get(
       count,
       data: objects.map(object => object.forResponse()),
     });
-  }),
-);
-// spec: SYND#permissions
-encounterRelations.get(
-  '/:id/syndromicSurveillance',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const { id: encounterId } = params;
-
-    req.checkPermission('read', 'SyndromicSurveillance');
-
-    const result = await getEncounterSyndromicSurveillance(models, encounterId);
-    res.json(result);
-  }),
-);
-encounter.post(
-  '/:id/syndromicSurveillance',
-  asyncHandler(async (req, res) => {
-    const { db, models, params, body } = req;
-    const { id: encounterId } = params;
-
-    req.checkPermission('create', 'SyndromicSurveillance');
-
-    const encounterObject = await models.Encounter.findByPk(encounterId);
-    if (!encounterObject) throw new NotFoundError();
-
-    const result = await db.transaction(() =>
-      upsertEncounterSyndromicSurveillance(models, encounterId, body),
-    );
-    res.send(result);
-  }),
-);
-encounter.put(
-  '/:id/syndromicSurveillance',
-  asyncHandler(async (req, res) => {
-    const { db, models, params, body } = req;
-    const { id: encounterId } = params;
-
-    req.checkPermission('write', 'SyndromicSurveillance');
-
-    const encounterObject = await models.Encounter.findByPk(encounterId);
-    if (!encounterObject) throw new NotFoundError();
-
-    const result = await db.transaction(() =>
-      upsertEncounterSyndromicSurveillance(models, encounterId, body),
-    );
-    res.send(result);
   }),
 );
 encounterRelations.get(

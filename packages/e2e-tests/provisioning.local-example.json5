@@ -36,9 +36,6 @@
       encounterSummary: {
         enabled: true,
       },
-      syndromicSurveillance: {
-        enableSyndromicSurveillance: true,
-      },
       medications: {
         dispensing: {
           // Auto-calculate the dispensing quantity from dose, frequency and duration when

@@ -23,10 +23,6 @@ import { EditEncounterModal } from './modals/EditEncounterModal';
 import { InvoicePane } from '../InvoicePage/panes/InvoicePane';
 import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
-import {
-  SyndromicSurveillanceModal,
-  SyndromicSurveillanceStatus,
-} from './modals/SyndromicSurveillanceModal';
 import { DocumentsPane } from './panes/DocumentsPane';
 import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
 import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
@@ -66,8 +62,6 @@ export class PatientDetailsPage extends BasePatientPage {
   private _encounterHistoryPane?: EncounterHistoryPane;
   private _changeEncounterDetailsMenu?: ChangeEncounterDetailsMenu;
   private _addDiagnosisModal?: AddDiagnosisModal;
-  private _syndromicSurveillanceModal?: SyndromicSurveillanceModal;
-  private _syndromicSurveillanceStatus?: SyndromicSurveillanceStatus;
   readonly encounterMedicationTab: Locator;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
@@ -406,20 +400,6 @@ export class PatientDetailsPage extends BasePatientPage {
 
   async navigateToDiagnosisTab(): Promise<void> {
     await this.selectTab(this.diagnosisTab);
-  }
-
-  getSyndromicSurveillanceModal(): SyndromicSurveillanceModal {
-    if (!this._syndromicSurveillanceModal) {
-      this._syndromicSurveillanceModal = new SyndromicSurveillanceModal(this.page);
-    }
-    return this._syndromicSurveillanceModal;
-  }
-
-  getSyndromicSurveillanceStatus(): SyndromicSurveillanceStatus {
-    if (!this._syndromicSurveillanceStatus) {
-      this._syndromicSurveillanceStatus = new SyndromicSurveillanceStatus(this.page);
-    }
-    return this._syndromicSurveillanceStatus;
   }
 
   async navigateToDocumentsTab(): Promise<DocumentsPane> {

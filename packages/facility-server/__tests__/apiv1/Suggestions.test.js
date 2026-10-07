@@ -9,7 +9,6 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REGISTRATION_STATUSES,
-  SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -572,41 +571,6 @@ describe('Suggestions', () => {
         .query({ noLimit: true });
       expect(uncappedResult).toHaveSucceeded();
       expect(uncappedResult.body.length).toEqual(presetCount);
-    });
-  });
-
-  describe('syndromicSurveillanceSymptom', () => {
-    it('should pin the "no syndrome" symptom first, then list the rest alphabetically', async () => {
-      await models.ReferenceData.destroy({
-        where: { type: REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM },
-        force: true,
-      });
-
-      await models.ReferenceData.create({
-        id: SYNDROMIC_SURVEILLANCE_NO_SYNDROME_ID,
-        type: REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM,
-        code: 'noSyndrome',
-        name: 'No syndrome',
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      });
-      for (const name of ['Zebra fever', 'Apple rash', 'Mango cough']) {
-        await models.ReferenceData.create({
-          id: `syndromicsurveillancesymptoms-${name}`,
-          type: REFERENCE_TYPES.SYNDROMIC_SURVEILLANCE_SYMPTOM,
-          code: name,
-          name,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        });
-      }
-
-      const result = await userApp.get('/api/suggestions/syndromicSurveillanceSymptom/list');
-      expect(result).toHaveSucceeded();
-      expect(result.body.map(({ name }) => name)).toEqual([
-        'No syndrome',
-        'Apple rash',
-        'Mango cough',
-        'Zebra fever',
-      ]);
     });
   });
 

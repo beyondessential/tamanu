@@ -25,7 +25,6 @@ import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import { useEncounterDischargeDraftQuery } from '../api/queries/useEncounterDischargeDraftQuery';
 import { useEncounterDischargeDraftMutation } from '../api/mutations/useEncounterDischargeDraftMutation';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
-import { useSyndromicSurveillanceAccess } from '../hooks/useSyndromicSurveillanceAccess';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
@@ -56,23 +55,6 @@ import {
   orderingPrescriberLabel,
   OrderingPrescriberField,
 } from './DischargeMedicationColumns';
-import { SyndromicSurveillanceFields } from './SyndromicSurveillanceFields';
-
-const SyndromicSurveillanceDivider = styled(Divider)`
-  margin: 0 auto;
-`;
-
-const SyndromicSurveillanceSectionTitle = styled.h4`
-  font-size: 18px;
-  font-weight: 500;
-  margin-block: 0 8px;
-`;
-
-const SyndromicSurveillanceIntroText = styled.p`
-  font-size: 14px;
-  margin-block: 0 20px;
-  color: ${Colors.midText};
-`;
 
 const MedicationContainer = styled(Box)`
   border: 1px solid ${Colors.outline};
@@ -171,8 +153,6 @@ const getDischargeInitialValues = ({
   medicationInitialValues,
   getCurrentDateTime,
   storedDateTimeToEpochMilliseconds,
-  showSyndromicSurveillance,
-  syndromicSurveillanceData,
 }) => {
   const encounterStartMs = storedDateTimeToEpochMilliseconds(encounter.startDate);
 
@@ -204,12 +184,6 @@ const getDischargeInitialValues = ({
     },
     medications: medicationInitialValues,
     submittedTime: getCurrentDateTime(),
-    ...(showSyndromicSurveillance
-      ? {
-          noSyndrome: syndromicSurveillanceData?.noSyndrome ?? false,
-          symptomIds: syndromicSurveillanceData?.symptomIds ?? [],
-        }
-      : {}),
   };
 };
 
@@ -296,16 +270,6 @@ export const DischargeForm = ({
   const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
   const showEncounterSummary =
     encounterSummaryEnabled && canCreateEncounterSummary && canWriteEncounterSummary;
-  const {
-    show: showSyndromicSurveillance,
-    data: syndromicSurveillanceData,
-    isFetched: isSyndromicSurveillanceFetched,
-    canEdit: canEditSyndromicSurveillance,
-  } = useSyndromicSurveillanceAccess(encounter.id);
-  const syndromicSurveillanceMandatory =
-    showSyndromicSurveillance &&
-    canEditSyndromicSurveillance &&
-    getSetting('syndromicSurveillance.mandatorySyndromicSurveillanceOnDischarge');
   // Only display diagnoses that don't have a certainty of 'error' or 'disproven'
   const currentDiagnoses = encounter.diagnoses.filter(
     d => !['error', 'disproven'].includes(d.certainty),
@@ -336,7 +300,6 @@ export const DischargeForm = ({
     !isLoadingEncounterMedications &&
     !isLoadingOngoingPrescriptions &&
     (!IS_DISCHARGE_DRAFT_ENABLED || isDischargeDraftFetched) &&
-    (!showSyndromicSurveillance || isSyndromicSurveillanceFetched) &&
     dischargeNotes !== null;
   const [isInitialDataReady, setIsInitialDataReady] = useState(false);
   if (hasInitialData && !isInitialDataReady) {
@@ -480,8 +443,6 @@ export const DischargeForm = ({
           medicationInitialValues,
           getCurrentDateTime,
           storedDateTimeToEpochMilliseconds,
-          showSyndromicSurveillance,
-          syndromicSurveillanceData,
         })}
         FormScreen={props => (
           <DischargeFormScreen
@@ -574,14 +535,6 @@ export const DischargeForm = ({
                 fallback="Discharge disposition"
               />,
             ),
-          ...(syndromicSurveillanceMandatory && {
-            noSyndrome: yup
-              .boolean()
-              .test('atLeastOneSyndromicSurveillanceItem', requiredInlineMessage, function (value) {
-                const symptomIds = this.options.context?.symptomIds ?? [];
-                return Boolean(value) || symptomIds.length > 0;
-              }),
-          }),
         })}
         formProps={{
           enableReinitialize: false,
@@ -690,34 +643,6 @@ export const DischargeForm = ({
             <div style={{ gridColumn: '1 / -1' }}>
               <EncounterSummaryContent encounterId={encounter.id} />
             </div>
-          )}
-          {showSyndromicSurveillance && (
-            <>
-              <SyndromicSurveillanceDivider
-                style={{ gridColumn: '1 / -1' }}
-                data-testid="divider-syndromic-surveillance-section"
-              />
-              <div style={{ gridColumn: '1 / -1' }}>
-                <SyndromicSurveillanceSectionTitle data-testid="sectiontitle-syndromic-surveillance">
-                  <TranslatedText
-                    stringId="encounter.syndromicSurveillance.label"
-                    fallback="Syndromic surveillance"
-                    data-testid="translatedtext-syndromic-surveillance-section-title"
-                  />
-                </SyndromicSurveillanceSectionTitle>
-                <SyndromicSurveillanceIntroText data-testid="introtext-syndromic-surveillance-section">
-                  <TranslatedText
-                    stringId="discharge.syndromicSurveillance.intro"
-                    fallback="Please complete the below for syndromic surveillance"
-                    data-testid="translatedtext-syndromic-surveillance-section-intro"
-                  />
-                </SyndromicSurveillanceIntroText>
-                <SyndromicSurveillanceFields
-                  readOnly={!canEditSyndromicSurveillance}
-                  data-testid="syndromicsurveillancefields-discharge"
-                />
-              </div>
-            </>
           )}
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}

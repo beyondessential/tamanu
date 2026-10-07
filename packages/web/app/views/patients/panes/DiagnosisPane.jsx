@@ -2,15 +2,13 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../../constants/styles';
-import { Button, TextButton } from '../../../components/Button';
+import { Button } from '../../../components/Button';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { DiagnosisModal } from '../../../components/DiagnosisModal';
 import { DiagnosisTable } from '../../../components/DiagnosisTable';
-import { SyndromicSurveillanceModal } from '../../../components/SyndromicSurveillanceModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { useSyndromicSurveillanceAccess } from '../../../hooks/useSyndromicSurveillanceAccess';
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
@@ -23,121 +21,15 @@ const TabPane = styled.div`
 const ActionRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 6px 0;
 `;
-
-const SyndromicSurveillanceRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const SyndromicSurveillanceTextButton = styled(TextButton)`
-  font-size: 14px;
-
-  &,
-  :hover {
-    color: ${props => (props.$isPrimary ? Colors.primary : Colors.darkestText)};
-    font-weight: ${props => (props.$isPrimary ? 500 : 400)};
-    text-decoration: ${props => (props.$isPrimary ? 'none' : 'underline')};
-  }
-`;
-
-const BoldText = styled.span`
-  font-weight: 500;
-`;
-
-const SYNDROMIC_SURVEILLANCE_STATES = {
-  NOT_RECORDED: 'notRecorded',
-  SYMPTOMS_RECORDED: 'symptomsRecorded',
-  NO_SYNDROME: 'noSyndrome',
-};
-
-const SyndromicSurveillanceStatus = ({
-  state = SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED,
-  symptomCount = 0,
-  onOpenModal,
-  canCreate,
-  canWrite,
-  'data-testid': dataTestId,
-}) => {
-  if (state === SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED) {
-    return (
-      <SyndromicSurveillanceTextButton
-        $isPrimary
-        onClick={onOpenModal}
-        disabled={!canCreate}
-        data-testid={dataTestId}
-      >
-        <TranslatedText
-          stringId="encounter.syndromicSurveillance.label"
-          fallback="Syndromic surveillance"
-          data-testid="translatedtext-syndromic-surveillance"
-        />
-      </SyndromicSurveillanceTextButton>
-    );
-  }
-
-  return (
-    <SyndromicSurveillanceRow data-testid={dataTestId}>
-      <span>
-        <TranslatedText
-          stringId="encounter.syndromicSurveillance.label"
-          fallback="Syndromic surveillance"
-          data-testid="translatedtext-syndromic-surveillance"
-        />
-        {': '}
-        <BoldText data-testid="boldtext-syndromic-surveillance-status">
-          {state === SYNDROMIC_SURVEILLANCE_STATES.SYMPTOMS_RECORDED ? (
-            <TranslatedText
-              stringId="encounter.syndromicSurveillance.symptomsRecorded"
-              fallback=":count symptoms recorded"
-              replacements={{ count: symptomCount.toLocaleString() }}
-              data-testid="translatedtext-symptoms-recorded"
-            />
-          ) : (
-            <TranslatedText
-              stringId="encounter.syndromicSurveillance.noSyndrome"
-              fallback="No syndrome"
-              data-testid="translatedtext-no-syndrome"
-            />
-          )}
-        </BoldText>
-      </span>
-      <SyndromicSurveillanceTextButton
-        onClick={onOpenModal}
-        data-testid="textbutton-syndromic-surveillance-viewedit"
-      >
-        <TranslatedText
-          stringId={canWrite ? 'general.action.viewEdit' : 'general.action.view'}
-          fallback={canWrite ? 'View/Edit' : 'View'}
-          data-testid="translatedtext-view-edit"
-        />
-      </SyndromicSurveillanceTextButton>
-    </SyndromicSurveillanceRow>
-  );
-};
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
   const [editedDiagnosis, setEditedDiagnosis] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
-  const [isSyndromicSurveillanceModalOpen, setIsSyndromicSurveillanceModalOpen] = useState(false);
-  const {
-    show: showSyndromicSurveillance,
-    data: syndromicSurveillanceData,
-    isRecorded: isSyndromicSurveillanceRecorded,
-    canCreate: canCreateSyndromicSurveillance,
-    canWrite: canWriteSyndromicSurveillance,
-    canEdit: canEditSyndromicSurveillance,
-  } = useSyndromicSurveillanceAccess(encounter.id);
-  const syndromicSurveillanceState = !isSyndromicSurveillanceRecorded
-    ? SYNDROMIC_SURVEILLANCE_STATES.NOT_RECORDED
-    : syndromicSurveillanceData.noSyndrome
-      ? SYNDROMIC_SURVEILLANCE_STATES.NO_SYNDROME
-      : SYNDROMIC_SURVEILLANCE_STATES.SYMPTOMS_RECORDED;
 
   const refreshDiagnosisTable = useCallback(() => {
     setRefreshCount(prev => prev + 1);
@@ -154,29 +46,7 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         onSaved={refreshDiagnosisTable}
         data-testid="diagnosismodal-pane"
       />
-      {showSyndromicSurveillance && (
-        <SyndromicSurveillanceModal
-          open={isSyndromicSurveillanceModalOpen}
-          onClose={() => setIsSyndromicSurveillanceModalOpen(false)}
-          readOnly={!canEditSyndromicSurveillance}
-          encounterId={encounter.id}
-          existingData={syndromicSurveillanceData}
-          data-testid="syndromicsurveillancemodal-pane"
-        />
-      )}
       <ActionRow data-testid="actionrow-diagnosis">
-        {showSyndromicSurveillance ? (
-          <SyndromicSurveillanceStatus
-            state={syndromicSurveillanceState}
-            symptomCount={syndromicSurveillanceData?.symptomIds?.length}
-            onOpenModal={() => setIsSyndromicSurveillanceModalOpen(true)}
-            canCreate={canCreateSyndromicSurveillance}
-            canWrite={canWriteSyndromicSurveillance}
-            data-testid="syndromicsurveillancestatus-diagnosis"
-          />
-        ) : (
-          <span />
-        )}
         <NoteModalActionBlocker>
           <Button
             onClick={() => setEditedDiagnosis({})}

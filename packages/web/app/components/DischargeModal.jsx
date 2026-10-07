@@ -7,7 +7,6 @@ import { useEncounter } from '../contexts/Encounter';
 import { usePatient } from '../contexts/Patient';
 import { DischargeForm } from '../forms/DischargeForm';
 import { ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY } from '../api/queries/useEncounterDischargeDraftQuery';
-import { ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
 import { getPatientStatus } from '../utils/getPatientStatus';
 import { invalidatePatientDataQueries } from '../utils/invalidatePatientDataQueries';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -87,7 +86,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
       invalidatePatientDataQueries(queryClient, patient?.id);
       queryClient.invalidateQueries(['encounterDischarge', encounter.id]);
       queryClient.invalidateQueries([ENCOUNTER_DISCHARGE_DRAFT_QUERY_KEY, encounter.id]);
-      queryClient.invalidateQueries([ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY, encounter.id]);
       navigateToPatient(patient?.id);
       onClose();
     },
