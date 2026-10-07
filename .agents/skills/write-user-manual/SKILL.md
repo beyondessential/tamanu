@@ -39,13 +39,25 @@ one-line description each, and get the list approved before writing.
 2. **Read the relevant spec** under `specs/`, but expect it to be thin. Much of the tree is stubs,
    so the code is the source of truth.
 3. **Run the app and click the flow through** before publishing, to confirm what each action does.
-   Use a demo environment the author provides; ask for its address, a login, and the name of the
-   test patient to use.
+   Ask the author for a demo site, a login, and the test patient to use.
 
 Report anything you couldn't confirm by clicking as unverified.
 
-Tamanu's old user guides are in Slab, which you can't reach. If the author pastes one in, read it to
-see what the area used to cover, but write from the app rather than from its wording.
+Driving a demo site:
+
+- **Confirm first** that it holds synthetic data only, since the screenshots are published, and that
+  it runs the version the guide documents
+- **Keep the login to the session.** Never write it to a file, commit it, or put it in the PR. If a
+  login fails, stop and check rather than retrying, since repeated failures can lock a shared account
+- **Use only the test patient the author names.** Where their records can't show a screen, say so
+  rather than using another patient
+- **Guides document actions that write data**, so recording against the test patient is expected, but
+  get the author's go-ahead first and keep it to what the guide needs
+- **Drive it with a throwaway script outside the repository**, not a spec in the e2e suite
+
+Tamanu's old user guides are in Slab, at https://beyond-essential.slab.com/public/topics, which you
+can't reach. Don't go looking for them: if the author pastes one in, read it to see what the area
+used to cover, but write from the app rather than from its wording.
 
 ### 3. Capture screenshots
 
