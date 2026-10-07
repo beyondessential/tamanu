@@ -1,19 +1,19 @@
-import React, { type ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import { CenterView, StyledText, StyledView } from '../../../../styled/common';
-import { theme } from '../../../../styled/theme';
-import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../../helpers/screen';
-import { BackendContext } from '../../../../contexts/BackendContext';
-import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
-import { Button } from '../../../../components/Button';
-import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
-import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
+import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
+import { Button } from '../../../../components/Button';
+import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
+import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
+import { BackendContext } from '../../../../contexts/BackendContext';
+import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../../helpers/screen';
+import { CenterView, StyledText, StyledView } from '../../../../styled/common';
+import { theme } from '../../../../styled/theme';
 
-export const SyncDataScreen = ({ navigation }): ReactElement => {
-  const backend = useContext(BackendContext) as BackendContext;
+export const SyncDataScreen = ({ navigation }) => {
+  const backend = useContext(BackendContext);
   const syncManager = backend.syncManager;
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
@@ -31,9 +31,10 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   useStatusBarStyle('light-content', theme.colors.MAIN_SUPER_DARK);
 
-  const manualSync = useCallback(() => {
-    syncManager.triggerUrgentSync();
-  }, []);
+  const manualSync = useCallback(
+    () => void syncManager.triggerUrgentSync(),
+    [syncManager.triggerUrgentSync],
+  );
 
   useEffect(() => {
     // Add this listener to detect when users exit/switch to another tab
@@ -91,9 +92,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
       }
     };
     syncManager.emitter.on('*', handler);
-    return () => {
-      syncManager.emitter.off('*', handler);
-    };
+    return () => syncManager.emitter.off('*', handler);
   });
 
   useEffect(() => {
@@ -102,17 +101,14 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
         formatlastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
       );
     }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [syncManager.lastSuccessfulSyncTime]);
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
-        {/* Circular progress */}
         {(isSyncing || isQueuing) && !hasError ? (
           <ActivityIndicator
             size="large"
