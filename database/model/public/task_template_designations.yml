@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_task_template_designations_from_sync_lookup
-              - notify_task_template_designations_changed
               - record_task_template_designations_changelog
               - set_task_template_designations_updated_at
               - set_task_template_designations_updated_at_sync_tick

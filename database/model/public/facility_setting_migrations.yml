@@ -11,7 +11,6 @@ sources:
             - system
           meta:
             triggers:
-              - notify_facility_setting_migrations_changed
               - record_facility_setting_migrations_changelog
               - set_facility_setting_migrations_updated_at
               - set_facility_setting_migrations_updated_at_sync_tick

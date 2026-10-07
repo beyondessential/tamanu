@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_invoice_item_finalised_insurances_from_sync_lookup
-              - notify_invoice_item_finalised_insurances_changed
               - record_invoice_item_finalised_insurances_changelog
               - set_invoice_item_finalised_insurances_updated_at
               - set_invoice_item_finalised_insurances_updated_at_sync_tick

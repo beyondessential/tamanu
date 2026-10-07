@@ -7,7 +7,7 @@ import { format, subSeconds } from 'date-fns';
 import { capitalize } from 'es-toolkit/compat';
 import { useFormikContext } from 'formik';
 import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -653,6 +653,7 @@ export const MedicationForm = ({
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
   const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
+  const isFinalizingRef = useRef(false);
   const [frequencyChanged, setFrequencyChanged] = useState(0);
   const [selectedDrug, setSelectedDrug] = useState(null);
   const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
@@ -733,11 +734,17 @@ export const MedicationForm = ({
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
-    if (isFinalizingMedication) {
+    if (isFinalizingRef.current) {
       return;
     }
 
+    isFinalizingRef.current = true;
     setIsFinalizingMedication(true);
+
+    const unlock = () => {
+      isFinalizingRef.current = false;
+      setIsFinalizingMedication(false);
+    };
 
     try {
       setAwaitingPrint(isPrinting);
@@ -745,8 +752,14 @@ export const MedicationForm = ({
         onDirtyChange(dirty);
       }
       await submitForm(data);
-    } finally {
-      setIsFinalizingMedication(false);
+    } catch (error) {
+      unlock();
+      throw error;
+    }
+
+    // A saved prescription stays locked until the modal unmounts, so a late click can't save it again.
+    if (isEditing) {
+      unlock();
     }
   };
 

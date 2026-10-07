@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_lab_request_logs_from_sync_lookup
-              - notify_lab_request_logs_changed
               - record_lab_request_logs_changelog
               - set_lab_request_logs_updated_at
               - set_lab_request_logs_updated_at_sync_tick

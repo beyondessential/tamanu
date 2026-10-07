@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_task_templates_from_sync_lookup
-              - notify_task_templates_changed
               - record_task_templates_changelog
               - set_task_templates_updated_at
               - set_task_templates_updated_at_sync_tick
