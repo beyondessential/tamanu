@@ -591,8 +591,10 @@ jobs:
     needs:
       - config
       - deploy-up
-    # The Windows image jobs upstream are skipped by default, which skips this job too without always().
-    if: always() && needs.deploy-up.result == 'success'
+    # Without a status function this job is skipped whenever any job further up is, and the Windows
+    # image jobs are skipped by default. deploy-up is a matrix whose result is failure if any one
+    # environment failed, so each environment's fake data runs unless no deploy ran at all.
+    if: ${{ !cancelled() && needs.deploy-up.result != 'skipped' }}
     strategy:
       fail-fast: false
       matrix:
