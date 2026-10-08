@@ -591,6 +591,8 @@ jobs:
     needs:
       - config
       - deploy-up
+    # The Windows image jobs upstream are skipped by default, which skips this job too without always().
+    if: always() && needs.deploy-up.result == 'success'
     strategy:
       fail-fast: false
       matrix:
