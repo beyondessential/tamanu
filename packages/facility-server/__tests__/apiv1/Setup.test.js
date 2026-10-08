@@ -1,5 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import config from 'config';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { FACT_LAST_SUCCESSFUL_SYNC_PULL } from '@tamanu/constants/facts';
 
 import { createTestContext } from '../utilities';
 
@@ -24,6 +26,45 @@ describe('Setup endpoints', () => {
     expect(result.status).toBe(200);
     expect(result.body.ok).toBe('ok');
     expect(result.body.setupRequired).toBe(false);
+  });
+
+  // spec: FSETUP#setting-up-state
+  describe('setting up', () => {
+    const ping = async () => (await baseApp.get('/api/public/ping')).body;
+    const setPullCursor = value =>
+      ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, value);
+
+    it('GET /public/ping never reports setting up while sync is turned off', async () => {
+      await setPullCursor(null);
+      const { enabled } = config.sync;
+      config.sync.enabled = false;
+      try {
+        expect(await ping()).toMatchObject({ isSettingUp: false });
+      } finally {
+        config.sync.enabled = enabled; // eslint-disable-line require-atomic-updates
+      }
+    });
+
+    it('GET /public/ping reports setting up until the first sync completes', async () => {
+      await setPullCursor(null);
+      expect(await ping()).toMatchObject({ setupRequired: false, isSettingUp: true });
+
+      await setPullCursor('100');
+      expect(await ping()).toMatchObject({ setupRequired: false, isSettingUp: false });
+    });
+
+    it('GET /public/ping stops reading the pull cursor once the first sync has completed', async () => {
+      await setPullCursor('100');
+      await ping();
+
+      const get = vi.spyOn(ctx.models.LocalSystemFact, 'get');
+      try {
+        expect(await ping()).toMatchObject({ isSettingUp: false });
+        expect(get).not.toHaveBeenCalledWith(FACT_LAST_SUCCESSFUL_SYNC_PULL);
+      } finally {
+        get.mockRestore();
+      }
+    });
   });
 
   it('POST /public/setup/sync refuses a configured server (409)', async () => {

@@ -2,6 +2,7 @@ import config from 'config';
 
 import {
   FACT_CENTRAL_HOST,
+  FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
   FACT_FACILITY_IDS,
@@ -99,6 +100,27 @@ export function getServerFacilityIds() {
 export function isServerConfigured() {
   const { sync, facilityIds } = current();
   return Boolean(sync.host && sync.email && sync.password && facilityIds?.length);
+}
+
+// spec: FSETUP#setting-up-state
+// Configured, but its first sync hasn't completed. Read on the liveness check, which otherwise
+// answers without the database: a first sync that has completed stays completed, so once seen it
+// isn't read again, and a database that can't be reached reports not setting up rather than
+// failing the check. A server with sync turned off never completes a first sync, so it's never
+// setting up.
+let hasCompletedFirstSync = false;
+export async function isSettingUp(models) {
+  if (hasCompletedFirstSync || !config.sync.enabled || !isServerConfigured()) return false;
+  try {
+    const pullCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL);
+    if (!pullCursor) return true;
+    // only ever goes from false to true, so a concurrent check can't undo it
+    hasCompletedFirstSync = true; // eslint-disable-line require-atomic-updates
+    return false;
+  } catch (error) {
+    log.warn('isSettingUp.failed', { error: error.message });
+    return false;
+  }
 }
 
 // What the server is *declared* to use (env/config, never the fact). Integrity
