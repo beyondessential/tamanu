@@ -88,6 +88,7 @@ treated as a hard pre-filter on any suggested action.
 | [facility-restored-from-backup](runbooks/facility-restored-from-backup.md) | Facility restored from backup, sync throwing fkey conflicts | Complete |
 | [fhir-queue-backlog](runbooks/fhir-queue-backlog.md) | FHIR job queue backed up or blocked (`fhir_jobs` check) | Complete |
 | [report-and-error-rows](runbooks/report-and-error-rows.md) | Report / IPS / communication / certificate error-row checks | Complete |
+| [aspen-fiji-post-restart](runbooks/aspen-fiji-post-restart.md) | Aspen Fiji central back after a reboot / "Tamanu is currently unavailable" | Draft (Tailscale step TODO) |
 
 ## SOPs
 
