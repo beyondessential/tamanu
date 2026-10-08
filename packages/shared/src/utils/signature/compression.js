@@ -26,12 +26,7 @@ const encoding = /** @type {const} */ ('gzip');
 export async function compressSignatureBody(body) {
   if (!body) return '';
 
-  const byteArray = new TextEncoder().encode(body);
-  const cs = new CompressionStream(encoding);
-  const writer = cs.writable.getWriter();
-  await writer.write(byteArray);
-  await writer.close();
-  const buffer = await new Response(cs.readable).arrayBuffer();
+  const buffer = await pipeThroughToArrayBuffer(body, new CompressionStream(encoding));
 
   return typeof Uint8Array.prototype.toBase64 === 'function'
     ? new Uint8Array(buffer).toBase64() // Requires Node 25+. Fine in supported Chromium versions.
@@ -49,12 +44,18 @@ export async function decompressSignatureBody(base64String) {
     typeof Uint8Array.fromBase64 === 'function'
       ? Uint8Array.fromBase64(base64String) // Requires Node 25+. Fine in supported Chromium versions.
       : new Uint8Array(Buffer.from(base64String, 'base64'));
-  const cs = new DecompressionStream(encoding);
-  const writer = cs.writable.getWriter();
-  await writer.write(byteArray);
-  await writer.close();
-  const arrayBuffer = await new Response(cs.readable).arrayBuffer();
+  const arrayBuffer = await pipeThroughToArrayBuffer(byteArray, new DecompressionStream(encoding));
   return new TextDecoder().decode(arrayBuffer);
+}
+
+/**
+ * Reads the output while writing the input. Awaiting a write before anything reads the readable
+ * side deadlocks in browsers, because the transform stream applies backpressure.
+ * @param {BlobPart} input
+ * @param {CompressionStream | DecompressionStream} transformStream
+ */
+function pipeThroughToArrayBuffer(input, transformStream) {
+  return new Response(new Blob([input]).stream().pipeThrough(transformStream)).arrayBuffer();
 }
 
 /**
