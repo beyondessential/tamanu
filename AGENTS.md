@@ -24,6 +24,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Pull Requests**: See @llm/project-rules/pull-requests.md for PR template usage and conventional commit types
 - **Release Branches**: See @llm/project-rules/release-branches.md for finding releases
 - **Configuration Guides**: See @.agents/docs/config-guide-format.md for user configuration guides (written by the `draft-config-guide` skill)
+- **User Guides**: See @.agents/docs/user-guide-format.md for end user guides (written by the `draft-user-guide` skill)
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
 - **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows

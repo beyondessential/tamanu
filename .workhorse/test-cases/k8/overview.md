@@ -88,7 +88,7 @@ manual verification of a skill run rather than automated tests, since the output
 ## Screenshots
 
 - [ ] Where a screenshot is needed, the placeholder is a bold `[Screenshot: ...]` on its own line
-      describing the shot, matching the end user manuals.
+      describing the shot, matching the user guides.
 - [ ] Each image is named for its guide and what it shows, and carries alt text describing the shot.
 - [x] Each image is centred and smaller than the text column, with a small caption beneath it: one
       short sentence with front-end text word for word in bold, rendering the same way on GitHub.
