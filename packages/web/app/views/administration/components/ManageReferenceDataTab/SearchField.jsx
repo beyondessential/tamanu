@@ -92,7 +92,7 @@ export const SearchField = ({ col }) => {
       <CentredCheckContainer>
         <Field
           component={CheckField}
-          name="visibilityStatus"
+          name={VISIBILITY_STATUS_KEY}
           label={
             <TranslatedText
               stringId="admin.referenceData.includeHistorical"
