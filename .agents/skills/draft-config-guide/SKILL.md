@@ -56,6 +56,11 @@ Scope limitations, clinical caveats and the lead paragraph are not in the codeba
 the module's existing documentation and what you can see of its behaviour, then have the author correct
 them. Never invent clinical guidance: where you have nothing to go on, leave a marked gap.
 
+Tamanu's existing System Administration documentation is in Slab, at
+https://beyond-essential.slab.com/public/topics, which you can't reach. Don't go looking for it: if
+the author pastes a guide in, read it for what the module covered, its narrative and its template
+links, but write the code-derived sections from the code rather than from its wording.
+
 ### 3. Batch the author's checkpoints
 
 Settle **scope first**. Then put everything else that needs the author **into one review**: the drafted
