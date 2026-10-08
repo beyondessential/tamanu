@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.60.21",
+  "version": "2.60.22",
   "description": "Common code across Tamanu packages",
   "main": "./src/index",
   "exports": {
