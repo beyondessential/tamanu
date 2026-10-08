@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
+    /* Tamanu palette (ui-components TAMANU_COLORS) */
     --primary: #326699;
     --primary-dark: #2f4358;
     --primary10: #ebf0f5;
@@ -19,23 +20,22 @@
     --text2: #666666;
     --text3: #888888;
     --outline: #dedede;
-    --soft-outline: #ebebeb;
+    --line: #e7eaee;
     --green: #19934e;
     --green-bg: #e9f5ee;
-    --orange: #cb6100;
-    --orange-bg: #faf0e6;
-    --alert: #f76853;
-    --alert-bg: #fff0ee;
     --blue: #1172d1;
     --blue-bg: #e8f1fb;
+    --shadow: 0 1px 2px rgba(47, 67, 88, .05), 0 6px 20px rgba(47, 67, 88, .07);
+    --shadow-lg: 0 2px 6px rgba(47, 67, 88, .08), 0 20px 48px rgba(47, 67, 88, .18);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: Roboto, system-ui, sans-serif;
-    background: #dfe3e8;
+    background: #dde2e8;
     color: var(--text);
     padding: 40px 48px 80px;
+    -webkit-font-smoothing: antialiased;
   }
   .board-title { font-size: 24px; font-weight: 600; margin: 0 0 4px; color: var(--primary-dark); }
   .board-sub { margin: 0 0 32px; color: var(--text2); font-size: 14px; }
@@ -44,220 +44,180 @@
   .frame-wrap { display: flex; flex-direction: column; gap: 10px; }
   .caption { font-size: 14px; font-weight: 500; color: var(--primary-dark); }
   .caption span { font-weight: 400; color: var(--text2); }
+  .note { font-size: 13px; color: var(--text2); max-width: 960px; line-height: 1.5; margin: 0 0 16px; }
 
   /* Tablet frame, landscape */
   .tablet {
     width: 960px; height: 720px;
-    border: 14px solid #1f2329; border-radius: 28px;
+    border: 12px solid #1f2329; border-radius: 32px;
     background: var(--bg);
     overflow: hidden; position: relative;
     display: flex; flex-direction: column;
-    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    box-shadow: 0 10px 30px rgba(0,0,0,.14);
   }
 
-  /* Kiosk header */
-  .k-header {
-    height: 72px; flex: none;
-    background: var(--white); border-bottom: 1px solid var(--outline);
-    display: flex; align-items: center; padding: 0 28px; gap: 16px;
-  }
-  .k-header .logo { height: 32px; width: 102px; }
-  .k-header .facility { color: var(--text2); font-size: 16px; padding-left: 16px; border-left: 1px solid var(--outline); }
+  /* Header */
+  .k-header { height: 84px; flex: none; display: flex; align-items: center; padding: 0 44px; gap: 14px; }
+  .k-header .logo { height: 30px; width: 96px; }
+  .k-header .facility { color: var(--text2); font-size: 15px; padding-left: 14px; border-left: 1px solid var(--outline); }
   .k-header .spacer { flex: 1; }
   .hbtn {
     height: 48px; padding: 0 20px; border-radius: 24px;
-    border: 1px solid var(--primary); background: var(--white); color: var(--primary);
+    background: var(--white); color: var(--primary); box-shadow: var(--shadow);
     font: 500 16px Roboto, sans-serif; display: inline-flex; align-items: center; gap: 8px;
   }
-  .hbtn.text { border-color: transparent; color: var(--text2); }
+  .hbtn.text { background: none; box-shadow: none; color: var(--text2); padding: 0 12px; }
   .hbtn svg { width: 22px; height: 22px; }
 
-  .k-body { flex: 1; padding: 32px 56px 28px; display: flex; flex-direction: column; overflow: hidden; }
-  .k-body.center { align-items: center; justify-content: center; text-align: center; }
-  h1.k-title { font-size: 32px; font-weight: 500; color: var(--primary-dark); margin: 0 0 8px; line-height: 1.2; }
-  p.k-lead { font-size: 18px; color: var(--text2); margin: 0 0 28px; }
+  .k-body { flex: 1; padding: 12px 64px 44px; display: flex; flex-direction: column; overflow: hidden; }
+  .k-body.center { align-items: center; justify-content: center; text-align: center; padding-bottom: 84px; }
+  h1.k-title { font-size: 36px; font-weight: 500; letter-spacing: -.01em; color: var(--primary-dark); margin: 0 0 8px; line-height: 1.2; }
+  p.k-lead { font-size: 18px; color: var(--text2); margin: 0 0 32px; line-height: 1.45; }
+
+  /* Surfaces */
+  .card { background: var(--white); border-radius: 20px; box-shadow: var(--shadow); padding: 28px; }
 
   /* Buttons */
   .btn {
-    height: 64px; padding: 0 36px; border-radius: 6px;
-    font: 500 20px Roboto, sans-serif; border: 1px solid var(--primary);
+    height: 64px; padding: 0 36px; border-radius: 14px;
+    font: 500 20px Roboto, sans-serif;
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   }
-  .btn.primary { background: var(--primary); color: var(--white); }
-  .btn.outlined { background: var(--white); color: var(--primary); }
-  .btn.disabled { background: var(--outline); border-color: var(--outline); color: var(--text3); }
+  .btn.primary { background: var(--primary); color: var(--white); box-shadow: 0 6px 16px rgba(50,102,153,.25); }
+  .btn.soft { background: var(--white); color: var(--primary-dark); box-shadow: var(--shadow); }
   .btn.wide { min-width: 280px; }
+  .btn svg { width: 22px; height: 22px; }
   .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 24px; }
-  .actions.end { justify-content: flex-end; gap: 16px; }
+  .actions.end { justify-content: flex-end; }
 
   /* Welcome */
-  .welcome-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; flex: 1; }
-  .panel { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 24px; }
-  .panel h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; color: var(--text); display: flex; align-items: center; gap: 8px; }
-  .panel h2 svg { width: 22px; height: 22px; color: var(--primary); }
-  .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .welcome-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; }
+  .card h2 { font-size: 15px; font-weight: 500; margin: 0 0 18px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+  .card h2 svg { width: 20px; height: 20px; color: var(--primary); }
+  .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .lang {
-    height: 64px; border: 1px solid var(--outline); border-radius: 6px; background: var(--white);
+    height: 60px; border-radius: 14px; background: var(--bg);
     font: 500 18px Roboto, sans-serif; color: var(--text); display: flex; align-items: center; justify-content: space-between; padding: 0 18px;
   }
-  .lang.selected { border: 2px solid var(--primary); background: var(--primary10); color: var(--primary-dark); }
-  .lang .tick { width: 24px; height: 24px; color: var(--primary); }
-  .setting + .setting { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--soft-outline); }
-  .setting-label { font-size: 16px; color: var(--text2); margin-bottom: 12px; }
-  .segmented { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--outline); border-radius: 6px; overflow: hidden; }
-  .segmented div { height: 64px; display: flex; align-items: center; justify-content: center; font-weight: 500; color: var(--text); background: var(--white); }
-  .segmented div + div { border-left: 1px solid var(--outline); }
-  .segmented .on { background: var(--primary); color: var(--white); }
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 18px; font-weight: 500; }
-  .switch { width: 64px; height: 36px; border-radius: 18px; background: var(--outline); position: relative; }
-  .switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 28px; height: 28px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .lang.selected { background: var(--primary10); color: var(--primary-dark); box-shadow: inset 0 0 0 2px var(--primary); }
+  .lang .tick { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: var(--white); padding: 4px; }
+  .setting + .setting { margin-top: 28px; }
+  .setting-label { font-size: 17px; font-weight: 500; color: var(--text); margin-bottom: 12px; }
+  .segmented { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border-radius: 14px; padding: 4px; gap: 4px; }
+  .segmented div { height: 56px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-weight: 500; color: var(--text2); }
+  .segmented .on { background: var(--white); color: var(--primary); box-shadow: 0 1px 4px rgba(47,67,88,.15); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 17px; font-weight: 500; }
+  .switch { width: 60px; height: 34px; border-radius: 17px; background: var(--outline); position: relative; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 28px; height: 28px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
   .switch.on { background: var(--primary); }
-  .switch.on::after { left: 32px; }
+  .switch.on::after { left: 29px; }
 
-  /* Form fields */
-  .field { margin-bottom: 28px; }
-  .field label { display: block; font-size: 18px; font-weight: 500; margin-bottom: 10px; }
+  /* Find form */
+  .find { max-width: 600px; width: 100%; margin: 0 auto; }
+  .field { margin-bottom: 26px; }
+  .field label { display: block; font-size: 17px; font-weight: 500; margin-bottom: 10px; }
   .input {
-    height: 68px; border: 1px solid var(--outline); border-radius: 6px; background: var(--white);
-    font-size: 24px; display: flex; align-items: center; padding: 0 20px; color: var(--text);
+    height: 68px; border-radius: 14px; background: var(--white); box-shadow: inset 0 0 0 1px var(--line), 0 1px 2px rgba(47,67,88,.04);
+    font-size: 24px; display: flex; align-items: center; padding: 0 22px; color: var(--text);
   }
-  .input.focus { border: 2px solid var(--primary); }
+  .input.focus { box-shadow: inset 0 0 0 2px var(--primary), 0 0 0 5px var(--primary10); }
   .input.placeholder { color: var(--text3); }
-  .dob { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 16px; }
-  .dob .sub { font-size: 14px; color: var(--text2); margin-bottom: 6px; }
-  .find-card { max-width: 640px; width: 100%; margin: 0 auto; }
+  .dob { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 14px; }
+  .dob .sub { font-size: 14px; color: var(--text3); margin-bottom: 6px; }
 
   /* Patient tile */
-  .tile {
-    background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 28px 32px;
-    text-align: left;
-  }
-  .tile .name { font-size: 28px; font-weight: 600; color: var(--primary-dark); margin-bottom: 20px; }
+  .tile { background: var(--white); border-radius: 20px; box-shadow: var(--shadow); padding: 30px 32px; text-align: left; position: relative; }
+  .tile .name { font-size: 30px; font-weight: 500; letter-spacing: -.01em; color: var(--primary-dark); margin-bottom: 22px; }
   .tile dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 24px; margin: 0; }
-  .tile dt { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+  .tile dt { font-size: 14px; color: var(--text3); margin-bottom: 4px; }
   .tile dd { margin: 0; font-size: 20px; font-weight: 500; color: var(--text); }
-  .appt {
-    margin-top: 22px; padding: 16px 20px; border-radius: 6px; background: var(--primary10);
-    display: flex; align-items: center; gap: 14px; font-size: 18px; color: var(--primary-dark);
-  }
-  .appt svg { width: 26px; height: 26px; color: var(--primary); flex: none; }
-  .appt b { font-weight: 600; }
+  .appt { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 12px; font-size: 18px; color: var(--text); }
+  .appt svg { width: 24px; height: 24px; color: var(--primary); flex: none; }
+  .appt b { font-weight: 500; color: var(--primary-dark); }
 
-  .tiles-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .tiles-2 .tile { padding: 24px; position: relative; }
-  .tiles-2 .tile .name { font-size: 22px; margin-bottom: 16px; padding-right: 40px; }
+  .tiles-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .tiles-2 .tile { padding: 26px; }
+  .tiles-2 .tile .name { font-size: 23px; margin-bottom: 18px; padding-right: 44px; }
   .tiles-2 .tile dl { grid-template-columns: 1fr 1fr; gap: 14px 16px; }
   .tiles-2 .tile dd { font-size: 17px; }
-  .tiles-2 .appt { font-size: 16px; padding: 12px 14px; }
-  .tile.selected { border: 2px solid var(--primary); box-shadow: 0 0 0 4px var(--primary10); }
-  .radio { position: absolute; top: 24px; right: 24px; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--outline); background: var(--white); }
-  .tile.selected .radio { border: 9px solid var(--primary); }
+  .tiles-2 .appt { font-size: 16px; margin-top: 18px; padding-top: 16px; }
+  .tile.selected { box-shadow: inset 0 0 0 2px var(--primary), 0 0 0 5px var(--primary10), var(--shadow); }
+  .pick { position: absolute; top: 24px; right: 24px; width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--outline); }
+  .tile.selected .pick { background: var(--primary); box-shadow: none; color: var(--white); padding: 5px; }
 
-  /* Status / empty states */
-  .state-icon { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
-  .state-icon svg { width: 52px; height: 52px; }
+  /* Status states */
+  .state-icon { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+  .state-icon svg { width: 44px; height: 44px; }
   .state-icon.info { background: var(--blue-bg); color: var(--blue); }
-  .state-icon.ok { background: var(--green-bg); color: var(--green); }
-  .searched {
-    display: inline-flex; gap: 32px; background: var(--white); border: 1px solid var(--outline); border-radius: 6px;
-    padding: 16px 28px; margin: 0 0 32px; text-align: left;
-  }
-  .searched dt { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+  .state-icon.ok { background: var(--green-bg); color: var(--green); width: 112px; height: 112px; }
+  .state-icon.ok svg { width: 60px; height: 60px; }
+  .searched { display: inline-flex; gap: 40px; background: var(--white); border-radius: 16px; box-shadow: var(--shadow); padding: 18px 32px; margin: 0 0 36px; text-align: left; }
+  .searched dt { font-size: 14px; color: var(--text3); margin-bottom: 4px; }
   .searched dd { margin: 0; font-size: 20px; font-weight: 500; }
-  .center-actions { display: flex; gap: 16px; justify-content: center; }
+  .center-actions { display: flex; gap: 14px; justify-content: center; }
 
-  /* Stepper */
-  .stepper { display: flex; align-items: flex-start; margin: 0 -8px 20px; }
-  .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; text-align: center; padding: 0 4px; }
-  .step::before { content: ""; position: absolute; top: 17px; left: -50%; width: 100%; height: 3px; background: var(--outline); z-index: 0; }
-  .step:first-child::before { display: none; }
-  .step.done::before, .step.current::before { background: var(--green); }
-  .dot {
-    width: 36px; height: 36px; border-radius: 50%; position: relative; z-index: 1;
-    display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px;
-    background: var(--white); border: 2px solid var(--outline); color: var(--text3);
-  }
-  .step.done .dot { background: var(--green); border-color: var(--green); color: var(--white); }
-  .step.done .dot svg { width: 20px; height: 20px; }
-  .step.current .dot { background: var(--primary); border-color: var(--primary); color: var(--white); box-shadow: 0 0 0 5px var(--primary30); }
-  .step .lbl { margin-top: 10px; font-size: 14px; color: var(--text2); line-height: 1.3; }
-  .step.current .lbl { color: var(--primary-dark); font-weight: 600; }
-  .step.done .lbl { color: var(--text); }
+  /* Progress: one segment per step */
+  .progress { display: flex; gap: 8px; margin-bottom: 28px; }
+  .seg { flex: 1; }
+  .seg .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .seg .bar i { display: block; height: 100%; border-radius: 3px; background: var(--primary); }
+  .seg.done .bar { background: var(--green); }
+  .seg .lbl { margin-top: 10px; font-size: 14px; color: var(--text3); display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .seg .lbl svg { width: 16px; height: 16px; color: var(--green); }
+  .seg.done .lbl { color: var(--text2); }
+  .seg.current .lbl { color: var(--primary-dark); font-weight: 500; }
 
   /* Survey form */
-  .form-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+  .form-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 22px; }
   .form-head h1 { margin: 0; }
-  .page-count { font-size: 16px; color: var(--text2); }
-  .page-bar { height: 6px; background: var(--outline); border-radius: 3px; margin-bottom: 18px; overflow: hidden; }
-  .page-bar div { height: 100%; background: var(--primary); border-radius: 3px; }
-  .q { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 18px 24px; margin-bottom: 12px; }
-  .q-text { font-size: 20px; font-weight: 500; margin-bottom: 12px; }
-  .opts { display: flex; gap: 12px; }
-  .opt {
-    min-width: 140px; height: 60px; border: 1px solid var(--outline); border-radius: 6px; padding: 0 20px;
-    display: flex; align-items: center; gap: 12px; font-size: 18px; background: var(--white);
-  }
-  .opt .r { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--outline); }
-  .opt.on { border: 2px solid var(--primary); background: var(--primary10); }
-  .opt.on .r { border: 7px solid var(--primary); }
+  .page-count { font-size: 16px; color: var(--text3); }
+  .q { background: var(--white); border-radius: 20px; box-shadow: var(--shadow); padding: 22px 26px; margin-bottom: 14px; }
+  .q-text { font-size: 20px; font-weight: 500; margin-bottom: 16px; color: var(--text); }
+  .opts { display: flex; gap: 10px; }
+  .opt { min-width: 132px; height: 56px; border-radius: 14px; padding: 0 24px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 500; background: var(--bg); color: var(--text); }
+  .opt.on { background: var(--primary); color: var(--white); }
 
-  /* Check-in summary checklist */
-  .summary { display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; }
-  .checklist { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; overflow: hidden; }
-  .check-item { display: flex; align-items: center; gap: 16px; padding: 16px 24px; font-size: 20px; }
-  .check-item + .check-item { border-top: 1px solid var(--soft-outline); }
-  .check-item .ci { width: 36px; height: 36px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; flex: none; }
-  .check-item .ci svg { width: 22px; height: 22px; }
-  .check-item .ci.todo { background: var(--white); border: 2px solid var(--outline); }
-  .check-item .grow { flex: 1; }
-  .chip { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 14px; font-weight: 500; }
-  .chip.green { background: var(--green-bg); color: var(--green); }
-  .chip.red { background: var(--alert-bg); color: var(--alert); }
-  .side-appt { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 24px; }
-  .side-appt .who { font-size: 22px; font-weight: 600; color: var(--primary-dark); margin-bottom: 18px; }
-  .side-appt dt { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+  /* Check-in summary */
+  .summary { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+  .checklist { padding: 8px 0; }
+  .check-item { display: flex; align-items: center; gap: 16px; padding: 15px 28px; font-size: 19px; }
+  .check-item + .check-item { border-top: 1px solid var(--line); }
+  .check-item .ci { width: 32px; height: 32px; border-radius: 50%; background: var(--green-bg); color: var(--green); display: flex; align-items: center; justify-content: center; flex: none; }
+  .check-item .ci svg { width: 20px; height: 20px; }
+  .side-appt .who { font-size: 22px; font-weight: 500; color: var(--primary-dark); margin-bottom: 20px; }
+  .side-appt dl { margin: 0; }
+  .side-appt dt { font-size: 14px; color: var(--text3); margin-bottom: 4px; }
   .side-appt dd { margin: 0 0 16px; font-size: 18px; font-weight: 500; }
 
   /* Modal */
-  .scrim { position: absolute; inset: 0; background: rgba(31,35,41,.55); display: flex; align-items: center; justify-content: center; }
-  .modal { width: 560px; background: var(--white); border-radius: 10px; padding: 40px; text-align: center; box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+  .scrim { position: absolute; inset: 0; background: rgba(31,35,41,.4); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; }
+  .modal { width: 540px; background: var(--white); border-radius: 24px; padding: 44px 40px 36px; text-align: center; box-shadow: var(--shadow-lg); }
   .modal .state-icon { margin: 0 auto 20px; }
-  .modal h2 { font-size: 28px; font-weight: 500; color: var(--primary-dark); margin: 0 0 12px; }
-  .modal p { font-size: 18px; color: var(--text2); margin: 0 0 32px; }
-  .countdown { font-size: 56px; font-weight: 600; color: var(--primary-dark); margin: -8px 0 24px; }
-  .dimmed { filter: blur(1px); }
+  .modal h2 { font-size: 28px; font-weight: 500; color: var(--primary-dark); margin: 0 0 10px; }
+  .modal p { font-size: 18px; color: var(--text2); margin: 0 0 30px; line-height: 1.45; }
+  .modal .btn.soft { background: var(--bg); box-shadow: none; }
+  .countdown { font-size: 52px; font-weight: 500; color: var(--primary-dark); margin: -10px 0 26px; font-variant-numeric: tabular-nums; }
 
   /* High contrast + extra large text */
   .tablet.hc { background: #000; color: #fff; }
-  .hc .k-header { background: #000; border-bottom: 2px solid #fff; }
-  .hc .k-header .facility { color: #fff; border-left-color: #fff; }
-  .hc .logo-hc { color: #fff; }
-  .hc .hbtn { background: #000; color: #ffe14d; border: 2px solid #ffe14d; height: 56px; font-size: 20px; }
-  .hc .hbtn.text { border-color: transparent; color: #fff; }
-  .hc h1.k-title { color: #fff; font-size: 40px; }
-  .hc p.k-lead { color: #fff; font-size: 22px; margin-bottom: 20px; }
-  .hc .tile { padding: 22px 28px; }
-  .hc .tile .name { margin-bottom: 14px; }
-  .hc .tile dl { gap: 12px 24px; }
-  .hc .appt { margin-top: 16px; }
-  .hc .tile { background: #000; border: 2px solid #fff; }
-  .hc .tile .name { color: #ffe14d; font-size: 36px; }
+  .hc .k-header { border-bottom: 2px solid #fff; }
+  .hc .k-header .facility { color: #fff; border-left-color: #fff; font-size: 18px; }
+  .hc .hbtn { background: #000; color: #ffe14d; box-shadow: inset 0 0 0 2px #ffe14d; height: 56px; font-size: 20px; }
+  .hc .hbtn.text { box-shadow: none; color: #fff; }
+  .hc .k-body { padding-top: 28px; }
+  .hc h1.k-title { color: #fff; font-size: 42px; }
+  .hc p.k-lead { color: #fff; font-size: 22px; margin-bottom: 22px; }
+  .hc .tile { background: #000; box-shadow: inset 0 0 0 2px #fff; padding: 24px 30px; }
+  .hc .tile .name { color: #ffe14d; font-size: 36px; margin-bottom: 14px; }
+  .hc .tile dl { grid-template-columns: repeat(2, 1fr); gap: 12px 24px; }
   .hc .tile dt { color: #fff; font-size: 18px; }
   .hc .tile dd { color: #fff; font-size: 26px; }
-  .hc .tile dl { grid-template-columns: repeat(2, 1fr); }
-  .hc .appt { background: #000; border: 2px solid #ffe14d; color: #fff; font-size: 22px; }
+  .hc .appt { border-top: 2px solid #fff; color: #fff; font-size: 22px; margin-top: 16px; padding-top: 14px; }
+  .hc .appt b { color: #fff; font-weight: 700; }
   .hc .appt svg { color: #ffe14d; }
   .hc .btn { font-size: 24px; height: 72px; }
-  .hc .btn.primary { background: #ffe14d; border-color: #ffe14d; color: #000; }
-  .hc .btn.outlined { background: #000; border: 2px solid #fff; color: #fff; }
-  .hc .stepper .step::before { background: #fff; }
-  .hc .dot { background: #000; border-color: #fff; color: #fff; }
-  .hc .step.done .dot { background: #fff; border-color: #fff; color: #000; }
-  .hc .step.current .dot { background: #ffe14d; border-color: #ffe14d; color: #000; box-shadow: none; }
-  .hc .step .lbl, .hc .step.done .lbl { color: #fff; font-size: 17px; }
-  .hc .step.current .lbl { color: #ffe14d; }
-
-  .note { font-size: 13px; color: var(--text2); max-width: 960px; line-height: 1.5; }
+  .hc .btn.primary { background: #ffe14d; color: #000; box-shadow: none; }
+  .hc .btn.soft { background: #000; color: #fff; box-shadow: inset 0 0 0 2px #fff; }
 </style>
 </head>
 <body>
@@ -279,10 +239,11 @@
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.8 6 3.8 9.5S14.6 18.7 12 21.5M12 2.5C9.4 5.3 8.2 8.5 8.2 12s1.2 6.7 3.8 9.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="i-access" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2" fill="currentColor"/><path d="M4 8.5l8 1.5 8-1.5M12 10v5m0 0l-3.5 6.5M12 15l3.5 6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-desk" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 16.5c.8-2.8 3.4-4.3 6.5-4.3s5.7 1.5 6.5 4.3M2.5 17h19v3.5h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-restart" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -305,7 +266,7 @@
         <h1 class="k-title">Welcome</h1>
         <p class="k-lead">Check in for your appointment today.</p>
         <div class="welcome-grid">
-          <div class="panel">
+          <div class="card">
             <h2><svg><use href="#i-globe"/></svg>Language</h2>
             <div class="lang-grid">
               <div class="lang selected">English <svg class="tick"><use href="#i-check"/></svg></div>
@@ -316,7 +277,7 @@
               <div class="lang">Te Reo Māori</div>
             </div>
           </div>
-          <div class="panel">
+          <div class="card">
             <h2><svg><use href="#i-access"/></svg>Accessibility</h2>
             <div class="setting">
               <div class="setting-label">Text size</div>
@@ -332,7 +293,7 @@
           </div>
         </div>
         <div class="actions end">
-          <div class="btn primary wide">Start</div>
+          <div class="btn primary wide">Start <svg><use href="#i-next"/></svg></div>
         </div>
       </div>
     </div>
@@ -353,7 +314,7 @@
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
-        <div class="find-card">
+        <div class="find">
           <h1 class="k-title">Find your appointment</h1>
           <p class="k-lead">Enter your details as they appear on your patient record.</p>
           <div class="field">
@@ -370,7 +331,7 @@
           </div>
         </div>
         <div class="actions">
-          <div class="btn outlined"><svg width="24" height="24"><use href="#i-back"/></svg>Back</div>
+          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
           <div class="btn primary wide">Find my appointment</div>
         </div>
       </div>
@@ -402,10 +363,10 @@
             <div><dt>Sex</dt><dd>Female</dd></div>
             <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
           </dl>
-          <div class="appt"><svg><use href="#i-cal"/></svg><span>Today, <b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
+          <div class="appt"><svg><use href="#i-cal"/></svg><span>Today at <b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
         </div>
         <div class="actions">
-          <div class="btn outlined">No, this isn't me</div>
+          <div class="btn soft">No, this isn't me</div>
           <div class="btn primary wide">Yes, this is me</div>
         </div>
       </div>
@@ -427,7 +388,7 @@
         <p class="k-lead">More than one person matches these details.</p>
         <div class="tiles-2">
           <div class="tile selected">
-            <div class="radio"></div>
+            <svg class="pick"><use href="#i-check"/></svg>
             <div class="name">Mele Losana Taufa</div>
             <dl>
               <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
@@ -437,7 +398,7 @@
             <div class="appt"><svg><use href="#i-cal"/></svg><span><b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
           </div>
           <div class="tile">
-            <div class="radio"></div>
+            <span class="pick"></span>
             <div class="name">Viliami Taufa</div>
             <dl>
               <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
@@ -448,7 +409,7 @@
           </div>
         </div>
         <div class="actions">
-          <div class="btn outlined">None of these are me</div>
+          <div class="btn soft">None of these are me</div>
           <div class="btn primary wide">Continue</div>
         </div>
       </div>
@@ -474,7 +435,7 @@
           <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
         </dl>
         <div class="center-actions">
-          <div class="btn outlined wide">Done</div>
+          <div class="btn soft wide">Done</div>
           <div class="btn primary wide">Edit details</div>
         </div>
       </div>
@@ -485,8 +446,8 @@
 
 <!-- ===================== 4. FORMS ===================== -->
 <div class="section-title">4. Forms</div>
-<p class="note">Forms run one after another. The stepper covers the whole flow, one step per form, so its length follows the number of forms for the appointment. Within a form, the page bar shows progress through its pages.</p>
-<div class="row" style="margin-top:16px">
+<p class="note">Forms run one after another. The progress bar has one segment per step, so its length follows the number of forms for the appointment. The current segment fills as the patient moves through that form's pages.</p>
+<div class="row">
 
   <div class="frame-wrap">
     <div class="caption">Form in progress <span>· 2nd of 3 forms, page 1 of 2</span></div>
@@ -498,37 +459,36 @@
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
-      <div class="k-body" style="padding-top:28px">
-        <div class="stepper">
-          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Your details</div></div>
-          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Contact details</div></div>
-          <div class="step current"><div class="dot">3</div><div class="lbl">Health questions</div></div>
-          <div class="step"><div class="dot">4</div><div class="lbl">Consent</div></div>
-          <div class="step"><div class="dot">5</div><div class="lbl">Check in</div></div>
+      <div class="k-body">
+        <div class="progress">
+          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Your details</div></div>
+          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Contact details</div></div>
+          <div class="seg current"><div class="bar"><i style="width:50%"></i></div><div class="lbl">Health questions</div></div>
+          <div class="seg"><div class="bar"></div><div class="lbl">Consent</div></div>
+          <div class="seg"><div class="bar"></div><div class="lbl">Check in</div></div>
         </div>
         <div class="form-head">
           <h1 class="k-title">Health questions</h1>
           <div class="page-count">Page 1 of 2</div>
         </div>
-        <div class="page-bar"><div style="width:50%"></div></div>
         <div class="q">
           <div class="q-text">Do you have a fever, cough or sore throat today?</div>
           <div class="opts">
-            <div class="opt"><span class="r"></span>Yes</div>
-            <div class="opt on"><span class="r"></span>No</div>
+            <div class="opt">Yes</div>
+            <div class="opt on">No</div>
           </div>
         </div>
         <div class="q">
           <div class="q-text">Are you currently pregnant?</div>
           <div class="opts">
-            <div class="opt"><span class="r"></span>Yes</div>
-            <div class="opt on"><span class="r"></span>No</div>
-            <div class="opt"><span class="r"></span>Not sure</div>
+            <div class="opt">Yes</div>
+            <div class="opt on">No</div>
+            <div class="opt">Not sure</div>
           </div>
         </div>
         <div class="actions">
-          <div class="btn outlined"><svg width="24" height="24"><use href="#i-back"/></svg>Back</div>
-          <div class="btn primary wide">Next</div>
+          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
+          <div class="btn primary wide">Next <svg><use href="#i-next"/></svg></div>
         </div>
       </div>
     </div>
@@ -544,24 +504,24 @@
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
-      <div class="k-body" style="padding-top:28px">
-        <div class="stepper">
-          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Your details</div></div>
-          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Contact details</div></div>
-          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Health questions</div></div>
-          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Consent</div></div>
-          <div class="step current"><div class="dot">5</div><div class="lbl">Check in</div></div>
+      <div class="k-body">
+        <div class="progress">
+          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Your details</div></div>
+          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Contact details</div></div>
+          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Health questions</div></div>
+          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Consent</div></div>
+          <div class="seg current"><div class="bar"></div><div class="lbl">Check in</div></div>
         </div>
         <h1 class="k-title">Ready to check in</h1>
         <p class="k-lead">Everything is done.</p>
         <div class="summary">
-          <div class="checklist">
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Details confirmed</span><span class="chip green">Completed</span></div>
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Contact details</span><span class="chip green">Completed</span></div>
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Health questions</span><span class="chip green">Completed</span></div>
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Consent</span><span class="chip green">Completed</span></div>
+          <div class="card checklist">
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Details confirmed</div>
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Contact details</div>
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Health questions</div>
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Consent</div>
           </div>
-          <div class="side-appt">
+          <div class="card side-appt">
             <div class="who">Mele Losana Taufa</div>
             <dl>
               <dt>Appointment</dt><dd>Today, 10:30 am</dd>
@@ -570,7 +530,7 @@
           </div>
         </div>
         <div class="actions">
-          <div class="btn outlined"><svg width="24" height="24"><use href="#i-back"/></svg>Back</div>
+          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
           <div class="btn primary wide">Check in</div>
         </div>
       </div>
@@ -595,7 +555,7 @@
         <div class="state-icon ok"><svg><use href="#i-check"/></svg></div>
         <h1 class="k-title">You're checked in</h1>
         <p class="k-lead">Please take a seat. We'll call you when it's time.</p>
-        <div class="btn primary wide">Done</div>
+        <div class="btn soft wide">Done</div>
       </div>
     </div>
   </div>
@@ -608,20 +568,18 @@
   <div class="frame-wrap">
     <div class="caption">Help <span>· from the Help button on any screen</span></div>
     <div class="tablet">
-      <div class="dimmed" style="display:flex;flex-direction:column;height:100%">
-        <div class="k-header">
-          <svg class="logo"><use href="#logo"/></svg>
-          <div class="facility">Tamanu Health Centre</div>
-          <div class="spacer"></div>
-          <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
-          <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
-        </div>
-        <div class="k-body">
-          <div class="find-card">
-            <h1 class="k-title">Find your appointment</h1>
-            <p class="k-lead">Enter your details as they appear on your patient record.</p>
-            <div class="field"><label>Last name</label><div class="input placeholder"></div></div>
-          </div>
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <div class="find">
+          <h1 class="k-title">Find your appointment</h1>
+          <p class="k-lead">Enter your details as they appear on your patient record.</p>
+          <div class="field"><label>Last name</label><div class="input placeholder"></div></div>
         </div>
       </div>
       <div class="scrim">
@@ -638,17 +596,15 @@
   <div class="frame-wrap">
     <div class="caption">Inactivity warning <span>· then clears everything and returns to Welcome</span></div>
     <div class="tablet">
-      <div class="dimmed" style="display:flex;flex-direction:column;height:100%">
-        <div class="k-header">
-          <svg class="logo"><use href="#logo"/></svg>
-          <div class="facility">Tamanu Health Centre</div>
-          <div class="spacer"></div>
-          <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
-          <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
-        </div>
-        <div class="k-body">
-          <h1 class="k-title">Health questions</h1>
-        </div>
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <h1 class="k-title">Health questions</h1>
       </div>
       <div class="scrim">
         <div class="modal">
@@ -657,7 +613,7 @@
           <p>Your details will be cleared to keep them private.</p>
           <div class="countdown">0:28</div>
           <div class="center-actions">
-            <div class="btn outlined">Start over</div>
+            <div class="btn soft">Start over</div>
             <div class="btn primary wide">I'm still here</div>
           </div>
         </div>
@@ -674,7 +630,7 @@
     <div class="caption">High contrast and extra large text <span>· the settings chosen on Welcome apply to every screen</span></div>
     <div class="tablet hc">
       <div class="k-header">
-        <svg class="logo logo-hc" style="filter: brightness(0) invert(1)"><use href="#logo"/></svg>
+        <svg class="logo" style="filter: brightness(0) invert(1)"><use href="#logo"/></svg>
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
@@ -690,10 +646,10 @@
             <div><dt>Sex</dt><dd>Female</dd></div>
             <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
           </dl>
-          <div class="appt"><svg><use href="#i-cal"/></svg><span>Today, <b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
+          <div class="appt"><svg><use href="#i-cal"/></svg><span>Today at <b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
         </div>
         <div class="actions">
-          <div class="btn outlined">No, this isn't me</div>
+          <div class="btn soft">No, this isn't me</div>
           <div class="btn primary wide">Yes, this is me</div>
         </div>
       </div>
