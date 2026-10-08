@@ -1,19 +1,38 @@
 # Mobile
 
-Using Tamanu on a mobile device.
+User guides for using Tamanu on a mobile device.
 
 ## Modules
 
-- [1. Accessing Tamanu Mobile](accessing-tamanu/README.md): Signing in, choosing a facility, and signing out.
-- [2. Navigating Tamanu](navigating-tamanu/README.md): Finding your way around: the bottom tabs and a patient's modules.
-- [3. Patients](patients/README.md): Finding patients, registering them, and viewing their details.
-- [4. Vitals](vitals/README.md): Recording and reviewing a patient's observations.
-- [5. Diagnosis and Treatment](diagnosis-and-treatment/README.md): Recording a diagnosis and prescribing medication.
-- [6. Programs](programs/README.md): Completing program forms for a patient.
-- [7. Referral](referral/README.md): Referring a patient and viewing referrals.
-- [8. Vaccine](vaccine/README.md): Recording vaccines given to a patient.
-- [9. Tests](tests/README.md): Requesting lab tests and viewing request history.
-- [10. Program Registries](program-registries/README.md): Enrolling patients in program registries.
-- [11. History](history/README.md): A patient's visit and vaccine history.
-- [12. Reports](reports/README.md): The survey activity summary.
-- [13. Sync](sync/README.md): Syncing the device with the central server.
+Each module has a folder here and a number. Modules follow the order a user meets them: accessing
+Tamanu and finding your way around it, then patients and the work recorded against them.
+
+Modules without a guide yet are listed so the shape of the guides is visible and it is clear what is
+still to be written.
+
+| # | Module | Guides |
+| --- | --- | --- |
+| 1 | [Accessing Tamanu Mobile](01-accessing-tamanu/) | Not written yet |
+| 2 | [Navigating Tamanu](02-navigating-tamanu/) | Not written yet |
+| 3 | [Patients](03-patients/) | Not written yet |
+| 4 | [Vitals](04-vitals/) | Not written yet |
+| 5 | [Diagnosis and Treatment](05-diagnosis-and-treatment/) | Not written yet |
+| 6 | [Programs](06-programs/) | Not written yet |
+| 7 | [Referral](07-referral/) | Not written yet |
+| 8 | [Vaccine](08-vaccine/) | Not written yet |
+| 9 | [Tests](09-tests/) | Not written yet |
+| 10 | [Program Registries](10-program-registries/) | Not written yet |
+| 11 | [History](11-history/) | Not written yet |
+| 12 | [Reports](12-reports/) | Not written yet |
+| 13 | [Sync](13-sync/) | Not written yet |
+
+Each number is part of its folder or file name, as in `04-vitals/`, so the file
+tree shows the order.
+
+## Adding a guide
+
+Guides are written by the `draft-user-guide` skill, against the format in
+`.agents/docs/user-guide-format.md`. Where a module is not yet listed, add its folder and README at
+the point in the order where it belongs, and renumber the modules after it. Renumbering a module
+means renaming its folder, updating its row in the table above and the `# n. Module` heading in its
+README, and updating every link to it.
