@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { generateEachDataType, generateFake } from '@tamanu/fake-data/populateDb';
-
 import {
+  generateEachDataType,
+  generateFake,
   randomReferenceDataId,
   resetRandomRecordCache,
-} from '../../fake-data/src/populateDb/randomRecord';
+} from '@tamanu/fake-data/populateDb';
 
 import { createTestContext } from './utilities';
 
@@ -95,6 +95,24 @@ describe('Fake data generation', () => {
     expect(
       await count(`SELECT count(*)::int n FROM lab_request_logs l JOIN lab_requests r ON r.id = l.lab_request_id
         WHERE l.status <> r.status`),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM encounter_pause_prescription_histories`),
+    ).toBeGreaterThan(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM patient_death_data d JOIN patients p ON p.id = d.patient_id
+        WHERE d.hours_survived_since_birth IS NOT NULL OR (d.birth_weight IS NOT NULL
+          AND p.date_of_death::date - p.date_of_birth::date >= 365)`),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM appointments
+        WHERE extract(hour FROM start_time::timestamp) NOT BETWEEN 8 AND 16`),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM tasks WHERE completed_time::timestamp > now()`),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM encounters WHERE end_date::timestamp > now()`),
     ).toBe(0);
     expect(
       await count(`SELECT count(*)::int n FROM (SELECT encounter_prescription_id FROM encounter_pause_prescription_histories

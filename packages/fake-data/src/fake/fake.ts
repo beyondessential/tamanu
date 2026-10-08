@@ -3,7 +3,7 @@ import { isFunction, kebabCase, snakeCase, startCase } from 'es-toolkit/compat';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';
-import { addDays, addHours, addMinutes, formatISO9075 } from 'date-fns';
+import { addDays, addHours, addMinutes, formatISO9075, startOfDay } from 'date-fns';
 import {
   ADMINISTRATION_FREQUENCIES,
   ATTENDANT_OF_BIRTH_TYPES,
@@ -387,9 +387,12 @@ export const fakeDate = () => new Date(Date.now() - chance.integer({ min: 0, max
 const SETTLE_MS = 3 * 24 * 60 * 60 * 1000;
 export const fakeSettledDate = () =>
   new Date(Date.now() - chance.integer({ min: SETTLE_MS, max: FIVE_YEARS_MS }));
-// Bookings run from the recent past into the next few months.
+// Bookings run from the recent past into the next few months, on the quarter hour in clinic hours.
 export const fakeBookingDate = () =>
-  addMinutes(new Date(), chance.integer({ min: -180, max: 90 }) * 24 * 60);
+  addMinutes(
+    addDays(startOfDay(new Date()), chance.integer({ min: -180, max: 90 })),
+    chance.integer({ min: 8 * 4, max: 17 * 4 - 1 }) * 15,
+  );
 export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
   `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
@@ -661,16 +664,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
       externalCauseLocation: chance.pickone(Object.values(PLACE_OF_DEATHS)),
       pregnancyMoment:
         wasPregnant === 'yes' ? chance.pickone(Object.keys(PREGNANCY_MOMENTS)) : null,
-      motherConditionDescription: chance.pickone([
-        'Healthy at time of birth',
-        'Pre-eclampsia during pregnancy',
-        'Gestational diabetes',
-        'Anaemia in third trimester',
-      ]),
-      birthWeight: chance.integer({ min: 500, max: 4000 }),
-      carrierAge: chance.integer({ min: 16, max: 45 }),
-      carrierPregnancyWeeks: chance.integer({ min: 20, max: 42 }),
-      hoursSurvivedSinceBirth: chance.integer({ min: 0, max: 23 }),
+      motherConditionDescription: null,
+      fetalOrInfant: false,
+      withinDayOfBirth: false,
+      birthWeight: null,
+      carrierAge: null,
+      carrierPregnancyWeeks: null,
+      hoursSurvivedSinceBirth: null,
     };
   },
   PatientProgramRegistrationCondition: () => ({
@@ -881,7 +881,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     frequencyUnit: chance.pickone(Object.values(TASK_FREQUENCY_UNIT)),
   }),
   Task: ({ status = chance.pickone(Object.values(TASK_STATUSES)) }) => {
-    const requestTime = fakeDate();
+    const requestTime = fakeSettledDate();
     const dueTime = addHours(requestTime, chance.integer({ min: 1, max: 48 }));
     const isRepeating = chance.bool();
     return {

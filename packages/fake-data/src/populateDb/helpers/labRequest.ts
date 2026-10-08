@@ -14,9 +14,9 @@ const fakeLabResult = ({ resultType, maleMin, maleMax }: LabTestType): string =>
     return chance.pickone(QUALITATIVE_LAB_RESULTS);
   }
   const spread = maleMax - maleMin;
-  return chance
-    .floating({ min: maleMin - spread * 0.2, max: maleMax + spread * 0.2, fixed: 1 })
-    .toString();
+  // A range starting at zero measures something that can't go negative.
+  const low = maleMin >= 0 ? Math.max(0, maleMin - spread * 0.2) : maleMin - spread * 0.2;
+  return chance.floating({ min: low, max: maleMax + spread * 0.2, fixed: 1 }).toString();
 };
 
 const STATUSES_WITH_RESULTS = [

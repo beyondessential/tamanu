@@ -1,4 +1,4 @@
-import { parseISO } from 'date-fns';
+import { differenceInDays, parseISO } from 'date-fns';
 import { times } from 'es-toolkit/compat';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
@@ -56,7 +56,7 @@ export const createPatient = async ({
       fake(PatientBirthData, {
         patientId: patient.id,
         facilityId: facilityId || (await randomRecordId(models, 'Facility')),
-        timeOfBirth: `${patient.dateOfBirth} ${chance.integer({ min: 10, max: 23 })}:00:00`,
+        timeOfBirth: `${patient.dateOfBirth} ${String(chance.hour({ twentyfour: true })).padStart(2, '0')}:00:00`,
       }),
     );
   }
@@ -70,6 +70,19 @@ export const createPatient = async ({
           wasPregnant: null,
           pregnancyContributed: null,
           pregnancyMoment: null,
+        }),
+        ...(differenceInDays(new Date(patient.dateOfDeath), parseISO(patient.dateOfBirth)) <
+          365 && {
+          fetalOrInfant: true,
+          birthWeight: chance.integer({ min: 500, max: 4000 }),
+          carrierAge: chance.integer({ min: 16, max: 45 }),
+          carrierPregnancyWeeks: chance.integer({ min: 20, max: 42 }),
+          motherConditionDescription: chance.pickone([
+            'Healthy at time of birth',
+            'Pre-eclampsia during pregnancy',
+            'Gestational diabetes',
+            'Anaemia in third trimester',
+          ]),
         }),
       }),
     );

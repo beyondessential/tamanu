@@ -46,7 +46,12 @@ export const createEncounter = async ({
       ? endDate
       : isDischarged
         ? toDateTimeString(
-            addDays(new Date(resolvedStartDate), chance.integer({ min: 0, max: 14 })),
+            new Date(
+              Math.min(
+                addDays(new Date(resolvedStartDate), chance.integer({ min: 0, max: 14 })).getTime(),
+                Date.now(),
+              ),
+            ),
           )
         : null;
 

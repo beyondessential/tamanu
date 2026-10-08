@@ -28,7 +28,9 @@ export const randomRecordId = async (models: Models, modelName: string): Promise
   let ids = idCache.get(modelName);
   if (!ids) {
     const model = (models as Record<string, any>)[modelName];
-    const rows = await model.findAll({ attributes: ['id'], raw: true });
+    // Records picked at random are current care, so a deceased patient is never the subject.
+    const where = modelName === 'Patient' ? { dateOfDeath: null } : undefined;
+    const rows = await model.findAll({ where, attributes: ['id'], raw: true });
     ids = rows.map((row: { id: string }) => row.id);
     // Don't cache an empty pool: the table may gain rows later this round.
     if (ids.length > 0) idCache.set(modelName, ids);
@@ -59,6 +61,7 @@ const pickOrGrowReferenceData = async (models: Models, type: string): Promise<st
       where: { type },
       attributes: ['id', 'name'],
       raw: true,
+      limit: POOL_SIZE,
     })) as unknown as Array<{ id: string; name: string }>;
     referenceDataCache.set(type, rows);
   }

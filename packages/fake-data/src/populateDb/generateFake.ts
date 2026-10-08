@@ -23,8 +23,8 @@ export async function generateFake(
       if (tallyFilePath) {
         await populateDbFromTallyFile(models, tallyFilePath);
       } else {
-        // A failed round rolls back, so it leaves no half-linked records behind. The tally path
-        // stays outside a transaction: it runs helpers in parallel across the connection pool.
+        // A failed round rolls back, so it leaves no half-linked records behind. Tally rounds are
+        // large batches meant to spread across the connection pool, and abort the run on failure.
         await models.Patient.sequelize.transaction(() => generateEachDataType(models));
       }
       done += 1;
