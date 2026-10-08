@@ -78,6 +78,21 @@ describe('Fake data generation', () => {
       ),
     ).toBe(0);
     expect(
+      await count(
+        `SELECT count(*)::int n FROM lab_tests WHERE result <> '' AND completed_date IS NULL`,
+      ),
+    ).toBe(0);
+    expect(
+      await count(
+        `SELECT count(*)::int n FROM lab_requests WHERE published_date::timestamp > now()`,
+      ),
+    ).toBe(0);
+    expect(
+      await count(
+        `SELECT count(*)::int n FROM imaging_results WHERE completed_at::timestamp > now()`,
+      ),
+    ).toBe(0);
+    expect(
       await count(`SELECT count(*)::int n FROM lab_request_logs l JOIN lab_requests r ON r.id = l.lab_request_id
         WHERE l.status <> r.status`),
     ).toBe(0);

@@ -1,6 +1,8 @@
+import { addHours, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_TEST_RESULT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import type { LabTestType } from '@tamanu/database';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
 import { fake, chance } from '../../fake/index.js';
 import { QUALITATIVE_LAB_RESULTS } from '../../fake/names.js';
@@ -86,6 +88,15 @@ export const createLabRequest = async ({
     }),
   );
 
+  const hasResults = STATUSES_WITH_RESULTS.includes(labRequest.status);
+  const completedDate =
+    labRequest.publishedDate ??
+    (hasResults && labRequest.sampleTime
+      ? toDateTimeString(
+          addHours(parseISO(labRequest.sampleTime), chance.integer({ min: 2, max: 48 })),
+        )
+      : null);
+
   for (const labTestType of labTestTypes) {
     await LabTest.create(
       fake(LabTest, {
@@ -94,8 +105,8 @@ export const createLabRequest = async ({
         labTestMethodId: resolvedMethodId,
         labTestTypeId: labTestType.id,
         date: labRequest.requestedDate.slice(0, 10),
-        completedDate: labRequest.publishedDate ?? null,
-        result: STATUSES_WITH_RESULTS.includes(labRequest.status) ? fakeLabResult(labTestType) : '',
+        completedDate,
+        result: hasResults ? fakeLabResult(labTestType) : '',
       }),
     );
   }

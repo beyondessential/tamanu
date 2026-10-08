@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns';
 import { times } from 'es-toolkit/compat';
 
 import { REFERENCE_TYPES } from '@tamanu/constants';
@@ -38,7 +39,7 @@ export const createPatient = async ({
       ? {
           ...patientFields,
           dateOfDeath: toDateTimeString(
-            new Date(Math.max(fakeDate().getTime(), Date.parse(patientFields.dateOfBirth))),
+            new Date(Math.max(fakeDate().getTime(), parseISO(patientFields.dateOfBirth).getTime())),
           ),
         }
       : patientFields,

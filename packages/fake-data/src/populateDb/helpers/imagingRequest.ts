@@ -3,7 +3,7 @@ import { randomRecordId } from '../randomRecord.js';
 
 import { addHours } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { fake, chance, fakeDate } from '../../fake/index.js';
+import { fake, chance, fakeSettledDate } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateImagingRequestParams extends CommonParams {
@@ -21,7 +21,7 @@ export const createImagingRequest = async ({
 }: CreateImagingRequestParams): Promise<void> => {
   const { ImagingRequest, ImagingResult } = models;
   const status = chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES));
-  const requestedDate = fakeDate();
+  const requestedDate = fakeSettledDate();
   const imagingRequest = await ImagingRequest.create(
     fake(ImagingRequest, {
       requestedById: userId || (await randomRecordId(models, 'User')),

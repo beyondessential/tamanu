@@ -383,6 +383,10 @@ export function fakePrescription(prefix: string = 'test-') {
 const FIVE_YEARS_MS = 5 * 365 * 24 * 60 * 60 * 1000;
 // Records describe things that have happened, so they sit in the past.
 export const fakeDate = () => new Date(Date.now() - chance.integer({ min: 0, max: FIVE_YEARS_MS }));
+// Far enough back that the steps after a request (sample, result, publication) are also past.
+const SETTLE_MS = 3 * 24 * 60 * 60 * 1000;
+export const fakeSettledDate = () =>
+  new Date(Date.now() - chance.integer({ min: SETTLE_MS, max: FIVE_YEARS_MS }));
 // Bookings run from the recent past into the next few months.
 export const fakeBookingDate = () =>
   addMinutes(new Date(), chance.integer({ min: -180, max: 90 }) * 24 * 60);
@@ -552,7 +556,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
     const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
-    const requestedDate = fakeDate();
+    const requestedDate = fakeSettledDate();
     const sampleTime =
       status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
         ? null

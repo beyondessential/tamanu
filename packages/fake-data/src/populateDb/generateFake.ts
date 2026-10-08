@@ -20,12 +20,13 @@ export async function generateFake(
   let errs = 0;
   while (done < rounds && errs < Math.max(10, rounds / 10)) {
     try {
-      // A failed round rolls back, so it leaves no half-linked records behind.
-      await models.Patient.sequelize.transaction(() =>
-        tallyFilePath
-          ? populateDbFromTallyFile(models, tallyFilePath)
-          : generateEachDataType(models),
-      );
+      if (tallyFilePath) {
+        await populateDbFromTallyFile(models, tallyFilePath);
+      } else {
+        // A failed round rolls back, so it leaves no half-linked records behind. The tally path
+        // stays outside a transaction: it runs helpers in parallel across the connection pool.
+        await models.Patient.sequelize.transaction(() => generateEachDataType(models));
+      }
       done += 1;
       process.stdout.write('.');
     } catch (err) {
