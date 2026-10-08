@@ -4,36 +4,46 @@ id: SYND
 
 # Syndromic surveillance
 
-Syndromic surveillance tracks which symptoms a practitioner observes a patient presenting, independent of formal diagnosis, so a deployment can watch for patterns across its patient population. A practitioner records the symptoms that apply during an encounter, or records that none apply, and can revise that record up to discharge.
+Syndromic surveillance tracks which symptoms a practitioner observes a patient presenting with, independent of formal diagnosis, so a deployment can watch for patterns across its patient population. Each deployment designs what is captured as a program form, and a practitioner completes that form for an encounter from the encounter's diagnosis pane, from the discharge form, or from Forms like any other program form.
 
-## Syndromic surveillance symptoms reference data
+## The syndromic surveillance form
 
-The symptoms a practitioner can select from are reference data, configurable per deployment through the standard reference data import.
+The syndromic surveillance form is the program form with the code `syndromicsurveillance` in the program with the code `syndromicsurveillance`. These two codes are what identify it. A deployment sets up the program and the form through the standard program import, and decides which questions the form asks.
 
-Every deployment has one system-required symptom with id `syndromicsurveillancesymptoms-noSyndrome`, representing that the patient was assessed and no symptom applies. This item cannot be removed by a deployment's reference data import. Its name is editable per deployment and defaults to "No syndrome".
+The program is an ordinary program. It can hold other forms alongside the syndromic surveillance form and can have a program registry, and these behave as they would in any other program.
 
-Presenting the list of symptoms to a practitioner:
+The form is an ordinary program form. It supports every question type and configuration that program forms support, and it is displayed the same way as any other program form. It is listed under Forms at both patient and encounter level, where it can be completed, viewed and edited like any other form.
 
-- The "no syndrome" item always appears first, separated from the other symptoms by a divider.
-- Every other symptom appears below the divider, in alphabetical order by name.
+Syndromic surveillance is available in a deployment while its syndromic surveillance form is current and not marked obsolete. While it is available, the encounter's diagnosis pane and the discharge form each show a syndromic surveillance section.
 
-The alphabetical ordering is produced by the server, not the client: the endpoint that lists syndromic surveillance symptoms returns them already in this order (the "no syndrome" item first, the rest alphabetically after it), so any client rendering the list does not need to sort it.
+## Completion
 
-## Recording syndromic surveillance for an encounter
+An encounter's syndromic surveillance is either not yet completed or complete. It is complete once the encounter has a response to the syndromic surveillance form, whichever way that response was submitted: from the diagnosis pane, from the discharge form, or from Forms at patient or encounter level. A response submitted from Forms at patient level counts for the encounter it is recorded against.
 
-A practitioner records syndromic surveillance from the encounter's diagnosis pane, or from the discharge form when discharging the encounter. Both surfaces read and write the same record for the encounter, so recording it during discharge is equivalent to recording it beforehand from the diagnosis pane.
+When an encounter has more than one response to the syndromic surveillance form, the most recent one is the response viewed and edited from the diagnosis pane.
 
-Recording syndromic surveillance means selecting either the "no syndrome" symptom or one or more other symptoms — never both at once. Selecting "no syndrome" clears any other selected symptoms, and selecting a symptom clears "no syndrome". A request to record both is rejected.
+## Diagnosis pane
 
-The encounter's syndromic surveillance record can be revised at any time up to and including discharge. Revising it replaces which symptoms are recorded as ticked; it does not affect whether the encounter has a record at all — once syndromic surveillance has been recorded for an encounter, it stays recorded even if every symptom is later unticked and replaced with a different selection.
+While syndromic surveillance has not been completed, the diagnosis pane shows a "Syndromic surveillance" action. It opens a modal containing the syndromic surveillance form, and submitting the form there records the response against the encounter.
+
+Once it is complete, the pane shows "Syndromic surveillance: Complete" with a completion icon to its left, alongside a "View/Edit" action that opens the encounter's response in the modal. For a user who cannot edit the response, the action reads "View" and the response opens read-only.
+
+## Discharge form
+
+While syndromic surveillance has not been completed, the discharge form's syndromic surveillance section embeds the syndromic surveillance form, displayed the same way as a form embedded in the procedure modal. Submitting it works the same way as submitting a form from within a procedure: the response is recorded against the encounter as soon as it is submitted, separately from finalising the discharge, and the section then shows syndromic surveillance as complete.
+
+Answers entered into the embedded form but not yet submitted are discarded without a warning when the clinician cancels out of the discharge form.
+
+Once syndromic surveillance is complete, the section shows only that it is complete.
+
+A deployment can require syndromic surveillance to be completed at discharge. When it does, the discharge form cannot be finalised until syndromic surveillance for the encounter is complete, and attempting to finalise it flags the syndromic surveillance section as required. The requirement applies while syndromic surveillance is available, and only to discharges made through the discharge form; an encounter that is discharged automatically, such as an outpatient encounter, is discharged regardless.
 
 ## Permissions
 
-Recording or editing syndromic surveillance requires one of two permissions, depending on whether the encounter already has a record:
+The diagnosis pane's syndromic surveillance section follows the standard permissions for program forms, applied to the syndromic surveillance form:
 
-- Creating a first record for an encounter requires the create permission.
-- Editing an already-recorded entry requires the write permission.
+- Seeing the section and viewing a response requires permission to read the form.
+- Submitting a response requires permission to submit the form. A user who can read the form but not submit it sees the "Syndromic surveillance" action disabled.
+- Editing a response requires permission to write the form. Without it, the response opens read-only.
 
-Either permission alone, or the read permission on its own, is enough to view what has been recorded. A user with only the read permission cannot open the recording form to make changes.
-
-When syndromic surveillance is submitted as part of discharging an encounter, it is covered by the permission to discharge that encounter, rather than requiring the create or write syndromic surveillance permission directly.
+The discharge form's syndromic surveillance section, including completing the form there, is covered by the permissions to discharge the encounter, which are write on encounters and write on discharges. It needs none of the form's permissions.
