@@ -47,7 +47,8 @@ jobs:
           # The central deployment's name carries a generated suffix, so find its pod by label.
           sel=app.kubernetes.io/name=central,app.kubernetes.io/component=api-server
           kubectl -n "$ns" wait --for=condition=ready pod -l "$sel" --timeout=300s
-          pod=pod/$(kubectl -n "$ns" get pod -l "$sel" -o jsonpath='{.items[0].metadata.name}')
+          # A redeploy's old pod can still be terminating, so take the newest.
+          pod=pod/$(kubectl -n "$ns" get pod -l "$sel" --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1:].metadata.name}')
 
           # Resolve tally file path inside the container (sibling of populateDb's index)
           tally=$(kubectl -n "$ns" exec "$pod" -- \
