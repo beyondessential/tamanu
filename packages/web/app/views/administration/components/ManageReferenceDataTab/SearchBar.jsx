@@ -24,6 +24,15 @@ const getFieldSortOrder = col => {
   return 0;
 };
 
+const getAllVisibilityStatuses = selectedType =>
+  selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+    ? [
+        ...NONPATIENT_VISIBILITY_STATUS_VALUES,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]
+    : NONPATIENT_VISIBILITY_STATUS_VALUES;
+
 export const SearchBar = ({ columns, onSearch, selectedType }) => {
   const searchFields = useMemo(
     () =>
@@ -51,21 +60,10 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
 
   const handleSearch = useCallback(
     values => {
-      // Unticked "Include historical" is omitted so the server default applies (it differs per type).
-      const nonEmpty = {};
-      for (const [key, value] of Object.entries(values)) {
-        if (key === VISIBILITY_STATUS_KEY) continue;
-        if (value) {
-          nonEmpty[key] = value;
-        }
-      }
-      if (values[VISIBILITY_STATUS_KEY]) {
-        nonEmpty[VISIBILITY_STATUS_KEY] = [
-          ...NONPATIENT_VISIBILITY_STATUS_VALUES,
-          ...(selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-            ? [LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY, LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST]
-            : []),
-        ].join(',');
+      const { [VISIBILITY_STATUS_KEY]: includeHistorical, ...filters } = values;
+      const nonEmpty = Object.fromEntries(Object.entries(filters).filter(([, value]) => value));
+      if (includeHistorical) {
+        nonEmpty[VISIBILITY_STATUS_KEY] = getAllVisibilityStatuses(selectedType).join(',');
       }
       onSearch(nonEmpty);
     },
