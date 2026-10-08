@@ -58,9 +58,10 @@
   .lv dd { margin: 0; font-weight: 500; color: #444; }
 
   /* Patient details additions */
-  .pd-edit-row { display: flex; justify-content: flex-end; margin: -4px 0 6px; }
+  .pd-first { display: flex; justify-content: space-between; align-items: center; }
+  .pd-first .text-btn { margin: -4px -6px -4px 0; }
   .text-btn { background: none; border: 0; color: #326699; font: inherit; font-weight: 500; padding: 4px 6px; border-radius: 3px; display: inline-flex; gap: 4px; align-items: center; cursor: pointer; }
-  .text-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .text-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .group + .group { margin-top: 18px; }
   .lv .pd-heading { grid-column: 1 / -1; color: #444; font-weight: 700; margin-top: 12px; }
 
@@ -105,7 +106,8 @@ const icon = {
   up: '<svg class="chev" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>',
   right: '<svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>',
   down: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
-  pencil: '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  // lucide: pencil
+  pencil: '<svg viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>',
   check: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
   close: '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
 };
@@ -139,10 +141,9 @@ const pdGrid = groups => `<dl class="lv pd-grid">${groups.map(([heading, rows]) 
   rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')).join('')}</dl>`;
 
 const pdView = values => `
-  <div class="pd-edit-row"><button class="text-btn">${icon.pencil}Edit</button></div>
   ${pdGrid([
     [null, [
-      ['Patient ID', '673HGBJ3'], ['Title', values.title], ['First name', 'Jessie'], ['Middle name', '-'],
+      ['Patient ID', `<span class="pd-first">673HGBJ3<button class="text-btn">${icon.pencil}Edit</button></span>`], ['Title', values.title], ['First name', 'Jessie'], ['Middle name', '-'],
       ['Last name', 'Jacobs'], ['Date of birth', '01/01/1980'], ['Sex', 'F'], ['Village', '-'], ['Ethnicity', 'Fijian'],
     ]],
     ['Contact', [['Mobile phone', values.mobile], ['Other phone', '-'], ['Email', values.email]]],
