@@ -88,7 +88,15 @@
   .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 24px; }
   .actions.end { justify-content: flex-end; }
 
-  /* Welcome */
+  /* Landing */
+  .landing .state-icon { width: 112px; height: 112px; margin-bottom: 28px; }
+  .landing .state-icon svg { width: 56px; height: 56px; }
+  .greetings { font-size: 18px; color: var(--primary); font-weight: 500; margin-bottom: 12px; }
+  .landing h1.k-title { font-size: 44px; margin-bottom: 12px; }
+  .landing p.k-lead { font-size: 20px; margin-bottom: 40px; }
+  .landing .btn { height: 76px; font-size: 22px; min-width: 340px; }
+
+  /* Language and accessibility */
   .welcome-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; }
   .card h2 { font-size: 15px; font-weight: 500; margin: 0 0 18px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
   .card h2 svg { width: 20px; height: 20px; color: var(--primary); }
@@ -251,7 +259,26 @@
 <div class="section-title">1. Start</div>
 <div class="row">
   <div class="frame-wrap">
-    <div class="caption">Welcome <span>· language and accessibility</span></div>
+    <div class="caption">Landing page <span>· shown while the kiosk is idle</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body center landing">
+        <div class="state-icon info"><svg><use href="#i-cal"/></svg></div>
+        <div class="greetings">Talofa · Mālō e lelei · Bula · Kia ora</div>
+        <h1 class="k-title">Welcome to Tamanu Health Centre</h1>
+        <p class="k-lead">Check in for your appointment here.</p>
+        <div class="btn primary wide">Start check-in <svg><use href="#i-next"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">Language and accessibility</div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
@@ -260,8 +287,8 @@
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
-        <h1 class="k-title">Welcome</h1>
-        <p class="k-lead">Check in for your appointment today.</p>
+        <h1 class="k-title">Language and accessibility</h1>
+        <p class="k-lead">Choose what works best for you.</p>
         <div class="welcome-grid">
           <div class="card">
             <h2><svg><use href="#i-globe"/></svg>Language</h2>
@@ -289,8 +316,9 @@
             </div>
           </div>
         </div>
-        <div class="actions end">
-          <div class="btn primary wide">Start <svg><use href="#i-next"/></svg></div>
+        <div class="actions">
+          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
+          <div class="btn primary wide">Continue <svg><use href="#i-next"/></svg></div>
         </div>
       </div>
     </div>
@@ -583,7 +611,7 @@
 <div class="section-title">5. Checked in</div>
 <div class="row">
   <div class="frame-wrap">
-    <div class="caption">Confirmation <span>· returns to Welcome on its own</span></div>
+    <div class="caption">Confirmation <span>· returns to the landing page on its own</span></div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
@@ -634,7 +662,7 @@
   </div>
 
   <div class="frame-wrap">
-    <div class="caption">Inactivity warning <span>· then clears everything and returns to Welcome</span></div>
+    <div class="caption">Inactivity warning <span>· then clears everything and returns to the landing page</span></div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
@@ -667,7 +695,7 @@
 <div class="section-title">7. Accessibility applied</div>
 <div class="row">
   <div class="frame-wrap">
-    <div class="caption">High contrast and extra large text <span>· the settings chosen on Welcome apply to every screen</span></div>
+    <div class="caption">High contrast and extra large text <span>· the settings chosen on Language and accessibility apply to every screen</span></div>
     <div class="tablet hc">
       <div class="k-header">
         <svg class="logo" style="filter: brightness(0) invert(1)"><use href="#logo"/></svg>
