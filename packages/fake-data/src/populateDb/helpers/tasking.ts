@@ -18,9 +18,6 @@ export const createTask = async ({
 
   const resolvedEncounterId = encounterId || (await randomRecordId(models, 'Encounter'));
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
-  const resolvedNotCompletedReasonId =
-    referenceDataId ||
-    (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON));
   const resolvedDesignationId =
     referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.DESIGNATION));
   const resolvedTemplateRefDataId =
@@ -36,7 +33,10 @@ export const createTask = async ({
       requestedByUserId: resolvedUserId,
       completedByUserId: isCompleted ? resolvedUserId : null,
       notCompletedByUserId: isNotCompleted ? resolvedUserId : null,
-      notCompletedReasonId: isNotCompleted ? resolvedNotCompletedReasonId : null,
+      notCompletedReasonId: isNotCompleted
+        ? referenceDataId ||
+          (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON))
+        : null,
     }),
   );
   await TaskDesignation.create(
