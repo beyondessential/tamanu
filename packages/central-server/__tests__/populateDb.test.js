@@ -35,6 +35,18 @@ describe('Fake data generation', () => {
     expect(withRecord).toBe(generated.length);
   });
 
+  it('files every generated lab test type under a lab test category', async () => {
+    await generateEachDataType(models);
+
+    const labTestTypes = await models.LabTestType.findAll({
+      include: [{ model: models.ReferenceData, as: 'category' }],
+    });
+    expect(labTestTypes.length).toBeGreaterThan(0);
+    for (const labTestType of labTestTypes) {
+      expect(labTestType.category?.type).toBe(REFERENCE_TYPES.LAB_TEST_CATEGORY);
+    }
+  });
+
   it('backfills a reference drug record for every pre-existing bare drug', async () => {
     const bareDrugs = await models.ReferenceData.bulkCreate([
       fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),

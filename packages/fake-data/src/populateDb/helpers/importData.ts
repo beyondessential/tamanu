@@ -197,9 +197,17 @@ export const generateImportData = async ({
     },
   );
 
-  const labTestType = await pooled(LabTestType, () =>
-    LabTestType.create(fake(LabTestType, { labTestCategoryId: referenceData.id })),
-  );
+  // A category is only minted for a test to sit in, so the seed never adds one with no tests.
+  // fake() spreads the names within a run; findOrCreate keeps one row per name across the
+  // runs that top the seed up, as the lab request form lists categories by name.
+  const labTestType = await pooled(LabTestType, async () => {
+    const category = fake(ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY });
+    const [labTestCategory] = await ReferenceData.findOrCreate({
+      where: { type: category.type, name: category.name },
+      defaults: category,
+    });
+    return LabTestType.create(fake(LabTestType, { labTestCategoryId: labTestCategory.id }));
+  });
 
   const user = await pooled(User, () => User.create(fake(User)));
 
