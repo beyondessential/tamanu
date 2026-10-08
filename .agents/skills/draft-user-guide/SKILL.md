@@ -60,9 +60,10 @@ Driving a demo site:
   once the author has agreed. Keep it to what the guide needs, and enter plausible values
 - **Drive it with a throwaway script outside the repository**, not a spec in the e2e suite
 
-Tamanu's old user guides are in Slab, at https://beyond-essential.slab.com/public/topics, which you
-can't reach. Don't go looking for them: if the author pastes one in, read it to see what the area
-used to cover, but write from the app rather than from its wording.
+Tamanu's old user guides are in Slab, at
+https://beyond-essential.slab.com/public/topics/user-manuals-up14zqup, which you can't reach. Don't go
+looking for them: if the author pastes one in, read it to see what the area used to cover, but write
+from the app rather than from its wording.
 
 ### 3. Screenshots
 
