@@ -7,6 +7,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
+import { Op } from 'sequelize';
 import { chance, fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 import { pooled, pooledWithChild } from '../pool.js';
@@ -194,34 +195,41 @@ export const generateImportData = async ({
     },
   );
 
-  // The pool stops at the name pool's length so category names stay distinct. pickDistinct
-  // alone only keeps them apart within one process, and the seed tops up across many runs.
   const labTestCategoryNames = REFERENCE_DATA_NAMES[REFERENCE_TYPES.LAB_TEST_CATEGORY];
-  const createLabTestCategory = async () => {
-    const takenNames = new Set(
-      (
-        (await ReferenceData.findAll({
-          where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
-          attributes: ['name'],
-          raw: true,
-        })) as unknown as Array<{ name: string }>
-      ).map(({ name }) => name),
+  const pooledLabTestCategory = () =>
+    pooled(
+      ReferenceData,
+      async () => {
+        const name = chance.pickone(labTestCategoryNames);
+        const [labTestCategory] = await ReferenceData.findOrCreate({
+          where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY, name },
+          defaults: fake(ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY, name }),
+        });
+        return labTestCategory;
+      },
+      { size: labTestCategoryNames.length, where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY } },
     );
-    const name = chance.pickone(
-      labTestCategoryNames.filter(candidate => !takenNames.has(candidate)),
-    );
-    return ReferenceData.create(
-      fake(ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY, name }),
-    );
-  };
   // A category is only minted for a test to sit in, so the seed never adds one with no tests.
   const labTestType = await pooled(LabTestType, async () => {
-    const labTestCategory = await pooled(ReferenceData, createLabTestCategory, {
-      size: labTestCategoryNames.length,
-      where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
-    });
+    const labTestCategory = await pooledLabTestCategory();
     return LabTestType.create(fake(LabTestType, { labTestCategoryId: labTestCategory.id }));
   });
+
+  // Databases seeded before lab tests had real categories filed them under a drug, and a full
+  // pool keeps reusing those rows, so the top-up moves them.
+  const misfiledLabTestTypes = await LabTestType.findAll({
+    include: [
+      {
+        model: ReferenceData,
+        as: 'category',
+        where: { type: { [Op.ne]: REFERENCE_TYPES.LAB_TEST_CATEGORY } },
+      },
+    ],
+  });
+  for (const misfiledLabTestType of misfiledLabTestTypes) {
+    const labTestCategory = await pooledLabTestCategory();
+    await misfiledLabTestType.update({ labTestCategoryId: labTestCategory.id });
+  }
 
   const user = await pooled(User, () => User.create(fake(User)));
 
