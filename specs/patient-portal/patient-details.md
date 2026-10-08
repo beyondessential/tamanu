@@ -43,7 +43,9 @@ The Patient details section of the patient portal dashboard shows the signed-in 
 
 - [ ] Saving updates the patient record immediately, without staff review
 - [ ] Only the fields the patient changed are written, so a change made by staff to another field in the meantime is preserved
-- [ ] On a successful save, the section returns to view mode showing the saved values and a brief confirmation appears
+- [ ] On a successful save, the section returns to view mode showing the saved values
+- [ ] A successful save shows a "Details saved" success message at the top of the screen, wherever the patient has scrolled to
+- [ ] The "Details saved" message disappears on its own after 3 seconds, and the patient can also dismiss it sooner with its close button
 - [ ] If the save fails, the form stays open with the patient's edits intact and an error message is shown
 - [ ] Changes made through the portal reach facility servers through the normal sync process and appear on the patient's record in Tamanu like any other update
 - [ ] A patient can only edit their own record
