@@ -28,7 +28,7 @@ const validationSchema = yup.object().shape({
       />,
     ),
   labSampleSiteId: yup.string(),
-  specimenTypeId: yup.string().when('mandateSpecimenType', {
+  specimenTypeId: yup.string().nullable().when('mandateSpecimenType', {
     is: true,
     then: schema =>
       schema
