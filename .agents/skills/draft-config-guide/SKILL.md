@@ -4,10 +4,10 @@ description: >-
   Draft, update and publish a Tamanu user configuration guide for a module, covering its reference
   data, settings and permissions. Use when the user wants a configuration guide written or refreshed
   for a module (e.g. "write a config guide for Vaccines", "update the Medications config guide"), or
-  wants existing System Administration documentation brought into GitHub. Authors from the codebase so
-  the guide matches what the software does, and lands it as a reviewed pull request under
-  docs/user-manuals/config-guides/. Not for developer documentation or release notes (use
-  draft-release-notes for the latter).
+  wants existing System Administration documentation brought across from Slab. Authors from the
+  codebase so the guide matches what the software does, and commits it under
+  docs/user-manuals/config-guides/ for the author to review and raise as a pull request. Not for
+  developer documentation or release notes (use draft-release-notes for the latter).
 label: "Draft config guide"
 ---
 
@@ -15,7 +15,7 @@ label: "Draft config guide"
 
 You write the configuration guides a system administrator or project manager configures a deployment
 from. You author them **from the codebase**, so what they describe matches what the software does, and
-land them as a **reviewed pull request**.
+commit them for the author to review.
 
 Read `.agents/docs/config-guide-format.md` first and follow it for anything about what a guide looks
 like: structure, tables, settings blocks, callouts, version flags, screenshots, and the accuracy rules.
@@ -43,10 +43,12 @@ Discover candidates:
 - **Reference data** — `packages/constants/src/importable.ts` for the types, then the importers
   (`packages/central-server/app/admin/referenceDataImporter/`), import schemas and exporters
   (`.../admin/exporter/modelExporters/`) for tab names, columns, required fields and default-when-empty
-  behaviour. `defaultProvisioningData/*.json5` has realistic example rows
+  behaviour. `defaultProvisioningData/*.json5` has realistic example rows. The admin panel's **Manage**
+  tab edits the same records (`packages/central-server/app/admin/referenceDataManage.js`)
 
 Then **present the candidate list for the author to approve or trim before writing anything**. Do not
-derive scope and proceed.
+derive scope and proceed. If the module has no folder yet, propose where it sits in the module order,
+since adding it renumbers the modules after it (see the format doc).
 
 ### 2. Draft what the code cannot give you
 
@@ -56,14 +58,11 @@ them. Never invent clinical guidance: where you have nothing to go on, leave a m
 
 ### 3. Batch the author's checkpoints
 
-Five things need the author: scope, the capabilities listed under each permission (inferred from
-`req.ability.can()` call sites), version flags (from release branch history, see
-`llm/project-rules/release-branches.md`), the example template link for each reference data type, and
-which action buttons each screenshot outlines in red.
-
-Settle **scope first**, then present the drafted permission capabilities, version flags, lead
-paragraph and proposed red outlines, and ask for the template links, **together as one review**. A guide-authoring skill that asks a
-dozen separate questions will not get used.
+Settle **scope first**. Then put everything else that needs the author **into one review**: the drafted
+lead paragraph, the capabilities listed under each permission (inferred from `req.ability.can()` call
+sites), version flags (from release branch history, see `llm/project-rules/release-branches.md`), the
+red outlines you propose for each screenshot, and a request for each reference data type's example
+template link. A guide-authoring skill that asks a dozen separate questions will not get used.
 
 ### 4. Screenshots
 
@@ -101,10 +100,10 @@ whether to retake them.
 
 ### 6. Land it
 
-Write the guides, update the module README and the section README, and commit. The author reviews the
-diff and raises the pull request, so name the card to Tamanu's conventional commit format
-(`llm/project-rules/pull-requests.md`; `docs` is not an allowed type, use `chore`) rather than opening
-one yourself.
+Write the guides, update the module README and the section README, check every link and anchor still
+resolves, and commit. Do not open the pull request: the author reviews the diff and raises it. Title it
+to Tamanu's conventional commit format (`llm/project-rules/pull-requests.md`; `docs` is not an allowed
+type, use `chore`).
 
 Then tell the author what you wrote, the configuration gaps you found, and any screenshot placeholders
-still to be filled and why, so that goes in the pull request.
+still to be filled and why, so they can go in the pull request description.
