@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { SEARCHABLE_COLUMN_TYPES } from '@tamanu/constants';
+import {
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  NONPATIENT_VISIBILITY_STATUS_VALUES,
+  OTHER_REFERENCE_TYPES,
+  SEARCHABLE_COLUMN_TYPES,
+} from '@tamanu/constants';
 import { CustomisableSearchBar } from '../../../../components/SearchBar/CustomisableSearchBar';
 import { SearchField } from './SearchField';
 
@@ -46,17 +51,25 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
 
   const handleSearch = useCallback(
     values => {
-      // The visibility status single-select flows through like any other filter. An empty value is
-      // omitted, so the server default applies (current, plus panelOnly for lab test types).
+      // Unticked "Include historical" is omitted so the server default applies (it differs per type).
       const nonEmpty = {};
       for (const [key, value] of Object.entries(values)) {
+        if (key === VISIBILITY_STATUS_KEY) continue;
         if (value) {
           nonEmpty[key] = value;
         }
       }
+      if (values[VISIBILITY_STATUS_KEY]) {
+        nonEmpty[VISIBILITY_STATUS_KEY] = [
+          ...NONPATIENT_VISIBILITY_STATUS_VALUES,
+          ...(selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+            ? [LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY, LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST]
+            : []),
+        ].join(',');
+      }
       onSearch(nonEmpty);
     },
-    [onSearch],
+    [onSearch, selectedType],
   );
 
   if (searchFields.length === 0) return null;
@@ -69,12 +82,12 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
       setIsExpanded={setIsExpanded}
 
       hiddenFields={advancedFields.map(col => (
-        <SearchField key={col.key} col={col} selectedType={selectedType} />
+        <SearchField key={col.key} col={col} />
       ))}
       data-testid="searchbar-refdata"
     >
       {visibleFields.map(col => (
-        <SearchField key={col.key} col={col} selectedType={selectedType} />
+        <SearchField key={col.key} col={col} />
       ))}
     </CustomisableSearchBar>
   );

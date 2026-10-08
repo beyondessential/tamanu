@@ -102,14 +102,6 @@ export const LAB_TEST_TYPE_VISIBILITY_STATUSES = {
   REFLEX_TEST: 'reflexTest',
 };
 
-export const VISIBILITY_STATUS_LABELS = {
-  [LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT]: 'Current',
-  [LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL]: 'Historical',
-  [LAB_TEST_TYPE_VISIBILITY_STATUSES.MERGED]: 'Merged',
-  [LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY]: 'Panel only',
-  [LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST]: 'Reflex test',
-};
-
 // These are the status groupings for the versions of lab request table that filter by different statuses
 export const LAB_REQUEST_TABLE_STATUS_GROUPINGS: {
   ACTIVE: string[];

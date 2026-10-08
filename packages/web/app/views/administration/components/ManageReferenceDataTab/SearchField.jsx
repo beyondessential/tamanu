@@ -1,19 +1,14 @@
 import React, { useMemo } from 'react';
 
+import styled from 'styled-components';
 import { useTranslation } from '@tamanu/ui-components';
 import {
-  NONPATIENT_VISIBILITY_STATUS_VALUES,
-  LAB_TEST_TYPE_VISIBILITY_STATUSES,
-  OTHER_REFERENCE_TYPES,
-  VISIBILITY_STATUS_LABELS,
-} from '@tamanu/constants';
-import {
   AutocompleteField,
+  CheckField,
   Field,
   MultiAutocompleteField,
   SearchField as SearchTextField,
   SelectField,
-  TranslatedSelectField,
 } from '../../../../components/Field';
 import { NumberField } from '../../../../components/Field/NumberField';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
@@ -30,15 +25,12 @@ const BOOLEAN_SEARCH_OPTIONS = [
   { value: 'false', label: 'No' },
 ];
 
-// Lab test types can also be filtered by "Panel only" or "Reflex test"; other reference data cannot.
-const getVisibilityStatuses = selectedType =>
-  selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-    ? [
-        ...NONPATIENT_VISIBILITY_STATUS_VALUES,
-        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
-        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
-      ]
-    : NONPATIENT_VISIBILITY_STATUS_VALUES;
+const CentredCheckContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-top: 20px;
+`;
 
 const AvailableFacilitiesSearchField = () => {
   const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { noLimit: true } });
@@ -92,30 +84,25 @@ const NameSuggesterSearchField = ({ col }) => {
   );
 };
 
-export const SearchField = ({ col, selectedType }) => {
+export const SearchField = ({ col }) => {
   const { getTranslation } = useTranslation();
 
   if (col.key === VISIBILITY_STATUS_KEY) {
-    const statuses = getVisibilityStatuses(selectedType);
     return (
-      <Field
-        component={TranslatedSelectField}
-        enumValues={VISIBILITY_STATUS_LABELS}
-        transformOptions={options => [
-          { value: statuses.join(','), label: getTranslation('general.select.all', 'All') },
-          ...options.filter(({ value }) => statuses.includes(value)),
-        ]}
-        name={VISIBILITY_STATUS_KEY}
-        label={
-          <TranslatedText
-            stringId="admin.referenceData.visibilityStatus.label"
-            fallback="Visibility status"
-            data-testid="translatedtext-visibility-status"
-          />
-        }
-        size="small"
-        data-testid="searchfield-visibilityStatus"
-      />
+      <CentredCheckContainer>
+        <Field
+          component={CheckField}
+          name="visibilityStatus"
+          label={
+            <TranslatedText
+              stringId="admin.referenceData.includeHistorical"
+              fallback="Include historical"
+              data-testid="translatedtext-include-historical"
+            />
+          }
+          data-testid="searchfield-includeHistorical"
+        />
+      </CentredCheckContainer>
     );
   }
   if (col.key === AVAILABLE_FACILITIES_KEY) {
