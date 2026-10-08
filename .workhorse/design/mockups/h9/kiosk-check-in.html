@@ -1,0 +1,705 @@
+<!-- card: H9 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Self check-in kiosk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #326699;
+    --primary-dark: #2f4358;
+    --primary10: #ebf0f5;
+    --primary30: #c2d2e1;
+    --bg: #f3f5f7;
+    --bg2: #f9fafb;
+    --white: #ffffff;
+    --text: #444444;
+    --text2: #666666;
+    --text3: #888888;
+    --outline: #dedede;
+    --soft-outline: #ebebeb;
+    --green: #19934e;
+    --green-bg: #e9f5ee;
+    --orange: #cb6100;
+    --orange-bg: #faf0e6;
+    --alert: #f76853;
+    --alert-bg: #fff0ee;
+    --blue: #1172d1;
+    --blue-bg: #e8f1fb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Roboto, system-ui, sans-serif;
+    background: #dfe3e8;
+    color: var(--text);
+    padding: 40px 48px 80px;
+  }
+  .board-title { font-size: 24px; font-weight: 600; margin: 0 0 4px; color: var(--primary-dark); }
+  .board-sub { margin: 0 0 32px; color: var(--text2); font-size: 14px; }
+  .section-title { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text2); margin: 48px 0 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start; }
+  .frame-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .caption { font-size: 14px; font-weight: 500; color: var(--primary-dark); }
+  .caption span { font-weight: 400; color: var(--text2); }
+
+  /* Tablet frame, landscape */
+  .tablet {
+    width: 960px; height: 720px;
+    border: 14px solid #1f2329; border-radius: 28px;
+    background: var(--bg);
+    overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+
+  /* Kiosk header */
+  .k-header {
+    height: 72px; flex: none;
+    background: var(--white); border-bottom: 1px solid var(--outline);
+    display: flex; align-items: center; padding: 0 28px; gap: 16px;
+  }
+  .k-header .logo { height: 32px; width: 102px; }
+  .k-header .facility { color: var(--text2); font-size: 16px; padding-left: 16px; border-left: 1px solid var(--outline); }
+  .k-header .spacer { flex: 1; }
+  .hbtn {
+    height: 48px; padding: 0 20px; border-radius: 24px;
+    border: 1px solid var(--primary); background: var(--white); color: var(--primary);
+    font: 500 16px Roboto, sans-serif; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .hbtn.text { border-color: transparent; color: var(--text2); }
+  .hbtn svg { width: 22px; height: 22px; }
+
+  .k-body { flex: 1; padding: 32px 56px 28px; display: flex; flex-direction: column; overflow: hidden; }
+  .k-body.center { align-items: center; justify-content: center; text-align: center; }
+  h1.k-title { font-size: 32px; font-weight: 500; color: var(--primary-dark); margin: 0 0 8px; line-height: 1.2; }
+  p.k-lead { font-size: 18px; color: var(--text2); margin: 0 0 28px; }
+
+  /* Buttons */
+  .btn {
+    height: 64px; padding: 0 36px; border-radius: 6px;
+    font: 500 20px Roboto, sans-serif; border: 1px solid var(--primary);
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn.primary { background: var(--primary); color: var(--white); }
+  .btn.outlined { background: var(--white); color: var(--primary); }
+  .btn.disabled { background: var(--outline); border-color: var(--outline); color: var(--text3); }
+  .btn.wide { min-width: 280px; }
+  .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 24px; }
+  .actions.end { justify-content: flex-end; gap: 16px; }
+
+  /* Welcome */
+  .welcome-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; flex: 1; }
+  .panel { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 24px; }
+  .panel h2 { font-size: 18px; font-weight: 600; margin: 0 0 16px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .panel h2 svg { width: 22px; height: 22px; color: var(--primary); }
+  .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lang {
+    height: 64px; border: 1px solid var(--outline); border-radius: 6px; background: var(--white);
+    font: 500 18px Roboto, sans-serif; color: var(--text); display: flex; align-items: center; justify-content: space-between; padding: 0 18px;
+  }
+  .lang.selected { border: 2px solid var(--primary); background: var(--primary10); color: var(--primary-dark); }
+  .lang .tick { width: 24px; height: 24px; color: var(--primary); }
+  .setting + .setting { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--soft-outline); }
+  .setting-label { font-size: 16px; color: var(--text2); margin-bottom: 12px; }
+  .segmented { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--outline); border-radius: 6px; overflow: hidden; }
+  .segmented div { height: 64px; display: flex; align-items: center; justify-content: center; font-weight: 500; color: var(--text); background: var(--white); }
+  .segmented div + div { border-left: 1px solid var(--outline); }
+  .segmented .on { background: var(--primary); color: var(--white); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 18px; font-weight: 500; }
+  .switch { width: 64px; height: 36px; border-radius: 18px; background: var(--outline); position: relative; }
+  .switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 28px; height: 28px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch.on { background: var(--primary); }
+  .switch.on::after { left: 32px; }
+
+  /* Form fields */
+  .field { margin-bottom: 28px; }
+  .field label { display: block; font-size: 18px; font-weight: 500; margin-bottom: 10px; }
+  .input {
+    height: 68px; border: 1px solid var(--outline); border-radius: 6px; background: var(--white);
+    font-size: 24px; display: flex; align-items: center; padding: 0 20px; color: var(--text);
+  }
+  .input.focus { border: 2px solid var(--primary); }
+  .input.placeholder { color: var(--text3); }
+  .dob { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 16px; }
+  .dob .sub { font-size: 14px; color: var(--text2); margin-bottom: 6px; }
+  .find-card { max-width: 640px; width: 100%; margin: 0 auto; }
+
+  /* Patient tile */
+  .tile {
+    background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 28px 32px;
+    text-align: left;
+  }
+  .tile .name { font-size: 28px; font-weight: 600; color: var(--primary-dark); margin-bottom: 20px; }
+  .tile dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 24px; margin: 0; }
+  .tile dt { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+  .tile dd { margin: 0; font-size: 20px; font-weight: 500; color: var(--text); }
+  .appt {
+    margin-top: 22px; padding: 16px 20px; border-radius: 6px; background: var(--primary10);
+    display: flex; align-items: center; gap: 14px; font-size: 18px; color: var(--primary-dark);
+  }
+  .appt svg { width: 26px; height: 26px; color: var(--primary); flex: none; }
+  .appt b { font-weight: 600; }
+
+  .tiles-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .tiles-2 .tile { padding: 24px; position: relative; }
+  .tiles-2 .tile .name { font-size: 22px; margin-bottom: 16px; padding-right: 40px; }
+  .tiles-2 .tile dl { grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .tiles-2 .tile dd { font-size: 17px; }
+  .tiles-2 .appt { font-size: 16px; padding: 12px 14px; }
+  .tile.selected { border: 2px solid var(--primary); box-shadow: 0 0 0 4px var(--primary10); }
+  .radio { position: absolute; top: 24px; right: 24px; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--outline); background: var(--white); }
+  .tile.selected .radio { border: 9px solid var(--primary); }
+
+  /* Status / empty states */
+  .state-icon { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+  .state-icon svg { width: 52px; height: 52px; }
+  .state-icon.info { background: var(--blue-bg); color: var(--blue); }
+  .state-icon.ok { background: var(--green-bg); color: var(--green); }
+  .searched {
+    display: inline-flex; gap: 32px; background: var(--white); border: 1px solid var(--outline); border-radius: 6px;
+    padding: 16px 28px; margin: 0 0 32px; text-align: left;
+  }
+  .searched dt { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+  .searched dd { margin: 0; font-size: 20px; font-weight: 500; }
+  .center-actions { display: flex; gap: 16px; justify-content: center; }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: flex-start; margin: 0 -8px 20px; }
+  .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; text-align: center; padding: 0 4px; }
+  .step::before { content: ""; position: absolute; top: 17px; left: -50%; width: 100%; height: 3px; background: var(--outline); z-index: 0; }
+  .step:first-child::before { display: none; }
+  .step.done::before, .step.current::before { background: var(--green); }
+  .dot {
+    width: 36px; height: 36px; border-radius: 50%; position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px;
+    background: var(--white); border: 2px solid var(--outline); color: var(--text3);
+  }
+  .step.done .dot { background: var(--green); border-color: var(--green); color: var(--white); }
+  .step.done .dot svg { width: 20px; height: 20px; }
+  .step.current .dot { background: var(--primary); border-color: var(--primary); color: var(--white); box-shadow: 0 0 0 5px var(--primary30); }
+  .step .lbl { margin-top: 10px; font-size: 14px; color: var(--text2); line-height: 1.3; }
+  .step.current .lbl { color: var(--primary-dark); font-weight: 600; }
+  .step.done .lbl { color: var(--text); }
+
+  /* Survey form */
+  .form-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+  .form-head h1 { margin: 0; }
+  .page-count { font-size: 16px; color: var(--text2); }
+  .page-bar { height: 6px; background: var(--outline); border-radius: 3px; margin-bottom: 18px; overflow: hidden; }
+  .page-bar div { height: 100%; background: var(--primary); border-radius: 3px; }
+  .q { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 18px 24px; margin-bottom: 12px; }
+  .q-text { font-size: 20px; font-weight: 500; margin-bottom: 12px; }
+  .opts { display: flex; gap: 12px; }
+  .opt {
+    min-width: 140px; height: 60px; border: 1px solid var(--outline); border-radius: 6px; padding: 0 20px;
+    display: flex; align-items: center; gap: 12px; font-size: 18px; background: var(--white);
+  }
+  .opt .r { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--outline); }
+  .opt.on { border: 2px solid var(--primary); background: var(--primary10); }
+  .opt.on .r { border: 7px solid var(--primary); }
+
+  /* Check-in summary checklist */
+  .summary { display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; }
+  .checklist { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; overflow: hidden; }
+  .check-item { display: flex; align-items: center; gap: 16px; padding: 16px 24px; font-size: 20px; }
+  .check-item + .check-item { border-top: 1px solid var(--soft-outline); }
+  .check-item .ci { width: 36px; height: 36px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; flex: none; }
+  .check-item .ci svg { width: 22px; height: 22px; }
+  .check-item .ci.todo { background: var(--white); border: 2px solid var(--outline); }
+  .check-item .grow { flex: 1; }
+  .chip { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 15px; font-size: 14px; font-weight: 500; }
+  .chip.green { background: var(--green-bg); color: var(--green); }
+  .chip.red { background: var(--alert-bg); color: var(--alert); }
+  .side-appt { background: var(--white); border: 1px solid var(--outline); border-radius: 8px; padding: 24px; }
+  .side-appt .who { font-size: 22px; font-weight: 600; color: var(--primary-dark); margin-bottom: 18px; }
+  .side-appt dt { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+  .side-appt dd { margin: 0 0 16px; font-size: 18px; font-weight: 500; }
+
+  /* Modal */
+  .scrim { position: absolute; inset: 0; background: rgba(31,35,41,.55); display: flex; align-items: center; justify-content: center; }
+  .modal { width: 560px; background: var(--white); border-radius: 10px; padding: 40px; text-align: center; box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+  .modal .state-icon { margin: 0 auto 20px; }
+  .modal h2 { font-size: 28px; font-weight: 500; color: var(--primary-dark); margin: 0 0 12px; }
+  .modal p { font-size: 18px; color: var(--text2); margin: 0 0 32px; }
+  .countdown { font-size: 56px; font-weight: 600; color: var(--primary-dark); margin: -8px 0 24px; }
+  .dimmed { filter: blur(1px); }
+
+  /* High contrast + extra large text */
+  .tablet.hc { background: #000; color: #fff; }
+  .hc .k-header { background: #000; border-bottom: 2px solid #fff; }
+  .hc .k-header .facility { color: #fff; border-left-color: #fff; }
+  .hc .logo-hc { color: #fff; }
+  .hc .hbtn { background: #000; color: #ffe14d; border: 2px solid #ffe14d; height: 56px; font-size: 20px; }
+  .hc .hbtn.text { border-color: transparent; color: #fff; }
+  .hc h1.k-title { color: #fff; font-size: 40px; }
+  .hc p.k-lead { color: #fff; font-size: 22px; margin-bottom: 20px; }
+  .hc .tile { padding: 22px 28px; }
+  .hc .tile .name { margin-bottom: 14px; }
+  .hc .tile dl { gap: 12px 24px; }
+  .hc .appt { margin-top: 16px; }
+  .hc .tile { background: #000; border: 2px solid #fff; }
+  .hc .tile .name { color: #ffe14d; font-size: 36px; }
+  .hc .tile dt { color: #fff; font-size: 18px; }
+  .hc .tile dd { color: #fff; font-size: 26px; }
+  .hc .tile dl { grid-template-columns: repeat(2, 1fr); }
+  .hc .appt { background: #000; border: 2px solid #ffe14d; color: #fff; font-size: 22px; }
+  .hc .appt svg { color: #ffe14d; }
+  .hc .btn { font-size: 24px; height: 72px; }
+  .hc .btn.primary { background: #ffe14d; border-color: #ffe14d; color: #000; }
+  .hc .btn.outlined { background: #000; border: 2px solid #fff; color: #fff; }
+  .hc .stepper .step::before { background: #fff; }
+  .hc .dot { background: #000; border-color: #fff; color: #fff; }
+  .hc .step.done .dot { background: #fff; border-color: #fff; color: #000; }
+  .hc .step.current .dot { background: #ffe14d; border-color: #ffe14d; color: #000; box-shadow: none; }
+  .hc .step .lbl, .hc .step.done .lbl { color: #fff; font-size: 17px; }
+  .hc .step.current .lbl { color: #ffe14d; }
+
+  .note { font-size: 13px; color: var(--text2); max-width: 960px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 128 40"><path d="M46.37 12.9735H49.2903V17.322H51.0266V19.8746H49.2903V29.1086H46.37V19.8746H44.8754V17.322H46.37V12.9735Z" fill="#33679A"/>
+<path d="M61.2442 17.322H64.168V29.1086H61.2442V27.8532C60.6712 28.4007 60.0982 28.7948 59.5217 29.0354C58.9487 29.276 58.3205 29.3981 57.6508 29.3981C56.1389 29.3981 54.8341 28.8087 53.7329 27.6301C52.6317 26.4549 52.0794 24.9903 52.0794 23.2397C52.0794 21.4229 52.6145 19.9339 53.6811 18.7727C54.7478 17.6149 56.0388 17.0326 57.5645 17.0326C58.2687 17.0326 58.9246 17.1651 59.539 17.4301C60.1534 17.6917 60.723 18.0927 61.2442 18.6158V17.322ZM58.1617 19.7421C57.2538 19.7421 56.4979 20.0629 55.9007 20.7115C55.3001 21.3567 54.9997 22.1831 54.9997 23.1944C54.9997 24.2126 55.3035 25.0496 55.9145 25.7051C56.5255 26.3607 57.278 26.6885 58.172 26.6885C59.0902 26.6885 59.8566 26.3677 60.4607 25.7191C61.0682 25.074 61.372 24.2266 61.372 23.1804C61.372 22.1552 61.0682 21.3288 60.4607 20.6906C59.8566 20.0594 59.0903 19.7421 58.1617 19.7421Z" fill="#33679A"/>
+<path d="M67.0918 17.322H70.0156V18.6994C70.5161 18.1415 71.0753 17.723 71.6897 17.4476C72.3007 17.1686 72.9704 17.0326 73.6953 17.0326C74.4236 17.0326 75.0864 17.2139 75.6732 17.5766C76.2635 17.9392 76.7364 18.4728 77.0954 19.1667C77.5614 18.4728 78.131 17.9392 78.811 17.5766C79.4876 17.2139 80.2332 17.0326 81.034 17.0326C81.8659 17.0326 82.5977 17.2279 83.2294 17.6184C83.8646 18.0055 84.3133 18.5181 84.5929 19.1423C84.8691 19.77 85.0072 20.7917 85.0072 22.2075V29.1121H82.0834V23.1525C82.0834 21.8204 81.9177 20.9173 81.5863 20.4465C81.2515 19.9757 80.751 19.7386 80.0882 19.7386C79.5808 19.7386 79.1251 19.8816 78.7247 20.171C78.3208 20.457 78.0205 20.8545 77.8272 21.3636C77.6339 21.8693 77.5338 22.6853 77.5338 23.8081V29.1051H74.61V23.4245C74.61 22.3749 74.5341 21.6112 74.3753 21.1405C74.22 20.6662 73.9887 20.3175 73.678 20.0873C73.3674 19.8572 72.9877 19.7421 72.5493 19.7421C72.0591 19.7421 71.6103 19.8851 71.2134 20.178C70.8095 20.4709 70.5126 20.8789 70.3124 21.402C70.1157 21.9286 70.0156 22.755 70.0156 23.8848V29.1086H67.0918V17.322Z" fill="#33679A"/>
+<path d="M96.4053 17.322H99.3291V29.1086H96.4053V27.8532C95.8357 28.4007 95.2593 28.7948 94.6828 29.0354C94.1063 29.276 93.4815 29.3981 92.8119 29.3981C91.2999 29.3981 89.9951 28.8087 88.894 27.6301C87.7928 26.4549 87.244 24.9903 87.244 23.2397C87.244 21.4229 87.779 19.9339 88.8456 18.7727C89.9123 17.6149 91.2068 17.0326 92.729 17.0326C93.4332 17.0326 94.0891 17.1651 94.7035 17.4301C95.318 17.6917 95.8875 18.0927 96.4087 18.6158V17.322H96.4053ZM93.3262 19.7421C92.4184 19.7421 91.6624 20.0629 91.0652 20.7115C90.4646 21.3567 90.1643 22.1831 90.1643 23.1944C90.1643 24.2126 90.468 25.0496 91.079 25.7051C91.69 26.3607 92.4425 26.6885 93.3331 26.6885C94.2513 26.6885 95.0176 26.3677 95.6217 25.7191C96.2292 25.074 96.533 24.2266 96.533 23.1804C96.533 22.1552 96.2292 21.3288 95.6217 20.6906C95.0211 20.0594 94.2513 19.7421 93.3262 19.7421Z" fill="#33679A"/>
+<path d="M102.277 17.322H105.201V18.5355C105.863 17.9741 106.468 17.5836 107.006 17.3639C107.545 17.1442 108.097 17.0326 108.663 17.0326C109.819 17.0326 110.807 17.4406 111.611 18.2531C112.287 18.947 112.629 19.9723 112.629 21.3288V29.1086H109.73V23.9581C109.73 22.5528 109.667 21.6182 109.543 21.1614C109.419 20.7011 109.198 20.3489 108.891 20.1083C108.58 19.8676 108.194 19.7456 107.741 19.7456C107.148 19.7456 106.64 19.9444 106.216 20.3454C105.791 20.7464 105.498 21.3009 105.332 22.0018C105.249 22.3714 105.204 23.1665 105.204 24.3905V29.1121H102.28V17.322H102.277Z" fill="#33679A"/>
+<path d="M115.463 17.322H118.428V22.9921C118.428 24.0941 118.504 24.8613 118.656 25.2902C118.805 25.7191 119.046 26.0539 119.381 26.2945C119.712 26.5316 120.127 26.6502 120.617 26.6502C121.104 26.6502 121.521 26.5316 121.863 26.298C122.205 26.0643 122.457 25.7226 122.622 25.2658C122.743 24.924 122.805 24.1987 122.805 23.0898V17.322H125.729V22.3087C125.729 24.3661 125.567 25.7714 125.246 26.5316C124.852 27.4557 124.272 28.1636 123.506 28.6588C122.74 29.1505 121.766 29.3981 120.586 29.3981C119.305 29.3981 118.273 29.1086 117.479 28.5332C116.689 27.9579 116.133 27.1523 115.808 26.1201C115.577 25.4053 115.463 24.108 115.463 22.225V17.322Z" fill="#33679A"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M21.613 28.0415C19.3037 25.7086 16.7355 23.3722 14.6816 21.0393C11.0882 16.9524 10.8534 10.9022 14.6816 7.03838C18.5097 3.17112 24.7163 3.17112 28.541 7.03838C32.3691 10.9056 32.1344 16.9524 28.541 21.0393C26.4905 23.3722 23.9223 25.7086 21.613 28.0415ZM13.8773 13.8383C13.8773 15.9062 14.6643 18.0125 16.159 19.7142C17.5018 21.2416 19.0586 22.7585 20.6154 24.2719L21.613 25.2448L22.614 24.2719C24.1709 22.755 25.7242 21.2416 27.067 19.7142C28.5617 18.0125 29.3487 15.9062 29.3487 13.8383C29.3487 11.8855 28.6376 9.95714 27.1429 8.45068C25.6172 6.90936 23.6151 6.13521 21.613 6.13521C19.6109 6.13521 17.6088 6.90587 16.0831 8.45068C14.5884 9.95714 13.8773 11.882 13.8773 13.8383Z" fill="#FFCD05"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M20.1667 9.63632H23.0559V12.5551H25.9417V15.4703H23.0559V18.3856H20.1667V15.4703H17.2809V12.5551H20.1667V9.63632Z" fill="#33679A"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M24.126 32.1355L23.1594 31.03C23.981 31.0649 24.7508 30.3465 25.5551 30.9882C26.7494 31.9437 27.999 32.6271 30.726 33.1223C31.1782 33.206 30.4775 33.75 28.1958 33.5652C26.2765 33.4083 28.3476 33.9767 25.9382 33.75C25.0994 33.6698 25.5482 33.8686 27.0808 34.1615C27.8471 34.3079 27.5779 34.9845 23.4045 34.7264C20.574 34.5486 20.0389 34.6497 16.3212 34.8066C15.0716 34.8589 13.0799 34.2975 15.1545 33.8755C16.2971 33.6419 12.3723 33.3943 12.3723 33.0805C12.3723 32.7597 14.3053 32.3551 15.1648 32.0936C16.7838 31.5984 18.1231 30.8487 18.7272 30.3779C20.8743 28.7006 21.3748 30.7476 24.126 32.1355Z" fill="#33679A"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M36.3595 33.5233C38.0924 33.9976 39.0934 34.5625 39.0934 35.1693C39.0934 36.864 31.2645 38.2345 21.6096 38.2345C11.9581 38.2345 4.12915 36.864 4.12915 35.1693C4.12915 34.5625 5.13365 33.9976 6.86305 33.5233C5.98627 33.8476 5.49955 34.2103 5.49955 34.5869C5.49955 36.0446 12.714 37.2267 21.613 37.2267C30.512 37.2267 37.7265 36.0446 37.7265 34.5869C37.723 34.2103 37.2363 33.8476 36.3595 33.5233Z" fill="#FFCD05"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M33.4116 33.3385C34.7958 33.6524 35.6001 34.029 35.6001 34.43C35.6001 35.5529 29.3384 36.4595 21.613 36.4595C13.8877 36.4595 7.62592 35.5494 7.62592 34.43C7.62592 34.029 8.43021 33.6559 9.81442 33.3385C9.11369 33.5547 8.72362 33.7919 8.72362 34.0429C8.72362 35.0089 14.4952 35.79 21.613 35.79C28.7308 35.79 34.5024 35.0089 34.5024 34.0429C34.5024 33.7919 34.1123 33.5547 33.4116 33.3385Z" fill="#FFCD05"/>
+</symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.5" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.8 6 3.8 9.5S14.6 18.7 12 21.5M12 2.5C9.4 5.3 8.2 8.5 8.2 12s1.2 6.7 3.8 9.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-access" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2" fill="currentColor"/><path d="M4 8.5l8 1.5 8-1.5M12 10v5m0 0l-3.5 6.5M12 15l3.5 6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-desk" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 16.5c.8-2.8 3.4-4.3 6.5-4.3s5.7 1.5 6.5 4.3M2.5 17h19v3.5h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<h1 class="board-title">Self check-in kiosk</h1>
+<p class="board-sub">Tablet, landscape. Patients find their appointment, confirm who they are, complete their forms and check in. Check-in marks the appointment Arrived.</p>
+
+<!-- ===================== 1. START ===================== -->
+<div class="section-title">1. Start</div>
+<div class="row">
+  <div class="frame-wrap">
+    <div class="caption">Welcome <span>· language and accessibility</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <h1 class="k-title">Welcome</h1>
+        <p class="k-lead">Check in for your appointment today.</p>
+        <div class="welcome-grid">
+          <div class="panel">
+            <h2><svg><use href="#i-globe"/></svg>Language</h2>
+            <div class="lang-grid">
+              <div class="lang selected">English <svg class="tick"><use href="#i-check"/></svg></div>
+              <div class="lang">Gagana Samoa</div>
+              <div class="lang">Lea Faka-Tonga</div>
+              <div class="lang">Tok Pisin</div>
+              <div class="lang">Na Vosa Vakaviti</div>
+              <div class="lang">Te Reo Māori</div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2><svg><use href="#i-access"/></svg>Accessibility</h2>
+            <div class="setting">
+              <div class="setting-label">Text size</div>
+              <div class="segmented">
+                <div class="on" style="font-size:16px">A</div>
+                <div style="font-size:21px">A</div>
+                <div style="font-size:27px">A</div>
+              </div>
+            </div>
+            <div class="setting">
+              <div class="toggle-row">High contrast <div class="switch"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="actions end">
+          <div class="btn primary wide">Start</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 2. FIND ===================== -->
+<div class="section-title">2. Find your appointment</div>
+<div class="row">
+  <div class="frame-wrap">
+    <div class="caption">Last name and date of birth</div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <div class="find-card">
+          <h1 class="k-title">Find your appointment</h1>
+          <p class="k-lead">Enter your details as they appear on your patient record.</p>
+          <div class="field">
+            <label>Last name</label>
+            <div class="input">Taufa</div>
+          </div>
+          <div class="field">
+            <label>Date of birth</label>
+            <div class="dob">
+              <div><div class="sub">Day</div><div class="input">14</div></div>
+              <div><div class="sub">Month</div><div class="input">03</div></div>
+              <div><div class="sub">Year</div><div class="input focus">1986</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="btn outlined"><svg width="24" height="24"><use href="#i-back"/></svg>Back</div>
+          <div class="btn primary wide">Find my appointment</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 3. RESULTS ===================== -->
+<div class="section-title">3. Results</div>
+<div class="row">
+
+  <div class="frame-wrap">
+    <div class="caption">One match <span>· confirm it's you</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <h1 class="k-title">Is this you?</h1>
+        <p class="k-lead">Check your details before continuing.</p>
+        <div class="tile">
+          <div class="name">Mele Losana Taufa</div>
+          <dl>
+            <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+            <div><dt>Sex</dt><dd>Female</dd></div>
+            <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
+          </dl>
+          <div class="appt"><svg><use href="#i-cal"/></svg><span>Today, <b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
+        </div>
+        <div class="actions">
+          <div class="btn outlined">No, this isn't me</div>
+          <div class="btn primary wide">Yes, this is me</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">More than one match <span>· pick a tile, then continue</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <h1 class="k-title">Which one is you?</h1>
+        <p class="k-lead">More than one person matches these details.</p>
+        <div class="tiles-2">
+          <div class="tile selected">
+            <div class="radio"></div>
+            <div class="name">Mele Losana Taufa</div>
+            <dl>
+              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Sex</dt><dd>Female</dd></div>
+              <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
+            </dl>
+            <div class="appt"><svg><use href="#i-cal"/></svg><span><b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
+          </div>
+          <div class="tile">
+            <div class="radio"></div>
+            <div class="name">Viliami Taufa</div>
+            <dl>
+              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Sex</dt><dd>Male</dd></div>
+              <div><dt>Patient ID</dt><dd>KLMN105377</dd></div>
+            </dl>
+            <div class="appt"><svg><use href="#i-cal"/></svg><span><b>2:15 pm</b> with <b>Dr Ana Fifita</b></span></div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="btn outlined">None of these are me</div>
+          <div class="btn primary wide">Continue</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">No match <span>· typo or no appointment today. Also shown after "This isn't me"</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body center">
+        <div class="state-icon info"><svg><use href="#i-desk"/></svg></div>
+        <h1 class="k-title">We couldn't find your appointment</h1>
+        <p class="k-lead">Check your details below. If they're correct, please go to reception.</p>
+        <dl class="searched">
+          <div><dt>Last name</dt><dd>Tuafa</dd></div>
+          <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+        </dl>
+        <div class="center-actions">
+          <div class="btn outlined wide">Done</div>
+          <div class="btn primary wide">Edit details</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== 4. FORMS ===================== -->
+<div class="section-title">4. Forms</div>
+<p class="note">Forms run one after another. The stepper covers the whole flow, one step per form, so its length follows the number of forms for the appointment. Within a form, the page bar shows progress through its pages.</p>
+<div class="row" style="margin-top:16px">
+
+  <div class="frame-wrap">
+    <div class="caption">Form in progress <span>· 2nd of 3 forms, page 1 of 2</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body" style="padding-top:28px">
+        <div class="stepper">
+          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Your details</div></div>
+          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Contact details</div></div>
+          <div class="step current"><div class="dot">3</div><div class="lbl">Health questions</div></div>
+          <div class="step"><div class="dot">4</div><div class="lbl">Consent</div></div>
+          <div class="step"><div class="dot">5</div><div class="lbl">Check in</div></div>
+        </div>
+        <div class="form-head">
+          <h1 class="k-title">Health questions</h1>
+          <div class="page-count">Page 1 of 2</div>
+        </div>
+        <div class="page-bar"><div style="width:50%"></div></div>
+        <div class="q">
+          <div class="q-text">Do you have a fever, cough or sore throat today?</div>
+          <div class="opts">
+            <div class="opt"><span class="r"></span>Yes</div>
+            <div class="opt on"><span class="r"></span>No</div>
+          </div>
+        </div>
+        <div class="q">
+          <div class="q-text">Are you currently pregnant?</div>
+          <div class="opts">
+            <div class="opt"><span class="r"></span>Yes</div>
+            <div class="opt on"><span class="r"></span>No</div>
+            <div class="opt"><span class="r"></span>Not sure</div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="btn outlined"><svg width="24" height="24"><use href="#i-back"/></svg>Back</div>
+          <div class="btn primary wide">Next</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">Ready to check in <span>· every step complete</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body" style="padding-top:28px">
+        <div class="stepper">
+          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Your details</div></div>
+          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Contact details</div></div>
+          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Health questions</div></div>
+          <div class="step done"><div class="dot"><svg><use href="#i-check"/></svg></div><div class="lbl">Consent</div></div>
+          <div class="step current"><div class="dot">5</div><div class="lbl">Check in</div></div>
+        </div>
+        <h1 class="k-title">Ready to check in</h1>
+        <p class="k-lead">Everything is done.</p>
+        <div class="summary">
+          <div class="checklist">
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Details confirmed</span><span class="chip green">Completed</span></div>
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Contact details</span><span class="chip green">Completed</span></div>
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Health questions</span><span class="chip green">Completed</span></div>
+            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span><span class="grow">Consent</span><span class="chip green">Completed</span></div>
+          </div>
+          <div class="side-appt">
+            <div class="who">Mele Losana Taufa</div>
+            <dl>
+              <dt>Appointment</dt><dd>Today, 10:30 am</dd>
+              <dt>Clinician</dt><dd>Dr Sione Lee</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="btn outlined"><svg width="24" height="24"><use href="#i-back"/></svg>Back</div>
+          <div class="btn primary wide">Check in</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== 5. DONE ===================== -->
+<div class="section-title">5. Checked in</div>
+<div class="row">
+  <div class="frame-wrap">
+    <div class="caption">Confirmation <span>· returns to Welcome on its own</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body center">
+        <div class="state-icon ok"><svg><use href="#i-check"/></svg></div>
+        <h1 class="k-title">You're checked in</h1>
+        <p class="k-lead">Please take a seat. We'll call you when it's time.</p>
+        <div class="btn primary wide">Done</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 6. OVERLAYS ===================== -->
+<div class="section-title">6. Help and inactivity</div>
+<div class="row">
+
+  <div class="frame-wrap">
+    <div class="caption">Help <span>· from the Help button on any screen</span></div>
+    <div class="tablet">
+      <div class="dimmed" style="display:flex;flex-direction:column;height:100%">
+        <div class="k-header">
+          <svg class="logo"><use href="#logo"/></svg>
+          <div class="facility">Tamanu Health Centre</div>
+          <div class="spacer"></div>
+          <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+          <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+        </div>
+        <div class="k-body">
+          <div class="find-card">
+            <h1 class="k-title">Find your appointment</h1>
+            <p class="k-lead">Enter your details as they appear on your patient record.</p>
+            <div class="field"><label>Last name</label><div class="input placeholder"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="scrim">
+        <div class="modal">
+          <div class="state-icon info"><svg><use href="#i-desk"/></svg></div>
+          <h2>Need help?</h2>
+          <p>Please go to reception. Our staff will help you check in.</p>
+          <div class="btn primary wide">Close</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">Inactivity warning <span>· then clears everything and returns to Welcome</span></div>
+    <div class="tablet">
+      <div class="dimmed" style="display:flex;flex-direction:column;height:100%">
+        <div class="k-header">
+          <svg class="logo"><use href="#logo"/></svg>
+          <div class="facility">Tamanu Health Centre</div>
+          <div class="spacer"></div>
+          <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+          <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+        </div>
+        <div class="k-body">
+          <h1 class="k-title">Health questions</h1>
+        </div>
+      </div>
+      <div class="scrim">
+        <div class="modal">
+          <div class="state-icon info"><svg><use href="#i-clock"/></svg></div>
+          <h2>Are you still there?</h2>
+          <p>Your details will be cleared to keep them private.</p>
+          <div class="countdown">0:28</div>
+          <div class="center-actions">
+            <div class="btn outlined">Start over</div>
+            <div class="btn primary wide">I'm still here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== 7. ACCESSIBILITY ===================== -->
+<div class="section-title">7. Accessibility applied</div>
+<div class="row">
+  <div class="frame-wrap">
+    <div class="caption">High contrast and extra large text <span>· the settings chosen on Welcome apply to every screen</span></div>
+    <div class="tablet hc">
+      <div class="k-header">
+        <svg class="logo logo-hc" style="filter: brightness(0) invert(1)"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <h1 class="k-title">Is this you?</h1>
+        <p class="k-lead">Check your details before continuing.</p>
+        <div class="tile">
+          <div class="name">Mele Losana Taufa</div>
+          <dl>
+            <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+            <div><dt>Sex</dt><dd>Female</dd></div>
+            <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
+          </dl>
+          <div class="appt"><svg><use href="#i-cal"/></svg><span>Today, <b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
+        </div>
+        <div class="actions">
+          <div class="btn outlined">No, this isn't me</div>
+          <div class="btn primary wide">Yes, this is me</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
