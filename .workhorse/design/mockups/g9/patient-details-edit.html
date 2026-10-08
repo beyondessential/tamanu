@@ -1,0 +1,201 @@
+<!-- spec: patient/portal/patient-details.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Patient portal patient details editing</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Roboto, -apple-system, sans-serif; font-size: 14px; line-height: 1.5; color: #444; background: #f3f5f7; }
+  .page { display: flex; gap: 32px; padding: 32px; align-items: flex-start; flex-wrap: wrap; }
+  .col { width: 440px; }
+  .state { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 8px; }
+
+  .accordion { background: #fff; border: 1px solid #dedede; border-radius: 3px; }
+  .summary { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; min-height: 48px; }
+  .summary-left { display: flex; align-items: center; gap: 8px; }
+  .summary h4 { margin: 0; font-size: 16px; font-weight: 600; color: #444; }
+  .icon { width: 24px; height: 24px; stroke: #1172D1; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .chev { width: 24px; height: 24px; fill: #666; transform: rotate(180deg); }
+  .details { padding: 8px 16px 16px; }
+
+  .details-head { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+  .text-btn { background: none; border: 0; color: #326699; font: inherit; font-weight: 500; padding: 4px 8px; border-radius: 3px; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+  .text-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .group + .group { margin-top: 16px; }
+  .group h5 { margin: 0 0 6px; font-size: 14px; font-weight: 500; color: #888; }
+  .lv { display: grid; grid-template-columns: max-content 1fr; column-gap: 20px; row-gap: 6px; margin: 0; padding: 0; }
+  .lv dt { margin: 0; }
+  .lv dd { margin: 0; font-weight: 700; }
+  .lv dd.empty { font-weight: 400; color: #888; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #444; }
+  .field label .req { color: #f76853; margin-left: 2px; }
+  .input { width: 100%; border: 1px solid #dedede; border-radius: 3px; padding: 12px 10px; font: inherit; color: #444; background: #fff; }
+  .input.select { display: flex; justify-content: space-between; align-items: center; }
+  .input.select svg { width: 20px; height: 20px; fill: #666; }
+  .input.error { border-color: #f76853; }
+  .helper { font-size: 12px; color: #f76853; margin-top: 3px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  .btn { font: inherit; font-weight: 500; border-radius: 3px; padding: 8px 20px; cursor: pointer; }
+  .btn.outlined { background: #fff; color: #326699; border: 1px solid #326699; }
+  .btn.contained { background: #326699; color: #fff; border: 1px solid #326699; }
+
+  .toast { margin-top: 12px; background: #EDFAF3; color: #19934E; border-radius: 3px; padding: 10px 12px; display: flex; gap: 8px; align-items: center; }
+  .toast svg { width: 18px; height: 18px; stroke: #19934E; fill: none; stroke-width: 2.5; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- VIEW STATE -->
+  <div class="col">
+    <p class="state">View</p>
+    <div class="accordion">
+      <div class="summary">
+        <div class="summary-left">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <h4>Patient details</h4>
+        </div>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+      </div>
+      <div class="details">
+        <div class="details-head">
+          <button class="text-btn"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</button>
+        </div>
+
+        <div class="group">
+          <dl class="lv">
+            <dt>Patient ID</dt><dd>KXRP293847</dd>
+            <dt>Title</dt><dd>Mrs</dd>
+            <dt>First name</dt><dd>Mele</dd>
+            <dt>Middle name</dt><dd class="empty">-</dd>
+            <dt>Last name</dt><dd>Fifita</dd>
+            <dt>Date of birth</dt><dd>14/03/1986</dd>
+            <dt>Sex</dt><dd>Female</dd>
+            <dt>Village</dt><dd>Kolofo'ou</dd>
+            <dt>Ethnicity</dt><dd>Tongan</dd>
+          </dl>
+        </div>
+
+        <div class="group">
+          <h5>Contact</h5>
+          <dl class="lv">
+            <dt>Mobile phone</dt><dd>+676 771 2345</dd>
+            <dt>Other phone</dt><dd class="empty">-</dd>
+            <dt>Email</dt><dd>mele.fifita@example.to</dd>
+          </dl>
+        </div>
+
+        <div class="group">
+          <h5>Address</h5>
+          <dl class="lv">
+            <dt>Street address</dt><dd>12 Taufa'ahau Road</dd>
+            <dt>Town or city</dt><dd>Nuku'alofa</dd>
+          </dl>
+        </div>
+
+        <div class="group">
+          <h5>Emergency contact</h5>
+          <dl class="lv">
+            <dt>Name</dt><dd>Sione Fifita</dd>
+            <dt>Phone</dt><dd>+676 884 1122</dd>
+          </dl>
+        </div>
+
+        <div class="group">
+          <h5>Insurance</h5>
+          <dl class="lv">
+            <dt>Health insurer</dt><dd>Pacific Health Cover</dd>
+            <dt>Policy number</dt><dd>PHC-0049231</dd>
+          </dl>
+        </div>
+
+        <div class="group">
+          <h5>Other</h5>
+          <dl class="lv">
+            <dt>Occupation</dt><dd>Teacher</dd>
+          </dl>
+        </div>
+
+        <div class="toast"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Details saved</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT STATE -->
+  <div class="col">
+    <p class="state">Edit</p>
+    <div class="accordion">
+      <div class="summary">
+        <div class="summary-left">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <h4>Patient details</h4>
+        </div>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+      </div>
+      <div class="details">
+        <div class="group">
+          <dl class="lv">
+            <dt>Patient ID</dt><dd>KXRP293847</dd>
+            <dt>First name</dt><dd>Mele</dd>
+            <dt>Middle name</dt><dd class="empty">-</dd>
+            <dt>Last name</dt><dd>Fifita</dd>
+            <dt>Date of birth</dt><dd>14/03/1986</dd>
+            <dt>Sex</dt><dd>Female</dd>
+            <dt>Village</dt><dd>Kolofo'ou</dd>
+          </dl>
+        </div>
+
+        <div class="group">
+          <div class="row2">
+            <div class="field"><label>Title</label><div class="input select">Mrs<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+            <div class="field"><label>Ethnicity</label><div class="input select">Tongan<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="group">
+          <h5>Contact</h5>
+          <div class="field"><label>Mobile phone<span class="req">*</span></label><input class="input" value="+676 771 2345"></div>
+          <div class="field"><label>Other phone</label><input class="input" value=""></div>
+          <div class="field"><label>Email</label><input class="input error" value="mele.fifita@example"><div class="helper">Enter a valid email address</div></div>
+        </div>
+
+        <div class="group">
+          <h5>Address</h5>
+          <div class="field"><label>Street address</label><input class="input" value="12 Taufa'ahau Road"></div>
+          <div class="field"><label>Town or city</label><input class="input" value="Nuku'alofa"></div>
+        </div>
+
+        <div class="group">
+          <h5>Emergency contact</h5>
+          <div class="field"><label>Name</label><input class="input" value="Sione Fifita"></div>
+          <div class="field"><label>Phone</label><input class="input" value="+676 884 1122"></div>
+        </div>
+
+        <div class="group">
+          <h5>Insurance</h5>
+          <div class="field"><label>Health insurer</label><div class="input select">Pacific Health Cover<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+          <div class="field"><label>Policy number</label><input class="input" value="PHC-0049231"></div>
+        </div>
+
+        <div class="group">
+          <h5>Other</h5>
+          <div class="field"><label>Occupation</label><div class="input select">Teacher<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn outlined">Cancel</button>
+          <button class="btn contained">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
