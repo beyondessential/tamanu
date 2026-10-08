@@ -28,9 +28,9 @@ no longer exist, and leave the rest alone.
 
 ### 1. Settle the scope, and confirm it
 
-The author names the platform and module. Explore that area of the app and propose the guides, each
-with a one-line description. If the module has no folder yet, propose where it sits in the module
-order, since adding it renumbers the modules after it.
+The author names the platform and module. Explore that area of the app, and its old Slab posts (see
+step 2), and propose the guides, each with a one-line description. If the module has no folder yet,
+propose where it sits in the module order, since adding it renumbers the modules after it.
 
 In the same review, ask for a demo site, a login, the test patient to use, and the go-ahead to record
 data against that patient where a guide's action writes it. Get the list approved before writing.
@@ -61,9 +61,11 @@ Driving a demo site:
 - **Drive it with a throwaway script outside the repository**, not a spec in the e2e suite
 
 Tamanu's old user guides are in Slab, at
-https://beyond-essential.slab.com/public/topics/user-manuals-up14zqup, which you can't reach. Don't go
-looking for them: if the author pastes one in, read it to see what the area used to cover, but write
-from the app rather than from its wording.
+https://beyond-essential.slab.com/public/topics/user-manuals-up14zqup. Slab renders its pages with
+JavaScript, so read them with the same headless browser you use for the demo site; a plain fetch
+returns only the page title. Open the posts for the module you're writing, and use them to check what
+the area covers and to catch tasks or entry points the code alone hides. Write from the app rather
+than from Slab's wording, since Slab may describe an older version.
 
 ### 3. Screenshots
 
