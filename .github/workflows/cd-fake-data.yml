@@ -44,17 +44,19 @@ jobs:
           ns="tamanu-${{ inputs.deploy-name }}"
           rounds=${{ fromJson(inputs.options).fakedata }}
 
-          # Wait for central-api to be ready
-          kubectl -n "$ns" rollout status deploy/central-api --timeout=300s
+          # The central deployment's name carries a generated suffix, so find its pod by label.
+          sel=app.kubernetes.io/name=central,app.kubernetes.io/component=api-server
+          kubectl -n "$ns" wait --for=condition=ready pod -l "$sel" --timeout=300s
+          pod=pod/$(kubectl -n "$ns" get pod -l "$sel" -o jsonpath='{.items[0].metadata.name}')
 
           # Resolve tally file path inside the container (sibling of populateDb's index)
-          tally=$(kubectl -n "$ns" exec deploy/central-api -- \
+          tally=$(kubectl -n "$ns" exec "$pod" -- \
             node -e "const p=require('path');console.log(p.join(p.dirname(require.resolve('@tamanu/fake-data/populateDb')),'parseTally','standard.json'))")
 
           # Run fake data generation inside the central-api pod using the tally file.
           # Values are passed as env vars (not interpolated into JS source) so paths
           # containing quotes, backslashes, or dollar signs cannot break the script.
-          kubectl -n "$ns" exec deploy/central-api -- env "TALLY=$tally" "ROUNDS=$rounds" node -e '
+          kubectl -n "$ns" exec "$pod" -- env "TALLY=$tally" "ROUNDS=$rounds" node -e '
             const { initDatabase } = require("@tamanu/database/services/database");
             const { populateDbFromTallyFile } = require("@tamanu/fake-data/populateDb");
             const config = require("config");
