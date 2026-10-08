@@ -23,6 +23,7 @@
     --line: #e7eaee;
     --green: #19934e;
     --green-bg: #e9f5ee;
+    --alert: #f76853;
     --blue: #1172d1;
     --blue-bg: #e8f1fb;
   }
@@ -199,6 +200,52 @@
   .ready-appt dt { font-size: 14px; color: var(--text3); }
   .ready-appt dd { margin: 0; font-size: 20px; font-weight: 500; }
 
+  /* Question types reference */
+  .qt-sheet { background: var(--white); border: 1px solid var(--outline); border-radius: 16px; padding: 32px; display: inline-flex; gap: 32px; align-items: flex-start; }
+  .qt-col { width: 540px; display: flex; flex-direction: column; gap: 22px; }
+  .qt-label { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 600; color: var(--primary-dark); margin-bottom: 8px; }
+  .qt-label code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text3); font-weight: 400; }
+  .qt-col .q { margin-bottom: 0; }
+  .q .hint { font-size: 15px; color: var(--text3); margin: -8px 0 14px; }
+  .qin { height: 60px; border-radius: 14px; background: var(--white); box-shadow: inset 0 0 0 1px var(--outline); font-size: 20px; display: flex; align-items: center; gap: 12px; padding: 0 20px; color: var(--text); }
+  .qin.ph { color: var(--text3); }
+  .qin.focus { box-shadow: inset 0 0 0 2px var(--primary); }
+  .qin.ro { background: var(--bg); box-shadow: none; color: var(--text2); }
+  .qin.err { box-shadow: inset 0 0 0 2px var(--alert); }
+  .qin.multi { height: 128px; align-items: flex-start; padding-top: 16px; line-height: 1.4; }
+  .qin .grow { flex: 1; }
+  .qin svg { width: 22px; height: 22px; color: var(--text3); flex: none; }
+  .err-msg { color: var(--alert); font-size: 15px; font-weight: 500; margin-top: 8px; }
+  .instr { display: flex; gap: 14px; background: var(--blue-bg); border-radius: 14px; padding: 18px 20px; font-size: 18px; line-height: 1.45; color: var(--text); }
+  .instr svg { width: 24px; height: 24px; color: var(--blue); flex: none; margin-top: 1px; }
+  .vopt { min-height: 58px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--outline); padding: 0 18px; display: flex; align-items: center; gap: 14px; font-size: 18px; }
+  .vopt + .vopt { margin-top: 8px; }
+  .vopt.on { background: var(--primary10); box-shadow: inset 0 0 0 2px var(--primary); color: var(--primary-dark); font-weight: 500; }
+  .vopt .r { width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--outline); flex: none; }
+  .vopt.on .r { box-shadow: inset 0 0 0 7px var(--primary); }
+  .cb { width: 26px; height: 26px; border-radius: 7px; box-shadow: inset 0 0 0 2px var(--outline); flex: none; display: flex; align-items: center; justify-content: center; color: var(--white); background: var(--white); }
+  .cb svg { width: 18px; height: 18px; }
+  .on > .cb, .cb.on { background: var(--primary); box-shadow: none; }
+  .consent { display: flex; gap: 14px; align-items: flex-start; font-size: 18px; line-height: 1.45; }
+  .menu { margin-top: 8px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--outline); overflow: hidden; }
+  .menu div { height: 54px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; font-size: 18px; }
+  .menu div + div { border-top: 1px solid var(--line); }
+  .menu .hl { background: var(--primary10); color: var(--primary-dark); font-weight: 500; }
+  .menu .hl svg { width: 20px; height: 20px; color: var(--primary); }
+  .menu b { font-weight: 600; color: var(--primary-dark); }
+  .qgrid { display: grid; gap: 12px; }
+  .qgrid .sub { font-size: 14px; color: var(--text3); margin-bottom: 6px; }
+  .ampm { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: 14px; padding: 4px; gap: 4px; height: 60px; }
+  .ampm div { border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 500; color: var(--text2); }
+  .ampm .on { background: var(--white); color: var(--primary); box-shadow: inset 0 0 0 1px var(--outline); }
+  .photo { height: 150px; border-radius: 14px; border: 2px dashed var(--outline); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+  .photo .btn { height: 52px; font-size: 18px; padding: 0 24px; }
+  .sig { height: 150px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--outline); background: var(--bg2); position: relative; }
+  .sig .line { position: absolute; left: 24px; right: 24px; bottom: 40px; border-top: 1px solid var(--outline); }
+  .sig svg { position: absolute; left: 60px; bottom: 34px; width: 220px; height: 80px; color: var(--primary-dark); }
+  .sig-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 15px; color: var(--text3); }
+  .sig-foot span:last-child { color: var(--primary); font-weight: 500; font-size: 17px; }
+
   /* Modal */
   .scrim { position: absolute; inset: 0; background: rgba(31,35,41,.45); display: flex; align-items: center; justify-content: center; }
   .modal { width: 540px; background: var(--white); border-radius: 24px; padding: 44px 40px 36px; text-align: center; }
@@ -250,6 +297,10 @@
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-desk" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 16.5c.8-2.8 3.4-4.3 6.5-4.3s5.7 1.5 6.5 4.3M2.5 17h19v3.5h-19z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 6.5v7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="17.8" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A2 2 0 0 1 6 6.5h2l1.5-2h5l1.5 2h2a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-next" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -602,8 +653,154 @@
 
 </div>
 
-<!-- ===================== 5. DONE ===================== -->
-<div class="section-title">5. Checked in</div>
+<!-- ===================== 5. QUESTION TYPES ===================== -->
+<div class="section-title">5. Form question types</div>
+<p class="note">How each question type a form can contain appears on the kiosk, shown at the width of the form panel. Submission date is filled in automatically and not shown to the patient.</p>
+<div class="qt-sheet">
+
+  <div class="qt-col">
+    <div>
+      <div class="qt-label">Instruction / display text <code>Instruction, DisplayText</code></div>
+      <div class="instr"><svg><use href="#i-info"/></svg><span>The next questions are about how you are feeling today. Your answers help the clinician prepare for your visit.</span></div>
+    </div>
+    <div>
+      <div class="qt-label">Free text <code>FreeText</code></div>
+      <div class="q"><div class="q-text">What is the main reason for your visit?</div><div class="qin">Follow-up for blood pressure</div></div>
+    </div>
+    <div>
+      <div class="qt-label">Required, left unanswered</div>
+      <div class="q"><div class="q-text">Who is your emergency contact?</div><div class="qin err ph">Full name</div><div class="err-msg">This question is required</div></div>
+    </div>
+    <div>
+      <div class="qt-label">Multiline text <code>Multiline</code></div>
+      <div class="q"><div class="q-text">Is there anything else you would like the clinician to know?</div><div class="qin multi">My headaches have been worse in the mornings this week.</div></div>
+    </div>
+    <div>
+      <div class="qt-label">Number <code>Number</code></div>
+      <div class="q"><div class="q-text">How many days have you had these symptoms?</div><div class="qin focus" style="width:180px">3</div></div>
+    </div>
+    <div>
+      <div class="qt-label">Calculated (read only) <code>CalculatedQuestion</code></div>
+      <div class="q"><div class="q-text">Total score</div><div class="hint">Calculated from your answers</div><div class="qin ro" style="width:180px">12</div></div>
+    </div>
+    <div>
+      <div class="qt-label">Patient data <code>PatientData</code></div>
+      <div class="q"><div class="q-text">Mobile phone number</div><div class="hint">From your patient record</div><div class="qin">021 555 0193</div></div>
+    </div>
+  </div>
+
+  <div class="qt-col">
+    <div>
+      <div class="qt-label">Single choice <code>Radio</code></div>
+      <div class="q">
+        <div class="q-text">How did you travel here today?</div>
+        <div class="vopt"><span class="r"></span>Walked</div>
+        <div class="vopt on"><span class="r"></span>Bus</div>
+        <div class="vopt"><span class="r"></span>Car or taxi</div>
+        <div class="vopt"><span class="r"></span>Other</div>
+      </div>
+    </div>
+    <div>
+      <div class="qt-label">Yes / no <code>Binary</code></div>
+      <div class="q"><div class="q-text">Do you have any allergies?</div><div class="opts"><div class="opt on">Yes</div><div class="opt">No</div></div></div>
+    </div>
+    <div>
+      <div class="qt-label">Checkbox <code>Checkbox</code></div>
+      <div class="q"><div class="consent"><span class="cb on"><svg><use href="#i-check"/></svg></span><span>I consent to Tamanu Health Centre sharing my results with my GP.</span></div></div>
+    </div>
+    <div>
+      <div class="qt-label">Multiple choice <code>MultiSelect</code></div>
+      <div class="q">
+        <div class="q-text">Do you have any of these symptoms?</div>
+        <div class="hint">Select all that apply</div>
+        <div class="vopt on"><span class="cb"><svg><use href="#i-check"/></svg></span>Fever</div>
+        <div class="vopt"><span class="cb"></span>Cough</div>
+        <div class="vopt on"><span class="cb"><svg><use href="#i-check"/></svg></span>Headache</div>
+        <div class="vopt"><span class="cb"></span>None of these</div>
+      </div>
+    </div>
+    <div>
+      <div class="qt-label">Dropdown, open <code>Select</code></div>
+      <div class="q">
+        <div class="q-text">What is your preferred language for your visit?</div>
+        <div class="qin focus"><span class="grow">Gagana Samoa</span><svg><use href="#i-chev-down"/></svg></div>
+        <div class="menu">
+          <div>English</div>
+          <div class="hl">Gagana Samoa <svg><use href="#i-check"/></svg></div>
+          <div>Lea Faka-Tonga</div>
+          <div>Tok Pisin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qt-col">
+    <div>
+      <div class="qt-label">Search and select <code>Autocomplete</code></div>
+      <div class="q">
+        <div class="q-text">Which village do you live in?</div>
+        <div class="qin focus"><svg><use href="#i-search"/></svg><span class="grow">Vai</span></div>
+        <div class="menu">
+          <div><span><b>Vai</b>tele</span></div>
+          <div><span><b>Vai</b>lima</span></div>
+          <div><span><b>Vai</b>moso</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="qt-label">Date <code>Date</code></div>
+      <div class="q">
+        <div class="q-text">When did your symptoms start?</div>
+        <div class="qgrid" style="grid-template-columns: 1fr 1fr 1.4fr">
+          <div><div class="sub">Day</div><div class="qin">05</div></div>
+          <div><div class="sub">Month</div><div class="qin">10</div></div>
+          <div><div class="sub">Year</div><div class="qin">2026</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="qt-label">Time <code>Time</code></div>
+      <div class="q">
+        <div class="q-text">What time did you last eat?</div>
+        <div class="qgrid" style="grid-template-columns: 1fr 1fr 1.4fr">
+          <div><div class="sub">Hour</div><div class="qin">7</div></div>
+          <div><div class="sub">Minute</div><div class="qin">30</div></div>
+          <div><div class="sub">&nbsp;</div><div class="ampm"><div class="on">am</div><div>pm</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="qt-label">Date and time <code>DateTime</code></div>
+      <div class="q">
+        <div class="q-text">When did you last take your medication?</div>
+        <div class="qgrid" style="grid-template-columns: 1fr 1fr 1.4fr">
+          <div><div class="sub">Day</div><div class="qin">08</div></div>
+          <div><div class="sub">Month</div><div class="qin">10</div></div>
+          <div><div class="sub">Year</div><div class="qin">2026</div></div>
+          <div><div class="sub">Hour</div><div class="qin">8</div></div>
+          <div><div class="sub">Minute</div><div class="qin">00</div></div>
+          <div><div class="sub">&nbsp;</div><div class="ampm"><div class="on">am</div><div>pm</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="qt-label">Photo <code>Photo</code></div>
+      <div class="q"><div class="q-text">Take a photo of your referral letter</div><div class="photo"><div class="btn soft"><svg><use href="#i-camera"/></svg>Take photo</div></div></div>
+    </div>
+    <div>
+      <div class="qt-label">Signature <code>Signature</code></div>
+      <div class="q">
+        <div class="q-text">Please sign to confirm</div>
+        <div class="sig"><div class="line"></div><svg viewBox="0 0 220 80"><path d="M6 58c14-30 22-44 28-40s-8 40 2 42 18-36 26-34-4 30 6 30 14-20 22-18 2 14 10 14 10-10 18-10 12 6 22 4 24-8 34-12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="sig-foot"><span>Sign above the line with your finger</span><span>Clear</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== 6. DONE ===================== -->
+<div class="section-title">6. Checked in</div>
 <div class="row">
   <div class="frame-wrap">
     <div class="caption">Confirmation <span>· returns to the landing page on its own</span></div>
@@ -624,8 +821,8 @@
   </div>
 </div>
 
-<!-- ===================== 6. OVERLAYS ===================== -->
-<div class="section-title">6. Help, start over and inactivity</div>
+<!-- ===================== 7. OVERLAYS ===================== -->
+<div class="section-title">7. Help, start over and inactivity</div>
 <div class="row">
 
   <div class="frame-wrap">
@@ -713,8 +910,8 @@
 
 </div>
 
-<!-- ===================== 7. ACCESSIBILITY ===================== -->
-<div class="section-title">7. Accessibility applied</div>
+<!-- ===================== 8. ACCESSIBILITY ===================== -->
+<div class="section-title">8. Accessibility applied</div>
 <div class="row">
   <div class="frame-wrap">
     <div class="caption">High contrast and extra large text <span>· the settings chosen on Language and accessibility apply to every screen</span></div>
