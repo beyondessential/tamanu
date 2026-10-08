@@ -14,7 +14,7 @@ permissions required see [Permissions](3-permissions.md).
 
 # Reference Data Types
 
-See the Tamanu Reference Data Manual for how importing works.
+See the [Tamanu Reference Data Manual](https://beyond-essential.slab.com/public/posts/tamanu-reference-data-manual-intf5xei) for how importing works.
 
 ## Drug
 

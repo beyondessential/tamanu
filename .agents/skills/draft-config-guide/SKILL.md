@@ -45,6 +45,8 @@ Discover candidates:
   (`.../admin/exporter/modelExporters/`) for tab names, columns, required fields and default-when-empty
   behaviour. `defaultProvisioningData/*.json5` has realistic example rows. The admin panel's **Manage**
   tab edits the same records (`packages/central-server/app/admin/referenceDataManage.js`)
+- **Existing documentation** — the module's Slab posts (see step 2), which can name configuration a
+  code search misses
 
 Then **present the candidate list for the author to approve or trim before writing anything**. Do not
 derive scope and proceed. If the module has no folder yet, propose where it sits in the module order,
