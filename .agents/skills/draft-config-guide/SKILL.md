@@ -57,9 +57,11 @@ the module's existing documentation and what you can see of its behaviour, then 
 them. Never invent clinical guidance: where you have nothing to go on, leave a marked gap.
 
 Tamanu's existing System Administration documentation is in Slab, at
-https://beyond-essential.slab.com/public/topics, which you can't reach. Don't go looking for it: if
-the author pastes a guide in, read it for what the module covered, its narrative and its template
-links, but write the code-derived sections from the code rather than from its wording.
+https://beyond-essential.slab.com/public/topics/system-administration-clam9ygt. Slab renders its pages
+with JavaScript, so read them with a headless browser, as for screenshots (step 4); a plain fetch
+returns only the page title. Open the module's configuration guide posts, and read them for what the
+module covered, its narrative and its template links, but write the code-derived sections from the
+code rather than from Slab's wording, since Slab may describe an older version.
 
 ### 3. Batch the author's checkpoints
 
