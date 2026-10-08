@@ -1,9 +1,11 @@
 import { times } from 'es-toolkit/compat';
 
-import { REPEAT_FREQUENCY } from '@tamanu/constants';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { randomRecordId } from '../randomRecord.js';
 
-import { fake, chance } from '../../fake/index.js';
+import { addMinutes, addWeeks } from 'date-fns';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { fake, chance, fakeBookingDate } from '../../fake/index.js';
 import type { CommonParams, ExtendedCommonParams } from './common.js';
 
 interface CreateAppointmentParams extends CommonParams {
@@ -50,20 +52,33 @@ export const createRepeatingAppointment = async ({
   const resolvedPatientId = patientId ?? (await randomRecordId(models, 'Patient'));
   const resolvedClinicianId = clinicianId ?? (await randomRecordId(models, 'User'));
 
+  const firstStartTime = fakeBookingDate();
+  const lastStartTime = addWeeks(firstStartTime, apptCount - 1);
   const appointmentSchedule = await AppointmentSchedule.create(
     fake(AppointmentSchedule, {
       frequency: REPEAT_FREQUENCY.WEEKLY,
+      daysOfWeek: [DAYS_OF_WEEK[firstStartTime.getDay()]],
+      interval: 1,
+      nthWeekday: null,
+      untilDate: null,
+      occurrenceCount: apptCount,
+      generatedUntilDate: toDateString(lastStartTime),
+      isFullyGenerated: true,
       locationGroupId: resolvedLocationGroupId,
     }),
   );
 
-  for (const _ of times(apptCount)) {
+  const durationMinutes = chance.pickone([15, 30, 45, 60]);
+  for (const week of times(apptCount)) {
+    const startTime = addWeeks(firstStartTime, week);
     await Appointment.create(
       fake(Appointment, {
         patientId: resolvedPatientId,
         clinicianId: resolvedClinicianId,
         locationGroupId: resolvedLocationGroupId,
         scheduleId: appointmentSchedule.id,
+        startTime: toDateTimeString(startTime),
+        endTime: toDateTimeString(addMinutes(startTime, durationMinutes)),
       }),
     );
   }

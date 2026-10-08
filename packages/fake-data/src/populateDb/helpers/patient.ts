@@ -4,7 +4,8 @@ import { REFERENCE_TYPES } from '@tamanu/constants';
 import type { Patient } from '@tamanu/database';
 import { randomRecordId } from '../randomRecord.js';
 
-import { fake, chance } from '../../fake/index.js';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { fake, chance, fakeDate } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreatePatientParams extends CommonParams {
@@ -19,7 +20,7 @@ export const createPatient = async ({
   facilityId,
   userId,
   isBirth = chance.bool(),
-  isDead = chance.bool(),
+  isDead = chance.bool({ likelihood: 5 }),
   allergyCount = chance.integer({ min: 0, max: 5 }),
 }: CreatePatientParams): Promise<{ patient: Patient }> => {
   const {
@@ -31,7 +32,10 @@ export const createPatient = async ({
     ReferenceData,
   } = models;
 
-  const patient = await Patient.create(fake(Patient));
+  const patientFields = fake(Patient);
+  const patient = await Patient.create(
+    isDead ? { ...patientFields, dateOfDeath: toDateTimeString(fakeDate()) } : patientFields,
+  );
   await PatientAdditionalData.create(
     fake(PatientAdditionalData, {
       patientId: patient.id,
@@ -44,6 +48,7 @@ export const createPatient = async ({
       fake(PatientBirthData, {
         patientId: patient.id,
         facilityId: facilityId || (await randomRecordId(models, 'Facility')),
+        timeOfBirth: `${patient.dateOfBirth} ${chance.integer({ min: 10, max: 23 })}:00:00`,
       }),
     );
   }

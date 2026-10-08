@@ -133,9 +133,20 @@ export const generateImportData = async ({
     { childKey: 'surveyId' },
   );
 
-  const scheduledVaccine = await pooled(ScheduledVaccine, () =>
-    ScheduledVaccine.create(fake(ScheduledVaccine, { vaccineId: referenceData.id })),
-  );
+  const scheduledVaccine = await pooled(ScheduledVaccine, async () => {
+    const scheduledVaccineFields = fake(ScheduledVaccine);
+    const [vaccine, isNewVaccine] = await ReferenceData.findOrCreate({
+      where: { type: REFERENCE_TYPES.DRUG, name: scheduledVaccineFields.label },
+      defaults: fake(ReferenceData, {
+        type: REFERENCE_TYPES.DRUG,
+        name: scheduledVaccineFields.label,
+      }),
+    });
+    if (isNewVaccine) {
+      await ReferenceDrug.create(fake(ReferenceDrug, { referenceDataId: vaccine.id }));
+    }
+    return ScheduledVaccine.create({ ...scheduledVaccineFields, vaccineId: vaccine.id });
+  });
 
   const seedProgramRegistry = async () => {
     const program = await Program.create(fake(Program));
@@ -180,6 +191,7 @@ export const generateImportData = async ({
     () =>
       InvoiceProduct.create(
         fake(InvoiceProduct, {
+          name: referenceData.name,
           category: INVOICE_ITEMS_CATEGORIES.DRUG,
           sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
           sourceRecordId: referenceData.id,
