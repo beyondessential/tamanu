@@ -1,5 +1,7 @@
 import { TamanuApi } from '@tamanu/api-client';
 
+import { chance } from '../fake/fake.js';
+
 const CACHEABLE_ENTITIES = new Set(['location', 'locationGroup', 'department', 'facility']);
 
 export class RandomEntityFetcher {
@@ -24,7 +26,7 @@ export class RandomEntityFetcher {
   private async getRandomCached(entity: string) {
     const cached = this.cache.get(entity);
     if (cached && cached.length > 0) {
-      return cached[Math.floor(Math.random() * cached.length)];
+      return chance.pickone(cached);
     }
 
     const record = await this.api.get(`random/${entity}`);

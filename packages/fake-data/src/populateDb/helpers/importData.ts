@@ -120,8 +120,7 @@ export const generateImportData = async ({
       fake(SurveyScreenComponent, {
         surveyId,
         dataElementId: dataElement.id,
-        option: '{"foo":"bar"}',
-        config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
+        config: '{"source": "Facility"}',
       }),
     );
   };

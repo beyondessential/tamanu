@@ -597,7 +597,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
       middleName: chance.first({ gender: nameGender }),
       lastName: chance.last(),
       culturalName: chance.first({ gender: nameGender }),
-      dateOfBirth: toDateString(chance.birthday({ type: 'adult' }) as Date),
+      dateOfBirth: toDateString(
+        chance.birthday({
+          type: chance.weighted(['child', 'teen', 'adult', 'senior'], [20, 10, 55, 15]),
+        }) as Date,
+      ),
       dateOfDeath: null,
       email: chance.email({ domain: SAFE_EMAIL_DOMAIN }),
     };
@@ -638,9 +642,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   PatientDeathData: () => {
     const options = ['yes', 'no', 'unknown', null];
+    const wasPregnant = chance.pickone(options);
     return {
-      wasPregnant: chance.pickone(options),
-      pregnancyContributed: chance.pickone(options),
+      wasPregnant,
+      pregnancyContributed: wasPregnant === 'yes' ? chance.pickone(options) : null,
       recentSurgery: chance.pickone(options),
       stillborn: chance.pickone(options),
       autopsyRequested: chance.pickone(options),
@@ -650,7 +655,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
       mannerOfDeathDescription: chance.pickone(DEATH_CAUSE_NOTES),
       externalCauseNotes: chance.pickone(DEATH_CAUSE_NOTES),
       externalCauseLocation: chance.pickone(Object.values(PLACE_OF_DEATHS)),
-      pregnancyMoment: chance.pickone(Object.keys(PREGNANCY_MOMENTS)),
+      pregnancyMoment:
+        wasPregnant === 'yes' ? chance.pickone(Object.keys(PREGNANCY_MOMENTS)) : null,
       motherConditionDescription: chance.pickone([
         'Healthy at time of birth',
         'Pre-eclampsia during pregnancy',
@@ -722,8 +728,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
-  SensitiveNetwork: ({ name }) =>
-    named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
+  SensitiveNetwork: ({ name }) => named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
   // A lookup row is unscoped unless a test deliberately scopes it. The outgoing snapshot admits a
   // row only when facility_id and sensitive_network_id are both null, so generating a random
   // network here would withhold every faked row from every facility.

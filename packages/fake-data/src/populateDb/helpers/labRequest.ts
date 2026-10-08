@@ -80,7 +80,7 @@ export const createLabRequest = async ({
 
   await LabRequestLog.create(
     fake(LabRequestLog, {
-      status: 'reception_pending',
+      status: labRequest.status,
       labRequestId: labRequest.id,
       updatedById: resolvedUserId,
     }),

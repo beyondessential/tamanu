@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { REFERENCE_TYPES } from '@tamanu/constants';
-import { generateEachDataType } from '@tamanu/fake-data/populateDb';
+import { generateEachDataType, generateFake } from '@tamanu/fake-data/populateDb';
 
 import { createTestContext } from './utilities';
 
@@ -57,5 +57,33 @@ describe('Fake data generation', () => {
     expect(
       await count(`SELECT count(DISTINCT diagnosis_id)::int n FROM encounter_diagnoses`),
     ).toBeGreaterThan(1);
+    expect(
+      await count(
+        `SELECT count(*)::int n FROM patients WHERE date_of_death::date < date_of_birth::date`,
+      ),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM patient_death_data d JOIN patients p ON p.id = d.patient_id
+        WHERE p.sex <> 'female' AND d.was_pregnant IS NOT NULL`),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM lab_request_logs l JOIN lab_requests r ON r.id = l.lab_request_id
+        WHERE l.status <> r.status`),
+    ).toBe(0);
+    expect(
+      await count(`SELECT count(*)::int n FROM (SELECT encounter_prescription_id FROM encounter_pause_prescription_histories
+        GROUP BY encounter_prescription_id HAVING count(*) > 1) dup`),
+    ).toBe(0);
+  });
+
+  it('rolls back a failed round', async () => {
+    const before = await models.Patient.count();
+    const create = vi.spyOn(models.Invoice, 'create').mockRejectedValue(new Error('boom'));
+    try {
+      await expect(generateFake(models, 1)).rejects.toThrow('too many errors');
+    } finally {
+      create.mockRestore();
+    }
+    expect(await models.Patient.count()).toBe(before);
   });
 });

@@ -20,7 +20,6 @@ export const createMedication = async ({
     EncounterPrescription,
     PatientOngoingPrescription,
     EncounterPausePrescription,
-    EncounterPausePrescriptionHistory,
   } = models;
 
   // Create with hooks disabled: the afterCreate hook tries to push a notification
@@ -48,12 +47,6 @@ export const createMedication = async ({
 
   await EncounterPausePrescription.create(
     fake(EncounterPausePrescription, {
-      encounterPrescriptionId: encounterPrescription.id,
-    }),
-  );
-
-  await EncounterPausePrescriptionHistory.create(
-    fake(EncounterPausePrescriptionHistory, {
       encounterPrescriptionId: encounterPrescription.id,
     }),
   );

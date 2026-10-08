@@ -34,7 +34,14 @@ export const createPatient = async ({
 
   const patientFields = fake(Patient);
   const patient = await Patient.create(
-    isDead ? { ...patientFields, dateOfDeath: toDateTimeString(fakeDate()) } : patientFields,
+    isDead
+      ? {
+          ...patientFields,
+          dateOfDeath: toDateTimeString(
+            new Date(Math.max(fakeDate().getTime(), Date.parse(patientFields.dateOfBirth))),
+          ),
+        }
+      : patientFields,
   );
   await PatientAdditionalData.create(
     fake(PatientAdditionalData, {
@@ -58,6 +65,11 @@ export const createPatient = async ({
       fake(PatientDeathData, {
         patientId: patient.id,
         clinicianId: userId || (await randomRecordId(models, 'User')),
+        ...(patient.sex !== 'female' && {
+          wasPregnant: null,
+          pregnancyContributed: null,
+          pregnancyMoment: null,
+        }),
       }),
     );
   }
