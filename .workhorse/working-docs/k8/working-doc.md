@@ -37,9 +37,10 @@ lands as markdown in `docs/user-manuals/config-guides/{module}/`, published as a
 ### Where guides live
 
 - Root: this repo's `docs/` folder.
-- Tree: `docs/user-manuals/config-guides/{module}/{topic}.md` (kebab-case slugs — *tentative,
-  see open questions*).
-- One folder per Tamanu module; **multiple topic guides** per module folder (not one monolith).
+- Tree: `docs/user-manuals/config-guides/{nn}-{module}/{n}-{topic}.md`, e.g.
+  `15-medications/2-settings.md`. Numbers lead the names so the file tree shows the order.
+- One folder per Tamanu module, holding three guides (reference data, settings, permissions) and a
+  README, not one monolith.
 
 ### Audience & voice
 
@@ -95,15 +96,16 @@ The canonical section backbone, in order:
 
 ### Images
 
-- The skill can't capture live UI screenshots when authoring from code. Where the guide needs one, it
-  inserts a **marked placeholder** — a caption plus a clear "screenshot needed" marker — for a human
-  to fill before or after the PR merges. It does not fabricate images.
+- Where the guide needs a screenshot, the skill inserts a bold `[Screenshot: ...]` placeholder. If the
+  author provides a demo site and login, it captures the shots itself; otherwise a person fills them.
+  It never fabricates images.
 
 ### Non-code (narrative & clinical) content
 
 - Content that isn't derivable from code — scope exclusions ("IV infusions stay on paper"), clinical
-  caveats, the lead-paragraph framing — is **provided by the author**. The skill asks the invoker for
-  it, or leaves clearly-marked gaps for them to write, rather than inventing clinical guidance. Only
+  caveats, the lead-paragraph framing — is **drafted by the skill from existing documentation, then
+  corrected by the author**. Where it has nothing to go on, it leaves a clearly marked gap rather than
+  inventing clinical guidance. Only
   the reference-data / settings / permissions sections are authored autonomously from code.
 
 ### Example templates & external assets
@@ -121,7 +123,7 @@ The canonical section backbone, in order:
 
 ### Navigation index
 
-- The skill maintains a navigation index: a **README in `system-administration/`** listing modules and
+- The skill maintains a navigation index: a **README in `config-guides/`** listing modules and
   their guides, and a **per-module README** listing that module's topic guides — modelled on the
   support pack's `docs/README.md`. Publishing or updating a guide updates the relevant index.
 
@@ -133,18 +135,18 @@ The canonical section backbone, in order:
 
 ### Publishing
 
-- The skill authors the file(s) and opens a **reviewed pull request** — never a silent edit.
+- The skill writes and commits the guides; the author reviews the diff and raises the **reviewed pull
+  request** from Workhorse.
 - PR title follows Tamanu conventions (`chore`, since `docs` is disallowed; `no-issue` or the card
   ticket), and the PR uses the repo template. See `git-workflow.md` / `pull-requests.md`.
 
 ## Open questions
 
-None outstanding at spec level. One question is deferred to Tech design:
+None outstanding.
 
-- **How the skill maps "module → its config".** Reference data and settings aren't formally grouped by
-  "module" in the codebase, so the skill needs a reliable way to scope its search from a module name —
-  a settings category, a permissions subject prefix, a curated per-module manifest, or some
-  combination. A technical-approach decision rather than a behavioural one.
+- **How the skill maps "module → its config"** was resolved in tech design: the skill searches the
+  settings schema, permissions and reference data types for candidates, then has the author approve
+  or trim the list before writing anything.
 
 ## Testing notes
 
