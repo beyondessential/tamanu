@@ -182,6 +182,18 @@
   .form-item.current .nm { color: var(--primary-dark); }
   .form-item.current .st { color: var(--primary); }
 
+  /* Long form page: title and buttons stay put, questions scroll */
+  .k-split > .k-body.scrolling { padding-bottom: 24px; position: relative; }
+  .scroll-area { flex: 1; position: relative; overflow: hidden; margin: 0 -36px; }
+  .scroll-area .content { position: absolute; left: 36px; right: 36px; }
+  .scroll-area .content.at-top { top: 0; }
+  .scroll-area .content.at-end { bottom: 12px; }
+  .scroll-area .content .q { margin-bottom: 12px; }
+  .scroll-area .thumb { position: absolute; right: 12px; width: 6px; height: 120px; border-radius: 3px; background: var(--outline); }
+  .scroll-cue { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); height: 44px; padding: 0 18px; border-radius: 22px; background: var(--white); border: 1px solid var(--primary); color: var(--primary); font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .scroll-cue svg { width: 20px; height: 20px; }
+  .k-body.scrolling .actions { border-top: 1px solid var(--line); margin: 0 -36px; padding: 20px 36px 0; }
+
   /* Survey form */
   .form-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .form-head h1 { margin: 0; font-size: 30px; }
@@ -610,6 +622,95 @@
               <div class="opt on">No</div>
               <div class="opt">Not sure</div>
             </div>
+          </div>
+          <div class="actions">
+            <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
+            <div class="btn primary wide">Next <svg><use href="#i-next"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">Long page, at the top <span>· the questions scroll between the fixed title and buttons. A cue shows there is more below</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-split">
+        <div class="forms-nav">
+          <h2>Your forms</h2>
+          <div class="count">0 of 3 complete</div>
+          <div class="form-item current"><span class="ci"></span><div><div class="nm">Contact details</div><div class="st">Page 1 of 2</div></div></div>
+          <div class="form-item"><span class="ci"></span><div><div class="nm">Health questions</div><div class="st">Not started</div></div></div>
+          <div class="form-item"><span class="ci"></span><div><div class="nm">Consent</div><div class="st">Not started</div></div></div>
+        </div>
+        <div class="k-body scrolling">
+          <div class="form-head">
+            <h1 class="k-title">Contact details</h1>
+            <div class="page-count">Page 1 of 2</div>
+          </div>
+          <div class="page-bar"><i style="width:50%"></i></div>
+          <div class="scroll-area">
+            <div class="content at-top">
+              <div class="q"><div class="q-text">Mobile phone number</div><div class="hint">From your patient record</div><div class="qin">021 555 0193</div></div>
+              <div class="q"><div class="q-text">Email address</div><div class="qin ph">name@example.com</div></div>
+              <div class="q"><div class="q-text">Which village do you live in?</div><div class="qin"><svg><use href="#i-search"/></svg><span class="grow">Vailima</span></div></div>
+              <div class="q"><div class="q-text">Emergency contact name <span class="req">*</span></div><div class="qin">Sione Taufa</div></div>
+              <div class="q"><div class="q-text">Emergency contact phone number <span class="req">*</span></div><div class="qin">021 555 0477</div></div>
+              <div class="q"><div class="q-text">How is this person related to you? <span class="req">*</span></div><div class="qin"><span class="grow">Spouse or partner</span><svg><use href="#i-chev-down"/></svg></div></div>
+            </div>
+            <div class="thumb" style="top: 4px;"></div>
+            <div class="scroll-cue">More questions below <svg><use href="#i-chev-down"/></svg></div>
+          </div>
+          <div class="actions">
+            <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
+            <div class="btn primary wide">Next <svg><use href="#i-next"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">Long page, scrolled to the end <span>· the cue disappears once the last question is in view</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-split">
+        <div class="forms-nav">
+          <h2>Your forms</h2>
+          <div class="count">0 of 3 complete</div>
+          <div class="form-item current"><span class="ci"></span><div><div class="nm">Contact details</div><div class="st">Page 1 of 2</div></div></div>
+          <div class="form-item"><span class="ci"></span><div><div class="nm">Health questions</div><div class="st">Not started</div></div></div>
+          <div class="form-item"><span class="ci"></span><div><div class="nm">Consent</div><div class="st">Not started</div></div></div>
+        </div>
+        <div class="k-body scrolling">
+          <div class="form-head">
+            <h1 class="k-title">Contact details</h1>
+            <div class="page-count">Page 1 of 2</div>
+          </div>
+          <div class="page-bar"><i style="width:50%"></i></div>
+          <div class="scroll-area">
+            <div class="content at-end">
+              <div class="q"><div class="q-text">Mobile phone number</div><div class="hint">From your patient record</div><div class="qin">021 555 0193</div></div>
+              <div class="q"><div class="q-text">Email address</div><div class="qin ph">name@example.com</div></div>
+              <div class="q"><div class="q-text">Which village do you live in?</div><div class="qin"><svg><use href="#i-search"/></svg><span class="grow">Vailima</span></div></div>
+              <div class="q"><div class="q-text">Emergency contact name <span class="req">*</span></div><div class="qin">Sione Taufa</div></div>
+              <div class="q"><div class="q-text">Emergency contact phone number <span class="req">*</span></div><div class="qin">021 555 0477</div></div>
+              <div class="q"><div class="q-text">How is this person related to you? <span class="req">*</span></div><div class="qin"><span class="grow">Spouse or partner</span><svg><use href="#i-chev-down"/></svg></div></div>
+            </div>
+            <div class="thumb" style="bottom: 16px;"></div>
           </div>
           <div class="actions">
             <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
