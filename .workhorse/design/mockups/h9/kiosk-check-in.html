@@ -161,38 +161,43 @@
   .searched dd { margin: 0; font-size: 20px; font-weight: 500; }
   .center-actions { display: flex; gap: 14px; justify-content: center; }
 
-  /* Progress: one segment per step */
-  .progress { display: flex; gap: 8px; margin-bottom: 24px; }
-  .seg { flex: 1; }
-  .seg .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
-  .seg .bar i { display: block; height: 100%; border-radius: 3px; background: var(--primary); }
-  .seg.done .bar { background: var(--green); }
-  .seg .lbl { margin-top: 10px; font-size: 14px; color: var(--text3); display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .seg .lbl svg { width: 16px; height: 16px; color: var(--green); }
-  .seg.done .lbl { color: var(--text2); }
-  .seg.current .lbl { color: var(--primary-dark); font-weight: 500; }
+  /* Forms: list of forms beside the open form */
+  .k-split { flex: 1; display: grid; grid-template-columns: 290px 1fr; gap: 20px; margin: 0 28px 28px; min-height: 0; }
+  .k-split > .k-body { margin: 0; padding: 32px 36px; }
+  .forms-nav { background: var(--white); border: 1px solid var(--outline); border-radius: 16px; padding: 24px 16px; display: flex; flex-direction: column; }
+  .forms-nav h2 { font-size: 20px; font-weight: 500; color: var(--primary-dark); margin: 0 12px 4px; }
+  .forms-nav .count { font-size: 15px; color: var(--text2); margin: 0 12px 18px; }
+  .form-item { display: flex; align-items: center; gap: 14px; padding: 14px 12px; border-radius: 12px; }
+  .form-item + .form-item { margin-top: 4px; }
+  .form-item .ci { width: 32px; height: 32px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px var(--outline); }
+  .form-item .ci svg { width: 20px; height: 20px; }
+  .form-item .nm { font-size: 18px; font-weight: 500; color: var(--text); line-height: 1.25; }
+  .form-item .st { font-size: 14px; color: var(--text3); margin-top: 2px; }
+  .form-item.done .ci { background: var(--green-bg); color: var(--green); box-shadow: none; }
+  .form-item.done .st { color: var(--green); }
+  .form-item.current { background: var(--primary10); box-shadow: inset 0 0 0 2px var(--primary); }
+  .form-item.current .ci { box-shadow: inset 0 0 0 2px var(--primary); background: var(--white); }
+  .form-item.current .ci::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--primary); }
+  .form-item.current .nm { color: var(--primary-dark); }
+  .form-item.current .st { color: var(--primary); }
 
   /* Survey form */
-  .form-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
-  .form-head h1 { margin: 0; }
-  .page-count { font-size: 16px; color: var(--text3); }
+  .form-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .form-head h1 { margin: 0; font-size: 30px; }
+  .page-count { font-size: 16px; color: var(--text2); font-weight: 500; }
+  .page-bar { height: 8px; border-radius: 4px; background: var(--line); margin-bottom: 24px; overflow: hidden; }
+  .page-bar i { display: block; height: 100%; border-radius: 4px; background: var(--primary); }
   .q { background: var(--white); border-radius: 16px; border: 1px solid var(--outline); padding: 20px 24px; margin-bottom: 12px; }
   .q-text { font-size: 20px; font-weight: 500; margin-bottom: 16px; color: var(--text); }
-  .opts { display: flex; gap: 10px; }
-  .opt { min-width: 132px; height: 56px; border-radius: 14px; padding: 0 24px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 500; background: var(--bg); color: var(--text); }
+  .opts { display: flex; gap: 10px; flex-wrap: wrap; }
+  .opt { min-width: 120px; height: 56px; border-radius: 14px; padding: 0 24px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 500; background: var(--bg); color: var(--text); }
   .opt.on { background: var(--primary); color: var(--white); }
+  .k-split .btn.wide { min-width: 220px; }
 
-  /* Check-in summary */
-  .summary { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
-  .checklist { padding: 8px 0; }
-  .check-item { display: flex; align-items: center; gap: 16px; padding: 15px 28px; font-size: 19px; }
-  .check-item + .check-item { border-top: 1px solid var(--line); }
-  .check-item .ci { width: 32px; height: 32px; border-radius: 50%; background: var(--green-bg); color: var(--green); display: flex; align-items: center; justify-content: center; flex: none; }
-  .check-item .ci svg { width: 20px; height: 20px; }
-  .side-appt .who { font-size: 22px; font-weight: 500; color: var(--primary-dark); margin-bottom: 20px; }
-  .side-appt dl { margin: 0; }
-  .side-appt dt { font-size: 14px; color: var(--text3); margin-bottom: 4px; }
-  .side-appt dd { margin: 0 0 16px; font-size: 18px; font-weight: 500; }
+  /* Ready to check in */
+  .ready-appt { display: inline-grid; grid-template-columns: auto auto; gap: 4px 40px; text-align: left; background: var(--bg2); border: 1px solid var(--outline); border-radius: 14px; padding: 18px 28px; margin-bottom: 32px; }
+  .ready-appt dt { font-size: 14px; color: var(--text3); }
+  .ready-appt dd { margin: 0; font-size: 20px; font-weight: 500; }
 
   /* Modal */
   .scrim { position: absolute; inset: 0; background: rgba(31,35,41,.45); display: flex; align-items: center; justify-content: center; }
@@ -512,11 +517,11 @@
 
 <!-- ===================== 4. FORMS ===================== -->
 <div class="section-title">4. Forms</div>
-<p class="note">Forms run one after another. The progress bar has one segment per step, so its length follows the number of forms for the appointment. The current segment fills as the patient moves through that form's pages.</p>
+<p class="note">The forms list is the overall progress indicator. Forms can be completed in any order: the patient taps a form in the list to open it, and the first unfinished form opens after they confirm their details. The page bar shows progress through the open form.</p>
 <div class="row">
 
   <div class="frame-wrap">
-    <div class="caption">Form in progress <span>· 2nd of 3 forms, page 1 of 2</span></div>
+    <div class="caption">Form in progress <span>· 1 of 3 forms complete, page 2 of 3 of the open form</span></div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
@@ -525,43 +530,46 @@
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
-      <div class="k-body">
-        <div class="progress">
-          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Your details</div></div>
-          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Contact details</div></div>
-          <div class="seg current"><div class="bar"><i style="width:50%"></i></div><div class="lbl">Health questions</div></div>
-          <div class="seg"><div class="bar"></div><div class="lbl">Consent</div></div>
-          <div class="seg"><div class="bar"></div><div class="lbl">Check in</div></div>
+      <div class="k-split">
+        <div class="forms-nav">
+          <h2>Your forms</h2>
+          <div class="count">1 of 3 complete</div>
+          <div class="form-item done"><span class="ci"><svg><use href="#i-check"/></svg></span><div><div class="nm">Contact details</div><div class="st">Completed</div></div></div>
+          <div class="form-item current"><span class="ci"></span><div><div class="nm">Health questions</div><div class="st">Page 2 of 3</div></div></div>
+          <div class="form-item"><span class="ci"></span><div><div class="nm">Consent</div><div class="st">Not started</div></div></div>
         </div>
-        <div class="form-head">
-          <h1 class="k-title">Health questions</h1>
-          <div class="page-count">Page 1 of 2</div>
-        </div>
-        <div class="q">
-          <div class="q-text">Do you have a fever, cough or sore throat today?</div>
-          <div class="opts">
-            <div class="opt">Yes</div>
-            <div class="opt on">No</div>
+        <div class="k-body">
+          <div class="form-head">
+            <h1 class="k-title">Health questions</h1>
+            <div class="page-count">Page 2 of 3</div>
           </div>
-        </div>
-        <div class="q">
-          <div class="q-text">Are you currently pregnant?</div>
-          <div class="opts">
-            <div class="opt">Yes</div>
-            <div class="opt on">No</div>
-            <div class="opt">Not sure</div>
+          <div class="page-bar"><i style="width:66%"></i></div>
+          <div class="q">
+            <div class="q-text">Do you have a fever, cough or sore throat today?</div>
+            <div class="opts">
+              <div class="opt">Yes</div>
+              <div class="opt on">No</div>
+            </div>
           </div>
-        </div>
-        <div class="actions">
-          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
-          <div class="btn primary wide">Next <svg><use href="#i-next"/></svg></div>
+          <div class="q">
+            <div class="q-text">Are you currently pregnant?</div>
+            <div class="opts">
+              <div class="opt">Yes</div>
+              <div class="opt on">No</div>
+              <div class="opt">Not sure</div>
+            </div>
+          </div>
+          <div class="actions">
+            <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
+            <div class="btn primary wide">Next <svg><use href="#i-next"/></svg></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="frame-wrap">
-    <div class="caption">Ready to check in <span>· every step complete</span></div>
+    <div class="caption">Ready to check in <span>· every form complete. Any form can still be reopened from the list</span></div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
@@ -570,33 +578,22 @@
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
-      <div class="k-body">
-        <div class="progress">
-          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Your details</div></div>
-          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Contact details</div></div>
-          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Health questions</div></div>
-          <div class="seg done"><div class="bar"></div><div class="lbl"><svg><use href="#i-check"/></svg>Consent</div></div>
-          <div class="seg current"><div class="bar"></div><div class="lbl">Check in</div></div>
+      <div class="k-split">
+        <div class="forms-nav">
+          <h2>Your forms</h2>
+          <div class="count">3 of 3 complete</div>
+          <div class="form-item done"><span class="ci"><svg><use href="#i-check"/></svg></span><div><div class="nm">Contact details</div><div class="st">Completed</div></div></div>
+          <div class="form-item done"><span class="ci"><svg><use href="#i-check"/></svg></span><div><div class="nm">Health questions</div><div class="st">Completed</div></div></div>
+          <div class="form-item done"><span class="ci"><svg><use href="#i-check"/></svg></span><div><div class="nm">Consent</div><div class="st">Completed</div></div></div>
         </div>
-        <h1 class="k-title">Ready to check in</h1>
-        <p class="k-lead">Everything is done.</p>
-        <div class="summary">
-          <div class="card checklist">
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Details confirmed</div>
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Contact details</div>
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Health questions</div>
-            <div class="check-item"><span class="ci"><svg><use href="#i-check"/></svg></span>Consent</div>
-          </div>
-          <div class="card side-appt">
-            <div class="who">Mele Losana Taufa</div>
-            <dl>
-              <dt>Appointment</dt><dd>Today, 10:30 am</dd>
-              <dt>Clinician</dt><dd>Dr Sione Lee</dd>
-            </dl>
-          </div>
-        </div>
-        <div class="actions">
-          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
+        <div class="k-body center" style="padding-bottom:32px">
+          <div class="state-icon ok"><svg><use href="#i-check"/></svg></div>
+          <h1 class="k-title">You're ready to check in</h1>
+          <p class="k-lead">All your forms are complete.</p>
+          <dl class="ready-appt">
+            <dt>Appointment</dt><dt>Clinician</dt>
+            <dd>Today, 10:30 am</dd><dd>Dr Sione Lee</dd>
+          </dl>
           <div class="btn primary wide">Check in</div>
         </div>
       </div>
