@@ -7,7 +7,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
 } from '@tamanu/constants/programRegistry';
-import { chance, fake } from '../../fake/index.js';
+import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 import { pooled, pooledWithChild } from '../pool.js';
 import { createReferenceData } from './referenceData.js';
@@ -194,31 +194,14 @@ export const generateImportData = async ({
     },
   );
 
-  // The pool stops at the name pool's length so category names stay distinct. pickDistinct
-  // alone only keeps them apart within one process, and the seed tops up across many runs.
-  const labTestCategoryNames = REFERENCE_DATA_NAMES[REFERENCE_TYPES.LAB_TEST_CATEGORY];
-  const createLabTestCategory = async () => {
-    const takenNames = new Set(
-      (
-        (await ReferenceData.findAll({
-          where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
-          attributes: ['name'],
-          raw: true,
-        })) as unknown as Array<{ name: string }>
-      ).map(({ name }) => name),
-    );
-    const name = chance.pickone(
-      labTestCategoryNames.filter(candidate => !takenNames.has(candidate)),
-    );
-    return ReferenceData.create(
-      fake(ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY, name }),
-    );
-  };
   // A category is only minted for a test to sit in, so the seed never adds one with no tests.
+  // fake() spreads the names within a run; findOrCreate keeps one row per name across the
+  // runs that top the seed up, as the lab request form lists categories by name.
   const labTestType = await pooled(LabTestType, async () => {
-    const labTestCategory = await pooled(ReferenceData, createLabTestCategory, {
-      size: labTestCategoryNames.length,
-      where: { type: REFERENCE_TYPES.LAB_TEST_CATEGORY },
+    const category = fake(ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY });
+    const [labTestCategory] = await ReferenceData.findOrCreate({
+      where: { type: category.type, name: category.name },
+      defaults: category,
     });
     return LabTestType.create(fake(LabTestType, { labTestCategoryId: labTestCategory.id }));
   });
