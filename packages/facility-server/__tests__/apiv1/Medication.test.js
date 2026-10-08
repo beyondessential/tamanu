@@ -77,6 +77,7 @@ describe('Medication', () => {
     patientId,
     repeats = 1,
     isDischargePrescription = true,
+    prescriptionOverrides = {},
   }) => {
     const { medication } = await createDrug();
     const encounter = await models.Encounter.create(
@@ -93,6 +94,7 @@ describe('Medication', () => {
         medicationId: medication.id,
         prescriberId: app.user.id,
         startDate: getCurrentDateTimeString(),
+        ...prescriptionOverrides,
       }),
     );
     await models.EncounterPrescription.create(
@@ -1132,7 +1134,10 @@ describe('Medication', () => {
 
     it('should resolve dosing and dispensing units from the substituted drug', async () => {
       const { pharmacyOrderPrescription, prescription } =
-        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+        await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+          prescriptionOverrides: { dosingUnit: 'mg', dispensingUnit: 'Tablet' },
+        });
       const { medication: substitute } = await createDrug({
         dosingUnit: 'mL',
         dispensingUnit: 'Bottle',
@@ -2098,8 +2103,15 @@ describe('Medication', () => {
       patientId,
       unitConversion = 250,
       isOngoing = true,
+      hasReferenceDrug = true,
     }) => {
-      const { medication } = await createDrug();
+      const { medication } = hasReferenceDrug
+        ? await createDrug()
+        : {
+            medication: await models.ReferenceData.create(
+              fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+            ),
+          };
       const encounter = await models.Encounter.create(
         fake(models.Encounter, {
           patientId,
@@ -2161,6 +2173,28 @@ describe('Medication', () => {
       });
       // unitConversion is a DECIMAL, serialised as a string.
       expect(Number(row.prescription.unitConversion)).toBe(250);
+    });
+
+    it('should not list a prescription whose drug has no reference drug record', async () => {
+      const localPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription: dispensable } = await createDispensablePrescription({
+        patientId: localPatient.id,
+      });
+      const { pharmacyOrderPrescription: missingDrugDetails } =
+        await createDispensablePrescription({
+          patientId: localPatient.id,
+          hasReferenceDrug: false,
+        });
+
+      const result = await app.get(
+        `/api/medication/dispensable-medications?patientId=${localPatient.id}&facilityId=${facilityId}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const listedIds = result.body.data.map(item => item.id);
+      expect(listedIds).toContain(dispensable.id);
+      expect(listedIds).not.toContain(missingDrugDetails.id);
+      expect(result.body.data.every(item => item.prescription.medication)).toBe(true);
     });
   });
 

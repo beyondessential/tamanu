@@ -2691,6 +2691,10 @@ medication.get(
             {
               association: 'medication',
               attributes: ['id', 'name', 'type'],
+              // Required all the way down: a drug missing its reference_drugs row can't be
+              // dispensed, and an optional parent would turn the inner join into a LEFT JOIN that
+              // returns the prescription with a null medication (a blank row in Dispense).
+              required: true,
               include: [
                 {
                   model: models.ReferenceDrug,

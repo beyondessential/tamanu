@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
-    "@playwright/test": "1.61.0",
+    "@playwright/test": "1.63.0",
     "@tamanu/api-client": "*",
     "@tamanu/database": "*",
     "@types/node": "^26.2.0",
