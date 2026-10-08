@@ -61,7 +61,7 @@
 
   /* Patient details additions */
   .pd-first { display: flex; justify-content: space-between; align-items: center; }
-  .pd-first .text-btn { margin: -4px -6px -4px 0; color: #1172D1; font-weight: 500; }
+  .pd-first .text-btn { margin: -4px -6px -4px 0; }
   .text-btn { background: none; border: 0; color: #326699; font: inherit; font-weight: 500; padding: 4px 6px; border-radius: 3px; display: inline-flex; gap: 4px; align-items: center; cursor: pointer; }
   .text-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .group + .group { margin-top: 18px; }
@@ -87,6 +87,16 @@
   .snackbar span { flex: 1; }
   .snackbar button { background: none; border: 0; padding: 2px; color: inherit; display: flex; cursor: pointer; }
   .snackbar button svg { stroke-width: 2; }
+
+  /* Unsaved changes dialog, after the shared Tamanu Modal/Dialog */
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.5); }
+  .dialog { position: absolute; left: 16px; right: 16px; background: #f3f5f7; border-radius: 4px; overflow: hidden; box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14); }
+  .dialog-head { background: #fff; border-bottom: 1px solid #ebebeb; display: flex; align-items: center; padding: 14px 14px 14px 24px; }
+  .dialog-head h3 { flex: 1; margin: 0; font-size: 18px; font-weight: 500; line-height: 1.2; color: #444; }
+  .dialog-head button { background: none; border: 0; padding: 6px; display: flex; cursor: pointer; }
+  .dialog-head svg { width: 22px; height: 22px; stroke: #666; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .dialog-body { padding: 20px 24px; font-size: 15px; }
+  .dialog-body .actions { margin-top: 24px; }
 
   .footer { display: flex; justify-content: center; padding: 28px 0 32px; }
   .crest { width: 44px; height: 52px; border-radius: 6px 6px 22px 22px; background: #e9e4d6; border: 2px solid #b8a06a; }
@@ -193,7 +203,7 @@ const pdEdit = `
 const before = { title: 'Ms', mobile: '+679 771 2345', email: 'jessie.jacobs@example.com', street: '12 Victoria Parade' };
 const after = { ...before, street: '45 Waimanu Road' };
 
-const page = (patientDetailsBody, snackbarTop) => `
+const page = (patientDetailsBody, snackbarTop, dialogTop) => `
   <div class="phone">
     <div class="header">
       <svg class="logo" width="128" height="40" viewBox="0 0 128 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -243,12 +253,21 @@ const page = (patientDetailsBody, snackbarTop) => `
     </div>
     <div class="footer"><div class="crest"></div></div>
     ${snackbarTop ? `<div class="snackbar" style="top:${snackbarTop}px">${icon.check}<span>Details saved</span><button aria-label="Close">${icon.close}</button></div>` : ''}
+    ${dialogTop ? `<div class="scrim"></div>
+    <div class="dialog" role="dialog" style="top:${dialogTop}px">
+      <div class="dialog-head"><h3>Discard changes?</h3><button aria-label="Close">${icon.close}</button></div>
+      <div class="dialog-body">
+        Your changes to your details have not been saved.
+        <div class="actions"><button class="btn outlined">Keep editing</button><button class="btn contained">Discard changes</button></div>
+      </div>
+    </div>` : ''}
   </div>`;
 
 const frames = [
   ['1. View', page(pdView(before))],
   ['2. Edit', page(pdEdit)],
   ['3. Saved', page(pdView(after), 66)],
+  ['4. Unsaved changes', page(pdEdit, null, 1000)],
 ];
 
 document.getElementById('frames').innerHTML = frames

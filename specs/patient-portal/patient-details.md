@@ -28,7 +28,10 @@ The Patient details section of the patient portal dashboard shows the signed-in 
 - [ ] Ethnicity, Health insurer and Occupation are chosen from the deployment's active reference data for that type
 - [ ] All other editable details are free-text inputs
 - [ ] Cancel discards any unsaved edits and returns the section to view mode
-- [ ] Collapsing the section or leaving the page with unsaved edits asks the patient to confirm discarding them; declining keeps the form open with the edits intact
+- [ ] Collapsing the section or navigating elsewhere in the portal with unsaved edits shows a "Discard changes?" prompt with Keep editing and Discard changes actions
+- [ ] Discard changes drops the edits, returns the section to view mode and carries on with the collapse or navigation
+- [ ] Keep editing, or closing the prompt, leaves the form open with the edits intact
+- [ ] Closing or reloading the browser tab with unsaved edits triggers the browser's standard leave-page warning
 - [ ] Editing Email changes the email on the patient record only; the email the patient uses to sign in to the portal is unaffected
 
 ## Validation
