@@ -16,7 +16,7 @@ manual verification of a skill run rather than automated tests, since the output
       required columns marked.
 - [ ] The generated permissions section covers `Medication`, `SensitiveMedication`,
       `MedicationAdministration` and `MedicationPharmacyNote` with the correct verbs.
-- [ ] The module is documented as three guides (`reference-data.md`, `settings.md`, `permissions.md`)
+- [ ] The module is documented as three guides (`1-reference-data.md`, `2-settings.md`, `3-permissions.md`)
       numbered 15.1 to 15.3, not as a single combined document.
 - [ ] Sections land in the right guide: permitted values with the reference data that accepts them,
       automated workflows with the settings that drive them, and permission-gated features with the
@@ -118,15 +118,19 @@ manual verification of a skill run rather than automated tests, since the output
 
 ## Location, navigation and links
 
-- [ ] A guide is written to `docs/user-manuals/config-guides/{module}/{topic}.md` in
-      kebab-case.
+- [ ] A guide is written to `docs/user-manuals/config-guides/{nn}-{module}/{n}-{topic}.md`.
 - [ ] Publishing a second guide in a module updates both the module README and the
-      `system-administration/` README, adding entries rather than replacing or duplicating them.
+      `config-guides/` README, adding entries rather than replacing or duplicating them.
 - [ ] A reference to a guide already under `docs/user-manuals/` resolves to a relative link.
 - [ ] A reference to a guide not yet migrated links to its current published location and does not
       dangle.
 - [ ] Reference data column tables render inline, with downloadable template links retained alongside
       them.
+- [ ] For a reference data type with no template link in existing documentation, the author is asked
+      for one in the batched review, and the template row is omitted if they have none.
+- [ ] Module folders and guide files carry their number (`15-medications/2-settings.md`), the module
+      README heading and README tables show the same number, and every link resolves after a module is
+      renumbered.
 
 ## Publishing
 

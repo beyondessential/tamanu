@@ -13,8 +13,8 @@ the code, and lands changes as a reviewed PR.
 `docs/user-manuals/config-guides/` holds one folder per Tamanu module, 24 in workflow order
 from Deploying Tamanu through to Integrations. Each module's configuration is documented in three
 guides by surface — reference data, settings, permissions — numbered within the module, so Medications
-is 15 and its settings guide is 15.2. Numbers live in content rather than paths, so reordering never
-breaks a link.
+is 15 and its settings guide is 15.2. Numbers lead the folder and file names
+(`15-medications/2-settings.md`), so the file tree shows the order.
 
 **What's here**
 

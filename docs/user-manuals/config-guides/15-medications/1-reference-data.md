@@ -7,8 +7,8 @@ Tamanu system. Records can also be added and edited one at a time on the **Manag
 > The **Manage** tab is supported from v2.54 onwards. Earlier deployments configure reference data by
 > import spreadsheet only.
 
-For the settings that govern prescribing and administration see [Settings](settings.md), and for the
-permissions required see [Permissions](permissions.md).
+For the settings that govern prescribing and administration see [Settings](2-settings.md), and for the
+permissions required see [Permissions](3-permissions.md).
 
 ---
 
@@ -53,7 +53,7 @@ Where * is a required field.
 | dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). Defaults to the dosing unit if not set. |
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
 | notes | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required. |
-| isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](permissions.md#sensitive-medications-supported-from-v239-onwards). |
+| isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](3-permissions.md#sensitive-medications-supported-from-v239-onwards). |
 
 Stock levels are recorded in additional columns, one per facility, as described below.
 
@@ -82,7 +82,7 @@ otherwise the status itself, as `out_of_stock`, `unavailable` or `unknown`. A re
 read the same way, so a round trip is safe.
 
 Where a facility has mSupply as its source of truth for stock on hand, the importer does not overwrite
-that facility's stock levels. See the [Dispensing](../dispensing/) configuration guides.
+that facility's stock levels. See the [Dispensing](../16-dispensing/) configuration guides.
 
 ---
 
@@ -301,4 +301,4 @@ in common use.
 Reassigning the primary frequency, or the ordering of synonyms, requires a change to the Tamanu code.
 
 Individual frequency options can be disabled where they are not required for a deployment. See
-[Frequencies](settings.md#frequencies).
+[Frequencies](2-settings.md#frequencies).

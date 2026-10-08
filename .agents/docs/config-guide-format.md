@@ -24,18 +24,22 @@ Assume basic Tamanu and digital literacy, not clinical or developer knowledge.
 
 ## Location and numbering
 
-Guides live under `docs/user-manuals/config-guides/`, one folder per module, in lowercase
-kebab-case. Each module folder holds three guides with fixed names — `reference-data.md`,
-`settings.md`, `permissions.md` — plus a `README.md`.
+Guides live under `docs/user-manuals/config-guides/`, one folder per module. Each module folder holds
+three guides with fixed names — `1-reference-data.md`, `2-settings.md`, `3-permissions.md` — plus a
+`README.md`.
 
-Modules are numbered in the section README, in the order a deployment is set up and used rather than
-alphabetically. A module's guides are numbered within it: module 15 is Medications, and its settings
-guide is 15.2. The number appears in the module README heading (`# 15. Medications`) and in the README
-tables. Numbering stops there; a guide's own sections are titled, not numbered.
+Modules are numbered in the order a deployment is set up and used rather than alphabetically, and a
+module's guides are numbered within it: module 15 is Medications, and its settings guide is 15.2.
+**The number leads each folder and file name**, so the file tree shows the order: the module folder is
+the number, zero-padded to two digits, then the module name in lowercase kebab-case
+(`15-medications/`), and the guide file is the guide's number within the module (`2-settings.md`).
+The number also appears in the module README heading (`# 15. Medications`) and in the README tables,
+and must match the name on disk. Numbering stops there; a guide's own sections are titled, not
+numbered.
 
-Numbers are **not** part of folder or file names, so renumbering never breaks a link. Adding a module
-means creating its folder and README at the right point in the order, then renumbering those below it,
-which is an edit to the section README rows and the affected module README headings only.
+Adding a module means creating its folder and README at the right point in the order, then
+renumbering the modules below it: rename each folder, update its README heading and its section
+README row, and update every link into it, then check that every link still resolves.
 
 Publishing or updating a guide updates both the module README and the section README.
 
@@ -45,12 +49,12 @@ Each guide covers one configuration surface:
 
 | File | Number | Covers |
 | --- | --- | --- |
-| `reference-data.md` | *n*.1 | Reference data types, and the hard coded values their columns accept |
-| `settings.md` | *n*.2 | Settings, and the automated behaviour they drive |
-| `permissions.md` | *n*.3 | Permissions, and features gated entirely by permission |
+| `1-reference-data.md` | *n*.1 | Reference data types, and the hard coded values their columns accept |
+| `2-settings.md` | *n*.2 | Settings, and the automated behaviour they drive |
+| `3-permissions.md` | *n*.3 | Permissions, and features gated entirely by permission |
 
-This matches how the work is done: reference data is imported, settings are set in the admin panel,
-permissions are assigned to roles.
+This matches how the work is done: reference data is imported or managed, settings are set in the
+admin panel, permissions are assigned to roles.
 
 Each guide opens with a **lead paragraph and no H1** (the title displays separately), naming what it
 covers and linking to its two siblings. Use horizontal rules between major sections.
@@ -60,12 +64,12 @@ and anything belonging to no single surface.
 
 Sections within each guide:
 
-- `reference-data.md` — `# Reference Data Types`, one `##` per type, each with a details table, then a
+- `1-reference-data.md` — `# Reference Data Types`, one `##` per type, each with a details table, then a
   columns table. Then `# Hard coded fields`: the values each field permits, noting that changing them
   needs a code change requested through a system administrator or project manager
-- `settings.md` — `# Settings`, then feature and workflow sections stating what needs configuring and
+- `2-settings.md` — `# Settings`, then feature and workflow sections stating what needs configuring and
   what works without it
-- `permissions.md` — `# Permissions` grouped by functional area, then permission-gated features
+- `3-permissions.md` — `# Permissions` grouped by functional area, then permission-gated features
 
 **Cross-cutting sections** go where a reader would look: permitted values with the reference data that
 accepts them; behaviour a setting turns on with that setting; a permission-gated feature with its
@@ -114,9 +118,11 @@ Keep the first column the thing being looked up.
 | Example template | [Drugs reference data template](https://example.com/drugs) |
 ```
 
-Omit the template row where none exists. Templates are the downloadable spreadsheets the deployment
-team already maintains; carry the link across from the existing documentation rather than generating a
-file.
+Templates are the downloadable spreadsheets the deployment team maintains, and **the link comes from
+the author**: when migrating a guide, carry it across from the existing documentation; otherwise ask.
+Never generate a template, and omit the row where the author has none. Where a template is a file in
+this repository, link it with a relative path, because an absolute GitHub link breaks when a module is
+renumbered.
 
 **Column tables** use `Column name | Description`:
 
@@ -203,10 +209,10 @@ patient.
 
 ## Cross-references
 
-Link to another module with a relative path (`../dispensing/`) where it exists under
+Link to another module with a relative path (`../16-dispensing/`) where it exists under
 `docs/user-manuals/`, and otherwise to its current published location so nothing dangles. Between the
 three guides of a module, link with a relative file and anchor
-(`[Frequency](reference-data.md#frequency)`).
+(`[Frequency](1-reference-data.md#frequency)`).
 
 Check anchors when a heading moves: heading text repeats across sections, and the second occurrence is
 suffixed, so a bare slug silently lands on whichever comes first. A version note in a heading is part

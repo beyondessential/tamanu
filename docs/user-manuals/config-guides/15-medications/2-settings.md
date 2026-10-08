@@ -1,8 +1,8 @@
 The settings that govern prescribing, administration and dispensing in the Tamanu Medications Module,
 and the automated behaviour they drive. Settings are managed in the Settings admin panel.
 
-For the reference data these settings act on see [Reference data](reference-data.md), and for the
-permissions required see [Permissions](permissions.md).
+For the reference data these settings act on see [Reference data](1-reference-data.md), and for the
+permissions required see [Permissions](3-permissions.md).
 
 ---
 
@@ -11,7 +11,7 @@ permissions required see [Permissions](permissions.md).
 Settings are managed in the Settings admin panel.
 
 Pharmacy order settings, including the default prescription type sent when a user selects 'send to
-pharmacy', are covered in the [Dispensing](../dispensing/) configuration guides.
+pharmacy', are covered in the [Dispensing](../16-dispensing/) configuration guides.
 
 ## Frequencies
 
@@ -41,7 +41,7 @@ For each frequency, the default administration schedule and ideal administration
 | Category | Medications |
 | Sub-category | Default administration times |
 | Setting | For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window. |
-| Default | The standard administration times for each frequency, as listed under [Frequency](reference-data.md#frequency) |
+| Default | The standard administration times for each frequency, as listed under [Frequency](1-reference-data.md#frequency) |
 
 <p align="center">
   <img src="images/settings-default-administration-times.png" alt="Default administration times in Settings, with Save changes and Reset to default outlined in red" width="712"><br>
@@ -199,7 +199,7 @@ To support tracking of medications due for administration, a **Medication due** 
 
 To enable the medication due task:
 
-1. Enable the tasking feature. See the [Tasks](../tasks/) configuration guides
+1. Enable the tasking feature. See the [Tasks](../14-tasks/) configuration guides
 2. Assign the following permissions to users who should see the task:
    - `list` for `Tasking`
    - `read` for `Tasking`
@@ -217,7 +217,7 @@ The task displays when all of the following are met:
 - The medication has a **Due** time either in the past, from the start of the encounter to the current
   time, or within an upcoming window that begins when the user lands on the dashboard. That window is 8
   hours by default and is set per facility by the tasking upcoming tasks time frame setting, so a
-  deployment that has changed it sees a different window here. See the [Tasks](../tasks/) configuration
+  deployment that has changed it sees a different window here. See the [Tasks](../14-tasks/) configuration
   guides
 
 ## Medication due task behaviour

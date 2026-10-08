@@ -41,8 +41,8 @@ good real-world exercise of update mode against a guide nobody generated.
 ## Medications migration: gaps and corrections
 
 The Medications guide has been migrated to
-`docs/user-manuals/config-guides/medications/`, split across `reference-data.md`,
-`settings.md` and `permissions.md`, with the section and module READMEs seeded. Authoring it against code surfaced real drift, which is the first evidence that
+`docs/user-manuals/config-guides/15-medications/`, split across `1-reference-data.md`,
+`2-settings.md` and `3-permissions.md`, with the section and module READMEs seeded. Authoring it against code surfaced real drift, which is the first evidence that
 the code-derived approach earns its keep.
 
 **Corrected in the migrated guide** (facts the guide already documented, which the code contradicts):
@@ -250,3 +250,11 @@ questions won't get used.
 neither. Whether that is an intentional omission or documentation drift is unknowable from code. This
 makes gap-reporting a real feature of the skill rather than an edge case, and it means the skill must
 not silently expand a guide's scope.
+
+## Numbered folder and file names
+
+Following Edwin's review, numbers lead folder and file names: `15-medications/2-settings.md`, with
+module folders zero-padded so they sort in order. This shows the order in the file tree and lets the
+Knowledge Base build its navigation from names alone. The cost is that renumbering a module renames its
+folder and every link into it, which the format doc now spells out. The number also stays in README
+headings and tables for readers, and must match the name on disk.

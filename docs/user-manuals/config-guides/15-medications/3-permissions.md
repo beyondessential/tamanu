@@ -1,14 +1,14 @@
 The permissions required to prescribe, administer and manage medications in the Tamanu Medications
 Module, and to view medications flagged as sensitive.
 
-For the reference data these permissions act on see [Reference data](reference-data.md), and for the
-module's settings see [Settings](settings.md).
+For the reference data these permissions act on see [Reference data](1-reference-data.md), and for the
+module's settings see [Settings](2-settings.md).
 
 ---
 
 # Permissions
 
-See the [Users](../users/) configuration guides for more detail on roles and permissions in Tamanu.
+See the [Users](../02-users/) configuration guides for more detail on roles and permissions in Tamanu.
 
 ## Prescriptions and ongoing medications
 
@@ -112,7 +112,7 @@ and interact with it.
 
 To configure a medication as sensitive:
 
-1. Set the medication as sensitive in the `Drug` reference data. See [Drug](reference-data.md#drug)
+1. Set the medication as sensitive in the `Drug` reference data. See [Drug](1-reference-data.md#drug)
 2. Configure sensitive medication permissions for the required roles. See
    [Sensitive medications permissions](#sensitive-medications)
 

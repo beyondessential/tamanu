@@ -20,33 +20,33 @@ what is still to be written.
 
 | # | Module | Guides |
 | --- | --- | --- |
-| 1 | [Deploying Tamanu](deploying-tamanu/) | Not written yet |
-| 2 | [Users](users/) | Not written yet |
-| 3 | [Patients](patients/) | Not written yet |
-| 4 | [Clinician Dashboard](clinician-dashboard/) | Not written yet |
-| 5 | [Scheduling](scheduling/) | Not written yet |
-| 6 | [Programs](programs/) | Not written yet |
-| 7 | [Immunisations](immunisations/) | Not written yet |
-| 8 | [Encounters](encounters/) | Not written yet |
-| 9 | [Diagnoses](diagnoses/) | Not written yet |
-| 10 | [Vitals](vitals/) | Not written yet |
-| 11 | [Charts](charts/) | Not written yet |
-| 12 | [Notes](notes/) | Not written yet |
-| 13 | [Forms](forms/) | Not written yet |
-| 14 | [Tasks](tasks/) | Not written yet |
-| 15 | [Medications](medications/) | 15.1 [Reference data](medications/reference-data.md) &middot; 15.2 [Settings](medications/settings.md) &middot; 15.3 [Permissions](medications/permissions.md) |
-| 16 | [Dispensing](dispensing/) | Not written yet |
-| 17 | [Procedures](procedures/) | Not written yet |
-| 18 | [Labs](labs/) | Not written yet |
-| 19 | [Imaging](imaging/) | Not written yet |
-| 20 | [Referrals](referrals/) | Not written yet |
-| 21 | [Documents](documents/) | Not written yet |
-| 22 | [Invoicing](invoicing/) | Not written yet |
-| 23 | [Reports](reports/) | Not written yet |
-| 24 | [Integrations](integrations/) | Not written yet |
+| 1 | [Deploying Tamanu](01-deploying-tamanu/) | Not written yet |
+| 2 | [Users](02-users/) | Not written yet |
+| 3 | [Patients](03-patients/) | Not written yet |
+| 4 | [Clinician Dashboard](04-clinician-dashboard/) | Not written yet |
+| 5 | [Scheduling](05-scheduling/) | Not written yet |
+| 6 | [Programs](06-programs/) | Not written yet |
+| 7 | [Immunisations](07-immunisations/) | Not written yet |
+| 8 | [Encounters](08-encounters/) | Not written yet |
+| 9 | [Diagnoses](09-diagnoses/) | Not written yet |
+| 10 | [Vitals](10-vitals/) | Not written yet |
+| 11 | [Charts](11-charts/) | Not written yet |
+| 12 | [Notes](12-notes/) | Not written yet |
+| 13 | [Forms](13-forms/) | Not written yet |
+| 14 | [Tasks](14-tasks/) | Not written yet |
+| 15 | [Medications](15-medications/) | 15.1 [Reference data](15-medications/1-reference-data.md) &middot; 15.2 [Settings](15-medications/2-settings.md) &middot; 15.3 [Permissions](15-medications/3-permissions.md) |
+| 16 | [Dispensing](16-dispensing/) | Not written yet |
+| 17 | [Procedures](17-procedures/) | Not written yet |
+| 18 | [Labs](18-labs/) | Not written yet |
+| 19 | [Imaging](19-imaging/) | Not written yet |
+| 20 | [Referrals](20-referrals/) | Not written yet |
+| 21 | [Documents](21-documents/) | Not written yet |
+| 22 | [Invoicing](22-invoicing/) | Not written yet |
+| 23 | [Reports](23-reports/) | Not written yet |
+| 24 | [Integrations](24-integrations/) | Not written yet |
 
-Numbers are for reference and ordering only. They are not part of folder or file names, so a guide can
-be renumbered without breaking any link.
+Each number is part of its folder or file name, as in `15-medications/2-settings.md`, so the file tree
+shows the order.
 
 ## About these guides
 
@@ -62,6 +62,5 @@ from. Check your deployment's version before relying on them.
 Guides are written by the `draft-config-guide` skill, which reads the module's reference data, settings
 and permissions out of the codebase and drafts the guide against the format above. Where a module is
 not yet listed, add its folder and README at the point in the order where it belongs, and renumber the
-modules after it. Renumbering means editing the rows in the table above and the `# n. Module` heading
-in each affected module README. Nothing on disk is renamed, because the numbers are not part of folder
-or file names.
+modules after it. Renumbering a module means renaming its folder, updating its row in the table above
+and the `# n. Module` heading in its README, and updating every link to it.

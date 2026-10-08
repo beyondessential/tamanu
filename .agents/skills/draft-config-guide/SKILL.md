@@ -21,8 +21,9 @@ Read `.agents/docs/config-guide-format.md` first and follow it for anything abou
 like: structure, tables, settings blocks, callouts, version flags, screenshots, and the accuracy rules.
 This file is the procedure only.
 
-Each module has three guides — `reference-data.md`, `settings.md`, `permissions.md` — plus a README.
-The Medications guides (`docs/user-manuals/config-guides/medications/`) are the worked example.
+Each module has three guides — `1-reference-data.md`, `2-settings.md`, `3-permissions.md` — plus a
+README. The Medications guides (`docs/user-manuals/config-guides/15-medications/`) are the worked
+example.
 
 Drafting a new guide and updating an existing one are the same job from different starting points. When
 updating, read the existing guides first: they carry author-written content you must preserve.
@@ -55,12 +56,13 @@ them. Never invent clinical guidance: where you have nothing to go on, leave a m
 
 ### 3. Batch the author's checkpoints
 
-Four things need the author: scope, the capabilities listed under each permission (inferred from
+Five things need the author: scope, the capabilities listed under each permission (inferred from
 `req.ability.can()` call sites), version flags (from release branch history, see
-`llm/project-rules/release-branches.md`), and which action buttons each screenshot outlines in red.
+`llm/project-rules/release-branches.md`), the example template link for each reference data type, and
+which action buttons each screenshot outlines in red.
 
 Settle **scope first**, then present the drafted permission capabilities, version flags, lead
-paragraph and proposed red outlines **together as one review**. A guide-authoring skill that asks a
+paragraph and proposed red outlines, and ask for the template links, **together as one review**. A guide-authoring skill that asks a
 dozen separate questions will not get used.
 
 ### 4. Screenshots

@@ -8,9 +8,9 @@ setting, read the Medications Module Implementation Guide first.
 
 | # | Guide | Covers |
 | --- | --- | --- |
-| 15.1 | [Reference data](reference-data.md) | Drug, medication sets, not given reasons, and the hard coded values those columns accept |
-| 15.2 | [Settings](settings.md) | Frequencies, administration schedules, and the automated workflows they drive |
-| 15.3 | [Permissions](permissions.md) | Prescribing, administration, pharmacy notes, and sensitive medication access |
+| 15.1 | [Reference data](1-reference-data.md) | Drug, medication sets, not given reasons, and the hard coded values those columns accept |
+| 15.2 | [Settings](2-settings.md) | Frequencies, administration schedules, and the automated workflows they drive |
+| 15.3 | [Permissions](3-permissions.md) | Prescribing, administration, pharmacy notes, and sensitive medication access |
 
 > [!WARNING]
 > The Medications Module is not recommended for the following medications or clinical settings, whose
@@ -27,7 +27,7 @@ setting, read the Medications Module Implementation Guide first.
 ## Vaccines
 
 All vaccines that appear in the Vaccine Schedule, or are selected when recording vaccine workflows, must
-also be listed in the `Drug` reference data. See the [Immunisations](../immunisations/) configuration
+also be listed in the `Drug` reference data. See the [Immunisations](../07-immunisations/) configuration
 guides.
 
 ---
