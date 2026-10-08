@@ -30,15 +30,20 @@ const BOOLEAN_SEARCH_OPTIONS = [
 ];
 
 // Lab test types can also be filtered by "Panel only" or "Reflex test"; other reference data cannot.
-const getVisibilityStatusOptions = selectedType =>
-  (selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-    ? [
-        ...NONPATIENT_VISIBILITY_STATUS_VALUES,
-        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
-        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
-      ]
-    : NONPATIENT_VISIBILITY_STATUS_VALUES
-  ).map(value => ({ value, label: startCase(value) }));
+const getVisibilityStatusOptions = selectedType => {
+  const statuses =
+    selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+      ? [
+          ...NONPATIENT_VISIBILITY_STATUS_VALUES,
+          LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+          LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+        ]
+      : NONPATIENT_VISIBILITY_STATUS_VALUES;
+  return [
+    { value: statuses.join(','), label: 'All' },
+    ...statuses.map(value => ({ value, label: startCase(value) })),
+  ];
+};
 
 const AvailableFacilitiesSearchField = () => {
   const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { noLimit: true } });
