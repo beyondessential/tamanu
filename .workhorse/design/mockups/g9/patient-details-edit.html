@@ -62,6 +62,7 @@
   .text-btn { background: none; border: 0; color: #326699; font: inherit; font-weight: 500; padding: 4px 6px; border-radius: 3px; display: inline-flex; gap: 4px; align-items: center; cursor: pointer; }
   .text-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
   .group + .group { margin-top: 18px; }
+  .lv .pd-heading { grid-column: 1 / -1; color: #444; font-weight: 700; margin-top: 12px; }
 
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
@@ -132,25 +133,24 @@ const recorded = (dose, date) => `<div class="inner"><div class="b">COVID-19 Pfi
   <div class="sub" style="margin-top:4px">${dose} &bull; ${date}<br>Given by: Admin<br>Facility/Country: National Fiji Hospital</div></div>`;
 
 /* Patient details: view */
+/* One shared grid so every value lines up, with group headings spanning both columns */
+const pdGrid = groups => `<dl class="lv pd-grid">${groups.map(([heading, rows]) =>
+  (heading ? `<dt class="pd-heading">${heading}</dt>` : '') +
+  rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')).join('')}</dl>`;
+
 const pdView = values => `
   <div class="pd-edit-row"><button class="text-btn">${icon.pencil}Edit</button></div>
-  <div class="group">${lv([
-    ['Patient ID', '673HGBJ3'], ['Title', values.title], ['First name', 'Jessie'], ['Middle name', '-'],
-    ['Last name', 'Jacobs'], ['Date of birth', '01/01/1980'], ['Sex', 'F'], ['Village', '-'], ['Ethnicity', 'Fijian'],
-  ])}</div>
-  <div class="group"><p class="h5">Contact</p>${lv([
-    ['Mobile phone', values.mobile], ['Other phone', '-'], ['Email', values.email],
-  ])}</div>
-  <div class="group"><p class="h5">Address</p>${lv([
-    ['Street address', values.street], ['Town or city', 'Suva'],
-  ])}</div>
-  <div class="group"><p class="h5">Emergency contact</p>${lv([
-    ['Name', 'Tom Jacobs'], ['Phone', '+679 884 1122'],
-  ])}</div>
-  <div class="group"><p class="h5">Insurance</p>${lv([
-    ['Health insurer', 'Fiji Care Insurance'], ['Policy number', 'FCI-0049231'],
-  ])}</div>
-  <div class="group"><p class="h5">Other</p>${lv([['Occupation', 'Teacher']])}</div>`;
+  ${pdGrid([
+    [null, [
+      ['Patient ID', '673HGBJ3'], ['Title', values.title], ['First name', 'Jessie'], ['Middle name', '-'],
+      ['Last name', 'Jacobs'], ['Date of birth', '01/01/1980'], ['Sex', 'F'], ['Village', '-'], ['Ethnicity', 'Fijian'],
+    ]],
+    ['Contact', [['Mobile phone', values.mobile], ['Other phone', '-'], ['Email', values.email]]],
+    ['Address', [['Street address', values.street], ['Town or city', 'Suva']]],
+    ['Emergency contact', [['Name', 'Tom Jacobs'], ['Phone', '+679 884 1122']]],
+    ['Insurance', [['Health insurer', 'Fiji Care Insurance'], ['Policy number', 'FCI-0049231']]],
+    ['Other', [['Occupation', 'Teacher']]],
+  ])}`;
 
 /* Patient details: edit */
 const input = (label, value, opts = {}) => `<div class="field">
