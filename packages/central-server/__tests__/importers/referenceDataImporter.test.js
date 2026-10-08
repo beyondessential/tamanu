@@ -5,6 +5,7 @@ import { write, utils } from 'xlsx';
 import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
+  PATIENT_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   OTHER_REFERENCE_TYPE_VALUES,
 } from '@tamanu/constants/importable';
@@ -49,7 +50,7 @@ describe('Data definition import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
-      includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PATIENT_IMPORTABLE_DATA_TYPES],
       checkPermission: () => true,
       ...opts,
     });
@@ -984,7 +985,7 @@ describe('Import from an exported file', () => {
       importer: referenceDataImporter,
       file: `${file}`,
       models: ctx.store.models,
-      includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PATIENT_IMPORTABLE_DATA_TYPES],
       checkPermission: () => true,
       ...opts,
     });
