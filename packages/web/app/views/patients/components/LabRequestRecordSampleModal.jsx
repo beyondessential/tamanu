@@ -27,7 +27,7 @@ const validationSchema = yup.object().shape({
         data-testid="translatedtext-c3v8"
       />,
     ),
-  labSampleSiteId: yup.string().nullable(),
+  labSampleSiteId: yup.string(),
   specimenTypeId: yup.string().nullable().when('mandateSpecimenType', {
     is: true,
     then: schema =>
