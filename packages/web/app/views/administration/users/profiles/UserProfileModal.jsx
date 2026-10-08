@@ -50,7 +50,6 @@ const Container = styled(Box)`
 `;
 
 const SectionContainer = styled(Box)`
-  grid-column: span 1;
   height: 100%;
   display: flex;
   flex-direction: column;
