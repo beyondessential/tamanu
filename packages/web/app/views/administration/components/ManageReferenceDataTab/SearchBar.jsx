@@ -1,10 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  LAB_TEST_TYPE_VISIBILITY_STATUSES,
-  NONPATIENT_VISIBILITY_STATUS_VALUES,
-  OTHER_REFERENCE_TYPES,
-  SEARCHABLE_COLUMN_TYPES,
-} from '@tamanu/constants';
+import { SEARCHABLE_COLUMN_TYPES } from '@tamanu/constants';
 import { CustomisableSearchBar } from '../../../../components/SearchBar/CustomisableSearchBar';
 import { SearchField } from './SearchField';
 
@@ -23,15 +18,6 @@ const getFieldSortOrder = col => {
   if (STRING_TYPES.has(col.type)) return 0;
   return 0;
 };
-
-const getAllVisibilityStatuses = selectedType =>
-  selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-    ? [
-        ...NONPATIENT_VISIBILITY_STATUS_VALUES,
-        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
-        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
-      ]
-    : NONPATIENT_VISIBILITY_STATUS_VALUES;
 
 export const SearchBar = ({ columns, onSearch, selectedType }) => {
   const searchFields = useMemo(
@@ -60,14 +46,17 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
 
   const handleSearch = useCallback(
     values => {
-      const { [VISIBILITY_STATUS_KEY]: includeHistorical, ...filters } = values;
-      const nonEmpty = Object.fromEntries(Object.entries(filters).filter(([, value]) => value));
-      if (includeHistorical) {
-        nonEmpty[VISIBILITY_STATUS_KEY] = getAllVisibilityStatuses(selectedType).join(',');
+      // The visibility status single-select flows through like any other filter. An empty value is
+      // omitted, so the server default applies (current, plus panelOnly for lab test types).
+      const nonEmpty = {};
+      for (const [key, value] of Object.entries(values)) {
+        if (value) {
+          nonEmpty[key] = value;
+        }
       }
       onSearch(nonEmpty);
     },
-    [onSearch, selectedType],
+    [onSearch],
   );
 
   if (searchFields.length === 0) return null;
@@ -80,12 +69,12 @@ export const SearchBar = ({ columns, onSearch, selectedType }) => {
       setIsExpanded={setIsExpanded}
 
       hiddenFields={advancedFields.map(col => (
-        <SearchField key={col.key} col={col} />
+        <SearchField key={col.key} col={col} selectedType={selectedType} />
       ))}
       data-testid="searchbar-refdata"
     >
       {visibleFields.map(col => (
-        <SearchField key={col.key} col={col} />
+        <SearchField key={col.key} col={col} selectedType={selectedType} />
       ))}
     </CustomisableSearchBar>
   );
