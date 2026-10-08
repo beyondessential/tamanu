@@ -77,6 +77,7 @@ describe('Medication', () => {
     patientId,
     repeats = 1,
     isDischargePrescription = true,
+    prescriptionOverrides = {},
   }) => {
     const { medication } = await createDrug();
     const encounter = await models.Encounter.create(
@@ -93,6 +94,7 @@ describe('Medication', () => {
         medicationId: medication.id,
         prescriberId: app.user.id,
         startDate: getCurrentDateTimeString(),
+        ...prescriptionOverrides,
       }),
     );
     await models.EncounterPrescription.create(
@@ -1132,7 +1134,10 @@ describe('Medication', () => {
 
     it('should resolve dosing and dispensing units from the substituted drug', async () => {
       const { pharmacyOrderPrescription, prescription } =
-        await createPharmacyOrderWithPrescription({ patientId: patient.id });
+        await createPharmacyOrderWithPrescription({
+          patientId: patient.id,
+          prescriptionOverrides: { dosingUnit: 'mg', dispensingUnit: 'Tablet' },
+        });
       const { medication: substitute } = await createDrug({
         dosingUnit: 'mL',
         dispensingUnit: 'Bottle',
