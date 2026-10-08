@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { REFERENCE_TYPES } from '@tamanu/constants';
+import { fake } from '@tamanu/fake-data/fake';
 import {
   generateEachDataType,
   generateFake,
@@ -142,5 +143,21 @@ describe('Fake data generation', () => {
       create.mockRestore();
     }
     expect(await models.Patient.count()).toBe(before);
+  });
+
+  it('backfills a reference drug record for every pre-existing bare drug', async () => {
+    const bareDrugs = await models.ReferenceData.bulkCreate([
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+    ]);
+    const bareDrugIds = bareDrugs.map(drug => drug.id);
+    expect(await models.ReferenceDrug.count({ where: { referenceDataId: bareDrugIds } })).toBe(0);
+
+    await generateEachDataType(models);
+
+    const allDrugIds = await drugIds();
+    expect(allDrugIds).toEqual(expect.arrayContaining(bareDrugIds));
+    const withRecord = await models.ReferenceDrug.count({ where: { referenceDataId: allDrugIds } });
+    expect(withRecord).toBe(allDrugIds.length);
   });
 });
