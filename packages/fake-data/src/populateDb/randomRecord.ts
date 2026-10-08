@@ -16,10 +16,12 @@ import { createReferenceData } from './helpers/referenceData.js';
 // so later rounds pick up rows added by earlier ones, and memory stays bounded.
 const idCache = new Map<string, string[]>();
 const referenceDataCache = new Map<string, Array<{ id: string; name: string }>>();
+const referenceDataQueue = new Map<string, Promise<unknown>>();
 
 export const resetRandomRecordCache = (): void => {
   idCache.clear();
   referenceDataCache.clear();
+  referenceDataQueue.clear();
 };
 
 export const randomRecordId = async (models: Models, modelName: string): Promise<string | null> => {
@@ -37,7 +39,20 @@ export const randomRecordId = async (models: Models, modelName: string): Promise
 // Reference data is typed, and a column that references it expects one type: a
 // prescription's medication is a drug, a diagnosis a diagnosis. The pool grows to one row per
 // name (at most a pool's worth), so rounds that skip the import step still spread their picks.
-export const randomReferenceDataId = async (models: Models, type: string): Promise<string> => {
+// Calls for one type run one at a time: helpers run concurrently, and parallel growth would
+// mint duplicate names from the same stale pool.
+export const randomReferenceDataId = (models: Models, type: string): Promise<string> => {
+  const next = (referenceDataQueue.get(type) ?? Promise.resolve()).then(() =>
+    pickOrGrowReferenceData(models, type),
+  );
+  referenceDataQueue.set(
+    type,
+    next.catch(() => undefined),
+  );
+  return next;
+};
+
+const pickOrGrowReferenceData = async (models: Models, type: string): Promise<string> => {
   let rows = referenceDataCache.get(type);
   if (!rows) {
     rows = (await models.ReferenceData.findAll({

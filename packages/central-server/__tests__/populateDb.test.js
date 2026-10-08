@@ -2,6 +2,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 import { generateEachDataType, generateFake } from '@tamanu/fake-data/populateDb';
 
+import {
+  randomReferenceDataId,
+  resetRandomRecordCache,
+} from '../../fake-data/src/populateDb/randomRecord';
+
 import { createTestContext } from './utilities';
 
 describe('Fake data generation', () => {
@@ -67,6 +72,12 @@ describe('Fake data generation', () => {
         WHERE p.sex <> 'female' AND d.was_pregnant IS NOT NULL`),
     ).toBe(0);
     expect(
+      await count(
+        `SELECT count(*)::int n FROM encounters e JOIN patients p ON p.id = e.patient_id
+        WHERE p.date_of_death IS NOT NULL AND (e.end_date IS NULL OR e.end_date > p.date_of_death)`,
+      ),
+    ).toBe(0);
+    expect(
       await count(`SELECT count(*)::int n FROM lab_request_logs l JOIN lab_requests r ON r.id = l.lab_request_id
         WHERE l.status <> r.status`),
     ).toBe(0);
@@ -74,6 +85,19 @@ describe('Fake data generation', () => {
       await count(`SELECT count(*)::int n FROM (SELECT encounter_prescription_id FROM encounter_pause_prescription_histories
         GROUP BY encounter_prescription_id HAVING count(*) > 1) dup`),
     ).toBe(0);
+  });
+
+  it('grows a reference data pool without repeating names under concurrent calls', async () => {
+    resetRandomRecordCache();
+    await Promise.all(
+      Array.from({ length: 10 }, () => randomReferenceDataId(models, REFERENCE_TYPES.DIET)),
+    );
+    const diets = await models.ReferenceData.findAll({
+      where: { type: REFERENCE_TYPES.DIET },
+      attributes: ['name'],
+      raw: true,
+    });
+    expect(new Set(diets.map(({ name }) => name)).size).toBe(diets.length);
   });
 
   it('rolls back a failed round', async () => {
