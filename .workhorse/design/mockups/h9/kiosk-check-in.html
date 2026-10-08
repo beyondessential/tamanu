@@ -86,6 +86,7 @@
   .btn.primary { background: var(--primary); color: var(--white); box-shadow: 0 6px 16px rgba(50,102,153,.25); }
   .btn.soft { background: var(--white); color: var(--primary-dark); box-shadow: var(--shadow); }
   .btn.wide { min-width: 280px; }
+  .btn.primary.disabled { background: var(--outline); color: var(--text3); box-shadow: none; }
   .btn svg { width: 22px; height: 22px; }
   .actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 24px; }
   .actions.end { justify-content: flex-end; }
@@ -375,7 +376,7 @@
   </div>
 
   <div class="frame-wrap">
-    <div class="caption">More than one match <span>· pick a tile, then continue</span></div>
+    <div class="caption">More than one match <span>· nothing is preselected, Continue is unavailable until a tile is chosen</span></div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
@@ -385,8 +386,51 @@
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
-        <h1 class="k-title">Which one is you?</h1>
-        <p class="k-lead">More than one person matches these details.</p>
+        <h1 class="k-title">Select your appointment</h1>
+        <p class="k-lead">We found more than one appointment for these details. Please choose yours.</p>
+        <div class="tiles-2">
+          <div class="tile">
+            <span class="pick"></span>
+            <div class="name">Mele Losana Taufa</div>
+            <dl>
+              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Sex</dt><dd>Female</dd></div>
+              <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
+            </dl>
+            <div class="appt"><svg><use href="#i-cal"/></svg><span><b>10:30 am</b> with <b>Dr Sione Lee</b></span></div>
+          </div>
+          <div class="tile">
+            <span class="pick"></span>
+            <div class="name">Viliami Taufa</div>
+            <dl>
+              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Sex</dt><dd>Male</dd></div>
+              <div><dt>Patient ID</dt><dd>KLMN105377</dd></div>
+            </dl>
+            <div class="appt"><svg><use href="#i-cal"/></svg><span><b>2:15 pm</b> with <b>Dr Ana Fifita</b></span></div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="btn soft">None of these are mine</div>
+          <div class="btn primary wide disabled">Continue</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">More than one match <span>· after the patient chooses a tile</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body">
+        <h1 class="k-title">Select your appointment</h1>
+        <p class="k-lead">We found more than one appointment for these details. Please choose yours.</p>
         <div class="tiles-2">
           <div class="tile selected">
             <svg class="pick"><use href="#i-check"/></svg>
@@ -410,7 +454,7 @@
           </div>
         </div>
         <div class="actions">
-          <div class="btn soft">None of these are me</div>
+          <div class="btn soft">None of these are mine</div>
           <div class="btn primary wide">Continue</div>
         </div>
       </div>
