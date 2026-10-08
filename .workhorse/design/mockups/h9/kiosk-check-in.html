@@ -215,6 +215,7 @@
   .qin.multi { height: 128px; align-items: flex-start; padding-top: 16px; line-height: 1.4; }
   .qin .grow { flex: 1; }
   .qin svg { width: 22px; height: 22px; color: var(--text3); flex: none; }
+  .req { color: var(--alert); font-weight: 500; }
   .err-msg { color: var(--alert); font-size: 15px; font-weight: 500; margin-top: 8px; }
   .instr { display: flex; gap: 14px; background: var(--blue-bg); border-radius: 14px; padding: 18px 20px; font-size: 18px; line-height: 1.45; color: var(--text); }
   .instr svg { width: 24px; height: 24px; color: var(--blue); flex: none; margin-top: 1px; }
@@ -668,8 +669,8 @@
       <div class="q"><div class="q-text">What is the main reason for your visit?</div><div class="qin">Follow-up for blood pressure</div></div>
     </div>
     <div>
-      <div class="qt-label">Required, left unanswered</div>
-      <div class="q"><div class="q-text">Who is your emergency contact?</div><div class="qin err ph">Full name</div><div class="err-msg">This question is required</div></div>
+      <div class="qt-label">Required, left unanswered <code>* marks a required question</code></div>
+      <div class="q"><div class="q-text">Who is your emergency contact? <span class="req">*</span></div><div class="qin err ph">Full name</div><div class="err-msg">This question is required</div></div>
     </div>
     <div>
       <div class="qt-label">Multiline text <code>Multiline</code></div>
