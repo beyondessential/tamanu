@@ -150,14 +150,22 @@ export class FacilitySyncManager {
     }
   }
 
-  // A failure to record the outcome must neither mask the sync's own error nor
-  // fail a sync that completed; the row is left running, which alerting treats
-  // as suspect anyway.
   async recordSyncRunOutcome(syncRun, status, details) {
     try {
       await syncRun.complete(status, details);
     } catch (error) {
       log.warn('FacilitySyncManager.recordSyncRunOutcomeFailed', { error: error.message });
+    }
+  }
+
+  async recordSyncRunProgress(syncRun, fields) {
+    try {
+      await syncRun.update(fields);
+    } catch (error) {
+      log.warn('FacilitySyncManager.recordSyncRunProgressFailed', {
+        fields: Object.keys(fields),
+        error: error.message,
+      });
     }
   }
 
@@ -194,7 +202,7 @@ export class FacilitySyncManager {
     }
 
     log.info('FacilitySyncManager.startSession');
-    await syncRun.update({ sessionId });
+    await this.recordSyncRunProgress(syncRun, { sessionId });
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
@@ -321,7 +329,7 @@ export class FacilitySyncManager {
     }
 
     // Recorded outside the save transaction so it is visible while the save runs
-    await syncRun.update({ persistStartedAt: new Date() });
+    await this.recordSyncRunProgress(syncRun, { persistStartedAt: new Date() });
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
@@ -337,6 +345,6 @@ export class FacilitySyncManager {
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
       await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, pullUntil);
     });
-    await syncRun.update({ persistCompletedAt: new Date() });
+    await this.recordSyncRunProgress(syncRun, { persistCompletedAt: new Date() });
   }
 }

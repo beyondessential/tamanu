@@ -345,6 +345,22 @@ describe('FacilitySyncManager', () => {
       }
     });
 
+    it('completes the sync, without erroring the session, when its progress cannot be recorded', async () => {
+      const syncManager = makeSyncManager();
+      const update = vi
+        .spyOn(models.SyncFacilityRun.prototype, 'update')
+        .mockRejectedValue(new Error('db unavailable'));
+
+      try {
+        await expect(syncManager.triggerSync({ type: 'scheduled' })).resolves.toMatchObject({
+          ran: true,
+        });
+        expect(syncManager.centralServer.markSessionErrored).not.toHaveBeenCalled();
+      } finally {
+        update.mockRestore();
+      }
+    });
+
     it('records one run per sync, not per caller waiting on it', async () => {
       const syncManager = makeSyncManager();
       let finishPull;
@@ -584,6 +600,42 @@ describe('FacilitySyncManager', () => {
       expect(syncRun.persistCompletedAt.getTime()).toBeGreaterThanOrEqual(
         syncRun.persistStartedAt.getTime(),
       );
+    });
+
+    it('keeps the saved changes when the persist completion cannot be recorded', async () => {
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, '10');
+
+      vi.doMock('@tamanu/database/sync', async () => ({
+        ...(await vi.importActual('@tamanu/database/sync')),
+        createSnapshotTable: vi.fn(),
+        saveIncomingChanges: vi.fn(),
+      }));
+      vi.doMock('../../app/sync/pullIncomingChanges', async () => ({
+        ...(await vi.importActual('../../app/sync/pullIncomingChanges')),
+        pullIncomingChanges: vi.fn().mockImplementation(() => ({ totalPulled: 3, pullUntil: 20 })),
+      }));
+      vi.doMock('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot', async () => ({
+        ...(await vi.importActual('../../app/sync/assertIfPulledRecordsUpdatedAfterPushSnapshot')),
+        assertIfPulledRecordsUpdatedAfterPushSnapshot: vi.fn(),
+      }));
+
+      // Imported inside the test so the doMock above is in place before the module is evaluated
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
+
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize: ctx.sequelize,
+        centralServer: { streaming: () => false },
+      });
+      const syncRun = {
+        update: vi.fn(async fields => {
+          if ('persistCompletedAt' in fields) throw new Error('db unavailable');
+        }),
+      };
+
+      await expect(syncManager.pullChanges(TEST_SESSION_ID, syncRun)).resolves.toBeUndefined();
+      expect(await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)).toBe('20');
     });
   });
 });
