@@ -42,6 +42,7 @@ hand.
    and every secret setting. A database from a version without the function
    takes the equivalent script in the ops repo,
    `ansible/roles/postgres/files/forget-server-identity.sql`.
+
 4. For a VM or disk clone, give the copy its own key: move the old key file
    aside and run the server's `configSecret init` (for a containerised server,
    replace the mounted key secret instead).
