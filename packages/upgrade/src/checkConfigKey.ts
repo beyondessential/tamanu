@@ -52,6 +52,7 @@ export async function checkConfigKey(sequelize: Sequelize): Promise<void> {
       [
         `The config key file at ${keyFilePath} (config crypto.keyFile) does not decrypt this database's secrets.`,
         "A database restored from another deployment holds that deployment's secrets, and only its key file reads them.",
+        'To run it as a copy under this key instead, run `SELECT forget_server_identity();` against it first.',
       ].join('\n'),
     );
   }

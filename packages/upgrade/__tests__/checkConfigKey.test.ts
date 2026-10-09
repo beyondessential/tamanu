@@ -81,6 +81,7 @@ describe('checkConfigKey', () => {
     const { message } = error as Error;
     expect(message).toContain('does not decrypt');
     expect(message).toContain('restored from another deployment');
+    expect(message).toContain('forget_server_identity()');
     expect(message).not.toContain('deviceKey');
   });
 

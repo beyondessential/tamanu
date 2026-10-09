@@ -35,7 +35,7 @@ describe('forget_server_identity()', () => {
   const remainingKeys = async model =>
     (await model.findAll({ attributes: ['key'], order: [['key', 'ASC']] })).map(row => row.key);
 
-  it('removes the sync host, credentials and device identity, and keeps everything else', async () => {
+  it('removes every secret and the identifying facts, and keeps everything else', async () => {
     await models.LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://central.example');
     await models.LocalSystemFact.set(FACT_SYNC_EMAIL, 'sync@example');
     await models.LocalSystemFact.set(FACT_FACILITY_IDS, '["facility-a"]');
@@ -53,7 +53,18 @@ describe('forget_server_identity()', () => {
       FACT_CURRENT_SYNC_TICK,
       FACT_CURRENT_VERSION,
     ]);
-    expect(await remainingKeys(models.LocalSystemSecret)).toEqual([FACT_REPORTING_ROLE_SECRET]);
+    expect(await remainingKeys(models.LocalSystemSecret)).toEqual([]);
+  });
+
+  it('removes encrypted values still held as facts', async () => {
+    await models.LocalSystemFact.set(FACT_CURRENT_VERSION, '2.67.0');
+    await sequelize.query(
+      `INSERT INTO local_system_facts (key, value) VALUES ('legacySecret', 'S1:aXY=:Y2lwaGVy')`,
+    );
+
+    await sequelize.query('SELECT forget_server_identity()');
+
+    expect(await remainingKeys(models.LocalSystemFact)).toEqual([FACT_CURRENT_VERSION]);
   });
 
   it('lets a forgotten identity be set up again', async () => {
