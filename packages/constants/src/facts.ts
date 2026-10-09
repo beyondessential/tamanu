@@ -26,8 +26,8 @@ export const FACT_DEVICE_KEY = 'deviceKey';
 export const FACT_FACILITY_IDS = 'facilityIds';
 export const FACT_META_SERVER_ID = 'metaServerId';
 
-// The plaintext facts that tie a database to its server. forget_server_identity() deletes these
-// along with every secret, so changing the list needs a migration that recreates that function.
+// What ties a database to its server. forget_server_identity() deletes these, so changing
+// either list needs a migration that recreates that function.
 export const SERVER_IDENTITY_FACTS = [
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
@@ -35,6 +35,7 @@ export const SERVER_IDENTITY_FACTS = [
   FACT_DEVICE_ID,
   FACT_META_SERVER_ID,
 ];
+export const SERVER_IDENTITY_SECRETS = [FACT_SYNC_PASSWORD, FACT_DEVICE_KEY];
 
 // Set once the central server has seeded settings from its legacy config, so the
 // one-off migration doesn't re-run and resurrect a setting an operator has deleted.

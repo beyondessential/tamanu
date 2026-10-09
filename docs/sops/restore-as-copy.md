@@ -1,32 +1,27 @@
 # SOP: Restore a server's backup as a copy
 
-Use this to stand up a clone or test environment from another server's backup.
-A restored database still holds the source server's sync host, sync credentials
-and device identity, so a copy that skips these steps can sync and report as the
-server it came from. This is **mutating**, so **dev-OTS** by default. Run it on
-the copy only: on a live server it removes that server's sync setup.
+Use this to stand up or refresh a clone or test environment from another
+server's backup, whether by a Canopy restore or a VM or disk clone. A restored
+database still holds the source server's sync host, sync credentials and device
+identity, so a copy that skips these steps can sync and report as the server it
+came from. This is **mutating**, so **dev-OTS** by default. Run it on the copy
+only: on a live server it removes that server's sync setup.
 
-## 1. Restore without the source's key
+## 1. Restore the data and key
 
-On each host of the copy, restore with:
+Restore the database together with the source's secret key, as a Canopy restore
+does by default. The key lets the copy read its secret settings, as the source
+does.
 
-```
-bestool canopy restore <type> <snapshot-id> --as-copy
-```
+## 2. Make sure the copy declares its own central
 
-`--as-copy` leaves the source's secret key behind, so the copy cannot read the
-source's sync password or device key. Never use `--replacing-source` for a copy:
-that brings the key with the data.
+Each facility of the copy must name the copy's central in its own deployment
+(`sync.host` in its config, or `SYNC_URL` in its environment). A facility whose
+database records a different central then refuses to start instead of syncing
+to it. Also check that the copy's environment carries none of the source's sync
+credentials.
 
-### If the copy is a VM or disk clone
-
-A VM or disk clone carries the source's key file, so step 1 does not apply and
-nothing on the copy can tell it from the source. Before its first start, give
-the copy a new key: move the old key file aside and run the server's
-`configSecret init` (for a containerised server, replace the mounted key secret
-instead). Then continue from step 2.
-
-## 2. Forget the source's identity
+## 3. Forget the source's identity
 
 Before starting Tamanu, run this against every restored database (central and
 each facility), as described in `connect-psql.md`:
@@ -35,22 +30,19 @@ each facility), as described in `connect-psql.md`:
 SELECT forget_server_identity();
 ```
 
-It removes every value encrypted with the source's key and the facts that point
-at the source's central. A database from a version without the function fails
-the upgrade's key check, and that error lists what to delete instead.
-
-## 3. Check the environment
-
-Sync settings in the environment override the database. Make sure the copy's
-environment (`.env` files, deployment manifests) does not carry the source's
-sync host or credentials.
+It removes the sync host, sync credentials, facility ids, device id, device key
+and meta server id. The copy mints a new device id and key when it starts.
+On a version without the function, delete those facts from `local_system_facts`
+and the `syncPassword` and `deviceKey` rows from `local_system_secrets` by hand.
 
 ## 4. Set the facilities up against the copy's central
 
 Start the copy's central first, then set each facility up against it with the
 setup wizard or `setupSync`. Central issues each facility new sync credentials.
 
-## 5. Re-enter secret settings
+## Restoring without the source's key
 
-Secret settings (API keys, integration passwords) were encrypted for the source
-and cannot be read on the copy. Re-enter any the copy needs in the admin panel.
+A copy without the source's key (for example a database dump on a developer
+machine) cannot read any of its secrets, and the upgrade refuses it. Run
+`forget_server_identity()` and then `DELETE FROM local_system_secrets;`, and
+re-enter any secret settings the copy needs in the admin panel.

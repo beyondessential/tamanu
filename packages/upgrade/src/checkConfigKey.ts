@@ -36,7 +36,7 @@ async function adoptAsCopyAdvice(sequelize: Sequelize): Promise<string> {
     { type: QueryTypes.SELECT },
   );
   if (row?.name) {
-    return 'To run it as a copy under this key instead, run `SELECT forget_server_identity();` against it first.';
+    return 'To run it as a copy under this key instead, run `SELECT forget_server_identity();` and then `DELETE FROM local_system_secrets;` against it first.';
   }
   return [
     'To run it as a copy under this key instead, first delete every row of local_system_secrets,',
