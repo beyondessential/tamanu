@@ -107,6 +107,8 @@ export function getDeclaredFacilityIds() {
   return parseEnv().facilityIds ?? configFacilityIds();
 }
 
+// Keep config's sync.host here when the config credentials fallback goes: it is the only
+// declaration a Windows install has, and what stops a restored database syncing to its source.
 export function getDeclaredHost() {
   return parseEnv().host ?? configHost();
 }
