@@ -44,7 +44,7 @@ vi.mock('../../app/contexts/Auth', () => ({
 }));
 
 vi.mock('../../app/contexts/Encounter', () => ({
-  useEncounter: () => ({ encounter, loadEncounter: vi.fn() }),
+  useEncounter: () => ({ encounter }),
 }));
 
 vi.mock('../../app/contexts/Patient', () => ({

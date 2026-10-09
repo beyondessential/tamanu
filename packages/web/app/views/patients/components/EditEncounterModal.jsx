@@ -23,7 +23,7 @@ import {
   SuggesterSelectField,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
@@ -325,7 +325,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
-  const { writeAndViewEncounter } = useEncounter();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   const {getCurrentDateTime} = useDateTime();
 
   const triage = encounter.triages?.[0];
@@ -350,7 +350,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     });
 
     // Keep the encounter start date in sync with the triage start date when using this form
-    await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
+    await updateEncounter({ startDate, skipSystemNotes: true });
+    onClose();
   };
 
   const onSubmitEncounterForm = async ({
@@ -361,7 +362,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     reasonForEncounter,
     estimatedEndDate,
   }) => {
-    await writeAndViewEncounter(encounter.id, {
+    await updateEncounter({
       submittedTime: getCurrentDateTime(),
       startDate,
       referralSourceId,
@@ -370,6 +371,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       reasonForEncounter,
       estimatedEndDate,
     });
+    onClose();
   };
 
   return (

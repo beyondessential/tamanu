@@ -6,7 +6,7 @@ import { invalidatePatientDataQueries } from '../utils';
 
 import { FormModal } from './FormModal';
 import { EncounterForm } from '../forms/EncounterForm';
-import { useEncounter } from '../contexts/Encounter';
+import { useCreateEncounterMutation } from '../api/mutations/useEncounterMutation';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 
@@ -45,7 +45,7 @@ export const CheckInModal = React.memo(
     withExistingEncounterCheck,
     ...props
   }) => {
-    const { createEncounter } = useEncounter();
+    const { mutateAsync: createEncounter } = useCreateEncounterMutation();
     const api = useApi();
     const queryClient = useQueryClient();
     const { facilityId } = useAuth();

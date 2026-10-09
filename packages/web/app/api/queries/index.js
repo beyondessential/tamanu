@@ -9,6 +9,7 @@ export * from './useReferenceDataQuery';
 export { default as useDispensingUnit } from './useDispensingUnit';
 export * from './usePatientAdditionalDataQuery';
 export * from './useEncounterDataQuery';
+export * from './useEncounterQuery';
 export * from './useLabRequestNotesQuery';
 export * from './usePatientCurrentEncounterQuery';
 export * from './useAdministeredVaccinesQuery';

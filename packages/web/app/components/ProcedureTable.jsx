@@ -50,13 +50,14 @@ const COLUMNS = [
   },
 ];
 
-export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
+export const ProcedureTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
   <DataFetchingTable
     columns={COLUMNS}
     endpoint={`encounter/${encounterId}/procedures`}
     onRowClick={row => onItemClick(row)}
     elevated={false}
     initialSort={{ orderBy: 'date', order: 'desc' }}
+    refreshCount={refreshCount}
     data-testid="datafetchingtable-ks0b"
   />
 ));

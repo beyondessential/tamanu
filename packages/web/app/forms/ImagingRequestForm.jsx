@@ -22,7 +22,7 @@ import {
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
 import { reloadImagingRequest } from '../store';
@@ -35,12 +35,12 @@ import { useApi } from '../api';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const dispatch = useDispatch();
   const { navigateToImagingRequest } = usePatientNavigation();
 
   const finalise = async data => {
-    setOnSuccess(() => () => loadEncounter(encounter.id));
+    setOnSuccess(() => () => invalidateEncounter(encounter.id));
     await submitForm(data);
   };
   const finaliseAndPrint = async data => {

@@ -76,12 +76,12 @@ export const ProgramRegistryBreadcrumb = props => {
 };
 
 export const EncounterBreadcrumb = props => {
-  const { encounter } = useEncounter();
+  const { encounter, encounterId } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   return (
     <Breadcrumb
       {...props}
-      onClick={() => navigateToEncounter(encounter.id)}
+      onClick={() => navigateToEncounter(encounterId)}
       title={getEncounterType(encounter || {})}
       key="encounter"
     />
@@ -89,12 +89,12 @@ export const EncounterBreadcrumb = props => {
 };
 
 export const MedicationBreadcrumb = props => {
-  const { encounter } = useEncounter();
+  const { encounterId } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   return (
     <Breadcrumb
       {...props}
-      onClick={() => navigateToEncounter(encounter?.id, { tab: ENCOUNTER_TAB_NAMES.MEDICATION })}
+      onClick={() => navigateToEncounter(encounterId, { tab: ENCOUNTER_TAB_NAMES.MEDICATION })}
       title={<TranslatedText stringId="encounter.medication.title" fallback="Medication" />}
     />
   );

@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { useEncounter } from '../../../contexts/Encounter';
 import { Box } from '@material-ui/core';
 
 import { CompactContentPane as ContentPane } from '../../../components';
@@ -17,7 +16,6 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [encounterRefreshCount, updateEncounterRefreshCount] = useRefreshCount();
   const { navigateToEncounter } = usePatientNavigation();
-  const { loadEncounter } = useEncounter();
   const { ability } = useAuth();
   const { getSetting } = useSettings();
 
@@ -30,16 +28,6 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showLocationBookings = showLocationBookingsSetting && canViewAppointments;
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
-  const onViewEncounter = useCallback(
-    id => {
-      (async () => {
-        await loadEncounter(id);
-        navigateToEncounter(id);
-      })();
-    },
-    [loadEncounter, navigateToEncounter],
-  );
-
   const onCloseCheckInModal = useCallback(() => {
     setIsCheckInModalOpen(false);
     updateEncounterRefreshCount();
@@ -50,7 +38,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       <Box height={5} />
       <ContentPane data-testid="contentpane-3jxx">
         <PatientEncounterSummary
-          viewEncounter={onViewEncounter}
+          viewEncounter={navigateToEncounter}
           openCheckIn={() => setIsCheckInModalOpen(true)}
           patient={patient}
           disabled={disabled}
@@ -74,7 +62,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         <PatientHistory
           patient={patient}
           refreshCount={encounterRefreshCount}
-          onItemClick={onViewEncounter}
+          onItemClick={navigateToEncounter}
           data-testid="patienthistory-yw6n"
         />
       </ContentPane>
