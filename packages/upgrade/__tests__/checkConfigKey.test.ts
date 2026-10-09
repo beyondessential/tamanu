@@ -16,9 +16,12 @@ import { encryptSecret } from '@tamanu/shared/utils/crypto';
 
 type Row = { key: string; value: string | null };
 
-const fakeSequelize = (tables: Record<string, Row[]>) =>
+const fakeSequelize = (tables: Record<string, Row[]>, { hasForgetFunction = false } = {}) =>
   ({
     query: vi.fn(async (sql: string, options?: any) => {
+      if (sql.includes('to_regprocedure')) {
+        return [{ name: hasForgetFunction ? 'forget_server_identity()' : null }];
+      }
       if (sql.includes('to_regclass')) {
         const table = options.bind.table.replace('public.', '');
         return [{ name: tables[table] ? table : null }];
@@ -71,9 +74,10 @@ describe('checkConfigKey', () => {
 
   it('names the mismatch when the key file belongs to another deployment', async () => {
     keyFile.path = join(dir, 'other.key');
-    const sequelize = fakeSequelize({
-      local_system_secrets: [{ key: 'deviceKey', value: readable }],
-    });
+    const sequelize = fakeSequelize(
+      { local_system_secrets: [{ key: 'deviceKey', value: readable }] },
+      { hasForgetFunction: true },
+    );
 
     const error = await checkConfigKey(sequelize).catch((err: Error) => err);
     keyFile.path = missing;
@@ -83,6 +87,20 @@ describe('checkConfigKey', () => {
     expect(message).toContain('restored from another deployment');
     expect(message).toContain('forget_server_identity()');
     expect(message).not.toContain('deviceKey');
+  });
+
+  it('spells out what to delete on a copy from before forget_server_identity()', async () => {
+    keyFile.path = join(dir, 'other.key');
+    const sequelize = fakeSequelize({
+      local_system_secrets: [{ key: 'deviceKey', value: readable }],
+    });
+
+    const error = await checkConfigKey(sequelize).catch((err: Error) => err);
+    keyFile.path = missing;
+    const { message } = error as Error;
+    expect(message).not.toContain('forget_server_identity()');
+    expect(message).toContain('every row of local_system_secrets');
+    expect(message).toContain('syncHost');
   });
 
   it('names the path and the config key when the key file is missing', async () => {
