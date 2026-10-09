@@ -779,7 +779,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Stock"
             />
           ),
-          accessor: row => getStockStatus(row, false),
+          accessor: getStockStatus,
         });
       }
 
