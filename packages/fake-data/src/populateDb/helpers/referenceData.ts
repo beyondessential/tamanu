@@ -14,8 +14,11 @@ const createReferenceDrug = (
 export const createReferenceData = async (
   { ReferenceData, ReferenceDrug }: Pick<Models, 'ReferenceData' | 'ReferenceDrug'>,
   type: string,
+  name?: string,
 ): Promise<ReferenceData> => {
-  const referenceData = await ReferenceData.create(fake(ReferenceData, { type }));
+  const referenceData = await ReferenceData.create(
+    fake(ReferenceData, name ? { type, name } : { type }),
+  );
   if (type === REFERENCE_TYPES.DRUG) {
     await createReferenceDrug({ ReferenceDrug }, referenceData.id);
   }

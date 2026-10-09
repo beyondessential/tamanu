@@ -1,6 +1,6 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { REFERENCE_TYPES, TASK_STATUSES } from '@tamanu/constants';
 import { randomRecordId, randomReferenceDataId } from '../randomRecord.js';
-import { fake } from '../../fake/index.js';
+import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
 
 interface CreateTaskParams extends CommonParams {
@@ -18,26 +18,25 @@ export const createTask = async ({
 
   const resolvedEncounterId = encounterId || (await randomRecordId(models, 'Encounter'));
   const resolvedUserId = userId || (await randomRecordId(models, 'User'));
-  const resolvedNotCompletedReasonId =
-    referenceDataId ||
-    (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON));
-  const resolvedDeletionReasonId =
-    referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_DELETION_REASON));
   const resolvedDesignationId =
     referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.DESIGNATION));
   const resolvedTemplateRefDataId =
     referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_TEMPLATE));
 
+  const status = chance.pickone(Object.values(TASK_STATUSES));
+  const isCompleted = status === TASK_STATUSES.COMPLETED;
+  const isNotCompleted = status === TASK_STATUSES.NON_COMPLETED;
   const task = await Task.create(
     fake(Task, {
+      status,
       encounterId: resolvedEncounterId,
       requestedByUserId: resolvedUserId,
-      completedByUserId: resolvedUserId,
-      notCompletedByUserId: resolvedUserId,
-      notCompletedReasonId: resolvedNotCompletedReasonId,
-      todoByUserId: resolvedUserId,
-      deletedByUserId: resolvedUserId,
-      deletedReasonId: resolvedDeletionReasonId,
+      completedByUserId: isCompleted ? resolvedUserId : null,
+      notCompletedByUserId: isNotCompleted ? resolvedUserId : null,
+      notCompletedReasonId: isNotCompleted
+        ? referenceDataId ||
+          (await randomReferenceDataId(models, REFERENCE_TYPES.TASK_NOT_COMPLETED_REASON))
+        : null,
     }),
   );
   await TaskDesignation.create(
