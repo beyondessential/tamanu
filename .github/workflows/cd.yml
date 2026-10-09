@@ -591,6 +591,10 @@ jobs:
     needs:
       - config
       - deploy-up
+    # Without a status function this job is skipped whenever any job further up is, and the Windows
+    # image jobs are skipped by default. deploy-up is a matrix whose result is failure if any one
+    # environment failed, so each environment's fake data runs unless no deploy ran at all.
+    if: ${{ !cancelled() && needs.deploy-up.result != 'skipped' }}
     strategy:
       fail-fast: false
       matrix:
@@ -600,6 +604,30 @@ jobs:
     with:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
+
+  # Fake data adds a round on every deploy while ticked, so a PR's seed runs once per tick.
+  # Edits made with the workflow token don't start another run.
+  uncheck-fake-data:
+    needs: fake-data
+    if: github.event_name == 'pull_request' && needs.fake-data.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: context.issue.number,
+            });
+            const body = pr.body ?? '';
+            const updated = body.replace(/\[x\]([^\r\n]*<!-- #deployopt %fakedata=)/gi, '[ ]$1');
+            if (updated === body) return;
+            await github.rest.pulls.update({
+              ...context.repo,
+              pull_number: context.issue.number,
+              body: updated,
+            });
+            core.info('Unticked Generate fake data');
 
   package-android-test:
     needs: config
