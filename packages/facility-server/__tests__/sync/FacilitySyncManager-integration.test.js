@@ -235,7 +235,7 @@ describe('FacilitySyncManager integration', () => {
       mockCentralServer.pull.mockResolvedValueOnce([
         { id: '1', recordType: 'patients', recordId: PATIENT_ID, ...record },
       ]);
-      await syncManager.pullChanges(sessionId);
+      await syncManager.pullChanges(sessionId, { update: vi.fn() });
     };
 
     // snapshot from the beginning of time so the check is about the row's own tick, not the
