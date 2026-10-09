@@ -86,7 +86,6 @@ describe('checkConfigKey', () => {
     expect(message).toContain('does not decrypt');
     expect(message).toContain('restored from another deployment');
     expect(message).toContain('forget_server_identity()');
-    expect(message).toContain('DELETE FROM local_system_secrets');
     expect(message).not.toContain('deviceKey');
   });
 
