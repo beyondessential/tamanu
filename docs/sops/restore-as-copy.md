@@ -18,6 +18,14 @@ bestool canopy restore <type> <snapshot-id> --as-copy
 source's sync password or device key. Never use `--replacing-source` for a copy:
 that brings the key with the data.
 
+### If the copy is a VM or disk clone
+
+A VM or disk clone carries the source's key file, so step 1 does not apply and
+nothing on the copy can tell it from the source. Before its first start, give
+the copy a new key: move the old key file aside and run the server's
+`configSecret init` (for a containerised server, replace the mounted key secret
+instead). Then continue from step 2.
+
 ## 2. Forget the source's identity
 
 Before starting Tamanu, run this against every restored database (central and
