@@ -34,6 +34,8 @@ While syndromic surveillance has not been completed, the discharge form's syndro
 
 Answers entered into the embedded form but not yet submitted are discarded without a warning when the clinician cancels out of the discharge form.
 
+Finalising the discharge while the embedded form has answers that have not been submitted warns the clinician that the syndromic surveillance answers will be lost. They can return to the form to submit it, or finalise the discharge without it, which discards those answers. When the deployment requires syndromic surveillance at discharge, the discharge cannot be finalised without it, so the section is flagged as required instead.
+
 Once syndromic surveillance is complete, the section shows only that it is complete.
 
 A deployment can require syndromic surveillance to be completed at discharge. When it does, the discharge form cannot be finalised until syndromic surveillance for the encounter is complete, and attempting to finalise it flags the syndromic surveillance section as required. The requirement applies while syndromic surveillance is available, and only to discharges made through the discharge form; an encounter that is discharged automatically, such as an outpatient encounter, is discharged regardless.
