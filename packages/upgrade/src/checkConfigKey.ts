@@ -1,4 +1,5 @@
 import { QueryTypes } from 'sequelize';
+import { SERVER_IDENTITY_FACTS } from '@tamanu/constants';
 import type { Sequelize } from '@tamanu/database';
 import {
   decryptSecret,
@@ -27,6 +28,22 @@ async function findEncryptedSecret(sequelize: Sequelize): Promise<string | null>
   return null;
 }
 
+// The function ships in a migration, and this check runs before migrations, so a copy taken
+// from an older version does not have it yet.
+async function adoptAsCopyAdvice(sequelize: Sequelize): Promise<string> {
+  const [row] = await sequelize.query<{ name: string | null }>(
+    `SELECT to_regprocedure('public.forget_server_identity()')::text AS name`,
+    { type: QueryTypes.SELECT },
+  );
+  if (row?.name) {
+    return 'To run it as a copy under this key instead, run `SELECT forget_server_identity();` against it first.';
+  }
+  return [
+    'To run it as a copy under this key instead, first delete every row of local_system_secrets,',
+    `every local_system_facts row holding an encrypted value, and the ${SERVER_IDENTITY_FACTS.join(', ')} facts.`,
+  ].join(' ');
+}
+
 export async function checkConfigKey(sequelize: Sequelize): Promise<void> {
   const encrypted = await findEncryptedSecret(sequelize);
   if (!encrypted) return;
@@ -52,6 +69,7 @@ export async function checkConfigKey(sequelize: Sequelize): Promise<void> {
       [
         `The config key file at ${keyFilePath} (config crypto.keyFile) does not decrypt this database's secrets.`,
         "A database restored from another deployment holds that deployment's secrets, and only its key file reads them.",
+        await adoptAsCopyAdvice(sequelize),
       ].join('\n'),
     );
   }
