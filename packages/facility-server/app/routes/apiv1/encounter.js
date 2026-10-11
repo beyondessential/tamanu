@@ -60,6 +60,12 @@ import {
   getDischargeDraft,
   saveDischargeDraft,
 } from './encounterDischargeDraft';
+import {
+  getDischargeSyndromicSurveillanceSurvey,
+  getEncounterSyndromicSurveillance,
+  submitDischargeSyndromicSurveillance,
+  submitEncounterSyndromicSurveillance,
+} from './encounterSyndromicSurveillance';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -315,6 +321,17 @@ encounter.put(
 encounter.get('/:id/dischargeDraft', getDischargeDraft);
 encounter.put('/:id/dischargeDraft', saveDischargeDraft);
 encounter.delete('/:id/dischargeDraft', discardDischargeDraft);
+
+encounter.get('/:id/syndromicSurveillance', getEncounterSyndromicSurveillance);
+encounter.post('/:id/syndromicSurveillance/surveyResponse', submitEncounterSyndromicSurveillance);
+encounter.get(
+  '/:id/syndromicSurveillance/dischargeSurvey',
+  getDischargeSyndromicSurveillanceSurvey,
+);
+encounter.post(
+  '/:id/syndromicSurveillance/dischargeSurveyResponse',
+  submitDischargeSyndromicSurveillance,
+);
 
 encounter.post(
   '/:id/notes',

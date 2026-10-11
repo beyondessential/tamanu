@@ -8,6 +8,7 @@ import { DiagnosisModal } from '../../../components/DiagnosisModal';
 import { DiagnosisTable } from '../../../components/DiagnosisTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { SyndromicSurveillanceStatus } from '../../../components/SyndromicSurveillanceStatus';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 const TabPane = styled.div`
@@ -27,7 +28,7 @@ const ActionRow = styled.div`
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
-export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
+export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
   const [editedDiagnosis, setEditedDiagnosis] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
 
@@ -47,6 +48,7 @@ export const DiagnosisPane = React.memo(({ encounter, disabled }) => {
         data-testid="diagnosismodal-pane"
       />
       <ActionRow data-testid="actionrow-diagnosis">
+        <SyndromicSurveillanceStatus encounterId={encounter.id} patient={patient} />
         <NoteModalActionBlocker>
           <Button
             onClick={() => setEditedDiagnosis({})}

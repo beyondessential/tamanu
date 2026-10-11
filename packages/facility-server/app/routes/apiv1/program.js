@@ -8,7 +8,7 @@ import {
   simplePost,
   simplePut,
 } from '@tamanu/shared/utils/crudHelpers';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNDROMIC_SURVEILLANCE_SURVEY_ID, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 
 import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurveysWithFormVisibility';
@@ -16,6 +16,11 @@ import { getProgramSurveysWithFormVisibility } from '../../utils/getProgramSurve
 export const program = express.Router();
 
 const EDITABLE_FIELDS = ['code', 'name'];
+
+// spec: SYND#the-syndromic-surveillance-form
+// These list the forms a user can choose to complete. The syndromic surveillance form is completed
+// only from the encounter it is for, so it is never offered here.
+const NOT_SYNDROMIC_SURVEILLANCE_SURVEY = { [Op.ne]: SYNDROMIC_SURVEILLANCE_SURVEY_ID };
 
 program.get('/:id', simpleGet('Program'));
 program.put('/:id', simplePut('Program', { allowedFields: EDITABLE_FIELDS }));
@@ -32,6 +37,7 @@ program.get(
         {
           association: 'surveys',
           where: {
+            id: NOT_SYNDROMIC_SURVEILLANCE_SURVEY,
             surveyType: 'programs',
             visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
           },
@@ -71,6 +77,7 @@ programRelations.get(
 
     const records = await models.Survey.findAll({
       where: {
+        id: NOT_SYNDROMIC_SURVEILLANCE_SURVEY,
         programId: params.id,
         visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
       },

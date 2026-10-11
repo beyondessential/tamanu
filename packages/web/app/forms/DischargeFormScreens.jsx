@@ -1,7 +1,7 @@
 import { Divider as BaseDivider, IconButton as BaseIconButton, Box } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import { useFormikContext } from 'formik';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
@@ -16,6 +16,7 @@ import {
   useSettings,
 } from '@tamanu/ui-components';
 import { SmallBodyText } from '../components';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { DefaultFormScreen } from '../components/Field';
 import { Colors, PATIENT_STATUS } from '../constants';
 import { useAuth } from '../contexts/Auth';
@@ -96,8 +97,13 @@ export const DischargeFormScreen = props => {
     onSaveDraft,
     setShowWarningScreen,
     dischargeNotesFailed,
+    hasUnsubmittedSyndromicSurveillance,
   } = props;
   const { dirty } = useFormikContext();
+  const [
+    isUnsubmittedSyndromicSurveillanceModalOpen,
+    setIsUnsubmittedSyndromicSurveillanceModalOpen,
+  ] = useState(false);
   const { ability } = useAuth();
   const canWriteDischarge = ability.can('write', 'Discharge');
   const { getSetting } = useSettings();
@@ -121,6 +127,9 @@ export const DischargeFormScreen = props => {
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
       setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
+    } else if (hasUnsubmittedSyndromicSurveillance) {
+      // spec: SYND#discharge-form
+      setIsUnsubmittedSyndromicSurveillanceModalOpen(true);
     } else {
       onStepForward();
     }
@@ -191,6 +200,42 @@ export const DischargeFormScreen = props => {
         }
         {...props}
         data-testid="defaultformscreen-0jje"
+      />
+      <ConfirmModal
+        title={
+          <TranslatedText
+            stringId="discharge.modal.unsubmittedSyndromicSurveillance.title"
+            fallback="Unsubmitted syndromic surveillance"
+          />
+        }
+        open={isUnsubmittedSyndromicSurveillanceModalOpen}
+        width="sm"
+        onCancel={() => setIsUnsubmittedSyndromicSurveillanceModalOpen(false)}
+        onConfirm={() => {
+          setIsUnsubmittedSyndromicSurveillanceModalOpen(false);
+          onStepForward();
+        }}
+        confirmButtonText={
+          <TranslatedText
+            stringId="general.action.finaliseDischarge"
+            fallback="Finalise discharge"
+          />
+        }
+        cancelButtonText={
+          <TranslatedText
+            stringId="discharge.modal.unsubmittedSyndromicSurveillance.cancel"
+            fallback="Continue editing"
+          />
+        }
+        customContent={
+          <p>
+            <TranslatedText
+              stringId="discharge.modal.unsubmittedSyndromicSurveillance.content"
+              fallback="Syndromic surveillance has not been submitted. Are you sure you would like to finalise the discharge without submitting it? Any syndromic surveillance answers entered will be lost."
+            />
+          </p>
+        }
+        data-testid="confirmmodal-unsubmitted-syndromic-surveillance"
       />
     </>
   );

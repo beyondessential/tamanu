@@ -12,6 +12,9 @@ import {
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   ENCOUNTER_TYPES,
+  SURVEY_TYPES,
+  SYNDROMIC_SURVEILLANCE_SURVEY_ID,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -21,7 +24,11 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
-import { setupSurvey } from '../setupSurvey';
+import {
+  findOrSetupSyndromicSurveillanceSurvey,
+  setupSurvey,
+  SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID,
+} from '../setupSurvey';
 
 const chance = new Chance();
 
@@ -2660,6 +2667,357 @@ describe('Encounter', () => {
         expect(response).toHaveSucceeded();
         expect(response.body.count).toEqual(2);
         expect(response.body.data).toHaveLength(2);
+      });
+    });
+
+    describe('syndromic surveillance', () => {
+      disableHardcodedPermissionsForSuite();
+
+      const FEVER_DATA_ELEMENT_ID = SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID;
+      // Enough to discharge an encounter, and nothing about forms.
+      const DISCHARGE_PERMISSIONS = [
+        ['read', 'Encounter'],
+        ['write', 'Encounter'],
+        ['write', 'Discharge'],
+      ];
+      // The standard permissions for submitting the syndromic surveillance form.
+      const SUBMIT_PERMISSIONS = [
+        ['create', 'SurveyResponse'],
+        ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
+      ];
+
+      let syndromicSurveillanceSurvey = null;
+      let encounterReaderApp = null;
+      let dischargeApp = null;
+      let submitterApp = null;
+
+      const createOpenEncounter = async () =>
+        models.Encounter.create({
+          ...(await createDummyEncounter(models, { current: true })),
+          patientId: patient.id,
+        });
+
+      const recordResponse = encounterId =>
+        models.SurveyResponse.create({
+          surveyId: syndromicSurveillanceSurvey.id,
+          encounterId,
+          startTime: getCurrentDateTimeString(),
+          endTime: getCurrentDateTimeString(),
+        });
+
+      const findResponses = encounterId =>
+        models.SurveyResponse.findAll({ where: { encounterId } });
+
+      const getStatus = (permittedApp, encounterId) =>
+        permittedApp.get(`/api/encounter/${encounterId}/syndromicSurveillance`);
+
+      const submissionBody = {
+        facilityId,
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
+        answers: { [FEVER_DATA_ELEMENT_ID]: 'Yes' },
+      };
+
+      const submitFromDiagnosisPane = (permittedApp, encounterId, body = {}) =>
+        permittedApp
+          .post(`/api/encounter/${encounterId}/syndromicSurveillance/surveyResponse`)
+          .send({ ...submissionBody, ...body });
+
+      const submitDuringDischarge = (permittedApp, encounterId, body = {}) =>
+        permittedApp
+          .post(`/api/encounter/${encounterId}/syndromicSurveillance/dischargeSurveyResponse`)
+          .send({ ...submissionBody, ...body });
+
+      beforeAll(async () => {
+        syndromicSurveillanceSurvey = await findOrSetupSyndromicSurveillanceSurvey(models);
+        encounterReaderApp = await baseApp.asNewRole([['read', 'Encounter']]);
+        dischargeApp = await baseApp.asNewRole(DISCHARGE_PERMISSIONS);
+        submitterApp = await baseApp.asNewRole(SUBMIT_PERMISSIONS);
+      });
+
+      afterEach(async () => {
+        await syndromicSurveillanceSurvey.update({
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        });
+      });
+
+      describe('status', () => {
+        it('reports an encounter with no response to the form as not completed', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body).toEqual({ isAvailable: true, surveyResponseId: null });
+        });
+
+        it("returns the encounter's response to the form, not another encounter's", async () => {
+          const encounter = await createOpenEncounter();
+          const otherEncounter = await createOpenEncounter();
+          const response = await recordResponse(encounter.id);
+          await recordResponse(otherEncounter.id);
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body).toEqual({ isAvailable: true, surveyResponseId: response.id });
+        });
+
+        it('reports the encounter as not completed once its response is deleted', async () => {
+          const encounter = await createOpenEncounter();
+          const deleted = await recordResponse(encounter.id);
+          await deleted.destroy();
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.surveyResponseId).toEqual(null);
+        });
+
+        it('reports the form as unavailable while it is historical', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.isAvailable).toEqual(false);
+        });
+
+        it('reports the form as unavailable while it is obsolete', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({ surveyType: SURVEY_TYPES.OBSOLETE });
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.isAvailable).toEqual(false);
+        });
+
+        it('rejects a user who cannot read the encounter', async () => {
+          const encounter = await createOpenEncounter();
+          const noPermsApp = await baseApp.asNewRole([]);
+
+          const result = await getStatus(noPermsApp, encounter.id);
+
+          expect(result).toBeForbidden();
+        });
+
+        it('returns not found for an encounter that does not exist', async () => {
+          const result = await getStatus(encounterReaderApp, 'not-an-encounter');
+
+          expect(result).toHaveStatus(404);
+        });
+      });
+
+      describe('diagnosis pane', () => {
+        it('records a response against the encounter for a user who can submit the form', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+          const answers = await models.SurveyResponseAnswer.findAll({
+            where: { responseId: response.id },
+          });
+          expect(answers.map(({ dataElementId, body }) => ({ dataElementId, body }))).toEqual([
+            { dataElementId: FEVER_DATA_ELEMENT_ID, body: 'Yes' },
+          ]);
+        });
+
+        it('records the response against the encounter and form in the route, whatever the body says', async () => {
+          const encounter = await createOpenEncounter();
+          const otherEncounter = await createOpenEncounter();
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id, {
+            encounterId: otherEncounter.id,
+            surveyId: 'some-other-survey',
+          });
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+        });
+
+        it('rejects a second response for the encounter, keeping the first', async () => {
+          const encounter = await createOpenEncounter();
+          const first = await submitFromDiagnosisPane(submitterApp, encounter.id);
+          expect(first).toHaveSucceeded();
+
+          const second = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(second).toHaveRequestError();
+          const responses = await findResponses(encounter.id);
+          expect(responses.map(({ id }) => id)).toEqual([first.body.id]);
+        });
+
+        it('rejects a user who cannot submit the form, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const createOnlyApp = await baseApp.asNewRole([['create', 'SurveyResponse']]);
+
+          const result = await submitFromDiagnosisPane(createOnlyApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects a user who cannot create form responses, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const submitOnlyApp = await baseApp.asNewRole([
+            ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
+          ]);
+
+          const result = await submitFromDiagnosisPane(submitOnlyApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting while the form is unavailable', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(result).toHaveStatus(404);
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting the form through the standard form response endpoint', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await submitterApp.post('/api/surveyResponse').send({
+            ...submissionBody,
+            surveyId: SYNDROMIC_SURVEILLANCE_SURVEY_ID,
+            encounterId: encounter.id,
+            patientId: patient.id,
+          });
+
+          expect(result).toHaveRequestError();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+      });
+
+      describe('discharge form', () => {
+        it('gives the form and its questions to a user who can discharge but has no form permissions', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await dischargeApp.get(
+            `/api/encounter/${encounter.id}/syndromicSurveillance/dischargeSurvey`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+          expect(result.body.components.map(({ dataElementId }) => dataElementId)).toEqual([
+            FEVER_DATA_ELEMENT_ID,
+          ]);
+        });
+
+        it('rejects fetching the form for a user who cannot write discharges', async () => {
+          const encounter = await createOpenEncounter();
+          const encounterWriterApp = await baseApp.asNewRole([
+            ['read', 'Encounter'],
+            ['write', 'Encounter'],
+          ]);
+
+          const result = await encounterWriterApp.get(
+            `/api/encounter/${encounter.id}/syndromicSurveillance/dischargeSurvey`,
+          );
+
+          expect(result).toBeForbidden();
+        });
+
+        it('returns not found for the form while it is unavailable', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const result = await dischargeApp.get(
+            `/api/encounter/${encounter.id}/syndromicSurveillance/dischargeSurvey`,
+          );
+
+          expect(result).toHaveStatus(404);
+        });
+
+        it('records a response against the encounter for a user who can discharge but has no form permissions', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+          const answers = await models.SurveyResponseAnswer.findAll({
+            where: { responseId: response.id },
+          });
+          expect(answers.map(({ dataElementId, body }) => ({ dataElementId, body }))).toEqual([
+            { dataElementId: FEVER_DATA_ELEMENT_ID, body: 'Yes' },
+          ]);
+
+          const status = await getStatus(dischargeApp, encounter.id);
+          expect(status.body.surveyResponseId).toEqual(response.id);
+        });
+
+        it('rejects a response for an encounter that already has one, keeping the first', async () => {
+          const encounter = await createOpenEncounter();
+          const first = await submitFromDiagnosisPane(submitterApp, encounter.id);
+          expect(first).toHaveSucceeded();
+
+          const second = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(second).toHaveRequestError();
+          const responses = await findResponses(encounter.id);
+          expect(responses.map(({ id }) => id)).toEqual([first.body.id]);
+        });
+
+        it('records the response against the encounter and form in the route, whatever the body says', async () => {
+          const encounter = await createOpenEncounter();
+          const otherEncounter = await createOpenEncounter();
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id, {
+            encounterId: otherEncounter.id,
+            surveyId: 'some-other-survey',
+          });
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+        });
+
+        it('rejects submitting for a user who cannot write discharges, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const encounterWriterApp = await baseApp.asNewRole([
+            ['read', 'Encounter'],
+            ['write', 'Encounter'],
+          ]);
+
+          const result = await submitDuringDischarge(encounterWriterApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting while the form is unavailable', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({ surveyType: SURVEY_TYPES.OBSOLETE });
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(result).toHaveStatus(404);
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
       });
     });
 

@@ -4,7 +4,7 @@ id: SYND
 
 # Syndromic surveillance
 
-Syndromic surveillance tracks which symptoms a practitioner observes a patient presenting with, independent of formal diagnosis, so a deployment can watch for patterns across its patient population. Each deployment designs what is captured as a program form, and a practitioner completes that form for an encounter from the encounter's diagnosis pane, from the discharge form, or from Forms like any other program form.
+Syndromic surveillance tracks which symptoms a practitioner observes a patient presenting with, independent of formal diagnosis, so a deployment can watch for patterns across its patient population. Each deployment designs what is captured as a program form, and a practitioner completes that form once for an encounter, from the encounter's diagnosis pane or from the discharge form.
 
 ## The syndromic surveillance form
 
@@ -12,15 +12,17 @@ The syndromic surveillance form is the program form with the code `syndromicsurv
 
 The program is an ordinary program. It can hold other forms alongside the syndromic surveillance form and can have a program registry, and these behave as they would in any other program.
 
-The form is an ordinary program form. It supports every question type and configuration that program forms support, and it is displayed the same way as any other program form. It is listed under Forms at both patient and encounter level, where it can be completed, viewed and edited like any other form.
+The form is an ordinary program form. It supports every question type and configuration that program forms support, and it is displayed the same way as any other program form. Its responses are listed under Forms at both patient and encounter level, where they can be viewed and edited like any other form's responses.
+
+Unlike other forms, it is completed only from the diagnosis pane or the discharge form. Wherever users choose a form to complete from its program, such as Forms at patient or encounter level or a program registry, it is left out of the forms on offer, and so is its program when it holds no other form to complete. Submitting a response to it any other way is rejected.
 
 Syndromic surveillance is available in a deployment while its syndromic surveillance form is current and not marked obsolete. While it is available, the encounter's diagnosis pane and the discharge form each show a syndromic surveillance section.
 
 ## Completion
 
-An encounter's syndromic surveillance is either not yet completed or complete. It is complete once the encounter has a response to the syndromic surveillance form, whichever way that response was submitted: from the diagnosis pane, from the discharge form, or from Forms at patient or encounter level. A response submitted from Forms at patient level counts for the encounter it is recorded against.
+An encounter has at most one response to the syndromic surveillance form. Its syndromic surveillance is complete once it has that response, and not yet completed until then. Submitting a response for an encounter that already has one is rejected, so the response is revised by editing it, from the diagnosis pane or from Forms.
 
-When an encounter has more than one response to the syndromic surveillance form, the most recent one is the response viewed and edited from the diagnosis pane.
+Deleting the response from Forms returns the encounter's syndromic surveillance to not yet completed.
 
 ## Diagnosis pane
 
@@ -45,7 +47,9 @@ A deployment can require syndromic surveillance to be completed at discharge. Wh
 The diagnosis pane's syndromic surveillance section follows the standard permissions for program forms, applied to the syndromic surveillance form:
 
 - Seeing the section and viewing a response requires permission to read the form.
-- Submitting a response requires permission to submit the form. A user who can read the form but not submit it sees the "Syndromic surveillance" action disabled.
+- Submitting a response requires permission to submit the form and to create form responses. A user who can read the form but not submit it sees the "Syndromic surveillance" action disabled.
 - Editing a response requires permission to write the form. Without it, the response opens read-only.
 
 The discharge form's syndromic surveillance section, including completing the form there, is covered by the permissions to discharge the encounter, which are write on encounters and write on discharges. It needs none of the form's permissions.
+
+The section is shown only to users who hold both. Opening the discharge form takes only write on encounters, so a user without write on discharges, who could no more submit the form than finalise the discharge, sees the discharge form without the section.
