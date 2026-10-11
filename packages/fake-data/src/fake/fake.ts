@@ -3,7 +3,7 @@ import { isFunction, kebabCase, snakeCase, startCase } from 'es-toolkit/compat';
 import Chance from 'chance';
 import Sequelize from 'sequelize';
 import { inspect } from 'util';
-import { formatISO9075 } from 'date-fns';
+import { addDays, addHours, addMinutes, formatISO9075, startOfDay } from 'date-fns';
 import {
   ADMINISTRATION_FREQUENCIES,
   ATTENDANT_OF_BIRTH_TYPES,
@@ -11,22 +11,29 @@ import {
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
   BLOOD_TYPES,
+  CERTIFICATE_NOTIFICATION_STATUSES,
+  COMMUNICATION_STATUSES,
   CURRENTLY_AT_TYPES,
   DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
   DRUG_ROUTE_VALUES,
   EDUCATIONAL_ATTAINMENT_TYPES,
   ENCOUNTER_TYPE_VALUES,
+  ICAO_DOCUMENT_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   INJECTION_SITE_VALUES,
   INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_ITEMS_DISCOUNT_TYPES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
+  LAB_TEST_RESULT_TYPES,
   MANNER_OF_DEATHS,
   MARITAL_STATUS_VALUES,
   MEDICATION_DURATION_UNITS,
   NOTE_TYPE_VALUES,
+  PATIENT_COMMUNICATION_CHANNELS,
+  PATIENT_COMMUNICATION_TYPES,
   PLACE_OF_BIRTH_TYPES,
   PLACE_OF_DEATHS,
   PREGNANCY_MOMENTS,
@@ -41,6 +48,7 @@ import {
   STATUS_COLOR,
   TASK_DURATION_UNIT,
   TASK_FREQUENCY_UNIT,
+  TASK_STATUSES,
   TITLES,
   VACCINE_CATEGORIES_VALUES,
   VACCINE_RECORDING_TYPES,
@@ -75,6 +83,7 @@ import {
   INVOICE_NOTES,
   INVOICE_PRODUCT_NAMES,
   LAB_RESULT_INTERPRETATIONS,
+  LAB_TEST_TYPES,
   LOCATION_GROUP_NAMES,
   LOCATION_NAMES,
   NOTE_CONTENTS,
@@ -110,12 +119,12 @@ export const chance = new Chance(
   seedFromEnvironment ? Number(seedFromEnvironment) : randomInt(2 ** 42),
 );
 
-const shuffledPools = new Map<string[], string[]>();
+const shuffledPools = new Map<unknown[], unknown[]>();
 
 // Cycles a pool in shuffled order, so a seeded database shows a spread of names
 // instead of the same handful repeated.
-const pickDistinct = (pool: string[]): string => {
-  let remaining = shuffledPools.get(pool);
+const pickDistinct = <T>(pool: T[]): T => {
+  let remaining = shuffledPools.get(pool) as T[] | undefined;
   if (!remaining?.length) {
     remaining = chance.shuffle([...pool]);
     shuffledPools.set(pool, remaining);
@@ -371,9 +380,19 @@ export function fakePrescription(prefix: string = 'test-') {
   };
 }
 
-const CURRENT_YEAR = new Date().getFullYear();
-export const fakeDate = () =>
-  chance.date({ year: chance.integer({ min: CURRENT_YEAR - 5, max: CURRENT_YEAR }) }) as Date;
+const FIVE_YEARS_MS = 5 * 365 * 24 * 60 * 60 * 1000;
+// Records describe things that have happened, so they sit in the past.
+export const fakeDate = () => new Date(Date.now() - chance.integer({ min: 0, max: FIVE_YEARS_MS }));
+// Far enough back that the steps after a request (sample, result, publication) are also past.
+const SETTLE_MS = 3 * 24 * 60 * 60 * 1000;
+export const fakeSettledDate = () =>
+  new Date(Date.now() - chance.integer({ min: SETTLE_MS, max: FIVE_YEARS_MS }));
+// Bookings run from the recent past into the next few months, on the quarter hour in clinic hours.
+export const fakeBookingDate = () =>
+  addMinutes(
+    addDays(startOfDay(new Date()), chance.integer({ min: -180, max: 90 })),
+    chance.integer({ min: 8 * 4, max: 17 * 4 - 1 }) * 15,
+  );
 export const fakeString = (model: typeof Model, { fieldName }, id: string) =>
   `${model.name}.${fieldName}.${id}`;
 export const fakeDateTimeString = () => toDateTimeString(fakeDate());
@@ -381,6 +400,7 @@ export const fakeDateString = () => toDateString(fakeDate());
 export const fakeInt = () => chance.integer({ min: 0, max: 10 });
 export const fakeFloat = () => chance.floating({ min: 0, max: 1000, fixed: 2 });
 export const fakeBool = () => chance.bool();
+const SAFE_EMAIL_DOMAIN = 'example.com';
 
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
@@ -437,6 +457,29 @@ export const fakeSurveyAnswerBody = ({ name, type }) => {
     : chance.sentence({ words: 4 });
 };
 
+const PATIENT_COMMUNICATIONS = [
+  {
+    type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
+    subject: 'Appointment confirmation',
+    content: 'Your appointment has been booked. Please arrive 15 minutes early.',
+  },
+  {
+    type: PATIENT_COMMUNICATION_TYPES.VACCINATION_REMINDER,
+    subject: 'Vaccination due',
+    content: 'A vaccination is due. Please visit your nearest clinic.',
+  },
+  {
+    type: PATIENT_COMMUNICATION_TYPES.REFERRAL_CREATED,
+    subject: 'Referral created',
+    content: 'A referral has been made for you. The clinic will contact you with a date.',
+  },
+  {
+    type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
+    subject: 'Your certificate',
+    content: 'Your certificate is attached.',
+  },
+];
+
 const FACILITY_NAME_SUFFIXES = {
   hospital: 'Hospital',
   clinic: 'Clinic',
@@ -473,11 +516,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
     const facilityType = chance.pickone(Object.keys(FACILITY_NAME_SUFFIXES));
     return {
       ...named(passedName ?? fakeFacilityName(facilityType)),
-      email: chance.email(),
+      email: chance.email({ domain: SAFE_EMAIL_DOMAIN }),
       contactNumber: chance.phone(),
       streetAddress: chance.address(),
-      cityTown: chance.city(),
-      division: chance.province({ full: true }),
+      cityTown: chance.pickone(REFERENCE_DATA_NAMES[REFERENCE_TYPES.VILLAGE]),
+      division: chance.pickone(REFERENCE_DATA_NAMES[REFERENCE_TYPES.DIVISION]),
       type: facilityType,
     };
   },
@@ -487,50 +530,22 @@ const MODEL_SPECIFIC_OVERRIDES = {
     return {
       status,
       reasonForCancellation: isCancelled ? chance.pickone(['duplicate', 'entered-in-error']) : null,
+      legacyResults: null,
     };
   },
   LabTestType: () => {
-    const suffix = chance.hash({ length: 4 });
-    const {
-      code: baseCode,
-      name: baseName,
-      unit,
-    } = chance.pickone([
-      { code: 'WBC', name: 'White Blood Cell Count', unit: 'x10^9/L' },
-      { code: 'RBC', name: 'Red Blood Cell Count', unit: 'x10^12/L' },
-      { code: 'HGB', name: 'Haemoglobin', unit: 'g/dL' },
-      { code: 'HCT', name: 'Haematocrit', unit: '%' },
-      { code: 'PLT', name: 'Platelet Count', unit: 'x10^9/L' },
-      { code: 'MCV', name: 'Mean Corpuscular Volume', unit: 'fL' },
-      { code: 'GLU', name: 'Blood Glucose', unit: 'mmol/L' },
-      { code: 'HbA1c', name: 'Glycated Haemoglobin', unit: '%' },
-      { code: 'CREAT', name: 'Creatinine', unit: 'umol/L' },
-      { code: 'BUN', name: 'Blood Urea Nitrogen', unit: 'mmol/L' },
-      { code: 'ALT', name: 'Alanine Aminotransferase', unit: 'IU/L' },
-      { code: 'AST', name: 'Aspartate Aminotransferase', unit: 'IU/L' },
-      { code: 'ALP', name: 'Alkaline Phosphatase', unit: 'IU/L' },
-      { code: 'TBIL', name: 'Total Bilirubin', unit: 'umol/L' },
-      { code: 'TSH', name: 'Thyroid Stimulating Hormone', unit: 'mIU/L' },
-      { code: 'CRP', name: 'C-Reactive Protein', unit: 'mg/L' },
-      { code: 'ESR', name: 'Erythrocyte Sedimentation Rate', unit: 'mm/hr' },
-      { code: 'Na', name: 'Sodium', unit: 'mmol/L' },
-      { code: 'K', name: 'Potassium', unit: 'mmol/L' },
-      { code: 'Cl', name: 'Chloride', unit: 'mmol/L' },
-      { code: 'Ca', name: 'Calcium', unit: 'mmol/L' },
-      { code: 'CHOL', name: 'Total Cholesterol', unit: 'mmol/L' },
-      { code: 'TRIG', name: 'Triglycerides', unit: 'mmol/L' },
-      { code: 'UA', name: 'Uric Acid', unit: 'umol/L' },
-      { code: 'mRDT', name: 'Malaria Rapid Diagnostic Test', unit: '' },
-      { code: 'HIV-Ab', name: 'HIV Antibody Screen', unit: '' },
-      { code: 'HBsAg', name: 'Hepatitis B Surface Antigen', unit: '' },
-      { code: 'URINE-MC', name: 'Urine Microscopy & Culture', unit: '' },
-    ]);
-    const code = `${baseCode}-${suffix}`;
-    const name = `${baseName} (${suffix})`;
+    const { code: baseCode, name, unit, range } = pickDistinct(LAB_TEST_TYPES);
+    const code = `${baseCode}-${chance.hash({ length: 4 })}`;
+    const [min, max] = range ?? [null, null];
     return {
       code,
       name,
       unit,
+      resultType: range ? LAB_TEST_RESULT_TYPES.NUMBER : LAB_TEST_RESULT_TYPES.FREE_TEXT,
+      maleMin: min,
+      maleMax: max,
+      femaleMin: min,
+      femaleMax: max,
       isSensitive: false,
       externalCode: chance.pickone([code, null]),
       availableFacilities: null,
@@ -544,8 +559,20 @@ const MODEL_SPECIFIC_OVERRIDES = {
   LabRequest: () => {
     const status = chance.pickone(Object.values(LAB_REQUEST_STATUSES));
     const isCancelled = status === LAB_REQUEST_STATUSES.CANCELLED;
+    const requestedDate = fakeSettledDate();
+    const sampleTime =
+      status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED
+        ? null
+        : addMinutes(requestedDate, chance.integer({ min: 10, max: 180 }));
+    const publishedDate =
+      status === LAB_REQUEST_STATUSES.PUBLISHED && sampleTime
+        ? addHours(sampleTime, chance.integer({ min: 2, max: 48 }))
+        : null;
     return {
       status,
+      requestedDate: toDateTimeString(requestedDate),
+      sampleTime: sampleTime && toDateTimeString(sampleTime),
+      publishedDate: publishedDate && toDateTimeString(publishedDate),
       sampleId: `S${chance.natural({ min: 1000000, max: 9999999 })}`,
       senaiteId: null,
       resultsInterpretation: chance.pickone(LAB_RESULT_INTERPRETATIONS),
@@ -577,9 +604,13 @@ const MODEL_SPECIFIC_OVERRIDES = {
       middleName: chance.first({ gender: nameGender }),
       lastName: chance.last(),
       culturalName: chance.first({ gender: nameGender }),
-      dateOfBirth: toDateString(chance.birthday({ type: 'adult' }) as Date),
+      dateOfBirth: toDateString(
+        chance.birthday({
+          type: chance.weighted(['child', 'teen', 'adult', 'senior'], [20, 10, 55, 15]),
+        }) as Date,
+      ),
       dateOfDeath: null,
-      email: chance.email(),
+      email: chance.email({ domain: SAFE_EMAIL_DOMAIN }),
     };
   },
   PatientAdditionalData: ({ id, patientId }) => {
@@ -618,9 +649,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
   },
   PatientDeathData: () => {
     const options = ['yes', 'no', 'unknown', null];
+    const wasPregnant = chance.pickone(options);
     return {
-      wasPregnant: chance.pickone(options),
-      pregnancyContributed: chance.pickone(options),
+      wasPregnant,
+      pregnancyContributed: wasPregnant === 'yes' ? chance.pickone(options) : null,
       recentSurgery: chance.pickone(options),
       stillborn: chance.pickone(options),
       autopsyRequested: chance.pickone(options),
@@ -630,21 +662,25 @@ const MODEL_SPECIFIC_OVERRIDES = {
       mannerOfDeathDescription: chance.pickone(DEATH_CAUSE_NOTES),
       externalCauseNotes: chance.pickone(DEATH_CAUSE_NOTES),
       externalCauseLocation: chance.pickone(Object.values(PLACE_OF_DEATHS)),
-      pregnancyMoment: chance.pickone(Object.keys(PREGNANCY_MOMENTS)),
-      motherConditionDescription: chance.pickone([
-        'Healthy at time of birth',
-        'Pre-eclampsia during pregnancy',
-        'Gestational diabetes',
-        'Anaemia in third trimester',
-      ]),
+      pregnancyMoment:
+        wasPregnant === 'yes' ? chance.pickone(Object.keys(PREGNANCY_MOMENTS)) : null,
+      motherConditionDescription: null,
+      fetalOrInfant: false,
+      withinDayOfBirth: false,
+      birthWeight: null,
+      carrierAge: null,
+      carrierPregnancyWeeks: null,
+      hoursSurvivedSinceBirth: null,
     };
   },
   PatientProgramRegistrationCondition: () => ({
     reasonForChange: chance.pickone(REGISTRATION_CHANGE_REASONS),
+    deletionDate: null,
   }),
   PatientProgramRegistration: ({ patientId, programRegistryId }) => ({
     id: `${patientId.replaceAll(';', ':')};${programRegistryId.replaceAll(';', ':')}`,
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+    deactivatedDate: null,
   }),
   Prescription: () => ({
     frequency: chance.pickone(Object.values(ADMINISTRATION_FREQUENCIES)),
@@ -654,6 +690,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
     durationUnit: chance.pickone(Object.values(MEDICATION_DURATION_UNITS)),
     dosingUnit: chance.pickone(DRUG_UNIT_VALUES),
     dispensingUnit: chance.pickone(DRUG_UNIT_VALUES),
+    doseAmount: chance.pickone([0.5, 1, 2, 5, 10, 20, 50, 100, 250, 500]),
+    durationValue: chance.integer({ min: 3, max: 30 }),
+    quantity: chance.integer({ min: 1, max: 60 }),
+    repeats: chance.integer({ min: 0, max: 3 }),
     discontinuingReason: null,
     discontinuedDate: null,
     discontinued: false,
@@ -692,8 +732,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Department: ({ name }) => named(name ?? pickDistinct(DEPARTMENT_NAMES)),
   LocationGroup: ({ name }) => named(name ?? pickDistinct(LOCATION_GROUP_NAMES)),
-  SensitiveNetwork: ({ name }) =>
-    named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
+  SensitiveNetwork: ({ name }) => named(name ?? `Sensitive Network ${chance.hash({ length: 8 })}`),
   // A lookup row is unscoped unless a test deliberately scopes it. The outgoing snapshot admits a
   // row only when facility_id and sensitive_network_id are both null, so generating a random
   // network here would withhold every faked row from every facility.
@@ -707,13 +746,22 @@ const MODEL_SPECIFIC_OVERRIDES = {
   EncounterHistory: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
   }),
-  EncounterPausePrescription: () => ({
-    notes: chance.pickone(PAUSE_NOTES),
-    pauseTimeUnit: chance.pickone([
+  EncounterPausePrescription: () => {
+    const pauseTimeUnit = chance.pickone([
       MEDICATION_DURATION_UNITS.HOURS,
       MEDICATION_DURATION_UNITS.DAYS,
-    ]),
-  }),
+    ]);
+    const pauseDuration = chance.integer({ min: 1, max: 7 });
+    const pauseStartDate = fakeDate();
+    const addDuration = pauseTimeUnit === MEDICATION_DURATION_UNITS.HOURS ? addHours : addDays;
+    return {
+      notes: chance.pickone(PAUSE_NOTES),
+      pauseTimeUnit,
+      pauseDuration,
+      pauseStartDate: toDateTimeString(pauseStartDate),
+      pauseEndDate: toDateTimeString(addDuration(pauseStartDate, pauseDuration)),
+    };
+  },
   EncounterPausePrescriptionHistory: () => ({
     notes: chance.pickone(PAUSE_NOTES),
     pauseTimeUnit: chance.pickone([
@@ -721,6 +769,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       MEDICATION_DURATION_UNITS.DAYS,
     ]),
     action: chance.pickone(['pause', 'resume']),
+    pauseDuration: chance.integer({ min: 1, max: 7 }),
   }),
   ImagingResult: () => ({
     description: chance.pickone(IMAGING_RESULT_DESCRIPTIONS),
@@ -735,6 +784,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   InvoiceDiscount: () => ({
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
+    percentage: chance.pickone([0.1, 0.2, 0.25, 0.5]),
   }),
   InvoiceInsurancePlan: () => ({
     availableFacilities: null,
@@ -748,6 +798,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   InvoicePayment: () => ({
     receiptNumber: `RCP${chance.natural({ min: 100000, max: 999999 })}`,
+    amount: chance.floating({ min: 5, max: 300, fixed: 2 }),
   }),
   InvoiceItem: () => {
     const product = named(pickDistinct(INVOICE_PRODUCT_NAMES));
@@ -759,9 +810,17 @@ const MODEL_SPECIFIC_OVERRIDES = {
       sourceRecordId: null,
     };
   },
-  InvoiceItemDiscount: () => ({
-    reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
-  }),
+  InvoiceItemDiscount: () => {
+    const type = chance.pickone(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES));
+    return {
+      reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
+      type,
+      amount:
+        type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE
+          ? chance.pickone([0.05, 0.1, 0.2])
+          : chance.integer({ min: 5, max: 50 }),
+    };
+  },
   InvoiceProduct: ({ name }) => ({
     name: name ?? pickDistinct(INVOICE_PRODUCT_NAMES),
   }),
@@ -774,6 +833,10 @@ const MODEL_SPECIFIC_OVERRIDES = {
     attendantAtBirth: chance.pickone(Object.values(ATTENDANT_OF_BIRTH_TYPES)),
     nameOfAttendantAtBirth: chance.name(),
     registeredBirthPlace: chance.pickone(Object.values(PLACE_OF_BIRTH_TYPES)),
+    birthWeight: chance.floating({ min: 2, max: 4.5, fixed: 2 }),
+    birthLength: chance.floating({ min: 45, max: 55, fixed: 1 }),
+    gestationalAgeEstimate: chance.integer({ min: 34, max: 42 }),
+    birthOrder: chance.integer({ min: 1, max: 4 }),
   }),
   PatientCondition: () => ({
     note: chance.pickone(CONDITION_NOTES),
@@ -814,16 +877,38 @@ const MODEL_SPECIFIC_OVERRIDES = {
     ]),
   }),
   TaskTemplate: () => ({
+    frequencyValue: chance.integer({ min: 1, max: 12 }),
     frequencyUnit: chance.pickone(Object.values(TASK_FREQUENCY_UNIT)),
   }),
-  Task: () => ({
-    name: referenceDataName(REFERENCE_TYPES.TASK_TEMPLATE),
-    frequencyUnit: chance.pickone(Object.values(TASK_FREQUENCY_UNIT)),
-    durationUnit: chance.pickone(Object.values(TASK_DURATION_UNIT)),
-    note: chance.pickone(TASK_NOTES),
-    completedNote: chance.pickone(TASK_NOTES),
-    todoNote: chance.pickone(TASK_NOTES),
-  }),
+  Task: ({ status = chance.pickone(Object.values(TASK_STATUSES)) }) => {
+    const requestTime = fakeSettledDate();
+    const dueTime = addHours(requestTime, chance.integer({ min: 1, max: 48 }));
+    const isRepeating = chance.bool();
+    return {
+      name: referenceDataName(REFERENCE_TYPES.TASK_TEMPLATE),
+      status,
+      requestTime: toDateTimeString(requestTime),
+      dueTime: toDateTimeString(dueTime),
+      endTime: null,
+      frequencyValue: isRepeating ? chance.integer({ min: 1, max: 12 }) : null,
+      frequencyUnit: isRepeating ? chance.pickone(Object.values(TASK_FREQUENCY_UNIT)) : null,
+      durationValue: isRepeating ? chance.integer({ min: 1, max: 14 }) : null,
+      durationUnit: isRepeating ? chance.pickone(Object.values(TASK_DURATION_UNIT)) : null,
+      note: chance.pickone(TASK_NOTES),
+      completedTime:
+        status === TASK_STATUSES.COMPLETED
+          ? toDateTimeString(addMinutes(dueTime, chance.integer({ min: -60, max: 120 })))
+          : null,
+      completedNote: status === TASK_STATUSES.COMPLETED ? chance.pickone(TASK_NOTES) : null,
+      notCompletedTime:
+        status === TASK_STATUSES.NON_COMPLETED
+          ? toDateTimeString(addMinutes(dueTime, chance.integer({ min: 0, max: 120 })))
+          : null,
+      todoTime: null,
+      todoNote: null,
+      deletedTime: null,
+    };
+  },
   Role: () => ({
     name: `${snakeCase(chance.profession())}_${chance.hash({ length: 8 })}`,
   }),
@@ -849,6 +934,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Encounter: () => ({
     encounterType: chance.pickone(ENCOUNTER_TYPE_VALUES),
     reasonForEncounter: chance.pickone(ENCOUNTER_REASONS),
+    plannedLocationStartTime: null,
+    estimatedEndDate: null,
   }),
   Note: () => ({
     // This is a hack because the type of Note.id is UUID, whereas tests might create ids of the form:
@@ -880,6 +967,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       vaccineName: vaccine.label,
       vaccineBrand: vaccine.brand,
       disease: vaccine.disease,
+      circumstanceIds: [],
       reason:
         status === VACCINE_STATUS.NOT_GIVEN
           ? referenceDataName(REFERENCE_TYPES.VACCINE_NOT_GIVEN_REASON)
@@ -895,8 +983,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
       nthWeekday:
         frequency === REPEAT_FREQUENCY.MONTHLY ? chance.integer({ min: -1, max: 4 }) : null,
       ...(endsMode === 'on'
-        ? { untilDate: fakeDateTimeString() }
-        : { occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
+        ? { untilDate: fakeDateString(), occurrenceCount: null }
+        : { untilDate: null, occurrenceCount: chance.integer({ min: 1, max: 99 }) }),
+      cancelledAtDate: null,
     };
   },
   ChangeLog: () => ({
@@ -927,20 +1016,67 @@ const MODEL_SPECIFIC_OVERRIDES = {
     recordUpdatedAt: fakeDateTimeString(),
     updatedByUserId: fakeUUID(),
   }),
-  SurveyResponse: () => ({
-    resultText: chance.pickone([
-      'Low risk',
-      'Medium risk',
-      'High risk',
-      'Complete',
-      'Follow-up required',
-    ]),
-    // editedTime implies “patched after original survey response submission”; must start as NULL
-    editedTime: null,
-  }),
+  SurveyResponse: () => {
+    const startTime = fakeDate();
+    return {
+      startTime: toDateTimeString(startTime),
+      endTime: toDateTimeString(addMinutes(startTime, chance.integer({ min: 2, max: 30 }))),
+      result: chance.floating({ min: 0, max: 100, fixed: 1 }),
+      resultText: chance.pickone([
+        'Low risk',
+        'Medium risk',
+        'High risk',
+        'Complete',
+        'Follow-up required',
+      ]),
+      // editedTime implies “patched after original survey response submission”; must start as NULL
+      editedTime: null,
+    };
+  },
   SurveyResponseAnswer: () => ({
     // editedTime implies “patched after original survey response submission”; must start as NULL
     editedTime: null,
+  }),
+  Appointment: () => {
+    const startTime = fakeBookingDate();
+    return {
+      startTime: toDateTimeString(startTime),
+      endTime: toDateTimeString(addMinutes(startTime, chance.pickone([15, 30, 45, 60]))),
+      typeLegacy: 'Standard',
+    };
+  },
+  // Queued rows are sent by the communication and certificate processors, so seeded ones are
+  // already past that step.
+  PatientCommunication: () => {
+    const channel = chance.pickone([
+      PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+      PATIENT_COMMUNICATION_CHANNELS.SMS,
+    ]);
+    const { type, subject, content } = chance.pickone(PATIENT_COMMUNICATIONS);
+    return {
+      type,
+      channel,
+      subject,
+      content,
+      status: chance.pickone([COMMUNICATION_STATUSES.SENT, COMMUNICATION_STATUSES.DELIVERED]),
+      error: null,
+      retryCount: 0,
+      destination:
+        channel === PATIENT_COMMUNICATION_CHANNELS.EMAIL
+          ? chance.email({ domain: SAFE_EMAIL_DOMAIN })
+          : chance.phone(),
+      attachment: null,
+    };
+  },
+  CertificateNotification: () => ({
+    type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
+    status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
+    requiresSigning: false,
+    forwardAddress: null,
+    createdBy: null,
+    facilityName: null,
+    language: null,
+    error: null,
   }),
 };
 

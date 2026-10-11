@@ -16,6 +16,7 @@ import {
   createAccessLog,
   generateImportData,
 } from './helpers/index.js';
+import { chance } from '../fake/index.js';
 import { resetRandomRecordCache } from './randomRecord.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
@@ -36,12 +37,16 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
     programRegistry,
   } = await generateImportData(models);
 
-  // Clinical data
+  // Clinical data. This patient gets open encounters and future bookings, so stays alive.
   const { patient } = await createPatient({
     models,
     facilityId: facility.id,
     userId: user.id,
+    isDead: false,
   });
+  if (chance.bool({ likelihood: 5 })) {
+    await createPatient({ models, facilityId: facility.id, userId: user.id, isDead: true });
+  }
   const { encounter } = await createEncounter({
     models,
     patientId: patient.id,
