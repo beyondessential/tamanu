@@ -76,6 +76,26 @@ describe('forget_server_identity()', () => {
     expect(deleted?.deletedAt).toBeTruthy();
   });
 
+  it('marks forgotten settings for the next sync to facilities', async () => {
+    await models.Setting.set('integrations.dhis2.password', await encrypted());
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '43');
+
+    await sequelize.query('SELECT forget_server_identity()');
+
+    const deleted = await models.Setting.findOne({
+      where: { key: 'integrations.dhis2.password' },
+      paranoid: false,
+    });
+    expect(deleted?.updatedAtSyncTick).toBe('43');
+  });
+
+  it('is found by the signature upgrade and ops look it up by', async () => {
+    const [[{ name }]] = await sequelize.query(
+      `SELECT to_regprocedure('public.forget_server_identity()')::text AS name`,
+    );
+    expect(name).toBe('forget_server_identity()');
+  });
+
   it('is not executable by PUBLIC', async () => {
     const [[{ allowed }]] = await sequelize.query(
       `SELECT has_function_privilege('public', 'public.forget_server_identity()', 'EXECUTE') AS allowed`,
