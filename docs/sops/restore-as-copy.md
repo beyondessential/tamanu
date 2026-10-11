@@ -32,7 +32,8 @@ hand.
    different central then refuses to start. A copied config file can also hold
    integration credentials (such as `mailgun` or `integrations`) and the
    source's settings key (`crypto.settingsPsk`): remove them, and give the copy
-   its own `auth.secret` so the two servers' logins are not interchangeable.
+   its own `auth.secret` and `auth.refreshToken.secret` so the two servers'
+   logins are not interchangeable.
 3. Run this against every restored database (central and each facility), as
    described in `connect-psql.md`:
 
