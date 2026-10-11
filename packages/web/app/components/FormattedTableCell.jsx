@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { DateDisplay, EditedOrnament, PlainTimeDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { parseLabTestResult } from '@tamanu/utils/labTests';
 import { Colors } from '../constants';
 import { TableTooltip } from './Table/TableTooltip';
 
@@ -43,16 +44,42 @@ const HeadCellWrapper = styled.div`
   width: fit-content;
 `;
 
+// Only a wholly numeric value counts as a number here: a partial parse would truncate a result
+// like "12 colonies" to 12, both on screen and when comparing it against a reference range.
+function toNumber(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const number = Number(trimmed);
+  return Number.isFinite(number) ? number : null;
+}
+
 function round(float, { rounding } = {}) {
-  const floatNumber = parseFloat(float);
-  if (isNaN(floatNumber) || !isNumber(rounding)) {
+  const floatNumber = toNumber(float);
+  if (floatNumber === null || !isNumber(rounding)) {
     return float;
   }
 
   return floatNumber.toFixed(rounding);
 }
 
-function getValidationState(normalizedValue, config = {}, visibilityCriteria = {}) {
+// A detection-limit result (e.g. "< 0.3") can't be compared numerically as-is; judge it against
+// the range on its comparator, honouring the direction at the boundary. "< n" is strictly below n,
+// so it flags low once n reaches the range minimum; "> n" mirrors that at the maximum.
+function getComparatorAlert(comparator, value, normalRange, unit) {
+  if (value === null) return null;
+  const { min, max } = normalRange;
+  const belowMin =
+    min != null && ((comparator === '<' && value <= min) || (comparator === '<=' && value < min));
+  if (belowMin) return `Outside normal range\n <${min}${unit}`;
+  const aboveMax =
+    max != null && ((comparator === '>' && value >= max) || (comparator === '>=' && value > max));
+  if (aboveMax) return `Outside normal range\n >${max}${unit}`;
+  return null;
+}
+
+export function getValidationState(normalizedValue, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
   const { normalRange, rangeText } = visibilityCriteria;
 
@@ -62,17 +89,28 @@ function getValidationState(normalizedValue, config = {}, visibilityCriteria = {
     };
   }
 
-  if (normalRange && normalizedValue < normalRange.min) {
-    return {
-      tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
-      severity: ALERT,
-    };
+  const { comparator, value: comparatorValue } = parseLabTestResult(normalizedValue);
+  if (comparator) {
+    const tooltip = normalRange && getComparatorAlert(comparator, comparatorValue, normalRange, unit);
+    return tooltip ? { tooltip, severity: ALERT } : { severity: INFO };
   }
-  if (normalRange && normalizedValue > normalRange.max) {
-    return {
-      tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
-      severity: ALERT,
-    };
+
+  // A value that isn't wholly numeric can't be judged against a numeric range, so it falls
+  // through to the qualitative check below.
+  const numericValue = toNumber(normalizedValue);
+  if (normalRange && numericValue !== null) {
+    if (numericValue < normalRange.min) {
+      return {
+        tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
+        severity: ALERT,
+      };
+    }
+    if (numericValue > normalRange.max) {
+      return {
+        tooltip: `Outside normal range\n >${normalRange.max}${unit}`,
+        severity: ALERT,
+      };
+    }
   }
   if (rangeText && normalizedValue !== rangeText) {
     return {
@@ -80,7 +118,7 @@ function getValidationState(normalizedValue, config = {}, visibilityCriteria = {
       severity: ALERT,
     };
   }
-  if (unit?.length > 2 && !isNaN(normalizedValue)) {
+  if (unit?.length > 2 && toNumber(normalizedValue) !== null) {
     return {
       tooltip: `${round(normalizedValue, config)}${unit}`,
       severity: INFO,
@@ -93,9 +131,9 @@ function getValidationState(normalizedValue, config = {}, visibilityCriteria = {
 
 export const formatValue = (value, config) => {
   const { rounding = 0, unit = '' } = config || {};
-  const float = Number.parseFloat(value);
+  const float = toNumber(value);
 
-  if (isNaN(float)) {
+  if (float === null) {
     return value || '—'; // em dash
   }
 

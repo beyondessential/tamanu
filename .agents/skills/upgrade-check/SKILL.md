@@ -58,12 +58,17 @@ hotfixes, each with its branch and commit message.
 
 ## Check 2 — Configuration & Data Requirements
 
-List what new configuration and data the upgrade requires, in three categories:
+List what new configuration and data the upgrade requires, in four categories:
 
 1. **New settings / environment variables** — new env vars or settings added between the versions,
    each with a one-line note on what it controls.
 2. **New config requirements** — new server-config changes, feature flags, etc.
 3. **New reference data** — new reference data, permissions, or data migrations that must be run.
+4. **AI prompt protocol removals** — entries in the `removed` lists of
+   `packages/central-server/app/ai/promptProtocolLedger.json` present in the target but not the
+   source (when the source predates the ledger, every entry in the target counts). List each with its
+   context, token, and reason. A deployment that overrides that context's prompt in settings needs its
+   prompt checked, since it may still refer to the removed token.
 
 For each category, list the items with a one-line description; if a category has none, say "None". Be
 concise.

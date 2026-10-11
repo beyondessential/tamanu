@@ -161,6 +161,7 @@ export const PharmacyOrderModal = React.memo(
     const [orderingClinicianError, setOrderingClinicianError] = useState(false);
     const [comments, setComments] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
     const api = useApi();
     const queryClient = useQueryClient();
@@ -345,6 +346,7 @@ export const PharmacyOrderModal = React.memo(
     }, [prescriptions, orderingClinicianId]);
 
     const submitOrder = useCallback(async () => {
+      setIsSubmitting(true);
       try {
         const selectedPrescriptions = prescriptions.filter(p => p.selected);
 
@@ -388,6 +390,8 @@ export const PharmacyOrderModal = React.memo(
         setShowSuccess(true);
       } catch (err) {
         notifyError(err.message);
+      } finally {
+        setIsSubmitting(false);
       }
     }, [
       queryClient,
@@ -545,6 +549,7 @@ export const PharmacyOrderModal = React.memo(
               onBack={() => setShowAlreadyOrderedConfirmation(false)}
               onCancel={handleClose}
               onConfirm={submitOrder}
+              confirmDisabled={isSubmitting}
               data-testid="confirmcancelrow-7g3j"
             />
           </SubmitButtonsWrapper>
@@ -683,7 +688,7 @@ export const PharmacyOrderModal = React.memo(
         <SubmitButtonsWrapper>
           <ConfirmCancelRow
             confirmText={<TranslatedText stringId="pharmacyOrder.action.send" fallback="Send" />}
-            confirmDisabled={!prescriptions.some(p => p.selected)}
+            confirmDisabled={isSubmitting || !prescriptions.some(p => p.selected)}
             onConfirm={handleSendOrder}
             onCancel={handleClose}
             data-testid="confirmcancelrow-9lo1"

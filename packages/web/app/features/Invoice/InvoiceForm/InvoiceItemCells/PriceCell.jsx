@@ -1,15 +1,16 @@
+import Collapse from '@material-ui/core/Collapse';
+import Box from '@mui/material/Box';
+import Decimal from 'decimal.js';
 import React from 'react';
 import styled from 'styled-components';
+
+import { Field, ThemedTooltip } from '@tamanu/ui-components';
 import {
+  getInvoiceItemCoveragePercentage,
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
-  getInvoiceItemCoveragePercentage,
 } from '@tamanu/utils/invoice';
-import Decimal from 'decimal.js';
-import Collapse from '@material-ui/core/Collapse';
-import { Box } from '@mui/material';
-import { Field, NoteModalActionBlocker } from '../../../../components';
-import { ThemedTooltip } from '@tamanu/ui-components';
+import { NoteModalActionBlocker } from '../../../../components';
 import { PriceField } from '../../../../components/Field/PriceField';
 import { Price } from '../../Price';
 import { CELL_WIDTHS } from '../../constants';
@@ -61,13 +62,14 @@ const calculateCoverageValue = (discountedPrice, coverageValue) => {
 };
 
 const InsuranceSection = ({ item, discountedPrice }) => {
-  if (!item?.product?.insurable || !item.insurancePlanItems?.length > 0 || !item?.productId) {
-    return null;
-  }
+  if (!item) return null;
+
+  const { insurancePlanItems, product, productId } = item;
+  if (!product?.insurable || !insurancePlanItems?.length || !productId) return null;
 
   return (
     <Box mt={1}>
-      {item.insurancePlanItems.map(insurancePlanItem => {
+      {insurancePlanItems.map(insurancePlanItem => {
         const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
         const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
         return (

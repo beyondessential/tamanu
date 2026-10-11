@@ -7,6 +7,15 @@
   "db": {
     "name": "tamanu-facility-test",
   },
+  "integrations": {
+    // mount the FHIR routes so their auth can be tested (resource routes also need the worker)
+    "fhir": {
+      "enabled": true,
+      "worker": {
+        "enabled": true,
+      },
+    },
+  },
   "schedules": {
     "refreshMaterializedView": {
       "upcomingVaccinations": {

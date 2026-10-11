@@ -534,10 +534,33 @@ export class CentralSyncManager {
         },
       );
 
+      // A server's sensitive facilities all belong to the same network, so a session resolves at
+      // most one. Serving a session that spans two would hand each facility the other network's
+      // confidential data, so it is refused. spec: specs/sync/sensitive-networks.md
+      const sensitiveNetworks = await sequelize.query(
+        `
+        SELECT DISTINCT sensitive_network_id
+        FROM facilities
+        WHERE id IN (:facilityIds)
+          AND sensitive_network_id IS NOT NULL
+        `,
+        {
+          replacements: { facilityIds },
+          type: QueryTypes.SELECT,
+        },
+      );
+      if (sensitiveNetworks.length > 1) {
+        throw new Error(
+          `Session ${sessionId} covers facilities in ${sensitiveNetworks.length} sensitive networks; a server's facilities must all belong to the same network`,
+        );
+      }
+      const sensitiveNetworkId = sensitiveNetworks[0]?.sensitive_network_id ?? null;
+
       const sessionConfig = {
         // for facilities with a lab, need ongoing lab requests
         // no need for historical ones on initial sync, and no need on mobile
         syncAllLabRequests: syncAllLabRequests && !session.parameters.isMobile && since > -1,
+        sensitiveNetworkId,
       };
 
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
@@ -563,7 +586,9 @@ export class CentralSyncManager {
           sessionId,
           facilityIds,
           deviceId,
-          {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
+          // only the network scoping carries over; this snapshot is just for newly marked for
+          // sync patients, so it deliberately drops the rest of the session config
+          { sensitiveNetworkId },
         );
 
         // get changes since the last successful sync for all other synced patients and independent

@@ -19,10 +19,10 @@ import styles, { colorPack } from './styles';
 const regularFontSize = screenPercentageToDP(2.1, Orientation.Height);
 const largeFontSize = screenPercentageToDP(3, Orientation.Height);
 
-type MultiSelectState = {
+interface MultiSelectState {
   selector: boolean;
   searchTerm: string;
-};
+}
 
 export class MultiSelect extends Component<any, MultiSelectState> {
   static propTypes = {
@@ -256,21 +256,14 @@ export class MultiSelect extends Component<any, MultiSelectState> {
   _clearSelectorCallback = () => {
     const { onClearSelector } = this.props;
     this._clearSelector();
-    if (onClearSelector) {
-      onClearSelector();
-    }
+    onClearSelector?.();
   };
 
   _toggleSelector = () => {
     const { onToggleList, disabled } = this.props;
     if (disabled) return;
-
-    this.setState({
-      selector: !this.state.selector,
-    });
-    if (onToggleList) {
-      onToggleList();
-    }
+    this.setState(prev => ({ selector: !prev.selector }));
+    onToggleList?.();
   };
 
   _clearSearchTerm = () => {

@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_lab_requests_from_sync_lookup
-              - notify_lab_requests_changed
               - record_lab_requests_changelog
               - set_lab_requests_updated_at
               - set_lab_requests_updated_at_sync_tick
@@ -170,14 +169,6 @@ sources:
               - relationships:
                   arguments:
                     to: source('tamanu', 'departments')
-                    field: id
-          - name: lab_test_panel_request_id
-            data_type: uuid
-            description: "{{ doc('lab_requests__lab_test_panel_request_id') }}"
-            data_tests:
-              - relationships:
-                  arguments:
-                    to: source('tamanu', 'lab_test_panel_requests')
                     field: id
           - name: lab_sample_site_id
             data_type: character varying(255)

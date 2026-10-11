@@ -4,6 +4,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
+import { getLabRequestTestAndPanelNames } from '@tamanu/utils/labTests';
 
 export const getLabRequestList = (foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
@@ -31,6 +32,12 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
       if (canListSensitive) return true;
       return labRequest.tests.every(test => test.labTestType.isSensitive === false);
     });
+
+    // Each request's panels + individual (non-panel) tests, for the Category cell tooltip. Built
+    // from the associations the list query already loaded, so it adds no query.
+    for (const labRequest of permittedLabRequests) {
+      labRequest.testsAndPanelNames = getLabRequestTestAndPanelNames(labRequest).join(', ');
+    }
 
     /**
      * Have to select associated note pages of lab request separately here.

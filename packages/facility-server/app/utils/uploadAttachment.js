@@ -1,6 +1,7 @@
-import fs from 'fs';
+import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
+import { log } from '@tamanu/shared/services/logging';
 
 // spec: ATCH
 // Uploading a file admits its bytes to this server's outbox and creates the
@@ -40,7 +41,12 @@ export const uploadAttachment = async (req, maxFileSize, scope = {}) => {
       metadata,
     };
   } finally {
-    // Parsed file needs to be deleted from memory
-    if (deleteFileAfterImport) fs.unlink(file, () => null);
+    // Awaited so the delete can't land after this request has returned; a
+    // failed delete shouldn't fail the upload.
+    if (deleteFileAfterImport) {
+      await asyncFs.unlink(file).catch(error => {
+        log.warn('uploadAttachment: failed to delete uploaded file', { error: error.message });
+      });
+    }
   }
 };

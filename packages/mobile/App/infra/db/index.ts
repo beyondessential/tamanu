@@ -4,7 +4,7 @@ import {
   createConnection,
   getConnectionManager,
 } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite';
+import { typeORMDriver } from 'react-native-nitro-sqlite';
 import { DevSettings } from 'react-native';
 
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
@@ -147,9 +147,6 @@ class DatabaseHelper {
   private async runPragmaOptimize(): Promise<boolean> {
     const start = performance.now();
     try {
-      // Our SQLite (3.39) would otherwise run a full ANALYZE on each table `PRAGMA optimize` picks,
-      // which can take an unreasonably long time. Pinning to SQLite 3.46+’s default of 400.
-      await this.client.query('PRAGMA analysis_limit = 400;');
       const planned = await this.client.query<{ [column: string]: string }[]>(
         // 0x00001 (debugging mode) + 0x00002 (run ANALYZE on tables that might benefit).
         'PRAGMA optimize(0x00003);',

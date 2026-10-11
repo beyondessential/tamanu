@@ -79,7 +79,12 @@ const tabs = [
     render: props => (
       <TabContainer data-testid="tabcontainer-z96b">
         <ScopeSelectorFields {...props} data-testid="scopeselectorfields-mtsk" />
-        <JSONEditorView {...props} data-testid="jsoneditorview-7anx" />
+        {/* keyed: a switch discards the edit buffer, so Save can't write it to another target */}
+        <JSONEditorView
+          key={`${props.scope}:${props.facilityId}`}
+          {...props}
+          data-testid="jsoneditorview-7anx"
+        />
       </TabContainer>
     ),
   },
@@ -193,6 +198,8 @@ const SettingsForm = ({
   const [currentTab, setCurrentTab] = useState(SETTING_TABS.EDITOR);
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
+  const [hasUnsavedJsonEdit, setHasUnsavedJsonEdit] = useState(false);
+  const hasUnsavedChanges = dirty || hasUnsavedJsonEdit;
 
   const canViewJSONEditor = ability.can('write', 'Setting');
   const filteredTabs = useMemo(
@@ -206,31 +213,29 @@ const SettingsForm = ({
       setShowWarningModal(true);
     });
 
+  const confirmDiscardChanges = async () => {
+    if (!hasUnsavedChanges) return true;
+    const dismissChanges = await handleShowWarningModal();
+    if (dismissChanges) setHasUnsavedJsonEdit(false);
+    return dismissChanges;
+  };
+
   const handleChangeTab = async newTab => {
-    if (newTab !== currentTab && dirty) {
-      const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-      await resetForm();
-    }
+    if (newTab === currentTab || !(await confirmDiscardChanges())) return;
+    if (dirty) await resetForm();
     setCurrentTab(newTab);
   };
 
   const handleChangeScope = async e => {
     const newScope = e.target.value;
-    if (newScope !== scope && dirty) {
-      const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-    }
+    if (newScope === scope || !(await confirmDiscardChanges())) return;
     setScope(newScope);
     setFacilityId(null);
   };
 
   const handleFacilityChange = async e => {
     const newFacilityId = e.target.value;
-    if (newFacilityId !== facilityId && dirty) {
-      const dismissChanges = await handleShowWarningModal();
-      if (!dismissChanges) return;
-    }
+    if (newFacilityId === facilityId || !(await confirmDiscardChanges())) return;
     setFacilityId(newFacilityId);
   };
 
@@ -253,6 +258,7 @@ const SettingsForm = ({
         onScopeChange={handleChangeScope}
         facilityId={facilityId}
         onFacilityChange={handleFacilityChange}
+        onUnsavedEditChange={setHasUnsavedJsonEdit}
         globalSettings={globalSettings}
         data-testid="styledtabdisplay-teef"
       />

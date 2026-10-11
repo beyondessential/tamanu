@@ -9,7 +9,7 @@ import { TranslationContext, useTranslation, VisuallyHidden } from '@tamanu/ui-c
 import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { MarkPatientForSync } from './MarkPatientForSync';
+import { MarkPatientForSync, PatientNotMarkedForSync } from './MarkPatientForSync';
 import { PATIENT_STATUS_COLORS } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
@@ -354,6 +354,9 @@ export const PatientHistory = ({ patient, onItemClick, refreshCount: externalRef
   const canReadEncounter = ability.can('read', 'Encounter');
 
   if (!patient.markedForSync) {
+    if (!ability.can('create', 'SyncPatient')) {
+      return <PatientNotMarkedForSync />;
+    }
     return <MarkPatientForSync patient={patient} data-testid="markpatientforsync-t5tf" />;
   }
 

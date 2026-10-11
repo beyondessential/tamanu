@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_attachments_from_sync_lookup
-              - notify_attachments_changed
               - record_attachments_changelog
               - set_attachments_updated_at
               - set_attachments_updated_at_sync_tick

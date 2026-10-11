@@ -1,7 +1,9 @@
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { DEVICE_TYPES } from '@tamanu/constants';
+import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
+import { DEVICE_TYPES, NOTIFY_CHANNELS } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
@@ -31,6 +33,12 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
+  // Keep the task runner's process-local settings cache in sync via NOTIFYs.
+  const dbNotifier = await defineDbNotifier(context.sequelize.config, [
+    NOTIFY_CHANNELS.TABLE_CHANGED,
+  ]);
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+
   const isConfigured = await setupSyncRuntime(context, { syncManager });
 
   const cancelTasks = await startScheduledTasks(context, taskClasses);
@@ -40,6 +48,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();
     cancelConfigPoll();
+    dbNotifier.close();
   });
 }
 

@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_pharmacy_orders_from_sync_lookup
-              - notify_pharmacy_orders_changed
               - record_pharmacy_orders_changelog
               - set_pharmacy_orders_updated_at
               - set_pharmacy_orders_updated_at_sync_tick
