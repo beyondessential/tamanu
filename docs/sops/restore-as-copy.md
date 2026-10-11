@@ -30,9 +30,9 @@ hand.
    config, or `SYNC_URL` in its environment), and that the environment carries
    none of the source's sync credentials. A facility whose database records a
    different central then refuses to start. A copied config file can also hold
-   integration credentials (such as `mailgun` or `integrations`): remove them,
-   and give the copy its own `auth.secret` so the two servers' logins are not
-   interchangeable.
+   integration credentials (such as `mailgun` or `integrations`) and the
+   source's settings key (`crypto.settingsPsk`): remove them, and give the copy
+   its own `auth.secret` so the two servers' logins are not interchangeable.
 3. Run this against every restored database (central and each facility), as
    described in `connect-psql.md`:
 
