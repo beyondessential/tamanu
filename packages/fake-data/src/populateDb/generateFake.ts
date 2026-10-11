@@ -22,11 +22,12 @@ export async function generateFake(
     try {
       if (tallyFilePath) {
         await populateDbFromTallyFile(models, tallyFilePath);
-        done += 1;
       } else {
-        await generateEachDataType(models);
-        done += 1;
+        // A failed round rolls back, so it leaves no half-linked records behind. Tally rounds are
+        // large batches meant to spread across the connection pool, and abort the run on failure.
+        await models.Patient.sequelize.transaction(() => generateEachDataType(models));
       }
+      done += 1;
       process.stdout.write('.');
     } catch (err) {
       // A tally round is not retried, so swallowing its failure would leave the run

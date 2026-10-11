@@ -15,6 +15,8 @@ import useLabTestTypesQuery from './useLabTestTypesQuery';
 import { Field } from '/components/Forms/FormField';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
+import { StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const toMultiCheckboxOptions = (labTestTypes: LabTestType[]) =>
   labTestTypes.map(labTestType => ({
@@ -82,7 +84,11 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
 
   const { ability } = useAuth();
   const includeSensitive = ability.can('create', 'SensitiveLabRequest');
-  const { data: labTestTypeOptions = [] } = useLabTestTypesQuery(
+  const {
+    data: labTestTypeOptions = [],
+    isError: isLabTestTypesError,
+    isSuccess: isLabTestTypesSuccess,
+  } = useLabTestTypesQuery(
     { labTestCategoryId: values.categoryId, includeSensitive },
     { select: toMultiCheckboxOptions },
   );
@@ -183,6 +189,19 @@ export const LabRequestForm = ({ values, errors, handleSubmit, navigation }) => 
         name="categoryId"
       />
       <Field name="labTestTypeIds" component={MultiCheckbox} options={labTestTypeOptions} />
+      {isLabTestTypesError && (
+        <StyledText marginTop={10} color={theme.colors.ALERT}>
+          <TranslatedText
+            stringId="lab.testType.error.couldNotLoad"
+            fallback="Could not load the tests for this category."
+          />
+        </StyledText>
+      )}
+      {isLabTestTypesSuccess && labTestTypeOptions.length === 0 && (
+        <StyledText marginTop={10} color={theme.colors.TEXT_MID}>
+          <TranslatedText stringId="lab.testSelect.noResults" fallback="No tests or panels found" />
+        </StyledText>
+      )}
       <FormValidationMessage message={errors.form} />
       <SubmitButton marginTop={15} onSubmit={handleSubmit} />
     </FormScreenView>

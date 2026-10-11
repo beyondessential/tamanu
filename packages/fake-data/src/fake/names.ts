@@ -953,6 +953,42 @@ export const TASK_NOTES = [
   'Completed at bedside',
 ];
 
+export const LAB_TEST_TYPES: Array<{
+  code: string;
+  name: string;
+  unit: string;
+  range?: [number, number];
+}> = [
+  { code: 'WBC', name: 'White Blood Cell Count', unit: 'x10^9/L', range: [4, 11] },
+  { code: 'RBC', name: 'Red Blood Cell Count', unit: 'x10^12/L', range: [4.2, 5.9] },
+  { code: 'HGB', name: 'Haemoglobin', unit: 'g/dL', range: [12, 17] },
+  { code: 'HCT', name: 'Haematocrit', unit: '%', range: [36, 50] },
+  { code: 'PLT', name: 'Platelet Count', unit: 'x10^9/L', range: [150, 400] },
+  { code: 'MCV', name: 'Mean Corpuscular Volume', unit: 'fL', range: [80, 100] },
+  { code: 'GLU', name: 'Blood Glucose', unit: 'mmol/L', range: [3.9, 7.8] },
+  { code: 'HbA1c', name: 'Glycated Haemoglobin', unit: '%', range: [4, 6] },
+  { code: 'CREAT', name: 'Creatinine', unit: 'umol/L', range: [60, 110] },
+  { code: 'BUN', name: 'Blood Urea Nitrogen', unit: 'mmol/L', range: [2.5, 7.1] },
+  { code: 'ALT', name: 'Alanine Aminotransferase', unit: 'IU/L', range: [7, 56] },
+  { code: 'AST', name: 'Aspartate Aminotransferase', unit: 'IU/L', range: [10, 40] },
+  { code: 'ALP', name: 'Alkaline Phosphatase', unit: 'IU/L', range: [44, 147] },
+  { code: 'TBIL', name: 'Total Bilirubin', unit: 'umol/L', range: [5, 21] },
+  { code: 'TSH', name: 'Thyroid Stimulating Hormone', unit: 'mIU/L', range: [0.4, 4] },
+  { code: 'CRP', name: 'C-Reactive Protein', unit: 'mg/L', range: [0, 5] },
+  { code: 'ESR', name: 'Erythrocyte Sedimentation Rate', unit: 'mm/hr', range: [0, 20] },
+  { code: 'Na', name: 'Sodium', unit: 'mmol/L', range: [135, 145] },
+  { code: 'K', name: 'Potassium', unit: 'mmol/L', range: [3.5, 5.1] },
+  { code: 'Cl', name: 'Chloride', unit: 'mmol/L', range: [98, 107] },
+  { code: 'Ca', name: 'Calcium', unit: 'mmol/L', range: [2.2, 2.6] },
+  { code: 'CHOL', name: 'Total Cholesterol', unit: 'mmol/L', range: [3, 5.2] },
+  { code: 'TRIG', name: 'Triglycerides', unit: 'mmol/L', range: [0.5, 1.7] },
+  { code: 'UA', name: 'Uric Acid', unit: 'umol/L', range: [200, 430] },
+  { code: 'mRDT', name: 'Malaria Rapid Diagnostic Test', unit: '' },
+  { code: 'HIV-Ab', name: 'HIV Antibody Screen', unit: '' },
+  { code: 'HBsAg', name: 'Hepatitis B Surface Antigen', unit: '' },
+  { code: 'URINE-MC', name: 'Urine Microscopy & Culture', unit: '' },
+];
+
 export const QUALITATIVE_LAB_RESULTS = [
   'Positive',
   'Negative',
