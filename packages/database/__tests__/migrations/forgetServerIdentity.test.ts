@@ -76,7 +76,7 @@ describe('forget_server_identity()', () => {
     expect(deleted?.deletedAt).toBeTruthy();
   });
 
-  it('is not executable by every role', async () => {
+  it('is not executable by PUBLIC', async () => {
     const [[{ allowed }]] = await sequelize.query(
       `SELECT has_function_privilege('public', 'public.forget_server_identity()', 'EXECUTE') AS allowed`,
     );

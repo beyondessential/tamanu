@@ -1,3 +1,4 @@
+import config from 'config';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants';
 
@@ -52,6 +53,7 @@ describe('performDatabaseIntegrityChecks', () => {
   });
 
   it('fails on a mismatch with the host declared in config alone', async () => {
+    expect(config.sync.host).toBeTruthy();
     delete process.env.SYNC_URL;
     await LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://other.example.com');
     await expect(performDatabaseIntegrityChecks(ctx)).rejects.toThrow(/sync\.host mismatch/);
