@@ -13,13 +13,12 @@ setup and integration credentials.
 Clone hosts (canopy's `clone` rank) refresh with an ordinary Canopy restore of
 the source's database. The restore stops Tamanu, runs
 `forget_server_identity()`, and starts Tamanu again. The clone keeps its own key
-and never receives the source's.
+and never receives the source's. On v2.60 and later, each clone facility is then
+set up against the clone's central automatically.
 
-After the restore:
-
-1. Set each facility up against the clone's central with the setup wizard or
-   `setupSync`. Central issues each facility new sync credentials.
-2. Enter test credentials for any integration you need to test on the clone.
+After the restore, enter test credentials for any integration you need to test
+on the clone. A clone below v2.60 also needs each facility's sync set up against
+the clone's central by hand.
 
 ## Any other copy
 
@@ -46,4 +45,7 @@ hand.
 4. For a VM or disk clone, give the copy its own key: move the old key file
    aside and run the server's `configSecret init` (for a containerised server,
    replace the mounted key secret instead).
-5. Start Tamanu, then follow the two steps after the restore above.
+5. Start Tamanu, then set each facility up against the copy's central with the
+   setup wizard or `setupSync`. Central issues each facility new sync
+   credentials.
+6. Enter test credentials for any integration you need to test on the copy.
