@@ -48,7 +48,10 @@ hand.
 4. For a VM or disk clone, give the copy its own key: move the old key file
    aside and run the server's `configSecret init` (for a containerised server,
    replace the mounted key secret instead).
-5. Start Tamanu, then set each facility up against the copy's central with the
+5. Run the central's `upgrade` subcommand once. The function removes the
+   settings key and `upgrade` creates a new one; without it, saving any secret
+   setting fails.
+6. Start Tamanu, then set each facility up against the copy's central with the
    setup wizard or `setupSync`. Central issues each facility new sync
    credentials.
-6. Enter test credentials for any integration you need to test on the copy.
+7. Enter test credentials for any integration you need to test on the copy.
