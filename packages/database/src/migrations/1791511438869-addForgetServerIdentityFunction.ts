@@ -9,7 +9,7 @@ const ENCRYPTED = `'^S1:[^:]*:[^:]*$'`;
 // any key file. Secret settings are soft-deleted so the deletion syncs down to facilities.
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    CREATE OR REPLACE FUNCTION forget_server_identity() RETURNS void
+    CREATE OR REPLACE FUNCTION public.forget_server_identity() RETURNS void
     LANGUAGE sql
     AS $$
       DELETE FROM public.local_system_secrets;
@@ -25,5 +25,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.sequelize.query(`DROP FUNCTION IF EXISTS forget_server_identity();`);
+  await query.sequelize.query(`DROP FUNCTION IF EXISTS public.forget_server_identity();`);
 }
