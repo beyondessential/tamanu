@@ -4,14 +4,12 @@ import {
   FACT_CENTRAL_HOST,
   FACT_CURRENT_SYNC_TICK,
   FACT_CURRENT_VERSION,
-  FACT_DEVICE_ID,
   FACT_DEVICE_KEY,
-  FACT_FACILITY_IDS,
-  FACT_META_SERVER_ID,
   FACT_SETTINGS_PSK,
-  FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
+  SERVER_IDENTITY_FACTS,
 } from '@tamanu/constants';
+import { encryptSecret, generateSecretKey } from '@tamanu/shared/utils/crypto';
 
 import { closeDatabase, createTestDatabase } from '../utilities';
 
@@ -34,18 +32,21 @@ describe('forget_server_identity()', () => {
     await models.Setting.destroy({ where: {}, force: true });
   });
 
+  const encrypted = async () => encryptSecret(await generateSecretKey(), 'secret');
+
   const remainingKeys = async model =>
     (await model.findAll({ attributes: ['key'], order: [['key', 'ASC']] })).map(row => row.key);
 
   it('removes every secret and the identity, and keeps every other fact', async () => {
-    await models.LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://central.example');
-    await models.LocalSystemFact.set(FACT_SYNC_EMAIL, 'sync@example');
-    await models.LocalSystemFact.set(FACT_FACILITY_IDS, '["facility-a"]');
-    await models.LocalSystemFact.set(FACT_DEVICE_ID, 'device-a');
-    await models.LocalSystemFact.set(FACT_META_SERVER_ID, 'meta-a');
+    for (const key of SERVER_IDENTITY_FACTS) {
+      await models.LocalSystemFact.set(key, 'source-server-value');
+    }
     await models.LocalSystemFact.set(FACT_CURRENT_VERSION, '2.67.0');
     await sequelize.query(
-      `INSERT INTO local_system_facts (key, value) VALUES ('legacySecret', 'S1:aXY=:Y2lwaGVy')`,
+      `INSERT INTO local_system_facts (key, value) VALUES ('legacySecret', $value)`,
+      {
+        bind: { value: await encrypted() },
+      },
     );
     await models.LocalSystemSecret.set(FACT_SYNC_PASSWORD, 'password');
     await models.LocalSystemSecret.set(FACT_DEVICE_KEY, 'device-key');
@@ -61,7 +62,7 @@ describe('forget_server_identity()', () => {
   });
 
   it('soft-deletes secret settings and keeps the rest', async () => {
-    await models.Setting.set('integrations.dhis2.password', 'S1:aXY=:Y2lwaGVy');
+    await models.Setting.set('integrations.dhis2.password', await encrypted());
     await models.Setting.set('mail.from', 'tamanu@example');
 
     await sequelize.query('SELECT forget_server_identity()');
@@ -73,6 +74,13 @@ describe('forget_server_identity()', () => {
       paranoid: false,
     });
     expect(deleted?.deletedAt).toBeTruthy();
+  });
+
+  it('is not executable by every role', async () => {
+    const [[{ allowed }]] = await sequelize.query(
+      `SELECT has_function_privilege('public', 'public.forget_server_identity()', 'EXECUTE') AS allowed`,
+    );
+    expect(allowed).toBe(false);
   });
 
   it('lets a forgotten identity be set up again', async () => {

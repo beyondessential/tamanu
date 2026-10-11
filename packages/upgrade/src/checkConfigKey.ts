@@ -35,14 +35,17 @@ async function asCopyAdvice(sequelize: Sequelize): Promise<string> {
     `SELECT to_regprocedure('public.forget_server_identity()')::text AS name`,
     { type: QueryTypes.SELECT },
   );
-  if (row?.name) {
-    return 'To run it as a copy under this key instead, run `SELECT forget_server_identity();` against it first.';
-  }
+  const steps = row?.name
+    ? 'run `SELECT forget_server_identity();` against it first.'
+    : [
+        'first delete every row of local_system_secrets,',
+        `every local_system_facts row holding an encrypted value (S1:<iv>:<ciphertext>), and the ${SERVER_IDENTITY_FACTS.join(', ')} facts,`,
+        'then soft-delete every settings row holding an encrypted value.',
+      ].join(' ');
   return [
-    'To run it as a copy under this key instead, first delete every row of local_system_secrets,',
-    `every local_system_facts row holding an encrypted value, and the ${SERVER_IDENTITY_FACTS.join(', ')} facts,`,
-    'then soft-delete every settings row holding an encrypted value.',
-  ].join(' ');
+    `If this is a copy, to run it under this key instead, ${steps}`,
+    'Never do this on the server it was copied from: there, the key file above is the wrong one.',
+  ].join('\n');
 }
 
 export async function checkConfigKey(sequelize: Sequelize): Promise<void> {
