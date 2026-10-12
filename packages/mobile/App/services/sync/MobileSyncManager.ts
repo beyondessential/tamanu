@@ -12,20 +12,20 @@ import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTableNamesForDirection,
   getTransactingModelsForDirection,
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
 } from './utils';
 import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { checkForeignKeys } from './utils/checkForeignKeys';
-import { deferForeignKeys } from './utils/deferForeignKeys';
 import {
   createSnapshotTable,
   dropSnapshotTable,
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
+import { runSyncSaveTransaction } from './utils/runSyncSaveTransaction';
 import { saveChangesFromMemory, saveChangesFromSnapshot } from './utils/saveIncomingChanges';
 
 /**
@@ -374,8 +374,7 @@ export class MobileSyncManager {
     });
     const tablesForFullResync = tablesForFullResyncSetting?.value.split(',');
 
-    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
-    const tableNames = Object.values(incomingModels).map(m => m.getTableName());
+    const tableNames = getTableNamesForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
     const { totalToPull, pullUntil } = await this.centralServer.initiatePull(
       sessionId,
@@ -421,9 +420,13 @@ export class MobileSyncManager {
       await Database.setUnsafePragma();
     }
 
+    const incomingTableNames = getTableNamesForDirection(
+      this.models,
+      SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+    );
+
     try {
-      await Database.client.transaction(async transactionEntityManager => {
-        await deferForeignKeys(transactionEntityManager);
+      await runSyncSaveTransaction(incomingTableNames, async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -439,10 +442,6 @@ export class MobileSyncManager {
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
-        await checkForeignKeys(
-          transactionEntityManager,
-          modelsToSave.map(model => model.getTableName()),
-        );
         await this.postPull(transactionEntityManager, pullUntil);
       });
     } catch (err) {
@@ -498,9 +497,13 @@ export class MobileSyncManager {
         `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
       );
     };
-    await Database.client.transaction(async transactionEntityManager => {
-      try {
-        await deferForeignKeys(transactionEntityManager);
+    const incomingTableNames = getTableNamesForDirection(
+      this.models,
+      SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+    );
+
+    try {
+      await runSyncSaveTransaction(incomingTableNames, async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -512,19 +515,12 @@ export class MobileSyncManager {
          */
         const modelsToSave = Object.values(incomingModels);
         await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
-        await checkForeignKeys(
-          transactionEntityManager,
-          modelsToSave.map(model => model.getTableName()),
-        );
         await this.postPull(transactionEntityManager, pullUntil);
-      } catch (err) {
-        console.error(
-          'MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync',
-          err,
-        );
-        throw err;
-      }
-    });
+      });
+    } catch (err) {
+      console.error('MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync', err);
+      throw err;
+    }
   }
 
   async postPull(entityManager: EntityManager, pullUntil: number) {
