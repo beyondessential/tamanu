@@ -21,7 +21,7 @@ if [[ -n "$CENTRAL_TARGETS" && ! -f "$SCENARIO_DIR/merged-central.yml" ]]; then
 fi
 
 if [[ -z "$FACILITY_TARGETS" && -z "$CENTRAL_TARGETS" ]]; then
-  echo "ERROR: no targets with scenarios to run; set FACILITY_TARGETS or CENTRAL_TARGETS" >&2
+  echo "ERROR: nothing to run: no FACILITY_TARGETS or CENTRAL_TARGETS with matching scenarios" >&2
   exit 1
 fi
 
