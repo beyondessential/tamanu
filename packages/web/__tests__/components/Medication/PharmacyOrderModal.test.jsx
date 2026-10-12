@@ -1,14 +1,13 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SettingsContext } from '@tamanu/ui-components';
-
-import { createQueryClient, createStubTheme } from '../../helpers';
-import { TranslationProvider } from '../../../app/contexts/Translation';
 import { PharmacyOrderModal } from '../../../app/components/Medication/PharmacyOrderModal';
+import { TranslationProvider } from '../../../app/contexts/Translation';
+import { createQueryClient, createStubTheme } from '../../helpers';
 
 const ENCOUNTER = { id: 'encounter-1' };
 const FACILITY_ID = 'facility-1';
@@ -62,26 +61,29 @@ vi.mock('../../../app/utils', async importOriginal => ({
 }));
 
 // The real table is a full editable grid; a checkbox per selectable row is all these cases need.
-vi.mock('../../../app/components/Medication/PharmacyOrderMedicationTable', async importOriginal => ({
-  ...(await importOriginal()),
-  PharmacyOrderMedicationTable: ({ data }) => (
-    <div>
-      {data.map(row =>
-        row.onSelect ? (
-          <input
-            key={row.id}
-            type="checkbox"
-            aria-label={row.medication.name}
-            checked={row.selected}
-            onChange={row.onSelect}
-          />
-        ) : (
-          <span key={row.id}>{row.medication.name}</span>
-        ),
-      )}
-    </div>
-  ),
-}));
+vi.mock(
+  '../../../app/components/Medication/PharmacyOrderMedicationTable',
+  async importOriginal => ({
+    ...(await importOriginal()),
+    PharmacyOrderMedicationTable: ({ data }) => (
+      <div>
+        {data.map(row =>
+          row.onSelect ? (
+            <input
+              key={row.id}
+              type="checkbox"
+              aria-label={row.medication.name}
+              checked={row.selected}
+              onChange={row.onSelect}
+            />
+          ) : (
+            <span key={row.id}>{row.medication.name}</span>
+          ),
+        )}
+      </div>
+    ),
+  }),
+);
 
 const settingsContext = {
   getSetting: key =>
