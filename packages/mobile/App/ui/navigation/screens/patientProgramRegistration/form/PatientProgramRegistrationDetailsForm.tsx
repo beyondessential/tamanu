@@ -32,6 +32,7 @@ import { theme } from '~/ui/styled/theme';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import type { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
+import { getRegistrationConditionsValidation } from './registrationConditionsValidation';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
@@ -153,21 +154,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   fallback="Registered by"
                 />,
               ),
-            conditions: yup
-              .array()
-              .of(
-                yup.object().shape({
-                  condition: yup.object().shape({ value: yup.string().required() }),
-                  category: yup.object().shape({ value: yup.string().required() }),
-                }),
-              )
-              .test(
-                'mandatory-condition',
-                getTranslation('validation.required.inline', '*Required'),
-                conditions =>
-                  !programRegistry.mandatoryConditionEnabled ||
-                  getCompleteRegistrationConditions(conditions).length > 0,
-              ),
+            conditions: getRegistrationConditionsValidation(
+              programRegistry.mandatoryConditionEnabled,
+              getTranslation('validation.required.inline', '*Required'),
+            ),
           })}
           onSubmit={submitPatientProgramRegistration}
         >

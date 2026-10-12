@@ -42,6 +42,31 @@ const RelatedConditionFieldsContainer = styled.div`
   }
 `;
 
+export const getRelatedConditionsSchema = (mandatoryConditionEnabled, requiredMessage) =>
+  yup
+    .array()
+    .of(
+      yup.object().shape({
+        conditionId: yup.string().nullable(),
+        conditionCategoryId: yup
+          .string()
+          .nullable()
+          .when('conditionId', {
+            is: Boolean,
+            then: yup.string().required(requiredMessage),
+          }),
+      }),
+    )
+    .nullable()
+    .test(
+      'mandatory-condition',
+      requiredMessage,
+      (conditions, context) =>
+        !mandatoryConditionEnabled ||
+        Boolean(conditions?.some(condition => condition?.conditionId)) ||
+        context.createError({ path: 'conditions[0].conditionId' }),
+    );
+
 export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject }) => {
   const { getTranslation } = useTranslation();
   const { currentUser, facilityId } = useAuth();
@@ -63,31 +88,10 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        conditions: yup
-          .array()
-          .of(
-            yup.object().shape({
-              conditionId: yup.string().nullable(),
-              conditionCategoryId: yup
-                .string()
-                .nullable()
-                .when('conditionId', {
-                  is: Boolean,
-                  then: yup
-                    .string()
-                    .required(getTranslation('validation.required.inline', '*Required')),
-                }),
-            }),
-          )
-          .nullable()
-          .test(
-            'mandatory-condition',
-            getTranslation('validation.required.inline', '*Required'),
-            (conditions, context) =>
-              !program?.mandatoryConditionEnabled ||
-              Boolean(conditions?.some(condition => condition?.conditionId)) ||
-              context.createError({ path: 'conditions[0].conditionId' }),
-          ),
+        conditions: getRelatedConditionsSchema(
+          Boolean(program?.mandatoryConditionEnabled),
+          getTranslation('validation.required.inline', '*Required'),
+        ),
         programRegistryId: foreignKey().required(
           getTranslation('validation.required.inline', '*Required'),
         ),
