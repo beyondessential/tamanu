@@ -1,5 +1,5 @@
 import _config from 'config';
-import { log } from '@tamanu/shared/services/logging';
+
 import { SYNC_FACILITY_RUN_STATUSES } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
@@ -10,24 +10,23 @@ import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
-  getModelsForPush,
   getModelsForPull,
+  getModelsForPush,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
-
+import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig } from '../serverConfig';
-
-import { pushOutgoingChanges } from './pushOutgoingChanges';
-import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
-import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
-import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
-import { pullSettingsPsk } from './pullSettingsPsk';
 import { convergeSyncUser } from './convergeSyncUser';
+import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
+import { pullSettingsPsk } from './pullSettingsPsk';
+import { pushOutgoingChanges } from './pushOutgoingChanges';
+import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -53,10 +52,13 @@ export class FacilitySyncManager {
 
   centralServer = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   currentSyncPromise = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   nextSyncPromise = null;
 
+  /** @type {string | null} */
   reason = null;
 
   lastDurationMs = 0;
@@ -175,7 +177,7 @@ export class FacilitySyncManager {
       throw new Error('Sync credentials are not configured');
     }
 
-    const startTime = new Date().getTime();
+    const startTime = Date.now();
     this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.attemptStart', {
