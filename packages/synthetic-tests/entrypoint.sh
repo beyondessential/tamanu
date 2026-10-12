@@ -10,18 +10,18 @@ MAX_WAIT="${MAX_WAIT:-300}"
 FACILITY_TARGETS="${FACILITY_TARGETS:-}"
 CENTRAL_TARGETS="${CENTRAL_TARGETS:-}"
 
-if [[ -z "$FACILITY_TARGETS" && -z "$CENTRAL_TARGETS" ]]; then
-  echo "ERROR: At least one of FACILITY_TARGETS or CENTRAL_TARGETS must be set" >&2
-  exit 1
-fi
-
 if [[ -n "$FACILITY_TARGETS" && ! -f "$SCENARIO_DIR/merged-facility.yml" ]]; then
-  echo "ERROR: FACILITY_TARGETS is set but $SCENARIO_DIR/merged-facility.yml does not exist" >&2
-  exit 1
+  echo "WARNING: no facility scenarios ($SCENARIO_DIR/merged-facility.yml), skipping FACILITY_TARGETS" >&2
+  FACILITY_TARGETS=""
 fi
 
 if [[ -n "$CENTRAL_TARGETS" && ! -f "$SCENARIO_DIR/merged-central.yml" ]]; then
-  echo "ERROR: CENTRAL_TARGETS is set but $SCENARIO_DIR/merged-central.yml does not exist" >&2
+  echo "WARNING: no central scenarios ($SCENARIO_DIR/merged-central.yml), skipping CENTRAL_TARGETS" >&2
+  CENTRAL_TARGETS=""
+fi
+
+if [[ -z "$FACILITY_TARGETS" && -z "$CENTRAL_TARGETS" ]]; then
+  echo "ERROR: nothing to run: no FACILITY_TARGETS or CENTRAL_TARGETS with matching scenarios" >&2
   exit 1
 fi
 
