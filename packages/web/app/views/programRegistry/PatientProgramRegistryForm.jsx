@@ -282,6 +282,9 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               confirmText={buttonText}
               onConfirm={submitForm}
               onCancel={handleCancel}
+              confirmDisabled={
+                Boolean(selectedProgramRegistryId) && program?.id !== selectedProgramRegistryId
+              }
             />
           </>
         );
