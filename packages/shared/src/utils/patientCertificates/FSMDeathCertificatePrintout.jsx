@@ -21,12 +21,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: PAGE_GUTTER,
     fontSize: 8,
   },
-  table: {
-    border: '1 solid black',
-  },
   row: {
     flexDirection: 'row',
-    borderBottom: '1 solid black',
+    border: '1 solid black',
+    marginTop: -1,
+  },
+  causeBlock: {
+    border: '1 solid black',
+    marginTop: -1,
   },
   lastRow: {
     flexDirection: 'row',
@@ -225,14 +227,14 @@ export const FSMDeathCertificatePrintout = ({
     <Document>
       <Page size="LETTER" orientation="landscape" style={styles.page}>
         {/* Header */}
-        <View style={styles.headerRow}>
+        <View style={styles.headerRow} fixed>
            <View style={styles.titleBox}>
             <Text bold style={styles.headerTitle}>DEATH CERTIFICATE</Text>
             <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
           </View>
         </View>
 
-        <View style={styles.table}>
+        <View>
           {/* Row 1: Personal Identification */}
           <View style={styles.row} wrap={false}>
             <Cell flex={1} label="First name:" value={patientData?.firstName} />
@@ -299,62 +301,64 @@ export const FSMDeathCertificatePrintout = ({
           </View>
 
           {/* PART I: Medical Certification */}
-          <View style={styles.partHeader} wrap={false}>
-            <View style={{ flex: 1, borderRight: '1 solid black', paddingVertical: 2, paddingHorizontal: 3 }}>
-              <Text bold style={styles.partHeaderText}>PART I - Death was caused by:</Text>
+          <View style={styles.causeBlock} wrap={false}>
+            <View style={styles.partHeader}>
+              <View style={{ flex: 1, borderRight: '1 solid black', paddingVertical: 2, paddingHorizontal: 3 }}>
+                <Text bold style={styles.partHeaderText}>PART I - Death was caused by:</Text>
+              </View>
+              <View style={{ width: 190, paddingVertical: 2, paddingHorizontal: 3 }}>
+                <Text bold style={styles.partHeaderText}>Approx. Interval - onset & death:</Text>
+              </View>
             </View>
-            <View style={{ width: 190, paddingVertical: 2, paddingHorizontal: 3 }}>
-              <Text bold style={styles.partHeaderText}>Approx. Interval - onset & death:</Text>
-            </View>
-          </View>
           
-          {/* Cause rows */}
-          {/* a */}
-          <View style={styles.causeRow} wrap={false}>
-            <View style={styles.causeLabel}><Text>a.</Text></View>
-            <View style={styles.causeContent}>
-              <Text>{getCauseText(patientData?.causes?.primary)}</Text>
+            {/* Cause rows */}
+            {/* a */}
+            <View style={styles.causeRow}>
+              <View style={styles.causeLabel}><Text>a.</Text></View>
+              <View style={styles.causeContent}>
+                <Text>{getCauseText(patientData?.causes?.primary)}</Text>
+              </View>
+              <View style={[styles.causeInterval, { borderRight: 0 }]}>
+                <Text>{getCauseInterval(patientData?.causes?.primary)}</Text>
+              </View>
             </View>
-            <View style={[styles.causeInterval, { borderRight: 0 }]}>
-              <Text>{getCauseInterval(patientData?.causes?.primary)}</Text>
+            {/* b */}
+            <View style={styles.causeRow}>
+              <View style={styles.causeLabel}><Text>b.</Text></View>
+              <View style={styles.causeContent}>
+                <Text style={{ marginBottom: 1 }}>Due to, or as a consequence of:</Text>
+                <Text>{getCauseText(patientData?.causes?.antecedent1)}</Text>
+              </View>
+              <View style={[styles.causeInterval, { borderRight: 0 }]}>
+                <Text>{getCauseInterval(patientData?.causes?.antecedent1)}</Text>
+              </View>
             </View>
-          </View>
-          {/* b */}
-          <View style={styles.causeRow} wrap={false}>
-            <View style={styles.causeLabel}><Text>b.</Text></View>
-            <View style={styles.causeContent}>
-              <Text style={{ marginBottom: 1 }}>Due to, or as a consequence of:</Text>
-              <Text>{getCauseText(patientData?.causes?.antecedent1)}</Text>
+            {/* c */}
+            <View style={styles.causeRow}>
+              <View style={styles.causeLabel}><Text>c.</Text></View>
+              <View style={styles.causeContent}>
+                 <Text style={{ marginBottom: 1 }}>Due to, or as a consequence of:</Text>
+                 <Text>{getCauseText(patientData?.causes?.antecedent2)}</Text>
+              </View>
+              <View style={[styles.causeInterval, { borderRight: 0 }]}>
+                <Text>{getCauseInterval(patientData?.causes?.antecedent2)}</Text>
+              </View>
             </View>
-            <View style={[styles.causeInterval, { borderRight: 0 }]}>
-              <Text>{getCauseInterval(patientData?.causes?.antecedent1)}</Text>
-            </View>
-          </View>
-          {/* c */}
-          <View style={styles.causeRow} wrap={false}>
-            <View style={styles.causeLabel}><Text>c.</Text></View>
-            <View style={styles.causeContent}>
-               <Text style={{ marginBottom: 1 }}>Due to, or as a consequence of:</Text>
-               <Text>{getCauseText(patientData?.causes?.antecedent2)}</Text>
-            </View>
-            <View style={[styles.causeInterval, { borderRight: 0 }]}>
-              <Text>{getCauseInterval(patientData?.causes?.antecedent2)}</Text>
-            </View>
-          </View>
-           {/* d */}
-          <View style={styles.causeRow} wrap={false}>
-            <View style={styles.causeLabel}><Text>d.</Text></View>
-            <View style={[styles.causeContent, { borderBottom: 0 }]}>
-               <Text style={{ marginBottom: 1 }}>Due to, or as a consequence of:</Text>
-               <Text>{getCauseText(patientData?.causes?.antecedent3)}</Text>
-            </View>
-            <View style={[styles.causeInterval, { borderRight: 0, borderBottom: 0 }]}>
-              <Text>{getCauseInterval(patientData?.causes?.antecedent3)}</Text>
+             {/* d */}
+            <View style={styles.causeRow}>
+              <View style={styles.causeLabel}><Text>d.</Text></View>
+              <View style={[styles.causeContent, { borderBottom: 0 }]}>
+                 <Text style={{ marginBottom: 1 }}>Due to, or as a consequence of:</Text>
+                 <Text>{getCauseText(patientData?.causes?.antecedent3)}</Text>
+              </View>
+              <View style={[styles.causeInterval, { borderRight: 0, borderBottom: 0 }]}>
+                <Text>{getCauseInterval(patientData?.causes?.antecedent3)}</Text>
+              </View>
             </View>
           </View>
 
           {/* PART II */}
-          <View style={[styles.row, { borderTop: '1 solid black' }]} wrap={false}>
+          <View style={styles.row} wrap={false}>
             <View style={[styles.cell, { flex: 1, borderRight: '1 solid black' }]}>
                <Text bold style={styles.label}>PART II - Other significant conditions: Conditions contributing to death, not related to Part I (a):</Text>
                <Text style={styles.value}>
@@ -420,7 +424,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Signature:" />
             <Cell width={140} lastCell label="Date signed:" />
           </View>
-          <View style={[styles.row, { borderBottom: 0 }]} wrap={false}>
+          <View style={styles.row} wrap={false}>
             <Cell flex={1} label="Name of clerk of courts:" />
             <Cell flex={1} label="Signature:" />
             <Cell width={140} lastCell label="Date signed:" />
