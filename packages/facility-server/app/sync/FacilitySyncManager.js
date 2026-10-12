@@ -53,10 +53,13 @@ export class FacilitySyncManager {
 
   centralServer = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   currentSyncPromise = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   nextSyncPromise = null;
 
+  /** @type {string | null} */
   reason = null;
 
   lastDurationMs = 0;
