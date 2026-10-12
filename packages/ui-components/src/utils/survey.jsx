@@ -272,6 +272,7 @@ const signatureSchema = yup
     return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
   });
 
+// Duplicated in mobile/App/ui/helpers/programRegistryConditionRules.ts. Keep in sync.
 const writesProgramRegistration = components =>
   components.some(
     ({ id, dataElement, config }) =>

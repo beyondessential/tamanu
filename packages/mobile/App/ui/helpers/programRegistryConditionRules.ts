@@ -23,6 +23,7 @@ export const parseProgramRegistryConditionAnswer = (
   return typeof value === 'string' ? JSON.parse(value) : value;
 };
 
+// Duplicated in ui-components/src/utils/survey.jsx. Keep in sync.
 const parseConfig = (config: string | undefined) => {
   try {
     return config ? JSON.parse(config) : {};
