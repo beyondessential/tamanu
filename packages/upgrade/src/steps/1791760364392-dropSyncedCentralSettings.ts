@@ -1,4 +1,4 @@
-import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { AUDIT_PAUSE_KEY, SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { END, type Steps, type StepArgs } from '../step.js';
 
@@ -18,7 +18,11 @@ export const STEPS: Steps = [
         );
         return;
       }
-      await sequelize.query(`DELETE FROM settings WHERE scope = :central`, { replacements });
+      // Unpaused, the changelog would record each deleted row, secret included.
+      await sequelize.transaction(async () => {
+        await sequelize.setTransactionVar(AUDIT_PAUSE_KEY, true);
+        await sequelize.query(`DELETE FROM settings WHERE scope = :central`, { replacements });
+      });
     },
   },
 ];
