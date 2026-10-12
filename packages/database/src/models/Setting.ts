@@ -251,6 +251,9 @@ export class Setting extends Model {
       select: await buildSyncLookupSelect(this, {
         facilityId: 'settings.facility_id',
       }),
+      // A central-scope row has no facility, so the lookup would otherwise send it everywhere,
+      // and its secrets are encrypted with the PSK every facility holds.
+      filter: `settings.scope <> '${SETTINGS_SCOPES.CENTRAL}'`,
     };
   }
 
