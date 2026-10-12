@@ -103,6 +103,7 @@ import { addQuantityToProcedures1789674206539 } from './1789674206539-addQuantit
 import { addPerPatientLookupIndexes1789611060000 } from './1789611060000-addPerPatientLookupIndexes';
 import { addSensitiveNetworksTable1789695736424 } from './1789695736424-addSensitiveNetworksTable';
 import { replaceFacilityIsSensitiveWithNetwork1789695736425 } from './1789695736425-replaceFacilityIsSensitiveWithNetwork';
+import { addMandatoryConditionEnabledToProgramRegistries1791768682000 } from './1791768682000-addMandatoryConditionEnabledToProgramRegistries';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -209,4 +210,5 @@ export const migrationList = [
   addPerPatientLookupIndexes1789611060000,
   addSensitiveNetworksTable1789695736424,
   replaceFacilityIsSensitiveWithNetwork1789695736425,
+  addMandatoryConditionEnabledToProgramRegistries1791768682000,
 ];

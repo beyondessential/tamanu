@@ -224,6 +224,18 @@ describe('Programs import - Program Registry', () => {
       });
     });
 
+    it('should import mandatoryConditionEnabled, defaulting to false', async () => {
+      const { ProgramRegistry } = ctx.store.models;
+
+      await doImport({ file: 'registry-valid-village', xml: true, dryRun: false });
+      const defaultRegistry = await ProgramRegistry.findOne({ where: { code: 'ValidRegistry' } });
+      expect(defaultRegistry.mandatoryConditionEnabled).toBe(false);
+
+      await doImport({ file: 'registry-valid-with-conditions', xml: true, dryRun: false });
+      const mandatoryRegistry = await ProgramRegistry.findOne({ where: { code: 'ValidRegistry' } });
+      expect(mandatoryRegistry.mandatoryConditionEnabled).toBe(true);
+    });
+
     it('should validate conditions', async () => {
       const { errors, stats } = await doImport({
         file: 'registry-invalid-conditions',

@@ -153,16 +153,25 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   fallback="Registered by"
                 />,
               ),
-            conditions: yup.array().of(
-              yup.object().shape({
-                condition: yup.object().shape({ value: yup.string().required() }),
-                category: yup.object().shape({ value: yup.string().required() }),
-              }),
-            ),
+            conditions: yup
+              .array()
+              .of(
+                yup.object().shape({
+                  condition: yup.object().shape({ value: yup.string().required() }),
+                  category: yup.object().shape({ value: yup.string().required() }),
+                }),
+              )
+              .test(
+                'mandatory-condition',
+                getTranslation('validation.required.inline', '*Required'),
+                conditions =>
+                  !programRegistry.mandatoryConditionEnabled ||
+                  getCompleteRegistrationConditions(conditions).length > 0,
+              ),
           })}
           onSubmit={submitPatientProgramRegistration}
         >
-          {({ handleSubmit, values }) => (
+          {({ handleSubmit, values, errors }) => (
             <>
               <StyledView marginTop={20} marginLeft={20} marginRight={20}>
                 <LocalisedField
@@ -235,6 +244,8 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     />
                   }
                   programRegistryId={programRegistry.id}
+                  required={programRegistry.mandatoryConditionEnabled}
+                  error={typeof errors.conditions === 'string' ? errors.conditions : undefined}
                   values={values.conditions}
                   onChange={newValue => {
                     values.conditions = newValue;
