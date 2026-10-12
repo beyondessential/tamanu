@@ -16,11 +16,8 @@ export const getRelatedConditionsSchema = (mandatoryConditionEnabled, requiredMe
       }),
     )
     .nullable()
-    .test(
-      'mandatory-condition',
-      requiredMessage,
-      (conditions, context) =>
-        !mandatoryConditionEnabled ||
-        Boolean(conditions?.some(condition => condition?.conditionId)) ||
-        context.createError({ path: 'conditions[0].conditionId' }),
-    );
+    .test('mandatory-condition', requiredMessage, (conditions, context) => {
+      if (!mandatoryConditionEnabled) return true;
+      if (conditions?.some(condition => condition?.conditionId)) return true;
+      return context.createError({ path: `${context.path}[0].conditionId` });
+    });
