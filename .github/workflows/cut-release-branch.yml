@@ -99,7 +99,7 @@ jobs:
               '',
               `### Deploy <!-- #branch=${branch} -->`,
               '',
-              '- [x] **Deploy to Tamanu Internal** <!-- #deploy --> %config=rc %ttlhours=0 %seed-snapshot',
+              '- [x] **Deploy to Tamanu Internal** <!-- #deploy --> %config=rc %ttlhours=0 %seed-snapshot %synthetic',
             ].join('\n'),
           });
           console.log('Created control issue', title);
