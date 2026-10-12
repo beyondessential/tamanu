@@ -10,7 +10,6 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // DESTRUCTIVE: narrowing back to varchar(255) will fail if any value exceeds 255 characters.
   await query.changeColumn('survey_screen_components', 'visibility_criteria', {
     type: DataTypes.STRING,
   });
