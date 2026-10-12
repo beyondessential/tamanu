@@ -22,7 +22,12 @@ The list rides existing settings sync; there is no new route.
 - The websocket client and timesync read the current endpoint through one shared selector in the facility server instead of capturing the host at boot.
 - Recheck probes use a separate throwaway client with a short timeout and a single attempt. A probe never disturbs the live connection's auth state, and a dead endpoint costs seconds rather than the full backoff.
 
+## Reporting the endpoint in use
+
+- The facility adds `endpoint` to the `POST /sync` body. Central stores it in the session's `parameters` (JSONB, no schema change), alongside `deviceId`, `facilityIds` and `isMobile`. Mobile sessions send none.
+- `Device` gains a nullable last-endpoint column and a reported-at column, updated when a session starts. `lastSeenAt` can't serve as the time because it is set at login, not at sync. This needs a server migration and the dbt model update (`database/model/`).
+- The admin sync page (`syncLastCompleted` in `central-server/app/admin/sync.js`, `SyncView.jsx`) already lists the last completed session per facility set with its device id. It gains an endpoint column read from the row's `Device`, so no new session scan is needed and a failed or queued session still updates the value.
+
 ## Open
 
-- Where central stores the reported endpoint, and how the admin panel shows it per facility.
 - Where the recheck timer runs and how each of sync, websocket and timesync triggers a walk on failure.
