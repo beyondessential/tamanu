@@ -47,6 +47,7 @@ A facility server holds an ordered list of central hosts, recorded in the order 
 - [ ] When every endpoint fails, the facility retries under the same backoff it applies to a single unreachable central.
 - [ ] While the facility is on an endpoint other than the first, it periodically checks earlier endpoints with the same login. When an earlier one passes, the facility moves to the highest-priority endpoint that passes. The recheck interval is set by a setting.
 - [ ] A sync session that is already in progress finishes on its endpoint, or fails, before the facility moves to another.
+- [ ] The endpoint in use is shared between the facility server's processes. A process that has no central connection of its own, such as the API process, uses the endpoint the sync process is using and never probes endpoints itself.
 - [ ] Sync, the websocket connection and time synchronisation each apply these rules independently, so they can sit on different endpoints for a short time, and they converge on the same endpoint.
 - [ ] Each attempt and its result is logged with the endpoint, the outcome and the reason for a failure. Credentials are never logged.
 

@@ -28,6 +28,13 @@ The list rides existing settings sync; there is no new route.
 - `Device` gains a nullable last-endpoint column and a reported-at column, updated when a session starts. `lastSeenAt` can't serve as the time because it is set at login, not at sync. This needs a server migration and the dbt model update (`database/model/`).
 - The admin sync page (`syncLastCompleted` in `central-server/app/admin/sync.js`, `SyncView.jsx`) already lists the last completed session per facility set with its device id. It gains an endpoint column read from the row's `Device`, so no new session scan is needed and a failed or queued session still updates the value.
 
+## Endpoint selection on the facility
+
+- One shared selector in the facility server holds the recorded list and the endpoint currently in use.
+- Sync: a connection failure or refused login in `CentralServerConnection` asks the selector to walk, then retries on the new endpoint. Websocket and timesync read the selector's current endpoint and ask it to walk when their own request fails.
+- The recheck timer runs in the sync process only. The API process has no central connection and never probes: its timesync reads the current endpoint and follows the sync process.
+- To make that following possible the selector writes the endpoint currently in use to a local fact whenever it changes, since the recorded list only holds try order. The API process re-reads the fact on an interval, as `startSyncRuntimeWhenConfigured` does for setup.
+
 ## Open
 
-- Where the recheck timer runs and how each of sync, websocket and timesync triggers a walk on failure.
+- Defaults for the recheck interval and the per-attempt probe timeout.
