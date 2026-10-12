@@ -1,0 +1,357 @@
+<!-- snapshot: Login -->
+<!-- captured: 2026-10-07 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Login screen, empty state</title>
+<style>
+  html {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    margin: 0;
+    color: #444;
+    font-size: 0.875rem;
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 1.43;
+    background-color: #f3f5f7;
+  }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  button { font: inherit; }
+
+  .MuiTypography-root { margin: 0; }
+  .MuiTypography-body1 { font-size: 1rem; font-family: inherit; font-weight: 400; line-height: 1.5; }
+
+  /* Page layout */
+  .login-page {
+    display: flex;
+    height: 100vh;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .login-panel {
+    position: relative;
+    padding: 30px 0 70px;
+    width: 50vw;
+    min-width: 500px;
+    height: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+  }
+  .splash-image {
+    max-width: 50vw;
+    width: 50vw;
+    height: inherit;
+    background-image: url("../assets/e5aa13d5498bcd18d0acb2024dd9cd2dad4c38e0534aee40382c8c42a9e6d459.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: right center;
+  }
+
+  .logo-container {
+    text-align: center;
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    cursor: pointer;
+  }
+  .logo-image { display: inline-block; width: 140px; height: auto; }
+
+  .form-container { max-width: 400px; width: 100%; padding-top: 40px; }
+
+  .login-form { display: flex; flex-direction: column; }
+
+  .form-grid {
+    display: grid;
+    margin-top: 0.3rem;
+    gap: 1.2rem 0.7rem;
+    grid-template-columns: repeat(1, 1fr);
+    align-items: start;
+  }
+
+  .login-heading { margin: 0; color: #444; font-weight: 500; font-size: 38px; line-height: 32px; }
+  .login-subtext { font-size: 14px; line-height: 18px; color: #888; padding-top: 10px; }
+
+  /* Fields */
+  .field-label {
+    display: inline-block;
+    margin-bottom: 4px;
+    color: #666;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+  }
+  .label-field { padding-top: 5px; }
+  .required-mark { color: #f76853; margin-inline-start: 0.2em; }
+  .required-mark::before { content: "*"; }
+  .visually-hidden {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+
+  .input-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    min-width: 0;
+    vertical-align: top;
+    background: #fff;
+    font-size: 15px;
+  }
+  .input-box {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    font-size: 1rem;
+    box-sizing: border-box;
+    border-radius: 3px;
+    color: #444;
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 1.1876em;
+    cursor: text;
+  }
+  .input-box:hover .outline-fieldset { border-color: #444; }
+  .input-field {
+    font: inherit;
+    color: currentColor;
+    width: 100%;
+    border: 0;
+    height: 1.1876em;
+    margin: 0;
+    display: block;
+    min-width: 0;
+    background: none;
+    box-sizing: content-box;
+    padding: 13px 12px 13px 15px;
+    line-height: 18px;
+  }
+  .input-field::placeholder { color: #b8b8b8; opacity: 1; }
+  .input-field:focus { outline: 0; }
+  .outline-fieldset {
+    position: absolute;
+    inset: -5px 0 0;
+    margin: 0;
+    padding: 0 8px;
+    overflow: hidden;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: inherit;
+    border-color: #dedede;
+    pointer-events: none;
+  }
+  .outline-legend { padding: 0; text-align: left; width: 0.01px; line-height: 11px; }
+
+  /* Remember me */
+  .remember-row {
+    display: flex;
+    align-items: center;
+    justify-self: flex-end;
+    justify-content: flex-end;
+    font-size: 16px;
+    padding-top: 5px;
+  }
+  .remember-me-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+  }
+  .remember-me-text { font-size: 11px; color: #000; font-weight: 500; }
+  .checkbox-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0 5px;
+    margin-left: 3px;
+    width: max-content;
+    border-radius: 50%;
+    color: #ffcc24;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+  }
+  .checkbox-button:hover { background-color: rgba(255, 204, 36, 0.04); }
+  .checkbox-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: inherit;
+    z-index: 1;
+  }
+  .checkbox-icon {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 14px;
+    height: 14px;
+    margin: 1px 0;
+    border: 1.5px solid #b8b8b8;
+    border-radius: 3px;
+    background-color: #fff;
+  }
+
+  /* Buttons */
+  .login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    text-transform: none;
+    padding: 14px 0;
+    margin-top: 15px;
+    min-width: 100px;
+    box-shadow: none;
+    color: #fff;
+    background-color: #326699;
+  }
+  .login-button:hover {
+    background-color: #2f4358;
+    box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12);
+  }
+  .login-button:active {
+    box-shadow: 0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12);
+  }
+
+  .forgot-password-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    text-transform: none;
+    box-shadow: none;
+    min-width: 100px;
+    color: #000;
+    font-size: 11px;
+    font-weight: 400;
+    padding: 0;
+  }
+  .forgot-password-button:hover {
+    color: #326699;
+    font-weight: 500;
+    text-decoration: underline;
+    background: transparent;
+  }
+
+  /* Support link & version */
+  .support-link {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    margin-top: 4px;
+    font-weight: 400;
+    font-size: 9px;
+    line-height: 15px;
+    text-decoration: underline;
+    color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .support-link:hover { font-weight: bold; }
+  .svg-icon {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    flex-shrink: 0;
+    fill: currentColor;
+    font-size: 12px;
+    margin-left: 3px;
+  }
+  .version-text {
+    margin: 0;
+    font-size: 9px;
+    color: #888;
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-panel">
+      <div class="logo-container">
+        <img src="../assets/a581d4468146b693e07f22c6c24589a7ee623e1853356270a55046c12f08179a.svg" class="logo-image" alt="Tamanu logo">
+      </div>
+      <div class="form-container">
+        <form class="login-form" novalidate>
+          <div class="form-grid">
+            <div>
+              <p class="MuiTypography-root login-heading MuiTypography-body1">Log in</p>
+              <div class="login-subtext">Enter your details below to log in</div>
+            </div>
+            <div class="field-wrapper">
+              <label for="email" class="field-label label-field">Email<span class="required-mark"><span class="visually-hidden">Required</span></span></label>
+              <div class="input-wrapper">
+                <div class="input-box">
+                  <input autocomplete="off" id="email" name="email" placeholder="Enter your email address" required type="email" class="input-field">
+                  <fieldset aria-hidden="true" class="outline-fieldset">
+                    <legend class="outline-legend"></legend>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="field-wrapper">
+                <label for="password" class="field-label label-field">Password<span class="required-mark"><span class="visually-hidden">Required</span></span></label>
+                <div class="input-wrapper">
+                  <div class="input-box">
+                    <input autocomplete="off" id="password" name="password" placeholder="Enter your password" required type="password" class="input-field">
+                    <fieldset aria-hidden="true" class="outline-fieldset">
+                      <legend class="outline-legend"></legend>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+              <div class="remember-row">
+                <label class="remember-me-label">
+                  <span class="checkbox-button">
+                    <input class="checkbox-input" name="rememberMe" type="checkbox">
+                    <i class="checkbox-icon"></i>
+                  </span>
+                  <span class="MuiTypography-root remember-me-text MuiTypography-body1">Remember me</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <button class="login-button" type="submit">Log in</button>
+          <button class="forgot-password-button" type="button">Forgot password?</button>
+        </form>
+      </div>
+      <a href="https://bes-support.zendesk.com/hc/en-us" target="_blank" rel="noreferrer" class="support-link">Support centre<svg class="svg-icon" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3z"></path></svg></a>
+      <p class="MuiTypography-root version-text MuiTypography-body1" title="2.64.2">Version 2.64.2</p>
+    </div>
+    <div class="splash-image"></div>
+  </div>
+</body>
+</html>
