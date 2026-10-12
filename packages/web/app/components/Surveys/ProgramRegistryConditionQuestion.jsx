@@ -1,3 +1,4 @@
+import FormHelperText from '@mui/material/FormHelperText';
 import React, { createContext, useContext, useId } from 'react';
 import styled from 'styled-components';
 
@@ -79,23 +80,20 @@ export const ProgramRegistryConditionQuestionField = ({
     form.setFieldTouched(name, true, false);
   };
 
-  if (isLoading || !isAnswerable) {
-    return (
-      <SelectInput
-        name={name}
-        label={label}
-        value=""
-        onChange={() => {}}
-        disabled
-        helperText={
-          isLoading
-            ? ''
-            : getTranslation(
-                'program.question.programRegistryCondition.notRegistered',
-                'Patient is not registered in this program registry',
-              )
-        }
-      />
+  const renderUnavailable = message => (
+    <div>
+      <SelectInput name={name} label={label} value="" onChange={() => {}} disabled />
+      {message && <FormHelperText>{message}</FormHelperText>}
+    </div>
+  );
+
+  if (isLoading) return renderUnavailable(null);
+  if (!isAnswerable) {
+    return renderUnavailable(
+      getTranslation(
+        'program.question.programRegistryCondition.notRegistered',
+        'Patient is not registered in this program registry',
+      ),
     );
   }
 
@@ -122,6 +120,15 @@ export const ProgramRegistryConditionQuestionField = ({
     value: category.id,
   }));
   const isCategoryMissing = Boolean(answer.conditionId) && !answer.categoryId;
+
+  if (conditionOptions.length === 0) {
+    return renderUnavailable(
+      getTranslation(
+        'program.question.programRegistryCondition.allRecorded',
+        "All of this registry's conditions are already recorded for this patient",
+      ),
+    );
+  }
 
   return (
     <Container>

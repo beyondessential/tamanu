@@ -74,6 +74,20 @@ export const SurveyProgramRegistryConditionField = ({
     isProgramRegistryConditionRequired(options, components) &&
     conditionQuestions[0]?.dataElement.code === name;
   const isCategoryMissing = Boolean(answer.conditionId) && !answer.categoryId;
+  const conditionOptions = options.conditions.filter(
+    condition => !unavailableConditionIds.has(condition.id),
+  );
+
+  if (conditionOptions.length === 0) {
+    return (
+      <StyledText color={theme.colors.TEXT_MID}>
+        <TranslatedText
+          stringId="program.question.programRegistryCondition.allRecorded"
+          fallback="All of this registry's conditions are already recorded for this patient"
+        />
+      </StyledText>
+    );
+  }
 
   const setAnswer = (conditionId: string | null, categoryId: string | null) =>
     onChange(conditionId ? JSON.stringify({ conditionId, categoryId }) : null);
@@ -82,15 +96,13 @@ export const SurveyProgramRegistryConditionField = ({
     <StyledView>
       <Dropdown
         value={answer.conditionId ?? ''}
-        options={options.conditions
-          .filter(condition => !unavailableConditionIds.has(condition.id))
-          .map(condition => ({
-            label: getTranslation(
-              getReferenceDataStringId(condition.id, 'programRegistryCondition'),
-              condition.name,
-            ),
-            value: condition.id,
-          }))}
+        options={conditionOptions.map(condition => ({
+          label: getTranslation(
+            getReferenceDataStringId(condition.id, 'programRegistryCondition'),
+            condition.name,
+          ),
+          value: condition.id,
+        }))}
         onChange={conditionId => setAnswer(conditionId || null, null)}
         required={isRequired}
         disabled={disabled}
