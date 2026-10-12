@@ -14,7 +14,8 @@ COPY scripts/ scripts/
 COPY packages/ packages/
 
 RUN npm ci
-RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios
+RUN npm run --workspace=@tamanu/synthetic-tests merge-scenarios \
+  && npm run --workspace=@tamanu/synthetic-tests bundle-hooks
 
 FROM node:26-slim
 

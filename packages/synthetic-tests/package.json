@@ -9,12 +9,14 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "artillery": "^2.0.22"
+    "artillery": "^2.0.22",
+    "esbuild": "^0.28.1"
   },
   "scripts": {
-    "test:facility": "npm run merge-scenarios && artillery run src/merged-facility.yml",
-    "test:central": "npm run merge-scenarios && artillery run src/merged-central.yml",
-    "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
+    "test:facility": "npm run merge-scenarios && npm run bundle-hooks && artillery run src/merged-facility.yml",
+    "test:central": "npm run merge-scenarios && npm run bundle-hooks && artillery run src/merged-central.yml",
+    "merge-scenarios": "node src/scripts/mergeScenarios.mjs",
+    "bundle-hooks": "node src/scripts/bundleHooks.mjs"
   },
   "keywords": [],
   "author": "",
