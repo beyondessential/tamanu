@@ -183,7 +183,7 @@ async function _writeToPatientFields(
 
 /**
  * @internal Use {@link SurveyResponse.addProgramRegistryConditions} instead.
- * @privateRemarks DUPLICATED IN mobile/App/models/SurveyResponse.ts. Please keep in sync.
+ * @privateRemarks DUPLICATED IN mobile/App/ui/helpers/programRegistryConditions.ts. Please keep in sync.
  */
 async function _addProgramRegistryConditions(
   models: Models,
@@ -201,11 +201,35 @@ async function _addProgramRegistryConditions(
   if (conditionAnswers.length === 0) return;
 
   const survey = await models.Survey.findByPk(surveyId);
+  if (!survey) {
+    throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
+  }
   const programRegistry = await models.ProgramRegistry.findOne({
-    where: { programId: survey?.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    where: { programId: survey.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
   });
   if (!programRegistry) {
     throw new InvalidOperationError('No program registry configured for the current form');
+  }
+  const registryConditionCount = await models.ProgramRegistryCondition.count({
+    where: {
+      id: conditionAnswers.map(answer => answer.conditionId),
+      programRegistryId: programRegistry.id,
+    },
+  });
+  const registryCategoryCount = await models.ProgramRegistryConditionCategory.count({
+    where: {
+      id: conditionAnswers.map(answer => answer.categoryId).filter(Boolean),
+      programRegistryId: programRegistry.id,
+    },
+  });
+  if (
+    registryConditionCount !== new Set(conditionAnswers.map(answer => answer.conditionId)).size ||
+    registryCategoryCount !==
+      new Set(conditionAnswers.map(answer => answer.categoryId).filter(Boolean)).size
+  ) {
+    throw new InvalidOperationError(
+      "A related condition or category does not belong to this form's program registry",
+    );
   }
 
   const registration = await models.PatientProgramRegistration.getActiveRegistration(

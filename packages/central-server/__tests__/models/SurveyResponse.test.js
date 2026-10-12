@@ -656,6 +656,28 @@ describe('SurveyResponse.createWithAnswers related conditions', () => {
     expect(await models.PatientProgramRegistrationCondition.count()).toBe(0);
   });
 
+  it("rejects a condition from another program's registry", async () => {
+    const setup = await setUp();
+    const { categories, conditionElementIds } = setup;
+    const otherSurvey = await createDummySurvey(models);
+    const otherRegistry = await models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, {
+        programId: otherSurvey.programId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const otherCondition = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, { programRegistryId: otherRegistry.id }),
+    );
+
+    await expect(
+      submit(setup, {
+        [conditionElementIds[0]]: answer(otherCondition.id, categories.confirmed.id),
+      }),
+    ).rejects.toThrow("does not belong to this form's program registry");
+    expect(await models.PatientProgramRegistrationCondition.count()).toBe(0);
+  });
+
   it('registers the patient and records the condition in one submission', async () => {
     const setup = await setUp({ registrationStatus: null });
     const { survey, registry, conditions, categories, conditionElementIds } = setup;
