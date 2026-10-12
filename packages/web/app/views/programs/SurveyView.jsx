@@ -3,17 +3,22 @@ import React, { useEffect, useMemo } from 'react';
 import { useMatch, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
   Form,
   getFormInitialValues,
   getValidationSchema,
+  isProgramRegistryConditionRequired,
   SurveyScreenPaginator,
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { getComponentForQuestionType } from '../../components/Surveys';
+import { useSurveyProgramRegistryQuery } from '../../api/queries';
+import {
+  getComponentForQuestionType,
+  ProgramRegistryConditionContext,
+} from '../../components/Surveys';
 import { Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useTranslation } from '../../contexts/Translation';
@@ -101,9 +106,22 @@ export const SurveyViewForm = ({
     getCurrentDateTime,
     initialAnswerOverrides,
   ]);
+  const hasConditionQuestions = currentComponents.some(
+    c => c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION,
+  );
+  const { data: registryOptions } = useSurveyProgramRegistryQuery(survey.id, patient?.id, {
+    enabled: hasConditionQuestions,
+  });
+  const programRegistryConditionContext = useMemo(
+    () => ({ registryOptions, components: currentComponents }),
+    [registryOptions, currentComponents],
+  );
+  const isConditionRequired =
+    Boolean(registryOptions) &&
+    isProgramRegistryConditionRequired(registryOptions, currentComponents);
   const validationSchema = useMemo(
-    () => getValidationSchema(survey, getTranslation),
-    [survey, getTranslation],
+    () => getValidationSchema(survey, getTranslation, {}, { isConditionRequired }),
+    [survey, getTranslation, isConditionRequired],
   );
 
   const renderSurvey = ({
@@ -138,7 +156,7 @@ export const SurveyViewForm = ({
     };
 
     return (
-      <>
+      <ProgramRegistryConditionContext.Provider value={programRegistryConditionContext}>
         <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
         <SurveyScreenPaginator
           survey={survey}
@@ -160,7 +178,7 @@ export const SurveyViewForm = ({
           onViewChangeLog={onViewChangeLog}
           data-testid="surveyscreenpaginator-8wns"
         />
-      </>
+      </ProgramRegistryConditionContext.Provider>
     );
   };
 

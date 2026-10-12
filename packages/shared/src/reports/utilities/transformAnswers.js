@@ -4,6 +4,7 @@ import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@taman
 import { convertBinaryToYesNo } from '@tamanu/utils/criteria';
 import { format, isISOString, parseDate } from '@tamanu/utils/dateTime';
 import { formatShort } from '@tamanu/utils/dateFormatters';
+import { parseProgramRegistryConditionAnswer } from '../../utils/fields';
 import { decompressSignatureBody } from '../../utils/signature';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
@@ -107,6 +108,17 @@ const convertPatientDataAnswer = async (models, componentConfig, answer) => {
 };
 
 /** @param {string | null | undefined} answer */
+const convertProgramRegistryConditionAnswer = async (models, answer) => {
+  const { conditionId, categoryId } = parseProgramRegistryConditionAnswer(answer) ?? {};
+  if (!conditionId) return answer;
+  const condition = await models.ProgramRegistryCondition.findByPk(conditionId);
+  const category = categoryId
+    ? await models.ProgramRegistryConditionCategory.findByPk(categoryId)
+    : null;
+  const conditionName = condition?.name ?? conditionId;
+  return category ? `${conditionName} (${category.name})` : conditionName;
+};
+
 async function convertSignatureAnswer(answer) {
   return await decompressSignatureBody(answer);
 }
@@ -166,6 +178,9 @@ export const getAnswerBody = async (
       break;
     case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
       result = await convertSignatureAnswer(answer);
+      break;
+    case PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION:
+      result = await convertProgramRegistryConditionAnswer(models, answer);
       break;
     default:
       result = answer;

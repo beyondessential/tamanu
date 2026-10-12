@@ -7,8 +7,10 @@ import * as yup from 'yup';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
+  PROGRAM_REGISTRY_FIELD_LOCATIONS,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
+import { parseProgramRegistryConditionAnswer } from '@tamanu/shared/utils/fields';
 import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
 import { ageInMonths, ageInWeeks, ageInYears, isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
@@ -269,7 +271,59 @@ const signatureSchema = yup
     return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
   });
 
-export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
+const writesProgramRegistration = components =>
+  components.some(
+    ({ id, dataElement, config }) =>
+      dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA &&
+      PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(
+        getConfigObject(id, config).writeToPatient?.fieldName,
+      ),
+  );
+
+export const isProgramRegistryConditionAnswerable = (registryOptions, components) =>
+  Boolean(registryOptions?.programRegistry) &&
+  (registryOptions.isPatientRegistered || writesProgramRegistration(components));
+
+export const isProgramRegistryConditionRequired = (registryOptions, components) =>
+  isProgramRegistryConditionAnswerable(registryOptions, components) &&
+  registryOptions.programRegistry.mandatoryConditionEnabled &&
+  registryOptions.recordedConditionIds.length === 0 &&
+  registryOptions.conditions.length > 0;
+
+const getProgramRegistryConditionSchema = ({
+  dataElementId,
+  components,
+  isConditionRequired,
+  requiredMessage,
+}) =>
+  yup
+    .string()
+    .nullable()
+    .test('condition-category', requiredMessage, value => {
+      const answer = parseProgramRegistryConditionAnswer(value);
+      return !answer?.conditionId || Boolean(answer.categoryId);
+    })
+    .test('mandatory-condition', requiredMessage, (_value, context) => {
+      if (!isConditionRequired) return true;
+      const values = context.parent;
+      const visibleConditionQuestions = components.filter(
+        component =>
+          component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION &&
+          checkVisibility(component, values, components),
+      );
+      if (visibleConditionQuestions[0]?.dataElementId !== dataElementId) return true;
+      return visibleConditionQuestions.some(
+        question =>
+          parseProgramRegistryConditionAnswer(values[question.dataElementId])?.conditionId,
+      );
+    });
+
+export const getValidationSchema = (
+  surveyData,
+  getTranslation,
+  valuesToCheckMandatory = {},
+  { isConditionRequired = false } = {},
+) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -346,6 +400,14 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
               ),
               value => value == null || value === '' || isValidSurveyTimeBody(value),
             );
+          break;
+        case PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION:
+          valueSchema = getProgramRegistryConditionSchema({
+            dataElementId,
+            components,
+            isConditionRequired,
+            requiredMessage: getTranslation('validation.required.inline', '*Required'),
+          });
           break;
         default:
           valueSchema = yup.mixed();

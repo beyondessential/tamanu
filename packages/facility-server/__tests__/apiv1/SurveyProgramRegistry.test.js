@@ -1,11 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
+  PROGRAM_DATA_ELEMENT_TYPES,
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import config from 'config';
 import { fake } from '@tamanu/fake-data/fake';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
 
 describe('Survey program registry', () => {
@@ -117,5 +120,88 @@ describe('Survey program registry', () => {
 
     expect(result).toHaveSucceeded();
     expect(result.body).toMatchObject({ isPatientRegistered: false, recordedConditionIds: [] });
+  });
+
+  it('records a condition from a submitted response and shows it by name', async () => {
+    const survey = await createSurvey();
+    const registry = await models.ProgramRegistry.create(
+      fake(models.ProgramRegistry, {
+        programId: survey.programId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      }),
+    );
+    const condition = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, { programRegistryId: registry.id, name: 'Asthma' }),
+    );
+    const category = await models.ProgramRegistryConditionCategory.create(
+      fake(models.ProgramRegistryConditionCategory, {
+        programRegistryId: registry.id,
+        code: 'confirmed',
+        name: 'Confirmed',
+      }),
+    );
+    const dataElement = await models.ProgramDataElement.create(
+      fake(models.ProgramDataElement, {
+        type: PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION,
+      }),
+    );
+    await models.SurveyScreenComponent.create(
+      fake(models.SurveyScreenComponent, { surveyId: survey.id, dataElementId: dataElement.id }),
+    );
+    const [facilityId] = selectFacilityIds(config);
+    const facility = await models.Facility.findByPk(facilityId);
+    const location = await models.Location.create(
+      fake(models.Location, { facilityId: facility.id }),
+    );
+    const department = await models.Department.create(
+      fake(models.Department, { facilityId: facility.id }),
+    );
+    const patient = await models.Patient.create(fake(models.Patient));
+    const user = await models.User.create(fake(models.User));
+    const encounter = await models.Encounter.create(
+      fake(models.Encounter, {
+        patientId: patient.id,
+        departmentId: department.id,
+        locationId: location.id,
+        examinerId: user.id,
+      }),
+    );
+    const registration = await models.PatientProgramRegistration.create(
+      fake(models.PatientProgramRegistration, {
+        patientId: patient.id,
+        programRegistryId: registry.id,
+        clinicianId: user.id,
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+      }),
+    );
+
+    const submitted = await app.post('/api/surveyResponse').send({
+      surveyId: survey.id,
+      patientId: patient.id,
+      encounterId: encounter.id,
+      facilityId: facility.id,
+      userId: user.id,
+      endTime: '2026-10-13 09:30:00',
+      answers: {
+        [dataElement.id]: JSON.stringify({ conditionId: condition.id, categoryId: category.id }),
+      },
+    });
+    expect(submitted).toHaveSucceeded();
+
+    expect(
+      await models.PatientProgramRegistrationCondition.findOne({
+        where: { patientProgramRegistrationId: registration.id },
+      }),
+    ).toMatchObject({
+      programRegistryConditionId: condition.id,
+      programRegistryConditionCategoryId: category.id,
+      clinicianId: user.id,
+    });
+
+    const response = await app.get(`/api/surveyResponse/${submitted.body.id}`);
+    expect(response).toHaveSucceeded();
+    expect(response.body.answers).toEqual([
+      expect.objectContaining({ dataElementId: dataElement.id, body: 'Asthma (Confirmed)' }),
+    ]);
   });
 });
