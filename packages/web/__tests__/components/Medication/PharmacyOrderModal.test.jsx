@@ -9,9 +9,9 @@ import { PharmacyOrderModal } from '../../../app/components/Medication/PharmacyO
 import { TranslationProvider } from '../../../app/contexts/Translation';
 import { createQueryClient, createStubTheme } from '../../helpers';
 
-const ENCOUNTER = { id: 'encounter-1' };
+const ENCOUNTER = /** @type {const} */ ({ id: 'encounter-1' });
 const FACILITY_ID = 'facility-1';
-const CURRENT_USER = { id: 'user-1', displayName: 'Initial Admin' };
+const CURRENT_USER = /** @type {const} */ ({ id: 'user-1', displayName: 'Initial Admin' });
 
 const buildPrescription = overrides => ({
   id: 'prescription-1',
