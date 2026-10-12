@@ -31,3 +31,16 @@ otherwise. Some scopes are restricted by quota. Devices aren't allowed to
 request more scopes than they currently have, but may login without
 specifying the full scopes they have.
 {% enddocs %}
+
+{% docs devices__central_endpoint %}
+The central endpoint (scheme, host and optional port) a facility server last
+reported using, when it started a sync session.
+
+It is reported by the facility server rather than observed by central, because
+a reverse proxy can rewrite or hide the name a request arrived on. Null for
+devices that have never reported, such as mobile devices.
+{% enddocs %}
+
+{% docs devices__central_endpoint_reported_at %}
+When the device last reported its central endpoint.
+{% enddocs %}

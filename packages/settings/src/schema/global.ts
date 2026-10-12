@@ -39,6 +39,7 @@ import {
   fhirDataDictionariesSchema,
   urlSchema,
   msDurationSchema,
+  centralEndpointsSetting,
 } from './definitions';
 import { encounterSummaryProperties } from './definitions/encounterSummary';
 import {
@@ -1691,6 +1692,15 @@ export const globalSettings = {
             },
           },
         },
+      },
+    },
+    sync: {
+      description: 'Sync settings that apply to every server',
+      highRisk: true,
+      properties: {
+        centralEndpoints: centralEndpointsSetting(
+          'Central endpoints for every facility, in the order they are tried. A facility tries its own list first',
+        ),
       },
     },
     security: {

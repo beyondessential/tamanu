@@ -2,13 +2,18 @@ import { Timesimp } from 'timesimp';
 import { FACT_TIME_OFFSET } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
-export const initTimesync = async ({ models, url, enabled }) => {
-  log.info('Initializing timesync', { server: url });
+/**
+ * @param {object} args
+ * @param {() => string} args.getUrl the timesync URL to use for each exchange, so it can follow
+ * the central endpoint in use
+ */
+export const initTimesync = async ({ models, getUrl, enabled }) => {
+  log.info('Initializing timesync', { server: getUrl() });
   if (!enabled) {
     await models.LocalSystemFact.set(FACT_TIME_OFFSET, '0');
   }
   return new Timesimp(
-    async (err) => {
+    async err => {
       if (err) throw err;
       const us = await models.LocalSystemFact.get(FACT_TIME_OFFSET);
       if (!us) return null;
@@ -21,6 +26,7 @@ export const initTimesync = async ({ models, url, enabled }) => {
     },
     async (err, body) => {
       if (err) throw err;
+      const url = getUrl();
       log.debug('Fetching timesync packet', { url, body });
       const http = await fetch(url, {
         signal: AbortSignal.timeout(10000),
@@ -29,7 +35,7 @@ export const initTimesync = async ({ models, url, enabled }) => {
         headers: {
           'Content-Type': 'application/octet-stream',
         },
-      }).catch((err) => {
+      }).catch(err => {
         log.error('Failed to fetch timesync packet', { error: err });
         throw err;
       });

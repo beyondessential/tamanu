@@ -13,11 +13,16 @@ import {
   ERROR_TYPE,
   InvalidCredentialError,
   Problem,
+  RateLimitedError,
   ValidationError,
 } from '@tamanu/errors';
 import * as jose from 'jose';
+import { TamanuApi } from '@tamanu/api-client';
 
-const { CentralServerConnection } = (await vi.importActual('../../app/sync/CentralServerConnection'));
+const { CentralServerConnection } = await vi.importActual('../../app/sync/CentralServerConnection');
+const { CentralEndpointSelector, setCentralEndpointSelector } = await vi.importActual(
+  '../../app/sync/CentralEndpointSelector',
+);
 
 const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -90,7 +95,7 @@ describe('CentralServerConnection', () => {
           streaming: false,
         },
       },
-    });    
+    });
   });
   const meSuccess = fakeSuccess({
     id: 'not-real',
@@ -262,6 +267,307 @@ describe('CentralServerConnection', () => {
       const connectPromise = centralServer.connect();
       vi.runAllTimers();
       await expect(connectPromise).rejects.toThrow('fake timeout');
+    });
+  });
+
+  // spec: CEND
+  describe('central endpoints', () => {
+    const A = 'https://a.example.com';
+    const B = 'https://b.example.com';
+    const C = 'https://c.example.com';
+
+    // Stands in for the network. `hosts` maps an origin to how it behaves: 'live' answers every
+    // call, 'down' fails to connect, 'refuses' rejects the login, 'locked' rate-limits it.
+    let hosts;
+    let calls;
+    let fakeFetch;
+
+    const respond = async (url, config = {}) => {
+      const { origin, pathname } = new URL(url);
+      calls.push({ origin, path: pathname.replace(/^\/api\//, ''), body: config.body });
+      const behaviour = hosts[origin];
+      if (behaviour === 'down') throw new TypeError('fetch failed');
+      if (pathname.endsWith('/login')) {
+        if (behaviour === 'refuses') return authInvalid;
+        if (behaviour === 'locked') return fakeProblem(new RateLimitedError(60));
+        return authSuccess;
+      }
+      if (pathname.endsWith('/user/me')) return meSuccess;
+      return fakeSuccess({ answeredBy: origin });
+    };
+
+    const loginsAt = origin =>
+      calls.filter(call => call.origin === origin && call.path === 'login').length;
+
+    const makeSelector = ({ list = [A, B], inUse } = {}) => {
+      const selector = new CentralEndpointSelector({
+        models: { LocalSystemFact: { get: async () => null, set: async () => {} } },
+        hosts: list,
+        inUse,
+        getDeviceId: () => 'test',
+        getProbeSettings: async () => ({ recheckIntervalMs: 60_000, probeTimeoutMs: 100 }),
+        createProbeClient: ({ host }) => {
+          const client = new TamanuApi({
+            endpoint: `${host}/api`,
+            agentName: SERVER_TYPES.FACILITY,
+            agentVersion: '0.0.0',
+            deviceId: 'test',
+            logger: { debug() {}, info() {}, warn() {}, error() {}, log() {} },
+          });
+          client.fetchImplementation = fakeFetch;
+          return client;
+        },
+      });
+      setCentralEndpointSelector(selector);
+      return selector;
+    };
+
+    const makeConnection = () => {
+      const connection = new CentralServerConnection({ deviceId: 'test' });
+      connection.fetchImplementation = fakeFetch;
+      return connection;
+    };
+
+    beforeEach(() => {
+      // the timeout test above leaves fake timers installed, which would stall the backoff
+      vi.useRealTimers();
+      calls = [];
+      hosts = { [A]: 'live', [B]: 'live', [C]: 'live' };
+      fakeFetch = vi.fn(respond);
+    });
+
+    afterEach(() => {
+      setCentralEndpointSelector(null);
+    });
+
+    describe('setEndpoint', () => {
+      it('points the client at the new endpoint and drops credentials for the old one', async () => {
+        const connection = makeConnection();
+        connection.setEndpoint(`${A}/api`);
+        await connection.connect();
+        expect(connection.hasToken()).toBe(true);
+        expect(connection.host).toBe(A);
+
+        connection.setEndpoint(`${B}/api`);
+
+        expect(connection.host).toBe(B);
+        expect(connection.hasToken()).toBe(false);
+        await connection.whoami();
+        expect(calls.at(-1).origin).toBe(B);
+        expect(loginsAt(B)).toBe(1);
+      });
+
+      it('is a no-op for the endpoint already in use', async () => {
+        const connection = makeConnection();
+        connection.setEndpoint(`${A}/api`);
+        await connection.connect();
+
+        connection.setEndpoint(`${A}/api`);
+
+        expect(connection.hasToken()).toBe(true);
+      });
+    });
+
+    it('connects to the selector’s current endpoint rather than the configured host', async () => {
+      makeSelector({ inUse: B });
+      const connection = makeConnection();
+
+      await connection.connect();
+
+      expect(connection.host).toBe(B);
+      expect(loginsAt(A)).toBe(0);
+    });
+
+    it('follows the selector when it moves between calls', async () => {
+      const selector = makeSelector({ inUse: A });
+      const connection = makeConnection();
+      await connection.whoami();
+      expect(calls.at(-1).origin).toBe(A);
+
+      await selector.adopt([A, B], B);
+      await connection.whoami();
+
+      expect(connection.host).toBe(B);
+      expect(calls.at(-1).origin).toBe(B);
+      expect(loginsAt(B)).toBe(1);
+    });
+
+    describe('when logging in', () => {
+      it('walks to the next endpoint when the first is unreachable', async () => {
+        hosts[A] = 'down';
+        const selector = makeSelector();
+        const connection = makeConnection();
+
+        await connection.connect();
+
+        expect(selector.current()).toBe(B);
+        expect(connection.host).toBe(B);
+        expect(connection.hasToken()).toBe(true);
+      });
+
+      it('walks to the next endpoint when the first refuses the login', async () => {
+        hosts[A] = 'refuses';
+        const selector = makeSelector();
+        const connection = makeConnection();
+
+        await connection.connect();
+
+        expect(selector.current()).toBe(B);
+        expect(connection.hasToken()).toBe(true);
+      });
+
+      it('does not walk when the account is locked out, since more logins extend it', async () => {
+        hosts[A] = 'locked';
+        const selector = makeSelector();
+        const connection = makeConnection();
+
+        await expect(connection.connect()).rejects.toBeProblemOfType(ERROR_TYPE.RATE_LIMITED);
+
+        expect(selector.current()).toBe(A);
+        expect(loginsAt(A)).toBe(1);
+        expect(loginsAt(B)).toBe(0);
+      });
+
+      it('fails with the original error when every endpoint refuses', async () => {
+        hosts = { [A]: 'refuses', [B]: 'refuses' };
+        const selector = makeSelector();
+        const connection = makeConnection();
+
+        await expect(connection.connect()).rejects.toBeProblemOfType(
+          ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+        );
+
+        expect(selector.current()).toBe(A);
+        expect(connection.hasToken()).toBe(false);
+      });
+
+      it('tries only the one endpoint when there is a single host', async () => {
+        hosts[A] = 'refuses';
+        makeSelector({ list: [A] });
+        const connection = makeConnection();
+
+        await expect(connection.connect()).rejects.toBeProblemOfType(
+          ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+        );
+
+        expect(calls.filter(call => call.path === 'login')).toHaveLength(1);
+      });
+    });
+
+    describe('when the endpoint stops working', () => {
+      it('walks the list and retries the call on the endpoint it lands on', async () => {
+        const selector = makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+        expect(selector.current()).toBe(A);
+
+        hosts[A] = 'down';
+        const result = await connection.fetch('anything');
+
+        expect(result).toEqual({ answeredBy: B });
+        expect(selector.current()).toBe(B);
+        expect(connection.host).toBe(B);
+        expect(loginsAt(B)).toBeGreaterThanOrEqual(1);
+      });
+
+      it('fails fast on the dead endpoint rather than spending the full backoff on it', async () => {
+        makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+
+        hosts[A] = 'down';
+        await connection.fetch('anything');
+
+        const attemptsAtA = calls.filter(
+          call => call.origin === A && call.path === 'anything',
+        ).length;
+        expect(attemptsAtA).toBe(3);
+      });
+
+      it('gives up with the error when no endpoint answers', async () => {
+        const selector = makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+
+        hosts = { [A]: 'down', [B]: 'down' };
+
+        await expect(connection.fetch('anything')).rejects.toMatchObject({
+          type: ERROR_TYPE.REMOTE_UNREACHABLE,
+        });
+        expect(selector.current()).toBe(A);
+      });
+
+      it('does not move on for an error that comes from central itself', async () => {
+        const selector = makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+        fakeFetch.mockImplementationOnce(() => fakeProblem(new ValidationError()));
+
+        await expect(connection.fetch('anything')).rejects.toBeProblemOfType(ERROR_TYPE.VALIDATION);
+
+        expect(selector.current()).toBe(A);
+        expect(calls.filter(call => call.path === 'login')).toHaveLength(1);
+      });
+
+      it('lets a session in progress fail rather than retrying it elsewhere', async () => {
+        const selector = makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+        selector.beginSession();
+
+        hosts[A] = 'down';
+        // no backoff only so the test does not wait out the full one a session's calls get
+        await expect(connection.fetch('sync/abc/pull', { backoff: false })).rejects.toMatchObject({
+          type: ERROR_TYPE.REMOTE_UNREACHABLE,
+        });
+
+        // the next session starts on the endpoint it landed on
+        expect(selector.current()).toBe(B);
+        expect(
+          calls.filter(call => call.origin === B && call.path === 'sync/abc/pull'),
+        ).toHaveLength(0);
+        selector.endSession();
+        expect(await connection.fetch('anything')).toEqual({ answeredBy: B });
+      });
+    });
+
+    describe('startSyncSession', () => {
+      it('reports the endpoint in use', async () => {
+        makeSelector({ inUse: B });
+        const connection = makeConnection();
+        fakeFetch.mockImplementation(async (url, config) => {
+          if (new URL(url).pathname.endsWith('/sync')) {
+            calls.push({ path: 'sync', body: config.body });
+            return fakeSuccess({ status: 'waitingInQueue' });
+          }
+          return respond(url, config);
+        });
+
+        await connection.startSyncSession({ urgent: false, lastSyncedTick: 0 });
+
+        const syncCall = calls.find(call => call.path === 'sync');
+        expect(JSON.parse(syncCall.body)).toMatchObject({ endpoint: B });
+      });
+
+      it('reports the endpoint it landed on when it fails over while starting the session', async () => {
+        makeSelector({ inUse: A });
+        const connection = makeConnection();
+        await connection.connect();
+        hosts[A] = 'down';
+        fakeFetch.mockImplementation(async (url, config) => {
+          if (new URL(url).pathname.endsWith('/sync') && hosts[new URL(url).origin] === 'live') {
+            calls.push({ origin: new URL(url).origin, path: 'sync', body: config.body });
+            return fakeSuccess({ status: 'waitingInQueue' });
+          }
+          return respond(url, config);
+        });
+
+        await connection.startSyncSession({ urgent: false, lastSyncedTick: 0 });
+
+        const syncCallsAtB = calls.filter(call => call.path === 'sync' && call.origin === B);
+        expect(syncCallsAtB).toHaveLength(1);
+        expect(JSON.parse(syncCallsAtB[0].body)).toMatchObject({ endpoint: B });
+      });
     });
   });
 });

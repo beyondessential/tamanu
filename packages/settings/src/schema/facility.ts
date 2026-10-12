@@ -18,6 +18,7 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
   fhirResourceMaterialisationSchema,
+  centralEndpointsSetting,
 } from './definitions';
 
 export const facilitySettings = {
@@ -282,6 +283,25 @@ export const facilitySettings = {
           description: 'Mobile urgent sync interval',
           type: yup.number().integer().positive(),
           defaultValue: 10,
+        },
+        centralEndpoints: centralEndpointsSetting(
+          'Central endpoints for this facility, tried before the global list',
+        ),
+        centralEndpointRecheckIntervalInSeconds: {
+          name: 'Central endpoint recheck interval',
+          unit: 'seconds',
+          description:
+            'While on a lower-priority central endpoint, how often to check whether a higher-priority one works again',
+          type: yup.number().integer().positive(),
+          defaultValue: 300,
+        },
+        centralEndpointProbeTimeoutInSeconds: {
+          name: 'Central endpoint probe timeout',
+          unit: 'seconds',
+          description:
+            'How long to wait for a login at a central endpoint before treating it as unreachable',
+          type: yup.number().integer().positive(),
+          defaultValue: 5,
         },
       },
     },

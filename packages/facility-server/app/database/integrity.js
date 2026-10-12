@@ -1,4 +1,8 @@
-import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants/facts';
+import {
+  FACT_CENTRAL_ENDPOINTS,
+  FACT_CENTRAL_HOST,
+  FACT_FACILITY_IDS,
+} from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { CentralServerConnection } from '../sync';
@@ -21,6 +25,11 @@ export async function performDatabaseIntegrityChecks(context) {
  */
 async function ensureHostMatches(context) {
   const { LocalSystemFact } = context.models;
+  // spec: CEND
+  // Once central has supplied a list of endpoints the recorded hosts are managed from there and
+  // the declared host is only where the server started, so there's nothing to drift-check.
+  if (await LocalSystemFact.get(FACT_CENTRAL_ENDPOINTS)) return;
+
   // Drift-check the declared host (env/config) against the fact; a
   // wizard-configured server has no declaration, so there's nothing to check.
   const configuredHost = getDeclaredHost();

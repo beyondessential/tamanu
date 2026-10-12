@@ -283,6 +283,88 @@ describe('Settings Admin', () => {
     });
   });
 
+  describe('sync.centralEndpoints validation', () => {
+    let facility;
+
+    beforeAll(async () => {
+      facility = await models.Facility.create(fake(models.Facility));
+    });
+
+    afterEach(async () => {
+      await models.Setting.set('security.requireHttps', false, SETTINGS_SCOPES.GLOBAL);
+      settingsCache.reset();
+    });
+
+    const saveEndpoints = (
+      endpoints,
+      { scope = SETTINGS_SCOPES.GLOBAL, extra = {}, https = false } = {},
+    ) => {
+      const request = adminApp.put('/v1/admin/settings');
+      if (https) request.set('X-Forwarded-Proto', 'https');
+      return request.send({
+        settings: { sync: { centralEndpoints: endpoints }, ...extra },
+        scope,
+        facilityId: scope === SETTINGS_SCOPES.FACILITY ? facility.id : null,
+      });
+    };
+
+    it('accepts https endpoints for any host and http endpoints for internal hosts', async () => {
+      const endpoints = ['https://central.example.com', 'http://central.local:3000'];
+      expect(await saveEndpoints(endpoints)).toHaveSucceeded();
+
+      const persisted = await getSettings(SETTINGS_SCOPES.GLOBAL);
+      expect(persisted.body.sync.centralEndpoints).toEqual(endpoints);
+    });
+
+    it('accepts a facility-scope list', async () => {
+      const endpoints = ['http://100.64.0.5'];
+      expect(await saveEndpoints(endpoints, { scope: SETTINGS_SCOPES.FACILITY })).toHaveSucceeded();
+
+      const persisted = await getSettings(SETTINGS_SCOPES.FACILITY, facility.id);
+      expect(persisted.body.sync.centralEndpoints).toEqual(endpoints);
+    });
+
+    it('rejects an http endpoint on a public host', async () => {
+      const response = await saveEndpoints(['http://central.example.com']);
+      expect(response).toHaveRequestError();
+    });
+
+    it.each([
+      ['a path', 'https://central.example.com/api'],
+      ['credentials', 'https://user:pass@central.example.com'],
+      ['a non-URL', 'central'],
+    ])('rejects an endpoint with %s', async (_, endpoint) => {
+      expect(await saveEndpoints([endpoint])).toHaveRequestError();
+    });
+
+    it('rejects an http endpoint when requireHttps is already in effect', async () => {
+      await models.Setting.set('security.requireHttps', true, SETTINGS_SCOPES.GLOBAL);
+      settingsCache.reset();
+
+      const response = await saveEndpoints(['http://central.local'], {
+        scope: SETTINGS_SCOPES.FACILITY,
+        https: true,
+      });
+      expect(response).toHaveRequestError();
+    });
+
+    it('rejects an http endpoint when the same save turns requireHttps on', async () => {
+      const response = await saveEndpoints(['http://central.local'], {
+        extra: { security: { requireHttps: true } },
+        https: true,
+      });
+      expect(response).toHaveRequestError();
+    });
+
+    it('accepts https endpoints when requireHttps is in effect', async () => {
+      await models.Setting.set('security.requireHttps', true, SETTINGS_SCOPES.GLOBAL);
+      settingsCache.reset();
+
+      const response = await saveEndpoints(['https://central.example.com'], { https: true });
+      expect(response).toHaveSucceeded();
+    });
+  });
+
   describe('highRisk settings enforcement', () => {
     // mail.* is a group-level highRisk subtree in the central schema, so mail.from
     // exercises the inherited flag; `language` is an ordinary central setting.
@@ -358,7 +440,9 @@ describe('Settings Admin', () => {
     it('forbids read and write entirely without Setting permissions', async () => {
       const noSettingApp = await baseApp.asNewRole([]);
 
-      const read = await noSettingApp.get('/v1/admin/settings').query({ scope: SETTINGS_SCOPES.CENTRAL });
+      const read = await noSettingApp
+        .get('/v1/admin/settings')
+        .query({ scope: SETTINGS_SCOPES.CENTRAL });
       expect(read).toBeForbidden();
 
       const write = await noSettingApp.put('/v1/admin/settings').send({

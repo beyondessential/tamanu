@@ -3,7 +3,9 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { initTimesync } from './services/initTimesync';
 import { CentralServerConnection, FacilitySyncManager } from './sync';
-import { getSyncConfig, isServerConfigured, initServerConfig } from './serverConfig';
+import { getCurrentCentralHost } from './sync/CentralEndpointSelector';
+import { setupCentralEndpointSelector } from './sync/setupCentralEndpointSelector';
+import { isServerConfigured, initServerConfig } from './serverConfig';
 import { resolveSchedules } from './tasks';
 
 // How often a sync/tasks process re-checks for first-run setup completing.
@@ -13,6 +15,10 @@ export const SYNC_NOT_CONFIGURED_WARNING =
   'Facility server has no sync host/facilities configured; sync is disabled until setup ' +
   'is completed (SYNC_URL / TAMANU_FACILITY_IDS env or the setup wizard).';
 
+// Read for each exchange, so timesync follows the central endpoint in use.
+export const centralTimesyncUrl = () =>
+  `${getCurrentCentralHost().replace(/\/*$/, '')}/api/timesync`;
+
 // Wire up the sync runtime when configured, else warn and leave it disabled (a
 // fresh server still boots to serve the wizard). Returns whether it was set up.
 export async function setupSyncRuntime(context, { syncManager } = {}) {
@@ -21,11 +27,12 @@ export async function setupSyncRuntime(context, { syncManager } = {}) {
     return false;
   }
 
-  const { host } = getSyncConfig();
+  // The sync process owns the choice of central endpoint; the others follow it.
+  await setupCentralEndpointSelector(context, { role: 'owner' });
   /* eslint-disable-next-line require-atomic-updates -- single-threaded boot, no concurrent writers */
   context.timesync = await initTimesync({
     models: context.models,
-    url: `${host.replace(/\/*$/, '')}/api/timesync`,
+    getUrl: centralTimesyncUrl,
     enabled: (await resolveSchedules(context)).timeSync.enabled,
   });
   context.centralServer = new CentralServerConnection(context);

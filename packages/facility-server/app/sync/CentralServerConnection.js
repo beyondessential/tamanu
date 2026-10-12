@@ -9,21 +9,37 @@ import { log } from '@tamanu/shared/services/logging';
 import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
+import { getCentralEndpointSelector, getCurrentCentralHost } from './CentralEndpointSelector';
+
+// spec: CEND
+const apiEndpointOf = host => {
+  const url = new URL(host);
+  url.pathname = '/api';
+  return url.toString();
+};
+
+// The endpoint stopped working: nothing answered, or a proxy in front of central did not get an
+// answer from it. Other errors come from central itself and say nothing about the endpoint.
+const isEndpointFailure = error =>
+  error?.type === ERROR_TYPE.REMOTE_UNREACHABLE || [502, 503, 504].includes(error?.status);
+
+// With somewhere else to go, a call that finds its endpoint dead should say so within seconds
+// rather than after the full backoff, which is kept for the retry on the endpoint chosen.
+const FAILOVER_BACKOFF = { maxAttempts: 3, maxWaitMs: 2000 };
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
+  #hostInUse;
 
   constructor({ deviceId }) {
-    const { host } = getSyncConfig();
+    const host = getCurrentCentralHost();
     if (!host) {
       throw new Error('Facility server has no sync host configured');
     }
-    const url = new URL(host);
-    url.pathname = '/api';
 
     super({
       logger: log,
-      endpoint: url.toString(),
+      endpoint: apiEndpointOf(host),
       agentName: SERVER_TYPES.FACILITY,
       agentVersion: version,
       deviceId,
@@ -34,9 +50,39 @@ export class CentralServerConnection extends TamanuApi {
       },
     });
 
+    this.#hostInUse = host;
+
     if (process.env.TAMANU_DISABLE_FAITH_FETCH !== 'true') {
       this.fetchImplementation = faithFetch;
     }
+  }
+
+  // Follows the endpoint the selector has chosen, which can change between calls. Credentials are
+  // for the old endpoint, so the next call logs in again. Returns whether it moved.
+  #followSelectedEndpoint() {
+    const host = getCentralEndpointSelector()?.current();
+    if (!host || host === this.#hostInUse) return false;
+
+    log.info('CentralServerConnection: switching central endpoint', {
+      from: this.#hostInUse,
+      to: host,
+    });
+    this.setEndpoint(apiEndpointOf(host));
+    this.#hostInUse = host;
+    this.#loginData = null;
+    return true;
+  }
+
+  // The endpoint failed. Has the selector look for another one and, when it finds one and no sync
+  // session is running, resolves true so the caller retries there. A running session instead
+  // fails with its error and the next one starts on the new endpoint.
+  async #failOver(error) {
+    const selector = getCentralEndpointSelector();
+    if (!selector?.hasAlternatives() || !isEndpointFailure(error)) return false;
+
+    await selector.walk({ reason: error.message });
+    if (selector.isSessionActive()) return false;
+    return this.#followSelectedEndpoint();
   }
 
   async fetch(endpoint, options = {}, upOptions = null) {
@@ -58,10 +104,30 @@ export class CentralServerConnection extends TamanuApi {
       config = upOptions;
     }
 
-    if (['login', 'refresh'].includes(endpoint)) {
+    const isAuthEndpoint = ['login', 'refresh'].includes(endpoint);
+    if (isAuthEndpoint) {
       retryAuth = false;
     }
 
+    this.#followSelectedEndpoint();
+    const selector = getCentralEndpointSelector();
+    // a running session keeps its full backoff, so a brief outage does not cost it the session
+    const canFailFast =
+      !isAuthEndpoint &&
+      selector?.hasAlternatives() &&
+      !selector.isSessionActive() &&
+      [undefined, true].includes(config.backoff);
+    const firstConfig = canFailFast ? { ...config, backoff: FAILOVER_BACKOFF } : config;
+    try {
+      return await this.#fetchOnce(endpoint, { retryAuth, query, config: firstConfig, options });
+    } catch (error) {
+      // connect() has its own failover for logins, which are what reach the endpoint first
+      if (isAuthEndpoint || !(await this.#failOver(error))) throw error;
+      return await this.#fetchOnce(endpoint, { retryAuth, query, config, options });
+    }
+  }
+
+  async #fetchOnce(endpoint, { retryAuth, query, config, options }) {
     if (retryAuth && !this.hasToken()) {
       await this.connect(options.preserveBackoffForAuthAttempt ? options.backoff : undefined);
     }
@@ -83,6 +149,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async connect(backoff = config.sync.backoff, timeout = this.timeout) {
+    this.#followSelectedEndpoint();
     try {
       await this.refreshToken({
         retryAuth: false,
@@ -92,6 +159,25 @@ export class CentralServerConnection extends TamanuApi {
       // ignore error
     }
 
+    const selector = getCentralEndpointSelector();
+    if (!selector?.hasAlternatives()) {
+      return await this.#login(backoff, timeout);
+    }
+
+    // With alternatives, a failed login is not worth the full backoff on this endpoint: look for
+    // another one first. A lockout is the exception, since more logins only extend it.
+    try {
+      return await this.#login(false, timeout);
+    } catch (error) {
+      if (error.type === ERROR_TYPE.RATE_LIMITED) throw error;
+      await selector.walk({ reason: error.message });
+      this.#followSelectedEndpoint();
+      // when no endpoint passed this is still the original one, retried under the full backoff
+      return await this.#login(backoff, timeout);
+    }
+  }
+
+  async #login(backoff, timeout) {
     const { email, password } = getSyncConfig();
     log.info(`Logging in to ${this.host} as ${email}...`);
 
@@ -126,6 +212,7 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
+    const connection = this;
     const facilityIds = getServerFacilityIds();
     const { sessionId, status } = await this.fetch('sync', {
       method: 'POST',
@@ -134,6 +221,12 @@ export class CentralServerConnection extends TamanuApi {
         deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
+        // Central cannot reliably tell which name we used, as a proxy can hide it. Read when the
+        // body is serialised, so it names the endpoint the request goes to even when a failover
+        // switches endpoints partway through the call.
+        get endpoint() {
+          return connection.#hostInUse;
+        },
       },
     });
 

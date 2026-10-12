@@ -59,3 +59,15 @@ sources:
             description: "{{ doc('devices__scopes') }}"
             data_tests:
               - not_null
+          - name: central_endpoint
+            data_type: text
+            description: "{{ doc('devices__central_endpoint') }}"
+            config:
+              meta:
+                masking: url
+          - name: central_endpoint_reported_at
+            data_type: timestamp with time zone
+            description: "{{ doc('devices__central_endpoint_reported_at') }}"
+            config:
+              meta:
+                masking: date

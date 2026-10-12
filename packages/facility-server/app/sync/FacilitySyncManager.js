@@ -20,7 +20,9 @@ import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/u
 import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig } from '../serverConfig';
+import { applyCentralEndpoints } from './applyCentralEndpoints';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
+import { getCentralEndpointSelector } from './CentralEndpointSelector';
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
 import { applyBootstrap } from './facilityBootstrap';
@@ -221,6 +223,8 @@ export class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     });
 
+    // the session finishes on its endpoint, or fails, before the selector moves it elsewhere
+    getCentralEndpointSelector()?.beginSession();
     try {
       await this.pushChanges(sessionId, newSyncClockTime);
 
@@ -233,6 +237,7 @@ export class FacilitySyncManager {
       }
       throw error;
     } finally {
+      getCentralEndpointSelector()?.endSession();
       // clear temp data stored for persist
       await dropSnapshotTable(this.sequelize, sessionId);
     }
@@ -254,6 +259,15 @@ export class FacilitySyncManager {
       await pullSettingsPsk({ models: this.models, centralServer: this.centralServer });
     } catch (error) {
       log.warn('FacilitySyncManager.pullSettingsPskFailed', { error: error.message });
+    }
+
+    try {
+      await applyCentralEndpoints({
+        models: this.models,
+        selector: getCentralEndpointSelector(),
+      });
+    } catch (error) {
+      log.warn('FacilitySyncManager.applyCentralEndpointsFailed', { error: error.message });
     }
 
     const durationMs = Date.now() - startTime;
