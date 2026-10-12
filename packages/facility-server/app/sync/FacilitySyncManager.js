@@ -178,7 +178,7 @@ export class FacilitySyncManager {
       throw new Error('Sync credentials are not configured');
     }
 
-    const startTime = new Date().getTime();
+    const startTime = Date.now();
     this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.attemptStart', {
