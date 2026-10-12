@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as yup from 'yup';
 
-import { getRelatedConditionsSchema } from '../../../app/views/programRegistry/PatientProgramRegistryForm';
+import { getRelatedConditionsSchema } from '../../../app/views/programRegistry/relatedConditionsSchema';
 
 const validate = (mandatoryConditionEnabled, conditions) =>
   yup
