@@ -70,6 +70,15 @@ describe('program registry condition validation', () => {
     expect(await validate(components, { showFirst: 'yes' }, false)).toEqual([]);
   });
 
+  it('ignores retired condition questions when placing the mandatory error', async () => {
+    const components = [
+      { ...conditionQuestion('retired'), visibilityStatus: 'historical' },
+      conditionQuestion('q1'),
+    ];
+
+    expect(await validate(components, {}, true)).toEqual(['q1']);
+  });
+
   it('is answerable when the patient is registered or the form registers them', () => {
     const components = [conditionQuestion('q1')];
 

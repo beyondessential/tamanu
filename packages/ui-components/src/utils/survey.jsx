@@ -9,6 +9,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
   READONLY_DATA_FIELDS,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { parseProgramRegistryConditionAnswer } from '@tamanu/shared/utils/fields';
 import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
@@ -309,6 +310,7 @@ const getProgramRegistryConditionSchema = ({
       const visibleConditionQuestions = components.filter(
         component =>
           component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION &&
+          component.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL &&
           checkVisibility(component, values, components),
       );
       if (visibleConditionQuestions[0]?.dataElementId !== dataElementId) return true;
