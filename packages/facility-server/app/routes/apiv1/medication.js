@@ -1791,6 +1791,8 @@ medication.get(
     const locationGroup = {
       association: 'locationGroup',
       where: locationGroupFilters,
+      // Any `where` makes Sequelize inner-join, which would drop locations with no group.
+      required: Boolean(filterParams.locationGroupId),
       attributes: ['id', 'code', 'name'],
     };
 

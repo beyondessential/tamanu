@@ -77,12 +77,13 @@ describe('Medication', () => {
     patientId,
     repeats = 1,
     isDischargePrescription = true,
+    locationId = location.id,
   }) => {
     const { medication } = await createDrug();
     const encounter = await models.Encounter.create(
       fake(models.Encounter, {
         patientId,
-        locationId: location.id,
+        locationId,
         departmentId: department.id,
         examinerId: app.user.id,
         endDate: getCurrentDateTimeString(),
@@ -2694,6 +2695,28 @@ describe('Medication', () => {
       expect(found).toBeDefined();
       expect(found.prescription.invoiceItem).toBeDefined();
       expect(found.prescription.invoiceItem.approved).toBe(false);
+    });
+  });
+
+  describe('GET /api/medication/medication-requests location group', () => {
+    it('lists a request from a location with no group unless filtering by group', async () => {
+      const ungroupedLocation = await models.Location.create(
+        fake(models.Location, { locationGroupId: null, facilityId }),
+      );
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        locationId: ungroupedLocation.id,
+      });
+
+      const unfiltered = await app.get(`/api/medication/medication-requests?facilityId=${facilityId}`);
+      expect(unfiltered).toHaveSucceeded();
+      expect(unfiltered.body.data.map(item => item.id)).toContain(pharmacyOrderPrescription.id);
+
+      const filtered = await app.get(
+        `/api/medication/medication-requests?facilityId=${facilityId}&locationGroupId=${location.locationGroupId}`,
+      );
+      expect(filtered).toHaveSucceeded();
+      expect(filtered.body.data.map(item => item.id)).not.toContain(pharmacyOrderPrescription.id);
     });
   });
 
