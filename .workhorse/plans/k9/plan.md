@@ -16,6 +16,13 @@ The list rides existing settings sync; there is no new route.
 - `buildSettings` replaces arrays rather than merging them, so the facility reader alone would return the facility list only. The facility reads each scope separately (`Setting.get` takes a scope override) and builds facility entries, then global entries, with later duplicates dropped.
 - The recorded host list is a separate local fact and is what the connections use. After a completed sync session, next to `pullSettingsPsk`, the facility computes the effective list from synced settings and, when it differs from the recorded list, verifies by login at one entry and then records it. Synced settings never affect the connections until that verification passes.
 
+## Switching endpoints at runtime
+
+- `TamanuApi` gains a `setEndpoint()`, so the existing `CentralServerConnection` keeps its identity and holders such as `FacilitySyncManager` need no rewiring.
+- The websocket client and timesync read the current endpoint through one shared selector in the facility server instead of capturing the host at boot.
+- Recheck probes use a separate throwaway client with a short timeout and a single attempt. A probe never disturbs the live connection's auth state, and a dead endpoint costs seconds rather than the full backoff.
+
 ## Open
 
-- How running connections switch endpoint (switchable api-client endpoint vs a new connection per endpoint), and how recheck probes are made.
+- Where central stores the reported endpoint, and how the admin panel shows it per facility.
+- Where the recheck timer runs and how each of sync, websocket and timesync triggers a walk on failure.
