@@ -30,8 +30,8 @@ trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]
 wait_for_target() {
   local target="$1"
   local elapsed=0
-  echo "Waiting for ${target}/api to be ready..."
-  until curl -sf "${target}/api" > /dev/null 2>&1; do
+  echo "Waiting for ${target}/api/public/ping to be ready..."
+  until curl -sf "${target}/api/public/ping" > /dev/null 2>&1; do
     if (( elapsed >= MAX_WAIT )); then
       echo "ERROR: ${target} not ready after ${MAX_WAIT}s" >&2
       exit 1
