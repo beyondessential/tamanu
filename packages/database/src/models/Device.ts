@@ -29,6 +29,8 @@ export class Device extends Model {
   declare registeredById: string;
   declare scopes: DeviceScope[];
   declare name?: string;
+  declare centralEndpoint?: string | null;
+  declare centralEndpointReportedAt?: Date | null;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -52,6 +54,12 @@ export class Device extends Model {
         },
         name: {
           type: DataTypes.TEXT,
+        },
+        centralEndpoint: {
+          type: DataTypes.TEXT,
+        },
+        centralEndpointReportedAt: {
+          type: DataTypes.DATE,
         },
       },
       {
@@ -95,6 +103,14 @@ export class Device extends Model {
   async markSeen(): Promise<void> {
     await this.update({
       lastSeenAt: Sequelize.fn('now'),
+    });
+  }
+
+  /** Records the central endpoint a facility server reported using when it started a sync session. */
+  async reportCentralEndpoint(endpoint: string): Promise<void> {
+    await this.update({
+      centralEndpoint: endpoint,
+      centralEndpointReportedAt: Sequelize.fn('now'),
     });
   }
 
