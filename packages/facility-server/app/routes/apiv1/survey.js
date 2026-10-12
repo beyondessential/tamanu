@@ -2,7 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, literal } from 'sequelize';
 
-import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  SURVEY_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import { NotFoundError } from '@tamanu/errors';
 import {
@@ -43,9 +47,9 @@ survey.get(
 
     if (encounterId) {
       const encounter = await req.models.Encounter.findByPk(encounterId);
-        if (!encounter) {
-          throw new NotFoundError('Encounter not found');
-        }
+      if (!encounter) {
+        throw new NotFoundError('Encounter not found');
+      }
     }
 
     req.flagPermissionChecked();
@@ -94,7 +98,7 @@ survey.get(
       order: [['name', 'ASC']],
       ...(encounterId && { replacements: { encounterId } }),
     });
-    const permittedChartSurveys = chartSurveys.filter((survey) =>
+    const permittedChartSurveys = chartSurveys.filter(survey =>
       req.ability.can('list', subject('Charting', { id: survey.id })),
     );
 
@@ -150,6 +154,60 @@ survey.get(
     });
   }),
 );
+survey.get(
+  '/:id/programRegistry',
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+    const surveyRecord = await findRouteObject(req, 'Survey');
+    req.checkPermission('read', 'Patient');
+
+    const programRegistry = await models.ProgramRegistry.findOne({
+      where: { programId: surveyRecord.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    if (!programRegistry) {
+      res.send({ programRegistry: null });
+      return;
+    }
+
+    const conditions = await models.ProgramRegistryCondition.findAll({
+      where: {
+        programRegistryId: programRegistry.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+      order: [['name', 'ASC']],
+    });
+    const conditionCategories = await models.ProgramRegistryConditionCategory.findAll({
+      where: {
+        programRegistryId: programRegistry.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        code: { [Op.ne]: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR },
+      },
+      order: [['name', 'ASC']],
+    });
+    const registration = query.patientId
+      ? await models.PatientProgramRegistration.getActiveRegistration(
+          query.patientId,
+          programRegistry.id,
+        )
+      : null;
+    const recordedConditionIds = registration
+      ? await models.PatientProgramRegistrationCondition.getRecordedConditionIds(registration.id)
+      : [];
+
+    res.send({
+      programRegistry: {
+        id: programRegistry.id,
+        name: programRegistry.name,
+        mandatoryConditionEnabled: programRegistry.mandatoryConditionEnabled,
+      },
+      conditions: conditions.map(({ id, name }) => ({ id, name })),
+      conditionCategories: conditionCategories.map(({ id, name }) => ({ id, name })),
+      isPatientRegistered: Boolean(registration),
+      recordedConditionIds,
+    });
+  }),
+);
+
 survey.get(
   '/',
   asyncHandler(async (req, res) => {

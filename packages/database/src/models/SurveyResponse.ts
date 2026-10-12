@@ -4,8 +4,6 @@ import {
   CHARTING_DATA_ELEMENT_IDS,
   CHARTING_SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
-  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
-  REGISTRATION_STATUSES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -210,25 +208,14 @@ async function _addProgramRegistryConditions(
     throw new InvalidOperationError('No program registry configured for the current form');
   }
 
-  const registration = await models.PatientProgramRegistration.findOne({
-    where: { patientId, programRegistryId: programRegistry.id },
-    order: [['date', 'DESC']],
-  });
-  if (registration?.registrationStatus !== REGISTRATION_STATUSES.ACTIVE) return;
+  const registration = await models.PatientProgramRegistration.getActiveRegistration(
+    patientId,
+    programRegistry.id,
+  );
+  if (!registration) return;
 
-  const recordedConditions = await models.PatientProgramRegistrationCondition.findAll({
-    attributes: ['programRegistryConditionId'],
-    where: { patientProgramRegistrationId: registration.id, deletionDate: null },
-    include: [
-      {
-        association: 'programRegistryConditionCategory',
-        attributes: [],
-        where: { code: { [Op.ne]: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR } },
-      },
-    ],
-  });
   const recordedConditionIds = new Set(
-    recordedConditions.map(condition => condition.programRegistryConditionId),
+    await models.PatientProgramRegistrationCondition.getRecordedConditionIds(registration.id),
   );
 
   for (const { conditionId, categoryId } of conditionAnswers) {

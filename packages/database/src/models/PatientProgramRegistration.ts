@@ -130,6 +130,14 @@ export class PatientProgramRegistration extends Model {
     });
   }
 
+  static async getActiveRegistration(patientId: string, programRegistryId: string) {
+    const registration = await this.findOne({
+      where: { patientId, programRegistryId },
+      order: [['date', 'DESC']],
+    });
+    return registration?.registrationStatus === REGISTRATION_STATUSES.ACTIVE ? registration : null;
+  }
+
   static async getRegistrationsForPatient(patientId: string) {
     return this.sequelize.models.PatientProgramRegistration.findAll({
       where: {
