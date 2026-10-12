@@ -35,11 +35,18 @@ export function useProgramRegistryMutation(useMutationOptions = {}) {
 
   return useMutation({
     mutationKey: ['programRegistry', 'updateMetadata'],
-    mutationFn: async ({ programRegistryId, name, visibilityStatus, currentlyAtType }) =>
+    mutationFn: async ({
+      programRegistryId,
+      name,
+      visibilityStatus,
+      currentlyAtType,
+      mandatoryConditionEnabled,
+    }) =>
       await api.patch(`admin/programRegistry/${encodeURIComponent(programRegistryId)}`, {
         name,
         visibilityStatus,
         currentlyAtType,
+        mandatoryConditionEnabled,
       }),
     onSuccess: async (data, variables, context) => {
       void (await Promise.all([
