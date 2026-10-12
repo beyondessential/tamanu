@@ -8,7 +8,9 @@ import {
 } from '@tamanu/constants';
 import config from 'config';
 import { fake } from '@tamanu/fake-data/fake';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 describe('Survey program registry', () => {
@@ -133,6 +135,9 @@ describe('Survey program registry', () => {
     const condition = await models.ProgramRegistryCondition.create(
       fake(models.ProgramRegistryCondition, { programRegistryId: registry.id, name: 'Asthma' }),
     );
+    const otherCondition = await models.ProgramRegistryCondition.create(
+      fake(models.ProgramRegistryCondition, { programRegistryId: registry.id, name: 'Diabetes' }),
+    );
     const category = await models.ProgramRegistryConditionCategory.create(
       fake(models.ProgramRegistryConditionCategory, {
         programRegistryId: registry.id,
@@ -203,5 +208,36 @@ describe('Survey program registry', () => {
     expect(response.body.answers).toEqual([
       expect.objectContaining({ dataElementId: dataElement.id, body: 'Asthma (Confirmed)' }),
     ]);
+
+    const edited = await app.patch(`/api/surveyResponse/${submitted.body.id}`).send({
+      facilityId: facility.id,
+      editedTime: getCurrentDateTimeString(),
+      answers: {
+        [dataElement.id]: JSON.stringify({
+          conditionId: otherCondition.id,
+          categoryId: category.id,
+        }),
+      },
+    });
+    expect(edited).toHaveSucceeded();
+    const recorded = await models.PatientProgramRegistrationCondition.findAll({
+      where: { patientProgramRegistrationId: registration.id },
+    });
+    expect(recorded.map(c => c.programRegistryConditionId).sort()).toEqual(
+      [condition.id, otherCondition.id].sort(),
+    );
+  });
+
+  describe('permissions', () => {
+    disableHardcodedPermissionsForSuite();
+
+    it('forbids reading registry options without patient read permission', async () => {
+      const survey = await createSurvey();
+      const baseApp = await ctx.baseApp.asRole('base');
+
+      const result = await baseApp.get(`/api/survey/${survey.id}/programRegistry`);
+
+      expect(result).toBeForbidden();
+    });
   });
 });
