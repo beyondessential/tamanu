@@ -50,13 +50,14 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
   const { getCurrentDate } = useDateTime();
 
-  const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
+  const { data: programRegistry, isInitialLoading: isProgramRegistryLoading } =
+    useProgramRegistryQuery(selectedProgramRegistryId);
 
   const programRegistrySuggester = useSuggester('programRegistry', {
     baseQueryParameters: { patientId: patient?.id },
   });
   const programRegistryStatusSuggester = useSuggester('programRegistryClinicalStatus', {
-    baseQueryParameters: { programRegistryId: program ? program.id : null },
+    baseQueryParameters: { programRegistryId: programRegistry ? programRegistry.id : null },
   });
   const registeredBySuggester = useSuggester('practitioner');
   const registeringFacilitySuggester = useSuggester('facility');
@@ -65,7 +66,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
     () =>
       yup.object().shape({
         conditions: getRelatedConditionsSchema(
-          Boolean(program?.mandatoryConditionEnabled),
+          Boolean(programRegistry?.mandatoryConditionEnabled),
           getTranslation('validation.required.inline', '*Required'),
         ),
         programRegistryId: foreignKey().required(
@@ -80,7 +81,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           getTranslation('validation.required.inline', '*Required'),
         ),
       }),
-    [getTranslation, program?.mandatoryConditionEnabled],
+    [getTranslation, programRegistry?.mandatoryConditionEnabled],
   );
 
   return (
@@ -189,7 +190,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                   placeholder={getTranslation('general.placeholder.select', 'Select')}
                   component={AutocompleteField}
                   suggester={programRegistryStatusSuggester}
-                  disabled={!program}
+                  disabled={!programRegistry}
                 />
                 <Field
                   name="conditions"
@@ -227,7 +228,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                           programRegistryId={selectedProgramRegistryId}
                           onClear={onClear}
                           optionsFilter={condition => !usedValues.includes(condition.id)}
-                          required={index === 0 && Boolean(program?.mandatoryConditionEnabled)}
+                          required={index === 0 && Boolean(programRegistry?.mandatoryConditionEnabled)}
                           label={
                             <TranslatedText
                               stringId="programRegistry.relatedConditions.label"
@@ -262,9 +263,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
               confirmText={buttonText}
               onConfirm={submitForm}
               onCancel={handleCancel}
-              confirmDisabled={
-                Boolean(selectedProgramRegistryId) && program?.id !== selectedProgramRegistryId
-              }
+              confirmDisabled={isProgramRegistryLoading}
             />
           </>
         );
