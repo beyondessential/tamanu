@@ -161,7 +161,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
           })}
           onSubmit={submitPatientProgramRegistration}
         >
-          {({ handleSubmit, values, errors }) => (
+          {({ handleSubmit, values, errors, setFieldValue, submitCount }) => (
             <>
               <StyledView marginTop={20} marginLeft={20} marginRight={20}>
                 <LocalisedField
@@ -237,9 +237,7 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   required={programRegistry.mandatoryConditionEnabled}
                   error={typeof errors.conditions === 'string' ? errors.conditions : undefined}
                   values={values.conditions}
-                  onChange={newValue => {
-                    values.conditions = newValue;
-                  }}
+                  onChange={newValue => setFieldValue('conditions', newValue, submitCount > 0)}
                 />
               </StyledView>
               <Button
