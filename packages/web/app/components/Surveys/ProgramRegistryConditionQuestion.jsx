@@ -5,7 +5,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { parseProgramRegistryConditionAnswer } from '@tamanu/shared/utils/fields';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
-  AutocompleteInput,
+  SelectInput,
   checkVisibility,
   isProgramRegistryConditionAnswerable,
   isProgramRegistryConditionRequired,
@@ -81,7 +81,7 @@ export const ProgramRegistryConditionQuestionField = ({
 
   if (isLoading || !isAnswerable) {
     return (
-      <AutocompleteInput
+      <SelectInput
         name={name}
         label={label}
         value=""
@@ -125,7 +125,7 @@ export const ProgramRegistryConditionQuestionField = ({
 
   return (
     <Container>
-      <AutocompleteInput
+      <SelectInput
         name={name}
         label={label}
         value={answer.conditionId ?? ''}
@@ -137,7 +137,7 @@ export const ProgramRegistryConditionQuestionField = ({
         helperText={isCategoryMissing && error ? undefined : helperText}
       />
       {answer.conditionId && (
-        <AutocompleteInput
+        <SelectInput
           id={categoryInputId}
           name={`${name}-category`}
           label={getTranslation('programRegistry.relatedConditionsCategory.label', 'Category')}
