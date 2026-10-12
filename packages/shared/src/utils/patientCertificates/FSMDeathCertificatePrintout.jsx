@@ -12,11 +12,13 @@ import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { useLanguageContext } from '../pdf/languageContext';
 
+const PAGE_GUTTER = 20;
+
 const styles = StyleSheet.create({
   page: {
     paddingTop: 15,
     paddingBottom: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: PAGE_GUTTER,
     fontSize: 8,
   },
   table: {
@@ -86,8 +88,8 @@ const styles = StyleSheet.create({
   footer: {
     position: 'absolute',
     bottom: 12,
-    left: 20,
-    right: 20,
+    left: PAGE_GUTTER,
+    right: PAGE_GUTTER,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: 2,
