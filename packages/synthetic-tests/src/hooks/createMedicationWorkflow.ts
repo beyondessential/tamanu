@@ -40,7 +40,7 @@ async function createOpenEncounterForMedication(
   return api.post('encounter', {
     facilityId,
     ...context.vars.encounterPayload,
-    endDate: null,
+    endDate: undefined,
   });
 }
 
