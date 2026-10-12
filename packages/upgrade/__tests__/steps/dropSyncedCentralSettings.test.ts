@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
+// The audit barrel reads server config at import.
+vi.mock('@tamanu/database/utils/audit', () => import('../../../database/src/utils/audit/pauseAudit'));
+
 import { STEPS } from '../../src/steps/1791760364392-dropSyncedCentralSettings.js';
 
 const [step] = STEPS;
