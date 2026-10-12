@@ -4,6 +4,8 @@ import {
   CHARTING_DATA_ELEMENT_IDS,
   CHARTING_SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  REGISTRATION_STATUSES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -13,6 +15,7 @@ import {
   getActiveActionComponents,
   getResultValue,
   getStringValue,
+  parseProgramRegistryConditionAnswer,
 } from '@tamanu/shared/utils/fields';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -177,6 +180,70 @@ async function _writeToPatientFields(
         ...registrationData,
       });
     }
+  }
+}
+
+/**
+ * @internal Use {@link SurveyResponse.addProgramRegistryConditions} instead.
+ * @privateRemarks DUPLICATED IN mobile/App/models/SurveyResponse.ts. Please keep in sync.
+ */
+async function _addProgramRegistryConditions(
+  models: Models,
+  questions: any[],
+  answers: Record<ProgramDataElement['id'], any>,
+  patientId: Patient['id'],
+  surveyId: Survey['id'],
+  userId: User['id'],
+  submittedTime: string,
+) {
+  const conditionAnswers = questions
+    .filter(q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION)
+    .map(q => parseProgramRegistryConditionAnswer(answers[q.dataElement.id]))
+    .filter(answer => answer?.conditionId);
+  if (conditionAnswers.length === 0) return;
+
+  const survey = await models.Survey.findByPk(surveyId);
+  const programRegistry = await models.ProgramRegistry.findOne({
+    where: { programId: survey?.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+  });
+  if (!programRegistry) {
+    throw new InvalidOperationError('No program registry configured for the current form');
+  }
+
+  const registration = await models.PatientProgramRegistration.findOne({
+    where: { patientId, programRegistryId: programRegistry.id },
+    order: [['date', 'DESC']],
+  });
+  if (registration?.registrationStatus !== REGISTRATION_STATUSES.ACTIVE) return;
+
+  const recordedConditions = await models.PatientProgramRegistrationCondition.findAll({
+    attributes: ['programRegistryConditionId'],
+    where: { patientProgramRegistrationId: registration.id, deletionDate: null },
+    include: [
+      {
+        association: 'programRegistryConditionCategory',
+        attributes: [],
+        where: { code: { [Op.ne]: PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR } },
+      },
+    ],
+  });
+  const recordedConditionIds = new Set(
+    recordedConditions.map(condition => condition.programRegistryConditionId),
+  );
+
+  for (const { conditionId, categoryId } of conditionAnswers) {
+    if (recordedConditionIds.has(conditionId)) continue;
+    if (!categoryId) {
+      throw new InvalidOperationError('A related condition needs a category');
+    }
+    await models.PatientProgramRegistrationCondition.create({
+      patientProgramRegistrationId: registration.id,
+      programRegistryConditionId: conditionId,
+      programRegistryConditionCategoryId: categoryId,
+      date: submittedTime,
+      clinicianId: userId,
+    });
+    recordedConditionIds.add(conditionId);
   }
 }
 
@@ -514,6 +581,12 @@ export class SurveyResponse extends Model {
     return await _writeToPatientFields(...args);
   }
 
+  static async addProgramRegistryConditions(
+    ...args: Parameters<typeof _addProgramRegistryConditions>
+  ) {
+    return await _addProgramRegistryConditions(...args);
+  }
+
   static async handleSurveyResponseActions(
     models: Models,
     facilityId: Facility['id'],
@@ -529,6 +602,15 @@ export class SurveyResponse extends Model {
     await SurveyResponse.writeToPatientFields(
       models,
       facilityId,
+      activeQuestions,
+      answers,
+      patientId,
+      surveyId,
+      userId,
+      submittedTime,
+    );
+    await SurveyResponse.addProgramRegistryConditions(
+      models,
       activeQuestions,
       answers,
       patientId,

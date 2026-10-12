@@ -185,3 +185,17 @@ export const SSCPatientIssue = SurveyScreenComponent.shape({
     }),
   ),
 });
+
+export const SSCProgramRegistryCondition = SurveyScreenComponent.test(
+  'test-program-registry-exists',
+  async (_value, { options, createError }) => {
+    const { models, programId } = options.context;
+    const programRegistry = await models.ProgramRegistry.findOne({
+      where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    });
+    if (programRegistry) return true;
+    return createError({
+      message: 'ProgramRegistryCondition question but no program registry configured',
+    });
+  },
+);

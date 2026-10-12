@@ -15,6 +15,11 @@ import { compressSignatureBody } from './signature';
  * @param {any} value
  * @returns {Promise<V extends null | undefined ? null : string>}
  */
+export function parseProgramRegistryConditionAnswer(value) {
+  if (!value) return null;
+  return typeof value === 'string' ? JSON.parse(value) : value;
+}
+
 export async function getStringValue(type, value) {
   if (value == null) {
     return null;
