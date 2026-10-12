@@ -55,6 +55,34 @@ const LastSyncs = React.memo(props => (
         ),
       },
       {
+        key: 'endpoint',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.endpoint"
+            fallback="Central endpoint"
+            data-testid="translatedtext-ep01"
+          />
+        ),
+      },
+      {
+        key: 'endpointReportedAt',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.endpointReportedAt"
+            fallback="Endpoint reported"
+            data-testid="translatedtext-ep02"
+          />
+        ),
+        accessor: ({ endpointReportedAt }) =>
+          endpointReportedAt ? (
+            <DateDisplay
+              date={endpointReportedAt}
+              timeFormat="default"
+              data-testid="datedisplay-ep03"
+            />
+          ) : null,
+      },
+      {
         key: 'duration',
         title: (
           <TranslatedText

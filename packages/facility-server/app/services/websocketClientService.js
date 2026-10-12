@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
 import { WS_EVENTS, WS_PATH } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 
-import { getSyncConfig } from '../serverConfig';
+import { getCentralEndpointSelector, getCurrentCentralHost } from '../sync/CentralEndpointSelector';
 
 const NOOP_CLIENT_SERVICE = {
   getClient: () => null,
@@ -15,7 +16,7 @@ const NOOP_CLIENT_SERVICE = {
  */
 export const defineWebsocketClientService = injector => {
   // No host until the server is configured — nothing to connect to, so no-op.
-  const { host } = getSyncConfig();
+  const host = getCurrentCentralHost();
   if (!host) {
     return NOOP_CLIENT_SERVICE;
   }
@@ -23,6 +24,14 @@ export const defineWebsocketClientService = injector => {
   const url = new URL(host);
   const client = io(url.toString(), { path: WS_PATH, transports: ['websocket', 'webtransport'] });
   const getClient = () => client;
+
+  // spec: CEND
+  // Follow the central endpoint in use. The listeners stay on the socket across the reconnect.
+  getCentralEndpointSelector()?.on('change', newHost => {
+    log.info('websocketClientService: reconnecting to the new central endpoint', { host: newHost });
+    client.io.uri = new URL(newHost).toString();
+    client.disconnect().connect();
+  });
 
   //forward event to facility client
   client.on(

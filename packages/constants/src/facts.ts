@@ -18,6 +18,12 @@ export const FACT_LOOKUP_PATIENTS_TO_REBUILD = 'lookupPatientsToRebuild';
 
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
+// Ordered JSON array of central hosts, in the order a facility tries them. Written only once
+// central has supplied a list; until then the single FACT_CENTRAL_HOST (or config) host applies.
+export const FACT_CENTRAL_ENDPOINTS = 'syncCentralEndpoints';
+// The host in that list the sync process is currently using, so processes that never talk to
+// central themselves can follow it.
+export const FACT_CENTRAL_ENDPOINT_IN_USE = 'syncCentralEndpointInUse';
 export const FACT_SYNC_EMAIL = 'syncEmail';
 export const FACT_SYNC_PASSWORD = 'syncPassword';
 export const FACT_CURRENT_VERSION = 'currentVersion';
