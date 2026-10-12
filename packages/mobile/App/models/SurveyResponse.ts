@@ -8,6 +8,7 @@ import {
 } from '~/types';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { addProgramRegistryConditions } from '~/ui/helpers/programRegistryConditions';
 import {
   FieldTypes,
   getPatientDataDbLocation,
@@ -266,6 +267,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         setNote('Writing patient data');
 
         await writeToPatientFields(
+          components,
+          finalValues,
+          patientId,
+          surveyId,
+          userId,
+          responseRecord.endTime,
+        );
+        await addProgramRegistryConditions(
           components,
           finalValues,
           patientId,

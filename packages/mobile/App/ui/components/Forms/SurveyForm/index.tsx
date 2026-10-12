@@ -23,7 +23,13 @@ import { LoadingScreen } from '../../LoadingScreen';
 import Form from '../Form';
 import { FormFields } from './FormFields';
 import { getFormInitialValues, getFormSchema } from './helpers';
-import { checkVisibilityCriteria } from '/helpers/fields';
+import { ProgramRegistryConditionContext } from './SurveyProgramRegistryConditionField';
+import { getProgramRegistryConditionOptions } from '/helpers/programRegistryConditions';
+import {
+  getProgramRegistryConditionErrors,
+  isProgramRegistryConditionRequired,
+} from '/helpers/programRegistryConditionRules';
+import { checkVisibilityCriteria, FieldTypes } from '/helpers/fields';
 import { authUserSelector } from '/helpers/selectors';
 
 const EMPTY_CALCULATED_VALUES = {};
@@ -157,6 +163,19 @@ export const SurveyForm = ({
     [encounter?.encounterType],
   );
   const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
+  const conditionSurveyId = components.find(
+    c => c.dataElement.type === FieldTypes.PROGRAM_REGISTRY_CONDITION,
+  )?.surveyId;
+  const { data: conditionOptions } = useQuery({
+    queryKey: ['surveyProgramRegistry', conditionSurveyId, patient.id],
+    queryFn: () => getProgramRegistryConditionOptions(conditionSurveyId, patient.id),
+    enabled: Boolean(conditionSurveyId),
+  });
+  const conditionContext = useMemo(
+    () => ({ options: conditionOptions, components }),
+    [conditionOptions, components],
+  );
+  const isConditionRequired = isProgramRegistryConditionRequired(conditionOptions, components);
 
   const validateVisibleFields = useCallback(
     async (values: Record<string, any>) => {
@@ -177,9 +196,15 @@ export const SurveyForm = ({
           return yupToFormErrors(error);
         }
       })();
-      return { ...schemaErrors, ...(await validate?.(values)) };
+      const conditionErrors = getProgramRegistryConditionErrors(
+        components,
+        values,
+        isConditionRequired,
+        getTranslation('validation.required.inline', '*Required'),
+      );
+      return { ...schemaErrors, ...conditionErrors, ...(await validate?.(values)) };
     },
-    [components, encounter?.encounterType, getTranslation, validate],
+    [components, encounter?.encounterType, getTranslation, validate, isConditionRequired],
   );
 
   const submitVisibleValues = useCallback(
@@ -212,16 +237,18 @@ export const SurveyForm = ({
       onSubmit={submitVisibleValues}
       validate={validateVisibleFields}
     >
-      <SurveyFormInner
-        components={components}
-        hasCalculations={hasCalculations}
-        patient={patient}
-        encounterProp={encounterProp}
-        onCancel={onCancel}
-        setCurrentScreenIndex={setCurrentScreenIndex}
-        currentScreenIndex={currentScreenIndex}
-        onGoBack={onGoBack}
-      />
+      <ProgramRegistryConditionContext.Provider value={conditionContext}>
+        <SurveyFormInner
+          components={components}
+          hasCalculations={hasCalculations}
+          patient={patient}
+          encounterProp={encounterProp}
+          onCancel={onCancel}
+          setCurrentScreenIndex={setCurrentScreenIndex}
+          currentScreenIndex={currentScreenIndex}
+          onGoBack={onGoBack}
+        />
+      </ProgramRegistryConditionContext.Provider>
     </Form>
   );
 };
