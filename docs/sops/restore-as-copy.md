@@ -38,8 +38,14 @@ hand.
    described in `connect-psql.md`:
 
    ```sql
+   BEGIN;
+   SELECT set_config('tamanu.this_is_a_copy', 'true', true);
    SELECT forget_server_identity();
+   COMMIT;
    ```
+
+   The function refuses to run without the `set_config` line in the same
+   transaction. Never set it on the server the copy was taken from.
 
    It removes every value encrypted with the source's key, the identity facts,
    and every secret setting. A database from a version without the function

@@ -34,6 +34,12 @@ describe('forget_server_identity()', () => {
 
   const encrypted = async () => encryptSecret(await generateSecretKey(), 'secret');
 
+  const forget = () =>
+    sequelize.transaction(async () => {
+      await sequelize.query(`SELECT set_config('tamanu.this_is_a_copy', 'true', true)`);
+      await sequelize.query('SELECT forget_server_identity()');
+    });
+
   const remainingKeys = async model =>
     (await model.findAll({ attributes: ['key'], order: [['key', 'ASC']] })).map(row => row.key);
 
@@ -52,7 +58,7 @@ describe('forget_server_identity()', () => {
     await models.LocalSystemSecret.set(FACT_DEVICE_KEY, 'device-key');
     await models.LocalSystemSecret.set(FACT_SETTINGS_PSK, 'settings-psk');
 
-    await sequelize.query('SELECT forget_server_identity()');
+    await forget();
 
     expect(await remainingKeys(models.LocalSystemFact)).toEqual([
       FACT_CURRENT_SYNC_TICK,
@@ -65,7 +71,7 @@ describe('forget_server_identity()', () => {
     await models.Setting.set('integrations.dhis2.password', await encrypted());
     await models.Setting.set('mail.from', 'tamanu@example');
 
-    await sequelize.query('SELECT forget_server_identity()');
+    await forget();
 
     const live = await models.Setting.findAll({ attributes: ['key'] });
     expect(live.map(row => row.key)).toEqual(['mail.from']);
@@ -80,13 +86,29 @@ describe('forget_server_identity()', () => {
     await models.Setting.set('integrations.dhis2.password', await encrypted());
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '43');
 
-    await sequelize.query('SELECT forget_server_identity()');
+    await forget();
 
     const deleted = await models.Setting.findOne({
       where: { key: 'integrations.dhis2.password' },
       paranoid: false,
     });
     expect(deleted?.updatedAtSyncTick).toBe('43');
+  });
+
+  it('refuses unless the transaction declares a copy, and changes nothing', async () => {
+    await models.LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://central.example');
+    await models.LocalSystemSecret.set(FACT_DEVICE_KEY, 'device-key');
+
+    await expect(sequelize.query('SELECT forget_server_identity()')).rejects.toThrow(
+      /only runs on a copy/,
+    );
+    await forget();
+    await models.LocalSystemSecret.set(FACT_DEVICE_KEY, 'device-key');
+    await expect(sequelize.query('SELECT forget_server_identity()')).rejects.toThrow(
+      /only runs on a copy/,
+    );
+
+    expect(await models.LocalSystemSecret.get(FACT_DEVICE_KEY)).toBe('device-key');
   });
 
   it('is found by the signature upgrade and ops look it up by', async () => {
@@ -105,7 +127,7 @@ describe('forget_server_identity()', () => {
 
   it('lets a forgotten identity be set up again', async () => {
     await models.LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://central.example');
-    await sequelize.query('SELECT forget_server_identity()');
+    await forget();
 
     await models.LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://other.example');
     expect(await models.LocalSystemFact.get(FACT_CENTRAL_HOST)).toBe('https://other.example');

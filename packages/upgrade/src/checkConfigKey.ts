@@ -36,7 +36,7 @@ async function asCopyAdvice(sequelize: Sequelize): Promise<string> {
     { type: QueryTypes.SELECT },
   );
   const steps = row?.name
-    ? 'run `SELECT forget_server_identity();` against it first.'
+    ? "run `BEGIN; SELECT set_config('tamanu.this_is_a_copy', 'true', true); SELECT forget_server_identity(); COMMIT;` against it first."
     : [
         'first delete every row of local_system_secrets,',
         `every local_system_facts row holding an encrypted value (S1:<iv>:<ciphertext>), and the ${SERVER_IDENTITY_FACTS.join(', ')} facts,`,
