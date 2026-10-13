@@ -161,9 +161,9 @@ survey.get(
     const surveyRecord = await findRouteObject(req, 'Survey');
     req.checkPermission('read', 'Patient');
 
-    const programRegistry = await models.ProgramRegistry.findOne({
-      where: { programId: surveyRecord.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-    });
+    const programRegistry = await models.ProgramRegistry.getCurrentForProgram(
+      surveyRecord.programId,
+    );
     if (!programRegistry) {
       res.send({ programRegistry: null });
       return;

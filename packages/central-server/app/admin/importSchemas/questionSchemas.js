@@ -6,7 +6,6 @@ import {
   READONLY_DATA_FIELDS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
-  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { baseConfigShape, baseValidationShape, SurveyScreenComponent } from './baseSchemas';
 import { configString, validationString } from './jsonString';
@@ -49,12 +48,7 @@ const patientDataColumnString = allowedLocations =>
       if (!PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(value)) return true;
 
       const { models, programId } = options.context;
-      const programRegistry = await models.ProgramRegistry.findOne({
-        where: {
-          programId,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        },
-      });
+      const programRegistry = await models.ProgramRegistry.getCurrentForProgram(programId);
       if (!programRegistry)
         return createError({
           path,
@@ -190,10 +184,7 @@ export const SSCProgramRegistryCondition = SurveyScreenComponent.test(
   'test-program-registry-exists',
   async (_value, { options, createError }) => {
     const { models, programId } = options.context;
-    const programRegistry = await models.ProgramRegistry.findOne({
-      where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-    });
-    if (programRegistry) return true;
+    if (await models.ProgramRegistry.getCurrentForProgram(programId)) return true;
     return createError({
       message: 'ProgramRegistryCondition question but no program registry configured',
     });

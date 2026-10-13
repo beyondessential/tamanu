@@ -131,10 +131,7 @@ export class PatientProgramRegistration extends Model {
   }
 
   static async getActiveRegistration(patientId: string, programRegistryId: string) {
-    const registration = await this.findOne({
-      where: { patientId, programRegistryId },
-      order: [['date', 'DESC']],
-    });
+    const registration = await this.findOne({ where: { patientId, programRegistryId } });
     return registration?.registrationStatus === REGISTRATION_STATUSES.ACTIVE ? registration : null;
   }
 

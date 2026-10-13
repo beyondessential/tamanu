@@ -5,7 +5,6 @@ import {
   CHARTING_SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
-  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError, UsageError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
@@ -146,9 +145,9 @@ async function _writeToPatientFields(
 
   if (valuesByModel.PatientProgramRegistration) {
     const survey = await models.Survey.findByPk(surveyId);
-    const programRegistryDetail = await models.ProgramRegistry.findOne({
-      where: { programId: survey?.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-    });
+    const programRegistryDetail = await models.ProgramRegistry.getCurrentForProgram(
+      survey?.programId,
+    );
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
@@ -204,9 +203,7 @@ async function _addProgramRegistryConditions(
   if (!survey) {
     throw new InvalidOperationError(`Invalid survey ID: ${surveyId}`);
   }
-  const programRegistry = await models.ProgramRegistry.findOne({
-    where: { programId: survey.programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-  });
+  const programRegistry = await models.ProgramRegistry.getCurrentForProgram(survey.programId);
   if (!programRegistry) {
     throw new InvalidOperationError('No program registry configured for the current form');
   }
@@ -556,16 +553,6 @@ export class SurveyResponse extends Model {
       responseData.userId,
       responseData.endTime,
     );
-    // Only on submission: re-running on edit would re-add conditions since removed in the registry
-    await SurveyResponse.addProgramRegistryConditions(
-      models,
-      getActiveActionComponents(questions, finalAnswers),
-      finalAnswers,
-      encounter.patientId,
-      surveyId,
-      responseData.userId,
-      responseData.endTime,
-    );
 
     return record;
   }
@@ -617,6 +604,7 @@ export class SurveyResponse extends Model {
     surveyId: Survey['id'],
     userId: User['id'],
     submittedTime: string,
+    { isEdit = false }: { isEdit?: boolean } = {},
   ) {
     const activeQuestions = getActiveActionComponents(questions, answers);
     await SurveyResponse.createPatientIssues(models, activeQuestions, patientId, submittedTime);
@@ -630,5 +618,17 @@ export class SurveyResponse extends Model {
       userId,
       submittedTime,
     );
+    // Re-running on edit would re-add conditions since removed in the registry
+    if (!isEdit) {
+      await SurveyResponse.addProgramRegistryConditions(
+        models,
+        activeQuestions,
+        answers,
+        patientId,
+        surveyId,
+        userId,
+        submittedTime,
+      );
+    }
   }
 }
