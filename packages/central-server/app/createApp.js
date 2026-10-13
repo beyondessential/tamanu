@@ -1,4 +1,4 @@
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { log } from '@tamanu/shared/services/logging';
@@ -13,19 +13,28 @@ import { registerSyncLookupUpdateListener } from './sync';
 export async function createApp(ctx) {
   const api = await createApi(ctx);
 
-  const dbNotifier = await defineDbNotifier(ctx.store.sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-  ]);
+  const dbNotifier = await defineDbNotifier(
+    ctx.store.sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED],
+    { onOutageExceeded: exitOnDatabaseOutage },
+  );
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
-  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
-    if (payload.table !== 'settings') return;
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
+  });
+  const refreshAiContexts = async () => {
     try {
       await ctx.aiService?.refreshContexts(ctx.settings);
     } catch (error) {
       log.warn({ error }, 'Failed to refresh AI contexts after settings change');
     }
+  };
+  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
+    if (payload.table !== 'settings') return;
+    await refreshAiContexts();
   });
+  // a settings change while the listener was disconnected would otherwise go unnoticed
+  dbNotifier.onReconnect(refreshAiContexts);
 
   if (await ctx.settings.get('websocket.enabled')) {
     await createWebsocket(api.httpServer, ctx, dbNotifier, api.express);

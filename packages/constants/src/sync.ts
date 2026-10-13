@@ -25,3 +25,14 @@ export const SYNC_STREAM_MESSAGE_KIND = {
   PULL_WAITING: 0x0002,
   PULL_CHANGE: 0x0003,
 };
+
+// spec: SYNRUN
+// Outcome of one facility sync attempt, as recorded in `sync_facility_runs`. A run is
+// recorded as running before it contacts central, so a hung or crashed attempt
+// stays visible as a running row with no completion time.
+export const SYNC_FACILITY_RUN_STATUSES = {
+  RUNNING: 'running',
+  SUCCEEDED: 'succeeded',
+  QUEUED: 'queued',
+  FAILED: 'failed',
+} as const;

@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { Database } from '~/infra/db';
 import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
@@ -35,8 +33,8 @@ describe('deferForeignKeys', () => {
   });
 
   it('allows inserting a child before its parent when foreign keys are deferred', async () => {
-    const parentId = uuidv4();
-    const childId = uuidv4();
+    const parentId = crypto.randomUUID();
+    const childId = crypto.randomUUID();
 
     await Database.client.transaction(async em => {
       await deferForeignKeys(em);
@@ -57,7 +55,9 @@ describe('deferForeignKeys', () => {
     await expect(
       Database.client.transaction(async em => {
         const repo = em.getRepository(Task);
-        await repo.save(fakeTask(encounterId, requestedByUserId, { parentTaskId: uuidv4() }));
+        await repo.save(
+          fakeTask(encounterId, requestedByUserId, { parentTaskId: crypto.randomUUID() }),
+        );
       }),
     ).rejects.toThrow(/FOREIGN KEY/i);
   });
@@ -74,7 +74,9 @@ describe('deferForeignKeys', () => {
     await expect(
       Database.client.transaction(async em => {
         const repo = em.getRepository(Task);
-        await repo.save(fakeTask(encounterId, requestedByUserId, { parentTaskId: uuidv4() }));
+        await repo.save(
+          fakeTask(encounterId, requestedByUserId, { parentTaskId: crypto.randomUUID() }),
+        );
       }),
     ).rejects.toThrow(/FOREIGN KEY/i);
   });
@@ -92,7 +94,9 @@ describe('deferForeignKeys', () => {
     await expect(
       Database.client.transaction(async em => {
         const repo = em.getRepository(Task);
-        await repo.save(fakeTask(encounterId, requestedByUserId, { parentTaskId: uuidv4() }));
+        await repo.save(
+          fakeTask(encounterId, requestedByUserId, { parentTaskId: crypto.randomUUID() }),
+        );
       }),
     ).rejects.toThrow(/FOREIGN KEY/i);
   });

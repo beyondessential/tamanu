@@ -25,6 +25,7 @@ export const NON_SYNCING_TABLES = [
   'public.sync_lookup',
   'public.sync_lookup_ticks',
   'public.sync_queued_devices',
+  'public.sync_facility_runs',
   'public.sync_sessions',
   'public.user_localisation_caches',
   'public.user_recently_viewed_patients',
@@ -73,6 +74,9 @@ export const NON_LOGGED_TABLES = [
 
   // request idempotency records — ephemeral, and response bodies may hold PII
   'public.idempotency_keys',
+
+  // facility sync attempt history — operational, written on every sync
+  'public.sync_facility_runs',
 ];
 
 // Tables with a `table_changed` listener on central: the settings cache and admin SettingsRefresher.
