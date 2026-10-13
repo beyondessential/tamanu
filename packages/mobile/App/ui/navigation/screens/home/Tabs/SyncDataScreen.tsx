@@ -1,5 +1,5 @@
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { formatlastSuccessfulSyncTime } from '~/ui/helpers/date';
@@ -30,8 +30,6 @@ export const SyncDataScreen = ({ navigation }) => {
   const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
 
   useStatusBarStyle('light-content', theme.colors.MAIN_SUPER_DARK);
-
-  const manualSync = useCallback(() => void syncManager.triggerUrgentSync(), [syncManager]);
 
   useEffect(() => {
     // Add this listener to detect when users exit/switch to another tab
@@ -152,7 +150,7 @@ export const SyncDataScreen = ({ navigation }) => {
         ) : null}
         {isSyncing ? null : (
           <Button
-            onPress={manualSync}
+            onPress={() => void syncManager.triggerUrgentSync()}
             width={160}
             outline
             textColor={theme.colors.SECONDARY_MAIN}
