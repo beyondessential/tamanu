@@ -127,7 +127,9 @@ export const SignatureQuestion = ({ label, required, ...props }) => (
   <Question
     label={label}
     required={required}
-    hint={<TranslatedText stringId="patientForm.question.signature" fallback="Sign with your finger" />}
+    hint={
+      <TranslatedText stringId="patientForm.question.signature" fallback="Sign with your finger" />
+    }
   >
     <SignatureFrame>
       <SignatureField {...props} required={required} />

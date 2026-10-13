@@ -47,6 +47,7 @@ export const patientFormPalette = css`
   --pf-success: ${TAMANU_COLORS.green};
   --pf-success-tint: #e9f5ee;
   --pf-alert: ${TAMANU_COLORS.alert};
+  --pf-alert-tint: #fff0ee;
   --pf-info: ${TAMANU_COLORS.blue};
   --pf-info-tint: #e8f1fb;
   --pf-border: 1px;

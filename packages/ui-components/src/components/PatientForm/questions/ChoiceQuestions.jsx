@@ -189,7 +189,12 @@ export const MultipleChoiceQuestion = ({
   return (
     <Question
       {...{ label, required, error, helperText }}
-      hint={<TranslatedText stringId="patientForm.question.selectAll" fallback="Select all that apply" />}
+      hint={
+        <TranslatedText
+          stringId="patientForm.question.selectAll"
+          fallback="Select all that apply"
+        />
+      }
     >
       <ErrorOutline role="group" data-invalid={error}>
         {options.map(({ value, label: optionLabel }) => (
