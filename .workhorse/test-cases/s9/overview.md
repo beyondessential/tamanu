@@ -38,6 +38,7 @@
 - [x] With one language, the header button reads Accessibility (verifies spec: KIOSK)
 - [x] Extra-large text and high contrast render every screen without clipping
 - [x] Kiosk stays signed in past the token duration
+- [x] The kiosk opens in a tab beside Tamanu, and Tamanu still opens beside it (verifies spec: KIOSK)
 - [x] Portrait tablet layout keeps the forms list, form and actions usable
 - [x] Reopening a completed form starts at its first page with answers kept
 - [x] Check-in failure shows the reception message and keeps answers (verifies spec: KIOSK)
