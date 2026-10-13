@@ -82,8 +82,8 @@ export class FhirQueueManager {
         });
         await this.worker.heartbeat();
 
-        // Backstop in case a NOTIFY was missed (e.g. during pg-notify
-        // reconnect): poke every registered topic so the next heartbeat
+        // Backstop in case a NOTIFY was missed (e.g. while the listener
+        // was reconnecting): poke every registered topic so the next heartbeat
         // tick is the worst-case latency for picking up a queued job.
         for (const topic of this.queueProcessors.keys()) {
           this.processQueueNow(topic);
@@ -187,7 +187,7 @@ export class FhirQueueManager {
 
   // If we've been processing jobs but haven't received NOTIFYs for them,
   // the LISTEN connection is dead (half-open TCP, server-side disconnect
-  // pg-notify didn't notice, etc.). Drain in-flight work and exit; the
+  // the listener didn't notice, etc.). Drain in-flight work and exit; the
   // process supervisor will restart us with a fresh listener.
   detectDeadListener() {
     if (this.pendingCrash || this.testMode) return;

@@ -12,6 +12,11 @@ import {
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 import { setSettingsPskSource } from '@tamanu/shared/utils/crypto';
+import {
+  DATABASE_OUTAGE_TOLERANCE_MS,
+  isTransientConnectionError,
+} from '@tamanu/utils/databaseOutage';
+import { retryWithBackoff } from '@tamanu/utils/retryWithBackoff';
 
 import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
@@ -181,7 +186,20 @@ async function connectToDatabase(dbOptions) {
   }
 
   setupQuote(sequelize);
-  await sequelize.authenticate();
+  // Ride out the database being briefly away (e.g. a failover) when a server starts or restarts,
+  // rather than exiting and waiting for the supervisor to restart it
+  await retryWithBackoff(() => sequelize.authenticate(), {
+    maxElapsedMs: DATABASE_OUTAGE_TOLERANCE_MS,
+    isRetryable: isTransientConnectionError,
+    onRetry: ({ error, attempt, nextDelayMs }) =>
+      log.warn('databaseConnection: unavailable, retrying', {
+        host,
+        port,
+        attempt,
+        nextDelayMs,
+        error: error.message,
+      }),
+  });
 
   if (!testMode) {
     // in test mode the context is closed manually, and we spin up lots of database

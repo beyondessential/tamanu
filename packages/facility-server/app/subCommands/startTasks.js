@@ -37,7 +37,11 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
   const dbNotifier = await defineDbNotifier(context.sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  registerSettingsCacheInvalidator(
+    dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED],
+    undefined,
+    dbNotifier.onReconnect,
+  );
 
   const isConfigured = await setupSyncRuntime(context, { syncManager });
 

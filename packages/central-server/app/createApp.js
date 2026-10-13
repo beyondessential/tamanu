@@ -17,7 +17,11 @@ export async function createApp(ctx) {
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  registerSettingsCacheInvalidator(
+    dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED],
+    undefined,
+    dbNotifier.onReconnect,
+  );
   dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
     if (payload.table !== 'settings') return;
     try {

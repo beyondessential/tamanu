@@ -26,7 +26,11 @@ export async function runStartFhirWorker({ context, settings, serverName, versio
   const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
     NOTIFY_CHANNELS.TABLE_CHANGED,
   ]);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  registerSettingsCacheInvalidator(
+    dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED],
+    undefined,
+    dbNotifier.onReconnect,
+  );
   context.onClose(() => dbNotifier.close());
 
   if (!topics || topics === 'all') {
