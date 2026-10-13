@@ -32,7 +32,7 @@ const SEVERITY_TO_COLORS = {
     background: '#FCF8E2',
     color: '#8B6E37',
   },
-} as const;
+} as const satisfies Record<AlertSeverity, { background: string; color: string }>;
 
 export const Alert = ({
   severity = AlertSeverity.Info,
