@@ -19,9 +19,10 @@ import {
   PatientSurveyForm,
   toPatientForm,
   TranslatedText,
+  useDateTime,
   useSettings,
 } from '@tamanu/ui-components';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import type { SurveyWithComponents } from '@tamanu/shared/schemas/patientPortal';
 import { SettingsProvider } from '../contexts';
 import { SurveyQuestionAutocompleteField } from '../features/survey/SurveyQuestionAutocompleteField';
 
@@ -54,14 +55,31 @@ const FormFrame = styled.div`
   }
 `;
 
+const FormLoadError = () => (
+  <PageColumn>
+    <BackLink to="/">
+      <TranslatedText stringId="patientPortal.home" fallback="Home" />
+    </BackLink>
+    <Panel>
+      <Muted role="alert">
+        <TranslatedText
+          stringId="patientPortal.form.loadError"
+          fallback="This form couldn't be opened. Please try again later."
+        />
+      </Muted>
+    </Panel>
+  </PageColumn>
+);
+
 /** Dates and times are entered in the facility's time, and stored as staff's are. */
 const FormDateTimeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data, isPending } = useTimeZoneQuery();
+  const { data, isPending, isError } = useTimeZoneQuery();
   const { getSetting } = useSettings();
   if (isPending) return <Loading />;
+  if (isError || !data?.primaryTimeZone) return <FormLoadError />;
   return (
     <DateTimeProvider
-      primaryTimeZone={data?.primaryTimeZone}
+      primaryTimeZone={data.primaryTimeZone}
       facilityTimeZone={getSetting('facilityTimeZone')}
       dateTimeLocale={getSetting('dateTimeLocale')}
     >
@@ -78,47 +96,52 @@ const UnsavedAnswersPrompt = ({ isSubmitting }: { isSubmitting: boolean }) => {
   return <DiscardChangesDialog onKeepEditing={blocker.reset} onDiscard={blocker.proceed} />;
 };
 
-export const SurveyView = () => {
-  const { surveyId } = useParams() as { surveyId: string };
-  const [startTime] = useState<string>(getCurrentDateTimeString());
-  const { isPending, data: survey } = useSurveyQuery(surveyId);
+/** The form itself, timed in the primary time zone like a response staff record. */
+const SurveyFormPage = ({ survey }: { survey: SurveyWithComponents }) => {
+  const { getCurrentDateTime } = useDateTime();
+  const [startTime] = useState(getCurrentDateTime);
   const { mutate: submitSurveyResponse, isPending: isSubmitting } = useSubmitSurveyResponse();
   const { additionalData, ...patient } = useCurrentUser();
   const navigate = useNavigate();
-  const form = useMemo(() => survey && toPatientForm(survey, isSupportedQuestionType), [survey]);
-
-  if (isPending) return <Loading />;
-
-  if (!survey?.portalSurveyAssignment || !form) {
-    return (
-      <PageColumn>
-        <BackLink to="/">
-          <TranslatedText stringId="patientPortal.home" fallback="Home" />
-        </BackLink>
-        <Panel>
-          <Muted role="alert">
-            <TranslatedText
-              stringId="patientPortal.form.loadError"
-              fallback="This form couldn't be opened. Please try again later."
-            />
-          </Muted>
-        </Panel>
-      </PageColumn>
-    );
-  }
+  const form = useMemo(() => toPatientForm(survey, isSupportedQuestionType), [survey]);
 
   const handleComplete = async (values: Record<string, unknown>) => {
     submitSurveyResponse({
-      surveyId,
+      surveyId: survey.id,
       startTime,
       patientId: patient.id,
-      endTime: getCurrentDateTimeString(),
+      endTime: getCurrentDateTime(),
       answers: (await getAnswersFromData(getVisibleAnswers(form, values), survey)) as Record<
         string,
         unknown
       >,
     });
   };
+
+  return (
+    <FormFrame>
+      <PatientSurveyForm
+        form={form}
+        patient={patient}
+        patientAdditionalData={additionalData}
+        getComponentForQuestionType={getComponentForQuestionType}
+        onComplete={handleComplete}
+        onExit={() => navigate('/')}
+        finishLabel={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
+        isFinishing={isSubmitting}
+      >
+        <UnsavedAnswersPrompt isSubmitting={isSubmitting} />
+      </PatientSurveyForm>
+    </FormFrame>
+  );
+};
+
+export const SurveyView = () => {
+  const { surveyId } = useParams() as { surveyId: string };
+  const { isPending, data: survey } = useSurveyQuery(surveyId);
+
+  if (isPending) return <Loading />;
+  if (!survey?.portalSurveyAssignment) return <FormLoadError />;
 
   /**
    * The facilityId is captured from the facility where the survey was assigned. Provided to
@@ -130,20 +153,7 @@ export const SurveyView = () => {
     <AuthContext.Provider value={{ facilityId }}>
       <SettingsProvider facilityId={facilityId}>
         <FormDateTimeProvider>
-          <FormFrame>
-            <PatientSurveyForm
-              form={form}
-              patient={patient}
-              patientAdditionalData={additionalData}
-              getComponentForQuestionType={getComponentForQuestionType}
-              onComplete={handleComplete}
-              onExit={() => navigate('/')}
-              finishLabel={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
-              isFinishing={isSubmitting}
-            >
-              <UnsavedAnswersPrompt isSubmitting={isSubmitting} />
-            </PatientSurveyForm>
-          </FormFrame>
+          <SurveyFormPage survey={survey} />
         </FormDateTimeProvider>
       </SettingsProvider>
     </AuthContext.Provider>

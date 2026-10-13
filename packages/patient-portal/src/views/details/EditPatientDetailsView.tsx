@@ -72,7 +72,7 @@ export const EditPatientDetailsView = () => {
       groupKey={group.key}
       title={group.title}
       note={group.editNote}
-      fields={fields}
+      editableFields={fields}
       fieldSettings={settings?.fields ?? {}}
     />
   );
@@ -82,18 +82,20 @@ const EditDetailsForm = ({
   groupKey,
   title,
   note,
-  fields,
+  editableFields,
   fieldSettings,
 }: {
   groupKey: string;
   title: React.ReactNode;
   note?: React.ReactNode;
-  fields: DetailField[];
+  editableFields: DetailField[];
   fieldSettings: Record<string, { required?: boolean }>;
 }) => {
   const patient = useCurrentUser();
   const navigate = useNavigate();
   const { getTranslation } = useTranslation();
+  // The form keeps the details it opened with, even if the field settings refresh meanwhile
+  const [fields] = useState(editableFields);
   const [initialValues] = useState(() => toFormValues(fields, patient));
   const [values, setValues] = useState<Values>(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -105,18 +107,29 @@ const EditDetailsForm = ({
     .filter(name => values[name].trim() !== initialValues[name].trim());
   const { blocker, allowLeaving } = useUnsavedChangesGuard(changedNames.length > 0);
 
+  const formatMessages: Record<string, string> = {
+    email: getTranslation('patientPortal.details.invalidEmail', 'Enter a valid email address'),
+    phone: getTranslation(
+      'patientPortal.details.invalidPhone',
+      'Enter a phone number using digits, spaces, +, - or brackets',
+    ),
+  };
+
+  /**
+   * Every required detail must be filled in, but only the details the patient changed are
+   * checked for format, so a value staff recorded differently doesn't stop them saving the rest.
+   */
   const validate = () => {
     const shape = UpdatePatientDetailsRequestSchema.shape as Record<string, any>;
     const nextErrors: Record<string, string> = {};
-    for (const { name } of fields) {
+    for (const { name, input } of fields) {
       const value = values[name].trim();
       if (!value && fieldSettings[name]?.required) {
         nextErrors[name] = getTranslation('patientPortal.details.required', 'Required');
-        continue;
-      }
-      const result = shape[name]?.safeParse(value);
-      if (result && !result.success) {
-        nextErrors[name] = result.error.issues[0]?.message;
+      } else if (changedNames.includes(name) && !shape[name]?.safeParse(value).success) {
+        nextErrors[name] =
+          formatMessages[input?.kind ?? ''] ??
+          getTranslation('patientPortal.details.invalid', 'Check this detail');
       }
     }
     setErrors(nextErrors);

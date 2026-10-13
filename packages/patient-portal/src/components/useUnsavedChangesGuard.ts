@@ -12,7 +12,9 @@ export const useUnsavedChangesGuard = (hasUnsavedChanges: boolean) => {
     ({ currentLocation, nextLocation }) =>
       hasUnsavedChanges &&
       !isLeavingAfterSave.current &&
-      currentLocation.pathname !== nextLocation.pathname,
+      currentLocation.pathname !== nextLocation.pathname &&
+      // Signing out goes to the sign-in page, and has already discarded the session
+      !nextLocation.pathname.startsWith('/login'),
   );
 
   useEffect(() => {

@@ -13,6 +13,7 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] The portal uses the kiosk's palette: a light grey page, content on white outlined panels, and Tamanu blue for actions. Controls are large enough to use by touch and sized for a phone.
 - [ ] Every page other than the dashboard has a back link to the page it was opened from.
 - [ ] Success messages span the width of a phone screen.
+- [ ] Text uses the deployment's translations for its default language, so wording and names the deployment has changed appear in the portal as they do in Tamanu. Where a string has no translation, its English text shows.
 
 ## Dashboard
 

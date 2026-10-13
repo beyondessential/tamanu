@@ -77,3 +77,9 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 - [x] Hidden fields don't appear, and a required blank field blocks saving its group (verifies spec: PPDET)
 - [x] The server keeps required details from being cleared, refuses hidden or non-editable details, non-current reference data and malformed phone numbers and emails (verifies spec: PPDET)
 - [x] Changing email leaves the portal sign-in email unchanged (verifies spec: PPDET)
+- [x] A label the deployment has renamed shows its renamed text on the details page (verifies spec: PPDET)
+- [x] A retired ethnicity still shows as chosen and can be set to None (verifies spec: PPDET)
+- [x] A staff-recorded phone number in another format doesn't stop saving a different detail in its group (verifies spec: PPDET)
+- [x] Form start and end times are recorded in the primary time zone
+- [ ] If the time zone can't be loaded, the form page says the form couldn't be opened rather than going blank
+

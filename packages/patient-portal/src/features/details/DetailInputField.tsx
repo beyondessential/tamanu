@@ -4,6 +4,7 @@ import { TITLE_LABELS } from '@tamanu/constants';
 import { FormErrorMessage, FormInput, FormSelect, useTranslation } from '@tamanu/ui-components';
 
 import { useReferenceDataOptionsQuery } from '@api/queries/useReferenceDataOptionsQuery';
+import { useCurrentUser } from '@routes/PrivateRoute';
 import type { DetailField, DetailInput } from './detailFields';
 
 const FieldFrame = styled.div`
@@ -66,8 +67,19 @@ const ChoiceControl = ({
   );
 };
 
-const ReferenceDataControl = ({ type, ...props }: ControlProps & { type: string }) => {
-  const { data: options = [] } = useReferenceDataOptionsQuery(type);
+/**
+ * The deployment's current options, plus the patient's own choice if it has since been retired,
+ * so it still shows as chosen rather than as None.
+ */
+const ReferenceDataControl = ({
+  type,
+  relation,
+  ...props
+}: ControlProps & { type: string; relation: 'ethnicity' | 'insurer' | 'occupation' }) => {
+  const { data: currentOptions = [] } = useReferenceDataOptionsQuery(type);
+  const recorded = useCurrentUser().additionalData?.[relation];
+  const isRecordedRetired = recorded && !currentOptions.some(({ id }) => id === recorded.id);
+  const options = isRecordedRetired ? [...currentOptions, recorded] : currentOptions;
   return (
     <ChoiceControl
       {...props}
@@ -90,7 +102,7 @@ const DetailControl = ({
     return <ChoiceControl {...props} options={options} />;
   }
   if (input.kind === 'referenceData') {
-    return <ReferenceDataControl {...props} type={input.type} />;
+    return <ReferenceDataControl {...props} type={input.type} relation={input.relation} />;
   }
   return (
     <FormInput

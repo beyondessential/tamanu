@@ -24,7 +24,7 @@ Your details, opened from the dashboard (see `patient-portal/overview.md`), show
 - [ ] Each group with a detail the patient can change has an Edit button beside its heading, which opens that group's edit screen.
 - [ ] The edit screen shows only the group's details the patient can change, each as an input prefilled with its current value. The identifying details (Patient ID, names, date of birth, sex and village) are never editable; the Personal edit screen says to talk to the clinic to change them.
 - [ ] Title is chosen from the standard list of titles.
-- [ ] Ethnicity, Health insurer and Occupation are chosen from the deployment's current reference data for that type.
+- [ ] Ethnicity, Health insurer and Occupation are chosen from the deployment's current reference data for that type. A patient's existing choice that has since been retired still shows as chosen, and can be changed or set to None.
 - [ ] Every chosen detail can be set to None, and every typed detail can be cleared, removing its value from the patient record.
 - [ ] Phone and email inputs bring up the phone's matching keyboard, and inputs offer the browser's saved contact and address details.
 - [ ] Save and Cancel sit in a bar fixed to the bottom of the screen, so they are in view however long the form is.
@@ -38,6 +38,7 @@ Your details, opened from the dashboard (see `patient-portal/overview.md`), show
 - [ ] A field the deployment has configured as required is marked as required, and the group can't be saved while it is blank, including when it was already blank before editing.
 - [ ] Email must be a valid email address.
 - [ ] Mobile phone, Other phone and emergency contact Phone accept only digits, spaces, a leading plus sign, hyphens and brackets.
+- [ ] Formats are checked only on details the patient changed, so a value recorded by staff in another format doesn't stop the patient saving the rest of the group.
 - [ ] A field that fails validation is outlined and shows a message beneath it when the patient taps Save, and nothing is saved until it is corrected.
 - [ ] The same rules are enforced by the server, which also refuses changes to hidden fields, to any detail outside the editable list, and reference data that isn't current or of the right type.
 
