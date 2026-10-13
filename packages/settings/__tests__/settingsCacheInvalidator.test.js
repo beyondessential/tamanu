@@ -7,11 +7,10 @@ const setup = () => {
   cache.setAllSettings({ some: 'value' });
   let tableChanged;
   let reconnected;
-  registerSettingsCacheInvalidator(
-    callback => (tableChanged = callback),
+  registerSettingsCacheInvalidator(callback => (tableChanged = callback), {
     cache,
-    callback => (reconnected = callback),
-  );
+    onReconnect: callback => (reconnected = callback),
+  });
   return { cache, tableChanged, reconnected };
 };
 

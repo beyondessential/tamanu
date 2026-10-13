@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { facilityDefaults } from '@tamanu/settings';
 import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { requireHttps } from '@tamanu/shared/utils';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
@@ -41,16 +41,15 @@ export async function createApiApp({
   express.set('query parser', 'extended');
   const server = createServer(express);
 
-  const dbNotifier = await defineDbNotifier(sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-    NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
-  ]);
-
-  registerSettingsCacheInvalidator(
-    dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED],
-    undefined,
-    dbNotifier.onReconnect,
+  const dbNotifier = await defineDbNotifier(
+    sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED, NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED],
+    { onOutageExceeded: exitOnDatabaseOutage },
   );
+
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
+  });
 
   const websocketService = defineWebsocketService({
     httpServer: server,

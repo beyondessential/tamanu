@@ -3,6 +3,7 @@ import { defineHook } from './hook';
 
 import { BACKEND_HOOKS, NOTIFY_CHANNELS } from '@tamanu/constants';
 import {
+  DATABASE_CONNECT_TIMEOUT_MS,
   DATABASE_OUTAGE_TOLERANCE_MS,
   isTransientConnectionError,
 } from '@tamanu/utils/databaseOutage';
@@ -23,7 +24,10 @@ const parsePayload = payload => {
   }
 };
 
-const exitProcess = error => {
+/**
+ * An `onOutageExceeded` handler for server processes: exit, and let the supervisor restart us.
+ */
+export const exitOnDatabaseOutage = error => {
   log.error('dbNotifier: database unavailable for too long, exiting', { error: error.message });
   process.exit(1);
 };
@@ -35,17 +39,22 @@ const exitProcess = error => {
  * (e.g. a database failover) it reconnects with backoff and listens again, so the process keeps
  * running. NOTIFYs sent while disconnected are lost: use `onReconnect` to refresh anything that
  * depends on them. Only if the database stays unreachable for `outageToleranceMs` is
- * `onOutageExceeded` called, which by default exits the process.
+ * `onOutageExceeded` called; the caller decides what that means for the process (servers pass
+ * `exitOnDatabaseOutage`).
  *
  * @param {{host: string, port: number, database: string, username: string, password: string}} config
  * @param {string[]} channels
- * @param {{outageToleranceMs?: number, onOutageExceeded?: (error: Error) => void}} [options]
+ * @param {{outageToleranceMs?: number, onOutageExceeded: (error: Error) => void}} options
  */
 export const defineDbNotifier = async (
   config,
-  channels = [],
-  { outageToleranceMs = DATABASE_OUTAGE_TOLERANCE_MS, onOutageExceeded = exitProcess } = {},
+  channels,
+  { outageToleranceMs = DATABASE_OUTAGE_TOLERANCE_MS, onOutageExceeded },
 ) => {
+  if (typeof onOutageExceeded !== 'function') {
+    throw new Error('defineDbNotifier: onOutageExceeded is required');
+  }
+
   // Define hooks dynamically based on channels
   const hooks = {};
   channels.forEach(channel => {
@@ -55,6 +64,8 @@ export const defineDbNotifier = async (
   const reconnectListeners = [];
   const closing = new AbortController();
   let client = null;
+  // the attempt in flight, so close() can end it too
+  let connecting = null;
   let reconnecting = false;
 
   const dispatch = ({ channel, payload }) => {
@@ -70,7 +81,9 @@ export const defineDbNotifier = async (
       user: config.username,
       password: config.password,
       database: config.database,
+      connectionTimeoutMillis: DATABASE_CONNECT_TIMEOUT_MS,
     });
+    connecting = next;
 
     // An 'error' event with no listener would crash the process, so listen from the start. Both
     // events mean the connection is gone; ignore it if it isn't the live one (a failed attempt, or
@@ -92,6 +105,8 @@ export const defineDbNotifier = async (
     } catch (error) {
       next.end().catch(() => {});
       throw error;
+    } finally {
+      connecting = null;
     }
     client = next;
   };
@@ -136,6 +151,7 @@ export const defineDbNotifier = async (
 
   const close = async () => {
     closing.abort();
+    connecting?.end().catch(() => {});
     const closed = client;
     client = null;
     await closed?.end();

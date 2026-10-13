@@ -3,7 +3,7 @@ import { JOB_TOPICS, NOTIFY_CHANNELS } from '@tamanu/constants';
 import { syncDatabaseServerVersion } from '@tamanu/database';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { log } from '../../services/logging';
-import { defineDbNotifier } from '../../services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '../../services/dbNotifier';
 
 import { allFromUpstream } from './refresh/allFromUpstream';
 import { entireResource } from './refresh/entireResource';
@@ -23,14 +23,14 @@ export async function runStartFhirWorker({ context, settings, serverName, versio
   log.info(`Starting ${serverName} FHIR worker version ${version}`);
 
   // Keep the worker's process-local settings cache in sync via NOTIFYs.
-  const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-  ]);
-  registerSettingsCacheInvalidator(
-    dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED],
-    undefined,
-    dbNotifier.onReconnect,
+  const dbNotifier = await defineDbNotifier(
+    context.store.sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED],
+    { onOutageExceeded: exitOnDatabaseOutage },
   );
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
+  });
   context.onClose(() => dbNotifier.close());
 
   if (!topics || topics === 'all') {

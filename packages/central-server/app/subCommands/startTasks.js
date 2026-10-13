@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 
 import { log } from '@tamanu/shared/services/logging';
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 import { syncDatabaseServerVersion } from '@tamanu/database';
@@ -23,14 +23,14 @@ export const startTasks = async ({ skipMigrationCheck }) => {
   context.centralSyncManager = new CentralSyncManager(context);
 
   // Keep the task runner's process-local settings cache in sync via NOTIFYs.
-  const dbNotifier = await defineDbNotifier(context.store.sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-  ]);
-  registerSettingsCacheInvalidator(
-    dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED],
-    undefined,
-    dbNotifier.onReconnect,
+  const dbNotifier = await defineDbNotifier(
+    context.store.sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED],
+    { onOutageExceeded: exitOnDatabaseOutage },
   );
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
+  });
   context.onClose(() => dbNotifier.close());
 
   const stopScheduledTasks = await startScheduledTasks(context);

@@ -28,8 +28,10 @@ type OnReconnect = (callback: () => void) => void;
  */
 export const registerSettingsCacheInvalidator = (
   onTableChanged: OnTableChanged,
-  cache: SettingsCache = defaultSettingsCache,
-  onReconnect?: OnReconnect,
+  {
+    cache = defaultSettingsCache,
+    onReconnect,
+  }: { cache?: SettingsCache; onReconnect?: OnReconnect } = {},
 ): void => {
   const resetCache = debounce(() => cache.reset(), RESET_DEBOUNCE_MS, {
     leading: true,
@@ -37,7 +39,7 @@ export const registerSettingsCacheInvalidator = (
     maxWait: RESET_MAX_WAIT_MS,
   });
 
-  onTableChanged((payload) => {
+  onTableChanged(payload => {
     if (payload.table !== SETTINGS_TABLE) return;
     resetCache();
   });

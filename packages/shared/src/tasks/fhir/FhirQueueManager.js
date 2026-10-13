@@ -6,7 +6,7 @@ import { hostname } from 'os';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 
 import { getTracer } from '../../services/logging';
-import { defineDbNotifier } from '../../services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '../../services/dbNotifier';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
@@ -97,7 +97,9 @@ export class FhirQueueManager {
 
     this.log.debug('FhirQueueManager: listen for postgres notifications');
     this.lastNotifyAt = Date.now();
-    this.dbNotifier = await defineDbNotifier(this.sequelize.config, [NOTIFY_CHANNELS.JOBS]);
+    this.dbNotifier = await defineDbNotifier(this.sequelize.config, [NOTIFY_CHANNELS.JOBS], {
+      onOutageExceeded: exitOnDatabaseOutage,
+    });
     this.dbNotifier.listeners[NOTIFY_CHANNELS.JOBS](payload => {
       this.lastNotifyAt = Date.now();
       this.log.debug('FhirQueueManager: got postgres notification', { payload });
