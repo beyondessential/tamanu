@@ -103,6 +103,38 @@ describe('Triage', () => {
     expect(createdEncounter.patientBillingTypeId).toEqual(patientBillingType.id);
   });
 
+  it('should reject a patient billing type that does not exist', async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: 'nonexistent-patient-billing-type',
+      }),
+    );
+    expect(response).toHaveRequestError();
+
+    const triageEncounter = await models.Encounter.findOne({
+      where: { patientId: encounterPatient.id },
+    });
+    expect(triageEncounter).toBeNull();
+  });
+
+  it('should reject reference data that is not a patient billing type', async () => {
+    const arrivalMode = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.ARRIVAL_MODE }),
+    );
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: arrivalMode.id,
+      }),
+    );
+    expect(response).toHaveRequestError();
+  });
+
   it('should fail to triage if an encounter is already open', async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const encounter = await models.Encounter.create(
