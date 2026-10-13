@@ -5,21 +5,11 @@ import { useDateTime } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../../../components';
 import { useTranslation } from '../../../../contexts/Translation';
-import { MONTHS, toDateParts, toDateString } from '../../kioskDates';
+import { DateParts, digitsOnly, PartsGrid } from '../../DateParts';
+import { toDateParts, toDateString } from '../../kioskDates';
 import { scaled, SubLabel } from '../../kioskStyles';
 import { Question, QuestionInput, QuestionSelect, setFieldValue } from './QuestionLayout';
 import { toTimeParts, toTimeString } from './timeParts';
-
-const PartsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1.8fr 1.3fr;
-  gap: ${scaled(12)};
-  max-width: ${scaled(520)};
-
-  & + & {
-    margin-top: ${scaled(12)};
-  }
-`;
 
 const Segmented = styled.div`
   display: grid;
@@ -48,65 +38,17 @@ const SegmentButton = styled.button.attrs({ type: 'button' })`
   }
 `;
 
-const digitsOnly = value => value.replace(/\D/g, '');
+/** The date and time boxes of a question, kept to a sensible width. */
+const PartsStack = styled.div`
+  display: grid;
+  gap: ${scaled(12)};
+  max-width: ${scaled(520)};
+`;
 
-/** Day, month by name and year: how patients enter every date at the kiosk. */
-const DateParts = ({ parts, onChange, error }) => {
-  const { getTranslation } = useTranslation();
-  const idPrefix = useId();
-  return (
-    <PartsGrid>
-      <div>
-        <SubLabel htmlFor={`${idPrefix}-day`}>
-          <TranslatedText stringId="kiosk.date.day" fallback="Day" />
-        </SubLabel>
-        <QuestionInput
-          id={`${idPrefix}-day`}
-          value={parts.day}
-          onChange={event => onChange({ ...parts, day: digitsOnly(event.target.value) })}
-          inputMode="numeric"
-          maxLength={2}
-          autoComplete="off"
-          aria-invalid={error}
-        />
-      </div>
-      <div>
-        <SubLabel htmlFor={`${idPrefix}-month`}>
-          <TranslatedText stringId="kiosk.date.month" fallback="Month" />
-        </SubLabel>
-        <QuestionSelect
-          id={`${idPrefix}-month`}
-          value={parts.month}
-          onChange={event => onChange({ ...parts, month: event.target.value })}
-          aria-invalid={error}
-        >
-          <option value="" disabled hidden>
-            {getTranslation('kiosk.date.selectMonth', 'Select')}
-          </option>
-          {MONTHS.map(({ stringId, fallback }, index) => (
-            <option key={stringId} value={String(index + 1)}>
-              {getTranslation(stringId, fallback)}
-            </option>
-          ))}
-        </QuestionSelect>
-      </div>
-      <div>
-        <SubLabel htmlFor={`${idPrefix}-year`}>
-          <TranslatedText stringId="kiosk.date.year" fallback="Year" />
-        </SubLabel>
-        <QuestionInput
-          id={`${idPrefix}-year`}
-          value={parts.year}
-          onChange={event => onChange({ ...parts, year: digitsOnly(event.target.value) })}
-          inputMode="numeric"
-          maxLength={4}
-          autoComplete="off"
-          aria-invalid={error}
-        />
-      </div>
-    </PartsGrid>
-  );
-};
+/** Dates in forms use the question-sized boxes. */
+const DateQuestionParts = props => (
+  <DateParts Input={QuestionInput} Select={QuestionSelect} {...props} />
+);
 
 /** Hour, minute and am/pm. */
 const TimeParts = ({ parts, onChange, error }) => {
@@ -206,7 +148,9 @@ export const DateQuestion = ({ field, label, required, error, helperText }) => {
   );
   return (
     <Question {...{ label, required, error }} helperText={message}>
-      <DateParts parts={parts} onChange={setParts} error={error} />
+      <PartsStack>
+        <DateQuestionParts parts={parts} onChange={setParts} error={error} />
+      </PartsStack>
     </Question>
   );
 };
@@ -227,7 +171,9 @@ export const TimeQuestion = ({ field, label, required, error, helperText }) => {
   );
   return (
     <Question {...{ label, required, error }} helperText={message}>
-      <TimeParts parts={parts} onChange={setParts} error={error} />
+      <PartsStack>
+        <TimeParts parts={parts} onChange={setParts} error={error} />
+      </PartsStack>
     </Question>
   );
 };
@@ -259,8 +205,10 @@ export const DateTimeQuestion = ({ field, label, required, error, helperText }) 
   );
   return (
     <Question {...{ label, required, error }} helperText={message}>
-      <DateParts parts={parts} onChange={setParts} error={error} />
-      <TimeParts parts={parts} onChange={setParts} error={error} />
+      <PartsStack>
+        <DateQuestionParts parts={parts} onChange={setParts} error={error} />
+        <TimeParts parts={parts} onChange={setParts} error={error} />
+      </PartsStack>
     </Question>
   );
 };

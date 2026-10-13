@@ -2,9 +2,9 @@ import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
-import { useTranslation } from '../../../contexts/Translation';
 import { useFindKioskAppointmentsMutation } from '../kioskApi';
-import { MONTHS, toDateOfBirth } from '../kioskDates';
+import { DateParts } from '../DateParts';
+import { toDateOfBirth } from '../kioskDates';
 import { BackIcon } from '../KioskIcons';
 import { useKioskSession } from '../KioskSession';
 import {
@@ -12,13 +12,11 @@ import {
   ErrorMessage,
   FieldLabel,
   KioskInput,
-  KioskSelect,
   Lead,
   Panel,
   PrimaryButton,
   scaled,
   SecondaryButton,
-  SubLabel,
   Title,
 } from '../kioskStyles';
 
@@ -48,17 +46,8 @@ const Fieldset = styled.fieldset`
   }
 `;
 
-const DateOfBirthInputs = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1.8fr 1.3fr;
-  gap: ${scaled(14)};
-`;
-
-const digitsOnly = value => value.replace(/\D/g, '');
-
 export const FindAppointmentScreen = ({ onEndSession }) => {
   const { session, dispatch } = useKioskSession();
-  const { getTranslation } = useTranslation();
   const [search, setSearch] = useState(session.search);
   const findAppointments = useFindKioskAppointmentsMutation();
   const idPrefix = useId();
@@ -66,12 +55,6 @@ export const FindAppointmentScreen = ({ onEndSession }) => {
   const dateOfBirth = toDateOfBirth(search);
   const lastName = search.lastName.trim();
   const canSearch = Boolean(lastName && dateOfBirth) && !findAppointments.isLoading;
-
-  const updateSearch = field => event => {
-    const value =
-      field === 'day' || field === 'year' ? digitsOnly(event.target.value) : event.target.value;
-    setSearch(current => ({ ...current, [field]: value }));
-  };
 
   const handleSubmit = event => {
     event.preventDefault();
@@ -119,7 +102,7 @@ export const FindAppointmentScreen = ({ onEndSession }) => {
             <KioskInput
               id={`${idPrefix}-lastName`}
               value={search.lastName}
-              onChange={updateSearch('lastName')}
+              onChange={event => setSearch({ ...search, lastName: event.target.value })}
               autoComplete="off"
               autoCapitalize="words"
               autoCorrect="off"
@@ -135,57 +118,15 @@ export const FindAppointmentScreen = ({ onEndSession }) => {
                 fallback="Date of birth"
               />
             </FieldLabel>
-            <DateOfBirthInputs>
-              <div>
-                <SubLabel htmlFor={`${idPrefix}-day`}>
-                  <TranslatedText stringId="kiosk.date.day" fallback="Day" />
-                </SubLabel>
-                <KioskInput
-                  id={`${idPrefix}-day`}
-                  value={search.day}
-                  onChange={updateSearch('day')}
-                  inputMode="numeric"
-                  maxLength={2}
-                  autoComplete="off"
-                  data-testid="kiosk-dob-day"
-                />
-              </div>
-              <div>
-                <SubLabel htmlFor={`${idPrefix}-month`}>
-                  <TranslatedText stringId="kiosk.date.month" fallback="Month" />
-                </SubLabel>
-                <KioskSelect
-                  id={`${idPrefix}-month`}
-                  value={search.month}
-                  onChange={updateSearch('month')}
-                  data-testid="kiosk-dob-month"
-                >
-                  <option value="" disabled hidden>
-                    {getTranslation('kiosk.date.selectMonth', 'Select')}
-                  </option>
-                  {MONTHS.map(({ stringId, fallback }, index) => (
-                    <option key={stringId} value={String(index + 1)}>
-                      {getTranslation(stringId, fallback)}
-                    </option>
-                  ))}
-                </KioskSelect>
-              </div>
-              <div>
-                <SubLabel htmlFor={`${idPrefix}-year`}>
-                  <TranslatedText stringId="kiosk.date.year" fallback="Year" />
-                </SubLabel>
-                <KioskInput
-                  id={`${idPrefix}-year`}
-                  value={search.year}
-                  onChange={updateSearch('year')}
-                  inputMode="numeric"
-                  maxLength={4}
-                  autoComplete="off"
-                  enterKeyHint="search"
-                  data-testid="kiosk-dob-year"
-                />
-              </div>
-            </DateOfBirthInputs>
+            <DateParts
+              parts={search}
+              onChange={setSearch}
+              partProps={{
+                day: { 'data-testid': 'kiosk-dob-day' },
+                month: { 'data-testid': 'kiosk-dob-month' },
+                year: { 'data-testid': 'kiosk-dob-year', enterKeyHint: 'search' },
+              }}
+            />
           </Fieldset>
           {findAppointments.isError && (
             <ErrorMessage role="alert">
