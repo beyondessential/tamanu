@@ -72,7 +72,7 @@ export class EncounterDiagnosis extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['Diagnosis', 'clinician'];
+    return ['Diagnosis'];
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

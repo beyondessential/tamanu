@@ -1,6 +1,7 @@
 import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
 import { FullView } from '/styled/common';
 import { compose } from 'redux';
 import { theme } from '/styled/theme';
@@ -30,6 +31,12 @@ const Screen = (): ReactElement => {
       Database.models.Program.createQueryBuilder('program')
         .innerJoin('program.surveys', 'survey')
         .where('survey.surveyType = :surveyType', { surveyType: SurveyTypes.Programs })
+        // spec: SYND#the-syndromic-surveillance-form
+        // Listed only for forms that can be completed here, which the syndromic surveillance form
+        // is not, so its program shows only when it holds another.
+        .andWhere('survey.id != :syndromicSurveillanceSurveyId', {
+          syndromicSurveillanceSurveyId: SYNDROMIC_SURVEILLANCE_SURVEY_ID,
+        })
         .andWhere('survey.visibilityStatus = :visibilityStatus', {
           visibilityStatus: VisibilityStatus.Current,
         })

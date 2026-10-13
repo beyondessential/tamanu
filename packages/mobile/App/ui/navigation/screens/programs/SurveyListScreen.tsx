@@ -1,5 +1,7 @@
 import React, { type ReactElement } from 'react';
 import { FlatList } from 'react-native';
+import { Not } from 'typeorm';
+import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
 import { type RouteProp, useNavigation } from '@react-navigation/native';
 import { FullView, StyledText, StyledView } from '/styled/common';
 import { compose } from 'redux';
@@ -55,6 +57,9 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
         const allSurveys = await models.Survey.find({
           relations: ['program'],
           where: {
+            // spec: SYND#the-syndromic-surveillance-form
+            // Completed only from its encounter on desktop, which holds it to one response.
+            id: Not(SYNDROMIC_SURVEILLANCE_SURVEY_ID),
             surveyType: SurveyTypes.Programs,
             program: { id: programId },
             visibilityStatus: VisibilityStatus.Current,

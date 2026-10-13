@@ -71,14 +71,17 @@ const CertaintyTag = styled(TableCellTag)`
   line-height: 18px;
 `;
 
-const getDiagnosisLabel = ({ diagnosis }) => (
-  <TranslatedReferenceData
-    fallback={diagnosis.name}
-    value={diagnosis.id}
-    category="diagnosis"
-    data-testid="translatedreferencedata-diagnosis"
-  />
-);
+// A diagnosis's reference data can be missing from the list, such as when it has been deleted or
+// has yet to sync, so the row still renders without it.
+const getDiagnosisLabel = ({ diagnosis }) =>
+  diagnosis ? (
+    <TranslatedReferenceData
+      fallback={diagnosis.name}
+      value={diagnosis.id}
+      category="diagnosis"
+      data-testid="translatedreferencedata-diagnosis"
+    />
+  ) : null;
 
 const getType = ({ isPrimary }) =>
   isPrimary ? (
@@ -99,8 +102,11 @@ const getClinician = ({ clinician }) => (
   <NoWrapCell data-testid="nowrapcell-clinician">{clinician?.displayName}</NoWrapCell>
 );
 
+// Certainty is nullable, and only validated by the application, so a row may hold none or a value
+// with no colour of its own.
 const getCertainty = ({ certainty }) => {
-  const { color } = DIAGNOSIS_CERTAINTY_CONFIG[certainty];
+  if (!certainty) return null;
+  const color = DIAGNOSIS_CERTAINTY_CONFIG[certainty]?.color ?? Colors.midText;
   return (
     <CertaintyTag $color={color} noWrap data-testid="tablecelltag-certainty">
       <TranslatedEnum
@@ -172,15 +178,16 @@ const COLUMNS = [
   },
 ];
 
+// Unsorted until a column is chosen, so the server's default order applies: primary diagnoses
+// first and disproven ones last.
 export const DiagnosisTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
   <StyledDataFetchingTable
     columns={COLUMNS}
     endpoint={`encounter/${encounterId}/diagnoses`}
-    onRowClick={row => onItemClick(row)}
+    onRowClick={onItemClick}
     elevated={false}
     allowExport={false}
     disablePagination
-    initialSort={{ orderBy: 'isPrimary', order: 'desc' }}
     refreshCount={refreshCount}
     data-testid="datafetchingtable-diagnoses"
   />

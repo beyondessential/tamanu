@@ -459,56 +459,41 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
+const DISPROVEN_DIAGNOSES_LAST = literal(
+  `CASE WHEN "EncounterDiagnosis"."certainty" = '${DIAGNOSIS_CERTAINTY.DISPROVEN}' THEN 1 ELSE 0 END`,
+);
+
+// is_primary is nullable, and a diagnosis without it set is not primary, so it sorts among the
+// secondary diagnoses rather than wherever Postgres puts NULLs by default.
+const IS_PRIMARY_DIAGNOSIS = literal('COALESCE("EncounterDiagnosis"."is_primary", false)');
+const orderByIsPrimary = direction => [IS_PRIMARY_DIAGNOSIS, direction];
+
+const getRequestedDiagnosisOrder = (orderBy, direction) =>
+  orderBy === 'isPrimary' ? orderByIsPrimary(direction) : [...orderBy.split('.'), direction];
+
+// Primary diagnoses first and disproven ones last by default. Either way they are then sorted
+// alphabetically by diagnosis, unless that is already the requested sort.
+const buildEncounterDiagnosisOrder = ({ orderBy, order }) => {
+  const leadingOrder = orderBy
+    ? [getRequestedDiagnosisOrder(orderBy, order.toUpperCase())]
+    : [DISPROVEN_DIAGNOSES_LAST, orderByIsPrimary('DESC')];
+  const alphabeticalOrder = orderBy === 'Diagnosis.name' ? [] : [['Diagnosis', 'name', 'ASC']];
+  return [...leadingOrder, ...alphabeticalOrder];
+};
+
 encounterRelations.get(
   '/:id/diagnoses',
-  asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { EncounterDiagnosis } = models;
-    const { id: encounterId } = params;
-    const { order = 'ASC', orderBy, page, rowsPerPage } = query;
-
-    req.checkPermission('list', 'EncounterDiagnosis');
-
-    const associations = EncounterDiagnosis.getListReferenceAssociations() || [];
-
-    // Default sort: primary diagnoses first, disproven diagnoses last, then alphabetically by
-    // diagnosis name. The alphabetical tiebreaker stays in place under any requested sort, unless
-    // the requested sort is already the diagnosis name itself.
-    const isSortingByDiagnosisName = orderBy === 'Diagnosis.name';
-    const disprovenLastOrder = literal(
-      `CASE WHEN "EncounterDiagnosis"."certainty" = '${DIAGNOSIS_CERTAINTY.DISPROVEN}' THEN 1 ELSE 0 END`,
-    );
-    const sortOrder = [
-      ...(orderBy
-        ? [[...orderBy.split('.'), order.toUpperCase()]]
-        : [disprovenLastOrder, ['isPrimary', 'DESC']]),
-      ...(isSortingByDiagnosisName ? [] : [['Diagnosis', 'name', 'ASC']]),
-    ];
-
-    const baseQueryOptions = {
-      where: {
-        encounterId,
-        certainty: { [Op.ne]: DIAGNOSIS_CERTAINTY.ERROR },
+  simpleGetList('EncounterDiagnosis', 'encounterId', {
+    additionalFilters: {
+      // Certainty is nullable, and `<>` alone would leave out the diagnoses without one as well.
+      certainty: {
+        [Op.or]: [{ [Op.ne]: DIAGNOSIS_CERTAINTY.ERROR }, { [Op.is]: null }],
       },
-      include: associations,
-    };
-
-    const count = await EncounterDiagnosis.count({
-      ...baseQueryOptions,
-      distinct: true,
-    });
-
-    const objects = await EncounterDiagnosis.findAll({
-      ...baseQueryOptions,
-      order: sortOrder,
-      limit: rowsPerPage,
-      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
-    });
-
-    res.send({
-      count,
-      data: objects.map(object => object.forResponse()),
-    });
+    },
+    // Only this list shows who recorded each diagnosis, so the clinician is joined here rather
+    // than in every query listing diagnoses, and only for the columns it shows.
+    include: [{ association: 'clinician', attributes: ['id', 'displayName'] }],
+    buildOrder: buildEncounterDiagnosisOrder,
   }),
 );
 encounterRelations.get(

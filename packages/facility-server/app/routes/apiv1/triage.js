@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
-import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
@@ -38,6 +38,13 @@ triage.post(
     req.checkPermission('create', 'Triage');
     if (vitals) {
       req.checkPermission('create', 'Vitals');
+      // Checked before the triage is created, as the vitals are recorded separately after it.
+      // Recording them is authorised by the vitals permission alone, so the response has to be to
+      // the vitals form, not a form under permissions or rules of its own.
+      const vitalsSurvey = await models.Survey.findByPk(vitals.surveyId);
+      if (vitalsSurvey?.surveyType !== SURVEY_TYPES.VITALS) {
+        throw new InvalidParameterError('Triage vitals must be a response to the vitals form.');
+      }
     }
 
     const getDepartmentId = async () => {

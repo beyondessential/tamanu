@@ -1344,6 +1344,105 @@ describe('Encounter', () => {
         expect(result.body.count).toEqual(1);
         expect(result.body.data[0].diagnosis.name).toEqual('Confirmed one');
       });
+
+      describe('with diagnoses that leave optional fields unset', () => {
+        let unsetFieldsEncounter = null;
+
+        beforeAll(async () => {
+          unsetFieldsEncounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            reasonForEncounter: 'diagnosis unset fields test',
+          });
+          const [primary, unsetPrimary, secondary, unsetCertainty] = await Promise.all(
+            ['Primary', 'Middle unset primary', 'Secondary', 'Unset certainty'].map(name =>
+              models.ReferenceData.create({
+                type: 'diagnosis',
+                name,
+                code: name.toLowerCase().replaceAll(' ', '-'),
+              }),
+            ),
+          );
+          await models.EncounterDiagnosis.bulkCreate([
+            { encounterId: unsetFieldsEncounter.id, diagnosisId: primary.id, isPrimary: true },
+            { encounterId: unsetFieldsEncounter.id, diagnosisId: unsetPrimary.id, isPrimary: null },
+            { encounterId: unsetFieldsEncounter.id, diagnosisId: secondary.id, isPrimary: false },
+            {
+              encounterId: unsetFieldsEncounter.id,
+              diagnosisId: unsetCertainty.id,
+              isPrimary: false,
+              certainty: null,
+            },
+          ]);
+        });
+
+        it('includes a diagnosis without a certainty', async () => {
+          const result = await app.get(`/api/encounter/${unsetFieldsEncounter.id}/diagnoses`);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.data.map(d => d.diagnosis.name)).toContain('Unset certainty');
+        });
+
+        it('sorts a diagnosis without isPrimary set among the secondary diagnoses', async () => {
+          const defaultOrder = await app.get(`/api/encounter/${unsetFieldsEncounter.id}/diagnoses`);
+          const primaryFirst = await app.get(
+            `/api/encounter/${unsetFieldsEncounter.id}/diagnoses?orderBy=isPrimary&order=desc`,
+          );
+          const primaryLast = await app.get(
+            `/api/encounter/${unsetFieldsEncounter.id}/diagnoses?orderBy=isPrimary&order=asc`,
+          );
+
+          const namesOf = result => result.body.data.map(d => d.diagnosis.name);
+          const primaryThenAlphabetical = [
+            'Primary',
+            'Middle unset primary',
+            'Secondary',
+            'Unset certainty',
+          ];
+          expect(namesOf(defaultOrder)).toEqual(primaryThenAlphabetical);
+          expect(namesOf(primaryFirst)).toEqual(primaryThenAlphabetical);
+          expect(namesOf(primaryLast)).toEqual([
+            'Middle unset primary',
+            'Secondary',
+            'Unset certainty',
+            'Primary',
+          ]);
+        });
+
+        it('counts every diagnosis while returning one page of them', async () => {
+          const result = await app.get(
+            `/api/encounter/${unsetFieldsEncounter.id}/diagnoses?rowsPerPage=2&page=1`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.count).toEqual(4);
+          expect(result.body.data.map(d => d.diagnosis.name)).toEqual([
+            'Secondary',
+            'Unset certainty',
+          ]);
+        });
+      });
+
+      it('returns only the id and display name of the clinician who recorded each diagnosis', async () => {
+        const clinicianEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis clinician test',
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: clinicianEncounter.id,
+          diagnosisId: testDiagnosis.id,
+          clinicianId: user.id,
+        });
+
+        const result = await app.get(`/api/encounter/${clinicianEncounter.id}/diagnoses`);
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].clinician).toEqual({
+          id: user.id,
+          displayName: user.displayName,
+        });
+      });
     });
 
     describe('medication', () => {

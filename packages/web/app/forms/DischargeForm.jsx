@@ -306,21 +306,32 @@ export const DischargeForm = ({
   const draft = dischargeDraftData?.draft ?? null;
 
   // spec: SYND#discharge-form
-  const { data: syndromicSurveillance, isFetched: isSyndromicSurveillanceFetched } =
-    useEncounterSyndromicSurveillanceQuery(encounter.id);
+  const {
+    data: syndromicSurveillance,
+    isFetched: isSyndromicSurveillanceFetched,
+    isError: hasSyndromicSurveillanceLoadFailed,
+  } = useEncounterSyndromicSurveillanceQuery(encounter.id);
   const [isSyndromicSurveillanceFormDirty, setIsSyndromicSurveillanceFormDirty] = useState(false);
+  const isSyndromicSurveillanceMandatory = getSetting(
+    'syndromicSurveillance.mandatorySyndromicSurveillanceOnDischarge',
+  );
   // spec: SYND#permissions
   // Completing syndromic surveillance here is covered by the permission to discharge, not the
   // form's own. Opening the discharge form only takes write Encounter, so a clinician without write
   // Discharge can reach it, but could no more submit the form than finalise the discharge. Rather
   // than offer them a form the server will refuse, the section is left out, and with it the
   // requirement to complete it.
+  const canCompleteSyndromicSurveillance = ability.can('write', 'Discharge');
+  // When whether it is available cannot be loaded, a required section stays, saying so, and keeps
+  // the discharge from being finalised without it. An optional one is left out, as it is for a
+  // deployment without the form.
   const showSyndromicSurveillance =
-    Boolean(syndromicSurveillance?.isAvailable) && ability.can('write', 'Discharge');
+    canCompleteSyndromicSurveillance &&
+    (Boolean(syndromicSurveillance?.isAvailable) ||
+      (hasSyndromicSurveillanceLoadFailed && isSyndromicSurveillanceMandatory));
   const isSyndromicSurveillanceComplete = Boolean(syndromicSurveillance?.surveyResponseId);
   const isSyndromicSurveillanceRequired =
-    showSyndromicSurveillance &&
-    getSetting('syndromicSurveillance.mandatorySyndromicSurveillanceOnDischarge');
+    showSyndromicSurveillance && isSyndromicSurveillanceMandatory;
   const hasUnsubmittedSyndromicSurveillance =
     showSyndromicSurveillance &&
     !isSyndromicSurveillanceComplete &&
@@ -703,6 +714,7 @@ export const DischargeForm = ({
             <DischargeSyndromicSurveillanceSection
               encounterId={encounter.id}
               isComplete={isSyndromicSurveillanceComplete}
+              hasStatusLoadFailed={hasSyndromicSurveillanceLoadFailed}
               setHasUnsubmittedAnswers={setIsSyndromicSurveillanceFormDirty}
             />
           )}

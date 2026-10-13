@@ -108,11 +108,19 @@ export const SyndromicSurveillanceStatus = ({ encounterId, patient }) => {
           onClick={() => (canWrite ? setIsFormOpen(true) : setIsResponseDetailsOpen(true))}
           data-testid="textbutton-syndromic-surveillance-viewedit"
         >
-          <TranslatedText
-            stringId={canWrite ? 'general.action.viewEdit' : 'general.action.view'}
-            fallback={canWrite ? 'View/Edit' : 'View'}
-            data-testid="translatedtext-view-edit"
-          />
+          {canWrite ? (
+            <TranslatedText
+              stringId="general.action.viewEdit"
+              fallback="View/Edit"
+              data-testid="translatedtext-view-edit"
+            />
+          ) : (
+            <TranslatedText
+              stringId="general.action.view"
+              fallback="View"
+              data-testid="translatedtext-view"
+            />
+          )}
         </SyndromicSurveillanceTextButton>
       </StatusRow>
       {canWrite ? (

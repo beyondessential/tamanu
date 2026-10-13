@@ -8,7 +8,7 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData';
 import { fake } from '@tamanu/fake-data/fake';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, SURVEY_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -278,6 +278,72 @@ describe('Triage', () => {
     );
 
     await emergencyDepartment.update({ facilityId: facility.id });
+  });
+
+  describe('vitals', () => {
+    let vitalsSurvey = null;
+    let otherSurvey = null;
+
+    const triageWithVitals = async surveyId => {
+      const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+      const triageBody = await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: emergencyDepartment.id,
+      });
+      const response = await app.post('/api/triage').send({
+        ...triageBody,
+        facilityId: facility.id,
+        vitals: {
+          surveyId,
+          patientId: encounterPatient.id,
+          locationId: triageBody.locationId,
+          departmentId: emergencyDepartment.id,
+          startTime: getCurrentDateTimeString(),
+          endTime: getCurrentDateTimeString(),
+          answers: {},
+        },
+      });
+      return { response, patientId: encounterPatient.id };
+    };
+
+    beforeAll(async () => {
+      const program = await models.Program.create(fake(models.Program));
+      [vitalsSurvey, otherSurvey] = await Promise.all([
+        models.Survey.create({
+          programId: program.id,
+          name: 'Triage vitals',
+          surveyType: SURVEY_TYPES.VITALS,
+        }),
+        models.Survey.create({
+          programId: program.id,
+          name: 'Not vitals',
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        }),
+      ]);
+    });
+
+    it('records vitals given with a triage', async () => {
+      const { response } = await triageWithVitals(vitalsSurvey.id);
+
+      expect(response).toHaveSucceeded();
+      const triage = await models.Triage.findByPk(response.body.id);
+      const vitalsResponses = await models.SurveyResponse.findAll({
+        where: { encounterId: triage.encounterId, surveyId: vitalsSurvey.id },
+      });
+      expect(vitalsResponses).toHaveLength(1);
+    });
+
+    it('rejects vitals that are not a response to the vitals form, and triages no one', async () => {
+      const { response, patientId } = await triageWithVitals(otherSurvey.id);
+
+      expect(response).toHaveRequestError();
+      const encounters = await models.Encounter.findAll({ where: { patientId } });
+      expect(encounters).toHaveLength(0);
+      const responses = await models.SurveyResponse.findAll({
+        where: { surveyId: otherSurvey.id },
+      });
+      expect(responses).toHaveLength(0);
+    });
   });
 
   describe('Listing & filtering', () => {

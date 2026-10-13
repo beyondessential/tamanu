@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
+import { SURVEY_TYPES } from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData';
 import { findOneOrCreate } from '@tamanu/fake-data/test-helpers';
 import { chance } from '@tamanu/fake-data/fake';
@@ -35,10 +36,15 @@ async function createDummyDataElement(survey, index) {
   return dataElement;
 }
 
-async function createDummySurvey(program, dataElementCount = -1) {
+async function createDummySurvey(
+  program,
+  dataElementCount = -1,
+  surveyType = SURVEY_TYPES.REFERRAL,
+) {
   const survey = await models.Survey.create({
     programId: program.id,
     name: `SURVEY-${chance.string()}`,
+    surveyType,
   });
 
   const amount = dataElementCount >= 0 ? dataElementCount : chance.integer({ min: 5, max: 10 });
@@ -108,6 +114,28 @@ describe('Referrals', () => {
       facilityId,
     });
     expect(result).toHaveSucceeded();
+  });
+
+  it('should reject a referral that is not a response to a referral form, and record nothing', async () => {
+    const { departmentId, locationId } = encounter;
+    const programSurvey = await createDummySurvey(testProgram, 0, SURVEY_TYPES.PROGRAMS);
+
+    const result = await app.post('/api/referral').send({
+      answers: {},
+      startTime: new Date(),
+      endTime: new Date(),
+      patientId: patient.id,
+      surveyId: programSurvey.id,
+      departmentId,
+      locationId,
+      facilityId,
+    });
+
+    expect(result).toHaveRequestError();
+    const responses = await models.SurveyResponse.findAll({
+      where: { surveyId: programSurvey.id },
+    });
+    expect(responses).toHaveLength(0);
   });
 
   it('should get all referrals for a patient', async () => {

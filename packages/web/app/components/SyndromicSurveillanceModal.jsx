@@ -11,6 +11,7 @@ import {
 } from '../api/queries';
 import { ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
 import { useAuth } from '../contexts/Auth';
+import { ErrorMessage } from './ErrorMessage';
 import { SurveyViewForm } from '../views/programs/SurveyView';
 import { useSurveyResponseEditMutation } from '../views/programs/useSurveyResponseEditMutation';
 import { useSurveyResponseEditValues } from '../views/programs/useSurveyResponseEditValues';
@@ -25,7 +26,7 @@ const SubmitSyndromicSurveillanceForm = ({ encounterId, patient, onClose }) => {
   const { currentUser, facilityId } = useAuth();
   const { getCurrentDateTime } = useDateTime();
   const [startTime] = useState(getCurrentDateTime);
-  const { data: survey } = useSurveyQuery(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+  const { data: survey, error: surveyError } = useSurveyQuery(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
   const { data: patientAdditionalData, isLoading: isLoadingPatientAdditionalData } =
     usePatientAdditionalDataQuery(patient.id);
 
@@ -49,6 +50,20 @@ const SubmitSyndromicSurveillanceForm = ({ encounterId, patient, onClose }) => {
     }
   };
 
+  if (surveyError) {
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="program.modal.selectSurvey.error.title"
+            fallback="Couldn’t load form"
+          />
+        }
+        error={surveyError}
+      />
+    );
+  }
+
   if (!survey || isLoadingPatientAdditionalData) {
     return <LoadingIndicator data-testid="loadingindicator-syndromic-surveillance-form" />;
   }
@@ -70,7 +85,8 @@ const EditSyndromicSurveillanceForm = ({ surveyResponseId, patient, onClose }) =
   const queryClient = useQueryClient();
   const { currentUser } = useAuth();
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
-  const { data: surveyResponse } = useSurveyResponseQuery(surveyResponseId);
+  const { data: surveyResponse, error: surveyResponseError } =
+    useSurveyResponseQuery(surveyResponseId);
   const { data: patientAdditionalData, isLoading: isLoadingPatientAdditionalData } =
     usePatientAdditionalDataQuery(patient.id);
   const { surveyForEdit, initialAnswerOverrides, editedDataElementIds } =
@@ -86,6 +102,21 @@ const EditSyndromicSurveillanceForm = ({ surveyResponseId, patient, onClose }) =
       },
     },
   );
+
+  if (surveyResponseError) {
+    return (
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="program.modal.surveyResponse.error.title"
+            fallback="Couldn’t load form response :id"
+            replacements={{ id: surveyResponseId }}
+          />
+        }
+        error={surveyResponseError}
+      />
+    );
+  }
 
   if (!surveyForEdit || isLoadingPatientAdditionalData) {
     return <LoadingIndicator data-testid="loadingindicator-syndromic-surveillance-edit" />;
@@ -104,6 +135,7 @@ const EditSyndromicSurveillanceForm = ({ surveyResponseId, patient, onClose }) =
         initialAnswerOverrides={initialAnswerOverrides}
         editedDataElementIds={editedDataElementIds}
         onViewChangeLog={() => setIsChangelogOpen(true)}
+        editedSurveyResponseId={surveyResponseId}
       />
       <SurveyResponseChangelogModal
         open={isChangelogOpen}

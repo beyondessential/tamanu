@@ -40,8 +40,12 @@ const DirtyStateTracker = ({ dirty, setDirty }) => {
   return null;
 };
 
-/** @returns `true` when editing an existing survey response. `false` for a new survey response. */
-function useIsEdit() {
+/**
+ * @param {string | null} editedSurveyResponseId The response being edited, when the form is not on
+ *   a response's edit route, such as in a modal.
+ * @returns `true` when editing an existing survey response. `false` for a new survey response.
+ */
+function useIsEdit(editedSurveyResponseId) {
   const patientProgramsEditMatch = Boolean(
     useMatch('/patients/:category/:patientId/programs/:surveyResponseId/edit'),
   );
@@ -50,11 +54,12 @@ function useIsEdit() {
       '/patients/:category/:patientId/encounter/:encounterId/programs/:surveyResponseId/edit',
     ),
   );
-  return patientProgramsEditMatch || encounterProgramsEditMatch;
+  return Boolean(editedSurveyResponseId) || patientProgramsEditMatch || encounterProgramsEditMatch;
 }
 
-function useIsSubmittingEdit() {
-  const { surveyResponseId } = useParams();
+function useIsSubmittingEdit(editedSurveyResponseId) {
+  const { surveyResponseId: surveyResponseIdFromRoute } = useParams();
+  const surveyResponseId = editedSurveyResponseId ?? surveyResponseIdFromRoute;
   return useIsMutating({ mutationKey: ['surveyResponseEdit', surveyResponseId] }) > 0;
 }
 
@@ -71,12 +76,13 @@ export const SurveyViewForm = ({
   initialAnswerOverrides = null,
   editedDataElementIds = null,
   onViewChangeLog = null,
+  editedSurveyResponseId = null,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
-  const isEdit = useIsEdit();
-  const isSubmittingEdit = useIsSubmittingEdit();
+  const isEdit = useIsEdit(editedSurveyResponseId);
+  const isSubmittingEdit = useIsSubmittingEdit(editedSurveyResponseId);
 
   const { components } = survey;
   const currentComponents = components.filter(

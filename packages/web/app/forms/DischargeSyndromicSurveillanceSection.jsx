@@ -53,13 +53,13 @@ const LoadFailedText = styled.p`
 
 // A form that fails to load says so, rather than leaving a loading indicator in its place for
 // good: the query does not retry, so nothing would ever replace it.
-const EmbeddedSurveyContent = ({ isSurveyLoadFailed, isLoading, children }) => {
-  if (isSurveyLoadFailed) {
+const EmbeddedSurveyContent = ({ hasLoadFailed, isLoading, children }) => {
+  if (hasLoadFailed) {
     return (
       <LoadFailedText data-testid="loadfailedtext-syndromic-surveillance">
         <TranslatedText
           stringId="discharge.syndromicSurveillance.loadFailed"
-          fallback="The syndromic surveillance form could not be loaded. Reopen the form to try again."
+          fallback="Syndromic surveillance could not be loaded. Reopen the form to try again."
           data-testid="translatedtext-syndromic-surveillance-load-failed"
         />
       </LoadFailedText>
@@ -76,7 +76,11 @@ const EmbeddedSurveyContent = ({ isSurveyLoadFailed, isLoading, children }) => {
 // form natively, which would otherwise go on to submit the discharge too.
 const stopSubmitReachingDischargeForm = event => event.stopPropagation();
 
-const EmbeddedSyndromicSurveillanceForm = ({ encounterId, setHasUnsubmittedAnswers }) => {
+const EmbeddedSyndromicSurveillanceForm = ({
+  encounterId,
+  hasStatusLoadFailed,
+  setHasUnsubmittedAnswers,
+}) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { patient } = usePatient();
@@ -84,8 +88,10 @@ const EmbeddedSyndromicSurveillanceForm = ({ encounterId, setHasUnsubmittedAnswe
   const { getCurrentDateTime } = useDateTime();
   const [startTime] = useState(getCurrentDateTime);
   const { errors, status } = useFormikContext();
+  // Without the status, whether the encounter already has a response is unknown, so the form is not
+  // offered for a submission that may well be refused.
   const { data: survey, isError: isSurveyLoadFailed } =
-    useDischargeSyndromicSurveillanceSurveyQuery(encounterId);
+    useDischargeSyndromicSurveillanceSurveyQuery(encounterId, { enabled: !hasStatusLoadFailed });
   const { data: patientAdditionalData, isLoading: isLoadingPatientAdditionalData } =
     usePatientAdditionalDataQuery(patient.id);
 
@@ -135,7 +141,7 @@ const EmbeddedSyndromicSurveillanceForm = ({ encounterId, setHasUnsubmittedAnswe
         data-testid="surveybox-syndromic-surveillance"
       >
         <EmbeddedSurveyContent
-          isSurveyLoadFailed={isSurveyLoadFailed}
+          hasLoadFailed={hasStatusLoadFailed || isSurveyLoadFailed}
           isLoading={!survey || isLoadingPatientAdditionalData}
         >
           <SurveyViewForm
@@ -161,6 +167,7 @@ const EmbeddedSyndromicSurveillanceForm = ({ encounterId, setHasUnsubmittedAnswe
 export const DischargeSyndromicSurveillanceSection = ({
   encounterId,
   isComplete,
+  hasStatusLoadFailed,
   setHasUnsubmittedAnswers,
 }) => (
   <>
@@ -181,6 +188,7 @@ export const DischargeSyndromicSurveillanceSection = ({
       ) : (
         <EmbeddedSyndromicSurveillanceForm
           encounterId={encounterId}
+          hasStatusLoadFailed={hasStatusLoadFailed}
           setHasUnsubmittedAnswers={setHasUnsubmittedAnswers}
         />
       )}

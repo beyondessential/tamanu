@@ -42,14 +42,10 @@ const TABS = [
   {
     label: <TranslatedText stringId="encounter.tabs.diagnosis" fallback="Diagnosis" />,
     key: ENCOUNTER_TAB_NAMES.DIAGNOSIS,
-    render: props => (
-      <EncounterPaneWithPermissionCheck
-        permissionNoun="EncounterDiagnosis"
-        data-testid="encounterpanewithpermissioncheck-diagnosis"
-      >
-        <DiagnosisPane {...props} data-testid="diagnosispane-jm2a" />
-      </EncounterPaneWithPermissionCheck>
-    ),
+    // Not wrapped in EncounterPaneWithPermissionCheck like the other tabs: the pane checks the
+    // permission to list diagnoses around the table only, as it also holds actions under other
+    // permissions.
+    render: props => <DiagnosisPane {...props} data-testid="diagnosispane-jm2a" />,
   },
   {
     label: <TranslatedText stringId="encounter.tabs.tasks" fallback="Tasks" />,
