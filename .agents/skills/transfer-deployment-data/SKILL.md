@@ -16,10 +16,12 @@ Ask with your question tool where you have one, a few questions at a time; other
 
 - **Source and target deployments.** Confirm the target is a demo, presentation, PR or test deployment, never production.
 - **An admin login for each.** PR deployments use `admin@tamanu.io` / `admin`. Others need the password from the user.
-- **What else to copy**, besides patients: reference data, facilities and locations, users, programs and forms, settings. Usually all of it.
-- **Which patients.** Offer:
-  - **All patients** from the source, each with their details, allergies, ongoing conditions, family history, issues, care plans, vaccinations, completed forms and appointments.
-  - **New patients representing a specific country**, created rather than copied. Ask which country, then once the set-up is copied, follow the `seed-demo-data` skill to create them.
+- **What else to copy**, besides people: reference data, facilities and locations, programs and forms, settings. Usually all of it.
+- **Which patients and clinicians.** Offer:
+  - **All of them** from the source: every user, and every patient with their details, allergies, ongoing conditions, family history, issues, care plans, vaccinations, completed forms and appointments.
+  - **New ones representing a specific country**, created rather than copied. Ask which country, then once the set-up is copied, follow the `seed-demo-data` skill to create the patients and clinicians.
+
+  Ask this once for both. Copied patients' records name the source's clinicians, so patients can't be copied without them.
 - **Full clinical history for any of the copied patients.** Every past encounter with its diagnoses, procedures, notes and forms. Offer it for patients the user names (by name and date of birth, or by patient ID), at most about ten, because each one is slow to rebuild (see step 4).
 - **What's already on the target**, and whether copied records should update it or be left alone.
 
@@ -36,7 +38,7 @@ The admin export and import move most data as the same spreadsheets the admin pa
 2. **Import into the target** (central), always as a dry run first:
    - `POST /api/admin/import/referenceData` or `POST /api/admin/import/program`, sent as `multipart/form-data` with the spreadsheet as `file` and the options as a JSON string in `jsonData`, e.g. `{"dryRun": true, "includedDataTypes": ["patient"]}`.
    - The response reports what would be created, updated and skipped, and any errors by sheet and row. Fix or drop what fails, then import for real without `dryRun`.
-   - Import in dependency order: reference data; facilities and locations; users; programs; then, when copying patients, patients and their vaccinations.
+   - Import in dependency order: reference data; facilities and locations; programs; then, when copying people, users, patients and their vaccinations.
 
 Two kinds of record need care:
 
