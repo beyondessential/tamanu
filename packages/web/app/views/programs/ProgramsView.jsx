@@ -24,8 +24,6 @@ import { useAuth } from '../../contexts/Auth';
 import { SurveyResponseChangelogModal } from '../../components/SurveyResponseChangelogModal';
 import { TranslatedReferenceData } from '../../components';
 import { ForbiddenError } from '@tamanu/errors';
-import { getInfoPaneQueryKey } from '../../components/PatientInfoPane/paneSections';
-import { getPanesChangedBySurvey } from './getPanesChangedBySurvey';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -33,10 +31,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
-  const invalidatePanesChangedBySurvey = submittedSurvey =>
-    getPanesChangedBySurvey(submittedSurvey.components).forEach(paneId =>
-      queryClient.invalidateQueries(getInfoPaneQueryKey(paneId, patient.id)),
-    );
   const { encounter, loadEncounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
@@ -142,7 +136,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
       facilityId,
     });
     queryClient.invalidateQueries(['patientDetails', patient.id]);
-    invalidatePanesChangedBySurvey(survey);
     if (params?.encounterId && encounter && !encounter.endDate) {
       navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
     } else {
@@ -199,7 +192,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
       onSuccess: async () => {
         queryClient.invalidateQueries(['patientDetails', patient.id]);
         queryClient.invalidateQueries(['surveyResponseAnswer', 'latest-answer', patient.id]);
-        invalidatePanesChangedBySurvey(surveyForEdit);
         if (params?.encounterId) {
           navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
         } else {

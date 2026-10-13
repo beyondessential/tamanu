@@ -9,10 +9,7 @@ import { ModalCancelRow } from '../../components';
 import { useApi } from '../../api';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import {
-  getInfoPaneQueryKey,
-  PANE_SECTION_IDS,
-} from '../../components/PatientInfoPane/paneSections.jsx';
+import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
 const Body = styled.div`
@@ -41,7 +38,9 @@ const useDeletePatientProgramRegistration = (patientProgramRegistration = {}, on
     },
     onSuccess: async () => {
       await queryClient.resetQueries(['patient', patientId]);
-      await queryClient.invalidateQueries(getInfoPaneQueryKey(PANE_SECTION_IDS.PROGRAM_REGISTRY));
+      await queryClient.invalidateQueries([
+        `infoPaneListItem-${PANE_SECTION_IDS.PROGRAM_REGISTRY}`,
+      ]);
       onSuccess();
     },
   });
