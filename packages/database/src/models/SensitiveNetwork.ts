@@ -35,6 +35,7 @@ export class SensitiveNetwork extends Model {
       },
     );
 
+
     // Registered here rather than through init's `hooks` option, which Model.init overwrites with
     // the generic destroy hooks.
     this.addHook('beforeDestroy', async (network: SensitiveNetwork) => {
