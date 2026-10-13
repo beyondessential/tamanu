@@ -16,7 +16,7 @@ import type { GenericFormValues } from '~/types/Forms';
 import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { runCalculations } from '~/ui/helpers/calculations';
-import { patientKeys } from '~/ui/hooks/queries/queryKeys';
+import { patientKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
@@ -167,7 +167,7 @@ export const SurveyForm = ({
     c => c.dataElement.type === FieldTypes.PROGRAM_REGISTRY_CONDITION,
   )?.surveyId;
   const { data: conditionOptions } = useQuery({
-    queryKey: ['surveyProgramRegistry', conditionSurveyId, patient.id],
+    queryKey: registrationKeys.formConditionOptions(conditionSurveyId, patient.id),
     queryFn: () => getProgramRegistryConditionOptions(conditionSurveyId, patient.id),
     enabled: Boolean(conditionSurveyId),
   });

@@ -73,6 +73,13 @@ export const registrationKeys = {
     [...registrationKeys.all, registrationId] as const satisfies QueryKey,
   conditions: (registrationId: MaybeId) =>
     [...registrationKeys.detail(registrationId), 'conditions'] as const satisfies QueryKey,
+  formConditionOptions: (surveyId: MaybeId, patientId: MaybeId) =>
+    [
+      ...registrationKeys.all,
+      'formConditionOptions',
+      surveyId,
+      patientId,
+    ] as const satisfies QueryKey,
 };
 
 export const programRegistryKeys = {
