@@ -103,8 +103,20 @@ describe('reporting the central endpoint on sync start', () => {
     expect(device.centralEndpoint).toBe('http://central.local:3000');
   });
 
+  it('records the endpoint a mobile device reports', async () => {
+    const { body } = await startSync({ isMobile: true, endpoint: 'https://central.example.com/' });
+
+    const session = await models.SyncSession.findByPk(body.sessionId);
+    expect(session.parameters).toMatchObject({
+      isMobile: true,
+      endpoint: 'https://central.example.com',
+    });
+    const device = await models.Device.findByPk(deviceId);
+    expect(device.centralEndpoint).toBe('https://central.example.com');
+  });
+
   it('leaves the device alone when no endpoint is reported', async () => {
-    const { body } = await startSync({ isMobile: true });
+    const { body } = await startSync({});
 
     const session = await models.SyncSession.findByPk(body.sessionId);
     expect(session.parameters).not.toHaveProperty('endpoint');
