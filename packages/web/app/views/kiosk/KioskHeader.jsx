@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useTranslation } from '../../contexts/Translation';
-import { LogoDark, LogoLight } from '../../components/Logo';
+import tamanuLogoDark from '../../assets/images/tamanu_logo_blue.svg';
+import tamanuLogoLight from '../../assets/images/tamanu_logo_white.svg';
 import { AccessibilityIcon, GlobeIcon, HelpIcon, RestartIcon } from './KioskIcons';
 import { scaled, whenHeaderCompact } from './kioskStyles';
 
@@ -15,7 +16,10 @@ const Header = styled.header`
   padding: ${scaled(12)} ${scaled(36)};
 `;
 
-const LOGO_HEIGHT = scaled(30);
+const Logo = styled.img`
+  height: ${scaled(30)};
+  width: auto;
+`;
 
 const FacilityName = styled.div`
   ${whenHeaderCompact`
@@ -91,7 +95,7 @@ export const KioskHeader = ({
   // Labels stay as accessible names when the compact layout shows the icons alone
   return (
     <Header>
-      {isHighContrast ? <LogoLight height={LOGO_HEIGHT} /> : <LogoDark height={LOGO_HEIGHT} />}
+      <Logo src={isHighContrast ? tamanuLogoLight : tamanuLogoDark} alt="Tamanu" />
       {facilityName && <FacilityName>{facilityName}</FacilityName>}
       <Spacer />
       {isStartOverShown && (

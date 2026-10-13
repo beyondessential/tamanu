@@ -208,7 +208,13 @@ const ReadyToCheckIn = ({ appointment, onCheckIn, isCheckingIn, isError, hasForm
           <TranslatedText stringId="kiosk.ready.text" fallback="All your forms are complete." />
         </Lead>
       )}
-      <SummaryList as="dl" style={{ display: 'inline-grid', gridTemplateColumns: 'auto auto' }}>
+      <SummaryList
+        style={{
+          display: 'inline-grid',
+          gridTemplateColumns: 'auto auto',
+          marginTop: hasForms ? 0 : scaled(20),
+        }}
+      >
         <div>
           <dt>
             <TranslatedText stringId="kiosk.ready.appointment" fallback="Appointment" />

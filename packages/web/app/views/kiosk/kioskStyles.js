@@ -41,7 +41,8 @@ const standardPalette = css`
   --kiosk-option: ${TAMANU_COLORS.background};
   --kiosk-text: ${TAMANU_COLORS.darkestText};
   --kiosk-text-secondary: ${TAMANU_COLORS.darkText};
-  --kiosk-text-tertiary: ${TAMANU_COLORS.midText};
+  /* Darker than the Tamanu mid grey, so small labels meet contrast guidelines */
+  --kiosk-text-tertiary: #707070;
   --kiosk-heading: ${TAMANU_COLORS.primaryDark};
   --kiosk-primary: ${TAMANU_COLORS.primary};
   --kiosk-on-primary: ${TAMANU_COLORS.white};
