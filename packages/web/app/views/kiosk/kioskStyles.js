@@ -37,6 +37,9 @@ const standardPalette = css`
   --kiosk-info-tint: #e8f1fb;
   --kiosk-scrim: rgba(31, 35, 41, 0.45);
   --kiosk-border: 1px;
+  /* Edges that only need drawing when colours alone can't separate surfaces */
+  --kiosk-option-edge: transparent;
+  --kiosk-dialog-edge: transparent;
 `;
 
 const highContrastPalette = css`
@@ -62,6 +65,8 @@ const highContrastPalette = css`
   --kiosk-info-tint: #000000;
   --kiosk-scrim: rgba(0, 0, 0, 0.8);
   --kiosk-border: 2px;
+  --kiosk-option-edge: #ffffff;
+  --kiosk-dialog-edge: #ffffff;
 `;
 
 export const KioskRoot = styled.div`
@@ -142,9 +147,16 @@ export const Lead = styled.p`
   color: var(--kiosk-text-secondary);
 `;
 
+/**
+ * The screen's main buttons. They stay pinned to the bottom of the panel when large text makes
+ * the content scroll, so the way forward is always in view.
+ */
 export const Actions = styled.div`
-  margin-top: auto;
-  padding-top: ${scaled(24)};
+  position: sticky;
+  bottom: ${scaled(-36)};
+  margin: auto 0 ${scaled(-36)};
+  padding: ${scaled(24)} 0 ${scaled(36)};
+  background: var(--kiosk-surface);
   display: flex;
   justify-content: space-between;
   align-items: center;

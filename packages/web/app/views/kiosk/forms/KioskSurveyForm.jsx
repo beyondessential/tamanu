@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Formik, useFormikContext } from 'formik';
 import styled from 'styled-components';
 
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
@@ -115,7 +116,18 @@ const QuestionCard = styled.div`
   & + & {
     margin-top: ${scaled(12)};
   }
+
+  /* Instructions are information, not a question, so they sit on the page without a card */
+  &[data-plain='true'] {
+    padding: 0;
+    border: none;
+  }
 `;
+
+const PLAIN_QUESTION_TYPES = new Set([
+  PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+  PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT,
+]);
 
 const FormActions = styled.div`
   flex: none;
@@ -239,7 +251,11 @@ const FormPages = ({
       </FormHead>
       <Questions ref={questionsRef}>
         {visibleQuestions.map(component => (
-          <QuestionCard key={component.id} data-question-id={component.dataElementId}>
+          <QuestionCard
+            key={component.id}
+            data-question-id={component.dataElementId}
+            data-plain={PLAIN_QUESTION_TYPES.has(component.dataElement.type)}
+          >
             <SurveyQuestion
               component={component}
               patient={patient}

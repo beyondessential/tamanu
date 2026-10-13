@@ -39,7 +39,7 @@ const Dialog = styled.div`
   overflow: auto;
   padding: ${scaled(44)} ${scaled(40)} ${scaled(36)};
   background: var(--kiosk-surface);
-  border: var(--kiosk-border) solid var(--kiosk-surface);
+  border: var(--kiosk-border) solid var(--kiosk-dialog-edge);
   border-radius: 24px;
   text-align: center;
 
@@ -241,7 +241,7 @@ const LanguageOption = styled.button.attrs({ type: 'button' })`
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-option);
+  box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-option-edge);
 
   &[aria-pressed='true'] {
     background: var(--kiosk-primary-tint);
