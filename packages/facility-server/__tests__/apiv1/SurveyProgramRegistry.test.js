@@ -243,5 +243,13 @@ describe('Survey program registry', () => {
 
       expect(result).toBeForbidden();
     });
+
+    it('rejects an unauthenticated request', async () => {
+      const survey = await createSurvey();
+
+      const result = await ctx.baseApp.get(`/api/survey/${survey.id}/programRegistry`);
+
+      expect(result).toHaveRequestError();
+    });
   });
 });
