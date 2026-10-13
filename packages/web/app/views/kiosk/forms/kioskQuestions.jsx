@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
@@ -6,15 +6,16 @@ import { PatientDataDisplayField, PhotoField, SignatureField } from '@tamanu/ui-
 
 import { TranslatedText } from '../../../components';
 import {
-  DateField,
   DateTimeField,
   SurveyQuestionAutocompleteField,
   TimeField,
 } from '../../../components/Field';
 import { PhotoCaptureModal } from '../../../components/PhotoCaptureModal';
 import { ViewPhotoLink } from '../../../components/ViewPhotoLink';
+import { useTranslation } from '../../../contexts/Translation';
+import { MONTHS, toDateParts, toDateString } from '../kioskDates';
 import { CheckIcon, InfoIcon } from '../KioskIcons';
-import { ErrorMessage, KioskInput, KioskSelect, scaled } from '../kioskStyles';
+import { ErrorMessage, KioskInput, KioskSelect, scaled, SubLabel } from '../kioskStyles';
 
 const QuestionText = styled.div`
   display: block;
@@ -457,6 +458,82 @@ const CheckboxQuestion = ({ field, label, required, error, helperText }) => (
   </>
 );
 
+const DateParts = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1.8fr 1.3fr;
+  gap: ${scaled(12)};
+  max-width: ${scaled(520)};
+`;
+
+/** A date entered as day, month by name and year, the same way patients enter their date of birth. */
+const DateQuestion = ({ field, label, required, error, helperText }) => {
+  const { getTranslation } = useTranslation();
+  const idPrefix = useId();
+  const [parts, setParts] = useState(() => toDateParts(field.value));
+
+  const updatePart = part => event => {
+    const value = part === 'month' ? event.target.value : event.target.value.replace(/\D/g, '');
+    const nextParts = { ...parts, [part]: value };
+    setParts(nextParts);
+    setValue(field, toDateString(nextParts));
+  };
+
+  return (
+    <Question {...{ label, required, error, helperText }}>
+      <DateParts>
+        <div>
+          <SubLabel htmlFor={`${idPrefix}-day`}>
+            <TranslatedText stringId="kiosk.date.day" fallback="Day" />
+          </SubLabel>
+          <QuestionInput
+            id={`${idPrefix}-day`}
+            value={parts.day}
+            onChange={updatePart('day')}
+            inputMode="numeric"
+            maxLength={2}
+            autoComplete="off"
+            aria-invalid={error}
+          />
+        </div>
+        <div>
+          <SubLabel htmlFor={`${idPrefix}-month`}>
+            <TranslatedText stringId="kiosk.date.month" fallback="Month" />
+          </SubLabel>
+          <QuestionSelect
+            id={`${idPrefix}-month`}
+            value={parts.month}
+            onChange={updatePart('month')}
+            aria-invalid={error}
+          >
+            <option value="" disabled hidden>
+              {getTranslation('kiosk.date.selectMonth', 'Select')}
+            </option>
+            {MONTHS.map(({ stringId, fallback }, index) => (
+              <option key={stringId} value={String(index + 1)}>
+                {getTranslation(stringId, fallback)}
+              </option>
+            ))}
+          </QuestionSelect>
+        </div>
+        <div>
+          <SubLabel htmlFor={`${idPrefix}-year`}>
+            <TranslatedText stringId="kiosk.date.year" fallback="Year" />
+          </SubLabel>
+          <QuestionInput
+            id={`${idPrefix}-year`}
+            value={parts.year}
+            onChange={updatePart('year')}
+            inputMode="numeric"
+            maxLength={4}
+            autoComplete="off"
+            aria-invalid={error}
+          />
+        </div>
+      </DateParts>
+    </Question>
+  );
+};
+
 const KioskPhotoField = props => (
   <PhotoField
     {...props}
@@ -476,7 +553,7 @@ const KIOSK_QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: YesNoQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: CheckboxQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.TIME]: TimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: CalculatedQuestion,

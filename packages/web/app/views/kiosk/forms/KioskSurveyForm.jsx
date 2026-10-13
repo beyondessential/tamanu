@@ -82,7 +82,10 @@ const Questions = styled.div`
   /* Shared fields reused for dates, times, search, photos and signatures, sized for touch */
   .MuiFormLabel-root,
   .MuiFormControlLabel-label,
-  label.MuiTypography-root {
+  label.MuiTypography-root,
+  label.label-field {
+    display: block;
+    margin-bottom: ${scaled(14)};
     font-size: ${scaled(20)} !important;
     font-weight: 500;
     color: var(--kiosk-text) !important;
@@ -100,6 +103,11 @@ const Questions = styled.div`
   .MuiOutlinedInput-notchedOutline {
     border-color: var(--kiosk-outline);
     border-radius: 14px;
+  }
+
+  .react-autosuggest__suggestion .MuiMenuItem-root {
+    min-height: ${scaled(54)};
+    font-size: ${scaled(18)};
   }
 
   .MuiFormHelperText-root {

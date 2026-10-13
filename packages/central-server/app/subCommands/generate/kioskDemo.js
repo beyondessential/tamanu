@@ -40,6 +40,12 @@ const FORMS = [
           config: { column: 'primaryContactNumber' },
         },
         { code: 'Email', type: T.TEXT, text: 'Email address' },
+        {
+          code: 'Village',
+          type: T.AUTOCOMPLETE,
+          text: 'Which village do you live in?',
+          config: { source: 'ReferenceData', where: { type: 'village' } },
+        },
         { code: 'EmergencyName', type: T.TEXT, text: 'Emergency contact name', mandatory: true },
         {
           code: 'EmergencyPhone',
@@ -99,6 +105,12 @@ const FORMS = [
           type: T.MULTI_SELECT,
           text: 'Do you have any of these symptoms?',
           options: ['Fever', 'Cough', 'Sore throat', 'Headache', 'None of these'],
+          visibility: { Fever: 'Yes' },
+        },
+        {
+          code: 'SymptomStart',
+          type: T.DATE,
+          text: 'When did your symptoms start?',
           visibility: { Fever: 'Yes' },
         },
         {

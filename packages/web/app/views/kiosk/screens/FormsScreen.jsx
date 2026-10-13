@@ -255,8 +255,12 @@ export const FormsScreen = () => {
   );
 
   const openFormById = formId => {
-    if (progressOf(formId).status === FORM_STATUSES.NOT_STARTED) {
+    const { status } = progressOf(formId);
+    if (status === FORM_STATUSES.NOT_STARTED) {
       saveProgress(formId, { status: FORM_STATUSES.IN_PROGRESS, pageIndex: 0 });
+    } else if (status === FORM_STATUSES.COMPLETED && formId !== openForm?.id) {
+      // A completed form is reviewed from the start
+      saveProgress(formId, { pageIndex: 0 });
     }
     dispatch({ type: 'openForm', formId });
   };

@@ -17,16 +17,30 @@ export const MONTHS = [
 
 const EARLIEST_BIRTH_YEAR = 1900;
 
-/**
- * The date of birth a patient entered as day, month (1–12) and year, as a date-only string,
- * or null when it isn't a real date that has already happened.
- */
-export const toDateOfBirth = ({ day, month, year }) => {
+/** A date entered as day, month (1–12) and year, as a date-only string, or null if it isn't real. */
+export const toDateString = ({ day, month, year }) => {
   if (!/^\d{1,2}$/.test(day) || !/^\d{1,2}$/.test(month) || !/^\d{4}$/.test(year)) return null;
   const dateString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  const date = parse(dateString, 'yyyy-MM-dd', new Date());
-  if (!isValid(date) || date > new Date() || Number(year) < EARLIEST_BIRTH_YEAR) return null;
-  return dateString;
+  return isValid(parse(dateString, 'yyyy-MM-dd', new Date())) ? dateString : null;
+};
+
+/** The day, month and year parts of a date-only string, for filling in the inputs again. */
+export const toDateParts = dateString => {
+  const [year = '', month = '', day = ''] = dateString?.split('-') ?? [];
+  return { day: day.replace(/^0/, ''), month: month.replace(/^0/, ''), year };
+};
+
+/**
+ * The date of birth a patient entered, as a date-only string, or null when it isn't a real date
+ * that has already happened.
+ */
+export const toDateOfBirth = parts => {
+  const dateString = toDateString(parts);
+  if (!dateString) return null;
+  const isPlausible =
+    parse(dateString, 'yyyy-MM-dd', new Date()) <= new Date() &&
+    Number(parts.year) >= EARLIEST_BIRTH_YEAR;
+  return isPlausible ? dateString : null;
 };
 
 /** "14 March 1986", with the month name in the patient's language. */
