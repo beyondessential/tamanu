@@ -433,6 +433,7 @@ const YesNoQuestion = ({ field, label, required, error, helperText }) => (
 
 const ConsentOption = styled(ListOption)`
   align-items: flex-start;
+  min-height: 0;
   padding: ${scaled(4)} 0;
   box-shadow: none;
   background: none;
@@ -549,6 +550,49 @@ const KioskPhotoField = props => (
   />
 );
 
+const SignatureFrame = styled.div`
+  /* The shared field's own label, instructions and frame give way to the kiosk's */
+  > label {
+    display: none;
+  }
+
+  [data-testid='signaturefield-container'] {
+    padding: 0;
+    border: none;
+
+    > p {
+      display: none;
+    }
+  }
+
+  [data-testid='signaturefield-draw-area'] {
+    width: 100%;
+    border-radius: 14px;
+    border-color: var(--kiosk-outline);
+    background: var(--kiosk-surface-alt);
+    font-size: ${scaled(18)};
+  }
+
+  [data-testid='signaturefield-clear'] {
+    align-self: flex-end;
+    min-height: ${scaled(44)};
+    font-size: ${scaled(17)};
+  }
+`;
+
+/** The shared signature field, with the kiosk's question text and a hint written for touch. */
+const SignatureQuestion = ({ label, required, ...props }) => (
+  <Question
+    label={label}
+    required={required}
+    hint={<TranslatedText stringId="kiosk.question.signature" fallback="Sign with your finger" />}
+  >
+    <SignatureFrame>
+      <SignatureField {...props} required={required} />
+    </SignatureFrame>
+  </Question>
+);
+
 /** How each question type appears at the kiosk. Types not listed are left out of kiosk forms. */
 const KIOSK_QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: TextQuestion,
@@ -568,7 +612,7 @@ const KIOSK_QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT]: InstructionQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: KioskPhotoField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureQuestion,
 };
 
 export const isKioskQuestionType = type => type in KIOSK_QUESTION_COMPONENTS;

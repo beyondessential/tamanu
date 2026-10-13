@@ -159,6 +159,11 @@ const FORMS = [
           text: 'I consent to sharing my results with my GP.',
           mandatory: true,
         },
+        {
+          code: 'ConsentSignature',
+          type: T.SIGNATURE,
+          text: 'Please sign to confirm',
+        },
       ],
     ],
   },
