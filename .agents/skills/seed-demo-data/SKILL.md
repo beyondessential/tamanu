@@ -12,11 +12,12 @@ Create the demo data the user describes in a Tamanu deployment, through its HTTP
 
 ### 1. Pin down what to create
 
-Get from the user, asking only for what's missing:
+Ask with your question tool where you have one, a few questions at a time; otherwise ask in prose. Ask only what the user hasn't already told you.
 
 - **The deployment to write to.** Confirm it's a demo, presentation, PR or test deployment, never production.
 - **The admin login.** PR deployments use `admin@tamanu.io` / `admin`. Others need the password from the user.
-- **What to create.** For each kind of record, how many, on which days, at which facility and in which areas. Leave the realistic detail (names, times, lengths, procedure types) to you unless they specify it.
+- **What to create.** For each kind of record, how many, on which days, at which facility and in which areas. Leave the realistic detail (times, lengths, procedure types) to you unless they specify it.
+- **Which country the patients should look like they're from**, before creating any patients. Offer the country the deployment serves (its facility names and existing patients usually show it) and a couple of other likely ones. Use it for names, a realistic mix of the country's communities, villages and towns, and the shape of addresses and phone numbers. Ask about anything else that sets the scene, such as the patients' age range or the clinical area (surgical, antenatal, chronic care).
 
 Restate it as a short plan before writing anything. When it's many records across days and places, give the counts per day and place so the user can catch a misunderstanding early.
 
@@ -30,7 +31,7 @@ Check for what's already there, so a re-run doesn't duplicate it: existing patie
 
 All on the facility server unless marked central.
 
-- **Patients:** `POST /api/patient` with `{ patientRegistryType: "new_patient", facilityId, displayId, firstName, lastName, dateOfBirth, sex }`. Generate the `displayId` yourself. Use a realistic mix of names for the place the demo is set in.
+- **Patients:** `POST /api/patient` with `{ patientRegistryType: "new_patient", facilityId, displayId, firstName, lastName, dateOfBirth, sex }`. Generate the `displayId` yourself. Give each patient a name, and later an address, that fits the country agreed in step 1, with no two patients alike. Set addresses and phone numbers afterwards with `PUT /api/patient/<id>`.
 - **Clinicians** (central): create a role with no permissions (`POST /api/admin/role` with `{ id, name }`), then users with `POST /api/admin/users` and `{ displayName, email, role, password }`, using a long random password nobody needs to know. Clinicians who only appear on appointments don't need anything more. Wait for them to sync to the facility before using them there.
 - **Outpatient appointments:** `POST /api/appointments` with `{ locationGroupId, appointmentTypeId, patientId, clinicianId, startTime, endTime, facilityId }`. They're created Confirmed. To change the status, `PUT /api/appointments/<id>` with `{ status }`, e.g. `"Arrived"`.
 - **Theatre, bed and other location bookings:** `POST /api/appointments/locationBooking` with `{ startTime, endTime, locationId, patientId, clinicianId, bookingTypeId, procedureTypeIds? }`. Start and end on the booking slot boundaries. One that overlaps an existing booking in the same location is refused; skip that block and carry on.
