@@ -44,7 +44,7 @@ A facility server holds an ordered list of central hosts, recorded in the order 
 - [ ] Central is trusted as the source of the list, so a successful login establishes that the endpoint is reachable and accepts the facility's credentials, and nothing further about the endpoint is checked.
 - [ ] The facility tries its recorded hosts in order and uses the first one that passes the login.
 - [ ] When the endpoint in use stops working, whether the connection fails or the login is refused, the facility walks the list again from the top.
-- [ ] A login refused because the account is locked out does not start a walk, since further logins at other endpoints would extend the lockout.
+- [ ] A login refused because the account is locked out does not start a walk, since the lockout applies at every other name for the same central until it expires.
 - [ ] When every endpoint fails, the facility retries under the same backoff it applies to a single unreachable central.
 - [ ] While the facility is on an endpoint other than the first, it periodically checks earlier endpoints with the same login. When an earlier one passes, the facility moves to the highest-priority endpoint that passes. The recheck interval is set by a setting.
 - [ ] A sync session that is already in progress finishes on its endpoint, or fails, before the facility moves to another.
