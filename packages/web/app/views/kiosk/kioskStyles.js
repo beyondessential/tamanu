@@ -320,7 +320,7 @@ const inputBase = css`
     box-shadow: inset 0 0 0 2px var(--kiosk-alert);
   }
 
-  &:read-only {
+  &[readonly] {
     background: var(--kiosk-option);
     box-shadow: none;
     color: var(--kiosk-text-secondary);

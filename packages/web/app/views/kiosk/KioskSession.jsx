@@ -76,7 +76,12 @@ function sessionReducer(session, action) {
         ...session,
         formProgress: {
           ...session.formProgress,
-          [action.formId]: { ...session.formProgress[action.formId], ...action.progress },
+          // Any saved progress means the patient has opened the form
+          [action.formId]: {
+            status: FORM_STATUSES.IN_PROGRESS,
+            ...session.formProgress[action.formId],
+            ...action.progress,
+          },
         },
       };
     case 'checkedIn':

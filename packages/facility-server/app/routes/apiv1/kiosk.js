@@ -166,6 +166,29 @@ kiosk.get(
   }),
 );
 
+/**
+ * Where the patient's form responses are recorded: the appointment's own location, or one in
+ * its clinic, falling back to the facility's default form location and department.
+ */
+const getResponsePlace = async (req, facilitySettings, appointment) => {
+  const { models, facilityId } = req;
+  const getDefaultId = type => models.SurveyResponseAnswer.getDefaultId(type, facilitySettings);
+  const clinicLocation =
+    appointment.locationGroupId &&
+    (await models.Location.findOne({
+      where: {
+        locationGroupId: appointment.locationGroupId,
+        facilityId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+      order: [['name', 'ASC']],
+    }));
+  return {
+    locationId: appointment.locationId ?? clinicLocation?.id ?? (await getDefaultId('location')),
+    departmentId: await getDefaultId('department'),
+  };
+};
+
 const checkInBodySchema = z.object({
   responses: z.array(
     z.object({
@@ -207,10 +230,8 @@ kiosk.post(
       }
 
       const now = getCurrentPrimaryTimeZoneDateTimeString();
-      const getDefaultId = async type =>
-        models.SurveyResponseAnswer.getDefaultId(type, facilitySettings);
-      const locationId = appointment.locationId ?? (await getDefaultId('location'));
-      const departmentId = await getDefaultId('department');
+      const { locationId, departmentId } =
+        responses.length > 0 ? await getResponsePlace(req, facilitySettings, appointment) : {};
 
       const surveyResponses = [];
       for (const { surveyId, answers } of responses) {

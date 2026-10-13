@@ -17,6 +17,7 @@ import { CheckIcon, InfoIcon } from '../KioskIcons';
 import { ErrorMessage, KioskInput, KioskSelect, scaled } from '../kioskStyles';
 
 const QuestionText = styled.div`
+  display: block;
   margin-bottom: ${scaled(16)};
   font-size: ${scaled(20)};
   font-weight: 500;

@@ -237,7 +237,7 @@ export const FormsScreen = () => {
   const { formProgress, openFormId } = session;
 
   const forms = useMemo(() => data?.forms.map(toKioskForm) ?? [], [data]);
-  const progressOf = formId => formProgress[formId] ?? { status: FORM_STATUSES.NOT_STARTED };
+  const progressOf = formId => ({ status: FORM_STATUSES.NOT_STARTED, ...formProgress[formId] });
   const completedCount = forms.filter(
     ({ id }) => progressOf(id).status === FORM_STATUSES.COMPLETED,
   ).length;
