@@ -25,8 +25,8 @@ A `ProgramRegistryCondition` form question records a related condition, with its
 - [ ] Registration fields written back by the same form are saved first, so a form can register a patient and record a condition in one submission
 - [ ] A condition the patient already has (other than deleted or recorded in error) is not added again
 - [ ] With no active registration at save time, no condition is recorded and the submission still succeeds
-- [ ] Editing a response adds a newly chosen condition the same way; existing conditions are never changed or removed by a form
-- [ ] When editing a response, a condition the patient already has shows its category read-only, with a note to change it in the program registry
+- [ ] Editing a response never adds, changes or removes related conditions; condition questions are read-only, with a note to make changes in the program registry
+- [ ] The mandatory condition requirement does not apply when editing a response
 
 ## Viewing a response
 

@@ -556,6 +556,16 @@ export class SurveyResponse extends Model {
       responseData.userId,
       responseData.endTime,
     );
+    // Only on submission: re-running on edit would re-add conditions since removed in the registry
+    await SurveyResponse.addProgramRegistryConditions(
+      models,
+      getActiveActionComponents(questions, finalAnswers),
+      finalAnswers,
+      encounter.patientId,
+      surveyId,
+      responseData.userId,
+      responseData.endTime,
+    );
 
     return record;
   }
@@ -613,15 +623,6 @@ export class SurveyResponse extends Model {
     await SurveyResponse.writeToPatientFields(
       models,
       facilityId,
-      activeQuestions,
-      answers,
-      patientId,
-      surveyId,
-      userId,
-      submittedTime,
-    );
-    await SurveyResponse.addProgramRegistryConditions(
-      models,
       activeQuestions,
       answers,
       patientId,

@@ -209,6 +209,10 @@ describe('Survey program registry', () => {
       expect.objectContaining({ dataElementId: dataElement.id, body: 'Asthma (Confirmed)' }),
     ]);
 
+    await models.PatientProgramRegistrationCondition.update(
+      { deletionDate: '2026-10-14 09:00:00' },
+      { where: { patientProgramRegistrationId: registration.id } },
+    );
     const edited = await app.patch(`/api/surveyResponse/${submitted.body.id}`).send({
       facilityId: facility.id,
       editedTime: getCurrentDateTimeString(),
@@ -223,9 +227,9 @@ describe('Survey program registry', () => {
     const recorded = await models.PatientProgramRegistrationCondition.findAll({
       where: { patientProgramRegistrationId: registration.id },
     });
-    expect(recorded.map(c => c.programRegistryConditionId).sort()).toEqual(
-      [condition.id, otherCondition.id].sort(),
-    );
+    expect(recorded.map(c => [c.programRegistryConditionId, c.deletionDate])).toEqual([
+      [condition.id, '2026-10-14 09:00:00'],
+    ]);
   });
 
   describe('permissions', () => {

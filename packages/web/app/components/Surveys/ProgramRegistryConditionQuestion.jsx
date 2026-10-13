@@ -29,8 +29,9 @@ const getAnswerValue = (conditionId, categoryId) =>
   conditionId ? JSON.stringify({ conditionId, categoryId: categoryId ?? null }) : null;
 
 const useConditionQuestionState = (name, values) => {
-  const { registryOptions, components } = useContext(ProgramRegistryConditionContext) ?? {};
+  const { registryOptions, components, isEdit } = useContext(ProgramRegistryConditionContext) ?? {};
   if (!registryOptions) return { isLoading: true };
+  if (isEdit) return { registryOptions, isEdit };
 
   const conditionQuestions = components.filter(
     component =>
@@ -70,6 +71,7 @@ export const ProgramRegistryConditionQuestionField = ({
   const {
     isLoading,
     registryOptions,
+    isEdit,
     isAnswerable,
     isFirstRequiredQuestion,
     conditionIdsChosenElsewhere,
@@ -80,6 +82,45 @@ export const ProgramRegistryConditionQuestionField = ({
     form.setFieldTouched(name, true, false);
   };
 
+  const toOption = (item, category) => ({
+    label: getTranslation(getReferenceDataStringId(item.id, category), item.name),
+    value: item.id,
+  });
+
+  const renderReadOnlyAnswer = () => (
+    <div>
+      <Container>
+        <SelectInput
+          name={name}
+          label={label}
+          value={answer.conditionId ?? ''}
+          options={registryOptions.conditions.map(c => toOption(c, 'programRegistryCondition'))}
+          onChange={() => {}}
+          disabled
+        />
+        {answer.conditionId && (
+          <SelectInput
+            id={categoryInputId}
+            name={`${name}-category`}
+            label={getTranslation('programRegistry.relatedConditionsCategory.label', 'Category')}
+            value={answer.categoryId ?? ''}
+            options={registryOptions.conditionCategories.map(c =>
+              toOption(c, 'programRegistryConditionCategory'),
+            )}
+            onChange={() => {}}
+            disabled
+          />
+        )}
+      </Container>
+      <FormHelperText>
+        {getTranslation(
+          'program.question.programRegistryCondition.readOnlyOnEdit',
+          'Related conditions can’t be changed here. Make changes in the program registry.',
+        )}
+      </FormHelperText>
+    </div>
+  );
+
   const renderUnavailable = message => (
     <div>
       <SelectInput name={name} label={label} value="" onChange={() => {}} disabled />
@@ -88,6 +129,7 @@ export const ProgramRegistryConditionQuestionField = ({
   );
 
   if (isLoading) return renderUnavailable(null);
+  if (isEdit) return renderReadOnlyAnswer();
   if (!isAnswerable) {
     return renderUnavailable(
       getTranslation(
@@ -105,22 +147,11 @@ export const ProgramRegistryConditionQuestionField = ({
 
   const conditionOptions = registryOptions.conditions
     .filter(condition => !unavailableConditionIds.has(condition.id))
-    .map(condition => ({
-      label: getTranslation(
-        getReferenceDataStringId(condition.id, 'programRegistryCondition'),
-        condition.name,
-      ),
-      value: condition.id,
-    }));
-  const categoryOptions = registryOptions.conditionCategories.map(category => ({
-    label: getTranslation(
-      getReferenceDataStringId(category.id, 'programRegistryConditionCategory'),
-      category.name,
-    ),
-    value: category.id,
-  }));
+    .map(condition => toOption(condition, 'programRegistryCondition'));
+  const categoryOptions = registryOptions.conditionCategories.map(category =>
+    toOption(category, 'programRegistryConditionCategory'),
+  );
   const isCategoryMissing = Boolean(answer.conditionId) && !answer.categoryId;
-  const isAlreadyRecorded = registryOptions.recordedConditionIds.includes(answer.conditionId);
 
   if (conditionOptions.length === 0) {
     return renderUnavailable(
@@ -145,28 +176,18 @@ export const ProgramRegistryConditionQuestionField = ({
         helperText={isCategoryMissing && error ? undefined : helperText}
       />
       {answer.conditionId && (
-        <div>
-          <SelectInput
-            id={categoryInputId}
-            name={`${name}-category`}
-            label={getTranslation('programRegistry.relatedConditionsCategory.label', 'Category')}
-            value={answer.categoryId ?? ''}
-            options={categoryOptions}
-            onChange={event => setAnswer(answer.conditionId, event.target.value)}
-            required
-            disabled={disabled || isAlreadyRecorded}
-            error={error && isCategoryMissing}
-            helperText={isCategoryMissing && error ? helperText : undefined}
-          />
-          {isAlreadyRecorded && (
-            <FormHelperText>
-              {getTranslation(
-                'program.question.programRegistryCondition.alreadyRecorded',
-                'This condition is already recorded. Change its category in the program registry.',
-              )}
-            </FormHelperText>
-          )}
-        </div>
+        <SelectInput
+          id={categoryInputId}
+          name={`${name}-category`}
+          label={getTranslation('programRegistry.relatedConditionsCategory.label', 'Category')}
+          value={answer.categoryId ?? ''}
+          options={categoryOptions}
+          onChange={event => setAnswer(answer.conditionId, event.target.value)}
+          required
+          disabled={disabled}
+          error={error && isCategoryMissing}
+          helperText={isCategoryMissing && error ? helperText : undefined}
+        />
       )}
     </Container>
   );

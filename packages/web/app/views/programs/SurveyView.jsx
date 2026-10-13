@@ -113,10 +113,11 @@ export const SurveyViewForm = ({
     enabled: hasConditionQuestions,
   });
   const programRegistryConditionContext = useMemo(
-    () => ({ registryOptions, components: currentComponents }),
-    [registryOptions, currentComponents],
+    () => ({ registryOptions, components: currentComponents, isEdit }),
+    [registryOptions, currentComponents, isEdit],
   );
   const isConditionRequired =
+    !isEdit &&
     Boolean(registryOptions) &&
     isProgramRegistryConditionRequired(registryOptions, currentComponents);
   const validationSchema = useMemo(
