@@ -12,22 +12,32 @@ Design: H9 storyboard (`.workhorse/design/mockups/h9/kiosk-check-in.html`). Spec
 - **Settings** (facility scope, `kiosk.*`): `enabled` (exposed to web), `formsByAppointmentType` (appointment type ID → survey IDs), `inactivityTimeout`, `inactivityWarning` (seconds, exposed to web).
 - **Answers stay on the tablet** until check-in, so Start over and inactivity discard everything with nothing written.
 - **Forms UI**: a kiosk renderer reuses ui-components `SurveyQuestion`, `getValidationSchema`, `getFormInitialValues`, `checkVisibility` and calculations, with its own page layout (title, page bar, scroll area, fixed Back/Next) and a kiosk question-type map of touch-sized controls.
-- **Accessibility**: kiosk styles are written in `em` against a root font size set by the text-size step; colours come from CSS custom properties swapped by high contrast.
+- **Accessibility**: kiosk sizes are written through a `scaled()` helper that multiplies by a `--kiosk-scale` custom property set by the text-size step (1, 1.2, 1.4); colours come from custom properties swapped by high contrast.
 - **Language**: uses the web `TranslationContext` (`updateStoredLanguage`), with languages from `/public/translation/languageOptions`. Restored to the language the kiosk opened with when a session ends.
 
 ## Build steps
 
-- [ ] Settings schema: `kiosk` section in facility settings
-- [ ] Facility-server `kiosk` routes + permission checks + feature gate
-- [ ] Endpoint integration tests
-- [ ] Web: route wiring outside the sidebar, token keep-alive
-- [ ] Web: kiosk shell (header, panel, popups, accessibility, language)
-- [ ] Web: landing, find, results (one, several, none, already arrived)
-- [ ] Web: forms (list, renderer, touch question components, validation, scroll to first error)
-- [ ] Web: ready, check-in, checked in, error state
-- [ ] Web: Start over, Help, inactivity warning
-- [ ] Translations for all kiosk copy (`kiosk.*` string IDs)
-- [ ] Demo seed sub-command on central (patients, appointment types, appointments today, surveys, kiosk settings)
-- [ ] Run the full stack locally, click through every state in a browser, fix what's found
-- [ ] Lint, run touched test suites
+- [x] Settings schema: `kiosk` section in facility settings
+- [x] Facility-server `kiosk` routes + permission checks + feature gate
+- [x] Endpoint integration tests
+- [x] Web: route wiring outside the sidebar, token keep-alive
+- [x] Web: kiosk shell (header, panel, popups, accessibility, language)
+- [x] Web: landing, find, results (one, several, none, already arrived)
+- [x] Web: forms (list, renderer, touch question components, validation, scroll to first error)
+- [x] Web: ready, check-in, checked in, error state
+- [x] Web: Start over, Help, inactivity warning
+- [x] Translations for all kiosk copy (`kiosk.*` string IDs)
+- [x] Demo seed sub-command on central (patients, appointment types, appointments today, surveys, kiosk settings)
+- [x] Run the full stack locally, click through every state in a browser, fix what's found
+- [x] Lint, run touched test suites
+- [x] Web unit tests for dates, form preparation, session state
 - [ ] Push, PR with deploy
+
+## Notes from building it
+
+- **Check-in location**: form responses are recorded at the appointment's location, else the first location in its clinic (location group), else the facility's default form location. The department is the facility's default form department (`survey.defaultCodes.department`), which must exist at the facility.
+- **Session state**: answers live in a reducer on the tablet. Each form's Formik instance saves its values back when the patient changes page, switches form, or goes back. Saves are ignored once the session has left the forms step, so a form closing as Start over or inactivity ends the session can't carry answers into the next one.
+- **Question controls**: kiosk-specific touch controls for text, long text, number, single and multiple choice, yes/no, checkbox, date (day / month by name / year, stored as `yyyy-MM-dd` like the web date field), calculated and patient data. Search (autocomplete), time, date-and-time, photo and signature reuse the web's own fields, restyled for touch. Other question types are left out.
+- **Browser support**: the web app's browser gate (`browserSupport.policy`) defaults to Chromium-based browsers, and tablets are allowed by default. An iPad (Safari, or Chrome on iOS, both WebKit) needs the policy set to allow any browser.
+- **Entering kiosk mode**: staff sign in as normal, then open `/kiosk`. Sign-in lands on the dashboard, so the address has to be typed after signing in. Exiting is by navigating away or signing out from another tab; the kiosk itself has no staff controls.
+- **Demo data**: `TAMANU_ALLOW_FAKE_DATA=true npm run --workspace @tamanu/central-server start generate kioskDemo -- --facility <facility-id>` on central. It is idempotent, and re-running it moves the demo appointments to today and resets their statuses. The facility picks the changes up on its next sync once central's sync lookup has refreshed.

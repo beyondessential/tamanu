@@ -20,7 +20,7 @@ export const FORM_STATUSES = /** @type {const} */ ({
 
 const EMPTY_SEARCH = { lastName: '', day: '', month: '', year: '' };
 
-const initialSession = {
+export const initialSession = {
   step: KIOSK_STEPS.LANDING,
   search: EMPTY_SEARCH,
   matches: [],
@@ -31,7 +31,7 @@ const initialSession = {
   openFormId: null,
 };
 
-function sessionReducer(session, action) {
+export function sessionReducer(session, action) {
   switch (action.type) {
     case 'start':
       return { ...initialSession, step: KIOSK_STEPS.FIND };
