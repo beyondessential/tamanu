@@ -1,0 +1,536 @@
+<!-- Styled rendering of the Tamanu v2.66 release notes. -->
+<!-- Companion to docs/release-notes/v2-66.md, which is the source of truth for the wording. -->
+<!-- Content sourced from origin/release/2.65...origin/release/2.66 (fixes already shipped in 2.65.x excluded), -->
+<!-- the Linear v2.66.0 label, and the Workhorse "Tamanu Release / v2.66.0" cards (A4-T4, Y3) plus U6/V6. -->
+<!-- Format follows docs/release-notes/v2-65.md. -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu v2.66 release notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --text: #1c1917;
+    --text-secondary: #57534e;
+    --text-muted: #78716c;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --accent: #c2410c;
+    --accent-soft: #fff7ed;
+    --accent-border: #fed7aa;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* Masthead */
+  .masthead {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .released {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* Section rhythm */
+  section { margin-top: 48px; }
+
+  h2 {
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h2 .marker { margin-right: 8px; }
+
+  h3 {
+    margin: 32px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  h3:first-of-type { margin-top: 0; }
+
+  /* Feature cards */
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .feature-title {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .feature p {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+  }
+
+  .label {
+    margin: 20px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+  }
+
+  li:last-child { margin-bottom: 0; }
+
+  li strong, p strong { color: var(--text); font-weight: 600; }
+
+  li ul { margin-top: 8px; }
+
+  /* Plain grouped list (enhancements, fixes) */
+  .group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .group > ul > li { margin-bottom: 12px; }
+
+  .platform {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Documentation placeholders */
+  .docs {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .placeholder {
+    display: inline-block;
+    background: #fafaf9;
+    border: 1px dashed var(--border-strong);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* Upgrade notes */
+  .required-tag, .optional-tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .required-tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+
+  .optional-tag {
+    background: #f5f5f4;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+  }
+
+  .upgrade-item {
+    margin-bottom: 20px;
+  }
+
+  .upgrade-item:last-child { margin-bottom: 0; }
+
+  .upgrade-item .name {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  /* Behaviour-change callout */
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 14px;
+    color: #7c2d12;
+  }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-strong);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">
+      <span class="released">Released <span class="placeholder">[RELEASE_DATE_PLACEHOLDER]</span></span>
+    </div>
+    <h1>Tamanu v2.66 release notes</h1>
+    <p class="lede">
+      Tamanu v2.66 reworks how lab requests are raised, sampled, labelled and resulted, so
+      that panels and individual tests from one category become a single request and a
+      single sample at the laboratory. It also introduces sensitive networks, which let a
+      group of facilities share confidential data with each other, and lets pharmacy record
+      a medication as not dispensed.
+    </p>
+  </div>
+
+  <section>
+    <h2><span class="marker">🌟</span>Major Features and Changes</h2>
+
+    <h3>Tamanu Desktop</h3>
+
+    <div class="feature">
+      <p class="feature-title">Lab requests enhancements</p>
+      <p>
+        The lab request workflow has been rebuilt around lab test categories. Tests and
+        panels are chosen from one list, and everything ordered from the same category
+        becomes one lab request with one sample. This cuts the number of samples sent to the
+        laboratory, removes duplicate orders for tests already covered by a panel, and makes
+        it easier for lab staff to see what each sample is for.
+      </p>
+
+      <p class="label">Key features</p>
+      <ul>
+        <li><strong>Combined test and panel selector</strong> - The 'New lab request' screen shows request details, test selection and notes together. Tests and panels appear in one searchable list grouped by category, and each panel can be expanded to show the tests it contains. Selecting a panel disables the individual tests it already covers, so the same test cannot be ordered twice.</li>
+        <li><strong>One request per category</strong> - Panels and individual tests from the same category are combined into one lab request, which reaches a connected laboratory system as one sample.</li>
+        <li><strong>Sample details by category</strong> - Sample collection is recorded once per category. 'Collected by' defaults to the logged-in user, and each category can carry a default specimen type, set through the reference data import. Both remain editable.</li>
+        <li><strong>Standard sample label</strong> - Sample labels follow one standard size and layout: patient name, date of birth and age, patient ID, request ID with a barcode, date and time collected, and who collected the sample. Label field names follow the facility's language.</li>
+        <li><strong>Automatic label printing</strong> - Each facility can choose to show the sample label print screen automatically once every sample on a request has been recorded. This is off by default.</li>
+        <li><strong>Results by panel</strong> - The lab request results table and the 'Enter results' modal group results under each panel, followed by individual tests. Results reported below or above what the laboratory can detect, such as '&lt; 0.3', are shown as reported and still flagged as out of range. The results table can be exported.</li>
+        <li><strong>Rejected requests</strong> - When a connected laboratory cancels a sample, the request is marked 'Rejected' and the requesting clinician receives a dashboard notification. A rejected request cannot change status, and its printout is labelled 'Rejection report'.</li>
+        <li><strong>Lab request listings</strong> - The listings show a 'Category' column, with the request's tests and panels on hover. The active requests status filter accepts several statuses at once. The 'Published' listing is renamed 'Finalised', and can be filtered to published, invalidated or rejected requests. The 'Sample collected' tile shows the specimen type.</li>
+        <li><strong>Reflex tests</strong> - A new 'Reflex test' visibility status covers tests that cannot be ordered in Tamanu but must exist so a laboratory system can add them when returning results. Tests set to panel only can now be managed in the admin panel.</li>
+      </ul>
+
+      <div class="docs">
+        <p class="label">Supporting documentation</p>
+        <ul>
+          <li>Feature overview - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+          <li>Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+          <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature">
+      <p class="feature-title">Medications not dispensed</p>
+      <p>
+        Pharmacy can now record that an active medication request will not be dispensed,
+        with a reason, and the prescribing clinician is told straight away. This closes the
+        loop on requests that previously sat in the queue or were removed with no
+        explanation.
+      </p>
+
+      <p class="label">Key features</p>
+      <ul>
+        <li><strong>Record as not dispensed</strong> - A 'Not dispensed' option in the 'Active medication requests' table opens the 'Record medication as not dispensed' modal, where a reason is chosen from a configurable list.</li>
+        <li><strong>Request cancelled, prescription kept</strong> - The active request is cancelled, while the prescription itself stays active.</li>
+        <li><strong>Clinician notification</strong> - The prescribing clinician receives a notification that opens the encounter's medications with the not dispensed details shown.</li>
+        <li><strong>Permission</strong> - Recording a medication as not dispensed uses the same permission as deleting a medication request.</li>
+      </ul>
+
+      <div class="docs">
+        <p class="label">Supporting documentation</p>
+        <ul>
+          <li>User manual - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>System Administration</h3>
+
+    <div class="feature">
+      <p class="feature-title">Sensitive networks</p>
+      <p>
+        A sensitive facility has until now kept its confidential data entirely to itself.
+        Sensitive networks let a group of facilities share that data with each other while
+        keeping it from the rest of the deployment. Encounter data recorded at a facility in
+        a network reaches every facility in that network and nowhere else, while facilities
+        outside any network sync as normal.
+      </p>
+
+      <p class="label">Key features</p>
+      <ul>
+        <li><strong>Networks in reference data</strong> - Networks are defined through the reference data import, and each facility names the network it belongs to on the facility sheet.</li>
+        <li><strong>Membership set at creation</strong> - A facility's network is chosen when the facility is created and cannot be changed afterwards. Bringing a facility into a network means creating a new facility in that network, which then receives the network's existing data for the patients it syncs.</li>
+        <li><strong>Existing sensitive facilities preserved</strong> - Each facility that was sensitive before the upgrade becomes its own network of one, so it continues to receive exactly what it did before.</li>
+        <li><strong>Log in access unchanged</strong> - Belonging to a network does not give users access to other facilities in the network. Facility access is still set per user.</li>
+      </ul>
+
+      <p class="label">Keen to implement sensitive networks?</p>
+      <p>
+        Please reach out to your Tamanu system administrator/project manager to discuss
+        implementation. Network membership cannot be undone once data has synced, so it
+        needs planning before any facility is created.
+      </p>
+
+      <div class="docs">
+        <p class="label">Supporting documentation</p>
+        <ul>
+          <li>Configuration guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🔧</span>System Enhancements</h2>
+
+    <div class="group">
+      <ul>
+        <li><strong>Permission to sync patient records</strong> - A new permission controls who can use 'Sync patient records' on Tamanu Desktop and sync a patient from Tamanu Mobile. Users without it see a message explaining that the patient is not marked for sync. Patients are still marked for sync automatically by clinical work such as opening an encounter or booking an appointment.</li>
+        <li><strong>Permission for medication due tasks</strong> - Medication due tasks on the clinician dashboard have their own permission, separate from viewing the medication administration record. A role can now view when medications were given without receiving the dashboard tasks.</li>
+        <li><strong>Area on dispensed medications</strong> - The 'Dispensed medications' table shows the patient's current area, sortable and searchable, so pharmacy can sort medications by ward. Discharged patients show 'Discharged'.</li>
+        <li><strong>Procedure quantity</strong> - Procedures have a 'Quantity' field, defaulting to 1, which carries through to the invoice so a procedure performed more than once is charged accordingly.</li>
+        <li><strong>Laboratory integrations</strong> - A lab request is sent to a connected laboratory as one order identified by its category, listing both its panels and its individual tests. Lab conclusions and results containing formatting are sent as plain text.</li>
+        <li><strong>Letterhead</strong> - The letterhead title and subtitle can be entered across several lines.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🐛</span>Tweaks and Bug Fixes</h2>
+
+    <div class="group">
+      <p class="platform">Desktop</p>
+      <ul>
+        <li><strong>Encounters</strong> - Encounter tabs show a standard pointer on hover.</li>
+        <li><strong>Medications</strong> - A medication due task completes once its scheduled doses are recorded, even when a PRN medication shares the same time.</li>
+        <li><strong>Admin panel</strong> - Lab settings are grouped under 'Labs', the reference data visibility filter has an 'All' option, and the change password layout in the user profile is restored.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">Mobile</p>
+      <ul>
+        <li><strong>Performance</strong> - Patient search, patient screens and sync are faster, particularly on lower-end devices and for patients with long histories.</li>
+        <li><strong>Forms and settings</strong> - Submitting a prerequisite form unlocks its dependent forms straight away, and setting changes apply after the next sync without restarting the app. Patient warnings use the device's own dialogs.</li>
+        <li><strong>Lab requests</strong> - A category with no orderable tests shows 'No tests or panels found', and tests that fail to load show an error rather than an empty list.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">System</p>
+      <ul>
+        <li><strong>Sync</strong> - Facility servers no longer send deletions received from the central server back to it, which doubled the sync load after a large deletion. Duplicate patient insurance plan records no longer stop sync, and the sync status page no longer lists removed sessions.</li>
+        <li><strong>Settings</strong> - Changes to tasking settings take effect without restarting the facility server.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">⚠️</span>Critical Upgrade Notes</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">Medication due tasks permission</p>
+        <ul>
+          <li>Existing roles are not given the new medication due tasks permission at upgrade. Staff in roles without it will stop seeing medication due tasks on their dashboard.</li>
+          <li>Before upgrading, decide which roles should receive these tasks and grant them the permission.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Lab requests</p>
+        <ul>
+          <li>Every lab test panel now needs a category, and all of a panel's tests must belong to that category. Review the panels in your reference data, as a reference data import containing a panel that breaks either rule will fail.</li>
+          <li>Sample labels are printed at one standard size. Check that label printers and label stock at each facility suit it.</li>
+          <li>Where a laboratory system is connected, let the integration team know before upgrading: requests now arrive as one order per category, carrying several panels and tests.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Medications not dispensed</p>
+        <ul>
+          <li>The list of reasons for not dispensing is empty on existing deployments, and a reason is required. Add your reasons through the reference data import before pharmacy staff use the feature.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Sensitive facilities</p>
+        <ul>
+          <li>Each existing sensitive facility is moved into its own network at upgrade, with no change to the data it receives.</li>
+          <li>From this release, a new facility is made sensitive by naming a network for it on the facility sheet of the reference data import.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+
+      <div class="upgrade-item">
+        <p class="name">Permission to sync patient records</p>
+        <ul>
+          <li>Every role that can view patients is given the new permission at upgrade, so nobody loses the action. Remove it from roles that should not mark patients for sync.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Lab requests</p>
+        <ul>
+          <li>Decide whether each facility should show the sample label print screen automatically, and turn it on where wanted.</li>
+          <li>Set a default specimen type on lab test categories where one is usual.</li>
+          <li>Move tests that only a laboratory system adds from panel only to the 'Reflex test' status.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Sensitive networks</p>
+        <ul>
+          <li>To let several facilities share confidential data, discuss network setup with the support team before creating facilities in a network.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Upgrade Steps and Recommended Testing</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">Lab requests</p>
+        <ul>
+          <li>Raise a lab request with a panel and an individual test from the same category. Confirm it creates one request, then record the sample, print the label and enter results.</li>
+          <li>Where a laboratory system is connected, confirm that request reaches it as one sample and that results return to Tamanu.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Medication due tasks permission</p>
+        <ul>
+          <li>Log in as a user in a role granted the new permission and confirm medication due tasks appear on the dashboard.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Sensitive facilities</p>
+        <ul>
+          <li>On deployments with sensitive facilities, confirm each one still shows its own encounters after upgrade and that they do not appear at other facilities.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+
+      <div class="upgrade-item">
+        <p class="name">Medications not dispensed</p>
+        <ul>
+          <li>Record a medication as not dispensed and confirm the prescribing clinician receives the notification.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">General</p>
+        <ul>
+          <li>Upgrade an existing Tamanu Mobile device, record some data and sync. Confirm the sync completes and the new records appear on Tamanu Desktop.</li>
+          <li>Set up a new Tamanu Mobile device and confirm its initial sync completes.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    The release date and supporting documentation links are placeholders awaiting a human.
+  </footer>
+
+</div>
+</body>
+</html>
