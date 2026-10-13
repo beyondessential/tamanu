@@ -16,7 +16,9 @@ import {
 } from '~/ui/helpers/programRegistryConditionRules';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
 import { Dropdown } from '../../Dropdown';
+import { SectionHeader } from '../../SectionHeader';
 import { getReferenceDataStringId } from '../../Translations/TranslatedReferenceData';
 import { TranslatedText } from '../../Translations/TranslatedText';
 
@@ -42,6 +44,12 @@ export const useProgramRegistryConditionForm = (
     conditionContext,
     isConditionRequired: isProgramRegistryConditionRequired(options, components),
   };
+};
+
+export const useRequiredConditionQuestionCode = (values: Record<string, any>) => {
+  const { options, components = [] } = useContext(ProgramRegistryConditionContext) ?? {};
+  if (!isProgramRegistryConditionRequired(options, components)) return null;
+  return getVisibleConditionQuestions(components, values)[0]?.dataElement.code ?? null;
 };
 
 interface SurveyProgramRegistryConditionFieldProps {
@@ -93,10 +101,8 @@ export const SurveyProgramRegistryConditionField = ({
   ]);
   unavailableConditionIds.delete(answer.conditionId);
 
-  const isRequired =
-    isProgramRegistryConditionRequired(options, components) &&
-    conditionQuestions[0]?.dataElement.code === name;
   const isCategoryMissing = Boolean(answer.conditionId) && !answer.categoryId;
+  const selectPlaceholder = getTranslation('general.placeholder.select', 'Select');
   const conditionOptions = options.conditions.filter(
     condition => !unavailableConditionIds.has(condition.id),
   );
@@ -127,20 +133,29 @@ export const SurveyProgramRegistryConditionField = ({
           value: condition.id,
         }))}
         onChange={conditionId => setAnswer(conditionId || null, null)}
-        required={isRequired}
+        selectPlaceholderText={selectPlaceholder}
         disabled={disabled}
         clearable
         error={isCategoryMissing ? undefined : error}
       />
       {answer.conditionId && (
-        <StyledView marginTop={12}>
-          <Dropdown
-            label={
+        <StyledView borderLeftWidth={3} borderColor={theme.colors.PRIMARY_MAIN} paddingLeft={12}>
+          <StyledView flexDirection="row" alignItems="center" marginBottom={6}>
+            <SectionHeader h3>
               <TranslatedText
                 stringId="programRegistry.relatedConditionsCategory.label"
                 fallback="Category"
               />
-            }
+            </SectionHeader>
+            <StyledText
+              marginLeft={screenPercentageToDP(0.5, Orientation.Width)}
+              fontSize={screenPercentageToDP(1.6, Orientation.Height)}
+              color={theme.colors.ALERT}
+            >
+              *
+            </StyledText>
+          </StyledView>
+          <Dropdown
             value={answer.categoryId ?? ''}
             options={options.conditionCategories.map(category => ({
               label: getTranslation(
@@ -150,7 +165,7 @@ export const SurveyProgramRegistryConditionField = ({
               value: category.id,
             }))}
             onChange={categoryId => setAnswer(answer.conditionId, categoryId || null)}
-            required
+            selectPlaceholderText={selectPlaceholder}
             disabled={disabled}
             error={isCategoryMissing ? error : undefined}
           />
