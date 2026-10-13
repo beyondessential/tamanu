@@ -12,8 +12,8 @@ import { AI_SETTING_PATHS } from './services/AIService';
  *
  * @param {import('./ApplicationContext').ApplicationContext} ctx
  */
-export function registerSettingsListeners(ctx, onTableChanged) {
-  registerSettingsCacheInvalidator(onTableChanged);
+export function registerSettingsListeners(ctx, onTableChanged, { onReconnect }) {
+  registerSettingsCacheInvalidator(onTableChanged, { onReconnect });
 
   const resolveChangedKey = async ({ newId, oldId }) => {
     const id = newId ?? oldId;
@@ -22,10 +22,16 @@ export function registerSettingsListeners(ctx, onTableChanged) {
     return setting?.key ?? null;
   };
 
+  const logAiRefreshError = error =>
+    log.warn({ error }, 'Failed to refresh the AI service after a settings change');
+
   registerSettingsPathListener(onTableChanged, {
     paths: AI_SETTING_PATHS,
     resolveChangedKey,
     onChange: () => ctx.refreshAiService(),
-    onError: error => log.warn({ error }, 'Failed to refresh the AI service after a settings change'),
+    onError: logAiRefreshError,
   });
+
+  // a settings change while the listener was disconnected would otherwise go unnoticed
+  onReconnect(() => ctx.refreshAiService().catch(logAiRefreshError));
 }

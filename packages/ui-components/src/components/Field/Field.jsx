@@ -1,5 +1,4 @@
-import MuiBox from '@material-ui/core/Box';
-import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
+import Box from '@mui/material/Box';
 import {
   connect as formikConnect,
   Field as FormikField,
@@ -9,70 +8,73 @@ import {
 } from 'formik';
 import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import { FormTooltip } from '../FormTooltip';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
-export const Field = formikConnect(
-  ({
-    formik: {
-      errors,
-      status: { submitStatus },
-      validateField,
-      values,
-    },
-    name,
-    component = TextField,
-    onChange,
-    helperText,
-    ...props
-  }) => {
-    // Only show error messages once the user has attempted to submit the form
-    const error = submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, name);
-    const message = error ? getIn(errors, name) : helperText;
 
-    const { setFieldTouched } = useFormikContext();
-    const [field] = useField(name);
-    const fieldValue = getIn(values, name);
-
-    const isFormSubmitted = useRef(false);
-
-    // Set a flag to indicate that the form has been submitted
-    useEffect(() => {
-      if (submitStatus === SUBMIT_ATTEMPTED_STATUS) {
-        setTimeout(() => {
-          isFormSubmitted.current = true;
-        });
-      }
-    }, [submitStatus]);
-
-    // Validate field when its value changes (only after submit attempt and if there is an error)
-    useEffect(() => {
-      if (error && isFormSubmitted.current) {
-        validateField(name);
-      }
-    }, [error, fieldValue, name, validateField]);
-
-    const augmentedOnChange = useCallback(
-      (...args) => {
-        onChange?.(...args);
-        setFieldTouched(name, true);
-        return field.onChange(...args);
-      },
-      [onChange, setFieldTouched, name, field.onChange],
-    );
-
-    return (
-      <FormikField
-        {...props}
-        component={component}
-        error={error}
-        helperText={message}
-        name={name}
-        onChange={augmentedOnChange}
-      />
-    );
+const FieldBase = ({
+  formik: {
+    errors,
+    status: { submitStatus },
+    validateField,
+    values,
   },
-);
+  name,
+  component = TextField,
+  onChange,
+  helperText,
+  ...props
+}) => {
+  // Only show error messages once the user has attempted to submit the form
+  const error = submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, name);
+  const message = error ? getIn(errors, name) : helperText;
+
+  const { setFieldTouched } = useFormikContext();
+  const [field] = useField(name);
+  const fieldValue = getIn(values, name);
+
+  const isFormSubmitted = useRef(false);
+
+  // Set a flag to indicate that the form has been submitted
+  useEffect(() => {
+    if (submitStatus === SUBMIT_ATTEMPTED_STATUS) {
+      setTimeout(() => {
+        isFormSubmitted.current = true;
+      });
+    }
+  }, [submitStatus]);
+
+  // Validate field when its value changes (only after submit attempt and if there is an error)
+  useEffect(() => {
+    if (error && isFormSubmitted.current) {
+      validateField(name);
+    }
+  }, [error, fieldValue, name, validateField]);
+
+  const augmentedOnChange = useCallback(
+    (...args) => {
+      onChange?.(...args);
+      setFieldTouched(name, true);
+      return field.onChange(...args);
+    },
+    [onChange, setFieldTouched, name, field.onChange],
+  );
+
+  return (
+    <FormikField
+      {...props}
+      component={component}
+      error={error}
+      helperText={message}
+      name={name}
+      onChange={augmentedOnChange}
+    />
+  );
+};
+
+export const Field = formikConnect(FieldBase);
 
 /**
  * A formik form field with an added tooltip
@@ -97,7 +99,7 @@ export const FieldWithTooltip = ({
 }) => {
   if (disabledTooltipText && props.disabled)
     return (
-      <MuiBox position="relative" data-testid="muibox-slpq">
+      <Box position="relative" data-testid="muibox-slpq">
         <StyledToolTip
           title={disabledTooltipText}
           arrow
@@ -110,11 +112,11 @@ export const FieldWithTooltip = ({
             <Field {...props} data-testid="field-ete4" />
           </div>
         </StyledToolTip>
-      </MuiBox>
+      </Box>
     );
 
   return (
-    <MuiBox position="relative" data-testid="muibox-8z4o">
+    <Box position="relative" data-testid="muibox-8z4o">
       <Field {...props} data-testid="field-tybt" />
       {$tooltipText && (
         <FormTooltip
@@ -125,6 +127,6 @@ export const FieldWithTooltip = ({
           data-testid="formtooltip-lztn"
         />
       )}
-    </MuiBox>
+    </Box>
   );
 };

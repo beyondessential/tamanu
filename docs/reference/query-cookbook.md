@@ -497,7 +497,11 @@ auth/network is broken (attribute to the right integration by user-agent first).
 Caddy log for poll/status evidence). It has **no** `response_status` column: only
 `id, created_at, verb, url, body, headers, user_id` (confirmed
 `database/model/logs/fhir_writes.yml`). Useful to see result payloads Tamanu
-received, joined via `body`. **[diagnose]**
+received, joined via `body`. **[diagnose]** The join below assumes a
+`ServiceRequest/<id>` reference in `basedOn`; an integration may send an
+identifier (request uuid or display ID) instead — for imaging, see
+`../runbooks/rispacs-imaging-not-received.md` §3.6 for the join that matches all
+three forms.
 
 ```sql
 SELECT frl.body

@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
+import { parseLabTestResult } from '@tamanu/utils/labTests';
 
-import { Field, NumberField, TextField } from '../../../components/Field';
+import { Field, NumberField, ReadOnlyTextField, TextField } from '../../../components/Field';
 import { Colors } from '../../../constants';
 import { TranslatedOptionSelectField } from '../../../components/Translation/TranslatedOptions';
 
@@ -16,10 +17,18 @@ const StyledField = styled(Field)`
   }
 `;
 
+// A detection-limit result (e.g. "< 0.3") comes in from SENAITE and can't be represented in a
+// numeric input, so it's shown read-only rather than silently blanked out.
+const NumericResultField = ({ field, ...props }) => {
+  const { comparator } = parseLabTestResult(field.value);
+  const ResultField = comparator ? ReadOnlyTextField : NumberField;
+  return <ResultField field={field} {...props} />;
+};
+
 function getResultComponent(resultType, options) {
   if (options && options.length) return TranslatedOptionSelectField;
   if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
-  return NumberField;
+  return NumericResultField;
 }
 
 function getResultOptions(options) {

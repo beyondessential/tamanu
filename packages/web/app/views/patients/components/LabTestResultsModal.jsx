@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { getReferenceRange } from '@tamanu/utils/labTests';
 import {
   Alert,
   ConditionalTooltip,
@@ -24,13 +25,15 @@ import {
   useTranslation,
 } from '@tamanu/ui-components';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
+import { renderLabResultGroupHeader } from '../../../utils/lab';
 import { SuggesterSelectField } from '../../../components/Field';
 import { FormModal } from '../../../components/FormModal';
 import { TableFormFields } from '../../../components/Table';
-import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
+import { BodyText } from '../../../components/Typography';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
+import { usePatient } from '../../../contexts/Patient';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 
 const TableContainer = styled.div`
@@ -43,21 +46,34 @@ const StyledModal = styled(FormModal)`
   .MuiDialogActions-root {
     display: none;
   }
+  .MuiDialog-paper {
+    max-width: 1400px;
+  }
 `;
 
 const StyledTableFormFields = styled(TableFormFields)`
+  padding: 0 10px;
+  border-radius: 3px;
+
+  &.MuiTable-root {
+    border-block-end: 1px solid ${Colors.outline};
+  }
+
+  tr:last-child td {
+    border-block-end: none;
+  }
+
   thead tr th {
     text-align: left;
     background: ${Colors.white};
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     color: ${Colors.midText};
     padding: 10px;
   }
 
   tbody tr td {
     font-size: 14px;
-    vertical-align: top;
     padding: 8px;
     overflow: visible;
   }
@@ -68,16 +84,9 @@ const StyledTableFormFields = styled(TableFormFields)`
   }
 
   thead tr th:first-child,
-  thead tr th:nth-child(3),
-  tbody tr td:first-child,
-  tbody tr td:nth-child(3) {
-    padding-top: 20px;
-    vertical-align: top;
-  }
-
-  thead tr th:first-child,
   tbody tr td:first-child {
     padding-left: 20px;
+    width: 260px;
   }
 `;
 
@@ -116,20 +125,17 @@ const ErrorContainer = styled(Box)`
 const FormHeaderSection = styled(Box)`
   margin: 0 30px;
   padding-bottom: 20px;
+  padding-top: 16px;
 `;
 
 const InterpretationFieldSection = styled(Box)`
   margin: 20px 30px;
 `;
 
-const StyledHeading4 = styled(Heading4)`
-  margin-top: 8px;
-  margin-bottom: 10px;
-`;
-
-const StyledSmallBodyText = styled(SmallBodyText)`
-  margin-bottom: 12px;
-  color: ${Colors.midText};
+// Tests belonging to a panel sit under the panel's group header and are indented from it.
+const TestName = styled.span`
+  display: inline-block;
+  padding-left: ${({ $indented }) => ($indented ? '15px' : '0')};
 `;
 
 const LAB_TEST_PROPERTIES = {
@@ -173,7 +179,13 @@ const getValidationSchema = getTranslation =>
     resultsInterpretation: yup.string().nullable(),
   });
 
-const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly }) => {
+const getColumns = ({
+  labTestResults,
+  onChangeResult,
+  areLabTestResultsReadOnly,
+  sex,
+  getTranslation,
+}) => {
   const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
@@ -184,15 +196,18 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       title: <TranslatedText stringId="lab.test.label" fallback="Test" />,
       width: '120px',
       accessor: row => (
-        <TranslatedReferenceData
-          fallback={row.labTestType.name}
-          value={row.labTestType.id}
-          category="labTestType"
-        />
+        <TestName $indented={Boolean(row.labTestPanel)}>
+          <TranslatedReferenceData
+            fallback={row.labTestType.name}
+            value={row.labTestType.id}
+            category="labTestType"
+          />
+        </TestName>
       ),
     },
     {
       key: LAB_TEST_PROPERTIES.RESULT,
+      width: '220px',
       title: <TranslatedText stringId="lab.results.table.column.result" fallback="Result" />,
       accessor: (row, i) => {
         const { resultType, options, id: labTestTypeId } = row.labTestType;
@@ -216,8 +231,16 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       title: <TranslatedText stringId="lab.results.table.column.unit" fallback="Units" />,
       width: '80px',
       accessor: row => (
-        <BodyText color="textTertiary" data-testid="bodytext-uq3u">
-          {row.labTestType.unit || 'N/A'}
+        <BodyText data-testid="bodytext-uq3u">{row.labTestType.unit || 'N/A'}</BodyText>
+      ),
+    },
+    {
+      key: 'reference',
+      title: <TranslatedText stringId="lab.results.table.column.reference" fallback="Reference" />,
+      width: '120px',
+      accessor: row => (
+        <BodyText data-testid="bodytext-reference">
+          {getReferenceRange({ labTestType: row.labTestType, labTest: row, sex, getTranslation })}
         </BodyText>
       ),
     },
@@ -261,7 +284,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
       title: <TranslatedText stringId="lab.results.table.column.method" fallback="Method" />,
-      width: '160px',
+      width: '260px',
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -294,7 +317,7 @@ const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly 
       title: (
         <TranslatedText stringId="lab.results.table.column.completedDate" fallback="Completed" />
       ),
-      width: '260px',
+      width: '240px',
       accessor: (row, i) => (
         <AccessorField
           id={row.id}
@@ -341,6 +364,8 @@ const ResultsForm = ({
   areLabTestResultsReadOnly,
 }) => {
   const { getCurrentDateTime } = useDateTime();
+  const { getTranslation } = useTranslation();
+  const { patient } = usePatient();
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * In the case of labTestMethod this occurs in the case that:
@@ -372,8 +397,15 @@ const ResultsForm = ({
   );
 
   const columns = useMemo(
-    () => getColumns({ labTestResults, onChangeResult, areLabTestResultsReadOnly }),
-    [labTestResults, onChangeResult, areLabTestResultsReadOnly],
+    () =>
+      getColumns({
+        labTestResults,
+        onChangeResult,
+        areLabTestResultsReadOnly,
+        sex: patient?.sex,
+        getTranslation,
+      }),
+    [labTestResults, onChangeResult, areLabTestResultsReadOnly, patient?.sex, getTranslation],
   );
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
@@ -382,25 +414,18 @@ const ResultsForm = ({
   return (
     <Box data-testid="box-miwv">
       <FormHeaderSection data-testid="box-jcm4">
-        <div>
-          <StyledHeading4 data-testid="heading4-5541">
-            <TranslatedText
-              stringId="patient.lab.modal.enterResults.heading"
-              fallback="Enter test results"
-            />
-          </StyledHeading4>
-          <StyledSmallBodyText data-testid="smallbodytext-4j32">
-            <TranslatedText
-              stringId="patient.lab.modal.enterResults.subHeading"
-              fallback="Please record test results, other test result details and any relevant notes."
-            />
-          </StyledSmallBodyText>
-        </div>
+        <BodyText>
+          <TranslatedText
+            stringId="patient.lab.modal.enterResults.subHeading"
+            fallback="Please record the test results below"
+          />
+        </BodyText>
       </FormHeaderSection>
       <TableContainer data-testid="tablecontainer-dyto">
         <StyledTableFormFields
           columns={columns}
           data={labTestResults?.data}
+          getRowGroupHeader={renderLabResultGroupHeader}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
@@ -409,9 +434,14 @@ const ResultsForm = ({
           component={TextField}
           multiline
           disabled={areLabTestResultsReadOnly}
-          rows={6}
+          rows={4}
           name="resultsInterpretation"
-          label="Results Interpretation"
+          label={
+            <TranslatedText
+              stringId="lab.resultsInterpretation.label"
+              fallback="Results interpretation"
+            />
+          }
           data-testid="field-resultsinterpretation"
         />
       </InterpretationFieldSection>
@@ -478,7 +508,6 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
 
   return (
     <StyledModal
-      width="lg"
       title={
         <TranslatedText
           stringId="patient.lab.modal.enterResults.title"

@@ -1,5 +1,6 @@
 import _config from 'config';
-import { log } from '@tamanu/shared/services/logging';
+
+import { SYNC_FACILITY_RUN_STATUSES } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
   FACT_LAST_SUCCESSFUL_SYNC_PULL,
@@ -9,24 +10,23 @@ import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
-  getModelsForPush,
   getModelsForPull,
+  getModelsForPush,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
-
+import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig } from '../serverConfig';
-
-import { pushOutgoingChanges } from './pushOutgoingChanges';
-import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
-import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
-import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
-import { pullSettingsPsk } from './pullSettingsPsk';
 import { convergeSyncUser } from './convergeSyncUser';
+import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
+import { pullSettingsPsk } from './pullSettingsPsk';
+import { pushOutgoingChanges } from './pushOutgoingChanges';
+import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -52,10 +52,13 @@ export class FacilitySyncManager {
 
   centralServer = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   currentSyncPromise = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   nextSyncPromise = null;
 
+  /** @type {string | null} */
   reason = null;
 
   lastDurationMs = 0;
@@ -126,12 +129,55 @@ export class FacilitySyncManager {
       );
     }
 
+    // spec: SYNRUN
+    // Recorded before anything else so that an attempt which hangs, or whose
+    // process dies, still leaves a running row for alerting to find.
+    const syncRun = await this.models.SyncFacilityRun.create({
+      triggerType: this.reason?.type,
+      urgent: Boolean(this.reason?.urgent),
+    });
+
+    try {
+      const result = await this.runSyncSession(syncRun);
+      await this.recordSyncRunOutcome(
+        syncRun,
+        result.queued ? SYNC_FACILITY_RUN_STATUSES.QUEUED : SYNC_FACILITY_RUN_STATUSES.SUCCEEDED,
+      );
+      return result;
+    } catch (error) {
+      await this.recordSyncRunOutcome(syncRun, SYNC_FACILITY_RUN_STATUSES.FAILED, {
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+
+  async recordSyncRunOutcome(syncRun, status, details) {
+    try {
+      await syncRun.complete(status, details);
+    } catch (error) {
+      log.warn('FacilitySyncManager.recordSyncRunOutcomeFailed', { error: error.message });
+    }
+  }
+
+  async recordSyncRunProgress(syncRun, fields) {
+    try {
+      await syncRun.update(fields);
+    } catch (error) {
+      log.warn('FacilitySyncManager.recordSyncRunProgressFailed', {
+        fields: Object.keys(fields),
+        error: error.message,
+      });
+    }
+  }
+
+  async runSyncSession(syncRun) {
     const { email, password } = getSyncConfig();
     if (!email || !password) {
       throw new Error('Sync credentials are not configured');
     }
 
-    const startTime = new Date().getTime();
+    const startTime = Date.now();
     this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.attemptStart', {
@@ -158,6 +204,7 @@ export class FacilitySyncManager {
     }
 
     log.info('FacilitySyncManager.startSession');
+    await this.recordSyncRunProgress(syncRun, { sessionId });
 
     // clear previous temp data, in case last session errored out or server was restarted
     await dropAllSnapshotTables(this.sequelize);
@@ -170,7 +217,7 @@ export class FacilitySyncManager {
     try {
       await this.pushChanges(sessionId, newSyncClockTime);
 
-      await this.pullChanges(sessionId);
+      await this.pullChanges(sessionId, syncRun);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
       if (!(error instanceof Problem && error.response)) {
@@ -257,7 +304,7 @@ export class FacilitySyncManager {
     log.debug('FacilitySyncManager.updatedLastSuccessfulPush', { currentSyncClockTime });
   }
 
-  async pullChanges(sessionId) {
+  async pullChanges(sessionId, syncRun) {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
@@ -283,6 +330,8 @@ export class FacilitySyncManager {
       );
     }
 
+    // Recorded outside the save transaction so it is visible while the save runs
+    await this.recordSyncRunProgress(syncRun, { persistStartedAt: new Date() });
     await this.sequelize.transaction(async () => {
       if (totalPulled > 0) {
         await pauseAudit(this.sequelize);
@@ -298,5 +347,6 @@ export class FacilitySyncManager {
       log.debug('FacilitySyncManager.updatingLastSuccessfulSyncPull', { pullUntil });
       await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, pullUntil);
     });
+    await this.recordSyncRunProgress(syncRun, { persistCompletedAt: new Date() });
   }
 }

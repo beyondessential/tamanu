@@ -1,35 +1,32 @@
 import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
+import { SETTING_KEYS } from '~/constants/settings';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
+import { SYNC_DIRECTIONS } from '../../models/types';
+import type { SettingsService } from '../settings';
 import type { CentralServerConnection } from './CentralServerConnection';
+import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
+import { SYNC_EVENT_ACTIONS } from './types';
 import {
   getModelsForDirection,
   getSyncTick,
+  getTableNamesForDirection,
+  getTransactingModelsForDirection,
   pushOutgoingChanges,
   setSyncTick,
   snapshotOutgoingChanges,
-  getTransactingModelsForDirection,
 } from './utils';
+import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
 import {
-  dropSnapshotTable,
   createSnapshotTable,
+  dropSnapshotTable,
   insertSnapshotRecords,
 } from './utils/manageSnapshotTable';
-import { SYNC_DIRECTIONS } from '../../models/types';
-import { SYNC_EVENT_ACTIONS } from './types';
-import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
-import { SETTING_KEYS } from '~/constants/settings';
-import type { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
-import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
-import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
-
-import type { TransactingModel } from './utils/getModelsForDirection';
-import type { DynamicLimiterSettings } from './utils/calculatePageLimit';
-import { deferForeignKeys } from './utils/deferForeignKeys';
-import { checkForeignKeys } from './utils/checkForeignKeys';
+import { runSyncSaveTransaction } from './utils/runSyncSaveTransaction';
+import { saveChangesFromMemory, saveChangesFromSnapshot } from './utils/saveIncomingChanges';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -377,8 +374,7 @@ export class MobileSyncManager {
     });
     const tablesForFullResync = tablesForFullResyncSetting?.value.split(',');
 
-    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
-    const tableNames = Object.values(incomingModels).map(m => m.getTableName());
+    const tableNames = getTableNamesForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
     const { totalToPull, pullUntil } = await this.centralServer.initiatePull(
       sessionId,
@@ -424,24 +420,28 @@ export class MobileSyncManager {
       await Database.setUnsafePragma();
     }
 
+    const incomingTableNames = getTableNamesForDirection(
+      this.models,
+      SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+    );
+
     try {
-      await Database.client.transaction(async transactionEntityManager => {
-        await deferForeignKeys(transactionEntityManager);
+      await runSyncSaveTransaction(incomingTableNames, async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
+        /**
+         * @privateRemarks Foreign key checks are deferred for the whole transaction, so these
+         * models don’t need to be topologically ordered.
+         */
+        const modelsToSave = Object.values(incomingModels);
         const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
+          await saveChangesFromMemory(records, modelsToSave, this.syncSettings, progressCallback);
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
-        await checkForeignKeys(
-          transactionEntityManager,
-          sortedModels.map(model => model.getTableName()),
-        );
         await this.postPull(transactionEntityManager, pullUntil);
       });
     } catch (err) {
@@ -497,29 +497,30 @@ export class MobileSyncManager {
         `Saving changes (${totalSaved.toLocaleString()} / ${recordTotal.toLocaleString()})`,
       );
     };
-    await Database.client.transaction(async transactionEntityManager => {
-      try {
-        await deferForeignKeys(transactionEntityManager);
+    const incomingTableNames = getTableNamesForDirection(
+      this.models,
+      SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+    );
+
+    try {
+      await runSyncSaveTransaction(incomingTableNames, async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
-        await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
-        await checkForeignKeys(
-          transactionEntityManager,
-          sortedModels.map(model => model.getTableName()),
-        );
+        /**
+         * @privateRemarks Foreign key checks are deferred for the whole transaction, so these
+         * models don’t need to be topologically ordered.
+         */
+        const modelsToSave = Object.values(incomingModels);
+        await saveChangesFromSnapshot(modelsToSave, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
-      } catch (err) {
-        console.error(
-          'MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync',
-          err,
-        );
-        throw err;
-      }
-    });
+      });
+    } catch (err) {
+      console.error('MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync', err);
+      throw err;
+    }
   }
 
   async postPull(entityManager: EntityManager, pullUntil: number) {

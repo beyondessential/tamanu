@@ -2,11 +2,13 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
-import { AuthPermissionError } from '@tamanu/errors';
+import { AuthPermissionError, NotFoundError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { ReadSettings } from '@tamanu/settings';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
 import { getDefaultFromAddress } from './services/mailConfig';
+import { version as centralVersion } from './serverInfo';
 
 // spec: SYSERR#sending-a-report-to-support
 export const systemErrorReport = express.Router();
@@ -51,11 +53,26 @@ systemErrorReport.post(
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
+    // Users with access to all facilities pass the check above without the facility existing
+    const facility = await models.Facility.findByPk(facilityId);
+    if (!facility) {
+      throw new NotFoundError('Facility not found');
+    }
+
     const recipients = await new ReadSettings(models, facilityId).get(
       'systemAdmin.support.recipients',
     );
 
-    const emailText = buildEmailText({ errors, additionalInformation, email, userId });
+    const emailText = buildEmailText({
+      errors,
+      additionalInformation,
+      email,
+      userId,
+      deployment: getCanonicalHostName(),
+      facility,
+      // The facility server forwards the report, so this is its version, not the browser's
+      facilityVersion: req.get('x-version'),
+    });
 
     const result = await req.emailService.sendEmail({
       from: await getDefaultFromAddress(settings),
@@ -73,13 +90,26 @@ systemErrorReport.post(
   }),
 );
 
-const buildEmailText = ({ errors, additionalInformation, email, userId }) => {
+const buildEmailText = ({
+  errors,
+  additionalInformation,
+  email,
+  userId,
+  deployment,
+  facility,
+  facilityVersion,
+}) => {
   const errorList = errors
     .map(error => `- [${error.timestamp}] ${error.message}`)
     .join('\n');
 
   return `
 A Tamanu user has submitted a system error report.
+
+Deployment: ${deployment}
+Facility: ${facility.name} (${facility.id})
+Facility server version: ${facilityVersion || '(unknown)'}
+Central server version: ${centralVersion}
 
 Reporting user id: ${userId}
 Follow-up email: ${email || '(not provided)'}

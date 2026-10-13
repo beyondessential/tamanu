@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { CheckInput } from '../Field';
 
 export const useSelectableColumn = (
@@ -11,9 +11,13 @@ export const useSelectableColumn = (
     showIndeterminate = false,
     getRowsFilterer = () => () => true,
     selectAllOnInit = false,
+    // Optional predicate to pre-select a subset of rows on load (e.g. rows whose sample has been
+    // recorded). selectAllOnInit is the "select every row" shorthand for the same thing.
+    getIsRowInitiallySelected = null,
   } = {},
 ) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
+  const [hasAppliedInitialSelection, setHasAppliedInitialSelection] = useState(false);
 
   const selectedRows = useMemo(() => {
     if (!rows) {
@@ -22,12 +26,19 @@ export const useSelectableColumn = (
     return rows.filter((row) => selectedKeys.has(row[selectionKey]));
   }, [rows, selectedKeys, selectionKey]);
 
-  useEffect(() => {
-    if (selectAllOnInit && rows?.length > 0) {
-      const allKeys = new Set(rows.map(row => row[selectionKey]));
-      setSelectedKeys(allKeys);
-    }
-  }, [rows, selectAllOnInit, selectionKey]);
+  // Apply the initial selection once, on the first render where rows are available — every row
+  // (selectAllOnInit) or a subset (getIsRowInitiallySelected). Done during render rather than in an
+  // Effect (per React's "you might not need an Effect"): it avoids a flash of the wrong selection
+  // before an Effect would run, and applying it a single time means it never clobbers later toggles.
+  if (
+    !hasAppliedInitialSelection &&
+    rows?.length > 0 &&
+    (selectAllOnInit || getIsRowInitiallySelected)
+  ) {
+    const isRowInitiallySelected = selectAllOnInit ? () => true : getIsRowInitiallySelected;
+    setHasAppliedInitialSelection(true);
+    setSelectedKeys(new Set(rows.filter(isRowInitiallySelected).map(row => row[selectionKey])));
+  }
 
   const cellOnChange = useCallback(
     (event, rowIndex) => {

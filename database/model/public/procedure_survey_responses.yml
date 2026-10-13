@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_procedure_survey_responses_from_sync_lookup
-              - notify_procedure_survey_responses_changed
               - record_procedure_survey_responses_changelog
               - set_procedure_survey_responses_updated_at
               - set_procedure_survey_responses_updated_at_sync_tick

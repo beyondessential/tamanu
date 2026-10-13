@@ -94,6 +94,8 @@ export const referenceKeys = {
     [...referenceKeys.all, 'data', type, params ?? {}] as const satisfies QueryKey,
   scheduledVaccines: (params: object) =>
     [...referenceKeys.all, 'scheduledVaccines', params] as const satisfies QueryKey,
+  labTestTypes: (params: object) =>
+    [...referenceKeys.all, 'labTestTypes', params] as const satisfies QueryKey,
   patientDataField: (params: object) =>
     [...referenceKeys.all, 'patientDataField', params] as const satisfies QueryKey,
   addressHierarchy: (leafNodeType: string) =>

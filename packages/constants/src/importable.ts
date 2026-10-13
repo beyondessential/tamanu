@@ -51,6 +51,7 @@ export const REFERENCE_TYPES = {
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
+  MEDICATION_NOT_DISPENSED_REASON: 'medicationNotDispensedReason',
   MEDICATION_DISPENSE_MODIFY_REASON: 'medicationDispenseModifyReason',
   MEDICATION_PRESET_LABEL: 'medicationPresetLabel',
   MEDICATION_TEMPLATE: 'medicationTemplate',
@@ -80,6 +81,7 @@ export const OTHER_REFERENCE_TYPES = {
   INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
   INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
+  SENSITIVE_NETWORK: 'sensitiveNetwork',
 } as const;
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);

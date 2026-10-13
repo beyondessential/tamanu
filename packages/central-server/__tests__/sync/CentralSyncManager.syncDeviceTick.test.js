@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
@@ -187,5 +187,68 @@ describe('CentralSyncManager', () => {
       const syncDeviceTick = await models.SyncDeviceTick.findByPk(patient.updatedAtSyncTick);
       expect(syncDeviceTick.deviceId).toBe(facility.id);
     });
+    // The lookup build attributes rows to their pusher by joining sync_device_ticks on the persist
+    // tick; that attribution is what stops the pull filter serving a device its own changes back.
+    // It used to be written after the persist transaction committed, so a crash in that window
+    // left the rows committed but unattributed for good (seen in production: a facility repulled
+    // ~800k rows it had just pushed).
+    describe('is written atomically with the persisted changes', () => {
+      afterEach(() => {
+        vi.doUnmock('@tamanu/database/sync');
+      });
+
+      const pushPatientUpdate = async () => {
+        await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '16');
+        const facility = await models.Facility.create(fake(models.Facility));
+        const patient = await models.Patient.create({ ...fake(models.Patient), displayId: 'DEF' });
+        const changes = [
+          {
+            direction: SYNC_SESSION_DIRECTION.OUTGOING,
+            isDeleted: false,
+            recordType: 'patients',
+            recordId: patient.id,
+            data: { ...patient.dataValues, firstName: 'Changed' },
+          },
+        ];
+
+        const centralSyncManager = await initializeCentralSyncManager();
+        const { sessionId } = await centralSyncManager.startSession({ deviceId: facility.id });
+        await waitForSession(centralSyncManager, sessionId);
+        await centralSyncManager.addIncomingChanges(sessionId, changes);
+        await centralSyncManager.completePush(sessionId, facility.id);
+        // the persist errors after the changes are committed, so the session is marked errored
+        await expect(waitForPushCompleted(centralSyncManager, sessionId)).rejects.toThrow();
+
+        return { facility, patient };
+      };
+
+      it('keeps the device tick when a step after the persist commit fails', async () => {
+        vi.doMock('@tamanu/database/sync', async () => ({
+          ...(await vi.importActual('@tamanu/database/sync')),
+          adjustDataPostSyncPush: vi.fn().mockRejectedValue(new Error('crash after commit')),
+        }));
+
+        const { facility, patient } = await pushPatientUpdate();
+
+        await patient.reload();
+        expect(patient.firstName).toBe('Changed');
+        const syncDeviceTick = await models.SyncDeviceTick.findByPk(patient.updatedAtSyncTick);
+        expect(syncDeviceTick.deviceId).toBe(facility.id);
+      });
+
+      it('leaves no device tick behind when the persist itself is rolled back', async () => {
+        vi.doMock('@tamanu/database/sync', async () => ({
+          ...(await vi.importActual('@tamanu/database/sync')),
+          saveIncomingChanges: vi.fn().mockRejectedValue(new Error('persist failed')),
+        }));
+
+        const { patient } = await pushPatientUpdate();
+
+        await patient.reload();
+        expect(patient.firstName).not.toBe('Changed');
+        expect(await models.SyncDeviceTick.count()).toBe(0);
+      });
+    });
+
   });
 });

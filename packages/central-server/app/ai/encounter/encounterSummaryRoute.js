@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { ForbiddenError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { AI_CONTEXT_NAMES } from '@tamanu/constants';
+import { AI_CONTEXT_NAMES, AI_PROMPT_TAGS } from '@tamanu/constants';
 
 import { buildSummaryUserMessage } from '../summaryUserMessage';
 
@@ -55,7 +55,7 @@ encounterSummaryRoute.post(
 
     // Per-request content stays in the human turn so the system prompt can cache.
     const userMessage = buildSummaryUserMessage({
-      dataTag: 'encounter_data',
+      dataTag: AI_PROMPT_TAGS.ENCOUNTER_DATA,
       data: encounterData,
       editFeedback,
     });

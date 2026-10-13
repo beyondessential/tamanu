@@ -5,6 +5,7 @@ import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { LabTestPanel } from './LabTestPanel';
+import { LabRequest } from './LabRequest';
 
 @Entity('lab_test_panel_requests')
 export class LabTestPanelRequest extends BaseModel implements ILabTestPanelRequest {
@@ -19,4 +20,9 @@ export class LabTestPanelRequest extends BaseModel implements ILabTestPanelReque
   labTestPanel: LabTestPanel;
   @RelationId(({ labTestPanel }) => labTestPanel)
   labTestPanelId: string;
+
+  @ManyToOne(() => LabRequest)
+  labRequest: LabRequest;
+  @RelationId(({ labRequest }) => labRequest)
+  labRequestId: string;
 }

@@ -1,4 +1,4 @@
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
 
 import { createApi } from './createApi';
@@ -12,11 +12,15 @@ import { registerSettingsListeners } from './settingsListeners';
 export async function createApp(ctx) {
   const api = await createApi(ctx);
 
-  const dbNotifier = await defineDbNotifier(ctx.store.sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-  ]);
+  const dbNotifier = await defineDbNotifier(
+    ctx.store.sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED],
+    { onOutageExceeded: exitOnDatabaseOutage },
+  );
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
-  registerSettingsListeners(ctx, dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  registerSettingsListeners(ctx, dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
+  });
 
   if (await ctx.settings.get('websocket.enabled')) {
     await createWebsocket(api.httpServer, ctx, dbNotifier, api.express);

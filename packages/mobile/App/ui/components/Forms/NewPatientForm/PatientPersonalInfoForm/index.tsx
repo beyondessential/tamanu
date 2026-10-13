@@ -1,32 +1,32 @@
-import React, { type ReactElement, type ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateId, generateIdFromPattern } from '@tamanu/utils';
-import { compose } from 'redux';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { formatISO9075, parseISO } from 'date-fns';
 import { Formik } from 'formik';
+import React, { type ReactElement, type ReactNode, useCallback } from 'react';
 import { Alert, KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { FullView } from '/styled/common';
-import { formatISO9075, parseISO } from 'date-fns';
-import { SubmitSection } from './SubmitSection';
-import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import { compose } from 'redux';
 import { Patient } from '~/models/Patient';
-import { withPatient } from '~/ui/containers/Patient';
-import { Routes } from '~/ui/helpers/routes';
-import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
-import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
+import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
+import { PatientFieldValue } from '~/models/PatientFieldValue';
+import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { withPatient } from '~/ui/containers/Patient';
+import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { ALL_ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
+import { getConfiguredPatientAdditionalDataFields } from '~/ui/helpers/patient';
+import { Routes } from '~/ui/helpers/routes';
+import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
 import {
   type CustomPatientFieldValues,
   usePatientAdditionalData,
 } from '~/ui/hooks/usePatientAdditionalData';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { getInitialAdditionalValues } from '../../PatientAdditionalDataForm/helpers';
-import { PatientFieldValue } from '~/models/PatientFieldValue';
-import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
-import { useSettings } from '~/ui/contexts/SettingsContext';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { patientKeys, patientListKeys } from '~/ui/hooks/queries/queryKeys';
+import { getPatientDetailsValidation } from './patientDetailsValidationSchema';
+import { SubmitSection } from './SubmitSection';
+import { FullView } from '/styled/common';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingView: { flex: 1 },
@@ -158,7 +158,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
 
       // Reload instance to get the complete village fields
       // (related fields won't display all info otherwise)
-      return Patient.findOne({ where: { id: newPatient.id } });
+      return Patient.findOne({ where: { id: newPatient.id }, relations: ['village'] });
     },
     onSuccess: (reloadedPatient: Patient) => {
       queryClient.invalidateQueries({ queryKey: patientListKeys.all });
@@ -219,7 +219,10 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
       await createOrUpdateOtherPatientData(values, selectedPatient.id);
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
-      const editedPatient = await Patient.findOne({ where: { id: selectedPatient.id } });
+      const editedPatient = await Patient.findOne({
+        where: { id: selectedPatient.id },
+        relations: ['village'],
+      });
       await Patient.markForSync(editedPatient.id);
       return editedPatient;
     },

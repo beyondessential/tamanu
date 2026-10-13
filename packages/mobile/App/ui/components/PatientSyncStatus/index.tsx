@@ -6,6 +6,7 @@ import { StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
 import { patientKeys, syncKeys } from '~/ui/hooks/queries/queryKeys';
 import usePatientIsMarkedForSyncQuery from '~/ui/hooks/queries/usePatientIsMarkedForSyncQuery';
 import { useBackend } from '~/ui/hooks';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Database } from '~/infra/db';
 import { Patient } from '~/models/Patient';
@@ -22,6 +23,7 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
   const queryClient = useQueryClient();
   const { syncManager } = useBackend();
   const { getTranslation } = useTranslation();
+  const { ability } = useAuth();
   const { data: isMarkedForSync, isPending: isLoading } = usePatientIsMarkedForSyncQuery(
     selectedPatient.id,
   );
@@ -71,7 +73,9 @@ export const PatientSyncStatus = ({ selectedPatient }: PatientSyncStatusProps): 
     );
   };
 
-  if (isLoading) {
+  // spec: MFS#marking-a-patient-for-sync-on-mobile
+  const canMarkForSync = ability.can('create', 'SyncPatient');
+  if (isLoading || (isMarkedForSync === false && !canMarkForSync)) {
     return <StyledView flex={1} />;
   }
 

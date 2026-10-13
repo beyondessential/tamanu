@@ -1,18 +1,18 @@
 import {
   add as addDuration,
-  isValid,
-  format,
-  parseISO,
-  differenceInYears,
-  intervalToDuration,
-  formatISO9075,
-  isMatch,
+  differenceInDays,
   differenceInMonths,
   differenceInWeeks,
-  differenceInDays,
-  formatDuration,
-  startOfDay,
+  differenceInYears,
+  format,
   formatDistance,
+  formatDuration,
+  formatISO9075,
+  intervalToDuration,
+  isMatch,
+  isValid,
+  parseISO,
+  startOfDay,
 } from 'date-fns';
 
 // Note: A lot of these functions are copied in from shared, i.e. are duplicates of functions in shared/utils/date.js
@@ -25,14 +25,14 @@ const getDifferenceFnByUnit = {
   months: differenceInMonths,
   weeks: differenceInWeeks,
   days: differenceInDays,
-};
+} as const;
 
 const comparators = {
   '>': (left, right) => left > right,
   '<': (left, right) => left < right,
   '>=': (left, right) => left >= right,
   '<=': (left, right) => left <= right,
-};
+} as const;
 
 export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
@@ -205,7 +205,20 @@ export function getCombinedDateString(date: Date, time: Date): string {
   );
 }
 
-export function getDisplayAge(dateOfBirth, ageDisplayFormat) {
+interface AgeRangeLimit {
+  duration?: { years?: number; months?: number; days?: number };
+  exclusive?: boolean;
+}
+
+export type AgeDisplayFormat = {
+  as: 'days' | 'weeks' | 'months' | 'years';
+  range: { min?: AgeRangeLimit; max?: AgeRangeLimit };
+}[];
+
+export function getDisplayAge(
+  dateOfBirth: string | undefined,
+  ageDisplayFormat: AgeDisplayFormat | undefined,
+): string {
   if (!ageDisplayFormat || !isISOString(dateOfBirth)) {
     return '';
   }

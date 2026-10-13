@@ -1,6 +1,16 @@
-import React, { type ReactElement } from 'react';
+import React from 'react';
 import { StatusBar } from 'react-native';
-// Components
+import type { IPatient } from '~/types';
+import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
+import { PatientSyncStatus } from '~/ui/components/PatientSyncStatus';
+import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { BackButton, PatientMenuButtons, VisitTypeButtonList } from './CustomComponents';
+import { UserAvatar } from '/components/UserAvatar';
+import { useSettings } from '/contexts/SettingsContext';
+import { type AgeDisplayFormat, getDisplayAge } from '/helpers/date';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { setDotsOnMaxLength } from '/helpers/text';
+import { getGender, joinNames } from '/helpers/user';
 import {
   FullView,
   RowView,
@@ -9,19 +19,7 @@ import {
   StyledText,
   StyledView,
 } from '/styled/common';
-import { UserAvatar } from '/components/UserAvatar';
-import { BackButton, PatientMenuButtons, VisitTypeButtonList } from './CustomComponents';
-// Helpers
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import type { IPatient } from '~/types';
-import { getGender, joinNames } from '/helpers/user';
-import { getDisplayAge } from '/helpers/date';
-import { setDotsOnMaxLength } from '/helpers/text';
-import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
-import type { MenuOptionButtonProps } from '~/types/MenuOptionButtonProps';
-import { PatientSyncStatus } from '~/ui/components/PatientSyncStatus';
-import { useSettings } from '/contexts/SettingsContext';
 
 interface ScreenProps {
   navigateToSearchPatients: () => void;
@@ -35,9 +33,9 @@ export const Screen = ({
   patientMenuButtons,
   navigateToSearchPatients,
   selectedPatient,
-}: ScreenProps): ReactElement => {
+}: ScreenProps) => {
   const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />

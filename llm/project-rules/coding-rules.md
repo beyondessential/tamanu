@@ -54,6 +54,10 @@ Readability is the highest priority. Every line of code is read many times over 
 
 - Bulk updates to upstream tables will trigger mass rematerialisation
 
+### AI prompts
+
+- Deployments override AI system prompts in settings, so the tags, markers and structured-output fields a prompt can refer to (`AI_PROMPT_PROTOCOL` in `@tamanu/constants`, plus the output schemas) are a public contract. Removing or renaming one is a breaking change: record it in `packages/central-server/app/ai/promptProtocolLedger.json`, whose test fails otherwise
+
 ### Frontend
 
 - **Never put interaction event handlers on static elements.** For navigation, prefer `<a>` with an `href` attribute (or abstractions of it like `<Link>`). In other cases, use a semantic `<button>`. e.g. A `<div>` or `<span>` should never have an `onClick` handler. If an element has button semantics but absolutely needs to not look like one, make a `styled(UnstyledHtmlButton)`.

@@ -57,7 +57,10 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     authoredOn: pharmacyOrder.createdAt,
     dosageInstruction: await dosageInstruction(upstream, models, dataDicts),
     dispenseRequest: {
-      quantity: upstream.quantity,
+      quantity: {
+        value: upstream.quantity,
+        ...(prescription?.dispensingUnit && { unit: prescription.dispensingUnit }),
+      },
       numberOfRepeatsAllowed: upstream.repeats,
       ...(prescription?.endDate && {
         validityPeriod: new FhirPeriod({

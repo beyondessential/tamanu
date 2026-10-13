@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
+import { AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { useApi } from '../../../../../api';
 import { notifyError, notifySuccess } from '../../../../../utils';
@@ -202,7 +203,9 @@ export function AiFormBuilderView() {
           sessionId: state.sessionId,
           programDefinition: generatedForm ?? undefined,
           message: [
-            selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
+            selectedProgramCode
+              ? `${AI_PROMPT_MARKERS.PROGRAM_SELECTED} ${selectedProgramCode}`
+              : null,
             message,
           ]
             .filter(Boolean)

@@ -1,6 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { COMMUNICATION_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
+import { getCanonicalHostName } from '@tamanu/shared/utils';
+import { version } from '../app/serverInfo';
+import { MAX_CLIENT_VERSION } from '../app/middleware/versionCompatibility';
 import { createTestContext } from './utilities';
 
 describe('systemErrorReport', () => {
@@ -61,6 +64,20 @@ describe('systemErrorReport', () => {
     expect(email.text).toContain('clinician@example.org');
     expect(email.text).toContain('It keeps happening after login');
     expect(email.text).toContain('Something went wrong on the server.');
+  });
+
+  it('identifies the deployment, facility and versions in the email body', async () => {
+    const response = await app
+      .post('/api/systemErrorReport')
+      .set('x-version', MAX_CLIENT_VERSION)
+      .send(validBody());
+
+    expect(response).toHaveSucceeded();
+    const { text } = emailService.sendEmail.mock.calls[0][0];
+    expect(text).toContain(`Deployment: ${getCanonicalHostName()}`);
+    expect(text).toContain(`Facility: ${facility.name} (${facility.id})`);
+    expect(text).toContain(`Facility server version: ${MAX_CLIENT_VERSION}`);
+    expect(text).toContain(`Central server version: ${version}`);
   });
 
   it('joins multiple recipients configured for the facility', async () => {
@@ -128,6 +145,17 @@ describe('systemErrorReport', () => {
       .send({ ...validBody(), facilityId: otherFacility.id });
 
     expect(response).toHaveRequestError();
+    expect(emailService.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('rejects a request for a facility that does not exist, even for a user with access to all facilities', async () => {
+    const adminApp = await baseApp.asRole('admin');
+
+    const response = await adminApp
+      .post('/api/systemErrorReport')
+      .send({ ...validBody(), userId: adminApp.user.id, facilityId: 'facility-does-not-exist' });
+
+    expect(response.status).toBe(404);
     expect(emailService.sendEmail).not.toHaveBeenCalled();
   });
 

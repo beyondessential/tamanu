@@ -85,6 +85,7 @@ export const NewVaccineTabComponent = ({
 
       const scheduledVaccineRecord = await models.ScheduledVaccine.findOne({
         where: { id: scheduledVaccineId },
+        relations: ['vaccine'],
       });
 
       const vaccineEncounter = await models.Encounter.getOrCreateCurrentEncounter(

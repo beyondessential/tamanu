@@ -1,17 +1,18 @@
-import { Column, Entity, Index, OneToMany, PrimaryColumn } from 'typeorm';
-import { BaseModel } from './BaseModel';
-import { Referral } from './Referral';
-import type { IUser } from '~/types';
-import { AdministeredVaccine } from './AdministeredVaccine';
-import { Note } from './Note';
-import { LabRequest } from './LabRequest';
-import { VitalLog } from './VitalLog';
-import { SYNC_DIRECTIONS } from './types';
-import { VisibilityStatus } from '../visibilityStatuses';
-import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import type { PureAbility } from '@casl/ability';
-import { union } from 'es-toolkit/compat';
+import { union } from 'es-toolkit';
+import { Column, Entity, Index, IsNull, Not, OneToMany, PrimaryColumn } from 'typeorm';
+import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
+import type { IUser } from '~/types';
+import { VisibilityStatus } from '../visibilityStatuses';
+import { AdministeredVaccine } from './AdministeredVaccine';
+import { BaseModel } from './BaseModel';
+import { LabRequest } from './LabRequest';
+import { Note } from './Note';
+import { Referral } from './Referral';
+import { VitalLog } from './VitalLog';
 import type { MODELS_MAP } from './modelsMap';
+import { SYNC_DIRECTIONS } from './types';
+
 @Entity('users')
 export class User extends BaseModel implements IUser {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
@@ -74,12 +75,16 @@ export class User extends BaseModel implements IUser {
       return CAN_ACCESS_ALL_FACILITIES;
     }
 
-    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
+    const restrictUsersToFacilities = await Setting.getByKey<boolean>(
+      'auth.restrictUsersToFacilities',
+    );
     const hasLoginPermission = ability.can('login', 'Facility');
     const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
 
+    // A facility is sensitive exactly when it belongs to a sensitive network.
+    // spec: specs/sync/sensitive-networks.md
     const sensitiveFacilities = await Facility.getRepository().count({
-      where: { isSensitive: true },
+      where: { sensitiveNetworkId: Not(IsNull()) },
     });
     if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
       return CAN_ACCESS_ALL_FACILITIES;
@@ -95,7 +100,7 @@ export class User extends BaseModel implements IUser {
     if (hasAllNonSensitiveFacilityAccess) {
       // Combine any explicitly linked facilities with all non-sensitive facilities
       const allNonSensitiveFacilities = await Facility.getRepository().find({
-        where: { isSensitive: false },
+        where: { sensitiveNetworkId: IsNull() },
         select: ['id'],
       });
       const allNonSensitiveFacilityIds = allNonSensitiveFacilities.map(f => f.id);
