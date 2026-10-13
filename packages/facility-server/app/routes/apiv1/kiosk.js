@@ -23,9 +23,12 @@ const UNAVAILABLE_STATUSES = [APPOINTMENT_STATUSES.CANCELLED, APPOINTMENT_STATUS
 
 const MASKED_DISPLAY_ID_VISIBLE_CHARACTERS = 4;
 
-const maskDisplayId = displayId =>
-  displayId.slice(0, MASKED_DISPLAY_ID_VISIBLE_CHARACTERS) +
-  '*'.repeat(Math.max(displayId.length - MASKED_DISPLAY_ID_VISIBLE_CHARACTERS, 0));
+/** Shows the start of a patient ID and hides the rest, always hiding at least one character. */
+const maskDisplayId = displayId => {
+  const visibleLength = Math.min(MASKED_DISPLAY_ID_VISIBLE_CHARACTERS, displayId.length - 1);
+  const visible = displayId.slice(0, Math.max(visibleLength, 0));
+  return visible + '*'.repeat(displayId.length - visible.length);
+};
 
 const getKioskSettings = async req => {
   if (!req.facilityId) {

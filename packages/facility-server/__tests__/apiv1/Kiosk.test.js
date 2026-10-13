@@ -113,6 +113,23 @@ describe('Kiosk', () => {
   afterAll(() => ctx.close());
 
   describe('Finding an appointment', () => {
+    it('still hides part of a short patient ID when masking', async () => {
+      const dateOfBirth = '1966-06-06';
+      const lastName = 'Shortid';
+      const first = await createPatient({ lastName, dateOfBirth, displayId: 'AB12' });
+      const second = await createPatient({ lastName, dateOfBirth, displayId: 'CD3' });
+      await createAppointment({ patient: first });
+      await createAppointment({ patient: second });
+
+      const result = await findAppointments(lastName, dateOfBirth);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data.map(({ patient }) => patient.displayId).sort()).toEqual([
+        'AB1*',
+        'CD*',
+      ]);
+    });
+
     it('does not mask a single patient with two appointments today', async () => {
       const patient = await createPatient({ lastName: 'Twice', dateOfBirth: '1977-04-04' });
       await createAppointment({ patient });
@@ -245,6 +262,16 @@ describe('Kiosk', () => {
   });
 
   describe('Loading forms', () => {
+    it('is forbidden without permission to read appointments, patients and forms', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({ patient });
+      const limitedApp = await ctx.baseApp.asRole('base');
+
+      const result = await limitedApp.get(`/api/kiosk/appointments/${appointment.id}`);
+
+      expect(result).toBeForbidden();
+    });
+
     it('sends only the parts of the patient record the forms use', async () => {
       const patient = await createPatient({ lastName: 'Private', dateOfBirth: '1980-01-01' });
       const appointment = await createAppointment({
@@ -416,6 +443,21 @@ describe('Kiosk', () => {
       const appointment = await createAppointment({
         patient,
         locationGroupId: otherFacilityLocationGroup.id,
+      });
+
+      const result = await checkIn(appointment.id, []);
+
+      expect(result).toHaveRequestError();
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+    });
+
+    it('rejects an appointment on another day', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        startTime: `${shiftDate(today, 1)} 10:00:00`,
+        endTime: `${shiftDate(today, 1)} 10:30:00`,
       });
 
       const result = await checkIn(appointment.id, []);

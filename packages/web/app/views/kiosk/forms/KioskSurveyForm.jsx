@@ -333,11 +333,9 @@ export const KioskSurveyForm = ({
   );
 
   const validationSchema = useMemo(() => {
-    const getKioskTranslation = (stringId, fallback, options) =>
-      stringId === 'validation.required.inline'
-        ? getTranslation('kiosk.form.required', 'This question is required')
-        : getTranslation(stringId, fallback, options);
-    return getValidationSchema({ components: form.shownComponents }, getKioskTranslation);
+    return getValidationSchema({ components: form.shownComponents }, getTranslation, {}, {
+      requiredMessage: getTranslation('kiosk.form.required', 'This question is required'),
+    });
   }, [form, getTranslation]);
 
   return (
