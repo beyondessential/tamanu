@@ -1,10 +1,9 @@
 import React, { type ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { type MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
+import { StyledText, StyledView } from '/styled/common';
 
-// italicised, smaller and light grey text
 const ErrorDetail = styled(StyledText)`
   font-size: 12px;
   color: #c4c4c4;
@@ -17,23 +16,17 @@ export const SyncErrorDisplay = (): ReactElement => {
   const syncManager: MobileSyncManager = backend.syncManager;
 
   useEffect(() => {
-    const errorHandler = ({ error: errorObject }): void => {
-      setError(errorObject);
-    };
-    const errorResetHandler = (): void => {
-      setError(null);
-    };
+    const errorHandler = ({ error: errorObject }) => void setError(errorObject);
+    const errorResetHandler = () => void setError(null);
     syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
     syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
-    return (): void => {
+    return () => {
       syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
       syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     };
   }, [syncManager.emitter]);
 
-  if (!error) {
-    return null;
-  }
+  if (!error) return null;
 
   return (
     <StyledView
