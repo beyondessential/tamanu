@@ -128,7 +128,9 @@
   }
   .input.focus { box-shadow: inset 0 0 0 2px var(--primary); }
   .input.placeholder { color: var(--text3); }
-  .dob { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 14px; }
+  .dob { display: grid; grid-template-columns: 1fr 1.8fr 1.3fr; gap: 14px; }
+  .input .grow { flex: 1; }
+  .input svg { width: 24px; height: 24px; color: var(--text3); flex: none; }
   .dob .sub { font-size: 14px; color: var(--text3); margin-bottom: 6px; }
 
   /* Patient tile */
@@ -415,7 +417,7 @@
             <label>Date of birth</label>
             <div class="dob">
               <div><div class="sub">Day</div><div class="input">14</div></div>
-              <div><div class="sub">Month</div><div class="input">03</div></div>
+              <div><div class="sub">Month</div><div class="input"><span class="grow">March</span><svg><use href="#i-chev-down"/></svg></div></div>
               <div><div class="sub">Year</div><div class="input focus">1986</div></div>
             </div>
           </div>
@@ -449,7 +451,7 @@
         <div class="tile">
           <div class="name">Mele Losana Taufa</div>
           <dl>
-            <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+            <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
             <div><dt>Sex</dt><dd>Female</dd></div>
             <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
           </dl>
@@ -481,7 +483,7 @@
             <span class="pick"></span>
             <div class="name">Mele Losana Taufa</div>
             <dl>
-              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
               <div><dt>Sex</dt><dd>Female</dd></div>
               <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
             </dl>
@@ -491,7 +493,7 @@
             <span class="pick"></span>
             <div class="name">Viliami Taufa</div>
             <dl>
-              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
               <div><dt>Sex</dt><dd>Male</dd></div>
               <div><dt>Patient ID</dt><dd>KLMN105377</dd></div>
             </dl>
@@ -524,7 +526,7 @@
             <svg class="pick"><use href="#i-check"/></svg>
             <div class="name">Mele Losana Taufa</div>
             <dl>
-              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
               <div><dt>Sex</dt><dd>Female</dd></div>
               <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
             </dl>
@@ -534,7 +536,7 @@
             <span class="pick"></span>
             <div class="name">Viliami Taufa</div>
             <dl>
-              <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+              <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
               <div><dt>Sex</dt><dd>Male</dd></div>
               <div><dt>Patient ID</dt><dd>KLMN105377</dd></div>
             </dl>
@@ -565,7 +567,7 @@
         <p class="k-lead">Check your details below. If they're correct, please go to reception.</p>
         <dl class="searched">
           <div><dt>Last name</dt><dd>Tuafa</dd></div>
-          <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+          <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
         </dl>
         <div class="center-actions">
           <div class="btn soft wide">Close</div>
@@ -1028,7 +1030,7 @@
         <div class="tile">
           <div class="name">Mele Losana Taufa</div>
           <dl>
-            <div><dt>Date of birth</dt><dd>14/03/1986</dd></div>
+            <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
             <div><dt>Sex</dt><dd>Female</dd></div>
             <div><dt>Patient ID</dt><dd>HDGF482915</dd></div>
           </dl>
