@@ -27,7 +27,7 @@ import {
   ProgramRegistryConditionContext,
   useProgramRegistryConditionForm,
 } from './SurveyProgramRegistryConditionField';
-import { getProgramRegistryConditionErrors } from '/helpers/programRegistryConditionRules';
+import { getInvalidConditionQuestionCodes } from '@tamanu/utils';
 import { checkVisibilityCriteria } from '/helpers/fields';
 import { authUserSelector } from '/helpers/selectors';
 
@@ -186,11 +186,13 @@ export const SurveyForm = ({
           return yupToFormErrors(error);
         }
       })();
-      const conditionErrors = getProgramRegistryConditionErrors(
-        components,
-        values,
-        isConditionRequired,
-        getTranslation('validation.required.inline', '*Required'),
+      const conditionErrors = Object.fromEntries(
+        getInvalidConditionQuestionCodes(
+          components,
+          values,
+          component => checkVisibilityCriteria(component, components, values),
+          isConditionRequired,
+        ).map(code => [code, getTranslation('validation.required.inline', '*Required')]),
       );
       return { ...schemaErrors, ...conditionErrors, ...(await validate?.(values)) };
     },

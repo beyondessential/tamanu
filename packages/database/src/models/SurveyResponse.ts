@@ -12,8 +12,8 @@ import {
   getActiveActionComponents,
   getResultValue,
   getStringValue,
-  parseProgramRegistryConditionAnswer,
 } from '@tamanu/shared/utils/fields';
+import { parseProgramRegistryConditionAnswer } from '@tamanu/utils/programRegistryConditions';
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';

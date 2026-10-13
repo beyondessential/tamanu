@@ -21,7 +21,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
 import { Routes } from '~/ui/helpers/routes';
-import { parseProgramRegistryConditionAnswer } from '~/ui/helpers/programRegistryConditionRules';
+import { parseProgramRegistryConditionAnswer } from '@tamanu/utils';
 
 const useFullSurveyResponseQuery = (surveyResponseId: string) =>
   useQuery({

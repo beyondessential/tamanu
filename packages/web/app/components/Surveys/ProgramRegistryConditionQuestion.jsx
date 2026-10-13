@@ -3,14 +3,14 @@ import React, { createContext, useContext, useId, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { parseProgramRegistryConditionAnswer } from '@tamanu/shared/utils/fields';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import { SelectInput, checkVisibility } from '@tamanu/ui-components';
 import {
-  SelectInput,
-  checkVisibility,
+  getVisibleConditionQuestions,
   isProgramRegistryConditionAnswerable,
   isProgramRegistryConditionRequired,
-} from '@tamanu/ui-components';
+  parseProgramRegistryConditionAnswer,
+} from '@tamanu/utils/programRegistryConditions';
 import { useSurveyProgramRegistryQuery } from '../../api/queries';
 import { useTranslation } from '../../contexts/Translation';
 
@@ -53,10 +53,8 @@ const useConditionQuestionState = (name, values) => {
   if (!registryOptions) return { isLoading: true };
   if (isEdit) return { registryOptions, isEdit };
 
-  const conditionQuestions = components.filter(
-    component =>
-      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION &&
-      checkVisibility(component, values, components),
+  const conditionQuestions = getVisibleConditionQuestions(components, component =>
+    checkVisibility(component, values, components),
   );
   const conditionIdsChosenElsewhere = conditionQuestions
     .filter(question => question.dataElementId !== name)

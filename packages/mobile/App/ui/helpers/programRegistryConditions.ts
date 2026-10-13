@@ -15,7 +15,8 @@ import {
   getVisibleConditionQuestions,
   parseProgramRegistryConditionAnswer,
   type ProgramRegistryConditionOptions,
-} from './programRegistryConditionRules';
+} from '@tamanu/utils';
+import { checkVisibilityCriteria } from './fields';
 
 const getActiveRegistration = async (programId: string, patientId: string) => {
   const registration = await PatientProgramRegistration.getRecentOne(programId, patientId);
@@ -91,7 +92,9 @@ export async function addProgramRegistryConditions(
   userId: string,
   submittedTime: string,
 ) {
-  const conditionAnswers = getVisibleConditionQuestions(components, valuesByCode)
+  const conditionAnswers = getVisibleConditionQuestions(components, component =>
+    checkVisibilityCriteria(component, components, valuesByCode),
+  )
     .map(question => parseProgramRegistryConditionAnswer(valuesByCode[question.dataElement.code]))
     .filter(answer => answer?.conditionId);
   if (conditionAnswers.length === 0) return;

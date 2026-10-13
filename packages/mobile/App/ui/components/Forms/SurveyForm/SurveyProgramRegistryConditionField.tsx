@@ -4,7 +4,7 @@ import React, { createContext, type ReactElement, useContext, useMemo } from 're
 
 import type { ISurveyScreenComponent } from '~/types';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { FieldTypes } from '~/ui/helpers/fields';
+import { checkVisibilityCriteria, FieldTypes } from '~/ui/helpers/fields';
 import { getProgramRegistryConditionOptions } from '~/ui/helpers/programRegistryConditions';
 import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
 import {
@@ -13,7 +13,7 @@ import {
   isProgramRegistryConditionRequired,
   parseProgramRegistryConditionAnswer,
   type ProgramRegistryConditionOptions,
-} from '~/ui/helpers/programRegistryConditionRules';
+} from '@tamanu/utils';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
@@ -49,7 +49,11 @@ export const useProgramRegistryConditionForm = (
 export const useRequiredConditionQuestionCode = (values: Record<string, any>) => {
   const { options, components = [] } = useContext(ProgramRegistryConditionContext) ?? {};
   if (!isProgramRegistryConditionRequired(options, components)) return null;
-  return getVisibleConditionQuestions(components, values)[0]?.dataElement.code ?? null;
+  return (
+    getVisibleConditionQuestions(components, component =>
+      checkVisibilityCriteria(component, components, values),
+    )[0]?.dataElement.code ?? null
+  );
 };
 
 interface SurveyProgramRegistryConditionFieldProps {
@@ -88,7 +92,9 @@ export const SurveyProgramRegistryConditionField = ({
     );
   }
 
-  const conditionQuestions = getVisibleConditionQuestions(components, values);
+  const conditionQuestions = getVisibleConditionQuestions(components, component =>
+    checkVisibilityCriteria(component, components, values),
+  );
   const conditionIdsChosenElsewhere = conditionQuestions
     .filter(question => question.dataElement.code !== name)
     .map(

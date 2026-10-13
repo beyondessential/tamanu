@@ -4,7 +4,7 @@ import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@taman
 import { convertBinaryToYesNo } from '@tamanu/utils/criteria';
 import { format, isISOString, parseDate } from '@tamanu/utils/dateTime';
 import { formatShort } from '@tamanu/utils/dateFormatters';
-import { parseProgramRegistryConditionAnswer } from '../../utils/fields';
+import { parseProgramRegistryConditionAnswer } from '@tamanu/utils/programRegistryConditions';
 import { decompressSignatureBody } from '../../utils/signature';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes

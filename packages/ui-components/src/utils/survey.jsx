@@ -7,13 +7,11 @@ import * as yup from 'yup';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
-  PROGRAM_REGISTRY_FIELD_LOCATIONS,
   READONLY_DATA_FIELDS,
-  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { parseProgramRegistryConditionAnswer } from '@tamanu/shared/utils/fields';
 import { estimateCompressedSize } from '@tamanu/shared/utils/signature';
 import { checkJSONCriteria } from '@tamanu/utils/criteria';
+import { getInvalidConditionQuestionCodes } from '@tamanu/utils/programRegistryConditions';
 import { ageInMonths, ageInWeeks, ageInYears, isValidSurveyTimeBody } from '@tamanu/utils/dateTime';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import { TranslatedText } from '../components/Translation';
@@ -272,28 +270,13 @@ const signatureSchema = yup
     return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
   });
 
-// Duplicated in mobile/App/ui/helpers/programRegistryConditionRules.ts. Keep in sync.
-const writesProgramRegistration = components =>
-  components.some(
-    ({ id, dataElement, config }) =>
-      dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA &&
-      PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(
-        getConfigObject(id, config).writeToPatient?.fieldName,
-      ),
+const getValuesByCode = (valuesByDataElementId, components) =>
+  Object.fromEntries(
+    components.map(({ dataElement }) => [dataElement.code, valuesByDataElementId[dataElement.id]]),
   );
 
-export const isProgramRegistryConditionAnswerable = (registryOptions, components) =>
-  Boolean(registryOptions?.programRegistry) &&
-  (registryOptions.isPatientRegistered || writesProgramRegistration(components));
-
-export const isProgramRegistryConditionRequired = (registryOptions, components) =>
-  isProgramRegistryConditionAnswerable(registryOptions, components) &&
-  registryOptions.programRegistry.mandatoryConditionEnabled &&
-  registryOptions.recordedConditionIds.length === 0 &&
-  registryOptions.conditions.length > 0;
-
 const getProgramRegistryConditionSchema = ({
-  dataElementId,
+  code,
   components,
   isConditionRequired,
   requiredMessage,
@@ -301,24 +284,15 @@ const getProgramRegistryConditionSchema = ({
   yup
     .string()
     .nullable()
-    .test('condition-category', requiredMessage, value => {
-      const answer = parseProgramRegistryConditionAnswer(value);
-      return !answer?.conditionId || Boolean(answer.categoryId);
-    })
-    .test('mandatory-condition', requiredMessage, (_value, context) => {
-      if (!isConditionRequired) return true;
+    .test('program-registry-condition', requiredMessage, (_value, context) => {
       const values = context.parent;
-      const visibleConditionQuestions = components.filter(
-        component =>
-          component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION &&
-          component.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL &&
-          checkVisibility(component, values, components),
+      const invalidCodes = getInvalidConditionQuestionCodes(
+        components,
+        getValuesByCode(values, components),
+        component => checkVisibility(component, values, components),
+        isConditionRequired,
       );
-      if (visibleConditionQuestions[0]?.dataElementId !== dataElementId) return true;
-      return visibleConditionQuestions.some(
-        question =>
-          parseProgramRegistryConditionAnswer(values[question.dataElementId])?.conditionId,
-      );
+      return !invalidCodes.includes(code);
     });
 
 export const getValidationSchema = (
@@ -406,7 +380,7 @@ export const getValidationSchema = (
           break;
         case PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION:
           valueSchema = getProgramRegistryConditionSchema({
-            dataElementId,
+            code: dataElement.code,
             components,
             isConditionRequired,
             requiredMessage: getTranslation('validation.required.inline', '*Required'),

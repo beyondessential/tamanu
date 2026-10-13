@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getValidationSchema } from '@tamanu/ui-components';
 import {
-  getValidationSchema,
   isProgramRegistryConditionAnswerable,
   isProgramRegistryConditionRequired,
-} from '@tamanu/ui-components';
+} from '@tamanu/utils/programRegistryConditions';
 
 const conditionQuestion = (dataElementId, visibilityCriteria) => ({
   id: `component-${dataElementId}`,
