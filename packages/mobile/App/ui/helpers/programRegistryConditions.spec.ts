@@ -5,7 +5,8 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   RegistrationStatus,
 } from '~/constants/programRegistries';
-import { fake, fakePatient, fakeUser } from '/root/tests/helpers/fake';
+import { fake, fakeEncounter, fakePatient, fakeUser } from '/root/tests/helpers/fake';
+import { SurveyTypes } from '~/types';
 import { FieldTypes } from './fields';
 import {
   addProgramRegistryConditions,
@@ -23,8 +24,7 @@ const conditionQuestion = (code: string) =>
 const answer = (conditionId: string, categoryId: string) =>
   JSON.stringify({ conditionId, categoryId });
 
-const create = (model, data = {}) =>
-  model.createAndSaveOne({ ...fake(model), deletedAt: null, ...data });
+const create = (model, data = {}) => model.createAndSaveOne({ ...fake(model), ...data });
 
 const createRegistry = async () => {
   const { models } = Database;
@@ -201,6 +201,60 @@ describe('program registry conditions from forms', () => {
     );
     expect(options.conditionCategories).toEqual([
       { id: categories.confirmed.id, name: categories.confirmed.name },
+    ]);
+  });
+  it('registers the patient and records the condition in one submission', async () => {
+    const { models } = Database;
+    const setup = await setUp(null);
+    const { survey, registry, patient, conditions, categories } = setup;
+    const clinicalStatus = await create(models.ProgramRegistryClinicalStatus, {
+      programRegistry: registry.id,
+    });
+    const statusConfig = { writeToPatient: { fieldName: 'registrationClinicalStatus' } };
+    const makeQuestion = async (code: string, type: string, config: object) => {
+      const dataElement = await create(models.ProgramDataElement, { code, type });
+      const component = await create(models.SurveyScreenComponent, {
+        dataElement: dataElement.id,
+        survey: survey.id,
+        config: JSON.stringify(config),
+        calculation: null,
+        visibilityCriteria: null,
+      });
+      return { ...component, dataElement, getConfigObject: () => config };
+    };
+    const components = [
+      await makeQuestion('status', FieldTypes.PATIENT_DATA, statusConfig),
+      await makeQuestion('condition', FieldTypes.PROGRAM_REGISTRY_CONDITION, {}),
+    ];
+    const encounter = fakeEncounter();
+    encounter.patient = patient;
+    encounter.examiner = user;
+    await models.Encounter.insert(encounter);
+
+    const response = await models.SurveyResponse.submit(
+      patient.id,
+      user.id,
+      {
+        components,
+        surveyType: SurveyTypes.Programs,
+        surveyId: survey.id,
+        encounterReason: 'Form',
+      },
+      {
+        status: clinicalStatus.id,
+        condition: answer(conditions.asthma.id, categories.confirmed.id),
+      },
+    );
+
+    expect(response).not.toBeNull();
+    const { programId } = await models.ProgramRegistry.findOne({ where: { id: registry.id } });
+    const registration = await models.PatientProgramRegistration.getRecentOne(
+      programId,
+      patient.id,
+    );
+    expect(registration).toMatchObject({ clinicalStatusId: clinicalStatus.id });
+    expect(await recordedFor(registration.id)).toMatchObject([
+      { programRegistryConditionId: conditions.asthma.id },
     ]);
   });
 });
