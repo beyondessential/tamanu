@@ -1,56 +1,45 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ErrorMessage, KioskInput, KioskSelect, scaled } from '../../kioskStyles';
+import { formScaled, FormErrorMessage, FormInput } from '../styles';
 
 const QuestionText = styled.div`
   display: block;
-  margin-bottom: ${scaled(16)};
-  font-size: ${scaled(20)};
+  margin-bottom: ${formScaled(16)};
+  font-size: ${formScaled(20)};
   font-weight: 500;
   line-height: 1.35;
-  color: var(--kiosk-text);
+  color: var(--pf-text);
 `;
 
 export const Hint = styled.div`
-  margin: ${scaled(-8)} 0 ${scaled(14)};
-  font-size: ${scaled(15)};
-  color: var(--kiosk-text-tertiary);
+  margin: ${formScaled(-8)} 0 ${formScaled(14)};
+  font-size: ${formScaled(15)};
+  color: var(--pf-text-tertiary);
 `;
 
 export const RequiredMark = styled.span`
-  color: var(--kiosk-alert);
+  color: var(--pf-alert);
   font-weight: 500;
 `;
 
-export const QuestionInput = styled(KioskInput)`
-  min-height: ${scaled(60)};
-  padding: 0 ${scaled(20)};
-  font-size: ${scaled(20)};
-`;
-
 /** For short answers like numbers, where a full-width box would suggest a long one. */
-export const NarrowQuestionInput = styled(QuestionInput)`
-  width: ${scaled(180)};
-`;
-
-export const QuestionSelect = styled(KioskSelect)`
-  min-height: ${scaled(60)};
-  font-size: ${scaled(20)};
+export const NarrowFormInput = styled(FormInput)`
+  width: ${formScaled(180)};
 `;
 
 /** Outlines a group of option buttons when the question has a validation error. */
 export const ErrorOutline = styled.div`
-  border-radius: 14px;
+  border-radius: var(--pf-radius, 14px);
 
   &[data-invalid='true'] {
-    box-shadow: 0 0 0 2px var(--kiosk-alert);
+    box-shadow: 0 0 0 2px var(--pf-alert);
   }
 `;
 
 /**
- * The question text, hint and validation message around a kiosk control. Errors only show once
- * the patient has tried to move on (the shared `Field` passes the message as `helperText` then).
+ * The question text, hint and validation message around a control. Errors only show once the
+ * patient has tried to move on (the shared `Field` passes the message as `helperText` then).
  */
 export const Question = ({ label, required, helperText, error, inputId, children, hint }) => (
   <>
@@ -60,7 +49,7 @@ export const Question = ({ label, required, helperText, error, inputId, children
     </QuestionText>
     {(hint || (!error && helperText)) && <Hint>{hint ?? helperText}</Hint>}
     {children}
-    {error && helperText && <ErrorMessage role="alert">{helperText}</ErrorMessage>}
+    {error && helperText && <FormErrorMessage role="alert">{helperText}</FormErrorMessage>}
   </>
 );
 

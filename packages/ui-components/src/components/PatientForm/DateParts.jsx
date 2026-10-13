@@ -1,23 +1,23 @@
 import React, { useId } from 'react';
 import styled from 'styled-components';
 
-import { TranslatedText } from '../../components';
-import { useTranslation } from '../../contexts/Translation';
-import { MONTHS } from './kioskDates';
-import { KioskInput, KioskSelect, scaled, SubLabel } from './kioskStyles';
+import { useTranslation } from '../../contexts';
+import { TranslatedText } from '../Translation';
+import { MONTHS } from './dates';
+import { formScaled, FormInput, FormSelect, FormSubLabel } from './styles';
 
-/** Three labelled boxes side by side, as dates and times are entered at the kiosk. */
+/** Three labelled boxes side by side, as patients enter dates and times. */
 export const PartsGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1.8fr 1.3fr;
-  gap: ${scaled(14)};
+  gap: ${formScaled(14)};
 `;
 
 export const digitsOnly = value => value.replace(/\D/g, '');
 
 /**
- * Day, month by name and year: how patients enter every date at the kiosk, including their date
- * of birth. It only collects the parts; what counts as a valid date is up to the caller.
+ * Day, month by name and year: how patients enter every date, including their date of birth. It
+ * only collects the parts; what counts as a valid date is up to the caller.
  *
  * @param {object} props
  * @param {{ day: string, month: string, year: string }} props.parts Month is 1–12, or '' for none
@@ -29,8 +29,8 @@ export const DateParts = ({
   parts,
   onChange,
   error,
-  Input = KioskInput,
-  Select = KioskSelect,
+  Input = FormInput,
+  Select = FormSelect,
   partProps = {},
 }) => {
   const { getTranslation } = useTranslation();
@@ -38,9 +38,9 @@ export const DateParts = ({
   return (
     <PartsGrid>
       <div>
-        <SubLabel htmlFor={`${idPrefix}-day`}>
-          <TranslatedText stringId="kiosk.date.day" fallback="Day" />
-        </SubLabel>
+        <FormSubLabel htmlFor={`${idPrefix}-day`}>
+          <TranslatedText stringId="patientForm.date.day" fallback="Day" />
+        </FormSubLabel>
         <Input
           id={`${idPrefix}-day`}
           value={parts.day}
@@ -53,9 +53,9 @@ export const DateParts = ({
         />
       </div>
       <div>
-        <SubLabel htmlFor={`${idPrefix}-month`}>
-          <TranslatedText stringId="kiosk.date.month" fallback="Month" />
-        </SubLabel>
+        <FormSubLabel htmlFor={`${idPrefix}-month`}>
+          <TranslatedText stringId="patientForm.date.month" fallback="Month" />
+        </FormSubLabel>
         <Select
           id={`${idPrefix}-month`}
           value={parts.month}
@@ -64,7 +64,7 @@ export const DateParts = ({
           {...partProps.month}
         >
           <option value="" disabled hidden>
-            {getTranslation('kiosk.date.selectMonth', 'Select')}
+            {getTranslation('patientForm.date.selectMonth', 'Select')}
           </option>
           {MONTHS.map(({ stringId, fallback }, index) => (
             <option key={stringId} value={String(index + 1)}>
@@ -74,9 +74,9 @@ export const DateParts = ({
         </Select>
       </div>
       <div>
-        <SubLabel htmlFor={`${idPrefix}-year`}>
-          <TranslatedText stringId="kiosk.date.year" fallback="Year" />
-        </SubLabel>
+        <FormSubLabel htmlFor={`${idPrefix}-year`}>
+          <TranslatedText stringId="patientForm.date.year" fallback="Year" />
+        </FormSubLabel>
         <Input
           id={`${idPrefix}-year`}
           value={parts.year}

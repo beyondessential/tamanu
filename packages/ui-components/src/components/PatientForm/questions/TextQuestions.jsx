@@ -1,18 +1,16 @@
-import React, { useId } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
 
-import { usePatientDataDisplayValue } from '@tamanu/ui-components';
+import { useTranslation } from '../../../contexts';
+import { usePatientDataDisplayValue } from '../../../hooks';
+import { TranslatedText } from '../../Translation';
+import { formScaled, FormInput } from '../styles';
+import { NarrowFormInput, Question, setFieldValue } from './QuestionLayout';
 
-import { TranslatedText } from '../../../../components';
-import { useTranslation } from '../../../../contexts/Translation';
-import { scaled } from '../../kioskStyles';
-import { NarrowQuestionInput, Question, QuestionInput, setFieldValue } from './QuestionLayout';
-
-const QuestionTextArea = styled(QuestionInput).attrs({ as: 'textarea' })`
+const QuestionTextArea = styled(FormInput).attrs({ as: 'textarea' })`
   display: block;
-  min-height: ${scaled(128)};
-  padding: ${scaled(16)} ${scaled(20)};
+  min-height: ${formScaled(128)};
+  padding: ${formScaled(16)} ${formScaled(20)};
   line-height: 1.4;
   resize: none;
   overflow: hidden;
@@ -33,7 +31,7 @@ const EntryQuestion = ({
   error,
   helperText,
   disabled,
-  Input = QuestionInput,
+  Input = FormInput,
   toValue = value => value,
   ...inputProps
 }) => {
@@ -66,13 +64,13 @@ export const MultilineQuestion = props => (
 export const NumberQuestion = props => (
   <EntryQuestion
     {...props}
-    Input={NarrowQuestionInput}
+    Input={NarrowFormInput}
     inputMode="decimal"
     toValue={value => (value === '' ? null : value)}
   />
 );
 
-const ReadOnlyQuestion = ({ label, hint, value, placeholder, Input = QuestionInput }) => {
+const ReadOnlyQuestion = ({ label, hint, value, placeholder, Input = FormInput }) => {
   const inputId = useId();
   return (
     <Question label={label} inputId={inputId} hint={hint}>
@@ -85,10 +83,10 @@ export const CalculatedQuestion = ({ field, label }) => (
   <ReadOnlyQuestion
     label={label}
     value={field.value}
-    Input={NarrowQuestionInput}
+    Input={NarrowFormInput}
     hint={
       <TranslatedText
-        stringId="kiosk.question.calculated"
+        stringId="patientForm.question.calculated"
         fallback="Calculated from your answers"
       />
     }
@@ -96,26 +94,45 @@ export const CalculatedQuestion = ({ field, label }) => (
 );
 
 const patientRecordHint = (
-  <TranslatedText stringId="kiosk.question.patientData" fallback="From your patient record" />
+  <TranslatedText stringId="patientForm.question.patientData" fallback="From your patient record" />
 );
+
+/** The name of a related record (like a village) a patient data question holds the ID of. */
+const useRelationName = (value, column, isRelation) => {
+  const { getDisplayValue } = usePatientDataDisplayValue();
+  const [relation, setRelation] = useState({ value: null, name: null });
+  const shouldLookUp = isRelation && Boolean(value);
+
+  useEffect(() => {
+    if (!shouldLookUp) return undefined;
+    let isCurrent = true;
+    getDisplayValue(value, { column }).then(name => {
+      if (!isCurrent) return;
+      // Kept as is when unchanged, so a lookup function that changes each render can't loop
+      setRelation(previous =>
+        previous.value === value && previous.name === name ? previous : { value, name },
+      );
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [shouldLookUp, value, column, getDisplayValue]);
+
+  return relation.value === value ? relation.name : null;
+};
 
 /** A value shown from the patient record. Relations, like a village, show their name. */
 export const PatientDataQuestion = ({ field, label, config }) => {
   const { getTranslation } = useTranslation();
-  const { getDisplayValue } = usePatientDataDisplayValue();
   const isRelation = Boolean(config?.source);
-  const { data: relationName } = useQuery(
-    ['kioskPatientDataDisplay', config?.column, field.value],
-    () => getDisplayValue(field.value, config),
-    { enabled: isRelation && Boolean(field.value) },
-  );
+  const relationName = useRelationName(field.value, config?.column, isRelation);
 
   return (
     <ReadOnlyQuestion
       label={label}
       hint={patientRecordHint}
       value={isRelation ? relationName : field.value}
-      placeholder={getTranslation('kiosk.question.notRecorded', 'Not recorded')}
+      placeholder={getTranslation('patientForm.question.notRecorded', 'Not recorded')}
     />
   );
 };

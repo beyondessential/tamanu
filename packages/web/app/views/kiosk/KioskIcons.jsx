@@ -1,5 +1,14 @@
 import React from 'react';
 
+import { FormBackIcon, FormCheckIcon, FormInfoIcon, FormNextIcon } from '@tamanu/ui-components';
+
+export {
+  FormBackIcon as BackIcon,
+  FormCheckIcon as CheckIcon,
+  FormInfoIcon as InfoIcon,
+  FormNextIcon as NextIcon,
+};
+
 const Svg = ({ children, ...props }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...props}>
     {children}
@@ -18,12 +27,6 @@ export const HelpIcon = props => (
     <circle cx="12" cy="12" r="10" {...stroke} strokeWidth="2" />
     <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5" {...stroke} strokeWidth="2" />
     <circle cx="12" cy="17.5" r="1.2" fill="currentColor" />
-  </Svg>
-);
-
-export const CheckIcon = props => (
-  <Svg {...props}>
-    <path d="M5 12.5l4.5 4.5L19 7.5" {...stroke} strokeWidth="2.6" />
   </Svg>
 );
 
@@ -70,14 +73,6 @@ export const AlertIcon = props => (
   </Svg>
 );
 
-export const InfoIcon = props => (
-  <Svg {...props}>
-    <circle cx="12" cy="12" r="9.5" {...stroke} strokeWidth="1.8" />
-    <path d="M12 11v5.5" {...stroke} strokeWidth="2" />
-    <circle cx="12" cy="7.7" r="1.2" fill="currentColor" />
-  </Svg>
-);
-
 export const ChevronDownIcon = props => (
   <Svg {...props}>
     <path d="M6 9.5l6 6 6-6" {...stroke} strokeWidth="2.2" />
@@ -88,18 +83,6 @@ export const ClockIcon = props => (
   <Svg {...props}>
     <circle cx="12" cy="12" r="9.5" {...stroke} strokeWidth="1.8" />
     <path d="M12 7v5.5l3.5 2" {...stroke} strokeWidth="1.8" />
-  </Svg>
-);
-
-export const BackIcon = props => (
-  <Svg {...props}>
-    <path d="M14.5 6l-6 6 6 6" {...stroke} strokeWidth="2.2" />
-  </Svg>
-);
-
-export const NextIcon = props => (
-  <Svg {...props}>
-    <path d="M9.5 6l6 6-6 6" {...stroke} strokeWidth="2.2" />
   </Svg>
 );
 

@@ -2,11 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { SETTING_KEYS } from '@tamanu/constants';
-import { FILTER_PHOTOS, SignatureField } from '@tamanu/ui-components';
 
-import { TranslatedText } from '../../../../components';
-import { useSettings } from '../../../../contexts/Settings';
-import { ErrorMessage, scaled, SecondaryButton } from '../../kioskStyles';
+import { useSettings } from '../../../contexts';
+import { FILTER_PHOTOS } from '../../Field/FileChooserField';
+import { SignatureField } from '../../Field/signature';
+import { TranslatedText } from '../../Translation';
+import { FormCameraIcon } from '../icons';
+import { FormErrorMessage, formScaled, FormSecondaryButton } from '../styles';
 import { Question, setFieldValue } from './QuestionLayout';
 
 const DEFAULT_MAX_PHOTO_MB = 10;
@@ -17,31 +19,18 @@ const PhotoArea = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: ${scaled(12)};
-  min-height: ${scaled(150)};
-  padding: ${scaled(16)};
-  border: 2px dashed var(--kiosk-outline);
-  border-radius: 14px;
+  gap: ${formScaled(12)};
+  min-height: ${formScaled(150)};
+  padding: ${formScaled(16)};
+  border: 2px dashed var(--pf-outline);
+  border-radius: var(--pf-radius, 14px);
 
   img {
     max-width: 100%;
-    max-height: ${scaled(240)};
+    max-height: ${formScaled(240)};
     border-radius: 10px;
   }
 `;
-
-const CameraIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path
-      d="M4 8.5A2 2 0 0 1 6 6.5h2l1.5-2h5l1.5 2h2a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
-    <circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-  </svg>
-);
 
 /** A preview address for the chosen photo, released when it's replaced or the question closes. */
 const usePreviewUrl = file => {
@@ -51,8 +40,8 @@ const usePreviewUrl = file => {
 };
 
 /**
- * Opens the tablet's camera. The answer is the photo file, as with the shared photo field, and
- * is uploaded with the rest of the form at check-in.
+ * Opens the device's camera. The answer is the photo file, as with the shared photo field, and
+ * is uploaded when the form is submitted.
  */
 export const PhotoQuestion = ({ field, label, required, error, helperText }) => {
   const { getSetting } = useSettings();
@@ -74,14 +63,14 @@ export const PhotoQuestion = ({ field, label, required, error, helperText }) => 
     <Question {...{ label, required, error, helperText }}>
       <PhotoArea>
         {previewUrl && <img src={previewUrl} alt="" />}
-        <SecondaryButton onClick={() => inputRef.current.click()}>
-          <CameraIcon />
+        <FormSecondaryButton onClick={() => inputRef.current.click()}>
+          <FormCameraIcon />
           {previewUrl ? (
-            <TranslatedText stringId="kiosk.question.photo.retake" fallback="Retake photo" />
+            <TranslatedText stringId="patientForm.question.photo.retake" fallback="Retake photo" />
           ) : (
-            <TranslatedText stringId="kiosk.question.photo.take" fallback="Take photo" />
+            <TranslatedText stringId="patientForm.question.photo.take" fallback="Take photo" />
           )}
-        </SecondaryButton>
+        </FormSecondaryButton>
         <input
           ref={inputRef}
           type="file"
@@ -92,19 +81,19 @@ export const PhotoQuestion = ({ field, label, required, error, helperText }) => 
         />
       </PhotoArea>
       {isTooLarge && (
-        <ErrorMessage role="alert">
+        <FormErrorMessage role="alert">
           <TranslatedText
-            stringId="kiosk.question.photo.tooLarge"
+            stringId="patientForm.question.photo.tooLarge"
             fallback="That photo is too large. Please try again."
           />
-        </ErrorMessage>
+        </FormErrorMessage>
       )}
     </Question>
   );
 };
 
 const SignatureFrame = styled.div`
-  /* The shared field's own label, instructions and frame give way to the kiosk's */
+  /* The shared field's own label, instructions and frame give way to the question's */
   > label {
     display: none;
   }
@@ -120,25 +109,25 @@ const SignatureFrame = styled.div`
 
   [data-testid='signaturefield-draw-area'] {
     width: 100%;
-    border-radius: 14px;
-    border-color: var(--kiosk-outline);
-    background: var(--kiosk-surface-alt);
-    font-size: ${scaled(18)};
+    border-radius: var(--pf-radius, 14px);
+    border-color: var(--pf-outline);
+    background: var(--pf-surface-alt);
+    font-size: ${formScaled(18)};
   }
 
   [data-testid='signaturefield-clear'] {
     align-self: flex-end;
-    min-height: ${scaled(44)};
-    font-size: ${scaled(17)};
+    min-height: ${formScaled(44)};
+    font-size: ${formScaled(17)};
   }
 `;
 
-/** The shared signature field, with the kiosk's question text and a hint written for touch. */
+/** The shared signature field, with the question text and a hint written for touch. */
 export const SignatureQuestion = ({ label, required, ...props }) => (
   <Question
     label={label}
     required={required}
-    hint={<TranslatedText stringId="kiosk.question.signature" fallback="Sign with your finger" />}
+    hint={<TranslatedText stringId="patientForm.question.signature" fallback="Sign with your finger" />}
   >
     <SignatureFrame>
       <SignatureField {...props} required={required} />

@@ -4,12 +4,14 @@ import { isValidElement } from 'react';
 import { APPOINTMENT_STATUSES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 import {
-  formatDateOfBirth,
-  toDateOfBirth,
+  formatLongDate,
+  getVisibleAnswers,
   toDateParts,
   toDateString,
-} from '../../../app/views/kiosk/kioskDates';
-import { getVisibleAnswers, toKioskForm } from '../../../app/views/kiosk/forms/kioskForms';
+} from '@tamanu/ui-components';
+
+import { toDateOfBirth } from '../../../app/views/kiosk/kioskDates';
+import { toKioskForm } from '../../../app/views/kiosk/forms/kioskQuestions';
 import {
   FORM_STATUSES,
   initialSession,
@@ -50,7 +52,7 @@ describe('Kiosk dates', () => {
 
   it('shows dates of birth with the month as a word', () => {
     const getTranslation = (_stringId, fallback) => fallback;
-    expect(formatDateOfBirth('1986-03-14', getTranslation)).toEqual('14 March 1986');
+    expect(formatLongDate('1986-03-14', getTranslation)).toEqual('14 March 1986');
   });
 });
 

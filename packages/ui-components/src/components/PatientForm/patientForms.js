@@ -1,19 +1,21 @@
 import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { checkVisibility } from '@tamanu/ui-components';
 
-import { isKioskQuestionType } from './kioskQuestions';
+import { checkVisibility } from '../../utils';
 
 /**
- * Prepares a survey for the kiosk: the questions it shows (current, and of a type the kiosk
- * supports) grouped into pages. Submission date is filled in automatically, so it isn't shown.
+ * Prepares a survey for a patient to fill in: the questions it shows (current, and of a type the
+ * app supports) grouped into pages. Submission date is filled in automatically, so it isn't shown.
+ *
+ * @param {object} survey With its components
+ * @param {(type: string) => boolean} isSupportedQuestionType From `createPatientFormQuestionTypes`
  */
-export const toKioskForm = survey => {
+export const toPatientForm = (survey, isSupportedQuestionType) => {
   const currentComponents = survey.components.filter(
     component => component.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const shownComponents = currentComponents.filter(
     ({ dataElement }) =>
-      isKioskQuestionType(dataElement.type) &&
+      isSupportedQuestionType(dataElement.type) &&
       dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE,
   );
   const pageIndexes = [...new Set(shownComponents.map(({ screenIndex }) => screenIndex))].sort(

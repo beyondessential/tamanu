@@ -1,95 +1,89 @@
 import React, { useId } from 'react';
 import styled from 'styled-components';
 
-import { TranslatedText } from '../../../../components';
-import { useTranslation } from '../../../../contexts/Translation';
-import { CheckIcon } from '../../KioskIcons';
-import { ErrorMessage, scaled } from '../../kioskStyles';
-import {
-  ErrorOutline,
-  Question,
-  QuestionSelect,
-  RequiredMark,
-  setFieldValue,
-} from './QuestionLayout';
+import { useTranslation } from '../../../contexts';
+import { TranslatedText } from '../../Translation';
+import { FormCheckIcon } from '../icons';
+import { FormErrorMessage, formScaled, FormSelect } from '../styles';
+import { ErrorOutline, Question, RequiredMark, setFieldValue } from './QuestionLayout';
 
 const ButtonRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: ${scaled(10)};
+  gap: ${formScaled(10)};
 `;
 
 const PillOption = styled.button.attrs({ type: 'button' })`
-  min-width: ${scaled(120)};
-  min-height: ${scaled(56)};
-  padding: 0 ${scaled(24)};
+  min-width: ${formScaled(120)};
+  min-height: ${formScaled(56)};
+  padding: 0 ${formScaled(24)};
   border: none;
-  border-radius: 14px;
-  background: var(--kiosk-option);
-  box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-outline);
-  color: var(--kiosk-text);
-  font-size: ${scaled(18)};
+  border-radius: var(--pf-radius, 14px);
+  background: var(--pf-option);
+  box-shadow: inset 0 0 0 var(--pf-border) var(--pf-outline);
+  color: var(--pf-text);
+  font-size: ${formScaled(18)};
   font-weight: 500;
   cursor: pointer;
 
   &[aria-checked='true'] {
-    background: var(--kiosk-primary);
-    box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-primary);
-    color: var(--kiosk-on-primary);
+    background: var(--pf-primary);
+    box-shadow: inset 0 0 0 var(--pf-border) var(--pf-primary);
+    color: var(--pf-on-primary);
   }
 `;
 
 const ListOption = styled.button.attrs({ type: 'button' })`
   width: 100%;
-  min-height: ${scaled(58)};
-  padding: ${scaled(10)} ${scaled(18)};
+  min-height: ${formScaled(58)};
+  padding: ${formScaled(10)} ${formScaled(18)};
   display: flex;
   align-items: center;
-  gap: ${scaled(14)};
+  gap: ${formScaled(14)};
   border: none;
-  border-radius: 14px;
-  background: var(--kiosk-surface);
-  box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-outline);
-  color: var(--kiosk-text);
-  font-size: ${scaled(18)};
+  border-radius: var(--pf-radius, 14px);
+  background: var(--pf-surface);
+  box-shadow: inset 0 0 0 var(--pf-border) var(--pf-outline);
+  color: var(--pf-text);
+  font-size: ${formScaled(18)};
   text-align: left;
   cursor: pointer;
 
   & + & {
-    margin-top: ${scaled(8)};
+    margin-top: ${formScaled(8)};
   }
 
   &[aria-checked='true'] {
-    background: var(--kiosk-primary-tint);
-    box-shadow: inset 0 0 0 2px var(--kiosk-primary);
-    color: var(--kiosk-heading);
+    background: var(--pf-primary-tint);
+    box-shadow: inset 0 0 0 2px var(--pf-primary);
+    color: var(--pf-heading);
     font-weight: 500;
   }
 `;
 
 const RadioMark = styled.span`
-  width: ${scaled(24)};
-  height: ${scaled(24)};
+  width: ${formScaled(24)};
+  height: ${formScaled(24)};
   flex: none;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 2px var(--kiosk-outline);
+  box-shadow: inset 0 0 0 2px var(--pf-outline);
 
   [aria-checked='true'] > & {
-    box-shadow: inset 0 0 0 ${scaled(7)} var(--kiosk-primary);
+    box-shadow: inset 0 0 0 ${formScaled(7)} var(--pf-primary);
   }
 `;
 
 const CheckMark = styled.span`
-  width: ${scaled(26)};
-  height: ${scaled(26)};
+  width: ${formScaled(26)};
+  height: ${formScaled(26)};
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 7px;
-  box-shadow: inset 0 0 0 2px var(--kiosk-outline);
-  background: var(--kiosk-surface);
-  color: var(--kiosk-on-primary);
+  box-shadow: inset 0 0 0 2px var(--pf-outline);
+  background: var(--pf-surface);
+  color: var(--pf-on-primary);
 
   svg {
     display: none;
@@ -98,7 +92,7 @@ const CheckMark = styled.span`
   }
 
   [aria-checked='true'] > & {
-    background: var(--kiosk-primary);
+    background: var(--pf-primary);
     box-shadow: none;
 
     svg {
@@ -109,7 +103,7 @@ const CheckMark = styled.span`
 
 const Tick = () => (
   <CheckMark>
-    <CheckIcon />
+    <FormCheckIcon />
   </CheckMark>
 );
 
@@ -121,7 +115,7 @@ const DropdownQuestion = ({ field, label, required, error, helperText, options }
   const { getTranslation } = useTranslation();
   return (
     <Question {...{ label, required, error, helperText, inputId }}>
-      <QuestionSelect
+      <FormSelect
         id={inputId}
         name={field.name}
         value={field.value ?? ''}
@@ -130,14 +124,14 @@ const DropdownQuestion = ({ field, label, required, error, helperText, options }
         aria-required={required}
       >
         <option value="" disabled hidden>
-          {getTranslation('kiosk.question.select', 'Select')}
+          {getTranslation('patientForm.question.select', 'Select')}
         </option>
         {options.map(({ value, label: optionLabel }) => (
           <option key={value} value={value}>
             {optionLabel}
           </option>
         ))}
-      </QuestionSelect>
+      </FormSelect>
     </Question>
   );
 };
@@ -195,7 +189,7 @@ export const MultipleChoiceQuestion = ({
   return (
     <Question
       {...{ label, required, error, helperText }}
-      hint={<TranslatedText stringId="kiosk.question.selectAll" fallback="Select all that apply" />}
+      hint={<TranslatedText stringId="patientForm.question.selectAll" fallback="Select all that apply" />}
     >
       <ErrorOutline role="group" data-invalid={error}>
         {options.map(({ value, label: optionLabel }) => (
@@ -242,7 +236,7 @@ export const YesNoQuestion = ({ field, label, required, error, helperText }) => 
 const ConsentOption = styled(ListOption)`
   align-items: flex-start;
   min-height: 0;
-  padding: ${scaled(4)} 0;
+  padding: ${formScaled(4)} 0;
   box-shadow: none;
   background: none;
   line-height: 1.45;
@@ -251,7 +245,7 @@ const ConsentOption = styled(ListOption)`
     background: none;
     box-shadow: none;
     font-weight: normal;
-    color: var(--kiosk-text);
+    color: var(--pf-text);
   }
 `;
 
@@ -270,6 +264,6 @@ export const CheckboxQuestion = ({ field, label, required, error, helperText }) 
         {required && <RequiredMark aria-hidden="true"> *</RequiredMark>}
       </span>
     </ConsentOption>
-    {error && helperText && <ErrorMessage role="alert">{helperText}</ErrorMessage>}
+    {error && helperText && <FormErrorMessage role="alert">{helperText}</FormErrorMessage>}
   </>
 );

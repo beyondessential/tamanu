@@ -1,54 +1,47 @@
 import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 
-import { useDateTime } from '@tamanu/ui-components';
-
-import { TranslatedText } from '../../../../components';
-import { useTranslation } from '../../../../contexts/Translation';
-import { DateParts, digitsOnly, PartsGrid } from '../../DateParts';
-import { toDateParts, toDateString } from '../../kioskDates';
-import { scaled, SubLabel } from '../../kioskStyles';
-import { Question, QuestionInput, QuestionSelect, setFieldValue } from './QuestionLayout';
-import { toTimeParts, toTimeString } from './timeParts';
+import { useDateTime, useTranslation } from '../../../contexts';
+import { TranslatedText } from '../../Translation';
+import { DateParts, digitsOnly, PartsGrid } from '../DateParts';
+import { toDateParts, toDateString } from '../dates';
+import { formScaled, FormInput, FormSubLabel } from '../styles';
+import { toTimeParts, toTimeString } from '../timeParts';
+import { Question, setFieldValue } from './QuestionLayout';
 
 const Segmented = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: ${scaled(4)};
-  min-height: ${scaled(60)};
-  padding: ${scaled(4)};
+  gap: ${formScaled(4)};
+  min-height: ${formScaled(60)};
+  padding: ${formScaled(4)};
   border-radius: 14px;
-  background: var(--kiosk-option);
-  box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-option-edge);
+  background: var(--pf-option);
+  box-shadow: inset 0 0 0 var(--pf-border) var(--pf-option-edge);
 `;
 
 const SegmentButton = styled.button.attrs({ type: 'button' })`
   border: none;
   border-radius: 11px;
   background: transparent;
-  color: var(--kiosk-text-secondary);
-  font-size: ${scaled(18)};
+  color: var(--pf-text-secondary);
+  font-size: ${formScaled(18)};
   font-weight: 500;
   cursor: pointer;
 
   &[aria-pressed='true'] {
-    background: var(--kiosk-surface);
-    color: var(--kiosk-primary);
-    box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-outline);
+    background: var(--pf-surface);
+    color: var(--pf-primary);
+    box-shadow: inset 0 0 0 var(--pf-border) var(--pf-outline);
   }
 `;
 
 /** The date and time boxes of a question, kept to a sensible width. */
 const PartsStack = styled.div`
   display: grid;
-  gap: ${scaled(12)};
-  max-width: ${scaled(520)};
+  gap: ${formScaled(12)};
+  max-width: ${formScaled(520)};
 `;
-
-/** Dates in forms use the question-sized boxes. */
-const DateQuestionParts = props => (
-  <DateParts Input={QuestionInput} Select={QuestionSelect} {...props} />
-);
 
 /** Hour, minute and am/pm. */
 const TimeParts = ({ parts, onChange, error }) => {
@@ -57,10 +50,10 @@ const TimeParts = ({ parts, onChange, error }) => {
   return (
     <PartsGrid>
       <div>
-        <SubLabel htmlFor={`${idPrefix}-hour`}>
-          <TranslatedText stringId="kiosk.time.hour" fallback="Hour" />
-        </SubLabel>
-        <QuestionInput
+        <FormSubLabel htmlFor={`${idPrefix}-hour`}>
+          <TranslatedText stringId="patientForm.time.hour" fallback="Hour" />
+        </FormSubLabel>
+        <FormInput
           id={`${idPrefix}-hour`}
           value={parts.hour}
           onChange={event => onChange({ ...parts, hour: digitsOnly(event.target.value) })}
@@ -71,10 +64,10 @@ const TimeParts = ({ parts, onChange, error }) => {
         />
       </div>
       <div>
-        <SubLabel htmlFor={`${idPrefix}-minute`}>
-          <TranslatedText stringId="kiosk.time.minute" fallback="Minute" />
-        </SubLabel>
-        <QuestionInput
+        <FormSubLabel htmlFor={`${idPrefix}-minute`}>
+          <TranslatedText stringId="patientForm.time.minute" fallback="Minute" />
+        </FormSubLabel>
+        <FormInput
           id={`${idPrefix}-minute`}
           value={parts.minute}
           onChange={event => onChange({ ...parts, minute: digitsOnly(event.target.value) })}
@@ -85,8 +78,8 @@ const TimeParts = ({ parts, onChange, error }) => {
         />
       </div>
       <div>
-        <SubLabel as="div">&nbsp;</SubLabel>
-        <Segmented role="group" aria-label={getTranslation('kiosk.time.period', 'am or pm')}>
+        <FormSubLabel as="div">&nbsp;</FormSubLabel>
+        <Segmented role="group" aria-label={getTranslation('patientForm.time.period', 'am or pm')}>
           {['am', 'pm'].map(period => (
             <SegmentButton
               key={period}
@@ -94,8 +87,8 @@ const TimeParts = ({ parts, onChange, error }) => {
               onClick={() => onChange({ ...parts, period })}
             >
               {period === 'am'
-                ? getTranslation('kiosk.time.am', 'am')
-                : getTranslation('kiosk.time.pm', 'pm')}
+                ? getTranslation('patientForm.time.am', 'am')
+                : getTranslation('patientForm.time.pm', 'pm')}
             </SegmentButton>
           ))}
         </Segmented>
@@ -143,13 +136,13 @@ export const DateQuestion = ({ field, label, required, error, helperText }) => {
     isPartlyEntered,
     error,
     helperText,
-    'kiosk.date.incomplete',
+    'patientForm.date.incomplete',
     'Enter the full date',
   );
   return (
     <Question {...{ label, required, error }} helperText={message}>
       <PartsStack>
-        <DateQuestionParts parts={parts} onChange={setParts} error={error} />
+        <DateParts parts={parts} onChange={setParts} error={error} />
       </PartsStack>
     </Question>
   );
@@ -166,7 +159,7 @@ export const TimeQuestion = ({ field, label, required, error, helperText }) => {
     isPartlyEntered,
     error,
     helperText,
-    'kiosk.time.incomplete',
+    'patientForm.time.incomplete',
     'Enter the full time',
   );
   return (
@@ -200,13 +193,13 @@ export const DateTimeQuestion = ({ field, label, required, error, helperText }) 
     isPartlyEntered,
     error,
     helperText,
-    'kiosk.dateTime.incomplete',
+    'patientForm.dateTime.incomplete',
     'Enter the full date and time',
   );
   return (
     <Question {...{ label, required, error }} helperText={message}>
       <PartsStack>
-        <DateQuestionParts parts={parts} onChange={setParts} error={error} />
+        <DateParts parts={parts} onChange={setParts} error={error} />
         <TimeParts parts={parts} onChange={setParts} error={error} />
       </PartsStack>
     </Question>

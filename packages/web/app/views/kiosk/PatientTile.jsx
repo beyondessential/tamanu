@@ -2,11 +2,10 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { SEX_LABELS } from '@tamanu/constants';
-import { useDateTime } from '@tamanu/ui-components';
+import { formatLongDate, useDateTime } from '@tamanu/ui-components';
 
 import { TranslatedEnum, TranslatedText } from '../../components';
 import { useTranslation } from '../../contexts/Translation';
-import { formatDateOfBirth } from './kioskDates';
 import { CalendarIcon, CheckIcon } from './KioskIcons';
 import { scaled } from './kioskStyles';
 
@@ -185,7 +184,7 @@ const TileContents = ({ appointment, isCompact, hideAppointment = false }) => {
               fallback="Date of birth"
             />
           </dt>
-          <dd>{formatDateOfBirth(patient.dateOfBirth, getTranslation)}</dd>
+          <dd>{formatLongDate(patient.dateOfBirth, getTranslation)}</dd>
         </div>
         <div>
           <dt>

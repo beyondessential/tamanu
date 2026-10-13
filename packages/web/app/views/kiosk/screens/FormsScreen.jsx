@@ -1,7 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
-import { getAnswersFromData, TranslatedReferenceData, useDateTime } from '@tamanu/ui-components';
+import {
+  getAnswersFromData,
+  getVisibleAnswers,
+  TranslatedReferenceData,
+  useDateTime,
+} from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
@@ -19,7 +24,7 @@ import {
   SummaryList,
   Title,
 } from '../kioskStyles';
-import { getVisibleAnswers, toKioskForm } from '../forms/kioskForms';
+import { toKioskForm } from '../forms/kioskQuestions';
 import { KioskSurveyForm } from '../forms/KioskSurveyForm';
 
 const Split = styled.div`

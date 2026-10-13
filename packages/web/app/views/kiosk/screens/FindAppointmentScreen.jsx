@@ -1,9 +1,10 @@
 import React, { useId, useState } from 'react';
 import styled from 'styled-components';
 
+import { DateParts } from '@tamanu/ui-components';
+
 import { TranslatedText } from '../../../components';
 import { useFindKioskAppointmentsMutation } from '../kioskApi';
-import { DateParts } from '../DateParts';
 import { toDateOfBirth } from '../kioskDates';
 import { BackIcon } from '../KioskIcons';
 import { useKioskSession } from '../KioskSession';
@@ -12,6 +13,7 @@ import {
   ErrorMessage,
   FieldLabel,
   KioskInput,
+  KioskSelect,
   Lead,
   Panel,
   PrimaryButton,
@@ -121,6 +123,8 @@ export const FindAppointmentScreen = ({ onEndSession }) => {
             <DateParts
               parts={search}
               onChange={setSearch}
+              Input={KioskInput}
+              Select={KioskSelect}
               partProps={{
                 day: { 'data-testid': 'kiosk-dob-day' },
                 month: { 'data-testid': 'kiosk-dob-month' },

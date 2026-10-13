@@ -5,11 +5,10 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { DateTimeProviderContext } from '@tamanu/ui-components';
+import { DateTimeProviderContext, toTimeParts, toTimeString } from '@tamanu/ui-components';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 import { getKioskComponentForQuestionType } from '../../../app/views/kiosk/forms/kioskQuestions';
-import { toTimeParts, toTimeString } from '../../../app/views/kiosk/forms/questions/timeParts';
 
 const T = PROGRAM_DATA_ELEMENT_TYPES;
 

@@ -3,9 +3,8 @@ import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
-import { SurveyQuestionAutocompleteField } from '../../../components/Field';
-import { InfoIcon } from '../KioskIcons';
-import { scaled } from '../kioskStyles';
+import { FormInfoIcon } from './icons';
+import { formScaled } from './styles';
 import {
   CheckboxQuestion,
   MultipleChoiceQuestion,
@@ -25,39 +24,40 @@ import {
 
 const InstructionBox = styled.div`
   display: flex;
-  gap: ${scaled(14)};
-  padding: ${scaled(18)} ${scaled(20)};
-  border-radius: 14px;
-  background: var(--kiosk-info-tint);
-  border: var(--kiosk-border) solid var(--kiosk-info-tint);
-  font-size: ${scaled(18)};
+  gap: ${formScaled(14)};
+  padding: ${formScaled(18)} ${formScaled(20)};
+  border-radius: var(--pf-radius, 14px);
+  background: var(--pf-info-tint);
+  border: var(--pf-border) solid var(--pf-info-tint);
+  font-size: ${formScaled(18)};
   line-height: 1.45;
 
   svg {
-    width: ${scaled(24)};
-    height: ${scaled(24)};
+    width: ${formScaled(24)};
+    height: ${formScaled(24)};
     margin-top: 1px;
     flex: none;
-    color: var(--kiosk-info);
+    color: var(--pf-info);
   }
 `;
 
 const InstructionQuestion = ({ label, helperText }) => (
   <InstructionBox>
-    <InfoIcon />
+    <FormInfoIcon />
     <div>
       {label}
-      {helperText && <Hint style={{ margin: `${scaled(6)} 0 0` }}>{helperText}</Hint>}
+      {helperText && <Hint style={{ margin: `${formScaled(6)} 0 0` }}>{helperText}</Hint>}
     </div>
   </InstructionBox>
 );
 
 /**
- * How each question type appears at the kiosk. Every control stores its answer in the same
- * format as the field the web uses for that type, so responses are identical wherever they're
- * filled in. Types not listed are left out of kiosk forms.
+ * How each question type appears in a form a patient fills in. Every control stores its answer
+ * in the same format as the field staff use for that type, so responses are identical wherever
+ * they're filled in. Search questions use each app's own field, as the two look up options
+ * differently.
  */
-const KIOSK_QUESTION_COMPONENTS = {
+const PATIENT_FORM_QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: TextQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberQuestion,
@@ -66,7 +66,6 @@ const KIOSK_QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultipleChoiceQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: YesNoQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: CheckboxQuestion,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: DateTimeQuestion,
   [PROGRAM_DATA_ELEMENT_TYPES.TIME]: TimeQuestion,
@@ -78,13 +77,31 @@ const KIOSK_QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureQuestion,
 };
 
-export const isKioskQuestionType = type => type in KIOSK_QUESTION_COMPONENTS;
+/** Information rather than a question, so shown on the page without a card around it. */
+export const PLAIN_QUESTION_TYPES = new Set([
+  PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+  PROGRAM_DATA_ELEMENT_TYPES.DISPLAY_TEXT,
+]);
 
-export function getKioskComponentForQuestionType(type, { writeToPatient } = {}) {
-  // Questions that write back to the patient record are answered like their field type
-  const fieldType = writeToPatient?.fieldType;
-  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && isKioskQuestionType(fieldType)) {
-    return KIOSK_QUESTION_COMPONENTS[fieldType];
-  }
-  return KIOSK_QUESTION_COMPONENTS[type];
-}
+/**
+ * The question types an app's patient forms support, and the control for each.
+ *
+ * @param {{ AutocompleteQuestion: import('react').ComponentType }} appQuestions The app's own
+ *   search field, used for autocomplete questions
+ */
+export const createPatientFormQuestionTypes = ({ AutocompleteQuestion }) => {
+  const components = {
+    ...PATIENT_FORM_QUESTION_COMPONENTS,
+    [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: AutocompleteQuestion,
+  };
+  const isSupportedQuestionType = type => type in components;
+  const getComponentForQuestionType = (type, { writeToPatient } = {}) => {
+    // Questions that write back to the patient record are answered like their field type
+    const fieldType = writeToPatient?.fieldType;
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && isSupportedQuestionType(fieldType)) {
+      return components[fieldType];
+    }
+    return components[type];
+  };
+  return { isSupportedQuestionType, getComponentForQuestionType };
+};

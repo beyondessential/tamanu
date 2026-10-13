@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { formatLongDate } from '@tamanu/ui-components';
+
 import { TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
-import { formatDateOfBirth, toDateOfBirth } from '../kioskDates';
+import { toDateOfBirth } from '../kioskDates';
 import { AlertIcon } from '../KioskIcons';
 import { useKioskSession } from '../KioskSession';
 import {
@@ -53,7 +55,7 @@ export const NoMatchScreen = ({ onEndSession }) => {
               fallback="Date of birth"
             />
           </dt>
-          <dd>{dateOfBirth && formatDateOfBirth(dateOfBirth, getTranslation)}</dd>
+          <dd>{dateOfBirth && formatLongDate(dateOfBirth, getTranslation)}</dd>
         </div>
       </SummaryList>
       <CentredActions>

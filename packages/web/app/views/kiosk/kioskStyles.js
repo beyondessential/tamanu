@@ -1,6 +1,14 @@
 import styled, { css, keyframes } from 'styled-components';
 
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  FormErrorMessage,
+  FormInput,
+  FormPrimaryButton,
+  FormSecondaryButton,
+  FormSelect,
+  FormSubLabel,
+  TAMANU_COLORS,
+} from '@tamanu/ui-components';
 
 /**
  * Kiosk sizes scale with the patient's chosen text size. Every font size and touch target is
@@ -90,9 +98,37 @@ const highContrastPalette = css`
   --kiosk-dialog-edge: #ffffff;
 `;
 
+/** The shared patient form controls take the kiosk's sizes and colours. */
+const patientFormAliases = css`
+  --pf-scale: var(--kiosk-scale);
+  --pf-radius: 14px;
+  --pf-page: var(--kiosk-page);
+  --pf-surface: var(--kiosk-surface);
+  --pf-surface-alt: var(--kiosk-surface-alt);
+  --pf-option: var(--kiosk-option);
+  --pf-text: var(--kiosk-text);
+  --pf-text-secondary: var(--kiosk-text-secondary);
+  --pf-text-tertiary: var(--kiosk-text-tertiary);
+  --pf-heading: var(--kiosk-heading);
+  --pf-primary: var(--kiosk-primary);
+  --pf-on-primary: var(--kiosk-on-primary);
+  --pf-primary-tint: var(--kiosk-primary-tint);
+  --pf-primary-muted: var(--kiosk-primary-muted);
+  --pf-outline: var(--kiosk-outline);
+  --pf-line: var(--kiosk-line);
+  --pf-success: var(--kiosk-success);
+  --pf-success-tint: var(--kiosk-success-tint);
+  --pf-alert: var(--kiosk-alert);
+  --pf-info: var(--kiosk-info);
+  --pf-info-tint: var(--kiosk-info-tint);
+  --pf-border: var(--kiosk-border);
+  --pf-option-edge: var(--kiosk-option-edge);
+`;
+
 export const KioskRoot = styled.div`
   ${({ $isHighContrast }) => ($isHighContrast ? highContrastPalette : standardPalette)}
   --kiosk-scale: ${({ $scale }) => $scale};
+  ${patientFormAliases}
 
   position: relative;
   display: flex;
@@ -226,62 +262,9 @@ export const CentredActions = styled.div`
   gap: ${scaled(14)};
 `;
 
-const buttonBase = css`
-  min-height: ${scaled(64)};
-  padding: ${scaled(8)} ${scaled(36)};
-  border-radius: 14px;
-  font-size: ${scaled(20)};
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${scaled(10)};
-  cursor: pointer;
-  transition:
-    background-color 120ms,
-    transform 80ms;
+export const PrimaryButton = FormPrimaryButton;
 
-  svg {
-    width: ${scaled(22)};
-    height: ${scaled(22)};
-    flex: none;
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
-
-  ${({ $wide }) =>
-    $wide &&
-    css`
-      min-width: min(${scaled(280)}, 100%);
-    `}
-`;
-
-export const PrimaryButton = styled.button.attrs(({ type }) => ({ type: type ?? 'button' }))`
-  ${buttonBase}
-  background: var(--kiosk-primary);
-  color: var(--kiosk-on-primary);
-  border: var(--kiosk-border) solid var(--kiosk-primary);
-
-  &:disabled {
-    cursor: default;
-    background: var(--kiosk-primary-muted);
-    border-color: var(--kiosk-primary-muted);
-  }
-`;
-
-export const SecondaryButton = styled.button.attrs(({ type }) => ({ type: type ?? 'button' }))`
-  ${buttonBase}
-  background: var(--kiosk-surface);
-  color: var(--kiosk-primary);
-  border: var(--kiosk-border) solid var(--kiosk-primary);
-
-  &:disabled {
-    cursor: default;
-    opacity: 0.4;
-  }
-`;
+export const SecondaryButton = FormSecondaryButton;
 
 export const StateIcon = styled.div`
   width: ${scaled(88)};
@@ -355,66 +338,24 @@ export const FieldLabel = styled.label`
   font-weight: 500;
 `;
 
-export const SubLabel = styled.label`
-  display: block;
-  margin-bottom: ${scaled(6)};
-  font-size: ${scaled(14)};
-  color: var(--kiosk-text-tertiary);
-`;
+export const SubLabel = FormSubLabel;
 
-const inputBase = css`
-  width: 100%;
+/** The kiosk's own fields, like the search for an appointment, are larger than form questions. */
+const kioskFieldSize = css`
   min-height: ${scaled(68)};
-  padding: 0 ${scaled(22)};
-  border: none;
-  border-radius: 14px;
-  background: var(--kiosk-surface);
-  box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-outline);
-  color: var(--kiosk-text);
-  font-family: inherit;
   font-size: ${scaled(24)};
-  outline: none;
-  appearance: none;
-
-  &::placeholder {
-    color: var(--kiosk-text-tertiary);
-  }
-
-  &:focus {
-    box-shadow: inset 0 0 0 2px var(--kiosk-primary);
-  }
-
-  &[aria-invalid='true'] {
-    box-shadow: inset 0 0 0 2px var(--kiosk-alert);
-  }
-
-  &[readonly] {
-    background: var(--kiosk-option);
-    box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-option-edge);
-    color: var(--kiosk-text-secondary);
-  }
 `;
 
-export const KioskInput = styled.input`
-  ${inputBase}
+export const KioskInput = styled(FormInput)`
+  ${kioskFieldSize}
+  padding: 0 ${scaled(22)};
 `;
 
-const CHEVRON =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9.5l6 6 6-6' fill='none' stroke='%23888888' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E";
-
-export const KioskSelect = styled.select`
-  ${inputBase}
+export const KioskSelect = styled(FormSelect)`
+  ${kioskFieldSize}
+  padding-left: ${scaled(22)};
   padding-right: ${scaled(56)};
-  background-image: url('${CHEVRON}');
-  background-repeat: no-repeat;
   background-position: right ${scaled(20)} center;
-  background-size: ${scaled(24)};
-  cursor: pointer;
 `;
 
-export const ErrorMessage = styled.div`
-  margin-top: ${scaled(8)};
-  color: var(--kiosk-alert);
-  font-size: ${scaled(15)};
-  font-weight: 500;
-`;
+export const ErrorMessage = FormErrorMessage;

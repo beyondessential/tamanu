@@ -35,7 +35,11 @@ const DIALOGS = /** @type {const} */ ({
 const DEFAULT_DISPLAY = { textSize: 'standard', isHighContrast: false };
 
 /** Extends the app's theme with the text size, which decides when the layout turns compact. */
-const kioskTheme = kioskScale => outerTheme => ({ ...outerTheme, kioskScale });
+const kioskTheme = kioskScale => outerTheme => ({
+  ...outerTheme,
+  kioskScale,
+  formScale: kioskScale,
+});
 
 const SCREENS = {
   [KIOSK_STEPS.LANDING]: LandingScreen,
