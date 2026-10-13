@@ -16,7 +16,7 @@ import {
 
 const TileGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(${scaled(380)}, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(${scaled(320)}, 100%), 1fr));
   gap: ${scaled(20)};
 `;
 

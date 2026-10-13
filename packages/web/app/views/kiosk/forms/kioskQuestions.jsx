@@ -144,9 +144,16 @@ const NumberQuestion = ({ field, label, required, error, helperText, disabled })
 
 const ReadOnlyQuestion = ({ field, label, hint }) => {
   const inputId = useId();
+  const { getTranslation } = useTranslation();
   return (
     <Question label={label} inputId={inputId} hint={hint}>
-      <QuestionInput id={inputId} value={field.value ?? ''} readOnly tabIndex={-1} />
+      <QuestionInput
+        id={inputId}
+        value={field.value ?? ''}
+        placeholder={getTranslation('kiosk.question.notRecorded', 'Not recorded')}
+        readOnly
+        tabIndex={-1}
+      />
     </Question>
   );
 };

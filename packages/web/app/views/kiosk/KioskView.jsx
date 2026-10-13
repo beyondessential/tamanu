@@ -1,5 +1,6 @@
 // spec: KIOSK
 import React, { useCallback, useState } from 'react';
+import { ThemeProvider } from 'styled-components';
 
 import { TranslatedText } from '../../components';
 import { useAuth } from '../../contexts/Auth';
@@ -32,6 +33,9 @@ const DIALOGS = /** @type {const} */ ({
 });
 
 const DEFAULT_DISPLAY = { textSize: 'standard', isHighContrast: false };
+
+/** Extends the app's theme with the text size, which decides when the layout turns compact. */
+const kioskTheme = kioskScale => outerTheme => ({ ...outerTheme, kioskScale });
 
 const SCREENS = {
   [KIOSK_STEPS.LANDING]: LandingScreen,
@@ -104,54 +108,57 @@ const Kiosk = () => {
     });
   const currentLanguage = languages.find(({ code }) => code === storedLanguage);
 
+  const scale = TEXT_SIZE_SCALES[display.textSize];
   return (
-    <KioskRoot
-      $scale={TEXT_SIZE_SCALES[display.textSize]}
-      $isHighContrast={display.isHighContrast}
-      onPointerDownCapture={inactivity.recordActivity}
-      onKeyDownCapture={inactivity.recordActivity}
-      onScrollCapture={inactivity.recordActivity}
-      data-testid="kiosk"
-    >
-      <KioskHeader
-        isHighContrast={display.isHighContrast}
-        facilityName={facilityName}
-        languageName={languages.length > 1 ? currentLanguage?.name : null}
-        isStartOverShown={isSessionOpen}
-        onStartOver={() => setOpenDialog(DIALOGS.START_OVER)}
-        onOpenDisplaySettings={() => setOpenDialog(DIALOGS.DISPLAY_SETTINGS)}
-        onOpenHelp={() => setOpenDialog(DIALOGS.HELP)}
-      />
-      <ScreenFrame key={session.step}>
-        <Screen facilityName={facilityName} onEndSession={endSession} />
-      </ScreenFrame>
-
-      {openDialog === DIALOGS.DISPLAY_SETTINGS && (
-        <DisplaySettingsDialog
-          languages={languages}
-          language={storedLanguage}
-          onChangeLanguage={updateStoredLanguage}
-          textSize={display.textSize}
-          onChangeTextSize={textSize => setDisplay(current => ({ ...current, textSize }))}
+    <ThemeProvider theme={kioskTheme(scale)}>
+      <KioskRoot
+        $scale={scale}
+        $isHighContrast={display.isHighContrast}
+        onPointerDownCapture={inactivity.recordActivity}
+        onKeyDownCapture={inactivity.recordActivity}
+        onScrollCapture={inactivity.recordActivity}
+        data-testid="kiosk"
+      >
+        <KioskHeader
           isHighContrast={display.isHighContrast}
-          onToggleHighContrast={() =>
-            setDisplay(current => ({ ...current, isHighContrast: !current.isHighContrast }))
-          }
-          onClose={() => setOpenDialog(null)}
+          facilityName={facilityName}
+          languageName={languages.length > 1 ? currentLanguage?.name : null}
+          isStartOverShown={isSessionOpen}
+          onStartOver={() => setOpenDialog(DIALOGS.START_OVER)}
+          onOpenDisplaySettings={() => setOpenDialog(DIALOGS.DISPLAY_SETTINGS)}
+          onOpenHelp={() => setOpenDialog(DIALOGS.HELP)}
         />
-      )}
-      {openDialog === DIALOGS.HELP && <HelpDialog onClose={() => setOpenDialog(null)} />}
-      {openDialog === DIALOGS.START_OVER && (
-        <StartOverDialog onCancel={() => setOpenDialog(null)} onConfirm={endSession} />
-      )}
-      {isSessionOpen && inactivity.isWarning && (
-        <InactivityDialog
-          secondsRemaining={inactivity.secondsRemaining}
-          onStartOver={endSession}
-          onStillHere={inactivity.dismissWarning}
-        />
-      )}
-    </KioskRoot>
+        <ScreenFrame key={session.step}>
+          <Screen facilityName={facilityName} onEndSession={endSession} />
+        </ScreenFrame>
+
+        {openDialog === DIALOGS.DISPLAY_SETTINGS && (
+          <DisplaySettingsDialog
+            languages={languages}
+            language={storedLanguage}
+            onChangeLanguage={updateStoredLanguage}
+            textSize={display.textSize}
+            onChangeTextSize={textSize => setDisplay(current => ({ ...current, textSize }))}
+            isHighContrast={display.isHighContrast}
+            onToggleHighContrast={() =>
+              setDisplay(current => ({ ...current, isHighContrast: !current.isHighContrast }))
+            }
+            onClose={() => setOpenDialog(null)}
+          />
+        )}
+        {openDialog === DIALOGS.HELP && <HelpDialog onClose={() => setOpenDialog(null)} />}
+        {openDialog === DIALOGS.START_OVER && (
+          <StartOverDialog onCancel={() => setOpenDialog(null)} onConfirm={endSession} />
+        )}
+        {isSessionOpen && inactivity.isWarning && (
+          <InactivityDialog
+            secondsRemaining={inactivity.secondsRemaining}
+            onStartOver={endSession}
+            onStillHere={inactivity.dismissWarning}
+          />
+        )}
+      </KioskRoot>
+    </ThemeProvider>
   );
 };
 

@@ -15,6 +15,7 @@ import {
   PrimaryButton,
   scaled,
   StateIcon,
+  whenCompact,
   SummaryList,
   Title,
 } from '../kioskStyles';
@@ -32,6 +33,14 @@ const Split = styled.div`
   > ${Panel} {
     margin: 0;
   }
+
+  /* The forms list becomes a strip above the open form */
+  ${whenCompact`
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: ${scaled(12)};
+    margin: 0 ${scaled(16)} ${scaled(16)};
+  `}
 `;
 
 const FormsNav = styled.nav`
@@ -42,6 +51,21 @@ const FormsNav = styled.nav`
   background: var(--kiosk-surface);
   border: var(--kiosk-border) solid var(--kiosk-outline);
   border-radius: 16px;
+
+  ${whenCompact`
+    flex-direction: row;
+    align-items: center;
+    gap: ${scaled(8)};
+    padding: ${scaled(8)};
+    overflow: auto hidden;
+  `}
+`;
+
+const NavSummary = styled.div`
+  ${whenCompact`
+    flex: none;
+    padding-right: ${scaled(8)};
+  `}
 `;
 
 const NavHeading = styled.h2`
@@ -55,6 +79,10 @@ const NavCount = styled.div`
   margin: 0 ${scaled(12)} ${scaled(18)};
   font-size: ${scaled(15)};
   color: var(--kiosk-text-secondary);
+
+  ${whenCompact`
+    margin-bottom: 0;
+  `}
 `;
 
 const FormItem = styled.button.attrs({ type: 'button' })`
@@ -78,6 +106,16 @@ const FormItem = styled.button.attrs({ type: 'button' })`
     background: var(--kiosk-primary-tint);
     box-shadow: inset 0 0 0 2px var(--kiosk-primary);
   }
+
+  ${whenCompact`
+    flex: none;
+    width: auto;
+    padding: ${scaled(10)} ${scaled(14)};
+
+    & + & {
+      margin-top: 0;
+    }
+  `}
 `;
 
 const StatusMark = styled.span`
@@ -320,16 +358,18 @@ export const FormsScreen = () => {
   return (
     <Split>
       <FormsNav aria-label={getTranslation('kiosk.forms.title', 'Your forms')}>
-        <NavHeading>
-          <TranslatedText stringId="kiosk.forms.title" fallback="Your forms" />
-        </NavHeading>
-        <NavCount>
-          <TranslatedText
-            stringId="kiosk.forms.completeCount"
-            fallback=":completed of :total complete"
-            replacements={{ completed: completedCount, total: forms.length }}
-          />
-        </NavCount>
+        <NavSummary>
+          <NavHeading>
+            <TranslatedText stringId="kiosk.forms.title" fallback="Your forms" />
+          </NavHeading>
+          <NavCount>
+            <TranslatedText
+              stringId="kiosk.forms.completeCount"
+              fallback=":completed of :total complete"
+              replacements={{ completed: completedCount, total: forms.length }}
+            />
+          </NavCount>
+        </NavSummary>
         {forms.map(form => {
           const { pageIndex = 0, ...progress } = progressOf(form.id);
           // The open form is in progress from the moment it's shown

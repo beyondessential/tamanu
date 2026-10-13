@@ -16,7 +16,7 @@ import {
 import { TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { BackIcon, NextIcon } from '../KioskIcons';
-import { PrimaryButton, scaled, SecondaryButton, Title } from '../kioskStyles';
+import { PrimaryButton, scaled, SecondaryButton, Title, whenCompact } from '../kioskStyles';
 import { getVisibleComponents } from './kioskForms';
 import { getKioskComponentForQuestionType } from './kioskQuestions';
 
@@ -33,6 +33,10 @@ const FormPanel = styled.main`
 const FormHead = styled.div`
   flex: none;
   padding: ${scaled(32)} ${scaled(36)} 0;
+
+  ${whenCompact`
+    padding: ${scaled(20)} ${scaled(20)} 0;
+  `}
 `;
 
 const TitleRow = styled.div`
@@ -78,6 +82,10 @@ const Questions = styled.div`
   overscroll-behavior: contain;
   padding: ${scaled(4)} ${scaled(36)} ${scaled(16)};
   scroll-padding: ${scaled(24)};
+
+  ${whenCompact`
+    padding: ${scaled(4)} ${scaled(20)} ${scaled(16)};
+  `}
 
   /* Shared fields reused for dates, times, search, photos and signatures, sized for touch */
   .MuiFormLabel-root,
@@ -144,10 +152,14 @@ const FormActions = styled.div`
   gap: ${scaled(14)};
   padding: ${scaled(20)} ${scaled(36)} ${scaled(24)};
   border-top: var(--kiosk-border) solid var(--kiosk-line);
+
+  ${whenCompact`
+    padding: ${scaled(16)} ${scaled(20)} ${scaled(20)};
+  `}
 `;
 
 const NextButton = styled(PrimaryButton)`
-  min-width: ${scaled(220)};
+  min-width: min(${scaled(220)}, 50%);
 `;
 
 /** Keeps calculated questions up to date as the answers they depend on change. */

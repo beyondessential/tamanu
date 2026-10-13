@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TranslatedText } from '../../components';
+import { useTranslation } from '../../contexts/Translation';
 import { LogoDark, LogoLight } from '../../components/Logo';
 import { AccessibilityIcon, GlobeIcon, HelpIcon, RestartIcon } from './KioskIcons';
-import { scaled } from './kioskStyles';
+import { scaled, whenHeaderCompact } from './kioskStyles';
 
 const Header = styled.header`
   flex: none;
@@ -18,6 +18,9 @@ const Header = styled.header`
 const LOGO_HEIGHT = scaled(30);
 
 const FacilityName = styled.div`
+  ${whenHeaderCompact`
+    display: none;
+  `}
   padding-left: ${scaled(14)};
   border-left: var(--kiosk-border) solid var(--kiosk-outline);
   color: var(--kiosk-text-secondary);
@@ -57,6 +60,13 @@ const TextHeaderButton = styled(HeaderButton)`
   padding: 0 ${scaled(12)};
 `;
 
+/** Button text that gives way to the icon alone in the compact layout. */
+const Label = styled.span`
+  ${whenHeaderCompact`
+    display: none;
+  `}
+`;
+
 const Separator = styled.span`
   width: var(--kiosk-border);
   height: ${scaled(22)};
@@ -72,35 +82,47 @@ export const KioskHeader = ({
   onStartOver,
   onOpenDisplaySettings,
   onOpenHelp,
-}) => (
-  <Header>
-    {isHighContrast ? <LogoLight height={LOGO_HEIGHT} /> : <LogoDark height={LOGO_HEIGHT} />}
-    {facilityName && <FacilityName>{facilityName}</FacilityName>}
-    <Spacer />
-    {isStartOverShown && (
-      <TextHeaderButton onClick={onStartOver}>
-        <RestartIcon />
-        <TranslatedText stringId="kiosk.action.startOver" fallback="Start over" />
-      </TextHeaderButton>
-    )}
-    <HeaderButton onClick={onOpenDisplaySettings} aria-haspopup="dialog">
-      {languageName ? (
-        <>
-          <GlobeIcon />
-          {languageName}
-          <Separator aria-hidden="true" />
-          <AccessibilityIcon />
-        </>
-      ) : (
-        <>
-          <AccessibilityIcon />
-          <TranslatedText stringId="kiosk.accessibility.title" fallback="Accessibility" />
-        </>
+}) => {
+  const { getTranslation } = useTranslation();
+  const startOverLabel = getTranslation('kiosk.action.startOver', 'Start over');
+  const accessibilityLabel = getTranslation('kiosk.accessibility.title', 'Accessibility');
+  const helpLabel = getTranslation('kiosk.action.help', 'Help');
+
+  // Labels stay as accessible names when the compact layout shows the icons alone
+  return (
+    <Header>
+      {isHighContrast ? <LogoLight height={LOGO_HEIGHT} /> : <LogoDark height={LOGO_HEIGHT} />}
+      {facilityName && <FacilityName>{facilityName}</FacilityName>}
+      <Spacer />
+      {isStartOverShown && (
+        <TextHeaderButton onClick={onStartOver} aria-label={startOverLabel}>
+          <RestartIcon />
+          <Label>{startOverLabel}</Label>
+        </TextHeaderButton>
       )}
-    </HeaderButton>
-    <HeaderButton onClick={onOpenHelp} aria-haspopup="dialog">
-      <HelpIcon />
-      <TranslatedText stringId="kiosk.action.help" fallback="Help" />
-    </HeaderButton>
-  </Header>
-);
+      <HeaderButton
+        onClick={onOpenDisplaySettings}
+        aria-haspopup="dialog"
+        aria-label={languageName ? `${languageName}, ${accessibilityLabel}` : accessibilityLabel}
+      >
+        {languageName ? (
+          <>
+            <GlobeIcon />
+            <Label>{languageName}</Label>
+            <Separator aria-hidden="true" />
+            <AccessibilityIcon />
+          </>
+        ) : (
+          <>
+            <AccessibilityIcon />
+            <Label>{accessibilityLabel}</Label>
+          </>
+        )}
+      </HeaderButton>
+      <HeaderButton onClick={onOpenHelp} aria-haspopup="dialog" aria-label={helpLabel}>
+        <HelpIcon />
+        <Label>{helpLabel}</Label>
+      </HeaderButton>
+    </Header>
+  );
+};

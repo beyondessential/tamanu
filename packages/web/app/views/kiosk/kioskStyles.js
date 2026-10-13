@@ -8,6 +8,26 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
  */
 export const scaled = pixels => `calc(${pixels}px * var(--kiosk-scale))`;
 
+/**
+ * Styles for when the screen is narrower than `baseWidth` at standard text size. The text size
+ * comes from the theme the kiosk provides, so the switch happens wherever the content would no
+ * longer fit, however large the patient has made the text.
+ */
+const whenNarrowerThan =
+  baseWidth =>
+  (...styles) =>
+  ({ theme }) => css`
+    @media (max-width: ${baseWidth * (theme.kioskScale ?? 1)}px) {
+      ${css(...styles)}
+    }
+  `;
+
+/** The compact layout: portrait tablets, and landscape ones at large text sizes. */
+export const whenCompact = whenNarrowerThan(840);
+
+/** When the header's buttons no longer fit with their labels. */
+export const whenHeaderCompact = whenNarrowerThan(780);
+
 export const TEXT_SIZE_SCALES = /** @type {const} */ ({
   standard: 1,
   large: 1.2,
@@ -141,6 +161,11 @@ export const Panel = styled.main`
   flex-direction: column;
   overflow: auto;
 
+  ${whenCompact`
+    margin: 0 ${scaled(16)} ${scaled(16)};
+    padding: ${scaled(28)} ${scaled(28)};
+  `}
+
   ${({ $centred }) =>
     $centred &&
     css`
@@ -180,6 +205,17 @@ export const Actions = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: ${scaled(14)};
+
+  ${whenCompact`
+    bottom: ${scaled(-28)};
+    margin-bottom: ${scaled(-28)};
+    padding-bottom: ${scaled(28)};
+    flex-wrap: wrap;
+
+    > button {
+      flex: 1 1 auto;
+    }
+  `}
 `;
 
 export const CentredActions = styled.div`
@@ -217,7 +253,7 @@ const buttonBase = css`
   ${({ $wide }) =>
     $wide &&
     css`
-      min-width: ${scaled(280)};
+      min-width: min(${scaled(280)}, 100%);
     `}
 `;
 
