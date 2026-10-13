@@ -13,6 +13,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 import { setSettingsPskSource } from '@tamanu/shared/utils/crypto';
 import {
+  DATABASE_CONNECT_TIMEOUT_MS,
   DATABASE_OUTAGE_TOLERANCE_MS,
   isTransientConnectionError,
 } from '@tamanu/utils/databaseOutage';
@@ -125,7 +126,10 @@ async function connectToDatabase(dbOptions) {
 
   const options = {
     dialect: 'postgres',
-    dialectOptions: { application_name: serviceName(serviceContext()) ?? 'tamanu' },
+    dialectOptions: {
+      application_name: serviceName(serviceContext()) ?? 'tamanu',
+      connectionTimeoutMillis: DATABASE_CONNECT_TIMEOUT_MS,
+    },
   };
 
   const sequelize = new Sequelize(name, username, password, {

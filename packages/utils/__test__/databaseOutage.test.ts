@@ -13,6 +13,13 @@ describe('isTransientConnectionError', () => {
     ['admin shutdown', Object.assign(new Error('terminating'), { code: '57P01' })],
     ['starting up', Object.assign(new Error('starting up'), { code: '57P03' })],
     ['connection exception class', Object.assign(new Error('failure'), { code: '08006' })],
+    ['pool acquire timeout', namedError('SequelizeConnectionAcquireTimeoutError')],
+    ['pg connect timeout', new Error('timeout expired')],
+    ['pg mid-handshake disconnect', new Error('Connection terminated unexpectedly')],
+    [
+      'sequelize wrapping a pg connect timeout',
+      namedError('SequelizeConnectionError', { parent: new Error('timeout expired') }),
+    ],
     [
       'generic sequelize error wrapping a transient cause',
       namedError('SequelizeConnectionError', { parent: { code: '57P03' } }),
