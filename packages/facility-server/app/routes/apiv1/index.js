@@ -26,6 +26,7 @@ import { keyBy, mapValues } from 'es-toolkit/compat';
 
 import { allergy } from './allergy';
 import { appointments } from './appointments';
+import { kiosk } from './kiosk';
 import { asset } from './asset';
 import { attachment } from './attachment';
 import { certificateNotification } from './certificateNotification';
@@ -288,6 +289,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/appointments', appointments);
   patientDataRoutes.use('/diagnosis', diagnosis);
   patientDataRoutes.use('/encounter', encounter);
+  patientDataRoutes.use('/kiosk', kiosk);
   patientDataRoutes.use('/familyHistory', familyHistory);
   patientDataRoutes.use('/imagingRequest', imagingRequest);
   patientDataRoutes.use('/invoices', invoices);
