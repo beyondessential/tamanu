@@ -120,6 +120,7 @@ export const ProgramRegistryConditionQuestionField = ({
     value: category.id,
   }));
   const isCategoryMissing = Boolean(answer.conditionId) && !answer.categoryId;
+  const isAlreadyRecorded = registryOptions.recordedConditionIds.includes(answer.conditionId);
 
   if (conditionOptions.length === 0) {
     return renderUnavailable(
@@ -144,18 +145,28 @@ export const ProgramRegistryConditionQuestionField = ({
         helperText={isCategoryMissing && error ? undefined : helperText}
       />
       {answer.conditionId && (
-        <SelectInput
-          id={categoryInputId}
-          name={`${name}-category`}
-          label={getTranslation('programRegistry.relatedConditionsCategory.label', 'Category')}
-          value={answer.categoryId ?? ''}
-          options={categoryOptions}
-          onChange={event => setAnswer(answer.conditionId, event.target.value)}
-          required
-          disabled={disabled}
-          error={error && isCategoryMissing}
-          helperText={isCategoryMissing && error ? helperText : undefined}
-        />
+        <div>
+          <SelectInput
+            id={categoryInputId}
+            name={`${name}-category`}
+            label={getTranslation('programRegistry.relatedConditionsCategory.label', 'Category')}
+            value={answer.categoryId ?? ''}
+            options={categoryOptions}
+            onChange={event => setAnswer(answer.conditionId, event.target.value)}
+            required
+            disabled={disabled || isAlreadyRecorded}
+            error={error && isCategoryMissing}
+            helperText={isCategoryMissing && error ? helperText : undefined}
+          />
+          {isAlreadyRecorded && (
+            <FormHelperText>
+              {getTranslation(
+                'program.question.programRegistryCondition.alreadyRecorded',
+                'This condition is already recorded. Change its category in the program registry.',
+              )}
+            </FormHelperText>
+          )}
+        </div>
       )}
     </Container>
   );
