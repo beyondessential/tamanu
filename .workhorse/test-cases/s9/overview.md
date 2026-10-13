@@ -39,6 +39,8 @@
 - [x] Extra-large text and high contrast render every screen without clipping
 - [x] Kiosk stays signed in past the token duration
 - [x] The kiosk opens in a tab beside Tamanu, and Tamanu still opens beside it (verifies spec: KIOSK)
+- [x] Facility admin's Self check-in kiosk item opens the kiosk in a new tab, signed in, and the staff tab stays usable (verifies spec: KIOSK)
+- [x] The Self check-in kiosk item isn't shown where the kiosk is turned off (verifies spec: KIOSK)
 - [x] Portrait tablet layout keeps the forms list, form and actions usable
 - [x] Reopening a completed form starts at its first page with answers kept
 - [x] Check-in failure shows the reception message and keeps answers (verifies spec: KIOSK)

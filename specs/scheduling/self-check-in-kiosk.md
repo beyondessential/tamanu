@@ -9,6 +9,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 ## Availability
 
 - [ ] The kiosk is turned on per facility by the kiosk setting, and is reached at its own address in Tamanu web, without the sidebar or any other part of the staff interface.
+- [ ] Where the kiosk is turned on, Facility admin in the sidebar has a Self check-in kiosk item, marked as opening in a new tab, which opens the kiosk in a new browser tab. Where it is turned off, the item isn't shown.
 - [ ] Where the kiosk is turned off for the facility, the kiosk address shows a short message that the kiosk is unavailable.
 - [ ] The kiosk keeps its staff sign-in alive while it is open, so it does not sign itself out between patients.
 - [ ] The kiosk can be open in one browser tab while Tamanu is open in another. Tamanu's limit of one open tab doesn't apply to kiosk tabs, so a kiosk tab neither blocks Tamanu nor is blocked by it.

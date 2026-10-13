@@ -336,6 +336,20 @@ export const FACILITY_MENU_ITEMS = [
         key: 'systemErrors',
         path: '/facility-admin/system-errors',
       },
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.facilityAdmin.kiosk"
+            fallback="Self check-in kiosk"
+            data-testid="translatedtext-kios"
+          />
+        ),
+        key: 'kiosk',
+        path: '/kiosk',
+        // The kiosk runs full screen on its own, so it opens beside Tamanu rather than in place of it
+        opensInNewTab: true,
+        enabledBySetting: 'kiosk.enabled',
+      },
     ],
   },
 ];

@@ -176,4 +176,24 @@ describe('useFacilitySidebar', () => {
       'patientsAll',
     ]);
   });
+
+  describe('self check-in kiosk', () => {
+    const settingsWithKiosk = isKioskEnabled => ({
+      getSetting: key => (key === 'kiosk.enabled' ? isKioskEnabled : defaultSettings),
+    });
+    const useFacilityAdminItem = () => useFacilitySidebar().find(item => item.key === 'facilityAdmin');
+
+    it('offers the kiosk under facility admin, in a new tab, where it is turned on', () => {
+      vi.mocked(useSettings).mockReturnValue(settingsWithKiosk(true));
+      vi.mocked(useAuth).mockReturnValue(authMock);
+      const kiosk = useFacilityAdminItem().children.find(child => child.key === 'kiosk');
+      expect(kiosk).toMatchObject({ path: '/kiosk', opensInNewTab: true });
+    });
+
+    it('leaves the kiosk out where it is turned off', () => {
+      vi.mocked(useSettings).mockReturnValue(settingsWithKiosk(false));
+      vi.mocked(useAuth).mockReturnValue(authMock);
+      expect(useFacilityAdminItem().children.map(child => child.key)).not.toContain('kiosk');
+    });
+  });
 });

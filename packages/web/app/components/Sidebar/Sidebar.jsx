@@ -391,7 +391,8 @@ export const Sidebar = React.memo(({ items }) => {
                     <SecondarySidebarItem
                       key={child.path}
                       path={child.path}
-                      isCurrent={currentPath.includes(child.path)}
+                      opensInNewTab={child.opensInNewTab}
+                      isCurrent={!child.opensInNewTab && currentPath.includes(child.path)}
                       color={child.color}
                       overlaidColor={
                         child.key === SYSTEM_ERRORS_ITEM_KEY && hasUnreadSystemErrors
@@ -400,7 +401,7 @@ export const Sidebar = React.memo(({ items }) => {
                       }
                       label={child.label}
                       disabled={!permissionCheck(child, item)}
-                      onClick={() => onPathChanged(child.path)}
+                      onClick={child.opensInNewTab ? undefined : () => onPathChanged(child.path)}
                       data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
                     />
                   </NoteModalActionBlocker>
