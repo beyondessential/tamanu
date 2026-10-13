@@ -818,6 +818,7 @@ export const globalSettings = {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         emergencyContactName: {
           name: 'Emergency contact name',
