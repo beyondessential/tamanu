@@ -49,9 +49,10 @@ const useDeletePatientProgramRegistration = (patientProgramRegistration = {}, on
 
 export const DeleteProgramRegistryFormModal = ({ patientProgramRegistration, onClose, open }) => {
   const { getTranslation } = useTranslation();
-  const { mutate: deleteProgramRegistry } = useDeletePatientProgramRegistration(
-    patientProgramRegistration,
-    () => onClose({ success: true }),
+  const {
+    mutate: deleteProgramRegistry,
+  } = useDeletePatientProgramRegistration(patientProgramRegistration, () =>
+    onClose({ success: true }),
   );
 
   if (!patientProgramRegistration) {
