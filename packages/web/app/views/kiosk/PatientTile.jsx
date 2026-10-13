@@ -133,7 +133,42 @@ export const withEmphasis = (template, values) =>
 const fullName = ({ firstName, middleName, lastName }) =>
   [firstName, middleName, lastName].filter(Boolean).join(' ');
 
-const TileContents = ({ appointment, isCompact }) => {
+/** The appointment's time and clinician, which is all that differs between one patient's own. */
+const AppointmentDetails = ({ appointment }) => {
+  const { getTranslation } = useTranslation();
+  const { formatTime } = useDateTime();
+  const { clinician, startTime } = appointment;
+  const time = formatTime(startTime);
+
+  return (
+    <AppointmentLine style={{ margin: 0, padding: 0, border: 'none' }}>
+      <CalendarIcon />
+      <span>
+        {clinician
+          ? withEmphasis(
+              getTranslation(
+                'kiosk.appointment.timeWithClinician',
+                'Today at :time with :clinician',
+              ),
+              { time, clinician: clinician.displayName },
+            )
+          : withEmphasis(getTranslation('kiosk.appointment.time', 'Today at :time'), { time })}
+      </span>
+    </AppointmentLine>
+  );
+};
+
+/** One of a patient's own appointments, chosen by its time rather than by who it belongs to. */
+export const SelectableAppointmentTile = ({ appointment, isSelected, onSelect }) => (
+  <SelectableTile $isCompact aria-pressed={isSelected} onClick={onSelect}>
+    <PickMark>
+      <CheckIcon />
+    </PickMark>
+    <AppointmentDetails appointment={appointment} />
+  </SelectableTile>
+);
+
+const TileContents = ({ appointment, isCompact, hideAppointment = false }) => {
   const { getTranslation } = useTranslation();
   const { formatTime } = useDateTime();
   const { patient, clinician, startTime } = appointment;
@@ -167,27 +202,29 @@ const TileContents = ({ appointment, isCompact }) => {
           <dd>{patient.displayId}</dd>
         </div>
       </Details>
-      <AppointmentLine $isCompact={isCompact}>
-        <CalendarIcon />
-        <span>
-          {clinician
-            ? withEmphasis(
-                getTranslation(
-                  'kiosk.appointment.timeWithClinician',
-                  'Today at :time with :clinician',
-                ),
-                { time, clinician: clinician.displayName },
-              )
-            : withEmphasis(getTranslation('kiosk.appointment.time', 'Today at :time'), { time })}
-        </span>
-      </AppointmentLine>
+      {!hideAppointment && (
+        <AppointmentLine $isCompact={isCompact}>
+          <CalendarIcon />
+          <span>
+            {clinician
+              ? withEmphasis(
+                  getTranslation(
+                    'kiosk.appointment.timeWithClinician',
+                    'Today at :time with :clinician',
+                  ),
+                  { time, clinician: clinician.displayName },
+                )
+              : withEmphasis(getTranslation('kiosk.appointment.time', 'Today at :time'), { time })}
+          </span>
+        </AppointmentLine>
+      )}
     </>
   );
 };
 
-export const PatientTile = ({ appointment }) => (
+export const PatientTile = ({ appointment, hideAppointment = false }) => (
   <Tile>
-    <TileContents appointment={appointment} />
+    <TileContents appointment={appointment} hideAppointment={hideAppointment} />
   </Tile>
 );
 

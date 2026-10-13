@@ -7,6 +7,7 @@
 - [x] Patient with an appointment today at another facility is not found (verifies spec: KIOSK)
 - [x] Cancelled and no-show appointments today are not found (verifies spec: KIOSK)
 - [x] Two patients with the same last name and DOB both booked today return two masked matches with no clinician (verifies spec: KIOSK)
+- [x] One patient with two appointments today chooses between their own appointments, unmasked, with their details shown once (verifies spec: KIOSK)
 - [x] Wrong DOB returns no matches, and the no-match screen shows the searched details (verifies spec: KIOSK)
 - [x] Appointment already Arrived shows the already-checked-in screen (verifies spec: KIOSK)
 - [x] Search without permission to read appointments is forbidden
@@ -40,3 +41,4 @@
 - [x] Portrait tablet layout keeps the forms list, form and actions usable
 - [x] Reopening a completed form starts at its first page with answers kept
 - [x] Check-in failure shows the reception message and keeps answers (verifies spec: KIOSK)
+- [ ] Playwright E2E spec covering the kiosk journey end to end in CI (needs the kiosk settings and a form wired into the shared e2e provisioning)

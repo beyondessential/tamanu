@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
 import { useKioskSession } from '../KioskSession';
-import { PatientTile, SelectablePatientTile } from '../PatientTile';
+import { PatientTile, SelectableAppointmentTile, SelectablePatientTile } from '../PatientTile';
 import {
   Actions,
   Lead,
@@ -50,7 +50,12 @@ const SingleMatch = ({ appointment }) => {
   );
 };
 
-const SeveralMatches = ({ matches }) => {
+/**
+ * Several appointments to choose between: different patients who share a last name and date of
+ * birth, or one patient with more than one appointment today. Only the wording differs — the
+ * patient still picks the tile that is theirs.
+ */
+const SeveralMatches = ({ matches, isSeveralPatients }) => {
   const { session, dispatch } = useKioskSession();
   // Nothing is preselected, unless the patient is coming back to the details they chose
   const [selectedId, setSelectedId] = useState(session.appointment?.id ?? null);
@@ -59,27 +64,47 @@ const SeveralMatches = ({ matches }) => {
   return (
     <Panel>
       <Title>
-        <TranslatedText stringId="kiosk.matches.title" fallback="Select your details" />
+        {isSeveralPatients ? (
+          <TranslatedText stringId="kiosk.matches.title" fallback="Select your details" />
+        ) : (
+          <TranslatedText stringId="kiosk.appointments.title" fallback="Select your appointment" />
+        )}
       </Title>
       <Lead>
-        <TranslatedText
-          stringId="kiosk.matches.text"
-          fallback="More than one patient matches this last name and date of birth. Please select your details to continue."
-        />
-      </Lead>
-      <TileGrid>
-        {matches.map(appointment => (
-          <SelectablePatientTile
-            key={appointment.id}
-            appointment={appointment}
-            isSelected={appointment.id === selectedId}
-            onSelect={() => setSelectedId(appointment.id)}
+        {isSeveralPatients ? (
+          <TranslatedText
+            stringId="kiosk.matches.text"
+            fallback="More than one patient matches this last name and date of birth. Please select your details to continue."
           />
-        ))}
+        ) : (
+          <TranslatedText
+            stringId="kiosk.appointments.text"
+            fallback="You have more than one appointment today. Please select the one you're here for."
+          />
+        )}
+      </Lead>
+      {/* One patient's own appointments differ only by time, so their details are stated once */}
+      {!isSeveralPatients && <PatientTile appointment={matches[0]} hideAppointment />}
+      <TileGrid style={isSeveralPatients ? undefined : { marginTop: scaled(20) }}>
+        {matches.map(appointment => {
+          const Tile = isSeveralPatients ? SelectablePatientTile : SelectableAppointmentTile;
+          return (
+            <Tile
+              key={appointment.id}
+              appointment={appointment}
+              isSelected={appointment.id === selectedId}
+              onSelect={() => setSelectedId(appointment.id)}
+            />
+          );
+        })}
       </TileGrid>
       <Actions>
         <SecondaryButton onClick={() => dispatch({ type: 'notMe' })}>
-          <TranslatedText stringId="kiosk.matches.noneAreMe" fallback="None of these are me" />
+          {isSeveralPatients ? (
+            <TranslatedText stringId="kiosk.matches.noneAreMe" fallback="None of these are me" />
+          ) : (
+            <TranslatedText stringId="kiosk.match.notMe" fallback="No, this isn't me" />
+          )}
         </SecondaryButton>
         <PrimaryButton
           $wide
@@ -96,10 +121,10 @@ const SeveralMatches = ({ matches }) => {
 
 export const MatchesScreen = () => {
   const { session } = useKioskSession();
-  const { matches } = session;
+  const { matches, isSeveralPatients } = session;
   return matches.length === 1 ? (
     <SingleMatch appointment={matches[0]} />
   ) : (
-    <SeveralMatches matches={matches} />
+    <SeveralMatches matches={matches} isSeveralPatients={isSeveralPatients} />
   );
 };

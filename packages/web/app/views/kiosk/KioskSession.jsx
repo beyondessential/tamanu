@@ -24,6 +24,8 @@ export const initialSession = {
   step: KIOSK_STEPS.LANDING,
   search: EMPTY_SEARCH,
   matches: [],
+  /** True when the matches are different patients, rather than one patient's own appointments. */
+  isSeveralPatients: false,
   appointment: null,
   /** Form progress keyed by survey ID: `{ status, pageIndex, values }`. Kept on the tablet until check-in. */
   formProgress: {},
@@ -40,11 +42,12 @@ export function sessionReducer(session, action) {
     case 'editSearch':
       return { ...session, step: KIOSK_STEPS.FIND };
     case 'searched': {
-      const { search, matches } = action;
+      const { search, matches, isSeveralPatients } = action;
       return {
         ...session,
         search,
         matches,
+        isSeveralPatients,
         appointment: null,
         step: matches.length > 0 ? KIOSK_STEPS.MATCHES : KIOSK_STEPS.NO_MATCH,
       };

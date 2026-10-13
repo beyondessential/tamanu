@@ -78,7 +78,10 @@ export const FindAppointmentScreen = ({ onEndSession }) => {
     if (!canSearch) return;
     findAppointments.mutate(
       { lastName, dateOfBirth },
-      { onSuccess: ({ data }) => dispatch({ type: 'searched', search, matches: data }) },
+      {
+        onSuccess: ({ data, isSeveralPatients }) =>
+          dispatch({ type: 'searched', search, matches: data, isSeveralPatients }),
+      },
     );
   };
 

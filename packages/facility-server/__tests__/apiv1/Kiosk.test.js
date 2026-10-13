@@ -139,6 +139,7 @@ describe('Kiosk', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(2);
+      expect(result.body.isSeveralPatients).toBe(false);
       expect(result.body.data[0].patient.displayId).toEqual(patient.displayId);
       expect(result.body.data[0].clinician).not.toBeNull();
     });
@@ -224,6 +225,7 @@ describe('Kiosk', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(2);
+      expect(result.body.isSeveralPatients).toBe(true);
       for (const match of result.body.data) {
         expect(match.clinician).toBeNull();
         expect(match.patient.displayId).toMatch(/^.{4}\*+$/);

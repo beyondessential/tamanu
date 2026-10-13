@@ -45,6 +45,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 
 - [ ] One match shows "Is this you?" with a tile showing first, middle and last name, date of birth, sex, patient ID, and the appointment time and clinician. "Yes, this is me" continues; "No, this isn't me" shows the no-match screen.
 - [ ] Matches for more than one patient show "Select your details" with a tile per appointment, with copy making clear the matches are different patients. No tile is preselected, and Continue is unavailable until the patient chooses one. "None of these are me" shows the no-match screen.
+- [ ] One patient with more than one appointment today instead chooses between their own appointments: their details are shown once, and each appointment is offered by its time and clinician. Nothing about their record is hidden from them.
 - [ ] Tiles shown for several patients carry only the appointment time (no clinician), and show the patient ID's first four characters with the rest as asterisks. The full patient ID and clinician are never sent to the tablet until a single patient is chosen.
 - [ ] No match shows the details that were searched and directs the patient to reception, with Close (back to the landing page) and Edit details (back to the search with their entries kept).
 - [ ] A patient whose appointment has already moved past Confirmed (for example Arrived or Seen) sees that they are already checked in and is directed to take a seat, without repeating their forms. Check-in only ever moves an appointment from Confirmed to Arrived.

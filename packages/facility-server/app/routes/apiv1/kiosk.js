@@ -194,10 +194,14 @@ kiosk.get(
     });
 
     // When the matches are different patients, each learns as little as possible about the
-    // others: no clinician, and only the start of the patient ID.
-    const isMasked = new Set(appointments.map(({ patientId }) => patientId)).size > 1;
+    // others: no clinician, and only the start of the patient ID. One patient with two
+    // appointments today is choosing between their own, so nothing is hidden from them.
+    const isSeveralPatients = new Set(appointments.map(({ patientId }) => patientId)).size > 1;
     res.send({
-      data: appointments.map(appointment => toAppointmentSummary(appointment, { isMasked })),
+      isSeveralPatients,
+      data: appointments.map(appointment =>
+        toAppointmentSummary(appointment, { isMasked: isSeveralPatients }),
+      ),
     });
   }),
 );

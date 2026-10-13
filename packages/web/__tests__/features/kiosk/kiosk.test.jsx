@@ -111,6 +111,13 @@ describe('Kiosk session', () => {
       appointment,
     });
 
+  it("remembers whether the matches are several patients or one patient's appointments", () => {
+    const searched = (matches, isSeveralPatients) =>
+      sessionReducer(initialSession, { type: 'searched', search: {}, matches, isSeveralPatients });
+    expect(searched([{ id: 'a' }, { id: 'b' }], true).isSeveralPatients).toBe(true);
+    expect(searched([{ id: 'a' }, { id: 'b' }], false).isSeveralPatients).toBe(false);
+  });
+
   it('shows no match when nobody is found', () => {
     const session = sessionReducer(initialSession, {
       type: 'searched',
