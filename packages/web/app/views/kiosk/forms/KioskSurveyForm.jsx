@@ -316,26 +316,37 @@ export const KioskSurveyForm = ({
   onExit,
 }) => {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const [pageIndex, setPageIndex] = useState(() =>
     Math.min(progress?.pageIndex ?? 0, form.pages.length - 1),
   );
 
-  const [initialValues] = useState(
-    () =>
-      progress?.values ??
-      getFormInitialValues({
-        components: form.currentComponents,
-        patient,
-        additionalData: patientAdditionalData,
-        getCurrentDateTime,
-      }),
-  );
+  const [initialValues] = useState(() => {
+    if (progress?.values) return progress.values;
+    const values = getFormInitialValues({
+      components: form.currentComponents,
+      patient,
+      additionalData: patientAdditionalData,
+      getCurrentDateTime,
+    });
+    // Submission dates aren't shown to patients, so they're the day the patient fills the form in
+    for (const { dataElement } of form.currentComponents) {
+      if (dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE) {
+        values[dataElement.id] ??= getCurrentDate();
+      }
+    }
+    return values;
+  });
 
   const validationSchema = useMemo(() => {
-    return getValidationSchema({ components: form.shownComponents }, getTranslation, {}, {
-      requiredMessage: getTranslation('kiosk.form.required', 'This question is required'),
-    });
+    return getValidationSchema(
+      { components: form.shownComponents },
+      getTranslation,
+      {},
+      {
+        requiredMessage: getTranslation('kiosk.form.required', 'This question is required'),
+      },
+    );
   }, [form, getTranslation]);
 
   return (
