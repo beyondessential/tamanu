@@ -26,7 +26,7 @@ Deleting the response from Forms returns the encounter's syndromic surveillance 
 
 ## Diagnosis pane
 
-While syndromic surveillance has not been completed, the diagnosis pane shows a "Syndromic surveillance" action. It opens a modal containing the syndromic surveillance form, and submitting the form there records the response against the encounter.
+While syndromic surveillance has not been completed, the diagnosis pane shows a "Syndromic surveillance" action. It opens a modal containing the syndromic surveillance form, and submitting the form there records the response against the encounter. Once the encounter has ended the action is disabled, as no form takes a new response against an ended encounter.
 
 Once it is complete, the pane shows "Syndromic surveillance: Complete" with a completion icon to its left, alongside a "View/Edit" action that opens the encounter's response in the modal. For a user who cannot edit the response, the action reads "View" and the response opens read-only.
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Colors } from '../../../constants/styles';
@@ -42,15 +42,12 @@ const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterT
 export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
   const { ability } = useAuth();
   const [editedDiagnosis, setEditedDiagnosis] = useState(null);
-  const [refreshCount, setRefreshCount] = useState(0);
   // Listing diagnoses gates only the table. Recording a diagnosis and syndromic surveillance are
   // checked by permissions of their own, so the rest of the pane stays available without it.
   const canListDiagnoses = ability.can('list', 'EncounterDiagnosis');
 
-  const refreshDiagnosisTable = useCallback(() => {
-    setRefreshCount(prev => prev + 1);
-  }, []);
-
+  // Saving a diagnosis reloads the encounter, which remounts this pane, so the table refetches
+  // without being told to.
   return (
     <TabPane data-testid="tabpane-diagnosis">
       <DiagnosisModal
@@ -59,11 +56,14 @@ export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
         encounterId={encounter.id}
         excludeDiagnoses={encounter.diagnoses}
         onClose={() => setEditedDiagnosis(null)}
-        onSaved={refreshDiagnosisTable}
         data-testid="diagnosismodal-pane"
       />
       <ActionRow data-testid="actionrow-diagnosis">
-        <SyndromicSurveillanceStatus encounterId={encounter.id} patient={patient} />
+        <SyndromicSurveillanceStatus
+          encounterId={encounter.id}
+          patient={patient}
+          isEncounterEnded={Boolean(encounter.endDate)}
+        />
         <NoteModalActionBlocker>
           <Button
             onClick={() => setEditedDiagnosis({})}
@@ -86,7 +86,6 @@ export const DiagnosisPane = React.memo(({ encounter, patient, disabled }) => {
           // Read-only encounters (discharged, or the patient has died) list diagnoses without
           // offering to edit them, as they offer no way to add one.
           onItemClick={disabled ? undefined : setEditedDiagnosis}
-          refreshCount={refreshCount}
           data-testid="diagnosistable-pane"
         />
       ) : (

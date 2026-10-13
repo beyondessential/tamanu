@@ -52,7 +52,7 @@ const SyndromicSurveillanceLabel = () => (
  * spec: SYND#diagnosis-pane
  * spec: SYND#permissions
  */
-export const SyndromicSurveillanceStatus = ({ encounterId, patient }) => {
+export const SyndromicSurveillanceStatus = ({ encounterId, patient, isEncounterEnded }) => {
   const { ability } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isResponseDetailsOpen, setIsResponseDetailsOpen] = useState(false);
@@ -79,7 +79,9 @@ export const SyndromicSurveillanceStatus = ({ encounterId, patient }) => {
           <SyndromicSurveillanceTextButton
             $isPrimary
             onClick={() => setIsFormOpen(true)}
-            disabled={!canSubmit}
+            // No form takes a new response against an encounter that has ended; one started from
+            // its Forms tab is recorded against the patient's open encounter instead.
+            disabled={!canSubmit || isEncounterEnded}
             data-testid="textbutton-syndromic-surveillance"
           >
             <SyndromicSurveillanceLabel />

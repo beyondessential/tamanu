@@ -180,7 +180,7 @@ const COLUMNS = [
 
 // Unsorted until a column is chosen, so the server's default order applies: primary diagnoses
 // first and disproven ones last.
-export const DiagnosisTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
+export const DiagnosisTable = React.memo(({ encounterId, onItemClick }) => (
   <StyledDataFetchingTable
     columns={COLUMNS}
     endpoint={`encounter/${encounterId}/diagnoses`}
@@ -188,7 +188,6 @@ export const DiagnosisTable = React.memo(({ encounterId, onItemClick, refreshCou
     elevated={false}
     allowExport={false}
     disablePagination
-    refreshCount={refreshCount}
     data-testid="datafetchingtable-diagnoses"
   />
 ));

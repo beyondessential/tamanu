@@ -10,14 +10,7 @@ const chance = new Chance();
 
 export const SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID = 'pde-SyndromicSurveillanceFever';
 
-/**
- * The syndromic surveillance form has a fixed id and test files can share a database, so this
- * reuses the form if another file has already set it up.
- */
-export const findOrSetupSyndromicSurveillanceSurvey = async models => {
-  const existingSurvey = await models.Survey.findByPk(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
-  if (existingSurvey) return existingSurvey;
-
+export const setupSyndromicSurveillanceSurvey = async models => {
   const { survey } = await setupSurveyFromObject(models, {
     program: {
       id: 'program-syndromicsurveillance',

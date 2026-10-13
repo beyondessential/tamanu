@@ -2,15 +2,13 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { SYNDROMIC_SURVEILLANCE_SURVEY_ID } from '@tamanu/constants';
-import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
-import { useApi } from '../api';
 import {
   usePatientAdditionalDataQuery,
   useSurveyQuery,
   useSurveyResponseQuery,
 } from '../api/queries';
-import { ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
 import { useAuth } from '../contexts/Auth';
+import { useSubmitSyndromicSurveillance } from '../hooks/useSubmitSyndromicSurveillance';
 import { ErrorMessage } from './ErrorMessage';
 import { SurveyViewForm } from '../views/programs/SurveyView';
 import { useSurveyResponseEditMutation } from '../views/programs/useSurveyResponseEditMutation';
@@ -21,33 +19,18 @@ import { SurveyResponseChangelogModal } from './SurveyResponseChangelogModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const SubmitSyndromicSurveillanceForm = ({ encounterId, patient, onClose }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
-  const { currentUser, facilityId } = useAuth();
-  const { getCurrentDateTime } = useDateTime();
-  const [startTime] = useState(getCurrentDateTime);
+  const { currentUser } = useAuth();
   const { data: survey, error: surveyError } = useSurveyQuery(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
   const { data: patientAdditionalData, isLoading: isLoadingPatientAdditionalData } =
     usePatientAdditionalDataQuery(patient.id);
+  const submitSyndromicSurveillance = useSubmitSyndromicSurveillance({
+    encounterId,
+    patientId: patient.id,
+  });
 
-  const submitSurveyResponse = async data => {
-    try {
-      await api.post(
-        `encounter/${encodeURIComponent(encounterId)}/syndromicSurveillance/surveyResponse`,
-        {
-          facilityId,
-          startTime,
-          endTime: getCurrentDateTime(),
-          answers: await getAnswersFromData(data, survey),
-        },
-      );
-      queryClient.invalidateQueries(['patientDetails', patient.id]);
-      onClose();
-    } finally {
-      // Refreshed on failure too: a submission is rejected once the encounter has a response, such
-      // as one a colleague has just submitted, and the pane then shows it as complete.
-      queryClient.invalidateQueries([ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY, encounterId]);
-    }
+  const submitSurveyResponse = async formValues => {
+    await submitSyndromicSurveillance(survey, formValues);
+    onClose();
   };
 
   if (surveyError) {

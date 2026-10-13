@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
-import { useQueryClient } from '@tanstack/react-query';
 import { getIn, useFormikContext } from 'formik';
 
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
-import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
-import { useApi } from '../api';
 import { usePatientAdditionalDataQuery } from '../api/queries';
 import { useDischargeSyndromicSurveillanceSurveyQuery } from '../api/queries/useDischargeSyndromicSurveillanceSurveyQuery';
-import { ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { SyndromicSurveillanceComplete } from '../components/SyndromicSurveillanceComplete';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { usePatient } from '../contexts/Patient';
+import { useSubmitSyndromicSurveillance } from '../hooks/useSubmitSyndromicSurveillance';
 import { SurveyViewForm } from '../views/programs/SurveyView';
 
 // The discharge form validates syndromic surveillance under this key when it is required.
@@ -42,7 +39,7 @@ const SurveyBox = styled.div`
   background: ${Colors.white};
   padding: 20px;
   border-radius: 3px;
-  border: 1px solid ${props => (props.$error ? Colors.alert : Colors.outline)};
+  border: 1px solid ${Colors.outline};
 `;
 
 const LoadFailedText = styled.p`
@@ -81,13 +78,14 @@ const EmbeddedSyndromicSurveillanceForm = ({
   hasStatusLoadFailed,
   setHasUnsubmittedAnswers,
 }) => {
-  const api = useApi();
-  const queryClient = useQueryClient();
   const { patient } = usePatient();
-  const { currentUser, facilityId } = useAuth();
-  const { getCurrentDateTime } = useDateTime();
-  const [startTime] = useState(getCurrentDateTime);
+  const { currentUser } = useAuth();
   const { errors, status } = useFormikContext();
+  const submitSyndromicSurveillance = useSubmitSyndromicSurveillance({
+    encounterId,
+    patientId: patient.id,
+    isDischarging: true,
+  });
   // Without the status, whether the encounter already has a response is unknown, so the form is not
   // offered for a submission that may well be refused.
   const { data: survey, isError: isSurveyLoadFailed } =
@@ -102,28 +100,9 @@ const EmbeddedSyndromicSurveillanceForm = ({
   // spec: SYND#discharge-form
   // Recorded as soon as it is submitted, separately from finalising the discharge, the same way a
   // form submitted from within a procedure is.
-  const submitSurveyResponse = async data => {
-    try {
-      await api.post(
-        `encounter/${encodeURIComponent(encounterId)}/syndromicSurveillance/dischargeSurveyResponse`,
-        {
-          facilityId,
-          startTime,
-          endTime: getCurrentDateTime(),
-          answers: await getAnswersFromData(data, survey),
-        },
-      );
-      setHasUnsubmittedAnswers(false);
-      queryClient.invalidateQueries(['patientDetails', patient.id]);
-    } finally {
-      // Refreshed on failure too: a submission is rejected once the encounter has a response, such
-      // as one a colleague has just submitted, and the section then shows it as complete rather
-      // than holding the discharge on a form that can no longer be submitted.
-      await queryClient.invalidateQueries([
-        ENCOUNTER_SYNDROMIC_SURVEILLANCE_QUERY_KEY,
-        encounterId,
-      ]);
-    }
+  const submitSurveyResponse = async formValues => {
+    await submitSyndromicSurveillance(survey, formValues);
+    setHasUnsubmittedAnswers(false);
   };
 
   return (
@@ -136,7 +115,7 @@ const EmbeddedSyndromicSurveillanceForm = ({
         />
       </IntroText>
       <SurveyBox
-        $error={hasRequiredError}
+        style={hasRequiredError ? { borderColor: Colors.alert } : undefined}
         onSubmit={stopSubmitReachingDischargeForm}
         data-testid="surveybox-syndromic-surveillance"
       >

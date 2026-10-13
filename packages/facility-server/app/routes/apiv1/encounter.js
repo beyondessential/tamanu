@@ -490,8 +490,9 @@ encounterRelations.get(
         [Op.or]: [{ [Op.ne]: DIAGNOSIS_CERTAINTY.ERROR }, { [Op.is]: null }],
       },
     },
-    // Only this list shows who recorded each diagnosis, so the clinician is joined here rather
-    // than in every query listing diagnoses, and only for the columns it shows.
+    // For the diagnosis table's clinician column. Joined here rather than in the model's list
+    // associations, which every diagnosis query uses, and narrowed to what the table shows, as
+    // this list also loads with every encounter.
     include: [{ association: 'clinician', attributes: ['id', 'displayName'] }],
     buildOrder: buildEncounterDiagnosisOrder,
   }),

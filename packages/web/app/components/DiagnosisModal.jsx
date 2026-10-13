@@ -5,10 +5,10 @@ import { useApi } from '../api';
 import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
-const DiagnosisModalComponent = ({ diagnosis, onClose, onSaved, encounterId, ...props }) => {
+export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...props }) => {
   const api = useApi();
   const { loadEncounter } = useEncounter();
-  const onSaveDiagnosis = async data => {
+  const onSaveDiagnosis = async (data) => {
     if (data.id) {
       await api.put(`diagnosis/${data.id}`, data);
     } else {
@@ -18,7 +18,6 @@ const DiagnosisModalComponent = ({ diagnosis, onClose, onSaved, encounterId, ...
       });
     }
     await loadEncounter(encounterId);
-    onSaved();
     onClose();
   };
 
@@ -44,6 +43,4 @@ const DiagnosisModalComponent = ({ diagnosis, onClose, onSaved, encounterId, ...
       />
     </FormModal>
   );
-};
-
-export const DiagnosisModal = React.memo(DiagnosisModalComponent);
+});

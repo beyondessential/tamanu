@@ -25,8 +25,8 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 import {
-  findOrSetupSyndromicSurveillanceSurvey,
   setupSurvey,
+  setupSyndromicSurveillanceSurvey,
   SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID,
 } from '../setupSurvey';
 
@@ -1263,26 +1263,58 @@ describe('Encounter', () => {
         await models.EncounterDiagnosis.create({
           encounterId: sortEncounter.id,
           diagnosisId: apple.id,
-          isPrimary: true,
+          isPrimary: false,
         });
+        // Primary, but not alphabetically first, so it only leads if primary diagnoses come first.
         await models.EncounterDiagnosis.create({
           encounterId: sortEncounter.id,
           diagnosisId: mango.id,
-          isPrimary: false,
+          isPrimary: true,
         });
 
         const result = await app.get(`/api/encounter/${sortEncounter.id}/diagnoses`);
         expect(result).toHaveSucceeded();
-        expect(result.body.data.map(d => d.diagnosis.name)).toEqual(['Apple', 'Mango', 'Zebra']);
+        expect(result.body.data.map(d => d.diagnosis.name)).toEqual(['Mango', 'Apple', 'Zebra']);
       });
 
       it('should sort alphabetically by diagnosis regardless of primary status when requested', async () => {
-        const result = await app.get(
-          `/api/encounter/${diagnosisEncounter.id}/diagnoses?orderBy=Diagnosis.name&order=asc`,
+        const nameSortEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis name sort test',
+        });
+        const [bravo, alpha, charlie] = await Promise.all(
+          ['Bravo', 'Alpha', 'Charlie'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
         );
-        expect(result).toHaveSucceeded();
-        const names = result.body.data.map(d => d.diagnosis.name);
-        expect(names).toEqual([...names].sort());
+        // Primary, but neither first nor last alphabetically, so it only leads if the requested
+        // sort is ignored.
+        await models.EncounterDiagnosis.bulkCreate([
+          { encounterId: nameSortEncounter.id, diagnosisId: bravo.id, isPrimary: true },
+          { encounterId: nameSortEncounter.id, diagnosisId: alpha.id, isPrimary: false },
+          { encounterId: nameSortEncounter.id, diagnosisId: charlie.id, isPrimary: false },
+        ]);
+
+        const ascending = await app.get(
+          `/api/encounter/${nameSortEncounter.id}/diagnoses?orderBy=Diagnosis.name&order=asc`,
+        );
+        const descending = await app.get(
+          `/api/encounter/${nameSortEncounter.id}/diagnoses?orderBy=Diagnosis.name&order=desc`,
+        );
+
+        expect(ascending).toHaveSucceeded();
+        expect(descending).toHaveSucceeded();
+        expect(ascending.body.data.map(d => d.diagnosis.name)).toEqual([
+          'Alpha',
+          'Bravo',
+          'Charlie',
+        ]);
+        expect(descending.body.data.map(d => d.diagnosis.name)).toEqual([
+          'Charlie',
+          'Bravo',
+          'Alpha',
+        ]);
       });
 
       it('should default to listing disproven diagnoses last, after primary/alphabetical ordering', async () => {
@@ -2828,7 +2860,7 @@ describe('Encounter', () => {
           .send({ ...submissionBody, ...body });
 
       beforeAll(async () => {
-        syndromicSurveillanceSurvey = await findOrSetupSyndromicSurveillanceSurvey(models);
+        syndromicSurveillanceSurvey = await setupSyndromicSurveillanceSurvey(models);
         encounterReaderApp = await baseApp.asNewRole([['read', 'Encounter']]);
         dischargeApp = await baseApp.asNewRole(DISCHARGE_PERMISSIONS);
         submitterApp = await baseApp.asNewRole(SUBMIT_PERMISSIONS);
