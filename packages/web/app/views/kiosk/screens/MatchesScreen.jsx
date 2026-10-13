@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
+import { useKioskAppointmentQuery } from '../kioskApi';
 import { useKioskSession } from '../KioskSession';
 import { PatientTile, SelectablePatientTile } from '../PatientTile';
 import {
@@ -22,6 +23,8 @@ const TileGrid = styled.div`
 
 const SingleMatch = ({ appointment }) => {
   const { dispatch } = useKioskSession();
+  // Fetch the forms while the patient reads their details, so they open straight away
+  useKioskAppointmentQuery(appointment.id);
   return (
     <Panel>
       <Title>

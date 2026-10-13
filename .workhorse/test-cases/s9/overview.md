@@ -36,7 +36,7 @@
 - [x] Language, text size and high contrast reset when a session ends (verifies spec: KIOSK)
 - [x] With one language, the header button reads Accessibility (verifies spec: KIOSK)
 - [x] Extra-large text and high contrast render every screen without clipping
-- [ ] Kiosk stays signed in past the token duration
+- [x] Kiosk stays signed in past the token duration
 - [x] Portrait tablet layout keeps the forms list, form and actions usable
 - [x] Reopening a completed form starts at its first page with answers kept
-- [ ] Check-in failure shows the reception message and keeps answers (verifies spec: KIOSK)
+- [x] Check-in failure shows the reception message and keeps answers (verifies spec: KIOSK)
