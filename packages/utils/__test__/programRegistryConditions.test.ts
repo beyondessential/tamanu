@@ -40,7 +40,7 @@ const invalidCodes = (components: any[], values: Record<string, any>, isRequired
   );
 
 describe('program registry condition rules', () => {
-  it('treats an unparseable answer as unanswered', () => {
+  it('treats an unparsable answer as unanswered', () => {
     expect(parseProgramRegistryConditionAnswer('asthma')).toBeNull();
     expect(invalidCodes([conditionQuestion('q1')], { q1: 'asthma' }, true)).toEqual(['q1']);
   });
