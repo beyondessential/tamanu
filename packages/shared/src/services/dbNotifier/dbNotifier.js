@@ -38,9 +38,10 @@ export const exitOnDatabaseOutage = error => {
  * Holds one dedicated connection that LISTENs on the given channels. If the connection is lost
  * (e.g. a database failover) it reconnects with backoff and listens again, so the process keeps
  * running. NOTIFYs sent while disconnected are lost: use `onReconnect` to refresh anything that
- * depends on them. Only if the database stays unreachable for `outageToleranceMs` is
- * `onOutageExceeded` called; the caller decides what that means for the process (servers pass
- * `exitOnDatabaseOutage`).
+ * depends on them. If a lost connection can't be re-established within `outageToleranceMs`, the
+ * notifier stops listening for good and calls `onOutageExceeded`; the caller decides what that
+ * means for the process (servers pass `exitOnDatabaseOutage`). The initial connection is retried
+ * the same way, but on failure the returned promise rejects instead.
  *
  * @param {{host: string, port: number, database: string, username: string, password: string}} config
  * @param {string[]} channels
