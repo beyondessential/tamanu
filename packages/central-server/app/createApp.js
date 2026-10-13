@@ -22,14 +22,19 @@ export async function createApp(ctx) {
   registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
     onReconnect: dbNotifier.onReconnect,
   });
-  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
-    if (payload.table !== 'settings') return;
+  const refreshAiContexts = async () => {
     try {
       await ctx.aiService?.refreshContexts(ctx.settings);
     } catch (error) {
       log.warn({ error }, 'Failed to refresh AI contexts after settings change');
     }
+  };
+  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
+    if (payload.table !== 'settings') return;
+    await refreshAiContexts();
   });
+  // a settings change while the listener was disconnected would otherwise go unnoticed
+  dbNotifier.onReconnect(refreshAiContexts);
 
   if (await ctx.settings.get('websocket.enabled')) {
     await createWebsocket(api.httpServer, ctx, dbNotifier, api.express);
