@@ -498,7 +498,8 @@ describe('Exposed keys', () => {
 
     it('should include facility keys', () => {
       expect(keys).toContain('patientDisplayIdPattern');
-      expect(keys).toContain('sync');
+      expect(keys).toContain('sync.syncAllLabRequests');
+      expect(keys).toContain('sync.urgentIntervalInSeconds');
       expect(keys).toContain('vaccinations');
     });
 
@@ -590,6 +591,15 @@ describe('sync.centralEndpoints', () => {
     }
     expect(extractHighRiskPaths(globalSettings)).toContain('sync.centralEndpoints');
     expect(extractHighRiskPaths(facilitySettings)).toContain('sync.centralEndpoints');
+  });
+
+  // spec: CEND
+  it('keeps the endpoint list and its tuning off the web frontend', () => {
+    const exposed = getKeysByFlag('exposedToWeb', [facilitySettings, globalSettings]);
+    expect(exposed).not.toContain('sync');
+    expect(exposed).not.toContain('sync.centralEndpoints');
+    expect(exposed).not.toContain('sync.centralEndpointRecheckIntervalInSeconds');
+    expect(exposed).not.toContain('sync.centralEndpointProbeTimeoutInSeconds');
   });
 
   it('defaults to an empty list', () => {

@@ -269,13 +269,13 @@ export const facilitySettings = {
     },
     sync: {
       description: 'Facility sync settings',
-      exposedToWeb: true,
       highRisk: true,
       properties: {
         syncAllLabRequests: {
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
+          exposedToWeb: true,
         },
         urgentIntervalInSeconds: {
           name: 'Sync urgent interval',
@@ -283,6 +283,7 @@ export const facilitySettings = {
           description: 'Mobile urgent sync interval',
           type: yup.number().integer().positive(),
           defaultValue: 10,
+          exposedToWeb: true,
         },
         centralEndpoints: centralEndpointsSetting(
           'Central endpoints for this facility, tried before the global list',

@@ -165,7 +165,8 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     // With alternatives, a failed login is not worth the full backoff on this endpoint: look for
-    // another one first. A lockout is the exception, since more logins only extend it.
+    // another one first. A lockout is the exception: central locks the account and device, so
+    // every other name for it refuses too until the lockout expires.
     try {
       return await this.#login(false, timeout);
     } catch (error) {

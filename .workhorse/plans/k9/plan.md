@@ -42,9 +42,9 @@ Where the build differs from the design above.
 - Hosts are read through `getCentralHosts()` and `canUseCentralEndpoints()` in `serverConfig.js`; `getSyncConfig()` keeps its shape, with `host` as the first entry.
 - The API process does open short-lived central connections (login, password reset, attachments). They read the endpoint in use through the same selector, which the API process runs in follower mode. A follower selector refuses to walk or recheck, so those connections follow the sync process and never probe or publish.
 - `CentralServerConnection` follows the selector lazily at the start of each call, so no listeners are needed. When the selector has alternatives, the first attempt of a call outside a session uses a short backoff (3 attempts), then a failure walks the list and the call is retried once on the endpoint it lands on with the normal backoff. While a session is in progress the connection neither walks nor follows the selector: a failing call or refused re-login stays on the session's endpoint under the full backoff and fails the session, and the first call after it does the walk. The selector's `canFailOver()` is the single check for all of this.
-- A failed login walks the list, except when central rate-limits the account, since further logins extend the lockout.
+- A failed login walks the list, except when central rate-limits the account: the lockout is per account and device, so every other name for the same central refuses too. A login refused during a lockout records no attempt on central, so probing then does not extend it.
 - The reported endpoint is read when the request body is serialised, so a failover partway through the call reports the endpoint the request went to. Central parses it leniently (structure only), so a legacy public-http seed host never blocks sync.
-- `sync.centralEndpoints` sits in the existing facility `sync` subtree, which is exposed to the web frontend as a whole, so the list is exposed there too.
+- The facility `sync` subtree was exposed to the web frontend as a whole. The flag now sits on its two existing leaves instead, which the web gets in the same shape, so the endpoint list and its tuning settings stay server-side.
 
 ## Open
 

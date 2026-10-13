@@ -172,6 +172,26 @@ describe('CentralEndpointSelector', () => {
       expect(selector.current()).toBe(A);
     });
 
+    it('stops probing once a session starts, even while earlier hosts keep failing', async () => {
+      const D = 'https://d.example.com';
+      const { selector, probed } = makeSelector({
+        hosts: [A, B, C, D],
+        inUse: D,
+        working: new Set([D]),
+      });
+      const realProbe = selector.probe.bind(selector);
+      selector.probe = async host => {
+        const result = await realProbe(host);
+        selector.beginSession();
+        return result;
+      };
+
+      expect(await selector.recheckEarlier()).toBe(false);
+
+      expect(probed).toEqual([A]);
+      expect(selector.current()).toBe(D);
+    });
+
     it('does not move when a session started while it was probing', async () => {
       const { selector } = makeSelector({ inUse: B });
       const slowProbe = selector.probe.bind(selector);

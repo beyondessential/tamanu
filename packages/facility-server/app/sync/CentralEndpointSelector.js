@@ -154,8 +154,10 @@ export class CentralEndpointSelector extends EventEmitter {
     const currentIndex = this.#hosts.indexOf(this.#current);
     const earlier = this.#hosts.slice(0, currentIndex === -1 ? this.#hosts.length : currentIndex);
     for (const host of earlier) {
+      // a session or walk may have started during the previous probe
+      if (this.isSessionActive() || this.#walking) return false;
       if ((await this.probe(host)).ok) {
-        // a session or walk may have started while probing
+        // or during this one
         if (this.isSessionActive() || this.#walking) return false;
         await this.#use(host);
         return true;
