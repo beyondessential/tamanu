@@ -23,6 +23,8 @@ const DEFAULT_MAX_DELAY_MS = 10_000;
 // Waits `ms`, or less if the signal aborts first
 const waitUnlessAborted = (ms: number, signal?: AbortSignal) =>
   new Promise<void>(resolve => {
+    // an 'abort' listener added after the fact never fires
+    if (signal?.aborted) return resolve();
     const timer = setTimeout(done, ms);
     function done() {
       clearTimeout(timer);

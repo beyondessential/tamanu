@@ -90,4 +90,22 @@ describe('retryWithBackoff', () => {
     await expect(promise).rejects.toThrow('down');
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  it('does not wait out the delay when aborted before the wait begins', async () => {
+    const controller = new AbortController();
+    const fn = vi.fn().mockRejectedValue(new Error('down'));
+
+    const promise = retryWithBackoff(fn, {
+      maxElapsedMs: 60_000,
+      initialDelayMs: 10_000,
+      signal: controller.signal,
+      onRetry: () => controller.abort(),
+    });
+    promise.catch(() => {});
+    // no timers advanced: the rejection must not depend on the backoff delay elapsing
+    await vi.advanceTimersByTimeAsync(0);
+
+    await expect(promise).rejects.toThrow('down');
+  });
 });
+
