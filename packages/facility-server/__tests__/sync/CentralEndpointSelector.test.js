@@ -20,7 +20,13 @@ const makeFacts = (initial = {}) => {
 };
 
 // `working` is the set of hosts whose login succeeds; every probe is recorded in `probed`
-const makeSelector = ({ hosts = [A, B, C], working = new Set(hosts), inUse, facts } = {}) => {
+const makeSelector = ({
+  hosts = [A, B, C],
+  working = new Set(hosts),
+  inUse,
+  facts,
+  canProbe,
+} = {}) => {
   const probed = [];
   const factStore = facts ?? makeFacts();
   const selector = new CentralEndpointSelector({
@@ -29,6 +35,7 @@ const makeSelector = ({ hosts = [A, B, C], working = new Set(hosts), inUse, fact
     inUse,
     getDeviceId: () => 'device-1',
     getProbeSettings: async () => ({ recheckIntervalMs: 1000, probeTimeoutMs: 50 }),
+    canProbe,
     createProbeClient: ({ host }) => ({
       login: async () => {
         probed.push(host);
@@ -176,6 +183,47 @@ describe('CentralEndpointSelector', () => {
 
       expect(await selector.recheckEarlier()).toBe(false);
       expect(selector.current()).toBe(B);
+    });
+  });
+
+  describe('canFailOver', () => {
+    it('is true with alternatives and no session running', () => {
+      expect(makeSelector().selector.canFailOver()).toBe(true);
+    });
+
+    it('is false with a single host', () => {
+      expect(makeSelector({ hosts: [A] }).selector.canFailOver()).toBe(false);
+    });
+
+    it('is false while a sync session is running', () => {
+      const { selector } = makeSelector();
+      selector.beginSession();
+      expect(selector.canFailOver()).toBe(false);
+      selector.endSession();
+      expect(selector.canFailOver()).toBe(true);
+    });
+
+    it('is false in a process that only follows', () => {
+      expect(makeSelector({ canProbe: false }).selector.canFailOver()).toBe(false);
+    });
+  });
+
+  describe('in a process that only follows', () => {
+    it('never walks, probes or publishes', async () => {
+      const { selector, probed, facts } = makeSelector({ canProbe: false, working: new Set([B]) });
+
+      expect(await selector.walk()).toBe(false);
+
+      expect(probed).toEqual([]);
+      expect(selector.current()).toBe(A);
+      expect(facts.store.has(FACT_CENTRAL_ENDPOINT_IN_USE)).toBe(false);
+    });
+
+    it('never rechecks', async () => {
+      const { selector, probed } = makeSelector({ canProbe: false, inUse: C });
+
+      expect(await selector.recheckEarlier()).toBe(false);
+      expect(probed).toEqual([]);
     });
   });
 

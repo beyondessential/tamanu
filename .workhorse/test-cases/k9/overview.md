@@ -32,9 +32,11 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 - [x] an endpoint that stops working mid-use walks the list again from the top and retries the call (verifies spec: CEND)
 - [x] when every endpoint fails the original error surfaces under the normal backoff (verifies spec: CEND)
 - [x] a locked-out account does not trigger a walk (verifies spec: CEND)
-- [x] a session in progress is not moved to another endpoint, by failure retry or by recheck (verifies spec: CEND)
+- [x] a session in progress is not moved to another endpoint, by failure retry, re-login or recheck, and nothing is probed during it (verifies spec: CEND)
+- [x] a connection in a session stays on its endpoint even when the selector moves during it (verifies spec: CEND)
 - [x] on a lower-priority endpoint the facility rechecks earlier ones and moves to the highest that passes (verifies spec: CEND)
 - [x] a process without a central connection follows the endpoint in use and never probes (verifies spec: CEND)
+- [x] the API process's short-lived central calls neither probe nor publish an endpoint when theirs fails (verifies spec: CEND)
 - [x] with a single host nothing is probed (verifies spec: CEND)
 - [x] a sync with a dead first endpoint lands on the second and returns to the first after the recheck (verifies spec: CEND)
 

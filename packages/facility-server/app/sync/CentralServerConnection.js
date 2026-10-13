@@ -58,9 +58,12 @@ export class CentralServerConnection extends TamanuApi {
   }
 
   // Follows the endpoint the selector has chosen, which can change between calls. Credentials are
-  // for the old endpoint, so the next call logs in again. Returns whether it moved.
+  // for the old endpoint, so the next call logs in again. A sync session in progress stays on the
+  // endpoint it started on. Returns whether it moved.
   #followSelectedEndpoint() {
-    const host = getCentralEndpointSelector()?.current();
+    const selector = getCentralEndpointSelector();
+    if (!selector || selector.isSessionActive()) return false;
+    const host = selector.current();
     if (!host || host === this.#hostInUse) return false;
 
     log.info('CentralServerConnection: switching central endpoint', {
@@ -73,15 +76,14 @@ export class CentralServerConnection extends TamanuApi {
     return true;
   }
 
-  // The endpoint failed. Has the selector look for another one and, when it finds one and no sync
-  // session is running, resolves true so the caller retries there. A running session instead
-  // fails with its error and the next one starts on the new endpoint.
+  // The endpoint failed. When this connection may fail over, has the selector look for another
+  // endpoint and resolves true once it has moved there, so the caller retries. A running session
+  // instead fails with its error, and the next call outside it does the looking.
   async #failOver(error) {
     const selector = getCentralEndpointSelector();
-    if (!selector?.hasAlternatives() || !isEndpointFailure(error)) return false;
+    if (!selector?.canFailOver() || !isEndpointFailure(error)) return false;
 
     await selector.walk({ reason: error.message });
-    if (selector.isSessionActive()) return false;
     return this.#followSelectedEndpoint();
   }
 
@@ -110,12 +112,10 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     this.#followSelectedEndpoint();
-    const selector = getCentralEndpointSelector();
     // a running session keeps its full backoff, so a brief outage does not cost it the session
     const canFailFast =
       !isAuthEndpoint &&
-      selector?.hasAlternatives() &&
-      !selector.isSessionActive() &&
+      getCentralEndpointSelector()?.canFailOver() &&
       [undefined, true].includes(config.backoff);
     const firstConfig = canFailFast ? { ...config, backoff: FAILOVER_BACKOFF } : config;
     try {
@@ -160,7 +160,7 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     const selector = getCentralEndpointSelector();
-    if (!selector?.hasAlternatives()) {
+    if (!selector?.canFailOver()) {
       return await this.#login(backoff, timeout);
     }
 

@@ -299,11 +299,19 @@ describe('CentralServerConnection', () => {
     const loginsAt = origin =>
       calls.filter(call => call.origin === origin && call.path === 'login').length;
 
-    const makeSelector = ({ list = [A, B], inUse } = {}) => {
+    let publishedFacts;
+
+    const makeSelector = ({ list = [A, B], inUse, canProbe } = {}) => {
       const selector = new CentralEndpointSelector({
-        models: { LocalSystemFact: { get: async () => null, set: async () => {} } },
+        models: {
+          LocalSystemFact: {
+            get: async () => null,
+            set: async (key, value) => void publishedFacts.push({ key, value }),
+          },
+        },
         hosts: list,
         inUse,
+        canProbe,
         getDeviceId: () => 'test',
         getProbeSettings: async () => ({ recheckIntervalMs: 60_000, probeTimeoutMs: 100 }),
         createProbeClient: ({ host }) => {
@@ -332,6 +340,7 @@ describe('CentralServerConnection', () => {
       // the timeout test above leaves fake timers installed, which would stall the backoff
       vi.useRealTimers();
       calls = [];
+      publishedFacts = [];
       hosts = { [A]: 'live', [B]: 'live', [C]: 'live' };
       fakeFetch = vi.fn(respond);
     });
@@ -521,12 +530,86 @@ describe('CentralServerConnection', () => {
           type: ERROR_TYPE.REMOTE_UNREACHABLE,
         });
 
-        // the next session starts on the endpoint it landed on
-        expect(selector.current()).toBe(B);
-        expect(
-          calls.filter(call => call.origin === B && call.path === 'sync/abc/pull'),
-        ).toHaveLength(0);
+        // nothing was probed during the session
+        expect(selector.current()).toBe(A);
+        expect(calls.filter(call => call.origin === B)).toHaveLength(0);
+
+        // the first call after it looks for another endpoint
         selector.endSession();
+        expect(await connection.fetch('anything')).toEqual({ answeredBy: B });
+        expect(selector.current()).toBe(B);
+      });
+
+      it('keeps a session on its endpoint when the selector moves during it', async () => {
+        const selector = makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+        selector.beginSession();
+
+        await selector.adopt([A, B], B);
+        expect(await connection.fetch('sync/abc/pull')).toEqual({ answeredBy: A });
+
+        selector.endSession();
+        expect(await connection.fetch('anything')).toEqual({ answeredBy: B });
+      });
+    });
+
+    describe('during a sync session, a login', () => {
+      it('is retried on the same endpoint rather than walking to another', async () => {
+        const selector = makeSelector();
+        const connection = makeConnection();
+        await connection.connect();
+        selector.beginSession();
+
+        // the session's token is rejected and the re-login is refused
+        hosts[A] = 'refuses';
+        fakeFetch.mockImplementationOnce(() => authInvalid);
+
+        await expect(connection.fetch('sync/abc/pull')).rejects.toBeProblemOfType(
+          ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+        );
+
+        expect(selector.current()).toBe(A);
+        expect(connection.host).toBe(A);
+        expect(calls.filter(call => call.origin === B)).toHaveLength(0);
+        selector.endSession();
+      });
+    });
+
+    describe('in a process that follows the sync process', () => {
+      it('neither probes other endpoints nor publishes one when its endpoint is down', async () => {
+        const selector = makeSelector({ canProbe: false });
+        const connection = makeConnection();
+
+        hosts[A] = 'down';
+        await expect(connection.fetch('anything', { backoff: false })).rejects.toMatchObject({
+          type: ERROR_TYPE.REMOTE_UNREACHABLE,
+        });
+
+        expect(selector.current()).toBe(A);
+        expect(calls.filter(call => call.origin === B)).toHaveLength(0);
+        expect(publishedFacts).toEqual([]);
+      });
+
+      it('does not walk when its login is refused', async () => {
+        const selector = makeSelector({ canProbe: false });
+        const connection = makeConnection();
+
+        hosts[A] = 'refuses';
+        await expect(connection.connect()).rejects.toBeProblemOfType(
+          ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+        );
+
+        expect(selector.current()).toBe(A);
+        expect(calls.filter(call => call.origin === B)).toHaveLength(0);
+        expect(publishedFacts).toEqual([]);
+      });
+
+      it('still uses the endpoint the sync process chose', async () => {
+        const selector = makeSelector({ canProbe: false });
+        const connection = makeConnection();
+
+        await selector.adopt([A, B], B);
         expect(await connection.fetch('anything')).toEqual({ answeredBy: B });
       });
     });

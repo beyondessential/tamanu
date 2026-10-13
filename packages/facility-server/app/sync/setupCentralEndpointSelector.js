@@ -37,6 +37,7 @@ export async function setupCentralEndpointSelector(context, { role }) {
     inUse: await context.models.LocalSystemFact.get(FACT_CENTRAL_ENDPOINT_IN_USE),
     getDeviceId: () => context.deviceId,
     getProbeSettings: readProbeSettings,
+    canProbe: role !== 'follower',
   });
   setCentralEndpointSelector(selector);
   /* eslint-disable-next-line require-atomic-updates -- single-threaded boot, no concurrent writers */

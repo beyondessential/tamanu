@@ -21,6 +21,7 @@ export class CentralEndpointSelector extends EventEmitter {
   #current;
   #getProbeSettings;
   #createProbeClient;
+  #canProbe;
   #walking = null;
   #activeSessions = 0;
 
@@ -31,6 +32,7 @@ export class CentralEndpointSelector extends EventEmitter {
    * @param {string | null} [args.inUse] the host in use, when known; defaults to the first
    * @param {() => string} args.getDeviceId
    * @param {() => Promise<{ recheckIntervalMs: number, probeTimeoutMs: number }>} args.getProbeSettings
+   * @param {boolean} [args.canProbe] false for a process that only follows the sync process
    * @param {(args: { host: string, timeoutMs: number }) => { login: Function }} [args.createProbeClient]
    */
   constructor({
@@ -39,6 +41,7 @@ export class CentralEndpointSelector extends EventEmitter {
     inUse = null,
     getDeviceId,
     getProbeSettings,
+    canProbe = true,
     createProbeClient = createDefaultProbeClient(getDeviceId),
   }) {
     super();
@@ -47,6 +50,7 @@ export class CentralEndpointSelector extends EventEmitter {
     this.#current = inUse && hosts.includes(inUse) ? inUse : (hosts[0] ?? null);
     this.#getProbeSettings = getProbeSettings;
     this.#createProbeClient = createProbeClient;
+    this.#canProbe = canProbe;
   }
 
   get hosts() {
@@ -66,6 +70,15 @@ export class CentralEndpointSelector extends EventEmitter {
   /** A sync session finishes on its endpoint, or fails, before the selector moves it elsewhere. */
   isSessionActive() {
     return this.#activeSessions > 0;
+  }
+
+  /**
+   * Whether a connection that finds its endpoint failing may look for another one now: there is
+   * somewhere else to go, this process is the one that probes, and no sync session is running.
+   * Otherwise the connection stays where it is under its normal backoff.
+   */
+  canFailOver() {
+    return this.#canProbe && this.hasAlternatives() && !this.isSessionActive();
   }
 
   beginSession() {
@@ -111,7 +124,7 @@ export class CentralEndpointSelector extends EventEmitter {
    * walk. Resolves to whether some host passed, which can be the host already in use.
    */
   walk({ reason } = {}) {
-    if (!this.hasAlternatives()) return Promise.resolve(false);
+    if (!this.#canProbe || !this.hasAlternatives()) return Promise.resolve(false);
     this.#walking ??= this.#walkHosts(reason).finally(() => {
       this.#walking = null;
     });
@@ -136,7 +149,7 @@ export class CentralEndpointSelector extends EventEmitter {
    * way. Resolves to whether it moved.
    */
   async recheckEarlier() {
-    if (this.isSessionActive() || this.#walking) return false;
+    if (!this.#canProbe || this.isSessionActive() || this.#walking) return false;
 
     const currentIndex = this.#hosts.indexOf(this.#current);
     const earlier = this.#hosts.slice(0, currentIndex === -1 ? this.#hosts.length : currentIndex);
