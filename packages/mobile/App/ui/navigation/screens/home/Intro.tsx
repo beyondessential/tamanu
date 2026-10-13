@@ -11,6 +11,8 @@ import type { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/Int
 import { CenterView, StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 
+const icons = [AppIntro1Icon, AppIntro2Icon, AppIntro3Icon] as const;
+
 export const Intro = ({
   navigation,
   route: {
@@ -21,18 +23,7 @@ export const Intro = ({
 
   useDisableAndroidBackButton(step === 1);
 
-  const Icon = () => {
-    switch (step) {
-      case 1:
-        return AppIntro1Icon;
-      case 2:
-        return AppIntro2Icon;
-      case 3:
-        return AppIntro3Icon;
-      default:
-        return AppIntro1Icon;
-    }
-  };
+  const Icon = icons[step - 1] ?? icons[0];
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} alignItems="center">
