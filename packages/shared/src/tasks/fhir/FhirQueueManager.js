@@ -105,6 +105,18 @@ export class FhirQueueManager {
       this.log.debug('FhirQueueManager: got postgres notification', { payload });
       this.processQueueNow(payload.topic);
     });
+    this.dbNotifier.onReconnect(() => this.handleListenerReconnected());
+  }
+
+  // NOTIFYs for jobs queued while the listener was disconnected were lost. Pick
+  // those jobs up now rather than at the next heartbeat, and restart the
+  // dead-listener clock: the listener is demonstrably live, and otherwise
+  // grabbing the gap's jobs without NOTIFYs would look like a dead listener.
+  handleListenerReconnected() {
+    this.lastNotifyAt = Date.now();
+    for (const topic of this.queueProcessors.keys()) {
+      this.processQueueNow(topic);
+    }
   }
 
   async setHandler(topic, handler) {
