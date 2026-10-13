@@ -1,4 +1,4 @@
-import { IsNull, Not } from 'typeorm';
+import { In, IsNull, Not } from 'typeorm';
 
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
@@ -104,6 +104,24 @@ export async function addProgramRegistryConditions(
   const programRegistry = await getCurrentProgramRegistry(surveyId);
   if (!programRegistry) {
     throw new Error('No program registry configured for the current form');
+  }
+  const conditionIds = [...new Set(conditionAnswers.map(answer => answer.conditionId))];
+  const categoryIds = [
+    ...new Set(conditionAnswers.map(answer => answer.categoryId).filter(Boolean)),
+  ];
+  const registryConditionCount = await ProgramRegistryCondition.count({
+    where: { id: In(conditionIds), programRegistry: { id: programRegistry.id } },
+  });
+  const registryCategoryCount = await ProgramRegistryConditionCategory.count({
+    where: { id: In(categoryIds), programRegistry: { id: programRegistry.id } },
+  });
+  if (
+    registryConditionCount !== conditionIds.length ||
+    registryCategoryCount !== categoryIds.length
+  ) {
+    throw new Error(
+      "A related condition or category does not belong to this form's program registry",
+    );
   }
 
   const registration = await getActiveRegistration(programRegistry.programId, patientId);
