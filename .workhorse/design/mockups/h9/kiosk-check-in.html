@@ -271,6 +271,8 @@
   .modal.settings .welcome-grid { grid-template-columns: 1.5fr 1fr; }
   .modal.settings .card h2 { font-size: 15px; margin: 0 0 18px; color: var(--text2); }
   .modal.settings .actions { padding-top: 28px; }
+  .modal.settings.access-only { width: 560px; }
+  .modal.settings.access-only .actions { padding-top: 36px; }
     .countdown { font-size: 52px; font-weight: 500; color: var(--primary-dark); margin: -10px 0 26px; font-variant-numeric: tabular-nums; }
 
   /* High contrast + extra large text */
@@ -397,6 +399,43 @@
                 <div class="toggle-row">High contrast <div class="switch"></div></div>
               </div>
             </div>
+          </div>
+          <div class="actions end">
+            <div class="btn primary wide">Done</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame-wrap">
+    <div class="caption">Accessibility only <span>· when the facility offers one language. The header button opens accessibility alone</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-access"/></svg>Accessibility</div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body center landing">
+        <div class="state-icon info"><svg><use href="#i-cal"/></svg></div>
+        <h1 class="k-title">Welcome to Tamanu Health Centre</h1>
+        <p class="k-lead">Check in for your appointment here.</p>
+        <div class="btn primary wide">Start check-in <svg><use href="#i-next"/></svg></div>
+      </div>
+      <div class="scrim">
+        <div class="modal settings access-only">
+          <h2>Accessibility</h2>
+          <div class="setting">
+            <div class="setting-label">Text size</div>
+            <div class="segmented">
+              <div class="on" style="font-size:16px">A</div>
+              <div style="font-size:21px">A</div>
+              <div style="font-size:27px">A</div>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="toggle-row">High contrast <div class="switch"></div></div>
           </div>
           <div class="actions end">
             <div class="btn primary wide">Done</div>
