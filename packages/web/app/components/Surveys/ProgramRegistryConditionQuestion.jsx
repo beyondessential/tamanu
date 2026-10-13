@@ -1,5 +1,5 @@
 import FormHelperText from '@mui/material/FormHelperText';
-import React, { createContext, useContext, useId } from 'react';
+import React, { createContext, useContext, useId, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
@@ -11,9 +11,29 @@ import {
   isProgramRegistryConditionAnswerable,
   isProgramRegistryConditionRequired,
 } from '@tamanu/ui-components';
+import { useSurveyProgramRegistryQuery } from '../../api/queries';
 import { useTranslation } from '../../contexts/Translation';
 
 export const ProgramRegistryConditionContext = createContext(null);
+
+export const useProgramRegistryConditionForm = ({ surveyId, patientId, components, isEdit }) => {
+  const hasConditionQuestions = components.some(
+    component =>
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION,
+  );
+  const { data: registryOptions } = useSurveyProgramRegistryQuery(surveyId, patientId, {
+    enabled: hasConditionQuestions,
+  });
+  const conditionContext = useMemo(
+    () => ({ registryOptions, components, isEdit }),
+    [registryOptions, components, isEdit],
+  );
+  const isConditionRequired =
+    !isEdit &&
+    Boolean(registryOptions) &&
+    isProgramRegistryConditionRequired(registryOptions, components);
+  return { conditionContext, isConditionRequired };
+};
 
 const Container = styled.div`
   display: flex;

@@ -1,2 +1,5 @@
 export * from './getComponentForQuestionType';
-export { ProgramRegistryConditionContext } from './ProgramRegistryConditionQuestion';
+export {
+  ProgramRegistryConditionContext,
+  useProgramRegistryConditionForm,
+} from './ProgramRegistryConditionQuestion';

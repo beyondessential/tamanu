@@ -16,20 +16,19 @@ import type { GenericFormValues } from '~/types/Forms';
 import type { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { runCalculations } from '~/ui/helpers/calculations';
-import { patientKeys, registrationKeys } from '~/ui/hooks/queries/queryKeys';
+import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { usePatientAdditionalData } from '~/ui/hooks/usePatientAdditionalData';
 import { ErrorScreen } from '../../ErrorScreen';
 import { LoadingScreen } from '../../LoadingScreen';
 import Form from '../Form';
 import { FormFields } from './FormFields';
 import { getFormInitialValues, getFormSchema } from './helpers';
-import { ProgramRegistryConditionContext } from './SurveyProgramRegistryConditionField';
-import { getProgramRegistryConditionOptions } from '/helpers/programRegistryConditions';
 import {
-  getProgramRegistryConditionErrors,
-  isProgramRegistryConditionRequired,
-} from '/helpers/programRegistryConditionRules';
-import { checkVisibilityCriteria, FieldTypes } from '/helpers/fields';
+  ProgramRegistryConditionContext,
+  useProgramRegistryConditionForm,
+} from './SurveyProgramRegistryConditionField';
+import { getProgramRegistryConditionErrors } from '/helpers/programRegistryConditionRules';
+import { checkVisibilityCriteria } from '/helpers/fields';
 import { authUserSelector } from '/helpers/selectors';
 
 const EMPTY_CALCULATED_VALUES = {};
@@ -163,19 +162,10 @@ export const SurveyForm = ({
     [encounter?.encounterType],
   );
   const hasCalculations = useMemo(() => components.some(c => c.calculation), [components]);
-  const conditionSurveyId = components.find(
-    c => c.dataElement.type === FieldTypes.PROGRAM_REGISTRY_CONDITION,
-  )?.surveyId;
-  const { data: conditionOptions } = useQuery({
-    queryKey: registrationKeys.formConditionOptions(conditionSurveyId, patient.id),
-    queryFn: () => getProgramRegistryConditionOptions(conditionSurveyId, patient.id),
-    enabled: Boolean(conditionSurveyId),
-  });
-  const conditionContext = useMemo(
-    () => ({ options: conditionOptions, components }),
-    [conditionOptions, components],
+  const { conditionContext, isConditionRequired } = useProgramRegistryConditionForm(
+    components,
+    patient.id,
   );
-  const isConditionRequired = isProgramRegistryConditionRequired(conditionOptions, components);
 
   const validateVisibleFields = useCallback(
     async (values: Record<string, any>) => {

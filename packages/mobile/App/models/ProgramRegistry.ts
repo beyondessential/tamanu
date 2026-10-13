@@ -68,4 +68,10 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   static async getAllProgramRegistries() {
     return ProgramRegistry.getRepository().find();
   }
+
+  static async getCurrentForSurvey(surveyId: string) {
+    return ProgramRegistry.findOne({
+      where: { program: { surveys: { id: surveyId } }, visibilityStatus: VisibilityStatus.Current },
+    });
+  }
 }

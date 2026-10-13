@@ -3,21 +3,20 @@ import React, { useEffect, useMemo } from 'react';
 import { useMatch, useParams } from 'react-router';
 import styled from 'styled-components';
 
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
   Form,
   getFormInitialValues,
   getValidationSchema,
-  isProgramRegistryConditionRequired,
   SurveyScreenPaginator,
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { useSurveyProgramRegistryQuery } from '../../api/queries';
 import {
   getComponentForQuestionType,
   ProgramRegistryConditionContext,
+  useProgramRegistryConditionForm,
 } from '../../components/Surveys';
 import { Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
@@ -106,20 +105,12 @@ export const SurveyViewForm = ({
     getCurrentDateTime,
     initialAnswerOverrides,
   ]);
-  const hasConditionQuestions = currentComponents.some(
-    c => c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION,
-  );
-  const { data: registryOptions } = useSurveyProgramRegistryQuery(survey.id, patient?.id, {
-    enabled: hasConditionQuestions,
+  const { conditionContext, isConditionRequired } = useProgramRegistryConditionForm({
+    surveyId: survey.id,
+    patientId: patient?.id,
+    components: currentComponents,
+    isEdit,
   });
-  const programRegistryConditionContext = useMemo(
-    () => ({ registryOptions, components: currentComponents, isEdit }),
-    [registryOptions, currentComponents, isEdit],
-  );
-  const isConditionRequired =
-    !isEdit &&
-    Boolean(registryOptions) &&
-    isProgramRegistryConditionRequired(registryOptions, currentComponents);
   const validationSchema = useMemo(
     () => getValidationSchema(survey, getTranslation, {}, { isConditionRequired }),
     [survey, getTranslation, isConditionRequired],
@@ -157,7 +148,7 @@ export const SurveyViewForm = ({
     };
 
     return (
-      <ProgramRegistryConditionContext.Provider value={programRegistryConditionContext}>
+      <ProgramRegistryConditionContext.Provider value={conditionContext}>
         <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
         <SurveyScreenPaginator
           survey={survey}

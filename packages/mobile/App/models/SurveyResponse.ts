@@ -5,6 +5,7 @@ import {
   type IVitalsSurvey,
   type ICreateSurveyResponse,
   type ISurveyResponse,
+  type ISurveyScreenComponent,
 } from '~/types';
 import { runCalculations } from '~/ui/helpers/calculations';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
@@ -15,7 +16,6 @@ import {
   getResultValue,
   getStringValue,
 } from '~/ui/helpers/fields';
-import { VisibilityStatus } from '../visibilityStatuses';
 import { BaseModel } from './BaseModel';
 import { DateTimeStringColumn } from './DateColumns';
 import { Encounter } from './Encounter';
@@ -89,13 +89,7 @@ async function writeToPatientFields(
   }
 
   if (valuesByModel.PatientProgramRegistration) {
-    const programRegistryDetail = await ProgramRegistry.findOne({
-      select: ['id'],
-      where: {
-        program: { surveys: { id: surveyId } },
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    });
+    const programRegistryDetail = await ProgramRegistry.getCurrentForSurvey(surveyId);
     if (!programRegistryDetail?.id) {
       throw new Error('No program registry configured for the current form');
     }
@@ -112,6 +106,28 @@ async function writeToPatientFields(
       submittedTime,
     );
   }
+}
+
+/**
+ * DUPLICATED IN database/src/models/SurveyResponse.ts (handleSurveyResponseActions). Please keep in sync.
+ */
+async function handleSurveyResponseActions(
+  components: ISurveyScreenComponent[],
+  values: Record<string, any>,
+  patientId: string,
+  surveyId: string,
+  userId: string,
+  submittedTime: string,
+) {
+  await writeToPatientFields(components, values, patientId, surveyId, userId, submittedTime);
+  await addProgramRegistryConditions(
+    components,
+    values,
+    patientId,
+    surveyId,
+    userId,
+    submittedTime,
+  );
 }
 
 @Entity('survey_responses')
@@ -266,15 +282,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         }
         setNote('Writing patient data');
 
-        await writeToPatientFields(
-          components,
-          finalValues,
-          patientId,
-          surveyId,
-          userId,
-          responseRecord.endTime,
-        );
-        await addProgramRegistryConditions(
+        await handleSurveyResponseActions(
           components,
           finalValues,
           patientId,

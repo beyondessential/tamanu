@@ -17,11 +17,6 @@ import {
   type ProgramRegistryConditionOptions,
 } from './programRegistryConditionRules';
 
-const getCurrentProgramRegistry = (surveyId: string) =>
-  ProgramRegistry.findOne({
-    where: { program: { surveys: { id: surveyId } }, visibilityStatus: VisibilityStatus.Current },
-  });
-
 const getActiveRegistration = async (programId: string, patientId: string) => {
   const registration = await PatientProgramRegistration.getRecentOne(programId, patientId);
   return registration?.registrationStatus === RegistrationStatus.Active ? registration : null;
@@ -44,7 +39,7 @@ export const getProgramRegistryConditionOptions = async (
   surveyId: string,
   patientId: string,
 ): Promise<ProgramRegistryConditionOptions> => {
-  const programRegistry = await getCurrentProgramRegistry(surveyId);
+  const programRegistry = await ProgramRegistry.getCurrentForSurvey(surveyId);
   if (!programRegistry) {
     return {
       programRegistry: null,
@@ -101,7 +96,7 @@ export async function addProgramRegistryConditions(
     .filter(answer => answer?.conditionId);
   if (conditionAnswers.length === 0) return;
 
-  const programRegistry = await getCurrentProgramRegistry(surveyId);
+  const programRegistry = await ProgramRegistry.getCurrentForSurvey(surveyId);
   if (!programRegistry) {
     throw new Error('No program registry configured for the current form');
   }

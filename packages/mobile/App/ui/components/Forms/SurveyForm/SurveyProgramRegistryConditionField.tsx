@@ -1,8 +1,12 @@
 import { useFormikContext } from 'formik';
-import React, { createContext, type ReactElement, useContext } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { createContext, type ReactElement, useContext, useMemo } from 'react';
 
 import type { ISurveyScreenComponent } from '~/types';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { FieldTypes } from '~/ui/helpers/fields';
+import { getProgramRegistryConditionOptions } from '~/ui/helpers/programRegistryConditions';
+import { registrationKeys } from '~/ui/hooks/queries/queryKeys';
 import {
   getVisibleConditionQuestions,
   isProgramRegistryConditionAnswerable,
@@ -20,6 +24,25 @@ export const ProgramRegistryConditionContext = createContext<{
   options?: ProgramRegistryConditionOptions;
   components: ISurveyScreenComponent[];
 } | null>(null);
+
+export const useProgramRegistryConditionForm = (
+  components: ISurveyScreenComponent[],
+  patientId: string,
+) => {
+  const surveyId = components.find(
+    component => component.dataElement.type === FieldTypes.PROGRAM_REGISTRY_CONDITION,
+  )?.surveyId;
+  const { data: options } = useQuery({
+    queryKey: registrationKeys.formConditionOptions(surveyId, patientId),
+    queryFn: () => getProgramRegistryConditionOptions(surveyId, patientId),
+    enabled: Boolean(surveyId),
+  });
+  const conditionContext = useMemo(() => ({ options, components }), [options, components]);
+  return {
+    conditionContext,
+    isConditionRequired: isProgramRegistryConditionRequired(options, components),
+  };
+};
 
 interface SurveyProgramRegistryConditionFieldProps {
   name: string;
