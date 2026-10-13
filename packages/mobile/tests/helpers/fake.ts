@@ -84,6 +84,7 @@ const FIELD_HANDLERS = {
   varchar: fakeString,
   text: fakeString,
   Boolean: () => sample([true, false]),
+  boolean: () => sample([true, false]),
   Date: fakeDate,
   datetime: fakeDate,
   bigint: fakeNumber,
