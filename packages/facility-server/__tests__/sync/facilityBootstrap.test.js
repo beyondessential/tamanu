@@ -57,6 +57,17 @@ describe('applyBootstrap', () => {
     );
   });
 
+  it('saves a facility that belongs to a sensitive network', async () => {
+    const network = { id: 'bootstrap-network', code: 'BOOTSTRAP', name: 'Bootstrap network' };
+    const facility = fake(models.Facility, { sensitiveNetworkId: network.id });
+
+    await apply([record(models.Facility, facility), record(models.SensitiveNetwork, network)]);
+
+    expect(await models.Facility.findByPk(facility.id)).toMatchObject({
+      sensitiveNetworkId: network.id,
+    });
+  });
+
   it('replaces bootstrapped records with their current versions when applied again', async () => {
     const role = fake(models.Role);
     await apply([record(models.Role, role)]);

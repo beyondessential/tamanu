@@ -14,6 +14,7 @@ import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/database/sync';
 // further than sync narrows them (see extraWhereFor), because in full they are large.
 const bootstrapModelNames = [
   'ReferenceData',
+  'SensitiveNetwork',
   'Facility',
   'User',
   'UserFacility',

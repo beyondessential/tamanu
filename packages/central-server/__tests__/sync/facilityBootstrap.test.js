@@ -86,6 +86,21 @@ describe('Facility bootstrap', () => {
     expect(recordIdsOfType(records, 'user_facilities')).toContain(userFacility.id);
   });
 
+  it('carries the sensitive networks facilities belong to', async () => {
+    const network = await models.SensitiveNetwork.create({
+      id: 'bootstrap-network',
+      code: 'BOOTSTRAP-NETWORK',
+      name: 'Bootstrap network',
+    });
+    const facility = await models.Facility.create(
+      fake(models.Facility, { sensitiveNetworkId: network.id }),
+    );
+
+    const { records } = (await fetchBootstrap()).body;
+    expect(recordIdsOfType(records, 'facilities')).toContain(facility.id);
+    expect(recordIdsOfType(records, 'sensitive_networks')).toContain(network.id);
+  });
+
   it('carries users with their password hashes, so local login works', async () => {
     const user = await models.User.create(fake(models.User, { password: 'a-password' }));
     const { password: hash } = await models.User.scope('withPassword').findByPk(user.id);
@@ -171,6 +186,7 @@ describe('Facility bootstrap', () => {
       'permissions',
       'reference_data',
       'roles',
+      'sensitive_networks',
       'settings',
       'translated_strings',
       'user_facilities',

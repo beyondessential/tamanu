@@ -11,6 +11,7 @@ The bootstrap does not change the first sync, which pulls the facility's full sh
 
 - [ ] The bootstrap carries the facilities, users (including their password hashes), user facility links, roles, permissions, and settings (global, and for the server's facilities) that the facility's own pull would deliver.
 - [ ] It carries the reference data records that facilities point to as their catchment, and no other reference data.
+- [ ] It carries the sensitive networks, which facilities point to as their network.
 - [ ] It carries translated strings in every language, limited to the language list (each language's name and country code) and to the strings on the screens a user sees before the first sync completes: login, password reset, status and setting-up screens, the setup wizard, facility selection, form validation, and general actions.
 - [ ] The translated strings are selected by a fixed list of string ids and string id prefixes.
 - [ ] It carries no patient-linked data.

@@ -23,6 +23,9 @@ describe('FacilitySyncManager bootstrap', () => {
 
     const syncManager = new FacilitySyncManager({
       models: {
+        SyncFacilityRun: {
+          create: async () => ({ update: vi.fn(), complete: vi.fn() }),
+        },
         LocalSystemFact: {
           get: async key => factStore.get(key) ?? null,
           set: async (key, value) => void factStore.set(key, value),
