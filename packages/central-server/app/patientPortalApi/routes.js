@@ -1,5 +1,11 @@
 import express from 'express';
-import { getSurvey, createSurveyResponse, suggestionRoutes, getSettings } from './surveys';
+import {
+  getSurvey,
+  createSurveyResponse,
+  suggestionRoutes,
+  getSettings,
+  getTimeZone,
+} from './surveys';
 import {
   getAdministeredVaccines,
   getAllergies,
@@ -47,6 +53,7 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
 
   // Survey routes
   router.get('/settings', getSettings);
+  router.get('/time-zone', getTimeZone);
   router.get('/settings/:facilityId', getSettings);
   router.get('/survey/:surveyId', getSurvey);
   router.post('/surveyResponse', createSurveyResponse);

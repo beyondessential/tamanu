@@ -185,6 +185,7 @@ export const facilitySettings = {
     },
     facilityTimeZone: {
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
