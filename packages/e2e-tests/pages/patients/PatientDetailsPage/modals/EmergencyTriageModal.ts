@@ -31,7 +31,6 @@ export class EmergencyTriageModal {
   readonly areaField!: Locator;
   readonly locationField!: Locator;
   readonly arrivalModeSelect!: Locator;
-  readonly patientTypeSelect!: Locator;
 
   // Triage score radio buttons
   readonly triageScoreEmergency!: Locator;
@@ -109,7 +108,6 @@ export class EmergencyTriageModal {
         .locator('xpath=..')
         .getByTestId('selectinput-phtg-select');
     this.arrivalModeSelect = selectInFieldLabelled('Arrival mode');
-    this.patientTypeSelect = selectInFieldLabelled('Patient type');
   }
 
   async waitForModalToLoad() {
