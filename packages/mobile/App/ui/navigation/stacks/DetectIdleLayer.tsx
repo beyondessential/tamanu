@@ -24,7 +24,7 @@ export default function DetectIdleLayer({ children }: Readonly<{ children: React
     if (!signedIn) return;
     lastActivityRef.current = Date.now();
 
-    // Timers are suspended while backgrounded, so also check on returning to the foreground
+    // OS may freeze timers while backgrounded, so also check on returning to the foreground
     const subscriptions = [
       AppState.addEventListener('change', nextAppState => {
         if (nextAppState === 'active') signOutIfExpired();
