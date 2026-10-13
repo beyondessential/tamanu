@@ -18,6 +18,7 @@ Ask with your question tool where you have one, a few questions at a time; other
 - **The admin login.** PR deployments use `admin@tamanu.io` / `admin`. Others need the password from the user.
 - **What to create.** For each kind of record, how many, on which days, at which facility and in which areas. Leave the realistic detail (times, lengths, procedure types) to you unless they specify it.
 - **Which country the patients and clinicians should look like they're from**, before creating any. Offer the country the deployment serves (its facility names and existing patients usually show it) and a couple of other likely ones. Use it for everyone's names, a realistic mix of the country's communities, villages and towns, and the shape of addresses and phone numbers. Ask about anything else that sets the scene, such as the patients' age range or the clinical area (surgical, antenatal, chronic care).
+- **Facility and location names**, if they should change too. Offer to keep them, rename them to fit the chosen country, or rename them to match a specific facility the demo is for. For a specific facility, use its real name and ask the user for its wards, theatres and clinics rather than guessing them; where they don't know, use names typical for a facility of that kind and say which you invented.
 
 Restate it as a short plan before writing anything. When it's many records across days and places, give the counts per day and place so the user can catch a misunderstanding early.
 
@@ -37,6 +38,7 @@ All on the facility server unless marked central.
 - **Theatre, bed and other location bookings:** `POST /api/appointments/locationBooking` with `{ startTime, endTime, locationId, patientId, clinicianId, bookingTypeId, procedureTypeIds? }`. Start and end on the booking slot boundaries. One that overlaps an existing booking in the same location is refused; skip that block and carry on.
 - **Allergies:** `POST /api/allergy` with `{ patientId, allergyId, reactionId, recordedDate, practitionerId }`.
 - **Ongoing conditions:** `POST /api/ongoingCondition` with `{ patientId, conditionId, recordedDate, examinerId }`.
+- **Facility, department, area and location names** (central): rename them through the admin spreadsheets, as in "Renaming facilities, areas and locations" in the API doc. Do this first, so everything after it is booked into the renamed places.
 - **Reference data** (central), such as a new appointment type: `POST /api/admin/referenceData/manage` with `{ referenceDataType, code, name }`.
 - **Settings** (central): read the scope, change only the keys you mean to, and `PUT` the whole scope back.
 - **Patient portal**, for a patient who should be able to sign in: turn on the global setting `features.patientPortal`, make sure `patientPortal.baseUrl` is set, then `POST /api/patient/<id>/portal/register` with `{ email, facilityId }`. The registration link and every login code go to that email, so use an inbox the user can read. To give them forms, `POST /api/patient/<id>/portal/forms` with `{ formId, assignedAt, facilityId }`.

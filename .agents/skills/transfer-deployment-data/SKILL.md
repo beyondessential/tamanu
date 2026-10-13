@@ -22,6 +22,10 @@ Ask with your question tool where you have one, a few questions at a time; other
   - **New ones representing a specific country**, created rather than copied. Ask which country, then once the set-up is copied, follow the `seed-demo-data` skill to create the patients and clinicians.
 
   Ask this once for both. Copied patients' records name the source's clinicians, so patients can't be copied without them.
+- **Facility and location names.** Offer:
+  - **As they are** at the source.
+  - **Matching a different country**: names of towns, hospitals and wards that fit the country the user picks.
+  - **Matching a specific facility the demo is for**: ask which, and use its real name. Ask the user for its wards, theatres and clinics rather than guessing them; where they don't know, use names typical for a facility of that kind and say which you invented.
 - **Full clinical history for any of the copied patients.** Every past encounter with its diagnoses, procedures, notes and forms. Offer it for patients the user names (by name and date of birth, or by patient ID), at most about ten, because each one is slow to rebuild (see step 4).
 - **What's already on the target**, and whether copied records should update it or be left alone.
 
@@ -38,6 +42,7 @@ The admin export and import move most data as the same spreadsheets the admin pa
 2. **Import into the target** (central), always as a dry run first:
    - `POST /api/admin/import/referenceData` or `POST /api/admin/import/program`, sent as `multipart/form-data` with the spreadsheet as `file` and the options as a JSON string in `jsonData`, e.g. `{"dryRun": true, "includedDataTypes": ["patient"]}`.
    - The response reports what would be created, updated and skipped, and any errors by sheet and row. Fix or drop what fails, then import for real without `dryRun`.
+   - To rename facilities, departments, areas and locations, change their names in the sheets before importing, as in "Renaming facilities, areas and locations" in the API doc.
    - Import in dependency order: reference data; facilities and locations; programs; then, when copying people, users, patients and their vaccinations.
 
 Two kinds of record need care:

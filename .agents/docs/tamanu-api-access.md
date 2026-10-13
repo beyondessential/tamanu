@@ -86,6 +86,16 @@ On central:
 
 `GET /api/admin/settings?scope=global` (or `scope=central`, or `scope=facility&facilityId=<id>`) returns a scope's settings. `PUT /api/admin/settings` with `{ settings, scope, facilityId? }` **saves the object you send as the entire scope**, so always `GET` it, change only the keys you mean to, and `PUT` all of it back. Secrets come back masked, and sending the mask back leaves them unchanged. Changing high-risk settings needs an admin.
 
+## Renaming facilities, areas and locations
+
+Facilities, departments, areas (location groups) and locations aren't reference data, so the reference data endpoint can't change them. Rename them through the admin spreadsheets on central instead:
+
+1. Export the sheets with `GET /api/admin/export/referenceData?includedDataTypes[0]=facility&includedDataTypes[1]=department&includedDataTypes[2]=locationGroup&includedDataTypes[3]=location`.
+2. Change only the `name` column. Keep every `id` and `code`, which other records and the facility servers' own configuration refer to. To edit the workbook, use the `xlsx` package already in this repository (run your script from the repository so it resolves), or Python's `openpyxl` if it's available.
+3. Import it with `POST /api/admin/import/referenceData`, sent as `multipart/form-data` with the workbook as `file` and the options as a JSON string in `jsonData`. Do a dry run first (`{"dryRun": true, "includedDataTypes": [...]}`), then the real import. Records with an existing ID are updated in place.
+
+The new names reach facility servers on the next sync.
+
 ## Things that catch people out
 
 - **Patient search needs `isAllPatientsListing=true`.** Without it, the patient list only covers patients with an open encounter, so a check for an existing patient finds nothing and you create duplicates.
