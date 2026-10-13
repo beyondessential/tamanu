@@ -162,24 +162,50 @@ const TimeParts = ({ parts, onChange, error }) => {
   );
 };
 
+/** Fails the shared date and time validation, so a half-entered answer can't be skipped past. */
+const INCOMPLETE_ANSWER = 'incomplete';
+
+const isAnyPartEntered = parts => Object.values(parts).some(Boolean);
+
 /**
- * The parts a patient has entered are kept here as they type, and the answer is set only once
- * they make a whole value. `toAnswer` returns null until then.
+ * The parts a patient has entered are kept here as they type, and the answer is set once they
+ * make a whole value (`toAnswer` returns null until then). Nothing entered leaves the question
+ * unanswered; something half entered is held as an invalid answer, so the patient is asked to
+ * finish it rather than having it quietly dropped.
  */
 const usePartsAnswer = (field, initialParts, toAnswer) => {
   const [parts, setParts] = useState(initialParts);
   const updateParts = nextParts => {
     setParts(nextParts);
-    setFieldValue(field, toAnswer(nextParts));
+    const answer = toAnswer(nextParts);
+    setFieldValue(field, answer ?? (isAnyPartEntered(nextParts) ? INCOMPLETE_ANSWER : undefined));
   };
-  return [parts, updateParts];
+  const isPartlyEntered = isAnyPartEntered(parts) && !toAnswer(parts);
+  return [parts, updateParts, isPartlyEntered];
+};
+
+/** A half-entered date or time says what's missing, rather than that nothing was entered. */
+const useIncompleteMessage = (isPartlyEntered, error, helperText, stringId, fallback) => {
+  const { getTranslation } = useTranslation();
+  return isPartlyEntered && error ? getTranslation(stringId, fallback) : helperText;
 };
 
 /** Stored as `yyyy-MM-dd`, like the shared date field. */
 export const DateQuestion = ({ field, label, required, error, helperText }) => {
-  const [parts, setParts] = usePartsAnswer(field, () => toDateParts(field.value), toDateString);
+  const [parts, setParts, isPartlyEntered] = usePartsAnswer(
+    field,
+    () => toDateParts(field.value),
+    toDateString,
+  );
+  const message = useIncompleteMessage(
+    isPartlyEntered,
+    error,
+    helperText,
+    'kiosk.date.incomplete',
+    'Enter the full date',
+  );
   return (
-    <Question {...{ label, required, error, helperText }}>
+    <Question {...{ label, required, error }} helperText={message}>
       <DateParts parts={parts} onChange={setParts} error={error} />
     </Question>
   );
@@ -187,9 +213,20 @@ export const DateQuestion = ({ field, label, required, error, helperText }) => {
 
 /** Stored as `HH:mm:ss`, like the shared time field. */
 export const TimeQuestion = ({ field, label, required, error, helperText }) => {
-  const [parts, setParts] = usePartsAnswer(field, () => toTimeParts(field.value), toTimeString);
+  const [parts, setParts, isPartlyEntered] = usePartsAnswer(
+    field,
+    () => toTimeParts(field.value),
+    toTimeString,
+  );
+  const message = useIncompleteMessage(
+    isPartlyEntered,
+    error,
+    helperText,
+    'kiosk.time.incomplete',
+    'Enter the full time',
+  );
   return (
-    <Question {...{ label, required, error, helperText }}>
+    <Question {...{ label, required, error }} helperText={message}>
       <TimeParts parts={parts} onChange={setParts} error={error} />
     </Question>
   );
@@ -201,7 +238,7 @@ export const TimeQuestion = ({ field, label, required, error, helperText }) => {
  */
 export const DateTimeQuestion = ({ field, label, required, error, helperText }) => {
   const { toFacilityDateTime, toStoredDateTime } = useDateTime();
-  const [parts, setParts] = usePartsAnswer(
+  const [parts, setParts, isPartlyEntered] = usePartsAnswer(
     field,
     () => {
       const [date, time] = (field.value ? toFacilityDateTime(field.value) : '')?.split('T') ?? [];
@@ -213,8 +250,15 @@ export const DateTimeQuestion = ({ field, label, required, error, helperText }) 
       return date && time ? toStoredDateTime(`${date}T${time.slice(0, 5)}`) : null;
     },
   );
+  const message = useIncompleteMessage(
+    isPartlyEntered,
+    error,
+    helperText,
+    'kiosk.dateTime.incomplete',
+    'Enter the full date and time',
+  );
   return (
-    <Question {...{ label, required, error, helperText }}>
+    <Question {...{ label, required, error }} helperText={message}>
       <DateParts parts={parts} onChange={setParts} error={error} />
       <TimeParts parts={parts} onChange={setParts} error={error} />
     </Question>

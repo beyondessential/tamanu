@@ -119,17 +119,31 @@ describe('Kiosk questions store answers as the web does', () => {
     await userEvent.type(screen.getByLabelText('Day'), '30');
     fireEvent.change(screen.getByLabelText('Month'), { target: { value: '2' } });
     await userEvent.type(screen.getByLabelText('Year'), '2026');
-    expect(lastAnswer()).toBeNull();
+    // Half entered, or not a real date, is held as an answer the validation rejects
+    expect(lastAnswer()).toEqual('incomplete');
     await userEvent.clear(screen.getByLabelText('Day'));
     await userEvent.type(screen.getByLabelText('Day'), '28');
     expect(lastAnswer()).toEqual('2026-02-28');
+  });
+
+  it('leaves a date unanswered once its parts are cleared', async () => {
+    const { lastAnswer } = renderQuestion(T.DATE);
+    await userEvent.type(screen.getByLabelText('Day'), '3');
+    await userEvent.clear(screen.getByLabelText('Day'));
+    expect(lastAnswer()).toBeUndefined();
+  });
+
+  it('asks for the rest of a half-entered date', async () => {
+    renderQuestion(T.DATE, { error: true, helperText: 'This question is required' });
+    await userEvent.type(screen.getByLabelText('Day'), '3');
+    expect(screen.getByRole('alert').textContent).toEqual('Enter the full date');
   });
 
   it('stores a time as HH:mm:ss', async () => {
     const { lastAnswer } = renderQuestion(T.TIME);
     await userEvent.type(screen.getByLabelText('Hour'), '7');
     await userEvent.type(screen.getByLabelText('Minute'), '30');
-    expect(lastAnswer()).toBeNull();
+    expect(lastAnswer()).toEqual('incomplete');
     await userEvent.click(screen.getByRole('button', { name: 'pm' }));
     expect(lastAnswer()).toEqual('19:30:00');
   });
