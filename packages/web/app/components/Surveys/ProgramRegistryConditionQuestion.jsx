@@ -157,7 +157,7 @@ export const ProgramRegistryConditionQuestionField = ({
     return renderUnavailable(
       getTranslation(
         'program.question.programRegistryCondition.allRecorded',
-        "All of this registry's conditions are already recorded for this patient",
+        'All conditions in this registry are already recorded for this patient',
       ),
     );
   }

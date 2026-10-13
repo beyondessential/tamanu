@@ -83,7 +83,7 @@ export const SurveyProgramRegistryConditionField = ({
       <StyledText color={theme.colors.TEXT_MID}>
         <TranslatedText
           stringId="program.question.programRegistryCondition.allRecorded"
-          fallback="All of this registry's conditions are already recorded for this patient"
+          fallback="All conditions in this registry are already recorded for this patient"
         />
       </StyledText>
     );
