@@ -81,5 +81,5 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 - [x] A retired ethnicity still shows as chosen and can be set to None (verifies spec: PPDET)
 - [x] A staff-recorded phone number in another format doesn't stop saving a different detail in its group (verifies spec: PPDET)
 - [x] Form start and end times are recorded in the primary time zone
-- [ ] If the time zone can't be loaded, the form page says the form couldn't be opened rather than going blank
+- [x] If the time zone can't be loaded, the form page says the form couldn't be opened rather than going blank
 
