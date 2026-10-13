@@ -54,9 +54,9 @@ A facility server holds an ordered list of central hosts, recorded in the order 
 
 ## Reporting the endpoint in use
 
-Central cannot reliably tell which name a facility used, because a reverse proxy can rewrite or hide it, so the facility reports it.
+Central cannot reliably tell which name a device used, because a reverse proxy can rewrite or hide it, so the device reports it.
 
-- [ ] When a facility server starts a sync session it reports the endpoint it is using.
+- [ ] When a facility server or a mobile device starts a sync session it reports the endpoint it is using. A mobile device has a single central address and reports that one.
 - [ ] Central records the endpoint on the sync session, and records the latest endpoint reported by each device together with when it was reported.
 - [ ] The admin sync page shows, for each row, the endpoint most recently reported by that row's device and when it was reported. A device that has never reported shows neither.
 

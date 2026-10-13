@@ -41,6 +41,7 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 ## Reporting
 
 - [x] a session start reports the endpoint, recorded on the session and the device (verifies spec: CEND)
+- [x] a mobile device reports its central address on session start (verifies spec: CEND)
 - [x] the reported endpoint is the one the request went to after a failover (verifies spec: CEND)
 - [x] an unreadable reported endpoint is ignored rather than refusing the sync (verifies spec: CEND)
 - [x] the admin sync page row shows the device's reported endpoint and when, and neither for a device that never reported (verifies spec: CEND)

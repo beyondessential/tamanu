@@ -154,7 +154,7 @@ describe('GET /admin/sync/lastCompleted', () => {
       expect(row.endpointReportedAt).toBeNull();
     });
 
-    it('shows neither for a mobile device', async () => {
+    it('shows neither for a mobile device that has never reported', async () => {
       const device = await createDevice({});
       const facilityIds = await createSessionFor({ device, isMobile: true });
 
