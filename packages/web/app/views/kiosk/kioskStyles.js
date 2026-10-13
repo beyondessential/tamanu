@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 
@@ -106,6 +106,25 @@ export const KioskRoot = styled.div`
   :focus-visible {
     outline: 3px solid var(--kiosk-primary);
     outline-offset: 2px;
+  }
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+`;
+
+/** Each screen fades in, so moving between them reads as one flow rather than a flash. */
+export const ScreenFrame = styled.div`
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: ${fadeIn} 150ms ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `;
 
@@ -334,7 +353,7 @@ const inputBase = css`
 
   &[readonly] {
     background: var(--kiosk-option);
-    box-shadow: none;
+    box-shadow: inset 0 0 0 var(--kiosk-border) var(--kiosk-option-edge);
     color: var(--kiosk-text-secondary);
   }
 `;

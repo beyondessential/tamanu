@@ -15,7 +15,7 @@ import {
   StartOverDialog,
 } from './KioskModals';
 import { KIOSK_STEPS, KioskSessionProvider, useKioskSession } from './KioskSession';
-import { KioskRoot, Lead, Panel, TEXT_SIZE_SCALES, Title } from './kioskStyles';
+import { KioskRoot, Lead, Panel, ScreenFrame, TEXT_SIZE_SCALES, Title } from './kioskStyles';
 import { useInactivityTimer, useKeepSignedIn } from './useKioskTimers';
 import { LandingScreen } from './screens/LandingScreen';
 import { FindAppointmentScreen } from './screens/FindAppointmentScreen';
@@ -122,7 +122,9 @@ const Kiosk = () => {
         onOpenDisplaySettings={() => setOpenDialog(DIALOGS.DISPLAY_SETTINGS)}
         onOpenHelp={() => setOpenDialog(DIALOGS.HELP)}
       />
-      <Screen facilityName={facilityName} onEndSession={endSession} />
+      <ScreenFrame key={session.step}>
+        <Screen facilityName={facilityName} onEndSession={endSession} />
+      </ScreenFrame>
 
       {openDialog === DIALOGS.DISPLAY_SETTINGS && (
         <DisplaySettingsDialog

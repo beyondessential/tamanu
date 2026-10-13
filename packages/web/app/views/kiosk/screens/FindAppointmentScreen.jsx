@@ -82,9 +82,20 @@ export const FindAppointmentScreen = ({ onEndSession }) => {
     );
   };
 
+  // The keyboard's Next or Enter moves on to the next field still to fill in. Browsers don't
+  // submit a form whose submit button is disabled, so Enter is handled here.
+  const handleKeyDown = event => {
+    if (event.key !== 'Enter' || canSearch) return;
+    event.preventDefault();
+    const fields = [...event.currentTarget.querySelectorAll('input, select')];
+    const current = fields.indexOf(event.target);
+    const nextEmpty = [...fields.slice(current + 1), ...fields].find(field => !field.value);
+    nextEmpty?.focus();
+  };
+
   return (
     <Panel>
-      <Form onSubmit={handleSubmit} noValidate>
+      <Form onSubmit={handleSubmit} onKeyDown={handleKeyDown} noValidate>
         <Fields>
           <Title>
             <TranslatedText stringId="kiosk.find.title" fallback="Find your appointment" />
