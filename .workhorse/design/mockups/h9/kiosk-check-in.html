@@ -164,6 +164,13 @@
   .searched dt { font-size: 14px; color: var(--text3); margin-bottom: 4px; }
   .searched dd { margin: 0; font-size: 20px; font-weight: 500; }
   .center-actions { display: flex; gap: 14px; justify-content: center; }
+  .fork { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 720px; text-align: left; }
+  .fork-card { border: 1px solid var(--outline); border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .fork-card h3 { margin: 0; font-size: 20px; font-weight: 500; color: var(--primary-dark); }
+  .fork-card .btn { height: 56px; font-size: 18px; margin-top: auto; }
+  .fork-card.reception { background: var(--blue-bg); border-color: transparent; }
+  .fork-card.reception .go { display: flex; align-items: center; gap: 14px; font-size: 20px; font-weight: 500; color: var(--text); line-height: 1.35; margin-top: auto; }
+  .fork-card.reception .go svg { width: 40px; height: 40px; color: var(--blue); flex: none; }
 
   /* Forms: read-only list of forms, completed in order, beside the open form */
   .k-split { flex: 1; display: grid; grid-template-columns: 290px 1fr; gap: 20px; margin: 0 28px 28px; min-height: 0; }
@@ -623,14 +630,82 @@
       <div class="k-body center">
         <div class="state-icon info"><svg><use href="#i-alert"/></svg></div>
         <h1 class="k-title">We couldn't find your appointment</h1>
-        <p class="k-lead">Check your details below. If they're correct, please go to reception.</p>
+        <p class="k-lead">Please check your details below are correct.</p>
         <dl class="searched">
           <div><dt>Last name</dt><dd>Tuafa</dd></div>
           <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
         </dl>
         <div class="center-actions">
-          <div class="btn soft wide">Close</div>
-          <div class="btn primary wide">Edit details</div>
+          <div class="btn soft wide">My details are correct</div>
+          <div class="btn primary wide">Re-enter details</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">No match, details correct <span>· after "My details are correct". Done clears the details and returns to the landing page</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body center">
+        <div class="state-icon info"><svg><use href="#i-alert"/></svg></div>
+        <h1 class="k-title">We couldn't find your appointment</h1>
+        <p class="k-lead">Please check your details below are correct.</p>
+        <dl class="searched">
+          <div><dt>Last name</dt><dd>Tuafa</dd></div>
+          <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
+        </dl>
+        <div class="center-actions">
+          <div class="btn soft wide">My details are correct</div>
+          <div class="btn primary wide">Re-enter details</div>
+        </div>
+      </div>
+      <div class="scrim">
+        <div class="modal">
+          <div class="state-icon info"><svg><use href="#i-desk"/></svg></div>
+          <h2>Please go to reception</h2>
+          <p>Our staff will help you check in.</p>
+          <div class="btn primary wide">Done</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="caption">No match, alternative <span>· reception guidance is on the screen, so correct details need no button</span></div>
+    <div class="tablet">
+      <div class="k-header">
+        <svg class="logo"><use href="#logo"/></svg>
+        <div class="facility">Tamanu Health Centre</div>
+        <div class="spacer"></div>
+        <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
+        <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
+      </div>
+      <div class="k-body center">
+        <div class="state-icon info"><svg><use href="#i-alert"/></svg></div>
+        <h1 class="k-title">We couldn't find your appointment</h1>
+        <p class="k-lead">Please check your details below are correct.</p>
+        <dl class="searched">
+          <div><dt>Last name</dt><dd>Tuafa</dd></div>
+          <div><dt>Date of birth</dt><dd>14 March 1986</dd></div>
+        </dl>
+        <div class="fork">
+          <div class="fork-card">
+            <h3>Something wrong?</h3>
+            <div class="btn primary">Re-enter details</div>
+          </div>
+          <div class="fork-card reception">
+            <h3>Details correct?</h3>
+            <div class="go"><svg><use href="#i-desk"/></svg>Please go to reception for help.</div>
+          </div>
         </div>
       </div>
     </div>
