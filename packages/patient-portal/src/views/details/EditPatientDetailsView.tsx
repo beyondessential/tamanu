@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Navigate, useBlocker, useNavigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 import {
   FormErrorMessage,
   FormPrimaryButton,
@@ -15,6 +15,7 @@ import { useUpdatePatientDetails } from '@api/mutations';
 import { usePortalSettingsQuery } from '@api/queries/usePortalSettingsQuery';
 import { BackLink, Loading, PageColumn, PageTitle, Panel } from '@components/layout';
 import { DiscardChangesDialog } from '@components/DiscardChangesDialog';
+import { useUnsavedChangesGuard } from '@components/useUnsavedChangesGuard';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import {
   DETAIL_GROUPS,
@@ -53,31 +54,6 @@ type Values = Record<string, string>;
 
 const toFormValues = (fields: DetailField[], patient: ReturnType<typeof useCurrentUser>) =>
   Object.fromEntries(fields.map(field => [field.name, field.getValue(patient) ?? '']));
-
-/** Holds navigation while there are unsaved edits, and warns before the tab closes. */
-const useUnsavedChangesGuard = (hasUnsavedChanges: boolean) => {
-  const isLeavingAfterSave = useRef(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges &&
-      !isLeavingAfterSave.current &&
-      currentLocation.pathname !== nextLocation.pathname,
-  );
-
-  useEffect(() => {
-    if (!hasUnsavedChanges) return undefined;
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [hasUnsavedChanges]);
-
-  return {
-    blocker,
-    allowLeaving: () => {
-      isLeavingAfterSave.current = true;
-    },
-  };
-};
 
 /** One group of the patient's details, edited on its own screen. */
 export const EditPatientDetailsView = () => {

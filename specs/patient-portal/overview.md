@@ -39,4 +39,5 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] Dates and times are entered in the time of the facility that sent the form, and stored as staff entries are.
 - [ ] The last page's button is Submit. Submitting records the response, marks the form as completed, returns the patient to the dashboard and shows "Form submitted".
 - [ ] Back on the first page returns to the dashboard.
+- [ ] Leaving a form with answers entered and not submitted, by Back, the header or the browser's back button, shows the same "Discard changes?" prompt as editing details (see `patient-portal/patient-details.md`). Closing or reloading the tab triggers the browser's leave-page warning. A form left untouched is left without asking.
 - [ ] A form that can't be opened says so, with a link back to the dashboard.

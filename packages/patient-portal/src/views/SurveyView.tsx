@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router';
 
@@ -6,6 +7,8 @@ import { useSubmitSurveyResponse } from '@api/mutations';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
 import { useTimeZoneQuery } from '@api/queries/useTimeZoneQuery';
 import { BackLink, Loading, Muted, PageColumn, Panel } from '@components/layout';
+import { DiscardChangesDialog } from '@components/DiscardChangesDialog';
+import { useUnsavedChangesGuard } from '@components/useUnsavedChangesGuard';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import {
   AuthContext,
@@ -65,6 +68,14 @@ const FormDateTimeProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </DateTimeProvider>
   );
+};
+
+/** Asks before answers the patient has entered are dropped by leaving the form unsubmitted. */
+const UnsavedAnswersPrompt = ({ isSubmitting }: { isSubmitting: boolean }) => {
+  const { dirty } = useFormikContext();
+  const { blocker } = useUnsavedChangesGuard(dirty && !isSubmitting);
+  if (blocker.state !== 'blocked') return null;
+  return <DiscardChangesDialog onKeepEditing={blocker.reset} onDiscard={blocker.proceed} />;
 };
 
 export const SurveyView = () => {
@@ -129,7 +140,9 @@ export const SurveyView = () => {
               onExit={() => navigate('/')}
               finishLabel={<TranslatedText stringId="general.action.submit" fallback="Submit" />}
               isFinishing={isSubmitting}
-            />
+            >
+              <UnsavedAnswersPrompt isSubmitting={isSubmitting} />
+            </PatientSurveyForm>
           </FormFrame>
         </FormDateTimeProvider>
       </SettingsProvider>

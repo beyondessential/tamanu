@@ -327,6 +327,8 @@ const FormPages = ({
  * @param {() => void} props.onExit Called on Back from the first page
  * @param {import('react').ReactNode} [props.finishLabel] The last page's button, in place of Next
  * @param {boolean} [props.isFinishing] Holds the last page's button while it is being handled
+ * @param {import('react').ReactNode} [props.children] Rendered inside the form, for anything that
+ *   needs the form's state, like a prompt before unsaved answers are dropped
  */
 export const PatientSurveyForm = ({
   form,
@@ -340,6 +342,7 @@ export const PatientSurveyForm = ({
   finishLabel,
   isFinishing = false,
   testIdPrefix = 'patient-form',
+  children,
 }) => {
   const { getTranslation } = useTranslation();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
@@ -384,19 +387,22 @@ export const PatientSurveyForm = ({
       validateOnBlur={false}
       onSubmit={() => {}}
     >
-      <FormPages
-        form={form}
-        patient={patient}
-        pageIndex={pageIndex}
-        setPageIndex={setPageIndex}
-        getComponentForQuestionType={getComponentForQuestionType}
-        onSaveProgress={onSaveProgress}
-        onComplete={onComplete}
-        onExit={onExit}
-        finishLabel={finishLabel}
-        isFinishing={isFinishing}
-        testIdPrefix={testIdPrefix}
-      />
+      <>
+        <FormPages
+          form={form}
+          patient={patient}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
+          getComponentForQuestionType={getComponentForQuestionType}
+          onSaveProgress={onSaveProgress}
+          onComplete={onComplete}
+          onExit={onExit}
+          finishLabel={finishLabel}
+          isFinishing={isFinishing}
+          testIdPrefix={testIdPrefix}
+        />
+        {children}
+      </>
     </Formik>
   );
 };

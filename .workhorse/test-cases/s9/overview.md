@@ -62,7 +62,8 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 - [x] Next with a required question unanswered shows "This question is required" and stays on the page (verifies spec: PPORT)
 - [x] Submitting stores every answer in the staff formats (text, number, choices, yes/no, tick box, date, time, date and time, village search, photo, signature, calculated, patient data) and marks the form completed (verifies spec: PPORT)
 - [x] A form whose questions override their options loads (verifies spec: PPORT)
-- [ ] Dates and times entered in a facility with its own time zone are stored in the primary time zone (verifies spec: PPORT)
+- [x] Dates and times entered in a facility with its own time zone are stored in the primary time zone (verifies spec: PPORT)
+- [x] Leaving a form with answers entered asks to discard them; an untouched form leaves without asking; submitting doesn't ask (verifies spec: PPORT)
 
 ## Patient details
 
