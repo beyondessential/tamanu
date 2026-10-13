@@ -9,7 +9,7 @@ import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
-import { PANE_SECTION_IDS } from './paneSections';
+import { getInfoPaneQueryKey, PANE_SECTION_IDS } from './paneSections';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -97,7 +97,7 @@ export const InfoPaneList = ({
   const { adding, editKey } = addEditState;
   const api = useApi();
   const { data, error } = useQuery(
-    [`infoPaneListItem-${paneId}`, patient.id],
+    getInfoPaneQueryKey(paneId, patient.id),
     () => api.get(getEndpoint),
     // getEndpoint interpolates patient.id, which is null until the patient is loaded into the store
     { enabled: Boolean(patient.id) },

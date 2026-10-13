@@ -10,6 +10,9 @@ export const PANE_SECTION_IDS = {
   PROGRAM_REGISTRY: 'programRegistry',
 };
 
+export const getInfoPaneQueryKey = (paneId, patientId) =>
+  patientId ? [`infoPaneListItem-${paneId}`, patientId] : [`infoPaneListItem-${paneId}`];
+
 export const PANE_SECTION_TITLES = {
   [PANE_SECTION_IDS.CONDITIONS]: (
     <TranslatedText

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useApi } from '../../api';
 import { usePatient } from '../../contexts/Patient';
 import { Suggester } from '../../utils/suggester';
-import { PANE_SECTION_IDS } from './paneSections';
+import { getInfoPaneQueryKey, PANE_SECTION_IDS } from './paneSections';
 
 const FormContainer = styled.div`
   margin: 1rem 0;
@@ -46,7 +46,7 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
         await api.post(endpoint, { ...data, patientId: patient?.id });
       }
 
-      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
+      queryClient.invalidateQueries(getInfoPaneQueryKey(id, patient?.id));
       // Registering a patient marks them for sync at this facility
       if (id === PANE_SECTION_IDS.PROGRAM_REGISTRY) {
         queryClient.invalidateQueries(['patientDetails', patient?.id]);
@@ -58,7 +58,7 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
 
   const onDelete = useCallback(
     async () => {
-      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
+      queryClient.invalidateQueries(getInfoPaneQueryKey(id, patient?.id));
       onClose();
     },
     [queryClient, id, patient?.id, onClose],
