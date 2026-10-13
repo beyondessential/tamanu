@@ -66,6 +66,7 @@
   }
   .hbtn.text { background: none; border-color: transparent; color: var(--text2); padding: 0 12px; }
   .hbtn svg { width: 22px; height: 22px; }
+  .hbtn .sep { width: 1px; height: 22px; background: var(--primary30); margin: 0 2px; }
 
   .k-body { flex: 1; margin: 0 28px 28px; padding: 36px 44px 36px; background: var(--white); border: 1px solid var(--outline); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
   .k-body.center { align-items: center; justify-content: center; text-align: center; padding-bottom: 60px; }
@@ -265,6 +266,11 @@
   .modal .state-icon { margin: 0 auto 20px; }
   .modal h2 { font-size: 28px; font-weight: 500; color: var(--primary-dark); margin: 0 0 10px; }
   .modal p { font-size: 18px; color: var(--text2); margin: 0 0 30px; line-height: 1.45; }
+  .modal.settings { width: 860px; text-align: left; padding: 36px 36px 32px; }
+  .modal.settings h2 { font-size: 30px; margin-bottom: 24px; }
+  .modal.settings .welcome-grid { grid-template-columns: 1.5fr 1fr; }
+  .modal.settings .card h2 { font-size: 15px; margin: 0 0 18px; color: var(--text2); }
+  .modal.settings .actions { padding-top: 28px; }
     .countdown { font-size: 52px; font-weight: 500; color: var(--primary-dark); margin: -10px 0 26px; font-variant-numeric: tabular-nums; }
 
   /* High contrast + extra large text */
@@ -272,6 +278,7 @@
     .hc .k-header .facility { color: #fff; border-left-color: #fff; font-size: 18px; }
   .hc .hbtn { background: #000; color: #ffe14d; border: 2px solid #ffe14d; height: 56px; font-size: 20px; }
   .hc .hbtn.text { border-color: transparent; color: #fff; }
+  .hc .hbtn .sep { background: #ffe14d; }
   .hc .k-body { background: #000; border: 2px solid #fff; padding: 26px 40px 30px; }
   .hc h1.k-title { color: #fff; font-size: 42px; }
   .hc p.k-lead { color: #fff; font-size: 22px; margin-bottom: 18px; }
@@ -333,6 +340,7 @@
         <svg class="logo"><use href="#logo"/></svg>
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body center landing">
@@ -345,47 +353,54 @@
   </div>
 
   <div class="frame-wrap">
-    <div class="caption">Language and accessibility</div>
+    <div class="caption">Language and accessibility <span>· from the header button on any screen. Changes apply straight away</span></div>
     <div class="tablet">
       <div class="k-header">
         <svg class="logo"><use href="#logo"/></svg>
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
-      <div class="k-body">
-        <h1 class="k-title">Language and accessibility</h1>
-        <p class="k-lead">Choose what works best for you.</p>
-        <div class="welcome-grid">
-          <div class="card">
-            <h2><svg><use href="#i-globe"/></svg>Language</h2>
-            <div class="lang-grid">
-              <div class="lang selected">English <svg class="tick"><use href="#i-check"/></svg></div>
-              <div class="lang">Gagana Samoa</div>
-              <div class="lang">Lea Faka-Tonga</div>
-              <div class="lang">Tok Pisin</div>
-              <div class="lang">Na Vosa Vakaviti</div>
-              <div class="lang">Te Reo Māori</div>
-            </div>
-          </div>
-          <div class="card">
-            <h2><svg><use href="#i-access"/></svg>Accessibility</h2>
-            <div class="setting">
-              <div class="setting-label">Text size</div>
-              <div class="segmented">
-                <div class="on" style="font-size:16px">A</div>
-                <div style="font-size:21px">A</div>
-                <div style="font-size:27px">A</div>
+      <div class="k-body center landing">
+        <div class="state-icon info"><svg><use href="#i-cal"/></svg></div>
+        <h1 class="k-title">Welcome to Tamanu Health Centre</h1>
+        <p class="k-lead">Check in for your appointment here.</p>
+        <div class="btn primary wide">Start check-in <svg><use href="#i-next"/></svg></div>
+      </div>
+      <div class="scrim">
+        <div class="modal settings">
+          <h2>Language and accessibility</h2>
+          <div class="welcome-grid">
+            <div class="card">
+              <h2><svg><use href="#i-globe"/></svg>Language</h2>
+              <div class="lang-grid">
+                <div class="lang selected">English <svg class="tick"><use href="#i-check"/></svg></div>
+                <div class="lang">Gagana Samoa</div>
+                <div class="lang">Lea Faka-Tonga</div>
+                <div class="lang">Tok Pisin</div>
+                <div class="lang">Na Vosa Vakaviti</div>
+                <div class="lang">Te Reo Māori</div>
               </div>
             </div>
-            <div class="setting">
-              <div class="toggle-row">High contrast <div class="switch"></div></div>
+            <div class="card">
+              <h2><svg><use href="#i-access"/></svg>Accessibility</h2>
+              <div class="setting">
+                <div class="setting-label">Text size</div>
+                <div class="segmented">
+                  <div class="on" style="font-size:16px">A</div>
+                  <div style="font-size:21px">A</div>
+                  <div style="font-size:27px">A</div>
+                </div>
+              </div>
+              <div class="setting">
+                <div class="toggle-row">High contrast <div class="switch"></div></div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="actions">
-          <div class="btn soft"><svg><use href="#i-back"/></svg>Back</div>
-          <div class="btn primary wide">Continue <svg><use href="#i-next"/></svg></div>
+          <div class="actions end">
+            <div class="btn primary wide">Done</div>
+          </div>
         </div>
       </div>
     </div>
@@ -403,6 +418,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -443,6 +459,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -473,6 +490,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -516,6 +534,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -559,6 +578,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body center">
@@ -592,6 +612,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-split">
@@ -640,6 +661,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-split">
@@ -684,6 +706,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-split">
@@ -728,6 +751,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-split">
@@ -910,6 +934,7 @@
         <svg class="logo"><use href="#logo"/></svg>
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body center">
@@ -934,6 +959,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -962,6 +988,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -989,6 +1016,7 @@
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
@@ -1015,13 +1043,14 @@
 <div class="section-title">8. Accessibility applied</div>
 <div class="row">
   <div class="frame-wrap">
-    <div class="caption">High contrast and extra large text <span>· the settings chosen on Language and accessibility apply to every screen</span></div>
+    <div class="caption">High contrast and extra large text <span>· the settings chosen in Language and accessibility apply to every screen</span></div>
     <div class="tablet hc">
       <div class="k-header">
         <svg class="logo" style="filter: brightness(0) invert(1)"><use href="#logo"/></svg>
         <div class="facility">Tamanu Health Centre</div>
         <div class="spacer"></div>
         <div class="hbtn text"><svg><use href="#i-restart"/></svg>Start over</div>
+        <div class="hbtn"><svg><use href="#i-globe"/></svg>English<span class="sep"></span><svg><use href="#i-access"/></svg></div>
         <div class="hbtn"><svg><use href="#i-help"/></svg>Help</div>
       </div>
       <div class="k-body">
