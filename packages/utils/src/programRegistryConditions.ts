@@ -3,6 +3,7 @@ import {
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { safeJsonParse } from './safeJsonParse';
 
 export interface ProgramRegistryConditionAnswer {
   conditionId: string;
@@ -27,7 +28,7 @@ export const parseProgramRegistryConditionAnswer = (
   value: string | ProgramRegistryConditionAnswer | null | undefined,
 ): ProgramRegistryConditionAnswer | null => {
   if (!value) return null;
-  return typeof value === 'string' ? JSON.parse(value) : value;
+  return typeof value === 'string' ? safeJsonParse(value) : value;
 };
 
 const getWriteToPatientFieldName = (config: string | null | undefined) => {

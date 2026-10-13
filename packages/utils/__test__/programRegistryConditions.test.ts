@@ -5,6 +5,7 @@ import {
   getInvalidConditionQuestionCodes,
   isProgramRegistryConditionAnswerable,
   isProgramRegistryConditionRequired,
+  parseProgramRegistryConditionAnswer,
   type ProgramRegistryConditionOptions,
 } from '../src/programRegistryConditions';
 
@@ -39,6 +40,11 @@ const invalidCodes = (components: any[], values: Record<string, any>, isRequired
   );
 
 describe('program registry condition rules', () => {
+  it('treats an unparseable answer as unanswered', () => {
+    expect(parseProgramRegistryConditionAnswer('asthma')).toBeNull();
+    expect(invalidCodes([conditionQuestion('q1')], { q1: 'asthma' }, true)).toEqual(['q1']);
+  });
+
   it('requires a category once a condition is chosen', () => {
     const components = [conditionQuestion('q1')];
 
