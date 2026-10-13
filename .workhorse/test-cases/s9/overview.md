@@ -42,3 +42,37 @@
 - [x] Reopening a completed form starts at its first page with answers kept
 - [x] Check-in failure shows the reception message and keeps answers (verifies spec: KIOSK)
 - [ ] Playwright E2E spec covering the kiosk journey end to end in CI (needs the kiosk settings and a form wired into the shared e2e provisioning)
+
+# Patient portal
+
+Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wide) viewport, plus central API tests for the endpoints.
+
+## Layout and dashboard
+
+- [x] Dashboard shows To do, Upcoming appointments and Your health record, in that order (verifies spec: PPORT)
+- [x] Each outstanding form opens from its row; with none, "You're all up to date" (verifies spec: PPORT)
+- [x] Record rows show how many are recorded, or "None recorded", and open their own pages (verifies spec: PPORT)
+- [x] Record pages list conditions, allergies, medications, vaccinations and procedures, or say none are recorded (verifies spec: PPORT)
+- [x] Nothing overflows a phone-width screen, including success messages (verifies spec: PPORT)
+- [x] Desktop keeps the single centred column
+
+## Forms
+
+- [x] A form with every question type renders on a phone with the shared controls, and Back and Next stay in view (verifies spec: PPORT)
+- [x] Next with a required question unanswered shows "This question is required" and stays on the page (verifies spec: PPORT)
+- [x] Submitting stores every answer in the staff formats (text, number, choices, yes/no, tick box, date, time, date and time, village search, photo, signature, calculated, patient data) and marks the form completed (verifies spec: PPORT)
+- [x] A form whose questions override their options loads (verifies spec: PPORT)
+- [ ] Dates and times entered in a facility with its own time zone are stored in the primary time zone (verifies spec: PPORT)
+
+## Patient details
+
+- [x] Details are grouped, with "Not recorded" for empty details and Edit beside each editable group (verifies spec: PPDET)
+- [x] Each group's Edit opens a screen with only that group's editable details and Save fixed at the bottom (verifies spec: PPDET)
+- [x] An invalid phone number or email shows a message under the field and nothing is saved (verifies spec: PPDET)
+- [x] Saving writes only the changed details, returns to the saved group and shows "Details saved" (verifies spec: PPDET)
+- [x] Leaving with unsaved changes asks to discard; Keep editing keeps the edits and Discard drops them (verifies spec: PPDET)
+- [x] Title and ethnicity are chosen from lists and can be set back to None (verifies spec: PPDET)
+- [ ] Browser back button with unsaved changes shows the discard prompt (verifies spec: PPDET)
+- [ ] Hidden fields don't appear, and a required blank field blocks saving its group (verifies spec: PPDET)
+- [x] The server keeps required details from being cleared, refuses hidden or non-editable details, non-current reference data and malformed phone numbers and emails (verifies spec: PPDET)
+- [x] Changing email leaves the portal sign-in email unchanged (verifies spec: PPDET)

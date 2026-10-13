@@ -48,3 +48,42 @@ Design: H9 storyboard (`.workhorse/design/mockups/h9/kiosk-check-in.html`). Spec
 - **Several matches**: the search response says whether the matches are different patients or one patient's own appointments. Different patients get the masked "Select your details" tiles; one patient's own appointments are unmasked, their details stated once, and each appointment offered by its time and clinician.
 - **E2E**: not added. A Playwright spec needs `kiosk.enabled` and a form wired to an appointment type in the shared e2e provisioning (facility-scoped settings, which the e2e suite has no helper for), and can't be validated locally without standing up a second full stack. Left as owed coverage in the test cases rather than committing an unverified, flaky spec. The journey is covered by 25 endpoint tests, 20 web unit tests, and scripted browser runs of every screen.
 - **Separate bug found, not fixed here**: the shared `PatientDataDisplayField` (ui-components) reads a `value` prop, but `Field` passes formik's `field` object and never a bare `value`, so it renders blank wherever it is used — including the web survey view's patient-data relation questions. The kiosk no longer goes through it. Out of scope for this card; worth its own ticket.
+
+# Patient portal redesign (second workstream on this card)
+
+Asked for on this card even though it isn't strictly the kiosk: bring the portal into the kiosk's design language, share its form fields, and fold in G9's patient details editing in a way that works on a phone. The login flow stays as it is.
+
+## Direction
+
+- **Mobile app, not kiosk.** Same palette and shapes as the kiosk (warm grey page, white outlined panels, no shadows, Tamanu blue for actions), but phone-sized controls: the shared components scale down rather than being re-styled.
+- **Dashboard leads with what needs doing**: forms to fill in, then upcoming appointments, then the health record as a list of rows that each open their own page (details, conditions, allergies, medications, vaccinations, procedures) instead of six accordions on one long page.
+- **Patient details (G9)** gets its own page grouped like G9's spec. Each group is edited on its own short screen with Save always in view, rather than one whole-section inline form with Save a page of scrolling away.
+- **Forms** use the kiosk's page layout and question components: page progress, question cards, required marking, scroll to the first missing answer, and Back/Next kept in view.
+
+## Build steps
+
+- [x] Portal survey responses: accept a question's own option list (the response schema rejected it, so any form whose questions override their options failed to load)
+- [x] Move the kiosk's question components and date parts into ui-components, styled through custom properties with neutral defaults and a size multiplier; the kiosk keeps its look by setting them
+- [x] Shared patient form page (pages, validation, calculations, scroll to first error) used by the kiosk and the portal
+- [x] Central: `PUT /api/portal/me` for the patient-editable details, writing only what changed; expose the field settings the portal needs; reference data options for title/ethnicity/insurer/occupation
+- [x] Portal: theme and layout (header, page shell, panels, back navigation)
+- [x] Portal: dashboard, health record pages
+- [x] Portal: patient details view and per-group edit screens, unsaved-changes prompt, saved message
+- [x] Portal: forms on the shared form page
+- [x] Specs: patient portal layout and patient details (from G9, adapted to per-group editing)
+- [x] Tests: central API tests, shared component tests, kiosk regression bar before anything touching kiosk files is pushed
+- [x] Run it locally on a phone-sized and a desktop viewport; fix what's found
+
+## Notes
+
+- **Local portal login**: the login code is only emailed, so `/tmp/s9-pp/portal-setup.mjs` (run from central-server with `node --import tsx`) gives Mele a registered portal account and mints a code the way the API tests do. Central needs `AUTH_SECRET` set locally, or every portal token is signed with a random secret and rejected straight after login.
+- **Shared patient form components** live in ui-components (`components/PatientForm/`): the form page, every question control, date parts and the question-type map. They're styled only through `--pf-*` custom properties and sized through `--pf-scale`. The kiosk aliases these to its own `--kiosk-*` palette and text size, so it looks as it did; the portal sets the standard palette at a scale of 0.8, which gives phone-sized controls (inputs about 48px tall, 16px text, so iOS doesn't zoom on focus). Search questions are injected per app (`createPatientFormQuestionTypes({ AutocompleteQuestion })`), because the web and portal look options up differently.
+- **Portal routing** moved to a data router (`createBrowserRouter`), which the unsaved-changes prompt needs (`useBlocker` doesn't work under `BrowserRouter`).
+- **Portal time zones**: the shared date and time questions need the primary time zone, which the portal had no way to learn. `GET /api/portal/time-zone` returns it, and the facility time zone and date-time locale settings are now exposed to the portal, so date-time answers are stored exactly as staff's are. A separate endpoint rather than a key in the settings response, which the existing tests (rightly) hold to settings only.
+- **Field settings** (`fields`, global) are exposed to the portal and read without a facility through `GET /api/portal/settings`, for hidden and required details.
+- **Patient details editing**: the request schema (`UpdatePatientDetailsRequestSchema` in shared) is used by both the server and the portal's field validation, so their rules can't drift. Per-field updated-at tracking on patient additional data (the `set_updated_at_by_field` trigger) means a portal edit merges with staff edits field by field through sync.
+- **G9's open question** (whether a required field that is already blank must be filled before saving) is decided here as yes, but only for the group being saved, since each group saves on its own.
+- **Labels** reuse the web's `general.localisedField.*` string IDs, with portal-friendly fallbacks (Mobile phone rather than Primary contact number), so a deployment's renamed labels still apply.
+- **Translations** in the portal are still a stub returning fallbacks; it now fills in replacements, which the shared form's "Page :page of :pageCount" needed.
+- **Local demo data**: `/tmp/s9-pp/portal-setup.mjs` and `/tmp/s9-pp/record-seed.mjs` (not committed) give Mele a portal account, forms and some health record.
+
