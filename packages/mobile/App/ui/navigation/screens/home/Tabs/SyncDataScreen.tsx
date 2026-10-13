@@ -31,10 +31,7 @@ export const SyncDataScreen = ({ navigation }) => {
 
   useStatusBarStyle('light-content', theme.colors.MAIN_SUPER_DARK);
 
-  const manualSync = useCallback(
-    () => void syncManager.triggerUrgentSync(),
-    [syncManager.triggerUrgentSync],
-  );
+  const manualSync = useCallback(() => void syncManager.triggerUrgentSync(), [syncManager]);
 
   useEffect(() => {
     // Add this listener to detect when users exit/switch to another tab
@@ -102,7 +99,7 @@ export const SyncDataScreen = ({ navigation }) => {
       );
     }, 1000);
     return () => clearInterval(interval);
-  }, [syncManager.lastSuccessfulSyncTime]);
+  }, [syncManager]);
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 
