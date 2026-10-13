@@ -121,6 +121,9 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     [components, navigation, selectedPatient.id, submitSurveyResponse, surveyId, surveyType],
   );
 
+  const error = surveyError || componentsError || padError || pprError;
+  if (error) return <ErrorScreen error={error} />;
+
   const isLoading =
     !survey ||
     !components ||
@@ -129,9 +132,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
     isPadLoading ||
     isPprLoading;
   if (isLoading) return <LoadingScreen />;
-
-  const error = surveyError || componentsError || padError || pprError;
-  if (error) return <ErrorScreen error={error} />;
 
   const confirmExit = () => {
     Alert.alert(
