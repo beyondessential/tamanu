@@ -5,7 +5,7 @@ import {
   BOOTSTRAP_TRANSLATION_STRING_ID_PREFIXES,
   BOOTSTRAP_TRANSLATION_STRING_IDS,
 } from '@tamanu/constants';
-import { COLUMNS_EXCLUDED_FROM_SYNC } from '@tamanu/database/sync';
+import { COLUMNS_EXCLUDED_FROM_SYNC, repeatableReadTransaction } from '@tamanu/database/sync';
 
 // spec: FBOOT#contents
 // Just enough for a facility's ordinary login path to work before its first sync completes: who
@@ -73,11 +73,16 @@ const queryModelRecords = async (model, facilityIds) => {
   );
 };
 
-export const buildFacilityBootstrap = async (models, facilityIds) => {
-  const records = [];
-  // one table at a time: a bootstrap is small, and there's no call to contend for connections
-  for (const modelName of bootstrapModelNames) {
-    records.push(...(await queryModelRecords(models[modelName], facilityIds)));
-  }
-  return records;
-};
+// spec: FBOOT#serving-the-bootstrap
+// Every table is read from one snapshot, as the outgoing sync snapshot is: read separately, a
+// record committed mid-build could arrive carrying a reference to a record the earlier query
+// didn't see, and the facility could not save the bootstrap at all.
+export const buildFacilityBootstrap = async ({ models, sequelize }, facilityIds) =>
+  repeatableReadTransaction(sequelize, async () => {
+    const records = [];
+    // one table at a time: a bootstrap is small, and there's no call to contend for connections
+    for (const modelName of bootstrapModelNames) {
+      records.push(...(await queryModelRecords(models[modelName], facilityIds)));
+    }
+    return records;
+  });

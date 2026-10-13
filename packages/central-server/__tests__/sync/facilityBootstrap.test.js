@@ -1,7 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { DEVICE_SCOPES, SERVER_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
+import { buildFacilityBootstrap } from '../../app/sync/buildFacilityBootstrap';
 import { createTestContext } from '../utilities';
 
 describe('Facility bootstrap', () => {
@@ -210,6 +211,53 @@ describe('Facility bootstrap', () => {
     for (const excluded of ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick']) {
       expect(record.data).not.toHaveProperty(excluded);
     }
+  });
+
+  // spec: FBOOT#serving-the-bootstrap
+  it('reads every table from one snapshot, so a mid-build write cannot break its references', async () => {
+    const { sequelize } = ctx.store;
+    // Held open on its own connection so the test controls when it becomes visible; an unmanaged
+    // transaction is the only way to commit at a chosen moment. Reference data is read before
+    // facilities, so without one snapshot the facility would arrive without its catchment.
+    const writer = await sequelize.transaction();
+    const catchment = fake(models.ReferenceData, { type: 'catchment' });
+    const latecomer = fake(models.Facility, { catchmentId: catchment.id });
+    await models.ReferenceData.create(catchment, { transaction: writer });
+    await models.Facility.create(latecomer, { transaction: writer });
+
+    let hasCommitted = false;
+    const query = sequelize.query.bind(sequelize);
+    vi.spyOn(sequelize, 'query').mockImplementation(async (sql, options) => {
+      // just before the facilities are read, and only then
+      if (
+        !hasCommitted &&
+        typeof sql === 'string' &&
+        sql.includes(`'facilities' AS "recordType"`)
+      ) {
+        hasCommitted = true;
+        await writer.commit();
+      }
+      return query(sql, options);
+    });
+
+    let records;
+    try {
+      records = await buildFacilityBootstrap(ctx.store, [facilityId]);
+    } finally {
+      vi.restoreAllMocks();
+      if (!hasCommitted) await writer.rollback();
+      await models.Facility.destroy({ where: { id: latecomer.id }, force: true });
+      await models.ReferenceData.destroy({ where: { id: catchment.id }, force: true });
+    }
+
+    expect(hasCommitted).toBe(true);
+    expect(recordIdsOfType(records, 'facilities')).not.toContain(latecomer.id);
+    // the property that matters: nothing references a record the bootstrap doesn't carry
+    const catchmentIds = new Set(recordIdsOfType(records, 'reference_data'));
+    const danglingCatchments = records
+      .filter(record => record.recordType === 'facilities' && record.data.catchmentId)
+      .filter(record => !catchmentIds.has(record.data.catchmentId));
+    expect(danglingCatchments).toEqual([]);
   });
 
   it('requires facility ids', async () => {

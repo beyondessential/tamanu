@@ -21,6 +21,7 @@ The bootstrap does not change the first sync, which pulls the facility's full sh
 
 - [ ] Central serves the bootstrap to a facility server's sync user, for the facility ids the request names, under the same checks as starting a sync session for those facilities.
 - [ ] Central reads each record type with that record type's own sync filter, from the beginning of the sync timeline, so a bootstrapped record is the record the facility's own pull would carry.
+- [ ] Central reads every record type within a single database snapshot, so a record committed while the bootstrap is being built cannot arrive carrying a reference to a record the bootstrap leaves out.
 - [ ] Each bootstrapped record has the same shape as a pulled change, including its deletion state.
 
 ## Applying the bootstrap

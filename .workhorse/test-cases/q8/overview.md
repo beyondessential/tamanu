@@ -11,6 +11,7 @@ Scenarios verifying that a new facility can be logged into before its first sync
 - [x] Translated strings are limited to the language list and the pre-sync screens' prefixes, in every language (verifies spec: FBOOT)
 - [x] The bootstrap carries no patient-linked record types (verifies spec: FBOOT)
 - [x] Each record has the shape of a pulled change, including deleted records marked as deleted (verifies spec: FBOOT)
+- [x] A record committed while the bootstrap is being built cannot leave it referencing a record it doesn't carry (verifies spec: FBOOT)
 - [x] A request without facility ids is refused (verifies spec: FBOOT)
 - [x] A request without a sync client device is refused (verifies spec: FBOOT)
 - [x] The bootstrap is refused for a facility the user cannot access (verifies spec: FBOOT)

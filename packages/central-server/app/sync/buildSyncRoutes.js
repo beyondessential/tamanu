@@ -162,7 +162,7 @@ export const buildSyncRoutes = ctx => {
 
       await assertUserCanSyncFacilities(req, facilityIds);
 
-      const records = await buildFacilityBootstrap(store.models, facilityIds);
+      const records = await buildFacilityBootstrap(store, facilityIds);
       log.info('FacilityBootstrap.served', { deviceId: req.device.id, count: records.length });
       // carries password hashes, as a pull does: keep it out of any intermediary cache
       res.set('Cache-Control', 'no-store').json({ records });
