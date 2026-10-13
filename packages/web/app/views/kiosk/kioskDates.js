@@ -16,4 +16,3 @@ export const toDateOfBirth = parts => {
     Number(parts.year) >= EARLIEST_BIRTH_YEAR;
   return isPlausible ? dateString : null;
 };
-
