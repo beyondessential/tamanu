@@ -8,7 +8,7 @@ import {
   randomReferenceId,
 } from '@tamanu/database/demoData';
 import { fake } from '@tamanu/fake-data/fake';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -82,6 +82,25 @@ describe('Triage', () => {
 
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
     expect(createdEncounter).toBeTruthy();
+  });
+
+  it('should record the patient billing type on the encounter when admitting a patient to triage', async () => {
+    const patientBillingType = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.PATIENT_BILLING_TYPE }),
+    );
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/api/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        patientBillingTypeId: patientBillingType.id,
+      }),
+    );
+    expect(response).toHaveSucceeded();
+
+    const createdTriage = await models.Triage.findByPk(response.body.id);
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter.patientBillingTypeId).toEqual(patientBillingType.id);
   });
 
   it('should fail to triage if an encounter is already open', async () => {

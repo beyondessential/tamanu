@@ -31,7 +31,8 @@ export class EmergencyTriageModal {
   readonly areaField!: Locator;
   readonly locationField!: Locator;
   readonly arrivalModeSelect!: Locator;
-  
+  readonly patientTypeSelect!: Locator;
+
   // Triage score radio buttons
   readonly triageScoreEmergency!: Locator;
   readonly triageScoreVeryUrgent!: Locator;
@@ -73,8 +74,7 @@ export class EmergencyTriageModal {
       triageDateTimeField: 'field-9hxy',
       areaField: 'field-ipih-group-input',
       locationField: 'field-ipih-location-input',
-      arrivalModeSelect: 'selectinput-phtg-select',
-      
+
       // Triage score radio buttons
       triageScoreEmergency: 'radio-il3t-1',
       triageScoreVeryUrgent: 'radio-il3t-2',
@@ -100,7 +100,16 @@ export class EmergencyTriageModal {
     this.modalTitle = page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.arrivalDateTimeInput = this.arrivalDateTimeField.locator('input');
     this.triageDateTimeInput = this.triageDateTimeField.locator('input');
-    this.arrivalModeSelect = page.getByRole('dialog').getByTestId('selectinput-phtg-select');
+    // SuggesterSelectField overrides the Field's own data-testid with one shared by every select,
+    // so each select is found through the label of the field wrapping it.
+    const selectInFieldLabelled = (label: string) =>
+      page
+        .getByRole('dialog')
+        .locator('label', { hasText: label })
+        .locator('xpath=..')
+        .getByTestId('selectinput-phtg-select');
+    this.arrivalModeSelect = selectInFieldLabelled('Arrival mode');
+    this.patientTypeSelect = selectInFieldLabelled('Patient type');
   }
 
   async waitForModalToLoad() {
