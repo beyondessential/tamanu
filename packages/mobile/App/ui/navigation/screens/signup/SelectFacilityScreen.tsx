@@ -1,7 +1,7 @@
 import React, { type ReactElement, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import * as Yup from 'yup';
-import { Form } from '~/ui/components/Forms/Form';
+import Form from '~/ui/components/Forms/Form';
 import { Field } from '~/ui/components/Forms/FormField';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { useAuth } from '~/ui/contexts/AuthContext';
