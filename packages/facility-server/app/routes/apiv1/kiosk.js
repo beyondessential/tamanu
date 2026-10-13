@@ -5,7 +5,12 @@ import { Op, Sequelize } from 'sequelize';
 import { z } from 'zod';
 import { subject } from '@casl/ability';
 
-import { APPOINTMENT_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  APPOINTMENT_STATUSES,
+  PATIENT_DATA_FIELD_LOCATIONS,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getDayBoundaries, getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -23,6 +28,9 @@ const maskDisplayId = displayId =>
   '*'.repeat(Math.max(displayId.length - MASKED_DISPLAY_ID_VISIBLE_CHARACTERS, 0));
 
 const getKioskSettings = async req => {
+  if (!req.facilityId) {
+    throw new InvalidOperationError('The kiosk needs a session signed in to a facility');
+  }
   const facilitySettings = req.settings[req.facilityId];
   const isEnabled = await facilitySettings.get('kiosk.enabled');
   if (!isEnabled) {
@@ -61,12 +69,78 @@ const findKioskAppointment = async (req, facilitySettings) => {
   return appointment;
 };
 
-const getConfiguredSurveyIds = async (facilitySettings, appointmentTypeId) => {
+/**
+ * The forms a patient completes for their appointment type: the current surveys the setting
+ * lists for it, in the order listed. Retired or missing surveys are skipped, so a stale setting
+ * can't stop patients from checking in.
+ */
+const getKioskSurveys = async (req, facilitySettings, appointmentTypeId) => {
   const formsByAppointmentType = await facilitySettings.get('kiosk.formsByAppointmentType');
-  const entry = formsByAppointmentType?.find(
-    forms => forms.appointmentTypeId === appointmentTypeId,
+  const configuredIds = [
+    ...new Set(
+      formsByAppointmentType?.find(forms => forms.appointmentTypeId === appointmentTypeId)
+        ?.surveyIds ?? [],
+    ),
+  ];
+  const surveys = await req.models.Survey.findAll({
+    where: { id: { [Op.in]: configuredIds }, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+  });
+  return configuredIds
+    .map(surveyId => surveys.find(survey => survey.id === surveyId))
+    .filter(Boolean);
+};
+
+/** Appointments past Confirmed have already been checked in, here or at reception. */
+const isCheckedIn = appointment => appointment.status !== APPOINTMENT_STATUSES.CONFIRMED;
+
+/** Always present so patient-data questions can compute ages and names. */
+const BASE_PATIENT_FIELDS = ['id', 'firstName', 'lastName', 'dateOfBirth'];
+
+/**
+ * Only the parts of the patient's record that the forms' patient-data questions show, so the
+ * tablet holds no more of the record than the patient will see.
+ */
+const getPatientDataForForms = async (models, patient, forms) => {
+  const columns = forms.flatMap(({ components }) =>
+    components
+      .filter(({ dataElement }) => dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA)
+      .map(({ config }) => {
+        try {
+          return JSON.parse(config || '{}').column ?? 'fullName';
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean),
   );
-  return entry?.surveyIds ?? [];
+  const fieldsIn = modelName =>
+    columns
+      .map(column => PATIENT_DATA_FIELD_LOCATIONS[column])
+      .filter(location => location?.[0] === modelName)
+      .map(([, fieldName]) => fieldName);
+  const customFieldIds = columns.filter(column => !(column in PATIENT_DATA_FIELD_LOCATIONS));
+
+  const pick = (record, fields) =>
+    Object.fromEntries(fields.map(field => [field, record?.[field] ?? null]));
+  const additionalDataFields = fieldsIn('PatientAdditionalData');
+  const additionalData =
+    additionalDataFields.length > 0
+      ? await models.PatientAdditionalData.findOne({ where: { patientId: patient.id } })
+      : null;
+  const fieldValues =
+    customFieldIds.length > 0
+      ? await models.PatientFieldValue.findAll({
+          where: { patientId: patient.id, definitionId: { [Op.in]: customFieldIds } },
+        })
+      : [];
+
+  return {
+    patient: {
+      ...pick(patient, [...BASE_PATIENT_FIELDS, ...fieldsIn('Patient')]),
+      fieldValues: fieldValues.map(({ definitionId, value }) => ({ definitionId, value })),
+    },
+    patientAdditionalData: additionalData ? pick(additionalData, additionalDataFields) : null,
+  };
 };
 
 const toAppointmentSummary = (appointment, { isMasked }) => {
@@ -116,9 +190,9 @@ kiosk.get(
       order: [['startTime', 'ASC']],
     });
 
-    // Several matches are different patients, so each one learns as little as possible
-    // about the others: no clinician, and only the start of the patient ID.
-    const isMasked = appointments.length > 1;
+    // When the matches are different patients, each learns as little as possible about the
+    // others: no clinician, and only the start of the patient ID.
+    const isMasked = new Set(appointments.map(({ patientId }) => patientId)).size > 1;
     res.send({
       data: appointments.map(appointment => toAppointmentSummary(appointment, { isMasked })),
     });
@@ -133,34 +207,20 @@ kiosk.get(
     req.checkPermission('read', 'Survey');
     const facilitySettings = await getKioskSettings(req);
     const appointment = await findKioskAppointment(req, facilitySettings);
-    const { Survey, SurveyScreenComponent, PatientAdditionalData } = req.models;
+    const { models } = req;
 
-    const surveyIds = await getConfiguredSurveyIds(facilitySettings, appointment.appointmentTypeId);
-    const surveys = await Survey.findAll({
-      where: {
-        id: { [Op.in]: surveyIds },
-        visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
-      },
-    });
-    const forms = await Promise.all(
-      // Keep the order the setting lists them in
-      surveyIds
-        .map(surveyId => surveys.find(survey => survey.id === surveyId))
-        .filter(Boolean)
-        .map(async survey => ({
-          ...survey.forResponse(),
-          components: await SurveyScreenComponent.getComponentsForSurvey(survey.id),
-        })),
-    );
-
-    const additionalData = await PatientAdditionalData.findOne({
-      where: { patientId: appointment.patientId },
-    });
+    const surveys = await getKioskSurveys(req, facilitySettings, appointment.appointmentTypeId);
+    const forms = [];
+    for (const survey of surveys) {
+      forms.push({
+        ...survey.forResponse(),
+        components: await models.SurveyScreenComponent.getComponentsForSurvey(survey.id),
+      });
+    }
 
     res.send({
       appointment: toAppointmentSummary(appointment, { isMasked: false }),
-      patient: appointment.patient.forResponse(),
-      patientAdditionalData: additionalData?.forResponse() ?? null,
+      ...(await getPatientDataForForms(models, appointment.patient, forms)),
       forms,
     });
   }),
@@ -206,27 +266,27 @@ kiosk.post(
     const { responses } = await checkInBodySchema.parseAsync(req.body);
     const { models, facilityId } = req;
 
-    for (const { surveyId } of responses) {
-      const noun = await models.Survey.getResponsePermissionCheck(surveyId);
-      req.checkPermission('create', noun === 'Charting' ? subject(noun, { id: surveyId }) : noun);
-    }
-
     const result = await req.db.transaction(async () => {
+      // Lock the appointment so two check-ins for it (two tablets, or a retry) can't both succeed
+      await models.Appointment.findByPk(req.params.id, { lock: true });
       const appointment = await findKioskAppointment(req, facilitySettings);
-      if (appointment.status === APPOINTMENT_STATUSES.ARRIVED) {
+      if (isCheckedIn(appointment)) {
         throw new InvalidOperationError('This appointment has already been checked in');
       }
 
-      const configuredSurveyIds = await getConfiguredSurveyIds(
-        facilitySettings,
-        appointment.appointmentTypeId,
-      );
+      const configuredSurveyIds = (
+        await getKioskSurveys(req, facilitySettings, appointment.appointmentTypeId)
+      ).map(({ id }) => id);
       const submittedSurveyIds = responses.map(response => response.surveyId);
       const isEveryFormSubmittedOnce =
         submittedSurveyIds.length === configuredSurveyIds.length &&
         configuredSurveyIds.every(surveyId => submittedSurveyIds.includes(surveyId));
       if (!isEveryFormSubmittedOnce) {
         throw new InvalidOperationError('Every form must be completed before checking in');
+      }
+      for (const surveyId of submittedSurveyIds) {
+        const noun = await models.Survey.getResponsePermissionCheck(surveyId);
+        req.checkPermission('create', noun === 'Charting' ? subject(noun, { id: surveyId }) : noun);
       }
 
       const now = getCurrentPrimaryTimeZoneDateTimeString();

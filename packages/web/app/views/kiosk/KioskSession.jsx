@@ -59,10 +59,11 @@ export function sessionReducer(session, action) {
         appointment,
         formProgress: isSameAppointment ? session.formProgress : {},
         openFormId: isSameAppointment ? session.openFormId : null,
+        // Anything past Confirmed has been checked in already, here or at reception
         step:
-          appointment.status === APPOINTMENT_STATUSES.ARRIVED
-            ? KIOSK_STEPS.ALREADY_CHECKED_IN
-            : KIOSK_STEPS.FORMS,
+          appointment.status === APPOINTMENT_STATUSES.CONFIRMED
+            ? KIOSK_STEPS.FORMS
+            : KIOSK_STEPS.ALREADY_CHECKED_IN,
       };
     }
     case 'backToMatches':

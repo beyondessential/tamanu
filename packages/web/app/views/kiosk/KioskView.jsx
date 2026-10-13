@@ -43,6 +43,19 @@ const SCREENS = {
   [KIOSK_STEPS.CHECKED_IN]: CheckedInScreen,
 };
 
+const DEFAULT_LANGUAGE_STORAGE_KEY = 'kioskDefaultLanguage';
+
+/**
+ * The language each new patient starts in: the one the kiosk was opened in. Kept for the life of
+ * the tab, so reloading mid-session doesn't make one patient's choice the default for the next.
+ */
+const getKioskDefaultLanguage = storedLanguage => {
+  const savedDefault = window.sessionStorage.getItem(DEFAULT_LANGUAGE_STORAGE_KEY);
+  if (savedDefault) return savedDefault;
+  window.sessionStorage.setItem(DEFAULT_LANGUAGE_STORAGE_KEY, storedLanguage);
+  return storedLanguage;
+};
+
 const useKioskLanguages = () => {
   const { data } = useTranslationLanguagesQuery();
   if (!data) return [];
@@ -54,12 +67,11 @@ const Kiosk = () => {
   const { facilityId } = useAuth();
   const { getSetting } = useSettings();
   const { data: facility } = useFacilityQuery(facilityId);
-  const { storedLanguage, updateStoredLanguage } = useTranslation();
+  const { storedLanguage, updateStoredLanguage, getReferenceDataTranslation } = useTranslation();
   const languages = useKioskLanguages();
   const { session, dispatch } = useKioskSession();
 
-  // The language the kiosk was opened in is where each new patient starts
-  const [defaultLanguage] = useState(storedLanguage);
+  const [defaultLanguage] = useState(() => getKioskDefaultLanguage(storedLanguage));
   const [display, setDisplay] = useState(DEFAULT_DISPLAY);
   const [openDialog, setOpenDialog] = useState(null);
 
@@ -72,14 +84,24 @@ const Kiosk = () => {
 
   useKeepSignedIn();
   const isSessionOpen = ![KIOSK_STEPS.LANDING, KIOSK_STEPS.CHECKED_IN].includes(session.step);
+  // Choices made on the landing page by someone who then walks away are cleared too
+  const isDisplayChanged = display !== DEFAULT_DISPLAY || storedLanguage !== defaultLanguage;
   const inactivity = useInactivityTimer({
-    isEnabled: isSessionOpen,
+    isEnabled: isSessionOpen || isDisplayChanged,
     timeoutSeconds: getSetting('kiosk.inactivityTimeout') ?? 90,
-    warningSeconds: getSetting('kiosk.inactivityWarning') ?? 30,
+    // Nobody needs warning on the landing page, so choices left there are simply cleared
+    warningSeconds: isSessionOpen ? (getSetting('kiosk.inactivityWarning') ?? 30) : 0,
     onExpire: endSession,
   });
 
   const Screen = SCREENS[session.step];
+  const facilityName =
+    facility &&
+    getReferenceDataTranslation({
+      value: facility.id,
+      category: 'facility',
+      fallback: facility.name,
+    });
   const currentLanguage = languages.find(({ code }) => code === storedLanguage);
 
   return (
@@ -93,14 +115,14 @@ const Kiosk = () => {
     >
       <KioskHeader
         isHighContrast={display.isHighContrast}
-        facilityName={facility?.name}
+        facilityName={facilityName}
         languageName={languages.length > 1 ? currentLanguage?.name : null}
         isStartOverShown={isSessionOpen}
         onStartOver={() => setOpenDialog(DIALOGS.START_OVER)}
         onOpenDisplaySettings={() => setOpenDialog(DIALOGS.DISPLAY_SETTINGS)}
         onOpenHelp={() => setOpenDialog(DIALOGS.HELP)}
       />
-      <Screen facilityName={facility?.name} onEndSession={endSession} />
+      <Screen facilityName={facilityName} onEndSession={endSession} />
 
       {openDialog === DIALOGS.DISPLAY_SETTINGS && (
         <DisplaySettingsDialog
@@ -120,7 +142,7 @@ const Kiosk = () => {
       {openDialog === DIALOGS.START_OVER && (
         <StartOverDialog onCancel={() => setOpenDialog(null)} onConfirm={endSession} />
       )}
-      {inactivity.isWarning && (
+      {isSessionOpen && inactivity.isWarning && (
         <InactivityDialog
           secondsRemaining={inactivity.secondsRemaining}
           onStartOver={endSession}

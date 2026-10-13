@@ -17,9 +17,9 @@ export const useKioskAppointmentQuery = appointmentId => {
     () => api.get(`kiosk/appointments/${encodeURIComponent(appointmentId)}`),
     {
       enabled: Boolean(appointmentId),
-      // Kept briefly so a prefetch on "Is this you?" carries over to the forms
-      cacheTime: 30 * 1000,
-      staleTime: 30 * 1000,
+      // Each patient's record is dropped as soon as their session ends
+      cacheTime: 0,
+      staleTime: Infinity,
       refetchOnWindowFocus: false,
     },
   );

@@ -113,6 +113,19 @@ describe('Kiosk', () => {
   afterAll(() => ctx.close());
 
   describe('Finding an appointment', () => {
+    it('does not mask a single patient with two appointments today', async () => {
+      const patient = await createPatient({ lastName: 'Twice', dateOfBirth: '1977-04-04' });
+      await createAppointment({ patient });
+      await createAppointment({ patient, startTime: `${today} 15:00:00` });
+
+      const result = await findAppointments('Twice', '1977-04-04');
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(2);
+      expect(result.body.data[0].patient.displayId).toEqual(patient.displayId);
+      expect(result.body.data[0].clinician).not.toBeNull();
+    });
+
     it('finds a patient with an appointment today by last name and date of birth', async () => {
       const patient = await createPatient({ lastName: 'Taufa', dateOfBirth: '1986-03-14' });
       const appointment = await createAppointment({ patient });
@@ -232,6 +245,51 @@ describe('Kiosk', () => {
   });
 
   describe('Loading forms', () => {
+    it('sends only the parts of the patient record the forms use', async () => {
+      const patient = await createPatient({ lastName: 'Private', dateOfBirth: '1980-01-01' });
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const result = await app.get(`/api/kiosk/appointments/${appointment.id}`);
+
+      expect(result).toHaveSucceeded();
+      expect(Object.keys(result.body.patient).sort()).toEqual(
+        ['dateOfBirth', 'fieldValues', 'firstName', 'id', 'lastName'].sort(),
+      );
+      expect(result.body.patientAdditionalData).toBeNull();
+    });
+
+    it('leaves out forms that have been retired', async () => {
+      const retired = await models.Survey.create(
+        fake(models.Survey, {
+          programId: survey.programId,
+          surveyType: 'programs',
+          visibilityStatus: 'historical',
+        }),
+      );
+      await setKioskSettings({
+        enabled: true,
+        formsByAppointmentType: [
+          { appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [retired.id, survey.id] },
+        ],
+      });
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const forms = await app.get(`/api/kiosk/appointments/${appointment.id}`);
+      expect(forms.body.forms.map(({ id }) => id)).toEqual([survey.id]);
+
+      const checkIn = await app.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
+        responses: [{ surveyId: survey.id, answers: { [requiredDataElement.id]: 'Fine' } }],
+      });
+      expect(checkIn).toHaveSucceeded();
+    });
+
     it('returns the patient and the forms for the appointment type', async () => {
       const patient = await createPatient({ lastName: 'Forms', dateOfBirth: '1980-01-01' });
       const appointment = await createAppointment({
@@ -276,6 +334,17 @@ describe('Kiosk', () => {
   describe('Checking in', () => {
     const checkIn = (appointmentId, responses) =>
       app.post(`/api/kiosk/appointments/${appointmentId}/checkIn`).send({ responses });
+
+    it('does not move an appointment staff have already progressed', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({ patient, status: APPOINTMENT_STATUSES.SEEN });
+
+      const result = await checkIn(appointment.id, []);
+
+      expect(result).toHaveRequestError();
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.SEEN);
+    });
 
     it('saves the forms and marks the appointment arrived', async () => {
       const patient = await createPatient();

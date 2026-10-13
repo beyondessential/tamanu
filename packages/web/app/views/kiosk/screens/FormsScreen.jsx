@@ -259,8 +259,9 @@ export const FormsScreen = () => {
     if (status === FORM_STATUSES.NOT_STARTED) {
       saveProgress(formId, { status: FORM_STATUSES.IN_PROGRESS, pageIndex: 0 });
     } else if (status === FORM_STATUSES.COMPLETED && formId !== openForm?.id) {
-      // A completed form is reviewed from the start
-      saveProgress(formId, { pageIndex: 0 });
+      // A reopened form is reviewed from the start, and must be finished again so any changed
+      // answers are checked before the patient can check in
+      saveProgress(formId, { status: FORM_STATUSES.IN_PROGRESS, pageIndex: 0 });
     }
     dispatch({ type: 'openForm', formId });
   };

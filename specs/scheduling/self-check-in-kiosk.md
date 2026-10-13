@@ -30,7 +30,8 @@ A tablet at a facility where patients check themselves in for today's appointmen
 - [ ] The languages offered are those the deployment has translations for. Each is shown by its own name.
 - [ ] Where only one language is available, the header button reads "Accessibility" and opens a smaller popup with text size and high contrast only.
 - [ ] Text size and high contrast apply to every kiosk screen, including forms and popups.
-- [ ] When a session ends (check-in complete, Start over, or inactivity), language, text size and high contrast return to the kiosk's defaults for the next patient.
+- [ ] When a session ends (check-in complete, Start over, or inactivity), language, text size and high contrast return to the kiosk's defaults for the next patient. Choices made on the landing page are cleared the same way after the inactivity period.
+- [ ] The kiosk's default language is the one it was opened in.
 
 ## Finding the appointment
 
@@ -43,32 +44,32 @@ A tablet at a facility where patients check themselves in for today's appointmen
 ## Results
 
 - [ ] One match shows "Is this you?" with a tile showing first, middle and last name, date of birth, sex, patient ID, and the appointment time and clinician. "Yes, this is me" continues; "No, this isn't me" shows the no-match screen.
-- [ ] Several matches show "Select your details" with a tile per appointment, with copy making clear the matches are different patients. No tile is preselected, and Continue is unavailable until the patient chooses one. "None of these are me" shows the no-match screen.
-- [ ] Tiles shown for several matches carry only the appointment time (no clinician), and show the patient ID's first four characters with the rest as asterisks. The full patient ID and clinician are never sent to the tablet until a single patient is chosen.
+- [ ] Matches for more than one patient show "Select your details" with a tile per appointment, with copy making clear the matches are different patients. No tile is preselected, and Continue is unavailable until the patient chooses one. "None of these are me" shows the no-match screen.
+- [ ] Tiles shown for several patients carry only the appointment time (no clinician), and show the patient ID's first four characters with the rest as asterisks. The full patient ID and clinician are never sent to the tablet until a single patient is chosen.
 - [ ] No match shows the details that were searched and directs the patient to reception, with Close (back to the landing page) and Edit details (back to the search with their entries kept).
-- [ ] A patient whose appointment is already marked Arrived sees that they are already checked in and are directed to take a seat, without repeating their forms.
+- [ ] A patient whose appointment has already moved past Confirmed (for example Arrived or Seen) sees that they are already checked in and is directed to take a seat, without repeating their forms. Check-in only ever moves an appointment from Confirmed to Arrived.
 - [ ] Dates of birth are shown with the month as a word, for example 14 March 1986. Appointment times are shown in the facility's timezone.
 
 ## Forms
 
-- [ ] The forms a patient completes are set per appointment type by the kiosk setting. An appointment type with no forms configured goes straight to Ready to check in.
+- [ ] The forms a patient completes are set per appointment type by the kiosk setting. Forms that have been retired are left out. An appointment type with no forms goes straight to Ready to check in.
 - [ ] Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page, Not started) and how many are complete; tapping a form opens it.
 - [ ] After the patient confirms who they are, the first form opens.
 - [ ] The open form shows its own page progress ("Page 2 of 3") with a progress bar.
 - [ ] When a page is longer than the screen, the questions scroll while the form title, page progress and Back and Next stay in place.
 - [ ] Form questions use the question types that patient-facing forms support. Questions of other types are left out of the kiosk.
-- [ ] Questions that fill from the patient record show the patient's existing value.
+- [ ] Questions that fill from the patient record show the patient's existing value. The tablet receives only the parts of the patient's record that the forms show, and only after the patient confirms who they are.
 - [ ] Required questions are marked with a red asterisk. Tapping Next with required questions unanswered keeps the patient on the page, scrolls to the first unanswered required question, and shows "This question is required" under each one.
 - [ ] A question's validation message clears as soon as it has a valid answer.
 - [ ] Text answer fields grow taller as the patient types past their height.
 - [ ] Next on a form's last page completes the form and opens the next form that is not complete; when all are complete, the main panel shows Ready to check in.
-- [ ] Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in.
+- [ ] Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A reopened form opens at its first page and is in progress again until the patient reaches its end.
 - [ ] Every form must be complete before the patient can check in.
 
 ## Checking in
 
 - [ ] Ready to check in shows the appointment time and clinician, and the Check in button.
-- [ ] Check in saves every completed form as a form response for the patient, recorded at this facility, and marks the appointment Arrived. Either all of these are saved or none are.
+- [ ] Check in saves every completed form as a form response for the patient, recorded at this facility, and marks the appointment Arrived. Either all of these are saved or none are, and an appointment can only be checked in once.
 - [ ] Form responses are recorded against the staff account the kiosk is signed in with.
 - [ ] If check-in fails, the patient is told to go to reception and their answers are kept so they or staff can try again.
 - [ ] After check-in, "You're checked in" asks the patient to take a seat. Done, or a short wait, returns to the landing page.

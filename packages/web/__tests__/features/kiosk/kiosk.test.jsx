@@ -128,6 +128,14 @@ describe('Kiosk session', () => {
     expect(session.step).toEqual(KIOSK_STEPS.ALREADY_CHECKED_IN);
   });
 
+  it('treats an appointment staff have already progressed as checked in', () => {
+    const session = sessionReducer(initialSession, {
+      type: 'confirmed',
+      appointment: { ...appointment, status: APPOINTMENT_STATUSES.SEEN },
+    });
+    expect(session.step).toEqual(KIOSK_STEPS.ALREADY_CHECKED_IN);
+  });
+
   it('marks a form in progress as soon as progress is saved', () => {
     const session = sessionReducer(atForms(), {
       type: 'saveFormProgress',
