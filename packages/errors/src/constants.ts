@@ -9,6 +9,7 @@ export const ERROR_TYPE = {
   DATABASE: 'database',
   EDIT_CONFLICT: 'conflict',
   FORBIDDEN: 'forbidden',
+  GONE: 'gone',
   NOT_FOUND: 'not-found',
   RATE_LIMITED: 'rate-limited',
   REMOTE: 'remote',
