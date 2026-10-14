@@ -297,8 +297,6 @@ describe('CentralServerConnection', () => {
     // Stands in for the network. `hosts` maps an origin to how it behaves: 'live' answers every
     // call, 'down' fails to connect, 'refuses' rejects the login, 'locked' rate-limits it.
     let hosts;
-    // which central each host's login says it reached
-    let identities;
     let calls;
     let fakeFetch;
 
@@ -310,12 +308,7 @@ describe('CentralServerConnection', () => {
       if (pathname.endsWith('/login')) {
         if (behaviour === 'refuses') return authInvalid;
         if (behaviour === 'locked') return fakeProblem(new RateLimitedError(60));
-        return fakeSuccess({
-          token: validTestToken,
-          user: { id: 'not-real', displayName: 'Not Real', email: 'notreal@example.com' },
-          settings: { sync: { streaming: false } },
-          centralHost: identities[origin],
-        });
+        return authSuccess;
       }
       if (pathname.endsWith('/user/me')) return meSuccess;
       return fakeSuccess({ answeredBy: origin });
@@ -365,7 +358,6 @@ describe('CentralServerConnection', () => {
       // the timeout test above leaves fake timers installed, which would stall the backoff
       vi.useRealTimers();
       calls = [];
-      identities = {};
       publishedFacts = [];
       hosts = { [A]: 'live', [B]: 'live', [C]: 'live' };
       fakeFetch = vi.fn(respond);
@@ -499,47 +491,6 @@ describe('CentralServerConnection', () => {
         expect(loginsAt(A)).toBe(1);
         // once to check, once to log in
         expect(loginsAt(B)).toBe(2);
-      });
-
-      it('skips the endpoints known to reach the same central as the one that refused', async () => {
-        identities = { [A]: 'central-1', [C]: 'central-1', [B]: 'central-2' };
-        const selector = makeSelector({ list: [A, C, B] });
-        // logins that worked earlier told it which central each name reaches
-        const first = makeConnection();
-        await first.connect();
-        await selector.probe(C);
-        await selector.probe(B);
-        calls.length = 0;
-
-        hosts = { [A]: 'refuses', [C]: 'refuses', [B]: 'live' };
-        await makeConnection().connect();
-
-        expect(loginsAt(A)).toBe(1);
-        expect(loginsAt(C)).toBe(0);
-        expect(selector.current()).toBe(B);
-      });
-
-      it('still tries an endpoint whose central it does not know', async () => {
-        identities = { [A]: 'central-1' };
-        const selector = makeSelector({ list: [A, C, B] });
-        await makeConnection().connect();
-        calls.length = 0;
-
-        hosts = { [A]: 'refuses', [C]: 'live', [B]: 'live' };
-        await makeConnection().connect();
-
-        expect(loginsAt(C)).toBeGreaterThan(0);
-        expect(selector.current()).toBe(C);
-      });
-
-      it('learns which central an endpoint reaches from the logins it makes itself', async () => {
-        identities = { [A]: 'central-1', [C]: 'central-1' };
-        const selector = makeSelector({ list: [A, C] });
-
-        await makeConnection().connect();
-        await selector.probe(C);
-
-        expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
       });
 
       describe('after central refuses the credentials', () => {

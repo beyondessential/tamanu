@@ -36,6 +36,8 @@ export const FACT_META_SERVER_ID = 'metaServerId';
 // so changing the list needs a migration that recreates that function.
 export const SERVER_IDENTITY_FACTS = [
   FACT_CENTRAL_HOST,
+  FACT_CENTRAL_ENDPOINTS,
+  FACT_CENTRAL_ENDPOINT_IN_USE,
   FACT_SYNC_EMAIL,
   FACT_FACILITY_IDS,
   FACT_DEVICE_ID,

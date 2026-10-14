@@ -29,8 +29,6 @@ const makeSelector = ({
   working = new Set(hosts),
   refusing = new Set(),
   locked = new Set(),
-  // which central each host's login says it reached
-  identities = {},
   inUse,
   facts,
   canProbe,
@@ -44,14 +42,12 @@ const makeSelector = ({
     getDeviceId: () => 'device-1',
     getProbeSettings: async () => ({ recheckIntervalMs: 1000, probeTimeoutMs: 50 }),
     canProbe,
-    now: () => now,
     createProbeClient: ({ host }) => ({
       login: async () => {
         probed.push(host);
         if (refusing.has(host)) throw new InvalidCredentialError();
         if (locked.has(host)) throw new RateLimitedError(60);
         if (!working.has(host)) throw new Error(`cannot reach ${host}`);
-        return { server: { centralHost: identities[host] } };
       },
     }),
   });
@@ -178,91 +174,6 @@ describe('CentralEndpointSelector', () => {
 
       expect(probed).toEqual([B, C]);
       expect(selector.current()).toBe(C);
-    });
-  });
-
-  describe('which central a host reaches', () => {
-    const SAME = { [A]: 'central-1', [C]: 'central-1', [B]: 'central-2' };
-
-    it('is learned from a successful probe', async () => {
-      const { selector } = makeSelector({ identities: SAME });
-
-      await selector.probe(A);
-      await selector.probe(C);
-      await selector.probe(B);
-
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
-      expect(selector.hostsOnSameServerAs(B)).toEqual([B]);
-    });
-
-    it('is not known for a host that has not logged in, or one whose login named no central', async () => {
-      const { selector } = makeSelector({ identities: { [A]: 'central-1' } });
-      await selector.probe(A);
-      await selector.probe(B);
-
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
-      expect(selector.hostsOnSameServerAs(C)).toEqual([C]);
-    });
-
-    it('is not learned from a refused login, which names nothing', async () => {
-      const { selector } = makeSelector({ refusing: new Set([A]), identities: SAME });
-
-      await selector.probe(A);
-
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
-    });
-
-    it('is forgotten after an hour, since a name can start pointing at another server', async () => {
-      const { selector } = makeSelector({ identities: SAME });
-      await selector.probe(A);
-      await selector.probe(C);
-
-      now += 59 * 60_000;
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
-
-      now += 2 * 60_000;
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
-    });
-
-    it('is learned again by the next successful login', async () => {
-      const { selector } = makeSelector({ identities: SAME });
-      await selector.probe(A);
-      now += 61 * 60_000;
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
-
-      await selector.probe(A);
-      await selector.probe(C);
-
-      expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
-    });
-
-    it('lets a round skip the hosts that reach the central that refused', async () => {
-      const identities = { [A]: 'central-1', [C]: 'central-1', [B]: 'central-2' };
-      const { selector, probed, refusing } = makeSelector({ identities });
-      await selector.probe(A);
-      await selector.probe(B);
-      await selector.probe(C);
-      probed.length = 0;
-
-      // the credentials stop working at central-1, whose two names are A and C
-      refusing.add(A);
-      refusing.add(C);
-
-      expect(await selector.firstPassing([A, C, B])).toBe(B);
-
-      expect(probed).toEqual([A, B]);
-    });
-
-    it('still tries a host of unknown identity after a refusal', async () => {
-      const { selector, probed } = makeSelector({
-        refusing: new Set([A]),
-        working: new Set([B, C]),
-        identities: { [A]: 'central-1' },
-      });
-      await selector.probe(A).catch(() => {});
-
-      expect(await selector.firstPassing([A, B])).toBe(B);
-      expect(probed).toEqual([A, A, B]);
     });
   });
 

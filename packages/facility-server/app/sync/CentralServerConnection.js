@@ -178,13 +178,12 @@ export class CentralServerConnection extends TamanuApi {
         throw error;
       }
 
-      // An endpoint that refused the credentials is not asked again, nor are the ones known to reach
-      // the same central: it would only count another failure against the account. The others may
-      // be a different Tamanu, so they are tried.
+      // An endpoint that refused the credentials is not asked again: it would only count another
+      // failure against the account. The others may be a different Tamanu, so they are tried.
       const refused = isLoginRefusal(error);
       const moved = await selector.walk({
         reason: error.message,
-        skip: refused ? selector.hostsOnSameServerAs(this.#hostInUse) : [],
+        skip: refused ? [this.#hostInUse] : [],
       });
       if (refused && !moved) {
         await getSyncLoginBackoff().recordRefusal();
@@ -217,7 +216,6 @@ export class CentralServerConnection extends TamanuApi {
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
     getSyncLoginBackoff().recordSuccess();
-    getCentralEndpointSelector()?.learnIdentity(this.#hostInUse, loginData.server?.centralHost);
     return (this.#loginData = loginData);
   }
 

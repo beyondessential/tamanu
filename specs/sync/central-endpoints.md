@@ -34,7 +34,8 @@ A facility server holds an ordered list of central hosts, recorded in the order 
 - [ ] A supplied list that matches the recorded list changes nothing.
 - [ ] A supplied list that differs is verified before it is recorded. The facility logs in at its entries in order and stops at the first one that succeeds. When one succeeds, the whole supplied list replaces the recorded list, and entries dropped from central's list are dropped from the facility's.
 - [ ] When no entry of a supplied list passes the login, the recorded list stands, the failure is logged, and the facility tries the supplied list again on a later sync.
-- [ ] The boot-time check that compares a host declared in the environment or configuration with the recorded host does not run once central has supplied a list.
+- [ ] The boot-time check that compares a host declared in the environment or configuration with the recorded host also accepts a declared host that is in the recorded list, such as after central has moved to a new name. A declared host that is in neither the list nor the recorded host still stops the server from starting, so a restored copy of another server's database cannot sync to that server.
+- [ ] Forgetting a copied database's server identity also forgets the recorded list and the endpoint in use, so a copy is set up against its own central rather than the one it was copied from.
 - [ ] A change to the recorded list applies to the sync connection, the websocket connection and time synchronisation without a restart.
 - [ ] A facility server that is offline while the list changes keeps its recorded list and picks up the change on its next successful sync.
 
@@ -46,7 +47,6 @@ A facility server holds an ordered list of central hosts, recorded in the order 
 - [ ] When the endpoint in use stops working, whether the connection fails or the login is refused, the facility walks the list again from the top.
 - [ ] A login refused because the account is locked out does not start a walk, since the lockout applies at every other name for the same central until it expires.
 - [ ] When an endpoint refuses the sync credentials, the facility does not log in at that endpoint again during the same attempt. It still tries the other endpoints, since one of them may be a different Tamanu that accepts the credentials.
-- [ ] A successful login tells the facility which central the endpoint reached. For an hour afterwards, an endpoint that refuses the credentials also rules out the other endpoints known to reach the same central, within that attempt. After an hour what was learned is forgotten, so an endpoint that has started pointing at another server is tried again.
 
 ### Refused credentials
 
