@@ -49,6 +49,7 @@ const normalizeMessageContent = content => {
     return content
       .map(part => {
         if (typeof part === 'string') return part;
+        if (part?.type === 'thinking' || part?.type === 'redacted_thinking') return '';
         if (typeof part?.text === 'string') return part.text;
         return JSON.stringify(part);
       })
