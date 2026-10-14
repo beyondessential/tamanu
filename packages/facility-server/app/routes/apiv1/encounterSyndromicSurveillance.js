@@ -48,7 +48,17 @@ const recordSyndromicSurveillanceResponse = (req, encounter, survey) => {
   return db.transaction(async () => {
     // Locking the encounter serialises submissions for it, so two arriving at once cannot both
     // find it without a response and each record one.
-    await models.Encounter.findByPk(encounter.id, { attributes: ['id'], lock: true });
+    const lockedEncounter = await models.Encounter.findByPk(encounter.id, {
+      attributes: ['id', 'endDate'],
+      lock: true,
+    });
+    // spec: SYND#diagnosis-pane
+    // Read under the lock, so an encounter that ends while the form is open is caught too.
+    if (lockedEncounter.endDate) {
+      throw new InvalidOperationError(
+        'Syndromic surveillance cannot be recorded for an encounter that has ended.',
+      );
+    }
     if (await findSyndromicSurveillanceResponse(models, encounter.id)) {
       throw new InvalidOperationError(
         'Syndromic surveillance has already been recorded for this encounter.',
@@ -57,15 +67,19 @@ const recordSyndromicSurveillanceResponse = (req, encounter, survey) => {
 
     // Picked rather than spread from the body: the encounter and the form are what the route is
     // authorised for, so the request cannot point the response at anything else.
-    return createSurveyResponseWithoutPermissionCheck(req, {
-      surveyId: survey.id,
-      encounterId: encounter.id,
-      patientId: encounter.patientId,
-      facilityId: body.facilityId,
-      startTime: body.startTime,
-      endTime: body.endTime,
-      answers: body.answers,
-    });
+    return createSurveyResponseWithoutPermissionCheck(
+      req,
+      {
+        surveyId: survey.id,
+        encounterId: encounter.id,
+        patientId: encounter.patientId,
+        facilityId: body.facilityId,
+        startTime: body.startTime,
+        endTime: body.endTime,
+        answers: body.answers,
+      },
+      { isSyndromicSurveillanceRoute: true },
+    );
   });
 };
 
@@ -116,8 +130,11 @@ export const getEncounterSyndromicSurveillance = asyncHandler(async (req, res) =
 export const submitEncounterSyndromicSurveillance = asyncHandler(async (req, res) => {
   const { models, params } = req;
   req.checkPermission('create', 'SurveyResponse');
+  req.checkPermission('read', 'Encounter');
   const encounter = await models.Encounter.findByPk(params.id);
   if (!encounter) throw new NotFoundError();
+  // The same check as reading the status that offers this action, against this encounter.
+  req.checkPermission('read', encounter);
 
   const survey = await findAvailableSyndromicSurveillanceSurveyOrThrow(models);
   req.checkPermission('submit', survey);

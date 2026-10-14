@@ -16,23 +16,30 @@ export async function createSurveyResponse(req) {
     req.checkPermission('create', noun);
   }
 
-  // spec: SYND#the-syndromic-surveillance-form
-  // Syndromic surveillance is submitted only through its encounter, which holds it to one response.
-  if (body.surveyId === SYNDROMIC_SURVEILLANCE_SURVEY_ID) {
-    throw new InvalidOperationError(
-      'Syndromic surveillance can only be submitted from the encounter it is for.',
-    );
-  }
-
   return await createSurveyResponseWithoutPermissionCheck(req, req.body);
 }
 
 /**
  * For routes that authorise the submission some other way than the permission to create the
  * survey response, e.g. syndromic surveillance completed while discharging an encounter.
+ *
+ * @param {object} [options]
+ * @param {boolean} [options.isSyndromicSurveillanceRoute] Only the syndromic surveillance routes,
+ *   which hold an encounter to one response, may record a response to that form.
  */
-export async function createSurveyResponseWithoutPermissionCheck(req, { facilityId, ...body }) {
+export async function createSurveyResponseWithoutPermissionCheck(
+  req,
+  { facilityId, ...body },
+  { isSyndromicSurveillanceRoute = false } = {},
+) {
   const { models, settings } = req;
+
+  // spec: SYND#the-syndromic-surveillance-form
+  if (body.surveyId === SYNDROMIC_SURVEILLANCE_SURVEY_ID && !isSyndromicSurveillanceRoute) {
+    throw new InvalidOperationError(
+      'Syndromic surveillance can only be submitted from the encounter it is for.',
+    );
+  }
 
   const getDefaultId = async type =>
     models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);

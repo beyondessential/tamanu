@@ -2811,8 +2811,10 @@ describe('Encounter', () => {
         ['write', 'Encounter'],
         ['write', 'Discharge'],
       ];
-      // The standard permissions for submitting the syndromic surveillance form.
+      // The standard permissions for submitting the syndromic surveillance form, on an encounter
+      // the user can read.
       const SUBMIT_PERMISSIONS = [
+        ['read', 'Encounter'],
         ['create', 'SurveyResponse'],
         ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
       ];
@@ -3002,10 +3004,24 @@ describe('Encounter', () => {
         it('rejects a user who cannot create form responses, and records nothing', async () => {
           const encounter = await createOpenEncounter();
           const submitOnlyApp = await baseApp.asNewRole([
+            ['read', 'Encounter'],
             ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
           ]);
 
           const result = await submitFromDiagnosisPane(submitOnlyApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects a user with the form permissions who cannot read the encounter, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const formOnlyApp = await baseApp.asNewRole([
+            ['create', 'SurveyResponse'],
+            ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
+          ]);
+
+          const result = await submitFromDiagnosisPane(formOnlyApp, encounter.id);
 
           expect(result).toBeForbidden();
           expect(await findResponses(encounter.id)).toHaveLength(0);
@@ -3020,6 +3036,16 @@ describe('Encounter', () => {
           const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
 
           expect(result).toHaveStatus(404);
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting for an encounter that has ended, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          await encounter.update({ endDate: getCurrentDateTimeString() });
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(result).toHaveRequestError();
           expect(await findResponses(encounter.id)).toHaveLength(0);
         });
 
@@ -3147,6 +3173,16 @@ describe('Encounter', () => {
           const result = await submitDuringDischarge(dischargeApp, encounter.id);
 
           expect(result).toHaveStatus(404);
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting for an encounter that has already been discharged, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          await encounter.update({ endDate: getCurrentDateTimeString() });
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(result).toHaveRequestError();
           expect(await findResponses(encounter.id)).toHaveLength(0);
         });
       });
