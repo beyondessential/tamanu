@@ -17,10 +17,6 @@ import { getSyncLoginBackoff, isLoginRefusal } from './SyncLoginBackoff';
 // periodically rechecks earlier endpoints. Other processes (the API process) only follow what the
 // sync process publishes through FACT_CENTRAL_ENDPOINT_IN_USE and never probe. A host is only ever
 // chosen after a login at it succeeds.
-// How long what a host's login said about which central it reaches is trusted. A name can start
-// pointing at another server, so it is not remembered for good.
-const IDENTITY_TTL_MS = 60 * 60_000;
-
 export class CentralEndpointSelector extends EventEmitter {
   #models;
   #hosts;
@@ -28,8 +24,6 @@ export class CentralEndpointSelector extends EventEmitter {
   #getProbeSettings;
   #createProbeClient;
   #canProbe;
-  #now;
-  #identities = new Map();
   #walking = null;
   #activeSessions = 0;
 
@@ -41,7 +35,6 @@ export class CentralEndpointSelector extends EventEmitter {
    * @param {() => string} args.getDeviceId
    * @param {() => Promise<{ recheckIntervalMs: number, probeTimeoutMs: number }>} args.getProbeSettings
    * @param {boolean} [args.canProbe] false for a process that only follows the sync process
-   * @param {() => number} [args.now] the clock, for how long a host's identity is trusted
    * @param {(args: { host: string, timeoutMs: number }) => { login: Function }} [args.createProbeClient]
    */
   constructor({
@@ -51,7 +44,6 @@ export class CentralEndpointSelector extends EventEmitter {
     getDeviceId,
     getProbeSettings,
     canProbe = true,
-    now = Date.now,
     createProbeClient = createDefaultProbeClient(getDeviceId),
   }) {
     super();
@@ -61,7 +53,6 @@ export class CentralEndpointSelector extends EventEmitter {
     this.#getProbeSettings = getProbeSettings;
     this.#createProbeClient = createProbeClient;
     this.#canProbe = canProbe;
-    this.#now = now;
   }
 
   get hosts() {
@@ -101,34 +92,6 @@ export class CentralEndpointSelector extends EventEmitter {
   }
 
   /**
-   * Remembers which central `host` reached, as its login said, so that when it refuses the
-   * credentials the other hosts reaching the same central are not asked as well. Central names
-   * itself in the response to a login, and in nothing sooner, so this is only learned from logins
-   * that succeeded.
-   */
-  learnIdentity(host, identity) {
-    if (!identity) return;
-    this.#identities.set(host, { identity, learnedAt: this.#now() });
-  }
-
-  #identityOf(host) {
-    const known = this.#identities.get(host);
-    if (!known) return null;
-    if (this.#now() - known.learnedAt >= IDENTITY_TTL_MS) {
-      this.#identities.delete(host);
-      return null;
-    }
-    return known.identity;
-  }
-
-  /** `host` and the other hosts known to reach the same central as it does. */
-  hostsOnSameServerAs(host) {
-    const identity = this.#identityOf(host);
-    if (identity === null) return [host];
-    return this.#hosts.filter(other => other === host || this.#identityOf(other) === identity);
-  }
-
-  /**
    * Logs in at `host` with the sync credentials, on a client of its own so the live connection's
    * auth state is never disturbed, with a short timeout and a single attempt.
    * @returns {Promise<{ ok: true } | { ok: false, reason: string, credentialsRefused: boolean, lockedOut: boolean }>}
@@ -139,10 +102,7 @@ export class CentralEndpointSelector extends EventEmitter {
     const startedAt = Date.now();
     try {
       const client = this.#createProbeClient({ host, timeoutMs: probeTimeoutMs });
-      const loginData = await client.login(email, password, {
-        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-      });
-      this.learnIdentity(host, loginData?.server?.centralHost);
+      await client.login(email, password, { scopes: [DEVICE_SCOPES.SYNC_CLIENT] });
       log.info('CentralEndpointSelector.probe', {
         host,
         outcome: 'success',
@@ -173,8 +133,7 @@ export class CentralEndpointSelector extends EventEmitter {
    * refused. A lockout ends the round early, since the other hosts would refuse as well.
    * @param {string[]} hosts
    * @param {{ skip?: string[], shouldStop?: () => boolean }} [options] hosts not to try, and a
-   * check before each probe for whether to give the round up. A host that refuses the credentials
-   * also rules out the hosts known to reach the same central.
+   * check before each probe for whether to give the round up
    */
   async firstPassing(hosts, { skip = [], shouldStop = () => false } = {}) {
     const backoff = getSyncLoginBackoff();
@@ -183,10 +142,9 @@ export class CentralEndpointSelector extends EventEmitter {
       return null;
     }
 
-    const skipped = new Set(skip);
     let credentialsRefused = false;
     for (const host of hosts) {
-      if (skipped.has(host)) continue;
+      if (skip.includes(host)) continue;
       if (shouldStop()) return null;
 
       const result = await this.probe(host);
@@ -196,9 +154,6 @@ export class CentralEndpointSelector extends EventEmitter {
       }
       credentialsRefused ||= result.credentialsRefused;
       if (result.lockedOut) break;
-      if (result.credentialsRefused) {
-        for (const sameServer of this.hostsOnSameServerAs(host)) skipped.add(sameServer);
-      }
     }
 
     if (credentialsRefused) await backoff.recordRefusal();
@@ -208,9 +163,8 @@ export class CentralEndpointSelector extends EventEmitter {
   /**
    * Probes the hosts from the top and moves to the first that passes. Concurrent callers share one
    * walk. Resolves to whether some host passed, which can be the host already in use.
-   * @param {{ reason?: string, skip?: string[] }} [options] `skip` is for the hosts that have just
-   * refused the credentials: asking them again would only count another failure against the
-   * account.
+   * @param {{ reason?: string, skip?: string[] }} [options] `skip` is for a host that has just
+   * refused the credentials: asking it again would only count another failure against the account.
    */
   walk({ reason, skip } = {}) {
     if (!this.#canProbe || !this.hasAlternatives()) return Promise.resolve(false);
