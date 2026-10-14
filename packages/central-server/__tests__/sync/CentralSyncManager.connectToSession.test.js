@@ -1,12 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
+import { NotFoundError } from '@tamanu/errors';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   createTestContext,
-  waitForSession,
   initializeCentralSyncManagerWithContext,
+  waitForSession,
 } from '../utilities';
 
 describe('CentralSyncManager.connectToSession', () => {
@@ -49,6 +50,13 @@ describe('CentralSyncManager.connectToSession', () => {
 
     const syncSession = await centralSyncManager.connectToSession(sessionId);
     expect(syncSession).toBeDefined();
+  });
+
+  it('throws a NotFoundError if the session does not exist', async () => {
+    const centralSyncManager = await initializeCentralSyncManager();
+    await expect(centralSyncManager.connectToSession(crypto.randomUUID())).rejects.toThrow(
+      NotFoundError,
+    );
   });
 
   it('throws an error if connecting to a session that has errored out', async () => {
