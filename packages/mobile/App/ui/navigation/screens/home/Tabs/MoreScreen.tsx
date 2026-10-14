@@ -29,7 +29,7 @@ const StyledFlatList = styled(FlatList)`
   padding-right: ${screenPercentageToDP(4.86, Orientation.Width)}px;
 `;
 
-const CameraInCircle = (
+const cameraInCircle = (
   <StyledView position="absolute" right="-20%" bottom={0} zIndex={2}>
     <CenterView
       borderRadius={50}
@@ -121,7 +121,7 @@ export const MoreScreen = (): ReactElement => {
         <UserAvatar
           size={screenPercentageToDP(9.72, Orientation.Height)}
           displayName={user.displayName}
-          Icon={CameraInCircle}
+          icon={cameraInCircle}
         />
         <StyledText
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
