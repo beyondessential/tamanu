@@ -39,9 +39,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
     };
     socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
     socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-    return () => {
-      socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-    };
+    return () => void socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
   }, [socket, contactId]);
 
   const onNavigateBack = () => {
