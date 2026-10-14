@@ -170,6 +170,12 @@ export const DETAIL_GROUPS: DetailGroup[] = [
   },
 ];
 
+/** The details always in view on the dashboard, after the patient's name. */
+export const BASIC_FIELD_NAMES = ['dateOfBirth', 'sex', 'displayId'];
+
+/** The parts of the patient's name, shown together as one detail. */
+export const NAME_FIELD_NAMES = ['firstName', 'middleName', 'lastName'];
+
 /** The group's details the deployment uses, leaving out the ones it hides. */
 export const getShownFields = (
   group: DetailGroup,

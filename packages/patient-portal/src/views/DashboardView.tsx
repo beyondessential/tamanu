@@ -5,6 +5,7 @@ import { PageColumn, PageTitle } from '@components/layout';
 import { ToDoSection } from '../features/dashboard/ToDoSection';
 import { AppointmentsSection } from '../features/dashboard/AppointmentsSection';
 import { HealthRecordSection } from '../features/dashboard/HealthRecordSection';
+import { YourDetailsSection } from '../features/details/DetailsRecord';
 
 export const DashboardView = () => {
   const { firstName } = useCurrentUser();
@@ -20,6 +21,7 @@ export const DashboardView = () => {
       </PageTitle>
       <ToDoSection />
       <AppointmentsSection />
+      <YourDetailsSection />
       <HealthRecordSection />
     </PageColumn>
   );

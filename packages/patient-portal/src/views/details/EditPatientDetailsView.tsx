@@ -33,7 +33,7 @@ import {
   getShownFields,
 } from '../../features/details/detailFields';
 import { DetailInputField } from '../../features/details/DetailInputField';
-import { DetailGrid, DetailValue, GroupDetails } from '../../features/details/DetailsRecord';
+import { DetailGrid, DetailList, hasDetail } from '../../features/details/DetailsRecord';
 
 const Note = styled.p`
   margin: 0;
@@ -87,6 +87,7 @@ const DETAILS_PATH = '/#details';
 /** The patient's details, all edited on one screen. */
 export const EditPatientDetailsView = () => {
   const { data: settings, isLoading } = usePortalSettingsQuery();
+  const patient = useCurrentUser();
   if (isLoading) return <Loading />;
 
   const fieldSettings = settings?.fields;
@@ -95,7 +96,7 @@ export const EditPatientDetailsView = () => {
     fields: getEditableFields(group, fieldSettings),
   })).filter(({ fields }) => fields.length > 0);
   const fixedFields = DETAIL_GROUPS.flatMap(group =>
-    getShownFields(group, fieldSettings).filter(field => !field.input),
+    getShownFields(group, fieldSettings).filter(field => !field.input && hasDetail(field, patient)),
   );
 
   return (
@@ -199,16 +200,7 @@ const EditDetailsForm = ({
         {fixedFields.length > 0 && (
           <Panel>
             <FixedDetails>
-              <GroupDetails>
-                {fixedFields.map(field => (
-                  <React.Fragment key={field.name}>
-                    <dt>{field.label}</dt>
-                    <dd>
-                      <DetailValue field={field} />
-                    </dd>
-                  </React.Fragment>
-                ))}
-              </GroupDetails>
+              <DetailList fields={fixedFields} />
             </FixedDetails>
             <Note>
               <TranslatedText

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, ScrollRestoration } from 'react-router';
 import { CircularProgress } from '@mui/material';
 import { PortalGlobalStyle, PortalRoot } from '@components/layout';
 import { PageHeader } from './header/PageHeader';
@@ -12,6 +12,8 @@ const CurrentUserContext = createContext<PatientWithAdditionalData | undefined>(
 const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => (
   <PortalRoot>
     <PortalGlobalStyle />
+    {/* Each new page opens at its top, and going back returns to where the patient was */}
+    <ScrollRestoration />
     <PageHeader />
     {children}
   </PortalRoot>
