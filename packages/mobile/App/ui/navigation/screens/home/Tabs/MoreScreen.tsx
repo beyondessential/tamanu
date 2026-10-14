@@ -74,10 +74,10 @@ const MoreMenuButton = ({ Icon, title, onPress, textProps }): React.ReactElement
   </TouchableHighlight>
 );
 
-type FooterProps = {
+interface FooterProps {
   version: string;
   deviceId: string;
-};
+}
 
 const Footer = ({ version, deviceId }: FooterProps): ReactElement => (
   <StyledText
