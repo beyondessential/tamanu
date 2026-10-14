@@ -41,13 +41,13 @@ describe('Admin user allowed facilities', () => {
     const user = await models.User.findOne({ where: { email } });
     expect(await allowedFacilityIds(user.id)).toEqual([facilityA.id]);
 
-    const update = allowedFacilityIds =>
+    const update = facilityIds =>
       adminApp.put(`/api/admin/users/${user.id}`).send({
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         displayName: 'Allowed Facilities',
         role: role.id,
         email,
-        allowedFacilityIds,
+        allowedFacilityIds: facilityIds,
       });
 
     expect(await update([facilityA.id, facilityB.id])).toHaveSucceeded();
