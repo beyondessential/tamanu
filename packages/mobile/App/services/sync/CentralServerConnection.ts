@@ -216,7 +216,6 @@ export class CentralServerConnection {
         urgent,
         lastSyncedTick,
         facilityIds: [facilityId],
-        deviceId: this.deviceId,
         isMobile: true,
       },
     )) as { sessionId?: string; status?: string };
@@ -259,7 +258,6 @@ export class CentralServerConnection {
       facilityIds: [facilityId],
       tablesToInclude: tableNames,
       tablesForFullResync,
-      deviceId: this.deviceId,
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
 
@@ -293,11 +291,7 @@ export class CentralServerConnection {
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
-    await this.post(
-      `sync/${sessionId}/push/complete`,
-      {},
-      { tablesToInclude, deviceId: this.deviceId },
-    );
+    await this.post(`sync/${sessionId}/push/complete`, {}, { tablesToInclude });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
