@@ -36,6 +36,7 @@ Each event carries enough context to both bucket it by page downstream and drill
 - [ ] Each event records the full request or route path including query parameters, and the matched route pattern (for example `/patients/:patientId/encounter/:encounterId`), so the downstream step can group by page without re-deriving the pattern.
 - [ ] A navigation event records its outcome: settled normally, abandoned, or capped.
 - [ ] Each event records the interface it came from (clinical web, admin, or patient portal), the application version, the device, the session, the user, and the time it occurred.
+- [ ] The device is identified by the client's stable per-workstation identifier, which persists across logins and sessions on that browser, so a consistently slow machine or location can be isolated independently of which user was signed in.
 - [ ] Paths and query parameters are recorded as-is; no patient-identifying information is stripped in the browser.
 
 ## Reporting to the facility server
