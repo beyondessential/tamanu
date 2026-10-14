@@ -16,6 +16,7 @@ Each in-app navigation is recorded as one OpenTelemetry trace: a navigation span
 - [ ] A navigation span's duration is the page-load time — from navigation start until the page settles (see [Determining when a page has loaded](#determining-when-a-page-has-loaded)).
 - [ ] An API request span records the request's HTTP method, path, response status, and duration.
 - [ ] Telemetry is collected on all three web interfaces: the clinical web app, the admin panel, and the patient portal.
+- [ ] Collection begins from the initial application load, before the user has signed in, so the login screen and the navigations leading up to sign-in are measured like any other page.
 - [ ] Collecting and reporting telemetry never blocks the application or surfaces an error to the user; it is best-effort, and any failure in the telemetry path is swallowed.
 
 ## Determining when a page has loaded
@@ -35,8 +36,9 @@ Each event carries enough context to both bucket it by page downstream and drill
 - [ ] Each event records the trace it belongs to, so a navigation and its request spans can be tied together, and whether it is a navigation or a request.
 - [ ] Each event records the full request or route path including query parameters, and the matched route pattern (for example `/patients/:patientId/encounter/:encounterId`), so the downstream step can group by page without re-deriving the pattern.
 - [ ] A navigation event records its outcome: settled normally, abandoned, or capped.
-- [ ] Each event records the interface it came from (clinical web, admin, or patient portal), the application version, the device, the session, the user, and the time it occurred.
+- [ ] Each event records the interface it came from (clinical web, admin, or patient portal), the application version, the device, and the time it occurred.
 - [ ] The device is identified by the client's stable per-workstation identifier, which persists across logins and sessions on that browser, so a consistently slow machine or location can be isolated independently of which user was signed in.
+- [ ] An event records the user and session once a user has signed in; an event produced before sign-in is attributed to the device alone.
 - [ ] Paths and query parameters are recorded as-is; no patient-identifying information is stripped in the browser.
 
 ## Reporting to the facility server
@@ -45,6 +47,7 @@ Collected events are held in the browser and sent in batches to the facility ser
 
 - [ ] Events are batched in the browser and sent to the facility server on a regular interval.
 - [ ] The browser sends telemetry only to its own facility server.
+- [ ] The facility server accepts telemetry from clients that have not yet authenticated, so pre-login activity is recorded; an authenticated batch additionally carries the user.
 - [ ] A failed or rejected send discards that batch without retrying indefinitely and without disrupting the application.
 
 ## Raw store on the facility server
@@ -59,6 +62,6 @@ The facility server writes received events into a single flat table — one row 
 
 Telemetry is governed by facility settings so operators can control it without a redeploy. The enablement flag is exposed to the web clients so a client knows whether to collect at all.
 
-- [ ] A facility setting turns browser telemetry on or off; when off, the clients collect and send nothing.
+- [ ] A facility setting turns browser telemetry on or off, defaulting to on; when off, the clients collect and send nothing.
 - [ ] The enablement setting is exposed to the web clients.
 - [ ] A facility setting defines the raw-event retention period, defaulting to one month.
