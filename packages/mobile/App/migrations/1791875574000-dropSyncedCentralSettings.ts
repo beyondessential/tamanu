@@ -7,5 +7,7 @@ export class dropSyncedCentralSettings1791875574000 implements MigrationInterfac
     await queryRunner.query(`DELETE FROM settings WHERE scope = '${SETTINGS_SCOPES.CENTRAL}'`);
   }
 
-  async down(): Promise<void> {}
+  async down(): Promise<void> {
+    // DESTRUCTIVE: the deleted central-scope settings rows are not restored.
+  }
 }
