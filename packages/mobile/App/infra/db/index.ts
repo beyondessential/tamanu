@@ -78,10 +78,10 @@ const INCREMENTAL_VACUUM_MAX_PAGES = 4096;
 const AUTO_VACUUM_NONE = 0;
 const AUTO_VACUUM_INCREMENTAL = 2;
 
-const getConnectionConfig = (): ConnectionOptions => {
-  const isJest = process.env.JEST_WORKER_ID !== undefined;
-  return isJest ? TEST_CONNECTION_CONFIG : CONNECTION_CONFIG;
-};
+const isJest = (): boolean => process.env.JEST_WORKER_ID !== undefined;
+
+const getConnectionConfig = (): ConnectionOptions =>
+  isJest() ? TEST_CONNECTION_CONFIG : CONNECTION_CONFIG;
 
 function formatMiB(bytes: number): string {
   return `${(bytes / MEBIBYTE).toLocaleString('en-AU', { maximumFractionDigits: 1 })} MiB`;
