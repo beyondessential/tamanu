@@ -3,7 +3,7 @@ import { REFERENCE_TYPES, SEX_LABELS, TITLE_LABELS } from '@tamanu/constants';
 import { TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 import type { PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 import type { FieldSetting } from '@api/queries/usePortalSettingsQuery';
-import { formatRecordDate } from '../../views/record/RecordPage';
+import { formatRecordDate } from '../record/recordList';
 
 type Patient = PatientWithAdditionalData;
 
@@ -62,8 +62,6 @@ export interface DetailGroup {
   key: string;
   title: React.ReactNode;
   fields: DetailField[];
-  /** Said on the edit screen, about details in the group the patient can't change */
-  editNote?: React.ReactNode;
 }
 
 /** The patient's details, grouped as they're shown and edited. */
@@ -71,12 +69,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
   {
     key: 'personal',
     title: <TranslatedText stringId="patientPortal.details.personal" fallback="Personal" />,
-    editNote: (
-      <TranslatedText
-        stringId="patientPortal.details.personal.note"
-        fallback="To change your name, date of birth, sex or village, talk to your clinic."
-      />
-    ),
     fields: [
       {
         name: 'displayId',

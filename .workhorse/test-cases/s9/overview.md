@@ -54,13 +54,14 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 
 - [x] Dashboard shows To do, Upcoming appointments and Your health record, in that order (verifies spec: PPORT)
 - [x] Each outstanding form opens from its row; with none, "You're all up to date" (verifies spec: PPORT)
-- [x] Record rows show how many are recorded, or "None recorded", and open their own pages (verifies spec: PPORT)
-- [x] Record pages list conditions, allergies, medications, vaccinations and procedures, or say none are recorded (verifies spec: PPORT)
+- [x] Record rows show how many are recorded, or "None recorded", and expand in place; several can be open at once (verifies spec: PPORT)
+- [x] Expanded rows list conditions, allergies, medications, vaccinations and procedures, or say none are recorded (verifies spec: PPORT)
 - [x] Nothing overflows a phone-width screen, including success messages (verifies spec: PPORT)
 - [x] Desktop keeps the single centred column
 
 ## Forms
 
+- [x] A form keeps the same width from page to page on a desktop
 - [x] A form with every question type renders on a phone with the shared controls, and Back and Next stay in view (verifies spec: PPORT)
 - [x] Next with a required question unanswered shows "This question is required" and stays on the page (verifies spec: PPORT)
 - [x] Submitting stores every answer in the staff formats (text, number, choices, yes/no, tick box, date, time, date and time, village search, photo, signature, calculated, patient data) and marks the form completed (verifies spec: PPORT)
@@ -70,19 +71,19 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 
 ## Patient details
 
-- [x] Details are grouped, with "Not recorded" for empty details and Edit beside each editable group (verifies spec: PPDET)
-- [x] Each group's Edit opens a screen with only that group's editable details and Save fixed at the bottom (verifies spec: PPDET)
-- [x] An invalid phone number or email shows a message under the field and nothing is saved (verifies spec: PPDET)
-- [x] Saving writes only the changed details, returns to the saved group and shows "Details saved" (verifies spec: PPDET)
+- [x] Your details expands on the dashboard into one grid of grouped details, with "Not recorded" for empty details and one Edit at the top (verifies spec: PPDET)
+- [x] Edit opens one screen with the fixed details first, then every editable detail under its group heading, and Save fixed at the bottom (verifies spec: PPDET)
+- [x] An invalid phone number or email shows a message under the field, the first one is focused, and nothing is saved (verifies spec: PPDET)
+- [x] Saving writes only the changed details, returns to the dashboard with Your details open and shows "Details saved" (verifies spec: PPDET)
 - [x] Leaving with unsaved changes asks to discard; Keep editing keeps the edits and Discard drops them (verifies spec: PPDET)
 - [x] Title and ethnicity are chosen from lists and can be set back to None (verifies spec: PPDET)
 - [x] Browser back button with unsaved changes shows the discard prompt (verifies spec: PPDET)
-- [x] Hidden fields don't appear, and a required blank field blocks saving its group (verifies spec: PPDET)
+- [ ] Hidden fields don't appear, and a required blank field anywhere on the edit screen blocks saving (verifies spec: PPDET)
 - [x] The server keeps required details from being cleared, refuses hidden or non-editable details, non-current reference data and malformed phone numbers and emails (verifies spec: PPDET)
 - [x] Changing email leaves the portal sign-in email unchanged (verifies spec: PPDET)
-- [x] A label the deployment has renamed shows its renamed text on the details page (verifies spec: PPDET)
+- [ ] A label the deployment has renamed shows its renamed text in Your details and on the edit screen (verifies spec: PPDET)
 - [x] A retired ethnicity still shows as chosen and can be set to None (verifies spec: PPDET)
-- [x] A staff-recorded phone number in another format doesn't stop saving a different detail in its group (verifies spec: PPDET)
+- [x] A staff-recorded phone number in another format doesn't stop saving a different detail (verifies spec: PPDET)
 - [x] Form start and end times are recorded in the primary time zone
 - [x] If the time zone can't be loaded, the form page says the form couldn't be opened rather than going blank
 

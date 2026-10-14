@@ -11,7 +11,7 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] Every signed-in page has a header with the Tamanu logo, which returns to the dashboard, and a menu button that opens the patient's name and Log out.
 - [ ] Content is a single column the width of a phone, centred on wider screens.
 - [ ] The portal uses the kiosk's palette: a light grey page, content on white outlined panels, and Tamanu blue for actions. Controls are large enough to use by touch and sized for a phone.
-- [ ] Every page other than the dashboard has a back link to the page it was opened from.
+- [ ] Every page other than the dashboard has a back link to the dashboard.
 - [ ] Success messages span the width of a phone screen.
 - [ ] Text uses the deployment's translations for its default language, so wording and names the deployment has changed appear in the portal as they do in Tamanu. Where a string has no translation, its English text shows.
 
@@ -20,9 +20,9 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] The dashboard greets the patient by first name.
 - [ ] To do comes first: one row per form the patient has been asked to fill in, naming the form and who sent it. Each row opens the form. With no forms outstanding, it says the patient is all up to date.
 - [ ] Upcoming appointments follow, each showing the date at a glance, the day and time, and where known the appointment type, clinician, area and facility. With none, it says there are no upcoming appointments.
-- [ ] Your health record comes last: rows for Your details, Ongoing conditions, Allergies, Medications, Vaccinations and Procedures, each opening its own page. Each record row says how many are recorded, or that none are.
+- [ ] Your health record comes last: Your details, Ongoing conditions, Allergies, Medications, Vaccinations and Procedures, each a row that expands in place to show its contents and collapses again, so the patient sees their whole record without leaving the dashboard. Each row says how many are recorded, or that none are; Your details says what it holds. Rows start collapsed, and any number can be open at once.
 
-## Health record pages
+## Health record
 
 - [ ] Ongoing conditions lists each condition with the date it was recorded.
 - [ ] Allergies lists each allergy with its reaction, where recorded.

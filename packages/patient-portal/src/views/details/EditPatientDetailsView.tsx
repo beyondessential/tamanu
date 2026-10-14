@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Navigate, useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import {
   FormErrorMessage,
   FormPrimaryButton,
@@ -13,20 +13,41 @@ import { UpdatePatientDetailsRequestSchema } from '@tamanu/shared/schemas/patien
 
 import { useUpdatePatientDetails } from '@api/mutations';
 import { usePortalSettingsQuery } from '@api/queries/usePortalSettingsQuery';
-import { BackLink, Loading, PageColumn, PageTitle, Panel } from '@components/layout';
+import {
+  BackLink,
+  Loading,
+  PageColumn,
+  PageTitle,
+  Panel,
+  Section,
+  SectionTitle,
+} from '@components/layout';
 import { DiscardChangesDialog } from '@components/DiscardChangesDialog';
 import { useUnsavedChangesGuard } from '@components/useUnsavedChangesGuard';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import {
   DETAIL_GROUPS,
   type DetailField,
+  type DetailGroup,
   getEditableFields,
+  getShownFields,
 } from '../../features/details/detailFields';
 import { DetailInputField } from '../../features/details/DetailInputField';
+import { DetailGrid, DetailValue, GroupDetails } from '../../features/details/DetailsRecord';
 
 const Note = styled.p`
-  margin: -8px 0 16px;
+  margin: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--pf-line);
   color: var(--pf-text-secondary);
+`;
+
+const FixedDetails = styled(DetailGrid)`
+  padding-top: 16px;
+`;
+
+const EditGroup = styled(Section)`
+  margin-top: 28px;
 `;
 
 const Fields = styled(Panel)`
@@ -55,52 +76,52 @@ type Values = Record<string, string>;
 const toFormValues = (fields: DetailField[], patient: ReturnType<typeof useCurrentUser>) =>
   Object.fromEntries(fields.map(field => [field.name, field.getValue(patient) ?? '']));
 
-/** One group of the patient's details, edited on its own screen. */
-export const EditPatientDetailsView = () => {
-  const { group: groupKey } = useParams();
-  const group = DETAIL_GROUPS.find(({ key }) => key === groupKey);
-  const { data: settings, isLoading } = usePortalSettingsQuery();
+/** Back on the dashboard, with the patient's details open. */
+const DETAILS_PATH = '/#details';
 
-  if (!group) return <Navigate to="/details" replace />;
+/** The patient's details, all edited on one screen. */
+export const EditPatientDetailsView = () => {
+  const { data: settings, isLoading } = usePortalSettingsQuery();
   if (isLoading) return <Loading />;
-  const fields = getEditableFields(group, settings?.fields);
-  if (fields.length === 0) return <Navigate to="/details" replace />;
+
+  const fieldSettings = settings?.fields;
+  const editableGroups = DETAIL_GROUPS.map(group => ({
+    group,
+    fields: getEditableFields(group, fieldSettings),
+  })).filter(({ fields }) => fields.length > 0);
+  const fixedFields = DETAIL_GROUPS.flatMap(group =>
+    getShownFields(group, fieldSettings).filter(field => !field.input),
+  );
 
   return (
     <EditDetailsForm
-      key={group.key}
-      groupKey={group.key}
-      title={group.title}
-      note={group.editNote}
-      editableFields={fields}
-      fieldSettings={settings?.fields ?? {}}
+      editableGroups={editableGroups}
+      fixedFields={fixedFields}
+      fieldSettings={fieldSettings ?? {}}
     />
   );
 };
 
 const EditDetailsForm = ({
-  groupKey,
-  title,
-  note,
-  editableFields,
+  editableGroups,
+  fixedFields,
   fieldSettings,
 }: {
-  groupKey: string;
-  title: React.ReactNode;
-  note?: React.ReactNode;
-  editableFields: DetailField[];
+  editableGroups: { group: DetailGroup; fields: DetailField[] }[];
+  fixedFields: DetailField[];
   fieldSettings: Record<string, { required?: boolean }>;
 }) => {
   const patient = useCurrentUser();
   const navigate = useNavigate();
   const { getTranslation } = useTranslation();
+  const formRef = useRef<HTMLFormElement>(null);
   // The form keeps the details it opened with, even if the field settings refresh meanwhile
-  const [fields] = useState(editableFields);
+  const [groups] = useState(editableGroups);
+  const [fields] = useState(() => groups.flatMap(({ fields }) => fields));
   const [initialValues] = useState(() => toFormValues(fields, patient));
   const [values, setValues] = useState<Values>(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const updateDetails = useUpdatePatientDetails();
-  const detailsPath = `/details#${groupKey}`;
 
   const changedNames = fields
     .map(({ name }) => name)
@@ -138,9 +159,15 @@ const EditDetailsForm = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      // Once the errors have rendered, take the patient to the first of them
+      requestAnimationFrame(() => {
+        formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      });
+      return;
+    }
     if (changedNames.length === 0) {
-      navigate(detailsPath);
+      navigate(DETAILS_PATH);
       return;
     }
     const changes = Object.fromEntries(changedNames.map(name => [name, values[name].trim()]));
@@ -150,31 +177,59 @@ const EditDetailsForm = ({
         notifySuccess(getTranslation('patientPortal.details.saved', 'Details saved'), {
           autoClose: 3000,
         });
-        navigate(detailsPath);
+        navigate(DETAILS_PATH);
       },
     });
   };
 
   return (
     <>
-      <PageColumn as="form" id="edit-details" onSubmit={handleSubmit} noValidate>
-        <BackLink to={detailsPath}>
-          <TranslatedText stringId="patientPortal.details.title" fallback="Your details" />
+      <PageColumn as="form" id="edit-details" ref={formRef} onSubmit={handleSubmit} noValidate>
+        <BackLink to={DETAILS_PATH}>
+          <TranslatedText stringId="patientPortal.home" fallback="Home" />
         </BackLink>
-        <PageTitle>{title}</PageTitle>
-        {note && <Note>{note}</Note>}
-        <Fields>
-          {fields.map(field => (
-            <DetailInputField
-              key={field.name}
-              field={field}
-              value={values[field.name]}
-              onChange={value => setValues(previous => ({ ...previous, [field.name]: value }))}
-              required={Boolean(fieldSettings[field.name]?.required)}
-              error={errors[field.name]}
-            />
-          ))}
-        </Fields>
+        <PageTitle>
+          <TranslatedText stringId="patientPortal.details.editTitle" fallback="Edit your details" />
+        </PageTitle>
+        {fixedFields.length > 0 && (
+          <Panel>
+            <FixedDetails>
+              <GroupDetails>
+                {fixedFields.map(field => (
+                  <React.Fragment key={field.name}>
+                    <dt>{field.label}</dt>
+                    <dd>
+                      <DetailValue field={field} />
+                    </dd>
+                  </React.Fragment>
+                ))}
+              </GroupDetails>
+            </FixedDetails>
+            <Note>
+              <TranslatedText
+                stringId="patientPortal.details.fixedNote"
+                fallback="To change these, talk to your clinic."
+              />
+            </Note>
+          </Panel>
+        )}
+        {groups.map(({ group, fields: groupFields }) => (
+          <EditGroup key={group.key} aria-labelledby={`edit-${group.key}`}>
+            <SectionTitle id={`edit-${group.key}`}>{group.title}</SectionTitle>
+            <Fields>
+              {groupFields.map(field => (
+                <DetailInputField
+                  key={field.name}
+                  field={field}
+                  value={values[field.name]}
+                  onChange={value => setValues(previous => ({ ...previous, [field.name]: value }))}
+                  required={Boolean(fieldSettings[field.name]?.required)}
+                  error={errors[field.name]}
+                />
+              ))}
+            </Fields>
+          </EditGroup>
+        ))}
         {updateDetails.isError && (
           <FormErrorMessage role="alert">
             <TranslatedText
@@ -186,7 +241,7 @@ const EditDetailsForm = ({
       </PageColumn>
       <ActionBar>
         <ActionBarContent>
-          <FormSecondaryButton onClick={() => navigate(detailsPath)}>
+          <FormSecondaryButton onClick={() => navigate(DETAILS_PATH)}>
             <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
           </FormSecondaryButton>
           <FormPrimaryButton type="submit" form="edit-details" disabled={updateDetails.isPending}>

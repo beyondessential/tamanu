@@ -130,7 +130,8 @@ export const Panel = styled.div`
   }
 `;
 
-const rowLayout = css`
+/** A row's spacing, shared by plain rows, rows that link and rows that expand. */
+export const rowLayout = css`
   display: flex;
   align-items: center;
   gap: 14px;

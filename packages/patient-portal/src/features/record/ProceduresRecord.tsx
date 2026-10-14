@@ -3,7 +3,7 @@ import { TranslatedText } from '@tamanu/ui-components';
 import type { Procedure } from '@tamanu/shared/schemas/patientPortal/responses/procedure.schema';
 
 import { useProceduresQuery } from '@api/queries/useProceduresQuery';
-import { formatRecordDate, RecordItem, RecordList, RecordPage, RecordSection } from './RecordPage';
+import { formatRecordDate, RecordItem, RecordList, RecordSubsection } from './recordList';
 
 const ProcedureItem = ({ procedure }: { procedure: Procedure }) => (
   <RecordItem
@@ -12,17 +12,15 @@ const ProcedureItem = ({ procedure }: { procedure: Procedure }) => (
   />
 );
 
-export const ProceduresView = () => {
+export const ProceduresRecord = () => {
   const { data: procedures, isLoading } = useProceduresQuery();
   const planned = procedures?.filter(procedure => !procedure.completed);
   const completed = procedures?.filter(procedure => procedure.completed);
   const none = <TranslatedText stringId="patientPortal.procedures.none" fallback="None recorded" />;
 
   return (
-    <RecordPage
-      title={<TranslatedText stringId="patientPortal.procedures.title" fallback="Procedures" />}
-    >
-      <RecordSection
+    <>
+      <RecordSubsection
         id="planned-procedures"
         title={<TranslatedText stringId="patientPortal.procedures.planned" fallback="Planned" />}
       >
@@ -32,8 +30,8 @@ export const ProceduresView = () => {
           empty={none}
           renderItem={procedure => <ProcedureItem key={procedure.id} procedure={procedure} />}
         />
-      </RecordSection>
-      <RecordSection
+      </RecordSubsection>
+      <RecordSubsection
         id="completed-procedures"
         title={
           <TranslatedText stringId="patientPortal.procedures.completed" fallback="Completed" />
@@ -45,7 +43,7 @@ export const ProceduresView = () => {
           empty={none}
           renderItem={procedure => <ProcedureItem key={procedure.id} procedure={procedure} />}
         />
-      </RecordSection>
-    </RecordPage>
+      </RecordSubsection>
+    </>
   );
 };

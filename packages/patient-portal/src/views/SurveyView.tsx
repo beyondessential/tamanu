@@ -33,6 +33,7 @@ const { isSupportedQuestionType, getComponentForQuestionType } = createPatientFo
 
 /** The form fills the screen below the header, so Back and Next stay in view. */
 const FormFrame = styled.div`
+  width: 100%;
   height: calc(100dvh - 57px);
   max-width: 640px;
   margin: 0 auto;

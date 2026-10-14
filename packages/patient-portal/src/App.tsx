@@ -7,18 +7,12 @@ import {
   RouterProvider,
 } from 'react-router';
 import {
-  AllergiesView,
-  ConditionsView,
   DashboardView,
   EditPatientDetailsView,
   LoginView,
-  MedicationsView,
-  PatientDetailsView,
-  ProceduresView,
   RegistrationView,
   RequestLoginTokenView,
   SurveyView,
-  VaccinationsView,
 } from './views';
 import { PublicRoute } from '@routes/PublicRoute';
 import { PrivateRoute } from '@routes/PrivateRoute';
@@ -29,16 +23,7 @@ const router = createBrowserRouter(
     <>
       <Route path="/" element={<PrivateRoute element={<DashboardView />} />} />
       <Route path="/survey/:surveyId" element={<PrivateRoute element={<SurveyView />} />} />
-      <Route path="/details" element={<PrivateRoute element={<PatientDetailsView />} />} />
-      <Route
-        path="/details/:group"
-        element={<PrivateRoute element={<EditPatientDetailsView />} />}
-      />
-      <Route path="/conditions" element={<PrivateRoute element={<ConditionsView />} />} />
-      <Route path="/allergies" element={<PrivateRoute element={<AllergiesView />} />} />
-      <Route path="/medications" element={<PrivateRoute element={<MedicationsView />} />} />
-      <Route path="/vaccinations" element={<PrivateRoute element={<VaccinationsView />} />} />
-      <Route path="/procedures" element={<PrivateRoute element={<ProceduresView />} />} />
+      <Route path="/details/edit" element={<PrivateRoute element={<EditPatientDetailsView />} />} />
       <Route path="/login" element={<PublicRoute element={<RequestLoginTokenView />} />} />
       <Route path="/login-submit" element={<PublicRoute element={<LoginView />} />} />
       <Route path="/register/:token" element={<PublicRoute element={<RegistrationView />} />} />

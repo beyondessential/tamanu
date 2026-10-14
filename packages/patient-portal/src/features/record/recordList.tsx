@@ -1,19 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { parseISO } from 'date-fns';
-import { TranslatedText } from '@tamanu/ui-components';
-import {
-  BackLink,
-  Badge,
-  type BadgeTone,
-  Loading,
-  Muted,
-  PageColumn,
-  PageTitle,
-  Panel,
-  Section,
-  SectionTitle,
-} from '@components/layout';
+import { Badge, type BadgeTone, Loading, Muted } from '@components/layout';
 
 const locale = globalThis.navigator?.language ?? 'default';
 const mediumDateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
@@ -27,23 +15,6 @@ export const formatRecordDate = (dateString: string | null | undefined) => {
     return null;
   }
 };
-
-/** A part of the health record, opened from the dashboard. */
-export const RecordPage = ({
-  title,
-  children,
-}: {
-  title: React.ReactNode;
-  children: React.ReactNode;
-}) => (
-  <PageColumn>
-    <BackLink to="/">
-      <TranslatedText stringId="patientPortal.home" fallback="Home" />
-    </BackLink>
-    <PageTitle>{title}</PageTitle>
-    {children}
-  </PageColumn>
-);
 
 const ItemRow = styled.div`
   display: flex;
@@ -107,22 +78,21 @@ export const RecordList = <Item,>({
   empty: React.ReactNode;
   renderItem: (item: Item) => React.ReactNode;
 }) => {
-  if (isLoading)
-    return (
-      <Panel>
-        <Loading />
-      </Panel>
-    );
-  if (!items?.length)
-    return (
-      <Panel>
-        <Muted>{empty}</Muted>
-      </Panel>
-    );
-  return <Panel>{items.map(renderItem)}</Panel>;
+  if (isLoading) return <Loading />;
+  if (!items?.length) return <Muted>{empty}</Muted>;
+  return <>{items.map(renderItem)}</>;
 };
 
-export const RecordSection = ({
+const SubsectionTitle = styled.h3`
+  margin: 0;
+  padding: 14px 16px 2px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pf-text-secondary);
+`;
+
+/** One part of a record that is listed in two, like planned and completed procedures. */
+export const RecordSubsection = ({
   id,
   title,
   children,
@@ -131,8 +101,8 @@ export const RecordSection = ({
   title: React.ReactNode;
   children: React.ReactNode;
 }) => (
-  <Section aria-labelledby={id}>
-    <SectionTitle id={id}>{title}</SectionTitle>
+  <section aria-labelledby={id}>
+    <SubsectionTitle id={id}>{title}</SubsectionTitle>
     {children}
-  </Section>
+  </section>
 );

@@ -6,7 +6,7 @@ import { useAdministeredVaccinesQuery } from '@api/queries/useAdministeredVaccin
 import { useUpcomingVaccinesQuery } from '@api/queries/useUpcomingVaccinesQuery';
 import { type BadgeTone } from '@components/layout';
 import { formatVaccineFacilityOrCountry, formatVaccineGivenBy, formatWeekOf } from '@utils/format';
-import { formatRecordDate, RecordItem, RecordList, RecordPage, RecordSection } from './RecordPage';
+import { formatRecordDate, RecordItem, RecordList, RecordSubsection } from './recordList';
 
 const STATUS_TONES: Partial<Record<string, BadgeTone>> = {
   [VACCINE_STATUS.DUE]: 'success',
@@ -15,15 +15,13 @@ const STATUS_TONES: Partial<Record<string, BadgeTone>> = {
   [VACCINE_STATUS.UPCOMING]: 'info',
 };
 
-export const VaccinationsView = () => {
+export const VaccinationsRecord = () => {
   const { data: upcoming, isLoading: isLoadingUpcoming } = useUpcomingVaccinesQuery();
   const { data: recorded, isLoading: isLoadingRecorded } = useAdministeredVaccinesQuery();
 
   return (
-    <RecordPage
-      title={<TranslatedText stringId="patientPortal.vaccinations.title" fallback="Vaccinations" />}
-    >
-      <RecordSection
+    <>
+      <RecordSubsection
         id="vaccine-schedule"
         title={
           <TranslatedText stringId="patientPortal.vaccinations.schedule" fallback="Schedule" />
@@ -48,8 +46,8 @@ export const VaccinationsView = () => {
             />
           )}
         />
-      </RecordSection>
-      <RecordSection
+      </RecordSubsection>
+      <RecordSubsection
         id="recorded-vaccines"
         title={
           <TranslatedText stringId="patientPortal.vaccinations.recorded" fallback="Recorded" />
@@ -79,7 +77,7 @@ export const VaccinationsView = () => {
             />
           )}
         />
-      </RecordSection>
-    </RecordPage>
+      </RecordSubsection>
+    </>
   );
 };
