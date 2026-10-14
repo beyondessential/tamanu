@@ -6,7 +6,7 @@ import { isNil } from 'es-toolkit/compat';
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
-import { NotFoundError } from '@tamanu/errors';
+import { GoneError, NotFoundError } from '@tamanu/errors';
 import {
   adjustDataPostSyncPush,
   bumpSyncTickForRepull,
@@ -242,7 +242,7 @@ export class CentralSyncManager {
       throw new Error(errorMessageFromSession(session));
     }
     if (session.completedAt) {
-      throw new Error(`Sync session '${sessionId}' is already completed`);
+      throw new GoneError(`Sync session '${sessionId}' is already completed`);
     }
     await session.update({ lastConnectionTime: Date.now() });
 
