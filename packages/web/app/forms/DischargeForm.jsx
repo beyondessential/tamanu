@@ -2,7 +2,7 @@
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFormikContext } from 'formik';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
@@ -25,6 +25,7 @@ import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import { useEncounterDischargeDraftQuery } from '../api/queries/useEncounterDischargeDraftQuery';
 import { useEncounterDischargeDraftMutation } from '../api/mutations/useEncounterDischargeDraftMutation';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { useEncounterSyndromicSurveillanceQuery } from '../api/queries/useEncounterSyndromicSurveillanceQuery';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { EncounterSummaryContent } from '../components/EncounterSummary';
 import { LocalisedField, PaginatedForm, useLocalisedSchema } from '../components/Field';
@@ -55,6 +56,27 @@ import {
   orderingPrescriberLabel,
   OrderingPrescriberField,
 } from './DischargeMedicationColumns';
+import {
+  DischargeSyndromicSurveillanceSection,
+  SYNDROMIC_SURVEILLANCE_VALIDATION_KEY,
+} from './DischargeSyndromicSurveillanceSection';
+
+const DischargeFormScreenContext = createContext(null);
+
+// PaginatedForm renders its FormScreen as a component, so it has to keep the same identity from
+// one render to the next: a new one each time would remount the whole screen, losing the state of
+// anything in it that holds its own, such as the embedded syndromic surveillance form. What
+// changes between renders reaches it through context instead.
+const DischargeFormScreenWithContext = props => {
+  const dischargeFormScreenProps = useContext(DischargeFormScreenContext);
+  return (
+    <DischargeFormScreen
+      {...props}
+      {...dischargeFormScreenProps}
+      data-testid="dischargeformscreen-z2zo"
+    />
+  );
+};
 
 const MedicationContainer = styled(Box)`
   border: 1px solid ${Colors.outline};
@@ -283,11 +305,44 @@ export const DischargeForm = ({
     useEncounterDischargeDraftQuery(encounter.id, { enabled: IS_DISCHARGE_DRAFT_ENABLED });
   const draft = dischargeDraftData?.draft ?? null;
 
+  // spec: SYND#discharge-form
+  const {
+    data: syndromicSurveillance,
+    isFetched: isSyndromicSurveillanceFetched,
+    isError: hasSyndromicSurveillanceLoadFailed,
+  } = useEncounterSyndromicSurveillanceQuery(encounter.id);
+  const [isSyndromicSurveillanceFormDirty, setIsSyndromicSurveillanceFormDirty] = useState(false);
+  const isSyndromicSurveillanceMandatory = getSetting(
+    'syndromicSurveillance.mandatorySyndromicSurveillanceOnDischarge',
+  );
+  // spec: SYND#permissions
+  // Completing syndromic surveillance here is covered by the permission to discharge, not the
+  // form's own. Opening the discharge form only takes write Encounter, so a clinician without write
+  // Discharge can reach it, but could no more submit the form than finalise the discharge. Rather
+  // than offer them a form the server will refuse, the section is left out, and with it the
+  // requirement to complete it.
+  const canCompleteSyndromicSurveillance = ability.can('write', 'Discharge');
+  // When whether it is available cannot be loaded, a required section stays, saying so, and keeps
+  // the discharge from being finalised without it. An optional one is left out, as it is for a
+  // deployment without the form.
+  const showSyndromicSurveillance =
+    canCompleteSyndromicSurveillance &&
+    (Boolean(syndromicSurveillance?.isAvailable) ||
+      (hasSyndromicSurveillanceLoadFailed && isSyndromicSurveillanceMandatory));
+  const isSyndromicSurveillanceComplete = Boolean(syndromicSurveillance?.surveyResponseId);
+  const isSyndromicSurveillanceRequired =
+    showSyndromicSurveillance && isSyndromicSurveillanceMandatory;
+  const hasUnsubmittedSyndromicSurveillance =
+    showSyndromicSurveillance &&
+    !isSyndromicSurveillanceComplete &&
+    isSyndromicSurveillanceFormDirty;
+
   // The form is initialised once from data that arrives asynchronously — encounter medications,
   // ongoing prescriptions, the saved draft, and discharge notes. Waiting for all of it before
   // mounting means the form never needs to reinitialise later, so a medication being discontinued
   // can't clobber the clinician's edits to fields like the ordering prescriber, and the draft is
-  // never seeded over by live data.
+  // never seeded over by live data. It also waits for whether syndromic surveillance is available
+  // and complete, so a deployment requiring it on discharge has that requirement from the start.
   //
   // The draft is gated on having settled rather than on having arrived: a query that ends in error
   // never yields data, and the form still has to open. A disabled query never settles at all, so
@@ -300,6 +355,7 @@ export const DischargeForm = ({
     !isLoadingEncounterMedications &&
     !isLoadingOngoingPrescriptions &&
     (!IS_DISCHARGE_DRAFT_ENABLED || isDischargeDraftFetched) &&
+    isSyndromicSurveillanceFetched &&
     dischargeNotes !== null;
   const [isInitialDataReady, setIsInitialDataReady] = useState(false);
   if (hasInitialData && !isInitialDataReady) {
@@ -349,7 +405,9 @@ export const DischargeForm = ({
   const handleSaveDraft = useCallback(
     async values => {
       try {
-        await saveDraft(toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }));
+        await saveDraft(
+          toDischargeDraftPayload({ values, dischargeNotes, isPharmacyOrderEnabled }),
+        );
       } catch (error) {
         toast.error(
           <TranslatedText
@@ -429,7 +487,15 @@ export const DischargeForm = ({
   }
 
   return (
-    <>
+    <DischargeFormScreenContext.Provider
+      value={{
+        currentDiagnoses,
+        onSaveDraft: handleSaveDraft,
+        setShowWarningScreen,
+        dischargeNotesFailed,
+        hasUnsubmittedSyndromicSurveillance,
+      }}
+    >
       <PaginatedForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
@@ -442,16 +508,7 @@ export const DischargeForm = ({
           getCurrentDateTime,
           storedDateTimeToEpochMilliseconds,
         })}
-        FormScreen={props => (
-          <DischargeFormScreen
-            {...props}
-            currentDiagnoses={currentDiagnoses}
-            onSaveDraft={handleSaveDraft}
-            setShowWarningScreen={setShowWarningScreen}
-            dischargeNotesFailed={dischargeNotesFailed}
-            data-testid="dischargeformscreen-z2zo"
-          />
-        )}
+        FormScreen={DischargeFormScreenWithContext}
         formType={FORM_TYPES.CREATE_FORM}
         SummaryScreen={
           !showWarningScreen
@@ -533,6 +590,17 @@ export const DischargeForm = ({
                 fallback="Discharge disposition"
               />,
             ),
+          // Completion is recorded as a response to the syndromic surveillance form rather than as
+          // a value in this form, so the check reads it from there.
+          ...(isSyndromicSurveillanceRequired && {
+            [SYNDROMIC_SURVEILLANCE_VALIDATION_KEY]: yup
+              .mixed()
+              .test(
+                'syndromicSurveillanceComplete',
+                requiredInlineMessage,
+                () => isSyndromicSurveillanceComplete,
+              ),
+          }),
         })}
         formProps={{
           enableReinitialize: false,
@@ -642,6 +710,14 @@ export const DischargeForm = ({
               <EncounterSummaryContent encounterId={encounter.id} />
             </div>
           )}
+          {showSyndromicSurveillance && (
+            <DischargeSyndromicSurveillanceSection
+              encounterId={encounter.id}
+              isComplete={isSyndromicSurveillanceComplete}
+              hasStatusLoadFailed={hasSyndromicSurveillanceLoadFailed}
+              setHasUnsubmittedAnswers={setIsSyndromicSurveillanceFormDirty}
+            />
+          )}
           <Divider
             style={{ margin: '18px -32px 20px -32px', gridColumn: '1 / -1' }}
             data-testid="divider-lj2w"
@@ -655,6 +731,6 @@ export const DischargeForm = ({
           onClose={() => setDiscontinuedMedication(null)}
         />
       )}
-    </>
+    </DischargeFormScreenContext.Provider>
   );
 };

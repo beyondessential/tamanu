@@ -285,7 +285,12 @@ const getTranslationWhereLiteral = (endpoint, modelName, searchColumn) => {
   );
 };
 
-const DEFAULT_WHERE_BUILDER = ({ endpoint, modelName, searchColumn = 'name', skipVisibilityFilter = false }) => ({
+const DEFAULT_WHERE_BUILDER = ({
+  endpoint,
+  modelName,
+  searchColumn = 'name',
+  skipVisibilityFilter = false,
+}) => ({
   [Op.or]: [getTranslationWhereLiteral(endpoint, modelName, searchColumn)],
   ...(!skipVisibilityFilter && VISIBILITY_CRITERIA),
 });
@@ -613,41 +618,42 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               },
             ],
           },
-          typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
-            const childrenWhere = { ...VISIBILITY_CRITERIA };
-            const medicationWhere = { ...VISIBILITY_CRITERIA };
-            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
-            if (facilityFilter) {
-              childrenWhere[Op.and] = [facilityFilter];
-              medicationWhere[Op.and] = [facilityFilter];
-            }
-            return {
-              model: ReferenceData,
-              as: 'children',
-              where: childrenWhere,
-              through: {
-                attributes: [],
-                where: {
-                  type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-                  deleted_at: null,
+          typeName === REFERENCE_TYPES.MEDICATION_SET &&
+            (() => {
+              const childrenWhere = { ...VISIBILITY_CRITERIA };
+              const medicationWhere = { ...VISIBILITY_CRITERIA };
+              const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+              if (facilityFilter) {
+                childrenWhere[Op.and] = [facilityFilter];
+                medicationWhere[Op.and] = [facilityFilter];
+              }
+              return {
+                model: ReferenceData,
+                as: 'children',
+                where: childrenWhere,
+                through: {
+                  attributes: [],
+                  where: {
+                    type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                    deleted_at: null,
+                  },
                 },
-              },
-              // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
-              // loaded here: nested four associations deep its column aliases would exceed
-              // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
-              // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
-              include: {
-                model: ReferenceMedicationTemplate,
-                as: 'medicationTemplate',
+                // referenceDrug (needed for the dispensing quantity autocalculation) is not eager
+                // loaded here: nested four associations deep its column aliases would exceed
+                // PostgreSQL's 63-byte identifier limit and be silently truncated, dropping
+                // dispensingUnit/unitConversion. It is attached in the mapper via a shallow query.
                 include: {
-                  model: ReferenceData,
-                  as: 'medication',
-                  where: medicationWhere,
-                  required: !!facilityFilter,
+                  model: ReferenceMedicationTemplate,
+                  as: 'medicationTemplate',
+                  include: {
+                    model: ReferenceData,
+                    as: 'medication',
+                    where: medicationWhere,
+                    required: !!facilityFilter,
+                  },
                 },
-              },
-            };
-          })(),
+              };
+            })(),
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
@@ -713,21 +719,26 @@ createSuggester(
   },
 );
 
-createSuggester('labTestType', 'LabTestType', ({ req }) => {
-  const baseWhere = { ...VISIBILITY_CRITERIA };
-  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
-  if (facilityFilter) {
-    baseWhere[Op.and] = [facilityFilter];
-  }
-  return baseWhere;
-}, {
-  mapper: ({ name, code, id, labTestCategoryId }) => ({
-    name,
-    code,
-    id,
-    labTestCategoryId,
-  }),
-});
+createSuggester(
+  'labTestType',
+  'LabTestType',
+  ({ req }) => {
+    const baseWhere = { ...VISIBILITY_CRITERIA };
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
+    if (facilityFilter) {
+      baseWhere[Op.and] = [facilityFilter];
+    }
+    return baseWhere;
+  },
+  {
+    mapper: ({ name, code, id, labTestCategoryId }) => ({
+      name,
+      code,
+      id,
+      labTestCategoryId,
+    }),
+  },
+);
 
 const filterByFacilityWhereBuilder = ({ query, modelName, endpoint }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
@@ -760,10 +771,8 @@ const createNameSuggester = (
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
-createNameSuggester(
-  'patientFieldDefinitionCategory',
-  'PatientFieldDefinitionCategory',
-  args => DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
+createNameSuggester('patientFieldDefinitionCategory', 'PatientFieldDefinitionCategory', args =>
+  DEFAULT_WHERE_BUILDER({ ...args, skipVisibilityFilter: true }),
 );
 createNameSuggester('invoicePriceList');
 createNameSuggester('referenceData', 'ReferenceData');

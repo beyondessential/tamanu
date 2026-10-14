@@ -296,10 +296,22 @@ export const simplePost = (modelName, options) => {
   });
 };
 
+/**
+ * @param {object} [options]
+ * @param {(sort: { orderBy?: string, order: string }) => import('sequelize').Order} [options.buildOrder]
+ *   Builds the query's order from the requested sort, in place of sorting by `orderBy` alone. It
+ *   receives `orderBy` as requested, undefined when none was, so a list can have a default order of
+ *   its own rather than `createdAt`.
+ */
 export const getResourceList = async (req, modelName, foreignKey = '', options = {}) => {
   const { models, params, query } = req;
   const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
-  const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
+  const {
+    additionalFilters = {},
+    include = [],
+    skipPermissionCheck = false,
+    buildOrder = null,
+  } = options;
 
   if (skipPermissionCheck === false) {
     req.checkPermission('list', modelName);
@@ -307,15 +319,16 @@ export const getResourceList = async (req, modelName, foreignKey = '', options =
 
   const model = models[modelName];
   const associations = model.getListReferenceAssociations(models) || [];
+  // ['association', 'column', 'direction'] is the sequlize format to sort by foreign column
+  // allow 'association.column' as a valid sort query
+  const requestedOrder = orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined;
 
   const baseQueryOptions = {
     where: {
       ...(foreignKey && { [foreignKey]: params.id }),
       ...additionalFilters,
     },
-    // ['association', 'column', 'direction'] is the sequlize format to sort by foreign column
-    // allow 'association.column' as a valid sort query
-    order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : undefined,
+    order: buildOrder ? buildOrder({ orderBy: query.orderBy, order }) : requestedOrder,
     include: [...associations, ...include],
   };
 

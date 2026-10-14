@@ -27,9 +27,9 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const { facility } = encounter.location;
 
   const [title, setTitle] = useState('');
-  const handleTitleChange = useCallback((title) => setTitle(title), []);
+  const handleTitleChange = useCallback(title => setTitle(title), []);
 
-  const dischargeDispositionFilterer = (dischargeDisposition) => {
+  const dischargeDispositionFilterer = dischargeDisposition => {
     switch (getPatientStatus(encounter.encounterType)) {
       case PATIENT_STATUS.EMERGENCY:
         // This is an emergency encounter
@@ -71,7 +71,7 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   });
 
   const handleDischarge = useCallback(
-    async (data) => {
+    async data => {
       // add facility details to discharge details
       data.discharge = {
         ...data.discharge,

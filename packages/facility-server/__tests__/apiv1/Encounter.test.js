@@ -12,6 +12,9 @@ import {
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
   ENCOUNTER_TYPES,
+  SURVEY_TYPES,
+  SYNDROMIC_SURVEILLANCE_SURVEY_ID,
+  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -21,7 +24,11 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
-import { setupSurvey } from '../setupSurvey';
+import {
+  setupSurvey,
+  setupSyndromicSurveillanceSurvey,
+  SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID,
+} from '../setupSurvey';
 
 const chance = new Chance();
 
@@ -498,12 +505,8 @@ describe('Encounter', () => {
     it('replaces the draft rather than accumulating one per save', async () => {
       const encounter = await createOpenEncounter();
 
-      await app
-        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
-        .send({ note: 'first' });
-      await app
-        .put(`/api/encounter/${encounter.id}/dischargeDraft`)
-        .send({ note: 'second' });
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'first' });
+      await app.put(`/api/encounter/${encounter.id}/dischargeDraft`).send({ note: 'second' });
 
       const drafts = await models.EncounterDischargeDraft.findAll({
         where: { encounterId: encounter.id },
@@ -649,9 +652,7 @@ describe('Encounter', () => {
 
         // Discarding is how a clinician gets out of a form they have edited. Gating it on the
         // same permission as saving would leave them unable to close one.
-        const discarded = await formOnlyApp.delete(
-          `/api/encounter/${encounter.id}/dischargeDraft`,
-        );
+        const discarded = await formOnlyApp.delete(`/api/encounter/${encounter.id}/dischargeDraft`);
         expect(discarded).toHaveSucceeded();
       });
 
@@ -1240,6 +1241,239 @@ describe('Encounter', () => {
         expect(body.count).toBeGreaterThan(0);
         expect(body.data[0].diagnosis.name).toEqual('Malady');
         expect(body.data[0].diagnosis.code).toEqual('malady');
+      });
+
+      it('should default to sorting by primary first, then alphabetically by diagnosis', async () => {
+        const sortEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis sort test',
+        });
+        const [zebra, apple, mango] = await Promise.all(
+          ['Zebra', 'Apple', 'Mango'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+
+        await models.EncounterDiagnosis.create({
+          encounterId: sortEncounter.id,
+          diagnosisId: zebra.id,
+          isPrimary: false,
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: sortEncounter.id,
+          diagnosisId: apple.id,
+          isPrimary: false,
+        });
+        // Primary, but not alphabetically first, so it only leads if primary diagnoses come first.
+        await models.EncounterDiagnosis.create({
+          encounterId: sortEncounter.id,
+          diagnosisId: mango.id,
+          isPrimary: true,
+        });
+
+        const result = await app.get(`/api/encounter/${sortEncounter.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.map(d => d.diagnosis.name)).toEqual(['Mango', 'Apple', 'Zebra']);
+      });
+
+      it('should sort alphabetically by diagnosis regardless of primary status when requested', async () => {
+        const nameSortEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis name sort test',
+        });
+        const [bravo, alpha, charlie] = await Promise.all(
+          ['Bravo', 'Alpha', 'Charlie'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+        // Primary, but neither first nor last alphabetically, so it only leads if the requested
+        // sort is ignored.
+        await models.EncounterDiagnosis.bulkCreate([
+          { encounterId: nameSortEncounter.id, diagnosisId: bravo.id, isPrimary: true },
+          { encounterId: nameSortEncounter.id, diagnosisId: alpha.id, isPrimary: false },
+          { encounterId: nameSortEncounter.id, diagnosisId: charlie.id, isPrimary: false },
+        ]);
+
+        const ascending = await app.get(
+          `/api/encounter/${nameSortEncounter.id}/diagnoses?orderBy=Diagnosis.name&order=asc`,
+        );
+        const descending = await app.get(
+          `/api/encounter/${nameSortEncounter.id}/diagnoses?orderBy=Diagnosis.name&order=desc`,
+        );
+
+        expect(ascending).toHaveSucceeded();
+        expect(descending).toHaveSucceeded();
+        expect(ascending.body.data.map(d => d.diagnosis.name)).toEqual([
+          'Alpha',
+          'Bravo',
+          'Charlie',
+        ]);
+        expect(descending.body.data.map(d => d.diagnosis.name)).toEqual([
+          'Charlie',
+          'Bravo',
+          'Alpha',
+        ]);
+      });
+
+      it('should default to listing disproven diagnoses last, after primary/alphabetical ordering', async () => {
+        const disprovenSortEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis disproven sort test',
+        });
+        const [aardvark, disprovenZebra] = await Promise.all(
+          ['Aardvark', 'Zebra'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+
+        // Disproven, but alphabetically first: should still land after the confirmed diagnosis.
+        await models.EncounterDiagnosis.create({
+          encounterId: disprovenSortEncounter.id,
+          diagnosisId: aardvark.id,
+          isPrimary: true,
+          certainty: 'disproven',
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: disprovenSortEncounter.id,
+          diagnosisId: disprovenZebra.id,
+          isPrimary: false,
+          certainty: 'confirmed',
+        });
+
+        const result = await app.get(`/api/encounter/${disprovenSortEncounter.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.map(d => d.diagnosis.name)).toEqual(['Zebra', 'Aardvark']);
+      });
+
+      it('should not include diagnoses recorded in error', async () => {
+        const errorEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis error test',
+        });
+        const [confirmedDiagnosis, erroredDiagnosis] = await Promise.all(
+          ['Confirmed one', 'Errored one'].map(name =>
+            models.ReferenceData.create({ type: 'diagnosis', name, code: name.toLowerCase() }),
+          ),
+        );
+
+        await models.EncounterDiagnosis.create({
+          encounterId: errorEncounter.id,
+          diagnosisId: confirmedDiagnosis.id,
+          certainty: 'confirmed',
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: errorEncounter.id,
+          diagnosisId: erroredDiagnosis.id,
+          certainty: 'error',
+        });
+
+        const result = await app.get(`/api/encounter/${errorEncounter.id}/diagnoses`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toEqual(1);
+        expect(result.body.data[0].diagnosis.name).toEqual('Confirmed one');
+      });
+
+      describe('with diagnoses that leave optional fields unset', () => {
+        let unsetFieldsEncounter = null;
+
+        beforeAll(async () => {
+          unsetFieldsEncounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient.id,
+            reasonForEncounter: 'diagnosis unset fields test',
+          });
+          const [primary, unsetPrimary, secondary, unsetCertainty] = await Promise.all(
+            ['Primary', 'Middle unset primary', 'Secondary', 'Unset certainty'].map(name =>
+              models.ReferenceData.create({
+                type: 'diagnosis',
+                name,
+                code: name.toLowerCase().replaceAll(' ', '-'),
+              }),
+            ),
+          );
+          await models.EncounterDiagnosis.bulkCreate([
+            { encounterId: unsetFieldsEncounter.id, diagnosisId: primary.id, isPrimary: true },
+            { encounterId: unsetFieldsEncounter.id, diagnosisId: unsetPrimary.id, isPrimary: null },
+            { encounterId: unsetFieldsEncounter.id, diagnosisId: secondary.id, isPrimary: false },
+            {
+              encounterId: unsetFieldsEncounter.id,
+              diagnosisId: unsetCertainty.id,
+              isPrimary: false,
+              certainty: null,
+            },
+          ]);
+        });
+
+        it('includes a diagnosis without a certainty', async () => {
+          const result = await app.get(`/api/encounter/${unsetFieldsEncounter.id}/diagnoses`);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.data.map(d => d.diagnosis.name)).toContain('Unset certainty');
+        });
+
+        it('sorts a diagnosis without isPrimary set among the secondary diagnoses', async () => {
+          const defaultOrder = await app.get(`/api/encounter/${unsetFieldsEncounter.id}/diagnoses`);
+          const primaryFirst = await app.get(
+            `/api/encounter/${unsetFieldsEncounter.id}/diagnoses?orderBy=isPrimary&order=desc`,
+          );
+          const primaryLast = await app.get(
+            `/api/encounter/${unsetFieldsEncounter.id}/diagnoses?orderBy=isPrimary&order=asc`,
+          );
+
+          const namesOf = result => result.body.data.map(d => d.diagnosis.name);
+          const primaryThenAlphabetical = [
+            'Primary',
+            'Middle unset primary',
+            'Secondary',
+            'Unset certainty',
+          ];
+          expect(namesOf(defaultOrder)).toEqual(primaryThenAlphabetical);
+          expect(namesOf(primaryFirst)).toEqual(primaryThenAlphabetical);
+          expect(namesOf(primaryLast)).toEqual([
+            'Middle unset primary',
+            'Secondary',
+            'Unset certainty',
+            'Primary',
+          ]);
+        });
+
+        it('counts every diagnosis while returning one page of them', async () => {
+          const result = await app.get(
+            `/api/encounter/${unsetFieldsEncounter.id}/diagnoses?rowsPerPage=2&page=1`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.count).toEqual(4);
+          expect(result.body.data.map(d => d.diagnosis.name)).toEqual([
+            'Secondary',
+            'Unset certainty',
+          ]);
+        });
+      });
+
+      it('returns only the id and display name of the clinician who recorded each diagnosis', async () => {
+        const clinicianEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          reasonForEncounter: 'diagnosis clinician test',
+        });
+        await models.EncounterDiagnosis.create({
+          encounterId: clinicianEncounter.id,
+          diagnosisId: testDiagnosis.id,
+          clinicianId: user.id,
+        });
+
+        const result = await app.get(`/api/encounter/${clinicianEncounter.id}/diagnoses`);
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.data[0].clinician).toEqual({
+          id: user.id,
+          displayName: user.displayName,
+        });
       });
     });
 
@@ -2564,6 +2798,393 @@ describe('Encounter', () => {
         expect(response).toHaveSucceeded();
         expect(response.body.count).toEqual(2);
         expect(response.body.data).toHaveLength(2);
+      });
+    });
+
+    describe('syndromic surveillance', () => {
+      disableHardcodedPermissionsForSuite();
+
+      const FEVER_DATA_ELEMENT_ID = SYNDROMIC_SURVEILLANCE_TEST_DATA_ELEMENT_ID;
+      // Enough to discharge an encounter, and nothing about forms.
+      const DISCHARGE_PERMISSIONS = [
+        ['read', 'Encounter'],
+        ['write', 'Encounter'],
+        ['write', 'Discharge'],
+      ];
+      // The standard permissions for submitting the syndromic surveillance form, on an encounter
+      // the user can read.
+      const SUBMIT_PERMISSIONS = [
+        ['read', 'Encounter'],
+        ['create', 'SurveyResponse'],
+        ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
+      ];
+
+      let syndromicSurveillanceSurvey = null;
+      let encounterReaderApp = null;
+      let dischargeApp = null;
+      let submitterApp = null;
+
+      const createOpenEncounter = async () =>
+        models.Encounter.create({
+          ...(await createDummyEncounter(models, { current: true })),
+          patientId: patient.id,
+        });
+
+      const recordResponse = encounterId =>
+        models.SurveyResponse.create({
+          surveyId: syndromicSurveillanceSurvey.id,
+          encounterId,
+          startTime: getCurrentDateTimeString(),
+          endTime: getCurrentDateTimeString(),
+        });
+
+      const findResponses = encounterId =>
+        models.SurveyResponse.findAll({ where: { encounterId } });
+
+      const getStatus = (permittedApp, encounterId) =>
+        permittedApp.get(`/api/encounter/${encounterId}/syndromicSurveillance`);
+
+      const submissionBody = {
+        facilityId,
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
+        answers: { [FEVER_DATA_ELEMENT_ID]: 'Yes' },
+      };
+
+      const submitFromDiagnosisPane = (permittedApp, encounterId, body = {}) =>
+        permittedApp
+          .post(`/api/encounter/${encounterId}/syndromicSurveillance/surveyResponse`)
+          .send({ ...submissionBody, ...body });
+
+      const submitDuringDischarge = (permittedApp, encounterId, body = {}) =>
+        permittedApp
+          .post(`/api/encounter/${encounterId}/syndromicSurveillance/dischargeSurveyResponse`)
+          .send({ ...submissionBody, ...body });
+
+      beforeAll(async () => {
+        syndromicSurveillanceSurvey = await setupSyndromicSurveillanceSurvey(models);
+        encounterReaderApp = await baseApp.asNewRole([['read', 'Encounter']]);
+        dischargeApp = await baseApp.asNewRole(DISCHARGE_PERMISSIONS);
+        submitterApp = await baseApp.asNewRole(SUBMIT_PERMISSIONS);
+      });
+
+      afterEach(async () => {
+        await syndromicSurveillanceSurvey.update({
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          surveyType: SURVEY_TYPES.PROGRAMS,
+        });
+      });
+
+      describe('status', () => {
+        it('reports an encounter with no response to the form as not completed', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body).toEqual({ isAvailable: true, surveyResponseId: null });
+        });
+
+        it("returns the encounter's response to the form, not another encounter's", async () => {
+          const encounter = await createOpenEncounter();
+          const otherEncounter = await createOpenEncounter();
+          const response = await recordResponse(encounter.id);
+          await recordResponse(otherEncounter.id);
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body).toEqual({ isAvailable: true, surveyResponseId: response.id });
+        });
+
+        it('reports the encounter as not completed once its response is deleted', async () => {
+          const encounter = await createOpenEncounter();
+          const deleted = await recordResponse(encounter.id);
+          await deleted.destroy();
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.surveyResponseId).toEqual(null);
+        });
+
+        it('reports the form as unavailable while it is historical', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.isAvailable).toEqual(false);
+        });
+
+        it('reports the form as unavailable while it is obsolete', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({ surveyType: SURVEY_TYPES.OBSOLETE });
+
+          const result = await getStatus(encounterReaderApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.isAvailable).toEqual(false);
+        });
+
+        it('rejects a user who cannot read the encounter', async () => {
+          const encounter = await createOpenEncounter();
+          const noPermsApp = await baseApp.asNewRole([]);
+
+          const result = await getStatus(noPermsApp, encounter.id);
+
+          expect(result).toBeForbidden();
+        });
+
+        it('returns not found for an encounter that does not exist', async () => {
+          const result = await getStatus(encounterReaderApp, 'not-an-encounter');
+
+          expect(result).toHaveStatus(404);
+        });
+      });
+
+      describe('diagnosis pane', () => {
+        it('records a response against the encounter for a user who can submit the form', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+          const answers = await models.SurveyResponseAnswer.findAll({
+            where: { responseId: response.id },
+          });
+          expect(answers.map(({ dataElementId, body }) => ({ dataElementId, body }))).toEqual([
+            { dataElementId: FEVER_DATA_ELEMENT_ID, body: 'Yes' },
+          ]);
+        });
+
+        it('records the response against the encounter and form in the route, whatever the body says', async () => {
+          const encounter = await createOpenEncounter();
+          const otherEncounter = await createOpenEncounter();
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id, {
+            encounterId: otherEncounter.id,
+            surveyId: 'some-other-survey',
+          });
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+        });
+
+        it('rejects a second response for the encounter, keeping the first', async () => {
+          const encounter = await createOpenEncounter();
+          const first = await submitFromDiagnosisPane(submitterApp, encounter.id);
+          expect(first).toHaveSucceeded();
+
+          const second = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(second).toHaveRequestError();
+          const responses = await findResponses(encounter.id);
+          expect(responses.map(({ id }) => id)).toEqual([first.body.id]);
+        });
+
+        it('rejects a user who cannot submit the form, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const createOnlyApp = await baseApp.asNewRole([['create', 'SurveyResponse']]);
+
+          const result = await submitFromDiagnosisPane(createOnlyApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects a user who cannot create form responses, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const submitOnlyApp = await baseApp.asNewRole([
+            ['read', 'Encounter'],
+            ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
+          ]);
+
+          const result = await submitFromDiagnosisPane(submitOnlyApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects a user with the form permissions who cannot read the encounter, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const formOnlyApp = await baseApp.asNewRole([
+            ['create', 'SurveyResponse'],
+            ['submit', 'Survey', SYNDROMIC_SURVEILLANCE_SURVEY_ID],
+          ]);
+
+          const result = await submitFromDiagnosisPane(formOnlyApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting while the form is unavailable', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(result).toHaveStatus(404);
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting for an encounter that has ended, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          await encounter.update({ endDate: getCurrentDateTimeString() });
+
+          const result = await submitFromDiagnosisPane(submitterApp, encounter.id);
+
+          expect(result).toHaveRequestError();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting the form through the standard form response endpoint', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await submitterApp.post('/api/surveyResponse').send({
+            ...submissionBody,
+            surveyId: SYNDROMIC_SURVEILLANCE_SURVEY_ID,
+            encounterId: encounter.id,
+            patientId: patient.id,
+          });
+
+          expect(result).toHaveRequestError();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+      });
+
+      describe('discharge form', () => {
+        it('gives the form and its questions to a user who can discharge but has no form permissions', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await dischargeApp.get(
+            `/api/encounter/${encounter.id}/syndromicSurveillance/dischargeSurvey`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.id).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+          expect(result.body.components.map(({ dataElementId }) => dataElementId)).toEqual([
+            FEVER_DATA_ELEMENT_ID,
+          ]);
+        });
+
+        it('rejects fetching the form for a user who cannot write discharges', async () => {
+          const encounter = await createOpenEncounter();
+          const encounterWriterApp = await baseApp.asNewRole([
+            ['read', 'Encounter'],
+            ['write', 'Encounter'],
+          ]);
+
+          const result = await encounterWriterApp.get(
+            `/api/encounter/${encounter.id}/syndromicSurveillance/dischargeSurvey`,
+          );
+
+          expect(result).toBeForbidden();
+        });
+
+        it('returns not found for the form while it is unavailable', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          });
+
+          const result = await dischargeApp.get(
+            `/api/encounter/${encounter.id}/syndromicSurveillance/dischargeSurvey`,
+          );
+
+          expect(result).toHaveStatus(404);
+        });
+
+        it('records a response against the encounter for a user who can discharge but has no form permissions', async () => {
+          const encounter = await createOpenEncounter();
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+          const answers = await models.SurveyResponseAnswer.findAll({
+            where: { responseId: response.id },
+          });
+          expect(answers.map(({ dataElementId, body }) => ({ dataElementId, body }))).toEqual([
+            { dataElementId: FEVER_DATA_ELEMENT_ID, body: 'Yes' },
+          ]);
+
+          const status = await getStatus(dischargeApp, encounter.id);
+          expect(status.body.surveyResponseId).toEqual(response.id);
+        });
+
+        it('rejects a response for an encounter that already has one, keeping the first', async () => {
+          const encounter = await createOpenEncounter();
+          const first = await submitFromDiagnosisPane(submitterApp, encounter.id);
+          expect(first).toHaveSucceeded();
+
+          const second = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(second).toHaveRequestError();
+          const responses = await findResponses(encounter.id);
+          expect(responses.map(({ id }) => id)).toEqual([first.body.id]);
+        });
+
+        it('records the response against the encounter and form in the route, whatever the body says', async () => {
+          const encounter = await createOpenEncounter();
+          const otherEncounter = await createOpenEncounter();
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id, {
+            encounterId: otherEncounter.id,
+            surveyId: 'some-other-survey',
+          });
+
+          expect(result).toHaveSucceeded();
+          const response = await models.SurveyResponse.findByPk(result.body.id);
+          expect(response.encounterId).toEqual(encounter.id);
+          expect(response.surveyId).toEqual(SYNDROMIC_SURVEILLANCE_SURVEY_ID);
+        });
+
+        it('rejects submitting for a user who cannot write discharges, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          const encounterWriterApp = await baseApp.asNewRole([
+            ['read', 'Encounter'],
+            ['write', 'Encounter'],
+          ]);
+
+          const result = await submitDuringDischarge(encounterWriterApp, encounter.id);
+
+          expect(result).toBeForbidden();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting while the form is unavailable', async () => {
+          const encounter = await createOpenEncounter();
+          await syndromicSurveillanceSurvey.update({ surveyType: SURVEY_TYPES.OBSOLETE });
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(result).toHaveStatus(404);
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
+
+        it('rejects submitting for an encounter that has already been discharged, and records nothing', async () => {
+          const encounter = await createOpenEncounter();
+          await encounter.update({ endDate: getCurrentDateTimeString() });
+
+          const result = await submitDuringDischarge(dischargeApp, encounter.id);
+
+          expect(result).toHaveRequestError();
+          expect(await findResponses(encounter.id)).toHaveLength(0);
+        });
       });
     });
 

@@ -1098,7 +1098,12 @@ describe('Suggestions', () => {
       });
 
       // Create subdivisions with names that would be out of order if not sorted
-      const subdivisionNames = ['Zebra District', 'Alpha District', 'Mike District', 'Charlie District'];
+      const subdivisionNames = [
+        'Zebra District',
+        'Alpha District',
+        'Mike District',
+        'Charlie District',
+      ];
       for (const name of subdivisionNames) {
         const subdivision = await models.ReferenceData.create({
           id: `sort-test-${name.toLowerCase().replace(' ', '-')}`,
@@ -1126,7 +1131,12 @@ describe('Suggestions', () => {
 
       // Results should be sorted alphabetically
       const returnedNames = body.map(item => item.name);
-      const expectedOrder = ['Alpha District', 'Charlie District', 'Mike District', 'Zebra District'];
+      const expectedOrder = [
+        'Alpha District',
+        'Charlie District',
+        'Mike District',
+        'Zebra District',
+      ];
       expect(returnedNames).toEqual(expectedOrder);
     });
 

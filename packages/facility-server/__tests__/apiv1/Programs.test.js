@@ -8,6 +8,7 @@ import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { createTestContext } from '../utilities';
+import { setupSyndromicSurveillanceSurvey } from '../setupSurvey';
 
 let baseApp = null;
 let models = null;
@@ -164,6 +165,37 @@ describe('Programs', () => {
       expect(resultIds.includes(obsolete.id)).toEqual(false);
       expect(resultIds.includes(vitals.id)).toEqual(false);
       expect(resultIds.includes(relevant.id)).toEqual(true);
+    });
+
+    describe('syndromic surveillance form', () => {
+      let syndromicSurveillanceSurvey;
+
+      beforeAll(async () => {
+        syndromicSurveillanceSurvey = await setupSyndromicSurveillanceSurvey(models);
+      });
+
+      it('should not offer its program when the program holds no other form to complete', async () => {
+        const result = await app.get('/api/program');
+        expect(result).toHaveSucceeded();
+        expect(result.body.data.map(({ id }) => id)).not.toContain(
+          syndromicSurveillanceSurvey.programId,
+        );
+      });
+
+      it('should offer its program for its other forms, leaving the syndromic surveillance form out', async () => {
+        const { programId } = syndromicSurveillanceSurvey;
+        const otherSurvey = await createDummySurvey({ id: programId }, 1, {
+          name: 'Other form',
+        });
+
+        const programs = await app.get('/api/program');
+        expect(programs).toHaveSucceeded();
+        expect(programs.body.data.map(({ id }) => id)).toContain(programId);
+
+        const surveys = await app.get(`/api/program/${encodeURIComponent(programId)}/surveys`);
+        expect(surveys).toHaveSucceeded();
+        expect(surveys.body.data.map(({ id }) => id)).toEqual([otherSurvey.id]);
+      });
     });
 
     describe('permissions', () => {
