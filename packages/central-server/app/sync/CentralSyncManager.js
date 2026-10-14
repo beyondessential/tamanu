@@ -211,13 +211,12 @@ export class CentralSyncManager {
   }
 
   async sessionExists(sessionId) {
-    const session = await this.store.sequelize.models.SyncSession.findOne({
-      attributes: ['id'], // Arbitrary projection, just checking existence
-      where: { id: sessionId },
-      raw: true, // No need for model instance, just checking existence
-    });
-
-    return Boolean(session);
+    /** @type {[{ exists: boolean }]} */
+    const [{ exists }] = await this.store.sequelize.query(
+      'SELECT EXISTS (SELECT 1 FROM sync_sessions WHERE id = :sessionId AND deleted_at IS NULL) AS "exists"',
+      { replacements: { sessionId }, type: QueryTypes.SELECT },
+    );
+    return exists;
   }
 
   async connectToSession(sessionId) {
