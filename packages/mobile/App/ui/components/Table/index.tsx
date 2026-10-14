@@ -2,14 +2,14 @@ import React from 'react';
 import { type NativeScrollEvent, type NativeSyntheticEvent, ScrollView, View } from 'react-native';
 import { StyledView } from '/styled/common';
 
-export type TableHeader = {
+export interface TableHeader {
   key: string;
   accessor: (
     value: string,
     onPress: (item: any) => void,
     headerOffsetPosition?: number,
   ) => React.JSX.Element;
-};
+}
 
 export type TableRow = {
   rowKey: string;
