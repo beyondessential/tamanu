@@ -16,7 +16,7 @@ import type { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
 import { useSelector } from 'react-redux';
 import type { PatientStateProps } from '~/ui/store/ducks/patient';
 
-export const VaccineFormNotGiven = ({ navigation }: VaccineFormProps): JSX.Element => {
+export const VaccineFormNotGiven = ({ navigation }: VaccineFormProps) => {
   const { selectedPatient } = useSelector(
     (state: ReduxStoreProps): PatientStateProps => state.patient,
   );
