@@ -29,7 +29,7 @@ const {
 function getImpersonateRoleIdFromToken(token) {
   try {
     const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    const decoded = JSON.parse(atob(payload.replaceAll('-', '+').replaceAll('_', '/')));
     return decoded.impersonateRoleId ?? null;
   } catch {
     return null;

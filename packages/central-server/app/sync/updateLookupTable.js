@@ -28,6 +28,7 @@ const buildLookupUpsertQuery = ({
   useUpdatedAtByFieldSum,
   avoidRepull,
   whereClause,
+  filter,
   perModelUpdateTimeoutMs,
   preserveExistingTick,
 }) => `
@@ -83,7 +84,8 @@ const buildLookupUpsertQuery = ({
     }
     ${joins || ''}
     WHERE
-    ${whereClause}
+    (${whereClause})
+    ${filter ? `AND (${filter})` : ''}
     ORDER BY ${table}.id
     LIMIT :limit
     -- Locks the source rows we're about to copy from, scoped to ${table} so the LEFT JOINs above
@@ -132,7 +134,8 @@ const updateLookupTableForModel = async (
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins, where } = (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
+  const { select, joins, where, filter } =
+    (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -143,6 +146,7 @@ const updateLookupTableForModel = async (
         joins,
         useUpdatedAtByFieldSum,
         avoidRepull,
+        filter,
         whereClause: `
           (${
             shouldFullyRebuild
@@ -196,7 +200,7 @@ const rebuildLookupRowsForFlaggedPatientsForModel = async (
   let fromId = '';
   let rebuiltCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins } = (await model.buildSyncLookupQueryDetails({})) || {};
+  const { select, joins, filter } = (await model.buildSyncLookupQueryDetails({})) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -207,6 +211,7 @@ const rebuildLookupRowsForFlaggedPatientsForModel = async (
         joins,
         useUpdatedAtByFieldSum,
         avoidRepull,
+        filter,
         whereClause: `
           (
             ${table}.id::text IN (
@@ -292,7 +297,7 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
   let fromId = '';
   let healedCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins } = (await model.buildSyncLookupQueryDetails({})) || {};
+  const { select, joins, filter } = (await model.buildSyncLookupQueryDetails({})) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -303,6 +308,7 @@ const healFlaggedLookupRowsForModel = async (model, config, since) => {
         joins,
         useUpdatedAtByFieldSum,
         avoidRepull,
+        filter,
         whereClause: `
           (
             ${table}.id::text IN (

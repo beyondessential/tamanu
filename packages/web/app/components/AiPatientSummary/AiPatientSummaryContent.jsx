@@ -59,8 +59,6 @@ const EditedText = styled.span`
 `;
 
 const StyledEditIcon = styled(EditIcon)`
-  width: 5px;
-  height: 5px;
   color: ${Colors.primary};
 `;
 
