@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QRCode from 'react-native-qrcode-svg';
 import { compose } from 'redux';
 import { WS_EVENTS } from '~/constants/webSocket';
