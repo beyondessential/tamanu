@@ -45,6 +45,19 @@ A facility server holds an ordered list of central hosts, recorded in the order 
 - [ ] The facility tries its recorded hosts in order and uses the first one that passes the login.
 - [ ] When the endpoint in use stops working, whether the connection fails or the login is refused, the facility walks the list again from the top.
 - [ ] A login refused because the account is locked out does not start a walk, since the lockout applies at every other name for the same central until it expires.
+- [ ] When an endpoint refuses the sync credentials, the facility does not log in at that endpoint again during the same attempt. It still tries the other endpoints, since one of them may be a different Tamanu that accepts the credentials.
+- [ ] A successful login tells the facility which central the endpoint reached. For an hour afterwards, an endpoint that refuses the credentials also rules out the other endpoints known to reach the same central, within that attempt. After an hour what was learned is forgotten, so an endpoint that has started pointing at another server is tried again.
+
+### Refused credentials
+
+Every refused login counts toward the central server's lockout, which applies to an account on a device. Refused credentials are therefore retried on a schedule of their own, far slower than the retries for an unreachable endpoint.
+
+- [ ] After the credentials are refused, the facility stops logging in with them for a pause. Each further round of refusals in a row makes the pause five times longer, up to a maximum. Both the first pause and the maximum are settings.
+- [ ] The first pause and the growth are enough that no more than two rounds of attempts fall within the central server's default lockout observation window.
+- [ ] A round of attempts at several endpoints counts as one refusal, however many endpoints refused.
+- [ ] While a server process is paused, nothing in it logs in with the sync credentials: not a sync, not its calls to central, not the rechecks of earlier endpoints, and not the verification of a supplied list. Calls that need a login fail at once with a rate-limited error saying how long remains. Each process keeps its own pause, from the refusals it has seen itself.
+- [ ] A successful login, or a change of the sync credentials, ends the pause and the next refusal starts the schedule again from the shortest pause.
+- [ ] An endpoint that cannot be reached, or an error from the central server that is not a refusal of the credentials, never starts a pause, and is retried under the usual backoff.
 - [ ] When every endpoint fails, the facility retries under the same backoff it applies to a single unreachable central.
 - [ ] While the facility is on an endpoint other than the first, it periodically checks earlier endpoints with the same login. When an earlier one passes, the facility moves to the highest-priority endpoint that passes. The recheck interval is set by a setting.
 - [ ] A sync session that is already in progress finishes on its endpoint, or fails, before the facility moves to another.
