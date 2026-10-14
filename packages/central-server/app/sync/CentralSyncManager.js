@@ -6,6 +6,7 @@ import { isNil } from 'es-toolkit/compat';
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
+import { NotFoundError } from '@tamanu/errors';
 import {
   adjustDataPostSyncPush,
   bumpSyncTickForRepull,
@@ -223,7 +224,7 @@ export class CentralSyncManager {
     });
 
     if (!session) {
-      throw new Error(`Sync session '${sessionId}' not found`);
+      throw new NotFoundError(`Sync session '${sessionId}' not found`);
     }
 
     const { syncSessionTimeoutMs } = this.constructor.config.sync;
