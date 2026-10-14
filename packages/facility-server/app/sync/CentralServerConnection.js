@@ -10,6 +10,7 @@ import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
 import { getCentralEndpointSelector, getCurrentCentralHost } from './CentralEndpointSelector';
+import { getSyncLoginBackoff, isLoginRefusal } from './SyncLoginBackoff';
 
 // spec: CEND
 const apiEndpointOf = host => {
@@ -159,22 +160,50 @@ export class CentralServerConnection extends TamanuApi {
       // ignore error
     }
 
+    getSyncLoginBackoff().check();
+
     const selector = getCentralEndpointSelector();
     if (!selector?.canFailOver()) {
-      return await this.#login(backoff, timeout);
+      return await this.#loginRecordingRefusals(backoff, timeout);
     }
 
     // With alternatives, a failed login is not worth the full backoff on this endpoint: look for
-    // another one first. A lockout is the exception: central locks the account and device, so
-    // every other name for it refuses too until the lockout expires.
+    // another one first.
     try {
       return await this.#login(false, timeout);
     } catch (error) {
-      if (error.type === ERROR_TYPE.RATE_LIMITED) throw error;
-      await selector.walk({ reason: error.message });
+      // A lockout covers the account and device, so every other name for this central refuses too.
+      if (error.type === ERROR_TYPE.RATE_LIMITED) {
+        await getSyncLoginBackoff().recordRefusal();
+        throw error;
+      }
+
+      // An endpoint that refused the credentials is not asked again, nor are the ones known to reach
+      // the same central: it would only count another failure against the account. The others may
+      // be a different Tamanu, so they are tried.
+      const refused = isLoginRefusal(error);
+      const moved = await selector.walk({
+        reason: error.message,
+        skip: refused ? selector.hostsOnSameServerAs(this.#hostInUse) : [],
+      });
+      if (refused && !moved) {
+        await getSyncLoginBackoff().recordRefusal();
+        throw error;
+      }
+
       this.#followSelectedEndpoint();
       // when no endpoint passed this is still the original one, retried under the full backoff
+      return await this.#loginRecordingRefusals(backoff, timeout);
+    }
+  }
+
+  // A refusal pauses further logins with the sync credentials, see SyncLoginBackoff
+  async #loginRecordingRefusals(backoff, timeout) {
+    try {
       return await this.#login(backoff, timeout);
+    } catch (error) {
+      if (isLoginRefusal(error)) await getSyncLoginBackoff().recordRefusal();
+      throw error;
     }
   }
 
@@ -182,13 +211,14 @@ export class CentralServerConnection extends TamanuApi {
     const { email, password } = getSyncConfig();
     log.info(`Logging in to ${this.host} as ${email}...`);
 
-    return await this.login(email, password, {
+    const loginData = await this.login(email, password, {
       backoff,
       timeout,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-    }).then(loginData => {
-      return (this.#loginData = loginData);
     });
+    getSyncLoginBackoff().recordSuccess();
+    getCentralEndpointSelector()?.learnIdentity(this.#hostInUse, loginData.server?.centralHost);
+    return (this.#loginData = loginData);
   }
 
   async loginData() {

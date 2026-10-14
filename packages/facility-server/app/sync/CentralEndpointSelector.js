@@ -2,11 +2,13 @@ import { EventEmitter } from 'node:events';
 
 import { TamanuApi } from '@tamanu/api-client';
 import { DEVICE_SCOPES, FACT_CENTRAL_ENDPOINT_IN_USE, SERVER_TYPES } from '@tamanu/constants';
+import { ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 import { version } from '../serverInfo';
 import { getSyncConfig } from '../serverConfig';
 import { faithFetch } from './faithFetch';
+import { getSyncLoginBackoff, isLoginRefusal } from './SyncLoginBackoff';
 
 // spec: CEND
 // Holds the ordered list of central hosts a facility server tries and the one it is using.
@@ -15,6 +17,10 @@ import { faithFetch } from './faithFetch';
 // periodically rechecks earlier endpoints. Other processes (the API process) only follow what the
 // sync process publishes through FACT_CENTRAL_ENDPOINT_IN_USE and never probe. A host is only ever
 // chosen after a login at it succeeds.
+// How long what a host's login said about which central it reaches is trusted. A name can start
+// pointing at another server, so it is not remembered for good.
+const IDENTITY_TTL_MS = 60 * 60_000;
+
 export class CentralEndpointSelector extends EventEmitter {
   #models;
   #hosts;
@@ -22,6 +28,8 @@ export class CentralEndpointSelector extends EventEmitter {
   #getProbeSettings;
   #createProbeClient;
   #canProbe;
+  #now;
+  #identities = new Map();
   #walking = null;
   #activeSessions = 0;
 
@@ -33,6 +41,7 @@ export class CentralEndpointSelector extends EventEmitter {
    * @param {() => string} args.getDeviceId
    * @param {() => Promise<{ recheckIntervalMs: number, probeTimeoutMs: number }>} args.getProbeSettings
    * @param {boolean} [args.canProbe] false for a process that only follows the sync process
+   * @param {() => number} [args.now] the clock, for how long a host's identity is trusted
    * @param {(args: { host: string, timeoutMs: number }) => { login: Function }} [args.createProbeClient]
    */
   constructor({
@@ -42,6 +51,7 @@ export class CentralEndpointSelector extends EventEmitter {
     getDeviceId,
     getProbeSettings,
     canProbe = true,
+    now = Date.now,
     createProbeClient = createDefaultProbeClient(getDeviceId),
   }) {
     super();
@@ -51,6 +61,7 @@ export class CentralEndpointSelector extends EventEmitter {
     this.#getProbeSettings = getProbeSettings;
     this.#createProbeClient = createProbeClient;
     this.#canProbe = canProbe;
+    this.#now = now;
   }
 
   get hosts() {
@@ -90,9 +101,37 @@ export class CentralEndpointSelector extends EventEmitter {
   }
 
   /**
+   * Remembers which central `host` reached, as its login said, so that when it refuses the
+   * credentials the other hosts reaching the same central are not asked as well. Central names
+   * itself in the response to a login, and in nothing sooner, so this is only learned from logins
+   * that succeeded.
+   */
+  learnIdentity(host, identity) {
+    if (!identity) return;
+    this.#identities.set(host, { identity, learnedAt: this.#now() });
+  }
+
+  #identityOf(host) {
+    const known = this.#identities.get(host);
+    if (!known) return null;
+    if (this.#now() - known.learnedAt >= IDENTITY_TTL_MS) {
+      this.#identities.delete(host);
+      return null;
+    }
+    return known.identity;
+  }
+
+  /** `host` and the other hosts known to reach the same central as it does. */
+  hostsOnSameServerAs(host) {
+    const identity = this.#identityOf(host);
+    if (identity === null) return [host];
+    return this.#hosts.filter(other => other === host || this.#identityOf(other) === identity);
+  }
+
+  /**
    * Logs in at `host` with the sync credentials, on a client of its own so the live connection's
    * auth state is never disturbed, with a short timeout and a single attempt.
-   * @returns {Promise<{ ok: true } | { ok: false, reason: string }>}
+   * @returns {Promise<{ ok: true } | { ok: false, reason: string, credentialsRefused: boolean, lockedOut: boolean }>}
    */
   async probe(host) {
     const { email, password } = getSyncConfig();
@@ -100,7 +139,10 @@ export class CentralEndpointSelector extends EventEmitter {
     const startedAt = Date.now();
     try {
       const client = this.#createProbeClient({ host, timeoutMs: probeTimeoutMs });
-      await client.login(email, password, { scopes: [DEVICE_SCOPES.SYNC_CLIENT] });
+      const loginData = await client.login(email, password, {
+        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      });
+      this.learnIdentity(host, loginData?.server?.centralHost);
       log.info('CentralEndpointSelector.probe', {
         host,
         outcome: 'success',
@@ -115,32 +157,78 @@ export class CentralEndpointSelector extends EventEmitter {
         reason,
         durationMs: Date.now() - startedAt,
       });
-      return { ok: false, reason };
+      return {
+        ok: false,
+        reason,
+        credentialsRefused: isLoginRefusal(error),
+        lockedOut: error.type === ERROR_TYPE.RATE_LIMITED,
+      };
     }
+  }
+
+  /**
+   * One round of logins over `hosts`, resolving to the first that passes, or null. A round is
+   * what the sync login backoff counts: it does not start while logins are paused, and when it
+   * ends with credentials refused and nothing passing it lengthens the pause, however many hosts
+   * refused. A lockout ends the round early, since the other hosts would refuse as well.
+   * @param {string[]} hosts
+   * @param {{ skip?: string[], shouldStop?: () => boolean }} [options] hosts not to try, and a
+   * check before each probe for whether to give the round up. A host that refuses the credentials
+   * also rules out the hosts known to reach the same central.
+   */
+  async firstPassing(hosts, { skip = [], shouldStop = () => false } = {}) {
+    const backoff = getSyncLoginBackoff();
+    if (!backoff.isOpen()) {
+      log.info('CentralEndpointSelector: logins are paused, not probing', { hosts });
+      return null;
+    }
+
+    const skipped = new Set(skip);
+    let credentialsRefused = false;
+    for (const host of hosts) {
+      if (skipped.has(host)) continue;
+      if (shouldStop()) return null;
+
+      const result = await this.probe(host);
+      if (result.ok) {
+        backoff.recordSuccess();
+        return host;
+      }
+      credentialsRefused ||= result.credentialsRefused;
+      if (result.lockedOut) break;
+      if (result.credentialsRefused) {
+        for (const sameServer of this.hostsOnSameServerAs(host)) skipped.add(sameServer);
+      }
+    }
+
+    if (credentialsRefused) await backoff.recordRefusal();
+    return null;
   }
 
   /**
    * Probes the hosts from the top and moves to the first that passes. Concurrent callers share one
    * walk. Resolves to whether some host passed, which can be the host already in use.
+   * @param {{ reason?: string, skip?: string[] }} [options] `skip` is for the hosts that have just
+   * refused the credentials: asking them again would only count another failure against the
+   * account.
    */
-  walk({ reason } = {}) {
+  walk({ reason, skip } = {}) {
     if (!this.#canProbe || !this.hasAlternatives()) return Promise.resolve(false);
-    this.#walking ??= this.#walkHosts(reason).finally(() => {
+    this.#walking ??= this.#walkHosts(reason, skip).finally(() => {
       this.#walking = null;
     });
     return this.#walking;
   }
 
-  async #walkHosts(reason) {
-    log.info('CentralEndpointSelector.walk', { current: this.#current, reason });
-    for (const host of this.#hosts) {
-      if ((await this.probe(host)).ok) {
-        await this.#use(host);
-        return true;
-      }
+  async #walkHosts(reason, skip) {
+    log.info('CentralEndpointSelector.walk', { current: this.#current, reason, skip });
+    const host = await this.firstPassing(this.#hosts, { skip });
+    if (host === null) {
+      log.warn('CentralEndpointSelector.walkFailed', { hosts: this.#hosts });
+      return false;
     }
-    log.warn('CentralEndpointSelector.walkFailed', { hosts: this.#hosts });
-    return false;
+    await this.#use(host);
+    return true;
   }
 
   /**
@@ -153,17 +241,12 @@ export class CentralEndpointSelector extends EventEmitter {
 
     const currentIndex = this.#hosts.indexOf(this.#current);
     const earlier = this.#hosts.slice(0, currentIndex === -1 ? this.#hosts.length : currentIndex);
-    for (const host of earlier) {
-      // a session or walk may have started during the previous probe
-      if (this.isSessionActive() || this.#walking) return false;
-      if ((await this.probe(host)).ok) {
-        // or during this one
-        if (this.isSessionActive() || this.#walking) return false;
-        await this.#use(host);
-        return true;
-      }
-    }
-    return false;
+    const isBusy = () => this.isSessionActive() || this.#walking !== null;
+    const host = await this.firstPassing(earlier, { shouldStop: isBusy });
+    // a session or walk may have started while probing
+    if (host === null || isBusy()) return false;
+    await this.#use(host);
+    return true;
   }
 
   /**
