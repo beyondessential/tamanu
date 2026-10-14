@@ -321,7 +321,7 @@ export const Sidebar = React.memo(({ items }) => {
             onClick: () => clickedParentItem(item),
           };
 
-          const dataTestIdSuffix = item.path.replace(/\//g, '-');
+          const dataTestIdSuffix = item.path.replaceAll('/', '-');
 
           if (item.Component) {
             const { Component } = item;

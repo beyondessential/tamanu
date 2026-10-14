@@ -122,6 +122,7 @@ export const SignInForm: FunctionComponent<any> = ({
       }
     })();
   }, []);
+
   return (
     <Form
       initialValues={initialValues}
