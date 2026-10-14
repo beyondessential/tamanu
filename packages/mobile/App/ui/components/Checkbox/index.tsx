@@ -1,13 +1,16 @@
 import React, { useCallback } from 'react';
 import { TouchableHighlight } from 'react-native';
-import { RowView, StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import type { BaseInputProps } from '/interfaces/BaseInputProps';
+import { RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 import { CheckboxMarkIcon } from '../Icons';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
 import { RequiredIndicator } from '../RequiredIndicator';
-import { type TranslatedTextElement, getTranslatedTextFallback } from '../Translations/TranslatedText';
+import {
+  getTranslatedTextFallback,
+  type TranslatedTextElement,
+} from '../Translations/TranslatedText';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;

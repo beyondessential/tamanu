@@ -11,12 +11,7 @@ export interface UserAvatarProps {
   Icon?: React.ReactNode;
 }
 
-export const UserAvatar = ({
-  displayName,
-  sex,
-  size,
-  Icon,
-}: UserAvatarProps) => {
+export const UserAvatar = ({ displayName, sex, size, Icon }: UserAvatarProps) => {
   const userInitials: string = React.useMemo(
     () => (displayName ? getUserInitials(displayName) : 'user'),
     [displayName],
