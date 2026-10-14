@@ -103,6 +103,7 @@ import { addQuantityToProcedures1789674206539 } from './1789674206539-addQuantit
 import { addPerPatientLookupIndexes1789611060000 } from './1789611060000-addPerPatientLookupIndexes';
 import { addSensitiveNetworksTable1789695736424 } from './1789695736424-addSensitiveNetworksTable';
 import { replaceFacilityIsSensitiveWithNetwork1789695736425 } from './1789695736425-replaceFacilityIsSensitiveWithNetwork';
+import { dropLegacySyncSnapshotTable1790807294248 } from './1790807294248-dropLegacySyncSnapshotTable';
 import { dropSyncedCentralSettings1791875574000 } from './1791875574000-dropSyncedCentralSettings';
 
 export const migrationList = [
@@ -210,5 +211,6 @@ export const migrationList = [
   addPerPatientLookupIndexes1789611060000,
   addSensitiveNetworksTable1789695736424,
   replaceFacilityIsSensitiveWithNetwork1789695736425,
+  dropLegacySyncSnapshotTable1790807294248,
   dropSyncedCentralSettings1791875574000,
 ];

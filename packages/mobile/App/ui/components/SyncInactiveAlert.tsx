@@ -40,14 +40,12 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
     }
   };
 
-  useEffect(() => {
-    if (errorMessage) {
-      setErrorMessage(null);
-    }
-  }, [open]);
-
   return (
-    <Modal isVisible={open} onBackdropPress={onClose}>
+    <Modal
+      isVisible={open}
+      onBackdropPress={onClose}
+      onModalHide={() => void setErrorMessage(null)}
+    >
       <StyledView
         padding={screenPercentageToDP(3.6, Orientation.Width)}
         background={theme.colors.WHITE}
@@ -197,7 +195,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
           </StyledText>
         </StyledTouchableOpacity>
       </Alert>
-      <AuthenticationModal open={openAuthenticationModel} onClose={handleCloseModal} />
+      <AuthenticationModal onClose={handleCloseModal} open={openAuthenticationModel} />
     </>
   );
 };
