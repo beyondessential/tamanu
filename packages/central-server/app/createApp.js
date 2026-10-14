@@ -1,11 +1,10 @@
 import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
-import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
-import { log } from '@tamanu/shared/services/logging';
 
 import { createApi } from './createApi';
 import { createWebsocket } from './createWebsocket';
 import { registerSyncLookupUpdateListener } from './sync';
+import { registerSettingsListeners } from './settingsListeners';
 
 /**
  * @param {import('./ApplicationContext').ApplicationContext} ctx
@@ -19,22 +18,9 @@ export async function createApp(ctx) {
     { onOutageExceeded: exitOnDatabaseOutage },
   );
   await registerSyncLookupUpdateListener(ctx.store.models, dbNotifier);
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+  registerSettingsListeners(ctx, dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
     onReconnect: dbNotifier.onReconnect,
   });
-  const refreshAiContexts = async () => {
-    try {
-      await ctx.aiService?.refreshContexts(ctx.settings);
-    } catch (error) {
-      log.warn({ error }, 'Failed to refresh AI contexts after settings change');
-    }
-  };
-  dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED](async payload => {
-    if (payload.table !== 'settings') return;
-    await refreshAiContexts();
-  });
-  // a settings change while the listener was disconnected would otherwise go unnoticed
-  dbNotifier.onReconnect(refreshAiContexts);
 
   if (await ctx.settings.get('websocket.enabled')) {
     await createWebsocket(api.httpServer, ctx, dbNotifier, api.express);
