@@ -131,7 +131,6 @@ export class CentralServerConnection extends TamanuApi {
       method: 'POST',
       body: {
         facilityIds,
-        deviceId: this.deviceId,
         urgent,
         lastSyncedTick,
       },
@@ -182,7 +181,7 @@ export class CentralServerConnection extends TamanuApi {
     // first, set the pull filter on the central server,
     // which will kick off a snapshot of changes to pull
     const facilityIds = getServerFacilityIds();
-    const body = { since, facilityIds, deviceId: this.deviceId };
+    const body = { since, facilityIds };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
     // then, wait for the pull/ready endpoint until we get a valid response;
@@ -226,10 +225,7 @@ export class CentralServerConnection extends TamanuApi {
 
   async completePush(sessionId) {
     // first off, mark the push as complete on central
-    await this.fetch(`sync/${sessionId}/push/complete`, {
-      method: 'POST',
-      body: { deviceId: this.deviceId },
-    });
+    await this.fetch(`sync/${sessionId}/push/complete`, { method: 'POST', body: {} });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for
     // the pushed changes to finish persisting to the central database
