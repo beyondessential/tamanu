@@ -1,8 +1,12 @@
 import React from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { CircleCheck, FileText } from 'lucide-react';
 import { TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 
 import { useOutstandingSurveysQuery } from '@api/queries/useOutstandingSurveysQuery';
+import { surveyQueryOptions } from '@api/queries/useSurveyQuery';
+import { timeZoneQueryOptions } from '@api/queries/useTimeZoneQuery';
+import { useApi } from '@api/useApi';
 import {
   Loading,
   Panel,
@@ -15,10 +19,24 @@ import {
   Section,
   SectionTitle,
 } from '@components/layout';
+import { settingsQueryOptions } from '../../contexts/SettingsContext';
 
 /** Forms the patient has been asked to fill in, first on the dashboard as they need doing. */
 export const ToDoSection = () => {
+  const api = useApi();
   const { data: forms, isLoading } = useOutstandingSurveysQuery();
+
+  // Everything a form needs is loaded with the list, so tapping one opens it straight away
+  const facilityIds = [...new Set(forms?.map(form => form.facilityId) ?? [])];
+  useQueries({
+    queries: forms?.length
+      ? [
+          ...forms.map(form => surveyQueryOptions(api, form.survey.id)),
+          ...facilityIds.map(facilityId => settingsQueryOptions(api, facilityId)),
+          timeZoneQueryOptions(api),
+        ]
+      : [],
+  });
 
   const renderForms = () => {
     if (isLoading) return <Loading />;

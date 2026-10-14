@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Box, Divider, Typography, styled } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
@@ -58,24 +58,32 @@ const EmailSection = ({ email }: { email: string }) => {
 };
 
 export const LoginView = () => {
-  const { mutate: login, error: loginError, reset: resetLogin } = useLogin();
+  const { mutate: login, error: loginError, reset: resetLogin, isPending } = useLogin();
   const location = useLocation();
   const navigate = useNavigate();
 
   const storedEmail = location.state?.email;
+  const isSigningIn = useRef(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // A code works once, so a second tap while signing in would only fail
+    if (isSigningIn.current) return;
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const loginToken = formData.get('verificationCode') as string | null;
 
     const email = storedEmail || (formData.get('email') as string | null);
 
     if (loginToken && email) {
-      login({
-        loginToken: loginToken.trim(),
-        email: email.trim(),
-      });
+      isSigningIn.current = true;
+      login(
+        { loginToken: loginToken.trim(), email: email.trim() },
+        {
+          onSettled: () => {
+            isSigningIn.current = false;
+          },
+        },
+      );
     }
   };
 
@@ -121,7 +129,7 @@ export const LoginView = () => {
             }}
           />
         </Box>
-        <Button type="submit" fullWidth variant="contained">
+        <Button type="submit" fullWidth variant="contained" disabled={isPending}>
           Log in
         </Button>
       </form>

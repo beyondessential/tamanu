@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate } from 'react-router';
 import { styled } from '@mui/material/styles';
-import { CircularProgress, Box } from '@mui/material';
+import { Box } from '@mui/material';
+import { PageLoading } from '@components/PageLoading';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
@@ -14,7 +15,8 @@ const PageContainer = styled(Box)`
   height: 100vh;
   width: 100vw;
   justify-content: center;
-  background: linear-gradient(
+  background:
+    linear-gradient(
       180deg,
       rgba(255, 255, 255, 0.5) 0%,
       rgba(255, 255, 255, 0.485) 8.1%,
@@ -52,7 +54,7 @@ export const PublicRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isPending } = useCurrentUserQuery();
 
   if (isPending) {
-    return <CircularProgress />;
+    return <PageLoading />;
   }
 
   if (user) {

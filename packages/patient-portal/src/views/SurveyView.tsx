@@ -6,7 +6,8 @@ import { useNavigate, useParams } from 'react-router';
 import { useSubmitSurveyResponse } from '@api/mutations';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
 import { useTimeZoneQuery } from '@api/queries/useTimeZoneQuery';
-import { BackLink, Loading, Muted, PageColumn, Panel } from '@components/layout';
+import { BackLink, Muted, PageColumn, Panel } from '@components/layout';
+import { PageLoading } from '@components/PageLoading';
 import { DiscardChangesDialog } from '@components/DiscardChangesDialog';
 import { useUnsavedChangesGuard } from '@components/useUnsavedChangesGuard';
 import { useCurrentUser } from '@routes/PrivateRoute';
@@ -76,7 +77,7 @@ const FormLoadError = () => (
 const FormDateTimeProvider = ({ children }: { children: React.ReactNode }) => {
   const { data, isPending, isError } = useTimeZoneQuery();
   const { getSetting } = useSettings();
-  if (isPending) return <Loading />;
+  if (isPending) return <PageLoading />;
   if (isError || !data?.primaryTimeZone) return <FormLoadError />;
   return (
     <DateTimeProvider
@@ -141,7 +142,7 @@ export const SurveyView = () => {
   const { surveyId } = useParams() as { surveyId: string };
   const { isPending, data: survey } = useSurveyQuery(surveyId);
 
-  if (isPending) return <Loading />;
+  if (isPending) return <PageLoading />;
   if (!survey?.portalSurveyAssignment) return <FormLoadError />;
 
   /**

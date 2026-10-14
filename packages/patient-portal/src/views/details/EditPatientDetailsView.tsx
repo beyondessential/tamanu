@@ -13,15 +13,8 @@ import { UpdatePatientDetailsRequestSchema } from '@tamanu/shared/schemas/patien
 
 import { useUpdatePatientDetails } from '@api/mutations';
 import { usePortalSettingsQuery } from '@api/queries/usePortalSettingsQuery';
-import {
-  BackLink,
-  Loading,
-  PageColumn,
-  PageTitle,
-  Panel,
-  Section,
-  SectionTitle,
-} from '@components/layout';
+import { BackLink, PageColumn, PageTitle, Panel, Section, SectionTitle } from '@components/layout';
+import { PageLoading } from '@components/PageLoading';
 import { DiscardChangesDialog } from '@components/DiscardChangesDialog';
 import { useUnsavedChangesGuard } from '@components/useUnsavedChangesGuard';
 import { useCurrentUser } from '@routes/PrivateRoute';
@@ -88,7 +81,7 @@ const DETAILS_PATH = '/#details';
 export const EditPatientDetailsView = () => {
   const { data: settings, isLoading } = usePortalSettingsQuery();
   const patient = useCurrentUser();
-  if (isLoading) return <Loading />;
+  if (isLoading) return <PageLoading />;
 
   const fieldSettings = settings?.fields;
   const editableGroups = DETAIL_GROUPS.map(group => ({

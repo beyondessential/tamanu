@@ -12,9 +12,17 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] Content is a single column the width of a phone, centred on wider screens.
 - [ ] The portal uses the kiosk's palette: a light grey page, content on white outlined panels, and Tamanu blue for actions. Controls are large enough to use by touch and sized for a phone.
 - [ ] Every page other than the dashboard has a back link to the dashboard.
+- [ ] A page that takes a moment to load shows a loading indicator centred beneath the header; one that loads quickly opens without one flashing up.
 - [ ] Each page opens scrolled to its top, and going back returns to where the patient was.
 - [ ] Success messages span the width of a phone screen.
 - [ ] Text uses the deployment's translations for its default language, so wording and names the deployment has changed appear in the portal as they do in Tamanu. Where a string has no translation, its English text shows.
+
+## Signing in
+
+- [ ] The patient stays signed in on their device across closing and reopening the portal, until the session expires or they log out.
+- [ ] A session the server no longer accepts is forgotten, so the portal asks the patient to sign in again.
+- [ ] Log in is held while a code is being checked, so the code is sent once however many times it is tapped.
+- [ ] Every portal tab on a device shares one session: signing in moves any other tab on a sign-in page on to the dashboard, and logging out signs every tab out.
 
 ## Dashboard
 
@@ -35,6 +43,7 @@ The patient portal is where a patient signs in on their own phone or computer to
 
 ## Forms
 
+- [ ] The dashboard loads each outstanding form ahead of time, so tapping one opens it straight away.
 - [ ] A form fills the screen below the header, page by page, with the form's name, its page count and a progress bar at the top and Back and Next kept in view at the bottom. On a phone the form spans the screen edge to edge.
 - [ ] Questions are the kiosk's question controls, in the same order and with the same answer formats as forms filled in by staff, so a response is the same wherever it was filled in.
 - [ ] Next checks the page: a required question left unanswered, or an answer that fails its question's validation, is marked with a message and scrolled into view, and the patient stays on the page.

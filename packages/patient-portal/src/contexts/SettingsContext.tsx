@@ -4,7 +4,7 @@ import { styled } from '@mui/material';
 
 import { useQuery } from '@tanstack/react-query';
 import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
-import { StyledCircularProgress } from '@components/StyledCircularProgress';
+import { PageLoading } from '@components/PageLoading';
 
 const ErrorAlert = styled(Alert)(() => ({
   width: 400,
@@ -17,20 +17,21 @@ interface SettingsProviderProps {
   children: React.ReactNode;
 }
 
+export const settingsQueryOptions = (api: ReturnType<typeof useApi>, facilityId: string) => ({
+  queryKey: ['settings', facilityId],
+  queryFn: () => api.get(`settings/${facilityId}`),
+});
+
 export const useSettings = (facilityId: string) => {
   const api = useApi();
-  return useQuery({
-    queryKey: ['settings', facilityId],
-    queryFn: () => api.get(`settings/${facilityId}`),
-    enabled: Boolean(facilityId),
-  });
+  return useQuery({ ...settingsQueryOptions(api, facilityId), enabled: Boolean(facilityId) });
 };
 
 export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps) => {
   const { isPending, isError, data: settings } = useSettings(facilityId);
 
   if (isPending) {
-    return <StyledCircularProgress />;
+    return <PageLoading />;
   }
 
   if (isError) {

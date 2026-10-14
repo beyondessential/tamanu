@@ -15,6 +15,7 @@
 
 ## Forms
 
+- [x] Tapping an outstanding form opens it straight away with no loading indicator flashing up (verifies spec: PPORT)
 - [x] Forms configured for the appointment type are listed; an appointment type with none goes straight to Ready to check in (verifies spec: KIOSK)
 - [x] Next with an unanswered required question stays on the page, scrolls to it and shows "This question is required" (verifies spec: KIOSK)
 - [x] Answering clears the message (verifies spec: KIOSK)
@@ -52,6 +53,10 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 
 ## Layout and dashboard
 
+- [x] Enter followed by a tap on Log in sends the code once and signs in (verifies spec: PPORT)
+- [x] A wrong code shows "Invalid verification code", and the right code then signs in (verifies spec: PPORT)
+- [x] Reopening with a saved session the server rejects shows sign-in and forgets the saved session (verifies spec: PPORT)
+- [x] Signing in one tab moves another tab on the code page to the dashboard; logging out in one signs the other out (verifies spec: PPORT)
 - [x] Dashboard shows To do, Upcoming appointments and Your health record, in that order (verifies spec: PPORT)
 - [x] Each outstanding form opens from its row; with none, "You're all up to date" (verifies spec: PPORT)
 - [x] Record rows show how many are recorded, or "None recorded", and expand in place, by tap or keyboard; several can be open at once (verifies spec: PPORT)

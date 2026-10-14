@@ -1,8 +1,8 @@
 import React, { createContext, useContext } from 'react';
 import { Navigate, ScrollRestoration } from 'react-router';
-import { CircularProgress } from '@mui/material';
 import { PortalGlobalStyle, PortalRoot } from '@components/layout';
 import { PageHeader } from './header/PageHeader';
+import { PageLoading } from '@components/PageLoading';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 
@@ -23,7 +23,7 @@ export const PrivateRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isError, isPending } = useCurrentUserQuery();
 
   if (isPending) {
-    return <CircularProgress />;
+    return <PageLoading />;
   }
 
   if (isError || !user) {
