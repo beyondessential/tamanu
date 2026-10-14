@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router';
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/material';
-import { PageLoading } from '@components/PageLoading';
+import { PageLoading } from '@components/layout';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 import { TAMANU_COLORS } from '@tamanu/ui-components';

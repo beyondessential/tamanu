@@ -1,8 +1,9 @@
 import React from 'react';
-import styled, { createGlobalStyle, css } from 'styled-components';
+import styled, { createGlobalStyle, css, keyframes } from 'styled-components';
+import { CircularProgress } from '@mui/material';
 import { Link } from 'react-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { patientFormPalette, TranslatedText } from '@tamanu/ui-components';
+import { patientFormPalette, TAMANU_COLORS, useTranslation } from '@tamanu/ui-components';
 
 /**
  * The portal shares the kiosk's palette and form controls, at phone size: `--pf-scale` shrinks
@@ -246,8 +247,52 @@ export const Badge = styled.span<{ $tone?: BadgeTone }>`
   color: ${({ $tone = 'neutral' }) => BADGE_TEXT[$tone]};
 `;
 
+const appear = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+/**
+ * A spinner that stays invisible for a moment, so content that loads quickly appears without one
+ * flashing up first.
+ */
+const LoadingFrame = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  /* Also shown before the portal's palette applies, while checking who is signed in */
+  color: var(--pf-primary, ${TAMANU_COLORS.primary});
+  opacity: 0;
+  animation: ${appear} 200ms ease-out 400ms forwards;
+`;
+
+/** The page itself loading, centred in the space below the header. */
+const PageLoadingFrame = styled(LoadingFrame)`
+  flex: 1;
+  min-height: 50dvh;
+`;
+
+const Spinner = ({ size }: { size: number }) => {
+  const { getTranslation } = useTranslation();
+  return (
+    <CircularProgress
+      size={size}
+      color="inherit"
+      aria-label={getTranslation('general.status.loading', 'Loading…')}
+    />
+  );
+};
+
+/** Part of a page loading, within its panel. */
 export const Loading = () => (
-  <Muted role="status">
-    <TranslatedText stringId="general.status.loading" fallback="Loading…" />
-  </Muted>
+  <LoadingFrame role="status">
+    <Spinner size={22} />
+  </LoadingFrame>
+);
+
+export const PageLoading = () => (
+  <PageLoadingFrame role="status">
+    <Spinner size={28} />
+  </PageLoadingFrame>
 );

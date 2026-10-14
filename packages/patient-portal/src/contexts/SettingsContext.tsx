@@ -4,7 +4,7 @@ import { styled } from '@mui/material';
 
 import { useQuery } from '@tanstack/react-query';
 import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
-import { PageLoading } from '@components/PageLoading';
+import { PageLoading } from '@components/layout';
 
 const ErrorAlert = styled(Alert)(() => ({
   width: 400,

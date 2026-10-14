@@ -1,8 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { Navigate, ScrollRestoration } from 'react-router';
-import { PortalGlobalStyle, PortalRoot } from '@components/layout';
+import { PageLoading, PortalGlobalStyle, PortalRoot } from '@components/layout';
 import { PageHeader } from './header/PageHeader';
-import { PageLoading } from '@components/PageLoading';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 

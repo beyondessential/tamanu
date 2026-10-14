@@ -16,6 +16,7 @@
 ## Forms
 
 - [x] Tapping an outstanding form opens it straight away with no loading indicator flashing up (verifies spec: PPORT)
+- [x] A slow page or panel shows a centred spinner after a moment, never "Loading…" text (verifies spec: PPORT)
 - [x] Forms configured for the appointment type are listed; an appointment type with none goes straight to Ready to check in (verifies spec: KIOSK)
 - [x] Next with an unanswered required question stays on the page, scrolls to it and shows "This question is required" (verifies spec: KIOSK)
 - [x] Answering clears the message (verifies spec: KIOSK)

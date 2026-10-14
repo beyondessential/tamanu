@@ -13,8 +13,15 @@ import { UpdatePatientDetailsRequestSchema } from '@tamanu/shared/schemas/patien
 
 import { useUpdatePatientDetails } from '@api/mutations';
 import { usePortalSettingsQuery } from '@api/queries/usePortalSettingsQuery';
-import { BackLink, PageColumn, PageTitle, Panel, Section, SectionTitle } from '@components/layout';
-import { PageLoading } from '@components/PageLoading';
+import {
+  BackLink,
+  PageColumn,
+  PageLoading,
+  PageTitle,
+  Panel,
+  Section,
+  SectionTitle,
+} from '@components/layout';
 import { DiscardChangesDialog } from '@components/DiscardChangesDialog';
 import { useUnsavedChangesGuard } from '@components/useUnsavedChangesGuard';
 import { useCurrentUser } from '@routes/PrivateRoute';
