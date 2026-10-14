@@ -77,6 +77,49 @@ describe('anthropicModel suggester', () => {
     ]);
   });
 
+  it('follows pagination to include every model', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    global.fetch = vi.fn(async url => {
+      const afterId = new URL(url).searchParams.get('after_id');
+      const body = afterId
+        ? { data: [{ id: 'claude-haiku-4-5', display_name: 'Claude Haiku 4.5' }], has_more: false }
+        : {
+            data: [{ id: 'claude-opus-5', display_name: 'Claude Opus 5' }],
+            has_more: true,
+            last_id: 'claude-opus-5',
+          };
+      return { ok: true, status: 200, json: async () => body };
+    });
+
+    const result = await adminApp.get('/api/suggestions/anthropicModel');
+
+    expect(result).toHaveSucceeded();
+    expect(result.body).toEqual([
+      { id: 'claude-opus-5', name: 'Claude Opus 5' },
+      { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5' },
+    ]);
+    const [firstUrl, secondUrl] = global.fetch.mock.calls.map(([url]) => new URL(url));
+    expect(firstUrl.searchParams.get('limit')).toBe('1000');
+    expect(secondUrl.searchParams.get('after_id')).toBe('claude-opus-5');
+  });
+
+  it('returns an empty list when a later page fails', async () => {
+    getSettingSecret.mockResolvedValue('sk-test');
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ ...MODELS_RESPONSE, has_more: true, last_id: 'claude-textonly-1' }),
+      })
+      .mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) });
+
+    const result = await adminApp.get('/api/suggestions/anthropicModel');
+
+    expect(result).toHaveSucceeded();
+    expect(result.body).toEqual([]);
+  });
+
   it('does not send the API key to the client', async () => {
     getSettingSecret.mockResolvedValue('sk-test');
     mockModelsRequest();

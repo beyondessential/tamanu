@@ -8,10 +8,42 @@ const MODELS_URL = 'https://api.anthropic.com/v1/models';
 const ANTHROPIC_VERSION = '2023-06-01';
 const CACHE_TTL_MS = 60 * 1000;
 const REQUEST_TIMEOUT_MS = 10 * 1000;
+const MODELS_PAGE_SIZE = 1000;
+const MAX_MODEL_PAGES = 10;
 
 export const anthropicModelSuggestions = express.Router();
 
 let cache = null;
+
+// Null on any failure, which is logged here.
+const fetchModelsPage = async (apiKey, afterId) => {
+  const url = new URL(MODELS_URL);
+  url.searchParams.set('limit', String(MODELS_PAGE_SIZE));
+  if (afterId) url.searchParams.set('after_id', afterId);
+
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: { 'x-api-key': apiKey, 'anthropic-version': ANTHROPIC_VERSION },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    log.warn(`anthropicModel suggester: model list unreachable: ${error.message}`);
+    return null;
+  }
+
+  if (!response.ok) {
+    log.warn(`anthropicModel suggester: model list request failed with ${response.status}`);
+    return null;
+  }
+
+  try {
+    return await response.json();
+  } catch (error) {
+    log.warn(`anthropicModel suggester: model list was not JSON: ${error.message}`);
+    return null;
+  }
+};
 
 // The API key is a secret setting, so the model list is fetched here rather than
 // from the browser. An unconfigured or rejected key yields an empty list: an
@@ -26,31 +58,18 @@ const loadModels = async settings => {
   }
   if (!apiKey) return [];
 
-  let response;
-  try {
-    response = await fetch(MODELS_URL, {
-      headers: { 'x-api-key': apiKey, 'anthropic-version': ANTHROPIC_VERSION },
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    });
-  } catch (error) {
-    log.warn(`anthropicModel suggester: model list unreachable: ${error.message}`);
-    return [];
+  // the list is paginated, so a single request can miss older models
+  const rawModels = [];
+  let afterId = null;
+  for (let page = 0; page < MAX_MODEL_PAGES; page++) {
+    const body = await fetchModelsPage(apiKey, afterId);
+    if (!body) return [];
+    rawModels.push(...(body.data ?? []));
+    if (!body.has_more || !body.last_id) break;
+    afterId = body.last_id;
   }
 
-  if (!response.ok) {
-    log.warn(`anthropicModel suggester: model list request failed with ${response.status}`);
-    return [];
-  }
-
-  let body;
-  try {
-    body = await response.json();
-  } catch (error) {
-    log.warn(`anthropicModel suggester: model list was not JSON: ${error.message}`);
-    return [];
-  }
-
-  return (body.data ?? []).map(({ id, display_name: displayName, capabilities }) => ({
+  return rawModels.map(({ id, display_name: displayName, capabilities }) => ({
     id,
     name: displayName ?? id,
     supportsVision: Boolean(
