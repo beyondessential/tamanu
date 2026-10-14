@@ -32,7 +32,7 @@ export const CellContent = ({
 }: {
   vaccineStatus?: string;
   cellStatus?: string;
-}): JSX.Element => {
+}) => {
   const cellData = VaccineStatusCells[cellStatus] || VaccineStatusCells[vaccineStatus];
   const Icon = cellData.Icon;
 
@@ -59,7 +59,7 @@ export const CellContent = ({
   );
 };
 
-export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProps): JSX.Element => {
+export const VaccineTableCell = ({ data, status, onPress }: VaccineTableCellProps) => {
   const { getTranslation } = useTranslation();
   const { scheduledVaccine, administeredVaccine, vaccineStatus, dueStatus } = data;
   const {

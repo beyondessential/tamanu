@@ -8,14 +8,12 @@ interface VaccineRowHeaderProps {
   subtitle?: TranslatedTextElement;
 }
 
-export const VaccineRowHeader = React.memo(
-  ({ title, subtitle }: VaccineRowHeaderProps): JSX.Element => (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-    </View>
-  ),
-);
+export const VaccineRowHeader = React.memo(({ title, subtitle }: VaccineRowHeaderProps) => (
+  <View style={styles.container}>
+    <Text style={styles.title}>{title}</Text>
+    {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+  </View>
+));
 
 const styles = StyleSheet.create({
   container: {

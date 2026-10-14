@@ -35,7 +35,7 @@ export const Checkbox = ({
   label,
   fieldFontSize,
   fieldColor,
-}: CheckboxProps): JSX.Element => {
+}: CheckboxProps) => {
   const ChangeCallback = useCallback(() => onChange(!value, id), [onChange, value, id]);
 
   const getColor = useCallback(() => {

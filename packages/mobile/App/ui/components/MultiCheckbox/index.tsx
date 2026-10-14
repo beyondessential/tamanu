@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps): JSX.Element => {
+export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps) => {
   const handleCallback = useCallback(
     (isSelected, optionId) => {
       const selectedValues = isSelected

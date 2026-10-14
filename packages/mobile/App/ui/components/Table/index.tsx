@@ -8,14 +8,14 @@ export type TableHeader = {
     value: string,
     onPress: (item: any) => void,
     headerOffsetPosition?: number,
-  ) => JSX.Element;
+  ) => React.JSX.Element;
 };
 
 export type TableRow = {
   rowKey: string;
   rowTitle: string;
-  rowHeader: (i: number) => JSX.Element;
-  cell: (cellContent: any, i: number) => JSX.Element;
+  rowHeader: (i: number) => React.JSX.Element;
+  cell: (cellContent: any, i: number) => React.JSX.Element;
 };
 
 export type TableCells<T> = {
@@ -23,7 +23,7 @@ export type TableCells<T> = {
 };
 
 interface TableProps {
-  Title?: React.MemoExoticComponent<() => JSX.Element> | (() => JSX.Element);
+  Title?: React.FC;
   cells: TableCells<any>;
   rows: TableRow[];
   columns: string[];
@@ -40,7 +40,7 @@ export const Table = ({
   tableHeader = null,
   onPressItem,
   scrollHandler,
-}: TableProps): JSX.Element => (
+}: TableProps) => (
   <View style={{ flexDirection: 'row' }}>
     <StyledView>
       {Title && <Title />}

@@ -8,7 +8,7 @@ import { patientKeys } from '~/ui/hooks/queries/queryKeys';
 import { renderAnswer } from '~/ui/navigation/screens/programs/SurveyResponseDetailsScreen';
 import { Text } from 'react-native';
 
-export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
+export const SurveyAnswerField = ({ patient, name, config }) => {
   const { setFieldValue } = useFormikContext();
   const source = config.source || config.Source;
 

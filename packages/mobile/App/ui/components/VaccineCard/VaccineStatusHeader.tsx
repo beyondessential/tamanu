@@ -10,7 +10,7 @@ interface VaccineStatusProps {
   status: VaccineStatus;
 }
 
-export const VaccineStatusHeader = ({ status }: VaccineStatusProps): JSX.Element => {
+export const VaccineStatusHeader = ({ status }: VaccineStatusProps) => {
   const Icon = memo(() => {
     const VaccineIcon = VaccineStatusCells[status].Icon;
     return <VaccineIcon size={20} fill={VaccineStatusCells[status].color} />;
