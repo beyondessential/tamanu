@@ -21,7 +21,8 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 - [x] a changed list is recorded only once a login at one of its entries succeeds, and the whole list replaces the old one (verifies spec: CEND)
 - [x] a list where no entry passes leaves the recorded list in place and is tried again later (verifies spec: CEND)
 - [x] SYNC_URL fixes the host and central's list is ignored (verifies spec: CEND)
-- [x] the boot-time host check is skipped once central has supplied a list (verifies spec: CEND)
+- [x] the boot-time host check accepts a declared host in the recorded list or equal to the seed host, and still fails for one in neither (verifies spec: CEND)
+- [x] forgetting a copied database's server identity removes the recorded list and the endpoint in use (verifies spec: CEND)
 - [x] a recorded list is used after a restart, and a malformed one is ignored (verifies spec: CEND)
 - [x] a changed list applies to the websocket connection and time synchronisation without a restart (verifies spec: CEND)
 
@@ -33,7 +34,6 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 - [x] when every endpoint fails the original error surfaces under the normal backoff (verifies spec: CEND)
 - [x] a locked-out account does not trigger a walk (verifies spec: CEND)
 - [x] an endpoint that refused the credentials is not asked again in the same attempt, whether or not the walk finds another (verifies spec: CEND)
-- [x] endpoints known to reach the same central as one that refused are skipped, unknown ones are still tried, and what was learned expires after an hour (verifies spec: CEND)
 
 ## Refused credentials
 
