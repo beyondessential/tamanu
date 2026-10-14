@@ -296,6 +296,21 @@ export const facilitySettings = {
           type: yup.number().integer().positive(),
           defaultValue: 300,
         },
+        syncLoginRefusedInitialPauseInSeconds: {
+          name: 'Pause after central refuses the sync credentials',
+          unit: 'seconds',
+          description:
+            'How long to stop logging in with the sync credentials after central refuses them. Each further refusal in a row multiplies the pause by five, up to the maximum, so repeated refusals stay well apart from central’s lockout window. A successful login or changed credentials end the pause',
+          type: yup.number().integer().positive(),
+          defaultValue: 120,
+        },
+        syncLoginRefusedMaxPauseInSeconds: {
+          name: 'Longest pause after central refuses the sync credentials',
+          unit: 'seconds',
+          description: 'The most the pause after refused sync credentials can grow to',
+          type: yup.number().integer().positive(),
+          defaultValue: 3600,
+        },
         centralEndpointProbeTimeoutInSeconds: {
           name: 'Central endpoint probe timeout',
           unit: 'seconds',

@@ -32,6 +32,17 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 - [x] an endpoint that stops working mid-use walks the list again from the top and retries the call (verifies spec: CEND)
 - [x] when every endpoint fails the original error surfaces under the normal backoff (verifies spec: CEND)
 - [x] a locked-out account does not trigger a walk (verifies spec: CEND)
+- [x] an endpoint that refused the credentials is not asked again in the same attempt, whether or not the walk finds another (verifies spec: CEND)
+- [x] endpoints known to reach the same central as one that refused are skipped, unknown ones are still tried, and what was learned expires after an hour (verifies spec: CEND)
+
+## Refused credentials
+
+- [x] after a refusal logins pause, and calls fail at once with a rate-limited error without contacting central, for one endpoint, several, and no selector (verifies spec: CEND)
+- [x] the pause grows by five each round up to the maximum, and a round of several refusals counts once (verifies spec: CEND)
+- [x] no more than two rounds fit inside the default lockout window (verifies spec: CEND)
+- [x] rechecks, walks and list verification probe nothing while paused (verifies spec: CEND)
+- [x] a successful login or changed credentials end the pause and restart the schedule (verifies spec: CEND)
+- [x] an unreachable endpoint never pauses logins (verifies spec: CEND)
 - [x] a session in progress is not moved to another endpoint, by failure retry, re-login or recheck, and nothing is probed during it (verifies spec: CEND)
 - [x] a connection in a session stays on its endpoint even when the selector moves during it (verifies spec: CEND)
 - [x] on a lower-priority endpoint the facility rechecks earlier ones and moves to the highest that passes (verifies spec: CEND)

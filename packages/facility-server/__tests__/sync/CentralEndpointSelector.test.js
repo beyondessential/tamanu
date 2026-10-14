@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FACT_CENTRAL_ENDPOINT_IN_USE } from '@tamanu/constants';
+import { InvalidCredentialError, RateLimitedError } from '@tamanu/errors';
 
 import { CentralEndpointSelector } from '../../app/sync/CentralEndpointSelector';
+import { SyncLoginBackoff, setSyncLoginBackoff } from '../../app/sync/SyncLoginBackoff';
 
 const A = 'https://a.example.com';
 const B = 'https://b.example.com';
@@ -19,10 +21,16 @@ const makeFacts = (initial = {}) => {
   };
 };
 
-// `working` is the set of hosts whose login succeeds; every probe is recorded in `probed`
+// `working` is the set of hosts whose login succeeds, `refusing` those that refuse the
+// credentials and `locked` those that say the account is locked out; any other host cannot be
+// reached. Every probe is recorded in `probed`.
 const makeSelector = ({
   hosts = [A, B, C],
   working = new Set(hosts),
+  refusing = new Set(),
+  locked = new Set(),
+  // which central each host's login says it reached
+  identities = {},
   inUse,
   facts,
   canProbe,
@@ -36,18 +44,41 @@ const makeSelector = ({
     getDeviceId: () => 'device-1',
     getProbeSettings: async () => ({ recheckIntervalMs: 1000, probeTimeoutMs: 50 }),
     canProbe,
+    now: () => now,
     createProbeClient: ({ host }) => ({
       login: async () => {
         probed.push(host);
+        if (refusing.has(host)) throw new InvalidCredentialError();
+        if (locked.has(host)) throw new RateLimitedError(60);
         if (!working.has(host)) throw new Error(`cannot reach ${host}`);
+        return { server: { centralHost: identities[host] } };
       },
     }),
   });
-  return { selector, probed, working, facts: factStore };
+  return { selector, probed, working, refusing, facts: factStore };
+};
+
+// the login backoff is process-wide, so each test gets one of its own and a clock to move
+let now;
+const loginBackoff = () => {
+  const backoff = new SyncLoginBackoff({
+    getSettings: async () => ({ initialDelayMs: 120_000, maxDelayMs: 3_600_000 }),
+    now: () => now,
+    getCredentialKey: () => 'credentials',
+  });
+  setSyncLoginBackoff(backoff);
+  return backoff;
 };
 
 // spec: CEND
 describe('CentralEndpointSelector', () => {
+  let backoff;
+  beforeEach(() => {
+    now = 1_000_000;
+    backoff = loginBackoff();
+  });
+  afterEach(() => setSyncLoginBackoff(new SyncLoginBackoff()));
+
   describe('current', () => {
     it('starts on the first host', () => {
       expect(makeSelector().selector.current()).toBe(A);
@@ -124,6 +155,210 @@ describe('CentralEndpointSelector', () => {
       expect(await selector.walk()).toBe(true);
 
       expect(onChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when walking after a refused login', () => {
+    it('does not ask the host to skip again', async () => {
+      const { selector, probed } = makeSelector({ working: new Set([B]), refusing: new Set([A]) });
+
+      expect(await selector.walk({ skip: [A] })).toBe(true);
+
+      expect(probed).toEqual([B]);
+      expect(selector.current()).toBe(B);
+    });
+
+    it('still tries every other host, since one may be a different Tamanu', async () => {
+      const { selector, probed } = makeSelector({
+        working: new Set([C]),
+        refusing: new Set([A, B]),
+      });
+
+      expect(await selector.walk({ skip: [A] })).toBe(true);
+
+      expect(probed).toEqual([B, C]);
+      expect(selector.current()).toBe(C);
+    });
+  });
+
+  describe('which central a host reaches', () => {
+    const SAME = { [A]: 'central-1', [C]: 'central-1', [B]: 'central-2' };
+
+    it('is learned from a successful probe', async () => {
+      const { selector } = makeSelector({ identities: SAME });
+
+      await selector.probe(A);
+      await selector.probe(C);
+      await selector.probe(B);
+
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
+      expect(selector.hostsOnSameServerAs(B)).toEqual([B]);
+    });
+
+    it('is not known for a host that has not logged in, or one whose login named no central', async () => {
+      const { selector } = makeSelector({ identities: { [A]: 'central-1' } });
+      await selector.probe(A);
+      await selector.probe(B);
+
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
+      expect(selector.hostsOnSameServerAs(C)).toEqual([C]);
+    });
+
+    it('is not learned from a refused login, which names nothing', async () => {
+      const { selector } = makeSelector({ refusing: new Set([A]), identities: SAME });
+
+      await selector.probe(A);
+
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
+    });
+
+    it('is forgotten after an hour, since a name can start pointing at another server', async () => {
+      const { selector } = makeSelector({ identities: SAME });
+      await selector.probe(A);
+      await selector.probe(C);
+
+      now += 59 * 60_000;
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
+
+      now += 2 * 60_000;
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
+    });
+
+    it('is learned again by the next successful login', async () => {
+      const { selector } = makeSelector({ identities: SAME });
+      await selector.probe(A);
+      now += 61 * 60_000;
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A]);
+
+      await selector.probe(A);
+      await selector.probe(C);
+
+      expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
+    });
+
+    it('lets a round skip the hosts that reach the central that refused', async () => {
+      const identities = { [A]: 'central-1', [C]: 'central-1', [B]: 'central-2' };
+      const { selector, probed, refusing } = makeSelector({ identities });
+      await selector.probe(A);
+      await selector.probe(B);
+      await selector.probe(C);
+      probed.length = 0;
+
+      // the credentials stop working at central-1, whose two names are A and C
+      refusing.add(A);
+      refusing.add(C);
+
+      expect(await selector.firstPassing([A, C, B])).toBe(B);
+
+      expect(probed).toEqual([A, B]);
+    });
+
+    it('still tries a host of unknown identity after a refusal', async () => {
+      const { selector, probed } = makeSelector({
+        refusing: new Set([A]),
+        working: new Set([B, C]),
+        identities: { [A]: 'central-1' },
+      });
+      await selector.probe(A).catch(() => {});
+
+      expect(await selector.firstPassing([A, B])).toBe(B);
+      expect(probed).toEqual([A, A, B]);
+    });
+  });
+
+  describe('firstPassing', () => {
+    it('resolves to the first host that passes, and skips the ones it is told to', async () => {
+      const { selector, probed } = makeSelector();
+
+      expect(await selector.firstPassing([A, B, C], { skip: [A] })).toBe(B);
+      expect(probed).toEqual([B]);
+    });
+
+    it('resolves to null when none passes', async () => {
+      const { selector } = makeSelector({ working: new Set() });
+      expect(await selector.firstPassing([A, B])).toBeNull();
+    });
+
+    it('pauses logins once, however many hosts refused the credentials', async () => {
+      const { selector, probed } = makeSelector({
+        refusing: new Set([A, B, C]),
+        working: new Set(),
+      });
+
+      expect(await selector.firstPassing([A, B, C])).toBeNull();
+
+      expect(probed).toEqual([A, B, C]);
+      expect(backoff.isOpen()).toBe(false);
+      now += 120_000;
+      expect(backoff.isOpen()).toBe(true);
+    });
+
+    it('does not pause for hosts that were merely unreachable', async () => {
+      const { selector } = makeSelector({ working: new Set() });
+
+      await selector.firstPassing([A, B, C]);
+
+      expect(backoff.isOpen()).toBe(true);
+    });
+
+    it('does not pause when a host passed after another refused', async () => {
+      const { selector } = makeSelector({ refusing: new Set([A]), working: new Set([B]) });
+
+      expect(await selector.firstPassing([A, B])).toBe(B);
+
+      expect(backoff.isOpen()).toBe(true);
+    });
+
+    it('ends a pause that earlier refusals began', async () => {
+      await backoff.recordRefusal();
+      now += 120_000;
+      const { selector } = makeSelector();
+
+      await selector.firstPassing([A]);
+
+      await backoff.recordRefusal();
+      // the schedule started over, rather than moving on to the second step
+      now += 120_000;
+      expect(backoff.isOpen()).toBe(true);
+    });
+
+    it('stops at a lockout rather than asking the other hosts', async () => {
+      const { selector, probed } = makeSelector({ locked: new Set([A]), working: new Set([B, C]) });
+
+      expect(await selector.firstPassing([A, B, C])).toBeNull();
+
+      expect(probed).toEqual([A]);
+      expect(backoff.isOpen()).toBe(false);
+    });
+
+    it('does not probe anything while logins are paused', async () => {
+      await backoff.recordRefusal();
+      const { selector, probed } = makeSelector();
+
+      expect(await selector.firstPassing([A, B])).toBeNull();
+      expect(probed).toEqual([]);
+    });
+
+    it('gives the round up when told to stop', async () => {
+      const { selector, probed } = makeSelector({ working: new Set() });
+      let probes = 0;
+
+      await selector.firstPassing([A, B, C], { shouldStop: () => probes++ >= 1 });
+
+      expect(probed).toEqual([A]);
+    });
+  });
+
+  describe('while logins are paused', () => {
+    it('walks and rechecks probe nothing, so a recheck cannot add failures during a pause', async () => {
+      await backoff.recordRefusal();
+      const { selector, probed } = makeSelector({ inUse: B });
+
+      expect(await selector.walk()).toBe(false);
+      expect(await selector.recheckEarlier()).toBe(false);
+
+      expect(probed).toEqual([]);
+      expect(selector.current()).toBe(B);
     });
   });
 
@@ -265,7 +500,12 @@ describe('CentralEndpointSelector', () => {
 
       const result = await selector.probe(A);
 
-      expect(result).toEqual({ ok: false, reason: `cannot reach ${A}` });
+      expect(result).toEqual({
+        ok: false,
+        reason: `cannot reach ${A}`,
+        credentialsRefused: false,
+        lockedOut: false,
+      });
     });
   });
 

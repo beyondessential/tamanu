@@ -23,6 +23,9 @@ const { CentralServerConnection } = await vi.importActual('../../app/sync/Centra
 const { CentralEndpointSelector, setCentralEndpointSelector } = await vi.importActual(
   '../../app/sync/CentralEndpointSelector',
 );
+const { SyncLoginBackoff, setSyncLoginBackoff } = await vi.importActual(
+  '../../app/sync/SyncLoginBackoff',
+);
 
 const fakeResponse = (response, body, headers = {}) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -64,6 +67,21 @@ const fakeGatewayFailure = status =>
 describe('CentralServerConnection', () => {
   // Create a valid JWT token for testing
   let validTestToken;
+
+  // The login backoff is process-wide and refusals pause it, so each test gets a fresh one, on a
+  // clock it can move.
+  let backoffNow;
+  beforeEach(() => {
+    backoffNow = 1_000_000;
+    setSyncLoginBackoff(
+      new SyncLoginBackoff({
+        getSettings: async () => ({ initialDelayMs: 120_000, maxDelayMs: 3_600_000 }),
+        now: () => backoffNow,
+        getCredentialKey: () => 'credentials',
+      }),
+    );
+  });
+  afterEach(() => setSyncLoginBackoff(new SyncLoginBackoff()));
 
   beforeAll(async () => {
     // Create a valid JWT token that includes the deviceId
@@ -279,6 +297,8 @@ describe('CentralServerConnection', () => {
     // Stands in for the network. `hosts` maps an origin to how it behaves: 'live' answers every
     // call, 'down' fails to connect, 'refuses' rejects the login, 'locked' rate-limits it.
     let hosts;
+    // which central each host's login says it reached
+    let identities;
     let calls;
     let fakeFetch;
 
@@ -290,7 +310,12 @@ describe('CentralServerConnection', () => {
       if (pathname.endsWith('/login')) {
         if (behaviour === 'refuses') return authInvalid;
         if (behaviour === 'locked') return fakeProblem(new RateLimitedError(60));
-        return authSuccess;
+        return fakeSuccess({
+          token: validTestToken,
+          user: { id: 'not-real', displayName: 'Not Real', email: 'notreal@example.com' },
+          settings: { sync: { streaming: false } },
+          centralHost: identities[origin],
+        });
       }
       if (pathname.endsWith('/user/me')) return meSuccess;
       return fakeSuccess({ answeredBy: origin });
@@ -340,6 +365,7 @@ describe('CentralServerConnection', () => {
       // the timeout test above leaves fake timers installed, which would stall the backoff
       vi.useRealTimers();
       calls = [];
+      identities = {};
       publishedFacts = [];
       hosts = { [A]: 'live', [B]: 'live', [C]: 'live' };
       fakeFetch = vi.fn(respond);
@@ -448,6 +474,203 @@ describe('CentralServerConnection', () => {
 
         expect(selector.current()).toBe(A);
         expect(connection.hasToken()).toBe(false);
+      });
+
+      it('does not ask the endpoint that refused again, however the walk ends', async () => {
+        hosts = { [A]: 'refuses', [B]: 'refuses' };
+        makeSelector();
+        const connection = makeConnection();
+
+        await expect(connection.connect()).rejects.toBeProblemOfType(
+          ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+        );
+
+        expect(loginsAt(A)).toBe(1);
+        expect(loginsAt(B)).toBe(1);
+      });
+
+      it('does not ask the endpoint that refused again when the walk finds another', async () => {
+        hosts[A] = 'refuses';
+        makeSelector();
+        const connection = makeConnection();
+
+        await connection.connect();
+
+        expect(loginsAt(A)).toBe(1);
+        // once to check, once to log in
+        expect(loginsAt(B)).toBe(2);
+      });
+
+      it('skips the endpoints known to reach the same central as the one that refused', async () => {
+        identities = { [A]: 'central-1', [C]: 'central-1', [B]: 'central-2' };
+        const selector = makeSelector({ list: [A, C, B] });
+        // logins that worked earlier told it which central each name reaches
+        const first = makeConnection();
+        await first.connect();
+        await selector.probe(C);
+        await selector.probe(B);
+        calls.length = 0;
+
+        hosts = { [A]: 'refuses', [C]: 'refuses', [B]: 'live' };
+        await makeConnection().connect();
+
+        expect(loginsAt(A)).toBe(1);
+        expect(loginsAt(C)).toBe(0);
+        expect(selector.current()).toBe(B);
+      });
+
+      it('still tries an endpoint whose central it does not know', async () => {
+        identities = { [A]: 'central-1' };
+        const selector = makeSelector({ list: [A, C, B] });
+        await makeConnection().connect();
+        calls.length = 0;
+
+        hosts = { [A]: 'refuses', [C]: 'live', [B]: 'live' };
+        await makeConnection().connect();
+
+        expect(loginsAt(C)).toBeGreaterThan(0);
+        expect(selector.current()).toBe(C);
+      });
+
+      it('learns which central an endpoint reaches from the logins it makes itself', async () => {
+        identities = { [A]: 'central-1', [C]: 'central-1' };
+        const selector = makeSelector({ list: [A, C] });
+
+        await makeConnection().connect();
+        await selector.probe(C);
+
+        expect(selector.hostsOnSameServerAs(A)).toEqual([A, C]);
+      });
+
+      describe('after central refuses the credentials', () => {
+        beforeEach(() => {
+          hosts = { [A]: 'refuses', [B]: 'refuses' };
+        });
+
+        it('pauses further logins, failing at once without contacting central', async () => {
+          makeSelector();
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+          calls.length = 0;
+
+          await expect(makeConnection().connect()).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+
+          expect(calls).toEqual([]);
+        });
+
+        it('also pauses a connection to a single endpoint', async () => {
+          makeSelector({ list: [A] });
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+          calls.length = 0;
+
+          await expect(makeConnection().connect()).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+          expect(calls).toEqual([]);
+        });
+
+        it('pauses a connection with no selector at all', async () => {
+          // there is no list to name hosts in, so whatever host the config gives refuses
+          hosts = new Proxy({}, { get: () => 'refuses' });
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+          calls.length = 0;
+
+          await expect(makeConnection().connect()).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+          expect(calls).toEqual([]);
+        });
+
+        it('lets calls that need a login fail during the pause instead of retrying it', async () => {
+          makeSelector();
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+          calls.length = 0;
+
+          await expect(makeConnection().fetch('anything')).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+          expect(calls).toEqual([]);
+        });
+
+        it('tries again once the pause has passed, and pauses for longer if refused again', async () => {
+          makeSelector();
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+
+          backoffNow += 120_000;
+          calls.length = 0;
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+          expect(loginsAt(A)).toBe(1);
+
+          // the second pause is five times the first
+          backoffNow += 120_000;
+          await expect(makeConnection().connect()).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+          backoffNow += 480_000;
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+        });
+
+        it('ends the pause and the schedule when a login succeeds', async () => {
+          makeSelector();
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+
+          backoffNow += 120_000;
+          hosts[A] = 'live';
+          await makeConnection().connect();
+
+          // refused again later, the schedule starts over from the shortest pause
+          hosts[A] = 'refuses';
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+          backoffNow += 120_000;
+          await expect(makeConnection().connect()).rejects.toBeProblemOfType(
+            ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+          );
+        });
+
+        it('pauses after a lockout as well', async () => {
+          hosts = { [A]: 'locked', [B]: 'live' };
+          makeSelector();
+          await expect(makeConnection().connect()).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+          calls.length = 0;
+
+          await expect(makeConnection().connect()).rejects.toMatchObject({
+            type: ERROR_TYPE.RATE_LIMITED,
+          });
+          expect(calls).toEqual([]);
+        });
+      });
+
+      it('does not pause for an endpoint that is merely unreachable', async () => {
+        hosts = { [A]: 'down', [B]: 'down' };
+        makeSelector();
+
+        await expect(makeConnection().connect()).rejects.toMatchObject({
+          type: ERROR_TYPE.REMOTE_UNREACHABLE,
+        });
+
+        hosts = { [A]: 'live', [B]: 'live' };
+        await makeConnection().connect();
       });
 
       it('tries only the one endpoint when there is a single host', async () => {

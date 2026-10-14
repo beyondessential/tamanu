@@ -25,9 +25,12 @@ const makeSelector = ({ hosts = [SEED], working = new Set() } = {}) => {
     get hosts() {
       return state.hosts;
     },
-    probe: async host => {
-      state.probed.push(host);
-      return working.has(host) ? { ok: true } : { ok: false, reason: 'unreachable' };
+    firstPassing: async candidates => {
+      for (const host of candidates) {
+        state.probed.push(host);
+        if (working.has(host)) return host;
+      }
+      return null;
     },
     adopt: async (nextHosts, verified) => {
       state.hosts = nextHosts;

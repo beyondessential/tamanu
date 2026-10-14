@@ -60,14 +60,13 @@ export async function applyCentralEndpoints({
   if (supplied.length === 0) return { applied: false, reason: 'empty' };
   if (isEqual(supplied, selector.hosts)) return { applied: false, reason: 'unchanged' };
 
-  for (const host of supplied) {
-    if (!(await selector.probe(host)).ok) continue;
-
+  const verified = await selector.firstPassing(supplied);
+  if (verified !== null) {
     await models.LocalSystemFact.set(FACT_CENTRAL_ENDPOINTS, JSON.stringify(supplied));
-    await selector.adopt(supplied, host);
+    await selector.adopt(supplied, verified);
     log.info('applyCentralEndpoints: recorded central endpoints', {
       endpoints: supplied,
-      using: host,
+      using: verified,
     });
     return { applied: true };
   }
