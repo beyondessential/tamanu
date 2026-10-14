@@ -190,7 +190,7 @@ export class CentralSyncManager {
       const syncLookupUpToTick =
         await this.store.models.LocalSystemFact.get(FACT_LOOKUP_UP_TO_TICK);
       if (this.constructor.config.sync.lookupTable.enabled && isNil(syncLookupUpToTick)) {
-        throw new Error(`Sync lookup table has not yet built. Cannot initiate sync.`);
+        throw new Error('Sync lookup table has not yet built. Cannot initiate sync.');
       }
 
       await createSnapshotTable(this.store.sequelize, syncSession.id);
@@ -212,7 +212,9 @@ export class CentralSyncManager {
 
   async sessionExists(sessionId) {
     const session = await this.store.sequelize.models.SyncSession.findOne({
+      attributes: ['id'], // Arbitrary projection, just checking existence
       where: { id: sessionId },
+      raw: true, // No need for model instance, just checking existence
     });
 
     return Boolean(session);
