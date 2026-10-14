@@ -79,6 +79,9 @@ const RecordContent = styled.div`
 `;
 
 const RecordPart = styled.div`
+  /* Clear of the sticky header when scrolled to */
+  scroll-margin-top: 72px;
+
   & + & {
     border-top: 1px solid var(--pf-line);
   }

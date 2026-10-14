@@ -1,5 +1,6 @@
 import React from 'react';
 import { TranslatedText } from '@tamanu/ui-components';
+import { Muted } from '@components/layout';
 import type { Procedure } from '@tamanu/shared/schemas/patientPortal/responses/procedure.schema';
 
 import { useProceduresQuery } from '@api/queries/useProceduresQuery';
@@ -17,6 +18,17 @@ export const ProceduresRecord = () => {
   const planned = procedures?.filter(procedure => !procedure.completed);
   const completed = procedures?.filter(procedure => procedure.completed);
   const none = <TranslatedText stringId="patientPortal.procedures.none" fallback="None recorded" />;
+
+  if (!isLoading && !procedures?.length) {
+    return (
+      <Muted>
+        <TranslatedText
+          stringId="patientPortal.procedures.noneAtAll"
+          fallback="No procedures recorded"
+        />
+      </Muted>
+    );
+  }
 
   return (
     <>

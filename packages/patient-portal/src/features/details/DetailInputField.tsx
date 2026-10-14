@@ -9,6 +9,14 @@ import type { DetailField, DetailInput } from './detailFields';
 
 const FieldFrame = styled.div`
   padding-top: 16px;
+  /* Clear of the sticky header and Save bar when focused */
+  scroll-margin-block: 72px 104px;
+
+  input,
+  select,
+  button {
+    scroll-margin-block: 72px 104px;
+  }
 `;
 
 const Label = styled.label`

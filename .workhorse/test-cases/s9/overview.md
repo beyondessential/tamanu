@@ -54,7 +54,9 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 
 - [x] Dashboard shows To do, Upcoming appointments and Your health record, in that order (verifies spec: PPORT)
 - [x] Each outstanding form opens from its row; with none, "You're all up to date" (verifies spec: PPORT)
-- [x] Record rows show how many are recorded, or "None recorded", and expand in place; several can be open at once (verifies spec: PPORT)
+- [x] Record rows show how many are recorded, or "None recorded", and expand in place, by tap or keyboard; several can be open at once (verifies spec: PPORT)
+- [x] Returning from editing details lands with Your details open and clear of the header (verifies spec: PPDET)
+- [x] With no procedures, or no vaccinations scheduled or recorded, the row says so once rather than under each subheading (verifies spec: PPORT)
 - [x] Expanded rows list conditions, allergies, medications, vaccinations and procedures, or say none are recorded (verifies spec: PPORT)
 - [x] Nothing overflows a phone-width screen, including success messages (verifies spec: PPORT)
 - [x] Desktop keeps the single centred column
@@ -78,10 +80,12 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 - [x] Leaving with unsaved changes asks to discard; Keep editing keeps the edits and Discard drops them (verifies spec: PPDET)
 - [x] Title and ethnicity are chosen from lists and can be set back to None (verifies spec: PPDET)
 - [x] Browser back button with unsaved changes shows the discard prompt (verifies spec: PPDET)
-- [ ] Hidden fields don't appear, and a required blank field anywhere on the edit screen blocks saving (verifies spec: PPDET)
+- [x] Hidden fields don't appear, and a required blank field anywhere on the edit screen blocks saving (verifies spec: PPDET)
 - [x] The server keeps required details from being cleared, refuses hidden or non-editable details, non-current reference data and malformed phone numbers and emails (verifies spec: PPDET)
 - [x] Changing email leaves the portal sign-in email unchanged (verifies spec: PPDET)
-- [ ] A label the deployment has renamed shows its renamed text in Your details and on the edit screen (verifies spec: PPDET)
+- [x] A label the deployment has renamed shows its renamed text in Your details and on the edit screen (verifies spec: PPDET)
+- [x] A failed save shows its message above Save, in view, with the edits kept (verifies spec: PPDET)
+- [x] A focused field with an error is clear of the header and the Save bar
 - [x] A retired ethnicity still shows as chosen and can be set to None (verifies spec: PPDET)
 - [x] A staff-recorded phone number in another format doesn't stop saving a different detail (verifies spec: PPDET)
 - [x] Form start and end times are recorded in the primary time zone

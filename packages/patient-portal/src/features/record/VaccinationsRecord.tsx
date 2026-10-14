@@ -4,7 +4,7 @@ import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 
 import { useAdministeredVaccinesQuery } from '@api/queries/useAdministeredVaccinesQuery';
 import { useUpcomingVaccinesQuery } from '@api/queries/useUpcomingVaccinesQuery';
-import { type BadgeTone } from '@components/layout';
+import { type BadgeTone, Muted } from '@components/layout';
 import { formatVaccineFacilityOrCountry, formatVaccineGivenBy, formatWeekOf } from '@utils/format';
 import { formatRecordDate, RecordItem, RecordList, RecordSubsection } from './recordList';
 
@@ -18,6 +18,18 @@ const STATUS_TONES: Partial<Record<string, BadgeTone>> = {
 export const VaccinationsRecord = () => {
   const { data: upcoming, isLoading: isLoadingUpcoming } = useUpcomingVaccinesQuery();
   const { data: recorded, isLoading: isLoadingRecorded } = useAdministeredVaccinesQuery();
+
+  const isLoading = isLoadingUpcoming || isLoadingRecorded;
+  if (!isLoading && !upcoming?.length && !recorded?.length) {
+    return (
+      <Muted>
+        <TranslatedText
+          stringId="patientPortal.vaccinations.noneAtAll"
+          fallback="No vaccinations scheduled or recorded"
+        />
+      </Muted>
+    );
+  }
 
   return (
     <>

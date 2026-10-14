@@ -29,7 +29,7 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] Medications lists each ongoing medication with its dose, frequency and route, its start date, and the prescriber.
 - [ ] Vaccinations shows the vaccine schedule, each with its dose, the week it is due and its status, and the recorded vaccines, each with its dose, date, who gave it and where.
 - [ ] Procedures lists planned and completed procedures separately, each with its date and lead clinician.
-- [ ] A list with nothing recorded says so.
+- [ ] A list with nothing recorded says so. Procedures and Vaccinations with nothing at all say so once, rather than under each heading.
 
 ## Forms
 

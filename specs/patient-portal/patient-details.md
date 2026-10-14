@@ -49,6 +49,6 @@ Your details, expanded in place on the dashboard (see `patient-portal/overview.m
 - [ ] Saving with nothing changed returns to the dashboard with Your details open, without writing anything.
 - [ ] A successful save returns to the dashboard with Your details open, showing the saved values, with a "Details saved" message at the top of the screen.
 - [ ] The "Details saved" message disappears on its own after 3 seconds, and the patient can also dismiss it sooner with its close button.
-- [ ] If the save fails, the edit screen stays open with the patient's edits intact and an error message is shown.
+- [ ] If the save fails, the edit screen stays open with the patient's edits intact and an error message is shown above Save.
 - [ ] Changes made through the portal reach facility servers through the normal sync process and appear on the patient's record in Tamanu like any other update.
 - [ ] A patient can only edit their own record.

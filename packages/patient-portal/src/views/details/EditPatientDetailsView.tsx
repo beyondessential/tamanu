@@ -63,6 +63,11 @@ const ActionBar = styled.div`
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
 `;
 
+const SaveError = styled(FormErrorMessage)`
+  max-width: 608px;
+  margin: 0 auto 10px;
+`;
+
 const ActionBarContent = styled.div`
   max-width: 608px;
   margin: 0 auto;
@@ -230,16 +235,16 @@ const EditDetailsForm = ({
             </Fields>
           </EditGroup>
         ))}
+      </PageColumn>
+      <ActionBar>
         {updateDetails.isError && (
-          <FormErrorMessage role="alert">
+          <SaveError role="alert">
             <TranslatedText
               stringId="patientPortal.details.saveError"
               fallback="Your details couldn't be saved. Please try again."
             />
-          </FormErrorMessage>
+          </SaveError>
         )}
-      </PageColumn>
-      <ActionBar>
         <ActionBarContent>
           <FormSecondaryButton onClick={() => navigate(DETAILS_PATH)}>
             <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
