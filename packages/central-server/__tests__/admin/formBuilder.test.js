@@ -571,6 +571,18 @@ describe('Form Builder Admin', () => {
     });
   });
 
+  it('refuses chat when the form builder is switched off', async () => {
+    aiService.hasContext.mockReturnValue(false);
+
+    const response = await app.post('/v1/admin/form-builder/chat').send({
+      message: 'Build a referral form',
+    });
+
+    expect(response).toHaveRequestError();
+    expect(response.body.error.message).toBe('Form builder is not enabled or configured');
+    expect(aiService.sendFormBuilderMessage).not.toHaveBeenCalled();
+  });
+
   it('requires write FormBuilder permission', async () => {
     const response = await forbiddenApp.post('/v1/admin/form-builder/chat').send({
       message: 'Build a referral form',

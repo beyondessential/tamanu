@@ -71,6 +71,17 @@ describe('AI Encounter Summary (central-server)', () => {
       expect(userMessage).toContain('Corrected encounter summary');
     });
 
+    it('should return 403 when the summary is switched off', async () => {
+      mockAiService.hasContext.mockReturnValueOnce(false);
+      const callsBefore = mockAiService.invoke.mock.calls.length;
+
+      const result = await encounterSummaryApp.post(SUMMARY_URL).send({ encounterData });
+
+      expect(result).toBeForbidden();
+      expect(result.body.error.message).toBe('Encounter summary is not enabled or configured');
+      expect(mockAiService.invoke.mock.calls.length).toBe(callsBefore);
+    });
+
     describe('with db-defined permissions', () => {
       disableHardcodedPermissionsForSuite();
 
