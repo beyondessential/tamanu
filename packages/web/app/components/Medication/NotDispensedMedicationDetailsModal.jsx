@@ -101,15 +101,19 @@ export const NotDispensedMedicationDetailsModal = ({ open, onClose, record }) =>
       ),
       value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
     },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.notDispensedDetails.remainingRepeats"
-          fallback="Remaining repeats"
-        />
-      ),
-      value: remainingRepeats ?? 0,
-    },
+    ...(pharmacyOrder?.isDischargePrescription
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="medication.notDispensedDetails.remainingRepeats"
+                fallback="Remaining repeats"
+              />
+            ),
+            value: remainingRepeats ?? 0,
+          },
+        ]
+      : []),
     {
       label: (
         <TranslatedText
