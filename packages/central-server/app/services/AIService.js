@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { toJsonSchema } from '@langchain/core/utils/json_schema';
 
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -70,6 +71,22 @@ const toLangChainMessage = ({ role, content }) => {
   if (role === 'system') return new SystemMessage(content);
   if (role === 'ai') return new AIMessage(content);
   return new HumanMessage(content);
+};
+
+// Claude 5.5 models reject a forced tool_choice, so the response tool is offered rather than forced.
+const invokeWithResponseTool = async (model, schema, name, messages) => {
+  const jsonSchema = toJsonSchema(schema);
+  const responseTool = {
+    name,
+    description: jsonSchema.description ?? 'Call this tool with your response.',
+    input_schema: jsonSchema,
+  };
+  const response = await model.bindTools([responseTool], { tool_choice: 'auto' }).invoke(messages);
+  const toolCall = response.tool_calls?.find(call => call.name === name);
+  if (!toolCall) {
+    throw new Error(`AI response did not call the ${name} tool`);
+  }
+  return schema.parse(toolCall.args);
 };
 
 export class AIService {
@@ -274,13 +291,12 @@ export class AIService {
   async sendFormBuilderMessage(sessionId, userMessage) {
     const session = await this.getActiveSessionOrThrow(sessionId);
 
-    const structuredModel = this.chatModel.withStructuredOutput(formBuilderChatResponseSchema, {
-      name: 'form_builder_chat_response',
-    });
-    const response = await structuredModel.invoke([
-      ...session.messages.map(toLangChainMessage),
-      new HumanMessage(userMessage),
-    ]);
+    const response = await invokeWithResponseTool(
+      this.chatModel,
+      formBuilderChatResponseSchema,
+      'form_builder_chat_response',
+      [...session.messages.map(toLangChainMessage), new HumanMessage(userMessage)],
+    );
 
     await session.update({
       messages: [
@@ -415,12 +431,8 @@ export class AIService {
    * @param {string} [options.name]
    * @returns {Promise<unknown>}
    */
-  async invokeStructured(contextName, userMessage, schema, options = {}) {
-    const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
-      schema,
-      options,
-    );
-    return structuredModel.invoke([
+  async invokeStructured(contextName, userMessage, schema, { name = 'extract' } = {}) {
+    return invokeWithResponseTool(this.getModelForContext(contextName), schema, name, [
       new SystemMessage(this.getContext(contextName)),
       new HumanMessage(userMessage),
     ]);

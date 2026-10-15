@@ -62,7 +62,7 @@ const collectOutputFieldPaths = (rootSchema, schema, path, paths, refsInProgress
 
 const getOutputFieldPaths = outputSchema => {
   if (!outputSchema) return [];
-  // The conversion withStructuredOutput uses to build the tool the model is sent.
+  // The conversion invokeWithResponseTool uses to build the tool the model is sent.
   const jsonSchema = toJsonSchema(outputSchema);
   const paths = new Set();
   collectOutputFieldPaths(jsonSchema, jsonSchema, '', paths);

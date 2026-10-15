@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
+import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings/cache';
 import { getSettingSecret } from '@tamanu/shared/utils/crypto';
 
@@ -118,5 +120,47 @@ describe('ApplicationContext.refreshAiService', () => {
     await Promise.all([context.refreshAiService(), context.refreshAiService()]);
 
     expect(context.aiService.chatModel.model).toBe('claude-fresh');
+  });
+});
+
+describe('AIService structured responses', () => {
+  const responseSchema = z.object({ answer: z.string() });
+
+  const serviceWithModel = response => {
+    const invoke = vi.fn(async () => response);
+    const model = { bindTools: vi.fn(() => ({ invoke })) };
+    const service = new AIService();
+    service.chatModel = model;
+    service.fastChatModel = model;
+    service.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'tweak');
+    return { service, model };
+  };
+
+  it('offers the response tool without forcing it', async () => {
+    const { service, model } = serviceWithModel({
+      tool_calls: [{ name: 'respond', args: { answer: 'yes' } }],
+    });
+
+    const result = await service.invokeStructured(
+      AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK,
+      'question',
+      responseSchema,
+      { name: 'respond' },
+    );
+
+    expect(result).toEqual({ answer: 'yes' });
+    const [tools, options] = model.bindTools.mock.calls[0];
+    expect(tools[0].name).toBe('respond');
+    expect(options).toEqual({ tool_choice: 'auto' });
+  });
+
+  it('fails when the model answers without calling the tool', async () => {
+    const { service } = serviceWithModel({ tool_calls: [] });
+
+    await expect(
+      service.invokeStructured(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'question', responseSchema, {
+        name: 'respond',
+      }),
+    ).rejects.toThrow('did not call the respond tool');
   });
 });
