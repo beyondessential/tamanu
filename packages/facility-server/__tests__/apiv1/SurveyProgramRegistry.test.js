@@ -101,27 +101,42 @@ describe('Survey program registry', () => {
         { id: diabetes.id, name: 'Diabetes' },
       ],
       conditionCategories: [{ id: confirmed.id, name: confirmed.name }],
-      isPatientRegistered: true,
+      registrationStatus: 'active',
       recordedConditionIds: [asthma.id],
     });
   });
 
-  it('reports a patient without an active registration as not registered', async () => {
+  it('reports the status of a patient without an active registration', async () => {
     const survey = await createSurvey();
-    await models.ProgramRegistry.create(
+    const registry = await models.ProgramRegistry.create(
       fake(models.ProgramRegistry, {
         programId: survey.programId,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       }),
     );
     const patient = await models.Patient.create(fake(models.Patient));
+    const getOptions = () =>
+      app.get(`/api/survey/${survey.id}/programRegistry?patientId=${patient.id}`);
 
-    const result = await app.get(
-      `/api/survey/${survey.id}/programRegistry?patientId=${patient.id}`,
+    const unregistered = await getOptions();
+    expect(unregistered).toHaveSucceeded();
+    expect(unregistered.body).toMatchObject({ registrationStatus: null, recordedConditionIds: [] });
+
+    const user = await models.User.create(fake(models.User));
+    await models.PatientProgramRegistration.create(
+      fake(models.PatientProgramRegistration, {
+        patientId: patient.id,
+        programRegistryId: registry.id,
+        clinicianId: user.id,
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+      }),
     );
-
-    expect(result).toHaveSucceeded();
-    expect(result.body).toMatchObject({ isPatientRegistered: false, recordedConditionIds: [] });
+    const inactive = await getOptions();
+    expect(inactive).toHaveSucceeded();
+    expect(inactive.body).toMatchObject({
+      registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+      recordedConditionIds: [],
+    });
   });
 
   it('records a condition from a submitted response and shows it by name', async () => {

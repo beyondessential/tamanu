@@ -26,7 +26,7 @@ const options = (
   programRegistry: { id: 'registry', name: 'Registry', mandatoryConditionEnabled: true },
   conditions: [{ id: 'asthma', name: 'Asthma' }],
   conditionCategories: [{ id: 'confirmed', name: 'Confirmed' }],
-  isPatientRegistered: true,
+  registrationStatus: 'active',
   recordedConditionIds: [],
   ...overrides,
 });
@@ -68,13 +68,26 @@ describe('program registry condition rules', () => {
     expect(invalidCodes(components, { showFirst: 'yes' }, false)).toEqual([]);
   });
 
-  it('ignores retired condition questions', () => {
-    const components = [
-      conditionQuestion('retired', { visibilityStatus: 'historical' }),
-      conditionQuestion('q1'),
-    ];
+  it('needs the form to set the status of an inactive registration', () => {
+    const writeBack = (fieldName: string) =>
+      question(fieldName, PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA, {
+        config: JSON.stringify({ writeToPatient: { fieldName } }),
+      });
+    const inactive = options({ registrationStatus: 'inactive' });
 
-    expect(invalidCodes(components, {}, true)).toEqual(['q1']);
+    expect(isProgramRegistryConditionAnswerable(inactive, [conditionQuestion('q1')])).toBe(false);
+    expect(
+      isProgramRegistryConditionAnswerable(inactive, [
+        conditionQuestion('q1'),
+        writeBack('registrationClinicalStatus'),
+      ]),
+    ).toBe(false);
+    expect(
+      isProgramRegistryConditionAnswerable(inactive, [
+        conditionQuestion('q1'),
+        writeBack('programRegistrationStatus'),
+      ]),
+    ).toBe(true);
   });
 
   it('is answerable when the patient is registered or the form registers them', () => {
@@ -85,10 +98,10 @@ describe('program registry condition rules', () => {
 
     expect(isProgramRegistryConditionAnswerable(options(), components)).toBe(true);
     expect(
-      isProgramRegistryConditionAnswerable(options({ isPatientRegistered: false }), components),
+      isProgramRegistryConditionAnswerable(options({ registrationStatus: null }), components),
     ).toBe(false);
     expect(
-      isProgramRegistryConditionAnswerable(options({ isPatientRegistered: false }), [
+      isProgramRegistryConditionAnswerable(options({ registrationStatus: null }), [
         ...components,
         writeBack,
       ]),

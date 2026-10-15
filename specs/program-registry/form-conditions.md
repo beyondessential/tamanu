@@ -12,7 +12,7 @@ A `ProgramRegistryCondition` form question records a related condition, with its
 - [ ] Conditions the patient already has on that registration are left out, except ones that are deleted or have the category Recorded in error
 - [ ] A condition chosen in another condition question on the same form is left out
 - [ ] Once a condition is chosen, a Category field appears and is required; it lists the registry's categories
-- [ ] When the patient has no active registration in the registry, the question shows that the patient is not registered and cannot be answered, unless the form itself writes registration fields back to the patient
+- [ ] When the patient has no active registration in the registry, the question shows that the patient is not registered and cannot be answered, unless the form itself writes registration fields back to the patient; when the patient has an inactive or recorded-in-error registration, the form must write the registration status
 
 ## Mandatory condition
 

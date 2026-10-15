@@ -193,7 +193,7 @@ describe('program registry conditions from forms', () => {
 
     expect(options).toMatchObject({
       programRegistry: { id: registry.id },
-      isPatientRegistered: true,
+      registrationStatus: 'active',
       recordedConditionIds: [conditions.asthma.id],
     });
     expect(options.conditions.map(c => c.id).sort()).toEqual(

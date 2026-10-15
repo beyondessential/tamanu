@@ -4,6 +4,7 @@ import { Op, literal } from 'sequelize';
 
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  REGISTRATION_STATUSES,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -185,14 +186,14 @@ survey.get(
       order: [['name', 'ASC']],
     });
     const registration = query.patientId
-      ? await models.PatientProgramRegistration.getActiveRegistration(
-          query.patientId,
-          programRegistry.id,
-        )
+      ? await models.PatientProgramRegistration.findOne({
+          where: { patientId: query.patientId, programRegistryId: programRegistry.id },
+        })
       : null;
-    const recordedConditionIds = registration
-      ? await models.PatientProgramRegistrationCondition.getRecordedConditionIds(registration.id)
-      : [];
+    const recordedConditionIds =
+      registration?.registrationStatus === REGISTRATION_STATUSES.ACTIVE
+        ? await models.PatientProgramRegistrationCondition.getRecordedConditionIds(registration.id)
+        : [];
 
     res.send({
       programRegistry: {
@@ -202,7 +203,7 @@ survey.get(
       },
       conditions: conditions.map(({ id, name }) => ({ id, name })),
       conditionCategories: conditionCategories.map(({ id, name }) => ({ id, name })),
-      isPatientRegistered: Boolean(registration),
+      registrationStatus: registration?.registrationStatus ?? null,
       recordedConditionIds,
     });
   }),

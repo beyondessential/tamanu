@@ -46,7 +46,7 @@ export const getProgramRegistryConditionOptions = async (
       programRegistry: null,
       conditions: [],
       conditionCategories: [],
-      isPatientRegistered: false,
+      registrationStatus: null,
       recordedConditionIds: [],
     };
   }
@@ -66,7 +66,11 @@ export const getProgramRegistryConditionOptions = async (
     },
     order: { name: 'ASC' },
   });
-  const registration = await getActiveRegistration(programRegistry.programId, patientId);
+  const registration = await PatientProgramRegistration.getRecentOne(
+    programRegistry.programId,
+    patientId,
+  );
+  const isActive = registration?.registrationStatus === RegistrationStatus.Active;
 
   return {
     programRegistry: {
@@ -76,8 +80,8 @@ export const getProgramRegistryConditionOptions = async (
     },
     conditions: conditions.map(({ id, name }) => ({ id, name })),
     conditionCategories: conditionCategories.map(({ id, name }) => ({ id, name })),
-    isPatientRegistered: Boolean(registration),
-    recordedConditionIds: registration ? await getRecordedConditionIds(registration.id) : [],
+    registrationStatus: registration?.registrationStatus ?? null,
+    recordedConditionIds: isActive ? await getRecordedConditionIds(registration.id) : [],
   };
 };
 

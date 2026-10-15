@@ -1,7 +1,7 @@
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   PROGRAM_REGISTRY_FIELD_LOCATIONS,
-  VISIBILITY_STATUSES,
+  REGISTRATION_STATUSES,
 } from '@tamanu/constants';
 import { safeJsonParse } from './safeJsonParse';
 
@@ -14,14 +14,13 @@ export interface ProgramRegistryConditionOptions {
   programRegistry: { id: string; name: string; mandatoryConditionEnabled: boolean } | null;
   conditions: { id: string; name: string }[];
   conditionCategories: { id: string; name: string }[];
-  isPatientRegistered: boolean;
+  registrationStatus: string | null;
   recordedConditionIds: string[];
 }
 
 interface ConditionFormComponent {
   dataElement: { code: string; type: string };
   config?: string | null;
-  visibilityStatus?: string | null;
 }
 
 export const parseProgramRegistryConditionAnswer = (
@@ -39,11 +38,14 @@ const getWriteToPatientFieldName = (config: string | null | undefined) => {
   }
 };
 
-const writesProgramRegistration = (components: ConditionFormComponent[]) =>
+const writesProgramRegistration = (
+  components: ConditionFormComponent[],
+  fieldNames: readonly string[],
+) =>
   components.some(
     ({ dataElement, config }) =>
       dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA &&
-      PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(getWriteToPatientFieldName(config)),
+      fieldNames.includes(getWriteToPatientFieldName(config)),
   );
 
 export const isProgramRegistryConditionAnswerable = (
@@ -53,7 +55,12 @@ export const isProgramRegistryConditionAnswerable = (
   programRegistry: NonNullable<ProgramRegistryConditionOptions['programRegistry']>;
 } =>
   Boolean(options?.programRegistry) &&
-  (options!.isPatientRegistered || writesProgramRegistration(components));
+  (options!.registrationStatus === REGISTRATION_STATUSES.ACTIVE ||
+    // Writing fields to an existing registration leaves its status alone
+    writesProgramRegistration(
+      components,
+      options!.registrationStatus ? ['programRegistrationStatus'] : PROGRAM_REGISTRY_FIELD_LOCATIONS,
+    ));
 
 export const isProgramRegistryConditionRequired = (
   options: ProgramRegistryConditionOptions | null | undefined,
@@ -71,7 +78,6 @@ export const getVisibleConditionQuestions = <T extends ConditionFormComponent>(
   components.filter(
     component =>
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION &&
-      component.visibilityStatus !== VISIBILITY_STATUSES.HISTORICAL &&
       isVisible(component),
   );
 

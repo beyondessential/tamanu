@@ -41,7 +41,7 @@ const validate = (components, values, isConditionRequired) =>
 const registryOptions = overrides => ({
   programRegistry: { id: 'registry', mandatoryConditionEnabled: true },
   conditions: [{ id: 'asthma', name: 'Asthma' }],
-  isPatientRegistered: true,
+  registrationStatus: 'active',
   recordedConditionIds: [],
   ...overrides,
 });
@@ -70,27 +70,18 @@ describe('program registry condition validation', () => {
     expect(await validate(components, { showFirst: 'yes' }, false)).toEqual([]);
   });
 
-  it('ignores retired condition questions when placing the mandatory error', async () => {
-    const components = [
-      { ...conditionQuestion('retired'), visibilityStatus: 'historical' },
-      conditionQuestion('q1'),
-    ];
-
-    expect(await validate(components, {}, true)).toEqual(['q1']);
-  });
-
   it('is answerable when the patient is registered or the form registers them', () => {
     const components = [conditionQuestion('q1')];
 
     expect(isProgramRegistryConditionAnswerable(registryOptions(), components)).toBe(true);
     expect(
       isProgramRegistryConditionAnswerable(
-        registryOptions({ isPatientRegistered: false }),
+        registryOptions({ registrationStatus: null }),
         components,
       ),
     ).toBe(false);
     expect(
-      isProgramRegistryConditionAnswerable(registryOptions({ isPatientRegistered: false }), [
+      isProgramRegistryConditionAnswerable(registryOptions({ registrationStatus: null }), [
         ...components,
         registrationWriteBack,
       ]),
