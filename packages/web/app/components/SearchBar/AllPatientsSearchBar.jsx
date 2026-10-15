@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
-import Box from '@material-ui/core/Box';
-import { useDateTime } from '@tamanu/ui-components';
-import styled from 'styled-components';
-import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
+
+import { SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
 import {
   AutocompleteField,
-  DOBFields,
+  DateField,
   Field,
-  LocalisedField,
-  SearchField,
-  QRCodeSearchField,
   TranslatedSelectField,
-} from '../Field';
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
+import styled from 'styled-components';
 import { useSuggester } from '../../api';
-import { DateField } from '../Field/DateField';
-import { SearchBarCheckField } from './SearchBarCheckField';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { SEX_LABELS, SEX_VALUES } from '@tamanu/constants';
 import { useSettings } from '../../contexts/Settings';
+import { DOBFields, LocalisedField, QRCodeSearchField, SearchField } from '../Field';
 import { AdditionalSearchField } from './AdditionalSearchField';
+import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
+import { SearchBarCheckField } from './SearchBarCheckField';
 
-const TwoColumnsField = styled(Box)`
+const TwoColumnsField = styled.div`
   grid-column: span 2;
   display: flex;
   gap: 10px;
@@ -61,7 +58,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="general.localisedField.culturalName.label.short"
                 fallback="Cultural/traditional name"
-                data-testid="translatedtext-bcz1"
               />
             }
             data-testid="localisedfield-epbq"
@@ -70,13 +66,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             <DOBFields showExactBirth={false} data-testid="dobfields-k8zn" />
             <SexLocalisedField
               name="sex"
-              label={
-                <TranslatedText
-                  stringId="general.localisedField.sex.label"
-                  fallback="Sex"
-                  data-testid="translatedtext-uodm"
-                />
-              }
+              label={<TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />}
               component={TranslatedSelectField}
               transformOptions={options =>
                 hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
@@ -92,7 +82,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="general.localisedField.villageId.label"
                 fallback="Village"
-                data-testid="translatedtext-3kz7"
               />
             }
             component={AutocompleteField}
@@ -106,7 +95,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
               <TranslatedText
                 stringId="patientList.table.includeDeceasedCheckbox.label"
                 fallback="Include deceased patients"
-                data-testid="translatedtext-a68s"
               />
             }
             data-testid="searchbarcheckfield-7dw8"
@@ -122,11 +110,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         component={QRCodeSearchField}
         name="displayId"
         label={
-          <TranslatedText
-            stringId="general.localisedField.displayId.label.short"
-            fallback="NHN"
-            data-testid="translatedtext-d0eg"
-          />
+          <TranslatedText stringId="general.localisedField.displayId.label.short" fallback="NHN" />
         }
         data-testid="localisedfield-dzml"
       />
@@ -134,11 +118,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         component={SearchField}
         name="firstName"
         label={
-          <TranslatedText
-            stringId="general.localisedField.firstName.label"
-            fallback="First name"
-            data-testid="translatedtext-8yui"
-          />
+          <TranslatedText stringId="general.localisedField.firstName.label" fallback="First name" />
         }
         data-testid="localisedfield-i9br"
       />
@@ -146,24 +126,14 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         component={SearchField}
         name="lastName"
         label={
-          <TranslatedText
-            stringId="general.localisedField.lastName.label"
-            fallback="Last name"
-            data-testid="translatedtext-hnon"
-          />
+          <TranslatedText stringId="general.localisedField.lastName.label" fallback="Last name" />
         }
         data-testid="localisedfield-ngsn"
       />
       <Field
         name="dateOfBirthExact"
         component={DateField}
-        label={
-          <TranslatedText
-            stringId="general.dateOfBirth.label.short"
-            fallback="DOB"
-            data-testid="translatedtext-99pk"
-          />
-        }
+        label={<TranslatedText stringId="general.dateOfBirth.label.short" fallback="DOB" />}
         max={getCurrentDate()}
         data-testid="field-qk60"
       />
