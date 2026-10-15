@@ -12,7 +12,7 @@ export const useCanDeleteRoleQuery = (roleId, useQueryOptions) => {
     ...useQueryOptions,
     queryKey: ['role', 'isDeletable', roleId],
     queryFn: async () =>
-      await api.get(route(':ROLE_ENDPOINT/:roleId/isDeletable', { ROLE_ENDPOINT, roleId }), null, {
+      await api.get(route(`${ROLE_ENDPOINT}/:roleId/isDeletable`, { roleId }), null, {
         showUnknownErrorToast: false,
       }),
     enabled: Boolean(roleId),

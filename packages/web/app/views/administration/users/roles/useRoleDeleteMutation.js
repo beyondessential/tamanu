@@ -8,8 +8,7 @@ export const useRoleDeleteMutation = useMutationOptions => {
 
   return useMutation({
     mutationKey: ['roles', 'delete'],
-    mutationFn: async roleId =>
-      await api.delete(route(':ROLE_ENDPOINT/:roleId', { ROLE_ENDPOINT, roleId })),
+    mutationFn: async roleId => await api.delete(route(`${ROLE_ENDPOINT}/:roleId`, { roleId })),
     ...useMutationOptions,
   });
 };

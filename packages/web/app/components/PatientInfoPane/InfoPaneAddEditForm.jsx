@@ -42,7 +42,7 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
     async data => {
       if (data.id) {
         // don't need to include patientId as the existing record will already have it
-        await api.put(route(':endpoint/:dataId', { endpoint, dataId: data.id }), data);
+        await api.put(route(`${endpoint}/:dataId`, { dataId: data.id }), data);
       } else {
         await api.post(endpoint, { ...data, patientId: patient?.id });
       }

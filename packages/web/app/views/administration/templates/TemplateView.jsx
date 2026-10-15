@@ -45,7 +45,7 @@ export const TemplateView = () => {
 
   const onEditTemplate = useCallback(
     async data => {
-      await api.put(route(':TEMPLATE_ENDPOINT/:dataId', { TEMPLATE_ENDPOINT, dataId: data.id }), {
+      await api.put(route(`${TEMPLATE_ENDPOINT}/:dataId`, { dataId: data.id }), {
         createdById: currentUser.id,
         ...data,
       });
@@ -57,8 +57,7 @@ export const TemplateView = () => {
 
   const onDeleteTemplate = useCallback(async () => {
     await api.put(
-      route(':TEMPLATE_ENDPOINT/:editingTemplateId', {
-        TEMPLATE_ENDPOINT,
+      route(`${TEMPLATE_ENDPOINT}/:editingTemplateId`, {
         editingTemplateId: editingTemplate.id,
       }),
       {

@@ -9,9 +9,7 @@ export const useDesignationDeleteMutation = useMutationOptions => {
   return useMutation({
     mutationKey: ['designations', 'delete'],
     mutationFn: async designationId =>
-      await api.delete(
-        route(':DESIGNATION_ENDPOINT/:designationId', { DESIGNATION_ENDPOINT, designationId }),
-      ),
+      await api.delete(route(`${DESIGNATION_ENDPOINT}/:designationId`, { designationId })),
     ...useMutationOptions,
   });
 };

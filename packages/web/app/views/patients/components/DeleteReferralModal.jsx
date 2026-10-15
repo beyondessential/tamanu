@@ -15,7 +15,7 @@ export const DeleteReferralModal = ({ open, onClose, referralToDelete, endpoint 
 
   const onSubmit = async () => {
     await api.delete(
-      route(':endpoint/:referralToDeleteId', { endpoint, referralToDeleteId: referralToDelete.id }),
+      route(`${endpoint}/:referralToDeleteId`, { referralToDeleteId: referralToDelete.id }),
     );
     onClose();
   };

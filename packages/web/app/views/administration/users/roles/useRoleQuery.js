@@ -10,7 +10,7 @@ export const useRoleQuery = (roleId, useQueryOptions) => {
   return useQuery({
     ...useQueryOptions,
     queryKey: ['role', roleId],
-    queryFn: async () => await api.get(route(':ROLE_ENDPOINT/:roleId', { ROLE_ENDPOINT, roleId })),
+    queryFn: async () => await api.get(route(`${ROLE_ENDPOINT}/:roleId`, { roleId })),
     enabled: Boolean(roleId),
     retry: (failureCount, error) => (error?.status === 404 ? false : failureCount < 3),
   });

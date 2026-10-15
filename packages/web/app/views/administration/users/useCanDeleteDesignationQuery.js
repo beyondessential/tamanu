@@ -13,8 +13,7 @@ export const useCanDeleteDesignationQuery = (designationId, useQueryOptions) => 
     queryKey: ['designation', 'isDeletable', designationId],
     queryFn: async () =>
       await api.get(
-        route(':DESIGNATION_ENDPOINT/:designationId/isDeletable', {
-          DESIGNATION_ENDPOINT,
+        route(`${DESIGNATION_ENDPOINT}/:designationId/isDeletable`, {
           designationId,
         }),
         null,

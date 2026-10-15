@@ -21,8 +21,7 @@ export const DeleteProgramResponseModal = ({
 
   const onSubmit = async () => {
     await api.delete(
-      route(':endpoint/:surveyResponseToDeleteId', {
-        endpoint,
+      route(`${endpoint}/:surveyResponseToDeleteId`, {
         surveyResponseToDeleteId: surveyResponseToDelete.id,
       }),
     );

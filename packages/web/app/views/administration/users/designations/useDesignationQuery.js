@@ -11,9 +11,7 @@ export const useDesignationQuery = (designationId, useQueryOptions) => {
     ...useQueryOptions,
     queryKey: ['designation', designationId],
     queryFn: async () =>
-      await api.get(
-        route(':DESIGNATION_ENDPOINT/:designationId', { DESIGNATION_ENDPOINT, designationId }),
-      ),
+      await api.get(route(`${DESIGNATION_ENDPOINT}/:designationId`, { designationId })),
     enabled: Boolean(designationId),
     retry: (failureCount, error) => (error?.status === 404 ? false : failureCount < 3),
   });

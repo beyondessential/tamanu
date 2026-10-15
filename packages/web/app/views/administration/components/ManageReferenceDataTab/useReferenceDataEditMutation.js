@@ -9,7 +9,7 @@ export const useReferenceDataEditMutation = (selectedType, useMutationOptions) =
   return useMutation({
     mutationKey: ['referenceData', 'edit', selectedType],
     mutationFn: async ({ id, ...data }) =>
-      api.put(route(':ENDPOINT/:id', { ENDPOINT, id }), {
+      api.put(route(`${ENDPOINT}/:id`, { id }), {
         referenceDataType: selectedType,
         ...data,
       }),

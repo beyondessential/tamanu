@@ -42,6 +42,19 @@ describe('expandRoute', () => {
     expect(path).toBe('encounter/42');
   });
 
+  it('keeps a literal multi-segment prefix intact and only encodes the param', () => {
+    // A base path belongs in the template literal, not as a param, so its slashes
+    // stay literal while the trailing id is encoded.
+    const base = 'admin/referenceData/manage';
+    expect(expandRoute(route(`${base}/:id`, { id: 'xyz-1' }))).toBe(
+      'admin/referenceData/manage/xyz-1',
+    );
+  });
+
+  it('encodes a slash inside a single param value (why a base path must not be a param)', () => {
+    expect(expandRoute(route('referenceData/:id', { id: 'a/b' }))).toBe('referenceData/a%2Fb');
+  });
+
   it('leaves a template with no placeholders untouched', () => {
     const path = expandRoute(route('user/me'));
     expect(path).toBe('user/me');

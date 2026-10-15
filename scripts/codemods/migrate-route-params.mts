@@ -121,6 +121,18 @@ function migrateCall(call: CallExpression, sourceFile: SourceFile): void {
       return;
     }
 
+    // An interpolation at the very start of the path is almost always a base-path
+    // constant or a caller-supplied endpoint (e.g. `${ENDPOINT}/${id}`), not a
+    // single path parameter — and its value usually spans multiple segments, which
+    // central encodeURIComponent would wreck ('admin/x' -> 'admin%2Fx'). Leave it as
+    // a literal `${prefix}` in the template and only parametrise the trailing ids.
+    if (pattern === '') {
+      flag(
+        `leading \${${derived.valueText}} is likely a base path, not a param — keep it a literal prefix`,
+      );
+      return;
+    }
+
     // The interpolation must occupy a whole path segment: bounded by '/' (or
     // start/end of the path) on both sides.
     const beforeOk = pattern === '' || pattern.endsWith('/');
@@ -179,13 +191,11 @@ for (const sourceFile of sourceFiles) {
   // Collect targets up front: rewriting a call's first argument forgets its
   // descendant nodes (e.g. an inner encodeURIComponent call), so we must not
   // still be iterating them afterwards.
-  const targets = sourceFile
-    .getDescendantsOfKind(SyntaxKind.CallExpression)
-    .filter(call => {
-      if (!isApiVerbCall(call)) return false;
-      const firstArg = call.getArguments()[0];
-      return Boolean(firstArg && Node.isTemplateExpression(firstArg));
-    });
+  const targets = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression).filter(call => {
+    if (!isApiVerbCall(call)) return false;
+    const firstArg = call.getArguments()[0];
+    return Boolean(firstArg && Node.isTemplateExpression(firstArg));
+  });
 
   for (const call of targets) {
     const line = call.getStartLineNumber();
@@ -207,7 +217,9 @@ if (write) {
   project.saveSync();
   console.log(`\nWrote ${rewrittenCalls} rewrites across ${touchedFiles.size} files.`);
 } else {
-  console.log(`\nDry run: would rewrite ${rewrittenCalls} calls across ${touchedFiles.size} files.`);
+  console.log(
+    `\nDry run: would rewrite ${rewrittenCalls} calls across ${touchedFiles.size} files.`,
+  );
   console.log('Pass --write to apply.');
 }
 

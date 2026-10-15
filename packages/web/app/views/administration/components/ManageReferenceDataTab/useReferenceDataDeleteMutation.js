@@ -8,7 +8,7 @@ export const useReferenceDataDeleteMutation = useMutationOptions => {
 
   return useMutation({
     mutationKey: ['referenceData', 'delete'],
-    mutationFn: async id => api.delete(route(':ENDPOINT/:id', { ENDPOINT, id })),
+    mutationFn: async id => api.delete(route(`${ENDPOINT}/:id`, { id })),
     ...useMutationOptions,
   });
 };

@@ -15,7 +15,7 @@ export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint 
 
   const onSubmit = async () => {
     await api.delete(
-      route(':endpoint/:documentToDeleteId', { endpoint, documentToDeleteId: documentToDelete.id }),
+      route(`${endpoint}/:documentToDeleteId`, { documentToDeleteId: documentToDelete.id }),
     );
     onClose();
   };
