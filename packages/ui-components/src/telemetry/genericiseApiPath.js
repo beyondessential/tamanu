@@ -17,10 +17,25 @@ const NUMERIC_RE = /^\d+$/;
 // therefore left in the route; that keeps a handful of extra patterns, which is
 // a far smaller problem than fragmenting the common routes, and such codes are
 // reference data rather than anything patient-identifying.
-const OPAQUE_RE = /^(?=[A-Za-z0-9_-]{16,}$)[A-Za-z0-9_-]*\d[A-Za-z0-9_-]*$/;
+//
+// Tested as three separate checks rather than one combined pattern: a single
+// regex needs two unbounded quantifiers around the digit, over a class that
+// already includes digits, and that ambiguity can backtrack badly. These run on
+// every navigation and request in the browser, so each stays linear.
+const OPAQUE_MIN_LENGTH = 16;
+const ID_CHARS_RE = /^[A-Za-z0-9_-]+$/;
+const HAS_DIGIT_RE = /\d/;
+
+function looksLikeOpaqueId(segment) {
+  return (
+    segment.length >= OPAQUE_MIN_LENGTH &&
+    ID_CHARS_RE.test(segment) &&
+    HAS_DIGIT_RE.test(segment)
+  );
+}
 
 function looksLikeId(segment) {
-  return UUID_RE.test(segment) || NUMERIC_RE.test(segment) || OPAQUE_RE.test(segment);
+  return UUID_RE.test(segment) || NUMERIC_RE.test(segment) || looksLikeOpaqueId(segment);
 }
 
 /**
