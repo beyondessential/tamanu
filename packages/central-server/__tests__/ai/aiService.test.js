@@ -170,6 +170,9 @@ describe('AIService structured responses', () => {
 
     expect(result).toEqual({ answer: 'yes' });
     expect(invoke).toHaveBeenCalledTimes(2);
+    const retryMessages = invoke.mock.calls[1][0];
+    expect(retryMessages).toHaveLength(3);
+    expect(retryMessages.at(-1).content).toBe('Respond by calling the respond tool.');
   });
 
   it('fails when the model still answers without calling the tool', async () => {

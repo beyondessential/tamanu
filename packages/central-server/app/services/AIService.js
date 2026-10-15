@@ -74,7 +74,8 @@ const toLangChainMessage = ({ role, content }) => {
 };
 
 // Claude 5.5 models reject a forced tool_choice, so the response tool is offered rather than forced,
-// with one nudge if the model replies without it.
+// with one nudge if the model replies without it. The nudge doesn't replay the first reply: a
+// tool_use in it would need a tool_result.
 const invokeWithResponseTool = async (model, schema, name, messages) => {
   const jsonSchema = toJsonSchema(schema);
   const responseTool = {
@@ -85,15 +86,13 @@ const invokeWithResponseTool = async (model, schema, name, messages) => {
   const boundModel = model.bindTools([responseTool], { tool_choice: 'auto' });
   const findToolCall = response => response.tool_calls?.find(call => call.name === name);
 
+  const askAgain = () => {
+    log.warn(`AIService: model ${model.model} answered without the ${name} tool, asking again`);
+    return boundModel.invoke([...messages, new HumanMessage(`Respond by calling the ${name} tool.`)]);
+  };
+
   const firstResponse = await boundModel.invoke(messages);
-  const response =
-    findToolCall(firstResponse) !== undefined
-      ? firstResponse
-      : await boundModel.invoke([
-          ...messages,
-          firstResponse,
-          new HumanMessage(`Respond by calling the ${name} tool.`),
-        ]);
+  const response = findToolCall(firstResponse) ? firstResponse : await askAgain();
   const toolCall = findToolCall(response);
   if (!toolCall) {
     const unparsed = response.invalid_tool_calls?.length ? ' (its arguments could not be parsed)' : '';
