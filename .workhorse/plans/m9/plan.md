@@ -38,6 +38,24 @@ The feature was built facility-first, then admin and portal were wired in withou
 
 Also folded in: the three near-identical ingest handlers are now one shared `@tamanu/shared/utils/browserTelemetryIngest`.
 
+**Review round 3 (Review Hero) — fixed:**
+- **Route words were being masked.** `OPAQUE_RE` matched any 16+ char segment, so `medicationRequests`, `labTestPanelRequests`, `invoice-price-lists` and six other real routes became `:param1`, fragmenting `route` — the key everything groups by. Now requires a digit, which route words (camelCase or kebab-case) don't carry. Regression tests added.
+- **Retention was evadable.** The prune aged rows by the browser-reported `occurredAt`, so a client could post a far-future date and keep rows forever. Now ages by the server-stamped `createdAt` (index added, migration amended); test added for the future-dating case.
+- **Unbounded prune DELETE.** On a table this size one statement means a long transaction and a WAL spike; now deletes in bounded batches.
+- **`occurredAt` accepted any non-empty string**, so a non-date reached Postgres and surfaced as a 500 from a public endpoint. Now validated as a datetime; `statusCode` bounded to 100–599.
+- **Unload flush could exceed the keepalive budget.** Capped at 100 spans so the final flush fits under the 64 KiB limit instead of being rejected whole.
+- **Two weak tests.** `expect(facilityId !== undefined).toBe(true)` passed even when nothing was stamped (now asserts the configured facility), and the "authenticated batch" case never authenticated (now does, and is named for what it checks).
+- **Portal mount untested.** Added `central-server/__tests__/patientPortalApi/telemetry.test.js`.
+
+**Review round 3 — rejected, with evidence:**
+- *"`readTelemetryEnabled` reads a localStorage key nothing writes, so the gate is dead."* Incorrect: `web/app/api/TamanuApi.jsx:101` writes `SETTINGS`, destructured from the same `LOCAL_STORAGE_KEYS`. The gate works; absence pre-login is the intended default-on window.
+- *"The ingest endpoint has no per-IP rate limit."* Incorrect: `createApiApp` applies `limiters.globalLimiter` at `/`, covering every route at 600 req/min per IP by default. Telemetry posts ~4/min. A dedicated stricter limiter stays a hardening follow-up.
+- *"`BatchSpanProcessor` leaves `maxExportBatchSize` at the default."* Already fixed in round 2.
+- *"The portal ignores `telemetry.enabled`, and the setting is facility-only."* Both already fixed in round 2.
+
+**Open question for review (not actioned):**
+- **`userId` is taken from the client payload**, so an anonymous caller could attribute telemetry to any user. The reviewer suggested stamping it from auth context, but that premise doesn't hold here: the route is deliberately mounted *ahead* of `authMiddleware` so pre-login navigations are captured, so there is no `req.user` to read. Fixing it properly means adding optional token verification to a public, high-frequency endpoint — a change to its auth posture worth an explicit decision rather than a unilateral one.
+
 **Deviations / things to verify (surfaced for review):**
 - **Navigation params are positional** (`param1`, `param2`) via the same id-masking heuristic as request spans, not named (`patientId`) — getting named params needs react-router's route table, which the JSX `<Routes>` setup doesn't expose cleanly. Follow-up if named params are wanted.
 - **Background tagging is minimal:** only `checkServerAlive` is tagged `background`. Tagging `useAutoUpdatingQuery` would wrongly exclude its initial page-load fetch; per-query background refinement is a follow-up.
