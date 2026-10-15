@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   initBrowserTelemetry,
@@ -18,8 +19,11 @@ import { LOCAL_STORAGE_KEYS } from './constants';
 
 let telemetry = null;
 
-// One id per page load, standing in for the browser session.
-const SESSION_ID = `web-session-${Math.random().toString(36).slice(2)}`;
+// One id per page load, standing in for the browser session. Uses `uuid` rather
+// than `crypto.randomUUID`, which needs a secure context: the clinical app is
+// sometimes served over HTTP via a LAN IP (e.g. Iti). `uuid` prefers randomUUID
+// and falls back to `crypto.getRandomValues`.
+const SESSION_ID = `web-session-${uuidv4()}`;
 
 function readTelemetryEnabled() {
   try {
