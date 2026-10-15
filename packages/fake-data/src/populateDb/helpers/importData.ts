@@ -10,7 +10,7 @@ import {
 import { fake } from '../../fake/index.js';
 import { REFERENCE_DATA_NAMES } from '../../fake/names.js';
 import { pooled, pooledWithChild } from '../pool.js';
-import { createReferenceData } from './referenceData.js';
+import { backfillReferenceDrugs, createReferenceData } from './referenceData.js';
 
 import type {
   Department,
@@ -60,6 +60,9 @@ export const generateImportData = async ({
   user: User;
   programRegistry: ProgramRegistry;
 }> => {
+  // Before any drug is picked this round (here or via randomReferenceDataId).
+  await backfillReferenceDrugs({ ReferenceData, ReferenceDrug });
+
   // A relation must point at real reference data on both ends. fake() nulls FK columns, so a
   // bare fake(ReferenceDataRelation) leaves referenceDataId null: central allows it (nullable
   // column) but it breaks the mobile NOT NULL constraint on sync (reference_data_relations
@@ -120,8 +123,7 @@ export const generateImportData = async ({
       fake(SurveyScreenComponent, {
         surveyId,
         dataElementId: dataElement.id,
-        option: '{"foo":"bar"}',
-        config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
+        config: '{"source": "Facility"}',
       }),
     );
   };
@@ -133,9 +135,20 @@ export const generateImportData = async ({
     { childKey: 'surveyId' },
   );
 
-  const scheduledVaccine = await pooled(ScheduledVaccine, () =>
-    ScheduledVaccine.create(fake(ScheduledVaccine, { vaccineId: referenceData.id })),
-  );
+  const scheduledVaccine = await pooled(ScheduledVaccine, async () => {
+    const scheduledVaccineFields = fake(ScheduledVaccine);
+    const [vaccine, isNewVaccine] = await ReferenceData.findOrCreate({
+      where: { type: REFERENCE_TYPES.DRUG, name: scheduledVaccineFields.label },
+      defaults: fake(ReferenceData, {
+        type: REFERENCE_TYPES.DRUG,
+        name: scheduledVaccineFields.label,
+      }),
+    });
+    if (isNewVaccine) {
+      await ReferenceDrug.create(fake(ReferenceDrug, { referenceDataId: vaccine.id }));
+    }
+    return ScheduledVaccine.create({ ...scheduledVaccineFields, vaccineId: vaccine.id });
+  });
 
   const seedProgramRegistry = async () => {
     const program = await Program.create(fake(Program));
@@ -180,6 +193,7 @@ export const generateImportData = async ({
     () =>
       InvoiceProduct.create(
         fake(InvoiceProduct, {
+          name: referenceData.name,
           category: INVOICE_ITEMS_CATEGORIES.DRUG,
           sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
           sourceRecordId: referenceData.id,

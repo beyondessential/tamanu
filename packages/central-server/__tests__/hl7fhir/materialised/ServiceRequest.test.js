@@ -30,6 +30,10 @@ import {
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
+// Seeded lab test names repeat, so a detail is matched to its test by the test's unique code.
+const senaiteCode = detail =>
+  detail.coding?.find(({ system }) => system === 'https://www.senaite.com/testCodes.html')?.code;
+
 describe(`Materialised FHIR - ServiceRequest`, () => {
   let ctx;
   let app;
@@ -91,7 +95,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
-      
+
       await Note.bulkCreate([
         fake(Note, {
           date: '2022-03-05',
@@ -323,7 +327,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body.orderDetail
         .filter(detail => detail.text !== labTestPanel.name)
         .forEach(testType => {
-          const currentTest = panelTestTypes.find(test => test.name === testType.text);
+          const currentTest = panelTestTypes.find(test => test.code === senaiteCode(testType));
           expect(currentTest).toBeDefined();
           expect(testType.text).toBe(currentTest.name);
           testType.coding?.forEach(testTypeCoding => {
@@ -367,7 +371,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       } = await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
 
       // a second panel on the same request (same category)
-      const secondPanel = await LabTestPanel.create({ ...fake(LabTestPanel), categoryId: category.id });
+      const secondPanel = await LabTestPanel.create({
+        ...fake(LabTestPanel),
+        categoryId: category.id,
+      });
       const secondPanelTests = await fakeTestTypes(3, LabTestType, category.id);
       await Promise.all(
         secondPanelTests.map(testType =>
@@ -401,7 +408,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await FhirServiceRequest.resolveUpstreams();
 
       // act
-      const response = await app.get(`/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`);
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`,
+      );
 
       // assert
       expect(response).toHaveSucceeded();
@@ -441,7 +450,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // every test — both panels' members and the loose test — appears under the test code system
       const allTests = [...firstPanelTests, ...secondPanelTests, looseTestType];
       for (const test of allTests) {
-        const testDetail = response.body.orderDetail.find(detail => detail.text === test.name);
+        const testDetail = response.body.orderDetail.find(
+          detail => senaiteCode(detail) === test.code,
+        );
         expect(testDetail).toBeDefined();
         expect(testDetail.coding).toEqual(
           expect.arrayContaining([
@@ -488,7 +499,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
 
       response.body?.orderDetail.forEach(testType => {
-        const currentTest = testTypes.find(test => test.name === testType.text);
+        const currentTest = testTypes.find(test => test.code === senaiteCode(testType));
         expect(testType.text).toBe(currentTest.name);
         testType.coding?.forEach(testTypeCoding => {
           const { system, code } = testTypeCoding;

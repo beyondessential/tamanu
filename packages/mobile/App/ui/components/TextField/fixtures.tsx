@@ -14,7 +14,7 @@ const defaultBaseStoryProps = {
   multiline: false,
 };
 
-export function BaseTextFieldStory({ label, error, multiline }: BaseStoryProps): JSX.Element {
+export function BaseTextFieldStory({ label, error, multiline }: BaseStoryProps) {
   const [text, setText] = useState('');
   const onChangeText = (newText: string): void => {
     setText(newText);

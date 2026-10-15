@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.66.1",
+  "version": "2.67.0",
   "private": true,
   "dependencies": {
     "@tamanu/api-client": "*",
@@ -9,14 +9,12 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "artillery": "^2.0.22",
-    "esbuild": "^0.28.1"
+    "artillery": "^2.0.22"
   },
   "scripts": {
-    "test:facility": "npm run merge-scenarios && npm run bundle-hooks && artillery run src/merged-facility.yml",
-    "test:central": "npm run merge-scenarios && npm run bundle-hooks && artillery run src/merged-central.yml",
-    "merge-scenarios": "node src/scripts/mergeScenarios.mjs",
-    "bundle-hooks": "node src/scripts/bundleHooks.mjs"
+    "test:facility": "npm run merge-scenarios && artillery run src/merged-facility.yml",
+    "test:central": "npm run merge-scenarios && artillery run src/merged-central.yml",
+    "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
   },
   "keywords": [],
   "author": "",

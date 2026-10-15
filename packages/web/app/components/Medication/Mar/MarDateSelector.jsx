@@ -70,8 +70,8 @@ export const MarDateSelector = ({ selectedDate, onDateChange }) => {
         visible={isPreviousDayDisabled}
         title={
           <TranslatedText
-            fallback="Can’t select date prior to encounter start date"
             stringId="medication.mar.tooltip.encounterStartDate"
+            fallback="Can’t select date prior to encounter start date"
           />
         }
         PopperProps={popperProps}

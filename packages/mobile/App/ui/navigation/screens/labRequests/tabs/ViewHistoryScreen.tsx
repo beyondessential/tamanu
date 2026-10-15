@@ -23,7 +23,7 @@ import { TranslatedReferenceData } from '~/ui/components/Translations/Translated
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 
-const SyncStatusIndicator = ({ synced }): JSX.Element => (
+const SyncStatusIndicator = ({ synced }) => (
   <StyledView flexDirection="row">
     <Svg height="20" width="20">
       <Circle fill={synced ? 'green' : 'red'} r={5} cx={10} cy={10} />
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element => {
+const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps) => {
   const { formatDate } = useDateFormatter();
   let date: string;
   try {
