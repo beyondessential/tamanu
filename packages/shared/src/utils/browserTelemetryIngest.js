@@ -36,7 +36,7 @@ const spanSchema = z.object({
   sessionId: z.string().nullish(),
   appVersion: z.string().min(1),
   userId: z.string().nullish(),
-  // A real datetime, not just a non-empty string: an unparseable value would
+  // A real datetime, not just a non-empty string: an unparsable value would
   // reach Postgres and surface as a 500 from a public endpoint.
   occurredAt: z.iso.datetime({ offset: true }),
 });
