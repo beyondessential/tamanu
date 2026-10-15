@@ -5,21 +5,25 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { BINARY_UNKNOWN_OPTIONS, FORM_TYPES, FSM_FIELDS, SEX_VALUES } from '@tamanu/constants';
-import { FormGrid, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import {
-  ArrayField,
   AutocompleteField,
-  CheckField,
   DateField,
   DateTimeField,
   Field,
   FieldWithTooltip,
+  FormGrid,
+  TranslatedText,
+  useDateTime,
+  useSettings,
+  useTranslation,
+} from '@tamanu/ui-components';
+import {
+  ArrayField,
+  CheckField,
   FormSeparatorLine,
   PaginatedForm,
   RadioField,
   TimeWithUnitField,
-  useSettings,
-  useTranslation,
 } from '../components';
 import { useAuth } from '../contexts/Auth';
 import {
