@@ -37,7 +37,7 @@ export const SyncErrorDisplay = (): ReactElement => {
       borderColor="#F76853"
     >
       <StyledView margin={8}>
-        <StyledText color="white">{error.message ?? error.title}</StyledText>
+        <StyledText color="white">{error.title ?? error.message}</StyledText>
         {error.detail && <ErrorDetail>{error.detail}</ErrorDetail>}
       </StyledView>
     </StyledView>
