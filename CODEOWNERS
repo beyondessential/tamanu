@@ -53,9 +53,8 @@ pm2*.config.js  @beyondessential/kamaka
 
 #
 # The integrations team owns the FHIR integration and Medici API, since changes
-# to these have
-# external consumers that break silently (e.g. Medici rejecting a renamed
-# field).
+# to these have external consumers that break silently (e.g. Medici rejecting a
+# renamed field).
 #
 /packages/central-server/app/hl7fhir/                                    @beyondessential/integrations
 /packages/central-server/app/integrations/fhir/                          @beyondessential/integrations
