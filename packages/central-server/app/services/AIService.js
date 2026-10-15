@@ -73,18 +73,31 @@ const toLangChainMessage = ({ role, content }) => {
   return new HumanMessage(content);
 };
 
-// Claude 5.5 models reject a forced tool_choice, so the response tool is offered rather than forced.
+// Claude 5.5 models reject a forced tool_choice, so the response tool is offered rather than forced,
+// with one nudge if the model replies without it.
 const invokeWithResponseTool = async (model, schema, name, messages) => {
   const jsonSchema = toJsonSchema(schema);
   const responseTool = {
     name,
-    description: jsonSchema.description ?? 'Call this tool with your response.',
+    description: jsonSchema.description ?? `Respond only by calling the ${name} tool.`,
     input_schema: jsonSchema,
   };
-  const response = await model.bindTools([responseTool], { tool_choice: 'auto' }).invoke(messages);
-  const toolCall = response.tool_calls?.find(call => call.name === name);
+  const boundModel = model.bindTools([responseTool], { tool_choice: 'auto' });
+  const findToolCall = response => response.tool_calls?.find(call => call.name === name);
+
+  const firstResponse = await boundModel.invoke(messages);
+  const response =
+    findToolCall(firstResponse) !== undefined
+      ? firstResponse
+      : await boundModel.invoke([
+          ...messages,
+          firstResponse,
+          new HumanMessage(`Respond by calling the ${name} tool.`),
+        ]);
+  const toolCall = findToolCall(response);
   if (!toolCall) {
-    throw new Error(`AI response did not call the ${name} tool`);
+    const unparsed = response.invalid_tool_calls?.length ? ' (its arguments could not be parsed)' : '';
+    throw new Error(`AI response did not call the ${name} tool${unparsed}`);
   }
   return schema.parse(toolCall.args);
 };

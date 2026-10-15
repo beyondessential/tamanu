@@ -126,14 +126,15 @@ describe('ApplicationContext.refreshAiService', () => {
 describe('AIService structured responses', () => {
   const responseSchema = z.object({ answer: z.string() });
 
-  const serviceWithModel = response => {
-    const invoke = vi.fn(async () => response);
+  const serviceWithModel = (...responses) => {
+    const invoke = vi.fn();
+    responses.forEach(response => invoke.mockResolvedValueOnce(response));
     const model = { bindTools: vi.fn(() => ({ invoke })) };
     const service = new AIService();
     service.chatModel = model;
     service.fastChatModel = model;
     service.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'tweak');
-    return { service, model };
+    return { service, model, invoke };
   };
 
   it('offers the response tool without forcing it', async () => {
@@ -154,8 +155,25 @@ describe('AIService structured responses', () => {
     expect(options).toEqual({ tool_choice: 'auto' });
   });
 
-  it('fails when the model answers without calling the tool', async () => {
-    const { service } = serviceWithModel({ tool_calls: [] });
+  it('asks again when the model first answers without calling the tool', async () => {
+    const { service, invoke } = serviceWithModel(
+      { content: 'Sure, here you go.', tool_calls: [] },
+      { tool_calls: [{ name: 'respond', args: { answer: 'yes' } }] },
+    );
+
+    const result = await service.invokeStructured(
+      AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK,
+      'question',
+      responseSchema,
+      { name: 'respond' },
+    );
+
+    expect(result).toEqual({ answer: 'yes' });
+    expect(invoke).toHaveBeenCalledTimes(2);
+  });
+
+  it('fails when the model still answers without calling the tool', async () => {
+    const { service } = serviceWithModel({ tool_calls: [] }, { tool_calls: [] });
 
     await expect(
       service.invokeStructured(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'question', responseSchema, {
