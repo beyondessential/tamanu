@@ -1,12 +1,13 @@
-import React, { useCallback } from 'react';
-import { StyledView } from '/styled/common';
-import type { BaseInputProps } from '/interfaces/BaseInputProps';
-import { OvalCheckbox } from '/components/Checkbox/OvalCheckbox';
+import { uniq } from 'es-toolkit';
+import React from 'react';
 import { StyleSheet } from 'react-native';
+import { OvalCheckbox } from '/components/Checkbox/OvalCheckbox';
+import type { BaseInputProps } from '/interfaces/BaseInputProps';
+import { StyledView } from '/styled/common';
 
 interface CheckboxProps extends BaseInputProps {
   onChange: Function;
-  value: string[];
+  value: readonly string[];
   options: { id: string; text: string }[];
 }
 
@@ -23,16 +24,15 @@ const styles = StyleSheet.create({
   },
 });
 
-export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps): JSX.Element => {
-  const handleCallback = useCallback(
-    (isSelected, optionId) => {
-      const selectedValues = isSelected
-        ? [...new Set([...value, optionId])]
-        : value.filter(v => v !== optionId);
-      onChange(selectedValues);
-    },
-    [onChange, value, options],
-  );
+const initialValue = [] as const;
+
+export const MultiCheckbox = ({ value = initialValue, options, onChange }: CheckboxProps) => {
+  const handleChange = (isSelected: boolean, optionId: string) => {
+    const selectedValues = isSelected
+      ? uniq([...value, optionId])
+      : value.filter(v => v !== optionId);
+    onChange(selectedValues);
+  };
 
   return (
     <StyledView style={styles.container}>
@@ -42,7 +42,7 @@ export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps):
           key={id}
           text={text}
           value={value.includes(id)}
-          onChange={handleCallback}
+          onChange={handleChange}
           style={styles.checkbox}
         />
       ))}

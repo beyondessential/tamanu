@@ -1,21 +1,16 @@
-import React, { memo } from 'react';
-
-import { RowView, StyledText } from '/styled/common';
-import { VaccineStatusCells } from '/helpers/constants';
-import { theme } from '/styled/theme';
+import React from 'react';
 import type { VaccineStatus } from '~/ui/helpers/patient';
+import { VaccineStatusCells } from '/helpers/constants';
+import { RowView, StyledText } from '/styled/common';
+import { theme } from '/styled/theme';
 import { StyledView } from '../../styled/common';
 
 interface VaccineStatusProps {
   status: VaccineStatus;
 }
 
-export const VaccineStatusHeader = ({ status }: VaccineStatusProps): JSX.Element => {
-  const Icon = memo(() => {
-    const VaccineIcon = VaccineStatusCells[status].Icon;
-    return <VaccineIcon size={20} fill={VaccineStatusCells[status].color} />;
-  });
-
+export const VaccineStatusHeader = ({ status }: VaccineStatusProps) => {
+  const { Icon: StatusIcon, color: statusColor, text: statusLabel } = VaccineStatusCells[status];
   return (
     <StyledView
       marginTop={10}
@@ -24,11 +19,11 @@ export const VaccineStatusHeader = ({ status }: VaccineStatusProps): JSX.Element
       borderColor={theme.colors.PRIMARY_MAIN}
     >
       <RowView background={theme.colors.WHITE} height={25} width="100%" justifyContent="center">
-        <Icon />
+        <StatusIcon size={20} fill={statusColor} />
       </RowView>
       <RowView background={theme.colors.WHITE} justifyContent="center">
         <StyledText fontSize={13} color={theme.colors.MAIN_SUPER_DARK}>
-          {VaccineStatusCells[status].text}
+          {statusLabel}
         </StyledText>
       </RowView>
     </StyledView>
