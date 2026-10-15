@@ -433,6 +433,52 @@ describe('Appointments', () => {
       });
     });
 
+    describe('procedure types', () => {
+      afterEach(async () => {
+        await models.Appointment.truncate();
+      });
+
+      it('keeps procedure types in step across edits', async () => {
+        const [procedureA, procedureB] = await Promise.all(
+          ['a', 'b'].map(() =>
+            models.ReferenceData.create(fake(models.ReferenceData, { type: 'procedureType' })),
+          ),
+        );
+        const booking = await userApp.post('/api/appointments/locationBooking').send({
+          patientId,
+          startTime: '2024-10-04 12:00:00',
+          endTime: '2024-10-04 12:30:00',
+          clinicianId,
+          locationId,
+          procedureTypeIds: [procedureA.id],
+        });
+        expect(booking).toHaveSucceeded();
+
+        const setProcedureTypes = procedureTypeIds =>
+          userApp.put(`/api/appointments/locationBooking/${booking.body.id}`).send({
+            startTime: '2024-10-04 12:00:00',
+            endTime: '2024-10-04 12:30:00',
+            locationId,
+            procedureTypeIds,
+          });
+        const savedProcedureTypeIds = async () => {
+          const rows = await models.AppointmentProcedureType.findAll({
+            where: { appointmentId: booking.body.id },
+          });
+          return rows.map(({ procedureTypeId }) => procedureTypeId).sort();
+        };
+
+        expect(await setProcedureTypes([procedureA.id, procedureB.id])).toHaveSucceeded();
+        expect(await savedProcedureTypeIds()).toEqual([procedureA.id, procedureB.id].sort());
+
+        expect(await setProcedureTypes([procedureB.id])).toHaveSucceeded();
+        expect(await savedProcedureTypeIds()).toEqual([procedureB.id]);
+
+        expect(await setProcedureTypes([procedureA.id, procedureB.id])).toHaveSucceeded();
+        expect(await savedProcedureTypeIds()).toEqual([procedureA.id, procedureB.id].sort());
+      });
+    });
+
     describe('booking confirmation emails', () => {
       const TEST_EMAIL = 'booking@test.com';
 

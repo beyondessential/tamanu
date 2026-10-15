@@ -2147,6 +2147,7 @@ medication.get(
           }
         : null,
       pharmacyOrder: {
+        isDischargePrescription: pharmacyOrderPrescription.pharmacyOrder?.isDischargePrescription,
         encounter: {
           patient: pharmacyOrderPrescription.pharmacyOrder?.encounter?.patient ?? null,
         },
