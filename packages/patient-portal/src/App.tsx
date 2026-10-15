@@ -9,10 +9,13 @@ import {
 } from './views';
 import { PublicRoute } from '@routes/PublicRoute';
 import { PrivateRoute } from '@routes/PrivateRoute';
+import { PortalTelemetryRouteListener } from './telemetry';
 
 export const App = () => {
   return (
     <Router>
+      {/* spec: BTEL — times each in-app navigation */}
+      <PortalTelemetryRouteListener />
       <Routes>
         <Route path="/" element={<PrivateRoute element={<DashboardView />} />} />
         <Route path="/survey/:surveyId" element={<PrivateRoute element={<SurveyView />} />} />

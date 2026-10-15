@@ -264,6 +264,18 @@ export const facilitySettings = {
           enabled: false,
         }),
         cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
+        cleanupBrowserTelemetry: scheduledTaskSchema(
+          { schedule: '31 3 * * *' },
+          {
+            retentionDays: {
+              name: 'Retention',
+              description: 'Delete raw browser telemetry spans older than this',
+              type: yup.number().integer().positive(),
+              defaultValue: 30,
+              unit: 'days',
+            },
+          },
+        ),
       },
     },
     sync: {
@@ -307,6 +319,21 @@ export const facilitySettings = {
           type: yup.number().integer().positive().nullable(),
           unit: 'hours',
           defaultValue: null,
+        },
+      },
+    },
+    telemetry: {
+      name: 'Telemetry',
+      description: 'Browser performance telemetry collected from the web clients',
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description:
+            'Collect browser performance telemetry (page-load and API timings) from the web clients connected to this facility and store it locally. Retention is configured under Scheduled tasks.',
+          type: yup.boolean(),
+          defaultValue: true,
+          exposedToWeb: true,
+          exposedToPatientPortal: true,
         },
       },
     },

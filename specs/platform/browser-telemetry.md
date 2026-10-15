@@ -4,7 +4,7 @@ id: BTEL
 
 # Browser performance telemetry
 
-The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long the individual API requests behind it take — and record those measurements on the facility server for later analysis. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the facility server and pruned on a retention schedule.
+The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long the individual API requests behind it take — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical and admin clients that is their facility server; for the patient portal, which talks to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
 
 This spec covers collecting the measurements and storing the raw events. Rolling the raw events up into summary statistics, anonymising them, and reporting them onward (to central and Canopy) are handled separately; the raw store described here is the source those steps read from.
 
@@ -41,18 +41,18 @@ Each event carries enough context to both bucket it by page downstream and drill
 - [ ] An event records the user and session once a user has signed in; an event produced before sign-in is attributed to the device alone.
 - [ ] Parameter values, including query parameters, are recorded as-is; no patient-identifying information is stripped in the browser.
 
-## Reporting to the facility server
+## Reporting to the server
 
-Collected events are held in the browser and sent in batches to the facility server the client is connected to, on a regular interval. The browser reports only to its own facility server, never directly to any remote server.
+Collected events are held in the browser and sent in batches to the Tamanu server the client is connected to, on a regular interval. The browser reports only to its own server, never directly to any third-party service.
 
-- [ ] Events are batched in the browser and sent to the facility server on a regular interval.
-- [ ] The browser sends telemetry only to its own facility server.
-- [ ] The facility server accepts telemetry from clients that have not yet authenticated, so pre-login activity is recorded; an authenticated batch additionally carries the user.
+- [ ] Events are batched in the browser and sent to the server on a regular interval.
+- [ ] The browser sends telemetry only to the server it is already talking to.
+- [ ] The server accepts telemetry from clients that have not yet authenticated, so pre-login activity is recorded; an authenticated batch additionally carries the user.
 - [ ] A failed or rejected send discards that batch without retrying indefinitely and without disrupting the application.
 
-## Raw store on the facility server
+## Raw store
 
-The facility server writes received events into a single flat table — one row per span — in the `logs` schema, alongside the other local-only operational logs. The table is high-volume and local to the facility.
+The receiving server writes events into a single flat table — one row per span — in the `logs` schema, alongside the other local-only operational logs. The table is high-volume and local to that server (per facility for the clinical and admin clients; on central for the patient portal).
 
 - [ ] Received telemetry events are written to a single flat table, one row per span, with a trace identifier tying a navigation's rows together.
 - [ ] The raw telemetry table does not sync to central and is not recorded in the changelog.
