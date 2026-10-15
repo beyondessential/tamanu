@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_ai_documents_from_sync_lookup
-              - notify_ai_documents_changed
               - record_ai_documents_changelog
               - set_ai_documents_updated_at
               - set_ai_documents_updated_at_sync_tick

@@ -3,6 +3,7 @@ export { LoginPage } from './LoginPage';
 export { SetupWizardPage } from './SetupWizardPage';
 export { SidebarPage } from './SidebarPage';
 
+export * from './centralAdmin';
 export * from './facilityAdmin';
 export * from './programRegistry';
 export * from './imaging';

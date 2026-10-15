@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_patients_from_sync_lookup
-              - notify_patients_changed
               - record_patients_changelog
               - set_patients_updated_at
               - set_patients_updated_at_sync_tick

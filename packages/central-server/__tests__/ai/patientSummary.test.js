@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { AIMessage } from '@langchain/core/messages';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import {
   setHardcodedPermissionsUseForTestsOnly,
@@ -23,7 +24,15 @@ describe('AI Patient Summary (central-server)', () => {
 
     beforeAll(async () => {
       mockAiService = {
-        invoke: vi.fn(async () => ({ content: 'Generated patient summary.' })),
+        invoke: vi.fn(
+          async () =>
+            new AIMessage({
+              content: [
+                { type: 'thinking', thinking: '', signature: 'sig' },
+                { type: 'text', text: 'Generated patient summary.' },
+              ],
+            }),
+        ),
       };
       setHardcodedPermissionsUseForTestsOnly(true);
       ctx = await createTestContext({ aiService: mockAiService });

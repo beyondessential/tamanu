@@ -1,3 +1,5 @@
+import { COUNTRY_CODE_STRING_ID, LANGUAGE_NAME_STRING_ID } from './translations.js';
+
 export const SYNC_DIRECTIONS = {
   DO_NOT_SYNC: 'do_not_sync', // Important! Non-syncing tables should also be added to shared/src/services/migrations/constants.js
   PUSH_TO_CENTRAL: 'push_to_central',
@@ -25,3 +27,32 @@ export const SYNC_STREAM_MESSAGE_KIND = {
   PULL_WAITING: 0x0002,
   PULL_CHANGE: 0x0003,
 };
+
+// spec: SYNRUN
+// Outcome of one facility sync attempt, as recorded in `sync_facility_runs`. A run is
+// recorded as running before it contacts central, so a hung or crashed attempt
+// stays visible as a running row with no completion time.
+export const SYNC_FACILITY_RUN_STATUSES = {
+  RUNNING: 'running',
+  SUCCEEDED: 'succeeded',
+  QUEUED: 'queued',
+  FAILED: 'failed',
+} as const;
+
+// spec: FBOOT#contents
+// Translated strings a facility bootstrap carries, in every language: the language list, and the
+// strings on the screens a user sees before the facility's first sync completes.
+export const BOOTSTRAP_TRANSLATION_STRING_IDS = [LANGUAGE_NAME_STRING_ID, COUNTRY_CODE_STRING_ID];
+export const BOOTSTRAP_TRANSLATION_STRING_ID_PREFIXES = [
+  'auth.',
+  'externalLink.',
+  'forgotPassword.',
+  'general.action.',
+  'general.label.',
+  'general.localisedField.facility.',
+  'login.',
+  'resetPassword.',
+  'setup.',
+  'splash.',
+  'validation.',
+];

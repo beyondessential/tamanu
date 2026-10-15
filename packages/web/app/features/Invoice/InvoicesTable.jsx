@@ -38,20 +38,6 @@ const TableTitle = styled(Typography)`
 const Table = styled(DataFetchingTable)`
   .MuiTableHead-root,
   .MuiTableBody-root {
-    .MuiTableRow-root::before {
-      display: table-cell;
-      content: '';
-      width: 20px;
-      max-width: 20px;
-    }
-
-    .MuiTableRow-root::after {
-      display: table-cell;
-      content: '';
-      width: 20px;
-      max-width: 20px;
-    }
-
     .MuiTableRow-root:last-child td {
       border: none;
     }
@@ -81,10 +67,10 @@ const Table = styled(DataFetchingTable)`
     padding-left: 11px;
     padding-right: 11px;
     &:last-child {
-      padding-right: 10px;
+      padding-right: 30px;
     }
     &:first-child {
-      padding-left: 10px;
+      padding-left: 30px;
     }
   }
   .MuiTableCell-body {
@@ -94,10 +80,10 @@ const Table = styled(DataFetchingTable)`
     padding-left: 11px;
     padding-right: 11px;
     &:last-child {
-      padding-right: 0;
+      padding-right: 20px;
     }
     &:first-child {
-      padding-left: 10px;
+      padding-left: 30px;
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {

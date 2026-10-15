@@ -50,3 +50,40 @@ pm2*.config.js  @beyondessential/kamaka
 # Maui needs to be across any changes to database tables
 #
 /packages/database/src/migrations/ @beyondessential/maui
+
+#
+# The integrations team owns Tamanu's external integrations (FHIR, Medici,
+# DHIS2, mSupply, Fiji VPS/VRS, IPS, imaging/PACS), since changes to these have
+# external consumers that break silently (e.g. Medici rejecting a renamed
+# field).
+#
+/packages/central-server/app/integrations/                                         @beyondessential/integrations
+/packages/central-server/__tests__/integrations/                                   @beyondessential/integrations
+/packages/facility-server/app/integrations/                                        @beyondessential/integrations
+/packages/facility-server/__tests__/integrations/                                  @beyondessential/integrations
+/packages/central-server/app/hl7fhir/                                              @beyondessential/integrations
+/packages/central-server/__tests__/hl7fhir/                                        @beyondessential/integrations
+/packages/central-server/__tests__/tasks/fhir/                                     @beyondessential/integrations
+/packages/database/src/models/fhir/                                                @beyondessential/integrations
+/packages/database/src/utils/fhir/                                                 @beyondessential/integrations
+/packages/shared/src/routes/fhir/                                                  @beyondessential/integrations
+/packages/shared/src/services/fhirTypes/                                           @beyondessential/integrations
+/packages/shared/src/tasks/fhir/                                                   @beyondessential/integrations
+/packages/shared/src/utils/fhir/                                                   @beyondessential/integrations
+/packages/shared/__tests__/routes/fhir/                                            @beyondessential/integrations
+/packages/shared/__tests__/services/fhirTypes/                                     @beyondessential/integrations
+/packages/shared/__tests__/utils/fhir/                                             @beyondessential/integrations
+/packages/central-server/app/tasks/DHIS2IntegrationProcessor.js                    @beyondessential/integrations
+/packages/central-server/__tests__/tasks/DHIS2IntegrationProcessor.test.js         @beyondessential/integrations
+/packages/database/src/models/DHIS2PushLog.ts                                      @beyondessential/integrations
+/packages/settings/src/schema/definitions/dhis2.ts                                 @beyondessential/integrations
+/packages/facility-server/app/tasks/mSupplyMedIntegrationProcessor.js              @beyondessential/integrations
+/packages/facility-server/__tests__/tasks/mSupplyMedIntegrationProcessor.test.js   @beyondessential/integrations
+/packages/facility-server/app/tasks/MSupplyStockOnHandProcessor.js                 @beyondessential/integrations
+/packages/facility-server/__tests__/tasks/MSupplyStockOnHandProcessor.test.js      @beyondessential/integrations
+/packages/facility-server/app/utils/MSupplyClient.js                               @beyondessential/integrations
+/packages/database/src/models/MSupplyPushLog.ts                                    @beyondessential/integrations
+/packages/central-server/app/tasks/VRSActionRetrier.js                             @beyondessential/integrations
+/packages/database/src/models/PatientVRSData.ts                                    @beyondessential/integrations
+/packages/central-server/app/tasks/IPSRequestProcessor/                            @beyondessential/integrations
+/packages/database/src/models/IPSRequest.ts                                        @beyondessential/integrations

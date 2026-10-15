@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import React, { useMemo } from 'react';
 import { useTranslation } from '../../contexts/TranslationContext';
 import { DebugTooltip } from './DebugTooltip';
 
@@ -8,7 +8,7 @@ const DEBUG_TRANSLATION_KEY = 'DEBUG_TRANSLATION';
 const safeGetIsDebugMode = () => {
   try {
     return JSON.parse(window?.localStorage?.getItem(DEBUG_TRANSLATION_KEY));
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -17,7 +17,7 @@ export const TranslatedText = ({ stringId, fallback, replacements, casing }) => 
   const { getTranslation } = useTranslation();
 
   const translation = useMemo(
-    () => getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n'),
+    () => getTranslation(stringId, fallback, { replacements, casing })?.replaceAll('\\n', '\n'),
     [getTranslation, stringId, fallback, replacements, casing],
   );
 

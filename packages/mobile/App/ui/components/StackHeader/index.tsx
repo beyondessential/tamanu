@@ -112,7 +112,7 @@ export const StackHeader = ({
 );
 
 interface IEmptyStackHeader {
-  title: string;
+  title: React.ReactNode;
   onGoBack: () => void;
   status?: React.ReactNode;
 }

@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_sensitive_networks_from_sync_lookup
-              - notify_sensitive_networks_changed
               - record_sensitive_networks_changelog
               - set_sensitive_networks_updated_at
               - set_sensitive_networks_updated_at_sync_tick

@@ -67,6 +67,7 @@ export const TriageModal = React.memo(
     onClose,
     onSubmitEncounter,
     noRedirectOnSubmit,
+    patientBillingTypeId,
     initialValues,
     withExistingEncounterCheck,
   }) => {
@@ -121,6 +122,7 @@ export const TriageModal = React.memo(
           noRedirectOnSubmit={noRedirectOnSubmit}
           onCancel={onClose}
           patient={patient}
+          patientBillingTypeId={patientBillingTypeId}
           initialValues={initialValues}
           data-testid="triageform-ldgl"
           withExistingEncounterCheck={withExistingEncounterCheck}

@@ -8,9 +8,18 @@ import { v4 as uuidv4 } from 'uuid';
  *
  * spec: SYSERR#relegating-server-errors
  */
+// Keeps every part that adds something, skipping any contained in another part
+// (in either order), and preserving the order of the parts kept.
+function joinDistinctParts(parts, separator) {
+  const presentParts = [...new Set(parts.filter(Boolean))];
+  return presentParts
+    .filter(part => !presentParts.some(otherPart => otherPart !== part && otherPart.includes(part)))
+    .join(separator);
+}
+
 export function buildSystemError(error, endpoint) {
-  const path = error?.path ?? endpoint;
-  const detail = error?.title ?? error?.message ?? 'Unknown error';
+  const path = joinDistinctParts([endpoint, error?.path], ' ');
+  const detail = joinDistinctParts([error?.message, error?.title], ' — ') || 'Unknown error';
   const message = `${path}: ${detail}`;
 
   return { id: uuidv4(), timestamp: new Date().toISOString(), message };

@@ -16,6 +16,7 @@ import {
   UnsupportedBrowserStatusPage,
   MobileStatusPage,
   SingleTabStatusPage,
+  SettingUpStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useBrowserSupport } from './api/queries/useBrowserSupport';
@@ -71,6 +72,8 @@ export function App({ sidebar, children }) {
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (serverStatus?.setupRequired) return <SetupWizardView />;
   if (!isUserLoggedIn) return <LoginView />;
+  // spec: FSETUP#setting-up-screen
+  if (serverStatus?.isSettingUp) return <SettingUpStatusPage />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
   return (

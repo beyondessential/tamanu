@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
-import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
@@ -38,6 +38,16 @@ triage.post(
     req.checkPermission('create', 'Triage');
     if (vitals) {
       req.checkPermission('create', 'Vitals');
+    }
+
+    const { patientBillingTypeId } = body;
+    if (patientBillingTypeId) {
+      const patientBillingType = await models.ReferenceData.findOne({
+        where: { id: patientBillingTypeId, type: REFERENCE_TYPES.PATIENT_BILLING_TYPE },
+      });
+      if (!patientBillingType) {
+        throw new InvalidParameterError('Patient billing type not found');
+      }
     }
 
     const getDepartmentId = async () => {

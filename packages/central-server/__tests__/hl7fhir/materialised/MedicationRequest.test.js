@@ -291,7 +291,10 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           ],
         },
         dispenseRequest: {
-          quantity: pharmacyOrderPrescription.quantity,
+          quantity: {
+            value: pharmacyOrderPrescription.quantity,
+            unit: prescription.dispensingUnit,
+          },
           numberOfRepeatsAllowed: pharmacyOrderPrescription.repeats,
           validityPeriod: {
             start: formatFhirDate(prescription.startDate),

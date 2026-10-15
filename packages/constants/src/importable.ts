@@ -125,8 +125,6 @@ export const TRANSLATABLE_REFERENCE_TYPES = [
 
 // Data types created through tamanu
 const CLINICAL_DATA_TYPES = {
-  PATIENT: 'patient',
-  ADMINISTERED_VACCINE: 'administeredVaccine',
   USER: 'user',
 };
 const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINICAL_DATA_TYPES);
@@ -149,6 +147,9 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
+
+// Patient records, imported and exported through their own admin view rather than with reference data
+export const PATIENT_IMPORTABLE_DATA_TYPES = ['administeredVaccine', 'patient'];
 
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',

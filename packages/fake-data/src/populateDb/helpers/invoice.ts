@@ -10,7 +10,6 @@ import type { CommonParams } from './common.js';
 interface CreateInvoiceParams extends CommonParams {
   encounterId?: string;
   userId?: string;
-  referenceDataId?: string;
   productId?: string;
   itemCount?: number;
 }
@@ -18,7 +17,6 @@ export const createInvoice = async ({
   models,
   encounterId,
   userId,
-  referenceDataId,
   productId,
   itemCount = chance.integer({ min: 1, max: 50 }),
 }: CreateInvoiceParams): Promise<void> => {
@@ -69,14 +67,13 @@ export const createInvoice = async ({
   await InvoiceInsurerPayment.create(
     fake(InvoiceInsurerPayment, {
       invoicePaymentId: invoicePayment.id,
-      insurerId: referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.INSURER)),
+      insurerId: await randomReferenceDataId(models, REFERENCE_TYPES.INSURER),
     }),
   );
   await InvoicePatientPayment.create(
     fake(InvoicePatientPayment, {
       invoicePaymentId: invoicePayment.id,
-      methodId:
-        referenceDataId || (await randomReferenceDataId(models, REFERENCE_TYPES.PAYMENT_METHOD)),
+      methodId: await randomReferenceDataId(models, REFERENCE_TYPES.PAYMENT_METHOD),
     }),
   );
 };
