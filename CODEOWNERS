@@ -52,22 +52,24 @@ pm2*.config.js  @beyondessential/kamaka
 /packages/database/src/migrations/ @beyondessential/maui
 
 #
-# Rohan owns the FHIR integration and Medici API, since changes to these have
-# external consumers that break silently (e.g. Medici rejecting a renamed field).
+# The integrations team owns the FHIR integration and Medici API, since changes
+# to these have
+# external consumers that break silently (e.g. Medici rejecting a renamed
+# field).
 #
-/packages/central-server/app/hl7fhir/                                    @rohan-bes
-/packages/central-server/app/integrations/fhir/                          @rohan-bes
-/packages/central-server/app/integrations/fijiAspenMediciReport/         @rohan-bes
-/packages/central-server/__tests__/hl7fhir/                              @rohan-bes
-/packages/central-server/__tests__/integrations/fhir/                    @rohan-bes
-/packages/central-server/__tests__/integrations/fijiAspenMediciReport/   @rohan-bes
-/packages/central-server/__tests__/tasks/fhir/                           @rohan-bes
-/packages/database/src/models/fhir/                                      @rohan-bes
-/packages/database/src/utils/fhir/                                       @rohan-bes
-/packages/shared/src/routes/fhir/                                        @rohan-bes
-/packages/shared/src/services/fhirTypes/                                 @rohan-bes
-/packages/shared/src/tasks/fhir/                                         @rohan-bes
-/packages/shared/src/utils/fhir/                                         @rohan-bes
-/packages/shared/__tests__/routes/fhir/                                  @rohan-bes
-/packages/shared/__tests__/services/fhirTypes/                           @rohan-bes
-/packages/shared/__tests__/utils/fhir/                                   @rohan-bes
+/packages/central-server/app/hl7fhir/                                    @beyondessential/integrations
+/packages/central-server/app/integrations/fhir/                          @beyondessential/integrations
+/packages/central-server/app/integrations/fijiAspenMediciReport/         @beyondessential/integrations
+/packages/central-server/__tests__/hl7fhir/                              @beyondessential/integrations
+/packages/central-server/__tests__/integrations/fhir/                    @beyondessential/integrations
+/packages/central-server/__tests__/integrations/fijiAspenMediciReport/   @beyondessential/integrations
+/packages/central-server/__tests__/tasks/fhir/                           @beyondessential/integrations
+/packages/database/src/models/fhir/                                      @beyondessential/integrations
+/packages/database/src/utils/fhir/                                       @beyondessential/integrations
+/packages/shared/src/routes/fhir/                                        @beyondessential/integrations
+/packages/shared/src/services/fhirTypes/                                 @beyondessential/integrations
+/packages/shared/src/tasks/fhir/                                         @beyondessential/integrations
+/packages/shared/src/utils/fhir/                                         @beyondessential/integrations
+/packages/shared/__tests__/routes/fhir/                                  @beyondessential/integrations
+/packages/shared/__tests__/services/fhirTypes/                           @beyondessential/integrations
+/packages/shared/__tests__/utils/fhir/                                   @beyondessential/integrations
