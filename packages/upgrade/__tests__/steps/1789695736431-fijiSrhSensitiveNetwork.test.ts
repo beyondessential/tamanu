@@ -1,10 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-import {
-  ENCOUNTER_SCOPED_RECORD_TYPES,
-  FIJI_SRH_FACILITY_IDS,
-  FIJI_SRH_NETWORK,
-} from '../../src/sensitiveNetworks.js';
+import { FIJI_SRH_FACILITY_IDS, FIJI_SRH_NETWORK } from '../../src/sensitiveNetworks.js';
 
 import { STEPS } from '../../src/steps/1789695736431-fijiSrhSensitiveNetwork.js';
 
@@ -88,7 +84,7 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
 
   // The point of the paths being exclusive: the SRH rows are written once, not tagged by the
   // ordinary rescope and then rewritten.
-  it('rescopes the SRH lookup rows in a single statement', async () => {
+  it('rescopes the SRH rows in a single statement', async () => {
     const { args, queries } = makeArgs({ hasFijiSrh: true });
 
     await fijiSrhStep.run(args);
@@ -96,35 +92,20 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
     const writes = queries.filter(query => query.sql.includes('UPDATE sync_lookup'));
     expect(writes).toHaveLength(1);
     expect(writes[0].sql).toContain('facility_id = NULL');
-    expect(writes[0].sql).not.toContain('updated_at_sync_tick');
     expect(writes[0].replacements).toMatchObject({ facilityIds: FIJI_SRH_FACILITY_IDS });
   });
 
-  // A tick set only on sync_lookup is undone by a full lookup rebuild, which reads the source tick.
-  it('bumps the sync tick on every encounter scoped source record', async () => {
+  // A lookup re-tick would be undone by any full lookup rebuild; a newly marked patient's history
+  // is pulled from all time regardless of lookup ticks.
+  it('re-marks the SRH patients for sync so each facility pulls their full history', async () => {
     const { args, queries } = makeArgs({ hasFijiSrh: true });
 
     await fijiSrhStep.run(args);
 
-    const touches = queries.filter(query => query.sql.includes('FROM sync_lookup'));
-    expect(touches.map(query => query.replacements.recordType)).toEqual(
-      ENCOUNTER_SCOPED_RECORD_TYPES,
-    );
-    for (const touch of touches) {
-      expect(touch.sql).toContain(`UPDATE "${touch.replacements.recordType}"`);
-      expect(touch.sql).toContain('SET updated_at_sync_tick = 1');
-      expect(touch.replacements.facilityIds).toEqual(FIJI_SRH_FACILITY_IDS);
-    }
-  });
-
-  it('touches the source records while the lookup rows still name the SRH facilities', async () => {
-    const { args, queries } = makeArgs({ hasFijiSrh: true });
-
-    await fijiSrhStep.run(args);
-
-    const lastTouch = queries.findLastIndex(query => query.sql.includes('FROM sync_lookup'));
-    const rescope = queries.findIndex(query => query.sql.includes('UPDATE sync_lookup'));
-    expect(lastTouch).toBeLessThan(rescope);
+    const reMark = findQuery(queries, 'UPDATE patient_facilities')!;
+    expect(reMark.sql).toContain('updated_at_sync_tick = 1');
+    expect(reMark.replacements).toMatchObject({ facilityIds: FIJI_SRH_FACILITY_IDS });
+    expect(findQuery(queries, 'UPDATE sync_lookup')!.sql).not.toContain('updated_at_sync_tick');
   });
 
   it('leaves rows that are not encounter scoped alone', async () => {

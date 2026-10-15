@@ -35,28 +35,6 @@ export const enrolFijiSrhFacilities = async (sequelize: StepArgs['sequelize']) =
     },
   );
 
-  // These facilities see each other's history for the first time, so the records have to look new
-  // or nobody pulls them: every cursor is already past them. Setting the tick to 1 has the trigger
-  // stamp the current tick, as bumpSyncTickForRepull does, and the lookup refresh then re-ticks their
-  // lookup rows. Re-ticking sync_lookup directly does not last: a full lookup rebuild takes each
-  // row's tick from its source record, and 2.66 flags the lab tables for one.
-  for (const recordType of ENCOUNTER_SCOPED_RECORD_TYPES) {
-    await sequelize.query(
-      `
-      UPDATE "${recordType}" source
-      SET updated_at_sync_tick = 1
-      FROM sync_lookup
-      WHERE sync_lookup.record_type = :recordType
-        AND sync_lookup.facility_id IN (:facilityIds)
-        AND sync_lookup.record_id = source.id::text;
-      `,
-      {
-        replacements: { recordType, facilityIds: FIJI_SRH_FACILITY_IDS },
-        type: QueryTypes.UPDATE,
-      },
-    );
-  }
-
   await sequelize.query(
     `
     UPDATE sync_lookup
@@ -74,13 +52,22 @@ export const enrolFijiSrhFacilities = async (sequelize: StepArgs['sequelize']) =
       type: QueryTypes.UPDATE,
     },
   );
+
+  // These facilities see each other's history for the first time, but every cursor is already past
+  // it. Re-marking their patients for sync has each facility pull those patients' full history on
+  // its next sync, as for any newly marked patient, which now includes the other two facilities'.
+  // The trigger stamps the current tick in place of 1, as in bumpSyncTickForRepull.
+  await sequelize.query(
+    `UPDATE patient_facilities SET updated_at_sync_tick = 1 WHERE facility_id IN (:facilityIds);`,
+    { replacements: { facilityIds: FIJI_SRH_FACILITY_IDS }, type: QueryTypes.UPDATE },
+  );
 };
 
 export const STEPS: Steps = [
   {
     ...BETWEEN_SCHEMA_MIGRATIONS,
-    // Central only: sync_lookup is populated there, and the re-ticked records sync out from it. A
-    // Fiji facility server receives both the networks and the membership by sync.
+    // Central only: sync_lookup is populated there, and central decides which patients a facility
+    // pulls in full. A Fiji facility server receives both the networks and the membership by sync.
     async check({ sequelize, serverType }: StepArgs) {
       if (serverType !== 'central') return false;
       if (!(await hasFacilityIsSensitive(sequelize))) return false;
