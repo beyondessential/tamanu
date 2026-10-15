@@ -21,14 +21,17 @@ export const centralTimesyncUrl = () =>
 
 // Wire up the sync runtime when configured, else warn and leave it disabled (a
 // fresh server still boots to serve the wizard). Returns whether it was set up.
-export async function setupSyncRuntime(context, { syncManager } = {}) {
+//
+// `endpointRole` is what this process does about which central endpoint to use, see
+// setupCentralEndpointSelector. A process that does not run sync follows the one that does.
+export async function setupSyncRuntime(context, { syncManager, endpointRole = 'owner' } = {}) {
   if (!isServerConfigured()) {
     log.warn(SYNC_NOT_CONFIGURED_WARNING);
     return false;
   }
 
   // The sync process owns the choice of central endpoint; the others follow it.
-  await setupCentralEndpointSelector(context, { role: 'owner' });
+  await setupCentralEndpointSelector(context, { role: endpointRole });
   /* eslint-disable-next-line require-atomic-updates -- single-threaded boot, no concurrent writers */
   context.timesync = await initTimesync({
     models: context.models,
