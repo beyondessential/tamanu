@@ -90,3 +90,11 @@ export function expandRoute({ template, params }: RouteDescriptor): string {
 
   return path;
 }
+
+// Resolves an endpoint to the concrete path string, expanding a descriptor and
+// passing a plain string through. This is the branch `TamanuApi.fetch` takes, and
+// is exported so callers and tests can ask "what path does this hit?" without
+// caring which form they were given.
+export function resolveEndpoint(endpoint: Endpoint): string {
+  return isRouteDescriptor(endpoint) ? expandRoute(endpoint) : endpoint;
+}

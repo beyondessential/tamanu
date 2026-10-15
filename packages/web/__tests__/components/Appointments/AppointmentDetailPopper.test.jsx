@@ -3,6 +3,8 @@ import { render, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { resolveEndpoint, route } from '@tamanu/api-client';
+
 import { createQueryClient } from '../../helpers';
 import { AppointmentDetailPopper } from '../../../app/components/Appointments/AppointmentDetailPopper/AppointmentDetailPopper';
 
@@ -52,7 +54,10 @@ vi.mock('../../../app/components/Appointments/AppointmentDetailPopper/CheckInBut
 }));
 
 const PATIENT_ID = 'patient-abc';
-const ADDITIONAL_DATA_ENDPOINT = `patient/${PATIENT_ID}/additionalData`;
+const ADDITIONAL_DATA_ENDPOINT = route('patient/:patientId/additionalData', {
+  patientId: PATIENT_ID,
+});
+const ADDITIONAL_DATA_PATH = `patient/${PATIENT_ID}/additionalData`;
 
 const appointment = {
   id: 'appointment-1',
@@ -74,7 +79,7 @@ const renderPopper = open =>
   );
 
 const additionalDataCalls = () =>
-  mockGet.mock.calls.filter(([endpoint]) => endpoint === ADDITIONAL_DATA_ENDPOINT);
+  mockGet.mock.calls.filter(([endpoint]) => resolveEndpoint(endpoint) === ADDITIONAL_DATA_PATH);
 
 describe('AppointmentDetailPopper', () => {
   beforeEach(() => {

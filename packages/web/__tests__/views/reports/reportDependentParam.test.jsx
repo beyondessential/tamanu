@@ -20,13 +20,16 @@ import { renderElementWithTranslatedText } from '../../helpers';
 // Both fields fetch their options through `useApi`. Stub it so the fields can
 // render without a real backend; the clearing behaviour under test does not
 // depend on the fetched options. Other `app/api` exports are preserved.
+import { resolveEndpoint } from '@tamanu/api-client';
+
 vi.mock('../../../app/api', async () => {
   const actual = await vi.importActual('../../../app/api');
   return {
     ...actual,
     useApi: () => ({
       get: vi.fn(async url => {
-        if (typeof url === 'string' && url.startsWith('labTestType')) {
+        const path = resolveEndpoint(url);
+        if (typeof path === 'string' && path.startsWith('labTestType')) {
           return { data: [] };
         }
         return [];

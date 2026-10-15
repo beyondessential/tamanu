@@ -12,7 +12,7 @@ import {
   RemoteCallError,
 } from '@tamanu/errors';
 import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
-import { type Endpoint, expandRoute, isRouteDescriptor } from './route';
+import { type Endpoint, resolveEndpoint } from './route';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
   InterceptorManager,
@@ -82,6 +82,10 @@ interface FetchOptions extends BaseFetchOptions {
   backoff?: boolean | RetryBackoffOptions;
   scopes?: DeviceScope[];
   body?: any;
+  // Query parameters for the body verbs (post/put/patch), which take the body as
+  // their second argument and so have no positional query argument. get/delete
+  // pass query positionally and ignore this.
+  query?: Record<string, any>;
 }
 
 interface PasswordChangeArgs {
@@ -295,7 +299,7 @@ export class TamanuApi {
     query: Record<string, any> = {},
     options: FetchOptions = {},
   ): Promise<any> {
-    const resolvedEndpoint = isRouteDescriptor(endpoint) ? expandRoute(endpoint) : endpoint;
+    const resolvedEndpoint = resolveEndpoint(endpoint);
     const { useAuthToken, ...moreConfig } = {
       ...this.#defaultRequestConfig,
       ...options,
@@ -490,15 +494,16 @@ export class TamanuApi {
     body: any = undefined,
     config: FetchOptions = {},
   ): Promise<T> {
+    const { query = {}, ...restConfig } = config;
     return this.fetch(
       endpoint,
-      {},
+      query,
       {
         body,
         headers: {
           'Content-Type': 'application/json',
         },
-        ...config,
+        ...restConfig,
         method: 'POST',
       },
     );
@@ -509,10 +514,11 @@ export class TamanuApi {
     body: any = undefined,
     config: FetchOptions = {},
   ): Promise<T> {
-    return await this.fetch(endpoint, undefined, {
+    const { query = {}, ...restConfig } = config;
+    return await this.fetch(endpoint, query, {
       body,
       headers: { 'Content-Type': 'application/json' },
-      ...config,
+      ...restConfig,
       method: 'PATCH',
     });
   }
@@ -522,15 +528,16 @@ export class TamanuApi {
     body: any = undefined,
     config: FetchOptions = {},
   ): Promise<T> {
+    const { query = {}, ...restConfig } = config;
     return this.fetch(
       endpoint,
-      {},
+      query,
       {
         body,
         headers: {
           'Content-Type': 'application/json',
         },
-        ...config,
+        ...restConfig,
         method: 'PUT',
       },
     );

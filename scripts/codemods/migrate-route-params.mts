@@ -16,8 +16,15 @@
  * Without --write it is a dry run: it prints what it would change and what it
  * flagged, and saves nothing.
  */
-import { Node, Project, QuoteKind, SyntaxKind, type SourceFile } from 'ts-morph';
-import type { CallExpression, TemplateExpression } from 'ts-morph';
+import {
+  Node,
+  Project,
+  QuoteKind,
+  SyntaxKind,
+  type CallExpression,
+  type SourceFile,
+  type TemplateExpression,
+} from 'ts-morph';
 
 const VERBS = new Set(['get', 'post', 'put', 'patch', 'delete', 'download']);
 const DEFAULT_GLOBS = [

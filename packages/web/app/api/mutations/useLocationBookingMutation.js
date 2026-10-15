@@ -15,15 +15,10 @@ export const useLocationBookingMutation = (
   return useMutation(
     payload =>
       isEdit
-        ? api.put(
-            // PUT has no query channel, so the static conflict-check flag stays in
-            // the path template.
-            skipConflictCheck
-              ? route('appointments/locationBooking/:id?skipConflictCheck=true', { id: payload.id })
-              : route('appointments/locationBooking/:id', { id: payload.id }),
-            payload,
-            { throwResponse: true },
-          )
+        ? api.put(route(`${BASE_URL}/:id`, { id: payload.id }), payload, {
+            query: skipConflictCheck ? { skipConflictCheck: true } : {},
+            throwResponse: true,
+          })
         : api.post(BASE_URL, payload, { throwResponse: true }),
     {
       ...useMutationOptions,
