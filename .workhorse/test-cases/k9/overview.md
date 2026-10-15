@@ -49,6 +49,7 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 - [x] a process without a central connection follows the endpoint in use and never probes (verifies spec: CEND)
 - [x] the API process's short-lived central calls neither probe nor publish an endpoint when theirs fails (verifies spec: CEND)
 - [x] with a single host nothing is probed (verifies spec: CEND)
+- [x] a process has one selector however many times its runtime is set up, and only an owner starts the recheck timer (verifies spec: CEND)
 - [x] a sync with a dead first endpoint lands on the second and returns to the first after the recheck (verifies spec: CEND)
 
 ## Reporting
@@ -63,5 +64,5 @@ Scenarios for the Central connection endpoints spec (CEND). Ticked cases are cov
 
 - [ ] Admin panel: edit the list in the settings JSON editor at global and facility scope; an invalid entry shows an error and nothing is saved
 - [ ] Admin panel: the sync status page shows the Central endpoint and Endpoint reported columns and they sort
-- [ ] Two real facility server processes (API and sync): kill the first endpoint, confirm the API process's timesync and websocket follow the sync process within the follow interval
+- [ ] Two real facility server processes (API and sync): break the first endpoint, confirm the sync process walks to the next and the API and tasks processes follow it within the follow interval, and that the first is rechecked and returned to once it is back
 - [ ] Rotation: add a new name to the list, confirm facilities report it, then remove the old name and confirm sync continues
