@@ -27,6 +27,7 @@ Implemented across all layers (first pass). Shared module home: `@tamanu/ui-comp
 
 The feature was built facility-first, then admin and portal were wired in without completing the central side. That one root cause produced most of the findings:
 
+- **Ingest logic extracted to shared.** The validation + insert now live in one factory, `@tamanu/shared/utils/browserTelemetryIngest` (`createBrowserTelemetryIngest`), that all three call sites use (facility apiv1, central portal, central public) — differing only in the facility they stamp. No more three copies to keep in step.
 - **Admin telemetry had no ingest.** The admin panel talks to *central*, but central only mounted telemetry under `/api/portal/...`, so every admin batch 404'd silently. Added `POST /public/telemetry` to central's `publicRoutes`.
 - **Central never pruned.** Spans stored on central grew unbounded. `CleanupBrowserTelemetry` moved to `@tamanu/shared/tasks` (the `SendStatusToMetaServer` precedent) and registered on central, with a matching `schedules.cleanupBrowserTelemetry` in `central.ts`.
 - **`telemetry.enabled` was facility-scoped** but is read by central-connected clients. Moved to `global.ts`, matching the other `exposedToPatientPortal` settings and the repo's scope-by-where-it's-read rule.
