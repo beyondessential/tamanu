@@ -16,7 +16,7 @@ const spanSchema = z.object({
   parentId: z.string().nullish(),
   kind: z.string().min(1),
   route: z.string(),
-  parameters: z.record(z.any()).default({}),
+  parameters: z.record(z.string(), z.any()).default({}),
   method: z.string().nullish(),
   statusCode: z.number().int().nullish(),
   durationMs: z.number().int().nonnegative(),
