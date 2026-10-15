@@ -103,15 +103,19 @@ export const NotDispensedMedicationModal = ({ open, onClose, request, onSuccess 
       ),
       value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
     },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.notDispensed.modal.remainingRepeats"
-          fallback="Remaining repeats"
-        />
-      ),
-      value: remainingRepeats ?? 0,
-    },
+    ...(pharmacyOrder?.isDischargePrescription
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="medication.notDispensed.modal.remainingRepeats"
+                fallback="Remaining repeats"
+              />
+            ),
+            value: remainingRepeats ?? 0,
+          },
+        ]
+      : []),
   ];
 
   const handleSubmit = async values => {
