@@ -2,7 +2,11 @@ import { FACT_CENTRAL_ENDPOINT_IN_USE } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 
 import { getCentralHosts, getServerFacilityIds } from '../serverConfig';
-import { CentralEndpointSelector, setCentralEndpointSelector } from './CentralEndpointSelector';
+import {
+  CentralEndpointSelector,
+  getCentralEndpointSelector,
+  setCentralEndpointSelector,
+} from './CentralEndpointSelector';
 import { SyncLoginBackoff, setSyncLoginBackoff } from './SyncLoginBackoff';
 
 const DEFAULT_RECHECK_INTERVAL_SECONDS = 300;
@@ -21,7 +25,18 @@ const FOLLOW_INTERVAL_MS = 15_000;
 // - 'owner': the sync process, which walks the list and rechecks earlier endpoints
 // - 'follower': a process without a central connection of its own, which follows the owner
 // - 'standalone': a one-off command, which can fail over but does not recheck
+//
+// A process has one selector, however many times its runtime is set up: the sync process sets it
+// up for the app and again for the task runner it hosts, and a second owner would run a second
+// recheck timer and publish its own choice over the first's.
 export async function setupCentralEndpointSelector(context, { role }) {
+  const existing = getCentralEndpointSelector();
+  if (existing) {
+    /* eslint-disable-next-line require-atomic-updates -- single-threaded boot, no concurrent writers */
+    context.endpointSelector = existing;
+    return existing;
+  }
+
   const readSetting = async key => {
     const [facilityId] = getServerFacilityIds() ?? [];
     const reader = facilityId ? context.settings[facilityId] : context.settings.global;
