@@ -16,6 +16,7 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 ## Path and parameter genericisation
 
 - [x] An endpoint path masks id-like segments into a generic route pattern and extracts the values as params (verifies spec: BTEL) — `genericiseApiPath.test.js`
+- [x] Long route words (`medicationRequests`, `invoice-price-lists`, …) are left intact rather than masked, so `route` stays a stable grouping key (verifies spec: BTEL) — `genericiseApiPath.test.js`
 
 ## Reporting
 
@@ -24,18 +25,23 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 - [x] A malformed batch is rejected and nothing is stored (verifies spec: BTEL) — facility `telemetry.test.js`
 - [x] An oversized batch (over the max) is rejected (verifies spec: BTEL) — facility `telemetry.test.js`
 - [ ] Events are batched in the browser and sent on the interval (manual / e2e)
-- [ ] The routine interval flush does not set `keepalive` (only the unload flush does), so batches over the browser's 64 KiB keepalive cap are not dropped (verifies spec: BTEL) — unit test owed
+- [ ] The routine interval flush does not set `keepalive` (only the unload flush does), and the unload flush is bounded so it stays under the browser's 64 KiB keepalive cap (verifies spec: BTEL) — unit test owed
 - [ ] An exported batch never exceeds the size the ingest endpoint accepts (verifies spec: BTEL) — unit test owed
 - [ ] The telemetry POST is not itself recorded as a span — no self-describing loop (verifies spec: BTEL) — unit test owed
 - [ ] A failed/rejected send is swallowed and never disrupts the app or surfaces an error (verifies spec: BTEL) — manual / unit owed
 - [x] Central accepts an unauthenticated batch from a central-connected client (admin) and stores spans with no facility (verifies spec: BTEL) — central `telemetry.test.js`
 - [x] Central records the user on an authenticated batch, and rejects malformed and oversized batches (verifies spec: BTEL) — central `telemetry.test.js`
-- [ ] The patient-portal's own mount (`portal/public/telemetry`) stores spans on central (verifies spec: BTEL) — shares the ingest handler, which is covered; the portal mount itself is not
+- [x] The patient-portal's own mount (`portal/public/telemetry`) stores spans on central with no facility, and rejects malformed/oversized batches (verifies spec: BTEL) — central `patientPortalApi/telemetry.test.js`
+- [x] A batch whose `occurredAt` is not a datetime is rejected rather than reaching the database (verifies spec: BTEL) — central `patientPortalApi/telemetry.test.js`
+- [x] The facility stamps its own configured facility id on each row (verifies spec: BTEL) — facility `telemetry.test.js`
+- [x] An authenticated batch is accepted and records its reported user (verifies spec: BTEL) — facility `telemetry.test.js`
 
 ## Raw store and retention
 
 - [x] The prune task removes spans older than the retention period and keeps recent ones (verifies spec: BTEL) — `CleanupBrowserTelemetry.test.js`
+- [x] Rows are aged by when the server received them, so a client reporting a far-future `occurredAt` cannot evade retention (verifies spec: BTEL) — `CleanupBrowserTelemetry.test.js`
 - [ ] Central runs the prune task too, so telemetry stored there (admin, portal) does not grow unbounded (verifies spec: BTEL) — registered in central's task list; a central-side test is owed
+- [ ] The prune removes a very large backlog in bounded batches rather than one long transaction (verifies spec: BTEL) — volume test owed
 - [x] The prune task reads its schedule and retention period from settings (verifies spec: BTEL) — `CleanupBrowserTelemetry.test.js`
 - [ ] The raw table does not sync to central and is not written to the changelog (verifies spec: BTEL) — guard test owed (enforced by config today)
 
