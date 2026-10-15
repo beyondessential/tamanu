@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
+import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -8,6 +9,7 @@ import {
 } from '@tamanu/ui-components';
 import { TELEMETRY_INTERFACES } from '@tamanu/constants';
 
+import { checkIsLoggedIn, checkIsFacilitySelected } from './store/auth';
 import { getDeviceId } from './utils';
 import { FULL_VERSION } from './utils/env';
 import { LOCAL_STORAGE_KEYS } from './constants';
@@ -57,14 +59,20 @@ export function initWebTelemetry(api) {
   return telemetry;
 }
 
-// Rendered inside the router: starts a navigation whenever the path changes.
+// Rendered inside the router: starts a navigation whenever the page being shown
+// changes. That is usually a path change, but `App` also swaps the login and
+// facility-selection screens in on the *same* URL, so the real page load only
+// begins once those gates clear — without them as dependencies the post-login
+// load would never start a navigation and all its requests would be dropped.
 export const TelemetryRouteListener = () => {
   const location = useLocation();
+  const isUserLoggedIn = useSelector(checkIsLoggedIn);
+  const isFacilitySelected = useSelector(checkIsFacilitySelected);
   useEffect(() => {
     if (!telemetry) return;
     const { route, pathParams } = genericiseApiPath(location.pathname);
     const query = Object.fromEntries(new URLSearchParams(location.search));
     telemetry.startNavigation(route, pathParams, query);
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, isUserLoggedIn, isFacilitySelected]);
   return null;
 };

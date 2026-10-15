@@ -23,8 +23,21 @@ Implemented across all layers (first pass). Shared module home: `@tamanu/ui-comp
 - ✅ **Migration timestamp regenerated** to a real epoch (was the hand-stamped `1792022400000`); still sorts last.
 - ✅ **dbt source models regenerated** (`dbt-generate-model` against a fresh `tamanu-generate-model` DB): `database/model/logs/browser_telemetry_spans.{yml,md}` created, descriptions filled, `parameters` masked `empty` (the convention for sensitive jsonb). `dbt-check-todos` clean.
 
+**Review round 2 — central-side completion (Cursor Bugbot, all six confirmed and fixed):**
+
+The feature was built facility-first, then admin and portal were wired in without completing the central side. That one root cause produced most of the findings:
+
+- **Admin telemetry had no ingest.** The admin panel talks to *central*, but central only mounted telemetry under `/api/portal/...`, so every admin batch 404'd silently. Added `POST /public/telemetry` to central's `publicRoutes`.
+- **Central never pruned.** Spans stored on central grew unbounded. `CleanupBrowserTelemetry` moved to `@tamanu/shared/tasks` (the `SendStatusToMetaServer` precedent) and registered on central, with a matching `schedules.cleanupBrowserTelemetry` in `central.ts`.
+- **`telemetry.enabled` was facility-scoped** but is read by central-connected clients. Moved to `global.ts`, matching the other `exposedToPatientPortal` settings and the repo's scope-by-where-it's-read rule.
+- **Portal ignored the setting** — it passed no `isEnabled`. Wired through a module flag the portal's `SettingsProvider` syncs.
+- **Portal never recorded a user** — its `tokenLogin`/`restoreSession` never set `api.user`. Added `fetchCurrentUser()`, used by `useCurrentUserQuery`, so both paths populate it.
+- **`keepalive` on every POST** — browsers cap keepalive bodies at 64 KiB, so the busiest batches were silently dropped. Now set only for the unload flush. Also capped `maxExportBatchSize` to `TELEMETRY_MAX_BATCH_SIZE`: the SDK default (512) exceeded our own ingest limit (500), so a full batch was refused.
+- **Same-URL screen swaps** — `App` swaps login/facility-selection in at the same URL, so the post-login load never started a navigation. The route listener now also depends on the auth gates.
+
+Also folded in: the three near-identical ingest handlers are now one shared `@tamanu/shared/utils/browserTelemetryIngest`.
+
 **Deviations / things to verify (surfaced for review):**
-- **Patient portal → central, not facility.** The portal talks to `/api/portal` on central, so its telemetry ingest (`portal/public/telemetry`) and raw store live on **central**, not a facility server. Spec updated to say "the server the client talks to". Confirm this is acceptable, or defer portal telemetry.
 - **Navigation params are positional** (`param1`, `param2`) via the same id-masking heuristic as request spans, not named (`patientId`) — getting named params needs react-router's route table, which the JSX `<Routes>` setup doesn't expose cleanly. Follow-up if named params are wanted.
 - **Background tagging is minimal:** only `checkServerAlive` is tagged `background`. Tagging `useAutoUpdatingQuery` would wrongly exclude its initial page-load fetch; per-query background refinement is a follow-up.
 - **Ingest endpoints are not rate-limited** (they follow the other `/public` routes; the strict auth limiter is wrong for frequent posts). A lenient per-IP limit + batch-size cap is a hardening follow-up; the batch-size cap (`TELEMETRY_MAX_BATCH_SIZE`) is already enforced.

@@ -12,6 +12,16 @@ import type { TamanuApi } from '@api/TamanuApi';
 
 let telemetry: { startNavigation: Function; shutdown: Function } | null = null;
 
+// Defaults on until the server's setting arrives, so navigations before sign-in
+// (when no settings have loaded yet) are still captured. Matches the schema
+// default and the clinical app's behaviour.
+let isTelemetryEnabled = true;
+
+/** Called once the portal's settings load, so operators can turn capture off. */
+export function setPortalTelemetryEnabled(enabled: boolean) {
+  isTelemetryEnabled = enabled !== false;
+}
+
 // One id per page load, standing in for the browser session. The portal is
 // served over HTTPS, so `crypto.randomUUID` is available (as in getDeviceId).
 const SESSION_ID = `portal-session-${crypto.randomUUID()}`;
@@ -19,6 +29,7 @@ const SESSION_ID = `portal-session-${crypto.randomUUID()}`;
 export function initPortalTelemetry(api: TamanuApi) {
   telemetry = initBrowserTelemetry({
     api,
+    isEnabled: () => isTelemetryEnabled,
     getContextAttributes: () => ({
       interface: TELEMETRY_INTERFACES.PATIENT_PORTAL,
       deviceId: api.deviceId,

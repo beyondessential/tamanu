@@ -5,6 +5,8 @@ import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVers
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
 import { keyBy, mapValues } from 'es-toolkit/compat';
 
+import { createBrowserTelemetryIngest } from '@tamanu/shared/utils/browserTelemetryIngest';
+
 import { labResultWidgetRoutes } from './labResultWidget';
 import { publicIntegrationRoutes } from '../integrations';
 import { telegramWebhookRoutes } from './telegramWebhook';
@@ -26,6 +28,12 @@ publicRoutes.use(
 publicRoutes.get('/ping', (_req, res) => {
   res.send({ ok: true });
 });
+
+// spec: BTEL
+// Browser performance telemetry ingest for the web clients that talk to central
+// (the admin panel). Public so pre-login navigations are recorded; central has
+// no single facility, so rows are stored without one.
+publicRoutes.post('/telemetry', createBrowserTelemetryIngest());
 
 publicRoutes.get('/translation/languageOptions', async (req, res) => {
   const { TranslatedString } = req.models;

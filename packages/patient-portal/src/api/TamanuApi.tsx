@@ -44,8 +44,21 @@ export class TamanuApi extends BaseTamanuApi {
     // Fetch user data from patient portal endpoint
     const userResponse = await this.get('me', {}, { ...config, waitForAuth: false });
     const user = userResponse.data; // Extract the actual patient data
+    this.user = user;
 
     return { token, user } as LoginResponse;
+  }
+
+  /**
+   * Fetches the signed-in patient and keeps `this.user` current, so cross-cutting
+   * consumers (browser telemetry) can read who is signed in. The base class does
+   * this in `fetchUserData`, which the portal's token login flow bypasses — and
+   * session restore only sets a token, so without this `user` stays null.
+   */
+  async fetchCurrentUser() {
+    const user = await this.get('me');
+    this.user = user;
+    return user;
   }
 
   async logout() {

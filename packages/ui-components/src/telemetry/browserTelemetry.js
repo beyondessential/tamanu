@@ -1,6 +1,8 @@
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
+import { TELEMETRY_MAX_BATCH_SIZE } from '@tamanu/constants';
+
 import { createTelemetryExporter } from './telemetryExporter';
 import { TelemetryNavigationTracker } from './navigationTracker';
 import { TELEMETRY_TRACER_NAME } from './spanKeys';
@@ -33,20 +35,30 @@ export function initBrowserTelemetry({
   quietWindowMs,
   maxDurationMs,
 }) {
+  // Set only while the page is going away, so the unload flush uses keepalive and
+  // the routine interval flush does not. Browsers cap the total body of keepalive
+  // requests at 64 KiB and reject anything larger, which would silently drop the
+  // busiest batches — exactly the page loads worth measuring.
+  let isUnloading = false;
+
   const exporter = createTelemetryExporter(spans => {
     if (!spans.length || !isEnabled()) return Promise.resolve();
-    // background: excluded from the quiet calc; keepalive: lets the POST complete
-    // during page unload. Never toast telemetry failures.
+    // background: excluded from the quiet calc. Never toast telemetry failures.
     return api.post(
       TELEMETRY_ENDPOINT,
       { spans },
-      { background: true, keepalive: true, showUnknownErrorToast: false },
+      { background: true, keepalive: isUnloading, showUnknownErrorToast: false },
     );
   });
 
   const provider = new WebTracerProvider();
   provider.addSpanProcessor(
-    new BatchSpanProcessor(exporter, { scheduledDelayMillis: SEND_INTERVAL_MS }),
+    new BatchSpanProcessor(exporter, {
+      scheduledDelayMillis: SEND_INTERVAL_MS,
+      // The ingest endpoint rejects anything larger, and the SDK default (512)
+      // exceeds it, so a full batch would be refused outright.
+      maxExportBatchSize: TELEMETRY_MAX_BATCH_SIZE,
+    }),
   );
   const tracer = provider.getTracer(TELEMETRY_TRACER_NAME);
 
@@ -78,6 +90,7 @@ export function initBrowserTelemetry({
   });
 
   const flush = () => {
+    isUnloading = true;
     provider.forceFlush?.().catch(() => {});
   };
   if (typeof window !== 'undefined') {

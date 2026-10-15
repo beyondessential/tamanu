@@ -15,7 +15,7 @@ import { MSupplyStockOnHandProcessor } from './MSupplyStockOnHandProcessor';
 import { RefreshUpcomingVaccinations } from './RefreshMaterializedView';
 import { TimeSyncTask } from './TimeSyncTask';
 import { CleanupIdempotencyKeys } from './CleanupIdempotencyKeys';
-import { CleanupBrowserTelemetry } from './CleanupBrowserTelemetry';
+import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
 
 export { startFhirWorkerTasks };
 
