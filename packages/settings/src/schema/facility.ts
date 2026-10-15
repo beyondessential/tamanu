@@ -322,21 +322,6 @@ export const facilitySettings = {
         },
       },
     },
-    telemetry: {
-      name: 'Telemetry',
-      description: 'Browser performance telemetry collected from the web clients',
-      properties: {
-        enabled: {
-          name: 'Enabled',
-          description:
-            'Collect browser performance telemetry (page-load and API timings) from the web clients connected to this facility and store it locally. Retention is configured under Scheduled tasks.',
-          type: yup.boolean(),
-          defaultValue: true,
-          exposedToWeb: true,
-          exposedToPatientPortal: true,
-        },
-      },
-    },
     vaccinations: vaccinationsSchema,
     medications: {
       name: 'Medication',

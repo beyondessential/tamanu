@@ -10,6 +10,8 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 - [x] Navigating away before a navigation settles abandons it, with outcome `abandoned` (verifies spec: BTEL) — `navigationTracker.test.js`
 - [x] A navigation that never goes quiet is ended by the cap, with outcome `capped` (verifies spec: BTEL) — `navigationTracker.test.js`
 - [ ] Loading a real data-heavy page (e.g. the Tasks dashboard) produces one navigation trace whose children are its API request spans (manual / e2e)
+- [ ] Signing in starts a fresh navigation for the page that renders behind the login screen, so the post-login load is measured rather than dropped (verifies spec: BTEL) — unit test owed
+- [ ] Selecting a facility likewise starts a fresh navigation (verifies spec: BTEL) — unit test owed
 
 ## Path and parameter genericisation
 
@@ -22,19 +24,25 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 - [x] A malformed batch is rejected and nothing is stored (verifies spec: BTEL) — facility `telemetry.test.js`
 - [x] An oversized batch (over the max) is rejected (verifies spec: BTEL) — facility `telemetry.test.js`
 - [ ] Events are batched in the browser and sent on the interval (manual / e2e)
+- [ ] The routine interval flush does not set `keepalive` (only the unload flush does), so batches over the browser's 64 KiB keepalive cap are not dropped (verifies spec: BTEL) — unit test owed
+- [ ] An exported batch never exceeds the size the ingest endpoint accepts (verifies spec: BTEL) — unit test owed
 - [ ] The telemetry POST is not itself recorded as a span — no self-describing loop (verifies spec: BTEL) — unit test owed
 - [ ] A failed/rejected send is swallowed and never disrupts the app or surfaces an error (verifies spec: BTEL) — manual / unit owed
-- [ ] Patient-portal telemetry posts to central and is stored there (verifies spec: BTEL) — central integration test owed
+- [x] Central accepts an unauthenticated batch from a central-connected client (admin) and stores spans with no facility (verifies spec: BTEL) — central `telemetry.test.js`
+- [x] Central records the user on an authenticated batch, and rejects malformed and oversized batches (verifies spec: BTEL) — central `telemetry.test.js`
+- [ ] The patient-portal's own mount (`portal/public/telemetry`) stores spans on central (verifies spec: BTEL) — shares the ingest handler, which is covered; the portal mount itself is not
 
 ## Raw store and retention
 
 - [x] The prune task removes spans older than the retention period and keeps recent ones (verifies spec: BTEL) — `CleanupBrowserTelemetry.test.js`
+- [ ] Central runs the prune task too, so telemetry stored there (admin, portal) does not grow unbounded (verifies spec: BTEL) — registered in central's task list; a central-side test is owed
 - [x] The prune task reads its schedule and retention period from settings (verifies spec: BTEL) — `CleanupBrowserTelemetry.test.js`
 - [ ] The raw table does not sync to central and is not written to the changelog (verifies spec: BTEL) — guard test owed (enforced by config today)
 
 ## Settings
 
 - [ ] When telemetry is disabled, the clients collect and send nothing (verifies spec: BTEL) — unit / manual owed
+- [ ] The patient portal honours the setting once its settings load (verifies spec: BTEL) — unit test owed
 - [ ] The enabled flag reaches the web clients via the front-end settings (verifies spec: BTEL) — manual owed
 - [ ] Telemetry defaults to on (verifies spec: BTEL) — settings test owed
 

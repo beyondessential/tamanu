@@ -4,7 +4,7 @@ id: BTEL
 
 # Browser performance telemetry
 
-The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long the individual API requests behind it take — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical and admin clients that is their facility server; for the patient portal, which talks to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
+The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long the individual API requests behind it take — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical client that is its facility server; for the admin panel and the patient portal, which both talk to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
 
 This spec covers collecting the measurements and storing the raw events. Rolling the raw events up into summary statistics, anonymising them, and reporting them onward (to central and Canopy) are handled separately; the raw store described here is the source those steps read from.
 
@@ -31,7 +31,7 @@ A page is considered loaded when the burst of API activity triggered by navigati
 
 ## What each event records
 
-Each event carries enough context to both bucket it by page downstream and drill into a single slow request. Record identifiers that appear in paths are UUIDs and carry no patient-identifying meaning; query parameters may contain patient-identifying values (such as a search term), which is acceptable here because the raw events never leave the facility server and are anonymised before they are reported onward.
+Each event carries enough context to both bucket it by page downstream and drill into a single slow request. Record identifiers that appear in paths are UUIDs and carry no patient-identifying meaning; query parameters may contain patient-identifying values (such as a search term), which is acceptable here because the raw events never leave the server that received them and are anonymised before they are reported onward.
 
 - [ ] Each event records the trace it belongs to, so a navigation and its request spans can be tied together, and whether it is a navigation or a request.
 - [ ] Each event records the generic route pattern (for example `/patients/:patientId/encounter/:encounterId`) as its grouping key, and records the resolved parameters separately — the path parameters (such as `patientId` and `encounterId`) apart from the query parameters — so the downstream step groups by pattern and can still drill into a specific patient, encounter, or search without parsing a concrete path.
@@ -52,16 +52,16 @@ Collected events are held in the browser and sent in batches to the Tamanu serve
 
 ## Raw store
 
-The receiving server writes events into a single flat table — one row per span — in the `logs` schema, alongside the other local-only operational logs. The table is high-volume and local to that server (per facility for the clinical and admin clients; on central for the patient portal).
+The receiving server writes events into a single flat table — one row per span — in the `logs` schema, alongside the other local-only operational logs. The table is high-volume and local to that server: per facility for the clinical client, and on central for the admin panel and the patient portal.
 
 - [ ] Received telemetry events are written to a single flat table, one row per span, with a trace identifier tying a navigation's rows together.
 - [ ] The raw telemetry table does not sync to central and is not recorded in the changelog.
-- [ ] A scheduled job removes raw telemetry rows older than the configured retention period.
+- [ ] A scheduled job on each server holding raw telemetry — facility and central alike — removes rows older than the configured retention period.
 
 ## Settings
 
-Telemetry is governed by facility settings so operators can control it without a redeploy. The enablement flag is exposed to the web clients so a client knows whether to collect at all.
+Telemetry is governed by settings so operators can control it without a redeploy. Because every web client collects it, and they do not all talk to a facility server, the enablement flag applies server-wide rather than per facility, and is exposed to the web clients so a client knows whether to collect at all.
 
-- [ ] A facility setting turns browser telemetry on or off, defaulting to on; when off, the clients collect and send nothing.
-- [ ] The enablement setting is exposed to the web clients.
-- [ ] A facility setting defines the raw-event retention period, defaulting to one month.
+- [ ] A setting turns browser telemetry on or off, defaulting to on; when off, the clients collect and send nothing.
+- [ ] The enablement setting is exposed to every web client, including the patient portal.
+- [ ] A setting on each server holding raw telemetry defines its retention period, defaulting to one month.

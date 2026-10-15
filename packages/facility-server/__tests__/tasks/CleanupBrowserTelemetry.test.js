@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestContext } from '../utilities';
-import { CleanupBrowserTelemetry } from '../../app/tasks/CleanupBrowserTelemetry';
+import { CleanupBrowserTelemetry } from '@tamanu/shared/tasks/CleanupBrowserTelemetry';
 
 // spec: BTEL
 // Retention: raw telemetry is only needed until it has been aggregated, so the
