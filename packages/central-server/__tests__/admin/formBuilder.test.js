@@ -101,7 +101,7 @@ describe('Form Builder Admin', () => {
       invokeStructured: vi.fn().mockResolvedValue(programDefinition),
       interpretFormBuilderImage: vi.fn().mockResolvedValue('SECTION: Referral\nQUESTION: Patient name'),
       interpretFormBuilderPdf: vi.fn().mockResolvedValue('SECTION: PDF Referral\nQUESTION: Patient name'),
-      registerFormBuilderContext: vi.fn().mockResolvedValue(undefined),
+      hasContext: vi.fn(() => true),
       addSessionMessages: vi.fn().mockResolvedValue(undefined),
     };
     ctx.aiService = aiService;

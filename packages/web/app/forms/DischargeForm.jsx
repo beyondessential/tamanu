@@ -265,7 +265,8 @@ export const DischargeForm = ({
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
-  const encounterSummaryEnabled = getSetting('encounterSummary.enabled');
+  const encounterSummaryEnabled =
+    getSetting('experimentalAi.enabled') && getSetting('experimentalAi.encounterSummary.enabled');
   const canCreateEncounterSummary = ability.can('create', 'EncounterSummary');
   const canWriteEncounterSummary = ability.can('write', 'EncounterSummary');
   const showEncounterSummary =

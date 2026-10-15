@@ -50,8 +50,8 @@ patientSummaryRoute.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'PatientSummary');
 
-    if (!req.aiService) {
-      throw new ForbiddenError('AI service is not enabled or configured');
+    if (!req.aiService?.hasContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY)) {
+      throw new ForbiddenError('Patient summary is not enabled or configured');
     }
 
     const { patientData, editFeedback } = patientSummaryBodySchema.parse(req.body);

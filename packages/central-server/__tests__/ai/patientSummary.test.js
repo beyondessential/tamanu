@@ -24,6 +24,7 @@ describe('AI Patient Summary (central-server)', () => {
 
     beforeAll(async () => {
       mockAiService = {
+        hasContext: vi.fn(() => true),
         invoke: vi.fn(
           async () =>
             new AIMessage({
@@ -101,7 +102,7 @@ describe('AI Patient Summary (central-server)', () => {
       const result = await app.post(SUMMARY_URL).send({ patientData });
 
       expect(result).toBeForbidden();
-      expect(result.body.error.message).toBe('AI service is not enabled or configured');
+      expect(result.body.error.message).toBe('Patient summary is not enabled or configured');
     });
   });
 });

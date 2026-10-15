@@ -47,8 +47,8 @@ encounterSummaryRoute.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Discharge');
 
-    if (!req.aiService) {
-      throw new ForbiddenError('AI service is not enabled or configured');
+    if (!req.aiService?.hasContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY)) {
+      throw new ForbiddenError('Encounter summary is not enabled or configured');
     }
 
     const { encounterData, editFeedback } = encounterSummaryBodySchema.parse(req.body);
