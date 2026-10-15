@@ -14,6 +14,7 @@ import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
+import { route } from '@tamanu/api-client';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
@@ -43,8 +44,8 @@ export const TemplateView = () => {
   );
 
   const onEditTemplate = useCallback(
-    async (data) => {
-      await api.put(`${TEMPLATE_ENDPOINT}/${data.id}`, {
+    async data => {
+      await api.put(route(':TEMPLATE_ENDPOINT/:dataId', { TEMPLATE_ENDPOINT, dataId: data.id }), {
         createdById: currentUser.id,
         ...data,
       });
@@ -55,9 +56,15 @@ export const TemplateView = () => {
   );
 
   const onDeleteTemplate = useCallback(async () => {
-    await api.put(`${TEMPLATE_ENDPOINT}/${editingTemplate.id}`, {
-      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-    });
+    await api.put(
+      route(':TEMPLATE_ENDPOINT/:editingTemplateId', {
+        TEMPLATE_ENDPOINT,
+        editingTemplateId: editingTemplate.id,
+      }),
+      {
+        visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      },
+    );
     updateRefreshCount();
     setEditingTemplate(null);
   }, [api, updateRefreshCount, editingTemplate?.id]);

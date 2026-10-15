@@ -12,6 +12,7 @@ import {
   RemoteCallError,
 } from '@tamanu/errors';
 import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
+import { type Endpoint, expandRoute, isRouteDescriptor } from './route';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
   InterceptorManager,
@@ -290,10 +291,11 @@ export class TamanuApi {
   }
 
   async fetch(
-    endpoint: string,
+    endpoint: Endpoint,
     query: Record<string, any> = {},
     options: FetchOptions = {},
   ): Promise<any> {
+    const resolvedEndpoint = isRouteDescriptor(endpoint) ? expandRoute(endpoint) : endpoint;
     const { useAuthToken, ...moreConfig } = {
       ...this.#defaultRequestConfig,
       ...options,
@@ -344,7 +346,7 @@ export class TamanuApi {
     }
 
     const queryString = qs.stringify(query || {});
-    const path = `${endpoint}${queryString ? `?${queryString}` : ''}`;
+    const path = `${resolvedEndpoint}${queryString ? `?${queryString}` : ''}`;
     const url = `${this.#prefix}/${path}`;
     const config = {
       headers: reqHeaders,
@@ -442,14 +444,14 @@ export class TamanuApi {
   }
 
   async get<T = any>(
-    endpoint: string,
+    endpoint: Endpoint,
     query: Record<string, any> = {},
     config: FetchOptions = {},
   ): Promise<T> {
     return this.fetch(endpoint, query, { ...config, method: 'GET' });
   }
 
-  async download(endpoint: string, query: Record<string, any> = {}): Promise<Blob> {
+  async download(endpoint: Endpoint, query: Record<string, any> = {}): Promise<Blob> {
     const response = (await this.fetch(endpoint, query, {
       returnResponse: true,
     })) as Response;
@@ -458,7 +460,7 @@ export class TamanuApi {
   }
 
   async postWithFileUpload(
-    endpoint: string,
+    endpoint: Endpoint,
     file: Blob,
     body: any,
     options: FetchOptions = {},
@@ -484,7 +486,7 @@ export class TamanuApi {
   }
 
   async post<T = any>(
-    endpoint: string,
+    endpoint: Endpoint,
     body: any = undefined,
     config: FetchOptions = {},
   ): Promise<T> {
@@ -503,7 +505,7 @@ export class TamanuApi {
   }
 
   async patch<T = any>(
-    endpoint: string,
+    endpoint: Endpoint,
     body: any = undefined,
     config: FetchOptions = {},
   ): Promise<T> {
@@ -516,7 +518,7 @@ export class TamanuApi {
   }
 
   async put<T = any>(
-    endpoint: string,
+    endpoint: Endpoint,
     body: any = undefined,
     config: FetchOptions = {},
   ): Promise<T> {
@@ -535,7 +537,7 @@ export class TamanuApi {
   }
 
   async delete<T = any>(
-    endpoint: string,
+    endpoint: Endpoint,
     query: Record<string, any> = {},
     config: FetchOptions = {},
   ): Promise<T> {
@@ -543,7 +545,7 @@ export class TamanuApi {
   }
 
   async pollUntilOk<T = any>(
-    endpoint: string,
+    endpoint: Endpoint,
     query?: Record<string, any>,
     config?: FetchOptions,
   ): Promise<T> {

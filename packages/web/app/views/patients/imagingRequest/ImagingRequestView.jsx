@@ -43,6 +43,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { shouldSubmitImagingResult } from '../../../utils/shouldSubmitImagingResult';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
+import { route } from '@tamanu/api-client';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -283,7 +284,10 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
           updatedValues.newResult = values.newResult;
         }
 
-        await api.put(`imagingRequest/${imagingRequest.id}`, { ...updatedValues, facilityId });
+        await api.put(
+          route('imagingRequest/:imagingRequestId', { imagingRequestId: imagingRequest.id }),
+          { ...updatedValues, facilityId },
+        );
 
         onSubmit(updatedValues);
       }}

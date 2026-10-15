@@ -26,6 +26,7 @@ import { useSettings } from '../../contexts/Settings';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { usePatient } from '../../contexts/Patient';
+import { route } from '@tamanu/api-client';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -263,7 +264,12 @@ export const PatientInfoPane = () => {
   const canReadPatientDeath = ability?.can('read', 'PatientDeath');
   const { data: deathData, isFetching } = useQuery(
     ['patientDeathSummary', patient?.id],
-    () => api.get(`patient/${patient?.id}/death`, {}, { showUnknownErrorToast: false }),
+    () =>
+      api.get(
+        route('patient/:patientId/death', { patientId: patient?.id }),
+        {},
+        { showUnknownErrorToast: false },
+      ),
     { enabled: patientDeathsEnabled && Boolean(patient?.dateOfDeath) },
   );
 

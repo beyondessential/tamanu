@@ -45,6 +45,7 @@ import {
   getTooltipMessage,
 } from '../../../utils/chart/chartUtils';
 import { TabPane } from '../components';
+import { route } from '@tamanu/api-client';
 
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
@@ -246,7 +247,10 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const handleDeleteChart = useCallback(async () => {
     try {
       await api.delete(
-        `encounter/${encounter.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
+        route('encounter/:encounterId/chartInstances/:chartInstanceId', {
+          encounterId: encounter.id,
+          chartInstanceId: currentComplexChartInstance?.chartInstanceId,
+        }),
       );
 
       handleCloseModal();

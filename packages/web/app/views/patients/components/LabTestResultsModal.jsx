@@ -35,6 +35,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { usePatient } from '../../../contexts/Patient';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
+import { route } from '@tamanu/api-client';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -467,7 +468,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const { displayId } = labRequest;
 
   const { mutate: updateTests, isLoading: isSavingTests } = useMutation(
-    payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
+    payload =>
+      api.put(route('labRequest/:labRequestId/tests', { labRequestId: labRequest.id }), payload),
     {
       onSuccess: labTestRes => {
         toast.success(

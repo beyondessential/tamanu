@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 
 import { useApi } from '../useApi';
 
@@ -12,10 +13,14 @@ export const useLocationBookingMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    (payload) =>
+    payload =>
       isEdit
         ? api.put(
-            `${BASE_URL}/${payload.id}${skipConflictCheck ? '?skipConflictCheck=true' : ''}`,
+            // PUT has no query channel, so the static conflict-check flag stays in
+            // the path template.
+            skipConflictCheck
+              ? route('appointments/locationBooking/:id?skipConflictCheck=true', { id: payload.id })
+              : route('appointments/locationBooking/:id', { id: payload.id }),
             payload,
             { throwResponse: true },
           )

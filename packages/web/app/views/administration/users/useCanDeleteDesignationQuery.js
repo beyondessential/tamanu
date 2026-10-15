@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { useApi } from '../../../api';
 import { DESIGNATION_ENDPOINT } from '../constants';
+import { route } from '@tamanu/api-client';
 
 export const useCanDeleteDesignationQuery = (designationId, useQueryOptions) => {
   const api = useApi();
@@ -12,7 +13,10 @@ export const useCanDeleteDesignationQuery = (designationId, useQueryOptions) => 
     queryKey: ['designation', 'isDeletable', designationId],
     queryFn: async () =>
       await api.get(
-        `${DESIGNATION_ENDPOINT}/${encodeURIComponent(designationId)}/isDeletable`,
+        route(':DESIGNATION_ENDPOINT/:designationId/isDeletable', {
+          DESIGNATION_ENDPOINT,
+          designationId,
+        }),
         null,
         { showUnknownErrorToast: false },
       ),

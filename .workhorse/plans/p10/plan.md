@@ -82,49 +82,56 @@ telemetry-wiring step after M9 is in main.
 
 ### api-client — core (independent of M9)
 
-- [ ] Add `RouteDescriptor` + `route(template, params)` in a new
-      `packages/api-client/src/route.ts`; brand it (class or unique symbol).
-- [ ] TypeScript: type `params` from the template via template-literal types so a
-      missing/extra `:token` is a compile error. Fall back to
-      `Record<string, string | number>` if the recursive type proves too gnarly.
-- [ ] Export `route` and `RouteDescriptor` from `src/index.ts`.
-- [ ] In `TamanuApi.fetch`, before building the query string: if `endpoint` is a
-      `RouteDescriptor`, expand `:name` tokens against `params`,
-      `encodeURIComponent` each value, and produce the concrete path. Throw in
-      dev on a token with no matching param, or a param with no token (strict —
-      catches typos at source).
-- [ ] Confirm all verbs flow through unchanged: `get`/`delete`/`download` pass
-      arg 1 straight to `fetch`; `post`/`put`/`patch`/`postWithFileUpload` too.
-      Only `fetch` needs to know about the descriptor.
-- [ ] Unit tests: expansion, encoding (incl. the `referenceData/village-Nasaga`
-      case), missing/extra param throws, plain-string passthrough unchanged,
-      query + path params together.
+- [x] `RouteDescriptor` + `route(template, params)` in
+      `packages/api-client/src/route.ts`; branded via `Symbol.for` (survives a
+      duplicated module copy in a bundle, unlike instanceof).
+- [x] TypeScript: `params` typed from the template via template-literal types —
+      a missing/extra/misnamed `:token` is a compile error, and a param-less
+      template takes no params arg. Trailing query string in a template is
+      stripped before extraction.
+- [x] Export `route`/`expandRoute`/`isRouteDescriptor` + types from `src/index.ts`.
+- [x] `TamanuApi.fetch` resolves `endpoint` (descriptor → `expandRoute`, central
+      `encodeURIComponent`, strict throw on token/param mismatch) before building
+      the query string. Verb signatures widened `string` → `Endpoint`.
+- [x] All verbs flow through unchanged — only `fetch` knows about the descriptor.
+- [x] Unit tests (9) pass: expansion, encoding (incl. a `/`-containing value),
+      numeric values, no-placeholder passthrough, missing/extra param throws,
+      descriptor detection vs plain object/string. Added `vitest.config.ts` so
+      api-client joins the vitest project list.
 
 ### Codemod (ts-morph)
 
-- [ ] Script under `packages/scripts` to rewrite `api.<verb>` call sites in
-      `packages/web` and `packages/patient-portal` from interpolated template
-      literals to `route(...)`, and add the `route` import.
-- [ ] Unwrap existing `encodeURIComponent(x)` in a segment → `:x` + `{ x }`
-      (central encoding replaces it).
-- [ ] Flag for manual review, do not auto-rewrite: partial-segment interpolation
-      (`village-${x}`), non-identifier expressions (`${foo.bar}`,
-      `${a + b}`), duplicate derived param names, and templates that already
-      contain a query string.
-- [ ] Run in batches by area (encounters, labs, medications, vaccines, …),
-      leaning on the integration/e2e tests between batches.
+- [x] `scripts/codemods/migrate-route-params.mts` (tsx). Dry-run by default,
+      `--write` to apply; accepts globs, defaults to web + patient-portal.
+- [x] Unwraps `encodeURIComponent(x)` → `:x`; derives `patient.id` → `patientId`
+      so `.id` params are named and collisions mostly avoided.
+- [x] Flags (does not touch): partial-segment interpolation, non-identifier
+      expressions, duplicate derived names, query string in template.
+- [x] Applied: **268 rewrites across 200 files**; 4 flagged, all migrated by hand
+      (query moved to the query arg for get/delete; the one PUT keeps its static
+      flag in the template, as PUT has no query channel).
 
 ### ESLint guard
 
-- [ ] Add a `no-restricted-syntax` entry (alongside the existing one) scoped to
-      `BROWSER_PACKAGES`, forbidding a `TemplateLiteral` with expressions as the
-      first argument of an `api.<verb>(...)` call, so new code can't regress to
-      interpolation. Best-effort on the `api` receiver (won't catch every alias);
-      message points at `route()`.
+- [x] `no-restricted-syntax` entry scoped to `BROWSER_PACKAGES` forbidding a
+      template literal with expressions as the first arg of `api.<verb>(...)`.
+      The base `vi.mock` selector is repeated in the same block (flat config
+      overrides rather than merges `no-restricted-syntax` per file).
 
 ### Verify
 
-- [ ] `npx eslint` clean on changed files.
-- [ ] `@tamanu/api-client` unit tests pass.
-- [ ] web + patient-portal build clean.
-- [ ] Spot-check a migrated area end-to-end against the running app.
+- [x] ESLint clean on changed files (0 errors; 8 pre-existing warnings untouched).
+- [x] `@tamanu/api-client` unit tests pass (9/9).
+- [x] Type enforcement confirmed in isolation (valid calls pass; missing/extra/
+      no-arg cases are real compile errors).
+- [x] web + patient-portal build clean (both dist rebuilt, exit 0).
+- [ ] Spot-check a migrated area end-to-end against the running app (optional).
+
+### Follow-ups / when M9 lands
+
+- [ ] Add optional `route?`/`pathParams?` to `TelemetryRequestStart` and emit
+      them from `fetch` for descriptor calls; collector prefers them over
+      `genericiseApiPath`. (Needs M9's sink — do on rebase.)
+- [ ] The one PUT with a baked `?skipConflictCheck=true` query won't group as
+      cleanly in telemetry (query is in the route). Acceptable (static flag); or
+      give post/put a query channel later.

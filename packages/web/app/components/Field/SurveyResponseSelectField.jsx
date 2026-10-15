@@ -4,6 +4,7 @@ import { compareDesc } from 'date-fns';
 import { SelectInput, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
+import { route } from '@tamanu/api-client';
 
 export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
   delete props.options;
@@ -13,16 +14,20 @@ export const SurveyResponseSelectField = ({ field, patient, config, ...props }) 
   const { source } = config;
 
   useEffect(() => {
-    api.get(`patient/${patient.id}/programResponses`, { surveyId: source }).then(resultData => {
-      setOptions(
-        resultData.data
-          .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
-          .map(({ id, endTime, surveyName }) => ({
-            value: id,
-            label: `${formatShortDateTime(endTime)} ${surveyName}`,
-          })),
-      );
-    });
+    api
+      .get(route('patient/:patientId/programResponses', { patientId: patient.id }), {
+        surveyId: source,
+      })
+      .then(resultData => {
+        setOptions(
+          resultData.data
+            .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
+            .map(({ id, endTime, surveyName }) => ({
+              value: id,
+              label: `${formatShortDateTime(endTime)} ${surveyName}`,
+            })),
+        );
+      });
   }, [api, formatShortDateTime, patient.id, source]);
   return (
     <SelectInput

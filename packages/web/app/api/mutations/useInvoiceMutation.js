@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { notifyError } from '../../utils';
+import { route } from '@tamanu/api-client';
 
 export const useCreateInvoice = () => {
   const api = useApi();
@@ -22,7 +23,7 @@ export const useUpdateInvoice = invoice => {
 
   return useMutation({
     mutationFn: async body => {
-      await api.put(`invoices/${invoice?.id}`, body);
+      await api.put(route('invoices/:invoiceId', { invoiceId: invoice?.id }), body);
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),
@@ -35,7 +36,7 @@ export const useCancelInvoice = invoice => {
 
   return useMutation({
     mutationFn: async () => {
-      await api.put(`invoices/${invoice?.id}/cancel`);
+      await api.put(route('invoices/:invoiceId/cancel', { invoiceId: invoice?.id }));
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
       await queryClient.invalidateQueries(['insurancePlansInUse', invoice?.encounter?.patientId]);
     },
@@ -49,7 +50,7 @@ export const useFinaliseInvoice = invoice => {
 
   return useMutation({
     mutationFn: async () => {
-      await api.put(`invoices/${invoice?.id}/finalise`);
+      await api.put(route('invoices/:invoiceId/finalise', { invoiceId: invoice?.id }));
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
       await queryClient.invalidateQueries({
         queryKey: [`patient/${invoice.encounter?.patientId}/invoices/totalOutstandingBalance`],
@@ -66,7 +67,7 @@ export const useDeleteInvoice = invoice => {
 
   return useMutation({
     mutationFn: async () => {
-      await api.delete(`invoices/${invoice?.id}`);
+      await api.delete(route('invoices/:invoiceId', { invoiceId: invoice?.id }));
     },
     onMutate: async () => {
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
@@ -85,7 +86,7 @@ export const useInvoiceInsurancePlansMutation = (invoiceId, encounterId, patient
 
   return useMutation({
     mutationFn: async body => {
-      await api.put(`invoices/${invoiceId}/insurancePlans`, body);
+      await api.put(route('invoices/:invoiceId/insurancePlans', { invoiceId }), body);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries([`encounter/${encounterId}/invoice`]);
@@ -101,7 +102,10 @@ export const useUpdateInvoiceItemApproval = invoice => {
 
   return useMutation({
     mutationFn: async ({ itemId, approved }) => {
-      await api.put(`invoices/${invoice?.id}/items/${itemId}/approval`, { approved });
+      await api.put(
+        route('invoices/:invoiceId/items/:itemId/approval', { invoiceId: invoice?.id, itemId }),
+        { approved },
+      );
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
@@ -116,7 +120,9 @@ export const useBulkUpdateInvoiceItemApproval = invoice => {
 
   return useMutation({
     mutationFn: async ({ approved }) => {
-      await api.put(`invoices/${invoice?.id}/items/approval`, { approved });
+      await api.put(route('invoices/:invoiceId/items/approval', { invoiceId: invoice?.id }), {
+        approved,
+      });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);

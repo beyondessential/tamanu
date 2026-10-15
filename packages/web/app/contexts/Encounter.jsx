@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../api/queries/useAiPatientSummaryQuery';
+import { route } from '@tamanu/api-client';
 
 /*
   When loading an encounter, the user can't access the encounter view
@@ -52,7 +53,7 @@ export const EncounterProvider = ({ children }) => {
 
   // write encounter data to the central server.
   const saveEncounter = async (encounterId, data) => {
-    await api.put(`encounter/${encounterId}`, data);
+    await api.put(route('encounter/:encounterId', { encounterId }), data);
   };
 
   // get encounter data from the central server and save it to state.
@@ -69,19 +70,31 @@ export const EncounterProvider = ({ children }) => {
           { data: medications },
           { data: triages },
         ] = await Promise.all([
-          api.get(`encounter/${encounterId}`),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/diagnoses`), {
-            data: [],
-          }),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/procedures`), {
-            data: [],
-          }),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/medications`), {
-            data: [],
-          }),
-          getDataOrDefaultOnError(() => api.get(`encounter/${encounterId}/triages`), {
-            data: [],
-          }),
+          api.get(route('encounter/:encounterId', { encounterId })),
+          getDataOrDefaultOnError(
+            () => api.get(route('encounter/:encounterId/diagnoses', { encounterId })),
+            {
+              data: [],
+            },
+          ),
+          getDataOrDefaultOnError(
+            () => api.get(route('encounter/:encounterId/procedures', { encounterId })),
+            {
+              data: [],
+            },
+          ),
+          getDataOrDefaultOnError(
+            () => api.get(route('encounter/:encounterId/medications', { encounterId })),
+            {
+              data: [],
+            },
+          ),
+          getDataOrDefaultOnError(
+            () => api.get(route('encounter/:encounterId/triages', { encounterId })),
+            {
+              data: [],
+            },
+          ),
         ]);
         setEncounterData({ ...data, diagnoses, procedures, medications, triages });
       } finally {

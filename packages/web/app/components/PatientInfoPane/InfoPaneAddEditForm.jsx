@@ -5,6 +5,7 @@ import { useApi } from '../../api';
 import { usePatient } from '../../contexts/Patient';
 import { Suggester } from '../../utils/suggester';
 import { PANE_SECTION_IDS } from './paneSections';
+import { route } from '@tamanu/api-client';
 
 const FormContainer = styled.div`
   margin: 1rem 0;
@@ -24,7 +25,7 @@ const getSuggesters = (id, items) => {
       return {
         practitioner: {},
         carePlan: {
-          filterer: ({ code }) => !items.some((c) => c.carePlan.code === code),
+          filterer: ({ code }) => !items.some(c => c.carePlan.code === code),
         },
       };
     default:
@@ -38,10 +39,10 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
   const { patient } = usePatient();
 
   const onSubmit = useCallback(
-    async (data) => {
+    async data => {
       if (data.id) {
         // don't need to include patientId as the existing record will already have it
-        await api.put(`${endpoint}/${data.id}`, data);
+        await api.put(route(':endpoint/:dataId', { endpoint, dataId: data.id }), data);
       } else {
         await api.post(endpoint, { ...data, patientId: patient?.id });
       }
@@ -56,13 +57,10 @@ export const InfoPaneAddEditForm = memo(({ endpoint, onClose, Form, item, id, it
     [api, endpoint, onClose, patient?.id, id, queryClient],
   );
 
-  const onDelete = useCallback(
-    async () => {
-      queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
-      onClose();
-    },
-    [queryClient, id, patient?.id, onClose],
-  );
+  const onDelete = useCallback(async () => {
+    queryClient.invalidateQueries([`infoPaneListItem-${id}`, patient?.id]);
+    onClose();
+  }, [queryClient, id, patient?.id, onClose]);
 
   const suggesters = useMemo(
     () =>

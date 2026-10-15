@@ -15,6 +15,7 @@ import { useApi } from '../../api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -59,14 +60,8 @@ export const ChartInstanceInfoSection = ({
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const { getTranslation } = useTranslation();
-  const {
-    chartInstanceId,
-    chartInstanceName,
-    chartDate,
-    chartType,
-    chartSubtype,
-    chartSurveyId,
-  } = complexChartInstance;
+  const { chartInstanceId, chartInstanceName, chartDate, chartType, chartSubtype, chartSurveyId } =
+    complexChartInstance;
   const isTypeVisible = isVisible(fieldVisibility, chartType, true);
   const isSubtypeVisible = isVisible(fieldVisibility, chartSubtype, false);
   const actionText = getTranslation('general.action.edit', 'Edit');
@@ -77,12 +72,18 @@ export const ChartInstanceInfoSection = ({
       answers: await getAnswersFromData(data, survey),
     };
 
-    await api.put(`surveyResponse/complexChartInstance/${chartInstanceId}`, responseData);
+    await api.put(
+      route('surveyResponse/complexChartInstance/:chartInstanceId', { chartInstanceId }),
+      responseData,
+    );
 
     if (encounter?.id) {
-      queryClient.invalidateQueries(['encounterComplexChartInstances', encounter.id, chartSurveyId]);
-    }
-    else {
+      queryClient.invalidateQueries([
+        'encounterComplexChartInstances',
+        encounter.id,
+        chartSurveyId,
+      ]);
+    } else {
       queryClient.invalidateQueries([
         'programRegistryPatientComplexChartInstances',
         patient.id,
@@ -92,12 +93,8 @@ export const ChartInstanceInfoSection = ({
     setIsEditModalOpen(false);
   };
 
-  const {
-    instanceNameDataElement,
-    dateDataElement,
-    typeDataElement,
-    subtypeDataElement,
-  } = coreComplexDataElements;
+  const { instanceNameDataElement, dateDataElement, typeDataElement, subtypeDataElement } =
+    coreComplexDataElements;
 
   const editedObject = {};
   if (instanceNameDataElement?.id) {

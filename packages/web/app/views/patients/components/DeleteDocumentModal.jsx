@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 const SubText = styled.div`
   text-align: left;
@@ -13,7 +14,9 @@ export const DeleteDocumentModal = ({ open, onClose, documentToDelete, endpoint 
   const api = useApi();
 
   const onSubmit = async () => {
-    await api.delete(`${endpoint}/${documentToDelete.id}`);
+    await api.delete(
+      route(':endpoint/:documentToDeleteId', { endpoint, documentToDeleteId: documentToDelete.id }),
+    );
     onClose();
   };
 
