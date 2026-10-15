@@ -14,7 +14,7 @@ import { TranslatedText } from '../Translation';
 const ControlLabel = styled(FormLabel).attrs({
   'data-testid': 'controllabel-q0hy',
 })`
-  width: max-content;
+  max-width: 100%;
   align-items: flex-start;
   margin-left: 0;
 
