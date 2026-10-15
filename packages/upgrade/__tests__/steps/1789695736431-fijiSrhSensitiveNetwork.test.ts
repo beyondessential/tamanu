@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
-import { FIJI_SRH_FACILITY_IDS, FIJI_SRH_NETWORK } from '../../src/sensitiveNetworks.js';
+import {
+  ENCOUNTER_SCOPED_RECORD_TYPES,
+  FIJI_SRH_FACILITY_IDS,
+  FIJI_SRH_NETWORK,
+} from '../../src/sensitiveNetworks.js';
 
 import { STEPS } from '../../src/steps/1789695736431-fijiSrhSensitiveNetwork.js';
 
@@ -23,7 +26,6 @@ const makeArgs = ({ hasFijiSrh = false, isSensitiveDropped = false, serverType =
           return [[], 0];
         }),
       },
-      models: { LocalSystemFact: { incrementValue: vi.fn(async () => 42) } },
       log: { info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
     } as any,
     queries,
@@ -86,7 +88,7 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
 
   // The point of the paths being exclusive: the SRH rows are written once, not tagged by the
   // ordinary rescope and then rewritten.
-  it('rescopes and re-ticks the SRH rows in a single statement', async () => {
+  it('rescopes the SRH lookup rows in a single statement', async () => {
     const { args, queries } = makeArgs({ hasFijiSrh: true });
 
     await fijiSrhStep.run(args);
@@ -94,20 +96,35 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
     const writes = queries.filter(query => query.sql.includes('UPDATE sync_lookup'));
     expect(writes).toHaveLength(1);
     expect(writes[0].sql).toContain('facility_id = NULL');
-    expect(writes[0].sql).toContain('updated_at_sync_tick');
+    expect(writes[0].sql).not.toContain('updated_at_sync_tick');
     expect(writes[0].replacements).toMatchObject({ facilityIds: FIJI_SRH_FACILITY_IDS });
   });
 
-  it('takes a fresh tick so each facility pulls what it has not seen', async () => {
+  // A tick set only on sync_lookup is undone by a full lookup rebuild, which reads the source tick.
+  it('bumps the sync tick on every encounter scoped source record', async () => {
     const { args, queries } = makeArgs({ hasFijiSrh: true });
 
     await fijiSrhStep.run(args);
 
-    expect(args.models.LocalSystemFact.incrementValue).toHaveBeenCalledWith(
-      FACT_CURRENT_SYNC_TICK,
-      2,
+    const touches = queries.filter(query => query.sql.includes('FROM sync_lookup'));
+    expect(touches.map(query => query.replacements.recordType)).toEqual(
+      ENCOUNTER_SCOPED_RECORD_TYPES,
     );
-    expect(findQuery(queries, 'UPDATE sync_lookup')!.replacements.tick).toBe(41);
+    for (const touch of touches) {
+      expect(touch.sql).toContain(`UPDATE "${touch.replacements.recordType}"`);
+      expect(touch.sql).toContain('SET updated_at_sync_tick = 1');
+      expect(touch.replacements.facilityIds).toEqual(FIJI_SRH_FACILITY_IDS);
+    }
+  });
+
+  it('touches the source records while the lookup rows still name the SRH facilities', async () => {
+    const { args, queries } = makeArgs({ hasFijiSrh: true });
+
+    await fijiSrhStep.run(args);
+
+    const lastTouch = queries.findLastIndex(query => query.sql.includes('FROM sync_lookup'));
+    const rescope = queries.findIndex(query => query.sql.includes('UPDATE sync_lookup'));
+    expect(lastTouch).toBeLessThan(rescope);
   });
 
   it('leaves rows that are not encounter scoped alone', async () => {
