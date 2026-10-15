@@ -18,7 +18,10 @@ Implemented across all layers (first pass). Shared module home: `@tamanu/ui-comp
 - ✅ **Lint** clean on all 39 changed files (`eslint`, exit 0).
 - ✅ **Build** of web-frontend and patient-portal clean (`npm run build`, exit 0) — confirms the OTel SDK wiring (`WebTracerProvider` + `addSpanProcessor` + `BatchSpanProcessor`) bundles against the installed `@opentelemetry/*` versions.
 - ✅ **Unit tests** pass: ui-components collector (quiet/abandon/cap) + path masking — 10/10 (`vitest run src/telemetry`).
+- ✅ **Facility integration tests** pass: ingest (unauthenticated + authenticated + malformed/oversized) and prune — 6/6 (`vitest run __tests__/telemetry.test.js __tests__/tasks/CleanupBrowserTelemetry.test.js`).
+  - **Bug found and fixed by running them:** both ingest routes used `z.record(z.any())`, which is invalid under zod v4 (needs a key schema) and threw a 500 on every batch. Fixed to `z.record(z.string(), z.any())` in the facility and central portal routes.
 - ✅ **Migration timestamp regenerated** to a real epoch (was the hand-stamped `1792022400000`); still sorts last.
+- ✅ **dbt source models regenerated** (`dbt-generate-model` against a fresh `tamanu-generate-model` DB): `database/model/logs/browser_telemetry_spans.{yml,md}` created, descriptions filled, `parameters` masked `empty` (the convention for sensitive jsonb). `dbt-check-todos` clean.
 
 **Deviations / things to verify (surfaced for review):**
 - **Patient portal → central, not facility.** The portal talks to `/api/portal` on central, so its telemetry ingest (`portal/public/telemetry`) and raw store live on **central**, not a facility server. Spec updated to say "the server the client talks to". Confirm this is acceptable, or defer portal telemetry.
@@ -26,9 +29,9 @@ Implemented across all layers (first pass). Shared module home: `@tamanu/ui-comp
 - **Background tagging is minimal:** only `checkServerAlive` is tagged `background`. Tagging `useAutoUpdatingQuery` would wrongly exclude its initial page-load fetch; per-query background refinement is a follow-up.
 - **Ingest endpoints are not rate-limited** (they follow the other `/public` routes; the strict auth limiter is wrong for frequent posts). A lenient per-IP limit + batch-size cap is a hardening follow-up; the batch-size cap (`TELEMETRY_MAX_BATCH_SIZE`) is already enforced.
 
-**Still blocked — needs local DB credentials (facility test DB + migrated central DB):**
-- **Facility integration tests** (ingest + prune) not run yet — need `tamanu-facility-test`.
-- **dbt source models not regenerated** (`npm run dbt-generate-model` needs a migrated central DB). Outstanding: generate the `logs.browser_telemetry_spans` model, fill descriptions + masking (mask `parameters`), run `dbt-check-todos`. **Do before merge.**
+**Remaining follow-ups (not blockers for this card):**
+- Two owed tests: api-client sink unit (api-client has no vitest setup yet) and a sync/changelog-exclusion guard test.
+- A fresh-eyes spec review.
 
 ## 1. Request instrumentation — `@tamanu/api-client`
 
@@ -69,7 +72,7 @@ Implemented across all layers (first pass). Shared module home: `@tamanu/ui-comp
 - [x] Register the model in the models index.
 - [x] Generate the migration with `npm run create-migration -- addBrowserTelemetry...` (DDL only; never hand-write the timestamp). No mobile/TypeORM migration — browser-only.
 - [x] Add an index supporting the retention delete (occurred-at) and any expected read.
-- [ ] Update dbt source models under `database/model/` per `packages/database/CLAUDE.md` (`dbt-generate-model`, fill TODOs incl. masking for path/query, `dbt-check-todos`); commit with the migration. **(Outstanding — needs a local DB + node.)**
+- [x] Update dbt source models under `database/model/` per `packages/database/CLAUDE.md` (`dbt-generate-model`, fill TODOs incl. masking for path/query, `dbt-check-todos`); commit with the migration. `logs.browser_telemetry_spans.{yml,md}` generated, descriptions filled, `parameters` masked `empty`; `dbt-check-todos` clean.
 
 ## 6. Retention prune task (`packages/facility-server/app/tasks`)
 
