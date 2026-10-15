@@ -25,6 +25,7 @@ const ControlLabel = styled(FormLabel).attrs({
     line-height: 1.15;
     letter-spacing: 0;
     margin-bottom: 5px;
+    overflow-wrap: anywhere;
   }
 `;
 
