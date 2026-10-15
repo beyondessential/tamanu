@@ -205,6 +205,9 @@ export class AIService {
    * @returns {import('@langchain/anthropic').ChatAnthropic}
    */
   getModelForContext(contextName) {
+    if (!this.hasContext(contextName)) {
+      throw new Error(`AI context "${contextName}" is not registered`);
+    }
     if (SUMMARY_CONTEXTS.has(contextName)) return this.summaryModel;
     if (FAST_MODEL_CONTEXTS.has(contextName)) return this.formBuilderFastModel;
     return this.formBuilderModel;

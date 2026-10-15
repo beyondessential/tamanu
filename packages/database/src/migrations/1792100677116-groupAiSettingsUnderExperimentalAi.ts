@@ -21,13 +21,14 @@ export async function up(query: QueryInterface): Promise<void> {
     await query.sequelize.query(
       `INSERT INTO settings (key, value, facility_id, scope)
        SELECT :to, value, facility_id, scope FROM settings
-       WHERE key = :from AND deleted_at IS NULL;`,
+       WHERE key = :from AND scope = 'central' AND deleted_at IS NULL;`,
       { replacements: { from, to } },
     );
   }
   for (const [from, to, scope] of MOVES) {
     await query.sequelize.query(
-      `UPDATE settings SET key = :to, scope = :scope WHERE key = :from AND deleted_at IS NULL;`,
+      `UPDATE settings SET key = :to, scope = :scope
+       WHERE key = :from AND scope = 'central' AND deleted_at IS NULL;`,
       { replacements: { from, to, scope } },
     );
   }
@@ -49,15 +50,16 @@ export async function down(query: QueryInterface): Promise<void> {
       { replacements: { from, to } },
     );
   }
-  for (const [from, to] of MOVES) {
+  for (const [from, to, scope] of MOVES) {
     await query.sequelize.query(
-      `UPDATE settings SET key = :from, scope = 'central' WHERE key = :to AND deleted_at IS NULL;`,
-      { replacements: { from, to } },
+      `UPDATE settings SET key = :from, scope = 'central'
+       WHERE key = :to AND scope = :scope AND deleted_at IS NULL;`,
+      { replacements: { from, to, scope } },
     );
   }
   // DESTRUCTIVE: the form builder's own switch and model are dropped, so it follows the AI switch and model again
   for (const [, to] of COPIES) {
-    await query.sequelize.query(`DELETE FROM settings WHERE key = :to;`, {
+    await query.sequelize.query(`DELETE FROM settings WHERE key = :to AND deleted_at IS NULL;`, {
       replacements: { to },
     });
   }
