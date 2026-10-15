@@ -100,7 +100,13 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  // Retention prune scans by age.
+  // Retention prune scans by when this server received the row. It deliberately
+  // does not age rows by `occurred_at`, which the browser reports and a client
+  // could set far in the future to evade pruning.
+  await query.addIndex(TABLE, ['created_at'], {
+    name: 'browser_telemetry_spans_created_at',
+  });
+  // Downstream aggregation buckets by when things actually happened.
   await query.addIndex(TABLE, ['occurred_at'], {
     name: 'browser_telemetry_spans_occurred_at',
   });

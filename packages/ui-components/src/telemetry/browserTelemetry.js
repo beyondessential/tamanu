@@ -16,6 +16,13 @@ export const TELEMETRY_ENDPOINT = 'public/telemetry';
 // separate ticket.
 const SEND_INTERVAL_MS = 15000;
 
+// Browsers allow a page being unloaded only a small total body across all its
+// keepalive requests (64 KiB in Chromium), and reject the send outright above
+// it — losing the whole batch. The routine flush is unaffected, so this only
+// bounds the final flush: send as much of it as will fit rather than risk
+// losing all of it. Telemetry is best-effort, so dropping the tail is fine.
+const KEEPALIVE_MAX_SPANS = 100;
+
 /**
  * Wire up browser performance telemetry for one web client.
  *
@@ -43,10 +50,11 @@ export function initBrowserTelemetry({
 
   const exporter = createTelemetryExporter(spans => {
     if (!spans.length || !isEnabled()) return Promise.resolve();
+    const batch = isUnloading ? spans.slice(0, KEEPALIVE_MAX_SPANS) : spans;
     // background: excluded from the quiet calc. Never toast telemetry failures.
     return api.post(
       TELEMETRY_ENDPOINT,
-      { spans },
+      { spans: batch },
       { background: true, keepalive: isUnloading, showUnknownErrorToast: false },
     );
   });

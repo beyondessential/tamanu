@@ -3,6 +3,7 @@ import { describe, expect, it, beforeAll, beforeEach, afterAll } from 'vitest';
 import { TELEMETRY_MAX_BATCH_SIZE } from '@tamanu/constants';
 
 import { createTestContext } from './utilities';
+import { getServerFacilityIds } from '../app/serverConfig';
 
 // spec: BTEL
 function makeSpan(overrides = {}) {
@@ -68,19 +69,35 @@ describe('Browser telemetry ingest', () => {
     expect(nav.route).toBe('/patients/:param1');
     expect(nav.parameters).toEqual({ path: { param1: 'abc-123' }, query: {} });
     // facility is stamped server-side, never from the client payload
-    expect(nav.facilityId !== undefined).toBe(true);
+    const [expectedFacilityId] = getServerFacilityIds();
+    expect(expectedFacilityId).toBeTruthy();
+    expect(nav.facilityId).toBe(expectedFacilityId);
     const request = rows.find(r => r.kind === 'request');
     expect(request.parentId).toBe('span-nav-1');
     expect(request.statusCode).toBe(200);
   });
 
-  it('records the user when the batch carries one', async () => {
+  // The route is mounted ahead of the auth middleware so pre-login navigations
+  // are captured, so there is no auth context to read the user from: the span's
+  // userId is whatever the client reported. These two cases pin that down.
+  it('records the user the client reports, with or without a token', async () => {
     await baseApp
       .post('/api/public/telemetry')
       .send({ spans: [makeSpan({ userId: 'user-42' })] });
 
     const [row] = await models.BrowserTelemetrySpan.findAll();
     expect(row.userId).toBe('user-42');
+  });
+
+  it('accepts an authenticated batch and records its reported user', async () => {
+    const app = await baseApp.asRole('practitioner');
+    const response = await app
+      .post('/api/public/telemetry')
+      .send({ spans: [makeSpan({ spanId: 'span-auth-1', userId: 'user-99' })] });
+    expect(response).toHaveSucceeded();
+
+    const [row] = await models.BrowserTelemetrySpan.findAll();
+    expect(row.userId).toBe('user-99');
   });
 
   it('rejects a malformed batch', async () => {
