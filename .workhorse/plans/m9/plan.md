@@ -49,7 +49,7 @@ New code should carry `// spec: BTEL` traceability comments (see `CleanupIdempot
 
 ## 5. Raw store — model + migration (`@tamanu/database`)
 
-- [ ] Add a flat Sequelize model (one row per span) in `packages/database/src/models/`, `logs` schema, `syncDirection: DO_NOT_SYNC` — modelled on `AccessLog`. Columns: trace id, parent id, kind, path, route pattern, method, status, duration, outcome, interface, device id, session id, version, user id (nullable), facility id, occurred-at. Flexible context can go in a JSONB column as `AccessLog` does.
+- [ ] Add a flat Sequelize model (one row per span) in `packages/database/src/models/`, `logs` schema, `syncDirection: DO_NOT_SYNC` — modelled on `AccessLog`. Model `BrowserTelemetrySpan`, table `logs.browser_telemetry_spans`. Columns: `id`, `trace_id`, `parent_id` (null for a navigation root), `kind` (`navigation`/`request`), `route` (generic pattern — the grouping key), `parameters` (JSONB `{ path: {...}, query: {...} }` — resolved values, path fillers kept apart from query params), `method` + `status_code` (requests only, nullable), `duration_ms`, `outcome` (navigations only: `settled`/`abandoned`/`capped`), `interface`, `device_id`, `session_id` (nullable), `app_version`, `user_id` (nullable), `facility_id` (server-stamped), `occurred_at`. The concrete path is not stored — it is derivable from `route` + `parameters`.
 - [ ] Register the model in the models index.
 - [ ] Generate the migration with `npm run create-migration -- addBrowserTelemetry...` (DDL only; never hand-write the timestamp). No mobile/TypeORM migration — browser-only.
 - [ ] Add an index supporting the retention delete (occurred-at) and any expected read.

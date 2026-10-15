@@ -34,12 +34,12 @@ A page is considered loaded when the burst of API activity triggered by navigati
 Each event carries enough context to both bucket it by page downstream and drill into a single slow request. Record identifiers that appear in paths are UUIDs and carry no patient-identifying meaning; query parameters may contain patient-identifying values (such as a search term), which is acceptable here because the raw events never leave the facility server and are anonymised before they are reported onward.
 
 - [ ] Each event records the trace it belongs to, so a navigation and its request spans can be tied together, and whether it is a navigation or a request.
-- [ ] Each event records the full request or route path including query parameters, and the matched route pattern (for example `/patients/:patientId/encounter/:encounterId`), so the downstream step can group by page without re-deriving the pattern.
+- [ ] Each event records the generic route pattern (for example `/patients/:patientId/encounter/:encounterId`) as its grouping key, and records the resolved parameters separately — the path parameters (such as `patientId` and `encounterId`) apart from the query parameters — so the downstream step groups by pattern and can still drill into a specific patient, encounter, or search without parsing a concrete path.
 - [ ] A navigation event records its outcome: settled normally, abandoned, or capped.
 - [ ] Each event records the interface it came from (clinical web, admin, or patient portal), the application version, the device, and the time it occurred.
 - [ ] The device is identified by the client's stable per-workstation identifier, which persists across logins and sessions on that browser, so a consistently slow machine or location can be isolated independently of which user was signed in.
 - [ ] An event records the user and session once a user has signed in; an event produced before sign-in is attributed to the device alone.
-- [ ] Paths and query parameters are recorded as-is; no patient-identifying information is stripped in the browser.
+- [ ] Parameter values, including query parameters, are recorded as-is; no patient-identifying information is stripped in the browser.
 
 ## Reporting to the facility server
 
