@@ -433,7 +433,7 @@ export const EditMedicationDispenseModal = memo(
             />
           ),
           accessor: ({ pharmacyOrderPrescription }) =>
-            getStockStatus({ prescription: pharmacyOrderPrescription.prescription }, false),
+            getStockStatus({ prescription: pharmacyOrderPrescription.prescription }),
         });
       }
 
