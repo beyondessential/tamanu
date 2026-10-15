@@ -322,9 +322,7 @@ export const MEDICATION_COLUMNS = ({
               fallback="Stock"
             />
           ),
-          accessor: medication => (
-            <DarkestText>{getStockStatus({ prescription: medication }, false)}</DarkestText>
-          ),
+          accessor: medication => getStockStatus({ prescription: medication }),
           style: { inlineSize: COLUMN_WIDTHS.stock },
         },
       ]

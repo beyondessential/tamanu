@@ -4,6 +4,7 @@ import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import CloudIcon from '@mui/icons-material/Cloud';
+import ContactPageIcon from '@mui/icons-material/ContactPage';
 import FeedIcon from '@mui/icons-material/Feed';
 import GroupIcon from '@mui/icons-material/Group';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -83,6 +84,20 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     label: <TranslatedText stringId="adminSidebar.surveyResponses" fallback="Survey responses" />,
     path: '/admin/surveyResponses',
     icon: <AssignmentIcon aria-hidden color="secondary" data-testid="assignmenticon-retb" />,
+  },
+  {
+    key: 'patientData',
+    label: (
+      <TranslatedText
+        stringId="adminSidebar.patientData"
+        fallback="Patient data"
+        data-testid="translatedtext-patientdata"
+      />
+    ),
+    path: '/admin/patientData',
+    icon: (
+      <ContactPageIcon aria-hidden color="secondary" data-testid="contactpageicon-patientdata" />
+    ),
   },
   {
     key: 'users',

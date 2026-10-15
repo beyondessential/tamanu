@@ -27,7 +27,7 @@ type AuthenticationValues = {
   password: string;
 };
 
-const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.Element => {
+const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps) => {
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const user = useSelector(authUserSelector);
   const authCtx = useAuth();
@@ -107,7 +107,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
           })}
           onSubmit={handleSignIn}
         >
-          {({ handleSubmit, isSubmitting }): JSX.Element => (
+          {({ handleSubmit, isSubmitting }) => (
             <StyledView>
               <Field
                 name="password"
@@ -149,7 +149,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
   );
 };
 
-export const SyncInactiveAlert = (): JSX.Element => {
+export const SyncInactiveAlert = () => {
   const [openAuthenticationModel, setOpenAuthenticationModel] = useState(false);
   const [open, setOpen] = useState(false);
 

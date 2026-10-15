@@ -1,11 +1,17 @@
-import React, { isValidElement, type PropsWithChildren, type ReactElement, type ReactNode, useState } from 'react';
+import React, {
+  isValidElement,
+  type PropsWithChildren,
+  type ReactElement,
+  type ReactNode,
+  useState,
+} from 'react';
 import { StyleSheet, View } from 'react-native';
-import { RowView } from '/styled/common';
+import type { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
 import { SectionHeader } from '/components/SectionHeader';
-import { EditButton } from './EditButton';
+import { RowView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { ArrowButton } from './ArrowButton';
-import type { TranslatedTextProps } from '~/ui/contexts/TranslationContext';
+import { EditButton } from './EditButton';
 
 interface PatientDetailSectionProps {
   title: ReactNode;

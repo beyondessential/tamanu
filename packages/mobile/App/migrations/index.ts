@@ -105,6 +105,7 @@ import { addSensitiveNetworksTable1789695736424 } from './1789695736424-addSensi
 import { replaceFacilityIsSensitiveWithNetwork1789695736425 } from './1789695736425-replaceFacilityIsSensitiveWithNetwork';
 import { dropLegacySyncSnapshotTable1790807294248 } from './1790807294248-dropLegacySyncSnapshotTable';
 import { addMandatoryConditionEnabledToProgramRegistries1791768682000 } from './1791768682000-addMandatoryConditionEnabledToProgramRegistries';
+import { dropSyncedCentralSettings1791875574000 } from './1791875574000-dropSyncedCentralSettings';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -213,4 +214,5 @@ export const migrationList = [
   replaceFacilityIsSensitiveWithNetwork1789695736425,
   dropLegacySyncSnapshotTable1790807294248,
   addMandatoryConditionEnabledToProgramRegistries1791768682000,
+  dropSyncedCentralSettings1791875574000,
 ];

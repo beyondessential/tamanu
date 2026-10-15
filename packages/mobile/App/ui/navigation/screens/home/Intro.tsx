@@ -20,7 +20,6 @@ export const Intro = ({
   },
 }: IntroScreenProps) => {
   const user = useSelector(authUserSelector);
-
   useDisableAndroidBackButton(step === 1);
 
   const Icon = icons[step - 1] ?? icons[0];

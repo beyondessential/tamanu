@@ -47,7 +47,7 @@ const useSurveyAutocompleteWhere = (config: SurveyScreenConfig) => {
   return useMemo(() => ({ ...where, ...filter }), [where, filter]);
 };
 
-export const SurveyQuestionAutocomplete = (props): JSX.Element => {
+export const SurveyQuestionAutocomplete = props => {
   const { models } = useBackend();
   const where = useSurveyAutocompleteWhere(props.config);
   const { source } = props.config;

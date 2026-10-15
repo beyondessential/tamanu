@@ -1,5 +1,9 @@
 import { Page, Locator } from '@playwright/test';
-import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
+import {
+  getSelectByFieldLabel,
+  selectFieldOption,
+  selectAutocompleteFieldOption,
+} from '@utils/fieldHelpers';
 import { fillMuiDateTimeField } from '@utils/testHelper';
 import { RecordVitalsModal } from '../../VitalsPage/modals/RecordVitalsModal';
 
@@ -31,7 +35,8 @@ export class EmergencyTriageModal {
   readonly areaField!: Locator;
   readonly locationField!: Locator;
   readonly arrivalModeSelect!: Locator;
-  
+  readonly patientTypeSelect!: Locator;
+
   // Triage score radio buttons
   readonly triageScoreEmergency!: Locator;
   readonly triageScoreVeryUrgent!: Locator;
@@ -73,8 +78,7 @@ export class EmergencyTriageModal {
       triageDateTimeField: 'field-9hxy',
       areaField: 'field-ipih-group-input',
       locationField: 'field-ipih-location-input',
-      arrivalModeSelect: 'selectinput-phtg-select',
-      
+
       // Triage score radio buttons
       triageScoreEmergency: 'radio-il3t-1',
       triageScoreVeryUrgent: 'radio-il3t-2',
@@ -100,7 +104,8 @@ export class EmergencyTriageModal {
     this.modalTitle = page.getByRole('dialog').getByTestId('modaltitle-ojhf');
     this.arrivalDateTimeInput = this.arrivalDateTimeField.locator('input');
     this.triageDateTimeInput = this.triageDateTimeField.locator('input');
-    this.arrivalModeSelect = page.getByRole('dialog').getByTestId('selectinput-phtg-select');
+    this.arrivalModeSelect = getSelectByFieldLabel(page.getByRole('dialog'), 'Arrival mode');
+    this.patientTypeSelect = getSelectByFieldLabel(page.getByRole('dialog'), 'Patient type');
   }
 
   async waitForModalToLoad() {
@@ -121,6 +126,7 @@ export class EmergencyTriageModal {
 
   async fillTriageForm(options: {
     arrivalDateTime?: string;
+    patientType?: string;
     triageScore: 1 | 2 | 3 | 4 | 5;
     vitalsValues?: {
       heightCm?: string;
@@ -154,6 +160,7 @@ export class EmergencyTriageModal {
     area?: string;
     location?: string;
     arrivalMode?: string;
+    patientType?: string;
     chiefComplaint?: string;
     secondaryComplaint?: string;
     triageClinician?: string;
@@ -176,6 +183,13 @@ export class EmergencyTriageModal {
       selectFirst: true,
       returnOptionText: true,
     });
+
+    const patientType = options.patientType
+      ? await selectFieldOption(this.page, this.patientTypeSelect, {
+          optionToSelect: options.patientType,
+          returnOptionText: true,
+        })
+      : undefined;
     
     await this.selectTriageScore(options.triageScore);
     
@@ -208,6 +222,7 @@ export class EmergencyTriageModal {
       area,
       location,
       arrivalMode,
+      patientType,
       chiefComplaint,
       secondaryComplaint,
       triageClinician,

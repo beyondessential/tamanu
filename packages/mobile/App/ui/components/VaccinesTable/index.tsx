@@ -35,7 +35,7 @@ export const VaccinesTable = ({
   onPressItem,
   categoryName,
   selectedPatient,
-}: VaccinesTableProps): JSX.Element => {
+}: VaccinesTableProps) => {
   const { getSetting } = useSettings();
   const thresholds = useMemo(
     () => parseThresholdsSetting(getSetting(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),

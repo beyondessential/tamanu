@@ -1,16 +1,20 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { rm } from 'node:fs/promises';
+import path from 'node:path';
 import { Op } from 'sequelize';
 import { write, utils } from 'xlsx';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
+  PATIENT_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   OTHER_REFERENCE_TYPE_VALUES,
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { tmpdir } from '@tamanu/shared/utils/tmpdir';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
@@ -49,7 +53,7 @@ describe('Data definition import', () => {
       importer: referenceDataImporter,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
-      includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PATIENT_IMPORTABLE_DATA_TYPES],
       checkPermission: () => true,
       ...opts,
     });
@@ -98,6 +102,61 @@ describe('Data definition import', () => {
 
       expect(didntSendReason).toEqual('dryRun');
       expect(errors).toHaveLength(0);
+    });
+
+    it('forbids importing patient data without create permission on each patient data type', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'Patient' },
+        { verb: 'create', noun: 'Patient' },
+      ]);
+
+      const result = await app
+        .post('/v1/admin/import/referenceData')
+        .attach('file', './__tests__/importers/refdata-valid.xlsx')
+        .field('includedDataTypes', 'patient')
+        .field('includedDataTypes', 'administeredVaccine')
+        .field('dryRun', true);
+
+      const { didntSendReason, errors } = result.body;
+
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors[0]).toHaveProperty(
+        'message',
+        'ForbiddenError: No permission to perform action “create” on “AdministeredVaccine”',
+      );
+    });
+
+    it('allows importing patient data with create and write permission on each patient data type', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'write', noun: 'Patient' },
+        { verb: 'create', noun: 'Patient' },
+        { verb: 'write', noun: 'AdministeredVaccine' },
+        { verb: 'create', noun: 'AdministeredVaccine' },
+      ]);
+      // the patient in this fixture lives in this village
+      const village = await models.ReferenceData.create({
+        id: 'village-test',
+        code: 'village-test',
+        type: 'village',
+        name: 'Village test',
+      });
+
+      try {
+        const result = await app
+          .post('/v1/admin/import/referenceData')
+          .attach('file', './__tests__/importers/patient/valid-patient.xlsx')
+          .field('includedDataTypes', 'patient')
+          .field('includedDataTypes', 'administeredVaccine')
+          .field('dryRun', true);
+
+        const { didntSendReason, errors, stats } = result.body;
+
+        expect(didntSendReason).toEqual('dryRun');
+        expect(errors).toHaveLength(0);
+        expect(stats).toMatchObject({ Patient: { created: 1, errored: 0 } });
+      } finally {
+        await village.destroy({ force: true });
+      }
     });
   });
 
@@ -984,7 +1043,7 @@ describe('Import from an exported file', () => {
       importer: referenceDataImporter,
       file: `${file}`,
       models: ctx.store.models,
-      includedDataTypes: GENERAL_IMPORTABLE_DATA_TYPES,
+      includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PATIENT_IMPORTABLE_DATA_TYPES],
       checkPermission: () => true,
       ...opts,
     });
@@ -1017,13 +1076,14 @@ describe('Import from an exported file', () => {
         3: 'diagnosis',
       },
       {},
-      './exported-refdata-all-table.xlsx',
+      path.join(await tmpdir(), `exported-refdata-all-table-${Date.now()}.xlsx`),
     );
 
     // Remove all the data in order to test the import using the exported file
     await clearData();
 
     const { errors, stats } = await doImport({ file: fileName });
+    await rm(fileName, { force: true });
     expect(errors).toHaveLength(0);
     expect(stats).toMatchObject({
       'ReferenceData/allergy': { created: 2, updated: 0, errored: 0 },

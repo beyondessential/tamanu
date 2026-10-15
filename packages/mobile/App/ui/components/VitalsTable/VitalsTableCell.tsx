@@ -13,12 +13,7 @@ interface VitalsTableCellProps {
   isOdd: boolean;
 }
 
-export const VitalsTableCell = ({
-  data,
-  config,
-  needsAttention,
-  isOdd,
-}: VitalsTableCellProps): JSX.Element => {
+export const VitalsTableCell = ({ data, config, needsAttention, isOdd }: VitalsTableCellProps) => {
   let cellValue = '';
   if (data?.body) {
     cellValue = data?.body;
