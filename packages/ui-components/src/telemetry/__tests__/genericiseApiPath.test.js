@@ -43,4 +43,28 @@ describe('genericiseApiPath', () => {
     expect(route).toBe('dashboard');
     expect(pathParams).toEqual({});
   });
+
+  // `route` is the key every page is grouped by, so masking a long route word
+  // would fragment real routes into per-value patterns.
+  it.each([
+    'medicationRequests',
+    'scheduledVaccines',
+    'appointmentTypes',
+    'programRegistries',
+    'labTestPanelRequests',
+    'imaging-requests',
+    'invoice-price-lists',
+    'patientProgramRegistration',
+    'survey-responses',
+  ])('does not mask the long route word %s', word => {
+    const { route, pathParams } = genericiseApiPath(`patients/${word}`);
+    expect(route).toBe(`patients/${word}`);
+    expect(pathParams).toEqual({});
+  });
+
+  it('still masks a long opaque id that carries digits', () => {
+    const { route, pathParams } = genericiseApiPath('referenceData/ABCDEF1234567890/items');
+    expect(route).toBe('referenceData/:param1/items');
+    expect(pathParams).toEqual({ param1: 'ABCDEF1234567890' });
+  });
 });

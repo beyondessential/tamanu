@@ -15,6 +15,10 @@ import { TELEMETRY_MAX_BATCH_SIZE } from '@tamanu/constants';
 // stamped server-side, never trusted from the client. Best-effort: malformed or
 // oversized batches are rejected, and patient-identifiable values (telemetry
 // paths may hold search terms) are never logged.
+//
+// `occurredAt` is reported by the browser and so cannot be trusted for
+// retention — the prune works from the server-stamped `createdAt` instead, so a
+// client cannot keep its rows alive by dating them far in the future.
 
 const spanSchema = z.object({
   traceId: z.string().min(1),
@@ -24,7 +28,7 @@ const spanSchema = z.object({
   route: z.string(),
   parameters: z.record(z.string(), z.any()).default({}),
   method: z.string().nullish(),
-  statusCode: z.number().int().nullish(),
+  statusCode: z.number().int().min(100).max(599).nullish(),
   durationMs: z.number().int().nonnegative(),
   outcome: z.string().nullish(),
   interface: z.string().min(1),
@@ -32,7 +36,9 @@ const spanSchema = z.object({
   sessionId: z.string().nullish(),
   appVersion: z.string().min(1),
   userId: z.string().nullish(),
-  occurredAt: z.string().min(1),
+  // A real datetime, not just a non-empty string: an unparseable value would
+  // reach Postgres and surface as a 500 from a public endpoint.
+  occurredAt: z.iso.datetime({ offset: true }),
 });
 
 const batchSchema = z.object({

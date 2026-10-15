@@ -8,8 +8,16 @@
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NUMERIC_RE = /^\d+$/;
-// Opaque reference-data style ids (e.g. a long base62 token) — long and not a word.
-const OPAQUE_RE = /^[A-Za-z0-9_-]{16,}$/;
+// Opaque ids (e.g. a long base62 token). Length alone is not enough to tell one
+// from a route word: `medicationRequests`, `labTestPanelRequests` and
+// `invoice-price-lists` are all long, and masking those would corrupt `route`,
+// the key every page is grouped by downstream. Route segments are words —
+// camelCase or kebab-case — and essentially never carry a digit, so require one.
+// A digitless slug id (a reference-data code such as `drug-paracetamol`) is
+// therefore left in the route; that keeps a handful of extra patterns, which is
+// a far smaller problem than fragmenting the common routes, and such codes are
+// reference data rather than anything patient-identifying.
+const OPAQUE_RE = /^(?=[A-Za-z0-9_-]{16,}$)[A-Za-z0-9_-]*\d[A-Za-z0-9_-]*$/;
 
 function looksLikeId(segment) {
   return UUID_RE.test(segment) || NUMERIC_RE.test(segment) || OPAQUE_RE.test(segment);

@@ -11,7 +11,9 @@ describe('CleanupBrowserTelemetry', () => {
   let ctx;
   let models;
 
-  const createSpan = (spanId, occurredAt) =>
+  // Rows are aged by `createdAt` (server-stamped), not the browser-reported
+  // `occurredAt`, so the fixtures set it explicitly.
+  const createSpan = (spanId, createdAt, occurredAt = new Date()) =>
     models.BrowserTelemetrySpan.create({
       traceId: `trace-${spanId}`,
       spanId,
@@ -24,6 +26,7 @@ describe('CleanupBrowserTelemetry', () => {
       deviceId: 'web-test',
       appVersion: '0.0.0',
       occurredAt,
+      createdAt,
     });
 
   beforeAll(async () => {
@@ -48,6 +51,18 @@ describe('CleanupBrowserTelemetry', () => {
 
     const remaining = await models.BrowserTelemetrySpan.findAll({ paranoid: false });
     expect(remaining.map(r => r.spanId)).toEqual(['recent-1']);
+  });
+
+  it('ages rows by when the server received them, not the time the client reported', async () => {
+    const longAgo = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000);
+    // A client claiming its span happened far in the future must not be able to
+    // keep the row alive past the retention horizon.
+    const farFuture = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    await createSpan('old-but-future-dated', longAgo, farFuture);
+
+    await new CleanupBrowserTelemetry(ctx).run();
+
+    expect(await models.BrowserTelemetrySpan.count({ paranoid: false })).toBe(0);
   });
 
   it('takes its schedule and retention from settings', () => {
