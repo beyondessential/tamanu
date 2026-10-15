@@ -2438,6 +2438,7 @@ describe('Medication', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.remainingRepeats).toBe(3);
       expect(result.body.repeats).not.toBeDefined();
+      expect(result.body.pharmacyOrder.isDischargePrescription).toBe(true);
     });
 
     // getRemainingRepeats() treats a non-discharge (inpatient) request as never having
@@ -2460,6 +2461,7 @@ describe('Medication', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.remainingRepeats).toBe(0);
+      expect(result.body.pharmacyOrder.isDischargePrescription).toBe(false);
     });
 
     it('returns 404 when the request was deleted but never marked not dispensed', async () => {
