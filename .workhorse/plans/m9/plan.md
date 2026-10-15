@@ -14,14 +14,21 @@ New code should carry `// spec: BTEL` traceability comments (see `CleanupIdempot
 
 Implemented across all layers (first pass). Shared module home: `@tamanu/ui-components` (confirmed).
 
+**Local verification (run on the paired device, 2026-10-15):**
+- ✅ **Lint** clean on all 39 changed files (`eslint`, exit 0).
+- ✅ **Build** of web-frontend and patient-portal clean (`npm run build`, exit 0) — confirms the OTel SDK wiring (`WebTracerProvider` + `addSpanProcessor` + `BatchSpanProcessor`) bundles against the installed `@opentelemetry/*` versions.
+- ✅ **Unit tests** pass: ui-components collector (quiet/abandon/cap) + path masking — 10/10 (`vitest run src/telemetry`).
+- ✅ **Migration timestamp regenerated** to a real epoch (was the hand-stamped `1792022400000`); still sorts last.
+
 **Deviations / things to verify (surfaced for review):**
 - **Patient portal → central, not facility.** The portal talks to `/api/portal` on central, so its telemetry ingest (`portal/public/telemetry`) and raw store live on **central**, not a facility server. Spec updated to say "the server the client talks to". Confirm this is acceptable, or defer portal telemetry.
 - **Navigation params are positional** (`param1`, `param2`) via the same id-masking heuristic as request spans, not named (`patientId`) — getting named params needs react-router's route table, which the JSX `<Routes>` setup doesn't expose cleanly. Follow-up if named params are wanted.
 - **Background tagging is minimal:** only `checkServerAlive` is tagged `background`. Tagging `useAutoUpdatingQuery` would wrongly exclude its initial page-load fetch; per-query background refinement is a follow-up.
-- **Migration timestamp hand-stamped** (`1792022400000`) because the generator (`npm run create-migration`) can't run in this environment. Regenerate with the script if preferred (it only renames the file).
-- **dbt source models not regenerated** (`npm run dbt-generate-model` needs a live DB + node). Outstanding: generate the `logs.browser_telemetry_spans` model, fill descriptions + masking (mask `parameters`), run `dbt-check-todos`. **Do before merge.**
 - **Ingest endpoints are not rate-limited** (they follow the other `/public` routes; the strict auth limiter is wrong for frequent posts). A lenient per-IP limit + batch-size cap is a hardening follow-up; the batch-size cap (`TELEMETRY_MAX_BATCH_SIZE`) is already enforced.
-- **Could not run** lint / unit / integration tests or the build here — CI will. The OTel SDK wiring (`WebTracerProvider` + `addSpanProcessor` + `BatchSpanProcessor`, `hrTime` handling, `parentSpanId` v1/v2 shape) most needs a local build+run against the installed `@opentelemetry/*` versions.
+
+**Still blocked — needs local DB credentials (facility test DB + migrated central DB):**
+- **Facility integration tests** (ingest + prune) not run yet — need `tamanu-facility-test`.
+- **dbt source models not regenerated** (`npm run dbt-generate-model` needs a migrated central DB). Outstanding: generate the `logs.browser_telemetry_spans` model, fill descriptions + masking (mask `parameters`), run `dbt-check-todos`. **Do before merge.**
 
 ## 1. Request instrumentation — `@tamanu/api-client`
 
