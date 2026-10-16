@@ -98,6 +98,8 @@ const OPTIONS = [
   // opsref and opsstack are the names from before the ops repo moved to infra; existing PR bodies still use them
   { key: 'infraref', aliases: ['opsref'], defaultValue: 'main' },
   { key: 'infrastack', aliases: ['opsstack'], defaultValue: 'tamanu/on-k8s' },
+  // which channel of the Argo CD renderer image renders this deploy: stable, or canary to try changes first
+  { key: 'channel', defaultValue: 'stable' },
 
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
@@ -293,6 +295,7 @@ export function configMap(deployName, imageTag, options, { appVersion } = {}) {
       imageTag,
       appVersion: appVersion || null,
 
+      rendererChannel: options.channel,
       architecture: options.arch,
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,

@@ -175,3 +175,29 @@ test('a deployopt line sets infraref via the old name', (t) => {
 
   t.equal(deploy.options.infraref, 'my-branch');
 });
+
+test('the channel option defaults to stable and can be set to canary', (t) => {
+  t.plan(2);
+
+  const [stable] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy -->',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+  const [canary] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy --> %channel=canary',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+
+  t.equal(stable.options.channel, 'stable');
+  t.equal(canary.options.channel, 'canary');
+});
+
+test('configMap passes the channel as rendererChannel', (t) => {
+  t.plan(2);
+
+  const config = configMap('ci-k8s-deploy', 'latest', { channel: 'canary' });
+  t.equal(config['tamanu-on-k8s:rendererChannel'].value, 'canary');
+  t.equal(config['tamanu-on-k8s:rendererChannel'].secret, false);
+});
