@@ -14,7 +14,7 @@ Decisions: `beyondessential/infra` is the sole source of truth for `pulumi/`. Ot
 
 ## Steps
 
-- [ ] `infra`: add `.node-version` matching ops (`v24.4.1` at time of writing)
+- [x] `infra`: add `.node-version` matching ops (`v24.4.1` at time of writing)
 - [x] `main`: `setup-cd` checks out `beyondessential/infra` (no ssh key), explicit `with-infra` boolean replaces the key-as-flag, checkout path and node-version path become `infra/`
 - [x] `main`: `cd-up` / `cd-down` use `infra/pulumi/stacks/<infrastack>`; stop passing `TAMANU_OPS_SSH` through `cd.yml`, `cleanup-auto-deploy.yml`, `stale-auto-deploy.yml`
 - [x] `main`: add `infraref` / `infrastack` options in `ghaCdHelpers.mjs`, keep `opsref` / `opsstack` as accepted aliases so existing PR bodies keep working
@@ -25,7 +25,6 @@ Decisions: `beyondessential/infra` is the sole source of truth for `pulumi/`. Ot
 
 ## Before merging
 
-- `infra` needs `.node-version` first, or every deploy from `main` fails at `setup-node`
 - `main` stops passing `TAMANU_OPS_SSH`; the secret stays defined for the backported branches
 
 ## Open
