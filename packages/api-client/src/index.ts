@@ -1,4 +1,10 @@
 export { TamanuApi } from './TamanuApi';
+export type {
+  TelemetryEvent,
+  TelemetryRequestStart,
+  TelemetryRequestSettle,
+  TelemetrySink,
+} from './TamanuApi';
 export { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 export type { RetryBackoffOptions } from './fetchWithRetryBackoff';
 export {
