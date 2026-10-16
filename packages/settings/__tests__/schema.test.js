@@ -9,7 +9,7 @@ import {
   facilitySettings,
   centralSettings,
 } from '../src';
-import { extractDefaults } from '../src/schema/utils';
+import { extractDefaults, extractHighRiskPaths } from '../src/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
 import { VACCINE_STATUS } from '@tamanu/constants';
@@ -498,7 +498,8 @@ describe('Exposed keys', () => {
 
     it('should include facility keys', () => {
       expect(keys).toContain('patientDisplayIdPattern');
-      expect(keys).toContain('sync');
+      expect(keys).toContain('sync.syncAllLabRequests');
+      expect(keys).toContain('sync.urgentIntervalInSeconds');
       expect(keys).toContain('vaccinations');
     });
 
@@ -578,5 +579,48 @@ describe('Exposed keys', () => {
       expect(() => dailySchema.validateSync(['25:00'])).toThrow(/Invalid time format/);
       expect(dailySchema.validateSync(['08:00'])).toEqual(['08:00']);
     });
+  });
+});
+
+describe('sync.centralEndpoints', () => {
+  const getLeaf = schema => schema.properties.sync.properties.centralEndpoints;
+
+  it('is declared at global and facility scope, and is high risk', () => {
+    for (const schema of [globalSettings, facilitySettings]) {
+      expect(getLeaf(schema)).toBeDefined();
+    }
+    expect(extractHighRiskPaths(globalSettings)).toContain('sync.centralEndpoints');
+    expect(extractHighRiskPaths(facilitySettings)).toContain('sync.centralEndpoints');
+  });
+
+  // spec: CEND
+  it('keeps the endpoint list and its tuning off the web frontend', () => {
+    const exposed = getKeysByFlag('exposedToWeb', [facilitySettings, globalSettings]);
+    expect(exposed).not.toContain('sync');
+    expect(exposed).not.toContain('sync.centralEndpoints');
+    expect(exposed).not.toContain('sync.centralEndpointRecheckIntervalInSeconds');
+    expect(exposed).not.toContain('sync.centralEndpointProbeTimeoutInSeconds');
+  });
+
+  it('defaults to an empty list', () => {
+    expect(globalDefaults.sync.centralEndpoints).toEqual([]);
+    expect(facilityDefaults.sync.centralEndpoints).toEqual([]);
+  });
+
+  it.each([
+    [['https://central.example.com', 'http://central.local:3000']],
+    [['http://100.64.1.2']],
+    [[]],
+  ])('accepts %j', async endpoints => {
+    await expect(getLeaf(globalSettings).type.validate(endpoints)).resolves.toEqual(endpoints);
+  });
+
+  it.each([
+    [['http://central.example.com']],
+    [['https://central.example.com/api']],
+    [['not a url']],
+    [['https://central.example.com', '']],
+  ])('rejects %j', async endpoints => {
+    await expect(getLeaf(globalSettings).type.validate(endpoints)).rejects.toThrow();
   });
 });

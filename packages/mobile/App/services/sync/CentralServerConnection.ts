@@ -218,6 +218,9 @@ export class CentralServerConnection {
         facilityIds: [facilityId],
         deviceId: this.deviceId,
         isMobile: true,
+        // Mobile has a single central host and no alternatives, but reports it like facility
+        // servers do so the admin sync page shows where every device connects.
+        endpoint: this.host,
       },
     )) as { sessionId?: string; status?: string };
 
