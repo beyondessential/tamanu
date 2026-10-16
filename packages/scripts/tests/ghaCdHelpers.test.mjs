@@ -121,3 +121,83 @@ test('configMap reads web replica counts from web options, not db options', (t) 
     'facilityWebReplicas should come from facilitywebs, not facilitydbs',
   );
 });
+
+test('infra options default to the main branch and the on-k8s stack', (t) => {
+  t.plan(2);
+
+  const [deploy] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy -->',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+
+  t.equal(deploy.options.infraref, 'main');
+  t.equal(deploy.options.infrastack, 'tamanu/on-k8s');
+});
+
+test('the old opsref and opsstack names set the infra options', (t) => {
+  t.plan(3);
+
+  const [deploy] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy --> %opsref=my-branch %opsstack=tamanu/other',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+
+  t.equal(deploy.options.infraref, 'my-branch');
+  t.equal(deploy.options.infrastack, 'tamanu/other');
+  t.notOk('opsref' in deploy.options, 'the old name is not carried through');
+});
+
+test('the new infraref name wins over the old opsref name', (t) => {
+  t.plan(1);
+
+  const [deploy] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy --> %opsref=old %infraref=new',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+
+  t.equal(deploy.options.infraref, 'new');
+});
+
+test('a deployopt line sets infraref via the old name', (t) => {
+  t.plan(1);
+
+  const [deploy] = parseDeployConfig({
+    body: [
+      '- [x] Deploy <!-- #deploy -->',
+      '- [x] Use other infra <!-- #deployopt %opsref=my-branch -->',
+    ].join('\n'),
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+
+  t.equal(deploy.options.infraref, 'my-branch');
+});
+
+test('the channel option defaults to stable and can be set to canary', (t) => {
+  t.plan(2);
+
+  const [stable] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy -->',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+  const [canary] = parseDeployConfig({
+    body: '- [x] Deploy <!-- #deploy --> %channel=canary',
+    control: 'pr=1',
+    ref: 'some-branch',
+  });
+
+  t.equal(stable.options.channel, 'stable');
+  t.equal(canary.options.channel, 'canary');
+});
+
+test('configMap passes the channel as rendererChannel', (t) => {
+  t.plan(2);
+
+  const config = configMap('ci-k8s-deploy', 'latest', { channel: 'canary' });
+  t.equal(config['tamanu-on-k8s:rendererChannel'].value, 'canary');
+  t.equal(config['tamanu-on-k8s:rendererChannel'].secret, false);
+});
