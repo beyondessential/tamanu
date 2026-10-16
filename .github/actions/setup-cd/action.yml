@@ -19,8 +19,7 @@ runs:
       name: Checkout ops
       uses: actions/checkout@v4
       with:
-        repository: beyondessential/ops
-        ssh-key: ${{ inputs.ops-ssh-key }}
+        repository: beyondessential/infra
         path: ops
         ref: ${{ inputs.ops-ref }}
     - name: Remove ops/.git so pulumi doesn't get confused
