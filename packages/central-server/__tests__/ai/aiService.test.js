@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings/cache';
 import { getSettingSecret } from '@tamanu/shared/utils/crypto';
@@ -164,5 +165,55 @@ describe('ApplicationContext.refreshAiService', () => {
     await Promise.all([context.refreshAiService(), context.refreshAiService()]);
 
     expect(context.aiService.summaryModel.model).toBe('claude-fresh');
+  });
+});
+
+describe('AIService structured responses', () => {
+  const responseSchema = z.object({ answer: z.string() });
+
+  const serviceWithModel = (...responses) => {
+    const invoke = vi.fn();
+    responses.forEach(response => invoke.mockResolvedValueOnce(response));
+    const model = { bindTools: vi.fn(() => ({ invoke })) };
+    const service = new AIService();
+    service.formBuilderModel = model;
+    service.formBuilderFastModel = model;
+    service.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'tweak');
+    return { service, model, invoke };
+  };
+
+  const invokeTweak = service =>
+    service.invokeStructured(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'question', responseSchema, {
+      name: 'respond',
+    });
+
+  it('offers the response tool without forcing it', async () => {
+    const { service, model } = serviceWithModel({
+      tool_calls: [{ name: 'respond', args: { answer: 'yes' } }],
+    });
+
+    expect(await invokeTweak(service)).toEqual({ answer: 'yes' });
+    const [tools, options] = model.bindTools.mock.calls[0];
+    expect(tools[0].name).toBe('respond');
+    expect(options).toEqual({ tool_choice: 'auto' });
+  });
+
+  it('asks again when the model first answers without calling the tool', async () => {
+    const { service, invoke } = serviceWithModel(
+      { content: 'Sure, here you go.', tool_calls: [] },
+      { tool_calls: [{ name: 'respond', args: { answer: 'yes' } }] },
+    );
+
+    expect(await invokeTweak(service)).toEqual({ answer: 'yes' });
+    expect(invoke).toHaveBeenCalledTimes(2);
+    const retryMessages = invoke.mock.calls[1][0];
+    expect(retryMessages).toHaveLength(3);
+    expect(retryMessages.at(-1).content).toBe('Respond by calling the respond tool.');
+  });
+
+  it('fails when the model still answers without calling the tool', async () => {
+    const { service } = serviceWithModel({ tool_calls: [] }, { tool_calls: [] });
+
+    await expect(invokeTweak(service)).rejects.toThrow('did not call the respond tool');
   });
 });
