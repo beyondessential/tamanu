@@ -19,6 +19,19 @@ const sortChildItems = (a, b) => {
   return a.sortPriority - b.sortPriority;
 };
 
+/** Leaves out items for features the facility has turned off, like the kiosk. */
+const withoutDisabledFeatures = (items, getSetting) =>
+  items.map(item =>
+    item.children
+      ? {
+          ...item,
+          children: item.children.filter(
+            child => !child.enabledBySetting || getSetting(child.enabledBySetting),
+          ),
+        }
+      : item,
+  );
+
 // This hook is used to get the menu items for the facility sidebar. It gets the configured hidden and
 // sortPriority values from  sidebar config and merges them with the *_MENU_ITEMS constant
 const useSidebarFactory = (ITEMS, configKey) => {
@@ -32,10 +45,10 @@ const useSidebarFactory = (ITEMS, configKey) => {
   const sidebarConfig = getSetting(configKey);
 
   if (!sidebarConfig) {
-    return ITEMS;
+    return withoutDisabledFeatures(ITEMS, getSetting);
   }
 
-  return ITEMS.reduce((topLevelItems, item) => {
+  const items = ITEMS.reduce((topLevelItems, item) => {
     const localisedItem = sidebarConfig[item.key];
     if (!localisedItem) {
       topLevelItems.push(item);
@@ -76,6 +89,7 @@ const useSidebarFactory = (ITEMS, configKey) => {
     });
     return topLevelItems;
   }, []).sort(sortTopLevelItems);
+  return withoutDisabledFeatures(items, getSetting);
 };
 
 export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layouts.sidebar');

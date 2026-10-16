@@ -185,6 +185,7 @@ export const facilitySettings = {
     },
     facilityTimeZone: {
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
@@ -466,6 +467,51 @@ export const facilitySettings = {
               defaultValue: 'GeneralClinic',
             },
           },
+        },
+      },
+    },
+    kiosk: {
+      name: 'Self check-in kiosk',
+      description: 'A tablet where patients check themselves in for appointments booked today',
+      properties: {
+        enabled: {
+          name: 'Enable kiosk',
+          description: 'Allow this facility to run the self check-in kiosk at /kiosk in Tamanu web',
+          exposedToWeb: true,
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        formsByAppointmentType: {
+          name: 'Forms by appointment type',
+          description:
+            'The forms a patient completes at the kiosk before checking in, for each appointment type. Appointment types not listed have no forms.',
+          type: yup.array(
+            yup
+              .object({
+                appointmentTypeId: yup.string().required(),
+                surveyIds: yup.array(yup.string().required()).required(),
+              })
+              .noUnknown(),
+          ),
+          defaultValue: [],
+        },
+        inactivityTimeout: {
+          name: 'Inactivity timeout',
+          description:
+            'How long the kiosk waits without interaction during a check-in before asking whether the patient is still there',
+          exposedToWeb: true,
+          type: yup.number().integer().positive(),
+          defaultValue: 90,
+          unit: 'seconds',
+        },
+        inactivityWarning: {
+          name: 'Inactivity warning',
+          description:
+            'How long the "Are you still there?" countdown runs before the kiosk clears the check-in and returns to the start',
+          exposedToWeb: true,
+          type: yup.number().integer().positive(),
+          defaultValue: 30,
+          unit: 'seconds',
         },
       },
     },
