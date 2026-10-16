@@ -21,7 +21,9 @@
 #                                                 (a cheap end-to-end test of the infra checkout)
 #   backport-infra-checkout.sh --push 2.60 2.61   limit to the listed releases
 #
-# Re-running is safe: a release whose branch or PR already exists is skipped at that step.
+# Re-running is safe. A release is skipped entirely when its branch on origin already checks out
+# infra, or when a PR (open, merged or closed) already exists from our branch. A local branch left
+# over from --commit is reused rather than recreated.
 set -euo pipefail
 
 RELEASES=(2.43 2.53 2.54 2.57 2.60 2.61 2.62 2.63 2.64 2.65 2.66 2.67)
@@ -89,6 +91,21 @@ for release in "${RELEASES[@]}"; do
   branch="ci/S10/infra-checkout-$release"
   tree="$scratch/$release"
 
+  # already merged into the release branch (or done by hand): nothing to do
+  if git show "origin/$base:$ACTION" | grep -q '^        repository: beyondessential/infra$'; then
+    echo "done  $base already checks out infra"
+    continue
+  fi
+
+  # an open, merged or closed PR from our branch means this release has been handled; don't push again
+  if [ "$mode" = push ]; then
+    existing=$(gh pr list --base "$base" --head "$branch" --state all --json url,state --jq '.[0] | select(.) | "\(.state) \(.url)"')
+    if [ -n "$existing" ]; then
+      echo "pr    $base already has a PR: $existing"
+      continue
+    fi
+  fi
+
   if [ "$mode" != check ] && git rev-parse --verify --quiet "refs/heads/$branch" >/dev/null; then
     echo "have  $branch already exists locally, not recreating it"
   else
@@ -129,11 +146,6 @@ for release in "${RELEASES[@]}"; do
   git push --quiet origin "$branch"
   echo "push  $branch"
 
-  existing=$(gh pr list --base "$base" --head "$branch" --state all --json url --jq '.[0].url // empty')
-  if [ -n "$existing" ]; then
-    echo "pr    $base already has $existing"
-    continue
-  fi
   url=$(gh pr create --base "$base" --head "$branch" --title "$PR_TITLE" --body "$(pr_body "$base" "$release")") \
     || { echo "FAIL  $base: could not open PR"; failed+=("$release"); continue; }
   echo "pr    $url"
