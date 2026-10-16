@@ -26,6 +26,7 @@ import {
 } from '../Field';
 import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import { ViewPhotoLink } from '../ViewPhotoLink';
+import { ProgramRegistryConditionQuestionField } from './ProgramRegistryConditionQuestion';
 
 /** @satisfies {Record<PROGRAM_DATA_ELEMENT_TYPES, React.ComponentType<any>>} */
 const QUESTION_COMPONENTS = /** @type {const} */ ({
@@ -61,6 +62,7 @@ const QUESTION_COMPONENTS = /** @type {const} */ ({
   /** Not really a field; handled at render time. @see `getCustomComponentForQuestion` */
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: undefined,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PROGRAM_REGISTRY_CONDITION]: ProgramRegistryConditionQuestionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: props => (
