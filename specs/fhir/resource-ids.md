@@ -4,7 +4,7 @@ id: FRID
 
 # FHIR resource identifiers
 
-The `id` of a materialised FHIR resource is derived deterministically from the resource type and the upstream record it materialises from. The same resource type and upstream id always produce the same FHIR id, so a given upstream record resolves to the same FHIR resource id on every server and across deployments, not just stably within one database.
+The `id` of a materialised FHIR resource is derived deterministically from the resource type and the upstream record it materialises from. The same resource type and upstream id always produce the same FHIR id, so a given upstream record resolves to the same FHIR resource id on every server and across deployments.
 
 This covers only resources materialised from an upstream Tamanu record (those carrying an `upstream_id`). It does not govern the `versionId` or resources created through inbound FHIR writes.
 
