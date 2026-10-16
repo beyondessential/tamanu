@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as z from 'zod';
 
-import { ForbiddenError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { AI_CONTEXT_NAMES, AI_PROMPT_TAGS } from '@tamanu/constants';
 
@@ -51,7 +51,7 @@ patientSummaryRoute.post(
     req.checkPermission('write', 'PatientSummary');
 
     if (!req.aiService?.hasContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY)) {
-      throw new ForbiddenError('Patient summary is not enabled or configured');
+      throw new InvalidOperationError('Patient summary is not enabled or configured');
     }
 
     const { patientData, editFeedback } = patientSummaryBodySchema.parse(req.body);

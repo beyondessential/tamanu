@@ -64,13 +64,13 @@ describe('AI Patient Summary (central-server)', () => {
       expect(userMessage).toContain('Corrected summary');
     });
 
-    it('should return 403 when the summary is switched off', async () => {
+    it('should reject when the summary is switched off', async () => {
       mockAiService.hasContext.mockReturnValueOnce(false);
       const callsBefore = mockAiService.invoke.mock.calls.length;
 
       const result = await patientSummaryApp.post(SUMMARY_URL).send({ patientData });
 
-      expect(result).toBeForbidden();
+      expect(result).toHaveRequestError();
       expect(result.body.error.message).toBe('Patient summary is not enabled or configured');
       expect(mockAiService.invoke.mock.calls.length).toBe(callsBefore);
     });
@@ -108,11 +108,11 @@ describe('AI Patient Summary (central-server)', () => {
     });
     afterAll(() => ctx.close());
 
-    it('should return 403 when AI service is not configured', async () => {
+    it('should reject when AI service is not configured', async () => {
       const app = await baseApp.asRole('practitioner');
       const result = await app.post(SUMMARY_URL).send({ patientData });
 
-      expect(result).toBeForbidden();
+      expect(result).toHaveRequestError();
       expect(result.body.error.message).toBe('Patient summary is not enabled or configured');
     });
   });
