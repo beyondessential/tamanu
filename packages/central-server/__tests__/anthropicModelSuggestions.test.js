@@ -132,9 +132,7 @@ describe('anthropicModel suggester', () => {
     mockModelsRequest();
     const result = await adminApp.get('/api/suggestions/anthropicModel?q=textonly');
     expect(result).toHaveSucceeded();
-    expect(result.body).toEqual([
-      { id: 'claude-textonly-1', name: 'Claude Text Only' },
-    ]);
+    expect(result.body).toEqual([{ id: 'claude-textonly-1', name: 'Claude Text Only' }]);
   });
 
   it('handles a repeated search term', async () => {
@@ -190,25 +188,6 @@ describe('anthropicModel suggester', () => {
     const result = await adminApp.get('/api/suggestions/anthropicModel/claude-retired-9');
     expect(result).toHaveSucceeded();
     expect(result.body).toEqual({ id: 'claude-retired-9', name: 'claude-retired-9' });
-  });
-
-  it('offers only vision-capable models for the fast model field', async () => {
-    getSettingSecret.mockResolvedValue('sk-test');
-    mockModelsRequest();
-    const result = await adminApp.get('/api/suggestions/anthropicFastModel');
-    expect(result).toHaveSucceeded();
-    expect(result.body).toEqual([{ id: 'claude-opus-5', name: 'Claude Opus 5' }]);
-  });
-
-  it('still resolves a saved fast model that is no longer offered', async () => {
-    getSettingSecret.mockResolvedValue('sk-test');
-    mockModelsRequest();
-    const result = await adminApp.get('/api/suggestions/anthropicFastModel/claude-textonly-1');
-    expect(result).toHaveSucceeded();
-    expect(result.body).toEqual({
-      id: 'claude-textonly-1',
-      name: 'Claude Text Only',
-    });
   });
 
   it('caches the model list across requests', async () => {

@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { Op } from 'sequelize';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
+import { Agent } from 'undici';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { toJsonSchema } from '@langchain/core/utils/json_schema';
 
@@ -13,23 +14,49 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
 // Every settings path init reads. A path missing here goes on needing a restart
 // to take effect, so add to it alongside any new settings read.
-export const AI_SETTING_PATHS = ['ai', 'experimentalAi', 'formBuilder'];
+export const AI_SETTING_PATHS = ['ai', 'experimentalAi', 'formBuilder', 'metaServer'];
 
 const SUMMARY_CONTEXTS = new Set([
   AI_CONTEXT_NAMES.PATIENT_SUMMARY,
   AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY,
 ]);
 
-// Form builder contexts routed to the optional fast model when configured.
-// Keep these to non-conversational structured/extraction/generation tasks
-// where a smaller model is generally sufficient and latency dominates user
-// experience. The build context generates a large structured response so it
-// gets the biggest wall-time win from a faster model.
+// Non-conversational form builder work, which Canopy may route to a faster model.
 const FAST_MODEL_CONTEXTS = new Set([
-  AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE,
   AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK,
   AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
 ]);
+
+// Canopy chooses the model for each kind of form builder request and replaces
+// whatever model and key a request names; LangChain requires both regardless.
+const GATEWAY_MODEL = 'canopy-gateway';
+const GATEWAY_API_KEY = 'canopy-gateway';
+const GATEWAY_MAX_TOKENS = 16000;
+
+const buildGatewayModels = async ({ settings, models }) => {
+  const [metaServerHost] = await settings.get('metaServer.hosts');
+  if (!metaServerHost) return null;
+  const deviceKey = await models.LocalSystemSecret.getDeviceKey();
+  const dispatcher = new Agent({
+    connect: { cert: deviceKey.makeCertificate(), key: deviceKey.privateKeyPem() },
+  });
+  const forRequestType = requestType =>
+    new ChatAnthropic({
+      model: GATEWAY_MODEL,
+      anthropicApiKey: GATEWAY_API_KEY,
+      maxTokens: GATEWAY_MAX_TOKENS,
+      clientOptions: {
+        baseURL: `${metaServerHost.replace(/\/$/, '')}/ai`,
+        fetchOptions: { dispatcher },
+        defaultHeaders: { 'x-ai-request-type': requestType },
+      },
+    });
+  return {
+    main: forRequestType('main'),
+    fast: forRequestType('fast'),
+    vision: forRequestType('vision'),
+  };
+};
 
 export const formBuilderChatResponseSchema = z.object({
   message: z.string().describe('The assistant message to display to the implementer.'),
@@ -88,14 +115,19 @@ const invokeWithResponseTool = async (model, schema, name, messages) => {
 
   const askAgain = () => {
     log.warn(`AIService: model ${model.model} answered without the ${name} tool, asking again`);
-    return boundModel.invoke([...messages, new HumanMessage(`Respond by calling the ${name} tool.`)]);
+    return boundModel.invoke([
+      ...messages,
+      new HumanMessage(`Respond by calling the ${name} tool.`),
+    ]);
   };
 
   const firstResponse = await boundModel.invoke(messages);
   const response = findToolCall(firstResponse) ? firstResponse : await askAgain();
   const toolCall = findToolCall(response);
   if (!toolCall) {
-    const unparsed = response.invalid_tool_calls?.length ? ' (its arguments could not be parsed)' : '';
+    const unparsed = response.invalid_tool_calls?.length
+      ? ' (its arguments could not be parsed)'
+      : '';
     throw new Error(`AI response did not call the ${name} tool${unparsed}`);
   }
   return schema.parse(toolCall.args);
@@ -117,10 +149,13 @@ export class AIService {
   /** @type {import('@langchain/anthropic').ChatAnthropic | null} */
   formBuilderFastModel = null;
 
+  /** @type {import('@langchain/anthropic').ChatAnthropic | null} */
+  formBuilderVisionModel = null;
+
   /**
-   * Built when either Experimental AI or the form builder is enabled with a
-   * model. Each only registers the contexts it serves, so a disabled feature's
-   * routes find nothing to call.
+   * Built when Experimental AI (with a model and key) or the form builder
+   * (through the Canopy gateway) is enabled. Each only registers the contexts
+   * it serves, so a disabled feature's routes find nothing to call.
    *
    * @param {object} options
    * @param {import('@tamanu/settings').ReadSettings} options.settings
@@ -135,6 +170,37 @@ export class AIService {
       return null;
     }
 
+    const service = new AIService();
+    service.models = models;
+
+    if (experimentalAi.enabled) {
+      await service.initSummaries(settings, experimentalAi);
+    }
+
+    if (formBuilder.enabled) {
+      const gatewayModels = await buildGatewayModels({ settings, models });
+      if (!gatewayModels) {
+        log.warn('AIService: no meta server configured, form builder unavailable');
+      } else {
+        service.formBuilderModel = gatewayModels.main;
+        service.formBuilderFastModel = gatewayModels.fast;
+        service.formBuilderVisionModel = gatewayModels.vision;
+        service.registerFormBuilderContexts(formBuilder.prompts);
+        log.info('AIService: form builder uses the Canopy AI gateway');
+      }
+    }
+
+    if (!service.summaryModel && !service.formBuilderModel) return null;
+    return service;
+  }
+
+  async initSummaries(settings, experimentalAi) {
+    const summaryModelName = experimentalAi.model?.trim();
+    if (!summaryModelName) {
+      log.warn('AIService: no Experimental AI model configured, summaries unavailable');
+      return;
+    }
+
     let anthropicApiKey;
     try {
       anthropicApiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
@@ -142,52 +208,21 @@ export class AIService {
       if (!(error instanceof SecretNotConfiguredError)) throw error;
     }
     if (!anthropicApiKey) {
-      log.debug('AIService: no Anthropic API key configured, skipping initialisation');
-      return null;
+      log.debug('AIService: no Anthropic API key configured, summaries unavailable');
+      return;
     }
 
-    const service = new AIService();
-    service.models = models;
-
-    const summaryModelName = experimentalAi.model?.trim();
-    if (experimentalAi.enabled && !summaryModelName) {
-      log.warn('AIService: no Experimental AI model configured, summaries unavailable');
+    this.summaryModel = new ChatAnthropic({ anthropicApiKey, model: summaryModelName });
+    if (experimentalAi.patientSummary.enabled) {
+      this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, experimentalAi.patientSummary.prompts);
     }
-    if (experimentalAi.enabled && summaryModelName) {
-      service.summaryModel = new ChatAnthropic({ anthropicApiKey, model: summaryModelName });
-      if (experimentalAi.patientSummary.enabled) {
-        service.registerContext(
-          AI_CONTEXT_NAMES.PATIENT_SUMMARY,
-          experimentalAi.patientSummary.prompts,
-        );
-      }
-      if (experimentalAi.encounterSummary.enabled) {
-        service.registerContext(
-          AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY,
-          experimentalAi.encounterSummary.prompts,
-        );
-      }
-      log.info(`AIService: summaries use model "${summaryModelName}"`);
-    }
-
-    const formBuilderModelName = formBuilder.model?.trim();
-    if (formBuilder.enabled && !formBuilderModelName) {
-      log.warn('AIService: no form builder model configured, form builder unavailable');
-    }
-    if (formBuilder.enabled && formBuilderModelName) {
-      service.formBuilderModel = new ChatAnthropic({ anthropicApiKey, model: formBuilderModelName });
-      const fastModelName = formBuilder.fastModel?.trim();
-      service.formBuilderFastModel = fastModelName
-        ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
-        : service.formBuilderModel;
-      service.registerFormBuilderContexts(formBuilder.prompts);
-      log.info(
-        `AIService: form builder uses model "${formBuilderModelName}"${fastModelName ? ` (fast model "${fastModelName}")` : ''}`,
+    if (experimentalAi.encounterSummary.enabled) {
+      this.registerContext(
+        AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY,
+        experimentalAi.encounterSummary.prompts,
       );
     }
-
-    if (!service.summaryModel && !service.formBuilderModel) return null;
-    return service;
+    log.info(`AIService: summaries use model "${summaryModelName}"`);
   }
 
   /**
@@ -238,6 +273,7 @@ export class AIService {
       throw new Error(`AI context "${contextName}" is not registered`);
     }
     if (SUMMARY_CONTEXTS.has(contextName)) return this.summaryModel;
+    if (contextName === AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE) return this.formBuilderVisionModel;
     if (FAST_MODEL_CONTEXTS.has(contextName)) return this.formBuilderFastModel;
     return this.formBuilderModel;
   }

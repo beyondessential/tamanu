@@ -69,13 +69,7 @@ const loadModels = async settings => {
     afterId = body.last_id;
   }
 
-  return rawModels.map(({ id, display_name: displayName, capabilities }) => ({
-    id,
-    name: displayName ?? id,
-    supportsVision: Boolean(
-      capabilities?.image_input?.supported && capabilities?.pdf_input?.supported,
-    ),
-  }));
+  return rawModels.map(({ id, display_name: displayName }) => ({ id, name: displayName ?? id }));
 };
 
 // The TTL is short so a rotated key or a new model appears without anything
@@ -98,20 +92,19 @@ const fetchModels = settings => {
   return models;
 };
 
-const listRoute = eligible =>
-  asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Setting');
-    const models = (await fetchModels(req.settings)).filter(eligible);
-    const search = String(req.query.q ?? '')
-      .trim()
-      .toLowerCase();
-    const matching = search
-      ? models.filter(
-          ({ id, name }) => id.toLowerCase().includes(search) || name.toLowerCase().includes(search),
-        )
-      : models;
-    res.send(matching.map(({ id, name }) => ({ id, name })));
-  });
+const listRoute = asyncHandler(async (req, res) => {
+  req.checkPermission('read', 'Setting');
+  const models = await fetchModels(req.settings);
+  const search = String(req.query.q ?? '')
+    .trim()
+    .toLowerCase();
+  const matching = search
+    ? models.filter(
+        ({ id, name }) => id.toLowerCase().includes(search) || name.toLowerCase().includes(search),
+      )
+    : models;
+  res.send(matching.map(({ id, name }) => ({ id, name })));
+});
 
 // Lookup is never filtered: a saved model has to render as itself even once it
 // stops being offered, or the field appears empty and the admin overwrites it.
@@ -122,16 +115,8 @@ const lookupRoute = asyncHandler(async (req, res) => {
   res.send(model ? { id: model.id, name: model.name } : { id: req.params.id, name: req.params.id });
 });
 
-anthropicModelSuggestions.get('/anthropicModel', listRoute(() => true));
+anthropicModelSuggestions.get('/anthropicModel', listRoute);
 anthropicModelSuggestions.get('/anthropicModel/:id', lookupRoute);
-
-// The fast model serves the form builder's image context, so it has to read
-// images and PDFs; a model that can't would fail only at the point of use.
-anthropicModelSuggestions.get(
-  '/anthropicFastModel',
-  listRoute(({ supportsVision }) => supportsVision),
-);
-anthropicModelSuggestions.get('/anthropicFastModel/:id', lookupRoute);
 
 export const clearAnthropicModelCache = () => {
   cache = null;

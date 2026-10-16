@@ -25,7 +25,6 @@ describe('AI settings listener', () => {
     models = ctx.store.models;
   });
 
-
   afterAll(async () => {
     await ctx.close();
   });
@@ -38,7 +37,7 @@ describe('AI settings listener', () => {
   });
 
   it('rebuilds the service when an AI setting is written', async () => {
-    await models.Setting.set('formBuilder.model', 'claude-opus-5', SETTINGS_SCOPES.CENTRAL);
+    await models.Setting.set('formBuilder.enabled', true, SETTINGS_SCOPES.CENTRAL);
 
     await waitForRefresh(refresh);
 

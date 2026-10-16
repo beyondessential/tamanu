@@ -32,21 +32,32 @@ const experimentalAiWith = overrides => ({
 
 const formBuilderWith = overrides => ({
   enabled: true,
-  model: 'claude-opus-5',
-  fastModel: '',
   prompts: FORM_BUILDER_PROMPTS,
   ...overrides,
 });
 
-const settingsWith = ({ experimentalAi = {}, formBuilder = {} } = {}) => {
+const fakeDeviceKey = { makeCertificate: () => 'device-cert', privateKeyPem: () => 'device-key' };
+const modelsWithDeviceKey = {
+  LocalSystemSecret: { getDeviceKey: vi.fn(async () => fakeDeviceKey) },
+};
+
+const settingsWith = ({
+  experimentalAi = {},
+  formBuilder = {},
+  metaServerHosts = ['https://meta.example/'],
+} = {}) => {
   const values = {
     experimentalAi: experimentalAiWith(experimentalAi),
     formBuilder: formBuilderWith(formBuilder),
+    'metaServer.hosts': metaServerHosts,
   };
   return { get: async path => values[path] };
 };
 
-const initWith = config => AIService.init({ settings: settingsWith(config), models: {} });
+const initWith = config =>
+  AIService.init({ settings: settingsWith(config), models: modelsWithDeviceKey });
+
+const requestTypeOf = model => model.clientOptions.defaultHeaders['x-ai-request-type'];
 
 describe('AIService.init', () => {
   beforeEach(() => {
@@ -54,29 +65,38 @@ describe('AIService.init', () => {
     getSettingSecret.mockResolvedValue('sk-test');
   });
 
-  it('builds each feature with its own model', async () => {
-    const service = await initWith({
-      experimentalAi: { model: 'claude-sonnet-5' },
-      formBuilder: { model: 'claude-opus-5', fastModel: 'claude-haiku-5' },
-    });
-    expect(service.getModelForContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY).model).toBe(
-      'claude-sonnet-5',
+  it('builds the summaries with their own model and the deployment key', async () => {
+    const service = await initWith({ experimentalAi: { model: 'claude-sonnet-5' } });
+    const summaryModel = service.getModelForContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY);
+    expect(summaryModel.model).toBe('claude-sonnet-5');
+    expect(summaryModel.apiKey).toBe('sk-test');
+  });
+
+  it('routes each kind of form builder request through the Canopy gateway', async () => {
+    const service = await initWith();
+    const chatModel = service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER);
+    expect(chatModel.clientOptions.baseURL).toBe('https://meta.example/ai');
+    expect(chatModel.clientOptions.fetchOptions.dispatcher).toBeDefined();
+    expect(requestTypeOf(chatModel)).toBe('main');
+    expect(requestTypeOf(service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD))).toBe(
+      'fast',
     );
-    expect(service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER).model).toBe('claude-opus-5');
-    expect(service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD).model).toBe(
-      'claude-haiku-5',
+    expect(requestTypeOf(service.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE))).toBe(
+      'vision',
     );
   });
 
-  it('picks up a changed API key without a restart', async () => {
-    getSettingSecret.mockResolvedValue('sk-second');
-    const service = await initWith();
-    expect(service.summaryModel.apiKey).toBe('sk-second');
+  it('builds the form builder without an Anthropic key', async () => {
+    getSettingSecret.mockResolvedValue(undefined);
+    const service = await initWith({ experimentalAi: { enabled: false } });
+    expect(service.hasContext(AI_CONTEXT_NAMES.FORM_BUILDER)).toBe(true);
+    expect(getSettingSecret).not.toHaveBeenCalled();
   });
 
-  it('falls back to the form builder model when no fast model is configured', async () => {
-    const service = await initWith();
-    expect(service.formBuilderFastModel).toBe(service.formBuilderModel);
+  it('leaves the form builder off without a meta server', async () => {
+    const service = await initWith({ metaServerHosts: [] });
+    expect(service.hasContext(AI_CONTEXT_NAMES.FORM_BUILDER)).toBe(false);
+    expect(service.hasContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY)).toBe(true);
   });
 
   it('leaves the form builder running when Experimental AI is off', async () => {
@@ -100,16 +120,15 @@ describe('AIService.init', () => {
     expect(service.hasContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY)).toBe(true);
   });
 
-  it('is torn down when both features are disabled or have no model', async () => {
+  it('is torn down when nothing usable is configured', async () => {
     expect(
       await initWith({ experimentalAi: { enabled: false }, formBuilder: { enabled: false } }),
     ).toBeNull();
-    expect(await initWith({ experimentalAi: { model: '' }, formBuilder: { model: '' } })).toBeNull();
-  });
-
-  it('is torn down without an API key', async () => {
+    expect(
+      await initWith({ experimentalAi: { model: '' }, formBuilder: { enabled: false } }),
+    ).toBeNull();
     getSettingSecret.mockResolvedValue(undefined);
-    expect(await initWith()).toBeNull();
+    expect(await initWith({ formBuilder: { enabled: false } })).toBeNull();
   });
 });
 
@@ -132,7 +151,10 @@ describe('ApplicationContext.refreshAiService', () => {
     const context = contextFor({
       get: async path => {
         order.push('read');
-        return { experimentalAi: experimentalAiWith(), formBuilder: formBuilderWith() }[path];
+        return {
+          experimentalAi: experimentalAiWith(),
+          formBuilder: formBuilderWith({ enabled: false }),
+        }[path];
       },
     });
     await context.refreshAiService();
@@ -178,6 +200,7 @@ describe('AIService structured responses', () => {
     const service = new AIService();
     service.formBuilderModel = model;
     service.formBuilderFastModel = model;
+    service.formBuilderVisionModel = model;
     service.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, 'tweak');
     return { service, model, invoke };
   };
