@@ -35,7 +35,7 @@ export async function up(query: QueryInterface): Promise<void> {
   for (const [from, to] of PREFIX_MOVES) {
     await query.sequelize.query(
       `UPDATE settings SET key = :to || substr(key, length(:from) + 1)
-       WHERE starts_with(key, :from) AND deleted_at IS NULL;`,
+       WHERE starts_with(key, :from) AND scope = 'global' AND deleted_at IS NULL;`,
       { replacements: { from, to } },
     );
   }
@@ -46,7 +46,7 @@ export async function down(query: QueryInterface): Promise<void> {
   for (const [from, to] of PREFIX_MOVES) {
     await query.sequelize.query(
       `UPDATE settings SET key = :from || substr(key, length(:to) + 1)
-       WHERE starts_with(key, :to) AND deleted_at IS NULL;`,
+       WHERE starts_with(key, :to) AND scope = 'global' AND deleted_at IS NULL;`,
       { replacements: { from, to } },
     );
   }
