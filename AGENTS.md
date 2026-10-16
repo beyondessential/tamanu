@@ -28,6 +28,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
 - **Translations**: See @llm/project-rules/translations.md for the TranslatedText / TranslatedEnum / TranslatedReferenceData system and string ID conventions
+- **Figma → code**: See @llm/project-rules/figma-to-code.md for implementing a Figma design on a UI card (Figma MCP workflow and the Tamanu component map)
 - **Sequelize Transactions**: See @llm/project-rules/sequelize-transactions.md for managed transactions and CLS (do not pass transaction object)
 - **Settings**: See @llm/project-rules/settings.md for the settings schemas, reading settings (central vs facility readers), and why new config belongs in settings rather than config files
 - **Endpoint (integration) tests**: See @llm/project-rules/endpoint-integration-tests.md for central/facility HTTP route tests (supertest, auth, CRUD, validation)
