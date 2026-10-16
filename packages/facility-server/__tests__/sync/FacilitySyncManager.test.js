@@ -381,6 +381,61 @@ describe('FacilitySyncManager', () => {
 
       expect(await models.SyncFacilityRun.count()).toBe(2);
     });
+
+    describe('a sync shared by callers that waited for a running sync', () => {
+      const runWhileSyncInProgress = async (runningReason, waitingReasons) => {
+        const syncManager = makeSyncManager();
+        const startSyncSession = vi.spyOn(syncManager.centralServer, 'startSyncSession');
+        let finishPull;
+        syncManager.pullChanges.mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              finishPull = resolve;
+            }),
+        );
+
+        const running = syncManager.triggerSync(runningReason);
+        await vi.waitFor(() => expect(finishPull).toBeDefined());
+        const waiting = waitingReasons.map(reason => syncManager.triggerSync(reason));
+        finishPull();
+        await Promise.all([running, ...waiting]);
+
+        return { syncManager, startSyncSession };
+      };
+
+      it('records the trigger of the first caller', async () => {
+        await runWhileSyncInProgress({ type: 'scheduled', urgent: false }, [
+          { type: 'userRequested', urgent: false },
+          { type: 'scheduled', urgent: false },
+        ]);
+
+        expect(await latestSyncRun()).toMatchObject({ triggerType: 'userRequested', urgent: false });
+      });
+
+      it('takes the trigger of the first urgent caller, and asks central to let it in ahead', async () => {
+        const { startSyncSession } = await runWhileSyncInProgress(
+          { type: 'scheduled', urgent: false },
+          [
+            { type: 'scheduled', urgent: false },
+            { type: 'userRequested', urgent: true },
+            { type: 'subcommand', urgent: true },
+          ],
+        );
+
+        expect(await latestSyncRun()).toMatchObject({ triggerType: 'userRequested', urgent: true });
+        expect(startSyncSession).toHaveBeenLastCalledWith(expect.objectContaining({ urgent: true }));
+      });
+
+      it('does not carry a waiting trigger over to a later sync', async () => {
+        const { syncManager } = await runWhileSyncInProgress({ type: 'scheduled', urgent: false }, [
+          { type: 'userRequested', urgent: true },
+        ]);
+
+        await syncManager.triggerSync({ type: 'scheduled', urgent: false });
+
+        expect(await latestSyncRun()).toMatchObject({ triggerType: 'scheduled', urgent: false });
+      });
+    });
   });
 
   describe('pushChanges', () => {
