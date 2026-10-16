@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
 import { useGoBack } from '../hooks';
 
-import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
+import { useForbiddenError } from '../contexts/ForbiddenError';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -31,17 +30,16 @@ export const ForbiddenErrorModalContents = ({ onConfirm, confirmText }) => (
 
 export const ForbiddenErrorModal = () => {
   const goBack = useGoBack();
-  const errorMessage = useSelector(getErrorMessage);
-  const dispatch = useDispatch();
+  const { isOpen, clearForbiddenError } = useForbiddenError();
   const handleClose = useCallback(() => {
-    dispatch(removeForbiddenError());
-  }, [dispatch]);
+    clearForbiddenError();
+  }, [clearForbiddenError]);
   const handleConfirm = useCallback(() => {
     handleClose();
     goBack();
   }, [goBack, handleClose]);
 
-  if (errorMessage === null) {
+  if (!isOpen) {
     return null;
   }
 
