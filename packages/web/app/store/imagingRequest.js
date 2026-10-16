@@ -1,16 +1,18 @@
+import { route } from '@tamanu/api-client';
+
 // actions
 const IMAGING_LOAD_START = 'IMAGING_LOAD_START';
 const IMAGING_LOAD_ERROR = 'IMAGING_LOAD_ERROR';
 const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
 export const reloadImagingRequest =
-  (id) =>
+  id =>
   async (dispatch, getState, { api }) => {
     const { auth } = getState();
     const { facilityId } = auth;
     dispatch({ type: IMAGING_LOAD_START, id });
     try {
-      const imagingRequest = await api.get(`imagingRequest/${id}`, { facilityId });
+      const imagingRequest = await api.get(route('imagingRequest/:id', { id }), { facilityId });
 
       dispatch({ type: IMAGING_LOAD_FINISH, imagingRequest });
     } catch (e) {

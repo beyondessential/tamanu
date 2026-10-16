@@ -3,6 +3,7 @@ import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constant
 import { combineQueries, useApi } from '../index';
 import { getConfigObject } from '../../utils';
 import { useSurveyQuery } from './useSurveyQuery';
+import { route } from '@tamanu/api-client';
 
 function hasHistoricalData(answer) {
   if (!answer) return false;
@@ -73,7 +74,7 @@ export const useProgramRegistryPatientChartsQuery = (patientId, surveyId, instan
     ['programRegistryPatientCharts', patientId, surveyId, instanceId],
     () =>
       api.get(
-        `programRegistry/patient/${patientId}/charts/${surveyId}`,
+        route('programRegistry/patient/:patientId/charts/:surveyId', { patientId, surveyId }),
         { rowsPerPage: 50, instanceId },
       ),
     { enabled: Boolean(patientId) && Boolean(surveyId) },

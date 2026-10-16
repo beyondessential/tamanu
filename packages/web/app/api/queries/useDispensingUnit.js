@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 /**
  * @param {string | undefined} medicationId
@@ -19,7 +20,7 @@ export default function useDispensingUnit(
   return useQuery({
     queryKey: ['dispensingUnit', medicationId, facilityId],
     queryFn: async () => {
-      const drug = await api.get(`suggestions/drug/${encodeURIComponent(medicationId)}`, {
+      const drug = await api.get(route('suggestions/drug/:medicationId', { medicationId }), {
         facilityId,
       });
       return drug?.referenceDrug?.dispensingUnit;

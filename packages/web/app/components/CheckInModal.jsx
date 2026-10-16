@@ -9,6 +9,7 @@ import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 function getEncounterTypeLabel(encounterType) {
   switch (encounterType) {
@@ -60,7 +61,9 @@ export const CheckInModal = React.memo(
         });
 
         if (referral) {
-          await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+          await api.put(route('referral/:referralId', { referralId: referral.id }), {
+            status: REFERRAL_STATUSES.COMPLETED,
+          });
         }
 
         onSubmitEncounter?.(newEncounter);
@@ -69,7 +72,16 @@ export const CheckInModal = React.memo(
 
         invalidatePatientDataQueries(queryClient, patientId);
       },
-      [queryClient, patientId, api, createEncounter, onSubmitEncounter, onClose, referral, facilityId],
+      [
+        queryClient,
+        patientId,
+        api,
+        createEncounter,
+        onSubmitEncounter,
+        onClose,
+        referral,
+        facilityId,
+      ],
     );
     return (
       <FormModal

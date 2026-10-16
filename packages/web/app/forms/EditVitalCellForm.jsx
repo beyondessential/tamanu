@@ -5,7 +5,15 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { subject } from '@casl/ability';
 import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
-import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitCancelRow, FormGrid, useDateTime } from '@tamanu/ui-components';
+import {
+  SurveyQuestion,
+  getValidationSchema,
+  BaseSelectField,
+  Form,
+  FormSubmitCancelRow,
+  FormGrid,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
 import { Field, OuterLabelFieldWrapper } from '../components/Field';
@@ -16,6 +24,7 @@ import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedOption } from '../components/Translation/TranslatedOptions';
 import { getComponentForQuestionType } from '../components/Surveys';
+import { route } from '@tamanu/api-client';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -107,16 +116,21 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       )}
       <LogTextSmall data-testid="logtextsmall-2hok">
         {userDisplayName}{' '}
-        <DateDisplay date={date} timeFormat="default" format="shortest" data-testid="datedisplay-tviy" />
+        <DateDisplay
+          date={date}
+          timeFormat="default"
+          format="shortest"
+          data-testid="datedisplay-tviy"
+        />
       </LogTextSmall>
     </LogContainer>
   );
 };
 
-export const EditVitalCellForm = ({ 
-  vitalLabel, 
-  dataPoint, 
-  handleClose, 
+export const EditVitalCellForm = ({
+  vitalLabel,
+  dataPoint,
+  handleClose,
   isVital,
   // Program registry context props (optional)
   programRegistryPatientId,
@@ -170,10 +184,16 @@ export const EditVitalCellForm = ({
 
     // The survey response answer might not exist
     if (dataPoint.answerId) {
-      await api.put(`surveyResponseAnswer/${directory}/${dataPoint.answerId}`, {
-        facilityId,
-        ...newShapeData,
-      });
+      await api.put(
+        route('surveyResponseAnswer/:directory/:answerId', {
+          directory,
+          answerId: dataPoint.answerId,
+        }),
+        {
+          facilityId,
+          ...newShapeData,
+        },
+      );
     } else {
       const newVitalData = {
         ...newShapeData,
@@ -181,11 +201,14 @@ export const EditVitalCellForm = ({
         encounterId: encounter?.id,
         recordedDate: dataPoint.recordedDate,
       };
-      await api.post(`surveyResponseAnswer/${directory}`, { facilityId, ...newVitalData });
+      await api.post(route('surveyResponseAnswer/:directory', { directory }), {
+        facilityId,
+        ...newVitalData,
+      });
     }
     const primaryQueryKey = isVital ? 'encounterVitals' : 'encounterCharts';
     queryClient.invalidateQueries([primaryQueryKey, encounter?.id]);
-    
+
     // Also invalidate program registry queries if in program registry context
     if (!isVital && programRegistryPatientId && programRegistrySurveyId) {
       queryClient.invalidateQueries([
@@ -195,7 +218,7 @@ export const EditVitalCellForm = ({
         programRegistryInstanceId,
       ]);
     }
-    
+
     handleClose();
   };
   const validateFn = values => {

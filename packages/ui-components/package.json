@@ -17,6 +17,7 @@
     "clean-build": "echo 'builds with client frontend'"
   },
   "dependencies": {
+    "@tamanu/api-client": "*",
     "@tamanu/shared": "*",
     "@tamanu/utils": "*",
     "es-toolkit": "^1.48.1"

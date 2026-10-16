@@ -19,6 +19,7 @@ import { DeleteReferralModal } from '../views/patients/components/DeleteReferral
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -48,7 +49,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
       }
 
       try {
-        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+        const user = await api.get(route('user/:body', { body: referralByAnswer.body }));
         setName(user.displayName);
       } catch (e) {
         if (e.message === 'Facility server error response: 404') {
@@ -104,12 +105,18 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const endpoint = `patient/${patientId}/referrals`;
 
   const onCancelReferral = useCallback(async () => {
-    await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    await api.put(
+      route('referral/:selectedReferralId', { selectedReferralId: selectedReferral.id }),
+      { status: REFERRAL_STATUSES.CANCELLED },
+    );
     setModalOpen(false);
     updateRefreshCount();
   }, [api, selectedReferral.id, updateRefreshCount]);
   const onCompleteReferral = async () => {
-    await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    await api.put(
+      route('referral/:selectedReferralId', { selectedReferralId: selectedReferral.id }),
+      { status: REFERRAL_STATUSES.COMPLETED },
+    );
     updateRefreshCount();
   };
   const onViewEncounter = useCallback(async () => {

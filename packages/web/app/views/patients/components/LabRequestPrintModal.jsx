@@ -15,6 +15,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { route } from '@tamanu/api-client';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
@@ -35,13 +36,13 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
 
   const { data: testsData, isLoading: areTestsLoading } = useQuery(
     ['labRequest', labRequest.id, 'tests'],
-    () => api.get(`labRequest/${labRequest.id}/tests`),
+    () => api.get(route('labRequest/:labRequestId/tests', { labRequestId: labRequest.id })),
   );
 
   const isVillageEnabled = !!patient.villageId;
   const { data: village = {}, isLoading: isVillageLoading } = useQuery(
     ['referenceData', patient.villageId],
-    () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
+    () => api.get(route('referenceData/:villageId', { villageId: patient.villageId })),
     { enabled: isVillageEnabled },
   );
 

@@ -5,15 +5,20 @@ import NotesIcon from '@mui/icons-material/Notes';
 import { Box } from '@material-ui/core';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { TextField, Form, FormCancelButton, FormSubmitButton, Button, useDateTime } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  FormCancelButton,
+  FormSubmitButton,
+  Button,
+  useDateTime,
+} from '@tamanu/ui-components';
 
 import { useApi } from '../api';
-import {
-  DateDisplay,
-  Field,
-} from '../components';
+import { DateDisplay, Field } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   display: flex;
@@ -39,7 +44,7 @@ const ListItem = styled.li`
 `;
 
 const Caption = styled.span`
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-left: 6px;
 `;
 
@@ -65,14 +70,14 @@ const buttonStyle = css`
   padding-right: 8px;
   min-width: auto;
   background: none;
-  color: ${(props) =>
+  color: ${props =>
     props.$underline ? props.theme.palette.primary.main : props.theme.palette.text.tertiary};
-  text-decoration: ${(props) => (props.$underline ? 'underline' : 'none')};
+  text-decoration: ${props => (props.$underline ? 'underline' : 'none')};
 
   &.MuiButton-root:hover {
     background: none;
     text-decoration: underline;
-    color: ${(props) => props.theme.palette.primary.main};
+    color: ${props => props.theme.palette.primary.main};
   }
 `;
 
@@ -99,12 +104,12 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const [active, setActive] = useState(false);
 
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
-    api.get(`labRequest/${labRequestId}/notes`),
+    api.get(route('labRequest/:labRequestId/notes', { labRequestId })),
   );
 
   const { mutateAsync: saveNote } = useMutation(
     ({ values }) =>
-      api.post(`labRequest/${labRequestId}/notes`, {
+      api.post(route('labRequest/:labRequestId/notes', { labRequestId }), {
         content: values.content?.trim(),
         authorId: api.user.id,
         noteTypeId: NOTE_TYPES.OTHER,

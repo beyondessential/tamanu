@@ -37,6 +37,7 @@ import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQue
 import { isEqual } from 'es-toolkit/compat';
 import { ChartDataProvider } from '../../contexts/ChartData';
 import { PlannedMoveActions } from './components/PlannedMoveActions';
+import { route } from '@tamanu/api-client';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -180,16 +181,13 @@ export const EncounterView = () => {
   const visibleTabs = tabs.filter(tab => !tab.condition || tab.condition(getSetting));
   const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
   const fallbackEncounterTab = visibleTabs[0]?.key;
-  const { currentTab, onTabSelect } = useSyncedTabSearchParam(
-    visibleTabKeys,
-    fallbackEncounterTab,
-  );
+  const { currentTab, onTabSelect } = useSyncedTabSearchParam(visibleTabKeys, fallbackEncounterTab);
 
   // The patient is loaded into the store asynchronously, so patient.id is null on the first
   // render when this view is opened directly by URL. Only record the view once we have an id.
   useEffect(() => {
     if (!patient?.id) return;
-    api.post(`user/recently-viewed-patients/${patient.id}`);
+    api.post(route('user/recently-viewed-patients/:patientId', { patientId: patient.id }));
   }, [api, patient?.id]);
 
   useEffect(() => {

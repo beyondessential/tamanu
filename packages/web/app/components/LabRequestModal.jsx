@@ -8,6 +8,7 @@ import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMulti
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
 import { useEncounter } from '../contexts/Encounter';
 import { TranslatedText } from './Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 const StyledModal = styled(FormModal)`
   .MuiDialog-paper {
@@ -21,7 +22,7 @@ const useLabRequestsQuery = labRequestIds => {
     queries: labRequestIds.map(labRequestId => {
       return {
         queryKey: ['labRequest', labRequestId],
-        queryFn: () => api.get(`labRequest/${labRequestId}`),
+        queryFn: () => api.get(route('labRequest/:labRequestId', { labRequestId })),
         enabled: !!labRequestIds,
       };
     }),

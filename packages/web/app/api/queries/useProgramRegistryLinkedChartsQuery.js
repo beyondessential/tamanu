@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from '../index';
 
@@ -7,18 +8,23 @@ export const useProgramRegistryLinkedChartsQuery = (programRegistryId, patientId
 
   return useQuery(
     ['programRegistryLinkedCharts', programRegistryId, patientId],
-    () => api.get(`programRegistry/${programRegistryId}/linkedCharts?patientId=${patientId}`),
+    () =>
+      api.get(route('programRegistry/:programRegistryId/linkedCharts', { programRegistryId }), {
+        patientId,
+      }),
     {
       enabled: Boolean(programRegistryId),
-      select: (data) => {
+      select: data => {
         const complexToCoreSurveysMap = {};
-        const complexChartSurveys = data.data.filter((s) => s.surveyType === SURVEY_TYPES.COMPLEX_CHART);
+        const complexChartSurveys = data.data.filter(
+          s => s.surveyType === SURVEY_TYPES.COMPLEX_CHART,
+        );
 
         // For a program, there should only be 1 COMPLEX and COMPLEX_CORE survey
         // So we can map the COMPLEX survey to the COMPLEX_CORE survey here
-        complexChartSurveys.forEach((survey) => {
+        complexChartSurveys.forEach(survey => {
           const coreSurvey = data.data.find(
-            (s) =>
+            s =>
               s.programId === survey.programId && s.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE,
           );
           complexToCoreSurveysMap[survey.id] = coreSurvey?.id;
@@ -29,6 +35,6 @@ export const useProgramRegistryLinkedChartsQuery = (programRegistryId, patientId
           complexToCoreSurveysMap,
         };
       },
-    }
+    },
   );
 };

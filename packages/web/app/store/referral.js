@@ -1,21 +1,22 @@
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
+import { route } from '@tamanu/api-client';
 
 // actions
 const REFERRAL_LOAD_START = 'REFERRAL_LOAD_START';
 const REFERRAL_LOAD_FINISH = 'REFERRAL_LOAD_FINISH';
 
-export const viewReferral = (id) => async (dispatch) => {
+export const viewReferral = id => async dispatch => {
   dispatch(reloadReferral(id));
   // TODO: display completed referral form
   // dispatch(push('/patients/referral'));
 };
 
 export const reloadReferral =
-  (id) =>
+  id =>
   async (dispatch, getState, { api }) => {
     dispatch({ type: REFERRAL_LOAD_START, id });
 
-    const referral = await api.get(`referral/${id}`);
+    const referral = await api.get(route('referral/:id', { id }));
     // TODO handle error state
 
     dispatch({ type: REFERRAL_LOAD_FINISH, referral });
@@ -29,11 +30,11 @@ const defaultState = {
 };
 
 const handlers = {
-  [REFERRAL_LOAD_START]: (action) => ({
+  [REFERRAL_LOAD_START]: action => ({
     loading: true,
     id: action.id,
   }),
-  [REFERRAL_LOAD_FINISH]: (action) => ({
+  [REFERRAL_LOAD_FINISH]: action => ({
     loading: false,
     ...action.referral,
   }),
