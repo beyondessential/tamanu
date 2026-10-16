@@ -51,6 +51,10 @@
         <Cell><Data ss:Type="String">currentlyAtType</Data></Cell>
         <Cell><Data ss:Type="String">village</Data></Cell>
       </Row>
+      <Row>
+        <Cell><Data ss:Type="String">mandatoryConditionEnabled</Data></Cell>
+        <Cell><Data ss:Type="Boolean">1</Data></Cell>
+      </Row>
       <Row/>
       <Row>
         <Cell><Data ss:Type="String">code</Data></Cell>

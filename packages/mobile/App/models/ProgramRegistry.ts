@@ -25,6 +25,9 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @Column({ type: 'varchar', nullable: false })
   currentlyAtType: CurrentlyAtType;
 
+  @Column({ type: 'boolean', nullable: false, default: false })
+  mandatoryConditionEnabled: boolean;
+
   @OneToMany<ProgramRegistryClinicalStatus>(
     () => ProgramRegistryClinicalStatus,
     ({ programRegistry }) => programRegistry,
