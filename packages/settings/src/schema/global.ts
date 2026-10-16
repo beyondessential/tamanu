@@ -40,12 +40,11 @@ import {
   urlSchema,
   msDurationSchema,
 } from './definitions';
-import { encounterSummaryProperties } from './definitions/encounterSummary';
+import { experimentalAiProperties } from './definitions/experimentalAi';
 import {
   medicationFrequencyDefault,
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
-import { patientSummaryProperties } from './definitions/patientSummary';
 import {
   layoutModuleProperties,
   unhideableLayoutModuleProperties,
@@ -2041,8 +2040,7 @@ export const globalSettings = {
         },
       },
     },
-    patientSummary: patientSummaryProperties,
-    encounterSummary: encounterSummaryProperties,
+    experimentalAi: experimentalAiProperties,
     medications: {
       description: 'Medication settings',
       exposedToWeb: true,

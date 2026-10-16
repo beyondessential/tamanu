@@ -108,11 +108,14 @@ EOF
                         enabled: true,
                     },
                 },
-                patientSummary: {
+                experimentalAi: {
                     enabled: true,
-                },
-                encounterSummary: {
-                    enabled: true,
+                    patientSummary: {
+                        enabled: true,
+                    },
+                    encounterSummary: {
+                        enabled: true,
+                    },
                 },
                 medications: {
                     dispensing: {
