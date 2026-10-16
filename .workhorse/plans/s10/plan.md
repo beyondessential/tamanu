@@ -15,13 +15,18 @@ Decisions: `beyondessential/infra` is the sole source of truth for `pulumi/`. Ot
 ## Steps
 
 - [ ] `infra`: add `.node-version` matching ops (`v24.4.1` at time of writing)
-- [ ] `main`: `setup-cd` checks out `beyondessential/infra` (no ssh key), explicit `with-infra` boolean replaces the key-as-flag, checkout path and node-version path become `infra/`
-- [ ] `main`: `cd-up` / `cd-down` use `infra/pulumi/stacks/<infrastack>`; stop passing `TAMANU_OPS_SSH` through `cd.yml`, `cleanup-auto-deploy.yml`, `stale-auto-deploy.yml`
-- [ ] `main`: add `infraref` / `infrastack` options in `ghaCdHelpers.mjs`, keep `opsref` / `opsstack` as accepted aliases so existing PR bodies keep working
-- [ ] `main`: update the `beyondessential/ops` mentions in `docs/` (keep those that are about ansible / host procedures)
-- [ ] Backport to the supported release branches (2.43, 2.53, 2.54, 2.57, 2.60, 2.61, 2.62, 2.63, 2.64, 2.65, 2.66, 2.67; later releases are cut from `main`): minimal patch only, `repository: beyondessential/infra` and drop the `ssh-key:` line in `setup-cd`, keep the `ops/` path and input names so `cd-up` / `cd-down` need no change
+- [x] `main`: `setup-cd` checks out `beyondessential/infra` (no ssh key), explicit `with-infra` boolean replaces the key-as-flag, checkout path and node-version path become `infra/`
+- [x] `main`: `cd-up` / `cd-down` use `infra/pulumi/stacks/<infrastack>`; stop passing `TAMANU_OPS_SSH` through `cd.yml`, `cleanup-auto-deploy.yml`, `stale-auto-deploy.yml`
+- [x] `main`: add `infraref` / `infrastack` options in `ghaCdHelpers.mjs`, keep `opsref` / `opsstack` as accepted aliases so existing PR bodies keep working
+- [x] `main`: `docs/` mentions of `beyondessential/ops` are all about host procedures (disk, restores, ansible inventories), which stay in ops, so they are left as they are
+- [ ] Backport (`backport-infra-checkout.sh`, checked against all 12 branches, nothing pushed yet) to the supported release branches (2.43, 2.53, 2.54, 2.57, 2.60, 2.61, 2.62, 2.63, 2.64, 2.65, 2.66, 2.67; later releases are cut from `main`): minimal patch only, `repository: beyondessential/infra` and drop the `ssh-key:` line in `setup-cd`, keep the `ops/` path and input names so `cd-up` / `cd-down` need no change
 - [ ] Keep the `TAMANU_OPS_SSH` secret defined (any non-empty value) until every backported branch has it
 - [ ] Archive ops `pulumi/` as read-only only after the backports land; consider a guard in ops so nobody edits `pulumi/` there in the meantime
+
+## Before merging
+
+- `infra` needs `.node-version` first, or every deploy from `main` fails at `setup-node`
+- `main` stops passing `TAMANU_OPS_SSH`; the secret stays defined for the backported branches
 
 ## Open
 
