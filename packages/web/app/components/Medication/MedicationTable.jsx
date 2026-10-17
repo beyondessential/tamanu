@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
@@ -279,17 +279,11 @@ export const EncounterMedicationTable = ({
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
       searchParams.delete('openMedicationId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     } else if (openNotDispensedId) {
       handleInitialNotDispensedRecord(openNotDispensedId);
       searchParams.delete('openNotDispensedId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -312,16 +306,21 @@ export const EncounterMedicationTable = ({
     setMedications(data);
   }, []);
 
-  const rowStyle = ({ discontinued, medication, encounterPrescription }) => `
-    ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
-    }
-    ${getPauseData({ encounterPrescription, discontinued })
-      ? `color: ${Colors.softText}; font-style: italic;`
-      : ''
-    }
+  const rowStyle = ({ discontinued, medication, encounterPrescription }) => css`
+    ${discontinued &&
+    css`
+      text-decoration: line-through;
+    `}
+    ${medication?.referenceDrug?.isSensitive &&
+    !canViewSensitiveMedications &&
+    css`
+      pointer-events: none;
+    `}
+    ${getPauseData({ encounterPrescription, discontinued }) &&
+    css`
+      color: ${Colors.softText};
+      font-style: italic;
+    `}
   `;
 
   const handleRowClick = row => {
