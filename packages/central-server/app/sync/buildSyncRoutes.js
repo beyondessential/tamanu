@@ -35,18 +35,11 @@ const assertUserCanSyncFacilities = async (req, facilityIds) => {
 export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
-  syncRoutes.use(({ device, body: { deviceId } }, _res, next) => {
+  syncRoutes.use(({ device }, _res, next) => {
     if (!device) {
       throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
     }
     device.ensureHasScope(DEVICE_SCOPES.SYNC_CLIENT);
-
-    if (deviceId) {
-      log.warn('Providing deviceId in the request body is deprecated');
-      if (device.id !== deviceId) {
-        throw new ForbiddenError('Device ID mismatch');
-      }
-    }
 
     next();
   });

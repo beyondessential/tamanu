@@ -195,7 +195,7 @@ describe('CentralServerConnection', () => {
       expect(postSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         {},
-        { tablesToInclude: mockTablesToInclude, deviceId: 'mobile-test-device-id' },
+        { tablesToInclude: mockTablesToInclude },
       );
       expect(mockSleepAsync).toHaveBeenCalledTimes(2);
     });
