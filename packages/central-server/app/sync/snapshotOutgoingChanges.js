@@ -68,7 +68,11 @@ const snapshotChangesForModel = async (
           '${table}',
           ${table}.id,
           ${table}.updated_at_sync_tick,
-          ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum ,' : 'NULL,'}
+          ${
+            useUpdatedAtByFieldSum
+              ? `(SELECT sum(value::text::bigint) FROM json_each(${table}.updated_at_by_field)),`
+              : 'NULL,'
+          }
           json_build_object(
             ${Object.keys(attributes)
               .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
@@ -76,21 +80,6 @@ const snapshotChangesForModel = async (
           )
         FROM
           ${table}
-          ${
-            useUpdatedAtByFieldSum
-              ? `
-        LEFT JOIN (
-          SELECT
-            ${table}.id, sum(value::text::bigint) sum
-          FROM
-            ${table}, json_each(${table}.updated_at_by_field)
-          GROUP BY
-            ${table}.id
-        ) updated_at_by_field_summary
-        ON
-          ${table}.id = updated_at_by_field_summary.id`
-              : ''
-          }
         ${filter || `WHERE ${table}.updated_at_sync_tick > :since`}
         ${fromId ? `AND ${table}.id > :fromId` : ''}
         ORDER BY ${table}.id
