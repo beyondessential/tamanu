@@ -5,6 +5,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { resolveEndpoint } from '@tamanu/api-client';
+
 import { createQueryClient } from '../helpers/render';
 
 const mockGet = vi.fn();
@@ -53,8 +55,8 @@ const httpError = status => Object.assign(new Error(`HTTP ${status}`), { status 
 // Answers `encounter/:id` with the named encounter, and its related-record endpoints with nothing.
 // An entry can be a status number instead, to fail that encounter's fetch with it.
 const respondWithEncounters = encounters => {
-  mockGet.mockImplementation(async path => {
-    const [, encounterId, relation] = path.split('/');
+  mockGet.mockImplementation(async endpoint => {
+    const [, encounterId, relation] = resolveEndpoint(endpoint).split('/');
     if (relation) return { data: [] };
     const encounter = encounters[encounterId];
     if (typeof encounter === 'number') throw httpError(encounter);
