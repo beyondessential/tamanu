@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { DateDisplay } from '@tamanu/ui-components';
-import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
@@ -156,15 +155,12 @@ const useColumns = () => {
 
 export const TriageTable = React.memo(({ searchParameters = {} }) => {
   const { facilityId } = useAuth();
-  const { loadEncounter } = useEncounter();
   const { category } = useParams();
   const columns = useColumns();
   const navigate = useNavigate();
 
-  const viewEncounter = async triage => {
-    await loadEncounter(triage.encounterId);
+  const viewEncounter = triage =>
     navigate(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`);
-  };
 
   return (
     <DataFetchingTableWithPermissionCheck
