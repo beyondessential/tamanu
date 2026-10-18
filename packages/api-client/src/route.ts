@@ -37,12 +37,11 @@ type WithoutQuery<Template extends string> = Template extends `${infer Path}?${s
 
 // Extracts the `:name` placeholder names from a template at the type level, so
 // the params object is checked to have exactly one value per placeholder.
-type PlaceholderNames<Template extends string> =
-  Template extends `${string}:${infer AfterColon}`
-    ? AfterColon extends `${infer Name}/${infer Rest}`
-      ? Name | PlaceholderNames<Rest>
-      : AfterColon
-    : never;
+type PlaceholderNames<Template extends string> = Template extends `${string}:${infer AfterColon}`
+  ? AfterColon extends `${infer Name}/${infer Rest}`
+    ? Name | PlaceholderNames<Rest>
+    : AfterColon
+  : never;
 
 type PathParamNames<Template extends string> = PlaceholderNames<WithoutQuery<Template>>;
 

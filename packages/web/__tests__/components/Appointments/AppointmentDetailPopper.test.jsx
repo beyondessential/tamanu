@@ -46,9 +46,12 @@ vi.mock(
 vi.mock('../../../app/components/Appointments/AppointmentDetailPopper/ControlsRow', () => ({
   ControlsRow: () => null,
 }));
-vi.mock('../../../app/components/Appointments/AppointmentDetailPopper/PatientDetailsDisplay', () => ({
-  PatientDetailsDisplay: () => null,
-}));
+vi.mock(
+  '../../../app/components/Appointments/AppointmentDetailPopper/PatientDetailsDisplay',
+  () => ({
+    PatientDetailsDisplay: () => null,
+  }),
+);
 vi.mock('../../../app/components/Appointments/AppointmentDetailPopper/CheckInButton', () => ({
   CheckInButton: () => null,
 }));

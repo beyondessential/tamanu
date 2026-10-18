@@ -495,18 +495,14 @@ export class TamanuApi {
     config: FetchOptions = {},
   ): Promise<T> {
     const { query = {}, ...restConfig } = config;
-    return this.fetch(
-      endpoint,
-      query,
-      {
-        body,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        ...restConfig,
-        method: 'POST',
+    return this.fetch(endpoint, query, {
+      body,
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      ...restConfig,
+      method: 'POST',
+    });
   }
 
   async patch<T = any>(
@@ -529,18 +525,14 @@ export class TamanuApi {
     config: FetchOptions = {},
   ): Promise<T> {
     const { query = {}, ...restConfig } = config;
-    return this.fetch(
-      endpoint,
-      query,
-      {
-        body,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        ...restConfig,
-        method: 'PUT',
+    return this.fetch(endpoint, query, {
+      body,
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      ...restConfig,
+      method: 'PUT',
+    });
   }
 
   async delete<T = any>(

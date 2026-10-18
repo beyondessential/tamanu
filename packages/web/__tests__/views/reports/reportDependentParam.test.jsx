@@ -102,9 +102,12 @@ describe('VaccineField dependent parameter clearing', () => {
   });
 
   it('clears the selection when the category changes', async () => {
-    const { rerender } = renderInFormik(<VaccineField parameterValues={{ category: 'category-1' }} />, {
-      vaccine: 'vaccine-a',
-    });
+    const { rerender } = renderInFormik(
+      <VaccineField parameterValues={{ category: 'category-1' }} />,
+      {
+        vaccine: 'vaccine-a',
+      },
+    );
 
     expect(readValues().vaccine).toBe('vaccine-a');
 
