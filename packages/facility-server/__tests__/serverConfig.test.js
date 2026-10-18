@@ -175,4 +175,9 @@ describe('sync process env', () => {
     expect(isSyncEnabled({ enabled: true })).toBe(false);
     expect(getSyncApiConnection()).toEqual({ host: 'http://sync.internal', port: 3000 });
   });
+
+  it('refuses a malformed port', () => {
+    process.env.SYNC_API_PORT = '30a0';
+    expect(() => getSyncApiConnection()).toThrow('SYNC_API_PORT');
+  });
 });

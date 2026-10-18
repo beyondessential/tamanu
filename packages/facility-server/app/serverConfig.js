@@ -193,8 +193,13 @@ export function isSyncEnabled(syncConfig = config.sync) {
 }
 
 export function getSyncApiConnection() {
+  const rawPort = process.env.SYNC_API_PORT;
+  const port = rawPort ? Number(rawPort) : config.sync.syncApiConnection.port;
+  if (!Number.isInteger(port) || port <= 0) {
+    throw new Error(`SYNC_API_PORT must be a port number, got "${rawPort}"`);
+  }
   return {
     host: process.env.SYNC_API_HOST ?? config.sync.syncApiConnection.host,
-    port: +process.env.SYNC_API_PORT || config.sync.syncApiConnection.port,
+    port,
   };
 }

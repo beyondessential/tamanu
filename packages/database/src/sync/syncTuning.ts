@@ -2,7 +2,12 @@ import config from 'config';
 
 const numberFromEnv = (name: string, configValue: number): number => {
   const raw = process.env[name];
-  return raw ? Number(raw) : configValue;
+  if (!raw) return configValue;
+  const value = Number(raw);
+  if (!Number.isFinite(value)) {
+    throw new Error(`${name} must be a number, got "${raw}"`);
+  }
+  return value;
 };
 
 export const getSyncTuning = () => ({
