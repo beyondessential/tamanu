@@ -5,7 +5,6 @@ import { isNil } from 'es-toolkit/compat';
 
 import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
-import { ReadSettings } from '@tamanu/settings';
 import { log } from '@tamanu/shared/services/logging';
 import {
   adjustDataPostSyncPush,
@@ -74,10 +73,13 @@ export class CentralSyncManager {
   /** @type {ApplicationContext} */
   store;
 
+  settings;
+
   purgeInterval;
 
   constructor(ctx) {
     this.store = ctx.store;
+    this.settings = ctx.settings;
     ctx.onClose(this.close);
   }
 
@@ -460,7 +462,7 @@ export class CentralSyncManager {
 
       // will wait for concurrent snapshots to complete if we are currently at capacity, then
       // set the snapshot_started_at timestamp before we proceed with the heavy work below
-      const numberConcurrentPullSnapshots = await new ReadSettings(models).get(
+      const numberConcurrentPullSnapshots = await this.settings.get(
         'sync.numberConcurrentPullSnapshots',
       );
       await startSnapshotWhenCapacityAvailable(sequelize, sessionId, numberConcurrentPullSnapshots);
