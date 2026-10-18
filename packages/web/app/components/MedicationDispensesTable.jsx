@@ -28,6 +28,7 @@ import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedi
 import { EditMedicationDispenseModal } from './Medication/EditMedicationDispenseModal';
 import { DispensedMedicationDetailsModal } from './Medication/DispensedMedicationDetailsModal';
 import { PrescriptionChangeHistoryModal } from './Medication/PrescriptionChangeHistoryModal';
+import { route } from '@tamanu/api-client';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -145,7 +146,11 @@ export const MedicationDispensesTable = () => {
   };
 
   const handleCancelConfirm = async () => {
-    await api.delete(`medication/medication-dispenses/${selectedDispense.id}`);
+    await api.delete(
+      route('medication/medication-dispenses/:selectedDispenseId', {
+        selectedDispenseId: selectedDispense.id,
+      }),
+    );
     setIsCancelModalOpen(false);
     setSelectedDispense(null);
     // Cancelling puts the request back in the patient's dispensable list, which the dispense

@@ -3,12 +3,15 @@ import { useApi } from '../../../api';
 import { DeleteEncounterForm } from '../../../forms/DeleteEncounterForm';
 import { Modal } from '../../../components/Modal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient }) => {
   const api = useApi();
 
   const onSubmit = async () => {
-    await api.delete(`encounter/${encounterToDelete.id}`);
+    await api.delete(
+      route('encounter/:encounterToDeleteId', { encounterToDeleteId: encounterToDelete.id }),
+    );
     onClose();
   };
 

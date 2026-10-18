@@ -26,6 +26,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
+import { route } from '@tamanu/api-client';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
@@ -326,7 +327,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
-  const {getCurrentDateTime} = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
 
   const triage = encounter.triages?.[0];
 
@@ -338,14 +339,14 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     chiefComplaintId,
     secondaryComplaintId,
   }) => {
-    await api.put(`triage/${triage?.id}`, {
+    await api.put(route('triage/:triageId', { triageId: triage?.id }), {
       submittedTime: getCurrentDateTime(),
       encounterId: encounter.id,
       arrivalTime,
       triageTime: startDate,
       arrivalModeId,
       score,
-      chiefComplaintId, 
+      chiefComplaintId,
       secondaryComplaintId,
     });
 

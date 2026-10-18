@@ -5,8 +5,9 @@ import { TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { notify, notifyError, notifySuccess } from '../utils';
 import { saveFile } from '../utils/fileSystemAccess';
+import { route } from '@tamanu/api-client';
 
-const base64ToUint8Array = (base64) => Buffer.from(base64, 'base64');
+const base64ToUint8Array = base64 => Buffer.from(base64, 'base64');
 
 export const useDocumentActions = () => {
   const api = useApi();
@@ -34,7 +35,7 @@ export const useDocumentActions = () => {
   }, [dataUrl]);
 
   const onDownload = useCallback(
-    async (document) => {
+    async document => {
       try {
         // Give feedback to user that download is starting
         notify(
@@ -49,7 +50,10 @@ export const useDocumentActions = () => {
           defaultFileName: document.name,
           getData: async () => {
             // Download attachment (*currently the API only supports base64 responses)
-            const { data } = await api.get(`attachment/${document.attachmentId}`, { base64: true });
+            const { data } = await api.get(
+              route('attachment/:attachmentId', { attachmentId: document.attachmentId }),
+              { base64: true },
+            );
             return base64ToUint8Array(data);
           },
           extension: extension(document.type),
@@ -72,9 +76,9 @@ export const useDocumentActions = () => {
   );
 
   const onPrintPDF = useCallback(
-    async (attachmentId) => {
+    async attachmentId => {
       try {
-        const { data } = await api.get(`attachment/${attachmentId}`, {
+        const { data } = await api.get(route('attachment/:attachmentId', { attachmentId }), {
           base64: true,
         });
         const url = URL.createObjectURL(

@@ -15,6 +15,7 @@ import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFiel
 import { usePatientInsurancePlansInUseQuery } from '../../api/queries/usePatientInsurancePlansInUseQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';
+import { route } from '@tamanu/api-client';
 
 const StyledPatientDetailSecondaryDetailsGroupWrapper = styled.div`
   margin-top: 70px;
@@ -106,14 +107,16 @@ export const PatientDetailsForm = ({
     data: fieldValuesResponse,
     error: fieldValError,
     isLoading: isLoadingFieldValues,
-  } = useQuery(['patientFields', patient.id], () => api.get(`patient/${patient.id}/fields`), {
-    enabled: Boolean(patient.id),
-  });
+  } = useQuery(
+    ['patientFields', patient.id],
+    () => api.get(route('patient/:patientId/fields', { patientId: patient.id })),
+    {
+      enabled: Boolean(patient.id),
+    },
+  );
 
-  const {
-    data: insurancePlansInUse,
-    error: insurancePlansInUseError,
-  } = usePatientInsurancePlansInUseQuery({ patientId: patient.id });
+  const { data: insurancePlansInUse, error: insurancePlansInUseError } =
+    usePatientInsurancePlansInUseQuery({ patientId: patient.id });
 
   const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
   if (errors.length > 0) {
@@ -167,7 +170,9 @@ export const PatientDetailsForm = ({
           fieldDefinitionsResponse.data,
           fieldValuesResponse?.data,
         ),
-        invoiceInsurancePlanId: insurancePlans.map(({ invoiceInsurancePlanId }) => invoiceInsurancePlanId),
+        invoiceInsurancePlanId: insurancePlans.map(
+          ({ invoiceInsurancePlanId }) => invoiceInsurancePlanId,
+        ),
       }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(

@@ -11,6 +11,7 @@ import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
 import { CancelAdditionalDataModal } from './ProcedureFormModals';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -49,7 +50,7 @@ const useProcedureSurveys = procedureTypeId => {
   const api = useApi();
   const { data } = useQuery(
     ['survey', 'procedure', procedureTypeId],
-    () => api.get(`survey/procedureType/${procedureTypeId}`),
+    () => api.get(route('survey/procedureType/:procedureTypeId', { procedureTypeId })),
     { enabled: !!procedureTypeId },
   );
   return data?.map(survey => ({ label: survey.name, value: survey.id }));

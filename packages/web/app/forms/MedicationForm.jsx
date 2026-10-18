@@ -81,6 +81,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { dispensingQuantitySchema, foreignKey } from '../utils/validation';
+import { route } from '@tamanu/api-client';
 
 const requiredInlineMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
@@ -716,10 +717,20 @@ export const MedicationForm = ({
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
-        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
-        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+        ? api.post(
+            route('medication/patientOngoingPrescription/:patientId', { patientId: patient.id }),
+            payload,
+          )
+        : api.post(
+            route('medication/encounterPrescription/:encounterId', { encounterId }),
+            payload,
+          ));
       // The return from the post doesn't include the joined tables like medication and prescriber
-      const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+      const newMedication = await api.get(
+        route('medication/:medicationSubmissionId', {
+          medicationSubmissionId: medicationSubmission.id,
+        }),
+      );
       setSubmittedMedication(newMedication);
     } catch (error) {
       toast.error(error.message);

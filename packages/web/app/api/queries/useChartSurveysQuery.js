@@ -5,7 +5,7 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 export const useChartSurveysQuery = encounterId => {
   const api = useApi();
 
-  return useQuery(['chartSurveys', encounterId], () => api.get(`survey/charts?encounterId=${encounterId}`), {
+  return useQuery(['chartSurveys', encounterId], () => api.get('survey/charts', { encounterId }), {
     select: data => {
       const complexToCoreSurveysMap = {};
       const complexChartSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.COMPLEX_CHART);

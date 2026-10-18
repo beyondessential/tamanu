@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useApi } from '../../../api';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 const SubText = styled.div`
   text-align: left;
@@ -13,7 +14,9 @@ export const DeleteReferralModal = ({ open, onClose, referralToDelete, endpoint 
   const api = useApi();
 
   const onSubmit = async () => {
-    await api.delete(`${endpoint}/${referralToDelete.id}`);
+    await api.delete(
+      route(`${endpoint}/:referralToDeleteId`, { referralToDeleteId: referralToDelete.id }),
+    );
     onClose();
   };
 

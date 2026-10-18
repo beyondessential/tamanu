@@ -4,12 +4,13 @@ import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { usePatientDataDisplayValue } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
+import { route } from '@tamanu/api-client';
 
 export const useSurveyResponseQuery = (surveyResponseId, options = {}) => {
   const api = useApi();
   return useQuery(
     ['surveyResponse', surveyResponseId],
-    () => api.get(`surveyResponse/${surveyResponseId}`, {}, options),
+    () => api.get(route('surveyResponse/:surveyResponseId', { surveyResponseId }), {}, options),
     { enabled: !!surveyResponseId },
   );
 };
