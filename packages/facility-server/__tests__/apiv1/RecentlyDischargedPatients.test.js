@@ -156,7 +156,7 @@ describe('Recently discharged patients', () => {
       expect(statusesByEncounterType).toEqual(ENCOUNTER_TYPE_PATIENT_STATUSES);
     });
 
-    it('lists automatic discharges, leaving the clinician blank', async () => {
+    it('lists automatic discharges, with no clinician', async () => {
       const patient = await createPatient();
       await createDischargedEncounter(patient, { dischargerId: null });
 
@@ -239,17 +239,32 @@ describe('Recently discharged patients', () => {
       expect(rows.map(row => row.id)).toEqual([matching.id]);
     });
 
-    it('only matches a patient on their most recent discharge', async () => {
+    it('lists a patient for their most recent discharge that matches the search', async () => {
       const patient = await createPatient();
-      await createDischargedEncounter(patient, {
+      const olderMatchingEncounter = await createDischargedEncounter(patient, {
         hoursSinceDischarge: 10,
         departmentId: otherDepartment.id,
       });
+      await createDischargedEncounter(patient, {
+        hoursSinceDischarge: 6,
+        departmentId: otherDepartment.id,
+        encounterType: ENCOUNTER_TYPES.CLINIC,
+      });
       await createDischargedEncounter(patient, { hoursSinceDischarge: 2 });
 
-      const rows = await fetchRowsFor([patient], { departmentId: otherDepartment.id });
+      const rows = await fetchRowsFor([patient], {
+        departmentId: otherDepartment.id,
+        patientStatus: PATIENT_STATUSES.INPATIENT,
+      });
 
-      expect(rows).toEqual([]);
+      expect(rows).toEqual([
+        expect.objectContaining({
+          id: patient.id,
+          departmentId: otherDepartment.id,
+          patientStatus: PATIENT_STATUSES.INPATIENT,
+          dischargeDate: olderMatchingEncounter.endDate,
+        }),
+      ]);
     });
   });
 

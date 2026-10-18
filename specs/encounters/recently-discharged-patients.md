@@ -8,11 +8,11 @@ A listing, under the Facility admin section of the sidebar, of patients discharg
 
 ## Which discharges are listed
 
-A discharge is an encounter at the current facility whose end date has been set. Encounters are grouped by patient status, as elsewhere in Tamanu: Inpatient (Hospital admission), Outpatient (Clinic, Imaging), and Emergency (Triage, Active ED care, Emergency short stay). Form response and Vaccination record encounters carry no patient status, since they close as soon as they are created.
+A discharge is an encounter at the current facility whose end date has been set. Encounters are grouped by patient status, matching the Status column of the All patients listing: Inpatient (Hospital admission), Outpatient (Clinic, Imaging), and Emergency (Triage, Active ED care, Emergency short stay). Form response and Vaccination record encounters carry no patient status, since they close as soon as they are created.
 
 - [ ] An encounter is listed when its location belongs to the current facility, its end date falls within the past 24 hours, and its encounter type carries a patient status.
 - [ ] Discharges made automatically by the system, such as outpatient encounters closed overnight or encounters closed on a patient's death, are listed like any other discharge.
-- [ ] A patient with more than one discharge in the window appears once, for their most recent discharge.
+- [ ] A patient with more than one discharge in the window appears once, for their most recent discharge that matches the search.
 - [ ] Deceased patients are listed, with their row highlighted in the same way as on other patient listings.
 
 ## Table
@@ -21,7 +21,7 @@ A discharge is an encounter at the current facility whose end date has been set.
 - [ ] The table columns are, in order: Patient ID, First name, Last name, DOB, Sex, Encounter type, Department, Clinician, Discharge date.
 - [ ] Encounter type shows the discharged encounter's patient status: Inpatient, Outpatient, or Emergency.
 - [ ] Department shows the department the encounter was assigned to when it was discharged.
-- [ ] Clinician shows the clinician recorded as discharging the encounter, and is blank when the discharge recorded no clinician.
+- [ ] Clinician shows the clinician recorded as discharging the encounter, or "N/A" when the system discharged it without recording a clinician.
 - [ ] Discharge date shows the date of the encounter's end date, and hovering over it shows both the date and time.
 - [ ] Rows are ordered by discharge date and time, most recent first, until the user picks another sort.
 - [ ] Every column except Patient ID is sortable. Sorting by Encounter type groups rows by patient status.
@@ -35,7 +35,7 @@ A discharge is an encounter at the current facility whose end date has been set.
 - [ ] Encounter type offers Inpatient, Outpatient, and Emergency, and matches the discharged encounter's patient status.
 - [ ] Department matches the department the encounter was assigned to when it was discharged, and suggests departments from the current facility.
 - [ ] Discharging clinician matches the clinician recorded as discharging the encounter.
-- [ ] Search narrows the listed rows: a patient appears only when their most recent discharge in the window matches. An earlier discharge in the same window is not considered.
+- [ ] Search applies to every discharge in the window before each patient's most recent one is picked. A patient whose most recent discharge doesn't match is listed for their most recent earlier discharge in the window that does.
 - [ ] Search parameters are retained when the user leaves the view and returns to it, until the app is reloaded.
 
 ## Permissions

@@ -58,7 +58,19 @@ const COLUMNS = [
     ),
   },
   department,
-  { ...clinician, sortable: true },
+  {
+    ...clinician,
+    sortable: true,
+    // System discharges, such as outpatient encounters closed overnight, record no clinician
+    accessor: row =>
+      row.clinician ?? (
+        <TranslatedText
+          stringId="general.fallback.notApplicable"
+          fallback="N/A"
+          data-testid="translatedtext-rdp-clinician-not-applicable"
+        />
+      ),
+  },
   {
     key: 'dischargeDate',
     title: (

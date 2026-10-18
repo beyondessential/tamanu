@@ -24,20 +24,20 @@ const SORT_KEYS = {
   dischargeDate: 'latest_discharges.end_date',
 };
 
-// Search applies to each patient's most recent discharge only, so these filters run against
-// the deduplicated rows rather than inside latest_discharges.
+// Search applies to every discharge in the window before each patient's most recent one is
+// picked, so a patient whose latest discharge doesn't match is listed for an earlier one that does.
 // spec: RDISCH#search
-const createFilters = filterParams => {
+const createSearchFilters = filterParams => {
   const makeSubstringTextFilter = makeSubstringTextFilterFactory(filterParams);
   return [
     makeSubstringTextFilter('displayId', 'patients.display_id'),
     makeSubstringTextFilter('firstName', 'patients.first_name'),
     makeSubstringTextFilter('lastName', 'patients.last_name'),
-    makeFilter(filterParams.patientStatus, 'latest_discharges.patient_status = :patientStatus'),
-    makeFilter(filterParams.departmentId, 'latest_discharges.department_id = :departmentId'),
+    makeFilter(filterParams.patientStatus, 'patient_statuses.patient_status = :patientStatus'),
+    makeFilter(filterParams.departmentId, 'encounters.department_id = :departmentId'),
     makeFilter(
       filterParams.dischargingClinicianId,
-      'latest_discharges.discharger_id = :dischargingClinicianId',
+      'discharges.discharger_id = :dischargingClinicianId',
     ),
     makeDeletedAtIsNullFilter('patients'),
   ];
@@ -46,7 +46,7 @@ const createFilters = filterParams => {
 // Encounter types without a patient status (form responses, vaccination records) have no row in
 // patient_statuses, so the inner join leaves them out.
 // spec: RDISCH#which-discharges-are-listed
-const LATEST_DISCHARGES_CTE = `
+const buildLatestDischargesCte = searchClauses => `
   WITH patient_statuses (encounter_type, patient_status) AS (
     SELECT * FROM unnest(ARRAY[:listedEncounterTypes]::text[], ARRAY[:listedPatientStatuses]::text[])
   ),
@@ -62,11 +62,14 @@ const LATEST_DISCHARGES_CTE = `
         ON patient_statuses.encounter_type = encounters.encounter_type
       JOIN locations
         ON locations.id = encounters.location_id
+      JOIN patients
+        ON patients.id = encounters.patient_id
       LEFT JOIN discharges
         ON discharges.encounter_id = encounters.id AND discharges.deleted_at IS NULL
     WHERE encounters.end_date >= ((NOW() - INTERVAL '24 hours') AT TIME ZONE :primaryTimeZone)::date_time_string
       AND encounters.deleted_at IS NULL
       AND locations.facility_id = :facilityId
+      AND ${searchClauses}
     ORDER BY encounters.patient_id, encounters.end_date DESC, encounters.id DESC
   )
 `;
@@ -88,9 +91,10 @@ recentlyDischargedPatients.get(
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
-      createFilters(filterParams),
+      createSearchFilters(filterParams),
       filterParams,
     );
+    const latestDischargesCte = buildLatestDischargesCte(whereClauses);
 
     const replacements = {
       ...filterReplacements,
@@ -100,22 +104,11 @@ recentlyDischargedPatients.get(
       facilityId: req.facilityId,
     };
 
-    const from = `
-      FROM latest_discharges
-        JOIN patients
-          ON patients.id = latest_discharges.patient_id
-        LEFT JOIN departments AS department
-          ON department.id = latest_discharges.department_id
-        LEFT JOIN users AS discharger
-          ON discharger.id = latest_discharges.discharger_id
-      WHERE ${whereClauses}
-    `;
-
     const [{ count }] = await req.db.query(
       `
-        ${LATEST_DISCHARGES_CTE}
+        ${latestDischargesCte}
         SELECT COUNT(1) AS count
-        ${from}
+        FROM latest_discharges
       `,
       { replacements, type: QueryTypes.SELECT },
     );
@@ -127,7 +120,7 @@ recentlyDischargedPatients.get(
 
     const data = await req.db.query(
       `
-        ${LATEST_DISCHARGES_CTE}
+        ${latestDischargesCte}
         SELECT
           patients.id,
           patients.display_id AS "displayId",
@@ -141,7 +134,13 @@ recentlyDischargedPatients.get(
           department.id AS "departmentId",
           department.name AS "departmentName",
           discharger.display_name AS clinician
-        ${from}
+        FROM latest_discharges
+          JOIN patients
+            ON patients.id = latest_discharges.patient_id
+          LEFT JOIN departments AS department
+            ON department.id = latest_discharges.department_id
+          LEFT JOIN users AS discharger
+            ON discharger.id = latest_discharges.discharger_id
         ORDER BY
           ${sortKey} ${sortDirection} NULLS LAST,
           latest_discharges.end_date DESC,
