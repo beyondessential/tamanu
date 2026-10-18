@@ -189,7 +189,11 @@ function configFacilityIds() {
 
 export function isSyncEnabled(syncConfig = config.sync) {
   const fromEnv = process.env.SYNC_ENABLED;
-  return fromEnv ? fromEnv === 'true' : Boolean(syncConfig.enabled);
+  if (!fromEnv) return Boolean(syncConfig.enabled);
+  if (fromEnv !== 'true' && fromEnv !== 'false') {
+    throw new Error(`SYNC_ENABLED must be "true" or "false", got "${fromEnv}"`);
+  }
+  return fromEnv === 'true';
 }
 
 export function getSyncApiConnection() {
