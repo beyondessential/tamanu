@@ -1,7 +1,6 @@
 import { camelCase } from 'es-toolkit/compat';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
@@ -22,31 +21,30 @@ import {
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
-import { reloadImagingRequest } from '../store';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/Auth';
 import { useApi } from '../api';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
-  const { loadEncounter } = useEncounter();
-  const dispatch = useDispatch();
+  const invalidateEncounter = useInvalidateEncounter();
+  const queryClient = useQueryClient();
   const { navigateToImagingRequest } = usePatientNavigation();
 
   const finalise = async data => {
-    setOnSuccess(() => () => loadEncounter(encounter.id));
+    setOnSuccess(() => () => invalidateEncounter(encounter.id));
     await submitForm(data);
   };
   const finaliseAndPrint = async data => {
     setOnSuccess(() => async newRequest => {
       const requestId = newRequest.id;
-      await dispatch(reloadImagingRequest(requestId));
+      await queryClient.invalidateQueries(['imagingRequest', requestId]);
       navigateToImagingRequest(requestId, 'print');
     });
     await submitForm(data);

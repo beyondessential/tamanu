@@ -6,7 +6,6 @@ import { DeleteButton, VisuallyHidden } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
-import { useEncounter } from '../contexts/Encounter';
 import { usePatient } from '../contexts/Patient';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
@@ -17,6 +16,7 @@ import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 import { useRefreshCount } from '../hooks/useRefreshCount';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
@@ -90,7 +90,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const api = useApi();
   const { patient } = usePatient();
   const { ability } = useAuth();
-  const { loadEncounter } = useEncounter();
+  const { navigateToEncounter } = usePatientNavigation();
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -112,9 +112,10 @@ export const ReferralTable = React.memo(({ patientId }) => {
     await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
     updateRefreshCount();
   };
-  const onViewEncounter = useCallback(async () => {
-    loadEncounter(selectedReferral.encounterId, true);
-  }, [selectedReferral, loadEncounter]);
+  const onViewEncounter = useCallback(
+    () => navigateToEncounter(selectedReferral.encounterId),
+    [selectedReferral, navigateToEncounter],
+  );
 
   const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
 
