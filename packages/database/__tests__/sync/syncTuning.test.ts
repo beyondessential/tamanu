@@ -6,6 +6,14 @@ import { getSyncTuning } from '../../src/sync/syncTuning';
 describe('getSyncTuning', () => {
   afterEach(() => {
     delete process.env.SYNC_PERSIST_UPDATE_WORKER_POOL_SIZE;
+    delete process.env.SYNC_PAUSE_BETWEEN_CACHE_BATCHES_MS;
+  });
+
+  it('refuses a zero size but accepts a zero pause', () => {
+    process.env.SYNC_PAUSE_BETWEEN_CACHE_BATCHES_MS = '0';
+    expect(getSyncTuning().pauseBetweenCacheBatchInMilliseconds).toBe(0);
+    process.env.SYNC_PERSIST_UPDATE_WORKER_POOL_SIZE = '0';
+    expect(() => getSyncTuning()).toThrow('SYNC_PERSIST_UPDATE_WORKER_POOL_SIZE');
   });
 
   it('falls back to config when the env var is unset', () => {
