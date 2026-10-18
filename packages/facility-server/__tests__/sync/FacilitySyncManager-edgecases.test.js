@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 import config from 'config';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   FACT_CURRENT_SYNC_TICK,
@@ -195,6 +195,11 @@ describe('FacilitySyncManager edge cases', () => {
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, LAST_SUCCESSFUL_SYNC_PUSH);
       await models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PULL, LAST_SUCCESSFUL_SYNC_PULL);
+    });
+
+    afterEach(() => {
+      vi.doUnmock('../../app/sync/pushOutgoingChanges');
+      vi.doUnmock('../../app/sync/syncSettings');
     });
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {

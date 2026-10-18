@@ -200,7 +200,8 @@ export function getSyncApiConnection() {
   const rawPort = process.env.SYNC_API_PORT;
   const port = rawPort ? Number(rawPort) : config.sync.syncApiConnection.port;
   if (!Number.isInteger(port) || port <= 0) {
-    throw new Error(`SYNC_API_PORT must be a port number, got "${rawPort}"`);
+    const source = rawPort ? 'SYNC_API_PORT' : 'sync.syncApiConnection.port';
+    throw new Error(`${source} must be a port number, got "${rawPort ?? port}"`);
   }
   return {
     host: process.env.SYNC_API_HOST ?? config.sync.syncApiConnection.host,
