@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
 import { AuthContext, SettingsContext, DateTimeProvider } from '@tamanu/ui-components';
 
 import { renderElementWithTranslatedText } from '../../helpers/render';
 import { Table } from '../../../app/components';
-import { systemErrorsReducer } from '../../../app/store/systemErrors';
+import { systemErrorStore } from '../../../app/state/systemErrorStore';
 import { COLUMNS, SystemErrors } from '../../../app/views/facility/SystemErrors';
 import { SendErrorLogModal } from '../../../app/views/facility/SendErrorLogModal';
 
@@ -24,9 +22,8 @@ vi.mock('../../../app/api', async importOriginal => ({
 
 const getSetting = key => (key === 'dateTimeLocale' ? 'en-AU' : undefined);
 
-// SystemErrors reads its rows from state.systemErrors.errors via useSelector, so tests
-// need their own store seeded with fixed, known rows — not the app's own seed data
-// (see store/systemErrors.js), which would make these assertions dependent on it.
+// SystemErrors reads its rows from the systemErrorStore singleton via useSystemErrors, so
+// tests seed it with fixed, known rows before rendering (see state/systemErrorStore.js).
 const hoursAgo = hours => new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 
 const TEST_ERRORS = [
@@ -47,27 +44,23 @@ const TEST_ERRORS = [
   },
 ];
 
-// Uses the real reducer (not a fixed-state stub) so the "submits successfully" test
-// can assert the submitted rows actually disappear from state once dispatched.
-// SystemErrors reads state.systemErrors.errors, so nest under that key like the app's
-// own combineReducers does.
-const createTestStore = errors =>
-  createStore(
-    (state, action) => ({
-      systemErrors: systemErrorsReducer(state.systemErrors, action),
-    }),
-    { systemErrors: { errors } },
-  );
+// Seeds the real singleton store (not a fixed-state stub) so the "submits successfully"
+// test can assert the submitted rows actually disappear from the table once removed.
+const seedStore = errors => {
+  systemErrorStore.clear();
+  errors.forEach(error => systemErrorStore.add(error));
+};
 
-const withProviders = (element, errors = TEST_ERRORS) => (
-  <Provider store={createTestStore(errors)}>
+const withProviders = (element, errors = TEST_ERRORS) => {
+  seedStore(errors);
+  return (
     <AuthContext.Provider value={{ primaryTimeZone: 'Australia/Brisbane' }}>
       <SettingsContext.Provider value={{ getSetting }}>
         <DateTimeProvider>{element}</DateTimeProvider>
       </SettingsContext.Provider>
     </AuthContext.Provider>
-  </Provider>
-);
+  );
+};
 
 describe('SystemErrors', () => {
   beforeEach(() => {
@@ -131,7 +124,7 @@ describe('SystemErrors', () => {
       expect.objectContaining({
         additionalInformation: 'It keeps happening after login',
         email: 'clinician@example.org',
-        // isRead flips true once the view mounts (see markSystemErrorsRead), so
+        // isRead flips true once the view mounts (see markAllRead), so
         // compare against that rather than the raw TEST_ERRORS fixture.
         errors: TEST_ERRORS.map(error => ({ ...error, isRead: true })),
       }),
