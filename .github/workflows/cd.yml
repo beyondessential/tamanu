@@ -266,7 +266,7 @@ jobs:
           cache-from: |
             type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
             type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          cache-to: type=gha,mode=max,ignore-error=true,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
