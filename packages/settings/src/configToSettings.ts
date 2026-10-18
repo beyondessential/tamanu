@@ -121,6 +121,15 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'updateUrls', setting: 'metaServer.updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'sync.numberConcurrentPullSnapshots', scope: SETTINGS_SCOPES.CENTRAL },
+  { config: 'sync.schedule', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.jitterTime', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.timeout', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.backoff', scope: SETTINGS_SCOPES.FACILITY },
+  { config: 'sync.dynamicLimiter', scope: SETTINGS_SCOPES.FACILITY },
+  {
+    config: 'sync.assertIfPulledRecordsUpdatedAfterPushSnapshot',
+    scope: SETTINGS_SCOPES.FACILITY,
+  },
 ];
 
 // Config paths are handled as segment arrays so a config key containing a dot

@@ -243,9 +243,18 @@ describe('FacilitySyncManager edge cases', () => {
           email: 'test@example.com',
           password: 'test-password',
           enabled: true,
-          assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
         },
       };
+      vi.doMock('../../app/sync/syncSettings', async () => {
+        const actual = await vi.importActual('../../app/sync/syncSettings');
+        return {
+          ...actual,
+          getSyncSettings: () => ({
+            ...actual.getSyncSettings(),
+            assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
+          }),
+        };
+      });
       const encounter = await initializeSyncManager(configToOverride);
 
       // start the sync
@@ -283,9 +292,18 @@ describe('FacilitySyncManager edge cases', () => {
           email: 'test@example.com',
           password: 'test-password',
           enabled: false,
-          assertIfPulledRecordsUpdatedAfterPushSnapshot: false,
         },
       };
+      vi.doMock('../../app/sync/syncSettings', async () => {
+        const actual = await vi.importActual('../../app/sync/syncSettings');
+        return {
+          ...actual,
+          getSyncSettings: () => ({
+            ...actual.getSyncSettings(),
+            assertIfPulledRecordsUpdatedAfterPushSnapshot: false,
+          }),
+        };
+      });
       const encounter = await initializeSyncManager(configToOverride);
 
       // start the sync

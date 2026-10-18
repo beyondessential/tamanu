@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { TamanuApi } from '@tamanu/api-client';
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
 
@@ -9,6 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { version } from '../serverInfo';
 import { getSyncConfig, getServerFacilityIds } from '../serverConfig';
 import { faithFetch } from './faithFetch';
+import { getSyncSettings } from './syncSettings';
 
 export class CentralServerConnection extends TamanuApi {
   #loginData;
@@ -28,7 +27,7 @@ export class CentralServerConnection extends TamanuApi {
       agentVersion: version,
       deviceId,
       defaultRequestConfig: {
-        timeout: config.sync.timeout,
+        timeout: getSyncSettings().timeout,
         waitForAuth: true,
         backoff: true,
       },
@@ -82,7 +81,7 @@ export class CentralServerConnection extends TamanuApi {
     return this.pollUntilOk(endpoint);
   }
 
-  async connect(backoff = config.sync.backoff, timeout = this.timeout) {
+  async connect(backoff = getSyncSettings().backoff, timeout = this.timeout) {
     try {
       await this.refreshToken({
         retryAuth: false,

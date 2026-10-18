@@ -28,6 +28,7 @@ import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChange
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { getSyncSettings } from './syncSettings';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -346,7 +347,7 @@ export class FacilitySyncManager {
       pullSince,
     );
 
-    if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
+    if (getSyncSettings().assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
         Object.values(getModelsForPull(this.models)),
         sessionId,

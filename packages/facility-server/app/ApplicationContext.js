@@ -9,6 +9,7 @@ import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { closeDatabase, initDatabase } from './database';
 import { getServerFacilityIds, initServerConfig } from './serverConfig';
+import { initSyncSettings } from './sync/syncSettings';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
@@ -70,6 +71,7 @@ export class ApplicationContext {
     // The FHIR flags are facility-scoped; on a multi-facility server the first facility's
     // values apply, the same rule the scheduled tasks use.
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    await initSyncSettings(facilityReaders[0]);
     // Triggers follow the worker flag alone, not `fhir.enabled`: see the central
     // ApplicationContext for why.
     await setFhirRefreshTriggers(this.sequelize, {

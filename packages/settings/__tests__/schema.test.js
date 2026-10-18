@@ -498,7 +498,8 @@ describe('Exposed keys', () => {
 
     it('should include facility keys', () => {
       expect(keys).toContain('patientDisplayIdPattern');
-      expect(keys).toContain('sync');
+      expect(keys).toContain('sync.urgentIntervalInSeconds');
+      expect(keys).not.toContain('sync.dynamicLimiter');
       expect(keys).toContain('vaccinations');
     });
 
