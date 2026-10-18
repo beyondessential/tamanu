@@ -568,7 +568,6 @@ jobs:
       ref: ${{ needs.config.outputs.ref }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   deploy-down:
     needs: config
@@ -585,7 +584,6 @@ jobs:
       options: ${{ matrix.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   fake-data:
     needs:

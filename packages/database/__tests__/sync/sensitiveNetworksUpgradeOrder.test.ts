@@ -127,6 +127,39 @@ describe('sensitive network upgrade ordering', () => {
     expect(await columnExists('is_sensitive')).toBe(false);
   });
 
+  // The step re-marks the SRH patients by writing a tick of 1 for the sync tick trigger to replace.
+  // Migrations run with that trigger disabled, so this only works if the runner has re-enabled it
+  // by the time the step runs between migration batches; otherwise the rows keep a literal 1 and
+  // no facility ever pulls the history.
+  it('re-marks the SRH patients with a fresh tick, so the trigger was enabled when the step ran', async () => {
+    await downToPreNetworkSchema();
+    await addSensitiveFacility('facility-SRHCentral', 'SRHCentral', 'SRH Central');
+    await addSensitiveFacility('facility-SRHWestern', 'SRHWestern', 'SRH Western');
+    await addSensitiveFacility('facility-SRHNorthern', 'SRHNorthern', 'SRH Northern');
+    await database.sequelize.query(
+      `INSERT INTO patients (id, display_id, sex) VALUES ('patient-srh', 'SRH0001', 'female');
+       INSERT INTO patient_facilities (patient_id, facility_id) VALUES
+         ('patient-srh', 'facility-SRHCentral'),
+         ('patient-srh', 'facility-SRHWestern'),
+         ('patient-srh', 'facility-SRHNorthern');`,
+    );
+    // the clock has moved past every facility's cursor, as it has on a live deployment
+    const [[{ value: tickAtUpgrade }]] = await database.sequelize.query(
+      `UPDATE local_system_facts SET value = (value::bigint + 10)::text
+       WHERE key = 'currentSyncTick' RETURNING value;`,
+    );
+
+    await runUpgrade();
+
+    const [patientFacilities] = await database.sequelize.query(
+      `SELECT updated_at_sync_tick FROM patient_facilities WHERE patient_id = 'patient-srh';`,
+    );
+    expect(patientFacilities).toHaveLength(3);
+    for (const { updated_at_sync_tick: tick } of patientFacilities as any[]) {
+      expect(Number(tick)).toBeGreaterThanOrEqual(Number(tickAtUpgrade));
+    }
+  });
+
   // The mirror of the case above, and the rule that decides between them: all three or none. Two of
   // them is not the deployment the Fiji step describes, so the ordinary backfill takes it and each
   // facility keeps its own network — isolation preserved rather than widened by accident.

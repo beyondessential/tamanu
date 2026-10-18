@@ -113,7 +113,7 @@ Fiji asked for their three SRH facilities to share one network rather than keep 
 - [ ] The shared network carries an id, code and name of its own rather than any member's, since an id cannot be corrected once other rows reference it.
 - [ ] A deployment already holding a network under that id fails the upgrade rather than enrolling the facilities into something this does not describe.
 - [ ] Their lookup rows carry the shared network, so each facility receives what the other two recorded before the merge.
-- [ ] Those rows are re-ticked, unlike every other rescoped row: each facility has already pulled past them, so without a fresh tick none of that history would ever arrive.
+- [ ] Their patients are re-marked for sync at each of them, so each facility pulls those patients' full history on its next sync, as for any newly marked patient. Each has already pulled past that history, so without this none of it would ever arrive. Re-ticking the lookup rows instead would not last, since any later full lookup rebuild takes their ticks back from the source records.
 - [ ] Every other deployment is untouched, including one that later creates a facility with one of those ids.
 
 ## Mobile

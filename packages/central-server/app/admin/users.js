@@ -299,9 +299,6 @@ usersRouter.post(
           userId: user.id,
           facilityId,
         })),
-        {
-          ignoreDuplicates: true,
-        },
       );
     });
 
@@ -678,14 +675,21 @@ async function updateUserFacilities(UserFacility, user, allowedFacilityIds) {
     },
   });
 
+  // Not ignoreDuplicates: the (user_id, facility_id) constraint is deferrable, and Postgres
+  // rejects deferrable constraints as ON CONFLICT arbiters.
+  const existing = await UserFacility.findAll({
+    where: { userId: user.id },
+    attributes: ['facilityId'],
+    paranoid: false,
+  });
+  const existingFacilityIds = new Set(existing.map(({ facilityId }) => facilityId));
   await UserFacility.bulkCreate(
-    allowedFacilityIds.map(facilityId => ({
-      userId: user.id,
-      facilityId,
-    })),
-    {
-      ignoreDuplicates: true,
-    },
+    allowedFacilityIds
+      .filter(facilityId => !existingFacilityIds.has(facilityId))
+      .map(facilityId => ({
+        userId: user.id,
+        facilityId,
+      })),
   );
 
   await UserFacility.destroy({
