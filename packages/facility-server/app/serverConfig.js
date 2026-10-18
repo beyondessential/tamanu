@@ -110,7 +110,7 @@ export function isServerConfigured() {
 // setting up.
 let hasCompletedFirstSync = false;
 export async function isSettingUp(models) {
-  if (hasCompletedFirstSync || !config.sync.enabled || !isServerConfigured()) return false;
+  if (hasCompletedFirstSync || !isSyncEnabled() || !isServerConfigured()) return false;
   try {
     const pullCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL);
     if (!pullCursor) return true;
@@ -185,4 +185,16 @@ function configValue(key) {
 
 function configFacilityIds() {
   return selectFacilityIds(config) ?? null;
+}
+
+export function isSyncEnabled(syncConfig = config.sync) {
+  const fromEnv = process.env.SYNC_ENABLED;
+  return fromEnv ? fromEnv === 'true' : Boolean(syncConfig.enabled);
+}
+
+export function getSyncApiConnection() {
+  return {
+    host: process.env.SYNC_API_HOST ?? config.sync.syncApiConnection.host,
+    port: +process.env.SYNC_API_PORT || config.sync.syncApiConnection.port,
+  };
 }

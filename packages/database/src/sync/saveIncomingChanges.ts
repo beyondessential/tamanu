@@ -1,4 +1,3 @@
-import config from 'config';
 import { fn, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 
@@ -19,8 +18,10 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 import { countSyncSnapshotRecords } from './countSyncSnapshotRecords';
 import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { saveCreates, saveUpdates } from './saveChanges';
+import { getSyncTuning } from './syncTuning';
 
-const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } = config.sync;
+const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } =
+  getSyncTuning();
 
 export const saveChangesForModel = async (
   model: typeof Model,

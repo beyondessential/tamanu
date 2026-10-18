@@ -1,8 +1,5 @@
-import config from 'config';
-import { omit } from 'es-toolkit/compat';
-
 import { initReporting } from '@tamanu/database/services/reporting';
-import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { getBugsnagOptions, initBugsnag, log } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import {
   getFhirWorkerSettings,
@@ -41,14 +38,13 @@ export class ApplicationContext {
   closePromise = null;
 
   async init({ appType, databaseOverrides, dbKey } = {}) {
-    if (config.errors?.enabled) {
-      if (config.errors.type === 'bugsnag') {
-        await initBugsnag({
-          ...omit(config.errors, ['enabled', 'type']),
-          appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
-          appType,
-        });
-      }
+    const bugsnagOptions = getBugsnagOptions();
+    if (bugsnagOptions) {
+      await initBugsnag({
+        ...bugsnagOptions,
+        appVersion: [VERSION, process.env.REVISION].filter(Boolean).join('-'),
+        appType,
+      });
     }
 
     const key = dbKey ?? appType ?? 'main';

@@ -19,7 +19,7 @@ import {
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { getSyncConfig } from '../serverConfig';
+import { getSyncConfig, isSyncEnabled } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
@@ -86,7 +86,7 @@ export class FacilitySyncManager {
   }
 
   async triggerSync(reason) {
-    if (!this.constructor.config.sync.enabled) {
+    if (!isSyncEnabled(this.constructor.config.sync)) {
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return { enabled: false };
     }

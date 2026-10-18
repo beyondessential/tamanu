@@ -1,4 +1,3 @@
-import config from 'config';
 import { Sequelize } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 
@@ -10,8 +9,9 @@ import type { Models } from '../types/model';
 import { insertSnapshotRecords, updateSnapshotRecords } from './manageSnapshotTable';
 import { readOnlyTransaction } from './transactions';
 import type { SyncHookSnapshotChanges } from 'types/sync';
+import { getSyncTuning } from './syncTuning';
 
-const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
+const { persistUpdateWorkerPoolSize } = getSyncTuning();
 
 export const incomingSyncHook = async (
   sequelize: Sequelize,
@@ -31,7 +31,7 @@ export const incomingSyncHook = async (
     );
 
     // Load the persisted record ids in batches to avoid memory issue
-    const batchSize = config.sync.incomingSyncHookBatchSize;
+    const batchSize = getSyncTuning().incomingSyncHookBatchSize;
     const batchCount = Math.ceil(modelPersistedRecordsCount / batchSize);
     let fromId;
 

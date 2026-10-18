@@ -120,6 +120,7 @@ export const CONFIG_TO_SETTINGS: ConfigToSetting[] = [
   { config: 'auth', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'updateUrls', setting: 'metaServer.updateUrls', scope: SETTINGS_SCOPES.GLOBAL },
   { config: 'metaServer', scope: SETTINGS_SCOPES.GLOBAL },
+  { config: 'sync.numberConcurrentPullSnapshots', scope: SETTINGS_SCOPES.CENTRAL },
 ];
 
 // Config paths are handled as segment arrays so a config key containing a dot

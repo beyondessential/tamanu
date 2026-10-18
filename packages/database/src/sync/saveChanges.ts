@@ -11,14 +11,14 @@
  * current one as usual.
  */
 
-import config from 'config';
 import { uniqBy } from 'es-toolkit';
 import type { Utils } from 'sequelize';
 import asyncPool from 'tiny-async-pool';
 import type { Model } from '../models/Model';
 import { mergeRecord } from './mergeRecord';
+import { getSyncTuning } from './syncTuning';
 
-const persistUpdateWorkerPoolSize = config.sync.persistUpdateWorkerPoolSize;
+const { persistUpdateWorkerPoolSize } = getSyncTuning();
 
 interface IncomingRecord {
   [attr: string]: any;

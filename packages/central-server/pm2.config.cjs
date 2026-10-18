@@ -62,7 +62,11 @@ const apps = [
   task('tamanu-tasks', 'startTasks'),
 ];
 
-if (config?.integrations?.fhir?.worker?.enabled) {
+const fhirWorkerEnabled = process.env.TAMANU_FHIR_WORKER_ENABLED
+  ? process.env.TAMANU_FHIR_WORKER_ENABLED === 'true'
+  : config?.integrations?.fhir?.worker?.enabled;
+
+if (fhirWorkerEnabled) {
   apps.push(
     task(
       'tamanu-fhir-refresh',

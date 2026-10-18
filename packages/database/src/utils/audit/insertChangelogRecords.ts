@@ -1,12 +1,13 @@
-import config from 'config';
 import type { BulkCreateOptions, InferAttributes } from 'sequelize';
 
 import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
+import { getSyncTuning } from '../../sync/syncTuning';
 
-const { pauseBetweenPersistedCacheBatchesInMilliseconds, persistedCacheBatchSize } = config.sync;
+const { pauseBetweenPersistedCacheBatchesInMilliseconds, persistedCacheBatchSize } =
+  getSyncTuning();
 
 type ChangeLogAttributes = InferAttributes<ChangeLog>;
 

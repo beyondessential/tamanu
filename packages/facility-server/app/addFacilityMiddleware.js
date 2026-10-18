@@ -1,9 +1,8 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import config from 'config';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { getLoggingMiddleware } from '@tamanu/shared/services/logging';
+import { getBugsnagOptions, getLoggingMiddleware } from '@tamanu/shared/services/logging';
 import { getTrustedProxy } from '@tamanu/shared/utils';
 import { version } from './serverInfo';
 
@@ -24,13 +23,11 @@ export const addFacilityMiddleware = async express => {
   express.use(getLoggingMiddleware());
 
   let errorMiddleware = null;
-  if (config.errors?.enabled) {
-    if (config.errors?.type === 'bugsnag') {
-      const { default: Bugsnag } = await import('@bugsnag/js');
-      const middleware = Bugsnag.getPlugin('express');
-      express.use(middleware.requestHandler);
-      errorMiddleware = middleware.errorHandler;
-    }
+  if (getBugsnagOptions()) {
+    const { default: Bugsnag } = await import('@bugsnag/js');
+    const middleware = Bugsnag.getPlugin('express');
+    express.use(middleware.requestHandler);
+    errorMiddleware = middleware.errorHandler;
   }
 
   return { errorMiddleware };
