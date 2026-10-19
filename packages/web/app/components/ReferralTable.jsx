@@ -9,6 +9,7 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatient } from '../contexts/Patient';
 import { useApi } from '../api';
+import { usePatientAdditionalDataQuery } from '../api/queries';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText, TranslatedEnum } from './Translation';
@@ -89,6 +90,7 @@ const MODAL_IDS = {
 export const ReferralTable = React.memo(({ patientId }) => {
   const api = useApi();
   const { patient } = usePatient();
+  const { data: additionalData } = usePatientAdditionalDataQuery(patientId);
   const { ability } = useAuth();
   const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);
@@ -256,6 +258,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         <EncounterModal
           {...props}
           patient={patient}
+          patientBillingTypeId={additionalData?.patientBillingTypeId}
           referral={selectedReferral}
           data-testid="encountermodal-w69a"
         />
@@ -296,7 +299,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
     };
 
     return MODALS[modalId] || null;
-  }, [modalId, patient, onCancelReferral]);
+  }, [modalId, patient, additionalData, onCancelReferral]);
 
   return (
     <>
