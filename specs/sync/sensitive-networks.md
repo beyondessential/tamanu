@@ -37,7 +37,7 @@ network boundary no longer describes.
 
 ### Refusing a membership change
 
-- [ ] A membership change is refused on both paths that write a facility: the reference data import and provisioning. Nothing else in the application writes one.
+- [ ] A membership change is refused on every path that writes a facility: the reference data import, editing a facility in the reference data admin, and provisioning.
 - [ ] Incoming sync is not one of those paths and is never refused. A facility server applies whatever membership central sends, because central is where the rule is enforced and a migration there can legitimately change membership.
 - [ ] A refusal names the facility and states that only a new facility can be enrolled in a network.
 
