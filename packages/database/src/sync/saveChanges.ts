@@ -18,8 +18,6 @@ import type { Model } from '../models/Model';
 import { mergeRecord } from './mergeRecord';
 import { getSyncTuning } from './syncTuning';
 
-const { persistUpdateWorkerPoolSize } = getSyncTuning();
-
 interface IncomingRecord {
   [attr: string]: any;
   /** Only present when {@link saveChangesForModel} attached a delete (`Fn`) or restore (`null`) */
@@ -67,7 +65,7 @@ export const saveUpdates = async (
    * attributes so that can't happen.
    */
   const fields = Object.keys(model.getAttributes());
-  await asyncPool(persistUpdateWorkerPoolSize, recordsToSave, async r => {
+  await asyncPool(getSyncTuning().persistUpdateWorkerPoolSize, recordsToSave, async r => {
     // Strip `id` from the update payload — it's already in the WHERE clause and is
     // never supposed to change. Models with GENERATED ALWAYS `id` columns (e.g.
     // PatientOngoingPrescription, PatientFacility) rely on Sequelize re-picking values

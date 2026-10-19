@@ -20,9 +20,6 @@ import { findSyncSnapshotRecords } from './findSyncSnapshotRecords';
 import { saveCreates, saveUpdates } from './saveChanges';
 import { getSyncTuning } from './syncTuning';
 
-const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } =
-  getSyncTuning();
-
 export const saveChangesForModel = async (
   model: typeof Model,
   changes: SyncSnapshotAttributes[],
@@ -142,6 +139,8 @@ const saveChangesForModelInBatches = async (
     model.tableName,
   );
 
+  const { persistedCacheBatchSize, pauseBetweenPersistedCacheBatchesInMilliseconds } =
+    getSyncTuning();
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
   log.debug('Sync: saveIncomingChanges', {
     total: syncRecordsCount,

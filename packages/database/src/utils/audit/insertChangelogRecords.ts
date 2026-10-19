@@ -6,9 +6,6 @@ import type { ChangeLog } from 'models/ChangeLog';
 import type { Models } from 'types/model';
 import { getSyncTuning } from '../../sync/syncTuning';
 
-const { pauseBetweenPersistedCacheBatchesInMilliseconds, persistedCacheBatchSize } =
-  getSyncTuning();
-
 type ChangeLogAttributes = InferAttributes<ChangeLog>;
 
 const bulkCreateOptions = {
@@ -24,9 +21,10 @@ const bulkCreateOptions = {
 export const insertChangelogRecords = async (
   models: Models,
   changelogRecords: ChangeLogAttributes[],
-  batchSize = persistedCacheBatchSize,
+  batchSize = getSyncTuning().persistedCacheBatchSize,
 ) => {
   if (!changelogRecords.length) return;
+  const { pauseBetweenPersistedCacheBatchesInMilliseconds } = getSyncTuning();
 
   const { ChangeLog } = models;
 

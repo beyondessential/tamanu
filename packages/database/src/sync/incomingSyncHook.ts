@@ -11,8 +11,6 @@ import { readOnlyTransaction } from './transactions';
 import type { SyncHookSnapshotChanges } from 'types/sync';
 import { getSyncTuning } from './syncTuning';
 
-const { persistUpdateWorkerPoolSize } = getSyncTuning();
-
 export const incomingSyncHook = async (
   sequelize: Sequelize,
   persistedModels: Models,
@@ -77,10 +75,13 @@ export const incomingSyncHook = async (
           }));
 
           // Update existing changes in sync_snapshot table
-          await asyncPool(persistUpdateWorkerPoolSize, newChangesToUpdate, async change =>
-            updateSnapshotRecords(sequelize, sessionId, change, {
-              id: change.id,
-            }),
+          await asyncPool(
+            getSyncTuning().persistUpdateWorkerPoolSize,
+            newChangesToUpdate,
+            async change =>
+              updateSnapshotRecords(sequelize, sessionId, change, {
+                id: change.id,
+              }),
           );
         }
       }
