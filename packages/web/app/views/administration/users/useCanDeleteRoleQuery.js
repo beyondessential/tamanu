@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { useApi } from '../../../api';
 import { ROLE_ENDPOINT } from '../constants';
+import { route } from '@tamanu/api-client';
 
 export const useCanDeleteRoleQuery = (roleId, useQueryOptions) => {
   const api = useApi();
@@ -11,7 +12,7 @@ export const useCanDeleteRoleQuery = (roleId, useQueryOptions) => {
     ...useQueryOptions,
     queryKey: ['role', 'isDeletable', roleId],
     queryFn: async () =>
-      await api.get(`${ROLE_ENDPOINT}/${encodeURIComponent(roleId)}/isDeletable`, null, {
+      await api.get(route(`${ROLE_ENDPOINT}/:roleId/isDeletable`, { roleId }), null, {
         showUnknownErrorToast: false,
       }),
     enabled: Boolean(roleId),

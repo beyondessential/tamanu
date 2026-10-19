@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../useApi';
 
 export const ENCOUNTER_QUERY_KEY = 'encounter';
@@ -28,13 +29,18 @@ export const useEncounterQuery = encounterId => {
   return useQuery(
     [ENCOUNTER_QUERY_KEY, encounterId],
     async () => {
-      const encounterPath = `encounter/${encodeURIComponent(encounterId)}`;
       const [encounter, diagnoses, procedures, medications, triages] = await Promise.all([
-        api.get(encounterPath),
-        getRecordsOrEmpty(() => api.get(`${encounterPath}/diagnoses`)),
-        getRecordsOrEmpty(() => api.get(`${encounterPath}/procedures`)),
-        getRecordsOrEmpty(() => api.get(`${encounterPath}/medications`)),
-        getRecordsOrEmpty(() => api.get(`${encounterPath}/triages`)),
+        api.get(route('encounter/:encounterId', { encounterId })),
+        getRecordsOrEmpty(() =>
+          api.get(route('encounter/:encounterId/diagnoses', { encounterId })),
+        ),
+        getRecordsOrEmpty(() =>
+          api.get(route('encounter/:encounterId/procedures', { encounterId })),
+        ),
+        getRecordsOrEmpty(() =>
+          api.get(route('encounter/:encounterId/medications', { encounterId })),
+        ),
+        getRecordsOrEmpty(() => api.get(route('encounter/:encounterId/triages', { encounterId }))),
       ]);
       return { ...encounter, diagnoses, procedures, medications, triages };
     },

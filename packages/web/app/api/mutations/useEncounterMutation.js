@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../useApi';
 import { AI_PATIENT_SUMMARY_QUERY_KEY } from '../queries/useAiPatientSummaryQuery';
 import { ENCOUNTER_QUERY_KEY } from '../queries/useEncounterQuery';
@@ -24,7 +25,7 @@ export const useUpdateEncounterMutation = encounterId => {
 
   return useMutation({
     mutationKey: ['updateEncounter', encounterId],
-    mutationFn: data => api.put(`encounter/${encounterId}`, data),
+    mutationFn: data => api.put(route('encounter/:encounterId', { encounterId }), data),
     onSuccess: async () => {
       await queryClient.invalidateQueries([ENCOUNTER_QUERY_KEY, encounterId], { exact: true });
     },

@@ -24,6 +24,7 @@ import { FormModal } from '../../../../components';
 import { notifyError, notifySuccess } from '../../../../utils';
 import { VisibilityStatusField, visibilityStatusOptions } from '../components';
 import { NullableBooleanSelect, SurveyTypeField } from './components';
+import { route } from '@tamanu/api-client';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -68,7 +69,7 @@ function useSurveyMetadataMutation(surveyId, { onError, onSuccess, ...rest }) {
   const api = useApi();
   return useMutation({
     mutationKey: ['survey', surveyId, 'metadata'],
-    mutationFn: async body => await api.patch(`admin/survey/${encodeURIComponent(surveyId)}`, body),
+    mutationFn: async body => await api.patch(route('admin/survey/:surveyId', { surveyId }), body),
     onSuccess: (data, variables, context) => {
       notifySuccess(
         <TranslatedText

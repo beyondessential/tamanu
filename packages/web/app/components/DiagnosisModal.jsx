@@ -4,13 +4,14 @@ import { DiagnosisForm } from '../forms/DiagnosisForm';
 import { useApi } from '../api';
 import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const DiagnosisModal = React.memo(({ diagnosis, onClose, encounterId, ...props }) => {
   const api = useApi();
   const invalidateEncounter = useInvalidateEncounter();
-  const onSaveDiagnosis = async (data) => {
+  const onSaveDiagnosis = async data => {
     if (data.id) {
-      await api.put(`diagnosis/${data.id}`, data);
+      await api.put(route('diagnosis/:dataId', { dataId: data.id }), data);
     } else {
       await api.post(`diagnosis`, {
         ...data,

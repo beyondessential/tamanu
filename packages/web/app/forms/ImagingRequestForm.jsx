@@ -5,6 +5,7 @@ import shortid from 'shortid';
 import * as yup from 'yup';
 
 import { IMAGING_TYPES, FORM_TYPES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
@@ -93,9 +94,8 @@ export const ImagingRequestForm = React.memo(
     const api = useApi();
 
     const imagingTypes = getLocalisation('imagingTypes') || {};
-    const { data: allImagingRefData } = useQuery(
-      ['suggestions', 'imagingType', 'all'],
-      () => api.get('suggestions/imagingType', { noLimit: 'true' }),
+    const { data: allImagingRefData } = useQuery(['suggestions', 'imagingType', 'all'], () =>
+      api.get(route('suggestions/:endpoint', { endpoint: 'imagingType' }), { noLimit: 'true' }),
     );
     const { data: visibleImagingTypes } = useSuggestionsQuery('imagingType');
 
@@ -132,10 +132,7 @@ export const ImagingRequestForm = React.memo(
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length === 0;
             },
-            then: yup
-              .string()
-              .trim()
-              .required(requiredValidationMessage),
+            then: yup.string().trim().required(requiredValidationMessage),
           }),
         })}
         showInlineErrorsOnly
@@ -248,14 +245,23 @@ export const ImagingRequestForm = React.memo(
                 component={TranslatedSelectField}
                 transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
-                  const allRefCodes = allImagingRefData && new Set(allImagingRefData.map(t => t.code?.toLowerCase()));
-                  const visibleCodes = visibleImagingTypes && new Set(visibleImagingTypes.map(t => t.code?.toLowerCase()));
+                  const allRefCodes =
+                    allImagingRefData && new Set(allImagingRefData.map(t => t.code?.toLowerCase()));
+                  const visibleCodes =
+                    visibleImagingTypes &&
+                    new Set(visibleImagingTypes.map(t => t.code?.toLowerCase()));
                   return options
                     .filter(option => {
                       const key = camelCase(option.value);
                       if (!availableTypes.includes(key)) return false;
                       const lowerKey = key.toLowerCase();
-                      if (allRefCodes && visibleCodes && allRefCodes.has(lowerKey) && !visibleCodes.has(lowerKey)) return false;
+                      if (
+                        allRefCodes &&
+                        visibleCodes &&
+                        allRefCodes.has(lowerKey) &&
+                        !visibleCodes.has(lowerKey)
+                      )
+                        return false;
                       return true;
                     })
                     .map(option => {

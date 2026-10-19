@@ -18,6 +18,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
+import { route } from '@tamanu/api-client';
 
 /**
  * @param {import('@tamanu/database').SurveyResponse['id']} surveyResponseId
@@ -33,7 +34,7 @@ export const useSurveyResponseChangesQuery = (surveyResponseId, options = {}) =>
     ...options,
     queryKey: ['surveyResponseChanges', surveyResponseId],
     queryFn: async () =>
-      await api.get(`surveyResponse/${encodeURIComponent(surveyResponseId)}/changes`),
+      await api.get(route('surveyResponse/:surveyResponseId/changes', { surveyResponseId })),
     enabled: enabled && Boolean(surveyResponseId),
   });
 };

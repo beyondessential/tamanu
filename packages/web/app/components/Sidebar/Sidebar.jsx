@@ -21,6 +21,7 @@ import { KebabMenu } from './KebabMenu';
 import { ImpersonationPopover } from './ImpersonationSelector';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { ThemedTooltip } from '../Tooltip';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   display: flex;
@@ -244,7 +245,7 @@ export const Sidebar = React.memo(({ items }) => {
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(
     ['facility', facilityId],
-    async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+    async () => await api.get(route('facility/:facilityId', { facilityId })),
     {
       enabled: !!facilityId,
     },
