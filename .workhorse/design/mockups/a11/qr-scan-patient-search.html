@@ -73,15 +73,14 @@
   .denied p { font-size: 15px; color: #fff; line-height: 1.4; }
   .btn-primary { background: #326699; color: #fff; border-radius: 50px; padding: 12px 24px; font-size: 14px; font-weight: 500; }
 
-  /* Native Android toast (ToastAndroid) */
+  /* Error toast, matching Tamanu's web error toast (CustomToastContainer) */
   .toast {
-    position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 8px; white-space: nowrap;
-    background: #3c3c3c; color: #fff; border-radius: 24px;
-    padding: 10px 16px 10px 10px; font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+    position: absolute; top: 102px; left: 12px; right: 12px;
+    background: #fff0ee; color: #f76853; border-radius: 3px;
+    padding: 11px 40px 11px 16px; font-size: 14px; line-height: 1.3;
+    box-shadow: 0 1px 10px rgba(0,0,0,.1), 0 2px 15px rgba(0,0,0,.05);
   }
-  .toast .app-icon { width: 22px; height: 22px; border-radius: 50%; background: #326699; flex: none; }
+  .toast svg { position: absolute; top: 15px; right: 16px; width: 10px; height: 10px; }
 </style>
 </head>
 <body>
@@ -157,7 +156,7 @@
   </div>
 
   <div class="frame">
-    <div class="caption">E. Invalid code: scanner closes, native toast</div>
+    <div class="caption">E. Invalid code: scanner closes, error toast</div>
     <div class="phone">
       <div class="header">
         <div class="back"><svg><use href="#back"/></svg></div>
@@ -166,7 +165,7 @@
       </div>
       <div class="tabs"><div class="tab active">Recently viewed</div><div class="tab">All patients</div></div>
       <div class="patient"><div class="avatar f">ML</div><div><div class="name">Mele Latu</div><div class="meta">TMN284711 · F · 34 years · Nuku'alofa</div></div></div>
-      <div class="toast"><span class="app-icon"></span>Not a valid QR code</div>
+      <div class="toast">Not a valid QR code<svg viewBox="0 0 10 10" fill="none" stroke="#f76853" stroke-width="1.5" stroke-linecap="round"><path d="M1 1l8 8M9 1L1 9"/></svg></div>
     </div>
   </div>
 
