@@ -226,6 +226,7 @@ export class AutocompleteInput extends Component {
   fetchOptions = async ({ value, reason }) => {
     const { value: formValue, allowCreatingCustomValue, filterer } = this.props;
     const fetchId = ++this.latestFetchId;
+    const isStale = () => fetchId !== this.latestFetchId;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -233,7 +234,8 @@ export class AutocompleteInput extends Component {
     }
 
     if (value === '') {
-      if (await this.attemptAutoFill()) return;
+      if (await this.attemptAutoFill(isStale)) return;
+      if (isStale()) return;
     }
 
     // presence of formValue means the user has selected an option for this field
@@ -258,18 +260,19 @@ export class AutocompleteInput extends Component {
         });
       }
     }
-    if (fetchId !== this.latestFetchId) return;
+    if (isStale()) return;
     suggestions = suggestions.filter(filterer);
     this.setState({ suggestions });
   };
 
-  attemptAutoFill = async () => {
+  attemptAutoFill = async (isStale = () => false) => {
     const { autofill, name } = this.props;
     if (!autofill) {
       return false;
     }
     const suggestions = await this.fetchAllOptions();
-    if (suggestions.length !== 1) {
+    // The user may have typed since this fetch started; don't select over their input
+    if (isStale() || suggestions.length !== 1) {
       return false;
     }
     const autoSelectOption = suggestions[0];
