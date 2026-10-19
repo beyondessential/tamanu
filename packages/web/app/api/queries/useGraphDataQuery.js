@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../index';
+import { route } from '@tamanu/api-client';
 
 const transformVitalDataToChartData = vitalQuery => {
   const { data: vitalDataAndCount = {} } = vitalQuery;
@@ -18,10 +19,23 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
   const [startDate, endDate] = dateRange;
   const directory = isVital ? 'vitals' : 'charts';
   const query = useQuery(
-    ['encounter', encounterId, 'graphData', directory, vitalDataElementId, startDate, endDate, isVital],
+    [
+      'encounter',
+      encounterId,
+      'graphData',
+      directory,
+      vitalDataElementId,
+      startDate,
+      endDate,
+      isVital,
+    ],
     () =>
       api.get(
-        `encounter/${encounterId}/graphData/${directory}/${vitalDataElementId}`,
+        route('encounter/:encounterId/graphData/:directory/:vitalDataElementId', {
+          encounterId,
+          directory,
+          vitalDataElementId,
+        }),
         { startDate, endDate },
       ),
     {

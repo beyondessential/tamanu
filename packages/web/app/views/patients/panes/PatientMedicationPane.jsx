@@ -48,6 +48,7 @@ import {
 } from '../../../utils/medications';
 import { PrescriptionChangeHistoryModal } from '../../../components/Medication/PrescriptionChangeHistoryModal';
 import SendToPharmacyButton from './SendToPharmacyButton';
+import { route } from '@tamanu/api-client';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -554,7 +555,9 @@ export const PatientMedicationPane = ({ patient }) => {
   }, []);
 
   const handleCancelConfirm = useCallback(async () => {
-    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    await api.delete(
+      route('medication/medication-dispenses/:selectedDispenseId', { selectedDispenseId }),
+    );
     setIsCancelModalOpen(false);
     setSelectedDispenseId(null);
     // Cancelling puts the request back in the patient's dispensable list, which the dispense

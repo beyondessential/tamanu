@@ -15,8 +15,6 @@ export async function preparePatientCheckDuplicatesPayload(context: any, _events
   const rawProb = context.vars.syntheticCheckDuplicatesMatchProbability;
   const matchProbability =
     typeof rawProb === 'number' && rawProb >= 0 && rawProb <= 1 ? rawProb : 0.5;
-  const seekLikelyDuplicate = Math.random() < matchProbability;
-
   const existing = await entityFetcher.getRandom('patient');
 
   const firstName = existing?.firstName;
@@ -24,14 +22,9 @@ export async function preparePatientCheckDuplicatesPayload(context: any, _events
   const dateOfBirth = existing?.dateOfBirth;
   const displayId = existing?.displayId;
 
-  if (!firstName?.trim() || !lastName?.trim() || !dateOfBirth) {
-    throw new Error(
-      'Random patient missing firstName, lastName, or dateOfBirth; seed patient data or skip checkDuplicates scenario',
-    );
-  }
-  if (!displayId) {
-    throw new Error('Random patient missing displayId; seed patient data or skip checkDuplicates scenario');
-  }
+  // The create-patient scenario leaves some of these empty, and such a patient can't be matched.
+  const canMatchExisting = Boolean(firstName?.trim() && lastName?.trim() && dateOfBirth && displayId);
+  const seekLikelyDuplicate = canMatchExisting && Math.random() < matchProbability;
 
   const sex = existing.sex ?? 'other';
 

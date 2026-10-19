@@ -1,11 +1,11 @@
 import { camelCase } from 'es-toolkit/compat';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
 import { IMAGING_TYPES, FORM_TYPES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
@@ -22,31 +22,30 @@ import {
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
-import { reloadImagingRequest } from '../store';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/Auth';
 import { useApi } from '../api';
 import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
-  const { loadEncounter } = useEncounter();
-  const dispatch = useDispatch();
+  const invalidateEncounter = useInvalidateEncounter();
+  const queryClient = useQueryClient();
   const { navigateToImagingRequest } = usePatientNavigation();
 
   const finalise = async data => {
-    setOnSuccess(() => () => loadEncounter(encounter.id));
+    setOnSuccess(() => () => invalidateEncounter(encounter.id));
     await submitForm(data);
   };
   const finaliseAndPrint = async data => {
     setOnSuccess(() => async newRequest => {
       const requestId = newRequest.id;
-      await dispatch(reloadImagingRequest(requestId));
+      await queryClient.invalidateQueries(['imagingRequest', requestId]);
       navigateToImagingRequest(requestId, 'print');
     });
     await submitForm(data);
@@ -95,9 +94,8 @@ export const ImagingRequestForm = React.memo(
     const api = useApi();
 
     const imagingTypes = getLocalisation('imagingTypes') || {};
-    const { data: allImagingRefData } = useQuery(
-      ['suggestions', 'imagingType', 'all'],
-      () => api.get('suggestions/imagingType', { noLimit: 'true' }),
+    const { data: allImagingRefData } = useQuery(['suggestions', 'imagingType', 'all'], () =>
+      api.get(route('suggestions/:endpoint', { endpoint: 'imagingType' }), { noLimit: 'true' }),
     );
     const { data: visibleImagingTypes } = useSuggestionsQuery('imagingType');
 
@@ -134,10 +132,7 @@ export const ImagingRequestForm = React.memo(
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length === 0;
             },
-            then: yup
-              .string()
-              .trim()
-              .required(requiredValidationMessage),
+            then: yup.string().trim().required(requiredValidationMessage),
           }),
         })}
         showInlineErrorsOnly
@@ -250,14 +245,23 @@ export const ImagingRequestForm = React.memo(
                 component={TranslatedSelectField}
                 transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
-                  const allRefCodes = allImagingRefData && new Set(allImagingRefData.map(t => t.code?.toLowerCase()));
-                  const visibleCodes = visibleImagingTypes && new Set(visibleImagingTypes.map(t => t.code?.toLowerCase()));
+                  const allRefCodes =
+                    allImagingRefData && new Set(allImagingRefData.map(t => t.code?.toLowerCase()));
+                  const visibleCodes =
+                    visibleImagingTypes &&
+                    new Set(visibleImagingTypes.map(t => t.code?.toLowerCase()));
                   return options
                     .filter(option => {
                       const key = camelCase(option.value);
                       if (!availableTypes.includes(key)) return false;
                       const lowerKey = key.toLowerCase();
-                      if (allRefCodes && visibleCodes && allRefCodes.has(lowerKey) && !visibleCodes.has(lowerKey)) return false;
+                      if (
+                        allRefCodes &&
+                        visibleCodes &&
+                        allRefCodes.has(lowerKey) &&
+                        !visibleCodes.has(lowerKey)
+                      )
+                        return false;
                       return true;
                     })
                     .map(option => {

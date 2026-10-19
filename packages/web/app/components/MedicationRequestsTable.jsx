@@ -29,6 +29,7 @@ import { getStockStatus } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
+import { route } from '@tamanu/api-client';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -183,7 +184,11 @@ export const MedicationRequestsTable = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await api.delete(`medication/medication-requests/${selectedRequest.id}`);
+      await api.delete(
+        route('medication/medication-requests/:selectedRequestId', {
+          selectedRequestId: selectedRequest.id,
+        }),
+      );
       setIsDeleteModalOpen(false);
       setSelectedRequest(null);
       // The deleted request drops out of the patient's dispensable list, which the dispense
