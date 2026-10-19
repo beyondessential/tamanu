@@ -25,3 +25,6 @@ export const SYNC_STREAM_MESSAGE_KIND = {
   PULL_WAITING: 0x0002,
   PULL_CHANGE: 0x0003,
 };
+
+export const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
+  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
