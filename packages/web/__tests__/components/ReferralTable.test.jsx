@@ -80,4 +80,33 @@ describe('ReferralTable', () => {
       ),
     );
   });
+
+  it('waits for the patient data before opening the admit encounter modal', async () => {
+    let resolveAdditionalData;
+    mockGet.mockImplementation(endpoint =>
+      endpoint === `patient/${PATIENT_ID}/additionalData`
+        ? new Promise(resolve => {
+            resolveAdditionalData = resolve;
+          })
+        : Promise.resolve({}),
+    );
+    encounterModalProps.mockClear();
+
+    render(
+      <QueryClientProvider client={createQueryClient()}>
+        <ReferralTable patientId={PATIENT_ID} />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByText('Admit'));
+    expect(encounterModalProps).not.toHaveBeenCalled();
+
+    resolveAdditionalData({ patientBillingTypeId: 'billing-2' });
+
+    await waitFor(() => expect(encounterModalProps).toHaveBeenCalled());
+    expect(encounterModalProps).toHaveBeenCalledTimes(1);
+    expect(encounterModalProps).toHaveBeenCalledWith(
+      expect.objectContaining({ patientBillingTypeId: 'billing-2' }),
+    );
+  });
 });
