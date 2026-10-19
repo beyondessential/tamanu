@@ -4,9 +4,12 @@ import { read, utils, write } from 'xlsx';
 import { AdministeredVaccineExporter } from '../../app/admin/exporter/modelExporters/AdministeredVaccineExporter';
 import { administeredVaccineLoader } from '../../app/admin/referenceDataImporter/loaders';
 
-const loadedConsent = item =>
-  administeredVaccineLoader(item).find(({ model }) => model === 'AdministeredVaccine').values
-    .consent;
+const models = { Encounter: { count: async () => 1 } };
+
+const loadedConsent = async item => {
+  const rows = await administeredVaccineLoader(item, { models });
+  return rows.find(({ model }) => model === 'AdministeredVaccine').values.consent;
+};
 
 const roundTripCells = cells => {
   const workbook = utils.book_new();
@@ -26,16 +29,16 @@ describe('Administered vaccine consent', () => {
     expect(exporter.formattedCell('consent', false)).toBe('n');
   });
 
-  it('round-trips consent through an exported xlsx', () => {
+  it('round-trips consent through an exported xlsx', async () => {
     const exporter = new AdministeredVaccineExporter({}, 'administeredVaccine');
     const rows = roundTripCells([true, false].map(v => exporter.formattedCell('consent', v)));
-    expect(rows.map(loadedConsent)).toEqual([true, false]);
+    expect(await Promise.all(rows.map(loadedConsent))).toEqual([true, false]);
   });
 
-  it('accepts boolean cells from older exports', () => {
+  it('accepts boolean cells from older exports', async () => {
     const rows = roundTripCells([true, false]);
     expect(rows.map(row => typeof row.consent)).toEqual(['boolean', 'boolean']);
-    expect(rows.map(loadedConsent)).toEqual([true, false]);
+    expect(await Promise.all(rows.map(loadedConsent))).toEqual([true, false]);
   });
 
   it.each([
@@ -45,7 +48,7 @@ describe('Administered vaccine consent', () => {
     ['n', false],
     ['', false],
     [undefined, false],
-  ])('reads %j as %s', (consent, expected) => {
-    expect(loadedConsent({ consent })).toBe(expected);
+  ])('reads %j as %s', async (consent, expected) => {
+    expect(await loadedConsent({ consent })).toBe(expected);
   });
 });
