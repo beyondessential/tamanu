@@ -92,7 +92,7 @@ const ImportForm = ({
   importWarning,
 }) => {
   const { values } = useFormikContext();
-  const [warningOpen, setWarningOpen] = useState(false);
+  const [pendingImport, setPendingImport] = useState(null);
   const ContentContainer = dataTypesSelectable ? ContentColumn : ContentRow;
   const buttonRowAlignment = dataTypesSelectable ? 'left' : 'right';
   return (
@@ -146,7 +146,7 @@ const ImportForm = ({
           onSubmit={(event, extraFormData) => {
             if (importWarning) {
               event.preventDefault();
-              setWarningOpen(true);
+              setPendingImport({ extraFormData });
               return;
             }
             submitForm(event, extraFormData);
@@ -162,7 +162,7 @@ const ImportForm = ({
       </StyledButtonRow>
       {importWarning && (
         <ConfirmModal
-          open={warningOpen}
+          open={Boolean(pendingImport)}
           title={importWarning.title}
           subText={importWarning.subText}
           confirmButtonText={
@@ -172,10 +172,10 @@ const ImportForm = ({
               data-testid="translatedtext-import-warning-confirm"
             />
           }
-          onCancel={() => setWarningOpen(false)}
+          onCancel={() => setPendingImport(null)}
           onConfirm={event => {
-            setWarningOpen(false);
-            submitForm(event);
+            setPendingImport(null);
+            submitForm(event, pendingImport.extraFormData);
           }}
           data-testid="confirmmodal-import-warning"
         />
