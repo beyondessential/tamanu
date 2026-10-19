@@ -140,9 +140,7 @@ export class AutocompleteInput extends Component {
     super();
     this.anchorEl = React.createRef();
     this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
-    // Identifies the newest fetch, so a slow response to an earlier search (e.g. the broad "E"
-    // before "E11.65") can't overwrite the suggestions for what the user has since typed
-    this.latestFetchId = 0;
+    this.latestFetchId = 0; // Identifies the newest fetch, so a slow response to an earlier search
     this.inputElementNode = null;
     this.observer = null;
 
