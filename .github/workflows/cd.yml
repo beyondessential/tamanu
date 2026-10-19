@@ -261,12 +261,10 @@ jobs:
         with:
           context: .
           platforms: linux/${{ matrix.platform.arch }}
-          # falls back to main's cache so branches without their own warm cache yet (e.g. a
-          # freshly-cut release branch) aren't forced into a cold, full `mode=max` export
-          cache-from: |
-            type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
-            type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          # only main writes the layer cache (the repo's 10 GiB GHA cache can't hold a full
+          # `mode=max` export per ref); other refs read main's, which is usually a partial hit
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
+          cache-to: ${{ needs.config.outputs.ref == 'main' && format('type=gha,mode=max,ignore-error=true,scope={0}-main-{1}', matrix.platform.arch, matrix.package.name) || '' }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
