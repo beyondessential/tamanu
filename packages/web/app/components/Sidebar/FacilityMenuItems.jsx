@@ -329,7 +329,7 @@ export const FACILITY_MENU_ITEMS = [
         label: (
           <TranslatedText
             stringId="sidebar.facilityAdmin.recentlyDischargedPatients"
-            fallback="Recently discharged patients"
+            fallback="Recently discharged"
             data-testid="translatedtext-rdp-sidebar"
           />
         ),

@@ -45,5 +45,5 @@ A discharge is an encounter at the current facility whose end date has been set.
 
 ## Configuration
 
-- [ ] By default, "Recently discharged patients" sits under Facility admin in the sidebar, directly above "System errors".
+- [ ] By default, the view is listed as "Recently discharged" under Facility admin in the sidebar, directly above "System errors".
 - [ ] The item is part of the facility sidebar layout settings in the admin panel, alongside the other Facility admin items. It is visible by default, and a deployment can hide it or change its sort priority.
