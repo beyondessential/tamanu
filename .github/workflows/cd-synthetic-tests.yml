@@ -58,7 +58,8 @@ jobs:
           file: packages/synthetic-tests/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          cache-from: type=gha,scope=synthetic-tests-${{ github.ref }}
-          cache-to: type=gha,mode=max,ignore-error=true,scope=synthetic-tests-${{ github.ref }}
+          # only main writes the layer cache; release branches read main's
+          cache-from: type=gha,scope=synthetic-tests-refs/heads/main
+          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=gha,mode=max,ignore-error=true,scope=synthetic-tests-refs/heads/main' || '' }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
