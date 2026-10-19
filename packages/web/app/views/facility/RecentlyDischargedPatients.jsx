@@ -11,6 +11,7 @@ import {
   TranslatedEnum,
   TranslatedText,
 } from '../../components';
+import { Colors } from '../../constants';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
@@ -129,7 +130,7 @@ export const RecentlyDischargedPatients = () => {
           onRowClick={row => navigateToPatient(row.id)}
           rowStyle={({ dateOfDeath }) =>
             // Every cell is red for a deceased patient, Patient ID included
-            dateOfDeath ? '& > td { color: #ed333a; }' : ''
+            dateOfDeath ? `& > td { color: ${Colors.alert}; }` : ''
           }
           noDataMessage={
             <TranslatedText

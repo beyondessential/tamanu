@@ -52,15 +52,20 @@ describe('Recently discharged patients', () => {
     return encounter;
   };
 
-  // Other suites share the database, so each test only inspects the rows for its own patients,
-  // in the order the endpoint returned them.
+  // Other suites share the database, so each test reads every page and only inspects the rows for
+  // its own patients, in the order the endpoint returned them.
   const fetchRowsFor = async (patients, query = {}) => {
     const patientIds = new Set(patients.map(patient => patient.id));
-    const response = await app
-      .get('/api/recentlyDischargedPatients')
-      .query({ rowsPerPage: 1000, ...query });
-    expect(response).toHaveSucceeded();
-    return response.body.data.filter(row => patientIds.has(row.id));
+    const rows = [];
+    for (let page = 0; ; page++) {
+      const response = await app
+        .get('/api/recentlyDischargedPatients')
+        .query({ ...query, rowsPerPage: 50, page });
+      expect(response).toHaveSucceeded();
+      rows.push(...response.body.data);
+      if (response.body.data.length === 0 || rows.length >= response.body.count) break;
+    }
+    return rows.filter(row => patientIds.has(row.id));
   };
 
   beforeAll(async () => {
@@ -213,6 +218,27 @@ describe('Recently discharged patients', () => {
       expect(firstPage.body.count).toBe(2);
       expect(firstPage.body.data.map(row => row.id)).toEqual([dischargedTwice.id]);
       expect(secondPage.body.data.map(row => row.id)).toEqual([dischargedOnce.id]);
+    });
+
+    it('caps the page size, and falls back to defaults for invalid paging values', async () => {
+      const lastName = 'Rdp-page-size';
+      for (let i = 0; i < 51; i++) {
+        const patient = await createPatient({ lastName });
+        await createDischargedEncounter(patient);
+      }
+
+      const oversizedPage = await app
+        .get('/api/recentlyDischargedPatients')
+        .query({ lastName, rowsPerPage: 1000000 });
+      const invalidPaging = await app
+        .get('/api/recentlyDischargedPatients')
+        .query({ lastName, rowsPerPage: 'many', page: -1 });
+
+      expect(oversizedPage).toHaveSucceeded();
+      expect(oversizedPage.body).toMatchObject({ count: 51 });
+      expect(oversizedPage.body.data).toHaveLength(50);
+      expect(invalidPaging).toHaveSucceeded();
+      expect(invalidPaging.body.data).toHaveLength(10);
     });
 
     it('lists each patient once, for their most recent discharge', async () => {

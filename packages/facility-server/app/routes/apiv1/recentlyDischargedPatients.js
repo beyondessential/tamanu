@@ -12,6 +12,10 @@ import {
 // spec: RDISCH
 export const recentlyDischargedPatients = express.Router();
 
+const DEFAULT_ROWS_PER_PAGE = 10;
+// The largest page size the web table offers
+const MAX_ROWS_PER_PAGE = 50;
+
 const SORT_KEYS = {
   firstName: 'UPPER(patients.first_name)',
   lastName: 'UPPER(patients.last_name)',
@@ -44,6 +48,11 @@ const createSearchFilters = filterParams => {
 // Encounter types without a patient status (form responses, vaccination records) have no row in
 // patient_statuses, so the inner join leaves them out. An encounter can carry more than one
 // discharge record (e.g. after an offline sync conflict), so the newest one breaks the tie.
+//
+// The 24-hour window is an index range scan on encounters_end_date, and every other join is a key
+// lookup (locations_pkey, patients_pkey, discharges_encounter_id). The work scales with the
+// discharges in the window rather than the size of encounters, so running this for both the count
+// and the page stays cheap.
 // spec: RDISCH#which-discharges-are-listed
 const buildLatestDischargesCte = searchClauses => `
   WITH patient_statuses (encounter_type, patient_status) AS (
@@ -87,10 +96,16 @@ recentlyDischargedPatients.get(
     const {
       orderBy = 'dischargeDate',
       order = 'desc',
-      rowsPerPage = 10,
-      page = 0,
+      rowsPerPage,
+      page,
       ...filterParams
     } = req.query;
+
+    const limit = Math.min(
+      Math.max(parseInt(rowsPerPage, 10) || DEFAULT_ROWS_PER_PAGE, 1),
+      MAX_ROWS_PER_PAGE,
+    );
+    const offset = Math.max(parseInt(page, 10) || 0, 0) * limit;
 
     const sortKey = SORT_KEYS[orderBy] ?? SORT_KEYS.dischargeDate;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -158,8 +173,8 @@ recentlyDischargedPatients.get(
       {
         replacements: {
           ...replacements,
-          limit: rowsPerPage,
-          offset: page * rowsPerPage,
+          limit,
+          offset,
         },
         type: QueryTypes.SELECT,
       },
