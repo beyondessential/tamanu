@@ -75,7 +75,7 @@ export function patientFieldDefinitionLoader(values) {
   ];
 }
 
-export function administeredVaccineLoader(item) {
+export async function administeredVaccineLoader(item, { models }) {
   const {
     encounterId,
     administeredVaccineId,
@@ -93,23 +93,33 @@ export function administeredVaccineLoader(item) {
   const startDate = date ? startOfDay(date) : null;
   const endDate = date ? endOfDay(date) : null;
 
+  // The encounter columns are derived from the vaccine, so writing them over a real encounter
+  // would rewrite it (and close an open admission).
+  const encounterExists =
+    Boolean(encounterId) &&
+    (await models.Encounter.count({ where: { id: encounterId }, paranoid: false })) > 0;
+
   return [
-    {
-      model: 'Encounter',
-      values: {
-        id: encounterId,
+    ...(encounterExists
+      ? []
+      : [
+          {
+            model: 'Encounter',
+            values: {
+              id: encounterId,
 
-        encounterType: ENCOUNTER_TYPES.CLINIC,
-        startDate,
-        endDate,
-        reasonForEncounter: reason,
+              encounterType: ENCOUNTER_TYPES.CLINIC,
+              startDate,
+              endDate,
+              reasonForEncounter: reason,
 
-        locationId,
-        departmentId,
-        examinerId,
-        patientId,
-      },
-    },
+              locationId,
+              departmentId,
+              examinerId,
+              patientId,
+            },
+          },
+        ]),
     {
       model: 'AdministeredVaccine',
       values: {
