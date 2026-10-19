@@ -1,0 +1,200 @@
+<!-- spec: patient/search.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile patient search with QR scan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Roboto, -apple-system, 'Segoe UI', sans-serif;
+    background: #f8f7f4;
+    color: #1c1917;
+    padding: 32px;
+  }
+  .row { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+  .frame { width: 300px; }
+  .caption { font-size: 13px; color: #57534e; margin-bottom: 8px; font-family: Inter, sans-serif; }
+  .phone {
+    width: 300px; height: 600px; border-radius: 12px; overflow: hidden;
+    background: #F3F5F7; box-shadow: 0 1px 3px rgba(0,0,0,.12); position: relative;
+    display: flex; flex-direction: column;
+  }
+
+  /* Patient search header (SearchPatientTabs) */
+  .header { background: #326699; height: 90px; display: flex; align-items: center; padding: 20px 16px 20px 0; gap: 8px; }
+  .back { width: 52px; display: flex; justify-content: center; }
+  .back svg { width: 16px; height: 16px; }
+  .search {
+    flex: 1; background: #fff; height: 44px; border-radius: 85px;
+    display: flex; align-items: center; padding-left: 14px; gap: 10px;
+    font-size: 15px; color: #888888;
+  }
+  .search.filled { color: #444444; }
+  .search svg { width: 18px; height: 18px; flex: none; }
+  .scan-btn {
+    width: 44px; height: 44px; border-radius: 50%; flex: none;
+    border: 1.5px solid #fff; background: transparent;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scan-btn svg { width: 22px; height: 22px; }
+
+  .tabs { display: flex; background: #fff; border-bottom: 1px solid #DEDEDE; }
+  .tab { flex: 1; text-align: center; font-size: 13px; font-weight: 500; padding: 14px 0; color: #888888; }
+  .tab.active { color: #326699; border-bottom: 2px solid #326699; }
+
+  .section { font-size: 12px; font-weight: 700; color: #888888; padding: 10px 20px 4px; }
+  .patient { display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-bottom: 1px solid #DEDEDE; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: #326699; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .avatar.f { background: #F76853; }
+  .name { font-size: 14px; font-weight: 700; color: #444444; }
+  .meta { font-size: 12px; font-weight: 500; color: #888888; margin-top: 1px; }
+
+  .filters {
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    width: 180px; height: 44px; border-radius: 50px; background: #2F4358; color: #fff;
+    border: 1px solid #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px;
+  }
+
+  /* Home screen */
+  .home-top { background: #326699; height: 190px; padding: 12px 18px; color: #fff; }
+  .home-top .logo { font-weight: 700; font-size: 16px; letter-spacing: .5px; }
+  .home-top .hi { font-size: 26px; font-weight: 700; margin-top: 18px; }
+  .home-top .fac { font-size: 13px; }
+  .home-search { position: absolute; top: 166px; left: 14px; right: 14px; display: flex; gap: 8px; }
+  .home-search .search { height: 46px; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .home-search .scan-btn { width: 46px; height: 46px; background: #fff; border: none; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .home-body { padding: 56px 18px 0; }
+  .home-body .label { font-size: 13px; font-weight: 700; color: #444444; margin-bottom: 10px; }
+  .tile { background: #fff; border-radius: 6px; height: 72px; margin-bottom: 8px; }
+
+  /* Scanner */
+  .scanner { background: #111; color: #fff; }
+  .scanner-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 16px; font-size: 16px; font-weight: 500; }
+  .scanner-view { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+  .reticle { width: 200px; height: 200px; position: relative; }
+  .reticle span { position: absolute; width: 32px; height: 32px; border-color: #fff; border-style: solid; }
+  .reticle .tl { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 8px 0 0 0; }
+  .reticle .tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 8px 0 0; }
+  .reticle .bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 8px; }
+  .reticle .br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 8px 0; }
+  .hint { position: absolute; bottom: 72px; width: 100%; text-align: center; font-size: 14px; color: #fff; }
+
+  .denied { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 32px; text-align: center; gap: 16px; }
+  .denied p { font-size: 15px; color: #fff; line-height: 1.4; }
+  .btn-primary { background: #326699; color: #fff; border-radius: 50px; padding: 12px 24px; font-size: 14px; font-weight: 500; }
+
+  .toast {
+    position: absolute; bottom: 84px; left: 16px; right: 16px; background: #F76853; color: #fff;
+    border-radius: 6px; padding: 12px 14px; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+    <rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v0M14 21h3M21 18v3M17 21h0"/>
+  </symbol>
+  <symbol id="mag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+    <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>
+  </symbol>
+  <symbol id="back" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 2L4 8l6 6"/>
+  </symbol>
+  <symbol id="close" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+    <path d="M6 6l12 12M18 6L6 18"/>
+  </symbol>
+</svg>
+
+<div class="row">
+
+  <div class="frame">
+    <div class="caption">A. Patient search: scan button in the header</div>
+    <div class="phone">
+      <div class="header">
+        <div class="back"><svg><use href="#back"/></svg></div>
+        <div class="search"><svg style="color:#B8B8B8"><use href="#mag"/></svg>Search for patients</div>
+        <div class="scan-btn" style="color:#fff" aria-label="Scan QR code"><svg><use href="#qr"/></svg></div>
+      </div>
+      <div class="tabs"><div class="tab active">Recently viewed</div><div class="tab">All patients</div></div>
+      <div class="patient"><div class="avatar f">ML</div><div><div class="name">Mele Latu</div><div class="meta">TMN284711 · F · 34 years · Nuku'alofa</div></div></div>
+      <div class="patient"><div class="avatar">ST</div><div><div class="name">Sione Taufa</div><div class="meta">TMN901244 · M · 8 years · Kolofo'ou</div></div></div>
+      <div class="patient"><div class="avatar f">AH</div><div><div class="name">Ana Havili</div><div class="meta">TMN553019 · F · 61 years · Ha'apai</div></div></div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="caption">B. Home screen: scan beside the search button</div>
+    <div class="phone">
+      <div class="home-top">
+        <div class="logo">TAMANU</div>
+        <div class="hi">Hi Lupe</div>
+        <div class="fac">Vaiola Hospital</div>
+      </div>
+      <div class="home-search">
+        <div class="search"><svg style="color:#888888"><use href="#mag"/></svg>Search for patients</div>
+        <div class="scan-btn" style="color:#326699" aria-label="Scan QR code"><svg><use href="#qr"/></svg></div>
+      </div>
+      <div class="home-body">
+        <div class="label">Recently viewed patients</div>
+        <div class="tile"></div><div class="tile"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="caption">C. Scanner</div>
+    <div class="phone scanner">
+      <div class="scanner-top"><span>Scan QR code</span><svg width="22" height="22"><use href="#close"/></svg></div>
+      <div class="scanner-view">
+        <div class="reticle"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+        <div class="hint">Point the camera at the patient's QR code</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="caption">D. Camera access denied</div>
+    <div class="phone scanner">
+      <div class="scanner-top"><span>Scan QR code</span><svg width="22" height="22"><use href="#close"/></svg></div>
+      <div class="denied">
+        <p>Tamanu needs camera access to scan QR codes.</p>
+        <div class="btn-primary">Open settings</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="caption">E. After a valid scan: NHN fills the search</div>
+    <div class="phone">
+      <div class="header">
+        <div class="back"><svg><use href="#back"/></svg></div>
+        <div class="search filled"><svg style="color:#326699"><use href="#mag"/></svg>TMN284711</div>
+        <div class="scan-btn" style="color:#fff"><svg><use href="#qr"/></svg></div>
+      </div>
+      <div class="tabs"><div class="tab">Recently viewed</div><div class="tab active">All patients</div></div>
+      <div class="section">L</div>
+      <div class="patient"><div class="avatar f">ML</div><div><div class="name">Mele Latu</div><div class="meta">TMN284711 · F · 34 years · Nuku'alofa</div></div></div>
+      <div class="filters">Filters</div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="caption">F. Invalid code</div>
+    <div class="phone">
+      <div class="header">
+        <div class="back"><svg><use href="#back"/></svg></div>
+        <div class="search"><svg style="color:#B8B8B8"><use href="#mag"/></svg>Search for patients</div>
+        <div class="scan-btn" style="color:#fff"><svg><use href="#qr"/></svg></div>
+      </div>
+      <div class="tabs"><div class="tab active">Recently viewed</div><div class="tab">All patients</div></div>
+      <div class="patient"><div class="avatar f">ML</div><div><div class="name">Mele Latu</div><div class="meta">TMN284711 · F · 34 years · Nuku'alofa</div></div></div>
+      <div class="toast">Not a valid QR code</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
