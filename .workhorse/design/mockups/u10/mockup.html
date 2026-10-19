@@ -205,7 +205,9 @@ button { font: inherit; }
 .css-ym3cbw:hover { --variant-containedBg: #2f4358; --variant-textBg: rgba(50, 102, 153, 0.04); --variant-outlinedBorder: #326699; --variant-outlinedBg: rgba(50, 102, 153, 0.04); }
 .css-ym3cbw.MuiButton-outlinedPrimary:not(.Mui-disabled) { border-color: rgb(50, 102, 153); /* primary */ }
 .css-171q95r { overflow: hidden; min-height: 48px; display: flex; }
+@media (max-width: 599.95px) {
 .css-171q95r .MuiTabs-scrollButtons { display: none; }
+}
 .css-i8yde5 { overflow: auto hidden; scrollbar-width: none; }
 .css-i8yde5::-webkit-scrollbar { display: none; }
 .css-jb8z7h { position: relative; display: inline-block; flex: 1 1 auto; white-space: nowrap; scrollbar-width: none; overflow: auto hidden; }
@@ -332,6 +334,11 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .egQKOX { background: rgb(255, 255, 255); /* white */ border-block-end: 1px solid rgb(222, 222, 222); /* outline */ padding-inline: 24px; }
 .egQKOX .MuiTabs-indicator { background-color: rgb(50, 102, 153); /* primary */ }
 .egQKOX .MuiTabs-scroller { border-block-end: 0px; }
+/* U10: tab scroll arrows as visible icon buttons */
+.egQKOX .MuiTabs-scrollButtons { align-self: center; width: 32px; height: 32px; margin-inline: 8px; border: 1px solid #dedede; /* outline */ border-radius: 20%; background-color: #ffffff; /* white */ color: #326699; /* primary */ opacity: 1; }
+.egQKOX .MuiTabs-scrollButtons:hover { background-color: #ebf0f5; /* primary10 */ }
+.egQKOX .MuiTabs-scrollButtons .MuiSvgIcon-root { font-size: 1.5rem; }
+.egQKOX .MuiTabs-scrollButtons.Mui-disabled { opacity: 0; width: 40px; margin-inline: 0px; }
 .eDkXTn { color: rgb(136, 136, 136); /* midText */ font-weight: 500; padding-block: 1.25rem; padding-inline: 12px; position: relative; cursor: grab; }
 .eDkXTn:active { cursor: grabbing; }
 .eDkXTn:hover { background-color: rgb(244, 249, 255); /* veryLightBlue */ }
