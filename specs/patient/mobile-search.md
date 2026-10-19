@@ -40,7 +40,7 @@ How staff find a patient in the mobile app, by typing in the search box or by sc
 
 ## After an invalid scan
 
-- [ ] The scanner closes and an error toast below the header says "Not a valid QR code"
+- [ ] The scanner closes and an error toast at the bottom of the screen says "Not a valid QR code"
 - [ ] The error toast looks the same as Tamanu's error toasts on web
 - [ ] The error toast closes when tapped, or on its own after a few seconds
 - [ ] The search box, filters and tab stay as they were
