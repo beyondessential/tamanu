@@ -59,6 +59,12 @@ export class Facility extends Model {
     // spec: specs/sync/sensitive-networks.md
     this.addHook('beforeUpdate', (facility: Facility) => {
       if (!facility.changed('sensitiveNetworkId')) return;
+      const previousNetworkId = facility.previous('sensitiveNetworkId');
+      // A blank form field means "no network", the same as the stored null.
+      if ((facility.sensitiveNetworkId || null) === (previousNetworkId || null)) {
+        facility.set('sensitiveNetworkId', previousNetworkId);
+        return;
+      }
       throw new InvalidOperationError(
         `${SENSITIVE_NETWORK_IS_FIXED_MESSAGE} (facility ${facility.code ?? facility.id})`,
       );

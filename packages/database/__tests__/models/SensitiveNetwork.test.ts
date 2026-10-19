@@ -71,6 +71,24 @@ describe('SensitiveNetwork', () => {
       );
     });
 
+    it('treats a blank network as no network when editing a facility outside any network', async () => {
+      const facility = await createFacility();
+
+      await facility.update({ name: 'Renamed facility', sensitiveNetworkId: '' });
+
+      await facility.reload();
+      expect(facility.name).toBe('Renamed facility');
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('refuses a blank network for a member facility', async () => {
+      const facility = await createFacility((await createNetwork()).id);
+
+      await expect(facility.update({ sensitiveNetworkId: '' })).rejects.toThrow(
+        /cannot change sensitive network/,
+      );
+    });
+
     it('allows other edits to a member facility', async () => {
       const network = await createNetwork();
       const facility = await createFacility(network.id);
