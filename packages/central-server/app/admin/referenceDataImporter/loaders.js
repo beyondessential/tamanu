@@ -117,7 +117,7 @@ export function administeredVaccineLoader(item) {
 
         date,
         reason,
-        consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+        consent: ['true', 'yes', 't', 'y'].includes(String(consent).trim().toLowerCase()),
         ...data,
 
         // relationships
