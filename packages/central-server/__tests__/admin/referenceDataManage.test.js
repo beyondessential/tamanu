@@ -417,6 +417,86 @@ describe('Reference Data Manage', () => {
     });
   });
 
+  // spec: specs/sync/sensitive-networks.md
+  describe('facility sensitive network', () => {
+    const createNetwork = () => models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+    const editFacility = (id, body) =>
+      adminApp
+        .put(`${BASE_URL}/${id}`)
+        .send({ referenceDataType: OTHER_REFERENCE_TYPES.FACILITY, ...body });
+
+    it('refuses to move a facility to another network', async () => {
+      const network = await createNetwork();
+      const other = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: other.id });
+      expect(response).toHaveRequestError();
+      expect(response.body.error.message).toContain('cannot change sensitive network');
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses to enrol a facility that belongs to no network', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: network.id });
+      expect(response).toHaveRequestError();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('refuses to remove a facility from its network', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: null });
+      expect(response).toHaveRequestError();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('saves other fields when the network is sent unchanged', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const name = `${facility.name} edited`;
+
+      const response = await editFacility(facility.id, { name, sensitiveNetworkId: network.id });
+      expect(response).toHaveSucceeded();
+
+      await facility.reload();
+      expect(facility.name).toBe(name);
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('creates a facility in a network', async () => {
+      const network = await createNetwork();
+      const { code, name } = fake(models.Facility);
+
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: OTHER_REFERENCE_TYPES.FACILITY,
+        code,
+        name,
+        sensitiveNetworkId: network.id,
+      });
+      expect(response).toHaveSucceeded();
+
+      const created = await models.Facility.findByPk(response.body.id);
+      expect(created.sensitiveNetworkId).toBe(network.id);
+    });
+  });
+
   describe('GET /', () => {
     beforeAll(async () => {
       // Create test records with known data
