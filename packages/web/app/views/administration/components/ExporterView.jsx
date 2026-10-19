@@ -22,6 +22,7 @@ const ExportForm = ({
   dataTypesSelectable,
   buttonLabel,
   ExportButton = FormSubmitButton,
+  values,
 }) => (
   <StyledFormGrid columns={1} data-testid="styledformgrid-11t3">
     {dataTypesSelectable && (
@@ -40,7 +41,11 @@ const ExportForm = ({
       />
     )}
     <ButtonRow alignment="left" data-testid="buttonrow-zs3j">
-      <ExportButton text={buttonLabel} data-testid="exportbutton-7sto" />
+      <ExportButton
+        text={buttonLabel}
+        disabled={!values.includedDataTypes?.length}
+        data-testid="exportbutton-7sto"
+      />
     </ButtonRow>
   </StyledFormGrid>
 );
