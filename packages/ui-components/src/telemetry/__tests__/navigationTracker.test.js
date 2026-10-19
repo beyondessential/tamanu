@@ -130,6 +130,49 @@ describe('TelemetryNavigationTracker', () => {
     expect(nav.attributes[SPAN_ATTR.OUTCOME]).toBe(TELEMETRY_NAV_OUTCOMES.SETTLED);
   });
 
+  it('records a request span from the explicit route template when the event carries one', () => {
+    tracker.startNavigation('/patients', {}, {});
+
+    // A route() call reaches the sink with the template and its resolved params.
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 1,
+      endpoint: 'patient/abc-123/allergies',
+      route: 'patient/:patientId/allergies',
+      pathParams: { patientId: 'abc-123' },
+      query: { order: 'asc' },
+      method: 'GET',
+      background: false,
+    });
+
+    const requestSpan = tracer.spans[1];
+    expect(requestSpan.attributes[SPAN_ATTR.ROUTE]).toBe('patient/:patientId/allergies');
+    expect(JSON.parse(requestSpan.attributes[SPAN_ATTR.PARAMETERS])).toEqual({
+      path: { patientId: 'abc-123' },
+      query: { order: 'asc' },
+    });
+  });
+
+  it('falls back to inferring the route for a plain-string endpoint', () => {
+    tracker.startNavigation('/patients', {}, {});
+
+    // No route/pathParams on the event — an endpoint that was not migrated to route().
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 1,
+      endpoint: 'patient/7c9e6679-7425-40de-944b-e07fc1f90ae7/allergies',
+      query: {},
+      method: 'GET',
+      background: false,
+    });
+
+    const requestSpan = tracer.spans[1];
+    expect(requestSpan.attributes[SPAN_ATTR.ROUTE]).toBe('patient/:param1/allergies');
+    expect(JSON.parse(requestSpan.attributes[SPAN_ATTR.PARAMETERS]).path).toEqual({
+      param1: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+    });
+  });
+
   it('ignores background requests in the quiet calculation', () => {
     tracker.startNavigation('/tasks', {}, {});
     const nav = tracer.spans[0];

@@ -12,7 +12,7 @@ import {
   RemoteCallError,
 } from '@tamanu/errors';
 import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
-import { type Endpoint, resolveEndpoint } from './route';
+import { type Endpoint, isRouteDescriptor, resolveEndpoint } from './route';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
   InterceptorManager,
@@ -71,10 +71,17 @@ interface ServerInfo {
 // `start` edge when a request is issued and a `settle` edge when it resolves or
 // rejects; the collector matches them by `id` to track in-flight requests (for
 // the network-quiet page-load heuristic) and to record request latency.
+//
+// When the caller used `route()`, the start edge carries the route template and
+// its resolved path params, so the collector groups by the real pattern instead
+// of guessing it from the concrete path. `endpoint` is always the concrete path,
+// as a fallback for calls that still pass a plain string.
 export interface TelemetryRequestStart {
   phase: 'start';
   id: number;
   endpoint: string;
+  route?: string;
+  pathParams?: Record<string, string | number>;
   query: Record<string, any>;
   method: string;
   background: boolean;
@@ -445,6 +452,10 @@ export class TamanuApi {
       phase: 'start',
       id: telemetryId,
       endpoint: resolvedEndpoint,
+      // When the caller used route(), hand the collector the template and params
+      // directly so it doesn't have to infer the pattern from the concrete path.
+      route: isRouteDescriptor(endpoint) ? endpoint.template : undefined,
+      pathParams: isRouteDescriptor(endpoint) ? endpoint.params : undefined,
       query: query ?? {},
       method: (otherConfig.method as string) ?? 'GET',
       background,

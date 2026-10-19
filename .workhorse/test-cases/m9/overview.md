@@ -15,7 +15,9 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 
 ## Path and parameter genericisation
 
-- [x] An endpoint path masks id-like segments into a generic route pattern and extracts the values as params (verifies spec: BTEL) — `genericiseApiPath.test.js`
+- [x] When the call site used `route()` (#P10), the request span records the exact template and named params, with no inference (verifies spec: BTEL) — `navigationTracker.test.js`
+- [x] A plain-string endpoint (not migrated to `route()`) falls back to inferring the pattern from the concrete path (verifies spec: BTEL) — `navigationTracker.test.js`
+- [x] An endpoint path masks id-like segments into a generic route pattern and extracts the values as params (the fallback heuristic) (verifies spec: BTEL) — `genericiseApiPath.test.js`
 - [x] Long route words (`medicationRequests`, `invoice-price-lists`, …) are left intact rather than masked, so `route` stays a stable grouping key (verifies spec: BTEL) — `genericiseApiPath.test.js`
 
 ## Reporting

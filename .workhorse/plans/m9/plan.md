@@ -56,8 +56,14 @@ Also folded in: the three near-identical ingest handlers are now one shared `@ta
 **Open question for review (not actioned):**
 - **`userId` is taken from the client payload**, so an anonymous caller could attribute telemetry to any user. The reviewer suggested stamping it from auth context, but that premise doesn't hold here: the route is deliberately mounted *ahead* of `authMiddleware` so pre-login navigations are captured, so there is no `req.user` to read. Fixing it properly means adding optional token verification to a public, high-frequency endpoint — a change to its auth posture worth an explicit decision rather than a unilateral one.
 
+**Rebased onto P10 (explicit API path templates):**
+- Rebased the branch onto main after #P10 landed. #P10 added `route('patient/:patientId/allergies', { patientId })`, which keeps the template and params together down to `TamanuApi.fetch`.
+- **Request spans now use the real template when the call site used `route()`.** The api-client telemetry `start` edge carries `route` (the template) and `pathParams` (resolved values) when the endpoint is a `RouteDescriptor`; the collector uses them directly and only falls back to the `genericiseApiPath` heuristic for plain-string endpoints not yet migrated. So request-span params are now *named* (`:patientId`), not positional, wherever `route()` is used — and the `village-Nasaga`-style mis-grouping disappears for those calls.
+- Collector tests added for both the explicit-template path and the heuristic fallback.
+
 **Deviations / things to verify (surfaced for review):**
-- **Navigation params are positional** (`param1`, `param2`) via the same id-masking heuristic as request spans, not named (`patientId`) — getting named params needs react-router's route table, which the JSX `<Routes>` setup doesn't expose cleanly. Follow-up if named params are wanted.
+- **Navigation params are still positional** (`param1`, `param2`) via the `genericiseApiPath` heuristic on the pathname. #P10 covers API calls, not react-router, so navigation spans don't benefit from it; named navigation params still need the router's route table, which the JSX `<Routes>` setup doesn't expose cleanly. Follow-up if wanted.
+- **Request spans fall back to the heuristic for any call site still passing a plain string** (the heuristic is retained for exactly this). Fully named request params depend on how much of the codebase has adopted `route()`.
 - **Background tagging is minimal:** only `checkServerAlive` is tagged `background`. Tagging `useAutoUpdatingQuery` would wrongly exclude its initial page-load fetch; per-query background refinement is a follow-up.
 - **Ingest endpoints are not rate-limited** (they follow the other `/public` routes; the strict auth limiter is wrong for frequent posts). A lenient per-IP limit + batch-size cap is a hardening follow-up; the batch-size cap (`TELEMETRY_MAX_BATCH_SIZE`) is already enforced.
 

@@ -80,7 +80,13 @@ export class TelemetryNavigationTracker {
     const nav = this.activeNav;
     if (!nav || nav.ended) return; // requests outside a navigation aren't recorded
 
-    const { route, pathParams } = genericiseApiPath(event.endpoint);
+    // Prefer the template and params the api-client resolved from a route()
+    // call; fall back to inferring them from the concrete path for plain-string
+    // endpoints that haven't been migrated to route().
+    const { route, pathParams } =
+      event.route !== undefined
+        ? { route: event.route, pathParams: event.pathParams ?? {} }
+        : genericiseApiPath(event.endpoint);
     const parentContext = trace.setSpan(ROOT_CONTEXT, nav.span);
     const span = this.tracer.startSpan(TELEMETRY_SPAN_KINDS.REQUEST, {}, parentContext);
     this.#applyContext(span, {
