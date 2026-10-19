@@ -20,6 +20,9 @@ export async function up(query: QueryInterface): Promise<void> {
       AND object_id IS NULL
       AND role_id IS NOT NULL
       AND deleted_at IS NULL
+      -- Any MedicationDueTask row, revoked ones included, means an administrator has already
+      -- decided who gets these tasks, so leave that deployment alone.
+      AND NOT EXISTS (SELECT 1 FROM permissions WHERE noun = 'MedicationDueTask')
     ON CONFLICT DO NOTHING;
   `);
 }
