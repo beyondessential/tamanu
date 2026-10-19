@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { read, utils, write } from 'xlsx';
 
 import { AdministeredVaccineExporter } from '../../app/admin/exporter/modelExporters/AdministeredVaccineExporter';
@@ -6,8 +6,8 @@ import { administeredVaccineLoader } from '../../app/admin/referenceDataImporter
 
 const models = { Encounter: { count: async () => 1 } };
 
-const loadedConsent = async item => {
-  const rows = await administeredVaccineLoader(item, { models });
+const loadedConsent = async (item, pushError = vi.fn()) => {
+  const rows = await administeredVaccineLoader(item, { models, pushError });
   return rows.find(({ model }) => model === 'AdministeredVaccine').values.consent;
 };
 
@@ -27,6 +27,7 @@ describe('Administered vaccine consent', () => {
     const exporter = new AdministeredVaccineExporter({}, 'administeredVaccine');
     expect(exporter.formattedCell('consent', true)).toBe('y');
     expect(exporter.formattedCell('consent', false)).toBe('n');
+    expect(exporter.formattedCell('date', null)).toBeNull();
   });
 
   it('round-trips consent through an exported xlsx', async () => {
@@ -49,6 +50,17 @@ describe('Administered vaccine consent', () => {
     ['', false],
     [undefined, false],
   ])('reads %j as %s', async (consent, expected) => {
-    expect(await loadedConsent({ consent })).toBe(expected);
+    const pushError = vi.fn();
+    expect(await loadedConsent({ consent }, pushError)).toBe(expected);
+    expect(pushError).not.toHaveBeenCalled();
+  });
+
+  it.each([1, 'maybe'])('reports an unrecognised consent value %j', async consent => {
+    const pushError = vi.fn();
+    await loadedConsent({ consent }, pushError);
+    expect(pushError).toHaveBeenCalledWith(
+      expect.stringContaining('consent'),
+      'AdministeredVaccine',
+    );
   });
 });

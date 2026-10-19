@@ -33,7 +33,7 @@ export class ModelExporter {
   }
 
   formattedCell(header, value) {
-    if (value === null || value === undefined) {
+    if (!value) {
       return value;
     }
 

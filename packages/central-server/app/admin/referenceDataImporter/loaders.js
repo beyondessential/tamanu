@@ -75,7 +75,21 @@ export function patientFieldDefinitionLoader(values) {
   ];
 }
 
-export async function administeredVaccineLoader(item, { models }) {
+const CONSENT_GIVEN = ['true', 'yes', 't', 'y'];
+const CONSENT_NOT_GIVEN = ['false', 'no', 'f', 'n', ''];
+
+function parseConsent(consent, pushError) {
+  const normalisedConsent = String(consent ?? '')
+    .trim()
+    .toLowerCase();
+  if (CONSENT_GIVEN.includes(normalisedConsent)) return true;
+  if (!CONSENT_NOT_GIVEN.includes(normalisedConsent)) {
+    pushError(`Unrecognised consent value "${consent}", expected y or n`, 'AdministeredVaccine');
+  }
+  return false;
+}
+
+export async function administeredVaccineLoader(item, { models, pushError }) {
   const {
     encounterId,
     administeredVaccineId,
@@ -127,7 +141,7 @@ export async function administeredVaccineLoader(item, { models }) {
 
         date,
         reason,
-        consent: ['true', 'yes', 't', 'y'].includes(String(consent).trim().toLowerCase()),
+        consent: parseConsent(consent, pushError),
         ...data,
 
         // relationships
@@ -374,7 +388,10 @@ export async function labTestPanelLoader(item, { models, pushError }) {
       ...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean)),
     ];
     if (categoryIds.length > 1) {
-      pushError('Lab test panel test types must all belong to one lab test category', 'LabTestPanel');
+      pushError(
+        'Lab test panel test types must all belong to one lab test category',
+        'LabTestPanel',
+      );
     }
   }
 
@@ -664,11 +681,15 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
 
   const validDrugUnits = Object.values(DRUG_UNITS);
   if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
-    pushError(`Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    pushError(
+      `Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`,
+    );
     return [];
   }
   if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
-    pushError(`Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    pushError(
+      `Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`,
+    );
     return [];
   }
 
