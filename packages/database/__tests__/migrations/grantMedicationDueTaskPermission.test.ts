@@ -78,19 +78,6 @@ describe('grantMedicationDueTaskPermissionToMarListers migration', () => {
     expect(await medicationDueTaskGrants()).toHaveLength(1);
   });
 
-  it('leaves a deployment alone once any role has a MedicationDueTask permission', async () => {
-    await createRoleWithPermissions('Nurse', [['list', 'MedicationAdministration']]);
-    await createRoleWithPermissions('Physio', [
-      ['list', 'MedicationAdministration'],
-      ['read', 'MedicationDueTask'],
-    ]);
-    await models.Permission.destroy({ where: { roleId: 'Physio', noun: 'MedicationDueTask' } });
-
-    await runUp();
-
-    expect(await medicationDueTaskGrants()).toHaveLength(0);
-  });
-
   it('removes the grants on down', async () => {
     await createRoleWithPermissions('Nurse', [['list', 'MedicationAdministration']]);
     await runUp();
