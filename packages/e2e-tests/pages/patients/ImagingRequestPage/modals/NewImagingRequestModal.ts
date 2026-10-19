@@ -57,7 +57,7 @@ export class NewImagingRequestModal {
     this.orderDateTimeInput = this.orderDateTimeField.locator('input');
     this.requestingClinicianInput = this.requestingClinicianField.locator('input');
     this.finaliseButton = this.page.getByTestId('formgrid-4uzw').getByTestId('mainbuttoncomponent-06gp');
-    this.areasToBeImagedSelect = this.page.getByText('Areas to be imaged').locator('..').getByTestId('multiselectinput-dvij');
+    this.areasToBeImagedSelect = this.page.getByText('Areas to be imaged').locator('..');
   }
 
   async waitForModalToLoad(): Promise<void> {
@@ -121,18 +121,21 @@ export class NewImagingRequestModal {
     }
 
     let selectedAreasToBeImaged: string | undefined;
+    const areasToBeImagedControl = this.areasToBeImagedSelect.locator('.react-select__control');
     if (areasToBeImaged) {
-      await this.areasToBeImagedSelect.click();
+      await areasToBeImagedControl.click();
       const option = this.areasToBeImagedSelect.getByText(areasToBeImaged, { exact: true });
       await option.waitFor({ state: 'visible', timeout: 5000 });
       await option.click();
-      await this.areasToBeImagedSelect.click(); // Close the multiselect
+      await this.page.keyboard.press('Escape'); // Close the multiselect menu
       selectedAreasToBeImaged = areasToBeImaged;
-    }
-    else {
-      await this.areasToBeImagedSelect.click();
-      await this.page.keyboard.press('Enter');
-      const textContent = await this.areasToBeImagedSelect.textContent();
+    } else {
+      await areasToBeImagedControl.click();
+      await this.page.keyboard.press('Enter'); // Select the focused (first) option
+      await this.page.keyboard.press('Escape'); // Close the multiselect menu
+      const textContent = await this.areasToBeImagedSelect
+        .getByTestId('multivalue-5s3r')
+        .textContent();
       selectedAreasToBeImaged = textContent?.trim() || undefined;
     }
 
