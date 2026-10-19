@@ -26,10 +26,11 @@
   .back { width: 52px; display: flex; justify-content: center; }
   .back svg { width: 16px; height: 16px; }
   .search {
-    flex: 1; background: #fff; height: 44px; border-radius: 85px;
-    display: flex; align-items: center; padding-left: 14px; gap: 10px;
+    flex: 1; min-width: 0; background: #fff; height: 44px; border-radius: 85px;
+    display: flex; align-items: center; padding: 0 16px 0 14px; gap: 10px;
     font-size: 15px; color: #888888;
   }
+  .search span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .search.filled { color: #444444; }
   .search svg { width: 18px; height: 18px; flex: none; }
   .scan-btn {
@@ -115,7 +116,7 @@
     <div class="phone">
       <div class="header">
         <div class="back"><svg><use href="#back"/></svg></div>
-        <div class="search"><svg style="color:#B8B8B8"><use href="#mag"/></svg>Search for patients</div>
+        <div class="search"><svg style="color:#B8B8B8"><use href="#mag"/></svg><span>Search for patients</span></div>
         <div class="scan-btn" style="color:#fff" aria-label="Scan QR code"><svg><use href="#qr"/></svg></div>
       </div>
       <div class="tabs"><div class="tab active">Recently viewed</div><div class="tab">All patients</div></div>
@@ -134,7 +135,7 @@
         <div class="fac">Vaiola Hospital</div>
       </div>
       <div class="home-search">
-        <div class="search"><svg style="color:#888888"><use href="#mag"/></svg>Search for patients</div>
+        <div class="search"><svg style="color:#888888"><use href="#mag"/></svg><span>Search for patients</span></div>
         <div class="scan-btn" style="color:#326699" aria-label="Scan QR code"><svg><use href="#qr"/></svg></div>
       </div>
       <div class="home-body">
@@ -171,7 +172,7 @@
     <div class="phone">
       <div class="header">
         <div class="back"><svg><use href="#back"/></svg></div>
-        <div class="search filled"><svg style="color:#326699"><use href="#mag"/></svg>TMN284711</div>
+        <div class="search filled"><svg style="color:#326699"><use href="#mag"/></svg><span>TMN284711</span></div>
         <div class="scan-btn" style="color:#fff"><svg><use href="#qr"/></svg></div>
       </div>
       <div class="tabs"><div class="tab">Recently viewed</div><div class="tab active">All patients</div></div>
@@ -186,7 +187,7 @@
     <div class="phone">
       <div class="header">
         <div class="back"><svg><use href="#back"/></svg></div>
-        <div class="search"><svg style="color:#B8B8B8"><use href="#mag"/></svg>Search for patients</div>
+        <div class="search"><svg style="color:#B8B8B8"><use href="#mag"/></svg><span>Search for patients</span></div>
         <div class="scan-btn" style="color:#fff"><svg><use href="#qr"/></svg></div>
       </div>
       <div class="tabs"><div class="tab active">Recently viewed</div><div class="tab">All patients</div></div>
