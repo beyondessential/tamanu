@@ -24,6 +24,6 @@ Define the arrow styles once as a shared styled-components `css` block and apply
 - `TabDisplayDraggable.jsx`'s `TabContainer`, for the encounter tabs
 - `PatientView.jsx`'s `StyledDisplayTabs`, for the patient tabs
 
-`TabDisplay.jsx` itself also backs the charts, program registry, vaccine modal and admin tab bars. Apply the styles at `StyledDisplayTabs` rather than in `TabDisplay`'s `TabContainer` so those other tab bars are untouched.
+`TabDisplay.jsx` is a generic component, and other screens use it for their own unrelated tab bars: the chart instance tabs inside an encounter's Charts tab (`ChartsPane.jsx`), the same on the program registry charts view, and several admin screens (settings, import/export, programs, program registries, roles, reports). Apply the styles at `StyledDisplayTabs` rather than in `TabDisplay`'s `TabContainer` so those other tab bars are untouched.
 
 The patient tab bar is taller than the encounter one because its tabs carry icons, so check the arrow still sits vertically centred there.
