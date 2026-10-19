@@ -225,7 +225,7 @@ usersRouter.post(
 
     const existingUserWithSameEmail = await User.findOne({
       where: {
-        email: fields.email,
+        email: User.emailMatches(fields.email),
       },
     });
     if (existingUserWithSameEmail) {
@@ -331,7 +331,7 @@ usersRouter.post(
 
     const existingUserWithSameEmail = await User.findOne({
       where: {
-        email: fields.email,
+        email: User.emailMatches(fields.email),
       },
     });
 
@@ -421,7 +421,7 @@ usersRouter.put(
 
     const existingUserWithSameEmail = await User.findOne({
       where: {
-        email: fields.email,
+        email: User.emailMatches(fields.email),
         id: { [Op.ne]: id },
       },
     });

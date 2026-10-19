@@ -78,16 +78,24 @@ export class User extends Model {
     this.password = await User.hashPassword(pw);
   }
 
+  static normaliseEmail(email: string) {
+    return email.trim();
+  }
+
   static async sanitizeForInsert(values: any) {
-    const { password, ...otherValues } = values;
-    if (!password) return values;
+    const sanitizedValues = { ...values };
 
-    // Only hash if the password is not already hashed (to avoid rehashing when syncing)
-    const hashedPassword = User.isPasswordHashed(password)
-      ? password
-      : await User.hashPassword(password);
+    if (typeof sanitizedValues.email === 'string') {
+      sanitizedValues.email = User.normaliseEmail(sanitizedValues.email);
+    }
 
-    return { ...otherValues, password: hashedPassword };
+    const { password } = sanitizedValues;
+    // Only hash if the password is set and not already hashed (to avoid rehashing when syncing)
+    if (password && !User.isPasswordHashed(password)) {
+      sanitizedValues.password = await User.hashPassword(password);
+    }
+
+    return sanitizedValues;
   }
 
   static async update(values: any, options: any): Promise<any> {
@@ -110,14 +118,18 @@ export class User extends Model {
     return super.upsert(sanitizedValues, ...args);
   }
 
+  // email addresses are case insensitive, so compare them lowercased
+  static emailMatches(email: string) {
+    return Sequelize.where(
+      Sequelize.fn('lower', Sequelize.col('email')),
+      Sequelize.fn('lower', email),
+    );
+  }
+
   static async getForAuthByEmail(email: string) {
     const user = await this.scope('withPassword').findOne({
       where: {
-        // email addresses are case insensitive so compare them as such
-        email: Sequelize.where(
-          Sequelize.fn('lower', Sequelize.col('email')),
-          Sequelize.fn('lower', email),
-        ),
+        email: this.emailMatches(email),
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
