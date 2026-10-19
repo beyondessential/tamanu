@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import {
   createDummyEncounter,
@@ -460,14 +460,38 @@ describe('Procedures', () => {
         date: new Date(),
         assistantClinicianIds: [assistant.id],
       });
+      const findAssistantClinicians = () =>
+        models.ProcedureAssistantClinician.findAll({ where: { procedureId: procedure.id } });
+      expect(await findAssistantClinicians()).toHaveLength(1);
 
       const result = await app.delete(`/api/procedure/${procedure.id}`);
       expect(result).toHaveSucceeded();
+      expect(await findAssistantClinicians()).toHaveLength(0);
+    });
 
-      const assistantClinicians = await models.ProcedureAssistantClinician.findAll({
-        where: { procedureId: procedure.id },
-      });
-      expect(assistantClinicians).toHaveLength(0);
+    it('should keep the procedure and its forms when the deletion fails partway', async () => {
+      const { procedureSurveyResponse, answer } = await createProcedureWithForm();
+      const { procedureId, surveyResponseId } = procedureSurveyResponse;
+      // Removing the invoice item is the last step (from the procedure's afterDestroy hook), so by
+      // the time it fails the forms and the procedure have already been deleted in the transaction
+      const removeItemFromInvoiceSpy = vi
+        .spyOn(models.Invoice, 'removeItemFromInvoice')
+        .mockRejectedValueOnce(new Error('Simulated failure'));
+
+      try {
+        const result = await app.delete(`/api/procedure/${procedureId}`);
+        expect(result).toHaveStatus(500);
+        expect(removeItemFromInvoiceSpy).toHaveBeenCalled();
+      } finally {
+        removeItemFromInvoiceSpy.mockRestore();
+      }
+
+      expect(await models.Procedure.findByPk(procedureId)).toBeTruthy();
+      expect(await models.SurveyResponse.findByPk(surveyResponseId)).toBeTruthy();
+      expect(await models.SurveyResponseAnswer.findByPk(answer.id)).toBeTruthy();
+      expect(
+        await models.ProcedureSurveyResponse.findByPk(procedureSurveyResponse.id),
+      ).toBeTruthy();
     });
 
     it('should return not found for a procedure that does not exist', async () => {
@@ -475,14 +499,39 @@ describe('Procedures', () => {
       expect(result).toHaveStatus(404);
     });
 
-    describe('without permission to delete procedures', () => {
+    describe('with role permissions', () => {
       disableHardcodedPermissionsForSuite();
 
-      it('should be forbidden', async () => {
+      // Created through the models, as the practitioner app has no role permissions in this suite
+      const createProcedureWithFormRecords = async () => {
+        const { encounter, survey } = await createDummyData();
         const procedure = await models.Procedure.create({
           encounterId: encounter.id,
           date: new Date(),
         });
+        const surveyResponse = await models.SurveyResponse.create({
+          encounterId: encounter.id,
+          surveyId: survey.id,
+        });
+        await models.ProcedureSurveyResponse.create({
+          procedureId: procedure.id,
+          surveyResponseId: surveyResponse.id,
+        });
+        return { procedure, surveyResponse };
+      };
+
+      it('should delete the forms with only permission to delete procedures', async () => {
+        const { procedure, surveyResponse } = await createProcedureWithFormRecords();
+        const appWithOnlyProcedureDelete = await baseApp.asNewRole([['delete', 'Procedure']]);
+
+        const result = await appWithOnlyProcedureDelete.delete(`/api/procedure/${procedure.id}`);
+        expect(result).toHaveSucceeded();
+        expect(await models.Procedure.findByPk(procedure.id)).toBeNull();
+        expect(await models.SurveyResponse.findByPk(surveyResponse.id)).toBeNull();
+      });
+
+      it('should be forbidden without permission to delete procedures', async () => {
+        const { procedure, surveyResponse } = await createProcedureWithFormRecords();
         const appWithoutDelete = await baseApp.asNewRole([
           ['read', 'Procedure'],
           ['create', 'Procedure'],
@@ -493,6 +542,7 @@ describe('Procedures', () => {
         const result = await appWithoutDelete.delete(`/api/procedure/${procedure.id}`);
         expect(result).toBeForbidden();
         expect(await models.Procedure.findByPk(procedure.id)).toBeTruthy();
+        expect(await models.SurveyResponse.findByPk(surveyResponse.id)).toBeTruthy();
       });
     });
   });

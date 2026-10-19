@@ -536,37 +536,42 @@ describe('Encounter invoice', () => {
         expect(result2.body.items[0]).toMatchObject({ id: manualItem.id, sourceRecordId: null });
       });
 
-      it('should leave a finalised invoice unchanged when a procedure is deleted', async () => {
-        const encounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          locationId: location.id,
-          patientId: patient.id,
-        });
-        const invoice = await models.Invoice.create({
-          encounterId: encounter.id,
-          displayId: 'INV-123',
-          date: new Date(),
-          status: INVOICE_STATUSES.IN_PROGRESS,
-        });
+      it.each([INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED])(
+        'should leave a %s invoice unchanged when a procedure is deleted',
+        async invoiceStatus => {
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            locationId: location.id,
+            patientId: patient.id,
+          });
+          const invoice = await models.Invoice.create({
+            encounterId: encounter.id,
+            displayId: 'INV-123',
+            date: new Date(),
+            status: INVOICE_STATUSES.IN_PROGRESS,
+          });
 
-        const { body: procedure } = await app.post(`/api/procedure`).send({
-          encounterId: encounter.id,
-          procedureTypeId: procedureType1.id,
-          date: new Date(),
-          physicianId: user.id,
-        });
-        await invoice.update({ status: INVOICE_STATUSES.FINALISED });
+          const { body: procedure } = await app.post(`/api/procedure`).send({
+            encounterId: encounter.id,
+            procedureTypeId: procedureType1.id,
+            date: new Date(),
+            physicianId: user.id,
+          });
+          await invoice.update({ status: invoiceStatus });
 
-        const deleteResult = await app.delete(`/api/procedure/${procedure.id}`);
-        expect(deleteResult).toHaveSucceeded();
+          const deleteResult = await app.delete(`/api/procedure/${procedure.id}`);
+          expect(deleteResult).toHaveSucceeded();
 
-        const invoiceItems = await models.InvoiceItem.findAll({ where: { invoiceId: invoice.id } });
-        expect(invoiceItems).toHaveLength(1);
-        expect(invoiceItems[0]).toMatchObject({
-          sourceRecordId: procedure.id,
-          sourceRecordType: 'Procedure',
-        });
-      });
+          const invoiceItems = await models.InvoiceItem.findAll({
+            where: { invoiceId: invoice.id },
+          });
+          expect(invoiceItems).toHaveLength(1);
+          expect(invoiceItems[0]).toMatchObject({
+            sourceRecordId: procedure.id,
+            sourceRecordType: 'Procedure',
+          });
+        },
+      );
     });
 
     describe('Lab request', () => {

@@ -64,6 +64,7 @@ const buildActionsColumn = onDelete => ({
   ),
   dontCallRowInput: true,
   sortable: false,
+  isExportable: false,
   CellComponent: ({ data }) => (
     <MenuButton
       a11yLabel={<TranslatedText stringId="procedure.table.actions" fallback="Procedure actions" />}
@@ -74,7 +75,7 @@ const buildActionsColumn = onDelete => ({
           wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
         },
       ]}
-      data-testid="menubutton-procedure-actions"
+      buttonTestId="menubutton-procedure-actions"
     />
   ),
 });
