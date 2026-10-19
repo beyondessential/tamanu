@@ -9,6 +9,7 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatient } from '../contexts/Patient';
 import { useApi } from '../api';
+import { usePatientAdditionalDataQuery } from '../api/queries';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText, TranslatedEnum } from './Translation';
@@ -89,6 +90,8 @@ const MODAL_IDS = {
 export const ReferralTable = React.memo(({ patientId }) => {
   const api = useApi();
   const { patient } = usePatient();
+  const { data: additionalData, isLoading: isLoadingAdditionalData } =
+    usePatientAdditionalDataQuery(patientId);
   const { ability } = useAuth();
   const { loadEncounter } = useEncounter();
   const [modalId, setModalId] = useState(null);
@@ -252,14 +255,17 @@ export const ReferralTable = React.memo(({ patientId }) => {
           data-testid="surveyresponsesprintmodal-fe1m"
         />
       ),
-      [MODAL_IDS.ADMIT]: ({ selectedReferral, ...props }) => (
-        <EncounterModal
-          {...props}
-          patient={patient}
-          referral={selectedReferral}
-          data-testid="encountermodal-w69a"
-        />
-      ),
+      // The encounter form reads its prefill once on mount, so wait for the patient's data.
+      [MODAL_IDS.ADMIT]: ({ selectedReferral, ...props }) =>
+        isLoadingAdditionalData ? null : (
+          <EncounterModal
+            {...props}
+            patient={patient}
+            patientBillingTypeId={additionalData?.patientBillingTypeId}
+            referral={selectedReferral}
+            data-testid="encountermodal-w69a"
+          />
+        ),
       [MODAL_IDS.CANCEL]: props => (
         <ConfirmModal
           {...props}
@@ -296,7 +302,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
     };
 
     return MODALS[modalId] || null;
-  }, [modalId, patient, onCancelReferral]);
+  }, [modalId, patient, additionalData, isLoadingAdditionalData, onCancelReferral]);
 
   return (
     <>
