@@ -21,9 +21,19 @@ const bytesToUuid = (bytes: Buffer): string => {
   ].join('-');
 };
 
-// Name-based UUID (version 5, RFC 4122): SHA-1 of the namespace bytes followed by the
-// name, with the version and variant bits set so the result is a valid UUID.
+// Name-based UUID (version 5, RFC 4122 section 4.3): SHA-1 of the namespace bytes
+// followed by the name, with the version and variant bits set so the result is a
+// valid UUID.
+//
+// SHA-1 is prescribed by the UUIDv5 specification and is not used as a security
+// primitive here. The inputs are a hardcoded public namespace and a
+// `<resourceType>/<upstreamId>` record reference, never secret material, and the
+// digest derives an identifier rather than protecting integrity or authenticity.
+// A stronger hash would no longer produce a UUIDv5, breaking the documented contract
+// that any external system can recompute a resource's id (see
+// specs/fhir/resource-ids.md), so the algorithm is fixed by the format.
 export const uuidv5 = (name: string, namespace: string): string => {
+  // codeql[js/weak-cryptographic-algorithm]
   const hash = createHash('sha1').update(uuidToBytes(namespace)).update(name, 'utf8').digest();
   const bytes = hash.subarray(0, 16);
   bytes[6] = (bytes[6]! & 0x0f) | 0x50; // version 5
