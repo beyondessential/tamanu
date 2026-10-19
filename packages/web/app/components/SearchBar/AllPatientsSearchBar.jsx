@@ -99,6 +99,17 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             }
             data-testid="searchbarcheckfield-7dw8"
           />
+          <Field
+            component={SearchField}
+            name="alternativeIdentificationNumber"
+            label={
+              <TranslatedText
+                stringId="patientList.search.alternativeIdentificationNumber.label"
+                fallback="Alternative identification number"
+              />
+            }
+            data-testid="field-k3tz"
+          />
           {additionalSearchFields.map(fieldName => (
             <AdditionalSearchField key={fieldName} fieldName={fieldName} />
           ))}

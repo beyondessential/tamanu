@@ -198,4 +198,85 @@ describe('Patient search - additional search fields', () => {
       expect(response.body.data[0].id).toEqual(targetPatient.id);
     });
   });
+  // spec: PSRCH
+  describe('searching by alternative identification number', () => {
+    const patientsByIdentificationField = {};
+
+    beforeAll(async () => {
+      await configureAdditionalSearchFields([]);
+
+      const identificationNumbers = {
+        birthCertificate: 'ALTID-BC-1001',
+        drivingLicense: 'ALTID-DL-2002',
+        passport: 'ALTID-PP-3003',
+        insurerPolicyNumber: 'ALTID-IP-4004',
+      };
+      for (const [fieldName, value] of Object.entries(identificationNumbers)) {
+        patientsByIdentificationField[fieldName] = await createPatientWithAdditionalData(
+          { firstName: `alt-id-${fieldName}` },
+          { [fieldName]: value },
+        );
+      }
+      await createPatientWithAdditionalData(
+        { firstName: 'alt-id-unrelated', displayId: 'ALTID-NHN-5005' },
+        { primaryContactNumber: 'ALTID-PHONE-6006' },
+      );
+    });
+
+    it.each([
+      ['birthCertificate', 'ALTID-BC-1001'],
+      ['drivingLicense', 'ALTID-DL-2002'],
+      ['passport', 'ALTID-PP-3003'],
+      ['insurerPolicyNumber', 'ALTID-IP-4004'],
+    ])('should find a patient by %s', async (fieldName, value) => {
+      const response = await searchPatients({ alternativeIdentificationNumber: value });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].id).toEqual(patientsByIdentificationField[fieldName].id);
+    });
+
+    it('should match the start of the number, case insensitive', async () => {
+      const response = await searchPatients({ alternativeIdentificationNumber: 'altid-pp' });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+      expect(response.body.data[0].id).toEqual(patientsByIdentificationField.passport.id);
+    });
+
+    it('should match every patient whose identification number starts with the value', async () => {
+      const response = await searchPatients({ alternativeIdentificationNumber: 'ALTID-' });
+      expect(response).toHaveSucceeded();
+      expect(response.body.data.map(patient => patient.id).sort()).toEqual(
+        Object.values(patientsByIdentificationField)
+          .map(patient => patient.id)
+          .sort(),
+      );
+    });
+
+    it('should not match the middle of a number', async () => {
+      const response = await searchPatients({ alternativeIdentificationNumber: 'PP-3003' });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+    });
+
+    it('should not match NHN or other patient fields', async () => {
+      const nhnResponse = await searchPatients({ alternativeIdentificationNumber: 'ALTID-NHN' });
+      expect(nhnResponse).toHaveSucceeded();
+      expect(nhnResponse.body.count).toEqual(0);
+
+      const phoneResponse = await searchPatients({
+        alternativeIdentificationNumber: 'ALTID-PHONE',
+      });
+      expect(phoneResponse).toHaveSucceeded();
+      expect(phoneResponse.body.count).toEqual(0);
+    });
+
+    it('should combine with other search fields', async () => {
+      const response = await searchPatients({
+        firstName: 'alt-id-passport',
+        alternativeIdentificationNumber: 'ALTID-DL',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+    });
+  });
 });

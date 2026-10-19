@@ -94,9 +94,32 @@ export const createPatientFilters = filterParams => {
   return filters;
 };
 
+// spec: PSRCH
+// Identification numbers held on patient additional data. NHN (displayId) has its own filter.
+const ALTERNATIVE_IDENTIFICATION_NUMBER_COLUMNS = [
+  'birth_certificate',
+  'driving_license',
+  'passport',
+  'insurer_policy_number',
+];
+
 export const createAdditionalSearchFilters = (filterParams, configuredFields = []) => {
   const filters = [];
   let requiresPadJoin = false;
+
+  // The patient additional data join only exists on the all patients listing
+  if (filterParams.isAllPatientsListing && filterParams.alternativeIdentificationNumber) {
+    requiresPadJoin = true;
+    const matchesAnyColumn = ALTERNATIVE_IDENTIFICATION_NUMBER_COLUMNS.map(
+      column =>
+        `UPPER(patient_additional_data.${column}) LIKE UPPER(:alternativeIdentificationNumber)`,
+    ).join(' OR ');
+    filters.push(
+      makeFilter(true, `(${matchesAnyColumn})`, ({ alternativeIdentificationNumber }) => ({
+        alternativeIdentificationNumber: `${alternativeIdentificationNumber}%`,
+      })),
+    );
+  }
 
   for (const fieldName of configuredFields) {
     if (!isValidAdditionalSearchField(fieldName)) continue;
