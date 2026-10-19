@@ -5,6 +5,7 @@ import {
   createDummyPatient,
   randomRecordId,
 } from '@tamanu/database/demoData';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { generateId } from '@tamanu/utils/generateId';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
@@ -469,29 +470,30 @@ describe('Procedures', () => {
       expect(assistantClinicians).toHaveLength(0);
     });
 
-    it('should be forbidden without permission to delete procedures', async () => {
-      const { procedureSurveyResponse } = await createProcedureWithForm();
-      const appWithoutDelete = await baseApp.asNewRole([
-        ['read', 'Procedure'],
-        ['create', 'Procedure'],
-        ['write', 'Procedure'],
-        ['delete', 'SurveyResponse'],
-      ]);
-
-      const result = await appWithoutDelete.delete(
-        `/api/procedure/${procedureSurveyResponse.procedureId}`,
-      );
-      expect(result).toBeForbidden();
-
-      expect(await models.Procedure.findByPk(procedureSurveyResponse.procedureId)).toBeTruthy();
-      expect(
-        await models.SurveyResponse.findByPk(procedureSurveyResponse.surveyResponseId),
-      ).toBeTruthy();
-    });
-
     it('should return not found for a procedure that does not exist', async () => {
       const result = await app.delete(`/api/procedure/${generateId()}`);
       expect(result).toHaveStatus(404);
+    });
+
+    describe('without permission to delete procedures', () => {
+      disableHardcodedPermissionsForSuite();
+
+      it('should be forbidden', async () => {
+        const procedure = await models.Procedure.create({
+          encounterId: encounter.id,
+          date: new Date(),
+        });
+        const appWithoutDelete = await baseApp.asNewRole([
+          ['read', 'Procedure'],
+          ['create', 'Procedure'],
+          ['write', 'Procedure'],
+          ['delete', 'SurveyResponse'],
+        ]);
+
+        const result = await appWithoutDelete.delete(`/api/procedure/${procedure.id}`);
+        expect(result).toBeForbidden();
+        expect(await models.Procedure.findByPk(procedure.id)).toBeTruthy();
+      });
     });
   });
 });

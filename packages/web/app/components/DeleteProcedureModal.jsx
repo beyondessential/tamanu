@@ -32,7 +32,7 @@ export const DeleteProcedureModal = ({ procedureToDelete, onClose, onDeleted }) 
         <SubText data-testid="subtext-procedure-delete">
           <TranslatedText
             stringId="procedure.modal.delete.text"
-            fallback="Are you sure you would like to delete this procedure? Any forms attached to this procedure will also be deleted."
+            fallback="Are you sure you would like to delete this procedure? Please note, deleting the procedure will also delete any associated forms."
             data-testid="translatedtext-procedure-modal-delete-text"
           />
           <br />
