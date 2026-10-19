@@ -10,10 +10,11 @@ A listing, under the Facility admin section of the sidebar, of patients discharg
 
 A discharge is an encounter at the current facility whose end date has been set. Encounters are grouped by patient status, matching the Status column of the All patients listing: Inpatient (Hospital admission), Outpatient (Clinic, Imaging), and Emergency (Triage, Active ED care, Emergency short stay). Form response and Vaccination record encounters carry no patient status, since they close as soon as they are created.
 
-- [ ] An encounter is listed when its location belongs to the current facility, its end date falls within the past 24 hours, and its encounter type carries a patient status.
+- [ ] An encounter is listed when its location belongs to the current facility, its end date is no more than 24 hours ago, and its encounter type carries a patient status.
+- [ ] A discharge dated in the future is listed, so that a mistaken discharge date can be noticed and corrected.
 - [ ] Discharges made automatically by the system, such as outpatient encounters closed overnight or encounters closed on a patient's death, are listed like any other discharge.
 - [ ] A patient with more than one discharge in the window appears once, for their most recent discharge that matches the search.
-- [ ] Deceased patients are listed, with their row highlighted in the same way as on other patient listings.
+- [ ] Deceased patients are listed, with their whole row shown in red.
 
 ## Table
 
@@ -24,7 +25,7 @@ A discharge is an encounter at the current facility whose end date has been set.
 - [ ] Clinician shows the clinician recorded as discharging the encounter, or "N/A" when the system discharged it without recording a clinician.
 - [ ] Discharge date shows the date of the encounter's end date, and hovering over it shows both the date and time.
 - [ ] Rows are ordered by discharge date and time, most recent first, until the user picks another sort.
-- [ ] Every column except Patient ID is sortable. Sorting by Encounter type groups rows by patient status.
+- [ ] Every column except Patient ID is sortable, with text sorted ignoring case. Sorting by Encounter type groups rows by patient status.
 - [ ] Clicking a row opens that patient's summary page.
 - [ ] When no patients match, the table shows "No patients found".
 

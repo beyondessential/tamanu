@@ -5,7 +5,6 @@ import { ENCOUNTER_TYPE_PATIENT_STATUSES } from '@tamanu/constants';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   getWhereClausesAndReplacementsFromFilters,
-  makeDeletedAtIsNullFilter,
   makeFilter,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
@@ -19,8 +18,8 @@ const SORT_KEYS = {
   dateOfBirth: 'patients.date_of_birth',
   sex: 'patients.sex',
   patientStatus: 'latest_discharges.patient_status',
-  departmentName: 'department.name',
-  clinician: 'discharger.display_name',
+  departmentName: 'UPPER(department.name)',
+  clinician: 'UPPER(discharger.display_name)',
   dischargeDate: 'latest_discharges.end_date',
 };
 
@@ -39,12 +38,12 @@ const createSearchFilters = filterParams => {
       filterParams.dischargingClinicianId,
       'discharges.discharger_id = :dischargingClinicianId',
     ),
-    makeDeletedAtIsNullFilter('patients'),
   ];
 };
 
 // Encounter types without a patient status (form responses, vaccination records) have no row in
-// patient_statuses, so the inner join leaves them out.
+// patient_statuses, so the inner join leaves them out. An encounter can carry more than one
+// discharge record (e.g. after an offline sync conflict), so the newest one breaks the tie.
 // spec: RDISCH#which-discharges-are-listed
 const buildLatestDischargesCte = searchClauses => `
   WITH patient_statuses (encounter_type, patient_status) AS (
@@ -68,9 +67,15 @@ const buildLatestDischargesCte = searchClauses => `
         ON discharges.encounter_id = encounters.id AND discharges.deleted_at IS NULL
     WHERE encounters.end_date >= ((NOW() - INTERVAL '24 hours') AT TIME ZONE :primaryTimeZone)::date_time_string
       AND encounters.deleted_at IS NULL
+      AND patients.deleted_at IS NULL
       AND locations.facility_id = :facilityId
-      AND ${searchClauses}
-    ORDER BY encounters.patient_id, encounters.end_date DESC, encounters.id DESC
+      ${searchClauses ? `AND ${searchClauses}` : ''}
+    ORDER BY
+      encounters.patient_id,
+      encounters.end_date DESC,
+      encounters.id DESC,
+      discharges.created_at DESC,
+      discharges.id DESC
   )
 `;
 

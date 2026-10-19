@@ -128,8 +128,8 @@ export const RecentlyDischargedPatients = () => {
           fetchOptions={{ ...searchParameters }}
           onRowClick={row => navigateToPatient(row.id)}
           rowStyle={({ dateOfDeath }) =>
-            // Style rows for deceased patients red, as on the other patient listings
-            dateOfDeath ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+            // Every cell is red for a deceased patient, Patient ID included
+            dateOfDeath ? '& > td { color: #ed333a; }' : ''
           }
           noDataMessage={
             <TranslatedText

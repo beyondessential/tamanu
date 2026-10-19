@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import config from 'config';
-import { subHours } from 'date-fns';
+import { addMinutes, subHours } from 'date-fns';
 import {
   ENCOUNTER_TYPES,
   ENCOUNTER_TYPE_PATIENT_STATUSES,
@@ -135,6 +135,17 @@ describe('Recently discharged patients', () => {
       expect(rows).toEqual([]);
     });
 
+    it('lists a discharge dated in the future, so it can be noticed', async () => {
+      const patient = await createPatient();
+      const encounter = await createDischargedEncounter(patient, { hoursSinceDischarge: -2 });
+
+      const rows = await fetchRowsFor([patient]);
+
+      expect(rows).toEqual([
+        expect.objectContaining({ id: patient.id, dischargeDate: encounter.endDate }),
+      ]);
+    });
+
     it('lists each encounter type under its patient status, leaving out types without one', async () => {
       const patientsByEncounterType = {};
       for (const encounterType of Object.values(ENCOUNTER_TYPES)) {
@@ -163,6 +174,45 @@ describe('Recently discharged patients', () => {
       const rows = await fetchRowsFor([patient]);
 
       expect(rows).toEqual([expect.objectContaining({ id: patient.id, clinician: null })]);
+    });
+
+    it('shows the clinician from the newest discharge record when an encounter has several', async () => {
+      const patient = await createPatient();
+      const encounter = await createDischargedEncounter(patient, {
+        dischargerId: otherDischarger.id,
+      });
+      // A second discharge record for the same encounter, as an offline sync conflict can leave
+      await models.Discharge.create({
+        encounterId: encounter.id,
+        dischargerId: discharger.id,
+        createdAt: addMinutes(new Date(), 1),
+      });
+
+      const rows = await fetchRowsFor([patient]);
+
+      expect(rows).toEqual([
+        expect.objectContaining({ id: patient.id, clinician: discharger.displayName }),
+      ]);
+    });
+
+    it('counts and pages by patient rather than by discharge', async () => {
+      const lastName = 'Rdp-count-and-page';
+      const dischargedTwice = await createPatient({ lastName });
+      const dischargedOnce = await createPatient({ lastName });
+      await createDischargedEncounter(dischargedTwice, { hoursSinceDischarge: 4 });
+      await createDischargedEncounter(dischargedTwice, { hoursSinceDischarge: 1 });
+      await createDischargedEncounter(dischargedOnce, { hoursSinceDischarge: 2 });
+
+      const fetchPage = page =>
+        app.get('/api/recentlyDischargedPatients').query({ lastName, rowsPerPage: 1, page });
+      const firstPage = await fetchPage(0);
+      const secondPage = await fetchPage(1);
+
+      expect(firstPage).toHaveSucceeded();
+      expect(secondPage).toHaveSucceeded();
+      expect(firstPage.body.count).toBe(2);
+      expect(firstPage.body.data.map(row => row.id)).toEqual([dischargedTwice.id]);
+      expect(secondPage.body.data.map(row => row.id)).toEqual([dischargedOnce.id]);
     });
 
     it('lists each patient once, for their most recent discharge', async () => {
