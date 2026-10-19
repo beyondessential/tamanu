@@ -140,6 +140,9 @@ export class AutocompleteInput extends Component {
     super();
     this.anchorEl = React.createRef();
     this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
+    // Identifies the newest fetch, so a slow response to an earlier search (e.g. the broad "E"
+    // before "E11.65") can't overwrite the suggestions for what the user has since typed
+    this.latestFetchId = 0;
     this.inputElementNode = null;
     this.observer = null;
 
@@ -224,6 +227,7 @@ export class AutocompleteInput extends Component {
 
   fetchOptions = async ({ value, reason }) => {
     const { value: formValue, allowCreatingCustomValue, filterer } = this.props;
+    const fetchId = ++this.latestFetchId;
 
     if (reason === 'suggestion-selected') {
       this.clearOptions();
@@ -256,6 +260,7 @@ export class AutocompleteInput extends Component {
         });
       }
     }
+    if (fetchId !== this.latestFetchId) return;
     suggestions = suggestions.filter(filterer);
     this.setState({ suggestions });
   };
