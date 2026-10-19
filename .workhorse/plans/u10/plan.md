@@ -27,3 +27,5 @@ Define the arrow styles once as a shared styled-components `css` block and apply
 `TabDisplay.jsx` is a generic component, and other screens use it for their own unrelated tab bars: the chart instance tabs inside an encounter's Charts tab (`ChartsPane.jsx`), the same on the program registry charts view, and several admin screens (settings, import/export, programs, program registries, roles, reports). Apply the styles at `StyledDisplayTabs` rather than in `TabDisplay`'s `TabContainer` so those other tab bars are untouched.
 
 The patient tab bar is taller than the encounter one because its tabs carry icons, so check the arrow still sits vertically centred there.
+
+On the patient tabs, the right arrow's outer edge lines up with the right edge of the content panes below it. The panes sit inside `ContentPane`'s 30px side margin, so the right arrow gets a matching end margin. The disabled right arrow keeps the same total footprint, so the tabs don't shift when it hides.
