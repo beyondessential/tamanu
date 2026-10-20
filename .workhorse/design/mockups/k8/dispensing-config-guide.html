@@ -1,0 +1,873 @@
+<!-- format: .agents/docs/config-guide-format.md -->
+<!-- source: draft-config-guide skill test run, Dispensing module (not committed to docs/) -->
+<!-- palette: TAMANU_COLORS, packages/ui-components/src/constants/colors.js -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Dispensing configuration guides</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Tamanu palette */
+    --primary: #326699;
+    --primary-dark: #2f4358;
+    --primary-30: #C2D2E1;
+    --primary-10: #EBF0F5;
+    --blue: #1172D1;
+    --very-light-blue: #F4F9FF;
+    --green: #19934E;
+    --safe: #47ca80;
+    --alert: #f76853;
+    --light-alert: #fff0ee;
+    --yellow: #ffcc24;
+    --metallic-yellow: #BD9503;
+
+    --page: #f3f5f7;
+    --surface: #ffffff;
+    --surface-2: #f9fafb;
+    --text: #444444;
+    --text-2: #666666;
+    --text-3: #888888;
+    --line: #ebebeb;
+    --line-2: #dedede;
+
+    /* Required-field marker: unchanged from the original configuration */
+    --required: #c2410c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: Inter, -apple-system, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  article {
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: 12px;
+    padding: 48px 56px 60px;
+    box-shadow: 0 1px 3px rgba(47,67,88,.06);
+  }
+
+  .lead { font-size: 16px; color: var(--text-2); margin: 0 0 18px; }
+  h1 {
+    font-size: 25px; font-weight: 700; letter-spacing: -.015em;
+    color: var(--primary-dark);
+    margin: 44px 0 14px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-10);
+  }
+  h1:first-of-type { margin-top: 32px; }
+  h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--primary); margin: 34px 0 10px; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--primary-dark); margin: 26px 0 8px; }
+  p { margin: 0 0 14px; }
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  li::marker { color: var(--primary-30); }
+  a { color: var(--blue); }
+  code {
+    background: var(--primary-10);
+    border: 1px solid #dfe7ef;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px;
+    color: var(--primary-dark);
+  }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 38px 0; }
+  .muted { color: var(--text-2); }
+
+  /* Version flag, inline in heading. Informational, so it takes the note-blue tones */
+  .ver {
+    font-size: 13px; font-weight: 500; vertical-align: middle; margin-left: 8px; white-space: nowrap;
+    color: var(--blue); background: var(--very-light-blue); border: 1px solid #CFE3F8;
+    border-radius: 4px; padding: 2px 8px;
+  }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 13.5px; }
+  th {
+    text-align: left; font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .05em;
+    color: var(--primary); background: var(--primary-10);
+    border-bottom: 1px solid var(--primary-30);
+    padding: 9px 12px; vertical-align: bottom;
+  }
+  th:first-child { border-radius: 6px 0 0 0; }
+  th:last-child { border-radius: 0 6px 0 0; }
+  td { border-bottom: 1px solid var(--line); padding: 10px 12px; vertical-align: top; color: var(--text-2); }
+  td:first-child {
+    color: var(--primary-dark);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12.5px; white-space: nowrap; width: 1%; padding-right: 24px;
+  }
+  td.plain:first-child { font-family: inherit; font-size: 13.5px; white-space: normal; color: var(--text); }
+  tbody tr:nth-child(even) { background: var(--surface-2); }
+  tr:last-child td { border-bottom: 0; }
+  .req { color: var(--required); font-weight: 700; }
+
+  /* Note boxes */
+  .note { border-radius: 8px; padding: 13px 16px 13px 44px; font-size: 13.5px; margin: 0 0 18px; position: relative; }
+  .note p:last-child { margin-bottom: 0; }
+  .note ul { margin: 8px 0 0; padding-left: 18px; }
+  .note ul li { margin-bottom: 3px; }
+  .note ul li:last-child { margin-bottom: 0; }
+  .note ul li::marker { color: currentColor; opacity: .5; }
+  .note .ico {
+    position: absolute; left: 15px; top: 13px;
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; color: #fff;
+  }
+  .note .hd { font-weight: 600; display: block; margin-bottom: 2px; }
+
+  .note.info   { background: var(--very-light-blue); border: 1px solid #CFE3F8; color: var(--text-2); }
+  .note.info .ico { background: var(--blue); }
+  .note.info .hd { color: var(--blue); }
+
+  .note.tip    { background: #F1FAF4; border: 1px solid #C6E8D4; color: var(--text-2); }
+  .note.tip .ico { background: var(--green); }
+  .note.tip .hd { color: var(--green); }
+
+  .note.req-note { background: var(--light-alert); border: 1px solid #FBD3CD; color: var(--text-2); }
+  .note.req-note .ico { background: var(--alert); }
+  .note.req-note .hd { color: #D64532; }
+
+  .note.warn   { background: #FFF8E1; border: 1px solid #F0DFA6; color: var(--text-2); }
+  .note.warn .ico { background: var(--metallic-yellow); }
+  .note.warn .hd { color: var(--metallic-yellow); }
+
+  /* Screenshot placeholder */
+  .shot {
+    border: 1.5px dashed var(--primary-30); border-radius: 8px;
+    background: repeating-linear-gradient(45deg, #fbfcfd, #fbfcfd 10px, var(--primary-10) 10px, var(--primary-10) 20px);
+    padding: 22px; margin: 16px 0 18px; text-align: center;
+  }
+  .shot .tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--primary);
+    border: 1px solid var(--primary-30); background: var(--surface);
+    border-radius: 4px; padding: 3px 8px; margin-bottom: 8px;
+  }
+  .shot .cap { font-size: 13px; color: var(--text-2); margin: 0; }
+
+  /* Permission list */
+  .perm { margin: 0 0 16px; padding-left: 0; }
+  .perm > li { list-style: none; margin-bottom: 12px; }
+  .perm > li > .head { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: var(--text); }
+  .perm .verb {
+    color: var(--primary); font-weight: 600;
+    background: var(--primary-10); border-radius: 4px; padding: 1px 6px;
+  }
+  .perm ul { margin: 7px 0 0; padding-left: 18px; }
+  .perm ul li { font-size: 13.5px; color: var(--text-2); }
+
+  pre {
+    background: var(--surface-2); border: 1px solid var(--line-2);
+    border-radius: 8px; padding: 12px 16px; overflow-x: auto; font-size: 12.5px; margin: 0 0 16px;
+  }
+  pre code { background: none; border: 0; padding: 0; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 16px; }
+  .chips span {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+    background: var(--primary-10); border: 1px solid #dfe7ef;
+    border-radius: 4px; padding: 2px 7px; color: var(--primary-dark);
+  }
+  .chips .more { border-style: dashed; background: var(--surface); color: var(--text-3); }
+
+  article { margin-bottom: 28px; }
+  article > h1:first-child, .guide-title + p { margin-top: 0; }
+  .guide-title { font-size: 30px; font-weight: 700; letter-spacing: -.02em; color: var(--primary-dark); margin: 0 0 18px; }
+  .guide-title .num { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 15px; font-weight: 600;
+    color: var(--primary); background: var(--primary-10); border-radius: 6px; padding: 3px 9px; margin-right: 12px; vertical-align: middle; }
+  article#overview > h1:first-child { font-size: 30px; border: 0; padding: 0; }
+  figure { margin: 18px 0 22px; }
+  figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+  figcaption { font-size: 12.5px; color: var(--text-2); margin-top: 10px; text-align: center; }
+  figcaption b { color: var(--text); font-weight: 600; }
+  p[align="center"] { text-align: center; }
+  .note ol, .note ul { margin: 8px 0 0; }
+  td code, li code, p code { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="shell">
+<article id="overview"><h1 id="overview-16-dispensing">16. Dispensing</h1>
+<p>Sending prescriptions to pharmacy, dispensing medications and printing their labels, and recording
+medications that cannot be dispensed.</p>
+<p>These guides step system administrators through the set up of dispensing in Tamanu.</p>
+<div class="note info"><span class="ico">i</span><span class="hd">Note</span><p>Dispensing is supported from v2.49 onwards.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Guide</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>16.1</td>
+<td><a href="#reference-data">Reference data</a></td>
+<td>Reasons for modifying or not dispensing a prescription, preset label wording, and the prescription types</td>
+</tr>
+<tr>
+<td>16.2</td>
+<td><a href="#settings">Settings</a></td>
+<td>Sending prescriptions to pharmacy, automatic dispensing encounters, prescription labels, removing undispensed requests, and the sidebar</td>
+</tr>
+<tr>
+<td>16.3</td>
+<td><a href="#permissions">Permissions</a></td>
+<td>Sending prescriptions to pharmacy, dispensing, and managing dispensed medications</td>
+</tr>
+</tbody></table>
+<h2 id="overview-how-dispensing-works">How dispensing works</h2>
+<ol>
+<li>A prescriber sends prescriptions to pharmacy with <strong>Send to pharmacy</strong>, from an encounter&#39;s
+<strong>Medication</strong> tab, a new prescription, the discharge form, or the patient&#39;s ongoing medications</li>
+<li>Pharmacy staff see the request in <strong>Medication</strong>, then <strong>Active requests</strong></li>
+<li>Opening a request shows <strong>Dispense medication</strong>, where staff record what is dispensed and print
+labels. A request that cannot be filled is recorded as <strong>Not dispensed</strong></li>
+<li>Dispensed medications are listed in <strong>Medication</strong>, then <strong>Dispensed medications</strong>, and on the
+patient&#39;s <strong>Medication</strong> tab</li>
+</ol>
+<div class="shot"><div class="tag">Screenshot needed</div><p class="cap">the Active requests screen</p></div>
+<h2 id="overview-configured-elsewhere">Configured elsewhere</h2>
+<ul>
+<li>Drug stock levels shown when dispensing are set per facility in the <code>Drug</code> reference data. See
+<a href="#">Stock levels</a> in the Medications guides</li>
+<li>Sending dispensed medications to mSupply, and taking stock on hand from mSupply, are covered in the
+<a href="#">Integrations</a> configuration guides</li>
+<li>The fee charged on encounters created for dispensing is covered in the
+<a href="#">Invoicing</a> configuration guides</li>
+</ul>
+</article>
+<article id="reference-data"><div class="guide-title"><span class="num">16.1</span>Reference data</div><p class="lead">The reference data dispensing needs, and the values each column accepts. The reasons and preset labels
+pharmacy staff choose from when dispensing are all reference data. Reference data is configured through
+the reference data import spreadsheet, downloaded from and uploaded to your Tamanu system. Records can
+also be added and edited one at a time on the <strong>Manage</strong> tab of the <strong>Reference data</strong> screen in the
+admin panel.</p>
+<div class="note info"><span class="ico">i</span><span class="hd">Note</span><p>The <strong>Manage</strong> tab is supported from v2.54 onwards. Earlier deployments configure reference data by
+import spreadsheet only.</p>
+</div>
+<p>For the settings that govern dispensing see <a href="#settings">Settings</a>, and for the permissions required
+see <a href="#permissions">Permissions</a>.</p>
+<hr>
+<h1 id="reference-data-reference-data-types">Reference Data Types</h1>
+<p>See the <a href="https://beyond-essential.slab.com/public/posts/tamanu-reference-data-manual-intf5xei">Tamanu Reference Data Manual</a> for how importing works.</p>
+<p>The medications that can be dispensed, and their stock levels, are configured in the <code>Drug</code> reference
+data. See <a href="#">Drug</a> in the Medications guides.</p>
+<h2 id="reference-data-medication-preset-label-supported-from-v257-onwards">Medication Preset Label <span class="ver">supported from v2.57 onwards</span></h2>
+<p>Preset wording for the instructions printed on a medication label, such as &quot;Take one twice daily&quot;.
+When dispensing, staff choose a preset by its code in the <strong>Preset labels</strong> column, and its wording
+replaces the <strong>Label text</strong>. Clearing the preset returns the label text to the wording built from the
+prescription.</p>
+<div class="shot"><div class="tag">Screenshot needed</div><p class="cap">the Preset labels column in Dispense medication</p></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tab name</td>
+<td><code>Medication Preset Label</code></td>
+</tr>
+</tbody></table>
+<p>Where * is a required field.</p>
+<table>
+<thead>
+<tr>
+<th>Column name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id <span class="req">*</span></td>
+<td>Unique id for the preset. Letters, numbers and hyphens only.</td>
+</tr>
+<tr>
+<td>code <span class="req">*</span></td>
+<td>The short code staff choose, such as <code>BD</code>. The <strong>Preset labels</strong> column shows and searches codes only, sorted by code. Letters, numbers, hyphens, full stops and forward slashes only.</td>
+</tr>
+<tr>
+<td>name <span class="req">*</span></td>
+<td>The wording printed on the label, such as <code>Take one twice daily</code>.</td>
+</tr>
+<tr>
+<td>visibilityStatus</td>
+<td><code>current</code> for presets in use, or <code>historical</code> for presets that should no longer appear. Defaults to <code>current</code> if blank.</td>
+</tr>
+<tr>
+<td>availableFacilities</td>
+<td>Restricts the preset to specific facilities. Must be a JSON array of facility ids, for example <code>[&quot;facility-a&quot;]</code>. Leave blank for all facilities.</td>
+</tr>
+</tbody></table>
+<p>The <strong>Preset labels</strong> column only appears where at least one preset is available at the facility.</p>
+<h2 id="reference-data-medication-dispense-modify-reason-supported-from-v261-onwards">Medication Dispense Modify Reason <span class="ver">supported from v2.61 onwards</span></h2>
+<p>The reasons for modifying a prescription at the point of dispensing, such as &quot;Out of stock&quot; or
+&quot;Substitution&quot;. Where the exact medication is not on hand, pharmacy can dispense an available strength
+or formulation through <strong>Modify prescription</strong>, and must choose a <strong>Reason for modification</strong>. The
+original prescription is left unchanged, and the reason appears in <strong>Modify prescription history</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tab name</td>
+<td><code>Medication Dispense Mod Reason</code></td>
+</tr>
+</tbody></table>
+<p>Where * is a required field.</p>
+<table>
+<thead>
+<tr>
+<th>Column name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id <span class="req">*</span></td>
+<td>Unique id for the reason. Letters, numbers and hyphens only.</td>
+</tr>
+<tr>
+<td>code <span class="req">*</span></td>
+<td>Unique code for the reason. Letters, numbers, hyphens, full stops and forward slashes only.</td>
+</tr>
+<tr>
+<td>name <span class="req">*</span></td>
+<td>The reason displayed in Tamanu.</td>
+</tr>
+<tr>
+<td>visibilityStatus</td>
+<td><code>current</code> for reasons in use, or <code>historical</code> for reasons that should no longer appear. Defaults to <code>current</code> if blank.</td>
+</tr>
+<tr>
+<td>availableFacilities</td>
+<td>Not applied to these reasons, which show at every facility. Leave blank.</td>
+</tr>
+</tbody></table>
+<p>The tab name is shortened because spreadsheet tab names are limited to 31 characters. An import also
+accepts the tab named <code>Medication Dispense Modify Reason</code>.</p>
+<h2 id="reference-data-medication-not-dispensed-reason-supported-from-v266-onwards">Medication Not Dispensed Reason <span class="ver">supported from v2.66 onwards</span></h2>
+<p>The reasons for recording a request as not dispensed, such as &quot;Out of stock&quot; or &quot;Patient declined&quot;.
+Choosing <strong>Not dispensed</strong> on a request in <strong>Active requests</strong> opens <strong>Record medication as not
+dispensed</strong>, where a <strong>Reason for not dispensing</strong> is required. The request is removed from <strong>Active
+requests</strong> and the prescriber is sent a notification with the reason.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tab name</td>
+<td><code>Medication Not Dispensed Rsn</code></td>
+</tr>
+</tbody></table>
+<p>Same columns as <a href="#reference-data-medication-dispense-modify-reason-supported-from-v261-onwards">Medication Dispense Modify Reason</a>,
+including that <code>availableFacilities</code> is not applied. An import also accepts the tab named
+<code>Medication Not Dispensed Reason</code>.</p>
+<hr>
+<h1 id="reference-data-hard-coded-fields">Hard coded fields</h1>
+<p>The values these fields accept are fixed. Changing them requires a code change, requested through
+your system administrator or project manager.</p>
+<h2 id="reference-data-prescription-types">Prescription types</h2>
+<p>The <strong>Prescription type</strong> chosen when sending prescriptions to pharmacy:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Displays in Active requests as</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Inpatient</td>
+<td>Inpatient</td>
+</tr>
+<tr>
+<td>Outpatient/Discharge</td>
+<td>OP/Discharge</td>
+</tr>
+</tbody></table>
+<p>Which type is selected by default is a setting. See
+<a href="#settings-default-prescription-type-supported-from-v252-onwards">Default prescription type</a>.</p>
+</article>
+<article id="settings"><div class="guide-title"><span class="num">16.2</span>Settings</div><p class="lead">The settings that change how prescriptions are sent to pharmacy, how dispensed medications are
+labelled, and when undispensed requests are removed. Settings are managed in the Settings admin panel.</p>
+<p>For the reference data these settings act on see <a href="#reference-data">Reference data</a>, and for the
+permissions required see <a href="#permissions">Permissions</a>.</p>
+<hr>
+<h1 id="settings-settings">Settings</h1>
+<p>Settings are managed in the Settings admin panel. Every setting below works without configuration,
+using its default, except the automatic encounter location and department, which sending ongoing
+medications to pharmacy needs.</p>
+<h2 id="settings-sending-to-pharmacy">Sending to pharmacy</h2>
+<h3 id="settings-pharmacy-orders-enabled">Pharmacy orders enabled</h3>
+<p>Shows <strong>Send to pharmacy</strong> on an encounter&#39;s <strong>Medication</strong> tab, on a new prescription, on the
+discharge form and on the patient&#39;s ongoing medications. When disabled, prescriptions cannot be sent
+to pharmacy. Staff also need <code>create</code> for <code>MedicationRequest</code>; see
+<a href="#permissions-sending-to-pharmacy">Permissions</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Global (All Facilities/Servers)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Features</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Pharmacy order</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Enabled</td>
+</tr>
+</tbody></table>
+<h3 id="settings-already-ordered-confirmation">Already ordered confirmation</h3>
+<p>Asks staff to confirm before sending a medication that was already sent to pharmacy within this many
+hours, to avoid duplicate orders. Applies in <strong>Send to pharmacy</strong> and on the discharge form.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Global (All Facilities/Servers)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Features</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Pharmacy order</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Medication already ordered confirmation timeout</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>24 hours</td>
+</tr>
+</tbody></table>
+<h3 id="settings-send-via-msupply">Send via mSupply</h3>
+<p>Adds &quot;(via mSupply)&quot; to the wording in <strong>Send to pharmacy</strong>, for deployments where mSupply receives
+pharmacy orders. It changes the wording only: whether orders reach mSupply depends on the mSupply
+integration, covered in the <a href="#">Integrations</a> configuration guides.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Global (All Facilities/Servers)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Features</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Pharmacy order</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Send via m supply</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Disabled</td>
+</tr>
+</tbody></table>
+<h3 id="settings-default-prescription-type-supported-from-v252-onwards">Default prescription type <span class="ver">supported from v2.52 onwards</span></h3>
+<p>Sets which <strong>Prescription type</strong> is selected when <strong>Send to pharmacy</strong> opens. Staff can change it before
+sending. Set per facility.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Facility (Single Facility)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Medication</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Pharmacy orders</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Default prescription type</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Existing encounter type</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Prescription type selected</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Existing encounter type</td>
+<td>Outpatient/Discharge for clinic and imaging encounters, and Inpatient for every other encounter type</td>
+</tr>
+<tr>
+<td>Outpatient/Discharge</td>
+<td>Outpatient/Discharge</td>
+</tr>
+<tr>
+<td>Inpatient</td>
+<td>Inpatient</td>
+</tr>
+</tbody></table>
+<p>Ongoing medications are always sent as Outpatient/Discharge, so this setting does not apply to them.</p>
+<h3 id="settings-preselect-send-to-pharmacy-on-discharge-supported-from-v264-onwards">Preselect send to pharmacy on discharge <span class="ver">supported from v2.64 onwards</span></h3>
+<p>Ticks <strong>Send to pharmacy</strong> for each of the encounter&#39;s medications when preparing a discharge, so staff
+untick any that should not go to pharmacy. Medications that are only ongoing, not from the encounter,
+are not ticked. A saved discharge draft keeps its own selections. Set per facility.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Facility (Single Facility)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Medication</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Pharmacy orders</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Preselect send to pharmacy when preparing discharge</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Disabled</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="settings-dispensing-outside-an-encounter">Dispensing outside an encounter</h2>
+<p>Sending a patient&#39;s ongoing medications to pharmacy, when the patient has no active encounter, creates
+a clinic encounter for the dispensing. These settings choose the location and department that encounter
+is recorded against. Set per facility.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Facility (Single Facility)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Medication</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Medication dispensing</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Automatic encounter location, and Automatic encounter department</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>None</td>
+</tr>
+</tbody></table>
+<div class="note req-note"><span class="ico">!</span><span class="hd">Required</span><p>Both must be set at every facility that sends ongoing medications to pharmacy. Without them, sending
+fails with an error that no automatic encounter location or department has been configured.</p>
+</div>
+<p>The automatic encounter department also decides the fee charged on these encounters. See the
+<a href="#">Invoicing</a> configuration guides.</p>
+<hr>
+<h2 id="settings-prescription-labels">Prescription labels</h2>
+<h3 id="settings-prescription-label-size">Prescription label size</h3>
+<p>Sets the width and height of printed prescription labels, in millimetres, to match your label printer.
+Text on the label scales with its size.</p>
+<div class="shot"><div class="tag">Screenshot needed</div><p class="cap">a printed prescription label</p></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Global (All Facilities/Servers)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Medications</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Dispensing</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Prescription label size: Width and Height</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>80mm wide by 40mm high</td>
+</tr>
+</tbody></table>
+<p>The label shows the facility&#39;s name, from the <code>Facility</code> reference data. It does not show the
+facility&#39;s address.</p>
+<hr>
+<h2 id="settings-removing-undispensed-requests">Removing undispensed requests</h2>
+<p>Requests sent to pharmacy that have not been dispensed are deleted automatically once older than the
+timeframe below. A scheduled task on the central server checks for them.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Global (All Facilities/Servers)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Medications</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Dispensing</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Autodelete medication request timeframe in hours</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>72 hours</td>
+</tr>
+</tbody></table>
+<p>The task&#39;s schedule is a separate setting (supported from v2.62 onwards):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Central (Sync server)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Scheduled tasks</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Auto delete medication requests</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Enabled, and Schedule</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Enabled, every 6 hours</td>
+</tr>
+</tbody></table>
+<p>Changes to the schedule take effect after the central server restarts. Before v2.62, the schedule is
+set in the central server&#39;s configuration file; contact your system administrator to change it.</p>
+<hr>
+<h2 id="settings-sidebar">Sidebar</h2>
+<p>Hides or reorders the items under <strong>Medication</strong> in the sidebar.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>Global (All Facilities/Servers)</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Layouts</td>
+</tr>
+<tr>
+<td>Sub-category</td>
+<td>Sidebar</td>
+</tr>
+<tr>
+<td>Setting</td>
+<td>Sort priority and Hidden, under Medication, then the item below</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>Shown, sort priority 0</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Setting item</th>
+<th>Controls</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Medication active</td>
+<td>The <strong>Active requests</strong> sidebar item</td>
+</tr>
+<tr>
+<td>Medication dispensed</td>
+<td>The <strong>Dispensed medications</strong> sidebar item</td>
+</tr>
+</tbody></table>
+<div class="note warn"><span class="ico">!</span><span class="hd">Warning</span><p>Hide one item at most. Hiding both shows both again. To remove the <strong>Medication</strong> menu for staff who
+do not dispense, leave them without <code>read</code> for <code>MedicationRequest</code> and <code>MedicationDispense</code>; see
+<a href="#permissions">Permissions</a>.</p>
+</div>
+</article>
+<article id="permissions"><div class="guide-title"><span class="num">16.3</span>Permissions</div><p class="lead">The permissions that control who can send prescriptions to pharmacy, dispense them, and manage
+dispensed medications.</p>
+<p>For the reference data these permissions act on see <a href="#reference-data">Reference data</a>, and for the
+settings that govern dispensing see <a href="#settings">Settings</a>.</p>
+<hr>
+<h1 id="permissions-permissions">Permissions</h1>
+<p>See the <a href="#">Users</a> configuration guides for more detail on roles and permissions in Tamanu.</p>
+<p>The <strong>Medication</strong> sidebar menu shows for staff with <code>read</code> for either <code>MedicationRequest</code> or
+<code>MedicationDispense</code>. Staff with neither do not see it.</p>
+<h2 id="permissions-sending-to-pharmacy">Sending to pharmacy</h2>
+<p>Required to send prescriptions to pharmacy, alongside the <a href="#settings-pharmacy-orders-enabled">Pharmacy orders enabled</a>
+setting:</p>
+<ul>
+<li><code>create</code> for <code>MedicationRequest</code><ul>
+<li><strong>Send to pharmacy</strong> from an encounter&#39;s <strong>Medication</strong> tab</li>
+<li><strong>Send to pharmacy</strong> on a new prescription and on the discharge form</li>
+<li><strong>Send to pharmacy</strong> from the patient&#39;s ongoing medications, when the patient has no active
+encounter</li>
+</ul>
+</li>
+</ul>
+<p>Sending also needs the medication permissions to view prescriptions; see the
+<a href="#">Medications</a> permissions guide.</p>
+<h2 id="permissions-active-requests">Active requests</h2>
+<p>Required to view and manage requests waiting to be dispensed:</p>
+<ul>
+<li><code>read</code> for <code>MedicationRequest</code><ul>
+<li>View the <strong>Active requests</strong> screen</li>
+</ul>
+</li>
+<li><code>delete</code> for <code>MedicationRequest</code><ul>
+<li><strong>Not dispensed</strong>, to record a request as not dispensed with a reason</li>
+<li><strong>Delete</strong>, to delete a request</li>
+<li>Without it, the request actions menu is hidden</li>
+</ul>
+</li>
+</ul>
+<h2 id="permissions-dispensing">Dispensing</h2>
+<p>Required to dispense medications and manage dispensed records:</p>
+<ul>
+<li><code>create</code> for <code>MedicationDispense</code><ul>
+<li>Open a request in <strong>Active requests</strong> and dispense it. Without it, requests cannot be opened</li>
+</ul>
+</li>
+<li><code>read</code> for <code>MedicationDispense</code><ul>
+<li>View the <strong>Dispensed medications</strong> screen</li>
+<li>View the dispensed medications on the patient&#39;s <strong>Medication</strong> tab</li>
+</ul>
+</li>
+<li><code>write</code> for <code>MedicationDispense</code><ul>
+<li><strong>Modify prescription</strong> while dispensing</li>
+<li><strong>Print label</strong>, <strong>Edit</strong>, <strong>Cancel</strong> and <strong>View modify history</strong> on a dispensed medication</li>
+</ul>
+</li>
+</ul>
+<p>Cancelling a dispensed medication needs <code>write</code>, not <code>delete</code>.</p>
+<div class="note warn"><span class="ico">!</span><span class="hd">Warning</span><p>On the patient&#39;s <strong>Medication</strong> tab, <strong>Edit</strong> and <strong>Cancel</strong> show on dispensed medications for staff
+without <code>write</code> for <code>MedicationDispense</code>, but fail when used. <strong>Print label</strong> works there without it.</p>
+</div>
+<h2 id="permissions-sensitive-medications">Sensitive medications</h2>
+<p>Sensitive medications are set up in the Medications guides; see
+<a href="#">Sensitive medications</a>.
+When dispensing:</p>
+<ul>
+<li><code>list</code> for <code>SensitiveMedication</code><ul>
+<li>See sensitive medications in the dispensed medications on the patient&#39;s <strong>Medication</strong> tab</li>
+</ul>
+</li>
+<li><code>read</code> for <code>SensitiveMedication</code><ul>
+<li>Send a sensitive medication to pharmacy</li>
+<li>See sensitive medications in <strong>Active requests</strong>, <strong>Dispensed medications</strong> and <strong>Dispense
+medication</strong>. Without it, they are hidden, with no message</li>
+<li>Dispense a sensitive medication, including one chosen through <strong>Modify prescription</strong></li>
+<li>View the modify history of a sensitive medication</li>
+</ul>
+</li>
+</ul>
+<h2 id="permissions-permissions-with-no-effect">Permissions with no effect</h2>
+<p>These are listed in the permissions admin panel, but granting them changes nothing:</p>
+<ul>
+<li><code>list</code> and <code>write</code> for <code>MedicationRequest</code></li>
+<li><code>list</code> and <code>delete</code> for <code>MedicationDispense</code>. <code>delete</code> was needed to delete a request before v2.66</li>
+</ul>
+</article>
+</div>
+</body>
+</html>
