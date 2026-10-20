@@ -1,5 +1,7 @@
 # M9 — Browser performance telemetry
 
+> ⚠️ **REMOVE BEFORE MERGE — temporary chaos latency.** For validating telemetry on the preview env, a gated artificial per-request delay was added: the `chaos` settings group (`chaos.requestDelayMs`, default 0) in `global.ts`, the shared `chaosDelayMiddleware` (`packages/shared/src/utils/chaosDelayMiddleware.js`), and its mounts in `central-server/app/createApi.js` and `facility-server/app/createApiApp.js`. All marked `TEMPORARY (spec: BTEL)`. Delete these before the card merges. Flip it on in the preview via `UPDATE settings` on `chaos.requestDelayMs`.
+
 Implementation plan for the [Browser performance telemetry](../../../specs/platform/browser-telemetry.md) spec (`BTEL`). Scope is browser capture → write to a raw table on the facility server. Aggregation, central sync, and Canopy reporting are separate tickets.
 
 New code should carry `// spec: BTEL` traceability comments (see `CleanupIdempotencyKeys` / `// spec: IDEM` for the convention).

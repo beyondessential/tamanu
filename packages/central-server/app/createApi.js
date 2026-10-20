@@ -25,6 +25,8 @@ import { translationRoutes } from './translation';
 import { createServer } from 'http';
 
 import { settingsReaderMiddleware } from '@tamanu/settings/middleware';
+// TEMPORARY (spec: BTEL) — remove with the chaos.requestDelayMs setting before merge.
+import { chaosDelayMiddleware } from '@tamanu/shared/utils/chaosDelayMiddleware';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 
 const rawBodySaver = function (req, res, buf) {
@@ -125,6 +127,8 @@ export async function createApi(ctx) {
   });
 
   express.use(settingsReaderMiddleware);
+  // TEMPORARY (spec: BTEL) — gated artificial latency for telemetry validation; remove before merge.
+  express.use(chaosDelayMiddleware);
 
   express.get('/', (req, res) => {
     res.send({

@@ -4,6 +4,8 @@ import helmet from 'helmet';
 
 import { facilityDefaults } from '@tamanu/settings';
 import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
+// TEMPORARY (spec: BTEL) — remove with the chaos.requestDelayMs setting before merge.
+import { chaosDelayMiddleware } from '@tamanu/shared/utils/chaosDelayMiddleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
 import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
@@ -93,6 +95,8 @@ export async function createApiApp({
   // Resolved facility ids (facts/env/config), not raw config — so a
   // facts-configured server gets its per-facility settings readers.
   express.use(buildSettingsReaderMiddleware(getServerFacilityIds));
+  // TEMPORARY (spec: BTEL) — gated artificial latency for telemetry validation; remove before merge.
+  express.use(chaosDelayMiddleware);
 
   // index route for debugging connectivity (left accessible over HTTP for health checks)
   express.get('/', (req, res) => {
