@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { TELEMETRY_INTERFACES } from '@tamanu/constants';
 import { ReadSettings } from '@tamanu/settings';
 import { getCurrentBrowserMajors } from '@tamanu/shared/utils/browserSupportVersions';
 import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/browserSupport';
@@ -30,10 +31,13 @@ publicRoutes.get('/ping', (_req, res) => {
 });
 
 // spec: BTEL
-// Browser performance telemetry ingest for the web clients that talk to central
-// (the admin panel). Public so pre-login navigations are recorded; central has
-// no single facility, so rows are stored without one.
-publicRoutes.post('/telemetry', createBrowserTelemetryIngest());
+// Browser performance telemetry ingest for the admin panel (the web client that
+// talks to central's main API). Public so pre-login navigations are recorded;
+// central has no single facility, so rows are stored without one.
+publicRoutes.post(
+  '/telemetry',
+  createBrowserTelemetryIngest({ interfaceName: TELEMETRY_INTERFACES.ADMIN }),
+);
 
 publicRoutes.get('/translation/languageOptions', async (req, res) => {
   const { TranslatedString } = req.models;

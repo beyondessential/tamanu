@@ -38,7 +38,6 @@ function spanToPayload(span) {
     statusCode: attributes[SPAN_ATTR.STATUS_CODE] ?? null,
     durationMs: Math.round(hrTimeToMilliseconds(span.duration)),
     outcome: attributes[SPAN_ATTR.OUTCOME] ?? null,
-    interface: attributes[SPAN_ATTR.INTERFACE],
     deviceId: attributes[SPAN_ATTR.DEVICE_ID],
     sessionId: attributes[SPAN_ATTR.SESSION_ID] ?? null,
     appVersion: attributes[SPAN_ATTR.APP_VERSION],

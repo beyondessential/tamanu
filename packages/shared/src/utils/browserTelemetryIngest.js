@@ -7,14 +7,18 @@ import { TELEMETRY_MAX_BATCH_SIZE } from '@tamanu/constants';
 // Shared ingest for browser performance telemetry. Every web client posts the
 // same batch shape to whichever server it talks to — a facility server for the
 // clinical app, central for the admin panel and the patient portal — and each
-// writes to its own local raw store. The servers differ only in the facility
-// they stamp, so they share this handler rather than keeping copies in step.
+// writes to its own local raw store.
+//
+// The `interface` and `facility` are stamped server-side, never trusted from the
+// client: each ingest endpoint is reached by exactly one frontend, so the mount
+// knows the interface authoritatively (the clinical app posts to the facility
+// server; the admin panel and the patient portal post to two separate central
+// mounts). This avoids the client having to infer which app it is.
 //
 // Mounted on public routes so pre-login navigations are recorded; an
-// authenticated client's batch simply carries a userId per span. The facility is
-// stamped server-side, never trusted from the client. Best-effort: malformed or
-// oversized batches are rejected, and patient-identifiable values (telemetry
-// paths may hold search terms) are never logged.
+// authenticated client's batch simply carries a userId per span. Best-effort:
+// malformed or oversized batches are rejected, and patient-identifiable values
+// (telemetry paths may hold search terms) are never logged.
 //
 // `occurredAt` is reported by the browser and so cannot be trusted for
 // retention — the prune works from the server-stamped `createdAt` instead, so a
@@ -31,7 +35,6 @@ const spanSchema = z.object({
   statusCode: z.number().int().min(100).max(599).nullish(),
   durationMs: z.number().int().nonnegative(),
   outcome: z.string().nullish(),
-  interface: z.string().min(1),
   deviceId: z.string().min(1),
   sessionId: z.string().nullish(),
   appVersion: z.string().min(1),
@@ -46,13 +49,16 @@ const batchSchema = z.object({
 });
 
 /**
- * @param {object} [options]
+ * @param {object} options
+ * @param {string} options.interfaceName the frontend this endpoint serves
+ *   (a `TELEMETRY_INTERFACES` value), stamped on every span — the endpoint, not
+ *   the client, is the source of truth for which app the telemetry came from.
  * @param {(req: object) => string | null} [options.getFacilityId] facility to stamp
  *   on each row. Defaults to none, which is correct for central.
  * @param {(req: object) => void} [options.onRequest] hook run before parsing, for
  *   server-specific concerns such as clearing the permission check.
  */
-export function createBrowserTelemetryIngest({ getFacilityId, onRequest } = {}) {
+export function createBrowserTelemetryIngest({ interfaceName, getFacilityId, onRequest }) {
   return asyncHandler(async (req, res) => {
     onRequest?.(req);
 
@@ -83,7 +89,7 @@ export function createBrowserTelemetryIngest({ getFacilityId, onRequest } = {}) 
         statusCode: span.statusCode ?? null,
         durationMs: span.durationMs,
         outcome: span.outcome ?? null,
-        interface: span.interface,
+        interface: interfaceName,
         deviceId: span.deviceId,
         sessionId: span.sessionId ?? null,
         appVersion: span.appVersion,

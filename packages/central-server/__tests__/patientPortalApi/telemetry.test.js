@@ -22,7 +22,6 @@ function makeSpan(overrides = {}) {
     statusCode: null,
     durationMs: 512,
     outcome: 'settled',
-    interface: 'patient-portal',
     deviceId: 'portal-test',
     sessionId: 'session-1',
     appVersion: '0.0.0',
@@ -56,6 +55,7 @@ describe('Patient portal telemetry ingest', () => {
     expect(response).toHaveSucceeded();
 
     const [row] = await models.BrowserTelemetrySpan.findAll();
+    // the interface is stamped by the endpoint (the portal mount), not sent by the client
     expect(row.interface).toBe('patient-portal');
     expect(row.route).toBe('/surveys/:param1');
     expect(row.facilityId).toBe(null);

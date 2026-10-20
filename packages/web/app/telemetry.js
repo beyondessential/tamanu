@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
 import { initBrowserTelemetry } from '@tamanu/ui-components';
-import { TELEMETRY_INTERFACES } from '@tamanu/constants';
 
 import { checkIsLoggedIn, checkIsFacilitySelected } from './store/auth';
 import { PATIENT_PATHS } from './constants/patientPaths';
@@ -36,18 +35,13 @@ function readTelemetryEnabled() {
   }
 }
 
-function currentInterface() {
-  return window?.location?.pathname?.startsWith('/admin')
-    ? TELEMETRY_INTERFACES.ADMIN
-    : TELEMETRY_INTERFACES.CLINICAL;
-}
-
 export function initWebTelemetry(api) {
   telemetry = initBrowserTelemetry({
     api,
     isEnabled: readTelemetryEnabled,
+    // The interface (clinical vs admin) is stamped by the ingest endpoint, which
+    // knows it authoritatively — this client doesn't need to say which app it is.
     getContextAttributes: () => ({
-      interface: currentInterface(),
       deviceId: getDeviceId(),
       appVersion: FULL_VERSION,
       sessionId: SESSION_ID,

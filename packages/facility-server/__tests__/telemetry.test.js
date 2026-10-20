@@ -18,7 +18,6 @@ function makeSpan(overrides = {}) {
     statusCode: null,
     durationMs: 842,
     outcome: 'settled',
-    interface: 'clinical',
     deviceId: 'web-test',
     sessionId: 'session-1',
     appVersion: '0.0.0',
@@ -72,6 +71,8 @@ describe('Browser telemetry ingest', () => {
     const [expectedFacilityId] = getServerFacilityIds();
     expect(expectedFacilityId).toBeTruthy();
     expect(nav.facilityId).toBe(expectedFacilityId);
+    // the interface is stamped by the endpoint (facility server = clinical), not sent by the client
+    expect(nav.interface).toBe('clinical');
     const request = rows.find(r => r.kind === 'request');
     expect(request.parentId).toBe('span-nav-1');
     expect(request.statusCode).toBe(200);

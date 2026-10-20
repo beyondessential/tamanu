@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router';
 
 import { initBrowserTelemetry } from '@tamanu/ui-components';
-import { TELEMETRY_INTERFACES } from '@tamanu/constants';
 
 // The portal's only id-bearing routes. Matched against the app's own route
 // definitions so the pattern and its named params are explicit, never inferred.
@@ -45,8 +44,9 @@ export function initPortalTelemetry(api: TamanuApi) {
   telemetry = initBrowserTelemetry({
     api,
     isEnabled: () => isTelemetryEnabled,
+    // The interface is stamped by the ingest endpoint (the portal's own central
+    // mount), so the client doesn't send it.
     getContextAttributes: () => ({
-      interface: TELEMETRY_INTERFACES.PATIENT_PORTAL,
       deviceId: api.deviceId,
       appVersion: api.agentVersion,
       sessionId: SESSION_ID,

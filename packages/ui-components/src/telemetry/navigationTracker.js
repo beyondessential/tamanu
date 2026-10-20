@@ -32,11 +32,11 @@ export class TelemetryNavigationTracker {
     this.requestSpans = new Map();
   }
 
-  // Shared context (interface, device, user, version, session) is read fresh per
-  // span so a sign-in part-way through a session is reflected from that point.
+  // Shared context (device, user, version, session) is read fresh per span so a
+  // sign-in part-way through a session is reflected from that point. The interface
+  // is not sent — the ingest endpoint stamps it server-side.
   #applyContext(span, attributes) {
     const context = this.getContextAttributes?.() ?? {};
-    span.setAttribute(SPAN_ATTR.INTERFACE, context.interface);
     span.setAttribute(SPAN_ATTR.DEVICE_ID, context.deviceId);
     span.setAttribute(SPAN_ATTR.APP_VERSION, context.appVersion);
     if (context.sessionId) span.setAttribute(SPAN_ATTR.SESSION_ID, context.sessionId);

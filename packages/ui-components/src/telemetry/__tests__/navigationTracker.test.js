@@ -66,7 +66,6 @@ function makeTracker(tracer, timers) {
     quietWindowMs: QUIET_MS,
     maxDurationMs: CAP_MS,
     getContextAttributes: () => ({
-      interface: 'clinical',
       deviceId: 'web-test',
       appVersion: '0.0.0',
       sessionId: 'session-1',

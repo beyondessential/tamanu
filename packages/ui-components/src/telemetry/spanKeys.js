@@ -9,7 +9,6 @@ export const SPAN_ATTR = {
   METHOD: 'tamanu.method',
   STATUS_CODE: 'tamanu.status_code',
   OUTCOME: 'tamanu.outcome',
-  INTERFACE: 'tamanu.interface',
   DEVICE_ID: 'tamanu.device_id',
   SESSION_ID: 'tamanu.session_id',
   APP_VERSION: 'tamanu.app_version',

@@ -22,7 +22,6 @@ function makeSpan(overrides = {}) {
     statusCode: null,
     durationMs: 640,
     outcome: 'settled',
-    interface: 'admin',
     deviceId: 'admin-test',
     sessionId: 'session-1',
     appVersion: '0.0.0',
@@ -77,6 +76,8 @@ describe('Browser telemetry ingest (central)', () => {
     expect(navigation.parentId).toBe(null);
     // central has no single facility, so rows are stored without one
     expect(navigation.facilityId).toBe(null);
+    // the interface is stamped by the endpoint (central public mount = admin)
+    expect(navigation.interface).toBe('admin');
 
     expect(request.kind).toBe('request');
     expect(request.parentId).toBe('span-nav-1');

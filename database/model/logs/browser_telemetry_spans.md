@@ -59,7 +59,7 @@ How a navigation ended: `settled` once the network went quiet, `abandoned` if th
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__interface %}
-Which web client produced the span: clinical, admin, or patient portal.
+Which web client produced the span: clinical, admin, or patient portal. Stamped server-side from the ingest endpoint that received the batch (each is reached by exactly one interface) rather than reported by the client.
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__device_id %}

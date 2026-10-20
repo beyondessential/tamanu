@@ -43,6 +43,7 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 - [x] The patient-portal's own mount (`portal/public/telemetry`) stores spans on central with no facility, and rejects malformed/oversized batches (verifies spec: BTEL) — central `patientPortalApi/telemetry.test.js`
 - [x] A batch whose `occurredAt` is not a datetime is rejected rather than reaching the database (verifies spec: BTEL) — central `patientPortalApi/telemetry.test.js`
 - [x] The facility stamps its own configured facility id on each row (verifies spec: BTEL) — facility `telemetry.test.js`
+- [x] Each ingest endpoint stamps the interface server-side — clinical (facility), admin (central public mount), patient-portal (central portal mount) — rather than trusting the client (verifies spec: BTEL) — facility + central `telemetry.test.js`, `patientPortalApi/telemetry.test.js`
 - [x] An authenticated batch is accepted and records its reported user (verifies spec: BTEL) — facility `telemetry.test.js`
 
 ## Raw store and retention

@@ -72,6 +72,12 @@ Also folded in: the three near-identical ingest handlers are now one shared `@ta
 - Downstream discriminator: `kind = 'request' AND parent_id IS NULL` = a standalone request; `parent_id` set = a navigation's request. No new column needed.
 - Collector tests added for standalone capture (no active nav, and after a nav settles). Spec and dbt docs updated (`parent_id`/`kind`).
 
+**Stamp `interface` server-side, not from the client:**
+- The client previously set `interface` itself — the web app inferred clinical-vs-admin from the `/admin` URL prefix, which mislabelled the admin panel's login/root screens (everything before `/admin`) as `clinical`. Found on the live central store.
+- Each ingest endpoint is reached by exactly one frontend: facility `/public/telemetry` → clinical; central `/public/telemetry` → admin; central `/portal/public/telemetry` → patient-portal. So the endpoint is the authoritative source of the interface, like `facility_id`.
+- `createBrowserTelemetryIngest({ interfaceName })` now stamps the interface; each of the three mounts passes its own. `interface` is dropped from the client payload/schema, and from the client entirely — `currentInterface()` deleted, interface removed from the web and portal context attributes, and the `INTERFACE` span attribute removed from the collector, exporter, and `spanKeys`.
+- Ingest tests assert the server stamps the right interface per endpoint (no longer round-tripping a client value). Spec and dbt `interface` doc updated.
+
 **Deviations / things to verify (surfaced for review):**
 - **Navigation patterns come from a curated list** (`PATIENT_PATHS` + the portal's two routes), not react-router's full route tree — because the app routes with nested JSX `<Routes>`, which `useMatches` can't see. The patient drill-downs (the id-bearing nav routes) are fully covered. A handful of rarely-navigated admin paths with ids (`manage/:programId`, report version edit) aren't listed, so they'd record their concrete path; add them to the list if their nav telemetry matters.
 - **Un-migrated plain-string request call sites record their concrete path** (with ids) rather than a pattern. This is deliberate — no guessing — and shrinks as `route()` adoption continues under #P10.
