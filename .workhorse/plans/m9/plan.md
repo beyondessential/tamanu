@@ -66,6 +66,12 @@ Also folded in: the three near-identical ingest handlers are now one shared `@ta
 - **`DataFetchingTable`** compared `endpoint` by identity in its fetch effect; a `route()` descriptor is a fresh object each render, so it now keys the effect off the resolved path (`endpointKey`) to avoid refetching every render.
 - Collector tests cover the explicit-template path and the raw-path fallback.
 
+**Capture every request, not just navigation children:**
+- Previously `onRequestStart` dropped any request that fired while no navigation was active (`if (!nav) return`), so suggester loads, form submissions, and idle background polls were never recorded — only page-load requests were.
+- Now every request is recorded as a request span. One during a navigation is parented to it (and still gates the page's network-quiet); one outside a navigation is a standalone span — its own trace, null `parent_id`. The `background` flag still only controls quiet, never whether a request is recorded.
+- Downstream discriminator: `kind = 'request' AND parent_id IS NULL` = a standalone request; `parent_id` set = a navigation's request. No new column needed.
+- Collector tests added for standalone capture (no active nav, and after a nav settles). Spec and dbt docs updated (`parent_id`/`kind`).
+
 **Deviations / things to verify (surfaced for review):**
 - **Navigation patterns come from a curated list** (`PATIENT_PATHS` + the portal's two routes), not react-router's full route tree — because the app routes with nested JSX `<Routes>`, which `useMatches` can't see. The patient drill-downs (the id-bearing nav routes) are fully covered. A handful of rarely-navigated admin paths with ids (`manage/:programId`, report version edit) aren't listed, so they'd record their concrete path; add them to the list if their nav telemetry matters.
 - **Un-migrated plain-string request call sites record their concrete path** (with ids) rather than a pattern. This is deliberate — no guessing — and shrinks as `route()` adoption continues under #P10.

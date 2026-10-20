@@ -27,11 +27,11 @@ Identifier unique to this span within its trace.
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__parent_id %}
-span_id of the parent span. Null for a navigation root; set to the owning navigation's span_id for a request span.
+span_id of the parent span. Null for a navigation root and for a standalone request (one made outside any page load); set to the owning navigation's span_id for a request made while that page was loading.
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__kind %}
-What the span measures: `navigation` for a page navigation, `request` for an API request made during one.
+What the span measures: `navigation` for a page load, `request` for an API request (whether made during a page load or on its own).
 {% enddocs %}
 
 {% docs logs__browser_telemetry_spans__route %}

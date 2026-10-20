@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { ROOT_CONTEXT } from '@opentelemetry/api';
 import { TELEMETRY_SPAN_KINDS, TELEMETRY_NAV_OUTCOMES } from '@tamanu/constants';
 
 import { TelemetryNavigationTracker } from '../navigationTracker';
@@ -173,6 +174,57 @@ describe('TelemetryNavigationTracker', () => {
       'patient/7c9e6679-7425-40de-944b-e07fc1f90ae7/allergies',
     );
     expect(JSON.parse(requestSpan.attributes[SPAN_ATTR.PARAMETERS]).path).toEqual({});
+  });
+
+  it('records a request made with no active navigation as a standalone span', () => {
+    // No startNavigation() — e.g. a suggester load or form submit after the page
+    // has settled, or an idle background poll.
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 1,
+      endpoint: 'suggestions/village',
+      route: 'suggestions/:category',
+      pathParams: { category: 'village' },
+      query: { q: 'nas' },
+      method: 'GET',
+      background: false,
+    });
+
+    const requestSpan = tracer.spans[0];
+    expect(requestSpan.name).toBe(TELEMETRY_SPAN_KINDS.REQUEST);
+    expect(requestSpan.attributes[SPAN_ATTR.ROUTE]).toBe('suggestions/:category');
+    expect(requestSpan.attributes[SPAN_ATTR.METHOD]).toBe('GET');
+    // Standalone: not parented to a navigation span.
+    expect(requestSpan.ctx).toBe(ROOT_CONTEXT);
+
+    tracker.onRequestSettle({ phase: 'settle', id: 1, status: 200 });
+    expect(requestSpan.ended).toBe(true);
+    expect(requestSpan.attributes[SPAN_ATTR.STATUS_CODE]).toBe(200);
+  });
+
+  it('records a standalone request even after its navigation has settled', () => {
+    tracker.startNavigation('/patients', {}, {});
+    timers.fireByMs(QUIET_MS); // navigation settles, activeNav cleared
+    expect(tracer.spans[0].ended).toBe(true);
+
+    // A request that fires afterwards (a form submit) is still captured.
+    tracker.onRequestStart({
+      phase: 'start',
+      id: 9,
+      endpoint: 'patient/abc/allergies',
+      route: 'patient/:patientId/allergies',
+      pathParams: { patientId: 'abc' },
+      query: {},
+      method: 'POST',
+      background: false,
+    });
+    tracker.onRequestSettle({ phase: 'settle', id: 9, status: 201 });
+
+    const submitSpan = tracer.spans[tracer.spans.length - 1];
+    expect(submitSpan.name).toBe(TELEMETRY_SPAN_KINDS.REQUEST);
+    expect(submitSpan.attributes[SPAN_ATTR.ROUTE]).toBe('patient/:patientId/allergies');
+    expect(submitSpan.ended).toBe(true);
+    expect(submitSpan.ctx).toBe(ROOT_CONTEXT);
   });
 
   it('ignores background requests in the quiet calculation', () => {

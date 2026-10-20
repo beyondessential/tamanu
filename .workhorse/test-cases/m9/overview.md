@@ -13,6 +13,13 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 - [ ] Signing in starts a fresh navigation for the page that renders behind the login screen, so the post-login load is measured rather than dropped (verifies spec: BTEL) — unit test owed
 - [ ] Selecting a facility likewise starts a fresh navigation (verifies spec: BTEL) — unit test owed
 
+## Request capture (all requests, not just navigation)
+
+- [x] An API request made during a navigation is recorded as a child span of it (verifies spec: BTEL) — `navigationTracker.test.js`
+- [x] An API request made with no navigation active (suggester load, idle poll) is recorded as a standalone request span with no navigation parent (verifies spec: BTEL) — `navigationTracker.test.js`
+- [x] An API request made after its navigation has already settled (e.g. a form submission) is still recorded as a standalone span (verifies spec: BTEL) — `navigationTracker.test.js`
+- [ ] A slow suggester / form submit / background poll appears as a request span with method, route, status, and duration (manual / e2e)
+
 ## Route patterns and parameters
 
 - [x] A request span records the exact `route()` template and its named params, with no inference (verifies spec: BTEL) — `navigationTracker.test.js`

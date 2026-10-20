@@ -4,17 +4,19 @@ id: BTEL
 
 # Browser performance telemetry
 
-The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long the individual API requests behind it take — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical client that is its facility server; for the admin panel and the patient portal, which both talk to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
+The web clients measure how the application performs from the user's seat — how long each page takes to become usable, and how long every API request takes — and record those measurements on the Tamanu server the client talks to for later analysis. For the clinical client that is its facility server; for the admin panel and the patient portal, which both talk to central, it is the central server. Measurement is done in the browser with OpenTelemetry; the raw events are stored locally on the receiving server and pruned on a retention schedule.
 
 This spec covers collecting the measurements and storing the raw events. Rolling the raw events up into summary statistics, anonymising them, and reporting them onward (to central and Canopy) are handled separately; the raw store described here is the source those steps read from.
 
 ## What is measured
 
-Each in-app navigation is recorded as one OpenTelemetry trace: a navigation span covering the whole page load, with a child span for every API request made during it. Measuring with traces (rather than pre-aggregated metrics) keeps each navigation and request as an individual record that can be drilled into, and leaves bucketing to the downstream aggregation step.
+Every API request is timed, and each in-app navigation is timed as a page load. These are recorded as OpenTelemetry spans: a request span for every API call, and a navigation span covering each page load. A request made while a page is loading is tied to that navigation's trace; a request made at any other time — a type-ahead suggester, a form submission, a background poll — stands on its own. Measuring with spans (rather than pre-aggregated metrics) keeps each request and navigation as an individual record that can be drilled into, and leaves bucketing to the downstream aggregation step.
 
-- [ ] Every in-app navigation produces one trace whose root is a navigation span; each API request issued during that navigation is a child span of it.
-- [ ] A navigation span's duration is the page-load time — from navigation start until the page settles (see [Determining when a page has loaded](#determining-when-a-page-has-loaded)).
+- [ ] Every API request is recorded as a request span, whether or not it belongs to a navigation, so the latency of any endpoint (including suggesters, form submissions, and background requests) can be analysed.
 - [ ] An API request span records the request's HTTP method, path, response status, and duration.
+- [ ] An in-app navigation produces a trace whose root is a navigation span; each API request issued while that navigation is loading is a child span of it.
+- [ ] A request issued when no navigation is loading is recorded as a standalone request span — its own trace, with no navigation parent.
+- [ ] A navigation span's duration is the page-load time — from navigation start until the page settles (see [Determining when a page has loaded](#determining-when-a-page-has-loaded)).
 - [ ] Telemetry is collected on all three web interfaces: the clinical web app, the admin panel, and the patient portal.
 - [ ] Collection begins from the initial application load, before the user has signed in, so the login screen and the navigations leading up to sign-in are measured like any other page.
 - [ ] Collecting and reporting telemetry never blocks the application or surfaces an error to the user; it is best-effort, and any failure in the telemetry path is swallowed.

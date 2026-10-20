@@ -76,8 +76,11 @@ export class TelemetryNavigationTracker {
 
   /** Called on the api-client `start` edge. */
   onRequestStart(event) {
-    const nav = this.activeNav;
-    if (!nav || nav.ended) return; // requests outside a navigation aren't recorded
+    // Every request is timed. One issued during a navigation is parented to it (so
+    // the page-load trace holds its requests); one issued outside a navigation — a
+    // suggester load, a form submit, an idle poll — is recorded as a standalone
+    // request span (its own trace, no parent) so slow endpoints are still captured.
+    const nav = this.activeNav && !this.activeNav.ended ? this.activeNav : null;
 
     // The route template and params come from the api-client's route() call. A
     // call site still passing a plain string has no template to group by, so its
@@ -85,7 +88,7 @@ export class TelemetryNavigationTracker {
     // are parameters.
     const route = event.route ?? event.endpoint;
     const pathParams = event.pathParams ?? {};
-    const parentContext = trace.setSpan(ROOT_CONTEXT, nav.span);
+    const parentContext = nav ? trace.setSpan(ROOT_CONTEXT, nav.span) : ROOT_CONTEXT;
     const span = this.tracer.startSpan(TELEMETRY_SPAN_KINDS.REQUEST, {}, parentContext);
     this.#applyContext(span, {
       [SPAN_ATTR.KIND]: TELEMETRY_SPAN_KINDS.REQUEST,
@@ -93,10 +96,15 @@ export class TelemetryNavigationTracker {
       [SPAN_ATTR.PARAMETERS]: JSON.stringify({ path: pathParams, query: event.query ?? {} }),
       [SPAN_ATTR.METHOD]: event.method,
     });
-    this.requestSpans.set(event.id, { span, background: event.background, navId: nav.navId });
+    this.requestSpans.set(event.id, {
+      span,
+      background: event.background,
+      navId: nav?.navId ?? null,
+    });
 
-    // Background/polling requests don't count towards network-quiet.
-    if (!event.background) {
+    // Only a foreground request belonging to the active navigation gates its
+    // network-quiet; standalone and background requests do not.
+    if (nav && !event.background) {
       nav.inFlight += 1;
       this.#clearQuiet();
     }
