@@ -27,5 +27,5 @@ elif which "$1" >/dev/null; then
   exec $*
 else
   # otherwise, run the app from source via the tsx loader, without the distrusted root CAs
-  exec node --import /app/scripts/docker-distrust-cas.mjs --import tsx app $*
+  exec node --import /app/packages/shared/src/utils/distrustedRootCas.mjs --import tsx app $*
 fi

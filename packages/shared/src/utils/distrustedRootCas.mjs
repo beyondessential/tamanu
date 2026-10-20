@@ -1,10 +1,11 @@
-// Root CAs the server images must not trust, even while the base image or Node.js still ships
-// them. Neither the system bundle nor Node's built-in store is checked against revocation lists,
-// so dropping the root is the only way to stop trusting certificates that chain to it.
+// Root CAs Tamanu must not trust, even while the OS or Node.js still ships them. Neither the
+// system bundle nor Node's built-in store is checked against revocation lists, so dropping the
+// root is the only way to stop trusting certificates that chain to it.
 //
-// Run as a script at build time, this strips them from the system bundle (used by faith, curl and
-// other native TLS clients). Loaded with `--import` at runtime, it strips them from Node's default
-// CA store (used by `fetch`, `https` and `tls`).
+// Loaded with `--import` (Docker NODE_OPTIONS and entrypoint, pm2 interpreter_args), this strips
+// them from Node's default CA store, used by `fetch`, `https` and `tls`. Run as a script during the
+// Docker build, it strips them from the system bundle, used by faith, curl and other native
+// clients.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { X509Certificate } from 'node:crypto';
 import { getCACertificates, setDefaultCACertificates } from 'node:tls';
