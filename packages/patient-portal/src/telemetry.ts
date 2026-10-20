@@ -1,8 +1,23 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, matchPath } from 'react-router';
 
-import { initBrowserTelemetry, genericiseApiPath } from '@tamanu/ui-components';
+import { initBrowserTelemetry } from '@tamanu/ui-components';
 import { TELEMETRY_INTERFACES } from '@tamanu/constants';
+
+// The portal's only id-bearing routes. Matched against the app's own route
+// definitions so the pattern and its named params are explicit, never inferred.
+const NAV_ROUTE_PATTERNS = ['/survey/:surveyId', '/register/:token'];
+
+function resolveNavigationRoute(pathname: string): {
+  route: string;
+  pathParams: Record<string, string | undefined>;
+} {
+  for (const pattern of NAV_ROUTE_PATTERNS) {
+    const match = matchPath({ path: pattern, end: false }, pathname);
+    if (match) return { route: pattern, pathParams: match.params };
+  }
+  return { route: pathname, pathParams: {} };
+}
 
 import type { TamanuApi } from '@api/TamanuApi';
 
@@ -45,7 +60,7 @@ export const PortalTelemetryRouteListener = () => {
   const location = useLocation();
   useEffect(() => {
     if (!telemetry) return;
-    const { route, pathParams } = genericiseApiPath(location.pathname);
+    const { route, pathParams } = resolveNavigationRoute(location.pathname);
     const query = Object.fromEntries(new URLSearchParams(location.search));
     telemetry.startNavigation(route, pathParams, query);
   }, [location.pathname, location.search]);

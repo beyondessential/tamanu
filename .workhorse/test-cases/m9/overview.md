@@ -13,12 +13,12 @@ Scenarios that verify the [Browser performance telemetry](../../../specs/platfor
 - [ ] Signing in starts a fresh navigation for the page that renders behind the login screen, so the post-login load is measured rather than dropped (verifies spec: BTEL) — unit test owed
 - [ ] Selecting a facility likewise starts a fresh navigation (verifies spec: BTEL) — unit test owed
 
-## Path and parameter genericisation
+## Route patterns and parameters
 
-- [x] When the call site used `route()` (#P10), the request span records the exact template and named params, with no inference (verifies spec: BTEL) — `navigationTracker.test.js`
-- [x] A plain-string endpoint (not migrated to `route()`) falls back to inferring the pattern from the concrete path (verifies spec: BTEL) — `navigationTracker.test.js`
-- [x] An endpoint path masks id-like segments into a generic route pattern and extracts the values as params (the fallback heuristic) (verifies spec: BTEL) — `genericiseApiPath.test.js`
-- [x] Long route words (`medicationRequests`, `invoice-price-lists`, …) are left intact rather than masked, so `route` stays a stable grouping key (verifies spec: BTEL) — `genericiseApiPath.test.js`
+- [x] A request span records the exact `route()` template and its named params, with no inference (verifies spec: BTEL) — `navigationTracker.test.js`
+- [x] A request to a plain-string endpoint (not migrated to `route()`) records its concrete path verbatim — the client never guesses which segments are ids (verifies spec: BTEL) — `navigationTracker.test.js`
+- [ ] A navigation to an id-bearing page records the matched route pattern from the app's route table with named params (e.g. `/patients/:category/:patientId/encounter/:encounterId`) (verifies spec: BTEL) — manual / e2e owed
+- [ ] A navigation to a static page records its path as-is (verifies spec: BTEL) — manual / e2e owed
 
 ## Reporting
 

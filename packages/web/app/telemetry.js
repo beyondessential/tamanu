@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, matchPath } from 'react-router';
 import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  initBrowserTelemetry,
-  genericiseApiPath,
-} from '@tamanu/ui-components';
+import { initBrowserTelemetry } from '@tamanu/ui-components';
 import { TELEMETRY_INTERFACES } from '@tamanu/constants';
 
 import { checkIsLoggedIn, checkIsFacilitySelected } from './store/auth';
+import { PATIENT_PATHS } from './constants/patientPaths';
 import { getDeviceId } from './utils';
 import { FULL_VERSION } from './utils/env';
 import { LOCAL_STORAGE_KEYS } from './constants';
@@ -59,6 +57,32 @@ export function initWebTelemetry(api) {
   return telemetry;
 }
 
+// The only navigation routes that carry ids are the patient drill-downs, all
+// defined (with named params) in PATIENT_PATHS — the app's own route table. Every
+// other page is a static path and groups as itself. Ordered most-specific first
+// and matched as a prefix, so a deeper or unlisted sub-path collapses to its
+// nearest id-bearing ancestor rather than ever recording a raw id.
+const NAV_ROUTE_PATTERNS = [
+  PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
+  PATIENT_PATHS.LAB_REQUEST,
+  PATIENT_PATHS.IMAGING_REQUEST,
+  PATIENT_PATHS.SUMMARY,
+  PATIENT_PATHS.MAR,
+  PATIENT_PATHS.PROGRAM_REGISTRY,
+  PATIENT_PATHS.ENCOUNTER,
+  PATIENT_PATHS.PATIENT,
+];
+
+// Resolve a concrete pathname to a route pattern and its named params by matching
+// the app's own route definitions — never by inferring which segments are ids.
+function resolveNavigationRoute(pathname) {
+  for (const pattern of NAV_ROUTE_PATTERNS) {
+    const match = matchPath({ path: pattern, end: false }, pathname);
+    if (match) return { route: pattern, pathParams: match.params };
+  }
+  return { route: pathname, pathParams: {} };
+}
+
 // Rendered inside the router: starts a navigation whenever the page being shown
 // changes. That is usually a path change, but `App` also swaps the login and
 // facility-selection screens in on the *same* URL, so the real page load only
@@ -70,7 +94,7 @@ export const TelemetryRouteListener = () => {
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
   useEffect(() => {
     if (!telemetry) return;
-    const { route, pathParams } = genericiseApiPath(location.pathname);
+    const { route, pathParams } = resolveNavigationRoute(location.pathname);
     const query = Object.fromEntries(new URLSearchParams(location.search));
     telemetry.startNavigation(route, pathParams, query);
   }, [location.pathname, location.search, isUserLoggedIn, isFacilitySelected]);

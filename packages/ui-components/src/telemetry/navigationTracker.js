@@ -2,7 +2,6 @@ import { trace, ROOT_CONTEXT } from '@opentelemetry/api';
 import { TELEMETRY_SPAN_KINDS, TELEMETRY_NAV_OUTCOMES } from '@tamanu/constants';
 
 import { SPAN_ATTR } from './spanKeys';
-import { genericiseApiPath } from './genericiseApiPath';
 
 // spec: BTEL
 // Drives the OpenTelemetry spans for browser performance telemetry. One
@@ -80,13 +79,12 @@ export class TelemetryNavigationTracker {
     const nav = this.activeNav;
     if (!nav || nav.ended) return; // requests outside a navigation aren't recorded
 
-    // Prefer the template and params the api-client resolved from a route()
-    // call; fall back to inferring them from the concrete path for plain-string
-    // endpoints that haven't been migrated to route().
-    const { route, pathParams } =
-      event.route !== undefined
-        ? { route: event.route, pathParams: event.pathParams ?? {} }
-        : genericiseApiPath(event.endpoint);
+    // The route template and params come from the api-client's route() call. A
+    // call site still passing a plain string has no template to group by, so its
+    // concrete path is recorded as-is — the client never guesses which segments
+    // are parameters.
+    const route = event.route ?? event.endpoint;
+    const pathParams = event.pathParams ?? {};
     const parentContext = trace.setSpan(ROOT_CONTEXT, nav.span);
     const span = this.tracer.startSpan(TELEMETRY_SPAN_KINDS.REQUEST, {}, parentContext);
     this.#applyContext(span, {

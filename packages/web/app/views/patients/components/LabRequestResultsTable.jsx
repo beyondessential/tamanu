@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { route } from '@tamanu/api-client';
 import styled from 'styled-components';
 
 import { getLabTestValidationCriteria, getReferenceRange } from '@tamanu/utils/labTests';
@@ -264,7 +265,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
     <>
       <StyledDataFetchingTable
         columns={columns}
-        endpoint={`labRequest/${labRequest.id}/tests`}
+        endpoint={route('labRequest/:labRequestId/tests', { labRequestId: labRequest.id })}
         initialSort={{ order: 'asc', orderBy: 'id' }}
         elevated={false}
         refreshCount={refreshCount}

@@ -153,10 +153,12 @@ describe('TelemetryNavigationTracker', () => {
     });
   });
 
-  it('falls back to inferring the route for a plain-string endpoint', () => {
+  it('records the raw path for a plain-string endpoint, without inferring params', () => {
     tracker.startNavigation('/patients', {}, {});
 
-    // No route/pathParams on the event — an endpoint that was not migrated to route().
+    // No route/pathParams on the event — an endpoint not migrated to route(). The
+    // collector records the concrete path verbatim rather than guessing which
+    // segments are ids.
     tracker.onRequestStart({
       phase: 'start',
       id: 1,
@@ -167,10 +169,10 @@ describe('TelemetryNavigationTracker', () => {
     });
 
     const requestSpan = tracer.spans[1];
-    expect(requestSpan.attributes[SPAN_ATTR.ROUTE]).toBe('patient/:param1/allergies');
-    expect(JSON.parse(requestSpan.attributes[SPAN_ATTR.PARAMETERS]).path).toEqual({
-      param1: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-    });
+    expect(requestSpan.attributes[SPAN_ATTR.ROUTE]).toBe(
+      'patient/7c9e6679-7425-40de-944b-e07fc1f90ae7/allergies',
+    );
+    expect(JSON.parse(requestSpan.attributes[SPAN_ATTR.PARAMETERS]).path).toEqual({});
   });
 
   it('ignores background requests in the quiet calculation', () => {
