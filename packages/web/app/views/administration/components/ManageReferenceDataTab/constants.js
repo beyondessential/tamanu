@@ -11,6 +11,11 @@ export const DATA_TYPE_OPTIONS = MANAGEABLE_REFERENCE_DATA_TYPES.toSorted().map(
 
 export const REQUIRED_FIELDS = new Set(['id', 'code', 'name']);
 
+// A DB default only applies on insert, so a NOT NULL column with a default can be left blank when
+// adding, but must keep a value when editing.
+export const isFieldRequired = (col, { isEditMode }) =>
+  REQUIRED_FIELDS.has(col.key) || (!col.allowNull && (isEditMode || !col.hasDefault));
+
 export const SUGGESTER_FORMATTER = ({ name, id }) => ({ label: `${name} (${id})`, value: id });
 export const SUGGESTER_OPTIONS = { formatter: SUGGESTER_FORMATTER };
 

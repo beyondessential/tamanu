@@ -22,7 +22,7 @@ import {
 import { NumberField } from '../../../../components/Field/NumberField';
 import { CheckField } from '../../../../components/Field/CheckField';
 import { useSuggester } from '../../../../api/suggesters';
-import { REQUIRED_FIELDS, SUGGESTER_OPTIONS } from './constants';
+import { isFieldRequired, SUGGESTER_OPTIONS } from './constants';
 
 // Columns whose values the schema stores as plain strings; the server names the registered labels
 // constant so the option text is the product's own, and translated.
@@ -69,7 +69,7 @@ const getFieldComponent = columnType => {
   }
 };
 
-const SuggesterFormField = memo(({ col, disabled }) => {
+const SuggesterFormField = memo(({ col, isEditMode, disabled }) => {
   const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
   return (
     <Field
@@ -77,14 +77,14 @@ const SuggesterFormField = memo(({ col, disabled }) => {
       label={col.key}
       component={AutocompleteField}
       suggester={suggester}
-      required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+      required={isFieldRequired(col, { isEditMode })}
       disabled={disabled}
       data-testid={`field-form-${col.key}`}
     />
   );
 });
 
-const MultiSuggesterFormField = memo(({ col, disabled }) => {
+const MultiSuggesterFormField = memo(({ col, isEditMode, disabled }) => {
   const suggester = useSuggester(col.suggesterEndpoint, SUGGESTER_OPTIONS);
   return (
     <Field
@@ -92,7 +92,7 @@ const MultiSuggesterFormField = memo(({ col, disabled }) => {
       label={col.key}
       component={MultiAutocompleteField}
       suggester={suggester}
-      required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+      required={isFieldRequired(col, { isEditMode })}
       disabled={disabled}
       data-testid={`field-form-${col.key}`}
       style={{ gridColumn: 'span 2' }}
@@ -101,7 +101,10 @@ const MultiSuggesterFormField = memo(({ col, disabled }) => {
 });
 
 const AvailableFacilitiesFormField = memo(({ disabled }) => {
-  const suggester = useSuggester('facility', { ...SUGGESTER_OPTIONS, baseQueryParameters: { ...SUGGESTER_OPTIONS.baseQueryParameters, noLimit: true } });
+  const suggester = useSuggester('facility', {
+    ...SUGGESTER_OPTIONS,
+    baseQueryParameters: { ...SUGGESTER_OPTIONS.baseQueryParameters, noLimit: true },
+  });
   return (
     <Field
       name="availableFacilities"
@@ -123,11 +126,11 @@ export const FormField = memo(({ col, isEditMode, selectedType }) => {
   }
 
   if (col.suggesterEndpoint && col.multiSelect) {
-    return <MultiSuggesterFormField col={col} disabled={disabled} />;
+    return <MultiSuggesterFormField col={col} isEditMode={isEditMode} disabled={disabled} />;
   }
 
   if (col.suggesterEndpoint) {
-    return <SuggesterFormField col={col} disabled={disabled} />;
+    return <SuggesterFormField col={col} isEditMode={isEditMode} disabled={disabled} />;
   }
 
   const enumLabels = ENUM_LABELS[col.enumName];
@@ -138,7 +141,7 @@ export const FormField = memo(({ col, isEditMode, selectedType }) => {
         label={col.key}
         component={TranslatedSelectField}
         enumValues={enumLabels}
-        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+        required={isFieldRequired(col, { isEditMode })}
         disabled={disabled}
         data-testid={`field-form-${col.key}`}
       />
@@ -153,7 +156,7 @@ export const FormField = memo(({ col, isEditMode, selectedType }) => {
         label={col.key}
         component={SelectField}
         options={options}
-        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+        required={isFieldRequired(col, { isEditMode })}
         disabled={disabled}
         data-testid={`field-form-${col.key}`}
       />
@@ -167,7 +170,7 @@ export const FormField = memo(({ col, isEditMode, selectedType }) => {
         label={col.key}
         component={SelectField}
         options={getVisibilityStatusOptions(selectedType)}
-        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+        required={isFieldRequired(col, { isEditMode })}
         disabled={disabled}
         data-testid={`field-form-${col.key}`}
       />
@@ -179,7 +182,7 @@ export const FormField = memo(({ col, isEditMode, selectedType }) => {
       name={col.key}
       label={col.key}
       component={getFieldComponent(col.type)}
-      required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+      required={isFieldRequired(col, { isEditMode })}
       disabled={disabled}
       data-testid={`field-form-${col.key}`}
     />
