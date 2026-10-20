@@ -5,7 +5,7 @@ import { getStatus } from '../../../utils/lab';
 import { DateDisplay, Table } from '../../../components';
 import { useApi } from '../../../api';
 import { TranslatedText, Modal, ModalLoader } from '@tamanu/ui-components';
-
+import { route } from '@tamanu/api-client';
 
 const COLUMNS = [
   {
@@ -65,7 +65,7 @@ const StyledTable = styled(Table)`
 export const LabRequestLogModal = ({ open, onClose, labRequest }) => {
   const api = useApi();
   const { isLoading, data } = useQuery(['labRequestLog', labRequest.id], () =>
-    api.get(`labRequestLog/labRequest/${labRequest.id}`),
+    api.get(route('labRequestLog/labRequest/:labRequestId', { labRequestId: labRequest.id })),
   );
 
   return (

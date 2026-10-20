@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { camelCase } from 'es-toolkit/compat';
 import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 import { getPatientNameAsString } from '../components';
 import { useApi, useTranslation, useDateTime } from '../contexts';
 
@@ -20,7 +21,9 @@ export const usePatientDataDisplayValue = () => {
       } else {
         try {
           const { data, model } = await api.get(
-            `surveyResponse/patient-data-field-association-data/${config.column}`,
+            route('surveyResponse/patient-data-field-association-data/:column', {
+              column: config.column,
+            }),
             {
               value,
             },

@@ -4,20 +4,27 @@ import storage from 'redux-persist/lib/storage';
 import { persistCombineReducers } from 'redux-persist';
 
 import { authReducer } from './auth';
-import { imagingRequestReducer } from './imagingRequest';
-import { specialModalsReducer } from './specialModals';
-import { systemErrorsReducer } from './systemErrors';
+import { systemErrorStore } from '../state/systemErrorStore';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 export const createReducers = () => ({
   auth: authReducer,
-  imagingRequest: imagingRequestReducer,
-  specialModals: specialModalsReducer,
-  systemErrors: systemErrorsReducer,
 });
 
+// System errors live outside redux (state/systemErrorStore.js) but stay session-scoped, so
+// clear them on the same auth lifecycle actions the old slice keyed on. These string literals
+// mirror auth.js (which doesn't export them), matching the previous reducer.
+export const clearSystemErrorsOnAuthChange = () => next => action => {
+  if (action.type === 'LOGIN_SUCCESS' || action.type === 'LOGOUT') {
+    systemErrorStore.clear();
+  }
+  return next(action);
+};
+
 export function initStore(api, initialState = {}) {
-  const enhancers = compose(applyMiddleware(thunk.withExtraArgument({ api })));
+  const enhancers = compose(
+    applyMiddleware(thunk.withExtraArgument({ api }), clearSystemErrorsOnAuthChange),
+  );
   const persistConfig = { key: 'tamanu', storage };
   if (!IS_DEVELOPMENT) {
     persistConfig.whitelist = []; // persist used for a dev experience, but not required in production

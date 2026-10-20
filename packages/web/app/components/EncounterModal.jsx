@@ -136,6 +136,7 @@ export const EncounterModal = React.memo(
           noRedirectOnSubmit={noRedirectOnSubmit}
           onClose={onCloseModal}
           patient={patient}
+          patientBillingTypeId={patientBillingTypeId}
           initialValues={initialValues}
           data-testid="triagemodal-715s"
           withExistingEncounterCheck={withExistingEncounterCheck}

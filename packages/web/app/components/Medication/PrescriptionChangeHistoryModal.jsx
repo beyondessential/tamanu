@@ -13,6 +13,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { notifyError, singularize } from '../../utils';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
 import { Colors } from '../../constants';
+import { route } from '@tamanu/api-client';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -109,7 +110,8 @@ export const PrescriptionChangeHistoryModal = ({ open, dispenseId = null, onClos
 
   const { data } = useQuery(
     ['medicationDispenseModifyHistory', dispenseId],
-    () => api.get(`medication/medication-dispenses/${dispenseId}/modify-history`),
+    () =>
+      api.get(route('medication/medication-dispenses/:dispenseId/modify-history', { dispenseId })),
     {
       enabled: open && Boolean(dispenseId),
       onError: err => notifyError(err?.message),

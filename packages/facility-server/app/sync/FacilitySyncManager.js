@@ -1,5 +1,5 @@
 import _config from 'config';
-import { log } from '@tamanu/shared/services/logging';
+
 import { SYNC_FACILITY_RUN_STATUSES } from '@tamanu/constants';
 import {
   FACT_CURRENT_SYNC_TICK,
@@ -10,24 +10,24 @@ import {
   createSnapshotTable,
   dropAllSnapshotTables,
   dropSnapshotTable,
-  getModelsForPush,
   getModelsForPull,
+  getModelsForPush,
   saveIncomingChanges,
   waitForPendingEditsUsingSyncTick,
   withDeferredSyncSafeguards,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { Problem } from '@tamanu/errors';
-
+import { log } from '@tamanu/shared/services/logging';
 import { getSyncConfig } from '../serverConfig';
-
-import { pushOutgoingChanges } from './pushOutgoingChanges';
-import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
-import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
-import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
-import { pullSettingsPsk } from './pullSettingsPsk';
 import { convergeSyncUser } from './convergeSyncUser';
+import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { applyBootstrap } from './facilityBootstrap';
+import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
+import { pullSettingsPsk } from './pullSettingsPsk';
+import { pushOutgoingChanges } from './pushOutgoingChanges';
+import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 export class FacilitySyncManager {
   static config = _config;
@@ -53,10 +53,13 @@ export class FacilitySyncManager {
 
   centralServer = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   currentSyncPromise = null;
 
+  /** @type {Promise<{ queued: boolean; ran: boolean; }> | null} */
   nextSyncPromise = null;
 
+  /** @type {string | null} */
   reason = null;
 
   lastDurationMs = 0;
@@ -64,6 +67,8 @@ export class FacilitySyncManager {
   lastCompletedAt = 0;
 
   currentStartTime = 0;
+
+  hasBootstrapped = false;
 
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
@@ -175,7 +180,7 @@ export class FacilitySyncManager {
       throw new Error('Sync credentials are not configured');
     }
 
-    const startTime = new Date().getTime();
+    const startTime = Date.now();
     this.currentStartTime = startTime;
 
     log.info('FacilitySyncManager.attemptStart', {
@@ -184,6 +189,10 @@ export class FacilitySyncManager {
     });
 
     const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
+
+    if (pullSince === -1 && !this.hasBootstrapped) {
+      await this.bootstrap();
+    }
 
     // the first step of sync is to start a session and retrieve the session id
     const {
@@ -255,6 +264,22 @@ export class FacilitySyncManager {
     this.lastCompletedAt = new Date();
 
     return { queued: false, ran: true };
+  }
+
+  // spec: FBOOT#when-a-facility-bootstraps
+  // Lets the facility be logged into while its first sync runs. Once per process rather than before
+  // every attempt, as attempts repeat on every scheduled tick while the facility waits in central's
+  // sync queue. A failure is retried on the next attempt, and never holds up the sync itself.
+  async bootstrap() {
+    try {
+      const records = await this.centralServer.fetchBootstrap();
+      await this.sequelize.transaction(() =>
+        applyBootstrap({ sequelize: this.sequelize, models: this.models }, records),
+      );
+      this.hasBootstrapped = true;
+    } catch (error) {
+      log.warn('FacilitySyncManager.bootstrapFailed', { error: error.message });
+    }
   }
 
   async pushChanges(sessionId, newSyncClockTime) {

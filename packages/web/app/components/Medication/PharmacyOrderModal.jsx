@@ -1,6 +1,6 @@
 import { FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
 import Box from '@mui/material/Box';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -26,6 +26,7 @@ import { notifyError } from '../../utils';
 import { getDefaultPrescriptionType } from '../../utils/getDefaultPrescriptionType';
 import { BodyText } from '../Typography';
 import { COLUMN_KEYS, PharmacyOrderMedicationTable } from './PharmacyOrderMedicationTable';
+import { route } from '@tamanu/api-client';
 
 const MODAL_TYPES = {
   REQUEST_CONFIRMATION: 'request_confirmation',
@@ -161,7 +162,6 @@ export const PharmacyOrderModal = React.memo(
     const [orderingClinicianError, setOrderingClinicianError] = useState(false);
     const [comments, setComments] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
     const api = useApi();
     const queryClient = useQueryClient();
@@ -188,12 +188,7 @@ export const PharmacyOrderModal = React.memo(
       isOngoingMode || prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
 
     // Only fetch encounter medications if in encounter mode
-    const {
-      data,
-      error,
-      isLoading,
-      refetch: refetchEncounterMedications,
-    } = useEncounterMedicationQuery(encounter?.id);
+    const { data, error, isLoading } = useEncounterMedicationQuery(encounter?.id);
 
     const initialPrescriptions = useMemo(() => {
       if (isOngoingMode) {
@@ -345,9 +340,8 @@ export const PharmacyOrderModal = React.memo(
       return isValidFormData;
     }, [prescriptions, orderingClinicianId]);
 
-    const submitOrder = useCallback(async () => {
-      setIsSubmitting(true);
-      try {
+    const { mutate: submitOrder, isLoading: isSubmitting } = useMutation(
+      async () => {
         const selectedPrescriptions = prescriptions.filter(p => p.selected);
 
         if (isOngoingMode) {
@@ -365,48 +359,41 @@ export const PharmacyOrderModal = React.memo(
           };
 
           await api.post('medication/send-ongoing-to-pharmacy', orderData);
-          await queryClient.invalidateQueries(['patient-ongoing-prescriptions', patient.id]);
-        } else {
-          // Standard encounter-based pharmacy order
-          const orderData = {
-            encounterId: encounter.id,
-            orderingClinicianId,
-            comments,
-            isDischargePrescription: isDischargeOrOutpatient,
-            facilityId,
-            pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
-              prescriptionId: prescription.id,
-              quantity: prescription.quantity,
-              repeats: prescription.repeats,
-            })),
-          };
-
-          await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
-          await queryClient.invalidateQueries(['encounterMedication', encounter.id]);
-          refetchEncounterMedications();
+          return;
         }
 
-        onSubmit();
-        setShowSuccess(true);
-      } catch (err) {
-        notifyError(err.message);
-      } finally {
-        setIsSubmitting(false);
-      }
-    }, [
-      queryClient,
-      isOngoingMode,
-      patient?.id,
-      encounter?.id,
-      orderingClinicianId,
-      comments,
-      isDischargeOrOutpatient,
-      facilityId,
-      prescriptions,
-      api,
-      refetchEncounterMedications,
-      onSubmit,
-    ]);
+        // Standard encounter-based pharmacy order
+        const orderData = {
+          encounterId: encounter.id,
+          orderingClinicianId,
+          comments,
+          isDischargePrescription: isDischargeOrOutpatient,
+          facilityId,
+          pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
+            prescriptionId: prescription.id,
+            quantity: prescription.quantity,
+            repeats: prescription.repeats,
+          })),
+        };
+
+        await api.post(
+          route('encounter/:encounterId/pharmacyOrder', { encounterId: encounter.id }),
+          orderData,
+        );
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(
+            isOngoingMode
+              ? ['patient-ongoing-prescriptions', patient.id]
+              : ['encounterMedication', encounter.id],
+          );
+          onSubmit();
+          setShowSuccess(true);
+        },
+        onError: err => notifyError(err.message),
+      },
+    );
 
     const handleSendOrder = useCallback(() => {
       if (!validateForm()) return;
@@ -448,7 +435,12 @@ export const PharmacyOrderModal = React.memo(
       if (isDischargeOrOutpatient && !isOngoingMode) {
         columns.push(COLUMN_KEYS.DURATION);
       }
-      columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
+      columns.push(
+        COLUMN_KEYS.STOCK,
+        COLUMN_KEYS.DATE,
+        COLUMN_KEYS.LAST_SENT,
+        COLUMN_KEYS.QUANTITY,
+      );
       if (isDischargeOrOutpatient) {
         columns.push(COLUMN_KEYS.REPEATS);
       }
@@ -547,8 +539,9 @@ export const PharmacyOrderModal = React.memo(
           <SubmitButtonsWrapper>
             <ConfirmCancelBackRow
               onBack={() => setShowAlreadyOrderedConfirmation(false)}
+              backDisabled={isSubmitting}
               onCancel={handleClose}
-              onConfirm={submitOrder}
+              onConfirm={() => submitOrder()}
               confirmDisabled={isSubmitting}
               data-testid="confirmcancelrow-7g3j"
             />

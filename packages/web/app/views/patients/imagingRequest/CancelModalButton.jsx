@@ -8,6 +8,7 @@ import { useApi } from '../../../api';
 import { useSettings } from '../../../contexts/Settings';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 function getReasonForCancellationStatus(reasonForCancellation) {
   // these values are set in localisation
@@ -27,19 +28,20 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
   const api = useApi();
   const { getSetting } = useSettings();
   const allCancellationReasons = getSetting('imagingCancellationReasons');
-  const cancellationReasonOptions = allCancellationReasons.filter((reason) => !reason.hidden);
+  const cancellationReasonOptions = allCancellationReasons.filter(reason => !reason.hidden);
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
-    const reasonText = cancellationReasonOptions.find(
-      (x) => x.value === reasonForCancellation,
-    ).label;
+    const reasonText = cancellationReasonOptions.find(x => x.value === reasonForCancellation).label;
     const note = `Request cancelled. Reason: ${reasonText}.`;
     const status = getReasonForCancellationStatus(reasonForCancellation);
-    await api.put(`imagingRequest/${imagingRequest.id}`, {
-      status,
-      reasonForCancellation,
-      note,
-    });
+    await api.put(
+      route('imagingRequest/:imagingRequestId', { imagingRequestId: imagingRequest.id }),
+      {
+        status,
+        reasonForCancellation,
+        note,
+      },
+    );
     onCancel();
   };
 

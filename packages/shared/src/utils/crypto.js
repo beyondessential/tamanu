@@ -11,6 +11,7 @@ import { log } from '../services/logging';
 
 const read = promisify(readSync);
 
+// forget_server_identity() matches this prefix; a new version needs a migration that recreates it.
 const SECRET_VERSION = 'S1';
 
 /**

@@ -196,6 +196,14 @@ test.describe('Medication - Encounter', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByRole('dialog')).toContainText('Send to pharmacy');
 
+    // Stock column renders with a resolved status for the prescribed medication (row 0, the only
+    // prescription on this encounter), regardless of which status the seeded reference data
+    // happens to carry — sending is never gated on stock.
+    await expect(page.getByRole('dialog').getByText('Stock', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('styledtablecell-2gyy-0-stock')).toHaveText(
+      /^(Yes|No|Unknown)$/,
+    );
+
     // Select the prescription
     const prescriptionCheckbox = page.getByTestId('select-all-checkbox-controlcheck').first();
     await prescriptionCheckbox.waitFor({ state: 'visible' });

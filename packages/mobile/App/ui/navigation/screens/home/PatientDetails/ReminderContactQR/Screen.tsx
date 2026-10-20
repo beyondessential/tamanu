@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QRCode from 'react-native-qrcode-svg';
-import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
-import { joinNames } from '~/ui/helpers/user';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
-import { theme } from '~/ui/styled/theme';
-import { CrossIcon } from '~/ui/components/Icons';
 import { compose } from 'redux';
-import { withPatient } from '~/ui/containers/Patient';
-import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
-import { Routes } from '~/ui/helpers/routes';
-import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { useSocket } from '~/ui/hooks/useSocket';
 import { WS_EVENTS } from '~/constants/webSocket';
+import { CrossIcon } from '~/ui/components/Icons';
+import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { withPatient } from '~/ui/containers/Patient';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { joinNames } from '~/ui/helpers/user';
+import { useSocket } from '~/ui/hooks/useSocket';
+import type { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
+import { FullView, StyledText, StyledTouchableOpacity, StyledView } from '~/ui/styled/common';
+import { theme } from '~/ui/styled/theme';
 
 interface IReminderContactQR extends BaseAppProps {
   route: {
@@ -32,25 +32,19 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
 
   useEffect(() => {
     if (!socket) return;
-    socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
-    socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-    return () => {
-      socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
-    };
-  }, [socket]);
-
-  const handleBotInfo = useCallback(
-    botInfo => {
+    const handleBotInfo = botInfo => {
       if (botInfo?.username && contactId) {
         setEmbedUrl(`https://t.me/${botInfo.username}?start=${contactId}`);
       }
-    },
-    [contactId],
-  );
+    };
+    socket.emit(WS_EVENTS.TELEGRAM_GET_BOT_INFO);
+    socket.once(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
+    return () => void socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
+  }, [contactId, socket]);
 
-  const onNavigateBack = useCallback(() => {
+  const onNavigateBack = () => {
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
-  }, [navigation]);
+  };
 
   const description = getTranslation(
     'patient.details.reminderContactQr.description',

@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 import { FIJI_SRH_FACILITY_IDS, FIJI_SRH_NETWORK } from '../../src/sensitiveNetworks.js';
 
@@ -23,7 +22,6 @@ const makeArgs = ({ hasFijiSrh = false, isSensitiveDropped = false, serverType =
           return [[], 0];
         }),
       },
-      models: { LocalSystemFact: { incrementValue: vi.fn(async () => 42) } },
       log: { info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
     } as any,
     queries,
@@ -86,7 +84,7 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
 
   // The point of the paths being exclusive: the SRH rows are written once, not tagged by the
   // ordinary rescope and then rewritten.
-  it('rescopes and re-ticks the SRH rows in a single statement', async () => {
+  it('rescopes the SRH rows in a single statement', async () => {
     const { args, queries } = makeArgs({ hasFijiSrh: true });
 
     await fijiSrhStep.run(args);
@@ -94,20 +92,20 @@ describe('1789695736431-fijiSrhSensitiveNetwork', () => {
     const writes = queries.filter(query => query.sql.includes('UPDATE sync_lookup'));
     expect(writes).toHaveLength(1);
     expect(writes[0].sql).toContain('facility_id = NULL');
-    expect(writes[0].sql).toContain('updated_at_sync_tick');
     expect(writes[0].replacements).toMatchObject({ facilityIds: FIJI_SRH_FACILITY_IDS });
   });
 
-  it('takes a fresh tick so each facility pulls what it has not seen', async () => {
+  // A lookup re-tick would be undone by any full lookup rebuild; a newly marked patient's history
+  // is pulled from all time regardless of lookup ticks.
+  it('re-marks the SRH patients for sync so each facility pulls their full history', async () => {
     const { args, queries } = makeArgs({ hasFijiSrh: true });
 
     await fijiSrhStep.run(args);
 
-    expect(args.models.LocalSystemFact.incrementValue).toHaveBeenCalledWith(
-      FACT_CURRENT_SYNC_TICK,
-      2,
-    );
-    expect(findQuery(queries, 'UPDATE sync_lookup')!.replacements.tick).toBe(41);
+    const reMark = findQuery(queries, 'UPDATE patient_facilities')!;
+    expect(reMark.sql).toContain('updated_at_sync_tick = 1');
+    expect(reMark.replacements).toMatchObject({ facilityIds: FIJI_SRH_FACILITY_IDS });
+    expect(findQuery(queries, 'UPDATE sync_lookup')!.sql).not.toContain('updated_at_sync_tick');
   });
 
   it('leaves rows that are not encounter scoped alone', async () => {

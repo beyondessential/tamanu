@@ -1,22 +1,17 @@
 import React from 'react';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { Genders, getUserInitials } from '/helpers/user';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { Genders, getUserInitials } from '/helpers/user';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
 export interface UserAvatarProps {
   displayName: string;
+  icon?: React.ReactNode;
   sex?: string;
   size: number;
-  Icon?: JSX.Element;
 }
 
-export const UserAvatar = ({
-  displayName,
-  sex,
-  size,
-  Icon,
-}: UserAvatarProps): JSX.Element => {
+export const UserAvatar = ({ displayName, icon, sex, size }: UserAvatarProps) => {
   const userInitials: string = React.useMemo(
     () => (displayName ? getUserInitials(displayName) : 'user'),
     [displayName],
@@ -39,7 +34,7 @@ export const UserAvatar = ({
       >
         {userInitials}
       </StyledText>
-      {Icon}
+      {icon}
     </StyledView>
   );
 };

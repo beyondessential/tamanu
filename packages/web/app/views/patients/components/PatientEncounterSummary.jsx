@@ -1,4 +1,4 @@
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import Typography from '@material-ui/core/Typography';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
@@ -25,6 +25,7 @@ import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDate
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { getFullLocationName } from '../../../utils/location';
+import { route } from '@tamanu/api-client';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -149,7 +150,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
     queryKey: ['patientDeathSummary', patient.id],
     queryFn: async () =>
       await api.get(
-        `patient/${encodeURIComponent(patient.id)}/death`,
+        route('patient/:patientId/death', { patientId: patient.id }),
         {},
         { showUnknownErrorToast: false },
       ),

@@ -65,7 +65,7 @@ export default {
   scheduledVaccine: {},
   administeredVaccine: {
     loader: administeredVaccineLoader,
-    needs: ['scheduledVaccine', 'user', 'location', 'department'],
+    needs: ['scheduledVaccine', 'user', 'location', 'department', 'patient'],
   },
 
   labTestType: {},

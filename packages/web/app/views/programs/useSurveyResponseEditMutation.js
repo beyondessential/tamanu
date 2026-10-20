@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 export const useSurveyResponseEditMutation = (
   { surveyResponseId, survey },
@@ -18,7 +19,7 @@ export const useSurveyResponseEditMutation = (
   return useMutation({
     mutationKey: ['surveyResponseEdit', surveyResponseId],
     mutationFn: async data =>
-      await api.patch(`surveyResponse/${encodeURIComponent(surveyResponseId)}`, {
+      await api.patch(route('surveyResponse/:surveyResponseId', { surveyResponseId }), {
         answers: await getAnswersFromData(data, survey),
         editedTime: getCurrentDateTime(),
         facilityId,

@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const PatientMenuButton = ({ title, Icon, onPress }: MenuOptionButtonProps): JSX.Element => (
+export const PatientMenuButton = ({ title, Icon, onPress }: MenuOptionButtonProps) => (
   <TouchableHighlight underlayColor={theme.colors.BOX_OUTLINE} onPress={onPress}>
     <StyledView
       style={styles.buttonContainer}

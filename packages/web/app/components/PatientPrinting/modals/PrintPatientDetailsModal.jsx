@@ -23,6 +23,7 @@ import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
 import { InternationalPatientSummaryIcon } from '../icons/InternationalPatientSummaryIcon';
 import { useSettings } from '../../../contexts/Settings';
 import { PatientPortalIcon } from '../icons/PatientPortalIcon';
+import { route } from '@tamanu/api-client';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -363,7 +364,7 @@ const PrintOption = ({ label, caption, icon: Icon, onPress }) => (
 
 async function getPatientProfileImage(api, patientId) {
   try {
-    const { data } = await api.get(`patient/${patientId}/profilePicture`);
+    const { data } = await api.get(route('patient/:patientId/profilePicture', { patientId }));
     return data;
   } catch (e) {
     // 1x1 blank pixel

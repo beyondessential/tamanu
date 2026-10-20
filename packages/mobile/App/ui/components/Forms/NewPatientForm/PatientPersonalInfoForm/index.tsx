@@ -256,7 +256,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
           getSetting,
         )}
       >
-        {({ handleSubmit }): JSX.Element => (
+        {({ handleSubmit }) => (
           <KeyboardAvoidingView style={styles.KeyboardAvoidingView} behavior="padding">
             <ScrollView
               style={styles.ScrollView}

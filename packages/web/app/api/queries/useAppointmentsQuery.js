@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 const useAppointmentsQuery = (fetchOptions, useQueryOptions = {}) => {
   const { facilityId } = useAuth();
@@ -33,7 +34,6 @@ export const useOutpatientAppointmentsQuery = (
 export const useLocationBookingsQuery = (fetchOptions, useQueryOptions = {}) =>
   useAppointmentsQuery({ locationId: '', ...fetchOptions }, useQueryOptions);
 
-
 const useHasPastAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
   const api = useApi();
   return useQuery(
@@ -41,36 +41,62 @@ const useHasPastAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptio
     // select different results from the same endpoint, so they belong in the key —
     // otherwise the two variants share one cache entry and whichever mounts first wins.
     ['hasPastAppointments', patientId, fetchOptions],
-    () => api.get(`appointments/hasPastAppointments/${patientId}`, fetchOptions),
+    () =>
+      api.get(route('appointments/hasPastAppointments/:patientId', { patientId }), fetchOptions),
     useQueryOptions,
   );
-}
+};
 
 export const useHasPastOutpatientAppointmentsQuery = (patientId, useQueryOptions = {}) => {
   const { facilityId } = useAuth();
-  return useHasPastAppointmentsQuery(patientId, { facilityId, type: 'outpatient' }, useQueryOptions);
-}
+  return useHasPastAppointmentsQuery(
+    patientId,
+    { facilityId, type: 'outpatient' },
+    useQueryOptions,
+  );
+};
 
 export const useHasPastLocationBookingsQuery = (patientId, useQueryOptions = {}) => {
   const { facilityId } = useAuth();
-  return useHasPastAppointmentsQuery(patientId, { facilityId, type: 'locationBooking' }, useQueryOptions);
-}
+  return useHasPastAppointmentsQuery(
+    patientId,
+    { facilityId, type: 'locationBooking' },
+    useQueryOptions,
+  );
+};
 
 const useUpcomingAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
   const api = useApi();
   return useQuery(
     ['upcomingAppointments', patientId, fetchOptions],
-    () => api.get(`appointments/upcomingAppointments/${patientId}`, fetchOptions),
+    () =>
+      api.get(route('appointments/upcomingAppointments/:patientId', { patientId }), fetchOptions),
     useQueryOptions,
   );
-}
+};
 
-export const useUpcomingOutpatientAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+export const useUpcomingOutpatientAppointmentsQuery = (
+  patientId,
+  fetchOptions = {},
+  useQueryOptions = {},
+) => {
   const { facilityId } = useAuth();
-  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'outpatient', ...fetchOptions }, useQueryOptions);
-}
+  return useUpcomingAppointmentsQuery(
+    patientId,
+    { facilityId, type: 'outpatient', ...fetchOptions },
+    useQueryOptions,
+  );
+};
 
-export const useUpcomingLocationBookingsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+export const useUpcomingLocationBookingsQuery = (
+  patientId,
+  fetchOptions = {},
+  useQueryOptions = {},
+) => {
   const { facilityId } = useAuth();
-  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'locationBooking', ...fetchOptions }, useQueryOptions);
-}
+  return useUpcomingAppointmentsQuery(
+    patientId,
+    { facilityId, type: 'locationBooking', ...fetchOptions },
+    useQueryOptions,
+  );
+};

@@ -1,3 +1,4 @@
+import { route } from '@tamanu/api-client';
 import { getCurrentLanguageCode } from '../Translation';
 
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
@@ -5,7 +6,7 @@ const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 export class Suggester {
   constructor(
     api,
-    endpoint,
+    category,
     {
       formatter = defaultFormatter,
       filterer = () => true,
@@ -15,7 +16,7 @@ export class Suggester {
     } = {},
   ) {
     this.api = api;
-    this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
+    this.category = category;
     this.formatter = formatter;
     this.filterer = filterer;
     this.baseQueryParameters = baseQueryParameters;
@@ -30,17 +31,17 @@ export class Suggester {
    * instead would let concurrent callers read each other's data, which showed up as one field
    * displaying another field's selection.
    */
-  async fetch(suffix, queryParameters) {
-    return this.api.get(`${this.endpoint}${suffix}`, queryParameters);
-  }
 
   fetchCurrentOption = async value => {
     if (!this.enable) return undefined;
     try {
-      const data = await this.fetch(`/${encodeURIComponent(value)}`, {
-        language: getCurrentLanguageCode(),
-        facilityId: this.baseQueryParameters?.facilityId,
-      });
+      const data = await this.api.get(
+        route('suggestions/:category/:value', { category: this.category, value }),
+        {
+          language: getCurrentLanguageCode(),
+          facilityId: this.baseQueryParameters?.facilityId,
+        },
+      );
       return this.formatter(data);
     } catch (e) {
       return undefined;
@@ -50,7 +51,7 @@ export class Suggester {
   fetchSuggestions = async search => {
     if (!this.enable) return [];
     try {
-      const data = await this.fetch('', {
+      const data = await this.api.get(route('suggestions/:category', { category: this.category }), {
         ...this.baseQueryParameters,
         q: search,
         language: getCurrentLanguageCode(),
@@ -64,10 +65,13 @@ export class Suggester {
   createSuggestion = async body => {
     if (!this.enable) throw new Error('Suggester is disabled');
 
-    const data = await this.api.post(`${this.endpoint}/create`, {
-      ...this.baseBodyParameters,
-      ...body,
-    });
+    const data = await this.api.post(
+      route('suggestions/:category/create', { category: this.category }),
+      {
+        ...this.baseBodyParameters,
+        ...body,
+      },
+    );
     return this.formatter(data);
   };
 }

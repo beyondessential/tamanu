@@ -5,6 +5,7 @@ import { styled } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
 import { StyledCircularProgress } from '@components/StyledCircularProgress';
+import { route } from '@tamanu/api-client';
 
 const ErrorAlert = styled(Alert)(() => ({
   width: 400,
@@ -21,7 +22,7 @@ export const useSettings = (facilityId: string) => {
   const api = useApi();
   return useQuery({
     queryKey: ['settings', facilityId],
-    queryFn: () => api.get(`settings/${facilityId}`),
+    queryFn: () => api.get(route('settings/:facilityId', { facilityId })),
     enabled: Boolean(facilityId),
   });
 };
