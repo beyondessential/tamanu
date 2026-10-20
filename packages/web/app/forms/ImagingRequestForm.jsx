@@ -191,7 +191,11 @@ export const ImagingRequestForm = React.memo(
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length > 0;
             },
-            then: yup.array().of(yup.string()).min(1, requiredValidationMessage),
+            then: yup
+              .array()
+              .of(yup.string())
+              .min(1, requiredValidationMessage)
+              .required(requiredValidationMessage),
           }),
           areaNote: yup.string().when('imagingType', {
             is: imagingType => {
