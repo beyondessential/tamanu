@@ -1,24 +1,24 @@
-import React, { type ReactElement, useCallback } from 'react';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
-import * as Yup from 'yup';
-import { Formik } from 'formik';
-import { compose } from 'redux';
-import { useSelector } from 'react-redux';
-import { FullView, StyledSafeAreaView } from '/styled/common';
-import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
-import { customAlphabet } from 'nanoid/non-secure';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useBackend } from '~/ui/hooks';
-import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
-import { withPatient } from '~/ui/containers/Patient';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { Formik } from 'formik';
+import { customAlphabet } from 'nanoid/non-secure';
+import React, { type ReactElement, useCallback } from 'react';
+import { ToastAndroid } from 'react-native';
+import { useSelector } from 'react-redux';
+import { compose } from 'redux';
+import * as Yup from 'yup';
 import type { IPatient } from '~/types';
-import { authUserSelector } from '~/ui/helpers/selectors';
 import type { ID } from '~/types/ID';
 import { LabRequestForm } from '~/ui/components/Forms/LabRequestForm';
-import { getCombinedDateString } from '/helpers/date';
+import { withPatient } from '~/ui/containers/Patient';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { authUserSelector } from '~/ui/helpers/selectors';
+import { useBackend } from '~/ui/hooks';
+import { patientKeys, reportKeys } from '~/ui/hooks/queries/queryKeys';
+import { getCombinedDateString } from '/helpers/date';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { FullView, StyledSafeAreaView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 const ALPHABET_FOR_ID =
   'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
@@ -120,6 +120,7 @@ export const DumbAddLabRequestScreen = ({
       });
     },
     onSuccess: () => {
+      ToastAndroid.show('Lab request submitted', ToastAndroid.SHORT);
       queryClient.invalidateQueries({ queryKey: patientKeys.detail(selectedPatient.id) });
       queryClient.invalidateQueries({ queryKey: reportKeys.all });
     },
@@ -127,11 +128,6 @@ export const DumbAddLabRequestScreen = ({
 
   const recordLabRequest = useCallback(
     async (values: LabRequestFormData): Promise<void> => {
-      showMessage({
-        message: 'Submitting lab request',
-        type: 'default',
-        backgroundColor: theme.colors.BRIGHT_BLUE,
-      });
       await submitLabRequest(values);
       navigateToHistory();
     },
@@ -149,7 +145,6 @@ export const DumbAddLabRequestScreen = ({
 
   return (
     <StyledSafeAreaView flex={1}>
-      <FlashMessage position="top" />
       <FullView
         background={theme.colors.BACKGROUND_GREY}
         paddingBottom={screenPercentageToDP(4.86, Orientation.Height)}

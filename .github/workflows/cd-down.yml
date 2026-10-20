@@ -18,8 +18,6 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAMANU_OPS_SSH:
-        required: true
 
 permissions:
   contents: read
@@ -35,7 +33,7 @@ jobs:
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
-          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
+          with-infra: true
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
@@ -65,7 +63,7 @@ jobs:
 
       - name: Get full stack name
         id: stack
-        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        working-directory: infra/pulumi/stacks/${{ fromJson(inputs.options).infrastack }}
         run: |
           project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
           echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
@@ -76,7 +74,7 @@ jobs:
         name: Down!
         uses: pulumi/actions@v7
         with:
-          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+          work-dir: infra/pulumi/stacks/${{ fromJson(inputs.options).infrastack }}
           command: destroy
           remove: true
           stack-name: ${{ steps.stack.outputs.stackname }}
@@ -96,18 +94,12 @@ jobs:
             kubectl -n tamanu-super delete subnamespaceanchor "$NS_NAME" --wait=true
           fi
 
-      - # if the pulumi destroy had failed, then the namespace delete will have deleted the
-        # actual resources, but we run pulumi destroy again to clean up the pulumi state
+      - # the namespace delete above removed the real resources; a second destroy only gets
+        # 403s (the runner's RBAC went with the namespace). Drop the state instead.
         if: always() && steps.down.outcome != 'success'
         continue-on-error: true
-        name: Down again!
-        uses: pulumi/actions@v7
-        with:
-          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
-          command: destroy
-          remove: true
-          stack-name: ${{ steps.stack.outputs.stackname }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-pr: true
+        name: Forget the stack
+        working-directory: infra/pulumi/stacks/${{ fromJson(inputs.options).infrastack }}
+        run: pulumi stack rm --force --yes --stack ${{ steps.stack.outputs.stackname }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

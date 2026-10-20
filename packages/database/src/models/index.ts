@@ -100,6 +100,7 @@ export * from './PatientCommunication';
 
 export * from './Facility';
 export * from './FacilitySettingMigration';
+export * from './SensitiveNetwork';
 export * from './Department';
 export * from './Location';
 export * from './LocationGroup';
@@ -157,6 +158,7 @@ export * from './SyncLookup';
 export * from './DebugLog';
 export * from './SyncDeviceTick';
 export * from './SyncLookupTick';
+export * from './SyncFacilityRun';
 
 export * from './AccessLog';
 export * from './ChangeLog';

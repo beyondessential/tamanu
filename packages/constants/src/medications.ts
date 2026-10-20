@@ -476,6 +476,12 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
 export const FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES: ReadonlySet<AdministrationFrequency> =
   new Set([ADMINISTRATION_FREQUENCIES.HOURLY, ADMINISTRATION_FREQUENCIES.HALF_HOURLY]);
 
+/** A due task per dose is unusable at these frequencies, so none are generated. */
+export const FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS: ReadonlySet<string> = new Set([
+  ADMINISTRATION_FREQUENCIES.HOURLY,
+  ADMINISTRATION_FREQUENCIES.HALF_HOURLY,
+]);
+
 export const MEDICATION_DURATION_UNITS = {
   HOURS: 'hours',
   DAYS: 'days',

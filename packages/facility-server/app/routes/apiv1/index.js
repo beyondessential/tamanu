@@ -12,6 +12,7 @@ import { decideBrowserSupport, parseBrowserDescriptor } from '@tamanu/utils/brow
 import {
   authMiddleware,
   buildToken,
+  deviceOptionalAuthMiddleware,
   loginHandler,
   refreshHandler,
   setFacilityHandler,
@@ -56,13 +57,14 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { setupSyncHandler } from './setup';
-import { isServerConfigured } from '../../serverConfig';
+import { isServerConfigured, isSettingUp } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
+import { systemErrorReport } from './systemErrorReport';
 import { triage } from './triage';
 import { user } from './user';
 import { vitals } from './vitals';
@@ -75,6 +77,10 @@ import { random } from './random';
 import { ai } from './ai';
 
 const passthrough = (_req, _res, next) => next();
+
+export const FHIR_MOUNT_PATH = '/integration/fhir/mat';
+
+const isFhirPath = path => path === FHIR_MOUNT_PATH || path.startsWith(`${FHIR_MOUNT_PATH}/`);
 
 /**
  * @param {{ authLimiter?: import('express').RequestHandler }} [limiters]
@@ -100,11 +106,16 @@ export function createApiv1({ authLimiter } = {}) {
 
   apiv1.get(
     '/public/ping',
-    asyncHandler((req, res) => {
+    asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
-      // setupRequired drives the first-run setup wizard, folded into the alive
-      // check the web app already makes rather than a separate endpoint/request.
-      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
+      // setupRequired drives the first-run setup wizard, and isSettingUp the screen that holds
+      // logged-in users until the first sync completes. Both are folded into the alive check the
+      // web app already makes rather than a separate endpoint/request.
+      return res.send({
+        ok: 'ok',
+        setupRequired: !isServerConfigured(),
+        isSettingUp: await isSettingUp(req.models),
+      });
     }),
   );
 
@@ -165,7 +176,13 @@ export function createApiv1({ authLimiter } = {}) {
     }),
   );
 
-  apiv1.use(authMiddleware);
+  // The FHIR routes are mounted after this router (see createApiApp), so they are authenticated
+  // here. FHIR API clients are not devices, so their tokens may not carry a deviceId.
+  apiv1.use((req, res, next) =>
+    isFhirPath(req.path)
+      ? deviceOptionalAuthMiddleware(req, res, next)
+      : authMiddleware(req, res, next),
+  );
 
   apiv1.use(constructPermission);
 
@@ -316,6 +333,7 @@ export function createApiv1({ authLimiter } = {}) {
   referenceDataRoutes.use('/referenceData', referenceData);
   referenceDataRoutes.use('/reportRequest', reportRequest);
   referenceDataRoutes.use('/reports', reports);
+  referenceDataRoutes.use('/systemErrorReport', systemErrorReport);
   referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
   referenceDataRoutes.use('/suggestions', suggestions);
   referenceDataRoutes.use('/survey', survey);

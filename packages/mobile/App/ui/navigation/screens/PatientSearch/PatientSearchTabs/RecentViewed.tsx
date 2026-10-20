@@ -1,25 +1,21 @@
 import React, { type ReactElement, useEffect } from 'react';
 import { Platform } from 'react-native';
-import { compose } from 'redux';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
-// Containers
-import { withPatient } from '/containers/Patient';
-// Components
-import { PatientTile } from '/components/PatientTile';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { ErrorScreen } from '/components/ErrorScreen';
-// props
-import type { RecentViewedScreenProps } from '/interfaces/Screens/PatientSearchStack/RecentViewedScreenProps';
-// Helpers
-import { Routes } from '/helpers/routes';
-import { FullView, StyledText, StyledView } from '/styled/common';
-import { joinNames } from '/helpers/user';
-import { getAgeFromDate } from '~/ui/helpers/date';
-import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
-import { navigateAfterTimeout } from '~/ui/helpers/navigators';
-import { theme } from '~/ui/styled/theme';
-import { PatientFromRoute } from '~/ui/helpers/constants';
+import { compose } from 'redux';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { PatientFromRoute } from '~/ui/helpers/constants';
+import { getAgeFromDate } from '~/ui/helpers/date';
+import { navigateAfterTimeout } from '~/ui/helpers/navigators';
+import useRecentlyViewedPatients from '~/ui/hooks/useRecentlyViewedPatients';
+import { theme } from '~/ui/styled/theme';
+import { ErrorScreen } from '/components/ErrorScreen';
+import { LoadingScreen } from '/components/LoadingScreen';
+import { PatientTile } from '/components/PatientTile';
+import { withPatient } from '/containers/Patient';
+import { Routes } from '/helpers/routes';
+import { joinNames } from '/helpers/user';
+import type { RecentViewedScreenProps } from '/interfaces/Screens/PatientSearchStack/RecentViewedScreenProps';
+import { FullView, StyledText, StyledView } from '/styled/common';
 
 const NoPatientsCard = (): ReactElement => (
   <StyledText

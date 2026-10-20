@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 
+import { route } from '@tamanu/api-client';
+
 import { createQueryClient } from '../../helpers';
 import {
   useHasPastLocationBookingsQuery,
@@ -14,7 +16,9 @@ const getMock = vi.fn();
 vi.mock('../../../app/api/useApi', () => ({ useApi: () => ({ get: getMock }) }));
 vi.mock('../../../app/contexts/Auth', () => ({ useAuth: () => ({ facilityId: 'facility-1' }) }));
 
-const ENDPOINT = 'appointments/hasPastAppointments/patient-1';
+const ENDPOINT = route('appointments/hasPastAppointments/:patientId', {
+  patientId: 'patient-1',
+});
 
 describe('useHasPastAppointmentsQuery', () => {
   beforeEach(() => {

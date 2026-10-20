@@ -16,7 +16,10 @@ import {
   startOfDay,
 } from 'date-fns';
 import { areDatesInSameTimeSlot, getFirstAdministrationDate } from '~/ui/helpers/medicationHelpers';
-import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS,
+} from '~/constants/medications';
 import { EncounterPrescription } from './EncounterPrescription';
 import { EncounterType } from '~/types/IEncounter';
 import { Task } from './Task';
@@ -196,6 +199,8 @@ export class MedicationAdministrationRecord extends BaseModel {
 
     // Skip if this is a PRN medication
     if (!prescription || prescription.isPrn) return;
+
+    if (FREQUENCIES_WITHOUT_MEDICATION_DUE_TASKS.has(prescription.frequency)) return;
 
     const encounterPrescription = await EncounterPrescription.findOne({
       where: { prescription: { id: prescription.id } },

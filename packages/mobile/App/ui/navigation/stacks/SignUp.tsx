@@ -1,50 +1,28 @@
+import { createStackNavigator } from '@react-navigation/stack';
 import React, { type ReactElement } from 'react';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
-// helpers
-import { Routes } from '/helpers/routes';
-// Screens
-import { IntroScreen } from '../screens/signup/Intro';
-import { SignIn } from '../screens/signup/SignIn';
 import type { IndexStackProps } from '~/ui/interfaces/Screens/SignUpStack';
-
-import { ResetPassword } from '../screens/signup/ResetPassword';
 import { ChangePassword } from '../screens/signup/ChangePassword';
-
 import { LanguageSelectScreen } from '../screens/signup/LanguageSelectScreen';
+import { ResetPassword } from '../screens/signup/ResetPassword';
+import { SignIn } from '../screens/signup/SignIn';
+import { Routes } from '/helpers/routes';
 
 const Stack = createStackNavigator();
 
-const TransitionStyle = TransitionPresets.SlideFromRightIOS;
+const screenOptions = { headerShown: false } as const;
 
 export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
   const { signedOutFromInactivity } = route.params;
   return (
-    <Stack.Navigator
-      initialRouteName={Routes.SignUpStack.SignIn}
-      screenOptions={{ headerShown: false }}
-    >
+    <Stack.Navigator initialRouteName={Routes.SignUpStack.SignIn} screenOptions={screenOptions}>
       <Stack.Screen
-        name={Routes.SignUpStack.Intro}
-        component={IntroScreen}
+        component={SignIn}
+        name={Routes.SignUpStack.SignIn}
         initialParams={{ signedOutFromInactivity }}
-        options={TransitionStyle}
       />
-      <Stack.Screen component={SignIn} name={Routes.SignUpStack.SignIn} options={TransitionStyle} />
-      <Stack.Screen
-        name={Routes.SignUpStack.ResetPassword}
-        component={ResetPassword}
-        options={TransitionStyle}
-      />
-      <Stack.Screen
-        name={Routes.SignUpStack.ChangePassword}
-        component={ChangePassword}
-        options={TransitionStyle}
-      />
-      <Stack.Screen
-        name={Routes.SignUpStack.LanguageSelect}
-        component={LanguageSelectScreen}
-        options={TransitionStyle}
-      />
+      <Stack.Screen name={Routes.SignUpStack.ResetPassword} component={ResetPassword} />
+      <Stack.Screen name={Routes.SignUpStack.ChangePassword} component={ChangePassword} />
+      <Stack.Screen name={Routes.SignUpStack.LanguageSelect} component={LanguageSelectScreen} />
     </Stack.Navigator>
   );
 };

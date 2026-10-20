@@ -32,15 +32,22 @@ async function fetchNonSensitiveDrugId(context: any): Promise<string> {
   return first.id;
 }
 
+const GROUPED_LOCATION_QUERY = {
+  include: JSON.stringify([
+    { model: 'LocationGroup', as: 'locationGroup', required: true, attributes: [] },
+  ]),
+};
+
 async function createOpenEncounterForMedication(
   context: any,
 ): Promise<{ id: string; startDate?: string }> {
   const { api, facilityId } = context.vars;
-  await generateEncounterPayload(context);
+  // The medication requests list leaves out encounters at a location with no group.
+  await generateEncounterPayload(context, { locationQuery: GROUPED_LOCATION_QUERY });
   return api.post('encounter', {
     facilityId,
     ...context.vars.encounterPayload,
-    endDate: null,
+    endDate: undefined,
   });
 }
 

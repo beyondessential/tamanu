@@ -1,10 +1,10 @@
-import React, { type ReactNode, useCallback } from 'react';
-import { Field as FormikField, useField, useFormikContext } from 'formik';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import { Field as FormikField, useField, useFormikContext } from 'formik';
+import React, { useCallback } from 'react';
 import type { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface FieldProps {
-  component: ReactNode;
+  component: React.ComponentType;
   name: string;
   label?: TranslatedTextElement;
   type?: string;
@@ -25,7 +25,7 @@ export const Field = ({
   onBlur,
   validateOnValueChange,
   ...rest
-}: FieldProps): JSX.Element => {
+}: FieldProps) => {
   const [field, meta, { setValue, setTouched }] = useField(name);
   const { onChange: fieldOnChange } = field;
   const { status, submitCount } = useFormikContext();

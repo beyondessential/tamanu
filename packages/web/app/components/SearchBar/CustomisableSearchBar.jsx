@@ -1,13 +1,11 @@
+import { IconButton } from '@material-ui/core';
 import React, { useCallback, useId } from 'react';
 import styled from 'styled-components';
-import Box from '@material-ui/core/Box';
-import { IconButton } from '@material-ui/core';
-import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, Button, TextButton } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
+
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { ThemedTooltip } from '../Tooltip';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Button, Form, TextButton, TranslatedText, ThemedTooltip } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
@@ -51,7 +49,7 @@ const CustomisableSearchBarGrid = styled.div`
   }
 `;
 
-const ActionsContainer = styled(Box)`
+const ActionsContainer = styled.div`
   display: flex;
   align-items: center;
   margin-top: 20px;

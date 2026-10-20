@@ -75,11 +75,15 @@ describe('User', () => {
       remainingLockout: 0,
     });
 
+    // A facility is sensitive by belonging to a network. These two are unrelated, so each is a
+    // network of one - membership scopes data, not login access.
+    const network1 = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+    const network2 = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
     await models.Facility.create(
-      fake(models.Facility, { ...sensitiveFacility1, isSensitive: true }),
+      fake(models.Facility, { ...sensitiveFacility1, sensitiveNetworkId: network1.id }),
     );
     await models.Facility.create(
-      fake(models.Facility, { ...sensitiveFacility2, isSensitive: true }),
+      fake(models.Facility, { ...sensitiveFacility2, sensitiveNetworkId: network2.id }),
     );
   });
   afterAll(() => ctx.close());
@@ -536,6 +540,21 @@ describe('User', () => {
         const allowedFacilities = await userWithoutFacilities.allowedFacilities();
         expect(allowedFacilities).toEqual(expect.arrayContaining(nonSensitiveFacilities));
       });
+
+      // Network membership scopes which data reaches a facility, not who may log in to it.
+      // spec: specs/sync/sensitive-networks.md
+      it('should not grant access to a network sibling of a linked sensitive facility', async () => {
+        const linked = await models.Facility.findByPk(sensitiveFacility1.id);
+        const sibling = await models.Facility.create(
+          fake(models.Facility, { sensitiveNetworkId: linked.sensitiveNetworkId }),
+        );
+
+        mockLoginFacilityPermission(userWithFacilities, true);
+        const allowedFacilities = await userWithFacilities.allowedFacilities();
+
+        expect(allowedFacilities).toEqual(expect.arrayContaining([sensitiveFacility1]));
+        expect(allowedFacilities.map(({ id }) => id)).not.toContain(sibling.id);
+      });
     });
 
     describe('allowedFacilityIds', () => {
@@ -782,6 +801,20 @@ describe('User', () => {
       const resultIds = result.body.data.map(x => x.id);
       const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
+    });
+
+    it('should not error when the patient is not present locally', async () => {
+      const missingPatientId = fake(models.Patient).id;
+
+      const result = await app.post(
+        `/api/user/recently-viewed-patients/${missingPatientId}`,
+      );
+      expect(result).toHaveStatus(204);
+
+      const recorded = await models.UserRecentlyViewedPatient.count({
+        where: { patientId: missingPatientId },
+      });
+      expect(recorded).toBe(0);
     });
   });
 

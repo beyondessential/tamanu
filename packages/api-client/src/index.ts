@@ -1,4 +1,6 @@
 export { TamanuApi } from './TamanuApi';
+export { route, expandRoute, resolveEndpoint, isRouteDescriptor } from './route';
+export type { Endpoint, RouteDescriptor } from './route';
 export { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 export type { RetryBackoffOptions } from './fetchWithRetryBackoff';
 export {

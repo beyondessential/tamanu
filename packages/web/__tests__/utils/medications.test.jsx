@@ -4,6 +4,7 @@ import {
   buildInstructionText,
   buildLabelText,
   getDispensedMedication,
+  getDispensedPrescription,
   isDispenseModifiedByPharmacy,
   resolvePresetLabelText,
 } from '../../app/utils/medications';
@@ -134,5 +135,50 @@ describe('getDispensedMedication', () => {
       pharmacyOrderPrescription: { prescription: { medication: prescribed } },
     };
     expect(getDispensedMedication(dispense)).toBe(prescribed);
+  });
+});
+
+describe('getDispensedPrescription', () => {
+  const prescription = {
+    ...basePrescription,
+    medication: { id: 'prescribed', name: 'Aciclovir 800mg Tablets' },
+    dispensingUnit: 'Tablet',
+  };
+  const dispense = {
+    medicationId: 'substitute',
+    medication: { id: 'substitute', name: 'Naloxone HCL 40mcg/2ml Inj' },
+    isVariableDose: false,
+    doseAmount: 2,
+    dosingUnit: 'mg',
+    dispensingUnit: 'Ampoule',
+    frequency: 'Daily',
+    route: 'intravenous',
+    durationValue: null,
+    durationUnit: null,
+    pharmacyOrderPrescription: { prescription },
+  };
+
+  it('overlays the dispensed details onto the prescription', () => {
+    expect(getDispensedPrescription(dispense)).toMatchObject({
+      medication: dispense.medication,
+      doseAmount: 2,
+      dosingUnit: 'mg',
+      dispensingUnit: 'Ampoule',
+      frequency: 'Daily',
+      route: 'intravenous',
+      indication: basePrescription.indication,
+    });
+  });
+
+  it('builds the instructions from the dispensed details', () => {
+    expect(
+      buildInstructionText(getDispensedPrescription(dispense), getTranslation, getEnumTranslation),
+    ).toBe('2 mg Daily, IV, back pain. This is the medication note.');
+  });
+
+  it('returns the prescription when the dispense carries no dispensed details', () => {
+    expect(getDispensedPrescription({ pharmacyOrderPrescription: { prescription } })).toBe(
+      prescription,
+    );
   });
 });

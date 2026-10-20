@@ -51,6 +51,7 @@ export const REFERENCE_TYPES = {
   TASK_NOT_COMPLETED_REASON: 'taskNotCompletedReason',
   TASK_DELETION_REASON: 'taskDeletionReason',
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
+  MEDICATION_NOT_DISPENSED_REASON: 'medicationNotDispensedReason',
   MEDICATION_DISPENSE_MODIFY_REASON: 'medicationDispenseModifyReason',
   MEDICATION_PRESET_LABEL: 'medicationPresetLabel',
   MEDICATION_TEMPLATE: 'medicationTemplate',
@@ -80,6 +81,7 @@ export const OTHER_REFERENCE_TYPES = {
   INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
   INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
+  SENSITIVE_NETWORK: 'sensitiveNetwork',
 } as const;
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
@@ -123,8 +125,6 @@ export const TRANSLATABLE_REFERENCE_TYPES = [
 
 // Data types created through tamanu
 const CLINICAL_DATA_TYPES = {
-  PATIENT: 'patient',
-  ADMINISTERED_VACCINE: 'administeredVaccine',
   USER: 'user',
 };
 const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINICAL_DATA_TYPES);
@@ -147,6 +147,9 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
 ].sort();
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
+
+// Patient records, imported and exported through their own admin view rather than with reference data
+export const PATIENT_IMPORTABLE_DATA_TYPES = ['administeredVaccine', 'patient'];
 
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',

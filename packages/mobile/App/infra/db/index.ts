@@ -1,23 +1,28 @@
+import { DevSettings } from 'react-native';
+import { NitroSQLite, typeORMDriver } from 'react-native-nitro-sqlite';
 import {
   type Connection,
   type ConnectionOptions,
   createConnection,
   getConnectionManager,
 } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite';
-import { DevSettings } from 'react-native';
 
+import { migrationList } from '~/migrations';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 import getCacheSizeKiB from './cacheSize';
+import { SNAPSHOT_DB_NAME, SNAPSHOT_SCHEMA } from './snapshotDatabase';
 
 const LOG_LEVELS = __DEV__ ? (['error', /* 'query', */ 'schema'] as const) : ([] as const);
 
+const DB_NAME = 'tamanu';
+/** Subdirectory of the app’s files directory that `react-native-nitro-sqlite` puts the files in */
+const DB_LOCATION = 'default';
+
 const CONNECTION_CONFIG = {
   type: 'react-native',
-  database: 'tamanu',
-  location: 'default',
+  database: DB_NAME,
+  location: DB_LOCATION,
   driver: typeORMDriver,
   logging: LOG_LEVELS,
   synchronize: false,
@@ -34,14 +39,19 @@ const TEST_CONNECTION_CONFIG = {
   entities: MODELS_ARRAY,
 } as const;
 
+/** Fresh file per call: the test path never deletes files, so a reset has to move to a new one */
+const getTestSnapshotDbPath = (): string =>
+  `/tmp/tamanu-mobile-test-snapshot-${Date.now()}-${process.env.JEST_WORKER_ID}-${Math.random().toString(36).slice(2)}.db`;
+
 export const PLANNER_STATS_REFRESHED_AT_KEY = 'plannerStatsLastRefreshedAt';
 
-/** 90 minutes */
-const PLANNER_STATS_REFRESH_INTERVAL_MS = 5_400_000;
+/** 1 day */
+const PLANNER_STATS_REFRESH_INTERVAL_MS = 86_400_000;
+
+const isJest = (): boolean => process.env.JEST_WORKER_ID !== undefined;
 
 const getConnectionConfig = (): ConnectionOptions => {
-  const isJest = process.env.JEST_WORKER_ID !== undefined;
-  if (isJest) {
+  if (isJest()) {
     return TEST_CONNECTION_CONFIG;
   }
   return CONNECTION_CONFIG;
@@ -60,7 +70,7 @@ class DatabaseHelper {
     for (const m of MODELS_ARRAY) m.injectAllModels(this.models);
   }
 
-  async forceSync(): Promise<any> {
+  async forceSync(): Promise<void> {
     try {
       console.log('Updating database schema');
       if (this.syncError) {
@@ -71,7 +81,7 @@ class DatabaseHelper {
       // (sqlite has to fully delete and recreate a table to alter a column;
       // it preserves data fine but if any other tables have a FK constraint
       // pointed to the table being altered, the query will fail)
-      await this.client.query(`PRAGMA foreign_keys = OFF;`);
+      await this.client.query('PRAGMA foreign_keys = OFF;');
 
       // TODO: Remove this once all supported deployments are >= v1.21.0
       // Get the list of tables named 'migrations' and tables named 'patient'
@@ -100,7 +110,7 @@ class DatabaseHelper {
       throw e;
     } finally {
       // Restore FK constraint checks once everything is done
-      await this.client.query(`PRAGMA foreign_keys = ON;`);
+      await this.client.query('PRAGMA foreign_keys = ON;');
     }
   }
 
@@ -111,7 +121,7 @@ class DatabaseHelper {
     return this.client;
   }
 
-  async createClient(): Promise<ConnectionOptions | void> {
+  async createClient(): Promise<void> {
     try {
       this.client = await createConnection(getConnectionConfig());
       await this.forceSync();
@@ -124,16 +134,81 @@ class DatabaseHelper {
       }
     }
     await this.setDefaultPragma();
+    try {
+      await this.resetSnapshotDatabase();
+    } catch (e) {
+      // Incremental sync will try again (see `dropSnapshotTable`); don’t block startup on it
+      console.error('Error attaching snapshot database:', e);
+    }
+  }
+
+  /**
+   * (Re)attaches the throwaway file that incremental sync stages its snapshot in, starting from an
+   * empty file. Only call it when no transaction is open on the connection, since SQLite refuses to
+   * `ATTACH` or `DETACH` inside one: at connect, when sync finds it missing, and to recover from a
+   * corrupt snapshot file (it has no journal, so a kill mid-write can leave one).
+   * @see {@link SNAPSHOT_SCHEMA}
+   */
+  async resetSnapshotDatabase(): Promise<void> {
+    await this.detachSnapshotDatabase();
+    this.deleteSnapshotDatabaseFile();
+    const snapshotDbPath = await this.getSnapshotDbPath();
+    await this.client.query(`ATTACH DATABASE ? AS ${SNAPSHOT_SCHEMA}`, [snapshotDbPath]);
+    // page_size and auto_vacuum only apply while the file is still empty, hence the delete above.
+    // Snapshot rows are large JSON blobs, so bigger pages mean far fewer overflow pages to chase.
+    await this.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.page_size = 16384;`);
+    // Staging only ever appends then drops, so FULL costs nothing during a sync and makes
+    // `DROP TABLE` truncate the file at commit.
+    await this.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.auto_vacuum = FULL;`);
+    // The contents are rebuilt from scratch every sync, so crash safety buys nothing here; skip
+    // the journal and the fsync per staged batch entirely.
+    await this.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.journal_mode = OFF;`);
+    await this.client.query(`PRAGMA ${SNAPSHOT_SCHEMA}.synchronous = OFF;`);
+  }
+
+  async isSnapshotDatabaseAttached(): Promise<boolean> {
+    const schemas = await this.client.query<{ name: string }[]>('PRAGMA database_list;');
+    return schemas.some(schema => schema.name === SNAPSHOT_SCHEMA);
+  }
+
+  /** On device, a sibling of the main database file, which is where `NitroSQLite.native.drop` looks */
+  private async getSnapshotDbPath(): Promise<string> {
+    if (isJest()) return getTestSnapshotDbPath();
+    const schemas =
+      await this.client.query<{ name: string; file: string }[]>('PRAGMA database_list;');
+    const mainDbPath = schemas.find(schema => schema.name === 'main').file;
+    const mainDbDirectory = mainDbPath.slice(0, mainDbPath.lastIndexOf('/') + 1);
+    return `${mainDbDirectory}${SNAPSHOT_DB_NAME}`;
+  }
+
+  private async detachSnapshotDatabase(): Promise<void> {
+    // Not attached at connect, nor if a previous attach failed
+    if (!(await this.isSnapshotDatabaseAttached())) return;
+    await this.client.query(`DETACH DATABASE ${SNAPSHOT_SCHEMA}`);
+  }
+
+  private deleteSnapshotDatabaseFile(): void {
+    try {
+      // Through `native`: the methods of the spread `NitroSQLite` object are missing at runtime,
+      // because the hybrid object they’re spread from keeps them on its prototype
+      NitroSQLite.native.drop(SNAPSHOT_DB_NAME, DB_LOCATION);
+    } catch (e) {
+      // No file yet on a fresh install. Swallow expected error.
+      if (e?.message?.includes('Database file not found')) return;
+      console.warn('Error deleting snapshot database file:', e);
+    }
   }
 
   async setDefaultPragma(): Promise<void> {
     try {
-      await this.client.query(`PRAGMA journal_mode = TRUNCATE;`);
-      await this.client.query(`PRAGMA synchronous = 2;`);
+      // Qualified: an unqualified journal_mode applies to every attached database, including the
+      // snapshot database, which deliberately runs without a journal
+      await this.client.query('PRAGMA main.journal_mode = TRUNCATE;');
+      await this.client.query('PRAGMA synchronous = 2;');
       const cacheSizeKiB = await getCacheSizeKiB();
       await this.client.query(`PRAGMA cache_size = -${cacheSizeKiB};`);
-      await this.client.query(`PRAGMA locking_mode = NORMAL;`);
-      await this.client.query(`PRAGMA temp_store = 0;`);
+      await this.client.query('PRAGMA locking_mode = NORMAL;');
+      await this.client.query('PRAGMA temp_store = 0;');
       console.log(`Applied default pragma settings (cache_size ${cacheSizeKiB} KiB)`);
     } catch (e) {
       console.error('Error applying default pragma settings:', e);
@@ -141,32 +216,34 @@ class DatabaseHelper {
   }
 
   /**
-   * With a newer version of SQLite (3.46+), it would be preferable to run `PRAGMA optimize`,
-   * which would take care of running ANALYZE as needed. Our version of `react-native-quick-sqlite`
-   * gives us SQLite 3.39.
-   * @see https://sqlite.org/lang_analyze.html#approximate_analyze_for_large_databases
-   * @returns Whether the refresh succeeded
+   * @see https://sqlite.org/pragma.html#pragma_optimize
+   * @returns Whether the optimisation succeeded
    */
-  private async refreshQueryPlannerStats(): Promise<boolean> {
+  private async runPragmaOptimize(): Promise<boolean> {
     const start = performance.now();
     try {
-      // Full scan of every index may be slow, but an “approximate ANALYZE” is better than none.
-      // (In my testing, full ANALYZE with 5M synced records takes ~2 min.)
-      await this.client.query('PRAGMA analysis_limit = 400;');
-      await this.client.query('ANALYZE;');
-      console.log(`Approximate ANALYZE done in ${performance.now() - start}ms`);
+      // Qualified: an unqualified optimize covers every attached database, including the snapshot
+      // database
+      const planned = await this.client.query<{ [column: string]: string }[]>(
+        // 0x00001 (debugging mode) + 0x00002 (run ANALYZE on tables that might benefit).
+        'PRAGMA main.optimize(0x00003);',
+      );
+      const statements = planned.map(row => Object.values(row)[0]);
+      console.log(`PRAGMA optimize will run: ${statements.join('; ') || 'nothing'}`);
+      await this.client.query('PRAGMA main.optimize;');
+      console.log(`PRAGMA optimize done in ${performance.now() - start}ms`);
       return true;
     } catch (e) {
-      console.error(`Approximate ANALYZE failed after ${performance.now() - start}ms:`, e);
+      console.error(`PRAGMA optimize failed after ${performance.now() - start}ms:`, e);
       return false;
     }
   }
 
   /**
-   * Throttles to to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
-   * opportunistically without repeatedly taking ANALYZE’s write lock.
+   * Throttled to every {@link PLANNER_STATS_REFRESH_INTERVAL_MS}, so can be called
+   * opportunistically. A failed run is not recorded, so it is retried at the next call.
    */
-  async requestQueryPlannerStatsRefresh(): Promise<void> {
+  async requestPragmaOptimize(): Promise<void> {
     // Prevent background → foreground → background cycle from causing overlapping calls
     if (this.isAnalyzing) return;
     this.isAnalyzing = true;
@@ -183,18 +260,13 @@ class DatabaseHelper {
         return;
       }
 
-      const succeeded = await this.refreshQueryPlannerStats();
+      const succeeded = await this.runPragmaOptimize();
       if (!succeeded) return;
 
-      // Upsert; `key` has no unique index, so ON CONFLICT isn’t available
-      const value = Date.now().toString();
-      const { affected } = await this.models.LocalSystemFact.update(
-        { key: PLANNER_STATS_REFRESHED_AT_KEY },
-        { value },
+      await this.models.LocalSystemFact.upsert(
+        { key: PLANNER_STATS_REFRESHED_AT_KEY, value: Date.now().toString() },
+        ['key'],
       );
-      if (!affected) {
-        await this.models.LocalSystemFact.insert({ key: PLANNER_STATS_REFRESHED_AT_KEY, value });
-      }
     } catch (e) {
       // Best-effort maintenance: not worth falling over stale `sqlite_stat1`
       console.error('Error checking/recording query planner stats refresh:', e);
@@ -208,7 +280,7 @@ class DatabaseHelper {
   async setUnsafePragma(): Promise<void> {
     try {
       // Disables rollback journal - no transaction rollback or crash recovery
-      await this.client.query('PRAGMA journal_mode = OFF;');
+      await this.client.query('PRAGMA main.journal_mode = OFF;');
       // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
       await this.client.query('PRAGMA synchronous = 0;');
       const cacheSizeKiB = await getCacheSizeKiB(true);
@@ -231,9 +303,6 @@ if (__DEV__) {
     await clear();
     DevSettings.reload();
   });
-}
-
-if (__DEV__) {
   DevSettings.addMenuItem('DB schema sync', async () => {
     try {
       await Database.forceSync();
@@ -241,10 +310,7 @@ if (__DEV__) {
       console.error(e);
     }
   });
-}
-
-// Add a dev menu item to drop database and rerun migrations
-if (__DEV__) {
+  // Add a dev menu item to drop database and rerun migrations
   DevSettings.addMenuItem('Drop database', async () => {
     await Database.client.dropDatabase();
     await Database.forceSync();

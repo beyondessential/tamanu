@@ -16,7 +16,8 @@ Use this runbook when an imaging request created in Tamanu is **not received** i
 RIS/PACS, or no study/result is coming back. The path is the same shape as the
 lab path: an imaging request syncs facility to central, central materialises it
 into a FHIR `ServiceRequest`, and RIS/PACS reads that `ServiceRequest` and later
-posts a study/result back.
+posts a study/result back. For "image links / reports not appearing in
+Tamanu" (the return path), go to 3.6.
 
 The common cause seen at Aspen is the **FHIR job queue being occupied by a
 long-running `MediciReport` materialisation job**, which starves the imaging
@@ -223,12 +224,99 @@ WHERE ir.display_id = 'IMAGING_REQUEST_DISPLAY_ID';
 ```
 
 No `imaging_results` row = RIS/PACS has not returned a result — either it has not
-processed the request yet, or it is not reading the `ServiceRequest`. To check
+processed the request yet, or it is not reading the `ServiceRequest`. A row is
+not proof RIS/PACS returned anything: staff can also enter a result by hand. A
+result posted by RIS/PACS has `completed_by_id IS NULL`; a manual one names the
+user (see 3.6). To check
 whether RIS/PACS is actually **polling** the FHIR route at all, use the shared
 **Is the integration polling? — Caddy log** check in
 `../reference/query-cookbook.md` (attribute RIS/PACS vs SENAITE traffic by
 user-agent — both use FHIR `ServiceRequest` — per the imaging-vs-labs
 differentiation and the `mSupply` caveat in the same section). **[diagnose]**
+
+### 3.6 Results not coming back — which studies, since when
+
+Use this when the complaint is "image links / reports not appearing in Tamanu"
+rather than a single missing request. The return path is: RIS/PACS posts a FHIR
+`ImagingStudy` to central, central creates an `imaging_results` row (link in
+`result_image_url`, report in `description`) and completes the request
+(`packages/database/src/models/fhir/FhirImagingStudy.ts:183-227`), the row syncs
+to the facility, and the facility renders the link when the request is opened
+(`packages/facility-server/app/routes/apiv1/imaging.js:20-56`).
+
+**Is the facility configured to show links?** On the facility, `integrations.imaging`
+must have `enabled = true` and a provider that fits what RIS/PACS sends —
+`staticUrl` shows `result_image_url` as-is. The schema defaults are `enabled:
+false`, `provider: 'test'` (`packages/settings/src/schema/global.ts`,
+`integrations.imaging`), which show no real links. The report text shows
+regardless. **[diagnose]**
+
+```sql
+SELECT key, value, scope, facility_id, updated_at
+FROM settings
+WHERE key LIKE 'integrations.imaging%' AND deleted_at IS NULL;
+```
+
+**Which modalities get a RIS/PACS result, by week?** A drop confined to one
+modality points at that modality's workflow on the RIS/PACS side; a drop across
+all of them points at the shared path (FHIR queue, sync, the integration's
+auth). Run on the facility or central. **[diagnose]**
+
+```sql
+WITH r AS (
+  SELECT ir.id, ir.imaging_type,
+         date_trunc('week', ir.created_at) AS wk,
+         bool_or(res.id IS NOT NULL AND res.completed_by_id IS NULL) AS has_pacs_result
+  FROM imaging_requests ir
+  LEFT JOIN imaging_results res
+         ON res.imaging_request_id = ir.id AND res.deleted_at IS NULL
+  WHERE ir.created_at > now() - interval '12 weeks'
+    AND ir.deleted_at IS NULL
+    AND ir.status = 'completed'
+  GROUP BY ir.id, ir.imaging_type, wk
+)
+SELECT wk, imaging_type,
+       count(*)                                AS completed,
+       count(*) FILTER (WHERE has_pacs_result) AS with_pacs_result
+FROM r
+GROUP BY wk, imaging_type
+ORDER BY wk, imaging_type;
+```
+
+**Did RIS/PACS post anything for those studies?** Central logs every FHIR write in
+`logs.fhir_writes` before handling it, so rejected posts appear there too
+(`packages/shared/src/routes/fhir/handlers.js:25-35`). RIS/PACS may reference the
+request by identifier (the request's uuid or display ID) rather than a
+`ServiceRequest/<id>` reference (`FhirImagingStudy.ts:72-92`), so match all three.
+Run on central; it scans `logs.fhir_writes` once, so narrow the date on a large
+log. **[diagnose]**
+
+```sql
+WITH w AS (
+  SELECT fw.id, fw.created_at,
+         split_part(b->>'reference', '/', 2) AS ref_id,
+         b->'identifier'->>'value'           AS ident
+  FROM logs.fhir_writes fw,
+       jsonb_array_elements(fw.body->'basedOn') b
+  WHERE fw.url LIKE '%ImagingStudy%'
+    AND fw.created_at > now() - interval '12 weeks'
+)
+SELECT date_trunc('week', w.created_at)                               AS wk,
+       coalesce(by_id.imaging_type, by_disp.imaging_type,
+                by_ref.imaging_type, 'unmatched')                     AS imaging_type,
+       count(DISTINCT w.id)                                           AS writes
+FROM w
+LEFT JOIN imaging_requests by_id   ON by_id.id::text = w.ident
+LEFT JOIN imaging_requests by_disp ON by_disp.display_id = w.ident
+LEFT JOIN fhir.service_requests sr ON sr.id::text = w.ref_id
+LEFT JOIN imaging_requests by_ref  ON by_ref.id::text = sr.upstream_id
+GROUP BY 1, 2
+ORDER BY 1, 2;
+```
+
+Writes missing for the affected modality and weeks = RIS/PACS is not sending them.
+Writes present but no matching `imaging_results` = central is rejecting them; read
+one `body` against the checks in `FhirImagingStudy.ts:63-181`.
 
 ## 4. Interpret
 
@@ -241,6 +329,9 @@ differentiation and the `mSupply` caveat in the same section). **[diagnose]**
 | No `fhir.service_requests` row + no jobs + materialisation disabled | Materialisation off | Enable FHIR worker / ServiceRequest materialisation **[dev-OTS]** — `../sops/disable-materialised-resources.md` |
 | Row present, `resolved = false` | Unresolved references | Ensure workers running; escalate if it persists |
 | Row present, `resolved = true`, no `imaging_results` | Tamanu exposed it; RIS/PACS has not read/returned | RIS/PACS-side — hand to the imaging provider |
+| Results present centrally and on the facility, but no links shown | Facility `integrations.imaging` disabled or wrong provider | Correct the setting **[dev-OTS]** |
+| One modality's RIS/PACS results stop, no `ImagingStudy` writes for it in `logs.fhir_writes` (3.6) | RIS/PACS not sending that modality | RIS/PACS-side — hand to the imaging provider with the date window, and ask them to re-send the missed studies |
+| `ImagingStudy` writes present, no matching results (3.6) | Central rejecting the posts | Read the payload; escalate as a possible Tamanu fault |
 
 ## 5. Resolve
 

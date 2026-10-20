@@ -102,23 +102,7 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Bicarbonate",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Bilibubin",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-BloodGlucose",
-      "insurancePlan1": 50
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-Calcium",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-CD4",
       "insurancePlan1": 50
     },
     {
@@ -130,35 +114,7 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-COVID",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVID19NasalSwab",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDEndotrachealaspirate",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasalSwab",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasopharyngealSwab",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-COVIDOropharyngealSwab",
-      "insurancePlan1": 50
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-Creatinine",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-eGFR",
       "insurancePlan1": 50
     },
     {
@@ -170,39 +126,11 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-HbA1C",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HBsAG",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HGB",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HIV",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-HIVViralload",
-      "insurancePlan1": 50
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-INR",
       "insurancePlan1": 50
     },
     {
       "invoiceProductId": "invoiceProduct-labTestType-Lymphocytes",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Magnesium",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Malariatype",
       "insurancePlan1": 50
     },
     {
@@ -226,22 +154,6 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Papsmear",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Parasitecount",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-PCV",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Phosphate",
-      "insurancePlan1": 50
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-PLT",
       "insurancePlan1": 50
     },
@@ -250,23 +162,7 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Prothrombin",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-RapidHIVTest",
-      "insurancePlan1": 50
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-RBC",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-RDTNegativenofurthertestingneeded",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-RDTPositive",
       "insurancePlan1": 50
     },
     {
@@ -278,15 +174,7 @@
       "insurancePlan1": 50
     },
     {
-      "invoiceProductId": "invoiceProduct-labTestType-Urea",
-      "insurancePlan1": 50
-    },
-    {
       "invoiceProductId": "invoiceProduct-labTestType-WBC",
-      "insurancePlan1": 50
-    },
-    {
-      "invoiceProductId": "invoiceProduct-labTestType-Woundswab",
       "insurancePlan1": 50
     },
     {

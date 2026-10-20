@@ -1,42 +1,46 @@
+import Box from '@mui/material/Box';
+import { differenceInMonths, differenceInYears, parseISO } from 'date-fns';
 import React, { useMemo, useState } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
-import MuiBox from '@material-ui/core/Box';
-import { FORM_TYPES, BINARY_UNKNOWN_OPTIONS, FSM_FIELDS, SEX_VALUES } from '@tamanu/constants';
-import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
+import * as yup from 'yup';
+
+import { BINARY_UNKNOWN_OPTIONS, FORM_TYPES, FSM_FIELDS, SEX_VALUES } from '@tamanu/constants';
 import {
-  ArrayField,
   AutocompleteField,
-  CheckField,
   DateField,
   DateTimeField,
   Field,
   FieldWithTooltip,
+  FormGrid,
+  TranslatedText,
+  useDateTime,
+  useSettings,
+  useTranslation,
+} from '@tamanu/ui-components';
+import {
+  ArrayField,
+  CheckField,
   FormSeparatorLine,
   PaginatedForm,
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { FormGrid, useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
-import { DeathFormScreen } from './DeathFormScreen';
-import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 import {
-  FSMSpecificQuestions,
-  InfantPage,
-  FSMPregnancyPage,
   FSMMannerOfDeathPage,
+  FSMPregnancyPage,
+  FSMSpecificQuestions,
   getFSMMannerOfDeathPageFields,
+  getFSMPregnancyPageFields,
   getInfantPageFields,
   getMannerOfDeathPageFields,
   getPregnancyPageFields,
-  getFSMPregnancyPageFields,
+  InfantPage,
   MannerOfDeathPage,
   PregnancyPage,
 } from './DeathFormOptionalPages';
-import { useSettings } from '../contexts/Settings';
+import { DeathFormScreen } from './DeathFormScreen';
+import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 
 const PrefixWrapper = styled.div`
   position: relative;
@@ -78,11 +82,9 @@ const attendingClinicianLabel = (
           stringId="general.localisedField.clinician.label.short"
           fallback="Clinician"
           casing="lower"
-          data-testid="translatedtext-8vf4"
         />
       ),
     }}
-    data-testid="translatedtext-7vdz"
   />
 );
 
@@ -94,11 +96,7 @@ const PrimaryFields = ({ practitionerSuggester }) => {
       <Field
         name="timeOfDeath"
         label={
-          <TranslatedText
-            stringId="death.timeOfDeath.label"
-            fallback="Date & time of death"
-            data-testid="translatedtext-x1yy"
-          />
+          <TranslatedText stringId="death.timeOfDeath.label" fallback="Date & time of death" />
         }
         component={props => <DateTimeField {...props} data-testid="datetimefield-8fsq" />}
         required
@@ -106,23 +104,7 @@ const PrimaryFields = ({ practitionerSuggester }) => {
       />
       <Field
         name="clinicianId"
-        label={
-          <TranslatedText
-            stringId="general.attendingClinician.label"
-            fallback="Attending :clinician"
-            replacements={{
-              clinician: (
-                <TranslatedText
-                  stringId="general.localisedField.clinician.label.short"
-                  fallback="Clinician"
-                  casing="lower"
-                  data-testid="translatedtext-2e0w"
-                />
-              ),
-            }}
-            data-testid="translatedtext-w8w6"
-          />
-        }
+        label={attendingClinicianLabel}
         component={AutocompleteField}
         suggester={practitionerSuggester}
         required
@@ -154,7 +136,9 @@ const PartialWorkflowPage = ({ practitionerSuggester }) => {
 
 const canBePregnant = (timeOfDeath, patient) => {
   const canConceive = patient.sex === SEX_VALUES.FEMALE || patient.sex === SEX_VALUES.OTHER;
-  return canConceive && differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) >= 12;
+  return (
+    canConceive && differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) >= 12
+  );
 };
 
 const isInfant = (timeOfDeath, patient) => {
@@ -200,14 +184,12 @@ export const DeathForm = React.memo(
     facilitySuggester,
   }) => {
     const { getCurrentDateTime } = useDateTime();
-    const [currentTOD, setCurrentTOD] = useState(
-      patient?.dateOfDeath || getCurrentDateTime(),
-    );
+    const [currentTOD, setCurrentTOD] = useState(patient?.dateOfDeath || getCurrentDateTime());
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
     const { getSetting } = useSettings();
     const showInfantQuestions = isInfant(currentTOD, patient);
-    const handleSubmit = (data) => {
+    const handleSubmit = data => {
       onSubmit(transformData(data, showInfantQuestions));
     };
     const isFSMStyleEnabled = getSetting('fsmCrvsCertificates.enableFSMStyle');
@@ -235,11 +217,7 @@ export const DeathForm = React.memo(
               .string()
               .required()
               .translatedLabel(
-                <TranslatedText
-                  stringId="death.causeOfDeath.label"
-                  fallback="Cause of death"
-                  data-testid="translatedtext-jg7t"
-                />,
+                <TranslatedText stringId="death.causeOfDeath.label" fallback="Cause of death" />,
               ),
           }),
           causeOfDeathInterval: yup.string().when('isPartialWorkflow', {
@@ -251,7 +229,6 @@ export const DeathForm = React.memo(
                 <TranslatedText
                   stringId="death.timeBetweenOnsetAndDeath.label"
                   fallback="Time interval from onset to death"
-                  data-testid="translatedtext-ss0n"
                 />,
               ),
           }),
@@ -264,14 +241,10 @@ export const DeathForm = React.memo(
                 <TranslatedText
                   stringId="death.mannerOfDeath.label"
                   fallback="What was the manner of death?"
-                  data-testid="translatedtext-death-manner-of-death-validation"
                 />,
               ),
           }),
-          clinicianId: yup
-            .string()
-            .required()
-            .translatedLabel(attendingClinicianLabel),
+          clinicianId: yup.string().required().translatedLabel(attendingClinicianLabel),
           lastSurgeryDate: yup
             .date()
             .max(
@@ -304,7 +277,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.validation.timeOfDeath.path"
                 fallback="Date & time of death"
-                data-testid="translatedtext-ubdv"
               />,
             ),
         })}
@@ -321,13 +293,7 @@ export const DeathForm = React.memo(
         <StyledFormGrid columns={2} data-testid="styledformgrid-5gyh">
           <FieldWithTooltip
             name="causeOfDeath"
-            label={
-              <TranslatedText
-                stringId="death.causeOfDeath.label"
-                fallback="Cause of death"
-                data-testid="translatedtext-x2zt"
-              />
-            }
+            label={<TranslatedText stringId="death.causeOfDeath.label" fallback="Cause of death" />}
             component={AutocompleteFieldWithPrefix}
             prefix="a."
             suggester={diagnosisSuggester}
@@ -335,7 +301,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.causeOfDeath.tooltip"
                 fallback="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
-                data-testid="translatedtext-tync"
               />
             }
             required
@@ -347,7 +312,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time interval from onset to death"
-                data-testid="translatedtext-k2wn"
               />
             }
             component={TimeWithUnitField}
@@ -360,7 +324,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.atecedentCause.label"
                 fallback="Due to (or as a consequence of)"
-                data-testid="translatedtext-0bm8"
               />
             }
             component={AutocompleteFieldWithPrefix}
@@ -374,7 +337,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time interval from onset to death"
-                data-testid="translatedtext-crsz"
               />
             }
             component={TimeWithUnitField}
@@ -386,7 +348,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.atecedentCause.label"
                 fallback="Due to (or as a consequence of)"
-                data-testid="translatedtext-y3mg"
               />
             }
             component={AutocompleteFieldWithPrefix}
@@ -400,7 +361,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time interval from onset to death"
-                data-testid="translatedtext-ypeg"
               />
             }
             component={TimeWithUnitField}
@@ -412,7 +372,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.atecedentCause.label"
                 fallback="Due to (or as a consequence of)"
-                data-testid="translatedtext-ufzf"
               />
             }
             component={AutocompleteFieldWithPrefix}
@@ -426,7 +385,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
                 fallback="Time interval from onset to death"
-                data-testid="translatedtext-23g8"
               />
             }
             component={TimeWithUnitField}
@@ -444,28 +402,26 @@ export const DeathForm = React.memo(
                     <TranslatedText
                       stringId="death.otherContributionCondition.label"
                       fallback="Other significant contributing condition"
-                      data-testid="translatedtext-pjt7"
                     />
                   }
                   component={AutocompleteField}
                   suggester={diagnosisSuggester}
                   data-testid="field-xblv"
                 />
-                <MuiBox display="flex" alignItems="center" data-testid="muibox-ar5o">
+                <Box display="flex" alignItems="center" data-testid="muibox-ar5o">
                   <Field
                     name={`otherContributingConditions[${index}].interval`}
                     label={
                       <TranslatedText
                         stringId="death.timeBetweenOnsetAndDeath.label"
                         fallback="Time interval from onset to death"
-                        data-testid="translatedtext-kw9v"
                       />
                     }
                     component={TimeWithUnitField}
                     data-testid="field-l9px"
                   />
                   {index > 0 && DeleteButton}
-                </MuiBox>
+                </Box>
               </>
             )}
             data-testid="field-psio"
@@ -474,13 +430,7 @@ export const DeathForm = React.memo(
           <PrimaryFields practitionerSuggester={practitionerSuggester} />
           <Field
             name="facilityId"
-            label={
-              <TranslatedText
-                stringId="general.facility.label"
-                fallback="Facility"
-                data-testid="translatedtext-wiq7"
-              />
-            }
+            label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
             component={AutocompleteField}
             suggester={facilitySuggester}
             data-testid="field-8lsl"
@@ -491,7 +441,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.outsideHealthFacility.label"
                 fallback="Died outside health facility"
-                data-testid="translatedtext-cfqq"
               />
             }
             component={StyledCheckField}
@@ -506,7 +455,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.surgeryInLast4Weeks.label"
                 fallback="Was surgery performed in the last 4 weeks?"
-                data-testid="translatedtext-mkip"
               />
             }
             component={RadioField}
@@ -516,11 +464,7 @@ export const DeathForm = React.memo(
           <Field
             name="lastSurgeryDate"
             label={
-              <TranslatedText
-                stringId="death.lastSurgeryDate.label"
-                fallback="Date of surgery"
-                data-testid="translatedtext-ud0r"
-              />
+              <TranslatedText stringId="death.lastSurgeryDate.label" fallback="Date of surgery" />
             }
             component={DateField}
             style={{ gridColumn: 'span 2' }}
@@ -533,7 +477,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.lastSurgeryReason.label"
                 fallback="Please specify the reason for surgery (disease or condition)"
-                data-testid="translatedtext-g0fx"
               />
             }
             component={AutocompleteField}
@@ -547,7 +490,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.autopsyRequested.label"
                 fallback="Was an autopsy requested?"
-                data-testid="translatedtext-l4gw"
               />
             }
             component={RadioField}
@@ -560,7 +502,6 @@ export const DeathForm = React.memo(
               <TranslatedText
                 stringId="death.autopsyFindingsUsed.label"
                 fallback="Were the findings used in the certification?"
-                data-testid="translatedtext-2u2y"
               />
             }
             component={RadioField}
@@ -577,9 +518,7 @@ export const DeathForm = React.memo(
         {showPregnantFSMQuestions ? (
           <FSMPregnancyPage>{fsmPregnancyPageFields}</FSMPregnancyPage>
         ) : null}
-        {showPregnantQuestions ? (
-          <PregnancyPage>{pregnancyPageFields}</PregnancyPage>
-        ) : null}
+        {showPregnantQuestions ? <PregnancyPage>{pregnancyPageFields}</PregnancyPage> : null}
         {showInfantQuestions ? <InfantPage>{infantPageFields}</InfantPage> : null}
       </PaginatedForm>
     );

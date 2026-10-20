@@ -30,10 +30,9 @@ const StyledTab = styled.div.attrs({ role: 'tab' })`
   padding-inline: 12px;
   position: relative;
 
-  cursor: grab;
-  &:active {
-    cursor: grabbing;
-  }
+  // spec: ETABS
+  // !important needed to override react-beautiful-dnd
+  cursor: pointer !important;
 
   &:hover {
     background-color: ${p => p.theme.palette.action.hover};

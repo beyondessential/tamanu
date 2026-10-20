@@ -16,6 +16,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
 import { getDrugUnitLabel } from '@tamanu/shared/utils/medication';
 import { buildInstructionText, usePresetLabelsQuery } from '../../utils/medications';
+import { MedicationDetailsColumns } from './MedicationDetailsColumns';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -25,26 +26,6 @@ const StyledModal = styled(BaseModal)`
 
 const Container = styled.div`
   padding: 22px 8px 40px;
-`;
-
-const DetailsContainer = styled(Box)`
-  padding: 12px 20px;
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px;
-  background-color: ${Colors.white};
-`;
-
-const MidText = styled(Box)`
-  font-size: 14px;
-  line-height: 18px;
-  color: ${Colors.midText};
-`;
-
-const DarkestText = styled(Box)`
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: 500;
-  color: ${Colors.darkestText};
 `;
 
 const ActionRow = styled(Box)`
@@ -64,7 +45,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
 
   const {
     prescription,
-    medication,
     quantity,
     instructions,
     remainingRepeats,
@@ -76,7 +56,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
   } = item;
 
   // The dispense stores the label text in `instructions`; the clinical Instructions
-  // shown here are derived from the prescription, mirroring the dispense modals.
+  // shown here are derived from the details it was dispensed with.
   const derivedInstructions = buildInstructionText(prescription, getTranslation, getEnumTranslation);
 
   const leftDetails = [
@@ -92,9 +72,9 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
       ),
       value: (
         <TranslatedReferenceData
-          fallback={medication?.name}
-          value={medication?.id}
-          category={medication?.type}
+          fallback={prescription?.medication?.name}
+          value={prescription?.medication?.id}
+          category={prescription?.medication?.type}
         />
       ),
     },
@@ -199,24 +179,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
       onClose={onClose}
     >
       <Container>
-        <DetailsContainer display="flex" justifyContent="space-between">
-          <Box flex={1.1}>
-            {leftDetails.map((detail, index) => (
-              <Box key={index} mb={index === leftDetails.length - 1 ? 0 : 2}>
-                <MidText>{detail.label}</MidText>
-                <DarkestText mt={0.5}>{detail.value}</DarkestText>
-              </Box>
-            ))}
-          </Box>
-          <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
-            {rightDetails.map((detail, index) => (
-              <Box key={index} mb={index === rightDetails.length - 1 ? 0 : 2}>
-                <MidText>{detail.label}</MidText>
-                <DarkestText mt={0.5}>{detail.value}</DarkestText>
-              </Box>
-            ))}
-          </Box>
-        </DetailsContainer>
+        <MedicationDetailsColumns leftDetails={leftDetails} rightDetails={rightDetails} />
       </Container>
 
       <ActionRow>

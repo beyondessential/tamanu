@@ -7,6 +7,7 @@ import { useApi, useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { invalidatePatientDataQueries } from '../utils';
 import { TranslatedText } from './Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const api = useApi();
@@ -17,9 +18,9 @@ export const DeathModal = React.memo(({ open, onClose, deathData }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
 
-  const recordPatientDeath = async (data) => {
+  const recordPatientDeath = async data => {
     const patientId = patient.id;
-    await api.post(`patient/${patientId}/death`, data);
+    await api.post(route('patient/:patientId/death', { patientId }), data);
     // Recording death auto-discharges the active encounter, so refresh the current-encounter query
     // (and the rest of the patient data) alongside the death summary, not just patientDetails.
     await invalidatePatientDataQueries(queryClient, patientId);

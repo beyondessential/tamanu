@@ -7,7 +7,7 @@ import { format, subSeconds } from 'date-fns';
 import { capitalize } from 'es-toolkit/compat';
 import { useFormikContext } from 'formik';
 import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -71,6 +71,7 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
@@ -80,6 +81,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { dispensingQuantitySchema, foreignKey } from '../utils/validation';
+import { route } from '@tamanu/api-client';
 
 const requiredInlineMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
@@ -616,7 +618,8 @@ export const MedicationForm = ({
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
@@ -653,6 +656,7 @@ export const MedicationForm = ({
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
   const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
+  const isFinalizingRef = useRef(false);
   const [frequencyChanged, setFrequencyChanged] = useState(0);
   const [selectedDrug, setSelectedDrug] = useState(null);
   const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
@@ -713,10 +717,20 @@ export const MedicationForm = ({
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
-        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
-        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+        ? api.post(
+            route('medication/patientOngoingPrescription/:patientId', { patientId: patient.id }),
+            payload,
+          )
+        : api.post(
+            route('medication/encounterPrescription/:encounterId', { encounterId }),
+            payload,
+          ));
       // The return from the post doesn't include the joined tables like medication and prescriber
-      const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+      const newMedication = await api.get(
+        route('medication/:medicationSubmissionId', {
+          medicationSubmissionId: medicationSubmission.id,
+        }),
+      );
       setSubmittedMedication(newMedication);
     } catch (error) {
       toast.error(error.message);
@@ -724,7 +738,7 @@ export const MedicationForm = ({
     }
 
     if (encounterId) {
-      loadEncounter?.(encounterId, false);
+      invalidateEncounter(encounterId);
       queryClient.invalidateQueries(['encounterMedication', encounterId]);
     }
     if (patient) {
@@ -733,11 +747,17 @@ export const MedicationForm = ({
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
-    if (isFinalizingMedication) {
+    if (isFinalizingRef.current) {
       return;
     }
 
+    isFinalizingRef.current = true;
     setIsFinalizingMedication(true);
+
+    const unlock = () => {
+      isFinalizingRef.current = false;
+      setIsFinalizingMedication(false);
+    };
 
     try {
       setAwaitingPrint(isPrinting);
@@ -745,8 +765,14 @@ export const MedicationForm = ({
         onDirtyChange(dirty);
       }
       await submitForm(data);
-    } finally {
-      setIsFinalizingMedication(false);
+    } catch (error) {
+      unlock();
+      throw error;
+    }
+
+    // A saved prescription stays locked until the modal unmounts, so a late click can't save it again.
+    if (isEditing) {
+      unlock();
     }
   };
 

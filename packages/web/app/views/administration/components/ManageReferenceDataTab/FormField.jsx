@@ -1,8 +1,18 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { startCase } from 'es-toolkit/compat';
-import { TextField } from '@tamanu/ui-components';
-import { NONPATIENT_VISIBILITY_STATUS_VALUES } from '@tamanu/constants/importable';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
+import {
+  NONPATIENT_VISIBILITY_STATUS_VALUES,
+  OTHER_REFERENCE_TYPES,
+} from '@tamanu/constants/importable';
+import {
+  DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  MEDICATION_DURATION_UNITS_LABELS,
+  TASK_FREQUENCY_UNIT_LABELS,
+} from '@tamanu/constants';
 import {
   Field,
   SelectField,
@@ -14,6 +24,15 @@ import { CheckField } from '../../../../components/Field/CheckField';
 import { useSuggester } from '../../../../api/suggesters';
 import { REQUIRED_FIELDS, SUGGESTER_OPTIONS } from './constants';
 
+// Columns whose values the schema stores as plain strings; the server names the registered labels
+// constant so the option text is the product's own, and translated.
+const ENUM_LABELS = {
+  DRUG_ROUTE_LABELS,
+  DRUG_UNIT_LABELS,
+  MEDICATION_DURATION_UNITS_LABELS,
+  TASK_FREQUENCY_UNIT_LABELS,
+};
+
 const CheckFieldWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -21,10 +40,19 @@ const CheckFieldWrapper = styled.div`
   padding-top: 20px;
 `;
 
-const VISIBILITY_STATUS_OPTIONS = NONPATIENT_VISIBILITY_STATUS_VALUES.map(value => ({
-  value,
-  label: startCase(value),
-}));
+// Lab test types can also be set to "Panel only" or "Reflex test"; other reference data cannot.
+const getVisibilityStatusOptions = selectedType =>
+  (selectedType === OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
+    ? [
+        ...NONPATIENT_VISIBILITY_STATUS_VALUES,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+        LAB_TEST_TYPE_VISIBILITY_STATUSES.REFLEX_TEST,
+      ]
+    : NONPATIENT_VISIBILITY_STATUS_VALUES
+  ).map(value => ({
+    value,
+    label: startCase(value),
+  }));
 
 const getFieldComponent = columnType => {
   switch (columnType) {
@@ -87,7 +115,7 @@ const AvailableFacilitiesFormField = memo(({ disabled }) => {
   );
 });
 
-export const FormField = memo(({ col, isEditMode }) => {
+export const FormField = memo(({ col, isEditMode, selectedType }) => {
   const disabled = isEditMode && (col.readOnly || col.readOnlyOnEdit);
 
   if (col.key === 'availableFacilities') {
@@ -100,6 +128,21 @@ export const FormField = memo(({ col, isEditMode }) => {
 
   if (col.suggesterEndpoint) {
     return <SuggesterFormField col={col} disabled={disabled} />;
+  }
+
+  const enumLabels = ENUM_LABELS[col.enumName];
+  if (enumLabels) {
+    return (
+      <Field
+        name={col.key}
+        label={col.key}
+        component={TranslatedSelectField}
+        enumValues={enumLabels}
+        required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
+        disabled={disabled}
+        data-testid={`field-form-${col.key}`}
+      />
+    );
   }
 
   if (col.enumValues) {
@@ -123,7 +166,7 @@ export const FormField = memo(({ col, isEditMode }) => {
         name={col.key}
         label={col.key}
         component={SelectField}
-        options={VISIBILITY_STATUS_OPTIONS}
+        options={getVisibilityStatusOptions(selectedType)}
         required={REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)}
         disabled={disabled}
         data-testid={`field-form-${col.key}`}

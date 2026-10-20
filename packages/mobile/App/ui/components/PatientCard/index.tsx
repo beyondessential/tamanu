@@ -1,36 +1,32 @@
 import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
-import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
-import { DateFormats } from '/helpers/constants';
-import { getDisplayAge } from '/helpers/date';
-import { UserAvatar } from '../UserAvatar';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import * as styles from './styles';
-import { theme } from '/styled/theme';
-import { getGender, joinNames } from '../../helpers/user';
 import type { IPatient } from '~/types';
-import { TranslatedText } from '/components/Translations/TranslatedText';
-import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
-import { useSettings } from '/contexts/SettingsContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
+import { getGender, joinNames } from '../../helpers/user';
+import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { UserAvatar } from '../UserAvatar';
+import * as styles from './styles';
+import { TranslatedText } from '/components/Translations/TranslatedText';
+import { useSettings } from '/contexts/SettingsContext';
+import { DateFormats } from '/helpers/constants';
+import { type AgeDisplayFormat, getDisplayAge } from '/helpers/date';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
 export interface PatientCardProps {
   patient: IPatient;
   onPress: Function;
 }
 
-export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element => {
+export const PatientCard = ({ patient, onPress }: PatientCardProps) => {
   const { formatDate } = useDateFormatter();
   const { firstName, lastName, dateOfBirth, sex, village } = patient;
-
-  // TODO: These fields aren't on the patient model yet.
-  const image = null;
-  const lastViewed = new Date();
 
   const name = joinNames({ firstName, lastName });
 
   const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
   return (
     <TouchableWithoutFeedback onPress={(): void => onPress()}>
@@ -43,7 +39,6 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
           <UserAvatar
             size={screenPercentageToDP(4.86, Orientation.Height)}
             displayName={name}
-            image={image}
             sex={sex}
           />
           <StyledText
@@ -52,7 +47,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
             fontWeight={500}
           >
             <TranslatedText stringId="patient.lastViewed.title" fallback="Last viewed" />
-            {` \n${formatDate(lastViewed, DateFormats.short)}`}
+            {` \n${formatDate(new Date(), DateFormats.short)}`}
           </StyledText>
         </RowView>
         <ColumnView width="100%" marginTop={screenPercentageToDP(1.82, Orientation.Height)}>

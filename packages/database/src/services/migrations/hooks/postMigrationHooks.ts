@@ -1,12 +1,23 @@
 import config from 'config';
 
-import type { Sequelize } from 'sequelize';
+import { QueryTypes, type Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_SYNC_TRIGGER_CONTROL } from '@tamanu/constants/facts';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
-import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '../constants';
-import { allTables, tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
+import {
+  GLOBAL_EXCLUDE_TABLES,
+  NON_LOGGED_TABLES,
+  NON_SYNCING_TABLES,
+  CENTRAL_NOTIFY_CHANGE_TABLES,
+  FACILITY_NOTIFY_CHANGE_TABLES,
+} from '../constants';
+import {
+  allTables,
+  tablesWithTrigger,
+  tablesWithoutColumn,
+  tablesWithoutTrigger,
+} from '../../../utils';
 import { requireFunction, requireTable } from './prerequisites';
 import type { MigrationHook } from './types';
 
@@ -129,21 +140,66 @@ const addSyncLookupDeleteTrigger: MigrationHook = {
   },
 };
 
-const addNotifyTableChangedTrigger: MigrationHook = {
-  name: 'addNotifyTableChangedTrigger',
+const tablesWithPatientIdColumn = async (sequelize: Sequelize): Promise<string[]> => {
+  const rows = await sequelize.query<{ schema: string; table: string }>(
+    `
+      SELECT c.table_schema as schema, c.table_name as table
+      FROM information_schema.columns c
+      JOIN information_schema.tables t
+        ON t.table_schema = c.table_schema AND t.table_name = c.table_name
+      WHERE c.table_schema = 'public'
+        AND c.column_name = 'patient_id'
+        AND t.table_type = 'BASE TABLE'
+    `,
+    { type: QueryTypes.SELECT },
+  );
+  return rows.map(({ schema, table }) => `${schema}.${table}`);
+};
+
+const centralNotifyTables = async (sequelize: Sequelize): Promise<Set<string>> => {
+  // registerSyncLookupUpdateListener re-queues a synced record's children when its patient_id changes
+  const patientIdTables = (await tablesWithPatientIdColumn(sequelize)).filter(
+    table => !NON_SYNCING_TABLES.includes(table),
+  );
+  return new Set([...CENTRAL_NOTIFY_CHANGE_TABLES, ...patientIdTables]);
+};
+
+const facilityNotifyTables = (): Set<string> => new Set(FACILITY_NOTIFY_CHANGE_TABLES);
+
+const reconcileNotifyTableChangedTrigger: MigrationHook = {
+  name: 'reconcileNotifyTableChangedTrigger',
   prerequisites: [requireFunction('notify_table_changed')],
   async run({ log, sequelize }) {
-    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'notify_', '_changed', [
-      ...GLOBAL_EXCLUDE_TABLES,
-      ...NON_SYNCING_TABLES,
-    ])) {
-      log.info(`Adding notify change trigger to ${schema}.${table}`);
-      await sequelize.query(`
-      CREATE TRIGGER notify_${table}_changed
-      AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}"
-      FOR EACH ROW
-      EXECUTE FUNCTION public.notify_table_changed();
-    `);
+    const isCentralServer = !selectFacilityIds(config);
+    const notifyTables = isCentralServer
+      ? await centralNotifyTables(sequelize)
+      : facilityNotifyTables();
+
+    const tablesWithNotifyTrigger = new Set(
+      (await tablesWithTrigger(sequelize, 'notify_', '_changed')).map(
+        ({ schema, table }) => `${schema}.${table}`,
+      ),
+    );
+
+    for (const { schema, table } of await allTables(sequelize, GLOBAL_EXCLUDE_TABLES)) {
+      const qualifiedTable = `${schema}.${table}`;
+      const hasTrigger = tablesWithNotifyTrigger.has(qualifiedTable);
+      const isWanted = notifyTables.has(qualifiedTable);
+
+      if (isWanted && !hasTrigger) {
+        log.info(`Adding notify change trigger to ${qualifiedTable}`);
+        await sequelize.query(`
+          CREATE TRIGGER notify_${table}_changed
+          AFTER INSERT OR UPDATE OR DELETE ON "${schema}"."${table}"
+          FOR EACH ROW
+          EXECUTE FUNCTION public.notify_table_changed();
+        `);
+      } else if (!isWanted && hasTrigger) {
+        log.info(`Removing unused notify change trigger from ${qualifiedTable}`);
+        await sequelize.query(
+          `DROP TRIGGER IF EXISTS notify_${table}_changed ON "${schema}"."${table}";`,
+        );
+      }
     }
   },
 };
@@ -184,7 +240,7 @@ export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtTrigger,
   addOrReplaceUpdatedAtSyncTickTrigger,
   addSyncLookupDeleteTrigger,
-  addNotifyTableChangedTrigger,
+  reconcileNotifyTableChangedTrigger,
   addRecordChangeTrigger,
   enableSyncTickTrigger,
 ];

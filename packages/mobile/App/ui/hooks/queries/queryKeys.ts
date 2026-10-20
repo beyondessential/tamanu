@@ -94,6 +94,8 @@ export const referenceKeys = {
     [...referenceKeys.all, 'data', type, params ?? {}] as const satisfies QueryKey,
   scheduledVaccines: (params: object) =>
     [...referenceKeys.all, 'scheduledVaccines', params] as const satisfies QueryKey,
+  labTestTypes: (params: object) =>
+    [...referenceKeys.all, 'labTestTypes', params] as const satisfies QueryKey,
   patientDataField: (params: object) =>
     [...referenceKeys.all, 'patientDataField', params] as const satisfies QueryKey,
   addressHierarchy: (leafNodeType: string) =>
@@ -136,15 +138,25 @@ export const settingKeys = {
   byKey: (key: string) => [...settingKeys.all, key] as const satisfies QueryKey,
 };
 
-// Remote queries. Unlike everything above, these hit a server over the internet rather than the
-// local database, so they aren't covered by the sync-driven cache invalidation in BackendContext.
+/** Translation queries read the local database first and fall back to a remote API as needed. */
+export const translationKeys = {
+  all: ['translations'] as const satisfies QueryKey,
+  forLanguage: (languageCode: string | null | undefined, host: string | null | undefined) =>
+    [...translationKeys.all, 'forLanguage', languageCode, host] as const satisfies QueryKey,
+  languageOptions: (host: string | null | undefined) =>
+    [...translationKeys.all, 'languageOptions', host] as const satisfies QueryKey,
+  localLanguageOptions: () =>
+    [...translationKeys.all, 'languageOptions', 'local'] as const satisfies QueryKey,
+};
+
+/**
+ * Remote queries. Unlike everything above, these hit a server over the internet rather than the
+ * local database, so they aren't covered by the sync-driven cache invalidation in BackendContext.
+ */
 export const serverKeys = {
   all: ['servers'] as const satisfies QueryKey,
   list: () => [...serverKeys.all, 'list'] as const satisfies QueryKey,
 };
 
-export const translationKeys = {
-  all: ['translations'] as const satisfies QueryKey,
-  languageOptions: (host: string | null | undefined) =>
-    [...translationKeys.all, 'languageOptions', host] as const satisfies QueryKey,
-};
+/** Whether the central server has enough free disk space to accept a new attachment. */
+export const canUploadAttachmentKey = ['canUploadAttachment'] as const satisfies QueryKey;

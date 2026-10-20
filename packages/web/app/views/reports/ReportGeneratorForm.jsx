@@ -38,6 +38,7 @@ import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
 import { ReportAboutModal } from './ReportAboutModal';
+import { route } from '@tamanu/api-client';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -121,13 +122,12 @@ const getAboutReportText = reportName => (
   />
 );
 
-const isJsonString = str => {
+const parseJsonOrPassThrough = value => {
   try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
+    return JSON.parse(value);
+  } catch {
+    return value;
   }
-  return true;
 };
 
 const getTimeZoneDisplayLabel = tz => tz?.split('/')?.pop()?.replace(/_/g, ' ') ?? tz;
@@ -226,17 +226,12 @@ export const ReportGeneratorForm = () => {
     const { reportId, emails, timezone, ...filterValues } = formValues;
 
     const parsedParameters = Object.fromEntries(
-      Object.entries(filterValues).map(([key, value]) => {
-        if (isJsonString(value)) {
-          return [key, JSON.parse(value)];
-        }
-        return [key, value];
-      }),
+      Object.entries(filterValues).map(([key, value]) => [key, parseJsonOrPassThrough(value)]),
     );
 
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-        const excelData = await api.post(`reports/${reportId}`, {
+        const excelData = await api.post(route('reports/:reportId', { reportId }), {
           parameters: { ...parsedParameters, timezone },
           facilityId,
         });

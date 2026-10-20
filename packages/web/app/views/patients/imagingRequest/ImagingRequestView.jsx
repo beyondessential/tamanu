@@ -1,6 +1,5 @@
 import { pick } from 'es-toolkit/compat';
 import React, { useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -37,11 +36,14 @@ import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
+import { useImagingRequestQuery } from '../../../api/queries/useImagingRequestQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { usePatient } from '../../../contexts/Patient';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { shouldSubmitImagingResult } from '../../../utils/shouldSubmitImagingResult';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
+import { route } from '@tamanu/api-client';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -272,22 +274,20 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
-  // completedAt is pre-filled with the current time, so it can't tell us whether the user actually
-  // entered a result. Only submit newResult when they've filled in a clinician or a description,
-  // otherwise every save of a completed request would append a blank result row.
-  const hasEnteredResult = newResult =>
-    Boolean(newResult?.completedById || newResult?.description);
 
   return (
     <Form
       // Only submit specific fields for update
       onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
-        if (getCanAddResult(values) && hasEnteredResult(values.newResult)) {
+        if (shouldSubmitImagingResult(values, imagingRequest)) {
           updatedValues.newResult = values.newResult;
         }
 
-        await api.put(`imagingRequest/${imagingRequest.id}`, { ...updatedValues, facilityId });
+        await api.put(
+          route('imagingRequest/:imagingRequestId', { imagingRequestId: imagingRequest.id }),
+          { ...updatedValues, facilityId },
+        );
 
         onSubmit(updatedValues);
       }}
@@ -350,10 +350,12 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 });
 
 export const ImagingRequestView = () => {
-  const imagingRequest = useSelector(state => state.imagingRequest);
+  const params = useParams();
+  const { data: imagingRequest, isLoading: isImagingRequestLoading } = useImagingRequestQuery(
+    params.imagingRequestId,
+  );
   const { patient, isLoading } = usePatient();
 
-  const params = useParams();
   const navigate = useNavigate();
   const onNavigateBackToImaging = () => {
     navigate(
@@ -361,14 +363,14 @@ export const ImagingRequestView = () => {
     );
   };
 
+  if (isLoading || !patient || isImagingRequestLoading || !imagingRequest)
+    return <LoadingIndicator data-testid="loadingindicator-31bz" />;
+
   const isCancellable = ![
     IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
     IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
     IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
   ].includes(imagingRequest.status);
-
-  if (isLoading || !patient || imagingRequest.loading)
-    return <LoadingIndicator data-testid="loadingindicator-31bz" />;
 
   return (
     <>

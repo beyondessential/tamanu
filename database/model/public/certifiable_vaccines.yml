@@ -12,7 +12,6 @@ sources:
           meta:
             triggers:
               - delete_certifiable_vaccines_from_sync_lookup
-              - notify_certifiable_vaccines_changed
               - record_certifiable_vaccines_changelog
               - set_certifiable_vaccines_updated_at
               - set_certifiable_vaccines_updated_at_sync_tick

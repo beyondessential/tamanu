@@ -88,6 +88,20 @@ describe('CentralServerConnection', () => {
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
   });
+  describe('initiatePull', () => {
+    it('coerces the pull count to a number, since the server sends a bigint count as a string', async () => {
+      jest.spyOn(centralServerConnection, 'post').mockResolvedValue(undefined);
+      jest.spyOn(centralServerConnection, 'pollUntilTrue').mockResolvedValue(true);
+      jest
+        .spyOn(centralServerConnection, 'get')
+        .mockResolvedValue({ totalToPull: '0', pullUntil: 999 });
+
+      const metadata = await centralServerConnection.initiatePull(mockSessionId, 100, [], []);
+
+      expect(metadata).toEqual({ totalToPull: 0, pullUntil: 999 });
+    });
+  });
+
   describe('pull', () => {
     it('should call get with correct parameters', async () => {
       const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
@@ -429,15 +443,36 @@ describe('CentralServerConnection', () => {
             status: 400,
             type: ERROR_TYPE.CLIENT_INCOMPATIBLE,
             title: 'Client incompatible',
-            extra: {
-              updateUrl: mockUpdateUrl,
-            },
+            'update-url': mockUpdateUrl,
           },
         },
       });
-      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
-        new OutdatedVersionError(mockUpdateUrl),
-      );
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+        message: new OutdatedVersionError(mockUpdateUrl).message,
+        updateUrl: mockUpdateUrl,
+      });
+    });
+
+    describe('when the failure is not a Problem', () => {
+      it('describes a failure with no response using the axios message', async () => {
+        mockAxiosRequest.mockRejectedValueOnce({ message: 'Network Error', code: 'ERR_NETWORK' });
+        await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+          type: ERROR_TYPE.UNKNOWN,
+          title: 'Network Error',
+        });
+      });
+
+      it('keeps the status of a response whose body is not Problem JSON', async () => {
+        mockAxiosRequest.mockRejectedValueOnce({
+          message: 'Request failed with status code 502',
+          code: 'ERR_BAD_RESPONSE',
+          response: { status: 502, data: '<html><body>Bad Gateway</body></html>' },
+        });
+        await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toMatchObject({
+          title: 'Request failed with status code 502',
+          status: 502,
+        });
+      });
     });
   });
 });

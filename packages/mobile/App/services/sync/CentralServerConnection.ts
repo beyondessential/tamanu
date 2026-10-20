@@ -1,32 +1,34 @@
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
+
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
+import { CentralConnectionStatus } from '~/types';
 import { readConfig, writeConfig } from '../config';
-import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
   generalErrorMessage,
-  invalidTokenMessage,
   invalidDeviceMessage,
+  invalidTokenMessage,
   OutdatedVersionError,
 } from '../error';
-import { version } from '/root/package.json';
+import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import { callWithBackoff, sleepAsync } from './utils';
 import { compressibleRequestBody } from './utils/compressibleRequestBody';
-import { CentralConnectionStatus } from '~/types';
+import { version } from '/root/package.json';
 
-type PullMetadataResponse = {
-  totalToPull: number;
+interface PullMetadataResponse {
+  /** A Postgres `count(*)` is a bigint, which arrives serialised as a string */
+  totalToPull: string;
   pullUntil: number;
-};
+}
 
-type RefreshResponse = {
+interface RefreshResponse {
   token?: string;
   refreshToken?: string;
-};
+}
 
 const API_PREFIX = 'api';
 
@@ -35,12 +37,8 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   const problem = Problem.fromJSON(problemJson);
 
   if (!problem) {
-    return new Problem(
-      ERROR_TYPE.UNKNOWN,
-      'Unknown error',
-      err.response?.status,
-      err.response?.statusText,
-    );
+    // React Native's XHR has no statusText, so describe the failure from axios instead
+    return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response?.status);
   }
 
   if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
@@ -53,7 +51,7 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
-    return new OutdatedVersionError(problem.extra.get('updateUrl'));
+    return new OutdatedVersionError(problem.extra.get('update-url'));
   }
 
   console.error('Response had non-OK value', problem);
@@ -267,7 +265,11 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get<PullMetadataResponse>(`sync/${sessionId}/pull/metadata`, {});
+    const { totalToPull, pullUntil } = await this.get<PullMetadataResponse>(
+      `sync/${sessionId}/pull/metadata`,
+      {},
+    );
+    return { totalToPull: Number.parseInt(totalToPull, 10), pullUntil };
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {

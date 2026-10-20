@@ -50,6 +50,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
   const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
   const [isDeleteAdministeredModalOpen, setIsDeleteAdministeredModalOpen] = useState(false);
   const [vaccineData, setVaccineData] = useState();
+  const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
   const queryClient = useQueryClient();
   const [vaccineRefreshCount, updateVaccineRefreshCount] = useRefreshCount();
@@ -182,9 +183,7 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
             </ButtonWithPermissionCheck>
           </NoteModalActionBlocker>
         </TableButtonRow>
-        {/* Both tables are keyed on vaccineRefreshCount so a record/edit/delete
-            remounts them for a clean refetch, resetting table-local state (the
-            "include not given" filter, lazy-loaded rows) as reloadPatient used to. */}
+        {/* Keyed on vaccineRefreshCount so a record, edit or delete remounts them for a clean refetch */}
         <TableWrapper data-testid="tablewrapper-rbs7">
           {hideUpcomingVaccines ? (
               <Button onClick={handleShowUpcomingVaccines}>
@@ -205,6 +204,8 @@ export const VaccinesPane = React.memo(({ patient, readonly }) => {
         <ImmunisationsTable
           key={vaccineRefreshCount}
           patient={patient}
+          includeNotGiven={includeNotGiven}
+          setIncludeNotGiven={setIncludeNotGiven}
           onItemClick={id => handleOpenViewModal(id)}
           onItemEditClick={id => handleOpenEditModal(id)}
           onItemDeleteClick={id => handleOpenDeleteModal(id)}

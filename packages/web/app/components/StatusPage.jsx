@@ -1,4 +1,6 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { Button } from '@tamanu/ui-components';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
@@ -7,6 +9,7 @@ import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
 import { getBrandName } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { logout } from '../store/auth';
 
 const FlexContainer = styled.div`
   display: flex;
@@ -145,9 +148,18 @@ const HeroContent = styled(Content)`
 
 const HeroErrorDescription = styled(ErrorDescription)`
   text-align: left;
+  font-size: 14px;
+  line-height: 18px;
 `;
 
-export const StatusPageWithHeroImage = ({ message, description }) => {
+const HeroButton = styled(Button)`
+  margin-top: 30px;
+  padding: 8px 20px;
+  min-width: 0;
+  font-size: 14px;
+`;
+
+export const StatusPageWithHeroImage = ({ message, description, children }) => {
   return (
     <FlexContainer data-testid="flexcontainer-jfut">
       <Container data-testid="container-j6sh">
@@ -157,10 +169,49 @@ export const StatusPageWithHeroImage = ({ message, description }) => {
           <HeroErrorDescription color="textTertiary" data-testid="heroerrordescription-zt18">
             {description}
           </HeroErrorDescription>
+          {children}
         </HeroContent>
       </Container>
       <HeroImage data-testid="heroimage-z3v9" />
     </FlexContainer>
+  );
+};
+
+// Left-aligned, so the dots grow to the right without moving the rest of the heading
+const InlineAnimateEllipsis = styled.span`
+  &:after {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    animation: ${ellipsis} steps(4, end) 900ms infinite;
+    content: '...';
+  }
+`;
+
+// spec: FSETUP#setting-up-screen
+export const SettingUpStatusPage = () => {
+  const dispatch = useDispatch();
+  const brandName = getBrandName();
+  return (
+    <StatusPageWithHeroImage
+      message={
+        <>
+          <TranslatedText stringId="splash.settingUp.message" fallback="Setting up this facility" />
+          <InlineAnimateEllipsis />
+        </>
+      }
+      description={
+        <TranslatedText
+          stringId="splash.settingUp.description"
+          fallback=":brandName is loading this facility's data for the first time. You can use :brandName once this finishes."
+          replacements={{ brandName }}
+        />
+      }
+    >
+      <HeroButton onClick={() => dispatch(logout())} data-testid="settinguplogoutbutton-x7q2">
+        <TranslatedText stringId="auth.action.logout" fallback="Log out" />
+      </HeroButton>
+    </StatusPageWithHeroImage>
   );
 };
 

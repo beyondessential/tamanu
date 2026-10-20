@@ -7,7 +7,6 @@ import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from 
 import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { kebabCase } from 'es-toolkit/compat';
 import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
@@ -18,14 +17,13 @@ import { useTranslation } from '../../contexts/Translation';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useEncounter } from '../../contexts/Encounter';
-import { reloadImagingRequest } from '../../store';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 
 const NOTIFICATION_ICONS = {
   [NOTIFICATION_TYPES.LAB_REQUEST]: labsIcon,
   [NOTIFICATION_TYPES.IMAGING_REQUEST]: radiologyIcon,
   [NOTIFICATION_TYPES.PHARMACY_NOTE]: medicationIcon,
+  [NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED]: medicationIcon,
 };
 
 const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
@@ -72,6 +70,12 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           'Lab results for :patientName (:displayId) have been <strong>invalidated</strong>',
           { replacements: { displayId, patientName } },
         );
+      case LAB_REQUEST_STATUSES.REJECTED:
+        return getTranslation(
+          'notification.content.labRequest.rejected',
+          'Lab sample for :patientName (:displayId) has been <strong>rejected</strong>',
+          { replacements: { displayId, patientName } },
+        );
     }
   }
 
@@ -79,6 +83,14 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',
+      { replacements: { displayId, patientName } },
+    );
+  }
+
+  if (type === NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED) {
+    return getTranslation(
+      'notification.content.medicationNotDispensed',
+      'Medication for :patientName (:displayId) recorded as <strong>not dispensed</strong>',
       { replacements: { displayId, patientName } },
     );
   }
@@ -172,11 +184,9 @@ const NoDataContainer = styled.div`
 const Card = ({ notification }) => {
   const { loadLabRequest } = useLabRequest();
   const { getTranslation } = useTranslation();
-  const { loadEncounter } = useEncounter();
-  const dispatch = useDispatch();
   const { mutateAsync: markAsRead, isLoading: isMarkingAsRead } = useMarkAsRead(notification.id);
   const { type, createdTime, status, patient, metadata } = notification;
-  const { encounterId, id } = metadata;
+  const { encounterId, id, pharmacyOrderPrescriptionId } = metadata;
 
   const navigate = useNavigate();
 
@@ -188,14 +198,13 @@ const Card = ({ notification }) => {
     if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
       await loadLabRequest(id);
     }
-    if (type === NOTIFICATION_TYPES.IMAGING_REQUEST) {
-      await dispatch(reloadImagingRequest(metadata.id));
-    }
-    await loadEncounter(encounterId);
-
     if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
       navigate(
         `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openMedicationId=${id}`,
+      );
+    } else if (type === NOTIFICATION_TYPES.MEDICATION_NOT_DISPENSED) {
+      navigate(
+        `/patients/all/${patient.id}/encounter/${encounterId}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}&openNotDispensedId=${pharmacyOrderPrescriptionId}`,
       );
     } else {
       navigate(`/patients/all/${patient.id}/encounter/${encounterId}/${kebabCase(type)}/${id}`);

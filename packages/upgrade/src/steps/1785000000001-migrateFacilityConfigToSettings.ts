@@ -5,7 +5,7 @@ import {
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { CONFIG_TO_SETTINGS, configOverridesForScope, settingPathOf } from '@tamanu/settings';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { facilityIdsFromEnv, selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { get as getAtPath } from 'es-toolkit/compat';
 
 import type { Steps, StepArgs } from '../step.ts';
@@ -34,15 +34,8 @@ export const facilityConfigRows = () => {
 export const servedFacilityIds = async (
   LocalSystemFact: StepArgs['models']['LocalSystemFact'],
 ): Promise<string[]> => {
-  if (process.env.SYNC_FACILITY_IDS) {
-    return [
-      ...new Set(
-        process.env.SYNC_FACILITY_IDS.split(',')
-          .map(id => id.trim())
-          .filter(Boolean),
-      ),
-    ];
-  }
+  const fromEnv = facilityIdsFromEnv();
+  if (fromEnv) return fromEnv;
   const fact = await LocalSystemFact.get(FACT_FACILITY_IDS);
   if (fact) return JSON.parse(fact);
   return selectFacilityIds(config) ?? [];

@@ -1,4 +1,10 @@
-import { Brackets, type FindManyOptions, type ObjectLiteral } from 'typeorm';
+import {
+  In,
+  Not,
+  type FindManyOptions,
+  type ObjectLiteral,
+  type SelectQueryBuilder,
+} from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE, USER_KINDS } from '@tamanu/constants';
 import type { BaseModel } from '~/models/BaseModel';
@@ -7,6 +13,7 @@ import { VisibilityStatus } from '~/visibilityStatuses';
 export interface OptionType {
   label: string;
   value: string;
+  [key: string]: unknown;
 }
 
 export type BaseModelSubclass = typeof BaseModel;
@@ -15,6 +22,13 @@ interface SuggesterOptions<ModelType> extends FindManyOptions<ModelType> {
   column: string;
   where: ObjectLiteral; // Suggester only takes 'where' of type object.
   relations?: Array<string>;
+  includeIds?: string[];
+  excludeIds?: string[];
+  /**
+   * Extra predicate AND-ed into the query, for conditions `where` can't express — a comparison
+   * against a joined relation, say. Any alias other than `entity` must be listed in `relations`.
+   */
+  andWhere?: { sql: string; parameters?: ObjectLiteral };
 }
 
 const MODEL_TO_REFERENCE_DATA_TYPE = {
@@ -40,79 +54,75 @@ const defaultFormatter = (record): OptionType => ({
   value: record.entity_id,
 });
 
-const getTranslationJoinParams = (dataType: string, language: string) => [
-  'translated_strings',
-  'translation',
-  'translation.stringId = :prefix || entity.id AND translation.language = :language',
-  {
-    prefix: `refData.${dataType}.`,
-    language,
-  },
-];
+const getTranslationJoinParams = (dataType: string, language: string) => ({
+  stringIdPrefix: `refData.${dataType}.`,
+  language,
+});
 
 export interface SuggesterConfig<ModelType> {
   model: ModelType;
   options: SuggesterOptions<ModelType>;
   formatter?: (entity: BaseModel) => OptionType;
-  filter?: (entity: BaseModel) => boolean;
 }
 
 export class Suggester<ModelType extends BaseModelSubclass> {
-  private static nextFilterCacheKey = 1;
-
   model: ModelType;
 
   options: SuggesterOptions<ModelType>;
 
   formatter: (entity: BaseModel) => OptionType;
 
-  filter?: (entity: BaseModel) => boolean;
-
-  /**
-   * HACK: {@link Suggester.filter} is a method, which is ignored when a {@link Suggester} is
-   * serialized into a TanStack Query query key. Without this, two distinct {@link Suggester}s with
-   * equivalent `model` and `options` but different `filter` would collide in the query client
-   * cache.
-   *
-   * Use `model.name`, `options`, and `filterCacheKey` to key the query.
-   */
-  filterCacheKey?: string;
-
   constructor(config: SuggesterConfig<ModelType>) {
     this.model = config.model;
     this.options = config.options;
     // If you don't provide a formatter, this assumes that your model has "name" and "id" fields
     this.formatter = config.formatter || defaultFormatter;
-    // Frontend filter applied to the data received. Use this to filter by permission
-    // by the model id: ({ id }) => ability.can('read', subject('noun', { id })),
-    this.filter = config.filter;
-    this.filterCacheKey = config.filter ? `filter:${Suggester.nextFilterCacheKey++}` : undefined;
   }
 
   async fetch(options): Promise<BaseModel[]> {
     return this.model.findVisible(options);
   }
 
+  /**
+   * Adds the `entity_display_label` column that suggestions are searched, sorted, and labelled by:
+   * the record's translated name where there is one, otherwise its own name column.
+   */
+  private selectDisplayLabel<T>(
+    query: SelectQueryBuilder<T>,
+    language: string,
+  ): SelectQueryBuilder<T> {
+    const { column = 'name' } = this.options;
+    const dataType = getReferenceDataTypeFromSuggester(this);
+
+    // Models that aren't reference data have no translations to join against
+    if (!dataType) return query.addSelect(`entity.${column}`, 'entity_display_label');
+
+    return query
+      .leftJoin(
+        'translated_strings',
+        'translation',
+        'translation.stringId = :stringIdPrefix || entity.id AND translation.language = :language',
+        getTranslationJoinParams(dataType, language),
+      )
+      .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
+  }
+
   fetchCurrentOption = async (
     value: string | null,
     language: string = ENGLISH_LANGUAGE_CODE,
-  ): Promise<OptionType> => {
-    const { column = 'name' } = this.options;
+  ): Promise<OptionType | undefined> => {
     if (!value) return undefined;
     try {
-      const dataType = getReferenceDataTypeFromSuggester(this);
-      const query = this.model
-        .getRepository()
-        .createQueryBuilder('entity')
-        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label')
-        .where('entity.id = :id', { id: value });
+      const query = this.selectDisplayLabel(
+        this.model.getRepository().createQueryBuilder('entity'),
+        language,
+      ).where('entity.id = :id', { id: value });
 
       const result = await query.getRawOne();
       if (!result) return undefined;
 
       return this.formatter(result);
-    } catch (_e) {
+    } catch {
       return undefined;
     }
   };
@@ -121,39 +131,36 @@ export class Suggester<ModelType extends BaseModelSubclass> {
     search: string,
     language: string = ENGLISH_LANGUAGE_CODE,
   ): Promise<OptionType[]> => {
-    const { where = {}, column = 'name', relations } = this.options;
-    const dataType = getReferenceDataTypeFromSuggester(this);
+    const { where = {}, relations, includeIds, excludeIds, andWhere } = this.options;
+
+    // Nothing can match; skip the round-trip
+    if (includeIds?.length === 0) return [];
 
     try {
       let query = this.model.getRepository().createQueryBuilder('entity');
 
-      if (relations) {
-        relations.forEach(relation => {
-          query = query.leftJoinAndSelect(`entity.${relation}`, relation);
-        });
+      for (const relation of relations ?? []) {
+        query = query.leftJoinAndSelect(`entity.${relation}`, relation);
       }
 
-      // Assign a label property using the translation if it exists otherwise use the original entity name
-      query = query
-        .leftJoinAndSelect(...getTranslationJoinParams(dataType, language))
-        .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
+      query = this.selectDisplayLabel(query, language);
 
-      query = query.where(
-        new Brackets(qb => {
-          if (search) {
-            qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
-          }
-        }),
-      );
+      if (search) {
+        query = query.andWhere('entity_display_label LIKE :search', { search: `%${search}%` });
+      }
 
-      Object.entries(where).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(where)) {
         query = query.andWhere(`entity.${key} = :${key}`, { [key]: value });
-      });
+      }
+
+      if (includeIds) query = query.andWhere({ id: In(includeIds) });
+      if (excludeIds) query = query.andWhere({ id: Not(In(excludeIds)) });
+      if (andWhere) query = query.andWhere(andWhere.sql, andWhere.parameters);
 
       // Add visibility status filtering if the model has a visibilityStatus column
       const hasVisibilityStatus = this.model
         .getRepository()
-        .metadata.columns.find(col => col.propertyName === 'visibilityStatus');
+        .metadata.columns.some(col => col.propertyName === 'visibilityStatus');
       if (hasVisibilityStatus) {
         query = query.andWhere('entity.visibilityStatus = :visibilityStatus', {
           visibilityStatus: VisibilityStatus.Current,
@@ -163,17 +170,25 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Machine accounts (device sync users) never belong in suggestions
       const hasKind = this.model
         .getRepository()
-        .metadata.columns.find(col => col.propertyName === 'kind');
+        .metadata.columns.some(col => col.propertyName === 'kind');
       if (hasKind) {
         query = query.andWhere('entity.kind != :syncKind', { syncKind: USER_KINDS.SYNC });
       }
 
-      query = query.orderBy('entity_display_label', 'ASC').limit(25);
+      // Rank prefix matches first, then other substring matches
+      if (search) {
+        query = query
+          .orderBy('entity_display_label LIKE :prefixSearch', 'DESC')
+          .setParameter('prefixSearch', `${search}%`)
+          .addOrderBy('entity_display_label', 'ASC');
+      } else {
+        query = query.orderBy('entity_display_label', 'ASC');
+      }
+
+      query = query.limit(12);
 
       const data = await query.getRawMany();
-
-      const filteredData = this.filter ? data.filter(this.filter) : data;
-      return filteredData.map(this.formatter);
+      return data.map(this.formatter);
     } catch {
       return [];
     }

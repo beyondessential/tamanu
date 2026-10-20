@@ -3,6 +3,7 @@ export const REFERENCE_DATA_RELATION_TYPES = {
   FACILITY_CATCHMENT: 'facility_catchment',
   TASK: 'task',
   MEDICATION: 'medication',
+  DEFAULT_SPECIMEN_TYPE: 'defaultSpecimenType',
 };
 
 export const DEFAULT_HIERARCHY_TYPE = REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY;

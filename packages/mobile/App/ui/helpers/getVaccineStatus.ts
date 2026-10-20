@@ -39,14 +39,14 @@ const getWarningMessage = (
 ) => {
   const { weeksFromLastVaccinationDue } = scheduledVaccine;
   if (weeksFromLastVaccinationDue && !lastDose) {
-    return 'This patient has not received the previous dose of this vaccine';
+    return 'Patient has not received the previous dose of this vaccine';
   }
-  const weeksUntilDueAbs = Math.round(Math.abs(daysUntilDue / 7));
+  const weeksUntilDueAbs = Math.round(Math.abs(daysUntilDue / 7)).toLocaleString();
   if (status === VaccineStatus.MISSED) {
-    return `Patient has missed this vaccine by ${weeksUntilDueAbs} weeks, please refer to the catchup schedule.`;
+    return `Patient has missed this vaccine by ${weeksUntilDueAbs}\u{00A0}weeks. Please refer to the catchup schedule.`;
   }
   if ([VaccineStatus.SCHEDULED, VaccineStatus.UPCOMING].includes(status)) {
-    return `This patient is not due to receive this vaccine for ${weeksUntilDueAbs} weeks.`;
+    return `Patient is not due to receive this vaccine for ${weeksUntilDueAbs}\u{00A0}weeks`;
   }
 };
 

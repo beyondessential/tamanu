@@ -25,9 +25,14 @@ import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirSpecimen,
+  fakeTestTypes,
 } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
+
+// Seeded lab test names repeat, so a detail is matched to its test by the test's unique code.
+const senaiteCode = detail =>
+  detail.coding?.find(({ system }) => system === 'https://www.senaite.com/testCodes.html')?.code;
 
 describe(`Materialised FHIR - ServiceRequest`, () => {
   let ctx;
@@ -90,7 +95,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
-      
+
       await Note.bulkCreate([
         fake(Note, {
           date: '2022-03-05',
@@ -227,7 +232,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     it('fetches a service request by materialised ID (lab request with panel)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
-      const { labTestPanel, labRequest, panelTestTypes } =
+      const { labTestPanel, labRequest, panelTestTypes, category } =
         await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
@@ -271,16 +276,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           },
         ],
         code: {
+          text: category.name,
           coding: [
             {
-              code: labTestPanel.code,
-              display: labTestPanel.name,
-              system: 'https://www.senaite.com/profileCodes.html',
-            },
-            {
-              code: labTestPanel.externalCode,
-              display: labTestPanel.name,
-              system: 'http://loinc.org',
+              code: category.code,
+              display: category.name,
+              system: 'http://tamanu.io/data-dictionary/lab-test-category-code.html',
             },
           ],
         },
@@ -303,20 +304,45 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         note: [],
       });
 
-      response.body?.orderDetail.forEach(testType => {
-        const currentTest = panelTestTypes.find(test => test.name === testType.text);
-        expect(testType.text).toBe(currentTest.name);
-        testType.coding?.forEach(testTypeCoding => {
-          const { system, code } = testTypeCoding;
-          expect(testTypeCoding.display).toBe(currentTest.name);
-          expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(system);
-          if (system === 'https://www.senaite.com/testCodes.html') {
-            expect(code).toBe(currentTest.code);
-          } else if (system === 'http://loinc.org') {
-            expect(code).toBe(currentTest.externalCode);
-          }
+      // orderDetail carries the panel plus its member tests, told apart by code system.
+      const panelDetail = response.body.orderDetail.find(
+        detail => detail.text === labTestPanel.name,
+      );
+      expect(panelDetail).toBeDefined();
+      expect(panelDetail.coding).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            system: 'https://www.senaite.com/profileCodes.html',
+            code: labTestPanel.code,
+            display: labTestPanel.name,
+          }),
+          expect.objectContaining({
+            system: 'http://loinc.org',
+            code: labTestPanel.externalCode,
+            display: labTestPanel.name,
+          }),
+        ]),
+      );
+
+      response.body.orderDetail
+        .filter(detail => detail.text !== labTestPanel.name)
+        .forEach(testType => {
+          const currentTest = panelTestTypes.find(test => test.code === senaiteCode(testType));
+          expect(currentTest).toBeDefined();
+          expect(testType.text).toBe(currentTest.name);
+          testType.coding?.forEach(testTypeCoding => {
+            const { system, code } = testTypeCoding;
+            expect(testTypeCoding.display).toBe(currentTest.name);
+            expect(['https://www.senaite.com/testCodes.html', 'http://loinc.org']).toContain(
+              system,
+            );
+            if (system === 'https://www.senaite.com/testCodes.html') {
+              expect(code).toBe(currentTest.code);
+            } else if (system === 'http://loinc.org') {
+              expect(code).toBe(currentTest.externalCode);
+            }
+          });
         });
-      });
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
 
@@ -324,14 +350,130 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response.body.subject).not.toHaveProperty('identifier');
     });
 
+    it('fetches a service request by materialised ID (lab request with multiple panels)', async () => {
+      // arrange — a request holding two panels plus a loose individual test, all in one category.
+      // This shape only exists under the per-category model and exercises the panel/test fan-out in
+      // orderDetail (and the separate:true guard against the two has-manys multiplying rows).
+      const {
+        FhirServiceRequest,
+        LabTestPanel,
+        LabTestPanelRequest,
+        LabTestPanelLabTestTypes,
+        LabTest,
+        LabTestType,
+      } = ctx.store.models;
+
+      const {
+        labRequest,
+        labTestPanel: firstPanel,
+        panelTestTypes: firstPanelTests,
+        category,
+      } = await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, true);
+
+      // a second panel on the same request (same category)
+      const secondPanel = await LabTestPanel.create({
+        ...fake(LabTestPanel),
+        categoryId: category.id,
+      });
+      const secondPanelTests = await fakeTestTypes(3, LabTestType, category.id);
+      await Promise.all(
+        secondPanelTests.map(testType =>
+          LabTestPanelLabTestTypes.create({
+            labTestPanelId: secondPanel.id,
+            labTestTypeId: testType.id,
+          }),
+        ),
+      );
+      const secondPanelRequest = await LabTestPanelRequest.create({
+        ...fake(LabTestPanelRequest),
+        labTestPanelId: secondPanel.id,
+        encounterId: resources.encounter.id,
+        labRequestId: labRequest.id,
+      });
+      await Promise.all(
+        secondPanelTests.map(testType =>
+          LabTest.create({
+            labRequestId: labRequest.id,
+            labTestTypeId: testType.id,
+            labTestPanelRequestId: secondPanelRequest.id,
+          }),
+        ),
+      );
+
+      // a loose individual test with no panel attribution
+      const [looseTestType] = await fakeTestTypes(1, LabTestType, category.id);
+      await LabTest.create({ labRequestId: labRequest.id, labTestTypeId: looseTestType.id });
+
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      await FhirServiceRequest.resolveUpstreams();
+
+      // act
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/ServiceRequest/${mat.id}`,
+      );
+
+      // assert
+      expect(response).toHaveSucceeded();
+
+      // code is the shared category — not either individual panel
+      expect(response.body.code).toMatchObject({
+        text: category.name,
+        coding: [
+          {
+            code: category.code,
+            display: category.name,
+            system: 'http://tamanu.io/data-dictionary/lab-test-category-code.html',
+          },
+        ],
+      });
+
+      // both panels appear in orderDetail under the panel code systems
+      for (const panel of [firstPanel, secondPanel]) {
+        const panelDetail = response.body.orderDetail.find(detail => detail.text === panel.name);
+        expect(panelDetail).toBeDefined();
+        expect(panelDetail.coding).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://www.senaite.com/profileCodes.html',
+              code: panel.code,
+              display: panel.name,
+            }),
+            expect.objectContaining({
+              system: 'http://loinc.org',
+              code: panel.externalCode,
+              display: panel.name,
+            }),
+          ]),
+        );
+      }
+
+      // every test — both panels' members and the loose test — appears under the test code system
+      const allTests = [...firstPanelTests, ...secondPanelTests, looseTestType];
+      for (const test of allTests) {
+        const testDetail = response.body.orderDetail.find(
+          detail => senaiteCode(detail) === test.code,
+        );
+        expect(testDetail).toBeDefined();
+        expect(testDetail.coding).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              system: 'https://www.senaite.com/testCodes.html',
+              code: test.code,
+              display: test.name,
+            }),
+          ]),
+        );
+      }
+
+      // exactly the two panels plus every test — no duplication from joining the two has-manys
+      expect(response.body.orderDetail).toHaveLength(2 + allTests.length);
+    });
+
     it('fetches a service request by materialised ID (lab request with unpanelled tests)', async () => {
       // arrange
       const { FhirServiceRequest } = ctx.store.models;
-      const { labRequest, testTypes } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
-        ctx.store.models,
-        resources,
-        false,
-      );
+      const { labRequest, testTypes, category } =
+        await fakeResourcesOfFhirServiceRequestWithLabRequest(ctx.store.models, resources, false);
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       await FhirServiceRequest.resolveUpstreams();
 
@@ -344,10 +486,20 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
 
       // assert
-      expect(response.body.code).toBeUndefined();
+      // An individual-tests request is still grouped under its category, so code is the category.
+      expect(response.body.code).toMatchObject({
+        text: category.name,
+        coding: [
+          {
+            code: category.code,
+            display: category.name,
+            system: 'http://tamanu.io/data-dictionary/lab-test-category-code.html',
+          },
+        ],
+      });
 
       response.body?.orderDetail.forEach(testType => {
-        const currentTest = testTypes.find(test => test.name === testType.text);
+        const currentTest = testTypes.find(test => test.code === senaiteCode(testType));
         expect(testType.text).toBe(currentTest.name);
         testType.coding?.forEach(testTypeCoding => {
           const { system, code } = testTypeCoding;

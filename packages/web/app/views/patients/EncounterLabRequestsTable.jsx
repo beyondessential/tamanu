@@ -7,7 +7,7 @@ import {
   getPriority,
   getRequestedBy,
   getRequestId,
-  getRequestType,
+  getRequestTypeWithTestsTooltip,
   getStatus,
 } from '../../utils/lab';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -29,12 +29,12 @@ const columns = [
     key: 'category.name',
     title: (
       <TranslatedText
-        stringId="lab.testCategory.label"
-        fallback="Test category"
+        stringId="lab.category.label"
+        fallback="Category"
         data-testid="translatedtext-7vec"
       />
     ),
-    accessor: getRequestType,
+    accessor: getRequestTypeWithTestsTooltip,
   },
   {
     key: 'requestedDate',
@@ -84,7 +84,7 @@ const columns = [
   },
 ];
 
-export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
+export const EncounterLabRequestsTable = React.memo(({ encounterId, refreshCount }) => {
   const { patientId, category } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -109,6 +109,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
       }
       onRowClick={selectLab}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      refreshCount={refreshCount}
       data-testid="datafetchingtable-1jgd"
     />
   );
