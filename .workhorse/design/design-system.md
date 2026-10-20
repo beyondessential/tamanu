@@ -265,20 +265,3 @@ for status pills and chips. Avoid introducing new mid-range values (6/8/9px appe
 occasionally but aren't a deliberate step).
 
 ---
-
-## Components
-
-The six most-used building blocks in the web app live in
-[`./components/`](./components/) — each has a markdown doc and a rendered HTML
-preview:
-
-- [Button](./components/button.md) — the action control (primary / secondary / tertiary)
-- [Field](./components/field.md) — the form field system (label, input, validation)
-- [FormGrid](./components/form-grid.md) — the form layout grid
-- [Modal](./components/modal.md) — dialogs (Modal / FormModal / ConfirmModal)
-- [Table](./components/table.md) — lists and data grids
-- [Card](./components/card.md) — InfoCard panels and Tile stats
-
-When implementing, **use these components** — don't rebuild a button, field, or
-modal from MUI primitives. Import from `@tamanu/ui-components` (shared) or the web
-`components/` directory as noted in each doc.
