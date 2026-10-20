@@ -78,6 +78,7 @@ export class User extends Model {
     this.password = await User.hashPassword(pw);
   }
 
+  // Normalisation preserves case (trim only); comparisons are case-insensitive (see emailMatches).
   static normaliseEmail(email: string) {
     return email.trim();
   }
@@ -118,11 +119,13 @@ export class User extends Model {
     return super.upsert(sanitizedValues, ...args);
   }
 
-  // email addresses are case insensitive, so compare them lowercased
+  // Emails are matched case- and whitespace-insensitively, so an account is found for login or
+  // flagged as a duplicate regardless of the case or stray whitespace of the stored or entered
+  // value. Stored emails keep their original case; the case is reconciled here at comparison time.
   static emailMatches(email: string) {
     return Sequelize.where(
-      Sequelize.fn('lower', Sequelize.col('email')),
-      Sequelize.fn('lower', email),
+      Sequelize.fn('lower', Sequelize.fn('trim', Sequelize.col('email'))),
+      User.normaliseEmail(email).toLowerCase(),
     );
   }
 
@@ -192,6 +195,13 @@ export class User extends Model {
         indexes: [{ fields: ['email'] }],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         hooks: {
+          beforeSave(user: User) {
+            // Normalise on instance writes too; the static create/update/upsert/bulkCreate paths
+            // already normalise via sanitizeForInsert.
+            if (typeof user.email === 'string') {
+              user.email = User.normaliseEmail(user.email);
+            }
+          },
           async beforeUpdate(user: User) {
             if (user.changed('password')) {
               // Only hash if the password is not already hashed (to avoid rehashing when syncing)

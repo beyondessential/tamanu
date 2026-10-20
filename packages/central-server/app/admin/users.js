@@ -309,6 +309,8 @@ usersRouter.post(
 const VALIDATION = yup
   .object()
   .shape({
+    // Present when validating an edit, so the user being edited isn't flagged as a duplicate of itself.
+    id: yup.string().optional(),
     displayName: yup.string().trim().required(),
     email: yup.string().trim().email().required(),
     role: yup.string().required(),
@@ -329,15 +331,19 @@ usersRouter.post(
 
     const fields = await VALIDATION.validate(req.body);
 
+    const notCurrentUser = fields.id ? { id: { [Op.ne]: fields.id } } : {};
+
     const existingUserWithSameEmail = await User.findOne({
       where: {
         email: User.emailMatches(fields.email),
+        ...notCurrentUser,
       },
     });
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
         displayName: { [Op.iLike]: fields.displayName },
+        ...notCurrentUser,
       },
     });
 

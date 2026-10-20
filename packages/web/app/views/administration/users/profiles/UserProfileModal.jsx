@@ -185,7 +185,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
 
     if (emailChanged || displayNameChanged || roleChanged) {
       const { isEmailUnique, isDisplayNameUnique, hasWriteUserPermission } =
-        await validateUser(values);
+        await validateUser({ ...values, id: user.id });
 
       if (emailChanged && !isEmailUnique) {
         setFieldError(

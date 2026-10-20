@@ -55,6 +55,30 @@ describe('Admin users — email normalisation and case-insensitive uniqueness', 
     expect(response.body.isEmailUnique).toBe(false);
   });
 
+  it('reports a genuinely unique email as unique via /validate', async () => {
+    const response = await adminApp.post('/api/admin/users/validate').send({
+      displayName: 'Genuinely Unique Name',
+      role: role.id,
+      email: 'genuinely-unique@tamanu.io',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.isEmailUnique).toBe(true);
+  });
+
+  it('does not flag a user as a duplicate of itself when re-casing its own email via /validate', async () => {
+    expect(await createUser('SelfEdit@tamanu.io', 'Self Edit')).toHaveSucceeded();
+    const user = await models.User.findOne({ where: { email: 'SelfEdit@tamanu.io' } });
+
+    const response = await adminApp.post('/api/admin/users/validate').send({
+      id: user.id,
+      displayName: 'Self Edit',
+      role: role.id,
+      email: 'selfedit@tamanu.io',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.isEmailUnique).toBe(true);
+  });
+
   it('rejects updating a user to an email that case-insensitively matches another', async () => {
     expect(await createUser('ExistingA@tamanu.io', 'Existing A')).toHaveSucceeded();
     expect(await createUser('ExistingB@tamanu.io', 'Existing B')).toHaveSucceeded();
@@ -68,5 +92,45 @@ describe('Admin users — email normalisation and case-insensitive uniqueness', 
     });
     expect(response).toHaveRequestError();
     expect(response.statusCode).toBe(409);
+  });
+
+  describe('authorisation', () => {
+    let nonAdminApp;
+    let target;
+
+    beforeAll(async () => {
+      nonAdminApp = await ctx.baseApp.asRole('base');
+      expect(await createUser('AuthzTarget@tamanu.io', 'Authz Target')).toHaveSucceeded();
+      target = await models.User.findOne({ where: { email: 'AuthzTarget@tamanu.io' } });
+    });
+
+    it('forbids a least-privilege user from creating a user', async () => {
+      const response = await nonAdminApp.post('/api/admin/users').send({
+        displayName: 'No Permission',
+        role: role.id,
+        email: 'no-permission@tamanu.io',
+        password: 'test-password',
+      });
+      expect(response).toBeForbidden();
+    });
+
+    it('forbids a least-privilege user from updating a user', async () => {
+      const response = await nonAdminApp.put(`/api/admin/users/${target.id}`).send({
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        displayName: 'Authz Target',
+        role: role.id,
+        email: 'authztarget@tamanu.io',
+      });
+      expect(response).toBeForbidden();
+    });
+
+    it('allows any authenticated user to call /validate (permission check intentionally skipped)', async () => {
+      const response = await nonAdminApp.post('/api/admin/users/validate').send({
+        displayName: 'Anyone',
+        role: role.id,
+        email: 'anyone-validate@tamanu.io',
+      });
+      expect(response).toHaveSucceeded();
+    });
   });
 });
