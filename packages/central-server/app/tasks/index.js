@@ -47,6 +47,8 @@ export async function startScheduledTasks(context) {
   // Not `context.integrations` — that namespace holds the integrations' runtime objects
   // (see fiji-vrs initAppContext).
   context.integrationSettings = await context.settings.get('integrations');
+  // Global telemetry settings (incl. retentionDays), read by CleanupBrowserTelemetry.
+  context.telemetrySettings = await context.settings.get('telemetry');
   /* eslint-enable require-atomic-updates */
 
   const taskClasses = [

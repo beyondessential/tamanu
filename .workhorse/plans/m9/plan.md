@@ -78,6 +78,11 @@ Also folded in: the three near-identical ingest handlers are now one shared `@ta
 - `createBrowserTelemetryIngest({ interfaceName })` now stamps the interface; each of the three mounts passes its own. `interface` is dropped from the client payload/schema, and from the client entirely — `currentInterface()` deleted, interface removed from the web and portal context attributes, and the `INTERFACE` span attribute removed from the collector, exporter, and `spanKeys`.
 - Ingest tests assert the server stamps the right interface per endpoint (no longer round-tripping a client value). Spec and dbt `interface` doc updated.
 
+**Consolidate telemetry settings — retention moved to the global `telemetry` group:**
+- `retentionDays` moved from the per-server `schedules.cleanupBrowserTelemetry` entry into the global `telemetry` group (now `telemetry.enabled` + `telemetry.retentionDays`, default 30). The schedule entries keep only the cron (`31 3 * * *`).
+- Note: this diverges from the usual Tamanu convention of hanging `retentionDays` off the scheduled-task entry (as `fhirErroredJobCleaner` does), in favour of keeping all telemetry settings in one place. Only `telemetry.enabled` is exposed to the web clients; `retentionDays` is server-only.
+- The prune task reads retention from `context.telemetrySettings.retentionDays`, resolved onto the context at startup like `context.schedules` (facility via its facility reader, which merges global scope; central via `context.settings.get('telemetry')`). Falls back to 30 if unset.
+
 **Deviations / things to verify (surfaced for review):**
 - **Navigation patterns come from a curated list** (`PATIENT_PATHS` + the portal's two routes), not react-router's full route tree — because the app routes with nested JSX `<Routes>`, which `useMatches` can't see. The patient drill-downs (the id-bearing nav routes) are fully covered. A handful of rarely-navigated admin paths with ids (`manage/:programId`, report version edit) aren't listed, so they'd record their concrete path; add them to the list if their nav telemetry matters.
 - **Un-migrated plain-string request call sites record their concrete path** (with ids) rather than a pattern. This is deliberate — no guessing — and shrinks as `route()` adoption continues under #P10.

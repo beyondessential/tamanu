@@ -5,7 +5,7 @@ import {
   FhirMissingResources,
   startFhirWorkerTasks,
 } from '@tamanu/shared/tasks';
-import { facilityDefaults } from '@tamanu/settings';
+import { facilityDefaults, globalDefaults } from '@tamanu/settings';
 
 import { getServerFacilityIds } from '../serverConfig';
 
@@ -44,6 +44,12 @@ export async function resolveSchedules(context) {
   context.schedules ??= primaryFacilityId
     ? await context.settings[primaryFacilityId].get('schedules')
     : facilityDefaults.schedules;
+  // Telemetry is a global setting; the facility reader merges global scope, so it
+  // resolves through the facility reader (global defaults before the wizard runs).
+  // eslint-disable-next-line require-atomic-updates
+  context.telemetrySettings ??= primaryFacilityId
+    ? await context.settings[primaryFacilityId].get('telemetry')
+    : globalDefaults.telemetry;
   return context.schedules;
 }
 

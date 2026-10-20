@@ -264,18 +264,9 @@ export const facilitySettings = {
           enabled: false,
         }),
         cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
-        cleanupBrowserTelemetry: scheduledTaskSchema(
-          { schedule: '31 3 * * *' },
-          {
-            retentionDays: {
-              name: 'Retention',
-              description: 'Delete raw browser telemetry spans older than this',
-              type: yup.number().integer().positive(),
-              defaultValue: 30,
-              unit: 'days',
-            },
-          },
-        ),
+        // Retention horizon lives in the global `telemetry.retentionDays` setting,
+        // read by the cleanup task; this entry only controls the schedule.
+        cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
       },
     },
     sync: {

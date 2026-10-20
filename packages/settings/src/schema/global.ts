@@ -457,15 +457,23 @@ export const globalSettings = {
     telemetry: {
       name: 'Telemetry',
       description: 'Browser performance telemetry collected from the web clients',
-      exposedToWeb: true,
-      exposedToPatientPortal: true,
       properties: {
         enabled: {
           name: 'Enabled',
           description:
-            'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to. Retention is configured under Scheduled tasks.',
+            'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to.',
           type: yup.boolean(),
           defaultValue: true,
+          exposedToWeb: true,
+          exposedToPatientPortal: true,
+        },
+        retentionDays: {
+          name: 'Retention',
+          description:
+            'Delete raw browser telemetry spans older than this. The scheduled cleanup task on each server (facility and central) prunes to this horizon.',
+          type: yup.number().integer().positive(),
+          defaultValue: 30,
+          unit: 'days',
         },
       },
     },

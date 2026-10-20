@@ -65,10 +65,17 @@ describe('CleanupBrowserTelemetry', () => {
     expect(await models.BrowserTelemetrySpan.count({ paranoid: false })).toBe(0);
   });
 
-  it('takes its schedule and retention from settings', () => {
-    const task = new CleanupBrowserTelemetry(ctx);
+  it('takes its schedule from settings and its retention from the global telemetry setting', () => {
+    // Retention is resolved from the global `telemetry` setting onto the context
+    // (as the server bootstrap does), not from the schedule entry.
+    const task = new CleanupBrowserTelemetry({ ...ctx, telemetrySettings: { retentionDays: 7 } });
     expect(task.getName()).toBe('CleanupBrowserTelemetry');
     expect(ctx.schedules.cleanupBrowserTelemetry).toBeTruthy();
+    expect(task.retentionDays).toBe(7);
+  });
+
+  it('falls back to 30 days when no retention is configured', () => {
+    const task = new CleanupBrowserTelemetry({ ...ctx, telemetrySettings: undefined });
     expect(task.retentionDays).toBe(30);
   });
 });

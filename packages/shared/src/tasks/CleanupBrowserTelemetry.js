@@ -24,11 +24,12 @@ export class CleanupBrowserTelemetry extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule, jitterTime, enabled, retentionDays } =
-      context.schedules.cleanupBrowserTelemetry;
+    const { schedule, jitterTime, enabled } = context.schedules.cleanupBrowserTelemetry;
     super(schedule, log, jitterTime, enabled);
     this.models = context.models;
-    this.retentionDays = retentionDays ?? 30;
+    // Retention is a global telemetry setting (shared by the facility and central
+    // prune tasks), resolved onto the context at startup like the schedules are.
+    this.retentionDays = context.telemetrySettings?.retentionDays ?? 30;
   }
 
   async run() {

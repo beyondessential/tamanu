@@ -62,8 +62,8 @@ The receiving server writes events into a single flat table — one row per span
 
 ## Settings
 
-Telemetry is governed by settings so operators can control it without a redeploy. Because every web client collects it, and they do not all talk to a facility server, the enablement flag applies server-wide rather than per facility, and is exposed to the web clients so a client knows whether to collect at all.
+Telemetry is governed by settings so operators can control it without a redeploy. Because every web client collects it, and they do not all talk to a facility server, the telemetry settings (enablement and retention) apply server-wide rather than per facility. The enablement flag is exposed to the web clients so a client knows whether to collect at all; retention is read only by the servers.
 
 - [ ] A setting turns browser telemetry on or off, defaulting to on; when off, the clients collect and send nothing.
 - [ ] The enablement setting is exposed to every web client, including the patient portal.
-- [ ] A setting on each server holding raw telemetry defines its retention period, defaulting to one month.
+- [ ] A single server-wide setting defines the retention period, defaulting to one month; the scheduled prune on each server holding raw telemetry (facility and central) applies it.
