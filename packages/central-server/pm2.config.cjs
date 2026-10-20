@@ -37,7 +37,8 @@ function task(name, args, instances = 1, env = {}) {
     script: './app/index.js',
     args,
     interpreter,
-    interpreter_args: `--import tsx --max_old_space_size=${memory}`,
+    // Drop distrusted root CAs from Node's default store before anything opens a connection.
+    interpreter_args: `--import @tamanu/shared/utils/distrustedRootCas.mjs --import tsx --max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',
     restart_delay: 5000,
