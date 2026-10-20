@@ -23,9 +23,11 @@ COPY scripts/ scripts/
 FROM base AS run-base
 ENV NODE_ENV=production
 RUN apk add --no-cache bash curl jq
-# drop distrusted root CAs from the system bundle; the entrypoint drops them from Node's own store
+# drop distrusted root CAs from the system bundle, then from Node's own store in every node process
+# (the entrypoint also imports it, so the app keeps it if NODE_OPTIONS is overridden at deploy time)
 COPY scripts/docker-distrust-cas.mjs scripts/docker-distrust-cas.mjs
 RUN node scripts/docker-distrust-cas.mjs
+ENV NODE_OPTIONS="--import /app/scripts/docker-distrust-cas.mjs"
 # set the runtime options
 COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]
