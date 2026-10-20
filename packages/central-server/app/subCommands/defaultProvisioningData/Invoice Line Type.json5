@@ -51,20 +51,6 @@
       "price": "150"
     },
     {
-      "id": "d913e2b4-be49-4bef-9587-534cf91716e5",
-      "itemId": "labTestType-COVID19NasalSwab",
-      "itemType": "labTestType",
-      "name": "COVID-19 Nasal Swab",
-      "price": "80"
-    },
-    {
-      "id": "fbcd24ee-261b-4702-a040-726b1accfbbe",
-      "itemId": "labTestType-COVIDOropharyngealSwab",
-      "itemType": "labTestType",
-      "name": "COVID-19 Oropharyngeal Swab",
-      "price": "100"
-    },
-    {
       "id": "7fb39c34-f6c6-476c-868e-f338300458d4",
       "itemId": "additionalInvoiceLine-lunch",
       "itemType": "additionalInvoiceLine",
@@ -91,41 +77,6 @@
       "itemType": "additionalInvoiceLine",
       "name": "Cleaning",
       "price": "50"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c8",
-      "itemId": "labTestType-COVIDNasopharyngealswab",
-      "itemType": "labTestType",
-      "name": "COVID-19 Nasopharyngeal Swab",
-      "price": "30"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c9",
-      "itemId": "labTestType-COVIDNasalOropharyngealswab",
-      "itemType": "labTestType",
-      "name": "COVID-19 Nasal Oropharyngeal Swab",
-      "price": "30"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c10",
-      "itemId": "labTestType-COVIDRATnegative",
-      "itemType": "labTestType",
-      "name": "COVID-19 Rapid Test - Negative",
-      "price": "30"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c11",
-      "itemId": "labTestType-COVIDRATpositive",
-      "itemType": "labTestType",
-      "name": "COVID-19 Rapid Test - Positive",
-      "price": "30"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c12",
-      "itemId": "labTestType-Bilibubin",
-      "itemType": "labTestType",
-      "name": "Bilibubin",
-      "price": "20"
     },
     {
       "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c13",
@@ -163,13 +114,6 @@
       "price": "20"
     },
     {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c18",
-      "itemId": "labTestType-Prothrombin",
-      "itemType": "labTestType",
-      "name": "Prothrombin Time",
-      "price": "20"
-    },
-    {
       "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c19",
       "itemId": "labTestType-Sodium",
       "itemType": "labTestType",
@@ -191,20 +135,6 @@
       "price": "20"
     },
     {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c22",
-      "itemId": "labTestType-Bicarbonate",
-      "itemType": "labTestType",
-      "name": "Bicarbonate",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c23",
-      "itemId": "labTestType-Urea",
-      "itemType": "labTestType",
-      "name": "Urea",
-      "price": "20"
-    },
-    {
       "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c24",
       "itemId": "labTestType-Calcium",
       "itemType": "labTestType",
@@ -212,38 +142,10 @@
       "price": "20"
     },
     {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c25",
-      "itemId": "labTestType-Magnesium",
-      "itemType": "labTestType",
-      "name": "Magnesium",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c26",
-      "itemId": "labTestType-Phosphate",
-      "itemType": "labTestType",
-      "name": "Phosphate",
-      "price": "20"
-    },
-    {
       "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c27",
       "itemId": "labTestType-Creatinine",
       "itemType": "labTestType",
       "name": "Creatinine",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c28",
-      "itemId": "labTestType-eGFR",
-      "itemType": "labTestType",
-      "name": "eGFR",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c29",
-      "itemId": "labTestType-HGB",
-      "itemType": "labTestType",
-      "name": "HGB",
       "price": "20"
     },
     {
@@ -265,13 +167,6 @@
       "itemId": "labTestType-MCV",
       "itemType": "labTestType",
       "name": "MCV",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c33",
-      "itemId": "labTestType-PCV",
-      "itemType": "labTestType",
-      "name": "PCV",
       "price": "20"
     },
     {
@@ -338,13 +233,6 @@
       "price": "20"
     },
     {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c43",
-      "itemId": "labTestType-CD4",
-      "itemType": "labTestType",
-      "name": "CD4",
-      "price": "20"
-    },
-    {
       "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c44",
       "itemId": "labTestType-INR",
       "itemType": "labTestType",
@@ -352,52 +240,10 @@
       "price": "20"
     },
     {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c45",
-      "itemId": "labTestType-BloodGlucose",
-      "itemType": "labTestType",
-      "name": "Blood Glucose",
-      "price": "20"
-    },
-    {
       "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c46",
       "itemId": "labTestType-Cholesterol",
       "itemType": "labTestType",
       "name": "Cholesterol",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c47",
-      "itemId": "labTestType-HbA1C",
-      "itemType": "labTestType",
-      "name": "HbA1C",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c48",
-      "itemId": "labTestType-Papsmear",
-      "itemType": "labTestType",
-      "name": "Pap smear",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c49",
-      "itemId": "labTestType-Woundswab",
-      "itemType": "labTestType",
-      "name": "Wound swab",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c50",
-      "itemId": "labTestType-Malariatype",
-      "itemType": "labTestType",
-      "name": "Malaria type",
-      "price": "20"
-    },
-    {
-      "id": "e28fd6a3-7d9e-43c2-8e1d-c7342a75f8c51",
-      "itemId": "labTestType-Parasitecount",
-      "itemType": "labTestType",
-      "name": "Parasite count",
       "price": "20"
     },
     {

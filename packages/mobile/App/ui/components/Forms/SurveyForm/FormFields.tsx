@@ -4,6 +4,7 @@ import React, {
   type ReactElement,
   useCallback,
   useEffect,
+  useEffectEvent,
   useMemo,
   useRef,
   useState,
@@ -59,7 +60,7 @@ interface FormFieldsProps {
   patient: IPatient;
   encounter?: { encounterType?: string };
   isSubmitting: boolean;
-  onCancel?: () => Promise<void>;
+  onCancel?: () => void;
   onGoBack?: () => void;
   currentScreenIndex: number;
   setCurrentScreenIndex: (index: number) => void;
@@ -100,19 +101,19 @@ export const FormFields = ({
     [components, values],
   );
 
-  useEffect(() => {
-    const backAction = () => {
-      if (!onGoBack) {
-        return false;
-      }
-      onGoBack();
-      return true;
-    };
+  const handleHardwareBackPress = useEffectEvent(() => {
+    if (!onGoBack) return false;
+    onGoBack();
+    return true;
+  });
 
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () =>
+      handleHardwareBackPress(),
+    );
 
     return () => backHandler.remove();
-  }, [onGoBack, currentScreenIndex]);
+  }, [currentScreenIndex]);
 
   const maxIndex = useMemo(
     () => components.reduce((max, x) => Math.max(max, x.screenIndex), 0),

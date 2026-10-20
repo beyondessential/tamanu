@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.65.0",
+  "version": "2.68.0",
   "description": "Common code across Tamanu packages",
   "main": "./src/index",
   "exports": {
@@ -87,7 +87,7 @@
     "nanoid": "^3.3.12",
     "node-schedule": "^2.0.0",
     "perfect-freehand": "^1.2.3",
-    "pg-notify": "^1.0.5",
+    "pg": "^8.12.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "read": "^1.0.7",

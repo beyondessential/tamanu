@@ -40,7 +40,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import {
   DispensedMedicationName,
-  getDispensedMedication,
+  getDispensedPrescription,
   getMedicationLabelData,
   getTranslatedMedicationName,
   isDispenseModifiedByPharmacy,
@@ -48,6 +48,7 @@ import {
 } from '../../../utils/medications';
 import { PrescriptionChangeHistoryModal } from '../../../components/Medication/PrescriptionChangeHistoryModal';
 import SendToPharmacyButton from './SendToPharmacyButton';
+import { route } from '@tamanu/api-client';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -349,7 +350,7 @@ const DISPENSED_MEDICATION_COLUMNS = (
     ),
     sortable: false,
     accessor: data => {
-      const dispensingUnit = data?.pharmacyOrderPrescription?.prescription?.dispensingUnit;
+      const dispensingUnit = getDispensedPrescription(data)?.dispensingUnit;
       if (!dispensingUnit) return data?.quantity;
       return `${data?.quantity} ${getDrugUnitLabel(dispensingUnit, data?.quantity, getEnumTranslation)}`;
     },
@@ -499,13 +500,15 @@ export const PatientMedicationPane = ({ patient }) => {
   const handlePrintLabel = useCallback(
     item => {
       const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
-      const prescription = pharmacyOrderPrescription?.prescription;
+      const prescription = getDispensedPrescription(item);
 
-      const medication = getDispensedMedication(item);
       const labelItems = [
         {
           id,
-          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+          medicationName: getTranslatedMedicationName(
+            prescription?.medication,
+            getReferenceDataTranslation,
+          ),
           instructions,
           quantity,
           dispensingUnit: prescription?.dispensingUnit,
@@ -552,7 +555,9 @@ export const PatientMedicationPane = ({ patient }) => {
   }, []);
 
   const handleCancelConfirm = useCallback(async () => {
-    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    await api.delete(
+      route('medication/medication-dispenses/:selectedDispenseId', { selectedDispenseId }),
+    );
     setIsCancelModalOpen(false);
     setSelectedDispenseId(null);
     // Cancelling puts the request back in the patient's dispensable list, which the dispense
@@ -586,10 +591,7 @@ export const PatientMedicationPane = ({ patient }) => {
         remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
-        // The medication actually dispensed, which differs from the prescription's when
-        // pharmacy substituted it during dispensing (mirrors the table's Medication column).
-        medication: getDispensedMedication(dispenseData),
-        prescription: pharmacyOrderPrescription?.prescription,
+        prescription: getDispensedPrescription(dispenseData),
         medicationPresetLabel,
         patient,
       };

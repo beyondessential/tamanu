@@ -1,6 +1,6 @@
 import React, { type FC, useRef, useState } from 'react';
 import { Modal, ScrollView, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { calculateDropdownPosition } from '~/ui/helpers/screen';
 import {
   DropdownContainer,
@@ -64,7 +64,7 @@ export const Dropdown: FC<IDropdownProps> = props => {
             <OptionItemText>
               {!props.options?.length ? 'No options available' : (selectedItem?.label ?? '')}
             </OptionItemText>
-            <Icon name={isOpen ? 'caret-up' : 'caret-down'} />
+            <Icon name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} />
           </PlaceholderContainer>
         </TouchableWithoutFeedback>
       </ReportSelectorContainer>

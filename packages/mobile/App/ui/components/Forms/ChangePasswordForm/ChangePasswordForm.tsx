@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import React, { type FunctionComponent, type ReactElement } from 'react';
-import { Form } from '../Form';
+import Form from '../Form';
 import { ChangePasswordFields } from './ChangePasswordFields';
 import type { ChangePasswordFormProps } from '/interfaces/forms/ChangePasswordFormProps';
 import { useTranslation } from '~/ui/contexts/TranslationContext';

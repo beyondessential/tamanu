@@ -1,33 +1,34 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import {
   Button,
   ButtonWithPermissionCheck,
   TableCellTag,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { DischargeModal } from '../../../components/DischargeModal';
-import { MoveModal } from './MoveModal';
-import { EditEncounterModal } from './EditEncounterModal';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { useEncounterDischargeDraftQuery } from '../../../api/queries/useEncounterDischargeDraftQuery';
+import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
 import { NoteModalActionBlocker } from '../../../components';
+import { DischargeModal } from '../../../components/DischargeModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
+import { PATIENT_STATUS } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
-import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
-import { useEncounterDischargeDraftQuery } from '../../../api/queries/useEncounterDischargeDraftQuery';
 import { IS_DISCHARGE_DRAFT_ENABLED } from '../../../forms/dischargeDraft';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
-import { PATIENT_STATUS } from '../../../constants';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { EditEncounterModal } from './EditEncounterModal';
+import { MoveModal } from './MoveModal';
 
-const ENCOUNTER_MODALS = {
+const ENCOUNTER_MODALS = /** @type {const} */ ({
   NONE: 'none',
   DISCHARGE: 'discharge',
   EDIT: 'edit',
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
   MOVE: 'move',
-};
+});
 
 const StyledButton = styled(Button)`
   white-space: nowrap;
@@ -70,7 +71,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
   const onViewSummary = () => navigateToSummary();
 
-  const { data: discharge } = useEncounterDischargeQuery(encounter)
+  const { data: discharge } = useEncounterDischargeQuery(encounter);
 
   // Scoped to the logged-in clinician by the endpoint, so this only lights up for someone
   // returning to their own interrupted discharge.
@@ -87,41 +88,41 @@ export const EncounterActions = React.memo(({ encounter }) => {
     // need this extra check here to only show encounter/discharge summary actions when
     // the encounter is actually discharged (discharge record exists).
     return (
-      discharge && <>
-        <ActionsContainer data-testid="actionscontainer-w92z">
-          <StyledButton
-            size="small"
-            variant="outlined"
-            onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
-            data-testid="styledbutton-00iz"
-          >
-            <TranslatedText
-              stringId="patient.encounter.action.encounterRecord"
-              fallback="Encounter record"
-              data-testid="translatedtext-ftbh"
-            />
-          </StyledButton>
-          <br />
-          <StyledButton
-            size="small"
-            color="primary"
-            onClick={onViewSummary}
-            data-testid="styledbutton-0m1p"
-          >
-            <TranslatedText
-              stringId="patient.encounter.action.dischargeSummary"
-              fallback="Discharge summary"
-              data-testid="translatedtext-0hzq"
-            />
-          </StyledButton>
-        </ActionsContainer>
-        <EncounterRecordModal
-          encounter={encounter}
-          open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
-          onClose={onClose}
-          data-testid="encounterrecordmodal-discharged"
-        />
-      </>
+      discharge && (
+        <>
+          <ActionsContainer data-testid="actionscontainer-w92z">
+            <StyledButton
+              size="small"
+              variant="outlined"
+              onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
+              data-testid="styledbutton-00iz"
+            >
+              <TranslatedText
+                stringId="patient.encounter.action.encounterRecord"
+                fallback="Encounter record"
+              />
+            </StyledButton>
+            <br />
+            <StyledButton
+              size="small"
+              color="primary"
+              onClick={onViewSummary}
+              data-testid="styledbutton-0m1p"
+            >
+              <TranslatedText
+                stringId="patient.encounter.action.dischargeSummary"
+                fallback="Discharge summary"
+              />
+            </StyledButton>
+          </ActionsContainer>
+          <EncounterRecordModal
+            encounter={encounter}
+            open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
+            onClose={onClose}
+            data-testid="encounterrecordmodal-discharged"
+          />
+        </>
+      )
     );
   }
 

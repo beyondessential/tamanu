@@ -250,6 +250,16 @@ const StatusTableCell = styled(StyledTableCell)`
   ${props => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
+const GroupHeaderCell = styled(StyledTableCell)`
+  &.MuiTableCell-body {
+    padding: 10px 20px;
+  }
+  background: ${Colors.background};
+  font-weight: 400;
+  color: ${Colors.darkestText};
+  cursor: default;
+`;
+
 const Row = React.memo(
   ({
     rowIndex,
@@ -447,6 +457,7 @@ class TableComponent extends React.Component {
       onMouseEnterRow,
       onMouseLeaveRow,
       getRowTooltip,
+      getRowGroupHeader,
     } = this.props;
 
     const status = this.getStatusMessage();
@@ -469,24 +480,34 @@ class TableComponent extends React.Component {
         {Array.isArray(sortedData) &&
           sortedData.map((rowData, rowIndex) => {
             const key = rowData[rowIdKey] || rowData[columns[0].key];
+            const groupHeader = getRowGroupHeader?.(
+              rowData,
+              rowIndex === 0 ? undefined : sortedData[rowIndex - 1],
+            );
             return (
-              <Row
-                rowIndex={rowIndex}
-                data={rowData}
-                key={key}
-                columns={columns}
-                onClick={onRowClick}
-                cellOnChange={cellOnChange}
-                refreshTable={refreshTable}
-                rowStyle={rowStyle}
-                lazyLoading={lazyLoading}
-                cellStyle={cellStyle}
-                onClickRow={onClickRow}
-                onMouseEnter={onMouseEnterRow}
-                onMouseLeave={onMouseLeaveRow}
-                getRowTooltip={getRowTooltip}
-                data-testid="row-1kia"
-              />
+              <React.Fragment key={key}>
+                {groupHeader != null && (
+                  <TableRow data-testid="table-group-header-row">
+                    <GroupHeaderCell colSpan={columns.length}>{groupHeader}</GroupHeaderCell>
+                  </TableRow>
+                )}
+                <Row
+                  rowIndex={rowIndex}
+                  data={rowData}
+                  columns={columns}
+                  onClick={onRowClick}
+                  cellOnChange={cellOnChange}
+                  refreshTable={refreshTable}
+                  rowStyle={rowStyle}
+                  lazyLoading={lazyLoading}
+                  cellStyle={cellStyle}
+                  onClickRow={onClickRow}
+                  onMouseEnter={onMouseEnterRow}
+                  onMouseLeave={onMouseLeaveRow}
+                  getRowTooltip={getRowTooltip}
+                  data-testid="row-1kia"
+                />
+              </React.Fragment>
             );
           })}
         {isLoadingMore && (
@@ -506,7 +527,20 @@ class TableComponent extends React.Component {
     );
   }
 
-  renderPaginator() {
+  renderExportButton() {
+    const { exportName, columns, data, ExportButton } = this.props;
+    return (
+      <DownloadDataButton
+        exportName={exportName}
+        columns={columns}
+        data={data}
+        ExportButton={ExportButton}
+        data-testid="downloaddatabutton-w1c5"
+      />
+    );
+  }
+
+  renderPaginator(leftContent) {
     const { columns, page, count, rowsPerPage, rowsPerPageOptions } = this.props;
     return (
       <Paginator
@@ -517,35 +551,32 @@ class TableComponent extends React.Component {
         rowsPerPage={rowsPerPage}
         onPageChange={this.handleChangePage}
         onRowsPerPageChange={this.handleChangeRowsPerPage}
+        leftContent={leftContent}
         data-testid="paginator-vq9f"
       />
     );
   }
 
   renderFooter() {
-    const { page, lazyLoading, exportName, columns, data, allowExport, count, ExportButton } =
-      this.props;
+    const { page, lazyLoading, columns, allowExport, count } = this.props;
 
     // Footer is empty, don't render anything
     if (((page === null || lazyLoading) && !allowExport) || count === 0) {
       return null;
     }
 
+    const showPaginator = page !== null && !lazyLoading;
+
     return (
       <StyledTableFooter data-testid="styledtablefooter-7pgn">
         <StyledTableRow $lazyLoading={lazyLoading} data-testid="styledtablerow-oomc">
-          {allowExport ? (
-            <TableCell colSpan={page !== null ? 2 : columns.length} data-testid="tablecell-zqda">
-              <DownloadDataButton
-                exportName={exportName}
-                columns={columns}
-                data={data}
-                ExportButton={ExportButton}
-                data-testid="downloaddatabutton-w1c5"
-              />
+          {showPaginator ? (
+            this.renderPaginator(allowExport ? this.renderExportButton() : null)
+          ) : allowExport ? (
+            <TableCell colSpan={columns.length} data-testid="tablecell-zqda">
+              {this.renderExportButton()}
             </TableCell>
           ) : null}
-          {page !== null && !lazyLoading && this.renderPaginator()}
         </StyledTableRow>
       </StyledTableFooter>
     );
@@ -661,6 +692,7 @@ TableComponent.propTypes = {
   noDataBackgroundColor: PropTypes.string,
   isBodyScrollable: PropTypes.bool,
   getRowTooltip: PropTypes.func,
+  getRowGroupHeader: PropTypes.func,
   ExportButton: PropTypes.func,
 };
 
@@ -696,6 +728,7 @@ TableComponent.defaultProps = {
   noDataBackgroundColor: Colors.white,
   isBodyScrollable: false,
   getRowTooltip: null,
+  getRowGroupHeader: null,
 };
 
 export const Table = React.forwardRef(

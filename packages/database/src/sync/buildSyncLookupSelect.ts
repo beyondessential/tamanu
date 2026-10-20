@@ -6,6 +6,7 @@ import type { Model } from '../models/Model';
 interface Columns {
   patientId?: string;
   facilityId?: string;
+  sensitiveNetworkId?: string;
   encounterId?: string;
   isLabRequestValue?: string;
 }
@@ -32,7 +33,7 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
   const isFullyRebuilding =
     await model.sequelize.models.LocalSystemFact.isLookupRebuildingModel(table);
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
-  const { patientId, facilityId, encounterId, isLabRequestValue } = columns;
+  const { patientId, facilityId, sensitiveNetworkId, encounterId, isLabRequestValue } = columns;
 
   return `
     SELECT
@@ -48,6 +49,7 @@ export async function buildSyncLookupSelect(model: typeof Model, columns: Column
       ),
       ${patientId || 'NULL'},
       ${facilityId || 'NULL'},
+      ${sensitiveNetworkId || 'NULL'},
       ${encounterId || 'NULL'},
       ${isLabRequestValue || 'FALSE'},
       ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum' : 'NULL'}

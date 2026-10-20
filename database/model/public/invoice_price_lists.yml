@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_invoice_price_lists_from_sync_lookup
-              - notify_invoice_price_lists_changed
               - record_invoice_price_lists_changelog
               - set_invoice_price_lists_updated_at
               - set_invoice_price_lists_updated_at_sync_tick

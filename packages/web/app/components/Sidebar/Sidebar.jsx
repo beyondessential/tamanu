@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
+import { useSystemErrors } from '../../state/systemErrorStore';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -19,6 +20,8 @@ import { useApi } from '../../api';
 import { KebabMenu } from './KebabMenu';
 import { ImpersonationPopover } from './ImpersonationSelector';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { ThemedTooltip } from '../Tooltip';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   display: flex;
@@ -139,6 +142,22 @@ const StyledMetadataBox = styled(Box)`
   margin-bottom: 5px;
 `;
 
+// Shown in place of the (otherwise hidden-while-retracted) System errors child row so
+// unread errors stay visible even with the sidebar collapsed, per the read/unread rule
+// in state/systemErrorStore.js.
+const RetractedUnreadDot = styled.button`
+  all: unset;
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: ${Colors.alert};
+  margin: 6px auto 11px;
+  cursor: pointer;
+`;
+
+const SYSTEM_ERRORS_ITEM_KEY = 'systemErrors';
+
 const getInitials = string =>
   string
     .match(/\b(\w)/g)
@@ -187,6 +206,9 @@ export const Sidebar = React.memo(({ items }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
+  // spec: SYSERR#sidebar-unread-indicator
+  const systemErrors = useSystemErrors();
+  const hasUnreadSystemErrors = systemErrors.some(error => !error.isRead);
   const extendSidebar = () => setIsRetracted(false);
 
   // Expand the section matching the current route so navigating in from elsewhere
@@ -223,7 +245,7 @@ export const Sidebar = React.memo(({ items }) => {
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(
     ['facility', facilityId],
-    async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+    async () => await api.get(route('facility/:facilityId', { facilityId })),
     {
       enabled: !!facilityId,
     },
@@ -299,7 +321,7 @@ export const Sidebar = React.memo(({ items }) => {
             onClick: () => clickedParentItem(item),
           };
 
-          const dataTestIdSuffix = item.path.replace(/\//g, '-');
+          const dataTestIdSuffix = item.path.replaceAll('/', '-');
 
           if (item.Component) {
             const { Component } = item;
@@ -327,36 +349,77 @@ export const Sidebar = React.memo(({ items }) => {
             );
           }
 
+          const systemErrorsItem = item.children.find(
+            child => child.key === SYSTEM_ERRORS_ITEM_KEY,
+          );
+
           if (isRetracted) {
             return (
-              <PrimarySidebarItem
-                key={item.path}
-                {...commonProps}
-                data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`}
-              />
+              <React.Fragment key={item.path}>
+                <PrimarySidebarItem
+                  {...commonProps}
+                  data-testid={`primarysidebaritem-3d3f${dataTestIdSuffix}`}
+                />
+                {systemErrorsItem && hasUnreadSystemErrors && (
+                  <ThemedTooltip title={systemErrorsItem.label} placement="top-end">
+                    <RetractedUnreadDot
+                      type="button"
+                      onClick={() => {
+                        extendSidebar();
+                        setSelectedParentItem(item.key);
+                        onPathChanged(systemErrorsItem.path);
+                      }}
+                      data-testid="retractedunreaddot-syse"
+                    />
+                  </ThemedTooltip>
+                )}
+              </React.Fragment>
             );
           }
+          const isSectionOpen = selectedParentItem === item.key;
+          const showSystemErrorsOutsideSection =
+            !isSectionOpen && systemErrorsItem && hasUnreadSystemErrors;
+
           return (
-            <PrimarySidebarItem
-              key={item.path}
-              {...commonProps}
-              data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
-            >
-              {item.children.map(child => (
-                <NoteModalActionBlocker key={child.path} isNavigationBlock>
+            <React.Fragment key={item.path}>
+              <PrimarySidebarItem
+                {...commonProps}
+                data-testid={`primarysidebaritem-o312${dataTestIdSuffix}`}
+              >
+                {item.children.map(child => (
+                  <NoteModalActionBlocker key={child.path} isNavigationBlock>
+                    <SecondarySidebarItem
+                      key={child.path}
+                      path={child.path}
+                      isCurrent={currentPath.includes(child.path)}
+                      color={child.color}
+                      overlaidColor={
+                        child.key === SYSTEM_ERRORS_ITEM_KEY && hasUnreadSystemErrors
+                          ? Colors.alert
+                          : undefined
+                      }
+                      label={child.label}
+                      disabled={!permissionCheck(child, item)}
+                      onClick={() => onPathChanged(child.path)}
+                      data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                    />
+                  </NoteModalActionBlocker>
+                ))}
+              </PrimarySidebarItem>
+              {showSystemErrorsOutsideSection && (
+                <NoteModalActionBlocker isNavigationBlock>
                   <SecondarySidebarItem
-                    key={child.path}
-                    path={child.path}
-                    isCurrent={currentPath.includes(child.path)}
-                    color={child.color}
-                    label={child.label}
-                    disabled={!permissionCheck(child, item)}
-                    onClick={() => onPathChanged(child.path)}
-                    data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
+                    path={systemErrorsItem.path}
+                    isCurrent={currentPath.includes(systemErrorsItem.path)}
+                    overlaidColor={Colors.alert}
+                    label={systemErrorsItem.label}
+                    disabled={!permissionCheck(systemErrorsItem, item)}
+                    onClick={() => onPathChanged(systemErrorsItem.path)}
+                    data-testid="secondarysidebaritem-syse-outside"
                   />
                 </NoteModalActionBlocker>
-              ))}
-            </PrimarySidebarItem>
+              )}
+            </React.Fragment>
           );
         })}
       </List>
@@ -418,11 +481,7 @@ export const Sidebar = React.memo(({ items }) => {
                   data-test-id="siderbar-logout-item"
                   data-testid="logoutbutton-4zn4"
                 >
-                  <TranslatedText
-                    stringId="auth.action.logout"
-                    fallback="Log out"
-                    data-testid="translatedtext-sasg"
-                  />
+                  <TranslatedText stringId="auth.action.logout" fallback="Log out" />
                 </LogoutButton>
               </NoteModalActionBlocker>
             </StyledMetadataBox>

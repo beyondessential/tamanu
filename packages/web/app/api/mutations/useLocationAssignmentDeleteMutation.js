@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 import { useApi } from '../useApi';
 
 export const useLocationAssignmentDeleteMutation = (options = {}) => {
@@ -6,10 +7,11 @@ export const useLocationAssignmentDeleteMutation = (options = {}) => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, deleteFuture = false }) => {
-      const params = deleteFuture ? '?deleteAllNextRecords=true' : '';
-      return api.delete(`admin/location-assignments/${id}${params}`);
-    },
+    ({ id, deleteFuture = false }) =>
+      api.delete(
+        route('admin/location-assignments/:id', { id }),
+        deleteFuture ? { deleteAllNextRecords: true } : {},
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({

@@ -23,8 +23,9 @@ export const defineWebsocketService = async injector => {
   });
   const getSocketServer = () => socketServer;
 
+  // Each instance gets table_changed from postgres directly; relaying via the adapter costs a pooled query per row
   injector.dbNotifier?.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]?.(payload => {
-    socketServer.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
+    socketServer.local.emit(`${WS_EVENTS.DATABASE_TABLE_CHANGED}:${payload.table}`, payload);
   });
 
   const testMode = process.env.NODE_ENV === 'test';

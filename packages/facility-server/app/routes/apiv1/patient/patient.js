@@ -41,7 +41,10 @@ import {
 } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
-import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medication';
+import {
+  getDisplayedPharmacyRequest,
+  getLastOrderedAtForOngoingPrescriptions,
+} from '../../../utils/medication';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
@@ -609,7 +612,10 @@ patientRoute.get(
     const baseQuery = {
       where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        // medication is included explicitly below with its referenceDrug nested include
+        ...Prescription.getListReferenceAssociations().filter(
+          association => association !== 'medication',
+        ),
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
@@ -655,6 +661,10 @@ patientRoute.get(
             ]
           : [...orderBy.split('.'), order.toUpperCase()],
       ],
+      // The sensitive-medication filter references the nested medication->referenceDrug join.
+      // Applying a limit would otherwise make Sequelize emit that join inside a subquery while
+      // leaving the WHERE outside it, and Postgres reports a missing FROM-clause entry.
+      subQuery: false,
       ...(page && rowsPerPage
         ? {
             limit: rowsPerPage,
@@ -676,10 +686,21 @@ patientRoute.get(
         ongoingPrescriptionIds,
       );
 
+      // Which single request to surface in a "last sent" column: the earliest one still awaiting
+      // dispense, else the most recent dispensed one. Distinct from lastOrderedAt above, which
+      // answers "when was this last sent" for recency checks — see getDisplayedPharmacyRequest.
+      const pharmacyRequests = await getDisplayedPharmacyRequest(
+        db,
+        'ongoing_prescription_id',
+        ongoingPrescriptionIds,
+      );
+
       responseData = responseData.map(p => ({
         ...p,
         lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
         isLastOrderDispensed: lastOrderedAts[p.id]?.is_completed ?? null,
+        pharmacyRequestAt: pharmacyRequests[p.id]?.date ?? null,
+        isPharmacyRequestDispensed: pharmacyRequests[p.id]?.is_completed ?? null,
       }));
     }
 
@@ -733,7 +754,10 @@ patientRoute.get(
     const dischargeMedications = await Prescription.findAll({
       where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        // medication is included explicitly below with its referenceDrug nested include
+        ...Prescription.getListReferenceAssociations().filter(
+          association => association !== 'medication',
+        ),
         {
           model: EncounterPrescription,
           as: 'encounterPrescription',

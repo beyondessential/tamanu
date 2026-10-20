@@ -1,10 +1,50 @@
+import { Op } from 'sequelize';
 import { upperFirst } from 'es-toolkit/compat';
 import {
-  REFERENCE_TYPE_VALUES,
+  ADMINISTRATION_FREQUENCIES,
+  DRUG_ROUTE_VALUES,
+  DRUG_UNIT_VALUES,
   MANAGEABLE_REFERENCE_DATA_TYPES,
+  MEDICATION_DURATION_UNITS,
+  REFERENCE_DATA_RELATION_TYPES,
+  REFERENCE_TYPE_VALUES,
+  REFERENCE_TYPES,
   SUGGESTER_ENDPOINTS,
+  TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
 import { DatabaseDuplicateError, InvalidOperationError } from '@tamanu/errors';
+
+// Some reference data types have a value stored as a ReferenceDataRelation (parent = this record,
+// child = another reference-data record) rather than a column. The manage UI surfaces it as a
+// synthetic suggester column (idKey, writable) plus a read-only name column (nameKey) for the
+// table; getColumnsForModel injects those, and the list/create/edit handlers translate between the
+// column and the relation. Currently just lab test category's default specimen type.
+export const RELATION_BACKED_COLUMNS = {
+  [REFERENCE_TYPES.LAB_TEST_CATEGORY]: {
+    idKey: 'defaultSpecimenTypeId',
+    nameKey: 'defaultSpecimenType',
+    relationType: REFERENCE_DATA_RELATION_TYPES.DEFAULT_SPECIMEN_TYPE,
+    suggesterEndpoint: 'specimenType',
+  },
+};
+
+// Reference types whose record is split across two tables: the reference_data row and a detail row
+// keyed by reference_data_id. Both halves are managed as one record here.
+const DETAIL_ASSOCIATIONS = {
+  [REFERENCE_TYPES.DRUG]: 'referenceDrug',
+  [REFERENCE_TYPES.TASK_TEMPLATE]: 'taskTemplate',
+  [REFERENCE_TYPES.MEDICATION_TEMPLATE]: 'medicationTemplate',
+};
+
+// Owned by the association, never edited as a field.
+const DETAIL_INTERNAL_COLUMNS = new Set(['id', 'referenceDataId']);
+
+export const getDetailAssociation = type => DETAIL_ASSOCIATIONS[type] ?? null;
+
+export const getDetailModel = (models, type) => {
+  const association = getDetailAssociation(type);
+  return association ? models.ReferenceData.associations[association]?.target ?? null : null;
+};
 
 export const getModelForType = (models, type) => {
   if (REFERENCE_TYPE_VALUES.includes(type)) {
@@ -42,6 +82,31 @@ const READONLY_ON_EDIT_COLUMNS = /** @type {const} */ (new Set(['id']));
 // Fields that are always read-only (hidden from form) for specific models
 const READONLY_COLUMNS = {
   id: new Set(['ReferenceDataRelation']),
+};
+
+// Columns the product constrains to a constant but stores as a plain string, so the enum never
+// reaches us from the schema. Keyed by "ModelName.column".
+// `enumName` names the registered labels constant, so the form can render translated options.
+// `ADMINISTRATION_FREQUENCIES` has no registered labels object, and its values are already
+// sentences, so it ships values alone.
+const ENUM_VALUE_OVERRIDES = {
+  'ReferenceDrug.route': { values: DRUG_ROUTE_VALUES, enumName: 'DRUG_ROUTE_LABELS' },
+  'ReferenceDrug.dosingUnit': { values: DRUG_UNIT_VALUES, enumName: 'DRUG_UNIT_LABELS' },
+  'ReferenceDrug.dispensingUnit': { values: DRUG_UNIT_VALUES, enumName: 'DRUG_UNIT_LABELS' },
+  'ReferenceMedicationTemplate.route': { values: DRUG_ROUTE_VALUES, enumName: 'DRUG_ROUTE_LABELS' },
+  'ReferenceMedicationTemplate.dosingUnit': {
+    values: DRUG_UNIT_VALUES,
+    enumName: 'DRUG_UNIT_LABELS',
+  },
+  'ReferenceMedicationTemplate.frequency': { values: Object.values(ADMINISTRATION_FREQUENCIES) },
+  'ReferenceMedicationTemplate.durationUnit': {
+    values: Object.values(MEDICATION_DURATION_UNITS),
+    enumName: 'MEDICATION_DURATION_UNITS_LABELS',
+  },
+  'TaskTemplate.frequencyUnit': {
+    values: Object.values(TASK_FREQUENCY_UNIT),
+    enumName: 'TASK_FREQUENCY_UNIT_LABELS',
+  },
 };
 
 // FK columns that should render as multi-select autocomplete instead of single select
@@ -119,7 +184,7 @@ const getDbColumnInfo = async model => {
   return new Map(results.map(row => [row.column_name, row]));
 };
 
-export const getColumnsForModel = async model => {
+const buildColumns = async model => {
   const rawAttributes = model.rawAttributes ?? {};
   const fkSuggesters = getForeignKeySuggesters(model);
   const dbColumns = await getDbColumnInfo(model);
@@ -138,7 +203,11 @@ export const getColumnsForModel = async model => {
         readOnly: READONLY_COLUMNS[key]?.has(model.name) ?? false,
         readOnlyOnEdit: READONLY_ON_EDIT_COLUMNS.has(key),
       };
-      if (typeName === 'ENUM' && attr.type?.values) {
+      const override = ENUM_VALUE_OVERRIDES[`${model.name}.${key}`];
+      if (override) {
+        col.enumValues = override.values;
+        if (override.enumName) col.enumName = override.enumName;
+      } else if (typeName === 'ENUM' && attr.type?.values) {
         col.enumValues = attr.type.values;
       }
       if (fkSuggesters[key]) {
@@ -159,6 +228,123 @@ export const getColumnsForModel = async model => {
   });
 };
 
+// The synthetic pair standing in for a relation-backed value: a writable suggester column plus a
+// read-only name column for the table.
+const getRelationBackedColumns = referenceDataType => {
+  const config = RELATION_BACKED_COLUMNS[referenceDataType];
+  if (!config) return [];
+  return [
+    {
+      key: config.idKey,
+      type: 'STRING',
+      allowNull: true,
+      hasDefault: false,
+      readOnly: false,
+      readOnlyOnEdit: false,
+      suggesterEndpoint: config.suggesterEndpoint,
+      isRelationBacked: true,
+    },
+    {
+      key: config.nameKey,
+      type: 'STRING',
+      allowNull: true,
+      hasDefault: false,
+      readOnly: true,
+      isRelationBacked: true,
+    },
+  ];
+};
+
+// Populate each row's relation-backed value (child id + child name) from the ReferenceDataRelation,
+// so the manage table and edit form can display and edit it. Mutates rows in place.
+export const attachRelationBackedValues = async (models, referenceDataType, rows) => {
+  const config = RELATION_BACKED_COLUMNS[referenceDataType];
+  if (!config || rows.length === 0) return;
+
+  const children = await models.ReferenceDataRelation.getSingleChildByParentIds(
+    rows.map(row => row.id),
+    config.relationType,
+  );
+  for (const row of rows) {
+    const child = children.get(row.id);
+    row[config.idKey] = child?.id ?? null;
+    row[config.nameKey] = child?.name ?? null;
+  }
+};
+
+// Translate a create/edit payload's relation-backed value into an at-most-one ReferenceDataRelation
+// (destroy-then-recreate). A blank value clears it. The field is only acted on when present in the
+// payload, so a partial update that omits it leaves the existing default untouched (matching how
+// omitted columns are left unchanged).
+export const applyRelationBackedWrite = async (models, referenceDataType, parentId, rawData) => {
+  const config = RELATION_BACKED_COLUMNS[referenceDataType];
+  if (!config) return;
+  if (!Object.prototype.hasOwnProperty.call(rawData, config.idKey)) return;
+
+  const childId = rawData[config.idKey] || null;
+  await models.ReferenceDataRelation.destroy({
+    where: {
+      referenceDataParentId: parentId,
+      type: config.relationType,
+      ...(childId ? { referenceDataId: { [Op.ne]: childId } } : {}),
+    },
+  });
+
+  if (childId) {
+    const existing = await models.ReferenceDataRelation.findOne({
+      where: { referenceDataParentId: parentId, referenceDataId: childId, type: config.relationType },
+      paranoid: false,
+    });
+    if (existing) {
+      if (existing.deletedAt) await existing.restore();
+    } else {
+      await models.ReferenceDataRelation.create({
+        referenceDataParentId: parentId,
+        referenceDataId: childId,
+        type: config.relationType,
+      });
+    }
+  }
+};
+
+export const getColumnsForModel = async (model, referenceDataType, detailModel = null) => {
+  const columns = [
+    ...(await buildColumns(model)),
+    ...getRelationBackedColumns(referenceDataType),
+  ];
+  if (!detailModel) return columns;
+
+  // Detail columns live on another table, so the list query cannot sort or filter by them.
+  const detailColumns = (await buildColumns(detailModel))
+    .filter(col => !DETAIL_INTERNAL_COLUMNS.has(col.key) && !DETAIL_INTERNAL_COLUMNS.has(col.fkKey))
+    .map(col => ({ ...col, detail: true }));
+
+  return [...columns, ...detailColumns];
+};
+
+export const assertValidEnumValues = (columns, data) => {
+  for (const col of columns) {
+    if (!col.enumValues) continue;
+    const value = data[col.key];
+    if (value == null || value === '') continue;
+    if (!col.enumValues.includes(value)) {
+      throw new InvalidOperationError(
+        `Invalid ${col.key} "${value}". Must be one of: ${col.enumValues.join(', ')}.`,
+      );
+    }
+  }
+};
+
+export const pickDetailValues = (columns, detailRecord) =>
+  Object.fromEntries(
+    columns.filter(c => c.detail).map(c => [c.key, detailRecord?.[c.key] ?? null]),
+  );
+
+export const splitWritableData = (columns, data, isEditMode) => ({
+  base: getWritableData(columns.filter(c => !c.detail), data, isEditMode),
+  detail: getWritableData(columns.filter(c => c.detail), data, isEditMode),
+});
+
 export const assertValidType = type => {
   if (!type) {
     throw new InvalidOperationError('type is required in request body');
@@ -171,7 +357,11 @@ export const assertValidType = type => {
 
 export const getWritableData = (columns, data, isEditMode) => {
   const writableKeys = new Set(
-    columns.filter(c => !c.readOnly && !(isEditMode && c.readOnlyOnEdit)).map(c => c.key),
+    columns
+      // Relation-backed columns aren't real columns; they're written separately (see
+      // applyRelationBackedWrite), so keep them out of the column write set.
+      .filter(c => !c.readOnly && !c.isRelationBacked && !(isEditMode && c.readOnlyOnEdit))
+      .map(c => c.key),
   );
   return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
 };

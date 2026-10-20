@@ -1,5 +1,5 @@
 import React, { type FunctionComponent, type ReactElement, useCallback, useState } from 'react';
-import { KeyboardAvoidingView, StatusBar } from 'react-native';
+import { Alert, KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   ColumnView,
   FullView,
@@ -12,17 +12,15 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { ChangePasswordForm } from '/components/Forms/ChangePasswordForm/ChangePasswordForm';
 import { Routes } from '/helpers/routes';
-import { ModalInfo } from '/components/ModalInfo';
 import type { ChangePasswordFormModel } from '~/ui/interfaces/forms/ChangePasswordFormProps';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { Button } from '/components/Button';
 import type { ChangePasswordProps } from '/interfaces/Screens/SignUp/ChangePasswordProps';
 
 export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePasswordProps) => {
   const authCtx = useAuth();
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const { getTranslation } = useTranslation();
 
   const [success, setSuccess] = useState(false);
 
@@ -34,28 +32,33 @@ export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePas
     navigation.navigate(Routes.SignUpStack.ResetPassword);
   }, []);
 
-  const onChangeModalVisibility = useCallback((isVisible: boolean) => {
-    setModalVisible(isVisible);
-  }, []);
+  const showErrorAlert = useCallback(
+    (message: string) => {
+      Alert.alert(
+        getTranslation('changePassword.error.title', 'Unable to change password'),
+        message,
+        [{ text: getTranslation('general.action.ok', 'OK') }],
+      );
+    },
+    [getTranslation],
+  );
 
-  const setModalError = useCallback((message: string) => {
-    setErrorMessage(message);
-    onChangeModalVisibility(true);
-  }, []);
-
-  const onSubmitForm = useCallback(async (values: ChangePasswordFormModel) => {
-    try {
-      if (!values.server) {
-        // TODO it would be better to properly respond to form validation and show the error
-        setModalError('Please select a server to connect to');
-        return;
+  const onSubmitForm = useCallback(
+    async (values: ChangePasswordFormModel) => {
+      try {
+        if (!values.server) {
+          // TODO it would be better to properly respond to form validation and show the error
+          showErrorAlert('Please select a server to connect to');
+          return;
+        }
+        await authCtx.changePassword(values);
+        setSuccess(true);
+      } catch (error) {
+        showErrorAlert(error.message);
       }
-      await authCtx.changePassword(values);
-      setSuccess(true);
-    } catch (error) {
-      setModalError(error.message);
-    }
-  }, []);
+    },
+    [authCtx, showErrorAlert],
+  );
 
   const renderForm = (): ReactElement => (
     <>
@@ -105,11 +108,6 @@ export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePas
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
       <StatusBar barStyle="light-content" />
-      <ModalInfo
-        onVisibilityChange={onChangeModalVisibility}
-        isVisible={modalVisible}
-        message={errorMessage}
-      />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
           <StyledView

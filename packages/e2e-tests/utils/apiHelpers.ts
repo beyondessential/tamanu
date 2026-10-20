@@ -26,6 +26,15 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
+  const encounterUrl = constructFacilityUrl(`/api/patient/${patientId}/currentEncounter`);
+  const response = await api.get(encounterUrl);
+  if (!response.ok()) {
+    throw new Error(`Failed to get current encounter: ${response.status()} ${await response.text()}`);
+  }
+  return response.json();
+};
+
 // Resolves the logged-in facility from browser storage. Kept separate from the API helpers so
 // they stay independent of the browser context: callers that have a page resolve the facilityId
 // here and pass it in, while callers that already hold it (e.g. fixtures) pass it directly.

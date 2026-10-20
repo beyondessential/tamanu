@@ -10,7 +10,7 @@ import { getCurrentLanguageCode } from '../utils/translation';
 export { useTranslation };
 
 export const TranslationProvider = ({ children, value }) => {
-  const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
+  const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode);
   const { data: translations } = useTranslationsQuery(storedLanguage);
 
   const translationFunc = useMemo(() => translationFactory(translations), [translations]);

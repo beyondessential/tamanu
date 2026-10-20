@@ -3,12 +3,12 @@
     <!-- Base application theme. -->
     <!-- Use light theme to avoid Android changing the style when using dark mode -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/primary</item>
         <item name="android:datePickerDialogTheme">@style/Dialog.Theme</item>
     </style>
 
     <style name="Dialog.Theme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">#009688</item>
-        <item name="android:textColor">#009688</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:textColor">@color/primary</item>
     </style>
 </resources>

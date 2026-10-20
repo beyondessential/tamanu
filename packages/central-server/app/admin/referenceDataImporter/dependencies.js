@@ -7,6 +7,7 @@ import {
   administeredVaccineLoader,
   drugLoaderFactory,
   invoiceProductLoader,
+  labTestCategoryLoader,
   labTestPanelLoader,
   medicationSetLoader,
   medicationTemplateLoader,
@@ -42,7 +43,10 @@ export default {
     needs: ['user', 'patientFieldDefinition'],
   },
 
-  facility: {},
+  sensitiveNetwork: {},
+  facility: {
+    needs: ['sensitiveNetwork'],
+  },
   department: {
     needs: ['facility'],
   },
@@ -61,13 +65,19 @@ export default {
   scheduledVaccine: {},
   administeredVaccine: {
     loader: administeredVaccineLoader,
-    needs: ['scheduledVaccine', 'user', 'location', 'department'],
+    needs: ['scheduledVaccine', 'user', 'location', 'department', 'patient'],
   },
 
   labTestType: {},
   labTestPanel: {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
+  },
+  // The reference-data pass creates the labTestCategory rows; this second pass reads the optional
+  // defaultSpecimenType column into a relation. Specimen types are guaranteed present as they are
+  // imported in the reference-data pass, which completes before this one.
+  [REFERENCE_TYPES.LAB_TEST_CATEGORY]: {
+    loader: labTestCategoryLoader,
   },
   invoiceProduct: {
     loader: invoiceProductLoader,

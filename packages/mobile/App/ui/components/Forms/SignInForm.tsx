@@ -13,7 +13,7 @@ import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { Form } from './Form';
+import Form from './Form';
 import { Field } from './FormField';
 import { TextField } from '../TextField/TextField';
 import { SubmitButton } from './SubmitButton';
@@ -76,9 +76,19 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
+const initialValues = {
+  email: '',
+  password: '',
+  server: '',
+} as const;
+
+export const SignInForm: FunctionComponent<any> = ({
+  initialErrorMessage = '',
+  onOutdatedVersionError,
+  onSuccess,
+}) => {
   const [existingHost, setExistingHost] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
   const { getTranslation } = useTranslation();
@@ -112,13 +122,10 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
       }
     })();
   }, []);
+
   return (
     <Form
-      initialValues={{
-        email: '',
-        password: '',
-        server: '',
-      }}
+      initialValues={initialValues}
       validateOnChange={false}
       validateOnBlur={false}
       validationSchema={Yup.object().shape({

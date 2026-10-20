@@ -54,6 +54,7 @@ import {
   getNoSelectableChartsMessage,
   getTooltipMessage,
 } from '../../utils/chart/chartUtils';
+import { route } from '@tamanu/api-client';
 
 const StyledButtonGroup = styled(ButtonGroup)`
   .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
@@ -342,7 +343,10 @@ export const ProgramRegistryChartsView = React.memo(
     const handleDeleteChart = useCallback(async () => {
       try {
         await api.delete(
-          `programRegistry/patient/${patient.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
+          route('programRegistry/patient/:patientId/chartInstances/:chartInstanceId', {
+            patientId: patient.id,
+            chartInstanceId: currentComplexChartInstance?.chartInstanceId,
+          }),
         );
 
         // Invalidate queries for the currently displayed chart to refresh the table

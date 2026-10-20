@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/e2e-tests",
-  "version": "2.65.0",
+  "version": "2.68.0",
   "private": true,
   "scripts": {
     "test": "NODE_OPTIONS=\"--import tsx ${NODE_OPTIONS:-}\" playwright test",
@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
-    "@playwright/test": "1.61.0",
+    "@playwright/test": "1.63.0",
     "@tamanu/api-client": "*",
     "@tamanu/database": "*",
     "@types/node": "^26.2.0",

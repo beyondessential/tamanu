@@ -3,7 +3,7 @@ import { BackendManager } from './BackendManager';
 jest.mock('../infra/db', () => ({
   Database: {
     models: {},
-    requestQueryPlannerStatsRefresh: jest.fn().mockResolvedValue(undefined),
+    requestPragmaOptimize: jest.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -32,14 +32,14 @@ describe('BackendManager.onAppStateChange()', () => {
   it('refreshes planner stats when the app is backgrounded', () => {
     manager.onAppStateChange('background');
 
-    expect(Database.requestQueryPlannerStatsRefresh).toHaveBeenCalledTimes(1);
+    expect(Database.requestPragmaOptimize).toHaveBeenCalledTimes(1);
     expect(manager.prevAppState).toBe('background');
   });
 
   it('refreshes planner stats when the app becomes inactive', () => {
     manager.onAppStateChange('inactive');
 
-    expect(Database.requestQueryPlannerStatsRefresh).toHaveBeenCalledTimes(1);
+    expect(Database.requestPragmaOptimize).toHaveBeenCalledTimes(1);
   });
 
   it('skips the refresh while a sync is running', () => {
@@ -47,7 +47,7 @@ describe('BackendManager.onAppStateChange()', () => {
 
     manager.onAppStateChange('background');
 
-    expect(Database.requestQueryPlannerStatsRefresh).not.toHaveBeenCalled();
+    expect(Database.requestPragmaOptimize).not.toHaveBeenCalled();
   });
 
   it('does not refresh when returning to the foreground', () => {
@@ -55,7 +55,7 @@ describe('BackendManager.onAppStateChange()', () => {
 
     manager.onAppStateChange('active');
 
-    expect(Database.requestQueryPlannerStatsRefresh).not.toHaveBeenCalled();
+    expect(Database.requestPragmaOptimize).not.toHaveBeenCalled();
     expect(manager.prevAppState).toBe('active');
   });
 
@@ -64,6 +64,6 @@ describe('BackendManager.onAppStateChange()', () => {
 
     manager.onAppStateChange('background');
 
-    expect(Database.requestQueryPlannerStatsRefresh).not.toHaveBeenCalled();
+    expect(Database.requestPragmaOptimize).not.toHaveBeenCalled();
   });
 });

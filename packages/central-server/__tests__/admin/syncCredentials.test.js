@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import bcrypt from 'bcrypt';
+import { DEVICE_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 const ENDPOINT = '/api/admin/syncCredentials';
@@ -43,6 +44,73 @@ describe('Admin sync credentials', () => {
     const app = await baseApp.asRole('admin');
     const result = await app.post(ENDPOINT).send({ facilityIds: ['facility-a'] });
     expect(result).toHaveRequestError();
+  });
+
+  // The wizard validates the admin's credentials with a probe login before calling
+  // this, which registers the device under that admin with no scopes. Sync then logs
+  // in asking for sync_client, and central refuses a device asking for more than it
+  // has, so provisioning has to move the device onto the account it mints.
+  it('claims the device for the sync user with the sync scope', async () => {
+    const app = await baseApp.asRole('admin');
+    const deviceId = 'device-cred-scopes';
+    const registrar = await models.User.create({
+      email: 'probe-registrar@tamanu.io',
+      password: 'probe-registrar-pw',
+      displayName: 'Probe Registrar',
+      role: 'admin',
+    });
+    await models.Device.create({ id: deviceId, registeredById: registrar.id, scopes: [] });
+
+    const result = await app.post(ENDPOINT).send({ deviceId, facilityIds: ['facility-cred-a'] });
+    expect(result).toHaveSucceeded();
+
+    const syncUser = await models.User.findOne({ where: { email: result.body.email } });
+    const device = await models.Device.findByPk(deviceId);
+    expect(device.scopes).toEqual([DEVICE_SCOPES.SYNC_CLIENT]);
+    expect(device.registeredById).toBe(syncUser.id);
+  });
+
+  it('survives concurrent provisioning of the same new device', async () => {
+    const app = await baseApp.asRole('admin');
+    const send = () =>
+      app.post(ENDPOINT).send({ deviceId: 'device-cred-race', facilityIds: ['facility-cred-a'] });
+
+    const results = await Promise.all([send(), send()]);
+
+    for (const result of results) expect(result).toHaveSucceeded();
+    const device = await models.Device.findByPk('device-cred-race');
+    expect(device.scopes).toEqual([DEVICE_SCOPES.SYNC_CLIENT]);
+  });
+
+  it('claims only the device it was asked for', async () => {
+    const app = await baseApp.asRole('admin');
+    const bystander = await models.User.create({
+      email: 'bystander-registrar@tamanu.io',
+      password: 'bystander-registrar-pw',
+      displayName: 'Bystander Registrar',
+      role: 'admin',
+    });
+    await models.Device.create({
+      id: 'device-cred-bystander',
+      registeredById: bystander.id,
+      scopes: [],
+    });
+    // the claimed device already exists, as it does after the wizard's probe login,
+    // so provisioning takes the update path rather than creating it
+    await models.Device.create({
+      id: 'device-cred-claimed',
+      registeredById: bystander.id,
+      scopes: [],
+    });
+
+    const result = await app
+      .post(ENDPOINT)
+      .send({ deviceId: 'device-cred-claimed', facilityIds: ['facility-cred-a'] });
+    expect(result).toHaveSucceeded();
+
+    const untouched = await models.Device.findByPk('device-cred-bystander');
+    expect(untouched.scopes).toEqual([]);
+    expect(untouched.registeredById).toBe(bystander.id);
   });
 
   it('provisions a dedicated sync user for an admin and returns its credentials', async () => {

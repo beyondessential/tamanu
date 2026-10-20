@@ -28,6 +28,7 @@ import { useSettings } from '../../contexts/Settings';
 import { usePatient } from '../../contexts/Patient';
 import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '../../api/queries';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
+import { route } from '@tamanu/api-client';
 
 const StyledDisplayTabs = styled(TabDisplay)`
   border-bottom: 1px solid ${Colors.softOutline};
@@ -181,19 +182,15 @@ export const PatientView = () => {
   const api = useApi();
   const syncState = useSyncState();
   const isSyncing = syncState.isPatientSyncing(patientId);
-  const {
-    data: additionalData,
-    isLoading: isLoadingAdditionalData,
-  } = usePatientAdditionalDataQuery(patientId);
+  const { data: additionalData, isLoading: isLoadingAdditionalData } =
+    usePatientAdditionalDataQuery(patientId);
   const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
     ['birthData', patientId],
-    () => api.get(`patient/${patientId}/birthData`),
+    () => api.get(route('patient/:patientId/birthData', { patientId })),
     { enabled: Boolean(patientId) },
   );
-  const {
-    data: insurancePlans = [],
-    isLoading: isLoadingInsurancePlans,
-  } = usePatientInsurancePlansQuery({ patientId });
+  const { data: insurancePlans = [], isLoading: isLoadingInsurancePlans } =
+    usePatientInsurancePlansQuery({ patientId });
 
   const visibleTabs = usePatientTabs();
   const visibleTabKeys = useMemo(() => visibleTabs.map(tab => tab.key), [visibleTabs]);
@@ -202,7 +199,7 @@ export const PatientView = () => {
 
   useEffect(() => {
     if (patient?.id) {
-      api.post(`user/recently-viewed-patients/${patient.id}`);
+      api.post(route('user/recently-viewed-patients/:patientId', { patientId: patient.id }));
     }
   }, [api, patient?.id]);
 

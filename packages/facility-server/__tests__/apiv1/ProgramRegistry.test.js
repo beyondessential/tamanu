@@ -1,14 +1,14 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
-import { fake } from '@tamanu/fake-data/fake';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
-
+import { fake } from '@tamanu/fake-data/fake';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 describe('ProgramRegistry', () => {
@@ -130,7 +130,7 @@ describe('ProgramRegistry', () => {
       );
       await registrationOne.update({
         registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-      })
+      });
 
       // Shouldn't show (patient has a registration but it's been deleted before):
       const { id: registryId3 } = await createProgramRegistry();
@@ -562,7 +562,7 @@ describe('ProgramRegistry', () => {
           expect(result).toHaveSucceeded();
 
           expect(result.body.data).not.toHaveLength(0);
-          result.body.data.forEach((x) => {
+          result.body.data.forEach(x => {
             expect(x.patient).toHaveProperty(filter, value);
           });
         },
@@ -734,7 +734,7 @@ describe('ProgramRegistry', () => {
       const { body } = result;
       expect(body.count).toEqual(2);
       expect(body.data.length).toEqual(2);
-      const chartIds = body.data.map((c) => c.id);
+      const chartIds = body.data.map(c => c.id);
       expect(chartIds).toContain(historicalSimpleChart.id);
       expect(chartIds).toContain(historicalComplexChart.id);
       expect(chartIds).not.toContain(historicalChartWithoutAnswers.id);

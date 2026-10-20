@@ -51,7 +51,8 @@ export const AppointmentDetailPopper = ({
   const { ability } = useAuth();
   const patientId = appointment.patient.id;
 
-  const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id);
+  // This popper mounts for every appointment tile, so only fetch once it's actually opened.
+  const { data: additionalData } = usePatientAdditionalDataQuery(patientId, { enabled: open });
   const navigate = useNavigate();
 
   const handlePatientDetailsClick = useCallback(() => {

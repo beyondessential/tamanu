@@ -40,9 +40,13 @@ const makeModels = ({ facts = {}, secrets = {}, secretError = null } = {}) => {
 
 const initWith = m => initServerConfig({ context: { models: m.models } });
 
+// what the facility test config declares
+const configFacilityIds = ['balwyn', 'kerang', 'lake-charm'];
+
 describe('serverConfig', () => {
   afterEach(() => {
     delete process.env.SYNC_URL;
+    delete process.env.TAMANU_FACILITY_IDS;
     delete process.env.SYNC_FACILITY_IDS;
   });
 
@@ -67,9 +71,9 @@ describe('serverConfig', () => {
     expect(isServerConfigured()).toBe(true);
   });
 
-  it('lets SYNC_URL / SYNC_FACILITY_IDS env take precedence over facts (no fact writes)', async () => {
+  it('lets SYNC_URL / TAMANU_FACILITY_IDS env take precedence over facts (no fact writes)', async () => {
     process.env.SYNC_URL = 'https://env-user%40x.io:env-pw@env.example.com';
-    process.env.SYNC_FACILITY_IDS = 'env-a, env-b';
+    process.env.TAMANU_FACILITY_IDS = 'env-a, env-b';
     const m = makeModels({
       facts: {
         [FACT_CENTRAL_HOST]: 'https://fact.example.com',
@@ -92,10 +96,19 @@ describe('serverConfig', () => {
     expect(m.secretStore.get(FACT_SYNC_PASSWORD)).toBe('fact-pw');
   });
 
-  it('trims and dedupes SYNC_FACILITY_IDS', async () => {
-    process.env.SYNC_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
+  it('trims and dedupes TAMANU_FACILITY_IDS', async () => {
+    process.env.TAMANU_FACILITY_IDS = ' env-a , env-a,env-b ,, ';
     await initWith(makeModels());
     expect(getServerFacilityIds()).toEqual(['env-a', 'env-b']);
+  });
+
+  it('ignores the superseded SYNC_FACILITY_IDS name', async () => {
+    process.env.SYNC_FACILITY_IDS = 'old-a,old-b';
+    await initWith(makeModels());
+
+    // resolution falls through to config, as though the variable were unset
+    expect(getServerFacilityIds()).not.toContain('old-a');
+    expect(getServerFacilityIds()).toEqual(configFacilityIds);
   });
 
   it('rejects a malformed SYNC_URL with a clear error', async () => {

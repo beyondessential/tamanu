@@ -10,7 +10,6 @@ sources:
           tags: []
           meta:
             triggers:
-              - notify_migrations_changed
               - set_migrations_updated_at
               - set_migrations_updated_at_sync_tick
         columns:

@@ -2,6 +2,7 @@ import { MobileSyncManager, type MobileSyncSettings } from './MobileSyncManager'
 
 jest.mock('./utils', () => ({
   getModelsForDirection: jest.fn(() => ({}) as any),
+  getTableNamesForDirection: jest.fn(() => [] as string[]),
   getTransactingModelsForDirection: jest.fn(() => [] as any),
   getSyncTick: jest.fn(),
   setSyncTick: jest.fn(),
@@ -24,13 +25,24 @@ jest.mock('./utils/pullRecordsInBatches', () => ({
   pullRecordsInBatches: jest.fn(),
 }));
 
-jest.mock('./utils/sortInDependencyOrder', () => ({
-  sortInDependencyOrder: jest.fn(async (models: any) => models),
+jest.mock('./utils/runSyncSaveTransaction', () => ({
+  runSyncSaveTransaction: jest.fn(async (_tableNames: string[], work: any) => {
+    const entityManager = {
+      queryRunner: { isTransactionActive: true },
+      getRepository: jest.fn(() => mockLocalSystemFactRepo),
+      query: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    await work(entityManager);
+  }),
 }));
 
-jest.mock('./utils/checkForeignKeys', () => ({
-  checkForeignKeys: jest.fn(async () => true),
-}));
+// Referenced lazily from the `transaction` mock below, so it's safe despite jest hoisting
+const mockLocalSystemFactRepo = {
+  delete: jest.fn(),
+  findOne: jest.fn(),
+  save: jest.fn(),
+  insert: jest.fn(),
+};
 
 jest.mock('../../infra/db', () => ({
   Database: {
@@ -39,15 +51,9 @@ jest.mock('../../infra/db', () => ({
     setDefaultPragma: jest.fn().mockResolvedValue(undefined),
     client: {
       transaction: jest.fn(async (cb: any) => {
-        const repo = {
-          delete: jest.fn(),
-          findOne: jest.fn(),
-          save: jest.fn(),
-          insert: jest.fn(),
-        };
         const entityManager = {
           queryRunner: { isTransactionActive: true },
-          getRepository: jest.fn(() => repo),
+          getRepository: jest.fn(() => mockLocalSystemFactRepo),
           query: jest.fn().mockResolvedValue(undefined),
         } as any;
         await cb(entityManager);
@@ -64,6 +70,7 @@ const { createSnapshotTable, insertSnapshotRecords } = jest.requireMock(
   './utils/manageSnapshotTable',
 );
 const { pullRecordsInBatches } = jest.requireMock('./utils/pullRecordsInBatches');
+const { runSyncSaveTransaction } = jest.requireMock('./utils/runSyncSaveTransaction');
 const { Database } = jest.requireMock('../../infra/db');
 
 const makeCentral = () => ({
@@ -138,6 +145,7 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
     expect(createSnapshotTable).not.toHaveBeenCalled();
     expect(insertSnapshotRecords).not.toHaveBeenCalled();
+    expect(runSyncSaveTransaction).toHaveBeenCalledTimes(1);
   });
 
   it('incremental sync saves from snapshot', async () => {
@@ -167,5 +175,33 @@ describe('MobileSyncManager pull: initial vs incremental', () => {
     expect(insertSnapshotRecords).toHaveBeenCalled();
     expect(saveChangesFromSnapshot).toHaveBeenCalled();
     expect(saveChangesFromMemory).not.toHaveBeenCalled();
+    expect(runSyncSaveTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('incremental sync with nothing to pull skips the snapshot and save, but still advances the pull cursor', async () => {
+    (getSyncTick as jest.Mock)
+      .mockResolvedValueOnce(100) // LAST_SUCCESSFUL_PULL
+      .mockResolvedValueOnce(0) // CURRENT_SYNC_TIME
+      .mockResolvedValueOnce(0); // LAST_SUCCESSFUL_PUSH
+
+    const central = makeCentral();
+    central.initiatePull.mockResolvedValue({ totalToPull: 0, pullUntil: 999 });
+    const settings = makeSettings();
+    const mgr = new MobileSyncManager(central as any, settings as any);
+
+    await mgr.runSync();
+
+    expect(createSnapshotTable).not.toHaveBeenCalled();
+    expect(pullRecordsInBatches).not.toHaveBeenCalled();
+    expect(saveChangesFromSnapshot).not.toHaveBeenCalled();
+    expect(saveChangesFromMemory).not.toHaveBeenCalled();
+
+    expect(runSyncSaveTransaction).not.toHaveBeenCalled();
+    expect(Database.client.transaction).toHaveBeenCalledTimes(1);
+    expect(mockLocalSystemFactRepo.delete).toHaveBeenCalledWith({ key: 'tablesForFullResync' });
+    expect(mockLocalSystemFactRepo.insert).toHaveBeenCalledWith({
+      key: 'lastSuccessfulSyncPull',
+      value: '999',
+    });
   });
 });

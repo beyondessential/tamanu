@@ -132,7 +132,7 @@ describe('Request idempotency', () => {
       const different = await app
         .post('/api/allergy')
         .set('Idempotency-Key', 'bind-1')
-        .send(await allergyBody());
+        .send({ ...body, note: 'a different request' });
 
       expect(different).toHaveStatus(409);
       // The unrelated response was not replayed, and nothing extra was created.

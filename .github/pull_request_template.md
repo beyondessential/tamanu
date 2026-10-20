@@ -14,6 +14,8 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] Generate fake data <!-- #deployopt %fakedata=1 -->
 - [ ] More data (20Gi) <!-- #deployopt %dbstorage=20 -->
 - [ ] No facility servers (central-only) <!-- #deployopt %facilities=0 -->
+- [ ] 3 facility servers <!-- #deployopt %facilities=3 -->
+- [ ] 4 facility servers <!-- #deployopt %facilities=4 -->
 - [ ] No sync (facility tasks scaled to zero) <!-- #deployopt %facilitytasks=0 -->
 - [ ] Skip mobile build <!-- #deployopt %mobile=never -->
 - [ ] Always build mobile <!-- #deployopt %mobile=always -->
@@ -34,6 +36,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 ### Review Hero
 
 - [x] **Run Review Hero** <!-- #ai-review -->
+- [ ] **Run Review Hero on Claude (before merge)** <!-- #ai-review-claude --> _Final review with Claude just before merging a substantive PR. Tick one or the other._
 - [ ] **Auto-fix review suggestions** <!-- #auto-fix --> _Wait for Review Hero to finish, resolve any comments you disagree with or want to fix manually, then check this to auto-fix the rest._
 - [ ] **Auto-fix CI failures** <!-- #auto-fix-ci --> _Check this to auto-fix lint errors, test failures, and other CI issues._
 - [ ] **Auto-merge upstream** <!-- #auto-merge --> _Check this to merge the base branch into this PR, with AI conflict resolution if needed._

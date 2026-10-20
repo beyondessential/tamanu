@@ -11,7 +11,7 @@ import {
   CompletedImagingRequestsPage,
   ImmunisationRegisterPage,
   ActiveLabRequestsPage,
-  PublishedLabRequestsPage,
+  FinalisedLabRequestsPage,
   MedicationRequestsPage,
   MedicationDispensesPage,
   AllPatientsPage,
@@ -23,6 +23,8 @@ import {
   ProgramRegistryPage,
   LocationBookingsPage,
   OutpatientAppointmentsPage,
+  PatientDataAdminPage,
+  ReferenceDataAdminPage,
 } from '../pages';
 
 type BaseFixtures = {
@@ -40,7 +42,7 @@ type BaseFixtures = {
   completedImagingRequestsPage: CompletedImagingRequestsPage;
   immunisationRegisterPage: ImmunisationRegisterPage;
   activeLabRequestsPage: ActiveLabRequestsPage;
-  publishedLabRequestsPage: PublishedLabRequestsPage;
+  finalisedLabRequestsPage: FinalisedLabRequestsPage;
   medicationRequestsPage: MedicationRequestsPage;
   medicationDispensesPage: MedicationDispensesPage;
   allPatientsPage: AllPatientsPage;
@@ -52,6 +54,8 @@ type BaseFixtures = {
   programRegistryPage: ProgramRegistryPage;
   locationBookingsPage: LocationBookingsPage;
   outpatientAppointmentsPage: OutpatientAppointmentsPage;
+  patientDataAdminPage: PatientDataAdminPage;
+  referenceDataAdminPage: ReferenceDataAdminPage;
 };
 export const test = base.extend<BaseFixtures>({
   // Define `__name` in every browser context. Specs and page objects import @tamanu
@@ -142,8 +146,8 @@ export const test = base.extend<BaseFixtures>({
     await use(new ActiveLabRequestsPage(page));
   },
 
-  publishedLabRequestsPage: async ({ page }, use) => {
-    await use(new PublishedLabRequestsPage(page));
+  finalisedLabRequestsPage: async ({ page }, use) => {
+    await use(new FinalisedLabRequestsPage(page));
   },
 
   medicationRequestsPage: async ({ page }, use) => {
@@ -188,6 +192,14 @@ export const test = base.extend<BaseFixtures>({
 
   outpatientAppointmentsPage: async ({ page }, use) => {
     await use(new OutpatientAppointmentsPage(page));
+  },
+
+  patientDataAdminPage: async ({ page }, use) => {
+    await use(new PatientDataAdminPage(page));
+  },
+
+  referenceDataAdminPage: async ({ page }, use) => {
+    await use(new ReferenceDataAdminPage(page));
   },
 });
 

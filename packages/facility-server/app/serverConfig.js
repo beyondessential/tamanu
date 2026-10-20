@@ -2,12 +2,13 @@ import config from 'config';
 
 import {
   FACT_CENTRAL_HOST,
+  FACT_LAST_SUCCESSFUL_SYNC_PULL,
   FACT_SYNC_EMAIL,
   FACT_SYNC_PASSWORD,
   FACT_FACILITY_IDS,
 } from '@tamanu/constants';
 import { parseSyncUrl } from '@tamanu/database/services/syncConnectionConfig';
-import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { facilityIdsFromEnv, selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
 // Cached holder. initServerConfig re-runs refresh it (so isServerConfigured()
@@ -101,12 +102,35 @@ export function isServerConfigured() {
   return Boolean(sync.host && sync.email && sync.password && facilityIds?.length);
 }
 
+// spec: FSETUP#setting-up-state
+// Configured, but its first sync hasn't completed. Read on the liveness check, which otherwise
+// answers without the database: a first sync that has completed stays completed, so once seen it
+// isn't read again, and a database that can't be reached reports not setting up rather than
+// failing the check. A server with sync turned off never completes a first sync, so it's never
+// setting up.
+let hasCompletedFirstSync = false;
+export async function isSettingUp(models) {
+  if (hasCompletedFirstSync || !config.sync.enabled || !isServerConfigured()) return false;
+  try {
+    const pullCursor = await models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL);
+    if (!pullCursor) return true;
+    // only ever goes from false to true, so a concurrent check can't undo it
+    hasCompletedFirstSync = true; // eslint-disable-line require-atomic-updates
+    return false;
+  } catch (error) {
+    log.warn('isSettingUp.failed', { error: error.message });
+    return false;
+  }
+}
+
 // What the server is *declared* to use (env/config, never the fact). Integrity
 // checks drift-check these against the recorded facts, and skip when null.
 export function getDeclaredFacilityIds() {
   return parseEnv().facilityIds ?? configFacilityIds();
 }
 
+// Keep config's sync.host here when the config credentials fallback goes: it is the only
+// declaration a Windows install has, and what stops a restored database syncing to its source.
 export function getDeclaredHost() {
   return parseEnv().host ?? configHost();
 }
@@ -140,15 +164,7 @@ function parseEnv() {
     result.email = parsed.email ?? null;
     result.password = parsed.password ?? null;
   }
-  if (process.env.SYNC_FACILITY_IDS) {
-    result.facilityIds = [
-      ...new Set(
-        process.env.SYNC_FACILITY_IDS.split(',')
-          .map(id => id.trim())
-          .filter(Boolean),
-      ),
-    ];
-  }
+  result.facilityIds = facilityIdsFromEnv() ?? null;
   return result;
 }
 

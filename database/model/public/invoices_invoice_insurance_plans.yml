@@ -11,7 +11,6 @@ sources:
           meta:
             triggers:
               - delete_invoices_invoice_insurance_plans_from_sync_lookup
-              - notify_invoices_invoice_insurance_plans_changed
               - record_invoices_invoice_insurance_plans_changelog
               - set_invoices_invoice_insurance_plans_updated_at
               - set_invoices_invoice_insurance_plans_updated_at_sync_tick

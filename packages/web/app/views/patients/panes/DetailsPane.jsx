@@ -5,8 +5,9 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm/PatientDetailsForm';
-import { invalidatePatientDataQueries, notifyError } from '../../../utils';
+import { invalidatePatientDataQueries, notifyError, notifySuccess } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
@@ -37,7 +38,10 @@ export const PatientDetailsPane = React.memo(
 
     const handleSubmit = async data => {
       try {
-        await api.put(`patient/${patient.id}`, { ...data, facilityId });
+        await api.put(route('patient/:patientId', { patientId: patient.id }), {
+          ...data,
+          facilityId,
+        });
       } catch (e) {
         notifyError(e.message);
         return;
@@ -45,6 +49,13 @@ export const PatientDetailsPane = React.memo(
 
       // invalidate the cache of patient data queries to reload the patient data
       await invalidatePatientDataQueries(queryClient, patient.id);
+
+      notifySuccess(
+        <TranslatedText
+          stringId="patient.details.notification.saveSuccess"
+          fallback="Patient details successfully updated"
+        />,
+      );
     };
 
     // Display form if user can read, write or create patient additional data.

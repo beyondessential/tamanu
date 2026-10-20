@@ -1,53 +1,42 @@
-import React, { type ReactElement, useCallback, useState } from 'react';
 import type { NavigationProp } from '@react-navigation/native';
-import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import React, { useState } from 'react';
+import { type AgeDisplayFormat, getDisplayAge } from '~/ui/helpers/date';
+import { getGender, joinNames } from '~/ui/helpers/user';
+import { store } from '~/ui/store';
 import { Button } from '/components/Button';
 import { CrossIcon } from '/components/Icons';
-import { Routes } from '/helpers/routes';
-import { getGender, joinNames } from '~/ui/helpers/user';
-import { getDisplayAge } from '~/ui/helpers/date';
 import { useSettings } from '/contexts/SettingsContext';
-import { store } from '~/ui/store';
+import { Routes } from '/helpers/routes';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { FullView, RowView, StyledSafeAreaView, StyledText, StyledView } from '/styled/common';
+import { theme } from '/styled/theme';
 
-export const NewPatientScreen = ({
-  navigation,
-}: {
-  navigation: NavigationProp<any>;
-}): ReactElement | null => {
+export const NewPatientScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
   // Snapshot patient at mount so clearing Redux on back from patient view
   // does not re-render this screen while RegisterPatientStack is still mounted.
   const [patient] = useState(() => store.getState().patient.selectedPatient);
+  const { getSetting } = useSettings();
+
+  if (!patient) return null;
+
+  const ageDisplayFormat = getSetting<AgeDisplayFormat>('ageDisplayFormat');
 
   const homeStackNavigation = navigation.getParent();
-
-  const onNavigateToHome = useCallback(() => {
-    // Navigate within the Home stack so RegisterPatientStack is popped off.
+  /** Navigate within the Home stack so RegisterPatientStack is popped off */
+  const onNavigateToHome = () => {
     homeStackNavigation?.navigate(Routes.HomeStack.HomeTabs.Index);
-  }, [homeStackNavigation]);
-
-  const onAddAnotherPatient = useCallback(() => {
+  };
+  const onAddAnotherPatient = () => {
     navigation.navigate(Routes.HomeStack.Index, {
       screen: Routes.HomeStack.RegisterPatientStack.Index,
-      params: {
-        screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
-      },
+      params: { screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo },
     });
-  }, [navigation]);
-
-  const onStartVisit = useCallback(() => {
+  };
+  const onStartVisit = () => {
     homeStackNavigation?.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
     });
-  }, [homeStackNavigation]);
-
-  const { getSetting } = useSettings();
-  const ageDisplayFormat = getSetting('ageDisplayFormat');
-
-  if (!patient) {
-    return null;
-  }
+  };
 
   return (
     <FullView>

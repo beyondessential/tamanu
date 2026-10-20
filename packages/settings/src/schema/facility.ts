@@ -24,6 +24,22 @@ export const facilitySettings = {
   name: 'Facility server settings',
   description: 'Settings that apply only to a facility server',
   properties: {
+    systemAdmin: {
+      name: 'System admin',
+      properties: {
+        support: {
+          name: 'Support',
+          properties: {
+            recipients: {
+              name: 'System error report recipients',
+              description: 'Email addresses that receive error logs submitted from this facility',
+              type: yup.array(yup.string().email().required()),
+              defaultValue: ['support@bes.au'],
+            },
+          },
+        },
+      },
+    },
     appointments: {
       description: 'Settings related to scheduling patient appointments and location bookings',
       properties: {
@@ -354,6 +370,20 @@ export const facilitySettings = {
               suggesterEndpoint: 'department',
             },
           },
+        },
+      },
+    },
+    labs: {
+      name: 'Labs',
+      description: 'Settings related to lab requests',
+      exposedToWeb: true,
+      properties: {
+        autoPrintSampleLabel: {
+          name: 'Auto-print sample label',
+          description:
+            'Automatically present the sample label print screen once all samples in a lab request have been recorded as collected.',
+          type: yup.boolean(),
+          defaultValue: false,
         },
       },
     },

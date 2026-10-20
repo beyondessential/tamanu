@@ -238,12 +238,12 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: (
           <TranslatedText
-            stringId="sidebar.labs.published"
-            fallback="Published"
+            stringId="sidebar.labs.finalised"
+            fallback="Finalised"
             data-testid="translatedtext-gtx9"
           />
         ),
-        path: '/lab-requests/published',
+        path: '/lab-requests/finalised',
         key: 'labsPublished',
         ability: { action: 'read' },
       },
@@ -324,6 +324,17 @@ export const FACILITY_MENU_ITEMS = [
         ),
         key: 'bedManagement',
         path: '/facility-admin/bed-management',
+      },
+      {
+        label: (
+          <TranslatedText
+            stringId="sidebar.facilityAdmin.systemErrors"
+            fallback="System errors"
+            data-testid="translatedtext-syse"
+          />
+        ),
+        key: 'systemErrors',
+        path: '/facility-admin/system-errors',
       },
     ],
   },

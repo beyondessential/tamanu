@@ -20,7 +20,9 @@ import { AutocompleteField, Field } from '..';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { useEncounter } from '../../contexts/Encounter';
+import { useInvalidateEncounter } from '../../api/queries/useEncounterQuery';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -48,17 +50,19 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
   const api = useApi();
   const { currentUser } = useAuth();
   const practitionerSuggester = useSuggester('practitioner');
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounterId } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
 
   const onSubmit = async data => {
-    const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
-      ...data,
-      discontinuingDate: getCurrentDateTime(),
-    });
+    const updatedMedication = await api.post(
+      route('medication/:medicationId/discontinue', { medicationId: medication.id }),
+      {
+        ...data,
+        discontinuingDate: getCurrentDateTime(),
+      },
+    );
     onDiscontinue(updatedMedication);
-    if (loadEncounter && encounter) {
-      loadEncounter(encounter.id, false);
-    }
+    await invalidateEncounter(encounterId);
     onClose();
   };
 
@@ -147,10 +151,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
               gap={2}
               data-testid="box-formactions-discontinue-def456"
             >
-              <FormCancelButton 
-                onClick={onClose}
-                data-testid="formcancelbutton-cancel-xyz789"
-              >
+              <FormCancelButton onClick={onClose} data-testid="formcancelbutton-cancel-xyz789">
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton

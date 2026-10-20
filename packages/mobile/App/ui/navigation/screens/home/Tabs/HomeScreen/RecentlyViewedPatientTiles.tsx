@@ -4,14 +4,14 @@ import { ScrollView, View } from 'react-native';
 import { compose } from 'redux';
 import type { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
-import { useRecentlyViewedPatients } from '~/ui/hooks/localConfig';
+import { PatientFromRoute } from '~/ui/helpers/constants';
+import useRecentlyViewedPatients from '~/ui/hooks/useRecentlyViewedPatients';
 import { PatientCard } from '/components/PatientCard';
+import { TranslatedText } from '/components/Translations/TranslatedText';
 import { Routes } from '/helpers/routes';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { PatientFromRoute } from '~/ui/helpers/constants';
-import { TranslatedText } from '/components/Translations/TranslatedText';
 
 const PatientCardContainer = compose<React.FC<{ displayedPatient: Patient }>>(withPatient)(({
   displayedPatient,
@@ -65,7 +65,7 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
       >
         <TranslatedText
           stringId="patient.recentlyViewed.title"
-          fallback="RECENTLY VIEWED PATIENTS"
+          fallback="Recently viewed patients"
           casing="upper"
         />
       </StyledText>

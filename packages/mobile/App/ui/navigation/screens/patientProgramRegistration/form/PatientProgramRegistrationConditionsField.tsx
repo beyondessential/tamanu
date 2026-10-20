@@ -1,24 +1,32 @@
-import React, { type ReactElement, type FC, useState, useEffect, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
-import { theme } from '~/ui/styled/theme';
 import { useQuery } from '@tanstack/react-query';
+import React, {
+  type FC,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { Alert } from 'react-native';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
 import { Database } from '~/infra/db';
-import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
-import { useBackend } from '~/ui/hooks';
-import { Suggester } from '~/ui/helpers/suggester';
-import { Routes } from '~/ui/helpers/routes';
-import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
-import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
+import type { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
 import { Button } from '~/ui/components/Button';
 import { CrossIcon } from '~/ui/components/Icons';
-import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '~/constants/programRegistries';
+import { RequiredIndicator } from '~/ui/components/RequiredIndicator';
 import { getReferenceDataStringId } from '~/ui/components/Translations/TranslatedReferenceData';
-import type { IProgramRegistryConditionCategory } from '~/types/IProgramRegistryConditionCategory';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { Routes } from '~/ui/helpers/routes';
+import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
+import { programRegistryKeys } from '~/ui/hooks/queries/queryKeys';
+import { theme } from '~/ui/styled/theme';
 import { VisibilityStatus } from '~/visibilityStatuses';
+import { TextFieldErrorMessage } from '/components/TextField/TextFieldErrorMessage';
+import { StyledText, StyledTouchableOpacity, StyledView } from '/styled/common';
 
 interface FieldValue {
   label: string;
@@ -78,10 +86,9 @@ const PatientProgramRegistrationConditionsFieldItem = ({
 
   const [condition, setCondition] = useState(value?.condition);
   const [category, setCategory] = useState(value?.category);
-  const [hasOpenedConditionScreenImmediately, setHasOpenedConditionScreenImmediately] =
-    useState(false);
+  const hasOpenedConditionScreenImmediately = useRef(false);
 
-  const buildLabel = useCallback(() => {
+  const label = (() => {
     if (!condition || !category) return '';
 
     const conditionStringId = getReferenceDataStringId(condition.value, 'programRegistryCondition');
@@ -93,13 +100,7 @@ const PatientProgramRegistrationConditionsFieldItem = ({
     const categoryLabel = getTranslation(categoryStringId, category.label);
 
     return `${conditionLabel} (${categoryLabel})`;
-  }, [condition, category, getTranslation]);
-
-  const [label, setLabel] = useState(buildLabel());
-
-  useEffect(() => {
-    setLabel(buildLabel());
-  }, [setLabel, buildLabel]);
+  })();
 
   const openCategoryScreen = useCallback(
     newCondition => {
@@ -172,16 +173,11 @@ const PatientProgramRegistrationConditionsFieldItem = ({
   }, [openCategoryScreen, getTranslation, conditionSuggester, navigation]);
 
   useEffect(() => {
-    if (isNewlyCreated && !hasOpenedConditionScreenImmediately) {
+    if (isNewlyCreated && !hasOpenedConditionScreenImmediately.current) {
       openConditionScreen();
-      setHasOpenedConditionScreenImmediately(true);
+      hasOpenedConditionScreenImmediately.current = true;
     }
-  }, [
-    openConditionScreen,
-    isNewlyCreated,
-    hasOpenedConditionScreenImmediately,
-    setHasOpenedConditionScreenImmediately,
-  ]);
+  }, [openConditionScreen, isNewlyCreated]);
 
   return (
     <StyledView marginBottom={screenPercentageToDP('2.24', Orientation.Height)} width="100%">
@@ -259,15 +255,15 @@ export const PatientProgramRegistrationConditionsField = ({
   const conditionCategoryOptions = getConditionCategoryOptions(conditionCategories, getTranslation);
 
   const conditionSuggester = useMemo(() => {
-    const previouslySelected = new Set(conditions.map(value => value?.condition?.value));
+    const previouslySelected = conditions
+      .map(value => value?.condition?.value)
+      .filter(value => value !== undefined);
     return new Suggester({
       model: models.ProgramRegistryCondition,
       options: {
-        where: {
-          programRegistry: programRegistryId,
-        },
+        where: { programRegistry: programRegistryId },
+        excludeIds: previouslySelected,
       },
-      filter: ({ entity_id }) => !previouslySelected.has(entity_id),
     });
   }, [models.ProgramRegistryCondition, programRegistryId, conditions]);
 

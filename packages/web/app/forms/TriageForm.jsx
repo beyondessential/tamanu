@@ -60,6 +60,7 @@ export const TriageForm = ({
   onSubmitEncounter,
   noRedirectOnSubmit,
   patient,
+  patientBillingTypeId,
   initialValues,
   withExistingEncounterCheck,
 }) => {
@@ -132,6 +133,19 @@ export const TriageForm = ({
           component={SuggesterSelectField}
           endpoint="arrivalMode"
           data-testid="localisedfield-hjex"
+        />
+        <LocalisedField
+          name="patientBillingTypeId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.patientBillingTypeId.label"
+              fallback="Patient type"
+              data-testid="translatedtext-k3r8"
+            />
+          }
+          component={SuggesterSelectField}
+          endpoint="patientBillingType"
+          data-testid="localisedfield-x2nq"
         />
         <Field
           name="score"
@@ -248,6 +262,7 @@ export const TriageForm = ({
       initialValues={{
         triageTime: getCurrentDateTime(),
         practitionerId: currentUser.id,
+        patientBillingTypeId,
         ...initialValues,
       }}
       formType={FORM_TYPES.CREATE_FORM}

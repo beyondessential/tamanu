@@ -1,30 +1,20 @@
-import React, { type ReactElement, useCallback, useState } from 'react';
+import React, { type ReactElement, useState } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
-import { StyledScrollView } from '/styled/common';
-import Header from './Header';
-import { HistoryTable } from '../HistoryTable';
-import type { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
-import { Spacer } from '../Spacer';
 import type { Encounter } from '~/models/Encounter';
+import type { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
+import { HistoryTable } from '../HistoryTable';
+import Header from './Header';
+import { StyledScrollView } from '/styled/common';
 
 interface AccordionListProps {
   dataArray: Encounter[];
   rows: HistoryTableRows;
 }
 
+const keyExtractor = item => item.id;
+
 export const PatientHistoryAccordion = ({ dataArray, rows }: AccordionListProps): ReactElement => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
-
-  const updateSections = (newActiveSection: number[]): void => {
-    setActiveSections(newActiveSection);
-  };
-
-  const content = useCallback(
-    section => <HistoryTable data={section} rows={rows} />,
-    [dataArray, rows],
-  );
-
-  const keyExtractor = useCallback(item => item.id, [dataArray]);
 
   return (
     <StyledScrollView flex={1} width="100%">
@@ -33,11 +23,10 @@ export const PatientHistoryAccordion = ({ dataArray, rows }: AccordionListProps)
         underlayColor="transparent"
         activeSections={activeSections}
         renderHeader={Header}
-        renderContent={content}
-        onChange={updateSections}
+        renderContent={section => <HistoryTable data={section} rows={rows} />}
+        onChange={setActiveSections}
         keyExtractor={keyExtractor}
       />
-      <Spacer height="80px" />
     </StyledScrollView>
   );
 };

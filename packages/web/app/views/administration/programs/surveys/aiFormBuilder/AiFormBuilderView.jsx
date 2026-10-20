@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 
+import { AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { useApi } from '../../../../../api';
 import { notifyError, notifySuccess } from '../../../../../utils';
@@ -39,6 +40,7 @@ import {
   writeSessionChatState,
 } from './chatState';
 import { useProgramsQuery } from '../queries';
+import { route } from '@tamanu/api-client';
 
 const getProgramCode = programId => programId?.replace(/^program-/, '');
 const getProgramDefinitionFileName = programDefinition =>
@@ -59,7 +61,7 @@ const waitForChatJob = async ({ api, jobId, signal, getTranslation }) => {
     }
 
     const job = await api.get(
-      `admin/form-builder/chat/jobs/${encodeURIComponent(jobId)}`,
+      route('admin/form-builder/chat/jobs/:jobId', { jobId }),
       {},
       { signal, showUnknownErrorToast: false },
     );
@@ -202,7 +204,9 @@ export function AiFormBuilderView() {
           sessionId: state.sessionId,
           programDefinition: generatedForm ?? undefined,
           message: [
-            selectedProgramCode ? `[PROGRAM SELECTED] ${selectedProgramCode}` : null,
+            selectedProgramCode
+              ? `${AI_PROMPT_MARKERS.PROGRAM_SELECTED} ${selectedProgramCode}`
+              : null,
             message,
           ]
             .filter(Boolean)
@@ -466,7 +470,9 @@ export function AiFormBuilderView() {
     setIsSaving(true);
     try {
       const { surveys } = await api.post(
-        `admin/program/${encodeURIComponent(state.selectedProgramId)}/ai-form-builder-survey`,
+        route('admin/program/:selectedProgramId/ai-form-builder-survey', {
+          selectedProgramId: state.selectedProgramId,
+        }),
         {
           form: generatedForm,
         },

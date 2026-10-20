@@ -36,7 +36,7 @@ interface TabIconProps {
   color: string;
 }
 
-export function TabIcon({ Icon, color, focusedColor, strokeColor }: TabIconProps): JSX.Element {
+export function TabIcon({ Icon, color, focusedColor, strokeColor }: TabIconProps) {
   return (
     <StyledView>
       <Icon fill={color} focusedColor={focusedColor} strokeColor={strokeColor} />

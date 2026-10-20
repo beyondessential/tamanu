@@ -4,11 +4,20 @@ import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 
-import { AI_CONTEXT_NAMES } from '@tamanu/constants';
+import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
+
+// Every settings path init and refreshContexts read. A path missing here goes on
+// needing a restart to take effect, so add to it alongside any new settings read.
+export const AI_SETTING_PATHS = [
+  'ai',
+  'formBuilder.prompts',
+  'patientSummary',
+  'encounterSummary',
+];
 
 // Contexts routed to the optional faster Anthropic model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
@@ -21,7 +30,7 @@ const FAST_MODEL_CONTEXTS = new Set([
   AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
 ]);
 
-const formBuilderChatResponseSchema = z.object({
+export const formBuilderChatResponseSchema = z.object({
   message: z.string().describe('The assistant message to display to the implementer.'),
   attach_to_program_code: z
     .string()
@@ -40,12 +49,18 @@ const normalizeMessageContent = content => {
     return content
       .map(part => {
         if (typeof part === 'string') return part;
+        if (part?.type === 'thinking' || part?.type === 'redacted_thinking') return '';
         if (typeof part?.text === 'string') return part.text;
         return JSON.stringify(part);
       })
       .join('\n');
   }
   return String(content ?? '');
+};
+
+const TRANSCRIPT_ROLE_MARKERS = {
+  human: AI_PROMPT_MARKERS.TRANSCRIPT_HUMAN,
+  ai: AI_PROMPT_MARKERS.TRANSCRIPT_AI,
 };
 
 const sessionExpiry = () => new Date(Date.now() + SESSION_TTL_SECONDS * 1000);
@@ -79,7 +94,7 @@ export class AIService {
     const { enabled, anthropicModel, anthropicFastModel } = await settings.get('ai');
 
     if (!enabled) {
-      log.info('AIService: disabled, skipping initialisation');
+      log.debug('AIService: disabled, skipping initialisation');
       return null;
     }
 
@@ -88,14 +103,14 @@ export class AIService {
       anthropicApiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
     } catch (error) {
       if (error instanceof SecretNotConfiguredError) {
-        log.info('AIService: no Anthropic API key configured, skipping initialisation');
+        log.debug('AIService: no Anthropic API key configured, skipping initialisation');
         return null;
       }
       throw error;
     }
 
     if (!anthropicApiKey) {
-      log.info('AIService: no Anthropic API key configured, skipping initialisation');
+      log.debug('AIService: no Anthropic API key configured, skipping initialisation');
       return null;
     }
 
@@ -364,7 +379,15 @@ export class AIService {
 
     return session.messages
       .filter(message => message.role !== 'system')
-      .map(message => `[${message.role}]\n${normalizeMessageContent(message.content)}`)
+      .map(message => {
+        const roleMarker = TRANSCRIPT_ROLE_MARKERS[message.role];
+        if (!roleMarker) {
+          throw new Error(
+            `AI session "${sessionId}" has a message with unknown role "${message.role}"`,
+          );
+        }
+        return `${roleMarker}\n${normalizeMessageContent(message.content)}`;
+      })
       .join('\n\n');
   }
 

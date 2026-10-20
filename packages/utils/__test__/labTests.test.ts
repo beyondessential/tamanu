@@ -5,6 +5,8 @@ import {
   getLabTestValidationCriteriaFromNormalRanges,
   getReferenceRange,
   getReferenceRangeWithUnit,
+  getLabRequestTestAndPanelNames,
+  parseLabTestResult,
 } from '../src/labTests';
 
 const getTranslation = (
@@ -257,5 +259,100 @@ describe('getReferenceRangeWithUnit', () => {
         getTranslation,
       }),
     ).toBe('5–10 mmol/L');
+  });
+});
+
+describe('parseLabTestResult', () => {
+  it('splits a below-detection-limit result into comparator and value', () => {
+    expect(parseLabTestResult('< 0.3')).toEqual({ comparator: '<', value: 0.3 });
+  });
+
+  it('splits an above-detection-limit result into comparator and value', () => {
+    expect(parseLabTestResult('> 100')).toEqual({ comparator: '>', value: 100 });
+  });
+
+  it('handles inclusive comparators', () => {
+    expect(parseLabTestResult('<= 5')).toEqual({ comparator: '<=', value: 5 });
+    expect(parseLabTestResult('>= 2.5')).toEqual({ comparator: '>=', value: 2.5 });
+  });
+
+  it('tolerates missing or extra whitespace around the comparator', () => {
+    expect(parseLabTestResult('<0.3')).toEqual({ comparator: '<', value: 0.3 });
+    expect(parseLabTestResult('  >   100  ')).toEqual({ comparator: '>', value: 100 });
+  });
+
+  it('parses a negative bound', () => {
+    expect(parseLabTestResult('< -1.2')).toEqual({ comparator: '<', value: -1.2 });
+  });
+
+  it('returns a null comparator for a plain numeric result', () => {
+    expect(parseLabTestResult('0.3')).toEqual({ comparator: null, value: 0.3 });
+    expect(parseLabTestResult(5)).toEqual({ comparator: null, value: 5 });
+  });
+
+  it('returns null value for a non-numeric result', () => {
+    expect(parseLabTestResult('Negative')).toEqual({ comparator: null, value: null });
+    expect(parseLabTestResult('')).toEqual({ comparator: null, value: null });
+    expect(parseLabTestResult(null)).toEqual({ comparator: null, value: null });
+    expect(parseLabTestResult(undefined)).toEqual({ comparator: null, value: null });
+  });
+});
+
+describe('getLabRequestTestAndPanelNames', () => {
+  const panelRequest = (name: string) => ({ labTestPanel: { name } });
+  const test = (name: string, labTestPanelRequestId: string | null = null) => ({
+    labTestPanelRequestId,
+    labTestType: { name },
+  });
+
+  it('lists every panel plus the tests not covered by one, alphabetically', () => {
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Liver function tests'), panelRequest('Full blood count')],
+        tests: [
+          test('Haemoglobin', 'panel-request-1'),
+          test('C-reactive protein'),
+          test('Amylase'),
+        ],
+      }),
+    ).toEqual(['Amylase', 'C-reactive protein', 'Full blood count', 'Liver function tests']);
+  });
+
+  it('returns the individual tests when there are no panels', () => {
+    expect(getLabRequestTestAndPanelNames({ tests: [test('Amylase'), test('Bilirubin')] })).toEqual([
+      'Amylase',
+      'Bilirubin',
+    ]);
+  });
+
+  it('reads a historical single-panel request as covering all its tests', () => {
+    // Migrated requests hold one panel request whose member tests were never stamped with it.
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Hemodialysis Post')],
+        tests: [test('Creatinine'), test('BUN'), test('Potassium')],
+      }),
+    ).toEqual(['Hemodialysis Post']);
+  });
+
+  it('still lists loose tests when several panels are attributed', () => {
+    // More than one panel request means the historical inference must not kick in.
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [panelRequest('Full blood count'), panelRequest('Coagulation')],
+        tests: [test('Haemoglobin', 'panel-request-1'), test('Amylase')],
+      }),
+    ).toEqual(['Amylase', 'Coagulation', 'Full blood count']);
+  });
+
+  it('skips names it cannot resolve, and handles a missing request', () => {
+    expect(
+      getLabRequestTestAndPanelNames({
+        labTestPanelRequests: [{ labTestPanel: null }, panelRequest('Full blood count')],
+        tests: [{ labTestPanelRequestId: null, labTestType: null }],
+      }),
+    ).toEqual(['Full blood count']);
+    expect(getLabRequestTestAndPanelNames({})).toEqual([]);
+    expect(getLabRequestTestAndPanelNames()).toEqual([]);
   });
 });

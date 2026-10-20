@@ -1,7 +1,7 @@
 import React, { type ReactElement, useCallback, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { StyledView } from '/styled/common';
-import { Form } from '../Form';
+import Form from '../Form';
 import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import {
   getInitialAdditionalValues,

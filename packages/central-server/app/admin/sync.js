@@ -49,6 +49,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
         max(completed_at) AS timestamp
     FROM sync_sessions
     WHERE true
+        AND deleted_at IS NULL
         AND completed_at IS NOT NULL
         AND coalesce(parameters->>'facilityIds', debug_info->>'facilityIds', debug_info->>'facilityId') IS NOT NULL
     GROUP BY facilities

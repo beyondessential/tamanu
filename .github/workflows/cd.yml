@@ -261,12 +261,10 @@ jobs:
         with:
           context: .
           platforms: linux/${{ matrix.platform.arch }}
-          # falls back to main's cache so branches without their own warm cache yet (e.g. a
-          # freshly-cut release branch) aren't forced into a cold, full `mode=max` export
-          cache-from: |
-            type=gha,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
-            type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.platform.arch }}-${{ needs.config.outputs.ref }}-${{ matrix.package.name }}
+          # only main writes the layer cache (the repo's 10 GiB GHA cache can't hold a full
+          # `mode=max` export per ref); other refs read main's, which is usually a partial hit
+          cache-from: type=gha,scope=${{ matrix.platform.arch }}-main-${{ matrix.package.name }}
+          cache-to: ${{ needs.config.outputs.ref == 'main' && format('type=gha,mode=max,ignore-error=true,scope={0}-main-{1}', matrix.platform.arch, matrix.package.name) || '' }}
           build-args: PACKAGE_PATH=${{ matrix.package.path }}
           target: ${{ matrix.package.target }}
           push: true
@@ -568,7 +566,6 @@ jobs:
       ref: ${{ needs.config.outputs.ref }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   deploy-down:
     needs: config
@@ -585,12 +582,15 @@ jobs:
       options: ${{ matrix.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   fake-data:
     needs:
       - config
       - deploy-up
+    # Without a status function this job is skipped whenever any job further up is, and the Windows
+    # image jobs are skipped by default. deploy-up is a matrix whose result is failure if any one
+    # environment failed, so each environment's fake data runs unless no deploy ran at all.
+    if: ${{ !cancelled() && needs.deploy-up.result != 'skipped' }}
     strategy:
       fail-fast: false
       matrix:
@@ -600,6 +600,30 @@ jobs:
     with:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
+
+  # Fake data adds a round on every deploy while ticked, so a PR's seed runs once per tick.
+  # Edits made with the workflow token don't start another run.
+  uncheck-fake-data:
+    needs: fake-data
+    if: github.event_name == 'pull_request' && needs.fake-data.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: context.issue.number,
+            });
+            const body = pr.body ?? '';
+            const updated = body.replace(/\[x\]([^\r\n]*<!-- #deployopt %fakedata=)/gi, '[ ]$1');
+            if (updated === body) return;
+            await github.rest.pulls.update({
+              ...context.repo,
+              pull_number: context.issue.number,
+              body: updated,
+            });
+            core.info('Unticked Generate fake data');
 
   package-android-test:
     needs: config

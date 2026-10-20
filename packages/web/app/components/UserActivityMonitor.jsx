@@ -3,23 +3,19 @@
  * TODO: Build actual modals: WAITM-598
  */
 
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useIdleTimer } from 'react-idle-timer';
 import Typography from '@material-ui/core/Typography';
+import React, { useEffect, useState } from 'react';
+import { useIdleTimer } from 'react-idle-timer';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { useSettings } from '../contexts/Settings';
+import { Modal, TranslatedText, useSettings } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
-import { TranslatedText } from './Translation/TranslatedText';
-
 import { ModalActionRow } from './ModalActionRow';
-import { Modal } from './Modal';
 
 const WarningModalContainer = styled.div`
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+  padding-block: 2rem;
 `;
 
 const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }) => {
@@ -34,13 +30,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
 
   return (
     <Modal
-      title={
-        <TranslatedText
-          stringId="auth.modal.timeout.title"
-          fallback="Login timeout"
-          data-testid="translatedtext-timeout-title"
-        />
-      }
+      title={<TranslatedText stringId="auth.modal.timeout.title" fallback="Login timeout" />}
       open={open}
       onClose={onStayLoggedIn}
       data-testid="modal-9qld"
@@ -50,38 +40,22 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
           <TranslatedText
             stringId="auth.modal.timeout.warning"
             fallback="Your login is about to expire due to inactivity."
-            data-testid="translatedtext-timeout-warning"
           />
         </Typography>
         <Typography data-testid="typography-d127">
           <TranslatedText
             stringId="auth.modal.timeout.countdown.prefix"
             fallback="You will be logged out in"
-            data-testid="translatedtext-timeout-prefix"
           />{' '}
           <b>{open ? Math.ceil(remainingDuration() / 1000) : '-'}</b>{' '}
-          <TranslatedText
-            stringId="auth.modal.timeout.countdown.seconds"
-            fallback="seconds."
-            data-testid="translatedtext-timeout-suffix"
-          />
+          <TranslatedText stringId="auth.modal.timeout.countdown.seconds" fallback="seconds." />
         </Typography>
       </WarningModalContainer>
       <ModalActionRow
         confirmText={
-          <TranslatedText
-            stringId="auth.modal.timeout.stayLoggedIn"
-            fallback="Stay logged in"
-            data-testid="translatedtext-stay-logged-in"
-          />
+          <TranslatedText stringId="auth.modal.timeout.stayLoggedIn" fallback="Stay logged in" />
         }
-        cancelText={
-          <TranslatedText
-            stringId="auth.action.logout"
-            fallback="Log out"
-            data-testid="translatedtext-logout"
-          />
-        }
+        cancelText={<TranslatedText stringId="auth.action.logout" fallback="Log out" />}
         onConfirm={onStayLoggedIn}
         onCancel={onTimeout}
         data-testid="modalactionrow-39hf"
@@ -97,8 +71,12 @@ export const UserActivityMonitor = () => {
   const { getSetting } = useSettings();
 
   // Can't fetch localisation prior to login so add defaults
-  const { enabled = false, timeoutDuration = 0, warningPromptDuration = 0, refreshInterval = 0 } =
-    getSetting('features.idleTimeout') || {};
+  const {
+    enabled = false,
+    refreshInterval = 0,
+    timeoutDuration = 0,
+    warningPromptDuration = 0,
+  } = getSetting('features.idleTimeout') || {};
 
   const onIdle = () => {
     // TODO: WAITM-598 Replace this full logout with a login modal

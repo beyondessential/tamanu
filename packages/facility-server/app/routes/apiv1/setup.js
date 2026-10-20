@@ -4,6 +4,7 @@ import ipaddr from 'ipaddr.js';
 
 import { TamanuApi } from '@tamanu/api-client';
 import {
+  DEVICE_SCOPES,
   SERVER_TYPES,
   FACT_CENTRAL_HOST,
   FACT_SYNC_EMAIL,
@@ -14,8 +15,14 @@ import {
 import { log } from '@tamanu/shared/services/logging';
 import { clearSettingsPskCache } from '@tamanu/shared/utils/crypto';
 
-import { isServerConfigured, initServerConfig } from '../../serverConfig';
+import {
+  getDeclaredFacilityIds,
+  getDeclaredHost,
+  isServerConfigured,
+  initServerConfig,
+} from '../../serverConfig';
 import { version } from '../../serverInfo';
+import { applyBootstrap } from '../../sync/facilityBootstrap';
 
 // POST /public/setup/sync is unauthenticated (a fresh server has no users), so it's
 // gated three ways: trusted source network, server still unconfigured, and valid
@@ -88,6 +95,32 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
   const uniqueFacilityIds = [...new Set(facilityIds.map(id => id.trim()))];
   const normalisedHost = new URL(host).origin;
 
+  // The boot integrity check refuses to start unless the recorded host matches the
+  // declared one and the recorded facilities are a subset of the declared ones, so
+  // anything else configures a server that runs now and won't restart. Names only
+  // what was rejected, never what was declared: this endpoint is unauthenticated.
+  const declaredHost = getDeclaredHost();
+  if (declaredHost && declaredHost !== normalisedHost) {
+    return res.status(422).send({
+      error: {
+        name: 'Central server not configured on this server',
+        message: 'This server is configured to sync with a different central server.',
+      },
+    });
+  }
+  const declaredFacilityIds = getDeclaredFacilityIds();
+  const undeclared = declaredFacilityIds?.length
+    ? uniqueFacilityIds.filter(facilityId => !declaredFacilityIds.includes(facilityId))
+    : [];
+  if (undeclared.length) {
+    return res.status(422).send({
+      error: {
+        name: 'Facility not configured on this server',
+        message: `This server is not configured to serve ${undeclared.join(', ')}.`,
+      },
+    });
+  }
+
   // Validate the host + credentials against central, and use them as the authz
   // gate (must be a central super-admin) before saving anything.
   const probe = new TamanuApi({
@@ -134,6 +167,32 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
       .send({ error: { message: 'Could not provision sync credentials on the central server' } });
   }
 
+  // spec: FSETUP#setup-wizard
+  // Log in as the minted sync user, which proves its credentials work end to end, and fetch what
+  // the facility needs to be logged into before its first sync completes.
+  let bootstrapRecords;
+  try {
+    const syncApi = new TamanuApi({
+      endpoint: `${normalisedHost}/api`,
+      agentName: SERVER_TYPES.FACILITY,
+      agentVersion: version,
+      deviceId: req.deviceId,
+      logger: log,
+    });
+    await syncApi.login(syncCredentials.email, syncCredentials.password, {
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      backoff: { maxAttempts: 1 },
+    });
+    ({ records: bootstrapRecords } = await syncApi.post('sync/bootstrap', {
+      facilityIds: uniqueFacilityIds,
+    }));
+  } catch (error) {
+    log.warn(`Facility bootstrap failed: ${error.type ?? error.name}`);
+    return res.status(502).send({
+      error: { message: "Could not load this facility's data from the central server" },
+    });
+  }
+
   const { LocalSystemFact, LocalSystemSecret } = req.models;
   // Atomic write; advisory lock + re-check closes the TOCTOU with the
   // isServerConfigured() check above so concurrent requests can't both configure.
@@ -160,6 +219,9 @@ export const setupSyncHandler = asyncHandler(async (req, res) => {
       // legacy config fallback so reads pick up the pulled PSK without a restart.
       clearSettingsPskCache();
     }
+    // spec: FSETUP#setup-wizard
+    // In the same transaction as the configuration, so a server is never configured without it.
+    await applyBootstrap({ sequelize: req.db, models: req.models }, bootstrapRecords);
   });
 
   if (alreadyConfigured) {

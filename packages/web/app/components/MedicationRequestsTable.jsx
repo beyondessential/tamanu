@@ -23,11 +23,13 @@ import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
+import { NotDispensedMedicationModal } from './Medication/NotDispensedMedicationModal';
 import { Box } from '@mui/material';
 import { getStockStatus } from '../utils/medications';
 import { getApprovalStatus } from '../utils/invoice';
 import { ApprovedColumnTitle } from './ApprovedColumnTitle';
 import { useSettings } from '../contexts/Settings';
+import { route } from '@tamanu/api-client';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -147,7 +149,8 @@ export const MedicationRequestsTable = () => {
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [isNotDispensedModalOpen, setIsNotDispensedModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [hoveredRow, setHoveredRow] = useState(null);
 
@@ -165,7 +168,6 @@ export const MedicationRequestsTable = () => {
   const isInvoicingEnabled = getSetting('features.invoicing.enabled');
   const canDeleteMedicationRequest = ability.can('delete', 'MedicationRequest');
   const canDispenseMedication = ability.can('create', 'MedicationDispense');
-  const canDeleteMedicationDispense = ability.can('delete', 'MedicationDispense');
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
@@ -175,16 +177,20 @@ export const MedicationRequestsTable = () => {
     setRefreshCount(prev => prev + 1);
   }, []);
 
-  const handleDeleteClick = requestId => {
-    setSelectedRequestId(requestId);
+  const handleDeleteClick = request => {
+    setSelectedRequest(request);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     try {
-      await api.delete(`medication/medication-requests/${selectedRequestId}`);
+      await api.delete(
+        route('medication/medication-requests/:selectedRequestId', {
+          selectedRequestId: selectedRequest.id,
+        }),
+      );
       setIsDeleteModalOpen(false);
-      setSelectedRequestId(null);
+      setSelectedRequest(null);
       // The deleted request drops out of the patient's dispensable list, which the dispense
       // modal reads from its own cache.
       await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
@@ -197,7 +203,22 @@ export const MedicationRequestsTable = () => {
 
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
-    setSelectedRequestId(null);
+    setSelectedRequest(null);
+  };
+
+  const handleNotDispensedClick = request => {
+    setSelectedRequest(request);
+    setIsNotDispensedModalOpen(true);
+  };
+
+  const handleNotDispensedClose = () => {
+    setIsNotDispensedModalOpen(false);
+    setSelectedRequest(null);
+  };
+
+  const handleNotDispensedSuccess = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
+    setRefreshCount(prev => prev + 1);
   };
 
   const columns = [
@@ -307,7 +328,7 @@ export const MedicationRequestsTable = () => {
       accessor: getStockStatus,
       sortable: true,
     },
-    ...(canDeleteMedicationRequest && canDeleteMedicationDispense
+    ...(canDeleteMedicationRequest
       ? [
           {
             key: 'actions',
@@ -315,8 +336,17 @@ export const MedicationRequestsTable = () => {
             accessor: row => {
               const actions = [
                 {
+                  label: (
+                    <TranslatedText
+                      stringId="medication-requests.table.action.notDispensed"
+                      fallback="Not dispensed"
+                    />
+                  ),
+                  action: () => handleNotDispensedClick(row),
+                },
+                {
                   label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-                  action: () => handleDeleteClick(row.id),
+                  action: () => handleDeleteClick(row),
                 },
               ];
               return (
@@ -388,6 +418,12 @@ export const MedicationRequestsTable = () => {
         open={isDeleteModalOpen}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
+      />
+      <NotDispensedMedicationModal
+        open={isNotDispensedModalOpen}
+        onClose={handleNotDispensedClose}
+        request={selectedRequest}
+        onSuccess={handleNotDispensedSuccess}
       />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}

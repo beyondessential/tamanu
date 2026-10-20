@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { facilityDefaults } from '@tamanu/settings';
 import { buildSettingsReaderMiddleware } from '@tamanu/settings/middleware';
 import { registerSettingsCacheInvalidator } from '@tamanu/settings/cache';
-import { defineDbNotifier } from '@tamanu/shared/services/dbNotifier';
+import { defineDbNotifier, exitOnDatabaseOutage } from '@tamanu/shared/services/dbNotifier';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { requireHttps } from '@tamanu/shared/utils';
 import { NOTIFY_CHANNELS } from '@tamanu/constants';
@@ -13,6 +13,7 @@ import { fhirRoutes } from '@tamanu/shared/routes/fhir';
 import { log } from '@tamanu/shared/services/logging';
 
 import { createRoutes } from './routes';
+import { FHIR_MOUNT_PATH } from './routes/apiv1';
 import { getServerFacilityIds } from './serverConfig';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
@@ -40,12 +41,15 @@ export async function createApiApp({
   express.set('query parser', 'extended');
   const server = createServer(express);
 
-  const dbNotifier = await defineDbNotifier(sequelize.config, [
-    NOTIFY_CHANNELS.TABLE_CHANGED,
-    NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
-  ]);
+  const dbNotifier = await defineDbNotifier(
+    sequelize.config,
+    [NOTIFY_CHANNELS.TABLE_CHANGED, NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED],
+    { onOutageExceeded: exitOnDatabaseOutage },
+  );
 
-  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED]);
+  registerSettingsCacheInvalidator(dbNotifier.listeners[NOTIFY_CHANNELS.TABLE_CHANGED], {
+    onReconnect: dbNotifier.onReconnect,
+  });
 
   const websocketService = defineWebsocketService({
     httpServer: server,
@@ -120,8 +124,8 @@ export async function createApiApp({
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
     log.info('FHIR integration enabled, mounting routes');
-    routes.use('/api/integration/fhir/mat', fhir);
-    routes.use('/v1/integration/fhir/mat', fhir);
+    routes.use(`/api${FHIR_MOUNT_PATH}`, fhir);
+    routes.use(`/v1${FHIR_MOUNT_PATH}`, fhir);
   }
 
   // Dis-allow all other routes

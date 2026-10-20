@@ -11,14 +11,12 @@ import {
 } from '../components';
 import { LabRequestsTable } from './LabRequestsTable';
 import { LabRequestSearchParamKeys, useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
 
 const StyledContentPane = styled(ContentPane)`
   position: relative;
 `;
 
 const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKeys.All }) => {
-  const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest(searchParamKey);
 
   return (
@@ -32,7 +30,6 @@ const LabRequestListing = ({ statuses, searchParamKey = LabRequestSearchParamKey
       </SearchTableTitle>
       <LabRequestsSearchBar statuses={statuses} data-testid="labrequestssearchbar-xktv" />
       <LabRequestsTable
-        loadEncounter={loadEncounter}
         loadLabRequest={loadLabRequest}
         searchParameters={searchParameters}
         statuses={statuses}
@@ -61,21 +58,21 @@ export const LabRequestListingView = () => (
   </PageContainer>
 );
 
-export const PublishedLabRequestListingView = () => (
+export const FinalisedLabRequestListingView = () => (
   <PageContainer data-testid="pagecontainer-u7ab">
     <TopBar
       title={
         <TranslatedText
-          stringId="lab.list.published.title"
-          fallback="Published lab requests"
-          data-testid="translatedtext-lab-request-published-title"
+          stringId="lab.list.finalised.title"
+          fallback="Finalised requests"
+          data-testid="translatedtext-lab-request-finalised-title"
         />
       }
       data-testid="topbar-gc5j"
     />
     <LabRequestListing
       statuses={LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED}
-      searchParamKey={LabRequestSearchParamKeys.Published}
+      searchParamKey={LabRequestSearchParamKeys.Finalised}
       data-testid="labrequestlisting-3j4y"
     />
   </PageContainer>

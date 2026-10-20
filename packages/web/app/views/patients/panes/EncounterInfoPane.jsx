@@ -34,7 +34,7 @@ import { TranslatedReferenceData } from '../../../components/Translation/index.j
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS, useDateTime } from '@tamanu/ui-components';
-import { useEncounter } from '../../../contexts/Encounter.jsx';
+import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { useAuth } from '../../../contexts/Auth';
@@ -119,7 +119,7 @@ const getDiet = ({ diets }) => {
 };
 
 const SetDischargeDateModal = ({ encounter, open, onClose }) => {
-  const { writeAndViewEncounter } = useEncounter();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   return (
     <FormModal
       title={
@@ -133,9 +133,10 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
     >
       <Form
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={async ({ estimatedEndDate }) =>
-          writeAndViewEncounter(encounter.id, { estimatedEndDate })
-        }
+        onSubmit={async ({ estimatedEndDate }) => {
+          await updateEncounter({ estimatedEndDate });
+          onClose();
+        }}
         render={({ submitForm }) => (
           <>
             <DischargeDateFieldContainer>
@@ -190,7 +191,10 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
   } else if (totalMinutes < 1440) {
     formattedDuration = formatDuration(duration, { format: ['hours'] });
   } else {
-    formattedDuration = formatDuration(duration, { format: ['days'] });
+    // Total elapsed days from the raw millisecond difference, not a calendar-day
+    // comparison, so the result doesn't shift by browser timezone near midnight.
+    const totalDays = Math.floor(totalMinutes / 1440);
+    formattedDuration = formatDuration({ days: totalDays }, { format: ['days'] });
   }
 
   if (!formattedDuration) return null;

@@ -32,7 +32,7 @@ import {
   REPORT_STATUS_LABELS,
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
-import { LAB_REQUEST_STATUS_LABELS } from './labs';
+import { LAB_REQUEST_STATUS_LABELS, VISIBILITY_STATUS_LABELS } from './labs';
 import { ASSET_NAME_LABELS } from './importable';
 import { DIAGNOSIS_CERTAINTY_LABELS, PATIENT_ISSUE_LABELS } from './diagnoses';
 import {
@@ -124,6 +124,7 @@ export const registeredEnums = {
   TITLE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
+  VISIBILITY_STATUS_LABELS,
   DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 };
@@ -189,6 +190,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   TITLE_LABELS: 'patient.property.title',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
+  VISIBILITY_STATUS_LABELS: 'referenceData.property.visibilityStatus',
   DRUG_STOCK_STATUS_LABELS: 'medication.property.drugStockStatus',
   PHARMACY_PRESCRIPTION_TYPE_LABELS: 'medication.property.pharmacyPrescriptionType',
 };

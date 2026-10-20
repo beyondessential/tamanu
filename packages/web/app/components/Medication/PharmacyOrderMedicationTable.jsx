@@ -1,4 +1,3 @@
-import Box from '@mui/material/Box';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
@@ -15,7 +14,6 @@ import {
   OuterLabelFieldWrapper,
   RequiredOrnament,
   ThemedTooltip,
-  TimeDisplay,
   TranslatedReferenceData,
   TranslatedText,
   useTranslation,
@@ -23,8 +21,10 @@ import {
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { singularize } from '../../utils';
+import { getStockStatus } from '../../utils/medications';
 import { CheckInput } from '../Field';
 import { Table } from '../Table';
+import { LastSentCell } from './LastSentCell';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -89,10 +89,6 @@ const StyledTable = styled(Table)`
   }
 `;
 
-const NoWrapCell = styled(Box)`
-  white-space: nowrap;
-`;
-
 const TwoLineHeaderText = styled.div`
   width: 85px;
   white-space: normal;
@@ -105,6 +101,7 @@ export const COLUMN_KEYS = {
   DOSE: 'dose',
   FREQUENCY: 'frequency',
   DURATION: 'duration',
+  STOCK: 'stock',
   QUANTITY: 'quantity',
   REPEATS: 'repeats',
   LAST_SENT: 'lastSent',
@@ -199,6 +196,13 @@ const getColumns = (
       },
     },
     {
+      // spec: PHORD
+      key: COLUMN_KEYS.STOCK,
+      title: <TranslatedText stringId="medication-requests.table.column.stockStatus" fallback="Stock" />,
+      sortable: false,
+      accessor: prescription => getStockStatus({ prescription }),
+    },
+    {
       key: COLUMN_KEYS.DATE,
       title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       sortable: false,
@@ -208,30 +212,9 @@ const getColumns = (
       key: COLUMN_KEYS.LAST_SENT,
       title: <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />,
       sortable: false,
-      accessor: ({ lastOrderedAt }) => {
-        if (!lastOrderedAt) {
-          return (
-            <NoWrapCell color="inherit" fontStyle="normal">
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                casing="lower"
-              />
-            </NoWrapCell>
-          );
-        }
-
-        return (
-          <NoWrapCell color="inherit" fontStyle="normal">
-            <Box>
-              <DateDisplay date={lastOrderedAt} format="shortest" />
-              <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={lastOrderedAt} />
-              </Box>
-            </Box>
-          </NoWrapCell>
-        );
-      },
+      accessor: ({ pharmacyRequestAt, isPharmacyRequestDispensed }) => (
+        <LastSentCell sentAt={pharmacyRequestAt} isDispensed={isPharmacyRequestDispensed} />
+      ),
     },
     {
       key: COLUMN_KEYS.REPEATS,
