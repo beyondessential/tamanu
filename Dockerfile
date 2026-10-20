@@ -23,6 +23,9 @@ COPY scripts/ scripts/
 FROM base AS run-base
 ENV NODE_ENV=production
 RUN apk add --no-cache bash curl jq
+# drop distrusted root CAs from the system bundle; the entrypoint drops them from Node's own store
+COPY scripts/docker-distrust-cas.mjs scripts/docker-distrust-cas.mjs
+RUN node scripts/docker-distrust-cas.mjs
 # set the runtime options
 COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]
