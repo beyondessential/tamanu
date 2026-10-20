@@ -8,7 +8,7 @@ Scenarios verifying that a materialised FHIR resource's id is derived determinis
 - [x] A different upstream id produces a different id (verifies spec: FRID).
 - [x] A different resource type with the same upstream id produces a different id (verifies spec: FRID).
 - [x] The derived id is a syntactically valid version-5 UUID, usable in the `uuid` id column (verifies spec: FRID).
-- [x] The UUIDv5 implementation matches the published RFC 4122 test vector (correctness of the hash).
+- [x] Known inputs derive known ids (golden values), pinning the frozen namespace, name format and UUID version against accidental change (verifies spec: FRID).
 
 ## Materialisation
 
@@ -21,4 +21,4 @@ Scenarios verifying that a materialised FHIR resource's id is derived determinis
 
 - [ ] The same upstream record materialised independently on central and facility servers yields the same FHIR id (verifies spec: FRID).
 
-> Note: the Materialisation and cross-server cases need the central/facility test database, which requires Postgres credentials not available in the implementation session. They are written where ticked (`DeterministicId.test.js`) but were run only for the helper-level cases via the DB-free unit test.
+> Note: the ticked Derivation cases are covered and passing via the DB-free unit test (`packages/database/__tests__/utils/fhirResourceId.test.ts`). The Materialisation cases are written in `packages/central-server/__tests__/hl7fhir/materialised/DeterministicId.test.js` but stay unticked because that suite needs the central test database, which requires Postgres credentials unavailable so far. The cross-server case has no automated test yet.

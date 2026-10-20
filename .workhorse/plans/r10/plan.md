@@ -11,10 +11,12 @@ The change is surgical: only the first-materialisation id-assignment branch chan
 
 ## Deterministic id helper
 
-> **Placement changed from the original plan.** `@tamanu/utils` is consumed by the web browser bundle, so it can't import `node:crypto`; and `uuid` isn't a server dependency. The helper therefore lives in the server-only `@tamanu/database` package (next to the materialiser), and UUIDv5 is implemented directly with `node:crypto` SHA-1 — no new dependency. Only the frozen namespace constant stays in `@tamanu/constants`.
+> **Placement changed from the original plan.** `@tamanu/utils` is consumed by the web browser bundle, so it can't host this helper. It lives in the server-only `@tamanu/database` package instead, next to the materialiser. Only the frozen namespace constant stays in `@tamanu/constants`.
+>
+> **Implementation changed after CI.** UUIDv5 was first hand-rolled with `node:crypto` SHA-1 to avoid a new dependency, but CodeQL flagged the SHA-1 call (`js/weak-cryptographic-algorithm`). The alert is a false positive (SHA-1 is prescribed by RFC 4122 for v5 and derives an identifier from non-secret inputs), but inline `// codeql[...]` suppressions do nothing under CodeQL default setup, which this repo uses: they are only applied by the `advanced-security/dismiss-alerts` Action. The helper now delegates to the `uuid` package's reference `v5`, which removes the hand-rolled crypto from first-party code and clears the alert. Derived ids are unchanged, pinned by golden-value tests.
 
 - [x] Add a `fhirResourceId(fhirResourceType, upstreamId)` helper returning `uuidv5(`${fhirResourceType}/${upstreamId}`, FHIR_RESOURCE_ID_NAMESPACE)` at `packages/database/src/utils/fhir/resourceId.ts`, importing the namespace from `@tamanu/constants`.
-- [x] Implement UUIDv5 with `node:crypto` SHA-1 (RFC 4122 §4.3) in the same file; `uuidv5` is exported alongside for testing against a known vector. No `uuid` dependency added.
+- [x] Delegate UUIDv5 to the `uuid` package's `v5`, added as a dependency of `packages/database/package.json` (`^14.0.2`, matching the version web already uses).
 - [x] Export the helper from `packages/database/src/utils/fhir/index.ts` (reachable as `@tamanu/database/utils/fhir`).
 
 ## Wire into materialisation
@@ -26,7 +28,7 @@ The change is surgical: only the first-materialisation id-assignment branch chan
 
 ## Tests
 
-- [x] Unit test for `fhirResourceId` at `packages/database/__tests__/utils/fhirResourceId.test.ts`: identical `(fhirResourceType, upstreamId)` yields the identical UUID; a different type or upstream id yields a different UUID; output is a syntactically valid v5 UUID; and `uuidv5` matches the published RFC 4122 DNS test vector. **Passing (6/6).**
+- [x] Unit test for `fhirResourceId` at `packages/database/__tests__/utils/fhirResourceId.test.ts`: identical `(fhirResourceType, upstreamId)` yields the identical UUID; a different type or upstream id yields a different UUID; output is a syntactically valid v5 UUID; and four golden values pin the derivation so any change to the frozen contract fails loudly. **Passing (8/8).**
 - [x] Materialisation id-stability + determinism test at `packages/central-server/__tests__/hl7fhir/materialised/DeterministicId.test.js`: materialise a Practitioner, assert `id === fhirResourceId('Practitioner', upstreamId)`; re-materialise and assert the `id` is unchanged; materialise a Patient and assert the same upstream id maps to different ids per type. **Written; not executed here — the central test DB needs Postgres credentials not available in this session.** Same base code path as the passing unit test.
 - [x] MediciReport is covered by the uniform base path plus the helper unit test's type-variation cases, rather than its own heavy materialisation fixture.
 

@@ -1,21 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { FHIR_RESOURCE_ID_NAMESPACE } from '@tamanu/constants';
-import { fhirResourceId, uuidv5 } from '../../src/utils/fhir/resourceId';
+import { fhirResourceId } from '../../src/utils/fhir/resourceId';
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-
-describe('uuidv5', () => {
-  // Published RFC 4122 test vector: DNS namespace + "www.example.com".
-  it('matches the known test vector', () => {
-    expect(uuidv5('www.example.com', '6ba7b810-9dad-11d1-80b4-00c04fd430c8')).toBe(
-      '2ed6657d-e927-568b-95e1-2665a8aea6a2',
-    );
-  });
-});
+const UUID_V5_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 describe('fhirResourceId', () => {
   it('produces a syntactically valid v5 UUID', () => {
-    expect(fhirResourceId('Patient', 'abc-123')).toMatch(UUID_PATTERN);
+    expect(fhirResourceId('Patient', 'abc-123')).toMatch(UUID_V5_PATTERN);
   });
 
   it('is deterministic: the same type and upstream id always give the same id', () => {
@@ -30,9 +20,15 @@ describe('fhirResourceId', () => {
     expect(fhirResourceId('Patient', 'abc-123')).not.toBe(fhirResourceId('Encounter', 'abc-123'));
   });
 
-  it('derives from `<type>/<upstreamId>` in the frozen namespace', () => {
-    expect(fhirResourceId('ServiceRequest', 'xyz-789')).toBe(
-      uuidv5('ServiceRequest/xyz-789', FHIR_RESOURCE_ID_NAMESPACE),
-    );
+  // The namespace, name format and UUID version are a frozen contract: external systems
+  // recompute these ids, so a change to any of them is a breaking change. These values
+  // pin the derivation, and a failure here means derived ids have moved.
+  it.each([
+    ['Patient', 'abc-123', 'e6701935-022a-5c99-8566-f69c13499bb2'],
+    ['Encounter', 'abc-123', '781ad762-064b-5800-8c9d-6073b0ca3707'],
+    ['ServiceRequest', 'xyz-789', 'b0f5cbdd-3371-56a1-8a1e-9d6526c1f09e'],
+    ['MediciReport', 'rep-1', 'cbe0fda7-caa4-5398-af04-e3347cc470a7'],
+  ])('derives a stable id for %s/%s', (resourceType, upstreamId, expected) => {
+    expect(fhirResourceId(resourceType, upstreamId)).toBe(expected);
   });
 });
