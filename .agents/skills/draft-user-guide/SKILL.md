@@ -19,7 +19,7 @@ Read `.agents/docs/user-guide-format.md` first and follow it for anything about 
 like: location, numbering, structure, language, screenshots and accuracy. This file is the procedure
 only.
 
-One run covers one module on one platform. `docs/user-manuals/desktop/10-vitals/1-record-vitals.md` is
+One run covers one module on one platform. `docs/user-manuals/desktop/10-vitals/01-record-vitals.md` is
 the worked example, and `.workhorse/design/designs/user-guide-page.html` shows it as a reader meets it.
 
 Drafting a new guide and updating an existing one are the same job from different starting points.

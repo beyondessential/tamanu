@@ -101,7 +101,7 @@ patient.
 ## Cross-references
 
 Link to another guide or module with a relative path, including its number: `../04-patients/` or
-`1-record-vitals.md`.
+`01-record-vitals.md`.
 
 ## Accuracy rules
 
