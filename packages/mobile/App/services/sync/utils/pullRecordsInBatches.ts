@@ -13,14 +13,15 @@ export const pullRecordsInBatches = async (
     return;
   }
 
+  const { dynamicLimiter: dynamicLimiterSettings, networkRetryBudget } = syncSettings ?? {};
+
   const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, pageLimit, pageFromId);
+    const records = await centralServer.pull(sessionId, pageLimit, pageFromId, networkRetryBudget);
     const pullTime = Date.now() - startTime;
     return { records, pullTime };
   };
 
-  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
   let current = await fetchPage(limit);

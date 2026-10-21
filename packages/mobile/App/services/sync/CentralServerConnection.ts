@@ -17,7 +17,7 @@ import {
 import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import { callWithBackoff, sleepAsync } from './utils';
 import { compressibleRequestBody } from './utils/compressibleRequestBody';
-import { SYNC_NETWORK_RETRY_BUDGET_MS } from './constants';
+import { DEFAULT_SYNC_NETWORK_RETRY_BUDGET_MS } from './constants';
 import { version } from '/root/package.json';
 
 interface PullMetadataResponse {
@@ -38,7 +38,9 @@ const GATEWAY_ERROR_STATUSES = [502, 503, 504];
 
 // Retry requests that are safe to repeat through a network drop, so a brief outage doesn't throw
 // away a sync that may have been running for a long time
-const RETRY_THROUGH_NETWORK_DROPS = { maxRetryDurationMs: SYNC_NETWORK_RETRY_BUDGET_MS };
+const retryThroughNetworkDrops = (networkRetryBudgetMs = DEFAULT_SYNC_NETWORK_RETRY_BUDGET_MS) => ({
+  maxRetryDurationMs: networkRetryBudgetMs,
+});
 
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   if (!err.response) {
@@ -204,12 +206,16 @@ export class CentralServerConnection {
     return this.fetch(path, query, { method: 'DELETE' });
   }
 
-  async pollUntilTrue(endpoint: string): Promise<unknown> {
+  async pollUntilTrue(endpoint: string, networkRetryBudgetMs?: number): Promise<unknown> {
     // poll the provided endpoint until we get a valid response
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.get(endpoint, {}, { backoff: RETRY_THROUGH_NETWORK_DROPS });
+      const response = await this.get(
+        endpoint,
+        {},
+        { backoff: retryThroughNetworkDrops(networkRetryBudgetMs) },
+      );
       if (response) {
         return response;
       }
@@ -218,7 +224,15 @@ export class CentralServerConnection {
     throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
   }
 
-  async startSyncSession({ urgent, lastSyncedTick }) {
+  async startSyncSession({
+    urgent,
+    lastSyncedTick,
+    networkRetryBudgetMs,
+  }: {
+    urgent: boolean;
+    lastSyncedTick: number;
+    networkRetryBudgetMs?: number;
+  }) {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
@@ -233,7 +247,7 @@ export class CentralServerConnection {
         isMobile: true,
       },
       // safe to repeat: central closes any session this device left open before starting a new one
-      { backoff: RETRY_THROUGH_NETWORK_DROPS },
+      { backoff: retryThroughNetworkDrops(networkRetryBudgetMs) },
     )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
@@ -244,13 +258,13 @@ export class CentralServerConnection {
     // then, poll the sync/:sessionId/ready endpoint until we get a valid response
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persist records from another client
-    await this.pollUntilTrue(`sync/${sessionId}/ready`);
+    await this.pollUntilTrue(`sync/${sessionId}/ready`, networkRetryBudgetMs);
 
     // finally, fetch the new tick from starting the session
     const { startedAtTick } = (await this.get(
       `sync/${sessionId}/metadata`,
       {},
-      { backoff: RETRY_THROUGH_NETWORK_DROPS },
+      { backoff: retryThroughNetworkDrops(networkRetryBudgetMs) },
     )) as { startedAtTick: number };
 
     return { sessionId, startedAtTick };
@@ -269,6 +283,7 @@ export class CentralServerConnection {
     since: number,
     tableNames: string[],
     tablesForFullResync: string[],
+    networkRetryBudgetMs?: number,
   ): Promise<{ totalToPull: number; pullUntil: number }> {
     const facilityId = await readConfig('facilityId', '');
     const body = {
@@ -283,18 +298,23 @@ export class CentralServerConnection {
 
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
     // pull/initiate to finish populating the snapshot of changes
-    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`, networkRetryBudgetMs);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
     const { totalToPull, pullUntil } = await this.get<PullMetadataResponse>(
       `sync/${sessionId}/pull/metadata`,
       {},
-      { backoff: RETRY_THROUGH_NETWORK_DROPS },
+      { backoff: retryThroughNetworkDrops(networkRetryBudgetMs) },
     );
     return { totalToPull: Number.parseInt(totalToPull, 10), pullUntil };
   }
 
-  async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
+  async pull(
+    sessionId: string,
+    limit = 100,
+    fromId?: string,
+    networkRetryBudgetMs?: number,
+  ): Promise<SyncRecord[]> {
     const query: { limit: number; fromId?: string } = { limit };
     if (fromId) {
       query.fromId = fromId;
@@ -304,21 +324,25 @@ export class CentralServerConnection {
       // (the full 5 minutes would be pretty unusual! but just to be safe)
       timeout: 5 * 60 * 1000,
       // safe to repeat: pages are read from the session's snapshot by cursor
-      backoff: RETRY_THROUGH_NETWORK_DROPS,
+      backoff: retryThroughNetworkDrops(networkRetryBudgetMs),
     });
   }
 
-  async push(sessionId: string, changes): Promise<unknown> {
+  async push(sessionId: string, changes, networkRetryBudgetMs?: number): Promise<unknown> {
     return this.post(
       `sync/${sessionId}/push`,
       {},
       { changes },
       // safe to repeat: central de-duplicates pushed records when it persists them
-      { compress: true, backoff: RETRY_THROUGH_NETWORK_DROPS },
+      { compress: true, backoff: retryThroughNetworkDrops(networkRetryBudgetMs) },
     );
   }
 
-  async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
+  async completePush(
+    sessionId: string,
+    tablesToInclude: string[],
+    networkRetryBudgetMs?: number,
+  ): Promise<void> {
     // first off, mark the push as complete on central
     // not retried: a repeat would persist the pushed records again
     await this.post(
@@ -335,7 +359,7 @@ export class CentralServerConnection {
       const isComplete = await this.get(
         `sync/${sessionId}/push/complete`,
         {},
-        { backoff: RETRY_THROUGH_NETWORK_DROPS },
+        { backoff: retryThroughNetworkDrops(networkRetryBudgetMs) },
       );
       if (isComplete) {
         return;
