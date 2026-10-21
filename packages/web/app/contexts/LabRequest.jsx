@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
+import { route } from '@tamanu/api-client';
 
 const LabRequestContext = createContext({
   labRequest: {},
@@ -23,7 +24,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
-    (value) => {
+    value => {
       setAllSearchParameters({
         ...allSearchParameters,
         [key]: value,
@@ -36,7 +37,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 };
 
 export const LabRequestProvider = ({ children }) => {
-  const { getCurrentDateTime } = (useDateTimeIfAvailable() || {})
+  const { getCurrentDateTime } = useDateTimeIfAvailable() || {};
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = useState({
@@ -48,9 +49,9 @@ export const LabRequestProvider = ({ children }) => {
   const api = useApi();
 
   const loadLabRequest = useCallback(
-    async (labRequestId) => {
+    async labRequestId => {
       setIsLoading(true);
-      const data = await api.get(`labRequest/${labRequestId}`);
+      const data = await api.get(route('labRequest/:labRequestId', { labRequestId }));
       setLabRequest({ ...data });
       setIsLoading(false);
     },
@@ -66,7 +67,7 @@ export const LabRequestProvider = ({ children }) => {
       update.publishedDate = getCurrentDateTime();
     }
 
-    await api.put(`labRequest/${labRequestId}`, update);
+    await api.put(route('labRequest/:labRequestId', { labRequestId }), update);
     await loadLabRequest(labRequestId);
   };
 

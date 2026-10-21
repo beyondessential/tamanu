@@ -13,6 +13,7 @@ import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor, withParameterIds } from './ReportEditor';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   padding: 20px;
@@ -38,7 +39,8 @@ const getInitialValues = (version, report) => {
     parameters: withParameterIds(parameters),
     dataSources,
     notes,
-    advancedConfig: advancedConfig && Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
+    advancedConfig:
+      advancedConfig && Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
   };
 };
 
@@ -50,7 +52,13 @@ export const EditReportView = () => {
 
   const { data: version, isLoading } = useQuery(
     ['version', params.versionId],
-    () => api.get(`admin/reports/${params.reportId}/versions/${params.versionId}`),
+    () =>
+      api.get(
+        route('admin/reports/:reportId/versions/:versionId', {
+          reportId: params.reportId,
+          versionId: params.versionId,
+        }),
+      ),
     {
       enabled: !!params.versionId,
     },
@@ -71,7 +79,14 @@ export const EditReportView = () => {
     const { query, status, dbSchema, notes, advancedConfig = {} } = values;
     const { reportDefinition } = version;
     const payload = {
-      queryOptions: omit(values, ['name', 'query', 'status', 'dbSchema', 'notes', 'advancedConfig']),
+      queryOptions: omit(values, [
+        'name',
+        'query',
+        'status',
+        'dbSchema',
+        'notes',
+        'advancedConfig',
+      ]),
       advancedConfig,
       query,
       status,
@@ -80,7 +95,12 @@ export const EditReportView = () => {
     };
 
     try {
-      const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
+      const result = await api.post(
+        route('admin/reports/:reportDefinitionId/versions', {
+          reportDefinitionId: reportDefinition.id,
+        }),
+        payload,
+      );
       toast.success(
         <TranslatedText
           stringId="admin.report.notification.saveReportSuccess"

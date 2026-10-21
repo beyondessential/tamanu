@@ -50,6 +50,7 @@ import { patientFacility } from './patientFacility';
 import { template } from './template';
 import { procedure } from './procedure';
 import { program } from './program';
+import { recentlyDischargedPatients } from './recentlyDischargedPatients';
 import { programRegistry } from './programRegistry';
 import { referenceData } from './referenceData';
 import { referral } from './referral';
@@ -307,6 +308,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/patientCarePlan', patientCarePlan);
   patientDataRoutes.use('/patientIssue', patientIssue);
   patientDataRoutes.use('/procedure', procedure);
+  patientDataRoutes.use('/recentlyDischargedPatients', recentlyDischargedPatients);
   patientDataRoutes.use('/referral', referral);
   patientDataRoutes.use('/surveyResponse', surveyResponse);
   patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);

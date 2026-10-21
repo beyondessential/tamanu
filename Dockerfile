@@ -23,6 +23,11 @@ COPY scripts/ scripts/
 FROM base AS run-base
 ENV NODE_ENV=production
 RUN apk add --no-cache bash curl jq
+# drop distrusted root CAs from the system bundle, then from Node's own store in every node process
+# (the entrypoint also imports it, so the app keeps it if NODE_OPTIONS is overridden at deploy time)
+COPY packages/shared/src/utils/distrustedRootCas.mjs packages/shared/src/utils/distrustedRootCas.mjs
+RUN node packages/shared/src/utils/distrustedRootCas.mjs
+ENV NODE_OPTIONS="--import /app/packages/shared/src/utils/distrustedRootCas.mjs"
 # set the runtime options
 COPY scripts/docker-entrypoint.sh /entrypoint
 ENTRYPOINT ["/entrypoint"]

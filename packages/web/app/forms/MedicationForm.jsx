@@ -71,6 +71,7 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
@@ -80,6 +81,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { dispensingQuantitySchema, foreignKey } from '../utils/validation';
+import { route } from '@tamanu/api-client';
 
 const requiredInlineMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
@@ -616,7 +618,8 @@ export const MedicationForm = ({
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
@@ -714,10 +717,20 @@ export const MedicationForm = ({
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
-        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
-        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+        ? api.post(
+            route('medication/patientOngoingPrescription/:patientId', { patientId: patient.id }),
+            payload,
+          )
+        : api.post(
+            route('medication/encounterPrescription/:encounterId', { encounterId }),
+            payload,
+          ));
       // The return from the post doesn't include the joined tables like medication and prescriber
-      const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+      const newMedication = await api.get(
+        route('medication/:medicationSubmissionId', {
+          medicationSubmissionId: medicationSubmission.id,
+        }),
+      );
       setSubmittedMedication(newMedication);
     } catch (error) {
       toast.error(error.message);
@@ -725,7 +738,7 @@ export const MedicationForm = ({
     }
 
     if (encounterId) {
-      loadEncounter?.(encounterId, false);
+      invalidateEncounter(encounterId);
       queryClient.invalidateQueries(['encounterMedication', encounterId]);
     }
     if (patient) {

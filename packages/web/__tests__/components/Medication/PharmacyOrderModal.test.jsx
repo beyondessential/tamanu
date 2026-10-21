@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { route } from '@tamanu/api-client';
 import { SettingsContext } from '@tamanu/ui-components';
 import { PharmacyOrderModal } from '../../../app/components/Medication/PharmacyOrderModal';
 import { TranslationProvider } from '../../../app/contexts/Translation';
@@ -139,7 +140,7 @@ describe('PharmacyOrderModal', () => {
 
     expect(postMock).toHaveBeenCalledTimes(1);
     expect(postMock).toHaveBeenCalledWith(
-      `encounter/${ENCOUNTER.id}/pharmacyOrder`,
+      route('encounter/:encounterId/pharmacyOrder', { encounterId: ENCOUNTER.id }),
       expect.objectContaining({
         pharmacyOrderPrescriptions: [{ prescriptionId: 'prescription-1', quantity: 2, repeats: 0 }],
       }),

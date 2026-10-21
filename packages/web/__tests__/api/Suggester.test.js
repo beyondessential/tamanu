@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Suggester } from '@tamanu/ui-components';
+import { resolveEndpoint } from '@tamanu/api-client';
 
 /**
  * A form usually builds one suggester per reference type and gives it to every field of that type —
@@ -9,8 +10,9 @@ import { Suggester } from '@tamanu/ui-components';
  */
 const buildApi = responses => ({
   get: vi.fn(async endpoint => {
-    const response = responses[endpoint];
-    if (!response) throw new Error(`No stubbed response for ${endpoint}`);
+    const path = resolveEndpoint(endpoint);
+    const response = responses[path];
+    if (!response) throw new Error(`No stubbed response for ${path}`);
     return response();
   }),
 });

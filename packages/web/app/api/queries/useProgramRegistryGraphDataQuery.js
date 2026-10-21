@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../index';
 import { transformVitalDataToChartData } from './useGraphDataQuery';
+import { route } from '@tamanu/api-client';
 
 export const useProgramRegistryGraphDataQuery = (patientId, dataElementId, dateRange) => {
   const api = useApi();
@@ -20,7 +21,11 @@ export const useProgramRegistryGraphDataQuery = (patientId, dataElementId, dateR
     ],
     () =>
       api.get(
-        `programRegistry/patient/${patientId}/graphData/${directory}/${dataElementId}`,
+        route('programRegistry/patient/:patientId/graphData/:directory/:dataElementId', {
+          patientId,
+          directory,
+          dataElementId,
+        }),
         { startDate, endDate },
       ),
     {
