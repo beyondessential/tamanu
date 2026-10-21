@@ -2087,6 +2087,37 @@ describe('Encounter', () => {
         expect(afterRow.pharmacyRequestAt).toBeTruthy();
       });
 
+      it('resolves last sent for the matching ongoing medication the patient already has', async () => {
+        const existingOngoing = await createOngoingPrescription();
+        const { encounterToDischarge, prescription } = await createEncounterToDischarge({
+          medicationId: existingOngoing.medicationId,
+          isOngoing: true,
+        });
+        await prescription.update({
+          doseAmount: existingOngoing.doseAmount,
+          dosingUnit: existingOngoing.dosingUnit,
+          route: existingOngoing.route,
+          frequency: existingOngoing.frequency,
+        });
+
+        const result = await app.put(`/api/encounter/${encounterToDischarge.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: encounterToDischarge.id, dischargerId: app.user.id },
+          medications: {
+            [prescription.id]: { quantity: 8, repeats: 1, sendToPharmacy: true },
+          },
+          pharmacyOrder: { orderingClinicianId: app.user.id },
+        });
+        expect(result).toHaveSucceeded();
+
+        const after = await app.get(`/api/patient/${patient.id}/ongoing-prescriptions`);
+        expect(after).toHaveSucceeded();
+        expect(after.body.data.find(p => p.id === prescription.id)).toBeUndefined();
+        const existingRow = after.body.data.find(p => p.id === existingOngoing.id);
+        expect(existingRow.lastOrderedAt).toBeTruthy();
+        expect(existingRow.pharmacyRequestAt).toBeTruthy();
+      });
+
       // The dispensing quantity is what the discharge records against the prescription, so it is
       // stored for every listed medication — not only the ones going to pharmacy.
       it('records the dispensing quantity and repeats on every listed prescription', async () => {

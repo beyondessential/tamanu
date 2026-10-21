@@ -213,7 +213,7 @@ encounter.put(
           );
 
           const isEncounterPrescription = prescription.encounterPrescription?.encounterId === id;
-          let isPatientOngoingPrescription = !isEncounterPrescription;
+          let ongoingPrescriptionId = isEncounterPrescription ? null : prescription.id;
 
           // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
           if (prescription.isOngoing && isEncounterPrescription) {
@@ -223,12 +223,14 @@ encounter.put(
                 prescription,
               );
 
-            if (!existingPatientOngoingPrescription) {
+            if (existingPatientOngoingPrescription) {
+              ongoingPrescriptionId = existingPatientOngoingPrescription.prescriptionId;
+            } else {
               await models.PatientOngoingPrescription.create({
                 patientId: encounterObject.patientId,
                 prescriptionId: prescription.id,
               });
-              isPatientOngoingPrescription = true;
+              ongoingPrescriptionId = prescription.id;
             }
           }
 
@@ -240,7 +242,7 @@ encounter.put(
               medicationId: prescription.medicationId,
               // Lines for the patient's ongoing medications point back at the ongoing prescription
               // as well, so its last-sent date resolves from the patient view too.
-              ongoingPrescriptionId: isPatientOngoingPrescription ? prescription.id : null,
+              ongoingPrescriptionId,
             });
           }
         }
