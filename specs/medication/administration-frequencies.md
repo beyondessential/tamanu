@@ -45,7 +45,7 @@ How often a prescribed medication is given. The frequency sets how many doses fa
 
 - [ ] The schedule shows twelve two-hour windows across the day, each with an ideal administration time.
 - [ ] Choosing a frequency selects the windows that hold its default administration times.
-- [ ] A prescriber can select a different window as long as the number of selected windows matches the frequency's doses per day.
+- [ ] A prescriber can select different windows, as long as the number selected matches the frequency's number of default administration times.
 - [ ] The ideal administration time of a selected window can be edited within that window.
 - [ ] With Every 2 hours, every window is selected and none can be deselected.
 - [ ] Immediately and As directed have no schedule, and the windows are unavailable.
