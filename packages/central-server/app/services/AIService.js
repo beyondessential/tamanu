@@ -1,12 +1,16 @@
 import { nanoid } from 'nanoid';
 import { Op } from 'sequelize';
 import { z } from 'zod';
+import Anthropic from '@anthropic-ai/sdk';
+import { oidcFederationProvider } from '@anthropic-ai/sdk/lib/credentials/oidc-federation';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { toJsonSchema } from '@langchain/core/utils/json_schema';
+import { Agent, fetch as undiciFetch } from 'undici';
 
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
+import { getMetaServerHosts } from '@tamanu/shared/utils';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
@@ -30,6 +34,65 @@ const FAST_MODEL_CONTEXTS = new Set([
   AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK,
   AI_CONTEXT_NAMES.FORM_BUILDER_BUILD,
 ]);
+
+const ANTHROPIC_API_URL = 'https://api.anthropic.com';
+
+const isFederationConfigured = ({ audience, organizationId, federationRuleId, serviceAccountId }) =>
+  Boolean(audience && organizationId && federationRuleId && serviceAccountId);
+
+// Anthropic accepts each identity token once, so every exchange asks Canopy for a new one.
+const canopyIdentityToken =
+  ({ settings, models, audience }) =>
+  async () => {
+    const metaServer = await settings.get('metaServer');
+    const deviceKey = await models.LocalSystemSecret.getDeviceKey();
+    const dispatcher = new Agent({
+      connect: { cert: deviceKey.makeCertificate(), key: deviceKey.privateKeyPem() },
+    });
+    let lastError;
+    for (const host of getMetaServerHosts(metaServer)) {
+      try {
+        const response = await undiciFetch(`${host.replace(/\/$/, '')}/identity-tokens`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ audience, application_type: 'tamanu-central' }),
+          dispatcher,
+        });
+        if (!response.ok) {
+          // The status stops LangChain retrying a refusal only an operator can clear.
+          throw Object.assign(new Error(`Canopy refused an identity token: ${response.status}`), {
+            status: response.status,
+          });
+        }
+        const { token } = await response.json();
+        return token;
+      } catch (error) {
+        lastError = error;
+        log.warn(`AIService: no identity token from ${host}`, { error: error.message });
+      }
+    }
+    throw lastError;
+  };
+
+const buildFederatedClient = ({ settings, models, federation }) =>
+  new Anthropic({
+    // Left unset, the SDK reads ANTHROPIC_API_KEY, which outranks credentials.
+    apiKey: null,
+    maxRetries: 0,
+    credentials: oidcFederationProvider({
+      identityTokenProvider: canopyIdentityToken({
+        settings,
+        models,
+        audience: federation.audience,
+      }),
+      organizationId: federation.organizationId,
+      federationRuleId: federation.federationRuleId,
+      serviceAccountId: federation.serviceAccountId,
+      workspaceId: federation.workspaceId || undefined,
+      baseURL: ANTHROPIC_API_URL,
+      fetch: globalThis.fetch,
+    }),
+  });
 
 export const formBuilderChatResponseSchema = z.object({
   message: z.string().describe('The assistant message to display to the implementer.'),
@@ -88,14 +151,19 @@ const invokeWithResponseTool = async (model, schema, name, messages) => {
 
   const askAgain = () => {
     log.warn(`AIService: model ${model.model} answered without the ${name} tool, asking again`);
-    return boundModel.invoke([...messages, new HumanMessage(`Respond by calling the ${name} tool.`)]);
+    return boundModel.invoke([
+      ...messages,
+      new HumanMessage(`Respond by calling the ${name} tool.`),
+    ]);
   };
 
   const firstResponse = await boundModel.invoke(messages);
   const response = findToolCall(firstResponse) ? firstResponse : await askAgain();
   const toolCall = findToolCall(response);
   if (!toolCall) {
-    const unparsed = response.invalid_tool_calls?.length ? ' (its arguments could not be parsed)' : '';
+    const unparsed = response.invalid_tool_calls?.length
+      ? ' (its arguments could not be parsed)'
+      : '';
     throw new Error(`AI response did not call the ${name} tool${unparsed}`);
   }
   return schema.parse(toolCall.args);
@@ -141,8 +209,12 @@ export class AIService {
     } catch (error) {
       if (!(error instanceof SecretNotConfiguredError)) throw error;
     }
-    if (!anthropicApiKey) {
-      log.debug('AIService: no Anthropic API key configured, skipping initialisation');
+    const federation = await settings.get('ai.anthropicFederation');
+    const formBuilderFederated = formBuilder.enabled && isFederationConfigured(federation);
+    if (!anthropicApiKey && !formBuilderFederated) {
+      log.debug(
+        'AIService: no Anthropic API key or federation configured, skipping initialisation',
+      );
       return null;
     }
 
@@ -153,7 +225,10 @@ export class AIService {
     if (experimentalAi.enabled && !summaryModelName) {
       log.warn('AIService: no Experimental AI model configured, summaries unavailable');
     }
-    if (experimentalAi.enabled && summaryModelName) {
+    if (experimentalAi.enabled && summaryModelName && !anthropicApiKey) {
+      log.warn('AIService: no Anthropic API key configured, summaries unavailable');
+    }
+    if (experimentalAi.enabled && summaryModelName && anthropicApiKey) {
       service.summaryModel = new ChatAnthropic({ anthropicApiKey, model: summaryModelName });
       if (experimentalAi.patientSummary.enabled) {
         service.registerContext(
@@ -175,14 +250,23 @@ export class AIService {
       log.warn('AIService: no form builder model configured, form builder unavailable');
     }
     if (formBuilder.enabled && formBuilderModelName) {
-      service.formBuilderModel = new ChatAnthropic({ anthropicApiKey, model: formBuilderModelName });
+      const federatedClient = formBuilderFederated
+        ? buildFederatedClient({ settings, models, federation })
+        : null;
+      const formBuilderAuth = federatedClient
+        ? { createClient: () => federatedClient }
+        : { anthropicApiKey };
+      service.formBuilderModel = new ChatAnthropic({
+        ...formBuilderAuth,
+        model: formBuilderModelName,
+      });
       const fastModelName = formBuilder.fastModel?.trim();
       service.formBuilderFastModel = fastModelName
-        ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
+        ? new ChatAnthropic({ ...formBuilderAuth, model: fastModelName })
         : service.formBuilderModel;
       service.registerFormBuilderContexts(formBuilder.prompts);
       log.info(
-        `AIService: form builder uses model "${formBuilderModelName}"${fastModelName ? ` (fast model "${fastModelName}")` : ''}`,
+        `AIService: form builder uses model "${formBuilderModelName}"${fastModelName ? ` (fast model "${fastModelName}")` : ''}${federatedClient ? ' through workload identity' : ''}`,
       );
     }
 

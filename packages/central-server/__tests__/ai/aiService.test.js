@@ -1,11 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { AI_CONTEXT_NAMES } from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings/cache';
 import { getSettingSecret } from '@tamanu/shared/utils/crypto';
+import { fetch as undiciFetch } from 'undici';
 
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../../app/ApplicationContext';
 import { AIService } from '../../app/services/AIService';
+
+vi.mock('undici', async () => {
+  const original = await vi.importActual('undici');
+  return { ...original, fetch: vi.fn() };
+});
 
 vi.mock('@tamanu/shared/utils/crypto', async () => {
   const original = await vi.importActual('@tamanu/shared/utils/crypto');
@@ -38,15 +44,44 @@ const formBuilderWith = overrides => ({
   ...overrides,
 });
 
-const settingsWith = ({ experimentalAi = {}, formBuilder = {} } = {}) => {
+const NO_FEDERATION = {
+  audience: '',
+  organizationId: '',
+  federationRuleId: '',
+  serviceAccountId: '',
+  workspaceId: '',
+};
+
+const FEDERATION = {
+  audience: 'https://api.anthropic.com',
+  organizationId: 'org-uuid',
+  federationRuleId: 'fdrl_test',
+  serviceAccountId: 'svac_test',
+  workspaceId: '',
+};
+
+const settingsWith = ({
+  experimentalAi = {},
+  formBuilder = {},
+  federation = NO_FEDERATION,
+} = {}) => {
   const values = {
     experimentalAi: experimentalAiWith(experimentalAi),
     formBuilder: formBuilderWith(formBuilder),
+    'ai.anthropicFederation': federation,
+    metaServer: { hosts: ['https://canopy.test/'] },
   };
   return { get: async path => values[path] };
 };
 
-const initWith = config => AIService.init({ settings: settingsWith(config), models: {} });
+const deviceKeyModels = {
+  LocalSystemSecret: {
+    getDeviceKey: async () => ({ makeCertificate: () => 'cert', privateKeyPem: () => 'key' }),
+  },
+};
+
+const initWith = config =>
+  AIService.init({ settings: settingsWith(config), models: deviceKeyModels });
 
 describe('AIService.init', () => {
   beforeEach(() => {
@@ -104,12 +139,98 @@ describe('AIService.init', () => {
     expect(
       await initWith({ experimentalAi: { enabled: false }, formBuilder: { enabled: false } }),
     ).toBeNull();
-    expect(await initWith({ experimentalAi: { model: '' }, formBuilder: { model: '' } })).toBeNull();
+    expect(
+      await initWith({ experimentalAi: { model: '' }, formBuilder: { model: '' } }),
+    ).toBeNull();
   });
 
   it('is torn down without an API key', async () => {
     getSettingSecret.mockResolvedValue(undefined);
     expect(await initWith()).toBeNull();
+  });
+
+  it('runs the form builder on workload identity without an API key', async () => {
+    getSettingSecret.mockResolvedValue(undefined);
+    const service = await initWith({ federation: FEDERATION });
+    expect(service.hasContext(AI_CONTEXT_NAMES.FORM_BUILDER)).toBe(true);
+    expect(service.summaryModel).toBeNull();
+  });
+});
+
+describe('AIService workload identity', () => {
+  const jsonResponse = body =>
+    new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+
+  beforeEach(() => {
+    getSettingSecret.mockReset();
+    undiciFetch.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('exchanges a fresh Canopy identity token and calls Anthropic with the access token', async () => {
+    getSettingSecret.mockResolvedValue('sk-should-not-be-used');
+    undiciFetch.mockResolvedValue(jsonResponse({ token: 'canopy-jwt' }));
+    const anthropicFetch = vi.fn(async url => {
+      if (String(url).endsWith('/v1/oauth/token')) {
+        return jsonResponse({
+          access_token: 'sk-ant-oat01-test',
+          token_type: 'Bearer',
+          expires_in: 600,
+          scope: 'workspace:inference',
+        });
+      }
+      return jsonResponse({
+        id: 'msg_test',
+        type: 'message',
+        role: 'assistant',
+        model: 'claude-opus-5',
+        content: [{ type: 'text', text: 'hello' }],
+        stop_reason: 'end_turn',
+        usage: { input_tokens: 1, output_tokens: 1 },
+      });
+    });
+    vi.stubGlobal('fetch', anthropicFetch);
+
+    const service = await initWith({ federation: FEDERATION });
+    await service.invoke(AI_CONTEXT_NAMES.FORM_BUILDER, 'hi');
+
+    const [canopyUrl, canopyRequest] = undiciFetch.mock.calls[0];
+    expect(canopyUrl).toBe('https://canopy.test/identity-tokens');
+    expect(JSON.parse(canopyRequest.body)).toEqual({
+      audience: 'https://api.anthropic.com',
+      application_type: 'tamanu-central',
+    });
+
+    const [exchangeUrl, exchangeRequest] = anthropicFetch.mock.calls[0];
+    expect(String(exchangeUrl)).toBe('https://api.anthropic.com/v1/oauth/token');
+    expect(JSON.parse(exchangeRequest.body)).toMatchObject({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: 'canopy-jwt',
+      organization_id: 'org-uuid',
+      federation_rule_id: 'fdrl_test',
+      service_account_id: 'svac_test',
+    });
+
+    const [messagesUrl, messagesRequest] = anthropicFetch.mock.calls[1];
+    expect(String(messagesUrl)).toBe('https://api.anthropic.com/v1/messages');
+    const headers = new Headers(messagesRequest.headers);
+    expect(headers.get('authorization')).toBe('Bearer sk-ant-oat01-test');
+    expect(headers.get('x-api-key')).toBeNull();
+  });
+
+  it('fails the request when Canopy refuses the identity token', async () => {
+    undiciFetch.mockResolvedValue(new Response('{}', { status: 403 }));
+    vi.stubGlobal('fetch', vi.fn());
+
+    const service = await initWith({ federation: FEDERATION });
+    await expect(service.invoke(AI_CONTEXT_NAMES.FORM_BUILDER, 'hi')).rejects.toThrow();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 });
 
@@ -132,12 +253,16 @@ describe('ApplicationContext.refreshAiService', () => {
     const context = contextFor({
       get: async path => {
         order.push('read');
-        return { experimentalAi: experimentalAiWith(), formBuilder: formBuilderWith() }[path];
+        return {
+          experimentalAi: experimentalAiWith(),
+          formBuilder: formBuilderWith(),
+          'ai.anthropicFederation': NO_FEDERATION,
+        }[path];
       },
     });
     await context.refreshAiService();
 
-    expect(order).toEqual(['reset', 'read', 'read']);
+    expect(order).toEqual(['reset', 'read', 'read', 'read']);
     reset.mockRestore();
   });
 

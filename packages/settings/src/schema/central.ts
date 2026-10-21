@@ -56,6 +56,44 @@ export const centralSettings = {
           type: yup.string(),
           secret: true,
         },
+        anthropicFederation: {
+          name: 'Anthropic workload identity',
+          description:
+            'Lets the form builder call Anthropic with an identity token from Canopy instead of an API key. Used when every field but the workspace is set.',
+          properties: {
+            audience: {
+              name: 'Canopy audience',
+              description: 'The audience of the Anthropic relying party registered in Canopy',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            organizationId: {
+              name: 'Organization ID',
+              description: 'The Anthropic organization the federation rule belongs to',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            federationRuleId: {
+              name: 'Federation rule ID',
+              description: 'The Anthropic federation rule that trusts Canopy (fdrl_...)',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            serviceAccountId: {
+              name: 'Service account ID',
+              description: 'The Anthropic service account the rule mints tokens for (svac_...)',
+              type: yup.string(),
+              defaultValue: '',
+            },
+            workspaceId: {
+              name: 'Workspace ID',
+              description:
+                'The Anthropic workspace to use (wrkspc_...). Only needed when the rule covers more than one.',
+              type: yup.string(),
+              defaultValue: '',
+            },
+          },
+        },
       },
     },
     disk: {
