@@ -68,7 +68,7 @@ confirm against the implementation.
   `Background 2 = #F9FAFB`, which matches the code). Treat the code as
   authoritative; a fuller Figma reconciliation is follow-up work.
 - **Component docs and previews live in [`./components/`](./components/)** — each
-  of the six components below has a markdown doc and a rendered HTML preview.
+  component has a markdown doc and a rendered HTML preview.
 
 ---
 
@@ -263,5 +263,3 @@ status pills are fully rounded.
 Rule of thumb: **square-ish (3px)** for controls and containers, **fully-round**
 for status pills and chips. Avoid introducing new mid-range values (6/8/9px appear
 occasionally but aren't a deliberate step).
-
----
