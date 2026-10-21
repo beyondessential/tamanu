@@ -20,7 +20,7 @@ Assume basic Tamanu and digital literacy, not clinical or developer knowledge.
 - **Say it once.** If it is explained elsewhere, cross-reference instead of restating
 - **Do not tell project managers their job.** No best-practice sections, training advice,
   troubleshooting tips or summary checklists
-- **Australian English.**
+- **Australian/NZ English.**
 
 ## Location and numbering
 
@@ -32,10 +32,11 @@ Modules are numbered in the order a deployment is set up and used rather than al
 module's guides are numbered within it: module 15 is Medications, and its settings guide is 15.2.
 **The number leads each folder and file name**, so the file tree shows the order: the module folder is
 the number, zero-padded to two digits, then the module name in lowercase kebab-case
-(`15-medications/`), and the guide file is the guide's number within the module (`2-settings.md`).
-The number also appears in the module README heading (`# 15. Medications`) and in the README tables,
-and must match the name on disk. Numbering stops there; a guide's own sections are titled, not
-numbered.
+(`15-medications/`), and the guide file is the guide's number within the module, zero-padded the same
+way (`02-settings.md`). Both are padded so that a module or a module's guides reaching ten still sort
+in order. The number also appears in the module README heading (`# 15. Medications`) and in the
+README tables, and must match the name on disk. Numbering stops there; a guide's own sections are
+titled, not numbered.
 
 Adding a module means creating its folder and README at the right point in the order, then
 renumbering the modules below it: rename each folder, update its README heading and its section

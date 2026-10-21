@@ -34,7 +34,7 @@ what is still to be written.
 | 12 | [Notes](12-notes/) | Not written yet |
 | 13 | [Forms](13-forms/) | Not written yet |
 | 14 | [Tasks](14-tasks/) | Not written yet |
-| 15 | [Medications](15-medications/) | 15.1 [Reference data](15-medications/1-reference-data.md) &middot; 15.2 [Settings](15-medications/2-settings.md) &middot; 15.3 [Permissions](15-medications/3-permissions.md) |
+| 15 | [Medications](15-medications/) | 15.1 [Reference data](15-medications/01-reference-data.md) &middot; 15.2 [Settings](15-medications/02-settings.md) &middot; 15.3 [Permissions](15-medications/03-permissions.md) |
 | 16 | [Dispensing](16-dispensing/) | Not written yet |
 | 17 | [Procedures](17-procedures/) | Not written yet |
 | 18 | [Labs](18-labs/) | Not written yet |
@@ -45,7 +45,7 @@ what is still to be written.
 | 23 | [Reports](23-reports/) | Not written yet |
 | 24 | [Integrations](24-integrations/) | Not written yet |
 
-Each number is part of its folder or file name, as in `15-medications/2-settings.md`, so the file tree
+Each number is part of its folder or file name, as in `15-medications/02-settings.md`, so the file tree
 shows the order.
 
 ## About these guides

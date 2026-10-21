@@ -1,8 +1,8 @@
 The settings that govern prescribing, administration and dispensing in the Tamanu Medications Module,
 and the automated behaviour they drive. Settings are managed in the Settings admin panel.
 
-For the reference data these settings act on see [Reference data](1-reference-data.md), and for the
-permissions required see [Permissions](3-permissions.md).
+For the reference data these settings act on see [Reference data](01-reference-data.md), and for the
+permissions required see [Permissions](03-permissions.md).
 
 ---
 
@@ -41,7 +41,7 @@ For each frequency, the default administration schedule and ideal administration
 | Category | Medications |
 | Sub-category | Default administration times |
 | Setting | For each frequency, set the ideal administration times in the JSON editor. The default administration window is determined from the time set, so an ideal time of 09:00 falls in the 08:00 to 10:00 window. |
-| Default | The standard administration times for each frequency, as listed under [Frequency](1-reference-data.md#frequency) |
+| Default | The standard administration times for each frequency, as listed under [Frequency](01-reference-data.md#frequency) |
 
 <p align="center">
   <img src="images/settings-default-administration-times.png" alt="Default administration times in Settings, with Save changes and Reset to default outlined in red" width="712"><br>

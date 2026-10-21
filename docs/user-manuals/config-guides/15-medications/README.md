@@ -8,9 +8,9 @@ setting, read the Medications Module Implementation Guide first.
 
 | # | Guide | Covers |
 | --- | --- | --- |
-| 15.1 | [Reference data](1-reference-data.md) | Drug, medication sets, not given reasons, and the hard coded values those columns accept |
-| 15.2 | [Settings](2-settings.md) | Frequencies, administration schedules, and the automated workflows they drive |
-| 15.3 | [Permissions](3-permissions.md) | Prescribing, administration, pharmacy notes, and sensitive medication access |
+| 15.1 | [Reference data](01-reference-data.md) | Drug, medication sets, not given reasons, and the hard coded values those columns accept |
+| 15.2 | [Settings](02-settings.md) | Frequencies, administration schedules, and the automated workflows they drive |
+| 15.3 | [Permissions](03-permissions.md) | Prescribing, administration, pharmacy notes, and sensitive medication access |
 
 > [!WARNING]
 > The Medications Module is not recommended for the following medications or clinical settings, whose
