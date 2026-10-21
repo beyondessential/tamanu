@@ -356,6 +356,8 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { defaultIdealTimes, defaultTimeSlots } = useMedicationIdealTimes({
     frequency: values.frequency,
   });
+  const isEveryTimeSlotRequired =
+    defaultIdealTimes.length === MEDICATION_ADMINISTRATION_TIME_SLOTS.length;
 
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
@@ -533,7 +535,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
-                        disabled={isDisabled}
+                        disabled={isDisabled || isEveryTimeSlotRequired}
                         data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
                       />

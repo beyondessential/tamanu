@@ -2123,6 +2123,11 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: true,
             },
+            [ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
             [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: {
               description: ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS,
               type: yup.boolean(),
