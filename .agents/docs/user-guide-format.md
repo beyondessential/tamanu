@@ -31,9 +31,10 @@ Modules are numbered in the order a user meets them, and each platform numbers f
 guides are numbered within it, in the order the tasks are carried out: Vitals is desktop module 10, and
 its first guide is 10.1. **The number leads each folder and file name**, so the file tree shows the
 order: the module folder is the number, zero-padded to two digits, then the module name in lowercase
-kebab-case (`10-vitals/`), and the guide file is the guide's number within the module, then its name
-(`1-record-vitals.md`). The number also appears in the module README heading (`# 10. Vitals`) and in
-the README tables, and must match the name on disk.
+kebab-case (`10-vitals/`), and the guide file is the guide's number within the module, zero-padded the
+same way, then its name (`01-record-vitals.md`). Both are padded so that a module or a module's guides
+reaching ten still sort in order. The number also appears in the module README heading
+(`# 10. Vitals`) and in the README tables, and must match the name on disk.
 
 Adding a module means creating its folder and README at the right point in the order, then renumbering
 the modules below it: rename each folder, update its README heading and its platform README row, and

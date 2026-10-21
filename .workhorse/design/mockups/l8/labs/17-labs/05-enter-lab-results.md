@@ -1,6 +1,6 @@
 When the laboratory has tested a sample, you enter the results on the lab request. Start from the
 **Labs** tab of the patient's encounter, or from the **Labs** listings (see
-[17.8 Find lab requests](8-find-lab-requests.md)).
+[17.8 Find lab requests](08-find-lab-requests.md)).
 
 # Before you start
 
@@ -22,4 +22,4 @@ believe you should be able to enter results you can't, contact your system admin
 4. Enter any notes on the results in **Results interpretation**.
 5. Select **Confirm**. The results appear in the request's table. The status stays as it was, so
    change it when your laboratory's process requires (see
-   [17.4 Update a lab request](4-update-a-lab-request.md)).
+   [17.4 Update a lab request](04-update-a-lab-request.md)).

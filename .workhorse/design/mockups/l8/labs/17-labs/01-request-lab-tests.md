@@ -41,7 +41,7 @@ request for each test category you order from.
    - Where your site requires a specimen type, **Specimen type** is marked with a red asterisk
 
    Leave a row blank if its sample hasn't been collected yet. You can record it later (see
-   [17.2 Record a sample](2-record-a-sample.md)).
+   [17.2 Record a sample](02-record-a-sample.md)).
 
    <p align="center">
      <img src="images/request-lab-tests-sample-details.png" alt="The sample details step, with the Biochemistry sample recorded, the Haematology row left blank, and the Finalise button outlined in red" width="620"><br>
@@ -51,7 +51,7 @@ request for each test category you order from.
 7. Select **Finalise**. Tamanu shows **Your lab request has been finalised.** and lists a request for
    each category, with its **Test ID**. To print sample labels or the request form, tick the requests
    and select **Print labels** or **Print request** (see
-   [17.3 Print lab requests and labels](3-print-lab-requests-and-labels.md)). Then select **Close**.
+   [17.3 Print lab requests and labels](03-print-lab-requests-and-labels.md)). Then select **Close**.
    The requests appear on the encounter's **Labs** tab. A request with a recorded sample shows
    **Reception pending**, and one without shows **Sample not collected**.
 

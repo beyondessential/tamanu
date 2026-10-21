@@ -1,7 +1,7 @@
 You can print lab request forms to send with samples, and sample labels to stick on the sample
 containers. Print several of a patient's requests at once from the **Labs** tab of their encounter, or
 one request or label from the request itself. You can also print them straight after making a request
-(see [17.1 Request lab tests](1-request-lab-tests.md)).
+(see [17.1 Request lab tests](01-request-lab-tests.md)).
 
 # Steps
 

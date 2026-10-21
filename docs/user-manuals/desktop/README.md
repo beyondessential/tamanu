@@ -21,7 +21,7 @@ still to be written.
 | 7 | [Immunisations](07-immunisations/) | Not written yet |
 | 8 | [Encounters](08-encounters/) | Not written yet |
 | 9 | [Diagnoses](09-diagnoses/) | Not written yet |
-| 10 | [Vitals](10-vitals/) | 10.1 [Record a set of vitals](10-vitals/1-record-vitals.md) |
+| 10 | [Vitals](10-vitals/) | 10.1 [Record a set of vitals](10-vitals/01-record-vitals.md) |
 | 11 | [Charts](11-charts/) | Not written yet |
 | 12 | [Notes](12-notes/) | Not written yet |
 | 13 | [Forms](13-forms/) | Not written yet |
@@ -35,7 +35,7 @@ still to be written.
 | 21 | [Invoicing](21-invoicing/) | Not written yet |
 | 22 | [Reports](22-reports/) | Not written yet |
 
-Each number is part of its folder or file name, as in `10-vitals/1-record-vitals.md`, so the file
+Each number is part of its folder or file name, as in `10-vitals/01-record-vitals.md`, so the file
 tree shows the order.
 
 ## Adding a guide
