@@ -8,9 +8,9 @@ How often a prescribed medication is given. The frequency sets how many doses fa
 
 ## Frequency list
 
-- [ ] A prescriber chooses one frequency from the list below when prescribing a medication
-- [ ] Typing a synonym in the frequency field finds the frequency it belongs to
-- [ ] Each frequency has default administration times, used to prefill the medication administration schedule
+- [ ] A prescriber chooses one frequency from the list below when prescribing a medication.
+- [ ] Typing a synonym in the frequency field finds the frequency it belongs to.
+- [ ] Each frequency has default administration times, used to prefill the medication administration schedule.
 
 | Frequency | Synonyms | Default administration times |
 |---|---|---|
@@ -36,21 +36,21 @@ How often a prescribed medication is given. The frequency sets how many doses fa
 
 ## Settings
 
-- [ ] The "Frequencies enabled" setting lists every frequency, and only enabled frequencies are offered when prescribing
-- [ ] Every frequency is enabled by default
-- [ ] The "Default administration times" setting overrides a frequency's default administration times for a deployment
-- [ ] "Default administration times" lists every frequency except Immediately, As directed, Hourly and Half-hourly
+- [ ] The "Frequencies enabled" setting lists every frequency, and only enabled frequencies are offered when prescribing.
+- [ ] Every frequency is enabled by default.
+- [ ] The "Default administration times" setting overrides a frequency's default administration times for a deployment.
+- [ ] "Default administration times" lists every frequency except Immediately, As directed, Hourly and Half-hourly.
 
 ## Medication administration schedule
 
-- [ ] The schedule shows twelve two-hour windows across the day, each with an ideal administration time
-- [ ] Choosing a frequency selects the windows that hold its default administration times
-- [ ] A prescriber can select a different window as long as the number of selected windows matches the frequency's doses per day
-- [ ] The ideal administration time of a selected window can be edited within that window
-- [ ] With Every 2 hours, every window is selected and none can be deselected
-- [ ] Immediately and As directed have no schedule, and the windows are unavailable
+- [ ] The schedule shows twelve two-hour windows across the day, each with an ideal administration time.
+- [ ] Choosing a frequency selects the windows that hold its default administration times.
+- [ ] A prescriber can select a different window as long as the number of selected windows matches the frequency's doses per day.
+- [ ] The ideal administration time of a selected window can be edited within that window.
+- [ ] With Every 2 hours, every window is selected and none can be deselected.
+- [ ] Immediately and As directed have no schedule, and the windows are unavailable.
 
 ## Medication administration record
 
-- [ ] The first dose on the MAR is the earliest ideal administration time after the prescription's start, or in the same window as the start
-- [ ] Later doses follow the selected ideal administration times on each day of the prescription
+- [ ] The first dose on the MAR is the earliest ideal administration time after the prescription's start, or in the same window as the start.
+- [ ] Later doses follow the selected ideal administration times on each day of the prescription.
