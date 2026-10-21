@@ -137,6 +137,9 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             if (System.getenv("ANDROID_SIGNING_STORE_PASSWORD")) {
               signingConfig signingConfigs.release
+            } else {
+              // SPIKE: sign local release builds with the debug key so v1 and v2 share a signature
+              signingConfig signingConfigs.debug
             }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
