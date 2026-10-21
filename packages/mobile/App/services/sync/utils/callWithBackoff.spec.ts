@@ -1,5 +1,5 @@
 import { callWithBackoff } from './callWithBackoff';
-import { RateLimitedError } from '@tamanu/errors';
+import { RateLimitedError, RemoteUnreachableError } from '@tamanu/errors';
 
 jest.useRealTimers();
 
@@ -71,5 +71,61 @@ describe('callWithBackoff', () => {
     const elapsedMs = Date.now() - startMs;
     expect(elapsedMs).toBeGreaterThanOrEqual((config.maxAttempts - 1) * config.maxWaitMs);
     expect(elapsedMs).toBeLessThan(config.maxAttempts * config.maxWaitMs);
+  });
+
+  describe('with maxRetryDurationMs', () => {
+    it('keeps retrying past the default number of attempts until the call succeeds', async () => {
+      // arrange
+      const numberOfFailures = 20;
+      let n = 0;
+      const fn = jest.fn(() =>
+        n++ < numberOfFailures
+          ? Promise.reject(new RemoteUnreachableError('Network Error'))
+          : Promise.resolve('done'),
+      );
+
+      // act
+      const result = await callWithBackoff(fn, {
+        maxRetryDurationMs: 10000,
+        maxWaitMs: 1,
+        multiplierMs: 1,
+      });
+
+      // assert
+      expect(result).toEqual('done');
+      expect(fn.mock.calls).toHaveLength(numberOfFailures + 1);
+    });
+
+    it('gives up once the remote has been unreachable for longer than the duration', async () => {
+      // arrange
+      const config = { maxRetryDurationMs: 200, maxWaitMs: 50, multiplierMs: 50 };
+      let n = 0;
+      const fn = jest.fn(() => Promise.reject(new RemoteUnreachableError(`${n++}`)));
+      const startMs = Date.now();
+
+      // act
+      const promise = callWithBackoff(fn, config);
+
+      // assert
+      await expect(promise).rejects.toBeInstanceOf(RemoteUnreachableError);
+      const elapsedMs = Date.now() - startMs;
+      // the error thrown is the last attempt's
+      await expect(promise).rejects.toHaveProperty('detail', `${fn.mock.calls.length - 1}`);
+      expect(elapsedMs).toBeGreaterThanOrEqual(config.maxRetryDurationMs - config.maxWaitMs);
+      expect(elapsedMs).toBeLessThan(config.maxRetryDurationMs + config.maxWaitMs);
+    });
+
+    it('does not retry an irrecoverable error', async () => {
+      // arrange
+      const error = new Error('irrecoverable');
+      const fn = jest.fn(() => Promise.reject(error));
+
+      // act
+      const promise = callWithBackoff(fn, { maxRetryDurationMs: 10000 });
+
+      // assert
+      await expect(promise).rejects.toBe(error);
+      expect(fn.mock.calls).toHaveLength(1);
+    });
   });
 });
