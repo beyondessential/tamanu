@@ -8,7 +8,7 @@ import {
 import { CentralServerConnection } from './CentralServerConnection';
 import axios from 'axios';
 import { sleepAsync } from './utils';
-import { SYNC_NETWORK_RETRY_BUDGET_MS } from './constants';
+import { DEFAULT_SYNC_NETWORK_RETRY_BUDGET_MS } from './constants';
 import { ERROR_TYPE, Problem, RemoteUnreachableError } from '@tamanu/errors';
 
 jest.mock('~/infra/db', () => ({
@@ -45,7 +45,9 @@ const mockSleepAsync = sleepAsync as jest.MockedFunction<any>;
 const mockSessionId = 'test-session-id';
 const mockHost = 'http://test-host';
 
-const retryThroughNetworkDrops = { backoff: { maxRetryDurationMs: SYNC_NETWORK_RETRY_BUDGET_MS } };
+const retryThroughNetworkDrops = {
+  backoff: { maxRetryDurationMs: DEFAULT_SYNC_NETWORK_RETRY_BUDGET_MS },
+};
 
 // the shape of the error axios rejects with when the connection drops before a response arrives
 const networkError = () => ({ code: 'ERR_NETWORK', message: 'Network Error' });
@@ -94,7 +96,7 @@ describe('CentralServerConnection', () => {
         lastSyncedTick: -1,
       });
       expect(postSpy).toHaveBeenCalled();
-      expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
+      expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), undefined);
       expect(getSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         {},
@@ -138,6 +140,15 @@ describe('CentralServerConnection', () => {
         },
         { timeout: expect.any(Number), ...retryThroughNetworkDrops },
       );
+    });
+
+    it('retries for as long as the network retry budget it is given', async () => {
+      const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
+      await centralServerConnection.pull(mockSessionId, 1, 'test-from-id', 30000);
+      expect(getSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), expect.anything(), {
+        timeout: expect.any(Number),
+        backoff: { maxRetryDurationMs: 30000 },
+      });
     });
 
     it('retries the page when the connection drops', async () => {
