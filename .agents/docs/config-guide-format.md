@@ -25,7 +25,7 @@ Assume basic Tamanu and digital literacy, not clinical or developer knowledge.
 ## Location and numbering
 
 Guides live under `docs/user-manuals/config-guides/`, one folder per module. Each module folder holds
-three guides with fixed names — `1-reference-data.md`, `2-settings.md`, `3-permissions.md` — plus a
+three guides with fixed names — `01-reference-data.md`, `02-settings.md`, `03-permissions.md` — plus a
 `README.md`.
 
 Modules are numbered in the order a deployment is set up and used rather than alphabetically, and a
@@ -50,9 +50,9 @@ Each guide covers one configuration surface:
 
 | File | Number | Covers |
 | --- | --- | --- |
-| `1-reference-data.md` | *n*.1 | Reference data types, and the hard coded values their columns accept |
-| `2-settings.md` | *n*.2 | Settings, and the automated behaviour they drive |
-| `3-permissions.md` | *n*.3 | Permissions, and features gated entirely by permission |
+| `01-reference-data.md` | *n*.1 | Reference data types, and the hard coded values their columns accept |
+| `02-settings.md` | *n*.2 | Settings, and the automated behaviour they drive |
+| `03-permissions.md` | *n*.3 | Permissions, and features gated entirely by permission |
 
 This matches how the work is done: reference data is imported or managed, settings are set in the
 admin panel, permissions are assigned to roles.
@@ -65,12 +65,12 @@ and anything belonging to no single surface.
 
 Sections within each guide:
 
-- `1-reference-data.md` — `# Reference Data Types`, one `##` per type, each with a details table, then a
+- `01-reference-data.md` — `# Reference Data Types`, one `##` per type, each with a details table, then a
   columns table. Then `# Hard coded fields`: the values each field permits, noting that changing them
   needs a code change requested through a system administrator or project manager
-- `2-settings.md` — `# Settings`, then feature and workflow sections stating what needs configuring and
+- `02-settings.md` — `# Settings`, then feature and workflow sections stating what needs configuring and
   what works without it
-- `3-permissions.md` — `# Permissions` grouped by functional area, then permission-gated features
+- `03-permissions.md` — `# Permissions` grouped by functional area, then permission-gated features
 
 **Cross-cutting sections** go where a reader would look: permitted values with the reference data that
 accepts them; behaviour a setting turns on with that setting; a permission-gated feature with its
@@ -213,7 +213,7 @@ patient.
 Link to another module with a relative path (`../16-dispensing/`) where it exists under
 `docs/user-manuals/`, and otherwise to its current published location so nothing dangles. Between the
 three guides of a module, link with a relative file and anchor
-(`[Frequency](1-reference-data.md#frequency)`).
+(`[Frequency](01-reference-data.md#frequency)`).
 
 Check anchors when a heading moves: heading text repeats across sections, and the second occurrence is
 suffixed, so a bare slug silently lands on whichever comes first. A version note in a heading is part

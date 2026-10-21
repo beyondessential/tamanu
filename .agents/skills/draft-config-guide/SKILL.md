@@ -21,7 +21,7 @@ Read `.agents/docs/config-guide-format.md` first and follow it for anything abou
 like: structure, tables, settings blocks, callouts, version flags, screenshots, and the accuracy rules.
 This file is the procedure only.
 
-Each module has three guides — `1-reference-data.md`, `2-settings.md`, `3-permissions.md` — plus a
+Each module has three guides — `01-reference-data.md`, `02-settings.md`, `03-permissions.md` — plus a
 README. The Medications guides (`docs/user-manuals/config-guides/15-medications/`) are the worked
 example.
 
