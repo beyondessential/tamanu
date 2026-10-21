@@ -9,6 +9,10 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
+  SAFE_CODE_ERROR_MESSAGE,
+  SAFE_CODE_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+  SAFE_ID_REGEX,
   SUGGESTER_ENDPOINTS,
   TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
@@ -331,6 +335,23 @@ export const assertValidEnumValues = (columns, data) => {
       throw new InvalidOperationError(
         `Invalid ${col.key} "${value}". Must be one of: ${col.enumValues.join(', ')}.`,
       );
+    }
+  }
+};
+
+// Enforce the importer's id/code character rules at the write boundary too, so a value saved through
+// this API (not just the web form) stays importable. Only validates values actually being written,
+// so an edit that doesn't touch id/code is unaffected.
+export const assertValidIdAndCode = data => {
+  const rules = [
+    { key: 'id', regex: SAFE_ID_REGEX, message: SAFE_ID_ERROR_MESSAGE },
+    { key: 'code', regex: SAFE_CODE_REGEX, message: SAFE_CODE_ERROR_MESSAGE },
+  ];
+  for (const { key, regex, message } of rules) {
+    const value = data[key];
+    if (value == null || value === '') continue;
+    if (!regex.test(value)) {
+      throw new InvalidOperationError(message);
     }
   }
 };

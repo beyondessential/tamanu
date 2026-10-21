@@ -213,6 +213,18 @@ describe('Reference Data Manage', () => {
       expect(response).toHaveRequestError();
     });
 
+    it('should reject a code with characters the importer would reject', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: 'test_bad_code',
+        name: 'Test Bad Code',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findOne({ where: { code: 'test_bad_code' } });
+      expect(record).toBe(null);
+    });
+
     it('should create a medication template with its detail record', async () => {
       const drug = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -333,6 +345,23 @@ describe('Reference Data Manage', () => {
 
       await record.reload();
       expect(record.name).toBe('Updated Name');
+    });
+
+    it('should reject updating a code to invalid characters', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'test-edit-valid-code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: TEST_TYPE,
+        code: 'test_edit_bad_code',
+      });
+      expect(response).toHaveRequestError();
+
+      await record.reload();
+      expect(record.code).toBe('test-edit-valid-code');
     });
 
     it('should update a drug detail field', async () => {

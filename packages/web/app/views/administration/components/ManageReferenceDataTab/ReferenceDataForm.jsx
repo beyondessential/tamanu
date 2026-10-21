@@ -29,7 +29,7 @@ const buildValidationSchema = (columns, isEditMode) => {
     if (col.readOnly) continue;
     if (isEditMode && col.readOnlyOnEdit) continue;
     if (REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)) {
-      // Match the importer's id/code character rules so a value saved here can be re-imported.
+      // Match the importer's base id/code character rules (per-type rules aren't mirrored here).
       let fieldSchema = yup.string().required('Required');
       if (col.key === 'code') {
         fieldSchema = fieldSchema.matches(SAFE_CODE_REGEX, SAFE_CODE_ERROR_MESSAGE);
