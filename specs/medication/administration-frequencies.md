@@ -49,8 +49,9 @@ How often a prescribed medication is given. The frequency sets how many doses fa
 - [ ] The ideal administration time of a selected window can be edited within that window.
 - [ ] With Every 2 hours, every window is selected and none can be deselected.
 - [ ] Immediately and As directed have no schedule, and the windows are unavailable.
+- [ ] Hourly and Half-hourly show no schedule, and their doses fall at their default administration times.
 
 ## Medication administration record
 
 - [ ] The first dose on the MAR is the earliest ideal administration time after the prescription's start, or in the same window as the start.
-- [ ] Later doses follow the selected ideal administration times on each day of the prescription.
+- [ ] Later doses fall at the selected ideal administration times, on each day the frequency is due.
