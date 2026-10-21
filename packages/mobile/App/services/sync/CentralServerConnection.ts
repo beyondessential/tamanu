@@ -3,7 +3,7 @@ import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
-import { ERROR_TYPE, Problem } from '@tamanu/errors';
+import { ERROR_TYPE, Problem, RemoteUnreachableError } from '@tamanu/errors';
 import { CentralConnectionStatus } from '~/types';
 import { readConfig, writeConfig } from '../config';
 import {
@@ -17,6 +17,7 @@ import {
 import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import { callWithBackoff, sleepAsync } from './utils';
 import { compressibleRequestBody } from './utils/compressibleRequestBody';
+import { SYNC_NETWORK_RETRY_BUDGET_MS } from './constants';
 import { version } from '/root/package.json';
 
 interface PullMetadataResponse {
@@ -32,13 +33,27 @@ interface RefreshResponse {
 
 const API_PREFIX = 'api';
 
+// Statuses a proxy or gateway in front of the central server responds with when it can't reach it
+const GATEWAY_ERROR_STATUSES = [502, 503, 504];
+
+// Retry requests that are safe to repeat through a network drop, so a brief outage doesn't throw
+// away a sync that may have been running for a long time
+const RETRY_THROUGH_NETWORK_DROPS = { maxRetryDurationMs: SYNC_NETWORK_RETRY_BUDGET_MS };
+
 const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
-  const problemJson = err.response?.data || {};
-  const problem = Problem.fromJSON(problemJson);
+  if (!err.response) {
+    // the connection dropped, timed out, or couldn't be made at all
+    return new RemoteUnreachableError(err.message).withCause(err);
+  }
+
+  const problem = Problem.fromJSON(err.response.data || {});
 
   if (!problem) {
     // React Native's XHR has no statusText, so describe the failure from axios instead
-    return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response?.status);
+    if (GATEWAY_ERROR_STATUSES.includes(err.response.status)) {
+      return new RemoteUnreachableError(err.message).withCause(err);
+    }
+    return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response.status);
   }
 
   if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
@@ -84,7 +99,8 @@ export class CentralServerConnection {
     path: string,
     query: Record<string, string | number | boolean>,
     {
-      backoff,
+      // only retry where a caller knows the request is safe to repeat
+      backoff = { maxAttempts: 1 },
       skipAttemptRefresh,
       timeout,
       headers: extraHeaders,
@@ -193,7 +209,7 @@ export class CentralServerConnection {
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.get(endpoint, {});
+      const response = await this.get(endpoint, {}, { backoff: RETRY_THROUGH_NETWORK_DROPS });
       if (response) {
         return response;
       }
@@ -216,6 +232,8 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
+      // safe to repeat: central closes any session this device left open before starting a new one
+      { backoff: RETRY_THROUGH_NETWORK_DROPS },
     )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
@@ -229,9 +247,11 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
-    const { startedAtTick } = (await this.get(`sync/${sessionId}/metadata`, {})) as {
-      startedAtTick: number;
-    };
+    const { startedAtTick } = (await this.get(
+      `sync/${sessionId}/metadata`,
+      {},
+      { backoff: RETRY_THROUGH_NETWORK_DROPS },
+    )) as { startedAtTick: number };
 
     return { sessionId, startedAtTick };
   }
@@ -258,6 +278,7 @@ export class CentralServerConnection {
       tablesForFullResync,
       deviceId: this.deviceId,
     };
+    // not retried: central errors the session if the snapshot it started is still being built
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});
 
     // poll the pull/ready endpoint until we get a valid response - it takes a while for
@@ -268,6 +289,7 @@ export class CentralServerConnection {
     const { totalToPull, pullUntil } = await this.get<PullMetadataResponse>(
       `sync/${sessionId}/pull/metadata`,
       {},
+      { backoff: RETRY_THROUGH_NETWORK_DROPS },
     );
     return { totalToPull: Number.parseInt(totalToPull, 10), pullUntil };
   }
@@ -281,15 +303,24 @@ export class CentralServerConnection {
       // allow 5 minutes for the sync pull as it can take a while
       // (the full 5 minutes would be pretty unusual! but just to be safe)
       timeout: 5 * 60 * 1000,
+      // safe to repeat: pages are read from the session's snapshot by cursor
+      backoff: RETRY_THROUGH_NETWORK_DROPS,
     });
   }
 
   async push(sessionId: string, changes): Promise<unknown> {
-    return this.post(`sync/${sessionId}/push`, {}, { changes }, { compress: true });
+    return this.post(
+      `sync/${sessionId}/push`,
+      {},
+      { changes },
+      // safe to repeat: central de-duplicates pushed records when it persists them
+      { compress: true, backoff: RETRY_THROUGH_NETWORK_DROPS },
+    );
   }
 
   async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
     // first off, mark the push as complete on central
+    // not retried: a repeat would persist the pushed records again
     await this.post(
       `sync/${sessionId}/push/complete`,
       {},
@@ -301,7 +332,11 @@ export class CentralServerConnection {
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const isComplete = await this.get(`sync/${sessionId}/push/complete`, {});
+      const isComplete = await this.get(
+        `sync/${sessionId}/push/complete`,
+        {},
+        { backoff: RETRY_THROUGH_NETWORK_DROPS },
+      );
       if (isComplete) {
         return;
       }
