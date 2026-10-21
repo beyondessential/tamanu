@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { route } from '@tamanu/api-client';
-import { useApi } from '../api';
+import { useDeleteProcedureMutation } from '../api/mutations';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation/TranslatedText';
 
@@ -12,12 +11,9 @@ const SubText = styled.div`
 
 // spec: PROC#confirmation
 export const DeleteProcedureModal = ({ procedureToDelete, onClose, onDeleted }) => {
-  const api = useApi();
-
-  const onConfirm = async () => {
-    await api.delete(route('procedure/:procedureId', { procedureId: procedureToDelete.id }));
-    onDeleted();
-  };
+  const { mutate: deleteProcedure, isLoading: isDeleting } = useDeleteProcedureMutation({
+    onSuccess: onDeleted,
+  });
 
   return (
     <ConfirmModal
@@ -46,7 +42,8 @@ export const DeleteProcedureModal = ({ procedureToDelete, onClose, onDeleted }) 
       }
       open={Boolean(procedureToDelete)}
       onCancel={onClose}
-      onConfirm={onConfirm}
+      onConfirm={() => deleteProcedure(procedureToDelete.id)}
+      confirmButtonProps={{ isSubmitting: isDeleting }}
       confirmButtonText={
         <TranslatedText
           stringId="procedure.modal.delete.action.confirm"
