@@ -9,7 +9,10 @@ one request or label from the request itself. You can also print them straight a
 
 1. On the encounter's **Labs** tab, select **Print**. The **Print lab requests** window opens.
 
-   **[Screenshot: the Print lab requests window, listing the encounter's requests]**
+   <p align="center">
+     <img src="images/print-lab-requests.png" alt="The Print lab requests window listing the encounter's two requests, with the Print button outlined in red" width="555"><br>
+     <sub>Tick the requests to print, then select <b>Print</b>.</sub>
+   </p>
 
 2. Tick the requests you want to print, then select **Print**.
 
@@ -25,10 +28,13 @@ one request or label from the request itself. You can also print them straight a
 ## Print a sample label
 
 1. On the encounter's **Labs** tab, select the request. The lab request opens.
-2. Select the three dots beside **Print request**, then **Print label**. A preview of the sample label
-   opens. The label shows the patient's details, the request ID as a barcode, and the sample's
+2. Select the three dots beside **Print request**, then **Print label**. The **Print label** window
+   opens with a preview of the sample label. The label shows the patient's details, the request ID as a barcode, and the sample's
    collection details.
 
-   **[Screenshot: the sample label print screen, showing a label preview]**
+   <p align="center">
+     <img src="images/print-label-preview.png" alt="The Print label window showing a preview of the sample label, with the Print labels button outlined in red" width="517"><br>
+     <sub>Check the label, then select <b>Print labels</b>.</sub>
+   </p>
 
-3. Select **Print label**.
+3. Select **Print labels**.

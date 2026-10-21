@@ -6,7 +6,10 @@ A rejected, cancelled or invalidated request can't be changed. Which changes you
 on your account's permissions. If you believe you should be able to make a change you can't, contact
 your system administrator.
 
-**[Screenshot: a lab request, showing its Category, Status, Sample collected, Laboratory and Priority tiles]**
+<p align="center">
+  <img src="images/update-request-view.png" alt="A lab request showing its Category, Status, Sample collected, Laboratory and Priority tiles" width="513"><br>
+  <sub>Each change starts from a tile on the lab request.</sub>
+</p>
 
 # Steps
 
