@@ -4,6 +4,12 @@ import * as yup from 'yup';
 import { startCase } from 'es-toolkit/compat';
 import { FormGrid, Form } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import {
+  SAFE_CODE_REGEX,
+  SAFE_CODE_ERROR_MESSAGE,
+  SAFE_ID_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+} from '@tamanu/constants';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ModalFormActionRow } from '../../../../components/ModalActionRow';
 import { FormSeparatorLine } from '../../../../components/FormSeparatorLine';
@@ -23,7 +29,14 @@ const buildValidationSchema = (columns, isEditMode) => {
     if (col.readOnly) continue;
     if (isEditMode && col.readOnlyOnEdit) continue;
     if (REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)) {
-      shape[col.key] = yup.string().required('Required');
+      // Match the importer's id/code character rules so a value saved here can be re-imported.
+      let fieldSchema = yup.string().required('Required');
+      if (col.key === 'code') {
+        fieldSchema = fieldSchema.matches(SAFE_CODE_REGEX, SAFE_CODE_ERROR_MESSAGE);
+      } else if (col.key === 'id') {
+        fieldSchema = fieldSchema.matches(SAFE_ID_REGEX, SAFE_ID_ERROR_MESSAGE);
+      }
+      shape[col.key] = fieldSchema;
     }
   }
   return yup.object().shape(shape);
