@@ -18,7 +18,7 @@ import { MedicationDetails } from './MedicationDetails';
 import { NotDispensedMedicationDetailsModal } from './NotDispensedMedicationDetailsModal';
 import { useApi } from '../../api';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
-import { singularize } from '../../utils';
+import { notifyError, singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 import { useAuth } from '../../contexts/Auth';
@@ -300,6 +300,17 @@ export const EncounterMedicationTable = ({
   };
 
   const handleInitialNotDispensedRecord = async id => {
+    // Opening the not-dispensed details needs read MedicationRequest; the prescriber can receive the
+    // notification without it, so tell them rather than silently failing (the 403 is swallowed).
+    if (!ability.can('read', 'MedicationRequest')) {
+      notifyError(
+        getTranslation(
+          'medication.notDispensed.noPermission.message',
+          'You do not have permission to view medication request details.',
+        ),
+      );
+      return;
+    }
     const record = await api.get(`medication/medication-requests/${id}/not-dispensed`);
     setSelectedNotDispensedRecord(record);
   };
