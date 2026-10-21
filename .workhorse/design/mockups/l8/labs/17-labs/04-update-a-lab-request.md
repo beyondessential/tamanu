@@ -13,12 +13,11 @@ your system administrator.
 ## Change the status
 
 1. On the **Status** tile, select the three dots, then **Change status**. The **Change lab request
-   status** window opens. You can't change the status until the request's sample is recorded.
+   status** window opens. You can't change the status until the request's sample is recorded, and
+   entering results doesn't change it, so change it as your laboratory's process requires.
 2. Choose the new **Status**, then select **Confirm**. The **Status** tile shows the new status.
 
    **[Screenshot: the Change lab request status window]**
-
-Entering results doesn't change the status, so change it as your laboratory's process requires.
 
 ## View the status history
 

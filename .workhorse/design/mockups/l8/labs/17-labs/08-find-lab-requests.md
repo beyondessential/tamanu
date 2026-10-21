@@ -15,7 +15,5 @@ and **Finalised** lists requests that are published, invalidated or rejected.
 
    **[Screenshot: the Active lab requests listing, searched for one patient]**
 
-3. Select a request to open it.
-
-When the laboratory rejects a sample, the requesting clinician gets a notification on their
-**Dashboard**. Selecting it opens the rejected request.
+3. Select a request to open it. When the laboratory rejects a sample, the requesting clinician also
+   gets a notification on their **Dashboard**, and selecting it opens the rejected request.
