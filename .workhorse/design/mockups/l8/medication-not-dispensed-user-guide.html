@@ -1,0 +1,284 @@
+<!-- format: .agents/docs/user-guide-format.md -->
+<!-- source: .workhorse/design/mockups/l8/medications/15-medications/ -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Record a medication as not dispensed</title>
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f8f7f4;
+    color: #1c1917;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    flex: 0 0 260px;
+    background: #ffffff;
+    border-right: 1px solid #e7e5e4;
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .brand {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #e7e5e4;
+    margin-bottom: 16px;
+  }
+  .brand-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 12px; color: #78716c; margin-top: 2px; }
+  .nav-group { padding: 0 12px; margin-bottom: 4px; }
+  .nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a8a29e;
+    padding: 12px 8px 4px;
+  }
+  .nav-item {
+    display: block;
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: #57534e;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .nav-item:hover { background: #f5f5f4; color: #1c1917; }
+  .nav-item.module { font-weight: 500; color: #1c1917; }
+  .nav-sub { padding-left: 12px; border-left: 1px solid #e7e5e4; margin-left: 8px; }
+  .nav-item.current {
+    background: #fff7ed;
+    color: #c2410c;
+    font-weight: 500;
+  }
+  .nav-more { font-size: 12px; color: #a8a29e; padding: 6px 8px; }
+  .nav-empty { font-size: 13px; color: #a8a29e; padding: 6px 8px; font-style: italic; }
+
+  /* Content */
+  .content { flex: 1; display: flex; justify-content: center; padding: 40px 32px 80px; }
+  .page { max-width: 720px; width: 100%; }
+  .crumbs { font-size: 13px; color: #78716c; margin-bottom: 12px; }
+  .crumbs a { color: #78716c; text-decoration: none; }
+  .crumbs a:hover { color: #c2410c; }
+  .crumbs .sep { margin: 0 6px; color: #d6d3d1; }
+
+  h1 { font-size: 30px; line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 12px; }
+  h2 {
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    margin: 36px 0 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e7e5e4;
+  }
+  h3 { font-size: 15px; margin: 28px 0 12px; }
+  .lede { color: #57534e; margin: 0 0 24px; }
+  p { margin: 0 0 16px; }
+  a { color: #c2410c; }
+
+  ol { padding-left: 0; margin: 0; list-style: none; counter-reset: step; }
+  ol > li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 22px;
+  }
+  ol > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 1px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e7e5e4;
+    color: #c2410c;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-main { font-weight: 500; }
+  .step-note { color: #57534e; margin-top: 6px; }
+  ul.fields { margin: 8px 0 0; padding-left: 18px; color: #57534e; }
+  ul.fields li { margin-bottom: 4px; }
+
+  /* Module overview table */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e7e5e4; vertical-align: top; }
+  th { font-size: 12px; font-weight: 600; color: #78716c; text-transform: uppercase; letter-spacing: 0.04em; }
+  td:first-child { white-space: nowrap; color: #78716c; }
+  td a { color: #1c1917; font-weight: 500; text-decoration: none; }
+  td a:hover { color: #c2410c; }
+
+  /* One guide per section */
+  .guide { padding-top: 48px; margin-top: 48px; border-top: 2px solid #e7e5e4; }
+  .guide h1 { font-size: 26px; }
+
+  .shot-fig { margin: 20px 0; text-align: center; }
+  .shot-fig img { display: inline-block; max-width: 100%; height: auto; }
+  .shot-fig figcaption { font-size: 12.5px; color: #57534e; margin-top: 6px; }
+  .shot-fig figcaption b { color: #1c1917; }
+  .placeholder {
+    margin: 16px 0;
+    padding: 14px 16px;
+    border: 1px dashed #d6d3d1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #78716c;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Annotation, not part of the page */
+  .annotation {
+    margin-top: 56px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border: 1px dashed #d6d3d1;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #78716c;
+  }
+  .annotation b { color: #57534e; }
+  .annotation ul { margin: 8px 0 0; padding-left: 18px; }
+  .tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    vertical-align: middle;
+    letter-spacing: 0;
+  }
+  .tag.verified { background: #ecfdf5; color: #047857; }
+  .tag.unverified { background: #f5f5f4; color: #78716c; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar">
+    <div class="brand">
+      <div class="brand-title">Tamanu user guides</div>
+      <div class="brand-sub">Guides for everyday use</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Desktop</div>
+      <div class="nav-more">13 earlier modules</div>
+      <a class="nav-item" href="#">14. Tasks</a>
+      <a class="nav-item module" href="#">15. Medications</a>
+      <div class="nav-sub">
+        <a class="nav-item current" href="#">15.1 Record a medication as not dispensed</a>
+      </div>
+      <a class="nav-item" href="#">16. Procedures</a>
+      <a class="nav-item" href="#">17. Labs</a>
+      <div class="nav-more">5 more modules</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Mobile</div>
+      <div class="nav-empty">13 modules, no guides yet</div>
+    </div>
+  </nav>
+
+  <main class="content">
+    <article class="page">
+
+      <div class="crumbs"><a href="#">Desktop</a><span class="sep">/</span><a href="#">15. Medications</a></div>
+      <h1>15.1 Record a medication as not dispensed <span class="tag unverified">Not yet verified</span></h1>
+      <p class="lede">
+        When the pharmacy can't dispense a medication request, you record it as not dispensed. Start
+        from <b>Medication</b> &gt; <b>Active requests</b>. Tamanu cancels the request and lets the
+        prescribing clinician know, so they can see why and prescribe again if needed.
+      </p>
+
+      <h2>Before you start</h2>
+      <p>
+        Recording a medication as not dispensed needs permission to delete medication requests. If you
+        believe you should be able to do it, contact your system administrator.
+      </p>
+
+      <h2>Steps</h2>
+      <h3>Record a medication as not dispensed</h3>
+      <ol>
+        <li>
+          <div class="step-main">In the menu on the left, select <b>Medication</b>, then <b>Active requests</b>.</div>
+          <div class="step-note">The <b>Active medication requests</b> list opens.</div>
+        </li>
+        <li>
+          <div class="step-main">Find the request.</div>
+          <div class="step-note">Fill in any of the search fields, such as <b>Patient ID</b>, <b>First name</b>, <b>Last name</b> or <b>Medication</b>, then select <b>Search</b>.</div>
+        </li>
+        <li>
+          <div class="step-main">Select the three dots at the end of the request's row, then <b>Not dispensed</b>.</div>
+          <div class="step-note">The <b>Record medication as not dispensed</b> window opens.</div>
+          <div class="placeholder">[Screenshot: a medication request's row in Active medication requests, with its menu open and Not dispensed outlined in red]</div>
+        </li>
+        <li>
+          <div class="step-main">Check that the window shows the right patient and medication, then choose the <b>Reason for not dispensing</b>.</div>
+          <div class="step-note">Your site sets the list of reasons.</div>
+        </li>
+        <li>
+          <div class="step-main">Select <b>Record as not dispensed</b>.</div>
+          <div class="step-note">This can't be undone. The request leaves the list, and the prescribing clinician gets a notification.</div>
+          <div class="placeholder">[Screenshot: the Record medication as not dispensed window with a reason chosen, and Record as not dispensed outlined in red]</div>
+        </li>
+      </ol>
+
+      <h3>See why a medication wasn't dispensed</h3>
+      <p>The prescribing clinician sees the not dispensed record from their notification.</p>
+      <ol>
+        <li>
+          <div class="step-main">On your <b>Dashboard</b>, select the bell at the top right.</div>
+          <div class="step-note">The <b>Notifications</b> panel opens.</div>
+        </li>
+        <li>
+          <div class="step-main">Select the notification <b>Medication for</b> the patient <b>recorded as not dispensed</b>.</div>
+          <div class="step-note">
+            The patient's encounter opens on its <b>Medication</b> tab, with the <b>Not dispensed
+            medication</b> window showing the <b>Reason not dispensed</b> and the <b>Date not dispensed</b>.
+          </div>
+          <div class="placeholder">[Screenshot: the Notifications panel, with the not dispensed notification outlined in red]</div>
+        </li>
+        <li>
+          <div class="step-main">Select <b>Close</b>.</div>
+          <div class="placeholder">[Screenshot: the Not dispensed medication window]</div>
+        </li>
+      </ol>
+
+      <div class="annotation">
+        <b>Mockup: 15.1 Record a medication as not dispensed, as a reader meets it.</b> Drafted with the
+        Draft user guide skill from the v2.66 code, where the workflow first shipped. The site chrome is
+        illustrative.
+        <ul>
+          <li><b>Not yet verified:</b> the demo site stopped accepting logins partway through. Its first
+            half is set up: the test patient has an active pharmacy request ready to mark as not
+            dispensed</li>
+          <li><b>Dashed boxes</b> are the four screenshot placeholders, to be captured on the demo site</li>
+          <li><b>Two sides, one guide:</b> the pharmacy records it, and the prescriber sees why from their
+            notification, under separate headings within <b>Steps</b></li>
+        </ul>
+      </div>
+
+    </article>
+  </main>
+
+</div>
+</body>
+</html>
