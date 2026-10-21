@@ -73,7 +73,11 @@ export const saveFile = async ({
     /** @type {FileSystemWritableFileStream} */
     let writable;
     try {
-      const [writable, data] = await Promise.all([fileHandle.createWritable(), getData()]);
+      // Fetch the data before opening the stream: createWritable() truncates the chosen file to
+      // zero bytes, so if getData() fails (e.g. nothing selected to export) opening it first would
+      // leave an empty file behind.
+      const data = await getData();
+      writable = await fileHandle.createWritable();
       await writable.write(data);
       await writable.close();
     } catch (error) {
