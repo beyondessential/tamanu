@@ -31,6 +31,17 @@ describe('Table page clamping', () => {
     expect(onChangePage).toHaveBeenCalledWith(0);
   });
 
+  it('moves to the first page when the list empties', () => {
+    const onChangePage = vi.fn();
+    const { rerender } = renderElementWithTranslatedText(
+      pagedTable({ page: 2, count: 21, onChangePage }),
+    );
+
+    rerender(pagedTable({ page: 2, count: 0, onChangePage }));
+
+    expect(onChangePage).toHaveBeenCalledWith(0);
+  });
+
   it('leaves the page alone when it is still in range', () => {
     const onChangePage = vi.fn();
     const { rerender } = renderElementWithTranslatedText(
