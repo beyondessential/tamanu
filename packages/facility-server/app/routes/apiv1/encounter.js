@@ -213,17 +213,7 @@ encounter.put(
           );
 
           const isEncounterPrescription = prescription.encounterPrescription?.encounterId === id;
-          if (sendToPharmacy) {
-            pharmacyOrderLines.push({
-              prescriptionId: prescription.id,
-              quantity,
-              repeats,
-              medicationId: prescription.medicationId,
-              // Lines taken from the patient's other ongoing medications point back at the ongoing
-              // prescription as well, so its last-sent date resolves from the patient view too.
-              ongoingPrescriptionId: isEncounterPrescription ? null : prescription.id,
-            });
-          }
+          let isPatientOngoingPrescription = !isEncounterPrescription;
 
           // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
           if (prescription.isOngoing && isEncounterPrescription) {
@@ -233,10 +223,24 @@ encounter.put(
                 prescription,
               );
 
-            if (existingPatientOngoingPrescription) continue;
-            await models.PatientOngoingPrescription.create({
-              patientId: encounterObject.patientId,
+            if (!existingPatientOngoingPrescription) {
+              await models.PatientOngoingPrescription.create({
+                patientId: encounterObject.patientId,
+                prescriptionId: prescription.id,
+              });
+              isPatientOngoingPrescription = true;
+            }
+          }
+
+          if (sendToPharmacy) {
+            pharmacyOrderLines.push({
               prescriptionId: prescription.id,
+              quantity,
+              repeats,
+              medicationId: prescription.medicationId,
+              // Lines for the patient's ongoing medications point back at the ongoing prescription
+              // as well, so its last-sent date resolves from the patient view too.
+              ongoingPrescriptionId: isPatientOngoingPrescription ? prescription.id : null,
             });
           }
         }

@@ -1879,7 +1879,7 @@ describe('Encounter', () => {
     describe('discharge pharmacy orders', () => {
       let dischargeMedication = null;
 
-      const createEncounterToDischarge = async ({ medicationId } = {}) => {
+      const createEncounterToDischarge = async ({ medicationId, isOngoing = false } = {}) => {
         const encounterToDischarge = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
@@ -1891,6 +1891,7 @@ describe('Encounter', () => {
             patientId: patient.id,
             prescriberId: app.user.id,
             medicationId: medicationId ?? dischargeMedication.id,
+            isOngoing,
           }),
         );
         await models.EncounterPrescription.create({
@@ -2054,6 +2055,36 @@ describe('Encounter', () => {
         const afterRow = after.body.data.find(p => p.id === ongoingPrescription.id);
         expect(afterRow.lastOrderedAt).toBeTruthy();
         expect(afterRow.isLastOrderDispensed).toBe(false);
+      });
+
+      it('resolves last sent for an ongoing encounter medication sent at discharge', async () => {
+        const medication = await models.ReferenceData.create(
+          fake(models.ReferenceData, { type: 'drug' }),
+        );
+        await models.ReferenceDrug.create(
+          fake(models.ReferenceDrug, { referenceDataId: medication.id, isSensitive: false }),
+        );
+        const { encounterToDischarge, prescription } = await createEncounterToDischarge({
+          medicationId: medication.id,
+          isOngoing: true,
+        });
+
+        const result = await app.put(`/api/encounter/${encounterToDischarge.id}`).send({
+          endDate: getCurrentDateTimeString(),
+          discharge: { encounterId: encounterToDischarge.id, dischargerId: app.user.id },
+          medications: {
+            [prescription.id]: { quantity: 8, repeats: 1, sendToPharmacy: true },
+          },
+          pharmacyOrder: { orderingClinicianId: app.user.id },
+        });
+        expect(result).toHaveSucceeded();
+
+        const after = await app.get(`/api/patient/${patient.id}/ongoing-prescriptions`);
+        expect(after).toHaveSucceeded();
+        const afterRow = after.body.data.find(p => p.id === prescription.id);
+        expect(afterRow.repeats).toBe(1);
+        expect(afterRow.lastOrderedAt).toBeTruthy();
+        expect(afterRow.pharmacyRequestAt).toBeTruthy();
       });
 
       // The dispensing quantity is what the discharge records against the prescription, so it is
