@@ -14,6 +14,7 @@ import * as yup from 'yup';
 
 import {
   ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_FREQUENCY_DETAILS,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
   FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
@@ -357,7 +358,8 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
     frequency: values.frequency,
   });
   const isEveryTimeSlotRequired =
-    defaultIdealTimes.length === MEDICATION_ADMINISTRATION_TIME_SLOTS.length;
+    ADMINISTRATION_FREQUENCY_DETAILS[values.frequency]?.dosesPerDay ===
+    MEDICATION_ADMINISTRATION_TIME_SLOTS.length;
 
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
