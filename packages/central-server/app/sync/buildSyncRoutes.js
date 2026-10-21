@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
+import { ForbiddenError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
@@ -199,7 +199,7 @@ export const buildSyncRoutes = ctx => {
       } = req;
 
       if (!(await syncManager.sessionExists(sessionId))) {
-        throw new Error('Session not found');
+        throw new NotFoundError('Session not found');
       }
 
       startStream(res);
@@ -258,7 +258,7 @@ export const buildSyncRoutes = ctx => {
       } = req;
 
       if (!(await syncManager.sessionExists(sessionId))) {
-        throw new Error('Session not found');
+        throw new NotFoundError('Session not found');
       }
 
       startStream(res);
