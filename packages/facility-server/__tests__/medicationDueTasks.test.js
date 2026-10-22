@@ -104,6 +104,18 @@ describe('Medication due tasks', () => {
     expect(await getMedicationDueTasks(encounter)).toHaveLength(0);
   });
 
+  it('generates a record and a task per dose for an Every 2 hours prescription', async () => {
+    const encounter = await createEncounter();
+    const prescription = await createPrescription({
+      encounter,
+      frequency: ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS,
+      endTime: '11:00',
+    });
+
+    expect(await getRecords(prescription)).toHaveLength(3);
+    expect(await getMedicationDueTasks(encounter)).toHaveLength(3);
+  });
+
   it('generates a task for a daily prescription', async () => {
     const encounter = await createEncounter();
     await createPrescription({

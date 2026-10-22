@@ -11,6 +11,7 @@ import {
   findAdministrationTimeSlotFromIdealTime,
   getAutocalculatedDispensingQuantity,
   getDefaultIdealTimes,
+  getFirstAdministrationDate,
 } from '../../src/utils/medication';
 
 const breakfastSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(s => s.startTime === '06:00');
@@ -331,6 +332,25 @@ describe('getDefaultIdealTimes', () => {
   it('falls back to the fixed times when the setting has not loaded', () => {
     expect(getDefaultIdealTimes(ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY, undefined)).toEqual(
       ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.TWO_TIMES_DAILY].startTimes,
+    );
+  });
+});
+
+describe('getFirstAdministrationDate', () => {
+  const everyTwoHours =
+    ADMINISTRATION_FREQUENCY_DETAILS[ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS].startTimes;
+
+  it.each([
+    ['11:20', '10:00'],
+    ['00:30', '00:00'],
+    ['22:05', '22:00'],
+  ])('starts Every 2 hours at %s in the window holding the start, %s', (start, expected) => {
+    const [hours, minutes] = start.split(':').map(Number);
+    const startDate = new Date(2026, 9, 22, hours, minutes);
+    const [expectedHours, expectedMinutes] = expected.split(':').map(Number);
+
+    expect(getFirstAdministrationDate(startDate, everyTwoHours)).toEqual(
+      new Date(2026, 9, 22, expectedHours, expectedMinutes),
     );
   });
 });

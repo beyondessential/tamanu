@@ -339,6 +339,46 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
+    it('times an Every 2 hours prescription with a two-hour period', async () => {
+      const { FhirMedicationRequest, PharmacyOrder, PharmacyOrderPrescription, Prescription } =
+        ctx.store.models;
+      const prescription = await Prescription.create(
+        fake(Prescription, {
+          medicationId: resources.drug1.id,
+          frequency: ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS,
+          idealTimes: ['00:00', '02:00', '04:00'],
+          route: DRUG_ROUTES.oral,
+          prescriberId: resources.practitioner.id,
+        }),
+      );
+      const pharmacyOrder = await PharmacyOrder.create(
+        fake(PharmacyOrder, {
+          encounterId: resources.encounter.id,
+          orderingClinicianId: resources.practitioner.id,
+          date: getCurrentDateTimeString(),
+          facilityId: resources.facility.id,
+        }),
+      );
+      const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
+        fake(PharmacyOrderPrescription, {
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+
+      const mat = await FhirMedicationRequest.materialiseFromUpstream(pharmacyOrderPrescription.id);
+      const response = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/MedicationRequest/${mat.id}`,
+      );
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.dosageInstruction.timing.repeat).toMatchObject({
+        frequency: 1,
+        period: 2,
+        periodUnit: 'h',
+      });
+    });
+
     it('excludes disproven and error diagnoses from reasonCode', async () => {
       const {
         FhirMedicationRequest,
