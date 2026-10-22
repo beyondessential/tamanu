@@ -18,11 +18,16 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_UNITS,
   PERMISSION_NOUNS,
+  SENSITIVE_NETWORK_IS_FIXED_MESSAGE,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_ITEMS_CATEGORIES,
   LOCATION_BOOKABLE_VIEW_VALUES,
   LOCATION_BOOKABLE_VIEW,
   DRUG_STOCK_STATUSES,
+  SAFE_ID_REGEX,
+  SAFE_CODE_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+  SAFE_CODE_ERROR_MESSAGE,
 } from '@tamanu/constants';
 import {
   configString,
@@ -36,14 +41,9 @@ const visibilityStatus = yup
   .string()
   .default(VISIBILITY_STATUSES.CURRENT)
   .oneOf(Object.values(VISIBILITY_STATUSES));
-const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
-
 const fieldTypes = {
-  id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
-  code: yup
-    .string()
-    .matches(safeCodeRegex, 'code must not have spaces or punctuation other than -./'),
+  id: yup.string().matches(SAFE_ID_REGEX, SAFE_ID_ERROR_MESSAGE),
+  code: yup.string().matches(SAFE_CODE_REGEX, SAFE_CODE_ERROR_MESSAGE),
   name: yup.string().max(255),
 };
 
@@ -134,10 +134,6 @@ export const User = Base.shape({
 // caught here — a schema sees one row at a time, and the upsert runs as a second pass after every
 // row has validated, so neither this nor the database can see the earlier row yet. That case still
 // reaches Postgres.
-// Matched as text by tests that cannot import from the model layer.
-export const SENSITIVE_NETWORK_IS_FIXED_MESSAGE =
-  'a facility cannot change sensitive network, only a new facility can be enrolled in a network';
-
 const sensitiveNetworkLabelIsUnique = field =>
   async function isUnique(value, { parent, path, createError, options }) {
     if (!value) return true;
@@ -203,9 +199,8 @@ export const Facility = Base.shape({
         message: `${path} refers to a network that does not exist: ${value}`,
       });
     })
-    // The import and provisioning are the only things that write a facility, so the rule lives on
-    // both rather than on the model: a model validator only catches a change on a loaded instance,
-    // and incoming sync bulk-updates, which must stay exempt.
+    // Facility's beforeUpdate hook also refuses this, but only once rows are written. Checking here
+    // lets validating a file without importing it report the refusal.
     // spec: specs/sync/sensitive-networks.md
     .test('sensitive-network-is-fixed', async (value, { parent, path, createError, options }) => {
       if (!value) return true;

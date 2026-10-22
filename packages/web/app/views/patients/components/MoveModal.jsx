@@ -270,6 +270,7 @@ const getFormProps = ({
       .nullable();
 
     initialValues.startDate = getCurrentDateTime();
+    initialValues.patientBillingTypeId = encounter.patientBillingTypeId;
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };

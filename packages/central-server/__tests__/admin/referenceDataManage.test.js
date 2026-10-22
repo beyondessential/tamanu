@@ -213,6 +213,40 @@ describe('Reference Data Manage', () => {
       expect(response).toHaveRequestError();
     });
 
+    it('should reject a code with characters the importer would reject', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: 'test_bad_code',
+        name: 'Test Bad Code',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findOne({ where: { code: 'test_bad_code' } });
+      expect(record).toBe(null);
+    });
+
+    it('should reject an id with characters the importer would reject', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        id: 'test_bad_id',
+        code: 'test-ok-code',
+        name: 'Test Bad Id',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findByPk('test_bad_id');
+      expect(record).toBe(null);
+    });
+
+    it('should reject a blank code', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: '',
+        name: 'Test Blank Code',
+      });
+      expect(response).toHaveRequestError();
+    });
+
     it('should create a medication template with its detail record', async () => {
       const drug = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -335,6 +369,43 @@ describe('Reference Data Manage', () => {
       expect(record.name).toBe('Updated Name');
     });
 
+    it('should reject updating a code to invalid characters', async () => {
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'test-edit-valid-code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: TEST_TYPE,
+        code: 'test_edit_bad_code',
+      });
+      expect(response).toHaveRequestError();
+
+      await record.reload();
+      expect(record.code).toBe('test-edit-valid-code');
+    });
+
+    it('allows editing a record whose existing code breaks the character rule, if unchanged', async () => {
+      // A type imported without a code character rule (e.g. lab test panel) can hold a legacy code
+      // with an underscore; editing another field must not be blocked by re-sending it unchanged.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'legacy_code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: TEST_TYPE,
+        code: 'legacy_code',
+        name: 'Updated Name',
+      });
+      expect(response).toHaveSucceeded();
+
+      await record.reload();
+      expect(record.name).toBe('Updated Name');
+    });
+
     it('should update a drug detail field', async () => {
       const created = await adminApp.post(BASE_URL).send({
         referenceDataType: REFERENCE_TYPES.DRUG,
@@ -414,6 +485,86 @@ describe('Reference Data Manage', () => {
         name: 'Should Fail',
       });
       expect(response).toBeForbidden();
+    });
+  });
+
+  // spec: specs/sync/sensitive-networks.md
+  describe('facility sensitive network', () => {
+    const createNetwork = () => models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+    const editFacility = (id, body) =>
+      adminApp
+        .put(`${BASE_URL}/${id}`)
+        .send({ referenceDataType: OTHER_REFERENCE_TYPES.FACILITY, ...body });
+
+    it('refuses to move a facility to another network', async () => {
+      const network = await createNetwork();
+      const other = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: other.id });
+      expect(response).toHaveRequestError();
+      expect(response.body.error.message).toContain('cannot change sensitive network');
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('refuses to enrol a facility that belongs to no network', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(fake(models.Facility));
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: network.id });
+      expect(response).toHaveRequestError();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBeNull();
+    });
+
+    it('refuses to remove a facility from its network', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const response = await editFacility(facility.id, { sensitiveNetworkId: null });
+      expect(response).toHaveRequestError();
+
+      await facility.reload();
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('saves other fields when the network is sent unchanged', async () => {
+      const network = await createNetwork();
+      const facility = await models.Facility.create(
+        fake(models.Facility, { sensitiveNetworkId: network.id }),
+      );
+
+      const name = `${facility.name} edited`;
+
+      const response = await editFacility(facility.id, { name, sensitiveNetworkId: network.id });
+      expect(response).toHaveSucceeded();
+
+      await facility.reload();
+      expect(facility.name).toBe(name);
+      expect(facility.sensitiveNetworkId).toBe(network.id);
+    });
+
+    it('creates a facility in a network', async () => {
+      const network = await createNetwork();
+      const { code, name } = fake(models.Facility);
+
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: OTHER_REFERENCE_TYPES.FACILITY,
+        code,
+        name,
+        sensitiveNetworkId: network.id,
+      });
+      expect(response).toHaveSucceeded();
+
+      const created = await models.Facility.findByPk(response.body.id);
+      expect(created.sensitiveNetworkId).toBe(network.id);
     });
   });
 

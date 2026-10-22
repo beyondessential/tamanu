@@ -4,6 +4,12 @@ import * as yup from 'yup';
 import { startCase } from 'es-toolkit/compat';
 import { FormGrid, Form } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import {
+  SAFE_CODE_REGEX,
+  SAFE_CODE_ERROR_MESSAGE,
+  SAFE_ID_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+} from '@tamanu/constants';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
 import { ModalFormActionRow } from '../../../../components/ModalActionRow';
 import { FormSeparatorLine } from '../../../../components/FormSeparatorLine';
@@ -17,13 +23,30 @@ const DetailHeading = styled.h3`
   font-weight: 500;
 `;
 
-const buildValidationSchema = (columns, isEditMode) => {
+const CHARACTER_RULES = {
+  code: { regex: SAFE_CODE_REGEX, message: SAFE_CODE_ERROR_MESSAGE },
+  id: { regex: SAFE_ID_REGEX, message: SAFE_ID_ERROR_MESSAGE },
+};
+
+const buildValidationSchema = (columns, isEditMode, initialValues = {}) => {
   const shape = {};
   for (const col of columns) {
     if (col.readOnly) continue;
     if (isEditMode && col.readOnlyOnEdit) continue;
     if (REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)) {
-      shape[col.key] = yup.string().required('Required');
+      let fieldSchema = yup.string().required('Required');
+      const rule = CHARACTER_RULES[col.key];
+      if (rule) {
+        // Match the importer's base id/code character rules, but only for a newly-entered value: a
+        // record imported with a legacy code the importer never checked must stay editable.
+        const initialValue = initialValues[col.key];
+        fieldSchema = fieldSchema.test(
+          'character-rule',
+          rule.message,
+          value => !value || value === initialValue || rule.regex.test(value),
+        );
+      }
+      shape[col.key] = fieldSchema;
     }
   }
   return yup.object().shape(shape);
@@ -38,8 +61,8 @@ export const ReferenceDataForm = ({
   selectedType,
 }) => {
   const validationSchema = useMemo(
-    () => buildValidationSchema(columns, isEditMode),
-    [columns, isEditMode],
+    () => buildValidationSchema(columns, isEditMode, initialValues),
+    [columns, isEditMode, initialValues],
   );
   const renderForm = useCallback(
     ({ submitForm }) => {
