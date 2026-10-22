@@ -263,5 +263,3 @@ status pills are fully rounded.
 Rule of thumb: **square-ish (3px)** for controls and containers, **fully-round**
 for status pills and chips. Avoid introducing new mid-range values (6/8/9px appear
 occasionally but aren't a deliberate step).
-
-## Design System
