@@ -52,26 +52,6 @@ languages. All user-facing copy — labels, buttons, placeholders, toasts, table
 headings — goes through `TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData`.
 Hardcoded English is a defect, not a detail.
 
-## How to use this document
-
-This is the source of truth for design work in Tamanu — for producing mockups,
-for implementing UI, and for auditing both. It is grounded in the shipped code
-(`packages/ui-components` and `packages/web`), with file paths cited so you can
-confirm against the implementation.
-
-- When this document disagrees with something shipped elsewhere in the codebase,
-  **this document represents the agreed direction** — but say so, rather than
-  silently following one or the other.
-- The values here are extracted from code, not from Figma. A programmatic
-  cross-check against the Figma *Tamanu Design System* file was only partially
-  possible this pass (the file exposed a cover page and a single confirmed token,
-  `Background 2 = #F9FAFB`, which matches the code). Treat the code as
-  authoritative; a fuller Figma reconciliation is follow-up work.
-- **Component docs and previews live in [`./components/`](./components/)** — each
-  component has a markdown doc and a rendered HTML preview.
-
----
-
 ## Colour palette
 
 A cool, blue-grey system. The single source of truth is `TAMANU_COLORS` in
