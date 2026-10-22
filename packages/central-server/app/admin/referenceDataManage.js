@@ -2,7 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, UniqueConstraintError } from 'sequelize';
 import {
+  getImportablePermissionNoun,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
+  MANAGEABLE_REFERENCE_DATA_TYPES,
   OTHER_REFERENCE_TYPES,
   SEARCHABLE_COLUMN_TYPES,
   VISIBILITY_STATUSES,
@@ -25,13 +27,21 @@ import {
 
 export const referenceDataManageRouter = express.Router();
 
+// Types with their own table are guarded by their own permission noun, exactly as they are on
+// import and export. The permission check has to come before assertValidType — an endpoint that
+// answers before checking permission is rejected outright — so an unrecognised type falls back to
+// the generic noun and assertValidType rejects it a line later.
+const getPermissionNoun = referenceDataType =>
+  MANAGEABLE_REFERENCE_DATA_TYPES.includes(referenceDataType)
+    ? getImportablePermissionNoun(referenceDataType)
+    : 'ReferenceData';
+
 referenceDataManageRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'ReferenceData');
-
     const { referenceDataType, ...rawData } = req.body;
 
+    req.checkPermission('create', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
@@ -72,11 +82,10 @@ referenceDataManageRouter.post(
 referenceDataManageRouter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'ReferenceData');
-
     const { referenceDataType, ...rawData } = req.body;
     const { id } = req.params;
 
+    req.checkPermission('write', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);
@@ -111,7 +120,8 @@ referenceDataManageRouter.put(
 referenceDataManageRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'ReferenceData');
+    // Only reference data relations are deletable from here, so the noun is fixed.
+    req.checkPermission('write', 'ReferenceDataRelation');
 
     const { id } = req.params;
     const { ReferenceDataRelation } = req.store.models;
@@ -129,8 +139,8 @@ referenceDataManageRouter.delete(
 referenceDataManageRouter.get(
   '/columns',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'ReferenceData');
     const { referenceDataType } = req.query;
+    req.checkPermission('list', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
     const { model } = getModelForType(req.store.models, referenceDataType);
     const detailModel = getDetailModel(req.store.models, referenceDataType);
@@ -141,8 +151,6 @@ referenceDataManageRouter.get(
 referenceDataManageRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'ReferenceData');
-
     const {
       query: {
         referenceDataType,
@@ -154,6 +162,7 @@ referenceDataManageRouter.get(
       },
     } = req;
 
+    req.checkPermission('list', getPermissionNoun(referenceDataType));
     assertValidType(referenceDataType);
 
     const { model, typeFilter } = getModelForType(req.store.models, referenceDataType);

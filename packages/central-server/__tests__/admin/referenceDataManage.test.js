@@ -568,6 +568,93 @@ describe('Reference Data Manage', () => {
     });
   });
 
+  // Types with their own table are guarded by their own permission noun here, exactly as they are
+  // on import and export — generic ReferenceData rights must not reach them.
+  describe('permissions per data type', () => {
+    const SENSITIVE_NETWORK = OTHER_REFERENCE_TYPES.SENSITIVE_NETWORK;
+    const referenceDataGrants = [
+      ['list', 'ReferenceData'],
+      ['create', 'ReferenceData'],
+      ['write', 'ReferenceData'],
+    ];
+
+    let referenceDataOnlyApp;
+    let sensitiveNetworkApp;
+
+    beforeAll(async () => {
+      referenceDataOnlyApp = await baseApp.asNewRole(referenceDataGrants);
+      sensitiveNetworkApp = await baseApp.asNewRole([
+        ...referenceDataGrants,
+        ['list', 'SensitiveNetwork'],
+        ['create', 'SensitiveNetwork'],
+        ['write', 'SensitiveNetwork'],
+      ]);
+    });
+
+    const createNetworkAs = app => {
+      const { code, name } = fake(models.SensitiveNetwork);
+      return app.post(BASE_URL).send({ referenceDataType: SENSITIVE_NETWORK, code, name });
+    };
+
+    const renameNetworkAs = async app => {
+      const network = await models.SensitiveNetwork.create(fake(models.SensitiveNetwork));
+      const newName = `${network.name} renamed`;
+      const response = await app
+        .put(`${BASE_URL}/${network.id}`)
+        .send({ referenceDataType: SENSITIVE_NETWORK, name: newName });
+      await network.reload();
+      return { response, newName, storedName: network.name };
+    };
+
+    it('forbids creating a sensitive network with only reference data permissions', async () => {
+      expect(await createNetworkAs(referenceDataOnlyApp)).toBeForbidden();
+    });
+
+    it('forbids renaming a sensitive network with only reference data permissions', async () => {
+      const { response, newName, storedName } = await renameNetworkAs(referenceDataOnlyApp);
+      expect(response).toBeForbidden();
+      expect(storedName).not.toBe(newName);
+    });
+
+    it('forbids listing sensitive networks with only reference data permissions', async () => {
+      const response = await referenceDataOnlyApp
+        .get(BASE_URL)
+        .query({ referenceDataType: SENSITIVE_NETWORK });
+      expect(response).toBeForbidden();
+    });
+
+    it('allows managing sensitive networks with the SensitiveNetwork permission', async () => {
+      expect(await createNetworkAs(sensitiveNetworkApp)).toHaveSucceeded();
+
+      const { response, newName, storedName } = await renameNetworkAs(sensitiveNetworkApp);
+      expect(response).toHaveSucceeded();
+      expect(storedName).toBe(newName);
+
+      const list = await sensitiveNetworkApp
+        .get(BASE_URL)
+        .query({ referenceDataType: SENSITIVE_NETWORK });
+      expect(list).toHaveSucceeded();
+    });
+
+    it('still manages ordinary reference data with only reference data permissions', async () => {
+      const created = await referenceDataOnlyApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: 'refdata-permission-scope-code',
+        name: 'Reference Data Permission Scope',
+      });
+      expect(created).toHaveSucceeded();
+
+      const renamed = await referenceDataOnlyApp.put(`${BASE_URL}/${created.body.id}`).send({
+        referenceDataType: TEST_TYPE,
+        name: 'Reference Data Permission Scope Renamed',
+      });
+      expect(renamed).toHaveSucceeded();
+
+      const list = await referenceDataOnlyApp.get(BASE_URL).query({ referenceDataType: TEST_TYPE });
+      expect(list).toHaveSucceeded();
+    });
+  });
+
   describe('GET /', () => {
     beforeAll(async () => {
       // Create test records with known data
