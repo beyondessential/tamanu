@@ -1,10 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import {
-  LAB_REQUEST_STATUSES,
-  LAB_REQUEST_STATUS_LABELS,
-  LAB_REQUEST_TABLE_STATUS_GROUPINGS,
-} from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { getEnumStringId } from '@tamanu/ui-components';
 import {
   AutocompleteField,
@@ -40,7 +36,7 @@ const Spacer = styled.div`
 `;
 
 export const LabRequestsSearchBar = ({ statuses }) => {
-  const publishedStatus = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
+  const publishedStatus = statuses.includes(LAB_REQUEST_STATUSES.PUBLISHED);
   const { searchParameters, setSearchParameters } = useLabRequest(
     publishedStatus ? LabRequestSearchParamKeys.Finalised : LabRequestSearchParamKeys.All,
   );
@@ -58,19 +54,16 @@ export const LabRequestsSearchBar = ({ statuses }) => {
   });
 
   const { getTranslation } = useTranslation();
-  // Only offer the statuses this listing actually shows, so the filter can't drift from the table.
-  const listedStatuses = publishedStatus
-    ? LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED
-    : LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE;
   const statusFilterOptions = useMemo(
     () =>
+      // Only offer the statuses this listing's table shows, so the two can't drift apart.
       Object.entries(LAB_REQUEST_STATUS_LABELS)
-        .filter(([value]) => listedStatuses.includes(value))
+        .filter(([value]) => statuses.includes(value))
         .map(([value, label]) => ({
           value,
           label: getTranslation(getEnumStringId(value, LAB_REQUEST_STATUS_LABELS), label),
         })),
-    [getTranslation, listedStatuses],
+    [getTranslation, statuses],
   );
   // MultiAutocompleteField reads options through a suggester; serve the static enum locally.
   const statusSuggester = useMemo(
