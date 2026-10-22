@@ -19,6 +19,7 @@ import type { Ability } from '@casl/ability';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import { log } from '@tamanu/shared/services/logging';
 import { objectAsFhir } from '../../utils/fhir/utils';
+import { fhirResourceId } from '../../utils/fhir/resourceId';
 import { Model } from '../Model';
 import type { FhirTransactionBundle } from '@tamanu/shared/services/fhirTypes/bundle';
 
@@ -138,7 +139,8 @@ export class FhirResource extends Model {
 
     if (!resource) {
       resource = this.build({
-        id: Sequelize.fn('gen_random_uuid'),
+        // spec: FRID — derive the id deterministically from the resource type and upstream id
+        id: fhirResourceId(this.fhirName, id),
         versionId: Sequelize.fn('gen_random_uuid'),
         upstreamId: id,
       });
