@@ -746,6 +746,12 @@ describe('Suggestions', () => {
       const planForEveryFacility = await models.InvoiceInsurancePlan.create(
         fake(models.InvoiceInsurancePlan),
       );
+      // Removing the last facility in the admin Manage form saves an empty array, which must behave
+      // the same as an unset (null) list: available everywhere.
+      const planWithEmptyFacilities = await models.InvoiceInsurancePlan.create({
+        ...fake(models.InvoiceInsurancePlan),
+        availableFacilities: [],
+      });
 
       const result = await userApp
         .get('/api/suggestions/invoiceInsurancePlan')
@@ -755,6 +761,7 @@ describe('Suggestions', () => {
       const idArray = result.body.map(({ id }) => id);
       expect(idArray).toContain(planForThisFacility.id);
       expect(idArray).toContain(planForEveryFacility.id);
+      expect(idArray).toContain(planWithEmptyFacilities.id);
       expect(idArray).not.toContain(planForOtherFacility.id);
     });
   });
