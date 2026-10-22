@@ -6,8 +6,8 @@ facility_db=$(facility_db)
 [ -n "$(admin_sql -c "SELECT 1 FROM pg_database WHERE datname = '$facility_db'")" ] ||
   admin_sql -c "CREATE DATABASE $facility_db TEMPLATE $(facility_template)"
 
-set -- $(free_ports 3)
-central_port=$1 facility_port=$2 admin_port=$3
+set -- $(free_ports 4)
+central_port=$1 facility_port=$2 admin_port=$3 facility_sync_port=$4
 # The facility refuses to start when the central it last synced with differs from SYNC_URL.
 psql -qX -v ON_ERROR_STOP=1 "$(db_url "$facility_db")" \
   -c "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
@@ -15,7 +15,7 @@ psql -qX -v ON_ERROR_STOP=1 "$(db_url "$facility_db")" \
 (on_port "$central_port"; exec_central) &
 wait_for "http://127.0.0.1:$central_port/api/public/ping"
 (
-  on_port "$facility_port"
+  NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $facility_port, \"sync\": { \"syncApiConnection\": { \"port\": $facility_sync_port } } }"
   export DATABASE_URL="$(db_url "$facility_db")" SYNC_URL="$(sync_url "$central_port")" TAMANU_FACILITY_IDS=facility-1
   exec_facility
 ) &
