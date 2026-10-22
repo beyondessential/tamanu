@@ -146,6 +146,17 @@ describe('Patient Portal: updating patient details', () => {
     expect(await updateDetails({ occupationId: null })).toHaveRequestError();
   });
 
+  it('refuses a save while a required detail is still blank, even one not being changed', async () => {
+    await store.models.Setting.set('fields', { emergencyContactName: { required: true } });
+    settingsCache.reset();
+
+    expect(await updateDetails({ cityTown: 'Apia' })).toHaveRequestError();
+    expect(
+      await updateDetails({ cityTown: 'Apia', emergencyContactName: 'Losa Lavea' }),
+    ).toHaveSucceeded();
+    expect(await updateDetails({ cityTown: 'Lalomanu' })).toHaveSucceeded();
+  });
+
   it('rejects a request without a portal sign-in', async () => {
     const response = await baseApp.put('/api/portal/me').send({ cityTown: 'Apia' });
     expect(response).toHaveRequestError();

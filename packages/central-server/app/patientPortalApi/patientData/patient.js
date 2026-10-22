@@ -38,13 +38,20 @@ const REFERENCE_DATA_DETAILS = {
   occupationId: REFERENCE_TYPES.OCCUPATION,
 };
 
-/** Details the deployment hides can't be changed, and required ones can't be cleared. */
-const checkAgainstFieldSettings = (changes, fieldSettings) => {
-  for (const [field, value] of Object.entries(changes)) {
+/**
+ * Details the deployment hides can't be changed, and required ones can't be left blank, judged on
+ * the record as it will be after saving so a detail already blank still has to be filled in.
+ */
+const checkAgainstFieldSettings = (changes, currentDetails, fieldSettings) => {
+  for (const field of Object.keys(changes)) {
     if (fieldSettings[field]?.hidden) {
       throw new ValidationError(`${field} is not used by this deployment`);
     }
-    if (value === null && fieldSettings[field]?.required) {
+  }
+  for (const field of Object.keys(UpdatePatientDetailsRequestSchema.shape)) {
+    const { hidden, required } = fieldSettings[field] ?? {};
+    const value = field in changes ? changes[field] : currentDetails[field];
+    if (required && !hidden && (value ?? '') === '') {
       throw new ValidationError(`${field} is required`);
     }
   }
@@ -73,7 +80,14 @@ export const updatePatient = asyncHandler(async (req, res) => {
   const { email, ...additionalDataChanges } = UpdatePatientDetailsRequestSchema.parse(req.body);
   const changes = { ...additionalDataChanges, ...(email !== undefined && { email }) };
 
-  checkAgainstFieldSettings(changes, (await req.settings.get('fields')) ?? {});
+  const additionalData = await models.PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+  });
+  checkAgainstFieldSettings(
+    changes,
+    { ...additionalData?.get({ plain: true }), email: patient.email },
+    (await req.settings.get('fields')) ?? {},
+  );
   await checkReferenceData(changes, models);
 
   await sequelize.transaction(async () => {
