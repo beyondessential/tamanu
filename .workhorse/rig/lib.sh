@@ -39,5 +39,5 @@ free_ports() {
       servers.forEach((s) => s.close());
     });' "$1"
 }
-wait_for() { curl -fso /dev/null --retry 90 --retry-all-errors --retry-delay 2 "$1"; }
+wait_for() { curl -fso /dev/null --max-time 5 --retry 90 --retry-all-errors --retry-delay 2 "$1"; }
 sync_url() { printf 'http://facility-1%%40tamanu.io:facility-1@127.0.0.1:%s' "$1"; }
