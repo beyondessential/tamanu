@@ -32,40 +32,40 @@ Each piece of work below lists the **existing functionality** in Tamanu, then th
 
 ## Summary of work
 
-Priorities to be added. The number is the order of work within the phase.
+Priorities to be added. The number is the order of work within the phase. The Design column flags where updated design may be needed: **Yes** for a new or changed workflow, Minimal for a small change to an existing screen, None for configuration or backend work, Done where designs exist already.
 
-| # | Piece of work | Phase | Scope | Linear | Priority |
-|---|---------------|-------|-------|--------|----------|
-| 1.1 | Patient billing profile | 1 | Generic | | TBC |
-| 1.2 | Time-bound patient statuses | 1 | Generic | | TBC |
-| 1.3 | Payment pathway on the invoice | 1 | Generic | | TBC |
-| 1.4 | BNH patient types and precedence | 1 | Palau | | TBC |
-| 2.1 | Discount category exclusions | 1 | Generic | | TBC |
-| 2.2 | Minimum charge per product | 1 | Generic | TAM-6909 | TBC |
-| 3.1 | NHI repricing | 1 | Palau | | TBC |
-| 3.2 | NHI co-payment | 1 | Palau | TAM-6835 | TBC |
-| 3.3 | Split an invoice between payers | 1 | Generic | TAM-7186 | TBC |
-| 3.4 | Group invoice items by encounter type | 1 | Generic | TAM-6942 | TBC |
-| 4.1 | Drug categories | 1 | Generic | | TBC |
-| 4.2 | Medication block pricing | 1 | Generic | | TBC |
-| 4.3 | Separate inpatient and discharge medication charges | 1 | Generic | | TBC |
-| 4.4 | Per-vial dose charge | 1 | Generic | | TBC |
-| 4.5 | Medication rules after 30 days | 1 | Palau | | TBC |
-| 4.6 | BH medication charge on the discount pathway | 1 | Palau | | TBC |
-| 5.1 | MSA payment details | 1 | Palau | TAM-7187 | TBC |
-| 5.2 | MSA pending payments | 1 | Palau | | TBC |
-| 5.3 | Patient statement of account | 1 | Generic | TAM-7193 | TBC |
-| 5.4 | Daily cash receipts report | 1 | Palau | | TBC |
-| 5.5 | Payer exports | 1 | Palau | | TBC |
-| 6.1 | Department consult fees | 2 | Generic | | TBC |
-| 6.2 | Room rate change after 30 nights | 2 | Generic | | TBC |
-| 6.3 | Theatre and recovery time charges | 2 | Generic | | TBC |
-| 6.4 | Monthly insurance coverage import | 2 | Generic | | TBC |
-| 6.5 | Move an item to self-pay | 2 | Generic | | TBC |
-| 6.6 | Diagnosis completeness for insurance | 2 | Generic | | TBC |
-| 6.7 | Provider numbers | 2 | Generic | | TBC |
-| 6.8 | CPT code search | 2 | Generic | | TBC |
-| 6.9 | Payment plans | 2 | Generic | | TBC |
+| # | Piece of work | Phase | Scope | Linear | Design | Priority |
+|---|---------------|-------|-------|--------|--------|----------|
+| 1.1 | Patient billing profile | 1 | Generic | | **Yes**: billing section on the patient record, with the sliding fee assessment | TBC |
+| 1.2 | Time-bound patient statuses | 1 | Generic | | **Yes**: adding and viewing dated statuses on the patient | TBC |
+| 1.3 | Payment pathway on the invoice | 1 | Generic | | **Yes**: pathway selection on the invoice, and how it shows on screen and printout | TBC |
+| 1.4 | BNH patient types and precedence | 1 | Palau | | None: configuration | TBC |
+| 2.1 | Discount category exclusions | 1 | Generic | | Minimal: showing which lines the discount skips | TBC |
+| 2.2 | Minimum charge per product | 1 | Generic | TAM-6909 | Minimal: showing when a minimum charge applied | TBC |
+| 3.1 | NHI repricing | 1 | Palau | | Minimal: NHI prices on invoice lines | TBC |
+| 3.2 | NHI co-payment | 1 | Palau | TAM-6835 | **Yes**: co-payment and NHI share in the invoice summary and printout | TBC |
+| 3.3 | Split an invoice between payers | 1 | Generic | TAM-7186 | **Yes**: assigning portions of an encounter to payers | TBC |
+| 3.4 | Group invoice items by encounter type | 1 | Generic | TAM-6942 | Done: designs linked on TAM-6942 | TBC |
+| 4.1 | Drug categories | 1 | Generic | | None: reference data | TBC |
+| 4.2 | Medication block pricing | 1 | Generic | | None: charging type configuration | TBC |
+| 4.3 | Separate inpatient and discharge medication charges | 1 | Generic | | Minimal: two medication lines instead of one | TBC |
+| 4.4 | Per-vial dose charge | 1 | Generic | | None | TBC |
+| 4.5 | Medication rules after 30 days | 1 | Palau | | TBC | TBC |
+| 4.6 | BH medication charge on the discount pathway | 1 | Palau | | None | TBC |
+| 5.1 | MSA payment details | 1 | Palau | TAM-7187 | **Yes**: MSA fields in the record payment modal | TBC |
+| 5.2 | MSA pending payments | 1 | Palau | | **Yes**: pending state on payments and balances | TBC |
+| 5.3 | Patient statement of account | 1 | Generic | TAM-7193 | **Yes**: new printout | TBC |
+| 5.4 | Daily cash receipts report | 1 | Palau | | None: SQL report | TBC |
+| 5.5 | Payer exports | 1 | Palau | | TBC | TBC |
+| 6.1 | Department consult fees | 2 | Generic | | None: configuration | TBC |
+| 6.2 | Room rate change after 30 nights | 2 | Generic | | None | TBC |
+| 6.3 | Theatre and recovery time charges | 2 | Generic | | Minimal: time-based quantity on the line | TBC |
+| 6.4 | Monthly insurance coverage import | 2 | Generic | | Minimal: effective dates on patient insurance | TBC |
+| 6.5 | Move an item to self-pay | 2 | Generic | | **Yes**: moving a line to self-pay | TBC |
+| 6.6 | Diagnosis completeness for insurance | 2 | Generic | | **Yes**: diagnosis prompt and Medical Records backfill form | TBC |
+| 6.7 | Provider numbers | 2 | Generic | | Minimal: provider number on the user and printout | TBC |
+| 6.8 | CPT code search | 2 | Generic | | None | TBC |
+| 6.9 | Payment plans | 2 | Generic | | **Yes**: new payment plan workflow | TBC |
 
 ---
 
