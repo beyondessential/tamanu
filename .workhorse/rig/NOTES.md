@@ -8,7 +8,7 @@ on 127.0.0.1. The lease's base URL is the facility web app; `info` carries `cent
   `node_modules/@tamanu/*` are relative links into `packages/`: under a symlinked `node_modules`
   they resolve into the deps copy of the source, so a later commit with the same lockfile runs
   stale workspace code.
-- `build`: the web app and the bundled default translations. The servers run from source with tsx.
+- `build.sh`: the web app and the bundled default translations. The servers run from source with tsx.
 - `seed`: central `upgrade`, `provision` with `provisioning.json5`, `rebuildSyncLookup`. Then a
   facility template database (`tamanu_rig_ft_*`), upgraded and synced once against a central
   started on the template.
