@@ -1,4 +1,6 @@
 SERVER_CONFIG='"countryTimeZone": "Pacific/Auckland", "rateLimit": { "enabled": false }, "schedules": { "sendStatusToMetaServer": { "enabled": false } }'
+# The servers bind PORT over their config's port, and the rig sets PORT to the lease's.
+unset PORT
 export NODE_CONFIG="{ $SERVER_CONFIG }"
 
 exec_central() { cd "$RIG_SOURCE/packages/central-server" && exec node --import tsx app "$@"; }
