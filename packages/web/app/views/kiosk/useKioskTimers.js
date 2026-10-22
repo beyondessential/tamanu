@@ -16,13 +16,15 @@ export const useInactivityTimer = ({ isEnabled, timeoutSeconds, warningSeconds, 
   const isWarningRef = useRef(false);
   const onExpireRef = useRef(onExpire);
   onExpireRef.current = onExpire;
-  const [secondsIdle, setSecondsIdle] = useState(0);
+  // Null until the warning shows, so the kiosk only re-renders each second while it is counting
+  // down rather than throughout a patient's whole session
+  const [secondsIdle, setSecondsIdle] = useState(null);
 
   useEffect(() => {
     if (!isEnabled) return undefined;
     lastActivityRef.current = Date.now();
     isWarningRef.current = false;
-    setSecondsIdle(0);
+    setSecondsIdle(null);
 
     const interval = setInterval(() => {
       const idle = Math.floor((Date.now() - lastActivityRef.current) / 1000);
@@ -31,7 +33,7 @@ export const useInactivityTimer = ({ isEnabled, timeoutSeconds, warningSeconds, 
         return;
       }
       isWarningRef.current = idle >= timeoutSeconds;
-      setSecondsIdle(idle);
+      setSecondsIdle(isWarningRef.current ? idle : null);
     }, TICK_MS);
     return () => clearInterval(interval);
   }, [isEnabled, timeoutSeconds, warningSeconds]);
@@ -43,10 +45,10 @@ export const useInactivityTimer = ({ isEnabled, timeoutSeconds, warningSeconds, 
   const dismissWarning = useCallback(() => {
     lastActivityRef.current = Date.now();
     isWarningRef.current = false;
-    setSecondsIdle(0);
+    setSecondsIdle(null);
   }, []);
 
-  const isWarning = isEnabled && secondsIdle >= timeoutSeconds;
+  const isWarning = isEnabled && secondsIdle !== null;
   return {
     isWarning,
     secondsRemaining: isWarning ? timeoutSeconds + warningSeconds - secondsIdle : null,

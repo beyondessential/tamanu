@@ -80,9 +80,11 @@ export function sessionReducer(session, action) {
         ...session,
         formProgress: {
           ...session.formProgress,
-          // Any saved progress means the patient has opened the form
+          // Any saved progress means the patient has opened the form. The form's own entry is
+          // spread over these, so startTime is kept from when the patient first opened it.
           [action.formId]: {
             status: FORM_STATUSES.IN_PROGRESS,
+            startTime: action.startTime,
             ...session.formProgress[action.formId],
             ...action.progress,
           },

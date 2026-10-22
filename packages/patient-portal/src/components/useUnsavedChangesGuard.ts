@@ -19,7 +19,11 @@ export const useUnsavedChangesGuard = (hasUnsavedChanges: boolean) => {
 
   useEffect(() => {
     if (!hasUnsavedChanges) return undefined;
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      // Some browsers only show the leave prompt when returnValue is set
+      event.returnValue = '';
+    };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [hasUnsavedChanges]);

@@ -1,6 +1,23 @@
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  PROGRAM_DATA_ELEMENT_TYPES,
+  PROGRAM_REGISTRY_FIELD_LOCATIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 
 import { checkVisibility } from '../../utils';
+
+/**
+ * A patient-data question drawing on the patient's program registration. Patients fill forms in
+ * outside any program registry, so there is no registration to draw the value from.
+ */
+const isProgramRegistryQuestion = ({ dataElement, config }) => {
+  if (dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) return false;
+  try {
+    return PROGRAM_REGISTRY_FIELD_LOCATIONS.includes(JSON.parse(config || '{}').column);
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Prepares a survey for a patient to fill in: the questions it shows (current, and of a type the
@@ -14,9 +31,10 @@ export const toPatientForm = (survey, isSupportedQuestionType) => {
     component => component.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const shownComponents = currentComponents.filter(
-    ({ dataElement }) =>
-      isSupportedQuestionType(dataElement.type) &&
-      dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE,
+    component =>
+      isSupportedQuestionType(component.dataElement.type) &&
+      component.dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE &&
+      !isProgramRegistryQuestion(component),
   );
   const pageIndexes = [...new Set(shownComponents.map(({ screenIndex }) => screenIndex))].sort(
     (a, b) => a - b,

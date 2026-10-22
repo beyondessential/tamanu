@@ -45,7 +45,7 @@ The patient portal is where a patient signs in on their own phone or computer to
 
 - [ ] The dashboard loads each outstanding form ahead of time, so tapping one opens it straight away.
 - [ ] A form fills the screen below the header, page by page, with the form's name, its page count and a progress bar at the top and Back and Next kept in view at the bottom. On a phone the form spans the screen edge to edge.
-- [ ] Questions are the kiosk's question controls, in the same order and with the same answer formats as forms filled in by staff, so a response is the same wherever it was filled in.
+- [ ] Questions are the kiosk's question controls, in the same order and with the same answer formats as forms filled in by staff, so a response is the same wherever it was filled in. Questions that draw on a program registry are left out, as a patient filling a form in is not within one.
 - [ ] Next checks the page: a required question left unanswered, or an answer that fails its question's validation, is marked with a message and scrolled into view, and the patient stays on the page.
 - [ ] Pages whose questions are all hidden by earlier answers are skipped, and only answers to questions the patient could see are submitted.
 - [ ] Dates and times are entered in the time of the facility that sent the form, and stored as staff entries are.

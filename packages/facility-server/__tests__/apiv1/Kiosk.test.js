@@ -645,6 +645,47 @@ describe('Kiosk', () => {
       expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
     });
 
+    it('records how long the patient spent on each form', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        {
+          surveyId: survey.id,
+          answers: { [requiredDataElement.id]: 'Headaches' },
+          startTime: `${today} 09:15:00`,
+          endTime: `${today} 09:18:00`,
+        },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      const [surveyResponse] = await findPatientResponses(patient);
+      expect(surveyResponse.startTime).toEqual(`${today} 09:15:00`);
+      expect(surveyResponse.endTime).toEqual(`${today} 09:18:00`);
+    });
+
+    it('rejects a form time that is not a stored datetime', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        {
+          surveyId: survey.id,
+          answers: { [requiredDataElement.id]: 'Headaches' },
+          startTime: '2026-10-21T09:15:00.000Z',
+        },
+      ]);
+
+      expect(result).toHaveRequestError();
+      expect(await findPatientResponses(patient)).toHaveLength(0);
+    });
+
     it("records the responses at the appointment's own location", async () => {
       const patient = await createPatient();
       const appointment = await createAppointment({
@@ -734,7 +775,11 @@ describe('Kiosk', () => {
           patient,
           appointmentTypeId: appointmentTypeWithForms.id,
         });
-        const limitedApp = await ctx.baseApp.asNewRole([['write', 'Appointment']]);
+        const limitedApp = await ctx.baseApp.asNewRole([
+          ['read', 'Appointment'],
+          ['write', 'Appointment'],
+          ['read', 'Patient'],
+        ]);
 
         const result = await limitedApp
           .post(`/api/kiosk/appointments/${appointment.id}/checkIn`)
@@ -746,6 +791,23 @@ describe('Kiosk', () => {
 
         expect(result).toBeForbidden();
         expect(await findPatientResponses(patient)).toHaveLength(0);
+        await appointment.reload();
+        expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+      });
+
+      it('is forbidden without permission to read patients', async () => {
+        const patient = await createPatient();
+        const appointment = await createAppointment({ patient });
+        const limitedApp = await ctx.baseApp.asNewRole([
+          ['read', 'Appointment'],
+          ['write', 'Appointment'],
+        ]);
+
+        const result = await limitedApp
+          .post(`/api/kiosk/appointments/${appointment.id}/checkIn`)
+          .send({ responses: [] });
+
+        expect(result).toBeForbidden();
         await appointment.reload();
         expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
       });

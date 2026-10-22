@@ -41,17 +41,33 @@ const SURVEY = {
   ],
 };
 
-const renderSurvey = () => {
+/** A form whose calculated question has a value before the patient answers anything. */
+const SURVEY_WITH_CALCULATION = {
+  ...SURVEY,
+  components: [
+    textQuestion('SMOKER', 'Do you smoke?', 0),
+    {
+      ...textQuestion('SCORE', 'Your score', 0),
+      dataElement: {
+        ...textQuestion('SCORE', 'Your score', 0).dataElement,
+        type: PROGRAM_DATA_ELEMENT_TYPES.CALCULATED,
+      },
+      calculation: '1 + 1',
+    },
+  ],
+};
+
+const renderSurvey = (survey = SURVEY) => {
   stubTranslations();
   const api = createFakeApi({
     me: fakePatient(),
-    [`survey/${SURVEY.id}`]: SURVEY,
+    [`survey/${survey.id}`]: survey,
     'time-zone': { primaryTimeZone: 'Pacific/Auckland' },
     'settings/facility-drifting': {},
   });
   renderPortal({
     page: <SurveyView />,
-    path: `/survey/${SURVEY.id}`,
+    path: `/survey/${survey.id}`,
     routePath: '/survey/:surveyId',
     api,
   });
@@ -75,5 +91,13 @@ describe('SurveyView', () => {
 
     expect(await screen.findByText('Discard changes?')).toBeTruthy();
     expect(screen.queryByText('Dashboard')).toBeNull();
+  });
+
+  it('leaves an untouched form with a calculated question without asking', async () => {
+    renderSurvey(SURVEY_WITH_CALCULATION);
+    await userEvent.click(await screen.findByRole('button', { name: /Back/ }));
+
+    expect(await screen.findByText('Dashboard')).toBeTruthy();
+    expect(screen.queryByText('Discard changes?')).toBeNull();
   });
 });

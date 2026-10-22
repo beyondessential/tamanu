@@ -60,20 +60,22 @@ A tablet at a facility where patients check themselves in for today's appointmen
 - [ ] After the patient confirms who they are, the first form opens.
 - [ ] The open form shows its own page progress ("Page 2 of 3") with a progress bar.
 - [ ] When a page is longer than the screen, the questions scroll while the form title, page progress and Back and Next stay in place.
-- [ ] Form questions use the question types that patient-facing forms support. Questions of other types are left out of the kiosk.
+- [ ] Form questions use the question types that patient-facing forms support. Questions of other types are left out of the kiosk, as are questions that draw on a program registry, which a patient checking in is not within.
 - [ ] Questions that fill from the patient record show the patient's existing value. The tablet receives only the parts of the patient's record that the forms show, and only after the patient confirms who they are.
 - [ ] Required questions are marked with a red asterisk. Tapping Next with required questions unanswered keeps the patient on the page, scrolls to the first unanswered required question, and shows "This question is required" under each one.
 - [ ] A question's validation message clears as soon as it has a valid answer.
 - [ ] Multi-line text answers grow taller as the patient types past their height. Single-line answers stay one line.
 - [ ] Next on a form's last page completes the form and opens the next form that is not complete; when all are complete, the main panel shows Ready to check in.
-- [ ] Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A reopened form opens at its first page and is in progress again until the patient reaches its end.
+- [ ] Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A form reopened from the forms list opens at its first page and is in progress again until the patient reaches its end.
+- [ ] Back from a form's first page returns to the previous form, which keeps the status it had.
 - [ ] Every form must be complete before the patient can check in.
 
 ## Checking in
 
 - [ ] Ready to check in shows the appointment time and clinician, and the Check in button.
 - [ ] Check in saves every completed form as a form response for the patient, recorded at this facility, and marks the appointment Arrived. Either all of these are saved or none are, and an appointment can only be checked in once.
-- [ ] Form responses are recorded against the staff account the kiosk is signed in with.
+- [ ] Form responses are recorded against the staff account the kiosk is signed in with, each timed from when the patient opened that form to when they completed it.
+- [ ] Each patient record the kiosk puts on screen is recorded in the access audit, so the staff account the tablet is signed in with can be answered for.
 - [ ] If check-in fails, the patient is told to go to reception and their answers are kept so they or staff can try again.
 - [ ] After check-in, "You're checked in" asks the patient to take a seat. Done, or a short wait, returns to the landing page.
 

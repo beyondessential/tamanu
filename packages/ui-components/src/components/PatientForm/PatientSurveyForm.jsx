@@ -364,6 +364,13 @@ export const PatientSurveyForm = ({
         values[dataElement.id] ??= getCurrentDate();
       }
     }
+    // Calculations over prefilled answers start out computed, so a form the patient hasn't
+    // touched doesn't count as changed
+    for (const [dataElementId, value] of Object.entries(
+      runCalculations(form.currentComponents, values),
+    )) {
+      if ((value ?? '') !== '') values[dataElementId] = value;
+    }
     return values;
   });
 

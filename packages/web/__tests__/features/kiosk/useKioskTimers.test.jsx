@@ -45,6 +45,17 @@ describe('Kiosk timers', () => {
     expect(onExpire).toHaveBeenCalled();
   });
 
+  it('does not re-render the kiosk each second before the warning', () => {
+    const { result } = renderInactivity();
+    const beforeTicks = result.current;
+    advanceSeconds(5);
+    // An unchanged result object means no state changed, so nothing below the hook re-rendered
+    expect(result.current).toBe(beforeTicks);
+    advanceSeconds(6);
+    expect(result.current).not.toBe(beforeTicks);
+    expect(result.current.isWarning).toBe(true);
+  });
+
   it('restarts the idle period on interaction before the warning', () => {
     const { result } = renderInactivity();
     advanceSeconds(8);

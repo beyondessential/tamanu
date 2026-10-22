@@ -284,6 +284,7 @@ const LoadingForms = ({ isError }) => (
 export const FormsScreen = () => {
   const { session, dispatch } = useKioskSession();
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const { data, isLoading, isError } = useKioskAppointmentQuery(session.appointment.id);
   const checkIn = useKioskCheckInMutation(session.appointment.id);
   const { formProgress, openFormId } = session;
@@ -298,28 +299,37 @@ export const FormsScreen = () => {
     forms.find(({ id }) => id === openFormId) ?? (openFormId === null ? firstUnfinished : null);
 
   const saveProgress = useCallback(
-    (formId, progress) => dispatch({ type: 'saveFormProgress', formId, progress }),
-    [dispatch],
+    (formId, progress) =>
+      dispatch({ type: 'saveFormProgress', formId, progress, startTime: getCurrentDateTime() }),
+    [dispatch, getCurrentDateTime],
   );
   const saveOpenFormProgress = useCallback(
     progress => saveProgress(openForm?.id, progress),
     [saveProgress, openForm?.id],
   );
 
-  const openFormById = formId => {
+  /**
+   * Opens a form. `isReopening` is for the patient choosing a form from the list, where a form
+   * they had completed is reviewed from the start and must be finished again so any changed
+   * answers are checked before they can check in. Back from the first page just returns to the
+   * previous form, and leaves a completed one completed.
+   */
+  const openFormById = (formId, { isReopening = true } = {}) => {
     const { status } = progressOf(formId);
     if (status === FORM_STATUSES.NOT_STARTED) {
       saveProgress(formId, { status: FORM_STATUSES.IN_PROGRESS, pageIndex: 0 });
-    } else if (status === FORM_STATUSES.COMPLETED && formId !== openForm?.id) {
-      // A reopened form is reviewed from the start, and must be finished again so any changed
-      // answers are checked before the patient can check in
+    } else if (isReopening && status === FORM_STATUSES.COMPLETED && formId !== openForm?.id) {
       saveProgress(formId, { status: FORM_STATUSES.IN_PROGRESS, pageIndex: 0 });
     }
     dispatch({ type: 'openForm', formId });
   };
 
   const completeForm = (formId, values) => {
-    saveProgress(formId, { status: FORM_STATUSES.COMPLETED, values });
+    saveProgress(formId, {
+      status: FORM_STATUSES.COMPLETED,
+      values,
+      endTime: getCurrentDateTime(),
+    });
     const nextForm = forms.find(
       ({ id }) => id !== formId && progressOf(id).status !== FORM_STATUSES.COMPLETED,
     );
@@ -333,13 +343,16 @@ export const FormsScreen = () => {
 
   const handleCheckIn = async () => {
     const responses = await Promise.all(
-      forms.map(async form => ({
-        surveyId: form.id,
-        answers: await getAnswersFromData(
-          getVisibleAnswers(form, progressOf(form.id).values ?? {}),
-          form.survey,
-        ),
-      })),
+      forms.map(async form => {
+        const { values, startTime, endTime } = progressOf(form.id);
+        return {
+          surveyId: form.id,
+          answers: await getAnswersFromData(getVisibleAnswers(form, values ?? {}), form.survey),
+          // How long the patient spent on this form, rather than the moment they checked in
+          startTime,
+          endTime,
+        };
+      }),
     );
     checkIn.mutate(responses, { onSuccess: () => dispatch({ type: 'checkedIn' }) });
   };
@@ -363,7 +376,7 @@ export const FormsScreen = () => {
   const exitForm = formId => {
     const index = forms.findIndex(({ id }) => id === formId);
     if (index > 0) {
-      openFormById(forms[index - 1].id);
+      openFormById(forms[index - 1].id, { isReopening: false });
     } else {
       dispatch({ type: 'backToMatches' });
     }

@@ -1,4 +1,6 @@
 // spec: KIOSK
+import crypto from 'node:crypto';
+
 import { Command } from 'commander';
 
 import {

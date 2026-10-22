@@ -22,7 +22,9 @@
 - [x] Answering clears the message (verifies spec: KIOSK)
 - [x] Moving between forms keeps answers; a completed form can be reopened (verifies spec: KIOSK)
 - [x] Unsupported question types are not shown (verifies spec: KIOSK)
+- [x] Patient data questions drawing on a program registry are left out rather than shown blank (verifies spec: KIOSK)
 - [x] A long page scrolls with the title and buttons fixed (verifies spec: KIOSK)
+- [ ] Back from the first page of a form returns to the previous form and leaves it Completed (verifies spec: KIOSK)
 
 ## Checking in
 
@@ -31,6 +33,9 @@
 - [x] Check in for an appointment at another facility, or not today, is rejected (verifies spec: KIOSK)
 - [x] Check in a second time is rejected (verifies spec: KIOSK)
 - [x] Checked-in screen returns to the landing page on Done and on its own (verifies spec: KIOSK)
+- [x] Each response is timed from when the patient opened that form to when they completed it, not from check-in (verifies spec: KIOSK)
+- [x] Check in without permission to read patients or appointments is forbidden (verifies spec: KIOSK)
+- [x] Viewing a patient from the kiosk leaves an access audit entry against the signed-in staff account (verifies spec: KIOSK)
 
 ## Session
 
@@ -76,6 +81,10 @@ Checked with scripted browser runs at a phone (390 wide) and a desktop (1280 wid
 - [x] A form whose questions override their options loads (verifies spec: PPORT)
 - [x] Dates and times entered in a facility with its own time zone are stored in the primary time zone (verifies spec: PPORT)
 - [x] Leaving a form with answers entered asks to discard them; an untouched form leaves without asking; submitting doesn't ask (verifies spec: PPORT)
+- [x] An untouched form whose calculated question computes from prefilled answers still leaves without asking (verifies spec: PPORT)
+- [ ] Closing or reloading the tab with unsaved answers or detail edits shows the browser's leave warning, including on Safari (verifies spec: PPORT, PPDET)
+- [ ] Playwright E2E spec covering the portal journey: sign in, open an outstanding form, complete it, see it completed on the dashboard
+- [ ] Playwright E2E spec covering editing patient details end to end: Edit, change a detail, Save, see it on the dashboard
 
 ## Patient details
 

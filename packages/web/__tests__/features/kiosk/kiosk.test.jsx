@@ -82,6 +82,22 @@ describe('Kiosk forms', () => {
     ]);
   });
 
+  it('leaves out patient data questions that draw on a program registry', () => {
+    const withPatientData = {
+      ...survey,
+      components: [
+        component('Village', PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA, {
+          config: JSON.stringify({ column: 'villageId' }),
+        }),
+        component('Registry', PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA, {
+          config: JSON.stringify({ column: 'registrationClinicalStatus' }),
+        }),
+      ],
+    };
+    const form = toKioskForm(withPatientData);
+    expect(form.shownComponents.map(({ dataElement }) => dataElement.code)).toEqual(['Village']);
+  });
+
   it('groups the questions into pages without gaps', () => {
     const form = toKioskForm(survey);
     expect(form.pages.map(page => page.map(({ dataElement }) => dataElement.code))).toEqual([
@@ -155,6 +171,22 @@ describe('Kiosk session', () => {
       status: FORM_STATUSES.IN_PROGRESS,
       pageIndex: 1,
     });
+  });
+
+  it('keeps the time the patient first opened a form', () => {
+    const opened = sessionReducer(atForms(), {
+      type: 'saveFormProgress',
+      formId: 'survey-1',
+      progress: { pageIndex: 0 },
+      startTime: '2026-10-21 09:15:00',
+    });
+    const later = sessionReducer(opened, {
+      type: 'saveFormProgress',
+      formId: 'survey-1',
+      progress: { pageIndex: 1 },
+      startTime: '2026-10-21 09:18:00',
+    });
+    expect(later.formProgress['survey-1'].startTime).toEqual('2026-10-21 09:15:00');
   });
 
   it('does not carry answers into the next session', () => {

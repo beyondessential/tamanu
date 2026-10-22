@@ -121,6 +121,8 @@ const getPatientDataForForms = async (models, patient, forms) => {
       .map(column => PATIENT_DATA_FIELD_LOCATIONS[column])
       .filter(location => location?.[0] === modelName)
       .map(([, fieldName]) => fieldName);
+  // Questions drawing on a program registry are left out of patient-facing forms, so nothing
+  // here reads PatientProgramRegistration; see toPatientForm
   const customFieldIds = columns.filter(column => !(column in PATIENT_DATA_FIELD_LOCATIONS));
 
   const pick = (record, fields) =>
@@ -164,6 +166,21 @@ const toAppointmentSummary = (appointment, { isMasked }) => {
   };
 };
 
+/**
+ * Records who viewed which patient. The tablet is signed in with a staff account, so the audit
+ * trail is what answers for the patient records the kiosk put on screen.
+ */
+const auditPatientAccess = async (req, patients) => {
+  for (const patient of patients) {
+    await req.audit.access({
+      recordId: patient.id,
+      frontEndContext: req.params,
+      model: req.models.Patient,
+      facilityId: req.facilityId,
+    });
+  }
+};
+
 const findAppointmentsQuerySchema = z.object({
   lastName: z.string().trim().min(1),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -197,6 +214,10 @@ kiosk.get(
     // others: no clinician, and only the start of the patient ID. One patient with two
     // appointments today is choosing between their own, so nothing is hidden from them.
     const isSeveralPatients = new Set(appointments.map(({ patientId }) => patientId)).size > 1;
+    await auditPatientAccess(
+      req,
+      appointments.map(({ patient }) => patient),
+    );
     res.send({
       isSeveralPatients,
       data: appointments.map(appointment =>
@@ -217,14 +238,15 @@ kiosk.get(
     const { models } = req;
 
     const surveys = await getKioskSurveys(req, facilitySettings, appointment.appointmentTypeId);
-    const forms = [];
-    for (const survey of surveys) {
-      forms.push({
-        ...survey.forResponse(),
-        components: await models.SurveyScreenComponent.getComponentsForSurvey(survey.id),
-      });
-    }
+    const components = await models.SurveyScreenComponent.getComponentsForSurveys(
+      surveys.map(({ id }) => id),
+    );
+    const forms = surveys.map(survey => ({
+      ...survey.forResponse(),
+      components: components.filter(({ surveyId }) => surveyId === survey.id),
+    }));
 
+    await auditPatientAccess(req, [appointment.patient]);
     res.send({
       appointment: toAppointmentSummary(appointment, { isMasked: false }),
       ...(await getPatientDataForForms(models, appointment.patient, forms)),
@@ -256,11 +278,17 @@ const getResponsePlace = async (req, facilitySettings, appointment) => {
   };
 };
 
+/** An ISO 9075 datetime, as the tablet records it in the primary time zone. */
+const storedDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+
 const checkInBodySchema = z.object({
   responses: z.array(
     z.object({
       surveyId: z.string(),
       answers: z.record(z.string(), z.unknown()),
+      // How long the patient spent on the form, which the tablet holds until they check in
+      startTime: storedDateTime.nullish(),
+      endTime: storedDateTime.nullish(),
     }),
   ),
 });
@@ -268,7 +296,9 @@ const checkInBodySchema = z.object({
 kiosk.post(
   '/appointments/:id/checkIn',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Appointment');
     req.checkPermission('write', 'Appointment');
+    req.checkPermission('read', 'Patient');
     const facilitySettings = await getKioskSettings(req);
     const { responses } = await checkInBodySchema.parseAsync(req.body);
     const { models, facilityId } = req;
@@ -301,7 +331,7 @@ kiosk.post(
         responses.length > 0 ? await getResponsePlace(req, facilitySettings, appointment) : {};
 
       const surveyResponses = [];
-      for (const { surveyId, answers } of responses) {
+      for (const { surveyId, answers, startTime, endTime } of responses) {
         surveyResponses.push(
           await models.SurveyResponse.createWithAnswers({
             surveyId,
@@ -311,13 +341,14 @@ kiosk.post(
             userId: req.user.id,
             locationId,
             departmentId,
-            startTime: now,
-            endTime: now,
+            startTime: startTime ?? now,
+            endTime: endTime ?? now,
           }),
         );
       }
 
       await appointment.update({ status: APPOINTMENT_STATUSES.ARRIVED });
+      await auditPatientAccess(req, [appointment.patient]);
       return {
         appointment: toAppointmentSummary(appointment, { isMasked: false }),
         surveyResponseIds: surveyResponses.map(surveyResponse => surveyResponse.id),
