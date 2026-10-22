@@ -22,15 +22,15 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 
 - Every patient with an open admission at the facility (admission encounters only, `encounters.end_date IS NULL`). Emergency, triage and clinic encounters are left off, even when they have a bed
 - The ward is the encounter's area (location group), and the bed is its location. Every bed belongs to an area
-- Wards with no admitted patients are left off the sheet, in both the summary and the detail
+- Wards with no admitted patients are left off the sheet
 - Patients are identified by name and NHN (display ID)
 
 ### Layout
 
 - Landscape A4, with letterhead, title ("Diet summary sheet | {print date}") and a footer showing print date and time and page numbers
-- Page 1 holds a summary table: a **Hospital total** row first, then one row per ward with that ward's diet counts (ward sub-totals)
-- Per-ward detail follows, running on from page to page. A ward that breaks across a page continues under "{Ward} (continued)" with the column headers repeated
-- Each ward section is a patient × diet grid: patient name, NHN and bed, then a tick under each of the patient's diets. A **Sub total** row at the top of each ward table carries that ward's counts, matching the summary's total-first layout
+- Page 1 opens with a single **Hospital total** row under the diet column headers. There's no separate per-ward summary table: each ward's counts live in the Sub total row of its own table
+- Per-ward detail starts directly below the Hospital total on page 1 and runs on from page to page. A ward that breaks across a page continues under "{Ward} (continued)" with the column headers repeated
+- Each ward section is a patient × diet grid: patient name, NHN and bed, then a tick under each of the patient's diets. A **Sub total** row at the top of each ward table carries that ward's counts, matching the Hospital total's total-first layout
 - Patients are ordered by bed within a ward
 
 ### Counting
@@ -48,4 +48,4 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 
 ## Open questions
 
-- With a single ward selected, does the sheet keep the summary page and Hospital total, or go straight to that ward's detail?
+- With a single ward selected, does the sheet keep the Hospital total row, or go straight to that ward's detail? (The two would carry the same counts.)
