@@ -540,6 +540,11 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         disabled={isDisabled || isEveryTimeSlotRequired}
                         data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
+                        {...(isEveryTimeSlotRequired && {
+                          checkedIcon: (
+                            <StyledIcon className="far fa-check-square" $color={Colors.midText} />
+                          ),
+                        })}
                       />
                     </Box>
                   </StyledConditionalTooltip>
