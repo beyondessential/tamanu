@@ -90,7 +90,7 @@ referenceDataManageRouter.put(
     const columns = await getColumnsForModel(model, referenceDataType, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, true);
     assertValidEnumValues(columns, { ...base, ...detail });
-    assertValidIdAndCode({ ...base, ...detail });
+    assertValidIdAndCode({ ...base, ...detail }, record);
 
     let detailRecord = null;
     await model.sequelize.transaction(async () => {

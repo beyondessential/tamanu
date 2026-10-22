@@ -339,10 +339,11 @@ export const assertValidEnumValues = (columns, data) => {
   }
 };
 
-// Enforce the importer's id/code character rules at the write boundary too, so a value saved through
-// this API (not just the web form) stays importable. Only validates values actually being written,
-// so an edit that doesn't touch id/code is unaffected.
-export const assertValidIdAndCode = data => {
+// Apply the importer's base id/code character rules at the write boundary too, not just in the web
+// form. Only a newly-entered value is checked: a type whose importer schema has no code/id rule
+// (e.g. lab test panel) may already hold a legacy value with spaces or underscores, and re-sending
+// that unchanged on an edit must not block the edit. `existing` is the stored record on update.
+export const assertValidIdAndCode = (data, existing = {}) => {
   const rules = [
     { key: 'id', regex: SAFE_ID_REGEX, message: SAFE_ID_ERROR_MESSAGE },
     { key: 'code', regex: SAFE_CODE_REGEX, message: SAFE_CODE_ERROR_MESSAGE },
@@ -350,6 +351,7 @@ export const assertValidIdAndCode = data => {
   for (const { key, regex, message } of rules) {
     const value = data[key];
     if (value == null || value === '') continue;
+    if (value === existing[key]) continue;
     if (!regex.test(value)) {
       throw new InvalidOperationError(message);
     }

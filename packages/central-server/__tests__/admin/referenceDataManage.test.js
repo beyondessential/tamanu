@@ -225,6 +225,19 @@ describe('Reference Data Manage', () => {
       expect(record).toBe(null);
     });
 
+    it('should reject an id with characters the importer would reject', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        id: 'test_bad_id',
+        code: 'test-ok-code',
+        name: 'Test Bad Id',
+      });
+      expect(response).toHaveRequestError();
+
+      const record = await models.ReferenceData.findByPk('test_bad_id');
+      expect(record).toBe(null);
+    });
+
     it('should create a medication template with its detail record', async () => {
       const drug = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
@@ -362,6 +375,26 @@ describe('Reference Data Manage', () => {
 
       await record.reload();
       expect(record.code).toBe('test-edit-valid-code');
+    });
+
+    it('allows editing a record whose existing code breaks the character rule, if unchanged', async () => {
+      // A type imported without a code character rule (e.g. lab test panel) can hold a legacy code
+      // with an underscore; editing another field must not be blocked by re-sending it unchanged.
+      const record = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: TEST_TYPE,
+        code: 'legacy_code',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${record.id}`).send({
+        referenceDataType: TEST_TYPE,
+        code: 'legacy_code',
+        name: 'Updated Name',
+      });
+      expect(response).toHaveSucceeded();
+
+      await record.reload();
+      expect(record.name).toBe('Updated Name');
     });
 
     it('should update a drug detail field', async () => {
