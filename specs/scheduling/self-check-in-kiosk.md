@@ -10,7 +10,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 
 - [ ] The kiosk is turned on per facility by the kiosk setting, and is reached at its own address in Tamanu web, without the sidebar or any other part of the staff interface.
 - [ ] Where the kiosk is turned on, Facility admin in the sidebar has a Self check-in kiosk item, marked as opening in a new tab, which opens the kiosk in a new browser tab. Where it is turned off, the item isn't shown.
-- [ ] Where the kiosk is turned off for the facility, the kiosk address shows a short message that the kiosk is unavailable.
+- [ ] Where the kiosk is turned off for the facility, the kiosk address shows only a short message that the kiosk is unavailable, without the kiosk header.
 - [ ] The kiosk keeps its staff sign-in alive while it is open, so it does not sign itself out between patients.
 - [ ] The kiosk can be open in one browser tab while Tamanu is open in another. Tamanu's limit of one open tab doesn't apply to kiosk tabs, so a kiosk tab neither blocks Tamanu nor is blocked by it.
 - [ ] Every kiosk action is limited to the facility the tablet is signed in to; the kiosk cannot be pointed at another facility.
@@ -18,7 +18,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 
 ## Layout
 
-- [ ] Every screen has a header with the Tamanu logo, the facility name, the language and accessibility button, and Help. Every screen after the landing page also has Start over.
+- [ ] Every screen has a header with the Tamanu logo, the facility name, the language and accessibility button, and Help. Every screen while a check-in is under way (after the landing page, up to checking in) also has Start over.
 - [ ] Content sits in a white outlined panel. Controls are sized for touch.
 - [ ] The layout is designed for a landscape tablet and remains usable in portrait.
 
@@ -46,7 +46,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 ## Results
 
 - [ ] One match shows "Is this you?" with a tile showing first, middle and last name, date of birth, sex, patient ID, and the appointment time and clinician. "Yes, this is me" continues; "No, this isn't me" shows the no-match screen.
-- [ ] Matches for more than one patient show "Select your details" with a tile per appointment, with copy making clear the matches are different patients. No tile is preselected, and Continue is unavailable until the patient chooses one. "None of these are me" shows the no-match screen.
+- [ ] Matches for more than one patient show "Select your details" with a tile per appointment, with copy making clear the matches are different patients. No tile is preselected, unless the patient is coming back from their forms to the tile they chose, and Continue is unavailable until the patient chooses one. "None of these are me" shows the no-match screen.
 - [ ] One patient with more than one appointment today instead chooses between their own appointments: their details are shown once, and each appointment is offered by its time and clinician. Nothing about their record is hidden from them.
 - [ ] Tiles shown for several patients carry only the appointment time (no clinician), and show the patient ID's first four characters with the rest as asterisks. The full patient ID and clinician are never sent to the tablet until a single patient is chosen.
 - [ ] No match shows the details that were searched and directs the patient to reception, with Close (back to the landing page) and Edit details (back to the search with their entries kept).
@@ -56,7 +56,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 ## Forms
 
 - [ ] The forms a patient completes are set per appointment type by the kiosk setting. Forms that have been retired are left out. An appointment type with no forms goes straight to Ready to check in.
-- [ ] Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page, Not started) and how many are complete; tapping a form opens it.
+- [ ] Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page where it has more than one, Not started) and how many are complete; tapping a form opens it.
 - [ ] After the patient confirms who they are, the first form opens.
 - [ ] The open form shows its own page progress ("Page 2 of 3") with a progress bar.
 - [ ] When a page is longer than the screen, the questions scroll while the form title, page progress and Back and Next stay in place.
@@ -64,7 +64,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 - [ ] Questions that fill from the patient record show the patient's existing value. The tablet receives only the parts of the patient's record that the forms show, and only after the patient confirms who they are.
 - [ ] Required questions are marked with a red asterisk. Tapping Next with required questions unanswered keeps the patient on the page, scrolls to the first unanswered required question, and shows "This question is required" under each one.
 - [ ] A question's validation message clears as soon as it has a valid answer.
-- [ ] Text answer fields grow taller as the patient types past their height.
+- [ ] Multi-line text answers grow taller as the patient types past their height. Single-line answers stay one line.
 - [ ] Next on a form's last page completes the form and opens the next form that is not complete; when all are complete, the main panel shows Ready to check in.
 - [ ] Answers are kept on the tablet while the patient moves between forms and pages, so a completed form can be reopened and changed until the patient checks in. A reopened form opens at its first page and is in progress again until the patient reaches its end.
 - [ ] Every form must be complete before the patient can check in.

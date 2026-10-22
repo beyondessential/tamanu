@@ -11,8 +11,8 @@ The patient portal is where a patient signs in on their own phone or computer to
 - [ ] Every signed-in page has a header with the Tamanu logo, which returns to the dashboard, and a menu button that opens the patient's name and Log out.
 - [ ] Content is a single column the width of a phone, centred on wider screens.
 - [ ] The portal uses the kiosk's palette: a light grey page, content on white outlined panels, and Tamanu blue for actions. Controls are large enough to use by touch and sized for a phone.
-- [ ] Every page other than the dashboard has a back link to the dashboard.
-- [ ] A page that takes a moment to load shows a loading indicator centred beneath the header; one that loads quickly opens without one flashing up.
+- [ ] Every page other than the dashboard and forms has a back link to the dashboard. A form's own Back leads there from its first page.
+- [ ] A page that takes a moment to load shows a loading indicator centred beneath the header (centred on the screen while the portal first checks the patient's sign-in); one that loads quickly opens without one flashing up.
 - [ ] Each page opens scrolled to its top, and going back returns to where the patient was.
 - [ ] Success messages span the width of a phone screen.
 - [ ] Text uses the deployment's translations for its default language, so wording and names the deployment has changed appear in the portal as they do in Tamanu. Where a string has no translation, its English text shows.
