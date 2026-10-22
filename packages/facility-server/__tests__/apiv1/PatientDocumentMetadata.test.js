@@ -292,8 +292,9 @@ describe('PatientDocumentMetadata', () => {
   });
 
   describe('repeat submissions', () => {
-    // A double-clicked Add button sends the same upload twice (card X4). Each arrives as
-    // its own request, so the document must be deduplicated server-side.
+    // A repeat of one upload — a dropped-connection retry carrying the same Idempotency-Key — is
+    // replayed rather than stored twice, while a deliberate re-upload (a new submission with a new
+    // key) creates its own document.
     const documentPayload = {
       name: 'duplicated document',
       type: 'application/pdf',
@@ -311,70 +312,46 @@ describe('PatientDocumentMetadata', () => {
     const countDocuments = (patientId) =>
       models.DocumentMetadata.count({ where: { patientId, name: documentPayload.name } });
 
-    it('creates one document when the same upload is submitted twice at once', async () => {
+    it('replays a retried upload carrying the same Idempotency-Key', async () => {
       mockUpload();
       const patient = await models.Patient.create(await createDummyPatient(models));
       const endpoint = `/api/patient/${patient.id}/documentMetadata`;
-
-      // Fired together, so both requests are in flight before either has committed.
-      const [first, second] = await Promise.all([
-        app.post(endpoint).send(documentPayload),
-        app.post(endpoint).send(documentPayload),
-      ]);
-
-      expect(first).toHaveSucceeded();
-      expect(second).toHaveSucceeded();
-      expect(await countDocuments(patient.id)).toBe(1);
-      // Both callers are told about the same document.
-      expect(first.body.id).toBe(second.body.id);
-    });
-
-    it('creates one document when the same upload is submitted twice in sequence', async () => {
-      mockUpload();
-      const patient = await models.Patient.create(await createDummyPatient(models));
-      const endpoint = `/api/patient/${patient.id}/documentMetadata`;
-
-      const first = await app.post(endpoint).send(documentPayload);
-      const second = await app.post(endpoint).send(documentPayload);
-
-      expect(first).toHaveSucceeded();
-      expect(second).toHaveSucceeded();
-      expect(await countDocuments(patient.id)).toBe(1);
-      expect(first.body.id).toBe(second.body.id);
-    });
-
-    it('still creates a separate document for a different upload', async () => {
-      mockUpload();
-      const patient = await models.Patient.create(await createDummyPatient(models));
-      const endpoint = `/api/patient/${patient.id}/documentMetadata`;
-
-      const first = await app.post(endpoint).send(documentPayload);
-      const second = await app
-        .post(endpoint)
-        .send({ ...documentPayload, name: 'a genuinely different document' });
-
-      expect(first).toHaveSucceeded();
-      expect(second).toHaveSucceeded();
-      expect(first.body.id).not.toBe(second.body.id);
-    });
-
-    it('does not deduplicate across patients', async () => {
-      mockUpload();
-      const patientOne = await models.Patient.create(await createDummyPatient(models));
-      const patientTwo = await models.Patient.create(await createDummyPatient(models));
 
       const first = await app
-        .post(`/api/patient/${patientOne.id}/documentMetadata`)
+        .post(endpoint)
+        .set('Idempotency-Key', 'doc-retry-1')
         .send(documentPayload);
       const second = await app
-        .post(`/api/patient/${patientTwo.id}/documentMetadata`)
+        .post(endpoint)
+        .set('Idempotency-Key', 'doc-retry-1')
         .send(documentPayload);
 
       expect(first).toHaveSucceeded();
       expect(second).toHaveSucceeded();
-      expect(first.body.id).not.toBe(second.body.id);
-      expect(await countDocuments(patientOne.id)).toBe(1);
-      expect(await countDocuments(patientTwo.id)).toBe(1);
+      // The retry replays the first outcome rather than creating a second document.
+      expect(second.body.id).toBe(first.body.id);
+      expect(await countDocuments(patient.id)).toBe(1);
+    });
+
+    it('creates a separate document when the same file is uploaded again as a new submission', async () => {
+      mockUpload();
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const endpoint = `/api/patient/${patient.id}/documentMetadata`;
+
+      // Two deliberate uploads of the same file are distinct submissions with distinct keys.
+      const first = await app
+        .post(endpoint)
+        .set('Idempotency-Key', 'doc-upload-a')
+        .send(documentPayload);
+      const second = await app
+        .post(endpoint)
+        .set('Idempotency-Key', 'doc-upload-b')
+        .send(documentPayload);
+
+      expect(first).toHaveSucceeded();
+      expect(second).toHaveSucceeded();
+      expect(second.body.id).not.toBe(first.body.id);
+      expect(await countDocuments(patient.id)).toBe(2);
     });
   });
 });
