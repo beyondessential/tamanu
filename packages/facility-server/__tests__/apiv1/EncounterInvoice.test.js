@@ -522,9 +522,12 @@ describe('Encounter invoice', () => {
         await item.update({ quantity: 7 });
 
         // Editing an unrelated procedure field (not type or quantity) must leave that edit alone.
-        await app.put(`/api/procedure/${procedure.id}`).send({
+        // The update has to be asserted: unlike the tests above this one expects the line *not* to
+        // change, so a silently failing PUT would pass vacuously.
+        const updateResult = await app.put(`/api/procedure/${procedure.id}`).send({
           note: 'cashier note unrelated to the invoice',
         });
+        expect(updateResult).toHaveSucceeded();
 
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
