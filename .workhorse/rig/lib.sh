@@ -18,12 +18,14 @@ short_hash() { node -e 'console.log(require("node:crypto").createHash("md5").upd
 facility_db() { printf 'tamanu_rig_f_%s' "$(short_hash "$(db_name)")"; }
 facility_template() { printf 'tamanu_rig_ft_%s' "$(short_hash "$(cat "$RIG_SOURCE/../central-template")")"; }
 
+# The manager picks RIG_PORT without holding it, so the OS can hand it out again.
 free_ports() {
   node -e '
     const net = require("node:net");
-    const servers = Array.from({ length: Number(process.argv[1]) }, () => net.createServer().listen(0, "127.0.0.1"));
+    const servers = Array.from({ length: Number(process.argv[1]) + 1 }, () => net.createServer().listen(0, "127.0.0.1"));
     Promise.all(servers.map((s) => new Promise((r) => s.on("listening", r)))).then(() => {
-      console.log(servers.map((s) => s.address().port).join(" "));
+      const ports = servers.map((s) => s.address().port).filter((port) => String(port) !== process.env.RIG_PORT);
+      console.log(ports.slice(0, Number(process.argv[1])).join(" "));
       servers.forEach((s) => s.close());
     });' "$1"
 }
