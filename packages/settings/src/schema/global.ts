@@ -457,6 +457,11 @@ export const globalSettings = {
     telemetry: {
       name: 'Telemetry',
       description: 'Browser performance telemetry collected from the web clients',
+      // Exposed at the group level — the convention the frontend settings payload and
+      // its tests rely on (exposed keys are top-level groups, not nested leaves).
+      // retentionDays rides along in the exposed payload but is only read server-side.
+      exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         enabled: {
           name: 'Enabled',
@@ -464,8 +469,6 @@ export const globalSettings = {
             'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to.',
           type: yup.boolean(),
           defaultValue: true,
-          exposedToWeb: true,
-          exposedToPatientPortal: true,
         },
         retentionDays: {
           name: 'Retention',
