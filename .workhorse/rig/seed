@@ -8,7 +8,7 @@ central rebuildSyncLookup
 db_name > "$RIG_SOURCE/../central-template"
 
 template=$(facility_template)
-admin_sql -c "DROP DATABASE IF EXISTS $template WITH (FORCE)" -c "CREATE DATABASE $template"
+admin_sql "DROP DATABASE IF EXISTS $template WITH (FORCE)" "CREATE DATABASE $template"
 
 port=$(free_ports 1)
 (on_port "$port"; exec_central) &

@@ -1,3 +1,10 @@
+node_major=$(node -p 'process.versions.node.split(".")[0]')
+wanted_major=$(sed 's/^v//; s/\..*//' "$RIG_SOURCE/.nvmrc")
+if [ "$node_major" != "$wanted_major" ]; then
+  echo "node $node_major is first on PATH, and this commit's .nvmrc wants $wanted_major" >&2
+  exit 1
+fi
+
 SERVER_CONFIG='"countryTimeZone": "Pacific/Auckland", "rateLimit": { "enabled": false }, "schedules": { "sendStatusToMetaServer": { "enabled": false } }'
 # The servers bind PORT over their config's port, and the rig sets PORT to the lease's.
 unset PORT
@@ -11,7 +18,8 @@ on_port() { NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $1 }"; }
 
 db_name() { base=${RIG_DATABASE_URL%%\?*}; printf '%s' "${base##*/}"; }
 db_url() { base=${RIG_DATABASE_URL%%\?*}; printf '%s/%s' "${base%/*}" "$1"; }
-admin_sql() { psql -qtAX -v ON_ERROR_STOP=1 "$(db_url postgres)" "$@"; }
+sql() { node "$RIG_RECIPE_DIR/sql.mjs" "$@"; }
+admin_sql() { sql "$(db_url postgres)" "$@"; }
 short_hash() { node -e 'console.log(require("node:crypto").createHash("md5").update(process.argv[1]).digest("hex").slice(0, 16))' "$1"; }
 
 # Kept outside the manager's wh_ prefix: its collection drops any database of its own that no record names.

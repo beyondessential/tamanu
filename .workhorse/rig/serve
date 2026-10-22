@@ -3,14 +3,14 @@ set -eu
 . "$RIG_RECIPE_DIR/lib.sh"
 
 facility_db=$(facility_db)
-[ -n "$(admin_sql -c "SELECT 1 FROM pg_database WHERE datname = '$facility_db'")" ] ||
-  admin_sql -c "CREATE DATABASE $facility_db TEMPLATE $(facility_template)"
+[ -n "$(admin_sql "SELECT 1 FROM pg_database WHERE datname = '$facility_db'")" ] ||
+  admin_sql "CREATE DATABASE $facility_db TEMPLATE $(facility_template)"
 
 set -- $(free_ports 4)
 central_port=$1 facility_port=$2 admin_port=$3 facility_sync_port=$4
 # The facility refuses to start when the central it last synced with differs from SYNC_URL.
-psql -qX -v ON_ERROR_STOP=1 "$(db_url "$facility_db")" \
-  -c "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
+sql "$(db_url "$facility_db")" \
+  "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
 
 trap 'kill $(jobs -p) 2>/dev/null || true; wait' EXIT
 (on_port "$central_port"; exec_central) &
