@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { toJsonSchema } from '@langchain/core/utils/json_schema';
 
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -10,16 +11,16 @@ import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
-// Every settings path init and refreshContexts read. A path missing here goes on
-// needing a restart to take effect, so add to it alongside any new settings read.
-export const AI_SETTING_PATHS = [
-  'ai',
-  'formBuilder.prompts',
-  'patientSummary',
-  'encounterSummary',
-];
+// Every settings path init reads. A path missing here goes on needing a restart
+// to take effect, so add to it alongside any new settings read.
+export const AI_SETTING_PATHS = ['ai', 'experimentalAi', 'formBuilder'];
 
-// Contexts routed to the optional faster Anthropic model when configured.
+const SUMMARY_CONTEXTS = new Set([
+  AI_CONTEXT_NAMES.PATIENT_SUMMARY,
+  AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY,
+]);
+
+// Form builder contexts routed to the optional fast model when configured.
 // Keep these to non-conversational structured/extraction/generation tasks
 // where a smaller model is generally sufficient and latency dominates user
 // experience. The build context generates a large structured response so it
@@ -72,6 +73,34 @@ const toLangChainMessage = ({ role, content }) => {
   return new HumanMessage(content);
 };
 
+// Claude 5.5 models reject a forced tool_choice, so the response tool is offered rather than forced,
+// with one nudge if the model replies without it. The nudge doesn't replay the first reply: a
+// tool_use in it would need a tool_result.
+const invokeWithResponseTool = async (model, schema, name, messages) => {
+  const jsonSchema = toJsonSchema(schema);
+  const responseTool = {
+    name,
+    description: jsonSchema.description ?? `Respond only by calling the ${name} tool.`,
+    input_schema: jsonSchema,
+  };
+  const boundModel = model.bindTools([responseTool], { tool_choice: 'auto' });
+  const findToolCall = response => response.tool_calls?.find(call => call.name === name);
+
+  const askAgain = () => {
+    log.warn(`AIService: model ${model.model} answered without the ${name} tool, asking again`);
+    return boundModel.invoke([...messages, new HumanMessage(`Respond by calling the ${name} tool.`)]);
+  };
+
+  const firstResponse = await boundModel.invoke(messages);
+  const response = findToolCall(firstResponse) ? firstResponse : await askAgain();
+  const toolCall = findToolCall(response);
+  if (!toolCall) {
+    const unparsed = response.invalid_tool_calls?.length ? ' (its arguments could not be parsed)' : '';
+    throw new Error(`AI response did not call the ${name} tool${unparsed}`);
+  }
+  return schema.parse(toolCall.args);
+};
+
 export class AIService {
   /** @type {Map<string, string>} */
   contexts = new Map();
@@ -79,21 +108,29 @@ export class AIService {
   /** @type {import('@tamanu/database').Models} */
   models;
 
-  /** @type {import('@langchain/anthropic').ChatAnthropic} */
-  chatModel;
+  /** @type {import('@langchain/anthropic').ChatAnthropic | null} */
+  summaryModel = null;
 
-  /** @type {import('@langchain/anthropic').ChatAnthropic} */
-  fastChatModel;
+  /** @type {import('@langchain/anthropic').ChatAnthropic | null} */
+  formBuilderModel = null;
+
+  /** @type {import('@langchain/anthropic').ChatAnthropic | null} */
+  formBuilderFastModel = null;
 
   /**
+   * Built when either Experimental AI or the form builder is enabled with a
+   * model. Each only registers the contexts it serves, so a disabled feature's
+   * routes find nothing to call.
+   *
    * @param {object} options
    * @param {import('@tamanu/settings').ReadSettings} options.settings
    * @param {import('@tamanu/database').Models} options.models
    */
   static async init({ settings, models }) {
-    const { enabled, anthropicModel, anthropicFastModel } = await settings.get('ai');
+    const experimentalAi = await settings.get('experimentalAi');
+    const formBuilder = await settings.get('formBuilder');
 
-    if (!enabled) {
+    if (!experimentalAi.enabled && !formBuilder.enabled) {
       log.debug('AIService: disabled, skipping initialisation');
       return null;
     }
@@ -102,49 +139,58 @@ export class AIService {
     try {
       anthropicApiKey = await getSettingSecret(settings, 'ai.anthropicApiKey');
     } catch (error) {
-      if (error instanceof SecretNotConfiguredError) {
-        log.debug('AIService: no Anthropic API key configured, skipping initialisation');
-        return null;
-      }
-      throw error;
+      if (!(error instanceof SecretNotConfiguredError)) throw error;
     }
-
     if (!anthropicApiKey) {
       log.debug('AIService: no Anthropic API key configured, skipping initialisation');
       return null;
     }
 
-    if (!anthropicModel?.trim()) {
-      log.warn('AIService: no Anthropic model configured, skipping initialisation');
-      return null;
-    }
-
     const service = new AIService();
     service.models = models;
-    service.chatModel = new ChatAnthropic({
-      anthropicApiKey,
-      model: anthropicModel,
-    });
-    const fastModelName = anthropicFastModel?.trim();
-    service.fastChatModel = fastModelName
-      ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
-      : service.chatModel;
 
-    await service.refreshContexts(settings);
-
-    if (fastModelName && fastModelName !== anthropicModel) {
-      log.info(
-        `AIService: initialised with model "${anthropicModel}" (fast model "${fastModelName}")`,
-      );
-    } else {
-      log.info(`AIService: initialised with model "${anthropicModel}"`);
+    const summaryModelName = experimentalAi.model?.trim();
+    if (experimentalAi.enabled && !summaryModelName) {
+      log.warn('AIService: no Experimental AI model configured, summaries unavailable');
     }
+    if (experimentalAi.enabled && summaryModelName) {
+      service.summaryModel = new ChatAnthropic({ anthropicApiKey, model: summaryModelName });
+      if (experimentalAi.patientSummary.enabled) {
+        service.registerContext(
+          AI_CONTEXT_NAMES.PATIENT_SUMMARY,
+          experimentalAi.patientSummary.prompts,
+        );
+      }
+      if (experimentalAi.encounterSummary.enabled) {
+        service.registerContext(
+          AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY,
+          experimentalAi.encounterSummary.prompts,
+        );
+      }
+      log.info(`AIService: summaries use model "${summaryModelName}"`);
+    }
+
+    const formBuilderModelName = formBuilder.model?.trim();
+    if (formBuilder.enabled && !formBuilderModelName) {
+      log.warn('AIService: no form builder model configured, form builder unavailable');
+    }
+    if (formBuilder.enabled && formBuilderModelName) {
+      service.formBuilderModel = new ChatAnthropic({ anthropicApiKey, model: formBuilderModelName });
+      const fastModelName = formBuilder.fastModel?.trim();
+      service.formBuilderFastModel = fastModelName
+        ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
+        : service.formBuilderModel;
+      service.registerFormBuilderContexts(formBuilder.prompts);
+      log.info(
+        `AIService: form builder uses model "${formBuilderModelName}"${fastModelName ? ` (fast model "${fastModelName}")` : ''}`,
+      );
+    }
+
+    if (!service.summaryModel && !service.formBuilderModel) return null;
     return service;
   }
 
   /**
-   * Register a named context (system prompt). Call once per feature at startup.
-   *
    * @param {string} name
    * @param {string} systemPrompt
    */
@@ -152,40 +198,24 @@ export class AIService {
     this.contexts.set(name, systemPrompt);
   }
 
-  /**
-   * Refresh all settings-backed AI contexts. This is called once on startup,
-   * then explicitly after settings changes.
-   *
-   * @param {import('@tamanu/settings').ReadSettings} settings
-   */
-  async refreshContexts(settings) {
-    await this.registerFormBuilderContext(settings);
-    await this.registerPatientSummaryContext(settings);
-    await this.registerEncounterSummaryContext(settings);
-  }
-
-  /**
-   * Register the AI form builder context from settings.
-   *
-   * @param {import('@tamanu/settings').ReadSettings} settings
-   */
-  async registerFormBuilderContext(settings) {
-    const { interpretFormImage, processMessage, buildSurveyDefinition, tweakSurveyDefinition } =
-      await settings.get('formBuilder.prompts');
+  registerFormBuilderContexts({
+    interpretFormImage,
+    processMessage,
+    buildSurveyDefinition,
+    tweakSurveyDefinition,
+  }) {
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_IMAGE, interpretFormImage);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER, processMessage);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_BUILD, buildSurveyDefinition);
     this.registerContext(AI_CONTEXT_NAMES.FORM_BUILDER_TWEAK, tweakSurveyDefinition);
   }
 
-  async registerPatientSummaryContext(settings) {
-    const { prompts } = await settings.get('patientSummary');
-    this.registerContext(AI_CONTEXT_NAMES.PATIENT_SUMMARY, prompts);
-  }
-
-  async registerEncounterSummaryContext(settings) {
-    const { prompts } = await settings.get('encounterSummary');
-    this.registerContext(AI_CONTEXT_NAMES.ENCOUNTER_SUMMARY, prompts);
+  /**
+   * @param {string} contextName
+   * @returns {boolean}
+   */
+  hasContext(contextName) {
+    return this.contexts.has(contextName);
   }
 
   /**
@@ -200,16 +230,16 @@ export class AIService {
   }
 
   /**
-   * Pick the right chat model for the given context. Non-conversational
-   * structured/extraction/generation tasks route to the fast model when one is
-   * configured; everything else stays on the main conversational model.
-   *
    * @param {string} contextName
    * @returns {import('@langchain/anthropic').ChatAnthropic}
    */
   getModelForContext(contextName) {
-    if (FAST_MODEL_CONTEXTS.has(contextName)) return this.fastChatModel;
-    return this.chatModel;
+    if (!this.hasContext(contextName)) {
+      throw new Error(`AI context "${contextName}" is not registered`);
+    }
+    if (SUMMARY_CONTEXTS.has(contextName)) return this.summaryModel;
+    if (FAST_MODEL_CONTEXTS.has(contextName)) return this.formBuilderFastModel;
+    return this.formBuilderModel;
   }
 
   /**
@@ -274,13 +304,12 @@ export class AIService {
   async sendFormBuilderMessage(sessionId, userMessage) {
     const session = await this.getActiveSessionOrThrow(sessionId);
 
-    const structuredModel = this.chatModel.withStructuredOutput(formBuilderChatResponseSchema, {
-      name: 'form_builder_chat_response',
-    });
-    const response = await structuredModel.invoke([
-      ...session.messages.map(toLangChainMessage),
-      new HumanMessage(userMessage),
-    ]);
+    const response = await invokeWithResponseTool(
+      this.getModelForContext(AI_CONTEXT_NAMES.FORM_BUILDER),
+      formBuilderChatResponseSchema,
+      'form_builder_chat_response',
+      [...session.messages.map(toLangChainMessage), new HumanMessage(userMessage)],
+    );
 
     await session.update({
       messages: [
@@ -399,8 +428,8 @@ export class AIService {
    * @returns {Promise<import('@langchain/core/messages').AIMessage>}
    */
   async invoke(contextName, userMessage) {
-    return this.chatModel.invoke([
-      new SystemMessage(await this.getContext(contextName)),
+    return this.getModelForContext(contextName).invoke([
+      new SystemMessage(this.getContext(contextName)),
       ['human', userMessage],
     ]);
   }
@@ -415,12 +444,8 @@ export class AIService {
    * @param {string} [options.name]
    * @returns {Promise<unknown>}
    */
-  async invokeStructured(contextName, userMessage, schema, options = {}) {
-    const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
-      schema,
-      options,
-    );
-    return structuredModel.invoke([
+  async invokeStructured(contextName, userMessage, schema, { name = 'extract' } = {}) {
+    return invokeWithResponseTool(this.getModelForContext(contextName), schema, name, [
       new SystemMessage(this.getContext(contextName)),
       new HumanMessage(userMessage),
     ]);
