@@ -15,6 +15,7 @@ import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
 import { SurveyResult } from '../components/Forms/SurveyForm/SurveyResult';
 import { SurveyAnswerField } from '../components/Forms/SurveyForm/SurveyAnswerField';
 import { SurveyGeolocationField } from '../components/Forms/SurveyForm/SurveyGeolocationField';
+import { SurveyProgramRegistryConditionField } from '../components/Forms/SurveyForm/SurveyProgramRegistryConditionField';
 
 export const FieldByType = {
   [FieldTypes.TEXT]: LimitedTextField,
@@ -41,6 +42,7 @@ export const FieldByType = {
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,
+  [FieldTypes.PROGRAM_REGISTRY_CONDITION]: SurveyProgramRegistryConditionField,
   [FieldTypes.GEOLOCATE]: SurveyGeolocationField,
 } as const satisfies Partial<
   Record<(typeof FieldTypes)[keyof typeof FieldTypes], React.ComponentType<any> | null>

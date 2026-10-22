@@ -28,7 +28,7 @@ export class PatientProgramRegistrationCondition
   @DateTimeStringColumn()
   date: DateTimeString;
 
-  @DateTimeStringColumn()
+  @DateTimeStringColumn({ nullable: true })
   deletionDate?: DateTimeString;
 
   @Column({ nullable: true })

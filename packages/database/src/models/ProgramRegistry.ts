@@ -20,6 +20,10 @@ export class ProgramRegistry extends Model {
   declare lossToFollowUpThresholdDays: number;
   declare mandatoryConditionEnabled: boolean;
 
+  static async getCurrentForProgram(programId: string) {
+    return this.findOne({ where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT } });
+  }
+
   static getFullReferenceAssociations() {
     const { models } = this.sequelize;
 

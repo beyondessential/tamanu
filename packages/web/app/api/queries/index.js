@@ -27,6 +27,7 @@ export {
   useProgramRegistryConditionsQuery,
 } from './usePatientProgramRegistryConditionsQuery';
 export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';
+export { useSurveyProgramRegistryQuery } from './useSurveyProgramRegistryQuery';
 export { useProgramRegistryLinkedChartsQuery } from './useProgramRegistryLinkedChartsQuery';
 export { useProgramRegistryPatientChartsQuery } from './useProgramRegistryPatientChartsQuery';
 export { useProgramRegistryPatientInitialChartQuery } from './useProgramRegistryPatientInitialChartQuery';

@@ -208,6 +208,18 @@ describe('Programs import - Program Registry', () => {
     );
   });
 
+  it('should reject a related condition question when no registry exists', async () => {
+    const { errors } = await doImport({
+      file: 'registry-invalid-condition-q-no-registry',
+      xml: true,
+      dryRun: false,
+    });
+    expect(errors.length).toEqual(1);
+    expect(errors[0].message).toEqual(
+      'ProgramRegistryCondition question but no program registry configured on Import Registry With Survey at row 3',
+    );
+  });
+
   describe('conditions', () => {
     it('should import valid conditions', async () => {
       const { errors, stats } = await doImport({
