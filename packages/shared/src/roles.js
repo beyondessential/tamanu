@@ -61,6 +61,7 @@ export const practitioner = [
   { verb: 'list', noun: 'Procedure' },
   { verb: 'create', noun: 'Procedure' },
   { verb: 'write', noun: 'Procedure' },
+  { verb: 'delete', noun: 'Procedure' },
 
   { verb: 'read', noun: 'Discharge' },
   { verb: 'list', noun: 'Discharge' },

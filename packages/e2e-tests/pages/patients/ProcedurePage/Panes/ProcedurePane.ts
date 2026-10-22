@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
+import { DeleteProcedureModal } from '../Modals/DeleteProcedureModal';
 import { NewProcedureModal } from '../Modals/NewProcedureModal';
 
 export class ProcedurePane extends BasePatientPane {
@@ -33,8 +34,9 @@ export class ProcedurePane extends BasePatientPane {
   readonly page1Button!: Locator;
   readonly nextPageButton!: Locator;
   
-  // Modal
+  // Modals
   newProcedureModal?: NewProcedureModal;
+  deleteProcedureModal?: DeleteProcedureModal;
 
   constructor(page: Page) {
     super(page);
@@ -91,6 +93,50 @@ export class ProcedurePane extends BasePatientPane {
    */
   getViewProcedureModal(): NewProcedureModal {
     return this.getNewProcedureModal();
+  }
+
+  getDeleteProcedureModal(): DeleteProcedureModal {
+    if (!this.deleteProcedureModal) {
+      this.deleteProcedureModal = new DeleteProcedureModal(this.page);
+    }
+    return this.deleteProcedureModal;
+  }
+
+  /**
+   * Record a procedure through the New procedure modal, filling only the required fields
+   */
+  async recordProcedureWithRequiredFields() {
+    await this.newProcedureButton.click();
+    const modal = this.getNewProcedureModal();
+    const procedureData = await modal.fillRequiredFields();
+    await modal.saveProcedureButton.click();
+    await modal.waitForModalToClose();
+    await this.waitForTableToLoad();
+    return procedureData;
+  }
+
+  /**
+   * Open the actions menu at the end of a procedures table row
+   * @param rowIndex - The row index (0-based)
+   */
+  async openRowActionsMenu(rowIndex: number) {
+    await this.tableBody
+      .locator('tr')
+      .nth(rowIndex)
+      .getByTestId('menubutton-procedure-actions')
+      .click();
+  }
+
+  /**
+   * Choose Delete from an open row actions menu
+   * @param rowIndex - The row index (0-based) whose menu is open
+   */
+  async chooseDeleteFromRowActions(rowIndex: number): Promise<DeleteProcedureModal> {
+    // Delete is the only option in the menu
+    await this.tableBody.locator('tr').nth(rowIndex).getByTestId('item-8ybn-0').click();
+    const modal = this.getDeleteProcedureModal();
+    await modal.waitForModalToLoad();
+    return modal;
   }
   getRecordedProcedureCount(): Promise<number> {
 
