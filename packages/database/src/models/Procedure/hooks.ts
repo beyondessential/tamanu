@@ -43,6 +43,13 @@ const removeFromInvoice = async (instance: Procedure) => {
 };
 
 const updateInvoiceProductAfterUpdateHook = async (instance: Procedure) => {
+  // Only re-sync the invoice line when a field it mirrors actually changes. Re-syncing on every
+  // save (e.g. editing a note) would re-upsert the line — resetting its quantity and order date,
+  // and restoring a line the cashier deleted — clobbering their manual edits.
+  if (!instance.changed('procedureTypeId') && !instance.changed('quantity')) {
+    return;
+  }
+
   const previousValues = instance.previous() as Procedure;
   const updateInvoiceItem = async () => {
     if (
