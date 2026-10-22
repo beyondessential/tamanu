@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { DateTimeProviderContext, toTimeParts, toTimeString } from '@tamanu/ui-components';
+import { toFacilityDateTime, toStoredDateTime } from '@tamanu/utils/dateTime';
 
 import { renderElementWithTranslatedText } from '../../helpers';
 import { getKioskComponentForQuestionType } from '../../../app/views/kiosk/forms/kioskQuestions';
@@ -19,7 +20,7 @@ const dateTimeContext = {
 };
 
 /** Renders one kiosk question in a form and reports the answer it last set. */
-const renderQuestion = (type, props = {}, initialValue) => {
+const renderQuestion = (type, props = {}, initialValue, timeZoneContext = dateTimeContext) => {
   const Question = getKioskComponentForQuestionType(type, props.config);
   const answers = [];
   const field = { name: 'answer', value: initialValue };
@@ -42,7 +43,7 @@ const renderQuestion = (type, props = {}, initialValue) => {
     </Formik>
   );
   renderElementWithTranslatedText(
-    <DateTimeProviderContext.Provider value={dateTimeContext}>
+    <DateTimeProviderContext.Provider value={timeZoneContext}>
       <QuestionInForm />
     </DateTimeProviderContext.Provider>,
   );
@@ -150,6 +151,19 @@ describe('Kiosk questions store answers as the web does', () => {
   it('stores a date and time in the primary timezone, and shows a saved one', async () => {
     const { lastAnswer } = renderQuestion(T.DATE_TIME, {}, '2026-10-09 20:05:00');
     expect(screen.getByLabelText('Hour').value).toEqual('8');
+    expect(screen.getByRole('button', { name: 'pm' }).getAttribute('aria-pressed')).toEqual('true');
+    await userEvent.click(screen.getByRole('button', { name: 'am' }));
+    expect(lastAnswer()).toEqual('2026-10-09 08:05:00');
+  });
+
+  it('stores a facility-local date and time in the primary timezone, and shows a saved one locally', async () => {
+    const primaryTimeZone = 'Pacific/Auckland';
+    const facilityTimeZone = 'Australia/Brisbane';
+    const { lastAnswer } = renderQuestion(T.DATE_TIME, {}, '2026-10-09 20:05:00', {
+      toFacilityDateTime: value => toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),
+      toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
+    });
+    expect(screen.getByLabelText('Hour').value).toEqual('5');
     expect(screen.getByRole('button', { name: 'pm' }).getAttribute('aria-pressed')).toEqual('true');
     await userEvent.click(screen.getByRole('button', { name: 'am' }));
     expect(lastAnswer()).toEqual('2026-10-09 08:05:00');
