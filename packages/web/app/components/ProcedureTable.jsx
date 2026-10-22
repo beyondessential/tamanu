@@ -62,6 +62,7 @@ const buildActionsColumn = onDelete => ({
       <TranslatedText stringId="general.table.column.actions" fallback="Actions" />
     </VisuallyHidden>
   ),
+  numeric: true, // Not really, but right-aligns the menu at the far end of the row
   dontCallRowInput: true,
   sortable: false,
   isExportable: false,
