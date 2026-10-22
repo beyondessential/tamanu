@@ -200,6 +200,104 @@ describe('PatientProgramRegistration', () => {
     });
   });
 
+  describe('Re-registering a patient', () => {
+    let clinician;
+    let patient;
+    let programRegistry;
+
+    const register = () =>
+      app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2023-09-02 08:00:00',
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        registeringFacilityId: facilityId,
+      });
+
+    const findRegistrations = () =>
+      models.PatientProgramRegistration.findAll({
+        where: { patientId: patient.id, programRegistryId: programRegistry.id },
+        paranoid: false,
+      });
+
+    beforeEach(async () => {
+      clinician = await models.User.create(fake(models.User));
+      patient = await models.Patient.create(fake(models.Patient));
+      programRegistry = await createProgramRegistry();
+    });
+
+    afterEach(async () => {
+      await models.Patient.truncate({ cascade: true, force: true });
+      await models.ProgramRegistry.truncate({ cascade: true, force: true });
+      await models.Program.truncate({ cascade: true, force: true });
+    });
+
+    it('re-registers a patient who was removed from the registry', async () => {
+      const created = await register();
+      expect(created).toHaveSucceeded();
+
+      const removal = await app.put(`/api/patient/programRegistration/${created.body.id}`).send({
+        registrationStatus: REGISTRATION_STATUSES.INACTIVE,
+        clinicianId: clinician.id,
+        date: '2023-09-03 08:00:00',
+      });
+      expect(removal).toHaveSucceeded();
+      expect(removal.body.registrationStatus).toBe(REGISTRATION_STATUSES.INACTIVE);
+      expect(removal.body.deactivatedDate).toBeTruthy();
+
+      const reRegistered = await register();
+
+      expect(reRegistered).toHaveSucceeded();
+      expect(reRegistered.body.registrationStatus).toBe(REGISTRATION_STATUSES.ACTIVE);
+      expect(reRegistered.body.deactivatedDate).toBeNull();
+      expect(reRegistered.body.deactivatedClinicianId).toBeNull();
+
+      // The row is reused rather than duplicated — patient + registry is the primary key.
+      const registrations = await findRegistrations();
+      expect(registrations).toHaveLength(1);
+      expect(registrations[0].registrationStatus).toBe(REGISTRATION_STATUSES.ACTIVE);
+      expect(registrations[0].deletedAt).toBeNull();
+    });
+
+    it('re-registers a patient whose registration was recorded in error', async () => {
+      const created = await register();
+      expect(created).toHaveSucceeded();
+
+      const deleted = await app.delete(`/api/patient/programRegistration/${created.body.id}`);
+      expect(deleted).toHaveStatus(200);
+
+      const reRegistered = await register();
+
+      expect(reRegistered).toHaveSucceeded();
+      expect(reRegistered.body.registrationStatus).toBe(REGISTRATION_STATUSES.ACTIVE);
+
+      const registrations = await findRegistrations();
+      expect(registrations).toHaveLength(1);
+      expect(registrations[0].registrationStatus).toBe(REGISTRATION_STATUSES.ACTIVE);
+      expect(registrations[0].deletedAt).toBeNull();
+    });
+
+    it('does not overwrite a registration the patient is still active in', async () => {
+      expect(await register()).toHaveSucceeded();
+
+      const result = await app.post(`/api/patient/${patient.id}/programRegistration`).send({
+        programRegistryId: programRegistry.id,
+        clinicianId: clinician.id,
+        patientId: patient.id,
+        date: '2024-01-01 08:00:00',
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+        registeringFacilityId: facilityId,
+      });
+
+      expect(result).not.toHaveSucceeded();
+
+      const registrations = await findRegistrations();
+      expect(registrations).toHaveLength(1);
+      expect(registrations[0].date).toBe('2023-09-02 08:00:00');
+    });
+  });
+
   describe('Updating program registrations', () => {
     let patient;
     let registration;

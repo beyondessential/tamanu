@@ -4,8 +4,7 @@ import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { validatePatientProgramRegistrationRequest } from './utils';
+import { applyDeactivationFields, validatePatientProgramRegistrationRequest } from './utils';
 
 export const patientProgramRegistration = express.Router();
 
@@ -45,44 +44,34 @@ patientProgramRegistration.post(
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditionsRecords] = await db.transaction(async transaction => {
-      let registrationRecord;
-
-      // Check if this PPR has been previously deleted
-      const existingRecordedInErrorRegistration = await models.PatientProgramRegistration.findOne({
+    const [registration, conditionsRecords] = await db.transaction(async () => {
+      // A registration is keyed on patient + registry, so a patient who was removed from a
+      // registry or whose registration was recorded in error already has a row. Re-registering
+      // reuses it — the statuses mirror exactly those the programRegistry suggester still offers.
+      const reusableRegistration = await models.PatientProgramRegistration.findOne({
         where: {
           programRegistryId,
           patientId,
-          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+          registrationStatus: {
+            [Op.in]: [REGISTRATION_STATUSES.INACTIVE, REGISTRATION_STATUSES.RECORDED_IN_ERROR],
+          },
         },
-        transaction,
         paranoid: false,
       });
 
-      // If the registration was previously recorded in error, update that record to preserve the unique id. Otherwise, create a new one.
-      if (existingRecordedInErrorRegistration) {
-        registrationRecord = await existingRecordedInErrorRegistration.update(
-          {
+      const registrationRecord = reusableRegistration
+        ? await reusableRegistration.update({
             deletedAt: null,
             clinicalStatusId: null,
-            deactivatedDate: null,
-            deactivatedClinicianId: null,
-            ...registrationData,
-          },
-          {
-            transaction,
-          },
-        );
-      } else {
-        registrationRecord = await models.PatientProgramRegistration.create(
-          {
+            // Creates default to active; reusing a row must land in the same state.
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+            ...applyDeactivationFields(registrationData),
+          })
+        : await models.PatientProgramRegistration.create({
             patientId,
             programRegistryId,
             ...registrationData,
-          },
-          { transaction },
-        );
-      }
+          });
 
       const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
         conditions
@@ -94,16 +83,12 @@ patientProgramRegistration.post(
             programRegistryConditionId: condition.conditionId,
             programRegistryConditionCategoryId: condition.conditionCategoryId,
           })),
-        { transaction },
       );
 
-      await models.PatientFacility.upsert(
-        {
-          patientId,
-          facilityId: registeringFacilityId,
-        },
-        { transaction },
-      );
+      await models.PatientFacility.upsert({
+        patientId,
+        facilityId: registeringFacilityId,
+      });
 
       return [registrationRecord, newConditions];
     });
@@ -203,18 +188,7 @@ patientProgramRegistration.put(
       ];
     });
 
-    const updatedRegistrationData = {
-      ...registrationData,
-      deactivatedDate: null,
-      deactivatedClinicianId: null,
-    };
-
-    // If the registration status is being changed to INACTIVE, set the deactivated fields
-    if (registrationData.registrationStatus === REGISTRATION_STATUSES.INACTIVE) {
-      updatedRegistrationData.deactivatedDate =
-        registrationData.deactivatedDate || getCurrentDateTimeString();
-      updatedRegistrationData.deactivatedClinicianId = registrationData.clinicianId;
-    }
+    const updatedRegistrationData = applyDeactivationFields(registrationData);
 
     const [registration] = await db.transaction(async () => {
       const updates = [existingRegistration.update(updatedRegistrationData)];

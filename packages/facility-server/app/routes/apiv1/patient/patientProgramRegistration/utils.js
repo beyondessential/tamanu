@@ -1,5 +1,28 @@
 import { subject } from '@casl/ability';
 import { NotFoundError } from '@tamanu/errors';
+import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+
+/**
+ * Resolve the deactivation columns for a registration write. Registrations are reused rather than
+ * recreated (the primary key is patient + registry), so a row carrying a previous removal must have
+ * those columns cleared unless this write is itself a removal.
+ */
+export const applyDeactivationFields = registrationData => {
+  if (registrationData.registrationStatus === REGISTRATION_STATUSES.INACTIVE) {
+    return {
+      ...registrationData,
+      deactivatedDate: registrationData.deactivatedDate || getCurrentDateTimeString(),
+      deactivatedClinicianId: registrationData.clinicianId,
+    };
+  }
+
+  return {
+    ...registrationData,
+    deactivatedDate: null,
+    deactivatedClinicianId: null,
+  };
+};
 
 /**
  * Check if the request is valid for patient program registration
