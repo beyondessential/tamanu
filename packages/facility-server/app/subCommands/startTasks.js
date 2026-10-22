@@ -43,11 +43,17 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
     onReconnect: dbNotifier.onReconnect,
   });
 
-  const isConfigured = await setupSyncRuntime(context, { syncManager });
+  // A task runner started by the sync process is given its sync manager and shares that process's
+  // endpoint choice. One on its own runs no sync, so it follows the sync process's.
+  const setupRuntime = ctx =>
+    setupSyncRuntime(ctx, { syncManager, endpointRole: syncManager ? 'owner' : 'follower' });
+  const isConfigured = await setupRuntime(context);
 
   const cancelTasks = await startScheduledTasks(context, taskClasses);
   // If booted unconfigured, start syncing once first-run setup completes.
-  const cancelConfigPoll = isConfigured ? () => {} : startSyncRuntimeWhenConfigured(context);
+  const cancelConfigPoll = isConfigured
+    ? () => {}
+    : startSyncRuntimeWhenConfigured(context, { setup: setupRuntime });
   process.once('SIGTERM', () => {
     log.info('Received SIGTERM, stopping scheduled tasks');
     cancelTasks();

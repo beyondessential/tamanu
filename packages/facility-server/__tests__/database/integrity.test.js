@@ -1,6 +1,6 @@
 import config from 'config';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants';
+import { FACT_CENTRAL_ENDPOINTS, FACT_CENTRAL_HOST, FACT_FACILITY_IDS } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
 import { performDatabaseIntegrityChecks } from '../../app/database/integrity';
@@ -25,6 +25,7 @@ describe('performDatabaseIntegrityChecks', () => {
   afterAll(async () => {
     delete process.env.SYNC_URL;
     delete process.env.TAMANU_FACILITY_IDS;
+    await LocalSystemFact.destroy({ where: { key: FACT_CENTRAL_ENDPOINTS }, force: true });
     await LocalSystemFact.set(FACT_CENTRAL_HOST, originalHost);
     await LocalSystemFact.set(FACT_FACILITY_IDS, originalFacilityIds);
     await ctx.close();
@@ -32,6 +33,7 @@ describe('performDatabaseIntegrityChecks', () => {
 
   beforeEach(async () => {
     process.env.SYNC_URL = DECLARED_HOST;
+    await LocalSystemFact.destroy({ where: { key: FACT_CENTRAL_ENDPOINTS }, force: true });
     await LocalSystemFact.set(FACT_CENTRAL_HOST, DECLARED_HOST);
     await LocalSystemFact.set(FACT_FACILITY_IDS, JSON.stringify(['facility-a']));
   });
@@ -57,6 +59,40 @@ describe('performDatabaseIntegrityChecks', () => {
     delete process.env.SYNC_URL;
     await LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://other.example.com');
     await expect(performDatabaseIntegrityChecks(ctx)).rejects.toThrow(/sync\.host mismatch/);
+  });
+
+  // spec: CEND
+  describe('once central has supplied a list of endpoints', () => {
+    const ROTATED = 'https://rotated.example.com';
+
+    it('accepts a declared host that is in the list, though the seed host differs', async () => {
+      await LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://other.example.com');
+      await LocalSystemFact.set(FACT_CENTRAL_ENDPOINTS, JSON.stringify([ROTATED, DECLARED_HOST]));
+
+      await expect(performDatabaseIntegrityChecks(ctx)).resolves.not.toThrow();
+      expect(await LocalSystemFact.get(FACT_CENTRAL_HOST)).toBe('https://other.example.com');
+    });
+
+    it('accepts a declared host that is only the seed host, as when the old name stays in config', async () => {
+      await LocalSystemFact.set(FACT_CENTRAL_ENDPOINTS, JSON.stringify([ROTATED]));
+
+      await expect(performDatabaseIntegrityChecks(ctx)).resolves.not.toThrow();
+    });
+
+    it('still fails when the declared host is in neither, as for a copy of another server', async () => {
+      await LocalSystemFact.set(FACT_CENTRAL_HOST, 'https://source.example.com');
+      await LocalSystemFact.set(
+        FACT_CENTRAL_ENDPOINTS,
+        JSON.stringify([ROTATED, 'https://source-intranet.example.com']),
+      );
+
+      await expect(performDatabaseIntegrityChecks(ctx)).rejects.toThrow(/sync\.host mismatch/);
+    });
+
+    it('ignores a malformed list', async () => {
+      await LocalSystemFact.set(FACT_CENTRAL_ENDPOINTS, '{not json');
+      await expect(performDatabaseIntegrityChecks(ctx)).resolves.not.toThrow();
+    });
   });
 
   it('fails when a recorded facility is not covered by the declaration', async () => {

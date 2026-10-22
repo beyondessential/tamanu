@@ -18,6 +18,7 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
   fhirResourceMaterialisationSchema,
+  centralEndpointsSetting,
 } from './definitions';
 
 export const facilitySettings = {
@@ -268,13 +269,13 @@ export const facilitySettings = {
     },
     sync: {
       description: 'Facility sync settings',
-      exposedToWeb: true,
       highRisk: true,
       properties: {
         syncAllLabRequests: {
           description: '_',
           type: yup.boolean(),
           defaultValue: false,
+          exposedToWeb: true,
         },
         urgentIntervalInSeconds: {
           name: 'Sync urgent interval',
@@ -282,6 +283,41 @@ export const facilitySettings = {
           description: 'Mobile urgent sync interval',
           type: yup.number().integer().positive(),
           defaultValue: 10,
+          exposedToWeb: true,
+        },
+        centralEndpoints: centralEndpointsSetting(
+          'Central endpoints for this facility, tried before the global list',
+        ),
+        centralEndpointRecheckIntervalInSeconds: {
+          name: 'Central endpoint recheck interval',
+          unit: 'seconds',
+          description:
+            'While on a lower-priority central endpoint, how often to check whether a higher-priority one works again',
+          type: yup.number().integer().positive(),
+          defaultValue: 300,
+        },
+        syncLoginRefusedInitialPauseInSeconds: {
+          name: 'Pause after central refuses the sync credentials',
+          unit: 'seconds',
+          description:
+            'How long to stop logging in with the sync credentials after central refuses them. Each further refusal in a row multiplies the pause by five, up to the maximum, so repeated refusals stay well apart from central’s lockout window. A successful login or changed credentials end the pause',
+          type: yup.number().integer().positive(),
+          defaultValue: 120,
+        },
+        syncLoginRefusedMaxPauseInSeconds: {
+          name: 'Longest pause after central refuses the sync credentials',
+          unit: 'seconds',
+          description: 'The most the pause after refused sync credentials can grow to',
+          type: yup.number().integer().positive(),
+          defaultValue: 3600,
+        },
+        centralEndpointProbeTimeoutInSeconds: {
+          name: 'Central endpoint probe timeout',
+          unit: 'seconds',
+          description:
+            'How long to wait for a login at a central endpoint before treating it as unreachable',
+          type: yup.number().integer().positive(),
+          defaultValue: 5,
         },
       },
     },

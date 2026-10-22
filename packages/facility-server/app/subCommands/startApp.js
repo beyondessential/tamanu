@@ -12,8 +12,10 @@ import { initTimesync } from '../services/initTimesync';
 import { resolveSchedules } from '../tasks';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getSyncConfig, getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import { getServerFacilityIds, isServerConfigured } from '../serverConfig';
+import { setupCentralEndpointSelector } from '../sync/setupCentralEndpointSelector';
 import {
+  centralTimesyncUrl,
   setupSyncRuntime,
   startSyncRuntimeWhenConfigured,
   SYNC_NOT_CONFIGURED_WARNING,
@@ -58,10 +60,14 @@ const startApp =
       // eslint-disable-next-line require-atomic-updates -- single-threaded boot, no concurrent writers
       context.syncConnection = new FacilitySyncConnection();
       const setupApiRuntime = async ctx => {
+        // spec: CEND
+        // There is no central connection of its own here, so it follows the sync process for
+        // which central endpoint to use and never probes.
+        await setupCentralEndpointSelector(ctx, { role: 'follower' });
         /* eslint-disable-next-line require-atomic-updates -- no concurrent writers */
         ctx.timesync = await initTimesync({
           models: ctx.models,
-          url: `${getSyncConfig().host.replace(/\/*$/, '')}/api/timesync`,
+          getUrl: centralTimesyncUrl,
           enabled: (await resolveSchedules(ctx)).timeSync.enabled,
         });
         // No central connection on the API server, so no remote timezone to check.
