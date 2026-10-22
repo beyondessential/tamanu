@@ -18,6 +18,7 @@ import './fonts.css';
 import { App } from './App';
 import { theme } from './theme/theme';
 import { TamanuApi } from '@api/TamanuApi';
+import { initPortalTelemetry } from './telemetry';
 import { TranslationProvider } from './contexts';
 
 /**
@@ -46,6 +47,8 @@ const queryClient = new QueryClient({
 
 async function bootstrap() {
   const api = new TamanuApi(__VERSION__);
+  // spec: BTEL — start browser performance telemetry (collects from before sign-in).
+  initPortalTelemetry(api);
   try {
     await api.restoreSession();
   } catch (e) {

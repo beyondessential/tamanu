@@ -1,4 +1,5 @@
 import { Divider } from '@material-ui/core';
+import { route } from '@tamanu/api-client';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -767,7 +768,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       )}
       <ScrollableTableWrapper data-testid="scrollabletablewrapper-t4sk">
         <StyledTable
-          endpoint={`encounter/${encounterId}/tasks`}
+          endpoint={route('encounter/:encounterId/tasks', { encounterId })}
           columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
           noDataMessage={<NoDataMessage data-testid="nodatamessage-cyqv" />}
           allowExport={false}

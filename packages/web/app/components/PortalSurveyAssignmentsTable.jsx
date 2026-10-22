@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { route } from '@tamanu/api-client';
 import styled from 'styled-components';
 import { VisuallyHidden } from '@tamanu/ui-components';
 import { DataFetchingTable } from './Table';
@@ -116,7 +117,7 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
     <>
       <DataFetchingTable
         TableHeader={<TableHeader />}
-        endpoint={`patient/${patient.id}/portal/forms`}
+        endpoint={route('patient/:patientId/portal/forms', { patientId: patient.id })}
         columns={columns}
         initialSort={{
           orderBy: 'assignedAt',

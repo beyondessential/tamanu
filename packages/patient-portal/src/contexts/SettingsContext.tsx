@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
 import { StyledCircularProgress } from '@components/StyledCircularProgress';
 import { route } from '@tamanu/api-client';
+import { setPortalTelemetryEnabled } from '../telemetry';
 
 const ErrorAlert = styled(Alert)(() => ({
   width: 400,
@@ -29,6 +30,11 @@ export const useSettings = (facilityId: string) => {
 
 export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps) => {
   const { isPending, isError, data: settings } = useSettings(facilityId);
+
+  // spec: BTEL — sync the collector, which lives outside React, with the setting.
+  React.useEffect(() => {
+    if (settings) setPortalTelemetryEnabled(get(settings, 'telemetry.enabled') !== false);
+  }, [settings]);
 
   if (isPending) {
     return <StyledCircularProgress />;
