@@ -213,3 +213,10 @@ export const LOCATION_BOOKABLE_VIEW = {
 };
 
 export const LOCATION_BOOKABLE_VIEW_VALUES = Object.values(LOCATION_BOOKABLE_VIEW);
+
+// Character rules for importable record ids and codes. Shared so the reference-data importer and
+// the admin "Manage" editor agree on what a valid id/code is.
+export const SAFE_ID_REGEX = /^[A-Za-z0-9-]+$/;
+export const SAFE_CODE_REGEX = /^[A-Za-z0-9-./]+$/;
+export const SAFE_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
+export const SAFE_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';

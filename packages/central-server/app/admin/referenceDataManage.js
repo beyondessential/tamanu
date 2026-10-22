@@ -15,6 +15,7 @@ import {
   getDetailModel,
   assertValidType,
   assertValidEnumValues,
+  assertValidIdAndCode,
   splitWritableData,
   pickDetailValues,
   createMultiSelectRecords,
@@ -38,6 +39,7 @@ referenceDataManageRouter.post(
     const columns = await getColumnsForModel(model, referenceDataType, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, false);
     assertValidEnumValues(columns, { ...base, ...detail });
+    assertValidIdAndCode({ ...base, ...detail });
 
     try {
       if (columns.some(c => c.multiSelect)) {
@@ -88,6 +90,7 @@ referenceDataManageRouter.put(
     const columns = await getColumnsForModel(model, referenceDataType, detailModel);
     const { base, detail } = splitWritableData(columns, rawData, true);
     assertValidEnumValues(columns, { ...base, ...detail });
+    assertValidIdAndCode({ ...base, ...detail }, record);
 
     let detailRecord = null;
     await model.sequelize.transaction(async () => {

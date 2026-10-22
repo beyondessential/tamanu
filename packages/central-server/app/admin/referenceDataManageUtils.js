@@ -9,6 +9,10 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
+  SAFE_CODE_ERROR_MESSAGE,
+  SAFE_CODE_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+  SAFE_ID_REGEX,
   SUGGESTER_ENDPOINTS,
   TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
@@ -331,6 +335,27 @@ export const assertValidEnumValues = (columns, data) => {
       throw new InvalidOperationError(
         `Invalid ${col.key} "${value}". Must be one of: ${col.enumValues.join(', ')}.`,
       );
+    }
+  }
+};
+
+// Apply the importer's BASE id/code character rule at the write boundary too, not just in the web
+// form. This matches the importer for the common case, but deliberately does not mirror per-type
+// overrides (the manufacturer `ORG-` pattern, or lab test panel dropping the rule) — those stay a
+// follow-up, TAM-7206. Only a newly-set value is checked, so re-sending an unchanged value on an
+// edit never blocks editing a record whose legacy code the importer never validated. An empty value
+// is rejected (id and code are required). `existing` is the stored record on update.
+export const assertValidIdAndCode = (data, existing = {}) => {
+  const rules = [
+    { key: 'id', regex: SAFE_ID_REGEX, message: SAFE_ID_ERROR_MESSAGE },
+    { key: 'code', regex: SAFE_CODE_REGEX, message: SAFE_CODE_ERROR_MESSAGE },
+  ];
+  for (const { key, regex, message } of rules) {
+    const value = data[key];
+    if (value == null) continue;
+    if (value === existing[key]) continue;
+    if (!regex.test(value)) {
+      throw new InvalidOperationError(message);
     }
   }
 };
