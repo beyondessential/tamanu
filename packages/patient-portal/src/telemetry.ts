@@ -26,14 +26,13 @@ import type { TamanuApi } from '@api/TamanuApi';
 
 let telemetry: { startNavigation: Function; shutdown: Function } | null = null;
 
-// Defaults on until the server's setting arrives, so navigations before sign-in
-// (when no settings have loaded yet) are still captured. Matches the schema
-// default and the clinical app's behaviour.
-let isTelemetryEnabled = true;
+// Off until the server's setting arrives, matching the schema default (opt-in):
+// nothing is collected, including before sign-in, unless an operator turns it on.
+let isTelemetryEnabled = false;
 
-/** Called once the portal's settings load, so operators can turn capture off. */
+/** Called once the portal's settings load, so operators can turn capture on/off. */
 export function setPortalTelemetryEnabled(enabled: boolean) {
-  isTelemetryEnabled = enabled !== false;
+  isTelemetryEnabled = enabled === true;
 }
 
 // One id per page load, standing in for the browser session. The portal is

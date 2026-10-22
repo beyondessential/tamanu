@@ -468,7 +468,7 @@ export const globalSettings = {
           description:
             'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to.',
           type: yup.boolean(),
-          defaultValue: true,
+          defaultValue: false,
         },
         retentionDays: {
           name: 'Retention',
@@ -477,22 +477,6 @@ export const globalSettings = {
           type: yup.number().integer().positive(),
           defaultValue: 30,
           unit: 'days',
-        },
-      },
-    },
-    // TEMPORARY (spec: BTEL) — artificial latency for validating browser telemetry
-    // on preview deployments. Off by default; flip requestDelayMs on via settings to
-    // make the app feel slow and confirm the telemetry reflects it. Remove before merge.
-    chaos: {
-      name: 'Chaos (temporary)',
-      description: 'Temporary testing aids for preview deployments; not for production.',
-      properties: {
-        requestDelayMs: {
-          name: 'Request delay',
-          description: 'Artificial delay added to every API request, in milliseconds (0 = off).',
-          type: yup.number().integer().min(0),
-          defaultValue: 0,
-          unit: 'ms',
         },
       },
     },

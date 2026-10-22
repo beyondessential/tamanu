@@ -27,11 +27,11 @@ const SESSION_ID = `web-session-${uuidv4()}`;
 function readTelemetryEnabled() {
   try {
     const settings = JSON.parse(window?.localStorage?.getItem(LOCAL_STORAGE_KEYS.SETTINGS));
-    // Default on until the facility's setting is known (pre-login), matching the
-    // schema default.
-    return settings?.telemetry?.enabled ?? true;
+    // Off until the setting is known, matching the schema default (opt-in): nothing
+    // is collected, including before sign-in, unless an operator turns it on.
+    return settings?.telemetry?.enabled ?? false;
   } catch {
-    return true;
+    return false;
   }
 }
 

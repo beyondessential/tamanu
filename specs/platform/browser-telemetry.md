@@ -18,7 +18,7 @@ Every API request is timed, and each in-app navigation is timed as a page load. 
 - [ ] A request issued when no navigation is loading is recorded as a standalone request span — its own trace, with no navigation parent.
 - [ ] A navigation span's duration is the page-load time — from navigation start until the page settles (see [Determining when a page has loaded](#determining-when-a-page-has-loaded)).
 - [ ] Telemetry is collected on all three web interfaces: the clinical web app, the admin panel, and the patient portal.
-- [ ] Collection begins from the initial application load, before the user has signed in, so the login screen and the navigations leading up to sign-in are measured like any other page.
+- [ ] When telemetry is enabled, collection begins from the initial application load, before the user has signed in, so the login screen and the navigations leading up to sign-in are measured like any other page.
 - [ ] Collecting and reporting telemetry never blocks the application or surfaces an error to the user; it is best-effort, and any failure in the telemetry path is swallowed.
 
 ## Determining when a page has loaded
@@ -64,6 +64,6 @@ The receiving server writes events into a single flat table — one row per span
 
 Telemetry is governed by settings so operators can control it without a redeploy. Because every web client collects it, and they do not all talk to a facility server, the telemetry settings (enablement and retention) apply server-wide rather than per facility. The enablement flag is exposed to the web clients so a client knows whether to collect at all; retention is read only by the servers.
 
-- [ ] A setting turns browser telemetry on or off, defaulting to on; when off, the clients collect and send nothing.
+- [ ] A setting turns browser telemetry on or off, defaulting to off; when off, the clients collect and send nothing. It is opt-in: an operator enables it per deployment.
 - [ ] The enablement setting is exposed to every web client, including the patient portal.
 - [ ] A single server-wide setting defines the retention period, defaulting to one month; the scheduled prune on each server holding raw telemetry (facility and central) applies it.
