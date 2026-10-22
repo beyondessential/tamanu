@@ -11,7 +11,7 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 ### Printing the sheet
 
 - Printed from Bed management, through a **Diet summary** button beside Handover notes in the search bar
-- Covers the facility the user is logged in to. With no area selected in the search bar it covers every ward; with an area selected it covers that ward only
+- Covers the facility the user is logged in to. With no area selected in the search bar it covers every ward; with an area selected it covers that ward only. The other Bed management filters, such as bed status, don't affect the sheet
 - Anyone who can list patients and read areas can print it, the same permissions handover notes use (`list Patient`, `read LocationGroup`). There's no new permission
 - It's a snapshot of the facility at the moment of printing, and the print date and time appear in the footer
 - Opens in the standard PDF preview modal with a print action, like the handover notes printout (`HandoverNotesModal`)
@@ -21,16 +21,17 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 ### Who appears on it
 
 - Every patient with an open admission at the facility (admission encounters only, `encounters.end_date IS NULL`). Emergency, triage and clinic encounters are left off, even when they have a bed
-- The ward is the encounter's area (location group), and the bed is its location
+- The ward is the encounter's area (location group), and the bed is its location. Every bed belongs to an area
+- Wards with no admitted patients are left off the sheet, in both the summary and the detail
 - Patients are identified by name and NHN (display ID)
 
 ### Layout
 
-- Landscape A4, with letterhead, title ("Diet summary sheet | {month} | {date}") and a footer showing print date and time and page numbers
+- Landscape A4, with letterhead, title ("Diet summary sheet | {print date}") and a footer showing print date and time and page numbers
 - Page 1 holds a summary table: a **Hospital total** row first, then one row per ward with that ward's diet counts (ward sub-totals)
 - Per-ward detail follows, running on from page to page. A ward that breaks across a page continues under "{Ward} (continued)" with the column headers repeated
 - Each ward section is a patient × diet grid: patient name, NHN and bed, then a tick under each of the patient's diets. A **Sub total** row at the top of each ward table carries that ward's counts, matching the summary's total-first layout
-- Patients are ordered by bed within a ward (provisional, not yet confirmed)
+- Patients are ordered by bed within a ward
 
 ### Counting
 
@@ -48,9 +49,3 @@ Kitchen and ward staff use the sheet to see how many meals of each diet to prepa
 ## Open questions
 
 - With a single ward selected, does the sheet keep the summary page and Hospital total, or go straight to that ward's detail?
-- Do the other Bed management filters (bed status, etc.) narrow the sheet, or does only the area filter apply?
-- What does "{month}" in the title mean? Probably the print month, but the attached concept is ambiguous
-- Patient order within a ward: by bed or by name?
-- Wards with no admitted patients: shown in the summary as empty rows, left out of the detail?
-- Ward sub-total row: top of the ward table (as mocked) or bottom?
-- Patients whose location has no area (every encounter has a location, but an area is optional): left off the sheet, or grouped under "No ward"?
