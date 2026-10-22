@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "name": "tamanu",
+  "deps": {
+    "lockfiles": ["package-lock.json"],
+    "link": [
+      "node_modules",
+      "packages/api-client/node_modules",
+      "packages/build-tooling/node_modules",
+      "packages/central-server/node_modules",
+      "packages/constants/node_modules",
+      "packages/database/node_modules",
+      "packages/errors/node_modules",
+      "packages/facility-server/node_modules",
+      "packages/settings/node_modules",
+      "packages/shared/node_modules",
+      "packages/ui-components/node_modules",
+      "packages/upgrade/node_modules",
+      "packages/utils/node_modules",
+      "packages/web/node_modules"
+    ],
+    "mode": "clone"
+  },
+  "needs": { "postgres": true },
+  "serve": { "ready": { "path": "/api/public/ping", "timeoutSeconds": 300 } },
+  "provides": {
+    "baseUrl": "http://127.0.0.1:{port}",
+    "accounts": [
+      { "name": "admin", "how": "log in as admin@tamanu.io / admin, on the facility (baseUrl) or the admin panel (info.adminUrl)" },
+      { "name": "facility-1", "how": "sync user facility-1@tamanu.io / facility-1" }
+    ],
+    "fixtures": [
+      "facility-1, synced to central once at seed",
+      "the default reference data spreadsheet",
+      "the vitals, neurological assessment and NCD primary screening programs",
+      "info.centralUrl, info.facilityUrl and info.adminUrl for the servers behind the web app"
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+. "$RIG_RECIPE_DIR/lib.sh"
+
+facility_db=$(facility_db)
+[ -n "$(admin_sql -c "SELECT 1 FROM pg_database WHERE datname = '$facility_db'")" ] ||
+  admin_sql -c "CREATE DATABASE $facility_db TEMPLATE $(facility_template)"
+
+set -- $(free_ports 3)
+central_port=$1 facility_port=$2 admin_port=$3
+# The facility refuses to start when the central it last synced with differs from SYNC_URL.
+psql -qX -v ON_ERROR_STOP=1 "$(db_url "$facility_db")" \
+  -c "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
+
+(on_port "$central_port"; exec_central) &
+wait_for "http://127.0.0.1:$central_port/api/public/ping"
+(
+  on_port "$facility_port"
+  export DATABASE_URL="$(db_url "$facility_db")" SYNC_URL="$(sync_url "$central_port")" TAMANU_FACILITY_IDS=facility-1
+  exec_facility
+) &
+wait_for "http://127.0.0.1:$facility_port/api/public/ping"
+
+cat > "$RIG_INFO_FILE" <<JSON
+{ "centralUrl": "http://127.0.0.1:$central_port", "facilityUrl": "http://127.0.0.1:$facility_port", "adminUrl": "http://127.0.0.1:$admin_port" }
+JSON
+
+cd "$RIG_SOURCE/packages/web"
+export VITE_PREVIEW_HTTP=true
+TAMANU_VITE_TARGET="http://127.0.0.1:$central_port" ../../node_modules/.bin/vite preview --host "$RIG_HOST" --port "$admin_port" --strictPort &
+TAMANU_VITE_TARGET="http://127.0.0.1:$facility_port" exec ../../node_modules/.bin/vite preview --host "$RIG_HOST" --port "$RIG_PORT" --strictPort
