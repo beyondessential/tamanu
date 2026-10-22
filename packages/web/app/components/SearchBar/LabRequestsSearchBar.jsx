@@ -27,15 +27,6 @@ const BASE_ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'allFacilities'
 const PUBLISHED_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'publishedDate', 'status'];
 const ALL_ADVANCED_FIELDS = [...BASE_ADVANCED_FIELDS, 'priority', 'laboratory'];
 
-// Terminal and published statuses aren't offered as active-request filter options.
-const EXCLUDED_STATUS_FILTER_OPTIONS = [
-  LAB_REQUEST_STATUSES.PUBLISHED,
-  LAB_REQUEST_STATUSES.DELETED,
-  LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-  LAB_REQUEST_STATUSES.CANCELLED,
-  LAB_REQUEST_STATUSES.INVALIDATED,
-];
-
 const FacilityCheckbox = styled.div`
   display: flex;
   align-items: center;
@@ -67,19 +58,19 @@ export const LabRequestsSearchBar = ({ statuses }) => {
   });
 
   const { getTranslation } = useTranslation();
+  // Only offer the statuses this listing actually shows, so the filter can't drift from the table.
+  const listedStatuses = publishedStatus
+    ? LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED
+    : LAB_REQUEST_TABLE_STATUS_GROUPINGS.ACTIVE;
   const statusFilterOptions = useMemo(
     () =>
       Object.entries(LAB_REQUEST_STATUS_LABELS)
-        .filter(([value]) =>
-          publishedStatus
-            ? LAB_REQUEST_TABLE_STATUS_GROUPINGS.COMPLETED.includes(value)
-            : !EXCLUDED_STATUS_FILTER_OPTIONS.includes(value),
-        )
+        .filter(([value]) => listedStatuses.includes(value))
         .map(([value, label]) => ({
           value,
           label: getTranslation(getEnumStringId(value, LAB_REQUEST_STATUS_LABELS), label),
         })),
-    [getTranslation, publishedStatus],
+    [getTranslation, listedStatuses],
   );
   // MultiAutocompleteField reads options through a suggester; serve the static enum locally.
   const statusSuggester = useMemo(
