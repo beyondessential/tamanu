@@ -1,5 +1,5 @@
 import React from 'react';
-import { TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedEnum, TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 
 import { useAdministeredVaccinesQuery } from '@api/queries/useAdministeredVaccinesQuery';
@@ -16,6 +16,7 @@ const STATUS_TONES: Partial<Record<string, BadgeTone>> = {
 };
 
 export const VaccinationsRecord = () => {
+  const { getTranslation } = useTranslation();
   const { data: upcoming, isLoading: isLoadingUpcoming } = useUpcomingVaccinesQuery();
   const { data: recorded, isLoading: isLoadingRecorded } = useAdministeredVaccinesQuery();
 
@@ -52,7 +53,10 @@ export const VaccinationsRecord = () => {
             <RecordItem
               key={vaccine.scheduledVaccine.id}
               title={vaccine.scheduledVaccine.label}
-              details={[vaccine.scheduledVaccine.doseLabel, formatWeekOf(vaccine.dueDate)]}
+              details={[
+                vaccine.scheduledVaccine.doseLabel,
+                formatWeekOf(vaccine.dueDate, getTranslation),
+              ]}
               badge={<TranslatedEnum value={vaccine.status} enumValues={VACCINE_STATUS_LABELS} />}
               badgeTone={STATUS_TONES[vaccine.status] ?? 'neutral'}
             />
@@ -82,7 +86,10 @@ export const VaccinationsRecord = () => {
                 [vaccine.scheduledVaccine?.doseLabel, formatRecordDate(vaccine.date)]
                   .filter(Boolean)
                   .join(' · '),
-                [formatVaccineGivenBy(vaccine), formatVaccineFacilityOrCountry(vaccine)]
+                [
+                  formatVaccineGivenBy(vaccine, getTranslation),
+                  formatVaccineFacilityOrCountry(vaccine),
+                ]
                   .filter(part => part !== '--')
                   .join(', '),
               ]}

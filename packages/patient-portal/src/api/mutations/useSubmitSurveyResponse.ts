@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
-import { notifyError, notifySuccess } from '@tamanu/ui-components';
+import { notifyError, notifySuccess, useTranslation } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
 import { type CreateSurveyResponseRequest } from '@tamanu/shared/schemas/patientPortal';
 
@@ -10,6 +10,7 @@ export const useSubmitSurveyResponse = (
   const queryClient = useQueryClient();
   const api = useApi();
   const navigate = useNavigate();
+  const { getTranslation } = useTranslation();
 
   return useMutation<void, Error, CreateSurveyResponseRequest>({
     mutationFn: async payload => {
@@ -18,7 +19,7 @@ export const useSubmitSurveyResponse = (
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outstandingSurveys'] });
       navigate('/');
-      notifySuccess('Form submitted');
+      notifySuccess(getTranslation('patientPortal.form.submitted', 'Form submitted'));
     },
     onError: error => {
       notifyError(error);

@@ -3,7 +3,7 @@ import { get } from 'es-toolkit/compat';
 import { styled } from '@mui/material';
 
 import { useQuery } from '@tanstack/react-query';
-import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
+import { Alert, SettingsContext, TranslatedText, useApi } from '@tamanu/ui-components';
 import { PageLoading } from '@components/layout';
 import { route } from '@tamanu/api-client';
 
@@ -38,8 +38,10 @@ export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps
   if (isError) {
     return (
       <ErrorAlert severity="error">
-        There was an error loading settings. Please try again or contact support if the problem
-        persists.
+        <TranslatedText
+          stringId="patientPortal.settings.loadError"
+          fallback="There was an error loading settings. Please try again or contact support if the problem persists."
+        />
       </ErrorAlert>
     );
   }

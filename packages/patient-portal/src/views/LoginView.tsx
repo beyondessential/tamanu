@@ -3,7 +3,7 @@ import { Box, Divider, Typography, styled } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button, TAMANU_COLORS, TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { ERROR_TYPE } from '@tamanu/errors';
 import { useLogin } from '@api/mutations';
 import { TextField } from '@components/TextField';
@@ -21,15 +21,30 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
-const getErrorMessage = (error: unknown) => {
+const LoginErrorMessage = ({ error }: { error: unknown }) => {
   const maybeProblem = error as { type?: string; status?: number } | undefined;
   if (maybeProblem?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && maybeProblem.status === 401) {
-    return 'Invalid verification code';
+    return (
+      <TranslatedText
+        stringId="patientPortal.login.error.invalidCode"
+        fallback="Invalid verification code"
+      />
+    );
   }
   if (maybeProblem?.type === ERROR_TYPE.AUTH_TOKEN_INVALID && maybeProblem.status === 401) {
-    return 'Verification code has expired';
+    return (
+      <TranslatedText
+        stringId="patientPortal.login.error.expiredCode"
+        fallback="Verification code has expired"
+      />
+    );
   }
-  return 'An error occurred while logging in';
+  return (
+    <TranslatedText
+      stringId="patientPortal.login.error.generic"
+      fallback="An error occurred while logging in"
+    />
+  );
 };
 
 /**
@@ -51,7 +66,11 @@ const EmailSection = ({ email }: { email: string }) => {
     <EmailSectionContainer>
       <MarkEmailReadIcon fontSize="small" style={{ color: TAMANU_COLORS.blue }} />
       <Typography fontWeight={500} variant="body1">
-        Email sent to {maskedEmail}
+        <TranslatedText
+          stringId="patientPortal.login.emailSentTo"
+          fallback="Email sent to :email"
+          replacements={{ email: maskedEmail }}
+        />
       </Typography>
     </EmailSectionContainer>
   );
@@ -61,6 +80,7 @@ export const LoginView = () => {
   const { mutate: login, error: loginError, reset: resetLogin, isPending } = useLogin();
   const location = useLocation();
   const navigate = useNavigate();
+  const { getTranslation } = useTranslation();
 
   const storedEmail = location.state?.email;
   const isSigningIn = useRef(false);
@@ -91,11 +111,18 @@ export const LoginView = () => {
     <Card>
       <Box display="flex" alignItems="center" justifyContent="center" gap={0.75} mb={1}>
         <ShieldIcon fontSize="small" sx={{ color: TAMANU_COLORS.blue }} />
-        <Typography variant="h3">Account authentication</Typography>
+        <Typography variant="h3">
+          <TranslatedText
+            stringId="patientPortal.login.authentication.title"
+            fallback="Account authentication"
+          />
+        </Typography>
       </Box>
       <Typography variant="body1" color="text.secondary" style={{ textWrap: 'balance' }}>
-        If there is an account associated with the email address provided you will receive a 6-digit
-        verification code.
+        <TranslatedText
+          stringId="patientPortal.login.authentication.text"
+          fallback="If there is an account associated with the email address provided you will receive a 6-digit verification code."
+        />
       </Typography>
       <form onSubmit={handleSubmit}>
         <Box sx={{ my: 3 }}>
@@ -103,7 +130,7 @@ export const LoginView = () => {
             <EmailSection email={storedEmail} />
           ) : (
             <TextField
-              label="Email address"
+              label={getTranslation('general.localisedField.email.label', 'Email address')}
               fullWidth
               id="email"
               type="email"
@@ -115,13 +142,16 @@ export const LoginView = () => {
           )}
         </Box>
         <Typography variant="body1" sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
-          Enter 6-digit verification code
+          <TranslatedText
+            stringId="patientPortal.login.enterCode"
+            fallback="Enter 6-digit verification code"
+          />
         </Typography>
         <Box sx={{ mb: 3 }}>
           <VerificationCodeInput
             name="verificationCode"
             error={!!loginError}
-            helperText={loginError ? getErrorMessage(loginError) : ''}
+            helperText={loginError ? <LoginErrorMessage error={loginError} /> : ''}
             onFocus={() => {
               if (!loginError) return;
               // Reset error state when the input is re-focused after submitting
@@ -130,12 +160,12 @@ export const LoginView = () => {
           />
         </Box>
         <Button type="submit" fullWidth variant="contained" disabled={isPending}>
-          Log in
+          <TranslatedText stringId="patientPortal.login.title" fallback="Log in" />
         </Button>
       </form>
       <Divider sx={{ my: 2 }} />
       <Button onClick={() => navigate('/login')} variant="text">
-        Back to login
+        <TranslatedText stringId="patientPortal.login.back" fallback="Back to login" />
       </Button>
     </Card>
   );

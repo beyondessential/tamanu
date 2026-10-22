@@ -8,6 +8,12 @@ const locale = globalThis.navigator?.language ?? 'default';
 
 const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'short' });
 
+type GetTranslation = (
+  stringId: string,
+  fallback: string,
+  options?: { replacements?: Record<string, string> },
+) => string;
+
 // Medication-specific formatting functions
 export const formatDose = (
   doseAmount: OngoingPrescription['doseAmount'],
@@ -31,12 +37,15 @@ export const formatRoute = (route: OngoingPrescription['route']) => {
 };
 
 // Vaccination-specific formatting functions
-export const formatVaccineGivenBy = (vaccine: AdministeredVaccine) => {
+export const formatVaccineGivenBy = (
+  vaccine: AdministeredVaccine,
+  getTranslation: GetTranslation,
+) => {
   if (vaccine.status === 'NOT_GIVEN') {
-    return 'Not given';
+    return getTranslation('vaccine.property.status.notGiven', 'Not given');
   }
   if (vaccine.givenElsewhere) {
-    return 'Given elsewhere';
+    return getTranslation('vaccine.property.status.givenElsewhere', 'Given elsewhere');
   }
   return vaccine.givenBy || vaccine.recorder?.displayName || '--';
 };
@@ -48,11 +57,16 @@ export const formatVaccineFacilityOrCountry = (vaccine: AdministeredVaccine) => 
   return vaccine.location?.name || '--';
 };
 
-export const formatWeekOf = (dateString: string | null | undefined) => {
+export const formatWeekOf = (
+  dateString: string | null | undefined,
+  getTranslation: GetTranslation,
+) => {
   if (!dateString) return '--';
   try {
     const mondayDate = startOfWeek(parseISO(dateString), { weekStartsOn: 1 });
-    return `Week of ${dateFormatter.format(mondayDate)}`;
+    return getTranslation('patientPortal.vaccinations.weekOf', 'Week of :date', {
+      replacements: { date: dateFormatter.format(mondayDate) },
+    });
   } catch {
     return '--';
   }

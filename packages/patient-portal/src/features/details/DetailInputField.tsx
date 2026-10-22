@@ -84,6 +84,7 @@ const ReferenceDataControl = ({
   relation,
   ...props
 }: ControlProps & { type: string; relation: 'ethnicity' | 'insurer' | 'occupation' }) => {
+  const { getReferenceDataTranslation } = useTranslation();
   const { data: currentOptions = [] } = useReferenceDataOptionsQuery(type);
   const recorded = useCurrentUser().additionalData?.[relation];
   const isRecordedRetired = recorded && !currentOptions.some(({ id }) => id === recorded.id);
@@ -91,7 +92,10 @@ const ReferenceDataControl = ({
   return (
     <ChoiceControl
       {...props}
-      options={options.map(({ id, name }) => ({ value: id, label: name }))}
+      options={options.map(({ id, name }) => ({
+        value: id,
+        label: getReferenceDataTranslation({ value: id, category: type, fallback: name }),
+      }))}
     />
   );
 };

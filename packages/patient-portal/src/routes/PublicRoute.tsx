@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import { PageLoading } from '@components/layout';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TAMANU_COLORS, useTranslation } from '@tamanu/ui-components';
 
 const PageContainer = styled(Box)`
   position: relative;
@@ -43,12 +43,15 @@ const TamanuLogo = styled('img')`
   top: 64px;
 `;
 
-const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
-  <PageContainer>
-    <TamanuLogo src={tamanuLogoBlue} alt="Tamanu Logo" />
-    {children}
-  </PageContainer>
-);
+const PublicPageLayout = ({ children }: { children: React.ReactNode }) => {
+  const { getTranslation } = useTranslation();
+  return (
+    <PageContainer>
+      <TamanuLogo src={tamanuLogoBlue} alt={getTranslation('patientPortal.logo', 'Tamanu Logo')} />
+      {children}
+    </PageContainer>
+  );
+};
 
 export const PublicRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isPending } = useCurrentUserQuery();
