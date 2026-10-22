@@ -23,9 +23,10 @@ import {
   SuggesterSelectField,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
+import { route } from '@tamanu/api-client';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
@@ -325,8 +326,8 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
-  const { writeAndViewEncounter } = useEncounter();
-  const {getCurrentDateTime} = useDateTime();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
+  const { getCurrentDateTime } = useDateTime();
 
   const triage = encounter.triages?.[0];
 
@@ -338,19 +339,20 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     chiefComplaintId,
     secondaryComplaintId,
   }) => {
-    await api.put(`triage/${triage?.id}`, {
+    await api.put(route('triage/:triageId', { triageId: triage?.id }), {
       submittedTime: getCurrentDateTime(),
       encounterId: encounter.id,
       arrivalTime,
       triageTime: startDate,
       arrivalModeId,
       score,
-      chiefComplaintId, 
+      chiefComplaintId,
       secondaryComplaintId,
     });
 
     // Keep the encounter start date in sync with the triage start date when using this form
-    await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
+    await updateEncounter({ startDate, skipSystemNotes: true });
+    onClose();
   };
 
   const onSubmitEncounterForm = async ({
@@ -361,7 +363,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     reasonForEncounter,
     estimatedEndDate,
   }) => {
-    await writeAndViewEncounter(encounter.id, {
+    await updateEncounter({
       submittedTime: getCurrentDateTime(),
       startDate,
       referralSourceId,
@@ -370,6 +372,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       reasonForEncounter,
       estimatedEndDate,
     });
+    onClose();
   };
 
   return (

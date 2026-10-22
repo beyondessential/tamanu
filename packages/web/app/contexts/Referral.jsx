@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useApi } from '../api';
+import { route } from '@tamanu/api-client';
 
 const ReferralContext = React.createContext({
   referral: null,
@@ -18,13 +19,13 @@ export const ReferralProvider = ({ children }) => {
 
   // write Referral data to the central server.
   const saveReferral = async (referralId, data) => {
-    await api.put(`referral/${referralId}`, data);
+    await api.put(route('referral/:referralId', { referralId }), data);
   };
 
   // get Referral data from the central server and save it to state.
-  const loadReferral = async (referralId) => {
+  const loadReferral = async referralId => {
     setIsLoadingReferral(true);
-    const data = await api.get(`referral/${referralId}`);
+    const data = await api.get(route('referral/:referralId', { referralId }));
     setReferral({ ...data });
     setIsLoadingReferral(false);
   };

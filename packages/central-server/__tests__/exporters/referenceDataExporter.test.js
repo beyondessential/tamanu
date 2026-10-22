@@ -144,6 +144,33 @@ describe('Reference data exporter', () => {
       // Permission resolved (no "noun not defined" / forbidden error) and the file downloaded.
       expect(Buffer.isBuffer(result.body)).toBe(true);
     });
+
+    it('forbids exporting patient data without list permission on each patient data type', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [{ verb: 'list', noun: 'Patient' }]);
+
+      const result = await app
+        .get('/v1/admin/export/referenceData')
+        .query(qs.stringify({ includedDataTypes: ['patient', 'administeredVaccine'] }));
+
+      expect(result).toBeForbidden();
+      expect(result.body.error.message).toBe(
+        'No permission to perform action “list” on “AdministeredVaccine”',
+      );
+    });
+
+    it('allows exporting patient data with list permission on each patient data type', async () => {
+      await makeRoleWithPermissions(models, 'practitioner', [
+        { verb: 'list', noun: 'Patient' },
+        { verb: 'list', noun: 'AdministeredVaccine' },
+      ]);
+
+      const result = await app
+        .get('/v1/admin/export/referenceData')
+        .query(qs.stringify({ includedDataTypes: ['patient', 'administeredVaccine'] }))
+        .responseType('blob');
+
+      expect(Buffer.isBuffer(result.body)).toBe(true);
+    });
   });
 
   it('Should export empty data if no data type selected', async () => {

@@ -6,6 +6,7 @@ import {
   LoginPage,
   SidebarPage,
   BedManagementPage,
+  RecentlyDischargedPatientsPage,
   ReportsPage,
   ActiveImagingRequestsPage,
   CompletedImagingRequestsPage,
@@ -23,6 +24,8 @@ import {
   ProgramRegistryPage,
   LocationBookingsPage,
   OutpatientAppointmentsPage,
+  PatientDataAdminPage,
+  ReferenceDataAdminPage,
 } from '../pages';
 
 type BaseFixtures = {
@@ -35,6 +38,7 @@ type BaseFixtures = {
   loginPage: LoginPage;
   sidebarPage: SidebarPage;
   bedManagementPage: BedManagementPage;
+  recentlyDischargedPatientsPage: RecentlyDischargedPatientsPage;
   reportsPage: ReportsPage;
   activeImagingRequestPage: ActiveImagingRequestsPage;
   completedImagingRequestsPage: CompletedImagingRequestsPage;
@@ -52,6 +56,8 @@ type BaseFixtures = {
   programRegistryPage: ProgramRegistryPage;
   locationBookingsPage: LocationBookingsPage;
   outpatientAppointmentsPage: OutpatientAppointmentsPage;
+  patientDataAdminPage: PatientDataAdminPage;
+  referenceDataAdminPage: ReferenceDataAdminPage;
 };
 export const test = base.extend<BaseFixtures>({
   // Define `__name` in every browser context. Specs and page objects import @tamanu
@@ -122,6 +128,10 @@ export const test = base.extend<BaseFixtures>({
     await use(new BedManagementPage(page));
   },
 
+  recentlyDischargedPatientsPage: async ({ page }, use) => {
+    await use(new RecentlyDischargedPatientsPage(page));
+  },
+
   reportsPage: async ({ page }, use) => {
     await use(new ReportsPage(page));
   },
@@ -188,6 +198,14 @@ export const test = base.extend<BaseFixtures>({
 
   outpatientAppointmentsPage: async ({ page }, use) => {
     await use(new OutpatientAppointmentsPage(page));
+  },
+
+  patientDataAdminPage: async ({ page }, use) => {
+    await use(new PatientDataAdminPage(page));
+  },
+
+  referenceDataAdminPage: async ({ page }, use) => {
+    await use(new ReferenceDataAdminPage(page));
   },
 });
 

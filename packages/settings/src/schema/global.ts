@@ -1674,6 +1674,7 @@ export const globalSettings = {
               properties: {
                 reports: { properties: layoutModuleProperties },
                 bedManagement: { properties: layoutModuleProperties },
+                recentlyDischargedPatients: { properties: layoutModuleProperties },
               },
             },
           },

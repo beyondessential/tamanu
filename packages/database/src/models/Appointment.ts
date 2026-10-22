@@ -237,14 +237,23 @@ export class Appointment extends Model {
       },
     });
 
+    // Not ignoreDuplicates: the (appointment_id, procedure_type_id) constraint is deferrable,
+    // and Postgres rejects deferrable constraints as ON CONFLICT arbiters.
+    const existing = await AppointmentProcedureType.findAll({
+      where: { appointmentId: this.id },
+      attributes: ['procedureTypeId'],
+      paranoid: false,
+    });
+    const existingProcedureTypeIds = new Set(
+      existing.map(({ procedureTypeId }) => procedureTypeId),
+    );
     await AppointmentProcedureType.bulkCreate(
-      uniqueProcedureTypeIds.map(procedureTypeId => ({
-        appointmentId: this.id,
-        procedureTypeId,
-      })),
-      {
-        ignoreDuplicates: true,
-      },
+      uniqueProcedureTypeIds
+        .filter(procedureTypeId => !existingProcedureTypeIds.has(procedureTypeId))
+        .map(procedureTypeId => ({
+          appointmentId: this.id,
+          procedureTypeId,
+        })),
     );
   }
 }

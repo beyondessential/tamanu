@@ -19,6 +19,7 @@ import { AutocompleteField, DateField, Field } from '../components/Field';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
 import { TEMPLATE_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 
 const TallMultilineTextField = props => (
   <MultilineTextField
@@ -55,7 +56,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
         return;
       }
       setTemplateLoading(true);
-      const template = await api.get(`template/${templateId}`);
+      const template = await api.get(route('template/:templateId', { templateId }));
       setValues(values => ({
         ...values,
         title: template.title,
@@ -84,7 +85,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           suggester={practitionerSuggester}
           data-testid="field-ytix"
         />
-        {/* TODO: this date goes nowhere behind scenes */ }
+        {/* TODO: this date goes nowhere behind scenes */}
         <Field
           name="date"
           label={

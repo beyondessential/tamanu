@@ -1,0 +1,174 @@
+<!-- component: FormGrid -->
+<!-- Preview for the Tamanu design system — see ../design-system.md (#formgrid) -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FormGrid — Tamanu design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#326699;--primary-dark:#2f4358;--primary30:#C2D2E1;--primary10:#EBF0F5;
+  --blue:#1172D1;--bright-blue:#67A6E3;--very-light-blue:#F4F9FF;
+  --darkest:#444444;--dark:#666666;--mid:#888888;--soft:#b8b8b8;
+  --alert:#f76853;--light-alert:#fff0ee;--safe:#47ca80;--green:#19934E;
+  --orange:#f17f16;--dark-orange:#CB6100;--secondary:#ffcc24;
+  --white:#ffffff;--off-white:#fafafa;--bg:#f3f5f7;--bg2:#f9fafb;
+  --outline:#dedede;--soft-outline:#ebebeb;
+}
+*{box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;}
+body{margin:0;font-family:'Roboto','Helvetica','Arial',sans-serif;color:var(--darkest);background:var(--bg);line-height:1.4;}
+.page{max-width:980px;margin:0 auto;padding:40px 32px 80px;}
+.ds-title{font-size:24px;font-weight:500;line-height:32px;margin:0 0 4px;}
+.ds-sub{font-size:14px;color:var(--mid);margin:0 0 36px;}
+.ds-sub code{font-family:ui-monospace,monospace;font-size:12px;color:var(--dark);}
+.ds-section{margin-bottom:44px;}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);margin:0 0 18px;border-bottom:1px solid var(--soft-outline);padding-bottom:8px;}
+.ds-row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;}
+.ds-cell{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+.ds-caption{font-size:11px;line-height:15px;color:var(--mid);}
+
+/* FormGrid */
+.form-grid{display:grid;align-items:start;grid-column-gap:0.7rem;grid-row-gap:1.2rem;}
+.cols-1{grid-template-columns:repeat(1,1fr);}
+.cols-2{grid-template-columns:repeat(2,1fr);}
+.cols-3{grid-template-columns:repeat(3,1fr);}
+.span-all{grid-column:1 / -1;}
+
+.form-card{background:#fff;border:1px solid #dedede;border-radius:5px;padding:24px;max-width:720px;}
+
+/* Field stub */
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:14px;font-weight:500;color:#444;}
+.field label .req{color:#f76853;}
+.field .input{height:40px;border:1px solid #dedede;border-radius:3px;background:#fff;padding:0 12px;display:flex;align-items:center;font-size:14px;color:#444;}
+.field .input .placeholder{color:#b8b8b8;}
+
+/* Buttons */
+.btn{font:500 14px/16px Roboto;padding:11px 18px 12px;min-width:100px;border-radius:3px;border:1px solid transparent;cursor:pointer;}
+.btn-primary{background:#326699;color:#fff;border-color:#326699;}
+.btn-outlined{background:transparent;color:#326699;border-color:#326699;}
+
+.action-row{display:flex;justify-content:flex-end;gap:16px;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="ds-title">FormGrid</h1>
+  <p class="ds-sub">The form layout container — equal columns with consistent gaps. Grounded in <code>packages/ui-components/src/components/Form/FormGrid.js</code></p>
+
+  <!-- Section 1: Two columns (default) -->
+  <section class="ds-section">
+    <h2 class="ds-h">Two columns (default)</h2>
+    <div class="ds-cell">
+      <div class="form-card">
+        <div class="form-grid cols-2">
+          <div class="field">
+            <label>First name</label>
+            <div class="input">Ava</div>
+          </div>
+          <div class="field">
+            <label>Surname</label>
+            <div class="input">Williams</div>
+          </div>
+          <div class="field">
+            <label>Date of birth</label>
+            <div class="input"><span class="placeholder">dd/mm/yyyy</span></div>
+          </div>
+          <div class="field">
+            <label>Sex</label>
+            <div class="input"><span class="placeholder">Select</span></div>
+          </div>
+          <div class="field">
+            <label>Email address <span class="req">*</span></label>
+            <div class="input">ava.williams@example.com</div>
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <div class="input"><span class="placeholder">Enter phone number</span></div>
+          </div>
+          <div class="span-all">
+            <div class="action-row">
+              <button class="btn btn-outlined">Cancel</button>
+              <button class="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">columns=2 (default). Column gap 0.7rem, row gap 1.2rem. The action row spans the full width with grid-column: 1 / -1.</p>
+    </div>
+  </section>
+
+  <!-- Section 2: Single column -->
+  <section class="ds-section">
+    <h2 class="ds-h">Single column</h2>
+    <div class="ds-cell">
+      <div class="form-card" style="max-width:420px;">
+        <div class="form-grid cols-1">
+          <div class="field">
+            <label>Facility</label>
+            <div class="input"><span class="placeholder">Select a facility</span></div>
+          </div>
+          <div class="field">
+            <label>Role</label>
+            <div class="input">Clinician</div>
+          </div>
+          <div class="field">
+            <label>Email address <span class="req">*</span></label>
+            <div class="input"><span class="placeholder">Enter email address</span></div>
+          </div>
+          <div class="span-all">
+            <div class="action-row">
+              <button class="btn btn-outlined">Cancel</button>
+              <button class="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">columns={1} — for a compact, single-column form.</p>
+    </div>
+  </section>
+
+  <!-- Section 3: Three columns -->
+  <section class="ds-section">
+    <h2 class="ds-h">Three columns</h2>
+    <div class="ds-cell">
+      <div class="form-card">
+        <div class="form-grid cols-3">
+          <div class="field">
+            <label>Suburb</label>
+            <div class="input">Newtown</div>
+          </div>
+          <div class="field">
+            <label>State</label>
+            <div class="input">NSW</div>
+          </div>
+          <div class="field">
+            <label>Postcode</label>
+            <div class="input">2042</div>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <div class="input">Australia</div>
+          </div>
+          <div class="field">
+            <label>Blood type</label>
+            <div class="input"><span class="placeholder">Select</span></div>
+          </div>
+          <div class="field">
+            <label>Marital status</label>
+            <div class="input"><span class="placeholder">Select</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="ds-caption">columns={3} — denser layouts. Fields are fixed equal fractions (not auto-responsive).</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

@@ -21,8 +21,6 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAMANU_OPS_SSH:
-        required: true
 
 permissions:
   contents: read
@@ -38,8 +36,8 @@ jobs:
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
-          ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          ops-ref: ${{ fromJson(inputs.options).opsref }}
+          with-infra: true
+          infra-ref: ${{ fromJson(inputs.options).infraref }}
           tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
           tailscale-tags: ${{ vars.TS_TAGS }}
           tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
@@ -101,7 +99,7 @@ jobs:
 
       - name: Get full stack name
         id: stack
-        working-directory: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+        working-directory: infra/pulumi/stacks/${{ fromJson(inputs.options).infrastack }}
         run: |
           project=$(ruby -e 'require "yaml"; puts YAML.load(open "Pulumi.yaml")["name"]')
           echo "stackname=bes/$project/${{ inputs.deploy-name }}" >> $GITHUB_OUTPUT
@@ -110,7 +108,7 @@ jobs:
         id: up
         uses: pulumi/actions@v7
         with:
-          work-dir: ops/pulumi/stacks/${{ fromJson(inputs.options).opsstack }}
+          work-dir: infra/pulumi/stacks/${{ fromJson(inputs.options).infrastack }}
           command: up
           stack-name: ${{ steps.stack.outputs.stackname }}
           github-token: ${{ secrets.GITHUB_TOKEN }}

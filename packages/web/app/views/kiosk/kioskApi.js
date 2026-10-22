@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 
 import { useApi } from '../../api';
 
@@ -14,7 +15,7 @@ export const useKioskAppointmentQuery = appointmentId => {
   const api = useApi();
   return useQuery(
     ['kioskAppointment', appointmentId],
-    () => api.get(`kiosk/appointments/${encodeURIComponent(appointmentId)}`),
+    () => api.get(route('kiosk/appointments/:appointmentId', { appointmentId })),
     {
       enabled: Boolean(appointmentId),
       // Each patient's record is dropped as soon as their session ends
@@ -28,6 +29,6 @@ export const useKioskAppointmentQuery = appointmentId => {
 export const useKioskCheckInMutation = appointmentId => {
   const api = useApi();
   return useMutation(responses =>
-    api.post(`kiosk/appointments/${encodeURIComponent(appointmentId)}/checkIn`, { responses }),
+    api.post(route('kiosk/appointments/:appointmentId/checkIn', { appointmentId }), { responses }),
   );
 };

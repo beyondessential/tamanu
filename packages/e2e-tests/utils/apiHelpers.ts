@@ -26,6 +26,15 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
+export const getCurrentEncounterViaApi = async (api: APIRequestContext, patientId: string) => {
+  const encounterUrl = constructFacilityUrl(`/api/patient/${patientId}/currentEncounter`);
+  const response = await api.get(encounterUrl);
+  if (!response.ok()) {
+    throw new Error(`Failed to get current encounter: ${response.status()} ${await response.text()}`);
+  }
+  return response.json();
+};
+
 // Resolves the logged-in facility from browser storage. Kept separate from the API helpers so
 // they stay independent of the browser context: callers that have a page resolve the facilityId
 // here and pass it in, while callers that already hold it (e.g. fixtures) pass it directly.
@@ -172,14 +181,20 @@ export const createHospitalAdmissionEncounterViaAPI = async (
 };
 
 // Discharge = give the encounter an end date. An invoice can only be finalised once its encounter
-// has been discharged, so this is the arrange step for the finalisation journey.
+// has been discharged, so this is the arrange step for the finalisation journey. Without a
+// dischargerId the discharge is recorded as automatic, the way the system closes encounters.
 export const dischargeEncounterViaApi = async (
   api: APIRequestContext,
   encounterId: string,
-  endDate: string = new Date().toISOString().replace('T', ' ').substring(0, 19),
+  {
+    endDate = new Date().toISOString().replace('T', ' ').substring(0, 19),
+    dischargerId,
+  }: Partial<{ endDate: string; dischargerId: string }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl(`/api/encounter/${encounterId}`);
-  const response = await api.put(encounterUrl, { data: { endDate } });
+  const response = await api.put(encounterUrl, {
+    data: { endDate, ...(dischargerId && { discharge: { dischargerId } }) },
+  });
 
   if (!response.ok()) {
     const errorText = await response.text();

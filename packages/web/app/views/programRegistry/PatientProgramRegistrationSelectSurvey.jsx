@@ -16,6 +16,8 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
+
 const DisplayContainer = styled.div`
   border: 1px solid ${Colors.outline};
   padding: 0 15px 20px 20px;
@@ -52,9 +54,14 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
     ['programSurveys', patientProgramRegistration.programRegistry.programId, patientId],
     () =>
       api
-        .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`, {
-          ...(patientId ? { patientId } : {}),
-        })
+        .get(
+          route('program/:programId/surveys', {
+            programId: patientProgramRegistration.programRegistry.programId,
+          }),
+          {
+            ...(patientId ? { patientId } : {}),
+          },
+        )
         .then(response => {
           return response.data
             .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)

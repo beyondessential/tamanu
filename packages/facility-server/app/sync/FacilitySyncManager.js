@@ -23,6 +23,7 @@ import { getSyncConfig } from '../serverConfig';
 import { assertIfPulledRecordsUpdatedAfterPushSnapshot } from './assertIfPulledRecordsUpdatedAfterPushSnapshot';
 import { convergeSyncUser } from './convergeSyncUser';
 import { deleteRedundantLocalCopies } from './deleteRedundantLocalCopies';
+import { applyBootstrap } from './facilityBootstrap';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
 import { pullSettingsPsk } from './pullSettingsPsk';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -66,6 +67,8 @@ export class FacilitySyncManager {
   lastCompletedAt = 0;
 
   currentStartTime = 0;
+
+  hasBootstrapped = false;
 
   constructor({ models, sequelize, centralServer }) {
     this.models = models;
@@ -187,6 +190,10 @@ export class FacilitySyncManager {
 
     const pullSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PULL)) || -1;
 
+    if (pullSince === -1 && !this.hasBootstrapped) {
+      await this.bootstrap();
+    }
+
     // the first step of sync is to start a session and retrieve the session id
     const {
       status,
@@ -257,6 +264,22 @@ export class FacilitySyncManager {
     this.lastCompletedAt = new Date();
 
     return { queued: false, ran: true };
+  }
+
+  // spec: FBOOT#when-a-facility-bootstraps
+  // Lets the facility be logged into while its first sync runs. Once per process rather than before
+  // every attempt, as attempts repeat on every scheduled tick while the facility waits in central's
+  // sync queue. A failure is retried on the next attempt, and never holds up the sync itself.
+  async bootstrap() {
+    try {
+      const records = await this.centralServer.fetchBootstrap();
+      await this.sequelize.transaction(() =>
+        applyBootstrap({ sequelize: this.sequelize, models: this.models }, records),
+      );
+      this.hasBootstrapped = true;
+    } catch (error) {
+      log.warn('FacilitySyncManager.bootstrapFailed', { error: error.message });
+    }
   }
 
   async pushChanges(sessionId, newSyncClockTime) {

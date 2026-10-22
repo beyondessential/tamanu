@@ -10,12 +10,14 @@ import { LoginView, FacilitySelectionView, SetupWizardView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
+import { ForbiddenErrorProvider } from './contexts/ForbiddenError';
 import {
   LoadingStatusPage,
   UnavailableStatusPage,
   UnsupportedBrowserStatusPage,
   MobileStatusPage,
   SingleTabStatusPage,
+  SettingUpStatusPage,
 } from './components/StatusPage';
 import { useCheckServerAliveQuery } from './api/queries/useCheckServerAliveQuery';
 import { useBrowserSupport } from './api/queries/useBrowserSupport';
@@ -71,19 +73,23 @@ export function App({ sidebar, children }) {
   if (!isServerAlive) return <UnavailableStatusPage />;
   if (serverStatus?.setupRequired) return <SetupWizardView />;
   if (!isUserLoggedIn) return <LoginView />;
+  // spec: FSETUP#setting-up-screen
+  if (serverStatus?.isSettingUp) return <SettingUpStatusPage />;
   if (serverType === SERVER_TYPES.FACILITY && !isFacilitySelected) return <FacilitySelectionView />;
 
   return (
     <AppContainer>
       {sidebar}
-      <PromiseErrorBoundary>
-        <ErrorBoundary errorKey={location.pathname}>
-          <AppContentsContainer>
-            {children}
-            <ForbiddenErrorModal />
-          </AppContentsContainer>
-        </ErrorBoundary>
-      </PromiseErrorBoundary>
+      <ForbiddenErrorProvider>
+        <PromiseErrorBoundary>
+          <ErrorBoundary errorKey={location.pathname}>
+            <AppContentsContainer>
+              {children}
+              <ForbiddenErrorModal />
+            </AppContentsContainer>
+          </ErrorBoundary>
+        </PromiseErrorBoundary>
+      </ForbiddenErrorProvider>
     </AppContainer>
   );
 }

@@ -13,6 +13,7 @@ import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { MedicationSummary } from './MedicationSummary';
 import { useEncounter } from '../../contexts/Encounter';
+import { route } from '@tamanu/api-client';
 
 const StyledBaseModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -40,7 +41,7 @@ export const MedicationResumeModal = ({ medication, onResume, onClose }) => {
   const api = useApi();
 
   const onSubmit = async data => {
-    await api.post(`medication/${medication.id}/resume`, data);
+    await api.post(route('medication/:medicationId/resume', { medicationId: medication.id }), data);
     onResume();
     onClose();
   };

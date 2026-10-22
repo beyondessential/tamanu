@@ -26,6 +26,7 @@ import { notifyError } from '../../utils';
 import { getDefaultPrescriptionType } from '../../utils/getDefaultPrescriptionType';
 import { BodyText } from '../Typography';
 import { COLUMN_KEYS, PharmacyOrderMedicationTable } from './PharmacyOrderMedicationTable';
+import { route } from '@tamanu/api-client';
 
 const MODAL_TYPES = {
   REQUEST_CONFIRMATION: 'request_confirmation',
@@ -375,7 +376,10 @@ export const PharmacyOrderModal = React.memo(
           })),
         };
 
-        await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
+        await api.post(
+          route('encounter/:encounterId/pharmacyOrder', { encounterId: encounter.id }),
+          orderData,
+        );
       },
       {
         onSuccess: () => {
@@ -431,7 +435,12 @@ export const PharmacyOrderModal = React.memo(
       if (isDischargeOrOutpatient && !isOngoingMode) {
         columns.push(COLUMN_KEYS.DURATION);
       }
-      columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
+      columns.push(
+        COLUMN_KEYS.STOCK,
+        COLUMN_KEYS.DATE,
+        COLUMN_KEYS.LAST_SENT,
+        COLUMN_KEYS.QUANTITY,
+      );
       if (isDischargeOrOutpatient) {
         columns.push(COLUMN_KEYS.REPEATS);
       }

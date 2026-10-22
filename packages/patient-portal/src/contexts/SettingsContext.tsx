@@ -5,6 +5,7 @@ import { styled } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
 import { PageLoading } from '@components/layout';
+import { route } from '@tamanu/api-client';
 
 const ErrorAlert = styled(Alert)(() => ({
   width: 400,
@@ -19,7 +20,7 @@ interface SettingsProviderProps {
 
 export const settingsQueryOptions = (api: ReturnType<typeof useApi>, facilityId: string) => ({
   queryKey: ['settings', facilityId],
-  queryFn: () => api.get(`settings/${facilityId}`),
+  queryFn: () => api.get(route('settings/:facilityId', { facilityId })),
 });
 
 export const useSettings = (facilityId: string) => {

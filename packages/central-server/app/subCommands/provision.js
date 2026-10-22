@@ -9,6 +9,7 @@ import { utils } from 'xlsx';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   OTHER_REFERENCE_TYPES,
+  PATIENT_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
   PSEUDO_REFERENCE_TYPES,
   SETTINGS_SCOPES,
@@ -120,7 +121,7 @@ export function validateFullReferenceDataImport(workbook) {
 
   // Check all required data types are present and have data
   const missingDataTypes = [];
-  for (const dataType of GENERAL_IMPORTABLE_DATA_TYPES) {
+  for (const dataType of [...GENERAL_IMPORTABLE_DATA_TYPES, ...PATIENT_IMPORTABLE_DATA_TYPES]) {
     if (EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType)) continue;
     const sheetName = sheetNameDictionary[dataType];
     if (!sheetName || utils.sheet_to_json(workbook.Sheets[sheetName]).length === 0) {
@@ -208,7 +209,11 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     errors,
     models: store.models,
     stats,
-    includedDataTypes: [...GENERAL_IMPORTABLE_DATA_TYPES, ...PERMISSION_IMPORTABLE_DATA_TYPES],
+    includedDataTypes: [
+      ...GENERAL_IMPORTABLE_DATA_TYPES,
+      ...PATIENT_IMPORTABLE_DATA_TYPES,
+      ...PERMISSION_IMPORTABLE_DATA_TYPES,
+    ],
     checkPermission: () => true,
   };
 

@@ -51,6 +51,7 @@ import { patientFacility } from './patientFacility';
 import { template } from './template';
 import { procedure } from './procedure';
 import { program } from './program';
+import { recentlyDischargedPatients } from './recentlyDischargedPatients';
 import { programRegistry } from './programRegistry';
 import { referenceData } from './referenceData';
 import { referral } from './referral';
@@ -58,7 +59,7 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { setupSyncHandler } from './setup';
-import { isServerConfigured } from '../../serverConfig';
+import { isServerConfigured, isSettingUp } from '../../serverConfig';
 import { scheduledVaccine } from './scheduledVaccine';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
@@ -107,11 +108,16 @@ export function createApiv1({ authLimiter } = {}) {
 
   apiv1.get(
     '/public/ping',
-    asyncHandler((req, res) => {
+    asyncHandler(async (req, res) => {
       req.flagPermissionChecked();
-      // setupRequired drives the first-run setup wizard, folded into the alive
-      // check the web app already makes rather than a separate endpoint/request.
-      return res.send({ ok: 'ok', setupRequired: !isServerConfigured() });
+      // setupRequired drives the first-run setup wizard, and isSettingUp the screen that holds
+      // logged-in users until the first sync completes. Both are folded into the alive check the
+      // web app already makes rather than a separate endpoint/request.
+      return res.send({
+        ok: 'ok',
+        setupRequired: !isServerConfigured(),
+        isSettingUp: await isSettingUp(req.models),
+      });
     }),
   );
 
@@ -304,6 +310,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/patientCarePlan', patientCarePlan);
   patientDataRoutes.use('/patientIssue', patientIssue);
   patientDataRoutes.use('/procedure', procedure);
+  patientDataRoutes.use('/recentlyDischargedPatients', recentlyDischargedPatients);
   patientDataRoutes.use('/referral', referral);
   patientDataRoutes.use('/surveyResponse', surveyResponse);
   patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);

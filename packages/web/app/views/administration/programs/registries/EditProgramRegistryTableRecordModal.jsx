@@ -22,6 +22,7 @@ import {
   programRegistryClinicalStatusColorOptions,
   ProgramRegistryClinicalStatusColorField,
 } from './components';
+import { route } from '@tamanu/api-client';
 
 const Footer = styled.footer`
   border-block-start: 1px solid ${props => props.theme.palette.divider};
@@ -111,7 +112,10 @@ function usePatchProgramRegistrySubResourceMutation(
   return useMutation({
     mutationKey: [resourceSegment, recordId],
     mutationFn: async body =>
-      await api.patch(`admin/${resourceSegment}/${encodeURIComponent(recordId)}`, body),
+      await api.patch(
+        route('admin/:resourceSegment/:recordId', { resourceSegment, recordId }),
+        body,
+      ),
     onSuccess: (data, variables, context) => {
       notifySuccess(
         <TranslatedText

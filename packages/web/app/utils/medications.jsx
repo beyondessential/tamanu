@@ -341,7 +341,7 @@ export const createPrescriptionHash = prescription =>
   // Empty string and NULL both mean unitless — legacy rows may still store ''.
   `${prescription.medicationId}-${prescription.doseAmount}-${prescription.dosingUnit || ''}-${prescription.route}-${prescription.frequency}`;
 
-export const getStockStatus = ({ prescription }, useStyledTag = true) => {
+export const getStockStatus = ({ prescription }) => {
   const status =
     prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus ||
     DRUG_STOCK_STATUSES.UNKNOWN;
@@ -349,12 +349,10 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
 
   const color = STOCK_STATUS_COLORS[status];
 
-  const content = useStyledTag ? (
+  const content = (
     <StyledTag $color={color} noWrap>
       <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />
     </StyledTag>
-  ) : (
-    <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />
   );
 
   if (status === DRUG_STOCK_STATUSES.IN_STOCK) {
