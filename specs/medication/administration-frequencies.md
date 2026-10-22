@@ -8,7 +8,6 @@ How often a prescribed medication is given. The frequency sets how many doses fa
 
 ## Frequency list
 
-- [ ] A prescriber chooses one frequency from the list below when prescribing a medication.
 - [ ] Typing a synonym in the frequency field finds the frequency it belongs to.
 - [ ] Each frequency has default administration times, used to prefill the medication administration schedule.
 
