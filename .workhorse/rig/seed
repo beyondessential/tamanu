@@ -5,6 +5,7 @@ set -eu
 central upgrade
 central provision "$RIG_RECIPE_DIR/provisioning.json5"
 central rebuildSyncLookup
+# Here RIG_DATABASE_URL is the build's template, which every lease and reset is cloned from.
 db_name > "$RIG_SOURCE/../central-template"
 
 template=$(facility_template)
