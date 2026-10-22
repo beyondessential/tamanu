@@ -12,6 +12,7 @@ central_port=$1 facility_port=$2 admin_port=$3 facility_sync_port=$4
 psql -qX -v ON_ERROR_STOP=1 "$(db_url "$facility_db")" \
   -c "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
 
+trap 'kill $(jobs -p) 2>/dev/null || true; wait' EXIT
 (on_port "$central_port"; exec_central) &
 wait_for "http://127.0.0.1:$central_port/api/public/ping"
 (
