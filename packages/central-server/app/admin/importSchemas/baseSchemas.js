@@ -24,6 +24,10 @@ import {
   LOCATION_BOOKABLE_VIEW_VALUES,
   LOCATION_BOOKABLE_VIEW,
   DRUG_STOCK_STATUSES,
+  SAFE_ID_REGEX,
+  SAFE_CODE_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+  SAFE_CODE_ERROR_MESSAGE,
 } from '@tamanu/constants';
 import {
   configString,
@@ -37,14 +41,9 @@ const visibilityStatus = yup
   .string()
   .default(VISIBILITY_STATUSES.CURRENT)
   .oneOf(Object.values(VISIBILITY_STATUSES));
-const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
-
 const fieldTypes = {
-  id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
-  code: yup
-    .string()
-    .matches(safeCodeRegex, 'code must not have spaces or punctuation other than -./'),
+  id: yup.string().matches(SAFE_ID_REGEX, SAFE_ID_ERROR_MESSAGE),
+  code: yup.string().matches(SAFE_CODE_REGEX, SAFE_CODE_ERROR_MESSAGE),
   name: yup.string().max(255),
 };
 
