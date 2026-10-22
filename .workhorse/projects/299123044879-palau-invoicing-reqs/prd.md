@@ -6,6 +6,8 @@ Belau National Hospital (BNH) bills each patient through one payment pathway: NH
 
 Source: the gap analysis on card N11. Linear parent: TAM-6908.
 
+Each piece of work below lists the **existing functionality** in Tamanu, then the **requirements** BNH needs on top of it. The gap is the difference between the two.
+
 ---
 
 ## Scope
@@ -75,7 +77,12 @@ Phase 1 is most of the project for one developer between 12 Oct and 20 Nov 2026.
 
 #### 1.1 Patient billing profile
 
-- Today: the sliding fee assessment is filled in again on every invoice. Custom patient fields exist but pricing doesn't read them
+**Existing functionality**
+- The patient record holds ethnicity, nationality, and mother and father links
+- Custom patient fields can hold extra data, but pricing doesn't read them
+- The sliding fee scale (household size × income) is a per-invoice discount. The assessment is filled in again on every invoice and isn't linked to family
+
+**Requirements**
 - Store billing data on the patient: income, family size, payor, spouse link, adoption number, marriage licence
 - The sliding fee assessment is kept on the profile and reused by later invoices
 - The assessment links to family
@@ -83,14 +90,25 @@ Phase 1 is most of the project for one developer between 12 Oct and 20 Nov 2026.
 
 #### 1.2 Time-bound patient statuses
 
-- Today: billing type is a single value with no dates, and there's no BH, disabled, inmate or non-chargeable status
+**Existing functionality**
+- Billing type is a single value on the patient and the encounter, with no start or end date
+- The encounter's billing type selects the price list
+- There's no BH, disabled, inmate or non-chargeable status
+
+**Requirements**
 - Statuses carry start and end dates, so a status applies only to encounters within its dates
 - The list of statuses is configured per site
 - Pricing reads the statuses in force for the encounter
 
 #### 1.3 Payment pathway on the invoice
 
-- Today: a price list per billing type, an invoice-level discount and per-product insurance coverage all apply independently
+**Existing functionality**
+- One price list applies per encounter, chosen by billing type, facility and age
+- Insurance plans on the patient are copied to the invoice. Each plan covers a fixed percentage per product, for products marked insurable
+- An invoice-level discount (manual, or from the sliding fee scale) applies to the patient's share after insurance
+- Nothing stops a discount and insurance applying to the same bill
+
+**Requirements**
 - The invoice carries one payment pathway: NHI, private insurance, patient-type discount, workers comp or non-chargeable
 - One pathway per bill is enforced. A patient-type discount and insurance can't both apply
 - The cashier can choose or change the pathway on the invoice
@@ -98,6 +116,12 @@ Phase 1 is most of the project for one developer between 12 Oct and 20 Nov 2026.
 
 #### 1.4 BNH patient types and precedence
 
+**Existing functionality**
+- A patient type can be approximated with a price list per billing type, or a manual discount
+- A price list per billing type keeps category exceptions and reprices live until finalisation, but every product must be priced on every list (unpriced = $0) and only one billing type applies at a time
+- The sliding fee scale and NHI can't be expressed as a price list
+
+**Requirements**
 - Configure the BNH patient types and what each pays:
   - Palauan sliding scale: 20–70%
   - Yap: 50%
@@ -113,18 +137,34 @@ Phase 1 is most of the project for one developer between 12 Oct and 20 Nov 2026.
 
 #### 2.1 Discount category exclusions
 
-- Today: the invoice discount applies to every line. The old `discountable` product flag was replaced by `insurable`
+**Existing functionality**
+- The invoice-level discount applies to every line
+- A cashier can discount a single line by hand, as a percentage or an amount
+- Products carry an `insurable` flag, which controls insurance only. The old `discountable` flag was replaced by it
+
+**Requirements**
 - A discount pathway can exclude item categories, which are charged at 100% (meds, supplies, ER fees at BNH)
 - Individual products can be marked as never discounted
 
 #### 2.2 Minimum charge per product (TAM-6909)
 
+**Existing functionality**
+- Each product has a price per price list
+- A cashier can override a line's price by hand
+
+**Requirements**
 - A product can carry a minimum charge (e.g. CT)
 
 ### Step 3. NHI repricing, co-payment and the ER/ward split
 
 #### 3.1 NHI repricing
 
+**Existing functionality**
+- Insurance coverage is a fixed percentage per product per plan
+- A price list per billing type could hold NHI rates, but only while NHI is the encounter's billing type
+- Bed fees are charged per night at the rate for the patient's location, one line per location. The rate doesn't change with length of stay
+
+**Requirements**
 - On the NHI pathway, lines are repriced at NHI rates:
   - Labs and radiology: 50%
   - Rooms: $65 a night, then $20 after 30 nights
@@ -133,19 +173,34 @@ Phase 1 is most of the project for one developer between 12 Oct and 20 Nov 2026.
 
 #### 3.2 NHI co-payment (TAM-6835)
 
+**Existing functionality**
+- The patient owes whatever insurance doesn't cover, line by line
+- There's no income on the patient and no income-based ceiling
+
+**Requirements**
 - The patient pays the lower of 20% of the full-price bill and their income ceiling
 - The income ceiling comes from the income on the patient billing profile (1.1)
 - The rest of the bill is billed to NHI
 
 #### 3.3 Split an invoice between payers (TAM-7186)
 
-- Today: insurance plans attach to the whole invoice
+**Existing functionality**
+- One invoice per encounter
+- Insurance plans attach to the whole invoice and cover every insurable line
+- A patient admitted from ED keeps the ED encounter fee on the same invoice
+
+**Requirements**
 - One encounter can be split between payers by portion. The ER portion isn't covered by NHI, the ward portion is
 - NHI can start or stop part way through a stay
 - Hemodialysis and physio are always billed as outpatient
 
 #### 3.4 Group invoice items by encounter type (TAM-6942)
 
+**Existing functionality**
+- The encounter records each change of encounter type
+- Invoice items are listed in one list, on screen and on the printout, with no encounter type shown
+
+**Requirements**
 - When an encounter crosses encounter types (e.g. emergency then inpatient), invoice items are grouped by encounter type on screen and on the printout
 - When an item is added or backdated to a day the patient moved, the user picks which encounter type it belongs to
 - Designs are linked on TAM-6942
@@ -156,53 +211,100 @@ Can run in parallel with steps 2 and 3.
 
 #### 4.1 Drug categories
 
-- Today: there's no category field on drug reference data
+**Existing functionality**
+- Drug reference data holds route, dosing and dispensing units, unit conversion and notes. There's no category
+
+**Requirements**
 - Drugs carry a category, A to D
 
 #### 4.2 Medication block pricing
 
-- Today: a drug line is charged price × dispensing units, or one flat fee
-- Block pricing is a charging type alongside fixed price
+**Existing functionality**
+- A drug line is charged per unit (price × dispensing units) or as one flat fee
+- The charging type is set per drug per price list
+
+**Requirements**
+- Block pricing is a charging type alongside per unit and flat fee
 - BNH rules: tablets ÷ 20 × $5, and ÷ 30 × $6 for category D
 
 #### 4.3 Separate inpatient and discharge medication charges
 
-- Today: administered and discharge quantities share one invoice line
+**Existing functionality**
+- Administered and discharge quantities share one invoice line
+- A facility can bundle administered medications into the admission fee, leaving discharge medications charged
+
+**Requirements**
 - Inpatient (administered) and discharge medications are charged separately
 
 #### 4.4 Per-vial dose charge
 
+**Existing functionality**
+- Injectables are charged like any other drug: per dispensing unit or as a flat fee
+
+**Requirements**
 - Injectables are charged $5 per vial dose
 
 #### 4.5 Medication rules after 30 days
 
+**Existing functionality**
+- Medication charging doesn't change with length of stay
+
+**Requirements**
 - Different medication charging rules apply after 30 days. Detailed shape can be filled in during card shaping
 
 #### 4.6 BH medication charge on the discount pathway
 
+**Existing functionality**
+- A drug's price comes from the encounter's price list. Nothing ties a price to the payment pathway
+
+**Requirements**
 - BH meds are charged at $1, only on the patient-type discount pathway
 
 ### Step 5. Payments and reports
 
 #### 5.1 MSA payment details (TAM-7187)
 
+**Existing functionality**
+- A patient payment records date, method, amount and receipt number, plus a cheque number for cheques. Payments can be edited and refunded
+- Payment methods are configured as reference data
+
+**Requirements**
 - An MSA payment records the HCF reference and one or more SSNs
 
 #### 5.2 MSA pending payments
 
+**Existing functionality**
+- A patient payment counts towards the balance as soon as it's recorded
+- Insurer payments have a status (unpaid, paid, partial, rejected). Patient payments don't
+
+**Requirements**
 - An MSA payment can be recorded as pending until the cash arrives
 
 #### 5.3 Patient statement of account (TAM-7193)
 
+**Existing functionality**
+- The patient's Invoices tab lists each invoice with date, number, encounter type, patient total, payment status and balance
+- Each invoice can be printed on its own
+
+**Requirements**
 - A statement across the patient's invoices showing what self-pay and each insurer owe
-- Adds discharge date, hospital number and self-pay details to what Tamanu prints today
+- Includes discharge date, hospital number and self-pay details
 
 #### 5.4 Daily cash receipts report
 
-- One line per item. Possible as a SQL report
+**Existing functionality**
+- No built-in report. SQL reports can be written against invoice and payment data
+
+**Requirements**
+- A daily cash receipts report, one line per item. Possible as a SQL report
 
 #### 5.5 Payer exports
 
+**Existing functionality**
+- Insurer payments can be imported through the admin importer to clear balances, matched by invoice number
+- There's no export to payers
+
+**Requirements**
 - Exports to NHI, MSA and private insurers
 
 ---
@@ -211,41 +313,80 @@ Can run in parallel with steps 2 and 3.
 
 ### 6.1 Department consult fees
 
+**Existing functionality**
+- Outpatient and ED encounter fees are chosen by encounter type and time of day
+- Only the walk-in pharmacy department gets its own fee
+
+**Requirements**
 - Doctor (99210) and nurse (99211) consult fees by area, e.g. ENT, OPD Nursing Clinic
-- Today only the pharmacy department gets its own fee
 
 ### 6.2 Room rate change after 30 nights
 
+**Existing functionality**
+- Bed fees are charged per night at the rate for the patient's location. The rate doesn't change with length of stay
+
+**Requirements**
 - A room rate changes after a configured number of nights
 
 ### 6.3 Theatre and recovery time charges
 
+**Existing functionality**
+- Procedures record start, end, time-in and time-out times
+- A procedure's invoice line takes its quantity from the procedure, not from time
+
+**Requirements**
 - Operating room and recovery room charged per 15 minutes
 
 ### 6.4 Monthly insurance coverage import
 
+**Existing functionality**
+- Insurance plans are added to each patient by hand, with no effective dates
+
+**Requirements**
 - Import active coverage each month. Needs effective dates on patient insurance
 
 ### 6.5 Move an item to self-pay
 
+**Existing functionality**
+- An insurance plan on the invoice covers every insurable line
+
+**Requirements**
 - Move a single item from the insurer to self-pay
 
 ### 6.6 Diagnosis completeness for insurance
 
+**Existing functionality**
+- Diagnoses print on the invoice but aren't required
+
+**Requirements**
 - A diagnosis is required for insurance claims
 - A Medical Records form to backfill missing diagnoses
 
 ### 6.7 Provider numbers
 
+**Existing functionality**
+- Each invoice item records the clinician who ordered it
+- Clinicians have no provider number
+
+**Requirements**
 - A provider number per doctor, for insurance claims
 
 ### 6.8 CPT code search
 
-- Product search matches CPT code as well as name. The workaround today is putting the code in the name
+**Existing functionality**
+- Products carry a CPT code
+- Product search matches name only. The workaround is putting the code in the name
+
+**Requirements**
+- Product search matches CPT code as well as name
 
 ### 6.9 Payment plans
 
-- Detailed shape can be filled in during card shaping
+**Existing functionality**
+- Payments are recorded one at a time, and a partly paid invoice shows as partial
+
+**Requirements**
+- Payment plans. Detailed shape can be filled in during card shaping
 
 ---
 
