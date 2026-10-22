@@ -339,10 +339,12 @@ export const assertValidEnumValues = (columns, data) => {
   }
 };
 
-// Apply the importer's base id/code character rules at the write boundary too, not just in the web
-// form. Only a newly-entered value is checked: a type whose importer schema has no code/id rule
-// (e.g. lab test panel) may already hold a legacy value with spaces or underscores, and re-sending
-// that unchanged on an edit must not block the edit. `existing` is the stored record on update.
+// Apply the importer's BASE id/code character rule at the write boundary too, not just in the web
+// form. This matches the importer for the common case, but deliberately does not mirror per-type
+// overrides (the manufacturer `ORG-` pattern, or lab test panel dropping the rule) — those stay a
+// follow-up, TAM-7206. Only a newly-set value is checked, so re-sending an unchanged value on an
+// edit never blocks editing a record whose legacy code the importer never validated. An empty value
+// is rejected (id and code are required). `existing` is the stored record on update.
 export const assertValidIdAndCode = (data, existing = {}) => {
   const rules = [
     { key: 'id', regex: SAFE_ID_REGEX, message: SAFE_ID_ERROR_MESSAGE },
@@ -350,7 +352,7 @@ export const assertValidIdAndCode = (data, existing = {}) => {
   ];
   for (const { key, regex, message } of rules) {
     const value = data[key];
-    if (value == null || value === '') continue;
+    if (value == null) continue;
     if (value === existing[key]) continue;
     if (!regex.test(value)) {
       throw new InvalidOperationError(message);

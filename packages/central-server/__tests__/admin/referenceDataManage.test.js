@@ -238,6 +238,15 @@ describe('Reference Data Manage', () => {
       expect(record).toBe(null);
     });
 
+    it('should reject a blank code', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: TEST_TYPE,
+        code: '',
+        name: 'Test Blank Code',
+      });
+      expect(response).toHaveRequestError();
+    });
+
     it('should create a medication template with its detail record', async () => {
       const drug = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
