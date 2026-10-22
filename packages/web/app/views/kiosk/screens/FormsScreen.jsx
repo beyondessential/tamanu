@@ -186,14 +186,17 @@ const FormStatusText = ({ status, pageIndex, pageCount }) => {
   if (status === FORM_STATUSES.COMPLETED) {
     return <TranslatedText stringId="kiosk.forms.status.completed" fallback="Completed" />;
   }
-  if (status === FORM_STATUSES.IN_PROGRESS) {
+  if (status === FORM_STATUSES.IN_PROGRESS && pageCount > 1) {
     return (
       <TranslatedText
-        stringId="kiosk.form.pageCount"
-        fallback="Page :page of :pageCount"
+        stringId="kiosk.forms.status.inProgressPage"
+        fallback="In progress, page :page of :pageCount"
         replacements={{ page: pageIndex + 1, pageCount }}
       />
     );
+  }
+  if (status === FORM_STATUSES.IN_PROGRESS) {
+    return <TranslatedText stringId="kiosk.forms.status.inProgress" fallback="In progress" />;
   }
   return <TranslatedText stringId="kiosk.forms.status.notStarted" fallback="Not started" />;
 };
