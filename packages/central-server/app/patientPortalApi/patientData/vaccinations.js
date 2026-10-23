@@ -12,8 +12,8 @@ export const getUpcomingVaccinations = asyncHandler(async (req, res) => {
 
   const results = await sequelize.transaction(async () => {
     // The view derives status from CURRENT_DATE, which follows the session timezone
-    await sequelize.query('SET LOCAL TIME ZONE :timezone', {
-      replacements: { timezone: getPrimaryTimeZone() },
+    await sequelize.query('SET LOCAL TIME ZONE :primaryTimeZone', {
+      replacements: { primaryTimeZone: getPrimaryTimeZone() },
     });
     // Query the upcoming_vaccinations view with scheduled vaccine and vaccine reference data
     return sequelize.query(
