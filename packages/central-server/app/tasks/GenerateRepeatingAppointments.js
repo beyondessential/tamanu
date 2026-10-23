@@ -2,6 +2,7 @@ import { QueryTypes } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 export class GenerateRepeatingAppointments extends ScheduledTask {
@@ -41,7 +42,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         WHERE appointment_schedules.deleted_at IS NULL
         AND appointment_schedules.cancelled_at_date IS NULL
         AND appointment_schedules.is_fully_generated = false
-        AND latest_appointment.start_time::date < NOW() + INTERVAL :offsetDays DAY
+        AND latest_appointment.start_time::date < (NOW() AT TIME ZONE :primaryTimeZone) + INTERVAL :offsetDays DAY
       `,
       {
         type: QueryTypes.SELECT,
@@ -50,6 +51,7 @@ export class GenerateRepeatingAppointments extends ScheduledTask {
         replacements: {
           offsetDays: `${this.config.generateOffsetDays}`,
           canceledStatus: APPOINTMENT_STATUSES.CANCELLED,
+          primaryTimeZone: getPrimaryTimeZone(),
         },
       },
     );
