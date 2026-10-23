@@ -8,6 +8,8 @@
 - **What to read.** `models/` (bases, datasets, metrics, reports) and the report macros under `macros/`, excluding `models/sources` and `models/logs`, which are copied from Tamanu. Intermediate models are ephemeral and never reach the schema, so they are not listed, though what they change in a dataset is. Commit messages, the dbt repo's own `specs/` and MAUI tickets give the framing.
 - **Shape.** An intro paragraph, then 'Breaking changes', 'New' and 'Changed' groups, one bullet per area. Supporting documentation points at the versioned reporting docs with `[REPORTING_DOCS_LINK_PLACEHOLDER]`.
 - **Quiet releases.** Leave the section out when the reporting schema has no changes.
+- **Untagged reporting release.** If `vX.Y.0` isn't tagged when the notes are drafted, leave `[REPORTING_SCHEMA_PLACEHOLDER]` rather than reading an upgrade branch that may still change.
+- **Styling.** The published notes are left as they are. The skill adds a `code` style the first time a copied styled file lacks one, so the lineage picks it up with the next release rather than by editing v2.66 after publication.
 - **Access.** The skill needs a local clone of tamanu-source-dbt or the GitHub API. The web compare view can't render larger diffs.
 
 ## Mockup
@@ -16,7 +18,7 @@
 
 ## Steps
 
-- [ ] Add the reporting sourcing step and section shape to `.agents/skills/draft-release-notes/SKILL.md`
-- [ ] Carve out the naming exception in Voice and conventions
-- [ ] Add the section to the workflow and the six-section list (becoming seven)
-- [ ] Add the `code` style and section to the styled HTML lineage
+- [x] Add the reporting sourcing step and section shape to `.agents/skills/draft-release-notes/SKILL.md`
+- [x] Carve out the naming exception in Voice and conventions
+- [x] Add the section to the workflow and the six-section list (becoming seven)
+- [x] Tell the skill to add the `code` style and section rendering to the styled HTML lineage
