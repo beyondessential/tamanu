@@ -1,11 +1,10 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import config from 'config';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 import helmet from 'helmet';
 
-import { getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
+import { getBugsnagOptions, getLoggingMiddleware, log } from '@tamanu/shared/services/logging';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { buildRateLimiters } from '@tamanu/shared/utils/rateLimit';
 import { getTrustedProxy, requireHttps } from '@tamanu/shared/utils';
@@ -70,13 +69,11 @@ export async function createApi(ctx) {
   express.set('query parser', 'extended');
 
   let errorMiddleware = null;
-  if (config.errors?.enabled) {
-    if (config.errors?.type === 'bugsnag') {
-      const { default: Bugsnag } = await import('@bugsnag/js');
-      const middleware = Bugsnag.getPlugin('express');
-      express.use(middleware.requestHandler);
-      errorMiddleware = middleware.errorHandler;
-    }
+  if (getBugsnagOptions()) {
+    const { default: Bugsnag } = await import('@bugsnag/js');
+    const middleware = Bugsnag.getPlugin('express');
+    express.use(middleware.requestHandler);
+    errorMiddleware = middleware.errorHandler;
   }
 
   express.use(

@@ -9,7 +9,7 @@ import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { performDatabaseIntegrityChecks, prepareDatabaseForStartup } from '../database';
 import { FacilitySyncConnection } from '../sync';
-import { getServerFacilityIds } from '../serverConfig';
+import { getServerFacilityIds, getSyncApiConnection } from '../serverConfig';
 import { setupSyncRuntime, startSyncRuntimeWhenConfigured } from '../setupSyncRuntime';
 import { createApiApp } from '../createApiApp';
 import { startScheduledTasks } from '../tasks';
@@ -35,7 +35,7 @@ async function startApiSyncAndTasks(context) {
 
   const { server: syncServer } = await createSyncApp(context);
 
-  let { port: syncPort } = config.sync.syncApiConnection;
+  const { port: syncPort } = getSyncApiConnection();
   syncServer.listen(syncPort, () => {
     log.info(`SYNC server is running on port ${syncPort}!`);
   });
