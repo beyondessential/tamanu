@@ -14,7 +14,8 @@ A tablet at a facility where patients check themselves in for today's appointmen
 - [ ] The kiosk keeps its staff sign-in alive while it is open, so it does not sign itself out between patients.
 - [ ] The kiosk can be open in one browser tab while Tamanu is open in another. Tamanu's limit of one open tab doesn't apply to kiosk tabs, so a kiosk tab neither blocks Tamanu nor is blocked by it.
 - [ ] Every kiosk action is limited to the facility the tablet is signed in to; the kiosk cannot be pointed at another facility.
-- [ ] The signed-in account needs permission to read appointments and patients to find appointments, and permission to update appointments and create form responses to check patients in.
+- [ ] The kiosk has its own permission, to run the kiosk, and needs no other: with it an account can find today's appointments, load their forms and check patients in from the kiosk. An account kept for the tablet can be given only this permission, so leaving the kiosk for the rest of Tamanu shows it no patient records.
+- [ ] The Self check-in kiosk item in Facility admin is shown only to accounts with permission to run the kiosk, and the kiosk address tells an account without it that it can't run the kiosk.
 
 ## Layout
 

@@ -91,6 +91,7 @@ export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   InvoicePriceListItem: [List, Read, Write, Create],
   InvoiceProduct: [List, Read, Write, Create],
   IPSRequest: [Read, Create],
+  Kiosk: [Run],
   LabRequest: [List, Read, Write, Create],
   LabRequestLog: [List, Read, Write, Create],
   LabRequestStatus: [Write],
