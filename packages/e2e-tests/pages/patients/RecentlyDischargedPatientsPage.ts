@@ -99,5 +99,7 @@ export class RecentlyDischargedPatientsPage extends BasePatientListPage {
   async openPatientFromRow(rowIndex: number, patientId: string) {
     await this.getCell(rowIndex, 'displayId').click();
     await this.page.waitForURL(`**/patients/all/${patientId}**`);
+    // The URL changes before React swaps the route in, and the sidebar re-renders with it
+    await expect(this.searchForm).toBeHidden();
   }
 }
