@@ -408,6 +408,7 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
+          completePush: vi.fn(),
         },
       });
 
@@ -436,6 +437,7 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
+          completePush: vi.fn(),
         },
       });
 
@@ -465,6 +467,7 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
+          completePush: vi.fn(),
         },
       });
 
@@ -473,6 +476,37 @@ describe('FacilitySyncManager', () => {
       await syncManager.pushChanges(TEST_SESSION_ID, 20, 50);
 
       expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), 10);
+    });
+
+    it('reports the push cursor to central even when there are no changes to push', async () => {
+      await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '1');
+
+      vi.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        snapshotOutgoingChanges: vi.fn().mockImplementation(() => []),
+      }));
+
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
+
+      const completePush = vi.fn();
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          streaming: () => false,
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
+          completePush,
+        },
+      });
+
+      // nothing to push, but central is still told how far we've pushed (currentSyncClockTime)
+      // so its cursor tracks ours on an idle sync
+      await syncManager.pushChanges(TEST_SESSION_ID, 20);
+
+      expect(completePush).toBeCalledWith(TEST_SESSION_ID, '10');
     });
 
     it('pushes outgoing changes with current sessionId', async () => {
@@ -509,6 +543,7 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
+          completePush: vi.fn(),
         },
       });
 
@@ -569,6 +604,7 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
+          completePush: vi.fn(),
         },
       });
 
@@ -608,6 +644,7 @@ describe('FacilitySyncManager', () => {
           startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
           endSyncSession: vi.fn(),
           push: vi.fn(),
+          completePush: vi.fn(),
         },
       });
 

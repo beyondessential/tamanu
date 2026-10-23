@@ -747,6 +747,23 @@ export class CentralSyncManager {
     return recordsForPull;
   }
 
+  // Advance central's record of how far this device has pushed. GREATEST so a client reporting a
+  // lower cursor (e.g. restored from a snapshot behind central) never drags it back; a null value
+  // (no cursor reported, or one that failed validation) leaves it untouched (spec: PUSH). Runs in
+  // the caller's transaction via CLS when there is one.
+  async recordDevicePushCursor(deviceId, lastSuccessfulSyncPush) {
+    if (!deviceId || lastSuccessfulSyncPush === null) return;
+    await this.store.sequelize.query(
+      `UPDATE devices
+         SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :lastSuccessfulSyncPush)
+       WHERE id = :deviceId`,
+      {
+        replacements: { lastSuccessfulSyncPush, deviceId },
+        type: QueryTypes.UPDATE,
+      },
+    );
+  }
+
   async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile, reportedPush) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
@@ -775,68 +792,61 @@ export class CentralSyncManager {
     }
 
     try {
-      // commit the changes to the db
-      await sequelize.transaction(async () => {
-        // currently we do not create audit logs on mobile devices
-        // so we rely on sync process to create audit logs
-        if (!isMobile) {
-          await pauseAudit(sequelize);
-        }
-        // we tick-tock the global clock to make sure there is a unique tick for these changes
-        // n.b. this used to also be used for concurrency control, but that is now handled by
-        // shared advisory locks taken using the current sync tick as the id, which are waited on
-        // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
-        // saving with a unique tick
-        const { tock } = await this.tickTockGlobalClock();
+      if (totalPushed === 0) {
+        // An idle sync: the client delivered nothing, but still reports how far it has pushed so
+        // central's cursor stays in step with the client's rather than lagging to the last
+        // non-empty push. A no-op push can't change what central holds, so we skip the clock
+        // ticks, hooks, save, and device tick, and only advance the cursor (spec: PUSH).
+        await this.recordDevicePushCursor(deviceId, lastSuccessfulSyncPush);
+      } else {
+        // commit the changes to the db
+        await sequelize.transaction(async () => {
+          // currently we do not create audit logs on mobile devices
+          // so we rely on sync process to create audit logs
+          if (!isMobile) {
+            await pauseAudit(sequelize);
+          }
+          // we tick-tock the global clock to make sure there is a unique tick for these changes
+          // n.b. this used to also be used for concurrency control, but that is now handled by
+          // shared advisory locks taken using the current sync tick as the id, which are waited on
+          // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
+          // saving with a unique tick
+          const { tock } = await this.tickTockGlobalClock();
 
-        // run any side effects for each model
-        // eg: resolving duplicated patient display IDs
-        await incomingSyncHook(sequelize, modelsToInclude, sessionId);
+          // run any side effects for each model
+          // eg: resolving duplicated patient display IDs
+          await incomingSyncHook(sequelize, modelsToInclude, sessionId);
 
-        await withDeferredSyncSafeguards(sequelize, async () =>
-          saveIncomingChanges(sequelize, modelsToInclude, sessionId, true),
-        );
-
-        // store the sync tick on save with the incoming changes, so they can be compared for
-        // edits with the outgoing changes
-        await updateSnapshotRecords(
-          sequelize,
-          sessionId,
-          { savedAtSyncTick: tock },
-          { direction: SYNC_SESSION_DIRECTION.INCOMING },
-        );
-
-        await models.SyncDeviceTick.create({ deviceId, persistedAtSyncTick: tock });
-
-        // Record how far this device has now pushed, in the same transaction that saves its
-        // changes, so an interrupted persist never advances it. GREATEST so a client reporting a
-        // lower cursor (e.g. restored from a snapshot behind central) never drags it back (spec: PUSH).
-        //
-        // The cursor covers everything the client pushed in this session. A client that pushes
-        // only some of its tables must not report one, since tablesToInclude scopes what we save
-        // here: advancing past records we deliberately skipped would lose them for good.
-        if (deviceId && lastSuccessfulSyncPush !== null) {
-          await sequelize.query(
-            `UPDATE devices
-               SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :lastSuccessfulSyncPush)
-             WHERE id = :deviceId`,
-            {
-              replacements: { lastSuccessfulSyncPush, deviceId },
-              type: QueryTypes.UPDATE,
-            },
+          await withDeferredSyncSafeguards(sequelize, async () =>
+            saveIncomingChanges(sequelize, modelsToInclude, sessionId, true),
           );
-        }
 
-        // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
-        // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
-        // (specifically won't be removed by removeEchoedChanges())
-        await this.tickTockGlobalClock();
-      });
+          // store the sync tick on save with the incoming changes, so they can be compared for
+          // edits with the outgoing changes
+          await updateSnapshotRecords(
+            sequelize,
+            sessionId,
+            { savedAtSyncTick: tock },
+            { direction: SYNC_SESSION_DIRECTION.INCOMING },
+          );
 
-      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+          await models.SyncDeviceTick.create({ deviceId, persistedAtSyncTick: tock });
 
-      // mark for repull any records that were modified by an incoming sync hook
-      await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
+          // Record how far this device has now pushed, in the same transaction that saves its
+          // changes, so an interrupted persist never advances it (spec: PUSH).
+          await this.recordDevicePushCursor(deviceId, lastSuccessfulSyncPush);
+
+          // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
+          // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
+          // (specifically won't be removed by removeEchoedChanges())
+          await this.tickTockGlobalClock();
+        });
+
+        await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+
+        // mark for repull any records that were modified by an incoming sync hook
+        await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
+      }
 
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(

@@ -211,17 +211,27 @@ describe('MobileSyncManager', () => {
       expect(snapshotOutgoingChanges).toBeCalledWith(modelsToPush, pushSince);
     });
 
-    it('should not push outgoing changes if there are no changes', async () => {
-      const modelsToPush = ['Patient', 'PatientAdditionalData', 'PatientDeathData'];
+    it('should not push outgoing changes if there are no changes, but still reports the cursor', async () => {
+      const modelsToPush = { Patient: { getTableName: () => 'patients' } };
       const sessionId = 'test-session';
       const newSyncClockTime = 4;
+      const currentSyncTick = 100;
 
       (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+      (getSyncTick as jest.Mock).mockImplementation((_models, key) =>
+        key === CURRENT_SYNC_TIME ? currentSyncTick : 10,
+      );
       (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => []);
+      const completePushSpy = jest
+        .spyOn(centralServerConnection, 'completePush')
+        .mockResolvedValue(undefined);
 
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
+      // the batched push helper is skipped, but central is still told how far we've pushed so its
+      // cursor tracks ours on an idle sync
       expect(pushOutgoingChanges).not.toBeCalled();
+      expect(completePushSpy).toBeCalledWith(sessionId, ['patients'], currentSyncTick);
     });
 
     // Central is the authority on how far we've pushed, so we resume from the lower of its cursor

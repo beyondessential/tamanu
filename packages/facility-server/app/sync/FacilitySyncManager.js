@@ -340,6 +340,10 @@ export class FacilitySyncManager {
         currentSyncClockTime,
       );
       await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
+    } else {
+      // Nothing to push, but still tell central how far we've pushed so its cursor tracks ours
+      // even on an idle sync (spec: PUSH).
+      await this.centralServer.completePush(sessionId, currentSyncClockTime);
     }
 
     await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);

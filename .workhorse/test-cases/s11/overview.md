@@ -9,7 +9,7 @@ Scenarios verifying that central records how far each sync client has pushed and
 - [ ] When the persist step fails or is interrupted, central's stored cursor is unchanged from before the push (advanced only in the save transaction). (verifies spec: PUSH)
 - [x] Reporting a cursor lower than the one already stored leaves central's stored cursor unchanged. (verifies spec: PUSH)
 - [ ] Central stores the cursor against the authenticated device, so two devices pushing in the same session window keep independent cursors. (verifies spec: PUSH)
-- [ ] An empty push does not report a cursor, so central's cursor is unchanged; because the skipped range holds no records, the next push still delivers only new changes (no re-push churn). (verifies spec: PUSH)
+- [x] An idle sync with nothing to push still reports the cursor, so central's stored cursor advances in step with the client's rather than lagging to the last non-empty push. (verifies spec: PUSH)
 - [ ] A reported cursor that is not a whole sync tick leaves the stored cursor unchanged and is recorded in central's logs. (verifies spec: PUSH)
 - [ ] A client that pushes only a subset of its tables reports no cursor, so the cursor never advances past records the persist skipped. (verifies spec: PUSH)
 

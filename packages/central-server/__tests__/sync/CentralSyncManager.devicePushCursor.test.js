@@ -70,6 +70,21 @@ describe('CentralSyncManager device push cursor', () => {
 
   afterAll(() => ctx.close());
 
+  it('advances the cursor on an empty push with no incoming changes', async () => {
+    const device = await createDevice();
+
+    const centralSyncManager = await initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession({ deviceId: device.id });
+    await waitForSession(centralSyncManager, sessionId);
+
+    // no addIncomingChanges: an idle sync that pushed nothing still reports its cursor
+    await centralSyncManager.completePush(sessionId, device.id, undefined, 55);
+    await waitForPushCompleted(centralSyncManager, sessionId);
+
+    await device.reload();
+    expect(Number(device.lastSuccessfulSyncPush)).toBe(55);
+  });
+
   it('records the reported cursor when a push is persisted', async () => {
     const device = await createDevice();
 

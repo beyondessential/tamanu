@@ -351,6 +351,14 @@ export class MobileSyncManager {
           this.updateProgress(total, pushedRecords, 'Pushing all new changes…'),
         currentSyncTick,
       );
+    } else {
+      // Nothing to push, but still tell central how far we've pushed so its cursor tracks ours
+      // even on an idle sync (spec: PUSH).
+      await this.centralServer.completePush(
+        sessionId,
+        Object.values(modelsToPush).map(model => model.getTableName()),
+        currentSyncTick,
+      );
     }
 
     this.lastSyncPushedRecordsCount = outgoingChanges.length;

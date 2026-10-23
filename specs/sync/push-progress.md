@@ -13,6 +13,7 @@ Central records how far each sync client has pushed to it, and is the authority 
 - [ ] Central advances the cursor only when the pushed changes are persisted, in the same transaction that saves them, so an interrupted or failed push never advances it.
 - [ ] A client reports the cursor it has reached as part of completing a push.
 - [ ] A client reports a cursor only when it has delivered every change it holds stamped at or before that tick. A client that pushes only some of its tables reports none, because the cursor would otherwise advance past records that were never persisted.
+- [ ] An idle sync with nothing to push still reports the cursor, so central's record advances in step with the client rather than lagging to the last non-empty push.
 - [ ] A client's push cursor on central only ever moves forward; a reported value lower than the stored one leaves it unchanged.
 - [ ] A reported cursor that is not a whole sync tick is discarded and recorded in central's logs, leaving the stored cursor unchanged.
 
