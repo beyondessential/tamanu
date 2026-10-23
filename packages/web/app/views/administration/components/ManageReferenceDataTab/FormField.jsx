@@ -22,7 +22,7 @@ import {
 import { NumberField } from '../../../../components/Field/NumberField';
 import { CheckField } from '../../../../components/Field/CheckField';
 import { useSuggester } from '../../../../api/suggesters';
-import { isFieldRequired, SUGGESTER_OPTIONS } from './constants';
+import { isFieldRequired, NUMERIC_COLUMN_TYPES, SUGGESTER_OPTIONS } from './constants';
 
 // Columns whose values the schema stores as plain strings; the server names the registered labels
 // constant so the option text is the product's own, and translated.
@@ -55,18 +55,9 @@ const getVisibilityStatusOptions = selectedType =>
   }));
 
 const getFieldComponent = columnType => {
-  switch (columnType) {
-    case 'BOOLEAN':
-      return CheckField;
-    case 'INTEGER':
-    case 'FLOAT':
-    case 'DOUBLE':
-    case 'DECIMAL':
-    case 'REAL':
-      return NumberField;
-    default:
-      return TextField;
-  }
+  if (columnType === 'BOOLEAN') return CheckField;
+  if (NUMERIC_COLUMN_TYPES.has(columnType)) return NumberField;
+  return TextField;
 };
 
 const SuggesterFormField = memo(({ col, isEditMode, disabled }) => {
