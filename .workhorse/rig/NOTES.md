@@ -28,3 +28,5 @@ Limits:
 - Only the foreground web preview is watched. If central or facility exits, the lease stays up and
   the API answers 502.
 - `provision` fetches the three programs from S3, so seeding needs the network.
+- Central, facility and the previews listen on 127.0.0.1 only. The facility's sync listener has no
+  host setting and listens on every interface, behind the sync user's credentials.

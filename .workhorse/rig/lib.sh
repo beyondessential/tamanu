@@ -16,7 +16,8 @@ exec_central() { cd "$RIG_SOURCE/packages/central-server" && exec node --import 
 exec_facility() { cd "$RIG_SOURCE/packages/facility-server" && exec node --import tsx app "$@"; }
 central() { (exec_central "$@"); }
 facility() { (exec_facility "$@"); }
-on_port() { NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $1 }"; }
+# The servers listen on every interface unless BIND_ADDRESS says otherwise.
+on_port() { NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $1 }"; export BIND_ADDRESS="127.0.0.1:$1"; }
 
 db_name() { base=${RIG_DATABASE_URL%%\?*}; printf '%s' "${base##*/}"; }
 db_url() { base=${RIG_DATABASE_URL%%\?*}; printf '%s/%s' "${base%/*}" "$1"; }

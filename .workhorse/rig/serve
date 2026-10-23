@@ -17,6 +17,7 @@ trap 'kill $(jobs -p) 2>/dev/null || true; wait' EXIT
 wait_for "http://127.0.0.1:$central_port/api/public/ping"
 (
   NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $facility_port, \"sync\": { \"syncApiConnection\": { \"port\": $facility_sync_port } } }"
+  export BIND_ADDRESS="127.0.0.1:$facility_port"
   export DATABASE_URL="$(db_url "$facility_db")" SYNC_URL="$(sync_url "$central_port")" TAMANU_FACILITY_IDS=facility-1
   exec_facility
 ) &
