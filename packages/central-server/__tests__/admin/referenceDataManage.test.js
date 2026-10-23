@@ -189,6 +189,38 @@ describe('Reference Data Manage', () => {
       expect(referenceDrug.isSensitive).toBe(false);
     });
 
+    it('should fall back to the column default when a defaulted field is submitted blank', async () => {
+      // A cleared field reaches us as '', which numeric columns reject outright and text columns
+      // would silently store over their default.
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-blank-default-code',
+        name: 'Test Drug Blank Default',
+        unitConversion: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(Number(referenceDrug.unitConversion)).toBe(1);
+    });
+
+    it('should keep a blank value for a column with no default', async () => {
+      const response = await adminApp.post(BASE_URL).send({
+        referenceDataType: REFERENCE_TYPES.DRUG,
+        code: 'test-drug-blank-nodefault-code',
+        name: 'Test Drug Blank No Default',
+        notes: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: response.body.id },
+      });
+      expect(referenceDrug.notes).toBe('');
+    });
+
     it('should not create a detail record for a type that has none', async () => {
       const response = await adminApp.post(BASE_URL).send({
         referenceDataType: REFERENCE_TYPES.VILLAGE,
@@ -404,6 +436,29 @@ describe('Reference Data Manage', () => {
 
       await record.reload();
       expect(record.name).toBe('Updated Name');
+    });
+
+    it('should let a NOT NULL text column with a default be cleared', async () => {
+      // lab_test_types.unit is NOT NULL DEFAULT '', and plenty of qualitative tests have no unit,
+      // so clearing it has to keep saving.
+      const category = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      });
+      const labTestType = await models.LabTestType.create({
+        ...fake(models.LabTestType),
+        labTestCategoryId: category.id,
+        unit: 'mmol/L',
+      });
+
+      const response = await adminApp.put(`${BASE_URL}/${labTestType.id}`).send({
+        referenceDataType: OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
+        unit: '',
+      });
+      expect(response).toHaveSucceeded();
+
+      await labTestType.reload();
+      expect(labTestType.unit).toBe('');
     });
 
     it('should update a drug detail field', async () => {
