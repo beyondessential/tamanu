@@ -231,7 +231,7 @@ describe('Kiosk survey form', () => {
     });
     renderForm({
       form,
-      patient: { id: 'patient-1', firstName: 'Tess', lastName: 'Ono', dateOfBirth: '1986-03-14' },
+      patient: { id: 'patient-1', firstName: 'Tess', lastName: 'Lavea', dateOfBirth: '1986-03-14' },
     });
     expect(screen.getByText('Shoe size')).toBeDefined();
   });

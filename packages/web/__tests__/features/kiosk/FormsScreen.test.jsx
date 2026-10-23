@@ -35,7 +35,7 @@ vi.mock('../../../app/views/kiosk/kioskApi', () => ({
     isError: false,
     data: {
       appointment: { id: 'appointment-1', startTime: '2026-10-23 09:30:00' },
-      patient: { id: 'patient-1', firstName: 'Tess', lastName: 'Ono', dateOfBirth: '1986-03-14' },
+      patient: { id: 'patient-1', firstName: 'Tess', lastName: 'Lavea', dateOfBirth: '1986-03-14' },
       patientAdditionalData: null,
       forms: [
         {
