@@ -10,6 +10,8 @@ Scenarios verifying that central records how far each sync client has pushed and
 - [x] Reporting a cursor lower than the one already stored leaves central's stored cursor unchanged. (verifies spec: PUSH)
 - [ ] Central stores the cursor against the authenticated device, so two devices pushing in the same session window keep independent cursors. (verifies spec: PUSH)
 - [ ] An empty push does not report a cursor, so central's cursor is unchanged; because the skipped range holds no records, the next push still delivers only new changes (no re-push churn). (verifies spec: PUSH)
+- [ ] A reported cursor that is not a whole sync tick leaves the stored cursor unchanged and is recorded in central's logs. (verifies spec: PUSH)
+- [ ] A client that pushes only a subset of its tables reports no cursor, so the cursor never advances past records the persist skipped. (verifies spec: PUSH)
 
 ## Resuming a push
 
@@ -29,8 +31,9 @@ Scenarios verifying that central records how far each sync client has pushed and
 
 ## Mobile parity
 
-- [ ] A mobile device reports its push cursor on push-complete and central stores it against the device, the same as a facility server. (verifies spec: PUSH)
-- [ ] A mobile device resumes its push from the lower of central's cursor and its own local `LAST_SUCCESSFUL_PUSH`. (verifies spec: PUSH)
+- [x] A mobile device reports the local tick it pushed up to when completing a push (reaches the push helper as the reported cursor). (verifies spec: PUSH)
+- [x] A mobile device resumes its push from the lower of central's cursor and its own local `LAST_SUCCESSFUL_PUSH`, falling back to local when central holds none. (verifies spec: PUSH)
+- [ ] End to end, a mobile push lands the reported cursor on central's device row. (verifies spec: PUSH)
 
 ## Mixed-version behaviour
 

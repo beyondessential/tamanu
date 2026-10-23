@@ -230,15 +230,15 @@ export class CentralServerConnection {
 
     // finally, fetch the new tick from starting the session, plus central's record of how far
     // this device has pushed (spec: PUSH)
-    const { startedAtTick, lastSuccessfulPush } = (await this.get(
+    const { startedAtTick, lastSuccessfulSyncPush } = (await this.get(
       `sync/${sessionId}/metadata`,
       {},
     )) as {
       startedAtTick: number;
-      lastSuccessfulPush: number | null;
+      lastSuccessfulSyncPush: number | null;
     };
 
-    return { sessionId, startedAtTick, lastSuccessfulPush };
+    return { sessionId, startedAtTick, lastSuccessfulSyncPush };
   }
 
   async endSyncSession(sessionId: string) {
@@ -296,14 +296,14 @@ export class CentralServerConnection {
   async completePush(
     sessionId: string,
     tablesToInclude: string[],
-    pushCursor: number,
+    lastSuccessfulSyncPush: number,
   ): Promise<void> {
     // first off, mark the push as complete on central, reporting the local tick we've pushed up to
     // so central can record this device's push progress (spec: PUSH)
     await this.post(
       `sync/${sessionId}/push/complete`,
       {},
-      { tablesToInclude, deviceId: this.deviceId, pushCursor },
+      { tablesToInclude, deviceId: this.deviceId, lastSuccessfulSyncPush },
     );
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for

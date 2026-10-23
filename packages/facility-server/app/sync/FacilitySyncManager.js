@@ -199,7 +199,7 @@ export class FacilitySyncManager {
       status,
       sessionId,
       startedAtTick: newSyncClockTime,
-      lastSuccessfulPush: centralPushCursor,
+      lastSuccessfulSyncPush: centralPushCursor,
     } = await this.centralServer.startSyncSession({
       urgent: this.reason?.urgent,
       lastSyncedTick: pullSince,

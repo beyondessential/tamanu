@@ -24,7 +24,7 @@ describe('CentralSyncManager device push cursor', () => {
   const createDevice = async () =>
     models.Device.create({ id: fake(models.Facility).id, registeredById: SYSTEM_USER_UUID });
 
-  const pushPatientUpdate = async (device, pushCursor) => {
+  const pushPatientUpdate = async (device, lastSuccessfulSyncPush) => {
     const patient = await models.Patient.create({ ...fake(models.Patient) });
     const changes = [
       {
@@ -40,7 +40,7 @@ describe('CentralSyncManager device push cursor', () => {
     const { sessionId } = await centralSyncManager.startSession({ deviceId: device.id });
     await waitForSession(centralSyncManager, sessionId);
     await centralSyncManager.addIncomingChanges(sessionId, changes);
-    await centralSyncManager.completePush(sessionId, device.id, undefined, pushCursor);
+    await centralSyncManager.completePush(sessionId, device.id, undefined, lastSuccessfulSyncPush);
     await waitForPushCompleted(centralSyncManager, sessionId);
   };
 
@@ -108,8 +108,8 @@ describe('CentralSyncManager device push cursor', () => {
     const { sessionId } = await centralSyncManager.startSession({ deviceId: device.id });
     await waitForSession(centralSyncManager, sessionId);
 
-    const { lastSuccessfulPush } = await centralSyncManager.fetchSyncMetadata(sessionId);
-    expect(lastSuccessfulPush).toBe(42);
+    const { lastSuccessfulSyncPush } = await centralSyncManager.fetchSyncMetadata(sessionId);
+    expect(lastSuccessfulSyncPush).toBe(42);
   });
 
   it('returns a null cursor in the metadata for a device that has never pushed', async () => {
@@ -119,7 +119,7 @@ describe('CentralSyncManager device push cursor', () => {
     const { sessionId } = await centralSyncManager.startSession({ deviceId: device.id });
     await waitForSession(centralSyncManager, sessionId);
 
-    const { lastSuccessfulPush } = await centralSyncManager.fetchSyncMetadata(sessionId);
-    expect(lastSuccessfulPush).toBeNull();
+    const { lastSuccessfulSyncPush } = await centralSyncManager.fetchSyncMetadata(sessionId);
+    expect(lastSuccessfulSyncPush).toBeNull();
   });
 });

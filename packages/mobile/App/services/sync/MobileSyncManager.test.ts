@@ -6,6 +6,7 @@ import {
   pushOutgoingChanges,
   snapshotOutgoingChanges,
 } from './utils';
+import { CURRENT_SYNC_TIME } from './constants';
 
 jest.mock('./utils', () => ({
   setSyncTick: jest.fn(),
@@ -221,6 +222,65 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
       expect(pushOutgoingChanges).not.toBeCalled();
+    });
+
+    // Central is the authority on how far we've pushed, so we resume from the lower of its cursor
+    // and our own. Mirrors the facility cases in FacilitySyncManager.test.js (spec: PUSH).
+    describe('resuming from the lower of the two cursors', () => {
+      const sessionId = 'test-session';
+      const newSyncClockTime = 200;
+      const currentSyncTick = 100;
+      const localPushCursor = 10;
+
+      const arrange = () => {
+        const modelsToPush = ['Patient'];
+        (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+        (getSyncTick as jest.Mock).mockImplementation((_models, key) =>
+          key === CURRENT_SYNC_TIME ? currentSyncTick : localPushCursor,
+        );
+        (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => []);
+      };
+
+      it("resumes from central's cursor when it is below the local one", async () => {
+        arrange();
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, 5);
+
+        expect(snapshotOutgoingChanges).toBeCalledWith(['Patient'], 5);
+      });
+
+      it("resumes from the local cursor when central's is above it", async () => {
+        arrange();
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, 50);
+
+        expect(snapshotOutgoingChanges).toBeCalledWith(['Patient'], localPushCursor);
+      });
+
+      it('falls back to the local cursor when central holds none', async () => {
+        arrange();
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, null);
+
+        expect(snapshotOutgoingChanges).toBeCalledWith(['Patient'], localPushCursor);
+      });
+
+      it('reports the local tick it has pushed up to when completing the push', async () => {
+        const modelsToPush = ['Patient'];
+        (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+        (getSyncTick as jest.Mock).mockImplementation((_models, key) =>
+          key === CURRENT_SYNC_TIME ? currentSyncTick : localPushCursor,
+        );
+        (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => [
+          { recordType: 'patients', recordId: 'abc', data: {} },
+        ]);
+
+        await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime, 5);
+
+        // the reported cursor is the tick current before this session bumped the clock, not the
+        // new tick, so records stamped mid-push are still picked up next time
+        expect((pushOutgoingChanges as jest.Mock).mock.calls[0][6]).toBe(currentSyncTick);
+      });
     });
   });
 });

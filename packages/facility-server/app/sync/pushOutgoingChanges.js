@@ -1,6 +1,11 @@
 import { calculatePageLimit } from './calculatePageLimit';
 
-export const pushOutgoingChanges = async (centralServer, sessionId, changes, pushCursor) => {
+export const pushOutgoingChanges = async (
+  centralServer,
+  sessionId,
+  changes,
+  lastSuccessfulSyncPush,
+) => {
   let startOfPage = 0;
   let limit = calculatePageLimit();
   while (startOfPage < changes.length) {
@@ -14,5 +19,5 @@ export const pushOutgoingChanges = async (centralServer, sessionId, changes, pus
     startOfPage = endOfPage;
     limit = calculatePageLimit(limit, endTime - startTime);
   }
-  await centralServer.completePush(sessionId, pushCursor);
+  await centralServer.completePush(sessionId, lastSuccessfulSyncPush);
 };

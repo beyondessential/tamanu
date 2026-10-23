@@ -185,10 +185,10 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/metadata',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const { startedAtTick, lastSuccessfulPush } = await syncManager.fetchSyncMetadata(
+      const { startedAtTick, lastSuccessfulSyncPush } = await syncManager.fetchSyncMetadata(
         params.sessionId,
       );
-      res.json({ startedAtTick, lastSuccessfulPush });
+      res.json({ startedAtTick, lastSuccessfulSyncPush });
     }),
   );
 
@@ -212,8 +212,9 @@ export const buildSyncRoutes = ctx => {
         await sleepAsync(interval);
       }
 
-      const { startedAtTick, lastSuccessfulPush } = await syncManager.fetchSyncMetadata(sessionId);
-      res.write(StreamMessage.end({ startedAtTick, lastSuccessfulPush }));
+      const { startedAtTick, lastSuccessfulSyncPush } =
+        await syncManager.fetchSyncMetadata(sessionId);
+      res.write(StreamMessage.end({ startedAtTick, lastSuccessfulSyncPush }));
       res.end();
     }),
   );
@@ -362,17 +363,12 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body, device } = req;
       const { sessionId } = params;
-      const { tablesToInclude, pushCursor } = body;
-      // The client-local tick the client has pushed up to; central records it against the device
-      // once the pushed changes are persisted (spec: PUSH).
-      const parsedPushCursor =
-        pushCursor == null ? null : Number.parseInt(pushCursor, 10);
-      await syncManager.completePush(
-        sessionId,
-        device.id,
-        tablesToInclude,
-        Number.isNaN(parsedPushCursor) ? null : parsedPushCursor,
-      );
+      // lastSuccessfulSyncPush is the client-local tick the client has pushed up to; central
+      // records it against the device once the pushed changes are persisted. Validated in
+      // persistIncomingChanges, the single point every caller of completePush goes through
+      // (spec: PUSH).
+      const { tablesToInclude, lastSuccessfulSyncPush } = body;
+      await syncManager.completePush(sessionId, device.id, tablesToInclude, lastSuccessfulSyncPush);
       res.json({});
     }),
   );

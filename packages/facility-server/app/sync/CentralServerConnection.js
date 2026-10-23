@@ -166,8 +166,8 @@ export class CentralServerConnection extends TamanuApi {
 
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
     // when polling, we need to separately fetch the new tick from starting the session
-    const { startedAtTick, lastSuccessfulPush } = await this.fetch(`sync/${sessionId}/metadata`);
-    return { sessionId, startedAtTick, lastSuccessfulPush };
+    const { startedAtTick, lastSuccessfulSyncPush } = await this.fetch(`sync/${sessionId}/metadata`);
+    return { sessionId, startedAtTick, lastSuccessfulSyncPush };
   }
 
   async markSessionErrored(sessionId, error) {
@@ -224,12 +224,12 @@ export class CentralServerConnection extends TamanuApi {
     return this.fetch(path, { method: 'POST', body: { changes } });
   }
 
-  async completePush(sessionId, pushCursor) {
+  async completePush(sessionId, lastSuccessfulSyncPush) {
     // first off, mark the push as complete on central, reporting the local tick we've pushed up to
     // so central can record this device's push progress (spec: PUSH)
     await this.fetch(`sync/${sessionId}/push/complete`, {
       method: 'POST',
-      body: { deviceId: this.deviceId, pushCursor },
+      body: { deviceId: this.deviceId, lastSuccessfulSyncPush },
     });
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for

@@ -705,10 +705,10 @@ export class CentralSyncManager {
           attributes: ['lastSuccessfulSyncPush'],
         })
       : null;
-    const lastSuccessfulPush =
+    const lastSuccessfulSyncPush =
       device?.lastSuccessfulSyncPush == null ? null : Number(device.lastSuccessfulSyncPush);
 
-    return { startedAtTick, lastSuccessfulPush };
+    return { startedAtTick, lastSuccessfulSyncPush };
   }
 
   async fetchPullMetadata(sessionId) {
@@ -747,7 +747,7 @@ export class CentralSyncManager {
     return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile, pushCursor) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile, reportedPush) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -759,6 +759,20 @@ export class CentralSyncManager {
     const modelsToInclude = tablesToInclude
       ? filterModelsFromName(models, tablesToInclude)
       : getModelsForPush(models);
+
+    // Clients report the local tick they've pushed up to as a string or a number, and older
+    // clients don't report one at all. Coerce and validate here rather than at the route, so every
+    // caller of completePush goes through the same check. A value we can't use is dropped, but
+    // logged: a silently stuck device cursor is otherwise undiagnosable (spec: PUSH).
+    const parsedPush = reportedPush == null ? null : Number(reportedPush);
+    const lastSuccessfulSyncPush = Number.isInteger(parsedPush) ? parsedPush : null;
+    if (reportedPush != null && lastSuccessfulSyncPush === null) {
+      log.warn('CentralSyncManager.discardedReportedPushCursor', {
+        sessionId,
+        deviceId,
+        reportedPush,
+      });
+    }
 
     try {
       // commit the changes to the db
@@ -797,12 +811,19 @@ export class CentralSyncManager {
         // Record how far this device has now pushed, in the same transaction that saves its
         // changes, so an interrupted persist never advances it. GREATEST so a client reporting a
         // lower cursor (e.g. restored from a snapshot behind central) never drags it back (spec: PUSH).
-        if (deviceId && Number.isInteger(pushCursor)) {
+        //
+        // The cursor covers everything the client pushed in this session. A client that pushes
+        // only some of its tables must not report one, since tablesToInclude scopes what we save
+        // here: advancing past records we deliberately skipped would lose them for good.
+        if (deviceId && lastSuccessfulSyncPush !== null) {
           await sequelize.query(
             `UPDATE devices
-               SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :pushCursor)
+               SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :lastSuccessfulSyncPush)
              WHERE id = :deviceId`,
-            { replacements: { pushCursor, deviceId }, type: QueryTypes.UPDATE },
+            {
+              replacements: { lastSuccessfulSyncPush, deviceId },
+              type: QueryTypes.UPDATE,
+            },
           );
         }
 
@@ -904,7 +925,7 @@ export class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId, deviceId, tablesToInclude, pushCursor) {
+  async completePush(sessionId, deviceId, tablesToInclude, reportedPush) {
     const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
@@ -915,7 +936,7 @@ export class CentralSyncManager {
       deviceId,
       tablesToInclude,
       session.parameters.isMobile,
-      pushCursor,
+      reportedPush,
     ).finally(unmarkSessionAsProcessing);
   }
 

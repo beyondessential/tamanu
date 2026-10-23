@@ -241,7 +241,7 @@ export class MobileSyncManager {
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
-      lastSuccessfulPush: centralPushCursor,
+      lastSuccessfulSyncPush: centralPushCursor,
       status,
     } = await this.centralServer.startSyncSession({
       urgent,
@@ -306,7 +306,9 @@ export class MobileSyncManager {
   async pushOutgoingChanges(
     sessionId: string,
     newSyncClockTime: number,
-    centralPushCursor: number | null,
+    // absent when central holds no cursor for this device, or when the central server predates
+    // push-progress tracking
+    centralPushCursor?: number | null,
   ): Promise<void> {
     this.setSyncStage(1);
 
