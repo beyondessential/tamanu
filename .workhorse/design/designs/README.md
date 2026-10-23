@@ -6,5 +6,6 @@ The styled release notes used to sit in this folder; they now live in
 Published artefacts do not belong here, even when they are HTML and even when an
 agent produced them.
 
-For where a mockup that should persist belongs, see the Mock this up skill
-(`.agents/skills/mock-this-up/SKILL.md`) rather than this file.
+What belongs here is a screen design meant to last: a mockup of a view, written
+as standalone HTML with its fonts and icons inlined so it renders on its own.
+Card-scoped scratch belongs in `mockups/`, which is emptied on merge.
