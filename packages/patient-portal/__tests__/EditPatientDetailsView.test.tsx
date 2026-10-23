@@ -67,4 +67,13 @@ describe('EditPatientDetailsView', () => {
     expect((screen.getByLabelText(/^Town or city/) as HTMLInputElement).value).toBe('Apia');
     expect(screen.queryByText('Dashboard')).toBeNull();
   });
+
+  it("says the details can't be edited when the field settings don't load", async () => {
+    stubTranslations();
+    const api = createFakeApi({ me: fakePatient() });
+    renderPortal({ page: <EditPatientDetailsView />, path: '/details/edit', api });
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/couldn't be opened/);
+    expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
+  });
 });
