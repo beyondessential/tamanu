@@ -3,7 +3,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, Sequelize } from 'sequelize';
 import { z } from 'zod';
-import { subject } from '@casl/ability';
 
 import {
   APPOINTMENT_STATUSES,
@@ -17,6 +16,8 @@ import { getDayBoundaries, getCurrentDateStringInTimezone } from '@tamanu/utils/
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 
+// Every route checks only `run Kiosk`, so the account a tablet is signed in with needs no access
+// to patient records anywhere else in Tamanu.
 export const kiosk = express.Router();
 
 /** Appointments in these statuses can't be found or checked in from the kiosk. */
@@ -189,6 +190,16 @@ const auditPatientAccess = async (req, patients) => {
   }
 };
 
+kiosk.get(
+  '/facility',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('run', 'Kiosk');
+    await getKioskSettings(req);
+    const { id, name } = await req.models.Facility.findByPk(req.facilityId);
+    res.send({ id, name });
+  }),
+);
+
 const findAppointmentsQuerySchema = z.object({
   lastName: z.string().trim().min(1),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -197,8 +208,7 @@ const findAppointmentsQuerySchema = z.object({
 kiosk.get(
   '/appointments',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Appointment');
-    req.checkPermission('read', 'Patient');
+    req.checkPermission('run', 'Kiosk');
     const facilitySettings = await getKioskSettings(req);
     const { lastName, dateOfBirth } = await findAppointmentsQuerySchema.parseAsync(req.query);
 
@@ -238,9 +248,7 @@ kiosk.get(
 kiosk.get(
   '/appointments/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Appointment');
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Survey');
+    req.checkPermission('run', 'Kiosk');
     const facilitySettings = await getKioskSettings(req);
     const appointment = await findKioskAppointment(req, facilitySettings);
     const { models } = req;
@@ -307,9 +315,7 @@ const checkInBodySchema = z.object({
 kiosk.post(
   '/appointments/:id/checkIn',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Appointment');
-    req.checkPermission('write', 'Appointment');
-    req.checkPermission('read', 'Patient');
+    req.checkPermission('run', 'Kiosk');
     const facilitySettings = await getKioskSettings(req);
     const { responses } = await checkInBodySchema.parseAsync(req.body);
     const { models, facilityId } = req;
@@ -342,10 +348,6 @@ kiosk.post(
         configuredSurveyIds.every(surveyId => submittedSurveyIds.includes(surveyId));
       if (!isEveryFormSubmittedOnce) {
         throw new InvalidOperationError('Every form must be completed before checking in');
-      }
-      for (const surveyId of submittedSurveyIds) {
-        const noun = await models.Survey.getResponsePermissionCheck(surveyId);
-        req.checkPermission('create', noun === 'Charting' ? subject(noun, { id: surveyId }) : noun);
       }
 
       const { locationId, departmentId } =

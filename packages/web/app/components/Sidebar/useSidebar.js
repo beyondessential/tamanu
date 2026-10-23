@@ -19,14 +19,19 @@ const sortChildItems = (a, b) => {
   return a.sortPriority - b.sortPriority;
 };
 
-/** Leaves out items for features the facility has turned off, like the kiosk. */
-const withoutDisabledFeatures = (items, getSetting) =>
+/**
+ * Leaves out items for features the facility has turned off, or that the signed-in account
+ * can't use, like the kiosk.
+ */
+const withoutUnavailableItems = (items, getSetting, checkAbility) =>
   items.map(item =>
     item.children
       ? {
           ...item,
           children: item.children.filter(
-            child => !child.enabledBySetting || getSetting(child.enabledBySetting),
+            child =>
+              (!child.enabledBySetting || getSetting(child.enabledBySetting)) &&
+              (!child.requiredAbility || checkAbility(child.requiredAbility)),
           ),
         }
       : item,
@@ -45,7 +50,7 @@ const useSidebarFactory = (ITEMS, configKey) => {
   const sidebarConfig = getSetting(configKey);
 
   if (!sidebarConfig) {
-    return withoutDisabledFeatures(ITEMS, getSetting);
+    return withoutUnavailableItems(ITEMS, getSetting, checkAbility);
   }
 
   const items = ITEMS.reduce((topLevelItems, item) => {
@@ -89,7 +94,7 @@ const useSidebarFactory = (ITEMS, configKey) => {
     });
     return topLevelItems;
   }, []).sort(sortTopLevelItems);
-  return withoutDisabledFeatures(items, getSetting);
+  return withoutUnavailableItems(items, getSetting, checkAbility);
 };
 
 export const useFacilitySidebar = () => useSidebarFactory(FACILITY_MENU_ITEMS, 'layouts.sidebar');

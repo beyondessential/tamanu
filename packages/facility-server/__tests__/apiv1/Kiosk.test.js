@@ -334,7 +334,7 @@ describe('Kiosk', () => {
       expect(result).toHaveRequestError();
     });
 
-    it('is forbidden without permission to read appointments', async () => {
+    it('is forbidden without permission to run the kiosk', async () => {
       const limitedApp = await ctx.baseApp.asRole('base');
       const result = await limitedApp
         .get('/api/kiosk/appointments')
@@ -399,7 +399,7 @@ describe('Kiosk', () => {
   });
 
   describe('Loading forms', () => {
-    it('is forbidden without permission to read appointments, patients and forms', async () => {
+    it('is forbidden without permission to run the kiosk', async () => {
       const patient = await createPatient();
       const appointment = await createAppointment({ patient });
       const limitedApp = await ctx.baseApp.asRole('base');
@@ -1005,54 +1005,7 @@ describe('Kiosk', () => {
       expect(await findPatientResponses(patient)).toHaveLength(1);
     });
 
-    describe('with permissions from the database', () => {
-      disableHardcodedPermissionsForSuite();
-
-      it('is forbidden without permission to create form responses', async () => {
-        const patient = await createPatient();
-        const appointment = await createAppointment({
-          patient,
-          appointmentTypeId: appointmentTypeWithForms.id,
-        });
-        const limitedApp = await ctx.baseApp.asNewRole([
-          ['read', 'Appointment'],
-          ['write', 'Appointment'],
-          ['read', 'Patient'],
-        ]);
-
-        const result = await limitedApp
-          .post(`/api/kiosk/appointments/${appointment.id}/checkIn`)
-          .send({
-            responses: [
-              { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
-            ],
-          });
-
-        expect(result).toBeForbidden();
-        expect(await findPatientResponses(patient)).toHaveLength(0);
-        await appointment.reload();
-        expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
-      });
-
-      it('is forbidden without permission to read patients', async () => {
-        const patient = await createPatient();
-        const appointment = await createAppointment({ patient });
-        const limitedApp = await ctx.baseApp.asNewRole([
-          ['read', 'Appointment'],
-          ['write', 'Appointment'],
-        ]);
-
-        const result = await limitedApp
-          .post(`/api/kiosk/appointments/${appointment.id}/checkIn`)
-          .send({ responses: [] });
-
-        expect(result).toBeForbidden();
-        await appointment.reload();
-        expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
-      });
-    });
-
-    it('is forbidden without permission to update appointments', async () => {
+    it('is forbidden without permission to run the kiosk', async () => {
       const patient = await createPatient();
       const appointment = await createAppointment({ patient });
       const limitedApp = await ctx.baseApp.asRole('base');
@@ -1062,6 +1015,79 @@ describe('Kiosk', () => {
         .send({ responses: [] });
 
       expect(result).toBeForbidden();
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+    });
+  });
+
+  describe('Permissions', () => {
+    disableHardcodedPermissionsForSuite();
+
+    const checkInWithForm = (agent, appointment) =>
+      agent.post(`/api/kiosk/appointments/${appointment.id}/checkIn`).send({
+        responses: [{ surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } }],
+      });
+
+    it('lets an account with only permission to run the kiosk check a patient in', async () => {
+      const patient = await createPatient({ lastName: 'Kioskonly', dateOfBirth: '1979-04-04' });
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+      const facility = await models.Facility.findByPk(facilityId);
+
+      const facilityResult = await kioskApp.get('/api/kiosk/facility');
+      expect(facilityResult).toHaveSucceeded();
+      expect(facilityResult.body).toEqual({ id: facility.id, name: facility.name });
+
+      const search = await kioskApp
+        .get('/api/kiosk/appointments')
+        .query({ lastName: 'Kioskonly', dateOfBirth: '1979-04-04' });
+      expect(search).toHaveSucceeded();
+      expect(search.body.data.map(({ id }) => id)).toEqual([appointment.id]);
+      expect(await kioskApp.get(`/api/kiosk/appointments/${appointment.id}`)).toHaveSucceeded();
+      expect(await checkInWithForm(kioskApp, appointment)).toHaveSucceeded();
+
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.ARRIVED);
+      expect(await findPatientResponses(patient)).toHaveLength(1);
+    });
+
+    it('gives an account with only permission to run the kiosk no access to patients elsewhere', async () => {
+      const patient = await createPatient();
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+
+      expect(await kioskApp.get(`/api/patient/${patient.id}`)).toBeForbidden();
+      expect(await kioskApp.get('/api/patient')).toBeForbidden();
+    });
+
+    it('refuses an account that can read patients and appointments but not run the kiosk', async () => {
+      const patient = await createPatient({ lastName: 'Nokiosk', dateOfBirth: '1979-05-05' });
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+      const staffApp = await ctx.baseApp.asNewRole([
+        ['read', 'Appointment'],
+        ['write', 'Appointment'],
+        ['read', 'Patient'],
+        ['read', 'Survey'],
+        ['create', 'SurveyResponse'],
+      ]);
+
+      expect(
+        await staffApp
+          .get('/api/kiosk/appointments')
+          .query({ lastName: 'Nokiosk', dateOfBirth: '1979-05-05' }),
+      ).toBeForbidden();
+      expect(await staffApp.get('/api/kiosk/facility')).toBeForbidden();
+      expect(await staffApp.get(`/api/kiosk/appointments/${appointment.id}`)).toBeForbidden();
+      expect(await checkInWithForm(staffApp, appointment)).toBeForbidden();
+
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+      expect(await findPatientResponses(patient)).toHaveLength(0);
     });
   });
 });

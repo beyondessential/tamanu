@@ -195,5 +195,13 @@ describe('useFacilitySidebar', () => {
       vi.mocked(useAuth).mockReturnValue(authMock);
       expect(useFacilityAdminItem().children.map(child => child.key)).not.toContain('kiosk');
     });
+
+    it('leaves the kiosk out for an account without permission to run it', () => {
+      vi.mocked(useSettings).mockReturnValue(settingsWithKiosk(true));
+      vi.mocked(useAuth).mockReturnValue({
+        ability: { can: (action, subject) => !(action === 'run' && subject === 'Kiosk') },
+      });
+      expect(useFacilityAdminItem().children.map(child => child.key)).not.toContain('kiosk');
+    });
   });
 });

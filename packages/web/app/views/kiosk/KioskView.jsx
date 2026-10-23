@@ -6,7 +6,6 @@ import { TranslatedText } from '../../components';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
 import { useTranslation } from '../../contexts/Translation';
-import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { useTranslationLanguagesQuery } from '../../api/queries/useTranslationLanguagesQuery';
 import { KioskHeader } from './KioskHeader';
 import {
@@ -16,6 +15,7 @@ import {
   StartOverDialog,
 } from './KioskModals';
 import { KIOSK_STEPS, KioskSessionProvider, useKioskSession } from './KioskSession';
+import { useKioskFacilityQuery } from './kioskApi';
 import { KioskRoot, Lead, Panel, ScreenFrame, TEXT_SIZE_SCALES, Title } from './kioskStyles';
 import { useInactivityTimer, useKeepSignedIn } from './useKioskTimers';
 import { LandingScreen } from './screens/LandingScreen';
@@ -72,9 +72,8 @@ const useKioskLanguages = () => {
 };
 
 const Kiosk = () => {
-  const { facilityId } = useAuth();
   const { getSetting } = useSettings();
-  const { data: facility } = useFacilityQuery(facilityId);
+  const { data: facility } = useKioskFacilityQuery();
   const { storedLanguage, updateStoredLanguage, getReferenceDataTranslation } = useTranslation();
   const languages = useKioskLanguages();
   const { session, dispatch } = useKioskSession();
@@ -166,23 +165,41 @@ const Kiosk = () => {
   );
 };
 
-const KioskUnavailable = () => (
+const KioskUnavailable = ({ title, text }) => (
   <KioskRoot $scale={1}>
     <Panel $centred style={{ marginTop: 28 }}>
-      <Title>
-        <TranslatedText
-          stringId="kiosk.unavailable.title"
-          fallback="Self check-in is unavailable"
-        />
-      </Title>
-      <Lead>
-        <TranslatedText
-          stringId="kiosk.unavailable.text"
-          fallback="The self check-in kiosk is not turned on for this facility."
-        />
-      </Lead>
+      <Title>{title}</Title>
+      <Lead>{text}</Lead>
     </Panel>
   </KioskRoot>
+);
+
+const KioskTurnedOff = () => (
+  <KioskUnavailable
+    title={
+      <TranslatedText stringId="kiosk.unavailable.title" fallback="Self check-in is unavailable" />
+    }
+    text={
+      <TranslatedText
+        stringId="kiosk.unavailable.text"
+        fallback="The self check-in kiosk is not turned on for this facility."
+      />
+    }
+  />
+);
+
+const KioskNotPermitted = () => (
+  <KioskUnavailable
+    title={
+      <TranslatedText stringId="kiosk.unavailable.title" fallback="Self check-in is unavailable" />
+    }
+    text={
+      <TranslatedText
+        stringId="kiosk.notPermitted.text"
+        fallback="The account signed in here doesn't have permission to run the self check-in kiosk."
+      />
+    }
+  />
 );
 
 /** Keeps the fixed Back and Next above the on-screen keyboard, without changing the staff app. */
@@ -200,9 +217,11 @@ const useResizeForKeyboard = () => {
 
 export const KioskView = () => {
   const { getSetting, isSettingsLoaded } = useSettings();
+  const { ability } = useAuth();
   useResizeForKeyboard();
   if (!isSettingsLoaded) return null;
-  if (!getSetting('kiosk.enabled')) return <KioskUnavailable />;
+  if (!getSetting('kiosk.enabled')) return <KioskTurnedOff />;
+  if (!ability?.can('run', 'Kiosk')) return <KioskNotPermitted />;
   return (
     <KioskSessionProvider>
       <Kiosk />
