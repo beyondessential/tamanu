@@ -478,6 +478,9 @@ describe('FacilitySyncManager', () => {
     it('pushes outgoing changes with current sessionId', async () => {
       const outgoingChanges = [{ test: 'test' }];
       await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
+      // set explicitly rather than inheriting whatever the preceding test left behind, since
+      // pushChanges writes this fact back on every run
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '1');
 
       vi.doMock('../../app/sync/snapshotOutgoingChanges', async () => ({
         ...(await vi.importActual('../../app/sync/snapshotOutgoingChanges')),
