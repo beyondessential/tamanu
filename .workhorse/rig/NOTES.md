@@ -24,7 +24,8 @@ Runs on macOS and Linux; on Windows, inside WSL2. The servers' primary timezone 
 or the machine's when it is unset.
 
 Needs: node matching `.nvmrc` first on the PATH the manager runs with; `curl`; a Postgres 13 or later
-whose user in the manager's URL has `CREATEDB`. SQL goes through `sql.mjs` with the commit's own `pg`.
+whose user in the manager's URL has `CREATEDB`. Without `CREATEROLE` too, central cannot make the
+reporting roles, so the reporting schemas are missing; everything else works. SQL goes through `sql.mjs` with the commit's own `pg`.
 
 Limits:
 
