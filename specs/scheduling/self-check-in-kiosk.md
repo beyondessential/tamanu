@@ -39,7 +39,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 
 - [ ] The patient enters their last name and date of birth. The date of birth is entered as day, month (chosen by name) and year.
 - [ ] Find my appointment is available once all fields are filled in with a valid date.
-- [ ] A patient is found only when they have an appointment today at this facility that has not been cancelled or marked as a no-show. Patients without such an appointment are never shown.
+- [ ] A patient is found only when they have an appointment today at this facility that has not been cancelled or marked as a no-show. Outpatient appointments and location bookings are both found, and are offered side by side when one patient has both. Patients without such an appointment are never shown.
 - [ ] Matching ignores letter case and surrounding spaces in the last name, and requires the exact date of birth.
 - [ ] Back returns to the landing page.
 
@@ -55,7 +55,7 @@ A tablet at a facility where patients check themselves in for today's appointmen
 
 ## Forms
 
-- [ ] The forms a patient completes are set per appointment type by the kiosk setting. Forms that have been retired are left out. An appointment type with no forms goes straight to Ready to check in.
+- [ ] The forms a patient completes are set by the kiosk setting, per appointment type for outpatient appointments and per booking type for location bookings. Forms that have been retired are left out. A type with no forms goes straight to Ready to check in.
 - [ ] Forms can be completed in any order. A "Your forms" list beside the open form shows each form's status (Completed, In progress with its current page where it has more than one, Not started) and how many are complete; tapping a form opens it.
 - [ ] After the patient confirms who they are, the first form opens.
 - [ ] The open form shows its own page progress ("Page 2 of 3") with a progress bar.

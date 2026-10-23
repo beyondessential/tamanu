@@ -74,16 +74,19 @@ const findKioskAppointment = async (req, facilitySettings) => {
 };
 
 /**
- * The forms a patient completes for their appointment type: the current surveys the setting
- * lists for it, in the order listed. Retired or missing surveys are skipped, so a stale setting
- * can't stop patients from checking in.
+ * The forms a patient completes for their appointment type, or for a location booking its booking
+ * type: the current surveys the setting lists for it, in the order listed. Retired or missing
+ * surveys are skipped, so a stale setting can't stop patients from checking in.
  */
-const getKioskSurveys = async (req, facilitySettings, appointmentTypeId) => {
-  const formsByAppointmentType = await facilitySettings.get('kiosk.formsByAppointmentType');
+const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, bookingTypeId }) => {
+  const formsByType = await facilitySettings.get('kiosk.forms');
   const configuredIds = [
     ...new Set(
-      formsByAppointmentType?.find(forms => forms.appointmentTypeId === appointmentTypeId)
-        ?.surveyIds ?? [],
+      formsByType?.find(forms =>
+        forms.bookingTypeId
+          ? forms.bookingTypeId === bookingTypeId
+          : forms.appointmentTypeId === appointmentTypeId,
+      )?.surveyIds ?? [],
     ),
   ];
   const surveys = await req.models.Survey.findAll({
@@ -242,7 +245,7 @@ kiosk.get(
     const appointment = await findKioskAppointment(req, facilitySettings);
     const { models } = req;
 
-    const surveys = await getKioskSurveys(req, facilitySettings, appointment.appointmentTypeId);
+    const surveys = await getKioskSurveys(req, facilitySettings, appointment);
     const components = await models.SurveyScreenComponent.getComponentsForSurveys(
       surveys.map(({ id }) => id),
     );
@@ -330,9 +333,9 @@ kiosk.post(
         throw new InvalidOperationError('This appointment has already been checked in');
       }
 
-      const configuredSurveyIds = (
-        await getKioskSurveys(req, facilitySettings, appointment.appointmentTypeId)
-      ).map(({ id }) => id);
+      const configuredSurveyIds = (await getKioskSurveys(req, facilitySettings, appointment)).map(
+        ({ id }) => id,
+      );
       const submittedSurveyIds = responses.map(response => response.surveyId);
       const isEveryFormSubmittedOnce =
         submittedSurveyIds.length === configuredSurveyIds.length &&

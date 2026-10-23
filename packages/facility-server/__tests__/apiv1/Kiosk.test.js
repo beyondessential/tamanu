@@ -35,6 +35,7 @@ describe('Kiosk', () => {
   let requiredDataElement;
   let appointmentTypeWithForms;
   let appointmentTypeWithoutForms;
+  let bookingTypeWithForms;
 
   const setKioskSettings = async settings => {
     await models.Setting.set('kiosk', settings, SETTINGS_SCOPES.FACILITY, facilityId);
@@ -54,6 +55,15 @@ describe('Kiosk', () => {
       startTime: `${today} 10:30:00`,
       endTime: `${today} 11:00:00`,
       status: APPOINTMENT_STATUSES.CONFIRMED,
+      ...overrides,
+    });
+
+  const createLocationBooking = overrides =>
+    createAppointment({
+      locationGroupId: null,
+      locationId: location.id,
+      appointmentTypeId: null,
+      bookingTypeId: bookingTypeWithForms.id,
       ...overrides,
     });
 
@@ -89,7 +99,7 @@ describe('Kiosk', () => {
     );
     await setKioskSettings({
       enabled: true,
-      formsByAppointmentType: [{ appointmentTypeId: appointmentType.id, surveyIds }],
+      forms: [{ appointmentTypeId: appointmentType.id, surveyIds }],
     });
     return appointmentType;
   };
@@ -134,6 +144,9 @@ describe('Kiosk', () => {
     appointmentTypeWithoutForms = await models.ReferenceData.create(
       fake(models.ReferenceData, { type: 'appointmentType' }),
     );
+    bookingTypeWithForms = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: 'bookingType' }),
+    );
 
     const program = await models.Program.create(fake(models.Program));
     survey = await models.Survey.create(
@@ -157,8 +170,9 @@ describe('Kiosk', () => {
   beforeEach(async () => {
     await setKioskSettings({
       enabled: true,
-      formsByAppointmentType: [
+      forms: [
         { appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [survey.id] },
+        { bookingTypeId: bookingTypeWithForms.id, surveyIds: [survey.id] },
       ],
     });
   });
@@ -254,16 +268,29 @@ describe('Kiosk', () => {
 
     it('finds location bookings at this facility', async () => {
       const patient = await createPatient({ lastName: 'Booking', dateOfBirth: '1960-02-02' });
-      const appointment = await createAppointment({
-        patient,
-        locationGroupId: null,
-        locationId: location.id,
-      });
+      const booking = await createLocationBooking({ patient });
+      const otherLocation = await models.Location.create(
+        fake(models.Location, { facilityId: otherFacility.id }),
+      );
+      await createLocationBooking({ patient, locationId: otherLocation.id });
 
       const result = await findAppointments('Booking', '1960-02-02');
 
       expect(result).toHaveSucceeded();
-      expect(result.body.data.map(({ id }) => id)).toEqual([appointment.id]);
+      expect(result.body.data.map(({ id }) => id)).toEqual([booking.id]);
+    });
+
+    it('offers one patient their outpatient appointment and location booking together', async () => {
+      const patient = await createPatient({ lastName: 'Both', dateOfBirth: '1961-03-03' });
+      const appointment = await createAppointment({ patient });
+      const booking = await createLocationBooking({ patient, startTime: `${today} 13:00:00` });
+
+      const result = await findAppointments('Both', '1961-03-03');
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.isSeveralPatients).toBe(false);
+      expect(result.body.data.map(({ id }) => id)).toEqual([appointment.id, booking.id]);
+      expect(result.body.data[1].patient.displayId).toEqual(patient.displayId);
     });
 
     it('masks the patient ID and hides the clinician when several patients match', async () => {
@@ -494,7 +521,7 @@ describe('Kiosk', () => {
       );
       await setKioskSettings({
         enabled: true,
-        formsByAppointmentType: [
+        forms: [
           { appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [retired.id, survey.id] },
         ],
       });
@@ -528,6 +555,32 @@ describe('Kiosk', () => {
       expect(result.body.forms).toHaveLength(1);
       expect(result.body.forms[0].id).toEqual(survey.id);
       expect(result.body.forms[0].components[0].dataElement.id).toEqual(requiredDataElement.id);
+    });
+
+    it("returns the forms for a location booking's booking type", async () => {
+      const patient = await createPatient();
+      const booking = await createLocationBooking({ patient });
+
+      const result = await app.get(`/api/kiosk/appointments/${booking.id}`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.forms.map(({ id }) => id)).toEqual([survey.id]);
+    });
+
+    it('returns no forms for a booking type without any', async () => {
+      const bookingTypeWithoutForms = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: 'bookingType' }),
+      );
+      const patient = await createPatient();
+      const booking = await createLocationBooking({
+        patient,
+        bookingTypeId: bookingTypeWithoutForms.id,
+      });
+
+      const result = await app.get(`/api/kiosk/appointments/${booking.id}`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.forms).toEqual([]);
     });
 
     it('returns no forms for an appointment type without any', async () => {
@@ -780,9 +833,7 @@ describe('Kiosk', () => {
       });
       await setKioskSettings({
         enabled: false,
-        formsByAppointmentType: [
-          { appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [survey.id] },
-        ],
+        forms: [{ appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [survey.id] }],
       });
 
       const result = await checkIn(appointment.id, [
@@ -795,16 +846,29 @@ describe('Kiosk', () => {
       expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
     });
 
-    it("records the responses at the appointment's own location", async () => {
+    it('checks in a location booking with the forms for its booking type', async () => {
       const patient = await createPatient();
-      const appointment = await createAppointment({
-        patient,
-        appointmentTypeId: appointmentTypeWithForms.id,
-        locationGroupId: null,
-        locationId: location.id,
-      });
+      const booking = await createLocationBooking({ patient });
 
-      const result = await checkIn(appointment.id, [
+      expect(await checkIn(booking.id, [])).toHaveRequestError();
+      await booking.reload();
+      expect(booking.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+
+      const result = await checkIn(booking.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      await booking.reload();
+      expect(booking.status).toEqual(APPOINTMENT_STATUSES.ARRIVED);
+      expect(await findPatientResponses(patient)).toHaveLength(1);
+    });
+
+    it("records the responses at the booking's own location", async () => {
+      const patient = await createPatient();
+      const booking = await createLocationBooking({ patient });
+
+      const result = await checkIn(booking.id, [
         { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
       ]);
 

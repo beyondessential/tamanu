@@ -25,6 +25,10 @@ const APPOINTMENT_TYPES = {
   followUp: { id: 'appointmentType-kioskDemoFollowUp', name: 'Follow-up' },
 };
 
+const BOOKING_TYPES = {
+  dressing: { id: 'bookingType-kioskDemoDressing', name: 'Wound dressing' },
+};
+
 /**
  * The demo forms. Each question is `[code, type, text, options]`; a question's page is its
  * position in `pages`. Codes are prefixed so they can't collide with real programs.
@@ -222,6 +226,15 @@ const DEMO_PATIENTS = [
     sex: 'female',
     appointment: { time: '09:00', type: 'followUp', status: APPOINTMENT_STATUSES.ARRIVED },
   },
+  {
+    id: 'patient-kioskDemo-losa',
+    displayId: 'BCDE905127',
+    firstName: 'Losa',
+    lastName: 'Vaai',
+    dateOfBirth: '1968-09-21',
+    sex: 'female',
+    appointment: { time: '13:30', bookingType: 'dressing' },
+  },
 ];
 
 const PROGRAM_ID = 'program-kioskDemo';
@@ -301,6 +314,20 @@ const findOrCreateClinic = async (models, facilityId) => {
   });
 };
 
+const findOrCreateRoom = async (models, facilityId) => {
+  const existingLocation = await models.Location.findOne({
+    where: { facilityId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+    order: [['name', 'ASC']],
+  });
+  if (existingLocation) return existingLocation;
+  return upsert(models.Location, {
+    id: `location-kioskDemo-${facilityId}`,
+    code: `kioskDemoRoom-${facilityId}`,
+    name: 'Treatment room',
+    facilityId,
+  });
+};
+
 const findOrCreateClinician = async models => {
   const email = 'kiosk.demo.clinician@tamanu.io';
   const existing = await models.User.findOne({ where: { email } });
@@ -338,9 +365,19 @@ export const generateKioskDemo = async ({ facility: facilityId }) => {
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
         });
       }
+      for (const { id, name } of Object.values(BOOKING_TYPES)) {
+        await upsert(models.ReferenceData, {
+          id,
+          code: id.replace('bookingType-', ''),
+          name,
+          type: REFERENCE_TYPES.BOOKING_TYPE,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+      }
 
       const surveyIds = await seedForms(models);
       const clinic = await findOrCreateClinic(models, facilityId);
+      const room = await findOrCreateRoom(models, facilityId);
       const clinician = await findOrCreateClinician(models);
 
       const primaryTimeZone = getPrimaryTimeZone();
@@ -369,8 +406,19 @@ export const generateKioskDemo = async ({ facility: facilityId }) => {
           id: `appointment-kioskDemo-${patient.id.replace('patient-kioskDemo-', '')}`,
           patientId: patient.id,
           clinicianId: clinician.id,
-          locationGroupId: clinic.id,
-          appointmentTypeId: APPOINTMENT_TYPES[appointment.type].id,
+          ...(appointment.bookingType
+            ? {
+                locationGroupId: null,
+                locationId: room.id,
+                appointmentTypeId: null,
+                bookingTypeId: BOOKING_TYPES[appointment.bookingType].id,
+              }
+            : {
+                locationGroupId: clinic.id,
+                locationId: null,
+                appointmentTypeId: APPOINTMENT_TYPES[appointment.type].id,
+                bookingTypeId: null,
+              }),
           startTime: atToday(appointment.time),
           endTime: atToday(endTime),
           status: appointment.status ?? APPOINTMENT_STATUSES.CONFIRMED,
@@ -382,9 +430,10 @@ export const generateKioskDemo = async ({ facility: facilityId }) => {
         'kiosk',
         {
           enabled: true,
-          formsByAppointmentType: [
+          forms: [
             { appointmentTypeId: APPOINTMENT_TYPES.consultation.id, surveyIds },
             { appointmentTypeId: APPOINTMENT_TYPES.followUp.id, surveyIds: [surveyIds[1]] },
+            { bookingTypeId: BOOKING_TYPES.dressing.id, surveyIds: [surveyIds[1]] },
           ],
         },
         SETTINGS_SCOPES.FACILITY,
@@ -395,7 +444,7 @@ export const generateKioskDemo = async ({ facility: facilityId }) => {
     log.info(`Kiosk demo ready at ${facility.name}`, {
       patients: DEMO_PATIENTS.map(
         ({ lastName, dateOfBirth, appointment }) =>
-          `${lastName} ${dateOfBirth} (${appointment.type}, ${appointment.time})`,
+          `${lastName} ${dateOfBirth} (${appointment.type ?? appointment.bookingType}, ${appointment.time})`,
       ),
     });
   } finally {
