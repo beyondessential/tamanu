@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { route } from '@tamanu/api-client';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { SurveyResultBadge, TranslatedText, DateDisplay } from '@tamanu/ui-components';
 import { MenuButton, DataFetchingTable } from '../../components';
@@ -120,7 +121,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
         />
       )}
       <DataFetchingTable
-        endpoint={`patient/${patientProgramRegistration.patientId}/programResponses`}
+        endpoint={route('patient/:patientId/programResponses', { patientId: patientProgramRegistration.patientId })}
         columns={columns}
         initialSort={{
           orderBy: 'startTime',

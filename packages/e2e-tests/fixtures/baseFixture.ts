@@ -6,6 +6,7 @@ import {
   LoginPage,
   SidebarPage,
   BedManagementPage,
+  RecentlyDischargedPatientsPage,
   ReportsPage,
   ActiveImagingRequestsPage,
   CompletedImagingRequestsPage,
@@ -37,6 +38,7 @@ type BaseFixtures = {
   loginPage: LoginPage;
   sidebarPage: SidebarPage;
   bedManagementPage: BedManagementPage;
+  recentlyDischargedPatientsPage: RecentlyDischargedPatientsPage;
   reportsPage: ReportsPage;
   activeImagingRequestPage: ActiveImagingRequestsPage;
   completedImagingRequestsPage: CompletedImagingRequestsPage;
@@ -124,6 +126,10 @@ export const test = base.extend<BaseFixtures>({
 
   bedManagementPage: async ({ page }, use) => {
     await use(new BedManagementPage(page));
+  },
+
+  recentlyDischargedPatientsPage: async ({ page }, use) => {
+    await use(new RecentlyDischargedPatientsPage(page));
   },
 
   reportsPage: async ({ page }, use) => {

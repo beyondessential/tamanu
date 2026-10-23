@@ -211,7 +211,7 @@ export const ProcedureModal = ({
               {programResponses?.data?.length > 0 && (
                 <>
                   <ProgramsTable
-                    endpoint={`patient/${patientId}/programResponses`}
+                    endpoint={route('patient/:patientId/programResponses', { patientId })}
                     patient={patient}
                     onDelete={() => {
                       updateRefreshCount();

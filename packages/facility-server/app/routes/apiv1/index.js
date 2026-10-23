@@ -50,6 +50,7 @@ import { patientFacility } from './patientFacility';
 import { template } from './template';
 import { procedure } from './procedure';
 import { program } from './program';
+import { recentlyDischargedPatients } from './recentlyDischargedPatients';
 import { programRegistry } from './programRegistry';
 import { referenceData } from './referenceData';
 import { referral } from './referral';
@@ -75,6 +76,7 @@ import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
 import { ai } from './ai';
+import { telemetry } from './telemetry';
 
 const passthrough = (_req, _res, next) => next();
 
@@ -122,6 +124,11 @@ export function createApiv1({ authLimiter } = {}) {
   // First-run setup: records the host + credentials + facilities. Rate-limited
   // (it does an outbound login probe) and trusted-network gated in the handler.
   apiv1.post('/public/setup/sync', limiter, setupSyncHandler);
+
+  // Browser performance telemetry ingest (spec: BTEL). Public so pre-login
+  // navigations are recorded. Not behind the strict auth limiter (clients post
+  // frequently); follows the other /public read routes.
+  apiv1.use('/public/telemetry', telemetry);
 
   apiv1.get(
     '/public/translation/languageOptions',
@@ -307,6 +314,7 @@ export function createApiv1({ authLimiter } = {}) {
   patientDataRoutes.use('/patientCarePlan', patientCarePlan);
   patientDataRoutes.use('/patientIssue', patientIssue);
   patientDataRoutes.use('/procedure', procedure);
+  patientDataRoutes.use('/recentlyDischargedPatients', recentlyDischargedPatients);
   patientDataRoutes.use('/referral', referral);
   patientDataRoutes.use('/surveyResponse', surveyResponse);
   patientDataRoutes.use('/surveyResponseAnswer', surveyResponseAnswer);

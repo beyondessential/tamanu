@@ -303,6 +303,7 @@ export const ADMINISTRATION_FREQUENCIES = {
   TWO_TIMES_DAILY: 'Two times daily',
   THREE_TIMES_DAILY: 'Three times daily',
   FOUR_TIMES_DAILY: 'Four times daily',
+  EVERY_2_HOURS: 'Every 2 hours',
   EVERY_4_HOURS: 'Every 4 hours',
   EVERY_6_HOURS: 'Every 6 hours',
   EVERY_8_HOURS: 'Every 8 hours',
@@ -334,6 +335,7 @@ export const ADMINISTRATION_FREQUENCY_SYNONYMS = {
   ],
   [ADMINISTRATION_FREQUENCIES.THREE_TIMES_DAILY]: ['TID', 'TDS', 'T.I.D.'],
   [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: ['QID', 'QDS', 'Q.I.D.'],
+  [ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS]: ['q2h', '2h', '2 hourly', '2 hrly'],
   [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: ['q4h', '4h', '4 hourly', '4 hrly'],
   [ADMINISTRATION_FREQUENCIES.EVERY_6_HOURS]: ['q6h', '6h', '6 hourly', '6 hrly'],
   [ADMINISTRATION_FREQUENCIES.EVERY_8_HOURS]: ['q8h', '8h', '8 hourly', '8 hrly'],
@@ -407,6 +409,14 @@ export const ADMINISTRATION_FREQUENCY_DETAILS = {
   [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
     startTimes: ['06:00', '12:00', '18:00', '22:00'],
     dosesPerDay: 4,
+  },
+  [ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS]: {
+    // prettier-ignore
+    startTimes: [
+      '00:00', '02:00', '04:00', '06:00', '08:00', '10:00',
+      '12:00', '14:00', '16:00', '18:00', '20:00', '22:00',
+    ],
+    dosesPerDay: 12,
   },
   [ADMINISTRATION_FREQUENCIES.EVERY_4_HOURS]: {
     startTimes: ['02:00', '06:00', '10:00', '14:00', '18:00', '22:00'],

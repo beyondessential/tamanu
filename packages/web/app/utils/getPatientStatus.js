@@ -1,24 +1,18 @@
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_PATIENT_STATUSES, PATIENT_STATUSES } from '@tamanu/constants';
 import { PATIENT_STATUS } from '../constants';
 
-const ENCOUNTER_TYPE_TO_STATUS = {
-  [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUS.INPATIENT,
-  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.OUTPATIENT,
-  [ENCOUNTER_TYPES.IMAGING]: PATIENT_STATUS.OUTPATIENT,
-  [ENCOUNTER_TYPES.OBSERVATION]: PATIENT_STATUS.EMERGENCY,
-  [ENCOUNTER_TYPES.EMERGENCY]: PATIENT_STATUS.EMERGENCY,
-  [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
-};
-
+// The web's PATIENT_STATUS values are what callers compare getPatientStatus against and key colours
+// by. PATIENT_STATUS_LABELS reads the same today, but it's translation fallback text, so it's kept
+// separate: rewording a label must not change these comparisons.
 const STATUS_TO_LABEL = {
-  [PATIENT_STATUS.INPATIENT]: 'Inpatient',
-  [PATIENT_STATUS.OUTPATIENT]: 'Outpatient',
-  [PATIENT_STATUS.EMERGENCY]: 'Emergency',
+  [PATIENT_STATUSES.INPATIENT]: PATIENT_STATUS.INPATIENT,
+  [PATIENT_STATUSES.OUTPATIENT]: PATIENT_STATUS.OUTPATIENT,
+  [PATIENT_STATUSES.EMERGENCY]: PATIENT_STATUS.EMERGENCY,
 };
 
-export const getPatientStatus = (encounterType) => {
+export const getPatientStatus = encounterType => {
   if (!encounterType) {
     return '';
   }
-  return STATUS_TO_LABEL[ENCOUNTER_TYPE_TO_STATUS[encounterType]];
+  return STATUS_TO_LABEL[ENCOUNTER_TYPE_PATIENT_STATUSES[encounterType]];
 };
