@@ -185,8 +185,10 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/metadata',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const { startedAtTick } = await syncManager.fetchSyncMetadata(params.sessionId);
-      res.json({ startedAtTick });
+      const { startedAtTick, lastSuccessfulPush } = await syncManager.fetchSyncMetadata(
+        params.sessionId,
+      );
+      res.json({ startedAtTick, lastSuccessfulPush });
     }),
   );
 
@@ -210,8 +212,8 @@ export const buildSyncRoutes = ctx => {
         await sleepAsync(interval);
       }
 
-      const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
-      res.write(StreamMessage.end({ startedAtTick }));
+      const { startedAtTick, lastSuccessfulPush } = await syncManager.fetchSyncMetadata(sessionId);
+      res.write(StreamMessage.end({ startedAtTick, lastSuccessfulPush }));
       res.end();
     }),
   );
@@ -360,8 +362,17 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body, device } = req;
       const { sessionId } = params;
-      const { tablesToInclude } = body;
-      await syncManager.completePush(sessionId, device.id, tablesToInclude);
+      const { tablesToInclude, pushCursor } = body;
+      // The client-local tick the client has pushed up to; central records it against the device
+      // once the pushed changes are persisted (spec: PUSH).
+      const parsedPushCursor =
+        pushCursor == null ? null : Number.parseInt(pushCursor, 10);
+      await syncManager.completePush(
+        sessionId,
+        device.id,
+        tablesToInclude,
+        Number.isNaN(parsedPushCursor) ? null : parsedPushCursor,
+      );
       res.json({});
     }),
   );

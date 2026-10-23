@@ -43,15 +43,20 @@ Central records a per-client push cursor and hands it back at session start; the
 
 ## Implementation steps
 
-- [ ] Sequelize migration: add nullable `last_successful_sync_push` BIGINT to `devices`.
-- [ ] `Device` model: declare the new field.
-- [ ] Central persist: thread `pushedUpToTick` through the push-complete route → `completePush` → `persistIncomingChanges`; write it with `GREATEST`/`COALESCE` in the save transaction.
-- [ ] Central metadata: include the device's stored cursor in `fetchSyncMetadata` / the `/metadata` response.
-- [ ] Facility: read central's cursor in `CentralServerConnection`/`startSyncSession`, apply the min in `FacilitySyncManager.pushChanges`, send `pushedUpToTick` on push-complete.
-- [ ] Mobile: the same read/min/report in `MobileSyncManager`.
-- [ ] dbt: regenerate `database/model/` for the `devices` column and fill the new doc TODOs.
-- [ ] Tests — see `.workhorse/test-cases/s11/` (restore-ahead, restore-behind, no central cursor, interrupted push, empty-delta advance).
+- [x] Sequelize migration: add nullable `last_successful_sync_push` BIGINT to `devices`.
+- [x] `Device` model: declare the new field.
+- [x] Central persist: thread `pushCursor` through the push-complete route → `completePush` → `persistIncomingChanges`; write it with `GREATEST`/`COALESCE` in the save transaction.
+- [x] Central metadata: include the device's stored cursor (`lastSuccessfulPush`) in `fetchSyncMetadata` / the `/metadata` response and the ready-stream end message.
+- [x] Facility: read central's cursor in `CentralServerConnection`/`startSyncSession`, apply the min in `FacilitySyncManager.pushChanges`, send `pushCursor` on push-complete.
+- [x] Mobile: the same read/min/report in `MobileSyncManager`.
+- [x] dbt: added the `devices` column and doc to `database/model/public/devices.{yml,md}` by hand. Re-run `npm run dbt-generate-model` against a live DB to reconcile, then `npm run dbt-check-todos`.
+- [~] Tests: added central-side storage/metadata tests (`CentralSyncManager.devicePushCursor.test.js`) and facility resume-min tests (`FacilitySyncManager.test.js`); updated existing call-arg assertions. Still owed: mobile-side and full restore-direction integration round-trips — see `.workhorse/test-cases/s11/`.
 
-## Open questions
+## Resolved
 
-- [ ] Exact field name on the wire for the reported cursor (`pushedUpToTick`?) and the returned cursor in metadata — confirm against existing naming when implementing.
+- **Wire field names.** Client reports `pushCursor` (its `currentSyncClockTime`) on `POST /:sessionId/push/complete`; central returns `lastSuccessfulPush` (its stored cursor for the device, or null) in the session metadata.
+- **Empty pushes don't report.** `completePush` is only called on a non-empty push (existing call sites), so central's cursor advances only then. This is harmless: the range an empty push would have covered holds no records, so nothing is skipped and no re-push churn results. Dropped the earlier "advance on empty pushes" idea as unnecessary.
+
+## Verification still owed
+
+- No `node_modules` in this worktree, so lint / unit tests / `dbt-generate-model` were not run here. Needs `npm install` then: `npm run central-test` (sync suites), `npm run facility-test` (sync suites), mobile tests, `npx eslint` on the changed files, and the dbt reconcile/check.

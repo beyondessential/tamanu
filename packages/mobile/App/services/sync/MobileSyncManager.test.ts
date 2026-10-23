@@ -145,7 +145,12 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pushOutgoingChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
+      // third arg is central's recorded push cursor, undefined here as the mock returns none
+      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(
+        mockSessionId,
+        mockSyncTick,
+        undefined,
+      );
     });
 
     it("should call pullIncomingChanges() with the correct 'sessionId'", async () => {

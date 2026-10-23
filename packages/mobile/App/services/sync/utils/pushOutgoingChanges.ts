@@ -19,6 +19,7 @@ export const pushOutgoingChanges = async (
   changes: SyncRecord[],
   syncSettings: MobileSyncSettings,
   progressCallback: (total: number, progressCount: number) => void,
+  pushCursor: number,
 ): Promise<void> => {
   const { dynamicLimiter: dynamicLimiterSettings } = syncSettings ?? {};
   let startOfPage = 0;
@@ -41,5 +42,6 @@ export const pushOutgoingChanges = async (
   await centralServer.completePush(
     sessionId,
     Object.values(outgoingModels).map(m => m.getTableName()),
+    pushCursor,
   );
 };

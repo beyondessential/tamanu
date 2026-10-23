@@ -694,8 +694,21 @@ export class CentralSyncManager {
 
   async fetchSyncMetadata(sessionId) {
     // Minimum metadata info for now but can grow in the future
-    const { startedAtTick } = await this.connectToSession(sessionId);
-    return { startedAtTick };
+    const session = await this.connectToSession(sessionId);
+    const { startedAtTick } = session;
+
+    // Central is the authority on how far this device has pushed; hand that cursor back so the
+    // client resumes its push from the lower of it and the client's own cursor (spec: PUSH).
+    const deviceId = session.parameters?.deviceId;
+    const device = deviceId
+      ? await this.store.models.Device.findByPk(deviceId, {
+          attributes: ['lastSuccessfulSyncPush'],
+        })
+      : null;
+    const lastSuccessfulPush =
+      device?.lastSuccessfulSyncPush == null ? null : Number(device.lastSuccessfulSyncPush);
+
+    return { startedAtTick, lastSuccessfulPush };
   }
 
   async fetchPullMetadata(sessionId) {
@@ -734,7 +747,7 @@ export class CentralSyncManager {
     return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
+  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile, pushCursor) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -780,6 +793,18 @@ export class CentralSyncManager {
         );
 
         await models.SyncDeviceTick.create({ deviceId, persistedAtSyncTick: tock });
+
+        // Record how far this device has now pushed, in the same transaction that saves its
+        // changes, so an interrupted persist never advances it. GREATEST so a client reporting a
+        // lower cursor (e.g. restored from a snapshot behind central) never drags it back (spec: PUSH).
+        if (deviceId && Number.isInteger(pushCursor)) {
+          await sequelize.query(
+            `UPDATE devices
+               SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :pushCursor)
+             WHERE id = :deviceId`,
+            { replacements: { pushCursor, deviceId }, type: QueryTypes.UPDATE },
+          );
+        }
 
         // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
         // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
@@ -879,7 +904,7 @@ export class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId, deviceId, tablesToInclude) {
+  async completePush(sessionId, deviceId, tablesToInclude, pushCursor) {
     const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
@@ -890,6 +915,7 @@ export class CentralSyncManager {
       deviceId,
       tablesToInclude,
       session.parameters.isMobile,
+      pushCursor,
     ).finally(unmarkSessionAsProcessing);
   }
 

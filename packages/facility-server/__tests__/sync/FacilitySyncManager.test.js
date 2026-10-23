@@ -417,6 +417,64 @@ describe('FacilitySyncManager', () => {
       expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), '10');
     });
 
+    it("snapshots from central's cursor when it is below the local 'lastSuccessfulSyncPush'", async () => {
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '10');
+
+      vi.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        snapshotOutgoingChanges: vi.fn().mockImplementation(() => []),
+      }));
+
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
+      const { snapshotOutgoingChanges } = await import('../../app/sync/snapshotOutgoingChanges');
+
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          streaming: () => false,
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
+        },
+      });
+
+      // central has only persisted up to 5, below our local cursor of 10 (e.g. this db was
+      // restored from a snapshot ahead of central): resume from central's 5
+      await syncManager.pushChanges(TEST_SESSION_ID, 20, 5);
+
+      expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), 5);
+    });
+
+    it("snapshots from the local cursor when central's cursor is above it", async () => {
+      await ctx.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, '10');
+
+      vi.doMock('../../app/sync/snapshotOutgoingChanges', () => ({
+        snapshotOutgoingChanges: vi.fn().mockImplementation(() => []),
+      }));
+
+      const { FacilitySyncManager: TestFacilitySyncManager } =
+        await import('../../app/sync/FacilitySyncManager');
+      const { snapshotOutgoingChanges } = await import('../../app/sync/snapshotOutgoingChanges');
+
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize: ctx.sequelize,
+        centralServer: {
+          streaming: () => false,
+          startSyncSession: () => ({ sessionId: TEST_SESSION_ID, tick: 1 }),
+          endSyncSession: vi.fn(),
+          push: vi.fn(),
+        },
+      });
+
+      // central is ahead (e.g. this db was restored from a snapshot behind central): resume from
+      // our own lower cursor so we still deliver everything central has not persisted
+      await syncManager.pushChanges(TEST_SESSION_ID, 20, 50);
+
+      expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), 10);
+    });
+
     it('pushes outgoing changes with current sessionId', async () => {
       const outgoingChanges = [{ test: 'test' }];
       await ctx.models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '10');
@@ -468,6 +526,8 @@ describe('FacilitySyncManager', () => {
         syncManager.centralServer,
         TEST_SESSION_ID,
         outgoingChanges,
+        // the local tick we've pushed up to, reported to central as this device's push cursor
+        '10',
       );
     });
   });
