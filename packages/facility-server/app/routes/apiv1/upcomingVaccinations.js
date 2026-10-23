@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
-import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { makeFilter } from '../../utils/query';
 import {
   MATERIALIZED_VIEWS,
@@ -101,55 +100,48 @@ upcomingVaccinations.get(
       AND row_number = 1
     `;
 
-    const [results, countResult] = await req.db.transaction(async () => {
-      // The live view derives status from CURRENT_DATE, which follows the session timezone
-      await req.db.query('SET LOCAL TIME ZONE :timezone', {
-        replacements: { timezone: getPrimaryTimeZone() },
-      });
-      const results = await req.db.query(
-        `
-        ${withRowNumber}
-        SELECT
-        p.id id,
-        p.display_id "displayId",
-        p.first_name "firstName",
-        p.last_name "lastName",
-        p.date_of_birth "dateOfBirth",
-        p.sex,
-        sv.id "scheduledVaccineId",
-        sv.category,
-        sv.label "vaccineName",
-        sv.dose_label "scheduleName",
-        sv.vaccine_id "vaccineId",
-        uv.due_date "dueDate",
-        uv.status,
-        village.name "villageName",
-        village.id "villageId"
-        ${fromUpcomingVaccinations}
-        ORDER BY ${sortKey} ${sortDirection}, sv.label
-        LIMIT :limit
-        OFFSET :offset;`,
-        {
-          replacements: {
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
-            ...filterReplacements,
-          },
-          type: QueryTypes.SELECT,
+    const results = await req.db.query(
+      `
+      ${withRowNumber}
+      SELECT
+      p.id id,
+      p.display_id "displayId",
+      p.first_name "firstName",
+      p.last_name "lastName",
+      p.date_of_birth "dateOfBirth",
+      p.sex,
+      sv.id "scheduledVaccineId",
+      sv.category,
+      sv.label "vaccineName",
+      sv.dose_label "scheduleName",
+      sv.vaccine_id "vaccineId",
+      uv.due_date "dueDate",
+      uv.status,
+      village.name "villageName",
+      village.id "villageId"
+      ${fromUpcomingVaccinations}
+      ORDER BY ${sortKey} ${sortDirection}, sv.label
+      LIMIT :limit
+      OFFSET :offset;`,
+      {
+        replacements: {
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+          ...filterReplacements,
         },
-      );
+        type: QueryTypes.SELECT,
+      },
+    );
 
-      const countResult = await req.db.query(
-        `
-        ${withRowNumber}
-        SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
-        {
-          replacements: filterReplacements,
-          type: QueryTypes.SELECT,
-        },
-      );
-      return [results, countResult];
-    });
+    const countResult = await req.db.query(
+      `
+      ${withRowNumber}
+      SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
+      {
+        replacements: filterReplacements,
+        type: QueryTypes.SELECT,
+      },
+    );
 
     return res.send({
       data: results,
