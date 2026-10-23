@@ -18,6 +18,9 @@ on 127.0.0.1. The lease's base URL is the facility web app; `info` carries `cent
 - `reset`: reclones both databases from their templates.
 - `teardown`: drops the lease's facility database.
 
+Runs on macOS and Linux; on Windows, inside WSL2. The servers' primary timezone is the caller's `TZ`,
+or the machine's when it is unset.
+
 Needs: node matching `.nvmrc` first on the PATH the manager runs with; `curl`; a Postgres 13 or later
 whose user in the manager's URL has `CREATEDB`. SQL goes through `sql.mjs` with the commit's own `pg`.
 

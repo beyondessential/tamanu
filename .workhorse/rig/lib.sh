@@ -5,8 +5,6 @@ if [ "$node_major" != "$wanted_major" ]; then
   exit 1
 fi
 
-# The manager passes TZ through from its caller, and the servers take the primary timezone from it.
-export TZ=Pacific/Auckland
 SERVER_CONFIG='"rateLimit": { "enabled": false }, "schedules": { "sendStatusToMetaServer": { "enabled": false } }'
 # The servers bind PORT over their config's port, and the rig sets PORT to the lease's.
 unset PORT
