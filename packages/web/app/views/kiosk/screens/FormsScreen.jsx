@@ -341,8 +341,8 @@ export const FormsScreen = () => {
     }
   };
 
-  const handleCheckIn = async () => {
-    const responses = await Promise.all(
+  const buildResponses = () =>
+    Promise.all(
       forms.map(async form => {
         const { values, startTime, endTime } = progressOf(form.id);
         return {
@@ -354,8 +354,8 @@ export const FormsScreen = () => {
         };
       }),
     );
-    checkIn.mutate(responses, { onSuccess: () => dispatch({ type: 'checkedIn' }) });
-  };
+  const handleCheckIn = () =>
+    checkIn.mutate(buildResponses, { onSuccess: () => dispatch({ type: 'checkedIn' }) });
 
   if (isLoading || isError) return <LoadingForms isError={isError} />;
 

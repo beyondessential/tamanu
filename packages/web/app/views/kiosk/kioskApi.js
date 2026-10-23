@@ -26,9 +26,13 @@ export const useKioskAppointmentQuery = appointmentId => {
   );
 };
 
+/** Takes a function that builds the responses, so a failure building them fails the check-in. */
 export const useKioskCheckInMutation = appointmentId => {
   const api = useApi();
-  return useMutation(responses =>
-    api.post(route('kiosk/appointments/:appointmentId/checkIn', { appointmentId }), { responses }),
-  );
+  return useMutation(async buildResponses => {
+    const responses = await buildResponses();
+    return api.post(route('kiosk/appointments/:appointmentId/checkIn', { appointmentId }), {
+      responses,
+    });
+  });
 };

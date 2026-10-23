@@ -24,7 +24,9 @@ export const toDateString = ({ day, month, year }) => {
 
 /** The day, month and year parts of a date-only string, for filling in the inputs again. */
 export const toDateParts = dateString => {
-  const [year = '', month = '', day = ''] = dateString?.split('-') ?? [];
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString ?? '');
+  if (!match) return { day: '', month: '', year: '' };
+  const [, year, month, day] = match;
   return { day: day.replace(/^0/, ''), month: month.replace(/^0/, ''), year };
 };
 

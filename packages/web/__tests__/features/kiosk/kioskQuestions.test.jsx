@@ -9,7 +9,11 @@ import { DateTimeProviderContext, toTimeParts, toTimeString } from '@tamanu/ui-c
 import { toFacilityDateTime, toStoredDateTime } from '@tamanu/utils/dateTime';
 
 import { renderElementWithTranslatedText } from '../../helpers';
-import { getKioskComponentForQuestionType } from '../../../app/views/kiosk/forms/kioskQuestions';
+import {
+  getKioskComponentForQuestionType,
+  toKioskForm,
+} from '../../../app/views/kiosk/forms/kioskQuestions';
+import { KioskSurveyForm } from '../../../app/views/kiosk/forms/KioskSurveyForm';
 
 const T = PROGRAM_DATA_ELEMENT_TYPES;
 
@@ -176,5 +180,24 @@ describe('Kiosk questions store answers as the web does', () => {
       'tess@example.com',
     );
     expect(screen.getByRole('textbox').readOnly).toBe(false);
+  });
+});
+
+describe('Kiosk survey form', () => {
+  it('shows a form with no questions it can show as one finished page', () => {
+    const form = toKioskForm({ id: 'survey-empty', name: 'Empty', components: [] });
+    renderElementWithTranslatedText(
+      <DateTimeProviderContext.Provider
+        value={{
+          getCurrentDate: () => '2026-10-23',
+          getCurrentDateTime: () => '2026-10-23 09:00:00',
+        }}
+      >
+        <KioskSurveyForm form={form} onComplete={() => {}} onExit={() => {}} />
+      </DateTimeProviderContext.Provider>,
+    );
+    const progressBar = screen.getByRole('progressbar');
+    expect(progressBar.getAttribute('aria-valuenow')).toEqual('1');
+    expect(progressBar.firstChild.style.width).toEqual('100%');
   });
 });
