@@ -26,14 +26,15 @@
   "provides": {
     "baseUrl": "http://127.0.0.1:{port}",
     "accounts": [
-      { "name": "admin", "how": "log in as admin@tamanu.io / admin, on the facility (baseUrl) or the admin panel (info.adminUrl)" },
-      { "name": "facility-1", "how": "sync user facility-1@tamanu.io / facility-1" }
+      { "name": "admin", "how": "log in as admin@tamanu.io / admin, on facility-1 (baseUrl), facility-2 (info.facility2WebUrl) or the admin panel (info.adminUrl)" },
+      { "name": "facility-1", "how": "sync user facility-1@tamanu.io / facility-1" },
+      { "name": "facility-2", "how": "sync user facility-2@tamanu.io / facility-2" }
     ],
     "fixtures": [
-      "facility-1, synced to central once at seed",
+      "facility-1 and facility-2, each with its own server, synced to central once at seed",
       "the default reference data spreadsheet",
       "the vitals, neurological assessment and NCD primary screening programs",
-      "info.centralUrl, info.facilityUrl and info.adminUrl for the servers behind the web app"
+      "info.centralUrl, info.facilityUrl and info.facility2Url for the servers, info.adminUrl and info.facility2WebUrl for the other web apps"
     ]
   }
 }

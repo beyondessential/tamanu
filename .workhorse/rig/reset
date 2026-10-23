@@ -2,9 +2,9 @@
 set -eu
 . "$RIG_RECIPE_DIR/lib.sh"
 lease=$(db_name)
-facility_db=$(facility_db)
 admin_sql \
   "DROP DATABASE IF EXISTS \"$lease\" WITH (FORCE)" \
-  "CREATE DATABASE \"$lease\" TEMPLATE \"$(cat "$RIG_SOURCE/../central-template")\"" \
-  "DROP DATABASE IF EXISTS $facility_db WITH (FORCE)" \
-  "CREATE DATABASE $facility_db TEMPLATE $(facility_template)"
+  "CREATE DATABASE \"$lease\" TEMPLATE \"$(cat "$RIG_SOURCE/../central-template")\""
+for n in 1 2; do
+  admin_sql "DROP DATABASE IF EXISTS $(facility_db "$n") WITH (FORCE)" "CREATE DATABASE $(facility_db "$n") TEMPLATE $(facility_template "$n")"
+done

@@ -9,6 +9,12 @@
       user: 'facility-1@tamanu.io',
       password: 'facility-1',
     },
+    'facility-2': {
+      name: 'facility-2',
+      code: 'facility-2',
+      user: 'facility-2@tamanu.io',
+      password: 'facility-2',
+    },
   },
   settings: {
     global: {

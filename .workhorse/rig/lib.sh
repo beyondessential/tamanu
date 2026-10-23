@@ -24,8 +24,9 @@ admin_sql() { sql "$(db_url postgres)" "$@"; }
 short_hash() { node -e 'console.log(require("node:crypto").createHash("md5").update(process.argv[1]).digest("hex").slice(0, 16))' "$1"; }
 
 # Kept outside the manager's wh_ prefix: its collection drops any database of its own that no record names.
-facility_db() { printf 'tamanu_rig_f_%s' "$(short_hash "$(db_name)")"; }
-facility_template() { printf 'tamanu_rig_ft_%s' "$(short_hash "$(cat "$RIG_SOURCE/../central-template")")"; }
+# Each takes the facility's number, 1 or 2.
+facility_db() { printf 'tamanu_rig_f%s_%s' "$1" "$(short_hash "$(db_name)")"; }
+facility_template() { printf 'tamanu_rig_ft%s_%s' "$1" "$(short_hash "$(cat "$RIG_SOURCE/../central-template")")"; }
 
 # The manager picks RIG_PORT without holding it, so the OS can hand it out again.
 free_ports() {
@@ -39,4 +40,4 @@ free_ports() {
     });' "$1"
 }
 wait_for() { curl -fso /dev/null --max-time 5 --retry 90 --retry-all-errors --retry-delay 2 "$1"; }
-sync_url() { printf 'http://facility-1%%40tamanu.io:facility-1@127.0.0.1:%s' "$1"; }
+sync_url() { printf 'http://facility-%s%%40tamanu.io:facility-%s@127.0.0.1:%s' "$2" "$2" "$1"; }

@@ -2,32 +2,47 @@
 set -eu
 . "$RIG_RECIPE_DIR/lib.sh"
 
-facility_db=$(facility_db)
-[ -n "$(admin_sql "SELECT 1 FROM pg_database WHERE datname = '$facility_db'")" ] ||
-  admin_sql "CREATE DATABASE $facility_db TEMPLATE $(facility_template)"
+set -- $(free_ports 7)
+central_port=$1 admin_port=$2 facility1_port=$3 facility1_sync_port=$4 facility2_port=$5 facility2_sync_port=$6 facility2_web_port=$7
 
-set -- $(free_ports 4)
-central_port=$1 facility_port=$2 admin_port=$3 facility_sync_port=$4
-# The facility refuses to start when the central it last synced with differs from SYNC_URL.
-sql "$(db_url "$facility_db")" \
-  "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
+for n in 1 2; do
+  db=$(facility_db "$n")
+  [ -n "$(admin_sql "SELECT 1 FROM pg_database WHERE datname = '$db'")" ] ||
+    admin_sql "CREATE DATABASE $db TEMPLATE $(facility_template "$n")"
+  # A facility refuses to start when the central it last synced with differs from SYNC_URL.
+  sql "$(db_url "$db")" "UPDATE local_system_facts SET value = 'http://127.0.0.1:$central_port' WHERE key = 'syncHost'"
+done
 
 trap 'kill $(jobs -p) 2>/dev/null || true; wait' EXIT
 (on_port "$central_port"; exec_central) &
 wait_for "http://127.0.0.1:$central_port/api/public/ping"
-(
-  NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $facility_port, \"sync\": { \"syncApiConnection\": { \"port\": $facility_sync_port } } }"
-  export BIND_ADDRESS="127.0.0.1:$facility_port"
-  export DATABASE_URL="$(db_url "$facility_db")" SYNC_URL="$(sync_url "$central_port")" TAMANU_FACILITY_IDS=facility-1
-  exec_facility
-) &
-wait_for "http://127.0.0.1:$facility_port/api/public/ping"
+
+start_facility() {
+  (
+    NODE_CONFIG="{ $SERVER_CONFIG, \"port\": $2, \"sync\": { \"syncApiConnection\": { \"port\": $3 } } }"
+    export BIND_ADDRESS="127.0.0.1:$2"
+    export DATABASE_URL="$(db_url "$(facility_db "$1")")" SYNC_URL="$(sync_url "$central_port" "$1")" TAMANU_FACILITY_IDS="facility-$1"
+    exec_facility
+  ) &
+}
+start_facility 1 "$facility1_port" "$facility1_sync_port"
+start_facility 2 "$facility2_port" "$facility2_sync_port"
+wait_for "http://127.0.0.1:$facility1_port/api/public/ping"
+wait_for "http://127.0.0.1:$facility2_port/api/public/ping"
 
 cat > "$RIG_INFO_FILE" <<JSON
-{ "centralUrl": "http://127.0.0.1:$central_port", "facilityUrl": "http://127.0.0.1:$facility_port", "adminUrl": "http://127.0.0.1:$admin_port" }
+{
+  "centralUrl": "http://127.0.0.1:$central_port",
+  "adminUrl": "http://127.0.0.1:$admin_port",
+  "facilityUrl": "http://127.0.0.1:$facility1_port",
+  "facility2Url": "http://127.0.0.1:$facility2_port",
+  "facility2WebUrl": "http://127.0.0.1:$facility2_web_port"
+}
 JSON
 
 cd "$RIG_SOURCE/packages/web"
 export VITE_PREVIEW_HTTP=true
-TAMANU_VITE_TARGET="http://127.0.0.1:$central_port" ../../node_modules/.bin/vite preview --host "$RIG_HOST" --port "$admin_port" --strictPort &
-TAMANU_VITE_TARGET="http://127.0.0.1:$facility_port" ../../node_modules/.bin/vite preview --host "$RIG_HOST" --port "$RIG_PORT" --strictPort
+preview() { TAMANU_VITE_TARGET="http://127.0.0.1:$1" ../../node_modules/.bin/vite preview --host "$RIG_HOST" --port "$2" --strictPort; }
+preview "$central_port" "$admin_port" &
+preview "$facility2_port" "$facility2_web_port" &
+preview "$facility1_port" "$RIG_PORT"
