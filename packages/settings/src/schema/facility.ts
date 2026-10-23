@@ -264,6 +264,9 @@ export const facilitySettings = {
           enabled: false,
         }),
         cleanupIdempotencyKeys: scheduledTaskSchema({ schedule: '0 * * * *' }),
+        // Retention horizon lives in the global `telemetry.retentionDays` setting,
+        // read by the cleanup task; this entry only controls the schedule.
+        cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
       },
     },
     sync: {

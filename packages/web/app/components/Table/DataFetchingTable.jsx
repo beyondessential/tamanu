@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'es-toolkit/compat';
+import { isRouteDescriptor, resolveEndpoint } from '@tamanu/api-client';
 import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
@@ -85,6 +86,10 @@ export const DataFetchingTable = memo(
       },
       [sorting],
     );
+
+    // A route() descriptor is a fresh object each render, so key the fetch effect
+    // off its resolved path rather than its identity. A plain string is its own key.
+    const endpointKey = endpoint && isRouteDescriptor(endpoint) ? resolveEndpoint(endpoint) : endpoint;
 
     const fetchData = async () =>
       await api.get(
@@ -266,11 +271,13 @@ export const DataFetchingTable = memo(
         if (loadingDelay) clearTimeout(loadingDelay);
       };
 
-      // Needed to compare fetchOptions as a string instead of an object
+      // Needed to compare fetchOptions as a string instead of an object, and the
+      // endpoint by its resolved path rather than the route() descriptor's identity
+      // (a fresh object each render would otherwise refetch every render).
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       api,
-      endpoint,
+      endpointKey,
       lazyLoading,
       page,
       rowsPerPage,
