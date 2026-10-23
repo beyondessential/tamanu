@@ -41,6 +41,7 @@ test.describe('Recently discharged patients', () => {
     await recentlyDischargedPatientsPage.openPatientFromRow(0, newPatient.id);
 
     await sidebarPage.clickRecentlyDischargedPatients();
+    await recentlyDischargedPatientsPage.waitForPageToLoad();
     await expect(recentlyDischargedPatientsPage.nhnInput).toHaveValue(newPatient.displayId);
     await recentlyDischargedPatientsPage.validateOneSearchResult();
   });

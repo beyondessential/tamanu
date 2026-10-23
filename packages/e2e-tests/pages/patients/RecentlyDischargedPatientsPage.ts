@@ -99,5 +99,14 @@ export class RecentlyDischargedPatientsPage extends BasePatientListPage {
   async openPatientFromRow(rowIndex: number, patientId: string) {
     await this.getCell(rowIndex, 'displayId').click();
     await this.page.waitForURL(`**/patients/all/${patientId}**`);
+    // The URL changes before React swaps the route in, and the sidebar re-renders with it
+    await expect(this.searchTitle).toBeHidden();
+  }
+
+  // The shared search form test id is not unique once a patient view is on screen, and this
+  // page is navigated back to from one, so key the wait on this view's own title instead
+  async waitForPageToLoad() {
+    await this.searchTitle.waitFor({ state: 'visible' });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 }

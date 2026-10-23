@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 
+import { expect } from '../fixtures/baseFixture';
 import { BasePage } from './BasePage';
 
 export class SidebarPage extends BasePage {
@@ -35,13 +36,23 @@ export class SidebarPage extends BasePage {
   }
 
   async clickRecentlyDischargedPatients() {
-    // Clicking a section header toggles it, so only open Facility admin when it's collapsed
-    await this.facilityAdminSection.waitFor();
-    if (!(await this.recentlyDischargedPatientsItem.isVisible())) {
-      await this.facilityAdminSection.click();
-    }
+    await this.openFacilityAdminSection();
     await this.recentlyDischargedPatientsItem.click();
     await this.page.waitForURL('**/facility-admin/recently-discharged-patients');
+  }
+
+  // The sidebar opens whichever section matches the current route and collapses the rest,
+  // unmounting their items when the collapse finishes. A navigation that is still settling
+  // therefore still shows the previous route's items, so decide from the route rather than
+  // from what happens to be on screen, or the item detaches mid-click.
+  private async openFacilityAdminSection() {
+    if (this.page.url().includes('/facility-admin')) {
+      await expect(this.recentlyDischargedPatientsItem).toBeVisible();
+      return;
+    }
+    await expect(this.recentlyDischargedPatientsItem).toBeHidden();
+    // Clicking a section header toggles it
+    await this.facilityAdminSection.click();
   }
 
   async getFacilityName(): Promise<string> {
