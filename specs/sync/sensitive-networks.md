@@ -116,6 +116,15 @@ Fiji asked for their three SRH facilities to share one network rather than keep 
 - [ ] Their patients are re-marked for sync at each of them, so each facility pulls those patients' full history on its next sync, as for any newly marked patient. Each has already pulled past that history, so without this none of it would ever arrive. Re-ticking the lookup rows instead would not last, since any later full lookup rebuild takes their ticks back from the source records.
 - [ ] Every other deployment is untouched, including one that later creates a facility with one of those ids.
 
+## AI patient summaries
+
+A patient's AI summary is stored against the patient rather than an encounter, so it carries neither a facility nor a network and reaches every facility the patient syncs to.
+
+- [ ] A summary draws on no encounter at a facility in a sensitive network, nor on anything recorded against one: its diagnoses, notes, procedures, vitals, vaccinations, lab and imaging requests, and prescriptions.
+- [ ] This holds wherever the summary is generated, including at a facility in that network, so a patient currently admitted there has no active encounter in their summary.
+- [ ] A prescription linked to such an encounter stays out of the summary even when it is also one of the patient's ongoing medications.
+- [ ] Patient-level records that carry no network — allergies, conditions, issues, family history, care plans, ongoing medications recorded outside an encounter, and death data — are summarised as before.
+
 ## Mobile
 
 - [ ] Mobile devices hold the network records and each facility's membership, pulled as reference data.
