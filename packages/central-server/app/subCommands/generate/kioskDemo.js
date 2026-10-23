@@ -448,7 +448,10 @@ export const generateKioskDemo = async ({ facility: facilityId }) => {
       ),
     });
   } finally {
-    await closeDatabase();
+    // don't close database on tests
+    if (process.env.NODE_ENV !== 'test') {
+      await closeDatabase();
+    }
   }
 };
 
