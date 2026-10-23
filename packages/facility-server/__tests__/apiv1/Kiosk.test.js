@@ -1054,6 +1054,12 @@ describe('Kiosk', () => {
       expect(await findPatientResponses(patient)).toHaveLength(1);
     });
 
+    it('reports no facility when the kiosk is turned off', async () => {
+      await setKioskSettings({ enabled: false });
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+      expect(await kioskApp.get('/api/kiosk/facility')).toHaveRequestError();
+    });
+
     it('gives an account with only permission to run the kiosk no access to patients elsewhere', async () => {
       const patient = await createPatient();
       const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);

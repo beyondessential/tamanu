@@ -219,7 +219,7 @@ export const KioskView = () => {
   const { getSetting, isSettingsLoaded } = useSettings();
   const { ability } = useAuth();
   useResizeForKeyboard();
-  if (!isSettingsLoaded) return null;
+  if (!isSettingsLoaded || !ability) return null;
   if (!getSetting('kiosk.enabled')) return <KioskTurnedOff />;
   if (!ability?.can?.('run', 'Kiosk')) return <KioskNotPermitted />;
   return (

@@ -21,21 +21,18 @@ const sortChildItems = (a, b) => {
 
 /**
  * Leaves out items for features the facility has turned off, or that the signed-in account
- * can't use, like the kiosk.
+ * can't use, like the kiosk, and any group left with nothing in it.
  */
-const withoutUnavailableItems = (items, getSetting, checkAbility) =>
-  items.map(item =>
-    item.children
-      ? {
-          ...item,
-          children: item.children.filter(
-            child =>
-              (!child.enabledBySetting || getSetting(child.enabledBySetting)) &&
-              (!child.abilities?.length || child.abilities.some(checkAbility)),
-          ),
-        }
-      : item,
-  );
+const withoutUnavailableItems = (items, getSetting, checkAbility) => {
+  const isAvailable = item =>
+    (!item.enabledBySetting || getSetting(item.enabledBySetting)) &&
+    (!item.abilities?.length || item.abilities.some(checkAbility));
+  return items.filter(isAvailable).flatMap(item => {
+    if (!item.children?.length) return [item];
+    const children = item.children.filter(isAvailable);
+    return children.length > 0 ? [{ ...item, children }] : [];
+  });
+};
 
 // This hook is used to get the menu items for the facility sidebar. It gets the configured hidden and
 // sortPriority values from  sidebar config and merges them with the *_MENU_ITEMS constant
