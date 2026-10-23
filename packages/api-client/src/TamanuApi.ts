@@ -12,7 +12,7 @@ import {
   RemoteCallError,
 } from '@tamanu/errors';
 import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
-import { type Endpoint, resolveEndpoint } from './route';
+import { type Endpoint, isRouteDescriptor, resolveEndpoint } from './route';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
   InterceptorManager,
@@ -65,6 +65,38 @@ interface ServerInfo {
   centralHost?: string;
 }
 
+// spec: BTEL
+// A sink the browser telemetry collector subscribes to so it can time every
+// request without the client depending on OpenTelemetry. The client emits a
+// `start` edge when a request is issued and a `settle` edge when it resolves or
+// rejects; the collector matches them by `id` to track in-flight requests (for
+// the network-quiet page-load heuristic) and to record request latency.
+//
+// When the caller used `route()`, the start edge carries the route template and
+// its resolved path params, so the collector groups by the real pattern instead
+// of guessing it from the concrete path. `endpoint` is always the concrete path,
+// as a fallback for calls that still pass a plain string.
+export interface TelemetryRequestStart {
+  phase: 'start';
+  id: number;
+  endpoint: string;
+  route?: string;
+  pathParams?: Record<string, string | number>;
+  query: Record<string, any>;
+  method: string;
+  background: boolean;
+  startedAt: number;
+}
+export interface TelemetryRequestSettle {
+  phase: 'settle';
+  id: number;
+  status: number | null;
+  durationMs: number;
+  error: boolean;
+}
+export type TelemetryEvent = TelemetryRequestStart | TelemetryRequestSettle;
+export type TelemetrySink = (event: TelemetryEvent) => void;
+
 interface TamanuApiConfig {
   endpoint: string;
   agentName: string;
@@ -72,6 +104,7 @@ interface TamanuApiConfig {
   deviceId: string;
   defaultRequestConfig?: RequestInit;
   logger?: LoggerType;
+  telemetrySink?: TelemetrySink;
 }
 
 interface FetchOptions extends BaseFetchOptions {
@@ -86,6 +119,9 @@ interface FetchOptions extends BaseFetchOptions {
   // their second argument and so have no positional query argument. get/delete
   // pass query positionally and ignore this.
   query?: Record<string, any>;
+  // Marks a recurring/background request (polling, live-updating queries) so the
+  // telemetry collector excludes it from the network-quiet page-load calculation.
+  background?: boolean;
 }
 
 interface PasswordChangeArgs {
@@ -145,6 +181,8 @@ export class TamanuApi {
   user: User | null = null;
   logger: LoggerType = console;
   fetchImplementation: typeof fetch = fetch;
+  telemetrySink?: TelemetrySink;
+  #telemetryRequestSeq = 0;
   agentName: string;
   agentVersion: string;
   deviceId: string;
@@ -160,6 +198,7 @@ export class TamanuApi {
     deviceId,
     defaultRequestConfig = {},
     logger,
+    telemetrySink,
   }: TamanuApiConfig) {
     this.#prefix = endpoint;
     const endpointUrl = new URL(endpoint);
@@ -176,10 +215,26 @@ export class TamanuApi {
     if (logger) {
       this.logger = logger;
     }
+    this.telemetrySink = telemetrySink;
   }
 
   get host(): string {
     return this.#host;
+  }
+
+  // spec: BTEL
+  setTelemetrySink(sink: TelemetrySink | undefined): void {
+    this.telemetrySink = sink;
+  }
+
+  // Telemetry is best-effort: a throwing sink must never affect the request.
+  #emitTelemetry(event: TelemetryEvent): void {
+    if (!this.telemetrySink) return;
+    try {
+      this.telemetrySink(event);
+    } catch {
+      // swallow — telemetry failures never surface to the caller
+    }
   }
 
   setAuthFailureHandler(handler: (message: string) => void): void {
@@ -311,6 +366,7 @@ export class TamanuApi {
       throwResponse = false,
       waitForAuth = true,
       backoff = false,
+      background = false,
       ...otherConfig
     } = moreConfig;
 
@@ -389,10 +445,47 @@ export class TamanuApi {
     }
     const latestConfig = await requestPromise;
 
-    const response = await fetcher(url, {
-      fetch: this.fetchImplementation,
-      ...latestConfig,
-    } as FetchOptions);
+    // spec: BTEL — time the network call for browser telemetry (best-effort).
+    const telemetryId = this.telemetrySink ? ++this.#telemetryRequestSeq : 0;
+    const telemetryStart = this.telemetrySink ? Date.now() : 0;
+    this.#emitTelemetry({
+      phase: 'start',
+      id: telemetryId,
+      endpoint: resolvedEndpoint,
+      // When the caller used route(), hand the collector the template and params
+      // directly so it doesn't have to infer the pattern from the concrete path.
+      route: isRouteDescriptor(endpoint) ? endpoint.template : undefined,
+      pathParams: isRouteDescriptor(endpoint) ? endpoint.params : undefined,
+      query: query ?? {},
+      method: (otherConfig.method as string) ?? 'GET',
+      background,
+      startedAt: telemetryStart,
+    });
+
+    let response: Response;
+    try {
+      response = await fetcher(url, {
+        fetch: this.fetchImplementation,
+        ...latestConfig,
+      } as FetchOptions);
+    } catch (err) {
+      this.#emitTelemetry({
+        phase: 'settle',
+        id: telemetryId,
+        status: null,
+        durationMs: Date.now() - telemetryStart,
+        error: true,
+      });
+      throw err;
+    }
+
+    this.#emitTelemetry({
+      phase: 'settle',
+      id: telemetryId,
+      status: response.status,
+      durationMs: Date.now() - telemetryStart,
+      error: !response.ok,
+    });
 
     // Fixed response interceptor chain handling
     const responseInterceptorChain: Array<

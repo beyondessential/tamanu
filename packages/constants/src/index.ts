@@ -36,6 +36,7 @@ export * from './statuses.js';
 export * from './suggesters.js';
 export * from './surveys.js';
 export * from './sync.js';
+export * from './telemetry.js';
 export * from './templates.js';
 export * from './translations.js';
 export * from './userPreferences.js';

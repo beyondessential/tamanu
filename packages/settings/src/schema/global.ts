@@ -455,6 +455,32 @@ export const globalSettings = {
         },
       },
     },
+    telemetry: {
+      name: 'Telemetry',
+      description: 'Browser performance telemetry collected from the web clients',
+      // Exposed at the group level — the convention the frontend settings payload and
+      // its tests rely on (exposed keys are top-level groups, not nested leaves).
+      // retentionDays rides along in the exposed payload but is only read server-side.
+      exposedToWeb: true,
+      exposedToPatientPortal: true,
+      properties: {
+        enabled: {
+          name: 'Enabled',
+          description:
+            'Collect browser performance telemetry (page-load and API timings) from the web clients and store it on the server each client talks to.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        retentionDays: {
+          name: 'Retention',
+          description:
+            'Delete raw browser telemetry spans older than this. The scheduled cleanup task on each server (facility and central) prunes to this horizon.',
+          type: yup.number().integer().positive(),
+          defaultValue: 30,
+          unit: 'days',
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       exposedToWeb: true,
@@ -2122,6 +2148,11 @@ export const globalSettings = {
             },
             [ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY]: {
               description: ADMINISTRATION_FREQUENCIES.FOUR_TIMES_DAILY,
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            [ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS]: {
+              description: ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS,
               type: yup.boolean(),
               defaultValue: true,
             },

@@ -6,6 +6,7 @@ import BugsnagPluginReact from '@bugsnag/plugin-react';
 
 import { renderRootInto } from './Root';
 import { API } from './api/singletons';
+import { initWebTelemetry } from './telemetry';
 import { registerYup } from './utils/errorMessages';
 import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
@@ -49,6 +50,9 @@ async function start() {
       appVersion: FULL_VERSION,
     });
   }
+
+  // spec: BTEL — start browser performance telemetry (collects from before sign-in).
+  initWebTelemetry(API);
 
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);

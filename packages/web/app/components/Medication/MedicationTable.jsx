@@ -350,7 +350,7 @@ export const EncounterMedicationTable = ({
           !!selectedMedication,
           isPharmacyOrdersEnabled,
         )}
-        endpoint={`encounter/${encounter.id}/medications`}
+        endpoint={route('encounter/:encounterId/medications', { encounterId: encounter.id })}
         initialSort={{ orderBy: 'date', order: 'asc' }}
         rowStyle={rowStyle}
         elevated={false}

@@ -99,7 +99,7 @@ const TABS = [
     icon: 'fa fa-hospital',
     render: props => (
       <PatientProgramsPane
-        endpoint={`patient/${props.patient.id}/programResponses`}
+        endpoint={route('patient/:patientId/programResponses', { patientId: props.patient.id })}
         {...props}
         data-testid="patientprogramspane-s46b"
       />

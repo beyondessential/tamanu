@@ -23,10 +23,17 @@ import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
 import { KioskView } from './views/kiosk/KioskView';
+import { TelemetryRouteListener } from './telemetry';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
-  return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+  return (
+    <>
+      {/* spec: BTEL — times each in-app navigation */}
+      <TelemetryRouteListener />
+      {isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />}
+    </>
+  );
 };
 
 export const RoutingFacilityApp = React.memo(() => {
