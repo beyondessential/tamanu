@@ -1,5 +1,5 @@
 ---
-title: Tamanu design system
+title: Tamanu Design System
 ---
 # Tamanu Design System
 
