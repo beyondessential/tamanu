@@ -24,6 +24,12 @@ import {
 } from './InterceptorManager';
 import { getVersionIncompatibleMessage } from './getVersionIncompatibleMessage';
 
+const GATEWAY_ERROR_STATUSES = [502, 503, 504];
+
+function isGatewayError(error: unknown): error is Problem {
+  return error instanceof Problem && GATEWAY_ERROR_STATUSES.includes(error.status);
+}
+
 interface Logger {
   debug: (message: string, data?: any) => void;
   warn: (message: string, data?: any) => void;
@@ -643,10 +649,27 @@ export class TamanuApi {
   ): Promise<T> {
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    // a proxy in front of the server answers with a gateway error while the server restarts;
+    // keep polling through that rather than abandoning a long wait over one blip
+    const maxConsecutiveGatewayErrors = 60 * 5; // up to 5 minutes of the server being unavailable
+    let consecutiveGatewayErrors = 0;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.fetch(endpoint, query, config);
-      if (response) {
-        return response;
+      try {
+        const response = await this.fetch(endpoint, query, config);
+        if (response) {
+          return response;
+        }
+        consecutiveGatewayErrors = 0;
+      } catch (error) {
+        if (!isGatewayError(error) || consecutiveGatewayErrors >= maxConsecutiveGatewayErrors) {
+          throw error;
+        }
+        consecutiveGatewayErrors += 1;
+        this.logger.warn('pollUntilOk: gateway error, will keep polling', {
+          endpoint: resolveEndpoint(endpoint),
+          status: error.status,
+          consecutiveGatewayErrors,
+        });
       }
 
       await new Promise<void>(resolve => {
