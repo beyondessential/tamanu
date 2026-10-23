@@ -7,6 +7,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/fake-data/fake';
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentPrimaryTimeZoneDateString } from '@tamanu/shared/utils/primaryDateTime';
@@ -744,6 +745,47 @@ describe('Kiosk', () => {
       expect(result).toHaveSucceeded();
       const [surveyResponse] = await findPatientResponses(patient);
       expect(surveyResponse.encounter.locationId).toEqual(defaultLocation.id);
+    });
+
+    it('records the responses in a new encounter, not one still open from an earlier visit', async () => {
+      const { survey: secondSurvey, dataElement: secondDataElement } =
+        await createSurveyWithQuestion();
+      const appointmentType = await createAppointmentTypeWithForms([survey.id, secondSurvey.id]);
+      const patient = await createPatient();
+      const otherFacilityLocation = await models.Location.create(
+        fake(models.Location, { facilityId: otherFacility.id }),
+      );
+      const otherFacilityDepartment = await models.Department.create(
+        fake(models.Department, { facilityId: otherFacility.id }),
+      );
+      const openEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models, { current: true })),
+        patientId: patient.id,
+        locationId: otherFacilityLocation.id,
+        departmentId: otherFacilityDepartment.id,
+        examinerId: app.user.id,
+      });
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentType.id,
+        locationGroupId: null,
+        locationId: location.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+        { surveyId: secondSurvey.id, answers: { [secondDataElement.id]: 'Fine' } },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      const surveyResponses = await findPatientResponses(patient);
+      expect(surveyResponses).toHaveLength(2);
+      const [{ encounter }] = surveyResponses;
+      expect(encounter.id).not.toEqual(openEncounter.id);
+      expect(encounter.locationId).toEqual(location.id);
+      expect(surveyResponses[1].encounterId).toEqual(encounter.id);
+      await openEncounter.reload();
+      expect(openEncounter.endDate).toBeNull();
     });
 
     it('checks in only once when two check-ins arrive together', async () => {

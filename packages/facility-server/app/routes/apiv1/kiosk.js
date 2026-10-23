@@ -171,9 +171,10 @@ const toAppointmentSummary = (appointment, { isMasked }) => {
  * trail is what answers for the patient records the kiosk put on screen.
  */
 const auditPatientAccess = async (req, patients) => {
-  for (const patient of patients) {
+  const patientIds = new Set(patients.map(({ id }) => id));
+  for (const patientId of patientIds) {
     await req.audit.access({
-      recordId: patient.id,
+      recordId: patientId,
       frontEndContext: req.params,
       model: req.models.Patient,
       facilityId: req.facilityId,
@@ -337,6 +338,8 @@ kiosk.post(
             surveyId,
             answers,
             patientId: appointment.patientId,
+            encounterId: surveyResponses[0]?.encounterId ?? null,
+            forceNewEncounter: true,
             facilityId,
             userId: req.user.id,
             locationId,
