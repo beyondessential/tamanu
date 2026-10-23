@@ -2,7 +2,8 @@
 <!-- Mockup for T11: docs/release-notes/v2-66.html with a reporting schema section added. -->
 <!-- New content: the lede's last sentence, the Reporting Schema Changes section, and the 'Reports' -->
 <!-- entries under Critical Upgrade Notes and Upgrade Steps. Everything else is the published v2.66 notes. -->
-<!-- Reporting content sourced from tamanu-source-dbt origin/2.65...v2.66.0, models/ excluding sources and logs. -->
+<!-- Reporting content sourced from tamanu-source-dbt origin/2.65...v2.66.0: models/ and the dataset and -->
+<!-- report macros under macros/, excluding models/sources and models/logs. -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -430,8 +431,8 @@
 
     <p class="section-intro">
       The reporting schema that standard and custom reports are built on follows this
-      release's lab request and sensitive network changes. Report writers should check
-      custom reports against the breaking changes before upgrading.
+      release's changes. Report writers should check custom reports against the breaking
+      changes before upgrading.
     </p>
 
     <div class="group">
@@ -460,13 +461,13 @@
         <li><strong>Sensitive report variants</strong> - Standard and sensitive datasets split facilities by network membership. Results are unchanged, as each existing sensitive facility becomes its own network.</li>
         <li><strong>Report parameters</strong> - A report parameter can offer the medication not dispensed reasons as its suggestion list.</li>
       </ul>
+    </div>
 
-      <div class="docs">
-        <p class="label">Supporting documentation</p>
-        <ul>
-          <li>Reporting schema reference - <span class="placeholder">[REPORTING_DOCS_LINK_PLACEHOLDER]</span></li>
-        </ul>
-      </div>
+    <div class="group">
+      <p class="label">Supporting documentation</p>
+      <ul>
+        <li>Reporting schema reference - <span class="placeholder">[REPORTING_DOCS_LINK_PLACEHOLDER]</span></li>
+      </ul>
     </div>
   </section>
 
