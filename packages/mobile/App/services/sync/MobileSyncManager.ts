@@ -356,7 +356,7 @@ export class MobileSyncManager {
       // even on an idle sync (spec: PUSH).
       await this.centralServer.completePush(
         sessionId,
-        Object.values(modelsToPush).map(model => model.getTableName()),
+        getTableNamesForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
         currentSyncTick,
       );
     }
