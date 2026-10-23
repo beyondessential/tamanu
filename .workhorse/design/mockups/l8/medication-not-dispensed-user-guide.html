@@ -201,7 +201,7 @@
     <article class="page">
 
       <div class="crumbs"><a href="#">Desktop</a><span class="sep">/</span><a href="#">15. Medications</a></div>
-      <h1>15.1 Record a medication as not dispensed <span class="tag unverified">Not yet verified</span></h1>
+      <h1>15.1 Record a medication as not dispensed <span class="tag verified">Verified on demo site</span></h1>
       <p class="lede">
         When the pharmacy can't dispense a medication request, you record it as not dispensed. Start
         from <b>Medication</b> &gt; <b>Active requests</b>. Tamanu cancels the request and lets the
@@ -228,7 +228,7 @@
         <li>
           <div class="step-main">Select the three dots at the end of the request's row, then <b>Not dispensed</b>.</div>
           <div class="step-note">The <b>Record medication as not dispensed</b> window opens.</div>
-          <div class="placeholder">[Screenshot: a medication request's row in Active medication requests, with its menu open and Not dispensed outlined in red]</div>
+          <figure class="shot-fig"><img src="medications/15-medications/images/not-dispensed-row-menu.png" alt="A medication request's row in Active medication requests, with its menu open and Not dispensed outlined in red" width="574"><figcaption>Select the three dots on the request's row, then <b>Not dispensed</b>.</figcaption></figure>
         </li>
         <li>
           <div class="step-main">Check that the window shows the right patient and medication, then choose the <b>Reason for not dispensing</b>.</div>
@@ -237,12 +237,12 @@
         <li>
           <div class="step-main">Select <b>Record as not dispensed</b>.</div>
           <div class="step-note">This can't be undone. The request leaves the list, and the prescribing clinician gets a notification.</div>
-          <div class="placeholder">[Screenshot: the Record medication as not dispensed window with a reason chosen, and Record as not dispensed outlined in red]</div>
+          <figure class="shot-fig"><img src="medications/15-medications/images/not-dispensed-record-window.png" alt="The Record medication as not dispensed window, with Patient declined chosen as the reason and Record as not dispensed outlined in red" width="374"><figcaption>Choose the reason, then select <b>Record as not dispensed</b>.</figcaption></figure>
         </li>
       </ol>
 
       <h3>See why a medication wasn't dispensed</h3>
-      <p>The prescribing clinician sees the not dispensed record from their notification.</p>
+      <p>The prescribing clinician sees the not dispensed record from their notification. Opening it needs permission to view medication requests. Without it, Tamanu shows <b>You do not have permission to view medication request details.</b></p>
       <ol>
         <li>
           <div class="step-main">On your <b>Dashboard</b>, select the bell at the top right.</div>
@@ -254,25 +254,26 @@
             The patient's encounter opens on its <b>Medication</b> tab, with the <b>Not dispensed
             medication</b> window showing the <b>Reason not dispensed</b> and the <b>Date not dispensed</b>.
           </div>
-          <div class="placeholder">[Screenshot: the Notifications panel, with the not dispensed notification outlined in red]</div>
+          <figure class="shot-fig"><img src="medications/15-medications/images/not-dispensed-notification.png" alt="A not dispensed notification in the Notifications panel, outlined in red" width="223"><figcaption>Select the notification to see why the medication was not dispensed.</figcaption></figure>
         </li>
         <li>
           <div class="step-main">Select <b>Close</b>.</div>
-          <div class="placeholder">[Screenshot: the Not dispensed medication window]</div>
+          <figure class="shot-fig"><img src="medications/15-medications/images/not-dispensed-details.png" alt="The Not dispensed medication window, showing the reason and the date, with the Close button outlined in red" width="374"><figcaption>The window shows the <b>Reason not dispensed</b> and the <b>Date not dispensed</b>.</figcaption></figure>
         </li>
       </ol>
 
       <div class="annotation">
         <b>Mockup: 15.1 Record a medication as not dispensed, as a reader meets it.</b> Drafted with the
-        Draft user guide skill from the v2.66 code, where the workflow first shipped. The site chrome is
-        illustrative.
+        Draft user guide skill. The workflow first shipped in v2.66, and the guide describes v2.67. The
+        site chrome is illustrative.
         <ul>
-          <li><b>Not yet verified:</b> the demo site stopped accepting logins partway through. Its first
-            half is set up: the test patient has an active pharmacy request ready to mark as not
-            dispensed</li>
-          <li><b>Dashed boxes</b> are the four screenshot placeholders, to be captured on the demo site</li>
+          <li><b>Verified on demo site:</b> clicked through on the 2.67 demo site with the test patient,
+            from prescribing and sending to pharmacy through to the prescriber's notification, and all four
+            screenshots taken there</li>
           <li><b>Two sides, one guide:</b> the pharmacy records it, and the prescriber sees why from their
             notification, under separate headings within <b>Steps</b></li>
+          <li><b>Proposed red outlines</b> are on <b>Not dispensed</b>, <b>Record as not dispensed</b>, the
+            notification, and <b>Close</b></li>
         </ul>
       </div>
 
