@@ -6,6 +6,8 @@
 - [x] Patient with an appointment tomorrow, or yesterday, is not found (verifies spec: KIOSK)
 - [x] Patient with an appointment today at another facility is not found (verifies spec: KIOSK)
 - [x] Cancelled and no-show appointments today are not found (verifies spec: KIOSK)
+- [x] A location booking today at this facility is found; one at another facility is not (verifies spec: KIOSK)
+- [x] One patient with an outpatient appointment and a location booking today chooses between them (verifies spec: KIOSK)
 - [x] Two patients with the same last name and DOB both booked today return two masked matches with no clinician (verifies spec: KIOSK)
 - [x] One patient with two appointments today chooses between their own appointments, unmasked, with their details shown once (verifies spec: KIOSK)
 - [x] Wrong DOB returns no matches, and the no-match screen shows the searched details (verifies spec: KIOSK)
@@ -18,6 +20,8 @@
 - [x] Tapping an outstanding form opens it straight away with no loading indicator flashing up (verifies spec: PPORT)
 - [x] A slow page or panel shows a centred spinner after a moment, never "Loading…" text (verifies spec: PPORT)
 - [x] Forms configured for the appointment type are listed; an appointment type with none goes straight to Ready to check in (verifies spec: KIOSK)
+- [x] A location booking gets the forms configured for its booking type; a booking type with none gets no forms (verifies spec: KIOSK)
+- [x] The kiosk forms setting accepts appointment type and booking type entries, and rejects an entry with neither or both
 - [x] Next with an unanswered required question stays on the page, scrolls to it and shows "This question is required" (verifies spec: KIOSK)
 - [x] Answering clears the message (verifies spec: KIOSK)
 - [x] Moving between forms keeps answers; a completed form can be reopened (verifies spec: KIOSK)
@@ -30,6 +34,7 @@
 
 - [x] Check in creates one survey response per form for the patient at this facility and sets the appointment to Arrived (verifies spec: KIOSK)
 - [x] Check in with a form missing is rejected and nothing is saved (verifies spec: KIOSK)
+- [x] Checking in a location booking requires its booking type's forms, then sets it to Arrived and records the responses at the booked location (verifies spec: KIOSK)
 - [x] Check in for an appointment at another facility, or not today, is rejected (verifies spec: KIOSK)
 - [x] Check in a second time is rejected (verifies spec: KIOSK)
 - [x] Checked-in screen returns to the landing page on Done and on its own (verifies spec: KIOSK)
