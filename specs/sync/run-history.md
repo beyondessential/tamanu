@@ -14,6 +14,7 @@ An attempt is recorded before it contacts the central server, and updated with i
 - [ ] A run record exists, marked as running and with no completion time, from the moment the attempt starts until it ends.
 - [ ] An attempt that hangs, or whose server process stops before it ends, leaves its run record marked as running with no completion time.
 - [ ] Callers that ask for a sync while one is already running, and share the single sync that follows it, produce one run record for that sync between them.
+- [ ] The sync shared by callers that waited for a running sync takes its trigger from the first of them, or from the first that asked to be let in ahead of other facilities if any did. It asks the central server to be let in ahead whenever any of them did.
 - [ ] A run record keeps what triggered the attempt (such as scheduled or user-requested) and whether it asked to be let in ahead of other facilities. It keeps no other trigger details, since those can identify users or patients.
 - [ ] Once the central server has issued a session for the attempt, the run record holds that session's id.
 - [ ] A run record holds when the attempt began saving pulled changes into the facility database, and when that save completed. The start of the save is visible while the save is still in progress, so an attempt stuck saving can be told apart from one stuck exchanging changes with the central server.
