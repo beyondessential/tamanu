@@ -6,7 +6,8 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   TEST_PATIENT_ID,
 } from '@tamanu/constants';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateStringInTimezone, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getPrimaryTimeZone } from '../utils/timeZoneCheck';
 import { generateReportFromQueryData, getAnswerBody } from './utilities';
 
 const COMMON_FIELDS = /** @type {const} */ ([
@@ -58,7 +59,7 @@ select
   p.first_name "First name",
   p.last_name "Last name",
   p.date_of_birth::date "Date of birth",
-  extract(year from age(p.date_of_birth::date))::integer "Age",
+  extract(year from age(:today::date, p.date_of_birth::date))::integer "Age",
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
@@ -106,6 +107,7 @@ const getData = async (sequelize, parameters) => {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
       survey_id: surveyId,
+      today: getCurrentDateStringInTimezone(getPrimaryTimeZone()),
       from_date: queryFromDate ?? null,
       to_date: queryToDate ?? null,
       village_id: village ?? null,

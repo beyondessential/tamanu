@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sub } from 'date-fns';
 import { chance, fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -279,6 +279,28 @@ describe(`Materialised - MediciReport`, () => {
         },
       ],
     });
+  });
+
+  it('measures an open triage wait in the primary timezone', async () => {
+    vi.stubEnv('TZ', 'Pacific/Auckland');
+    try {
+      const { MediciReport, Patient, Triage } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      const triage = await Triage.create({
+        patientId: patient.id,
+        departmentId: resources.department.id,
+        locationId: resources.location.id,
+        practitionerId: resources.practitioner.id,
+        triageTime: toDateTimeString(sub(new Date(), { minutes: 30 })),
+      });
+
+      await MediciReport.materialiseFromUpstream(triage.encounterId);
+
+      const mediciReport = await MediciReport.findOne();
+      expect(mediciReport.waitTime).toBe('0:30');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   describe('materialise Notes in Medici Report', () => {

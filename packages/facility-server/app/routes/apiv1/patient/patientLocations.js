@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { camelCaseProperties } from '@tamanu/utils/camelCaseProperties';
 import { LOCATION_AVAILABILITY_STATUS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const patientsLocationSelect = (planned, encountersWhereAndClauses) => `
   SELECT
@@ -66,7 +67,7 @@ patientLocations.get(
         FROM encounters
         LEFT JOIN locations
         ON encounters.location_id = locations.id
-        WHERE end_date::date > now() - '30 days'::interval
+        WHERE end_date::date > (now() AT TIME ZONE $primaryTimeZone) - '30 days'::interval
         AND encounters.encounter_type = 'admission'
         AND locations.facility_id = $facilityId
         AND locations.deleted_at IS NULL
@@ -76,6 +77,7 @@ patientLocations.get(
         type: QueryTypes.SELECT,
         bind: {
           facilityId,
+          primaryTimeZone: getPrimaryTimeZone(),
         },
       },
     );
@@ -116,7 +118,7 @@ patientLocations.get(
           LEFT JOIN locations
           ON locations.id = encounters.location_id
           WHERE encounters.end_date IS NULL
-          AND encounters.start_date::date > now() - '30 days'::interval
+          AND encounters.start_date::date > (now() AT TIME ZONE $primaryTimeZone) - '30 days'::interval
           AND encounters.encounter_type = 'admission'
           AND previous_encounters.encounter_type = 'admission'
           AND previous_encounter_id IS NOT NULL
@@ -130,6 +132,7 @@ patientLocations.get(
         type: QueryTypes.SELECT,
         bind: {
           facilityId,
+          primaryTimeZone: getPrimaryTimeZone(),
         },
       },
     );
@@ -257,7 +260,7 @@ patientLocations.get(
           location_id,
           (SUM(EXTRACT(epoch from age(end_date::date, start_date::date)) / 86400) / COUNT(1))::float as alos
         FROM encounters
-        WHERE end_date::date > now() - '30 days'::interval
+        WHERE end_date::date > (now() AT TIME ZONE $primaryTimeZone) - '30 days'::interval
         AND encounters.encounter_type = 'admission'
         AND encounters.deleted_at IS NULL
         GROUP BY location_id
@@ -268,12 +271,12 @@ patientLocations.get(
       	  location_id,
           (SUM(
         	  DATE_PART('day', age(
-        	    CASE WHEN end_date IS NULL THEN now() ELSE end_date::date END,
-        	    greatest(start_date::date, now() - '30 days'::interval)
+        	    CASE WHEN end_date IS NULL THEN (now() AT TIME ZONE $primaryTimeZone) ELSE end_date::date END,
+        	    greatest(start_date::date, (now() AT TIME ZONE $primaryTimeZone) - '30 days'::interval)
       	  ))) * 100 / 30)::float as occupancy
       	FROM encounters
       	LEFT JOIN locations ON locations.id = encounters.location_id
-      	WHERE (end_date::date > now() - '30 days'::interval OR end_date IS NULL)
+      	WHERE (end_date::date > (now() AT TIME ZONE $primaryTimeZone) - '30 days'::interval OR end_date IS NULL)
       	AND locations.max_occupancy = 1
         AND encounters.deleted_at IS NULL
         AND locations.deleted_at IS NULL
@@ -340,6 +343,7 @@ patientLocations.get(
       ...(filterParams.location && { location: filterParams.location }),
       facilityId: filterParams.facilityId,
       visibilityStatusCurrent: VISIBILITY_STATUSES.CURRENT,
+      primaryTimeZone: getPrimaryTimeZone(),
     };
 
     const data = await req.db.query(
