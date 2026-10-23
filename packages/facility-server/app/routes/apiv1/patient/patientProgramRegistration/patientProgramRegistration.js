@@ -43,6 +43,12 @@ patientProgramRegistration.post(
       req.checkPermission('create', 'PatientProgramRegistrationCondition');
     }
 
+    // Status defaults to active so a reused row lands in the same state as a fresh one.
+    const resolvedRegistrationData = applyDeactivationFields({
+      ...registrationData,
+      registrationStatus: registrationData.registrationStatus ?? REGISTRATION_STATUSES.ACTIVE,
+    });
+
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditionsRecords] = await db.transaction(async () => {
       // A registration is keyed on patient + registry, so a patient who was removed from a
@@ -63,14 +69,12 @@ patientProgramRegistration.post(
         ? await reusableRegistration.update({
             deletedAt: null,
             clinicalStatusId: null,
-            // Creates default to active; reusing a row must land in the same state.
-            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-            ...applyDeactivationFields(registrationData),
+            ...resolvedRegistrationData,
           })
         : await models.PatientProgramRegistration.create({
             patientId,
             programRegistryId,
-            ...registrationData,
+            ...resolvedRegistrationData,
           });
 
       const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(

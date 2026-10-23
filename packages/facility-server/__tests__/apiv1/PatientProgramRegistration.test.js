@@ -290,7 +290,7 @@ describe('PatientProgramRegistration', () => {
         registeringFacilityId: facilityId,
       });
 
-      expect(result).not.toHaveSucceeded();
+      expect(result).toHaveStatus(422);
 
       const registrations = await findRegistrations();
       expect(registrations).toHaveLength(1);
