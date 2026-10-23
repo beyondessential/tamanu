@@ -31,7 +31,7 @@ const withoutUnavailableItems = (items, getSetting, checkAbility) =>
           children: item.children.filter(
             child =>
               (!child.enabledBySetting || getSetting(child.enabledBySetting)) &&
-              (!child.requiredAbility || checkAbility(child.requiredAbility)),
+              (!child.abilities?.length || child.abilities.some(checkAbility)),
           ),
         }
       : item,
