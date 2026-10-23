@@ -77,6 +77,7 @@ import { tasks } from './task/tasks';
 import { notifications } from './notifications';
 import { random } from './random';
 import { ai } from './ai';
+import { telemetry } from './telemetry';
 
 const passthrough = (_req, _res, next) => next();
 
@@ -124,6 +125,11 @@ export function createApiv1({ authLimiter } = {}) {
   // First-run setup: records the host + credentials + facilities. Rate-limited
   // (it does an outbound login probe) and trusted-network gated in the handler.
   apiv1.post('/public/setup/sync', limiter, setupSyncHandler);
+
+  // Browser performance telemetry ingest (spec: BTEL). Public so pre-login
+  // navigations are recorded. Not behind the strict auth limiter (clients post
+  // frequently); follows the other /public read routes.
+  apiv1.use('/public/telemetry', telemetry);
 
   apiv1.get(
     '/public/translation/languageOptions',

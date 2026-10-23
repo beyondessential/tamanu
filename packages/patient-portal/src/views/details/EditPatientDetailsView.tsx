@@ -15,6 +15,7 @@ import { useUpdatePatientDetails } from '@api/mutations';
 import { usePortalSettingsQuery } from '@api/queries/usePortalSettingsQuery';
 import {
   BackLink,
+  Muted,
   PageColumn,
   PageLoading,
   PageTitle,
@@ -84,11 +85,28 @@ const toFormValues = (fields: DetailField[], patient: ReturnType<typeof useCurre
 /** Back on the dashboard, with the patient's details open. */
 const DETAILS_PATH = '/#details';
 
+const EditDetailsLoadError = () => (
+  <PageColumn>
+    <BackLink to={DETAILS_PATH}>
+      <TranslatedText stringId="patientPortal.home" fallback="Home" />
+    </BackLink>
+    <Panel>
+      <Muted role="alert">
+        <TranslatedText
+          stringId="patientPortal.details.loadError"
+          fallback="Your details couldn't be opened for editing. Please try again later."
+        />
+      </Muted>
+    </Panel>
+  </PageColumn>
+);
+
 /** The patient's details, all edited on one screen. */
 export const EditPatientDetailsView = () => {
-  const { data: settings, isLoading } = usePortalSettingsQuery();
+  const { data: settings, isLoading, isError } = usePortalSettingsQuery();
   const patient = useCurrentUser();
   if (isLoading) return <PageLoading />;
+  if (isError) return <EditDetailsLoadError />;
 
   const fieldSettings = settings?.fields;
   const editableGroups = DETAIL_GROUPS.map(group => ({

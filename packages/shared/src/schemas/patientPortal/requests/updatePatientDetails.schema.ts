@@ -47,6 +47,3 @@ export const UpdatePatientDetailsRequestSchema = z
   .strict();
 
 export type UpdatePatientDetailsRequest = z.infer<typeof UpdatePatientDetailsRequestSchema>;
-
-/** The patient's own record holds email; every other editable detail is additional data. */
-export const PATIENT_EDITABLE_PATIENT_FIELDS = ['email'] as const;

@@ -48,6 +48,7 @@ describe('Kiosk dates', () => {
   it('splits a date back into the parts patients enter', () => {
     expect(toDateParts('1986-03-07')).toEqual({ day: '7', month: '3', year: '1986' });
     expect(toDateParts(null)).toEqual({ day: '', month: '', year: '' });
+    expect(toDateParts('incomplete')).toEqual({ day: '', month: '', year: '' });
   });
 
   it('shows dates of birth with the month as a word', () => {
@@ -118,6 +119,26 @@ describe('Kiosk forms', () => {
       'pde-Days': '3',
       'pde-Submitted': '2026-10-13',
     });
+  });
+
+  it('does not save answers to questions the kiosk left out', () => {
+    const form = toKioskForm({
+      ...survey,
+      components: [
+        ...survey.components,
+        component('Chart', PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE),
+        component('Registry', PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA, {
+          config: JSON.stringify({ column: 'registrationClinicalStatus' }),
+        }),
+      ],
+    });
+    const values = {
+      'pde-Fever': 'false',
+      'pde-Geo': '-13.8,-171.7',
+      'pde-Chart': '2026-10-13 09:00:00',
+      'pde-Registry': 'Active',
+    };
+    expect(getVisibleAnswers(form, values)).toEqual({ 'pde-Fever': 'false' });
   });
 });
 

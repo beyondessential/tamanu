@@ -12,11 +12,11 @@ export const useCurrentUserQuery = () => {
     queryKey: ['me'],
     queryFn: async () => {
       try {
-        return await api.get('me');
+        return await api.fetchCurrentUser();
       } catch (error) {
         if (!isSessionRejected(error)) throw error;
         // A session the server no longer accepts isn't kept, unless another tab has signed in
-        if (await api.forgetRejectedSession()) return api.get('me');
+        if (await api.forgetRejectedSession()) return api.fetchCurrentUser();
         throw error;
       }
     },

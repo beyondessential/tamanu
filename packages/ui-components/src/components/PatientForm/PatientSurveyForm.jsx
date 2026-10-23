@@ -247,6 +247,7 @@ const FormPages = ({
   };
 
   const pageCount = form.pages.length;
+  const progressPageCount = Math.max(pageCount, 1);
   return (
     <FormPanel aria-labelledby={titleId}>
       <FormHead>
@@ -267,10 +268,10 @@ const FormPages = ({
         <PageBar
           role="progressbar"
           aria-valuemin={0}
-          aria-valuemax={pageCount}
+          aria-valuemax={progressPageCount}
           aria-valuenow={pageIndex + 1}
         >
-          <span style={{ width: `${((pageIndex + 1) / pageCount) * 100}%` }} />
+          <span style={{ width: `${((pageIndex + 1) / progressPageCount) * 100}%` }} />
         </PageBar>
       </FormHead>
       <Questions ref={questionsRef}>
@@ -347,7 +348,7 @@ export const PatientSurveyForm = ({
   const { getTranslation } = useTranslation();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const [pageIndex, setPageIndex] = useState(() =>
-    Math.min(progress?.pageIndex ?? 0, form.pages.length - 1),
+    Math.max(0, Math.min(progress?.pageIndex ?? 0, form.pages.length - 1)),
   );
 
   const [initialValues] = useState(() => {

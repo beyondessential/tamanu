@@ -9,6 +9,7 @@ import {
   APPOINTMENT_STATUSES,
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
+  READONLY_DATA_FIELDS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -126,7 +127,10 @@ const getPatientDataForForms = async (models, patient, forms) => {
       .map(([, fieldName]) => fieldName);
   // Questions drawing on a program registry are left out of patient-facing forms, so nothing
   // here reads PatientProgramRegistration; see toPatientForm
-  const customFieldIds = columns.filter(column => !(column in PATIENT_DATA_FIELD_LOCATIONS));
+  const readonlyFields = Object.values(READONLY_DATA_FIELDS);
+  const customFieldIds = columns.filter(
+    column => !(column in PATIENT_DATA_FIELD_LOCATIONS) && !readonlyFields.includes(column),
+  );
 
   const pick = (record, fields) =>
     Object.fromEntries(fields.map(field => [field, record?.[field] ?? null]));
@@ -174,9 +178,10 @@ const toAppointmentSummary = (appointment, { isMasked }) => {
  * trail is what answers for the patient records the kiosk put on screen.
  */
 const auditPatientAccess = async (req, patients) => {
-  for (const patient of patients) {
+  const patientIds = new Set(patients.map(({ id }) => id));
+  for (const patientId of patientIds) {
     await req.audit.access({
-      recordId: patient.id,
+      recordId: patientId,
       frontEndContext: req.params,
       model: req.models.Patient,
       facilityId: req.facilityId,
@@ -259,8 +264,9 @@ kiosk.get(
 );
 
 /**
- * Where the patient's form responses are recorded: the appointment's own location, or one in
- * its clinic, falling back to the facility's default form location and department.
+ * Where the patient's form responses are recorded: the appointment's own location if it is at
+ * this facility, or one in its clinic, falling back to the facility's default form location and
+ * department.
  */
 const getResponsePlace = async (req, facilitySettings, appointment) => {
   const { models, facilityId } = req;
@@ -275,8 +281,10 @@ const getResponsePlace = async (req, facilitySettings, appointment) => {
       },
       order: [['name', 'ASC']],
     }));
+  const ownLocationId =
+    appointment.location?.facilityId === facilityId ? appointment.locationId : null;
   return {
-    locationId: appointment.locationId ?? clinicLocation?.id ?? (await getDefaultId('location')),
+    locationId: ownLocationId ?? clinicLocation?.id ?? (await getDefaultId('location')),
     departmentId: await getDefaultId('department'),
   };
 };
@@ -306,6 +314,17 @@ kiosk.post(
     const { responses } = await checkInBodySchema.parseAsync(req.body);
     const { models, facilityId } = req;
 
+    const now = getCurrentPrimaryTimeZoneDateTimeString();
+    const today = await getTodayBoundaries(facilitySettings);
+    const isToday = dateTime => dateTime >= today.start && dateTime <= today.end;
+    for (const response of responses) {
+      const startTime = response.startTime ?? now;
+      const endTime = response.endTime ?? now;
+      if (!isToday(startTime) || !isToday(endTime) || endTime < startTime) {
+        throw new InvalidOperationError('Each form must be started and finished today, in order');
+      }
+    }
+
     const result = await req.db.transaction(async () => {
       // Lock the appointment so two check-ins for it (two tablets, or a retry) can't both succeed
       await models.Appointment.findByPk(req.params.id, { lock: true });
@@ -329,7 +348,6 @@ kiosk.post(
         req.checkPermission('create', noun === 'Charting' ? subject(noun, { id: surveyId }) : noun);
       }
 
-      const now = getCurrentPrimaryTimeZoneDateTimeString();
       const { locationId, departmentId } =
         responses.length > 0 ? await getResponsePlace(req, facilitySettings, appointment) : {};
 
@@ -340,6 +358,8 @@ kiosk.post(
             surveyId,
             answers,
             patientId: appointment.patientId,
+            encounterId: surveyResponses[0]?.encounterId ?? null,
+            forceNewEncounter: true,
             facilityId,
             userId: req.user.id,
             locationId,

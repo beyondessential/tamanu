@@ -1,16 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
-import { parseISO } from 'date-fns';
-import { TranslatedText } from '@tamanu/ui-components';
+import { get } from 'es-toolkit/compat';
+import {
+  AuthContext,
+  DateTimeProvider,
+  SettingsContext,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { type Appointment } from '@tamanu/shared/schemas/patientPortal';
 
+import { useTimeZoneQuery } from '@api/queries/useTimeZoneQuery';
 import { useUpcomingAppointmentsQuery } from '@api/queries/useUpcomingAppointmentsQuery';
 import { Loading, Muted, Panel, Section, SectionTitle } from '@components/layout';
-
-const locale = globalThis.navigator?.language ?? 'default';
-const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'short' });
-const dayFormatter = new Intl.DateTimeFormat(locale, { weekday: 'long' });
-const timeFormatter = new Intl.DateTimeFormat(locale, { timeStyle: 'short' });
+import { useSettings } from '../../contexts';
 
 const AppointmentRow = styled.div`
   display: flex;
@@ -63,20 +66,65 @@ const Details = styled.div`
   }
 `;
 
+/** Times are shown in the appointment's facility time, as staff see them. */
+const AppointmentDateTimeProvider = ({
+  facilityId,
+  children,
+}: {
+  facilityId?: string;
+  children: React.ReactNode;
+}) => {
+  const timeZone = useTimeZoneQuery();
+  const settings = useSettings(facilityId ?? '');
+  if (timeZone.isPending || settings.isLoading) return <Loading />;
+  if (!timeZone.data?.primaryTimeZone || settings.isError) {
+    return (
+      <Muted role="alert">
+        <TranslatedText
+          stringId="patientPortal.appointments.loadError"
+          fallback="This appointment couldn't be shown. Please try again later."
+        />
+      </Muted>
+    );
+  }
+  return (
+    <AuthContext.Provider value={{ primaryTimeZone: timeZone.data.primaryTimeZone }}>
+      <SettingsContext.Provider
+        value={{ getSetting: (path: string) => get(settings.data, path), settings: settings.data }}
+      >
+        <DateTimeProvider>{children}</DateTimeProvider>
+      </SettingsContext.Provider>
+    </AuthContext.Provider>
+  );
+};
+
 const AppointmentItem = ({ appointment }: { appointment: Appointment }) => {
-  const start = parseISO(appointment.startTime);
+  const {
+    primaryTimeZone,
+    facilityTimeZone,
+    locale,
+    storedDateTimeToEpochMilliseconds,
+    formatWeekdayLong,
+    formatTime,
+  } = useDateTime();
+  const start = new Date(storedDateTimeToEpochMilliseconds(appointment.startTime) ?? NaN);
+  const formatStart = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat(locale, {
+      ...options,
+      timeZone: facilityTimeZone ?? primaryTimeZone,
+    }).format(start);
   const place = [appointment.locationGroup?.name, appointment.locationGroup?.facility?.name]
     .filter(Boolean)
     .join(', ');
   return (
     <AppointmentRow>
       <DateTile>
-        <span>{monthFormatter.format(start)}</span>
-        <strong>{start.getDate()}</strong>
+        <span>{formatStart({ month: 'short' })}</span>
+        <strong>{formatStart({ day: 'numeric' })}</strong>
       </DateTile>
       <Details>
         <strong>
-          {dayFormatter.format(start)}, {timeFormatter.format(start)}
+          {formatWeekdayLong(appointment.startTime)}, {formatTime(appointment.startTime)}
         </strong>
         {appointment.appointmentType?.name && <span>{appointment.appointmentType.name}</span>}
         {appointment.clinician?.displayName && <span>{appointment.clinician.displayName}</span>}
@@ -102,7 +150,12 @@ export const AppointmentsSection = () => {
       );
     }
     return appointments.map(appointment => (
-      <AppointmentItem key={appointment.id} appointment={appointment} />
+      <AppointmentDateTimeProvider
+        key={appointment.id}
+        facilityId={appointment.locationGroup?.facility.id}
+      >
+        <AppointmentItem appointment={appointment} />
+      </AppointmentDateTimeProvider>
     ));
   };
 

@@ -171,7 +171,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default: {
           // Check for custom patient fields
-          const { fieldValues } = patient;
+          const { fieldValues = [] } = patient;
           const fieldValue = fieldValues.find(x => x.definitionId === column);
           if (fieldValue) return fieldValue.value;
 

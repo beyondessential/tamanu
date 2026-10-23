@@ -1,5 +1,5 @@
 // spec: KIOSK
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 import { TranslatedText } from '../../components';
@@ -185,8 +185,22 @@ const KioskUnavailable = () => (
   </KioskRoot>
 );
 
+/** Keeps the fixed Back and Next above the on-screen keyboard, without changing the staff app. */
+const useResizeForKeyboard = () => {
+  useEffect(() => {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) return undefined;
+    const original = viewport.content;
+    viewport.content = `${original}, interactive-widget=resizes-content`;
+    return () => {
+      viewport.content = original;
+    };
+  }, []);
+};
+
 export const KioskView = () => {
   const { getSetting, isSettingsLoaded } = useSettings();
+  useResizeForKeyboard();
   if (!isSettingsLoaded) return null;
   if (!getSetting('kiosk.enabled')) return <KioskUnavailable />;
   return (

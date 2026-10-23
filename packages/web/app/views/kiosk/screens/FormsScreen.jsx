@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -298,14 +298,20 @@ export const FormsScreen = () => {
   const openForm =
     forms.find(({ id }) => id === openFormId) ?? (openFormId === null ? firstUnfinished : null);
 
+  // The first form opens without the patient choosing it, so nothing else records when it was shown
+  const [shownForm, setShownForm] = useState({ id: undefined, startTime: null });
+  if (openForm?.id !== shownForm.id) {
+    setShownForm({ id: openForm?.id, startTime: getCurrentDateTime() });
+  }
+
   const saveProgress = useCallback(
-    (formId, progress) =>
-      dispatch({ type: 'saveFormProgress', formId, progress, startTime: getCurrentDateTime() }),
+    (formId, progress, startTime = getCurrentDateTime()) =>
+      dispatch({ type: 'saveFormProgress', formId, progress, startTime }),
     [dispatch, getCurrentDateTime],
   );
   const saveOpenFormProgress = useCallback(
-    progress => saveProgress(openForm?.id, progress),
-    [saveProgress, openForm?.id],
+    progress => saveProgress(shownForm.id, progress, shownForm.startTime),
+    [saveProgress, shownForm],
   );
 
   /**
@@ -325,11 +331,11 @@ export const FormsScreen = () => {
   };
 
   const completeForm = (formId, values) => {
-    saveProgress(formId, {
-      status: FORM_STATUSES.COMPLETED,
-      values,
-      endTime: getCurrentDateTime(),
-    });
+    saveProgress(
+      formId,
+      { status: FORM_STATUSES.COMPLETED, values, endTime: getCurrentDateTime() },
+      shownForm.startTime,
+    );
     const nextForm = forms.find(
       ({ id }) => id !== formId && progressOf(id).status !== FORM_STATUSES.COMPLETED,
     );
@@ -341,8 +347,8 @@ export const FormsScreen = () => {
     }
   };
 
-  const handleCheckIn = async () => {
-    const responses = await Promise.all(
+  const buildResponses = () =>
+    Promise.all(
       forms.map(async form => {
         const { values, startTime, endTime } = progressOf(form.id);
         return {
@@ -354,8 +360,8 @@ export const FormsScreen = () => {
         };
       }),
     );
-    checkIn.mutate(responses, { onSuccess: () => dispatch({ type: 'checkedIn' }) });
-  };
+  const handleCheckIn = () =>
+    checkIn.mutate(buildResponses, { onSuccess: () => dispatch({ type: 'checkedIn' }) });
 
   if (isLoading || isError) return <LoadingForms isError={isError} />;
 

@@ -24,19 +24,23 @@ export const fakePatient = (overrides = {}) => ({
 type Responses = Record<string, unknown>;
 
 /** A stand-in for the portal's API, answering GETs by endpoint. */
-export const createFakeApi = (responses: Responses) => ({
-  get: vi.fn(async (endpoint: Endpoint) => {
+export const createFakeApi = (responses: Responses) => {
+  const get = vi.fn(async (endpoint: Endpoint) => {
     const path = resolveEndpoint(endpoint);
     if (path in responses) return responses[path];
     if (path.startsWith('suggestions/')) return [];
     throw Object.assign(new Error(`No fake response for ${path}`), { status: 404 });
-  }),
-  put: vi.fn(async (_endpoint: string, body: unknown) => ({
-    ...fakePatient(),
-    ...(body as object),
-  })),
-  post: vi.fn(async () => ({})),
-});
+  });
+  return {
+    get,
+    fetchCurrentUser: () => get('me'),
+    put: vi.fn(async (_endpoint: string, body: unknown) => ({
+      ...fakePatient(),
+      ...(body as object),
+    })),
+    post: vi.fn(async () => ({})),
+  };
+};
 
 export const stubTranslations = (translations: Record<string, string> = {}) =>
   vi.stubGlobal(

@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import config from 'config';
 import { addDays, format, parseISO } from 'date-fns';
 
@@ -7,6 +7,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SETTINGS_SCOPES,
 } from '@tamanu/constants';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/fake-data/fake';
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentPrimaryTimeZoneDateString } from '@tamanu/shared/utils/primaryDateTime';
@@ -469,6 +470,47 @@ describe('Kiosk', () => {
       expect(result.body.patientAdditionalData).toEqual({ primaryContactNumber: '021 555 0101' });
     });
 
+    it("sends the name for a full-name question without looking up the patient's custom fields", async () => {
+      const { survey: fullNameSurvey } = await createSurveyWithQuestion(
+        { type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA },
+        { config: JSON.stringify({ column: 'fullName' }) },
+      );
+      const appointmentType = await createAppointmentTypeWithForms([fullNameSurvey.id]);
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentType.id,
+      });
+      const findFieldValues = vi.spyOn(models.PatientFieldValue, 'findAll');
+
+      try {
+        const result = await app.get(`/api/kiosk/appointments/${appointment.id}`);
+
+        expect(result).toHaveSucceeded();
+        expect(result.body.patient).toMatchObject({
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          fieldValues: [],
+        });
+        expect(findFieldValues).not.toHaveBeenCalled();
+      } finally {
+        findFieldValues.mockRestore();
+      }
+    });
+
+    it('is unavailable when the kiosk is turned off for the facility', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+      await setKioskSettings({ enabled: false });
+
+      const result = await app.get(`/api/kiosk/appointments/${appointment.id}`);
+
+      expect(result).toHaveRequestError();
+    });
+
     it('leaves out forms that have been retired', async () => {
       const retired = await models.Survey.create(
         fake(models.Survey, {
@@ -739,6 +781,71 @@ describe('Kiosk', () => {
       expect(await findPatientResponses(patient)).toHaveLength(0);
     });
 
+    it('rejects a form finished before it was started and saves nothing', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        {
+          surveyId: survey.id,
+          answers: { [requiredDataElement.id]: 'Headaches' },
+          startTime: `${today} 09:18:00`,
+          endTime: `${today} 09:15:00`,
+        },
+      ]);
+
+      expect(result).toHaveRequestError();
+      expect(await findPatientResponses(patient)).toHaveLength(0);
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+    });
+
+    it('rejects a form time on another day and saves nothing', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        {
+          surveyId: survey.id,
+          answers: { [requiredDataElement.id]: 'Headaches' },
+          startTime: `${shiftDate(today, -1)} 09:15:00`,
+          endTime: `${today} 09:18:00`,
+        },
+      ]);
+
+      expect(result).toHaveRequestError();
+      expect(await findPatientResponses(patient)).toHaveLength(0);
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+    });
+
+    it('is unavailable when the kiosk is turned off and saves nothing', async () => {
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+      });
+      await setKioskSettings({
+        enabled: false,
+        forms: [{ appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [survey.id] }],
+      });
+
+      const result = await checkIn(appointment.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+      ]);
+
+      expect(result).toHaveRequestError();
+      expect(await findPatientResponses(patient)).toHaveLength(0);
+      await appointment.reload();
+      expect(appointment.status).toEqual(APPOINTMENT_STATUSES.CONFIRMED);
+    });
+
     it('checks in a location booking with the forms for its booking type', async () => {
       const patient = await createPatient();
       const booking = await createLocationBooking({ patient });
@@ -792,6 +899,31 @@ describe('Kiosk', () => {
       expect(surveyResponse.encounter.locationId).toEqual(clinicLocation.id);
     });
 
+    it("records the responses in the clinic when the appointment's location is at another facility", async () => {
+      const clinic = await models.LocationGroup.create(fake(models.LocationGroup, { facilityId }));
+      const clinicLocation = await models.Location.create(
+        fake(models.Location, { facilityId, locationGroupId: clinic.id }),
+      );
+      const otherFacilityLocation = await models.Location.create(
+        fake(models.Location, { facilityId: otherFacility.id }),
+      );
+      const patient = await createPatient();
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentTypeWithForms.id,
+        locationGroupId: clinic.id,
+        locationId: otherFacilityLocation.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      const [surveyResponse] = await findPatientResponses(patient);
+      expect(surveyResponse.encounter.locationId).toEqual(clinicLocation.id);
+    });
+
     it("records the responses at the facility's default location when the clinic has none", async () => {
       const emptyClinic = await models.LocationGroup.create(
         fake(models.LocationGroup, { facilityId }),
@@ -810,6 +942,47 @@ describe('Kiosk', () => {
       expect(result).toHaveSucceeded();
       const [surveyResponse] = await findPatientResponses(patient);
       expect(surveyResponse.encounter.locationId).toEqual(defaultLocation.id);
+    });
+
+    it('records the responses in a new encounter, not one still open from an earlier visit', async () => {
+      const { survey: secondSurvey, dataElement: secondDataElement } =
+        await createSurveyWithQuestion();
+      const appointmentType = await createAppointmentTypeWithForms([survey.id, secondSurvey.id]);
+      const patient = await createPatient();
+      const otherFacilityLocation = await models.Location.create(
+        fake(models.Location, { facilityId: otherFacility.id }),
+      );
+      const otherFacilityDepartment = await models.Department.create(
+        fake(models.Department, { facilityId: otherFacility.id }),
+      );
+      const openEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models, { current: true })),
+        patientId: patient.id,
+        locationId: otherFacilityLocation.id,
+        departmentId: otherFacilityDepartment.id,
+        examinerId: app.user.id,
+      });
+      const appointment = await createAppointment({
+        patient,
+        appointmentTypeId: appointmentType.id,
+        locationGroupId: null,
+        locationId: location.id,
+      });
+
+      const result = await checkIn(appointment.id, [
+        { surveyId: survey.id, answers: { [requiredDataElement.id]: 'Headaches' } },
+        { surveyId: secondSurvey.id, answers: { [secondDataElement.id]: 'Fine' } },
+      ]);
+
+      expect(result).toHaveSucceeded();
+      const surveyResponses = await findPatientResponses(patient);
+      expect(surveyResponses).toHaveLength(2);
+      const [{ encounter }] = surveyResponses;
+      expect(encounter.id).not.toEqual(openEncounter.id);
+      expect(encounter.locationId).toEqual(location.id);
+      expect(surveyResponses[1].encounterId).toEqual(encounter.id);
+      await openEncounter.reload();
+      expect(openEncounter.endDate).toBeNull();
     });
 
     it('checks in only once when two check-ins arrive together', async () => {

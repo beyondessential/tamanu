@@ -19,6 +19,7 @@ import {
   getProcedures,
 } from './patientData';
 import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
+import { portalTelemetryIngest } from './telemetry';
 import { getAuthSecret } from '@tamanu/shared/utils';
 
 const passthrough = (_req, _res, next) => next();
@@ -35,6 +36,11 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.post('/login', limiter, login({ secret: getAuthSecret() }));
   router.post('/request-login-token', limiter, requestLoginToken);
   router.post('/verify-registration', limiter, register);
+
+  // Browser performance telemetry ingest (spec: BTEL). Pre-auth so the login
+  // screen is measured too; stored locally on central (portal has no facility).
+  // Not behind the strict auth limiter (clients post frequently).
+  router.post('/public/telemetry', portalTelemetryIngest);
 
   // Portal auth middleware
   router.use(patientPortalMiddleware({ secret: getAuthSecret() }));
