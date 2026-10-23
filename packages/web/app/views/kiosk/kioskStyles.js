@@ -136,6 +136,12 @@ export const KioskRoot = styled.div`
   height: 100dvh;
   overflow: hidden;
   background: var(--kiosk-page);
+
+  @media (max-height: 560px) {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
   color: var(--kiosk-text);
   font-family: Roboto, system-ui, sans-serif;
   font-size: ${scaled(16)};
