@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { v4 as uuidv4 } from 'uuid';
 import { Typography } from '@material-ui/core';
 
 import { ForbiddenError } from '@tamanu/errors';
@@ -195,11 +196,18 @@ export const DocumentForm = ({ onStart, onSubmit, onError, onCancel, editedObjec
       const birthtime = new Date(file.lastModified);
       const attachmentType = file.type;
 
-      const upload = api.postWithFileUpload(endpoint, file, {
-        ...data,
-        type: attachmentType,
-        documentCreatedAt: toDateTimeString(birthtime),
-      });
+      const upload = api.postWithFileUpload(
+        endpoint,
+        file,
+        {
+          ...data,
+          type: attachmentType,
+          documentCreatedAt: toDateTimeString(birthtime),
+        },
+        // A dropped-connection retry of this one upload must not create a second document;
+        // a fresh key per submit lets a deliberate re-upload create a separate one.
+        { headers: { 'Idempotency-Key': uuidv4() } },
+      );
       // Waiters only need to know when the upload settled; failures are handled here.
       inFlightUpload.current = upload.catch(() => {});
 
