@@ -484,14 +484,22 @@ export const facilitySettings = {
         formsByAppointmentType: {
           name: 'Forms by appointment type',
           description:
-            'The forms a patient completes at the kiosk before checking in, for each appointment type. Appointment types not listed have no forms.',
+            'The forms a patient completes at the kiosk before checking in, for each outpatient appointment type (appointmentTypeId) or location booking type (bookingTypeId). Types not listed have no forms.',
           type: yup.array(
             yup
               .object({
-                appointmentTypeId: yup.string().required(),
+                appointmentTypeId: yup.string(),
+                bookingTypeId: yup.string(),
                 surveyIds: yup.array(yup.string().required()).required(),
               })
-              .noUnknown(),
+              .noUnknown()
+              .test(
+                'one-type',
+                // eslint-disable-next-line no-template-curly-in-string
+                '${path} must have exactly one of appointmentTypeId or bookingTypeId',
+                value =>
+                  !value || Boolean(value.appointmentTypeId) !== Boolean(value.bookingTypeId),
+              ),
           ),
           defaultValue: [],
         },

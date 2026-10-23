@@ -365,6 +365,38 @@ describe('Schemas', () => {
       ).resolves.not.toThrow();
     });
 
+    describe('Kiosk forms by appointment type', () => {
+      const formsByAppointmentType = value =>
+        validateSettings({
+          settings: { kiosk: { formsByAppointmentType: value } },
+          scope: 'facility',
+        });
+
+      it('accepts appointment types and booking types', async () => {
+        await expect(
+          formsByAppointmentType([
+            { appointmentTypeId: 'appointmentType-a', surveyIds: ['survey-a'] },
+            { bookingTypeId: 'bookingType-b', surveyIds: [] },
+          ]),
+        ).resolves.not.toThrow();
+      });
+
+      it('rejects an entry with neither or both types', async () => {
+        await expect(formsByAppointmentType([{ surveyIds: [] }])).rejects.toThrow(
+          yup.ValidationError,
+        );
+        await expect(
+          formsByAppointmentType([
+            {
+              appointmentTypeId: 'appointmentType-a',
+              bookingTypeId: 'bookingType-b',
+              surveyIds: [],
+            },
+          ]),
+        ).rejects.toThrow(yup.ValidationError);
+      });
+    });
+
     // The task list time frames are handed to date-fns as an hour count, which truncates
     // toward zero: a floor of 0.5 becomes 0 and puts the cut-off on the current instant,
     // hiding every overdue task. Whole hours only.
