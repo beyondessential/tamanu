@@ -5,7 +5,12 @@ import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { DateTimeProviderContext, toTimeParts, toTimeString } from '@tamanu/ui-components';
+import {
+  DateTimeProviderContext,
+  SettingsContext,
+  toTimeParts,
+  toTimeString,
+} from '@tamanu/ui-components';
 import { toFacilityDateTime, toStoredDateTime } from '@tamanu/utils/dateTime';
 
 import { renderElementWithTranslatedText } from '../../helpers';
@@ -184,8 +189,7 @@ describe('Kiosk questions store answers as the web does', () => {
 });
 
 describe('Kiosk survey form', () => {
-  it('shows a form with no questions it can show as one finished page', () => {
-    const form = toKioskForm({ id: 'survey-empty', name: 'Empty', components: [] });
+  const renderForm = props =>
     renderElementWithTranslatedText(
       <DateTimeProviderContext.Provider
         value={{
@@ -193,11 +197,42 @@ describe('Kiosk survey form', () => {
           getCurrentDateTime: () => '2026-10-23 09:00:00',
         }}
       >
-        <KioskSurveyForm form={form} onComplete={() => {}} onExit={() => {}} />
+        <SettingsContext.Provider value={{ getSetting: () => undefined }}>
+          <KioskSurveyForm onComplete={() => {}} onExit={() => {}} {...props} />
+        </SettingsContext.Provider>
       </DateTimeProviderContext.Provider>,
     );
+
+  it('shows a form with no questions it can show as one finished page', () => {
+    const form = toKioskForm({ id: 'survey-empty', name: 'Empty', components: [] });
+    renderForm({ form });
     const progressBar = screen.getByRole('progressbar');
     expect(progressBar.getAttribute('aria-valuenow')).toEqual('1');
     expect(progressBar.firstChild.style.width).toEqual('100%');
+  });
+
+  it('opens a form asking for a custom patient field for a patient without field values', () => {
+    const form = toKioskForm({
+      id: 'survey-custom-field',
+      name: 'Custom field',
+      components: [
+        {
+          id: 'component-Custom',
+          dataElementId: 'pde-Custom',
+          dataElement: { id: 'pde-Custom', code: 'Custom', type: T.PATIENT_DATA, name: 'Custom' },
+          config: JSON.stringify({ column: 'fieldDefinition-shoeSize' }),
+          screenIndex: 0,
+          componentIndex: 0,
+          visibilityStatus: 'current',
+          visibilityCriteria: '',
+          text: 'Shoe size',
+        },
+      ],
+    });
+    renderForm({
+      form,
+      patient: { id: 'patient-1', firstName: 'Tess', lastName: 'Ono', dateOfBirth: '1986-03-14' },
+    });
+    expect(screen.getByText('Shoe size')).toBeDefined();
   });
 });

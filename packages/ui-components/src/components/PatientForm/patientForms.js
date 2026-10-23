@@ -54,10 +54,18 @@ export const toPatientForm = (survey, isSupportedQuestionType) => {
 export const getVisibleComponents = (components, values, allComponents) =>
   components.filter(component => checkVisibility(component, values, allComponents));
 
-/** The answers to save for a completed form: only the questions the patient could see. */
+/**
+ * The answers to save for a completed form: the questions the patient could see, plus the
+ * submission date filled in for them.
+ */
 export const getVisibleAnswers = (form, values) => {
+  const answeredComponents = form.currentComponents.filter(
+    component =>
+      form.shownComponents.includes(component) ||
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE,
+  );
   const visibleIds = new Set(
-    getVisibleComponents(form.currentComponents, values, form.currentComponents).map(
+    getVisibleComponents(answeredComponents, values, form.currentComponents).map(
       ({ dataElementId }) => dataElementId,
     ),
   );

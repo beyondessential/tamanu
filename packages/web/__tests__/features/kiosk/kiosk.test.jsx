@@ -120,6 +120,26 @@ describe('Kiosk forms', () => {
       'pde-Submitted': '2026-10-13',
     });
   });
+
+  it('does not save answers to questions the kiosk left out', () => {
+    const form = toKioskForm({
+      ...survey,
+      components: [
+        ...survey.components,
+        component('Chart', PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE),
+        component('Registry', PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA, {
+          config: JSON.stringify({ column: 'registrationClinicalStatus' }),
+        }),
+      ],
+    });
+    const values = {
+      'pde-Fever': 'false',
+      'pde-Geo': '-13.8,-171.7',
+      'pde-Chart': '2026-10-13 09:00:00',
+      'pde-Registry': 'Active',
+    };
+    expect(getVisibleAnswers(form, values)).toEqual({ 'pde-Fever': 'false' });
+  });
 });
 
 describe('Kiosk session', () => {
