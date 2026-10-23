@@ -296,7 +296,8 @@ export class CentralServerConnection {
   async completePush(
     sessionId: string,
     tablesToInclude: string[],
-    lastSuccessfulSyncPush: number,
+    // omitted by a caller with no cursor to report; central leaves its record untouched
+    lastSuccessfulSyncPush?: number,
   ): Promise<void> {
     // first off, mark the push as complete on central, reporting the local tick we've pushed up to
     // so central can record this device's push progress (spec: PUSH)
