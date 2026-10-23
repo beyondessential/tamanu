@@ -4,46 +4,53 @@ import { QueryTypes } from 'sequelize';
 import { UpcomingVaccinationSchema } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
 import { AdministeredVaccineSchema } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
 import { VACCINE_STATUS } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const getUpcomingVaccinations = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { sequelize } = req.store;
 
-  // Query the upcoming_vaccinations view with scheduled vaccine and vaccine reference data
-  const results = await sequelize.query(
-    `
-    SELECT
-      -- Scheduled vaccine fields
-      sv.id as "scheduledVaccine.id",
-      sv.category as "scheduledVaccine.category",
-      sv.label as "scheduledVaccine.label",
-      sv.dose_label as "scheduledVaccine.doseLabel",
-      sv.weeks_from_birth_due as "scheduledVaccine.weeksFromBirthDue",
-      sv.visibility_status as "scheduledVaccine.visibilityStatus",
-      -- Vaccine reference data fields
-      rd.id as "vaccine.id",
-      rd.name as "vaccine.name",
-      rd.code as "vaccine.code",
-      rd.type as "vaccine.type",
-      -- Upcoming vaccination fields
-      uv.due_date "dueDate",
-      uv.days_till_due "daysTillDue",
-      uv.status
-    FROM upcoming_vaccinations uv
-    JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
-    JOIN reference_data rd ON rd.id = uv.vaccine_id
-    WHERE uv.patient_id = :patientId
-      AND uv.status != :missedStatus
-    ORDER BY uv.due_date ASC, sv.label
-    `,
-    {
-      replacements: {
-        patientId: patient.id,
-        missedStatus: VACCINE_STATUS.MISSED,
+  const results = await sequelize.transaction(async () => {
+    // The view derives status from CURRENT_DATE, which follows the session timezone
+    await sequelize.query('SET LOCAL TIME ZONE :timezone', {
+      replacements: { timezone: getPrimaryTimeZone() },
+    });
+    // Query the upcoming_vaccinations view with scheduled vaccine and vaccine reference data
+    return sequelize.query(
+      `
+      SELECT
+        -- Scheduled vaccine fields
+        sv.id as "scheduledVaccine.id",
+        sv.category as "scheduledVaccine.category",
+        sv.label as "scheduledVaccine.label",
+        sv.dose_label as "scheduledVaccine.doseLabel",
+        sv.weeks_from_birth_due as "scheduledVaccine.weeksFromBirthDue",
+        sv.visibility_status as "scheduledVaccine.visibilityStatus",
+        -- Vaccine reference data fields
+        rd.id as "vaccine.id",
+        rd.name as "vaccine.name",
+        rd.code as "vaccine.code",
+        rd.type as "vaccine.type",
+        -- Upcoming vaccination fields
+        uv.due_date "dueDate",
+        uv.days_till_due "daysTillDue",
+        uv.status
+      FROM upcoming_vaccinations uv
+      JOIN scheduled_vaccines sv ON sv.id = uv.scheduled_vaccine_id
+      JOIN reference_data rd ON rd.id = uv.vaccine_id
+      WHERE uv.patient_id = :patientId
+        AND uv.status != :missedStatus
+      ORDER BY uv.due_date ASC, sv.label
+      `,
+      {
+        replacements: {
+          patientId: patient.id,
+          missedStatus: VACCINE_STATUS.MISSED,
+        },
+        type: QueryTypes.SELECT,
       },
-      type: QueryTypes.SELECT,
-    },
-  );
+    );
+  });
 
   // Transform the flat results into nested objects matching the schema
   const upcomingVaccinations = results.map(row => ({
