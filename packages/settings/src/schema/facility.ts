@@ -185,6 +185,7 @@ export const facilitySettings = {
     },
     facilityTimeZone: {
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
@@ -469,6 +470,59 @@ export const facilitySettings = {
               defaultValue: 'GeneralClinic',
             },
           },
+        },
+      },
+    },
+    kiosk: {
+      name: 'Self check-in kiosk',
+      description: 'A tablet where patients check themselves in for appointments booked today',
+      properties: {
+        enabled: {
+          name: 'Enable kiosk',
+          description: 'Allow this facility to run the self check-in kiosk at /kiosk in Tamanu web',
+          exposedToWeb: true,
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        forms: {
+          name: 'Forms',
+          description:
+            'The forms a patient completes at the kiosk before checking in. Each entry sets the forms for an outpatient appointment type (appointmentTypeId) or a location booking type (bookingTypeId). Types not listed have no forms.',
+          type: yup.array(
+            yup
+              .object({
+                appointmentTypeId: yup.string(),
+                bookingTypeId: yup.string(),
+                surveyIds: yup.array(yup.string().required()).required(),
+              })
+              .noUnknown()
+              .test(
+                'one-type',
+                // eslint-disable-next-line no-template-curly-in-string
+                '${path} must have exactly one of appointmentTypeId or bookingTypeId',
+                value =>
+                  !value || Boolean(value.appointmentTypeId) !== Boolean(value.bookingTypeId),
+              ),
+          ),
+          defaultValue: [],
+        },
+        inactivityTimeout: {
+          name: 'Inactivity timeout',
+          description:
+            'How long the kiosk waits without interaction during a check-in before asking whether the patient is still there',
+          exposedToWeb: true,
+          type: yup.number().integer().positive(),
+          defaultValue: 90,
+          unit: 'seconds',
+        },
+        inactivityWarning: {
+          name: 'Inactivity warning',
+          description:
+            'How long the "Are you still there?" countdown runs before the kiosk clears the check-in and returns to the start',
+          exposedToWeb: true,
+          type: yup.number().integer().positive(),
+          defaultValue: 30,
+          unit: 'seconds',
         },
       },
     },

@@ -1,28 +1,28 @@
 import React, { createContext, useContext } from 'react';
-import { Navigate } from 'react-router';
-import { Box, Container, CircularProgress } from '@mui/material';
+import { Navigate, ScrollRestoration } from 'react-router';
+import { PageLoading, PortalGlobalStyle, PortalRoot } from '@components/layout';
 import { PageHeader } from './header/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 
 const CurrentUserContext = createContext<PatientWithAdditionalData | undefined>(undefined);
 
-const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Box component="main" sx={{ backgroundColor: 'background.default', minHeight: '100vh' }}>
-      <PageHeader />
-      <Container maxWidth="lg" sx={{ p: 1.25 }}>
-        {children}
-      </Container>
-    </Box>
-  );
-};
+/** The header, with each page laying out its own content beneath it. */
+const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => (
+  <PortalRoot>
+    <PortalGlobalStyle />
+    {/* Each new page opens at its top, and going back returns to where the patient was */}
+    <ScrollRestoration />
+    <PageHeader />
+    {children}
+  </PortalRoot>
+);
 
 export const PrivateRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isError, isPending } = useCurrentUserQuery();
 
   if (isPending) {
-    return <CircularProgress />;
+    return <PageLoading />;
   }
 
   if (isError || !user) {

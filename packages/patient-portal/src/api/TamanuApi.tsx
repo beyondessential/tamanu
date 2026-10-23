@@ -6,7 +6,8 @@ import {
 import { getDeviceId } from '@utils/getDeviceId';
 import { LoginCredentials, LoginResponse } from './types';
 
-const TOKEN = 'patientPortalApiToken';
+/** Where the signed-in session is kept, shared by every portal tab on this device. */
+export const PORTAL_TOKEN_KEY = 'patientPortalApiToken';
 
 export class TamanuApi extends BaseTamanuApi {
   constructor(appVersion: string) {
@@ -20,12 +21,28 @@ export class TamanuApi extends BaseTamanuApi {
       deviceId: getDeviceId(),
       logger: console,
     });
-
   }
 
+  /** The token this tab is using, to tell whether the saved session has since changed. */
+  #sessionToken = '';
+
   async setToken(token: string, refreshToken?: string | null) {
+    this.#useToken(token, refreshToken);
+    await writePersistedAuthToken(PORTAL_TOKEN_KEY, token, this.deviceId, 'patient-portal');
+  }
+
+  #useToken(token: string, refreshToken?: string | null) {
     super.setToken(token, refreshToken ?? undefined);
-    await writePersistedAuthToken(TOKEN, token, this.deviceId, 'patient-portal');
+    this.#sessionToken = token;
+  }
+
+  async #readSavedToken() {
+    const { token } = await readPersistedAuthToken(
+      PORTAL_TOKEN_KEY,
+      this.deviceId,
+      'patient-portal',
+    );
+    return token ?? '';
   }
 
   // Using a slightly different login flow for the patient portal authentication flow
@@ -41,11 +58,8 @@ export class TamanuApi extends BaseTamanuApi {
     const { token } = await response.json();
     await this.setToken(token);
 
-    // Fetch user data from patient portal endpoint
-    const userResponse = await this.get('me', {}, { ...config, waitForAuth: false });
-    const user = userResponse.data; // Extract the actual patient data
+    const user = await this.get('me', {}, { ...config, waitForAuth: false });
     this.user = user;
-
     return { token, user } as LoginResponse;
   }
 
@@ -65,11 +79,28 @@ export class TamanuApi extends BaseTamanuApi {
     await this.setToken('');
   }
 
+  /** Signs this tab in with the saved session, if there is one. */
   async restoreSession() {
-    const { token } = await readPersistedAuthToken(TOKEN, this.deviceId, 'patient-portal');
-    if (!token) {
-      return;
+    this.#useToken(await this.#readSavedToken());
+  }
+
+  /**
+   * After the server turns this tab's session away, drops it from the device, unless another tab
+   * has meanwhile signed in, in which case this tab takes up that session instead. Says whether
+   * it did.
+   */
+  async forgetRejectedSession() {
+    const savedToken = await this.#readSavedToken();
+    if (savedToken && savedToken !== this.#sessionToken) {
+      this.#useToken(savedToken);
+      return true;
     }
-    await this.setToken(token);
+    await this.setToken('');
+    return false;
+  }
+
+  /** Takes up whatever session is saved, after another tab signs in or out. */
+  async syncSession() {
+    this.#useToken(await this.#readSavedToken());
   }
 }

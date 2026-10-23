@@ -65,6 +65,7 @@ export const PatientSchema = z.object({
   lastName: z.string(),
   dateOfBirth: z.string(),
   sex: z.enum(SEX_VALUES),
+  email: z.string().nullish(),
   village: ReferenceDataSchema.nullish(),
 });
 
