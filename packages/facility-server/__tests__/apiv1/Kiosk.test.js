@@ -98,7 +98,7 @@ describe('Kiosk', () => {
     );
     await setKioskSettings({
       enabled: true,
-      formsByAppointmentType: [{ appointmentTypeId: appointmentType.id, surveyIds }],
+      forms: [{ appointmentTypeId: appointmentType.id, surveyIds }],
     });
     return appointmentType;
   };
@@ -169,7 +169,7 @@ describe('Kiosk', () => {
   beforeEach(async () => {
     await setKioskSettings({
       enabled: true,
-      formsByAppointmentType: [
+      forms: [
         { appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [survey.id] },
         { bookingTypeId: bookingTypeWithForms.id, surveyIds: [survey.id] },
       ],
@@ -479,7 +479,7 @@ describe('Kiosk', () => {
       );
       await setKioskSettings({
         enabled: true,
-        formsByAppointmentType: [
+        forms: [
           { appointmentTypeId: appointmentTypeWithForms.id, surveyIds: [retired.id, survey.id] },
         ],
       });

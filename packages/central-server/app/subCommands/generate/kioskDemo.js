@@ -430,7 +430,7 @@ export const generateKioskDemo = async ({ facility: facilityId }) => {
         'kiosk',
         {
           enabled: true,
-          formsByAppointmentType: [
+          forms: [
             { appointmentTypeId: APPOINTMENT_TYPES.consultation.id, surveyIds },
             { appointmentTypeId: APPOINTMENT_TYPES.followUp.id, surveyIds: [surveyIds[1]] },
             { bookingTypeId: BOOKING_TYPES.dressing.id, surveyIds: [surveyIds[1]] },

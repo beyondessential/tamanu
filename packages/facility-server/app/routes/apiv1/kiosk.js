@@ -78,10 +78,10 @@ const findKioskAppointment = async (req, facilitySettings) => {
  * surveys are skipped, so a stale setting can't stop patients from checking in.
  */
 const getKioskSurveys = async (req, facilitySettings, { appointmentTypeId, bookingTypeId }) => {
-  const formsByAppointmentType = await facilitySettings.get('kiosk.formsByAppointmentType');
+  const formsByType = await facilitySettings.get('kiosk.forms');
   const configuredIds = [
     ...new Set(
-      formsByAppointmentType?.find(forms =>
+      formsByType?.find(forms =>
         forms.bookingTypeId
           ? forms.bookingTypeId === bookingTypeId
           : forms.appointmentTypeId === appointmentTypeId,

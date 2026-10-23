@@ -365,16 +365,16 @@ describe('Schemas', () => {
       ).resolves.not.toThrow();
     });
 
-    describe('Kiosk forms by appointment type', () => {
-      const formsByAppointmentType = value =>
+    describe('Kiosk forms', () => {
+      const kioskForms = value =>
         validateSettings({
-          settings: { kiosk: { formsByAppointmentType: value } },
+          settings: { kiosk: { forms: value } },
           scope: 'facility',
         });
 
       it('accepts appointment types and booking types', async () => {
         await expect(
-          formsByAppointmentType([
+          kioskForms([
             { appointmentTypeId: 'appointmentType-a', surveyIds: ['survey-a'] },
             { bookingTypeId: 'bookingType-b', surveyIds: [] },
           ]),
@@ -382,11 +382,9 @@ describe('Schemas', () => {
       });
 
       it('rejects an entry with neither or both types', async () => {
-        await expect(formsByAppointmentType([{ surveyIds: [] }])).rejects.toThrow(
-          yup.ValidationError,
-        );
+        await expect(kioskForms([{ surveyIds: [] }])).rejects.toThrow(yup.ValidationError);
         await expect(
-          formsByAppointmentType([
+          kioskForms([
             {
               appointmentTypeId: 'appointmentType-a',
               bookingTypeId: 'bookingType-b',

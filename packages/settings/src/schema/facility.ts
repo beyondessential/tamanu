@@ -481,10 +481,10 @@ export const facilitySettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
-        formsByAppointmentType: {
-          name: 'Forms by appointment type',
+        forms: {
+          name: 'Forms',
           description:
-            'The forms a patient completes at the kiosk before checking in, for each outpatient appointment type (appointmentTypeId) or location booking type (bookingTypeId). Types not listed have no forms.',
+            'The forms a patient completes at the kiosk before checking in. Each entry sets the forms for an outpatient appointment type (appointmentTypeId) or a location booking type (bookingTypeId). Types not listed have no forms.',
           type: yup.array(
             yup
               .object({
