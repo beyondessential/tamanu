@@ -150,7 +150,7 @@
   .option.is-selected { padding-left: 4px; }
   .option.is-selected svg { margin-right: 3px; margin-top: 2px; flex-shrink: 0; }
 
-  /* PatientLabTestsTable */
+  /* PatientLabTestsTable, in the white-header style of LabRequestResultsTable */
   .content-pane { margin: 30px; }
   .table-wrap {
     border: 1px solid #dedede; /* outline */
@@ -159,22 +159,23 @@
     overflow-x: auto;
   }
   table { border-collapse: collapse; table-layout: fixed; width: 100%; }
-  th, td { text-align: left; border-bottom: 1px solid #dedede; }
+  th, td { text-align: left; border-bottom: 1px solid #dedede; /* outline */ }
   thead th {
-    background: #f3f5f7; /* background */
-    color: #666666; /* text.secondary */
-    font-weight: 500;
+    background: #ffffff;
+    color: #888888; /* midText */
+    font-weight: 400;
     font-size: 14px;
-    padding: 16px 15px;
+    line-height: 1.3;
+    padding: 15px;
     vertical-align: bottom;
     white-space: nowrap;
   }
-  thead th .time { display: block; color: #888888; /* midText */ font-weight: 400; }
-  th:nth-child(1), td:nth-child(1) { width: 150px; border-right: 1px solid #dedede; }
-  th:nth-child(2), td:nth-child(2) { width: 120px; border-right: 2px solid #dedede; }
+  thead th .time { display: block; }
+  th:nth-child(1), td:nth-child(1) { width: 220px; }
+  th:nth-child(2), td:nth-child(2) { width: 120px; }
   th:nth-child(n + 3), td:nth-child(n + 3) { width: 120px; }
   th:last-child, td:last-child { width: auto; }
-  thead th:first-child { padding-left: 17px; }
+  thead th:first-child { padding-left: 20px; }
 
   tbody td {
     padding: 7px 15px;
@@ -182,17 +183,16 @@
     line-height: 1.3;
     vertical-align: middle;
   }
-  tbody td:first-child { padding-left: 17px; }
+  tbody td:first-child { padding-left: 20px; }
 
-  /* New: group heading rows and indented tests */
+  /* Group heading rows (Table GroupHeaderCell) and indented tests */
   tr.group td {
     background: #f3f5f7; /* background */
-    padding: 12px 17px;
+    padding: 10px 20px;
     color: #444444; /* darkestText */
     font-weight: 400;
-    border-right: none;
   }
-  tr.is-grouped td:first-child { padding-left: 37px; }
+  tr.is-grouped td:first-child { padding-left: 40px; }
 
   .test-name { font-weight: 400; color: #444444; /* darkestText */ }
   .unit { display: block; font-weight: 400; color: #888888; /* midText */ }
@@ -206,26 +206,26 @@
   }
   .result.is-na { color: rgba(0, 0, 0, 0.26); }
 
-  /* Table footer with DownloadDataButton (GreyOutlinedButton) */
-  tfoot { background: #f3f5f7; /* background */ }
-  tfoot td { border-bottom: none; border-right: none; padding: 15px; }
-  .download-button {
+  /* Footer with a primary outlined Export button */
+  tfoot { background: #ffffff; }
+  tfoot td { border-bottom: none; padding: 15px 20px; }
+  .export-button {
     display: inline-flex;
     align-items: center;
     min-width: 100px;
     padding: 11px 18px 12px 18px;
-    border: 1px solid #dedede; /* outline */
+    border: 1px solid #326699; /* primary */
     border-radius: 3px;
     background: transparent;
-    color: #666666; /* text.secondary */
+    color: #326699; /* primary */
     font: inherit;
     font-size: 14px;
     font-weight: 500;
     line-height: 16px;
     cursor: pointer;
   }
-  .download-button:hover { background: rgba(0, 0, 0, 0.04); }
-  .download-button svg { margin: 0 8px 0 -4px; width: 20px; height: 20px; }
+  .export-button:hover { background: rgba(50, 102, 153, 0.04); }
+  .export-button svg { margin: 0 8px 0 -4px; width: 20px; height: 20px; }
 </style>
 </head>
 <body>
@@ -545,7 +545,7 @@
     results.innerHTML = `<div class="table-wrap"><table>
       <thead>${head}</thead>
       <tbody>${body}</tbody>
-      <tfoot><tr><td colspan="${columnCount}"><button class="download-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7zM5 18v2h14v-2z" fill="currentColor"/></svg>Download</button></td></tr></tfoot>
+      <tfoot><tr><td colspan="${columnCount}"><button class="export-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7zM5 18v2h14v-2z" fill="currentColor"/></svg>Export</button></td></tr></tfoot>
     </table></div>`;
   }
 
