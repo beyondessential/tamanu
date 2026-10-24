@@ -1,0 +1,344 @@
+<!-- spec: labs/results.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Patient lab results searched by test or panel</title>
+<style>
+  @font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 400; src: url("../../assets/3e253b66056519aa065b00a453bac37ac5ed8f3e6fe7b542e93a9dcdcc11d0bc.woff2") format("woff2"), url("../../assets/1570f866bf6eae82041e407280894a86ad2b8b275e01908ae156914dc693a4ed.woff") format("woff"); }
+  @font-face { font-family: Roboto; font-style: normal; font-display: swap; font-weight: 500; src: url("../../assets/5a8c1e7681318caa29e9f44e8a6e271f6a4067a2703e9916dfd4fe9099241db7.woff2") format("woff2"), url("../../assets/3bfe46bb1ca35b205306c5ec664e99e4a816f48a417b6b42e77a1f43f0bc4e7a.woff") format("woff"); }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #444444; /* darkestText */
+    background: #f3f5f7; /* background */
+  }
+
+  .frame { margin: 0 0 48px; }
+  .caption {
+    margin: 24px 30px 8px;
+    font-size: 12px;
+    color: #888888; /* midText */
+  }
+
+  /* ResultsSearchBar */
+  .search-bar {
+    padding: 24px 30px 30px;
+    border-radius: 3px 3px 0 0;
+    background: #ffffff;
+    border-bottom: 1px solid #dedede; /* outline */
+  }
+  .search-bar h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 24px;
+    color: #444444;
+  }
+  .fields { display: flex; align-items: flex-start; }
+  .fields > .field { margin-right: 20px; }
+  .field { position: relative; }
+  .field label {
+    display: inline-block;
+    margin-bottom: 4px;
+    color: #666666; /* darkText */
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+  }
+  .input {
+    display: flex;
+    align-items: center;
+    min-height: 39px;
+    padding: 0 8px 0 13px;
+    background: #ffffff;
+    border: 1px solid #dedede; /* outline */
+    border-radius: 3px;
+  }
+  .input .placeholder { flex: 1; color: #b8b8b8; /* softText */ font-size: 14px; }
+  .chevron {
+    width: 0; height: 0; margin-left: 8px; flex-shrink: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 5px solid #888888;
+  }
+  .category .input { width: 250px; }
+
+  /* Test or panel: MultiAutocompleteField with individual chips */
+  .test-or-panel .input {
+    width: 520px;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px 8px 6px 4px;
+  }
+  .test-or-panel.is-focused .input { border-color: #326699; /* primary */ }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border: 1px solid #326699; /* primary */
+    border-radius: 20px;
+    font-size: 11px;
+    line-height: 15px;
+    color: #444444;
+  }
+  .chip .remove { margin-left: 8px; color: #326699; font-size: 13px; line-height: 1; }
+  .typed { font-size: 14px; color: #444444; padding-left: 6px; }
+  .caret { display: inline-block; width: 1px; height: 16px; background: #444444; vertical-align: middle; margin-left: 1px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; align-items: center; }
+
+  .menu {
+    position: absolute;
+    left: 0; right: 0;
+    margin-top: 1px;
+    background: #ffffff;
+    border: 1px solid #326699; /* primary */
+    border-radius: 3px;
+    z-index: 2;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    padding: 13px 15px;
+    font-size: 13px;
+    line-height: 1;
+    color: #444444;
+  }
+  .option:hover { background: #f3f5f7; }
+  .check {
+    width: 14px; height: 14px; margin-right: 8px; flex-shrink: 0;
+    border: 1px solid #888888; border-radius: 2px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .check.is-checked { background: #326699; border-color: #326699; }
+  .check.is-checked::after {
+    content: ""; width: 4px; height: 8px; margin-top: -2px;
+    border: solid #ffffff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+
+  /* PatientLabTestsTable */
+  .content-pane { margin: 30px; }
+  .table-wrap {
+    border: 1px solid #dedede; /* outline */
+    border-radius: 5px;
+    background: #ffffff;
+    overflow: hidden;
+  }
+  table { border-collapse: collapse; table-layout: fixed; width: 100%; }
+  th, td { text-align: left; border-bottom: 1px solid #dedede; }
+  thead th {
+    background: #f3f5f7; /* background */
+    color: #666666; /* text.secondary */
+    font-weight: 500;
+    font-size: 14px;
+    padding: 16px 15px;
+    vertical-align: bottom;
+  }
+  thead th .time { display: block; color: #888888; /* midText */ font-weight: 400; }
+  th:nth-child(1), td:nth-child(1) { width: 150px; }
+  th:nth-child(2), td:nth-child(2) { width: 120px; border-right: 2px solid #dedede; }
+  th:nth-child(1), td:nth-child(1) { border-right: 1px solid #dedede; }
+  th:nth-child(n + 3), td:nth-child(n + 3) { width: 120px; }
+  th:last-child, td:last-child { width: auto; }
+  thead th:first-child { padding-left: 17px; }
+
+  tbody td {
+    padding: 7px 15px;
+    font-size: 14px;
+    line-height: 1.3;
+    vertical-align: middle;
+  }
+
+  /* New: group heading rows and indented tests */
+  tr.group td {
+    background: #f3f5f7; /* background */
+    padding: 12px 17px;
+    color: #444444; /* darkestText */
+    font-weight: 400;
+    border-right: none;
+  }
+  tbody tr:not(.group) td:first-child { padding-left: 37px; }
+
+  .test-name { font-weight: 500; color: #666666; /* darkText */ }
+  .unit { display: block; font-weight: 400; color: #888888; /* midText */ }
+  .range { font-weight: 500; color: #666666; }
+  .result { display: inline-block; padding: 8px 4px; color: #444444; }
+  .result.is-out-of-range {
+    padding: 6px 11px;
+    margin: 2px -7px;
+    border-radius: 10px;
+    background-color: rgba(247, 104, 83, 0.125); /* alert at 12.5% */
+  }
+  .result.is-na { color: rgba(0, 0, 0, 0.26); }
+
+  tfoot td { border-bottom: none; padding: 12px 16px; }
+  .export { color: #326699; /* primary */ font-size: 14px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <p class="caption">Picking tests and panels</p>
+  <div class="search-bar">
+    <h3>Lab results</h3>
+    <div class="fields">
+      <div class="field category">
+        <label>Test category</label>
+        <div class="input"><span class="placeholder">Search…</span><span class="chevron"></span></div>
+      </div>
+      <div class="field test-or-panel is-focused">
+        <label>Test or panel</label>
+        <div class="input">
+          <div class="chips">
+            <span class="chip">Full blood count<span class="remove">&times;</span></span>
+            <span class="chip">Lipid profile<span class="remove">&times;</span></span>
+            <span class="chip">C-reactive protein<span class="remove">&times;</span></span>
+            <span class="typed">blood<span class="caret"></span></span>
+          </div>
+          <span class="chevron"></span>
+        </div>
+        <div class="menu">
+          <div class="option"><span class="check"></span>Blood culture</div>
+          <div class="option"><span class="check"></span>Blood glucose</div>
+          <div class="option"><span class="check"></span>Blood group</div>
+          <div class="option"><span class="check is-checked"></span>Full blood count</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height: 200px;"></div>
+</div>
+
+<div class="frame">
+  <p class="caption">Results</p>
+  <div class="search-bar">
+    <h3>Lab results</h3>
+    <div class="fields">
+      <div class="field category">
+        <label>Test category</label>
+        <div class="input"><span class="placeholder">Search…</span><span class="chevron"></span></div>
+      </div>
+      <div class="field test-or-panel">
+        <label>Test or panel</label>
+        <div class="input">
+          <div class="chips">
+            <span class="chip">Full blood count<span class="remove">&times;</span></span>
+            <span class="chip">Lipid profile<span class="remove">&times;</span></span>
+            <span class="chip">C-reactive protein<span class="remove">&times;</span></span>
+            <span class="chip">HbA1c<span class="remove">&times;</span></span>
+            <span class="chip">Vitamin D<span class="remove">&times;</span></span>
+          </div>
+          <span class="chevron"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-pane">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Test type</th>
+            <th>Normal range</th>
+            <th>22/10/26<span class="time">9:42 am</span></th>
+            <th>08/09/26<span class="time">11:15 am</span></th>
+            <th>14/06/26<span class="time">8:05 am</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group"><td colspan="5">Full blood count</td></tr>
+          <tr>
+            <td><span class="test-name">Haemoglobin<span class="unit">(g/L)</span></span></td>
+            <td><span class="range">115–160</span></td>
+            <td><span class="result is-out-of-range">108</span></td>
+            <td><span class="result">121</span></td>
+            <td><span class="result">126</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">White cell count<span class="unit">(×10⁹/L)</span></span></td>
+            <td><span class="range">4.0–11.0</span></td>
+            <td><span class="result is-out-of-range">13.2</span></td>
+            <td><span class="result">8.4</span></td>
+            <td><span class="result">7.9</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">Platelets<span class="unit">(×10⁹/L)</span></span></td>
+            <td><span class="range">150–400</span></td>
+            <td><span class="result">245</span></td>
+            <td><span class="result">262</span></td>
+            <td><span class="result">238</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">Haematocrit<span class="unit">(L/L)</span></span></td>
+            <td><span class="range">0.35–0.47</span></td>
+            <td><span class="result is-out-of-range">0.33</span></td>
+            <td><span class="result">0.38</span></td>
+            <td><span class="result">0.39</span></td>
+          </tr>
+
+          <tr class="group"><td colspan="5">Lipid profile</td></tr>
+          <tr>
+            <td><span class="test-name">Total cholesterol<span class="unit">(mmol/L)</span></span></td>
+            <td><span class="range">0–5.5</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result is-out-of-range">6.1</span></td>
+            <td><span class="result">5.2</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">HDL cholesterol<span class="unit">(mmol/L)</span></span></td>
+            <td><span class="range">1.0–2.2</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result">1.3</span></td>
+            <td><span class="result">1.4</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">LDL cholesterol<span class="unit">(mmol/L)</span></span></td>
+            <td><span class="range">0–3.4</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result is-out-of-range">4.0</span></td>
+            <td><span class="result">3.2</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">Triglycerides<span class="unit">(mmol/L)</span></span></td>
+            <td><span class="range">0–2.0</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result">1.8</span></td>
+            <td><span class="result">1.6</span></td>
+          </tr>
+
+          <tr class="group"><td colspan="5">Individual tests</td></tr>
+          <tr>
+            <td><span class="test-name">C-reactive protein<span class="unit">(mg/L)</span></span></td>
+            <td><span class="range">0–5</span></td>
+            <td><span class="result is-out-of-range">24</span></td>
+            <td><span class="result">3</span></td>
+            <td><span class="result is-na">N/A</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">HbA1c<span class="unit">(%)</span></span></td>
+            <td><span class="range">4.0–6.0</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result is-out-of-range">6.4</span></td>
+            <td><span class="result">5.9</span></td>
+          </tr>
+          <tr>
+            <td><span class="test-name">Vitamin D<span class="unit">(nmol/L)</span></span></td>
+            <td><span class="range">50–150</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result is-na">N/A</span></td>
+            <td><span class="result is-out-of-range">38</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5"><span class="export">Export</span></td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
