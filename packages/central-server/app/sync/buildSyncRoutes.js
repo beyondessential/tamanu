@@ -185,8 +185,10 @@ export const buildSyncRoutes = ctx => {
     '/:sessionId/metadata',
     asyncHandler(async (req, res) => {
       const { params } = req;
-      const { startedAtTick } = await syncManager.fetchSyncMetadata(params.sessionId);
-      res.json({ startedAtTick });
+      const { startedAtTick, lastSuccessfulSyncPush } = await syncManager.fetchSyncMetadata(
+        params.sessionId,
+      );
+      res.json({ startedAtTick, lastSuccessfulSyncPush });
     }),
   );
 
@@ -210,8 +212,9 @@ export const buildSyncRoutes = ctx => {
         await sleepAsync(interval);
       }
 
-      const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
-      res.write(StreamMessage.end({ startedAtTick }));
+      const { startedAtTick, lastSuccessfulSyncPush } =
+        await syncManager.fetchSyncMetadata(sessionId);
+      res.write(StreamMessage.end({ startedAtTick, lastSuccessfulSyncPush }));
       res.end();
     }),
   );
@@ -360,8 +363,12 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { params, body, device } = req;
       const { sessionId } = params;
-      const { tablesToInclude } = body;
-      await syncManager.completePush(sessionId, device.id, tablesToInclude);
+      // lastSuccessfulSyncPush is the client-local tick the client has pushed up to; central
+      // records it against the device once the pushed changes are persisted. Validated in
+      // persistIncomingChanges, the single point every caller of completePush goes through
+      // (spec: PUSH).
+      const { tablesToInclude, lastSuccessfulSyncPush } = body;
+      await syncManager.completePush(sessionId, device.id, tablesToInclude, lastSuccessfulSyncPush);
       res.json({});
     }),
   );

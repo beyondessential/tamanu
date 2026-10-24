@@ -80,6 +80,8 @@ const makeCentral = () => ({
     status: 'running',
   }),
   initiatePull: jest.fn().mockResolvedValue({ totalToPull: 2, pullUntil: 999 }),
+  // these runs push nothing, but the client still reports its push cursor on an idle sync
+  completePush: jest.fn().mockResolvedValue(undefined),
   endSyncSession: jest.fn().mockResolvedValue(undefined),
 });
 

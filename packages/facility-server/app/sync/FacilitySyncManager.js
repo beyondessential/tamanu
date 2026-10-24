@@ -199,6 +199,7 @@ export class FacilitySyncManager {
       status,
       sessionId,
       startedAtTick: newSyncClockTime,
+      lastSuccessfulSyncPush: centralPushCursor,
     } = await this.centralServer.startSyncSession({
       urgent: this.reason?.urgent,
       lastSyncedTick: pullSince,
@@ -222,7 +223,7 @@ export class FacilitySyncManager {
     });
 
     try {
-      await this.pushChanges(sessionId, newSyncClockTime);
+      await this.pushChanges(sessionId, newSyncClockTime, centralPushCursor);
 
       await this.pullChanges(sessionId, syncRun);
       await this.centralServer.endSyncSession(sessionId);
@@ -282,7 +283,7 @@ export class FacilitySyncManager {
     }
   }
 
-  async pushChanges(sessionId, newSyncClockTime) {
+  async pushChanges(sessionId, newSyncClockTime, centralPushCursor) {
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncClockTime = await this.models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK);
 
@@ -298,8 +299,21 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the central server
-    const pushSince = (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
-    log.info('FacilitySyncManager.snapshottingOutgoingChanges', { pushSince });
+    // Central is the source of truth for how far we've pushed. Resume from the lower of its
+    // recorded cursor and our own, so a database restored from a snapshot that diverges from
+    // central re-pushes what central is missing rather than skipping it (spec: PUSH). Fall back to
+    // our own cursor when central holds none (new device, or first sync after upgrade).
+    const localPushCursor =
+      (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
+    const pushSince =
+      centralPushCursor == null
+        ? localPushCursor
+        : Math.min(Number(centralPushCursor), localPushCursor);
+    log.info('FacilitySyncManager.snapshottingOutgoingChanges', {
+      pushSince,
+      localPushCursor,
+      centralPushCursor,
+    });
     const modelsForPush = getModelsForPush(this.models);
     const outgoingChanges = await snapshotOutgoingChanges(this.sequelize, modelsForPush, pushSince);
     if (outgoingChanges.length > 0) {
@@ -319,8 +333,17 @@ export class FacilitySyncManager {
           minSourceTick: pushSince,
         },
       );
-      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangesWithChangelogs);
+      await pushOutgoingChanges(
+        this.centralServer,
+        sessionId,
+        outgoingChangesWithChangelogs,
+        currentSyncClockTime,
+      );
       await deleteRedundantLocalCopies(modelsForPush, outgoingChanges);
+    } else {
+      // Nothing to push, but still tell central how far we've pushed so its cursor tracks ours
+      // even on an idle sync (spec: PUSH).
+      await this.centralServer.completePush(sessionId, currentSyncClockTime);
     }
 
     await this.models.LocalSystemFact.set(FACT_LAST_SUCCESSFUL_SYNC_PUSH, currentSyncClockTime);
