@@ -1,0 +1,367 @@
+<!-- source: packages/shared/src/utils/patientCertificates/LabResultsPrintout.jsx -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Encounter lab results PDF, three requests</title>
+<style>
+  /* Viewer chrome only. Everything inside .page mirrors the react-pdf layout in pt. */
+  body {
+    margin: 0;
+    padding: 24px 0;
+    background: #d6d3d1;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  .page {
+    position: relative;
+    box-sizing: border-box;
+    width: 595pt;
+    height: 842pt;
+    margin: 0 auto 24px;
+    padding: 30pt 30pt 50pt;
+    background: #ffffff;
+    color: #222222;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    line-height: 1.2;
+    overflow: hidden;
+  }
+  .bold { font-weight: 700; }
+
+  /* LetterheadSection */
+  .letterhead { position: relative; }
+  .logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120pt;
+    height: 60pt;
+    background: #eeeeee;
+  }
+  .certificate-address {
+    text-align: right;
+    font-size: 14pt;
+    font-weight: 700;
+    margin-bottom: 13pt;
+    white-space: pre-line;
+  }
+  .certificate-title {
+    text-align: right;
+    font-size: 18pt;
+    font-weight: 700;
+    margin-bottom: 14pt;
+  }
+
+  /* InterimBanner */
+  .interim-banner {
+    border: 1pt solid #000000;
+    text-align: center;
+    padding: 8pt;
+    margin: 0 18pt;
+    font-size: 14pt;
+    font-weight: 700;
+  }
+
+  .section-container { margin: 6pt 0; }
+
+  /* DataSection / P bold 11 */
+  .section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    margin-bottom: 3pt;
+  }
+  .hr { border-bottom: 0.5pt solid #000000; margin: 3pt 0; }
+  .hr-thick { border-bottom: 2pt solid #000000; margin: 3pt 0; }
+  .hr-double-top { border-bottom: 1pt solid #000000; margin: 3pt 0 0.5pt; }
+  .hr-double-bottom { border-bottom: 1pt solid #000000; margin: 0 0 3pt; }
+
+  .row { display: flex; flex-wrap: wrap; }
+  .col { width: 50%; }
+
+  /* DataItem */
+  .data-item { display: flex; flex-wrap: wrap; font-size: 9pt; }
+  .data-item span { margin: 3pt 0; }
+  .data-item .label { font-weight: 700; white-space: pre; }
+
+  .details-container { margin-bottom: 5pt; }
+
+  /* Divider between requests, as in MultipleLabRequestsPrintout */
+  .request-divider { border-bottom: 2pt solid #000000; margin: 10pt 0; }
+
+  /* Table with hideRowDividers and section rows */
+  .table-container { margin-top: 8pt; }
+  .tr {
+    display: flex;
+    border-top: 1pt solid #000000;
+    border-bottom: 1pt solid #000000;
+    margin-bottom: -1pt;
+  }
+  .tr.body { border-top-width: 0; border-bottom-width: 0; }
+  .tr.body.last { border-bottom-width: 1pt; }
+  .tr.section { border-top-width: 0; }
+  .th, .td {
+    flex: 1;
+    font-size: 9pt;
+    border-right: 1pt solid #000000;
+    padding-left: 6pt;
+    padding-right: 3pt;
+  }
+  .th { font-weight: 700; padding-top: 8pt; padding-bottom: 8pt; }
+  .td { padding-top: 4pt; padding-bottom: 4pt; }
+  .tr > :first-child { border-left: 1pt solid #000000; }
+  .td.indent { text-indent: 6pt; }
+  .td.section-label { font-weight: 700; }
+
+  /* Results interpretation */
+  .results-interpretation {
+    border: 1pt solid #000000;
+    padding: 10pt;
+    margin-bottom: 10pt;
+    font-size: 11pt;
+  }
+
+  /* MultiPageHeader */
+  .multi-page-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20pt;
+    font-size: 8pt;
+    color: #888888;
+    white-space: pre;
+  }
+
+  /* Footer */
+  .footer {
+    position: absolute;
+    left: 50pt;
+    right: 50pt;
+    bottom: 25pt;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1pt solid #888888;
+    padding-top: 2pt;
+    font-size: 8pt;
+    color: #888888;
+    white-space: pre;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page 1 -->
+<div class="page">
+  <div class="letterhead">
+    <div class="logo"></div>
+    <div class="certificate-address">Ministry of Health and Medical Services
+Etta Clinic</div>
+    <div class="certificate-title">Lab results</div>
+
+    <div class="interim-banner">This report contains interim results that have not yet been published</div>
+
+    <div class="section-container">
+      <div class="section-title">Patient details</div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">First name: </span><span>Ana</span></div>
+          <div class="data-item"><span class="label">Last name: </span><span>Tuilagi</span></div>
+          <div class="data-item"><span class="label">DOB: </span><span>14/03/1981 (45 years)</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Patient ID: </span><span>TGHB742123</span></div>
+          <div class="data-item"><span class="label">Sex: </span><span>Female</span></div>
+          <div class="data-item"><span class="label">Village: </span><span>Vaimoso</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+    </div>
+
+    <div class="section-container">
+      <div class="section-title">Encounter details</div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Facility: </span><span>Etta Clinic</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Department: </span><span>Emergency</span></div>
+        </div>
+      </div>
+      <div class="hr-thick"></div>
+    </div>
+  </div>
+
+  <!-- Request 1 -->
+  <div class="section-container">
+    <div class="details-container">
+      <div class="section-title">Lab request details</div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Request ID: </span><span>TGHZ3JK</span></div>
+          <div class="data-item"><span class="label">Requested by: </span><span>Dr Sione Fifita</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Requested date &amp; time: </span><span>22/10/2026 9:14 am</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Sample date &amp; time: </span><span>22/10/2026 9:40 am</span></div>
+          <div class="data-item"><span class="label">Collected by: </span><span>Mele Taufa</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Site: </span><span>Left arm</span></div>
+          <div class="data-item"><span class="label">Specimen type: </span><span>Whole blood</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Published date &amp; time: </span><span>22/10/2026 2:05 pm</span></div>
+          <div class="data-item"><span class="label">Published by: </span><span>Dr Lisiate Vea</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Status: </span><span>Published</span></div>
+        </div>
+      </div>
+      <div class="hr-double-top"></div>
+      <div class="hr-double-bottom"></div>
+    </div>
+  </div>
+  <div class="section-container">
+    <div class="section-title">Test results</div>
+    <div class="table-container">
+      <div class="tr"><div class="th">Test</div><div class="th">Result</div><div class="th">Reference</div></div>
+      <div class="tr section"><div class="td section-label">Full blood count</div></div>
+      <div class="tr body"><div class="td indent">Haemoglobin</div><div class="td">118 g/L</div><div class="td">115–165 g/L</div></div>
+      <div class="tr body"><div class="td indent">White cell count</div><div class="td">13.2 ×10⁹/L</div><div class="td">4–11 ×10⁹/L</div></div>
+      <div class="tr body"><div class="td indent">Neutrophils</div><div class="td">9.8 ×10⁹/L</div><div class="td">2–7.5 ×10⁹/L</div></div>
+      <div class="tr body"><div class="td indent">Lymphocytes</div><div class="td">2.1 ×10⁹/L</div><div class="td">1–4 ×10⁹/L</div></div>
+      <div class="tr body"><div class="td indent">Platelets</div><div class="td">312 ×10⁹/L</div><div class="td">150–400 ×10⁹/L</div></div>
+      <div class="tr section"><div class="td section-label">Individual tests</div></div>
+      <div class="tr body last"><div class="td indent">C-reactive protein</div><div class="td">46 mg/L</div><div class="td">&lt;5 mg/L</div></div>
+    </div>
+  </div>
+  <div class="section-container">
+    <div class="section-title">Results interpretation</div>
+    <div class="results-interpretation">Raised white cell count and CRP consistent with acute bacterial infection. Repeat FBC in 48 hours.</div>
+  </div>
+
+  <div class="footer"><div><span class="bold">Print date &amp; time: </span><span>24/10/2026 10:42 am</span></div><div>1 of 2</div></div>
+</div>
+
+<!-- Page 2 -->
+<div class="page">
+  <div class="multi-page-header"><span>Lab results </span><span class="bold">|</span><span> Patient name</span><span class="bold">: Ana Tuilagi </span><span class="bold">|</span><span> Patient ID</span><span class="bold">: TGHB742123</span></div>
+
+  <!-- Request 2 -->
+  <div class="section-container">
+    <div class="details-container">
+      <div class="section-title">Lab request details</div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Request ID: </span><span>TGHZ3KP</span></div>
+          <div class="data-item"><span class="label">Requested by: </span><span>Dr Sione Fifita</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Requested date &amp; time: </span><span>22/10/2026 9:16 am</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Sample date &amp; time: </span><span>22/10/2026 9:40 am</span></div>
+          <div class="data-item"><span class="label">Collected by: </span><span>Mele Taufa</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Site: </span><span>Left arm</span></div>
+          <div class="data-item"><span class="label">Specimen type: </span><span>Serum</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Published date &amp; time: </span><span>22/10/2026 3:30 pm</span></div>
+          <div class="data-item"><span class="label">Published by: </span><span>Dr Lisiate Vea</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Status: </span><span>Published</span></div>
+        </div>
+      </div>
+      <div class="hr-double-top"></div>
+      <div class="hr-double-bottom"></div>
+    </div>
+  </div>
+  <div class="section-container">
+    <div class="section-title">Test results</div>
+    <div class="table-container">
+      <div class="tr"><div class="th">Test</div><div class="th">Result</div><div class="th">Reference</div></div>
+      <div class="tr section"><div class="td section-label">Individual tests</div></div>
+      <div class="tr body"><div class="td indent">Sodium</div><div class="td">138 mmol/L</div><div class="td">135–145 mmol/L</div></div>
+      <div class="tr body"><div class="td indent">Potassium</div><div class="td">4.1 mmol/L</div><div class="td">3.5–5.2 mmol/L</div></div>
+      <div class="tr body"><div class="td indent">Creatinine</div><div class="td">96 µmol/L</div><div class="td">45–90 µmol/L</div></div>
+      <div class="tr body last"><div class="td indent">Glucose (random)</div><div class="td">7.8 mmol/L</div><div class="td">3.9–7.8 mmol/L</div></div>
+    </div>
+  </div>
+
+  <div class="request-divider"></div>
+
+  <!-- Request 3 -->
+  <div class="section-container">
+    <div class="details-container">
+      <div class="section-title">Lab request details</div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Request ID: </span><span>TGHZ4AB</span></div>
+          <div class="data-item"><span class="label">Requested by: </span><span>Dr Sione Fifita</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Requested date &amp; time: </span><span>23/10/2026 8:02 am</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Sample date &amp; time: </span><span>23/10/2026 8:30 am</span></div>
+          <div class="data-item"><span class="label">Collected by: </span><span>Mele Taufa</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Site: </span><span>Mid-stream</span></div>
+          <div class="data-item"><span class="label">Specimen type: </span><span>Urine</span></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="row">
+        <div class="col">
+          <div class="data-item"><span class="label">Published date &amp; time: </span><span>n/a</span></div>
+          <div class="data-item"><span class="label">Published by: </span><span>n/a</span></div>
+        </div>
+        <div class="col">
+          <div class="data-item"><span class="label">Status: </span><span>Interim results</span></div>
+        </div>
+      </div>
+      <div class="hr-double-top"></div>
+      <div class="hr-double-bottom"></div>
+    </div>
+  </div>
+  <div class="section-container">
+    <div class="section-title">Test results</div>
+    <div class="table-container">
+      <div class="tr"><div class="th">Test</div><div class="th">Result</div><div class="th">Reference</div></div>
+      <div class="tr section"><div class="td section-label">Urinalysis</div></div>
+      <div class="tr body"><div class="td indent">pH</div><div class="td">6.0</div><div class="td">4.5–8</div></div>
+      <div class="tr body"><div class="td indent">Protein</div><div class="td">Negative</div><div class="td">n/a</div></div>
+      <div class="tr body"><div class="td indent">Leucocytes</div><div class="td">2+</div><div class="td">n/a</div></div>
+      <div class="tr body"><div class="td indent">Nitrites</div><div class="td">Positive</div><div class="td">n/a</div></div>
+      <div class="tr body last"><div class="td indent">Culture</div><div class="td">&nbsp;</div><div class="td">n/a</div></div>
+    </div>
+  </div>
+
+  <div class="footer"><div><span class="bold">Print date &amp; time: </span><span>24/10/2026 10:42 am</span></div><div>2 of 2</div></div>
+</div>
+
+</body>
+</html>
