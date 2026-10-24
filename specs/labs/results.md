@@ -33,7 +33,8 @@ reference range is flagged for clinicians.
 - [ ] Test category is single-select and offers only categories the patient has published results in.
 - [ ] Test or panel is a multi-select that suggests individual tests and panels together by name, listed the same way whichever kind they are.
 - [ ] Test or panel suggests only tests the patient has published results for, and panels containing at least one such test.
-- [ ] Each picked test or panel shows as a chip in the field and can be removed on its own.
+- [ ] With one test or panel picked, the field shows its name. With more than one, it shows how many are picked, such as "5 selected".
+- [ ] Picked items are ticked in the suggestions list, and picking a ticked item again removes it. Clearing the field removes every pick at once.
 - [ ] The two fields are mutually exclusive: picking a test category clears any picked tests and panels, and picking a test or panel clears the test category.
 - [ ] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
 - [ ] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.

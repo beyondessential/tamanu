@@ -17,13 +17,6 @@
     background: #f3f5f7; /* background */
   }
 
-  .frame { margin: 0 0 48px; }
-  .caption {
-    margin: 24px 30px 8px;
-    font-size: 12px;
-    color: #888888; /* midText */
-  }
-
   /* ResultsSearchBar */
   .search-bar {
     padding: 24px 30px 30px;
@@ -41,7 +34,7 @@
   .fields { display: flex; align-items: flex-start; }
   .fields > .field { margin-right: 20px; }
   .field { position: relative; }
-  .field label {
+  .field > label {
     display: inline-block;
     margin-bottom: 4px;
     color: #666666; /* darkText */
@@ -49,55 +42,101 @@
     font-size: 14px;
     line-height: 16px;
   }
-  .input {
+  .field input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: #444444;
+    min-width: 2px;
+    padding: 0;
+  }
+  .field input::placeholder { color: #b8b8b8; /* softText */ opacity: 1; }
+  .icon-button {
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; background: transparent; cursor: pointer; padding: 5px; color: #666666;
+  }
+  .icon-button[hidden] { display: none; }
+
+  /* Test category: AutocompleteInput */
+  .category { width: 250px; }
+  .category .control {
     display: flex;
     align-items: center;
-    min-height: 39px;
-    padding: 0 8px 0 13px;
+    background: #ffffff;
+    border: 1px solid #dedede; /* outline */
+    border-radius: 3px;
+    padding-inline: 15px 6px;
+    font-size: 15px;
+    cursor: text;
+  }
+  .category .control:hover { border-color: #444444; }
+  .category.is-open .control { border-color: #326699; /* primary */ }
+  .category input { flex: 1; padding-block: 13px; line-height: 18px; }
+  .category .suggestions {
+    position: absolute; left: 0; right: 0; z-index: 3;
+    margin-top: 2px;
+    max-height: 210px; overflow-y: auto;
     background: #ffffff;
     border: 1px solid #dedede; /* outline */
     border-radius: 3px;
   }
-  .input .placeholder { flex: 1; color: #b8b8b8; /* softText */ font-size: 14px; }
-  .chevron {
-    width: 0; height: 0; margin-left: 8px; flex-shrink: 0;
-    border-left: 5px solid transparent; border-right: 5px solid transparent;
-    border-top: 5px solid #888888;
+  .category .suggestion {
+    padding: 12px 12px 12px 20px;
+    font-size: 14px;
+    line-height: 1.3em;
+    cursor: pointer;
   }
-  .category .input { width: 250px; }
+  .category .suggestion:hover { background: #f3f5f7; /* hoverGrey */ }
 
-  /* Test or panel: MultiAutocompleteField with individual chips */
-  .test-or-panel .input {
-    width: 520px;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 6px 8px 6px 4px;
+  /* Test or panel: MultiAutocompleteField */
+  .test-or-panel { width: 300px; }
+  .test-or-panel .control {
+    display: flex;
+    align-items: center;
+    min-height: 39px;
+    padding-right: 8px;
+    background: #ffffff;
+    border: 1px solid #dedede; /* outline */
+    border-radius: 3px;
+    cursor: default;
   }
-  .test-or-panel.is-focused .input { border-color: #326699; /* primary */ }
-  .chip {
+  .test-or-panel.is-open .control { border-color: #326699; /* primary */ }
+  .value-container {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 0 6px 13px;
+    min-height: 37px;
+  }
+  .value-container.has-value { padding-left: 4px; }
+  .test-or-panel input { flex: 1; font-size: 14px; }
+  .multi-value {
     display: inline-flex;
     align-items: center;
+    max-width: 80%;
+    margin-right: 4px;
     padding: 6px 11px;
     border: 1px solid #326699; /* primary */
     border-radius: 20px;
-    font-size: 11px;
-    line-height: 15px;
-    color: #444444;
+    background: transparent;
   }
-  .chip .remove { margin-left: 8px; color: #326699; font-size: 13px; line-height: 1; }
-  .typed { font-size: 14px; color: #444444; padding-left: 6px; }
-  .caret { display: inline-block; width: 1px; height: 16px; background: #444444; vertical-align: middle; margin-left: 1px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; align-items: center; }
+  .multi-value .label { font-size: 11px; line-height: 15px; white-space: pre-line; }
+  .multi-value .remove { padding: 0 0 0 10px; display: inline-flex; cursor: pointer; border: none; background: transparent; }
+  .indicator { display: inline-flex; padding: 8px; }
+  .indicator svg { transform: rotate(180deg); }
+  .is-open .indicator svg { transform: none; }
 
-  .menu {
-    position: absolute;
-    left: 0; right: 0;
-    margin-top: 1px;
+  .test-or-panel .menu {
+    position: absolute; left: 0; right: 0; z-index: 3;
+    margin: 1px 0;
     background: #ffffff;
     border: 1px solid #326699; /* primary */
     border-radius: 3px;
-    z-index: 2;
   }
+  .menu-list { max-height: 190px; overflow-y: auto; padding: 0; }
   .option {
     display: flex;
     align-items: center;
@@ -105,18 +144,13 @@
     font-size: 13px;
     line-height: 1;
     color: #444444;
+    cursor: pointer;
   }
-  .option:hover { background: #f3f5f7; }
-  .check {
-    width: 14px; height: 14px; margin-right: 8px; flex-shrink: 0;
-    border: 1px solid #888888; border-radius: 2px;
-    display: inline-flex; align-items: center; justify-content: center;
-  }
-  .check.is-checked { background: #326699; border-color: #326699; }
-  .check.is-checked::after {
-    content: ""; width: 4px; height: 8px; margin-top: -2px;
-    border: solid #ffffff; border-width: 0 2px 2px 0; transform: rotate(45deg);
-  }
+  .option:hover { background: #f3f5f7; /* background */ }
+  .option.is-selected { padding-left: 4px; }
+  .option.is-selected svg { margin-right: 3px; margin-top: 2px; flex-shrink: 0; }
+  .option.is-disabled { color: #cccccc; cursor: default; }
+  .option.is-disabled:hover { background: transparent; }
 
   /* PatientLabTestsTable */
   .content-pane { margin: 30px; }
@@ -124,7 +158,7 @@
     border: 1px solid #dedede; /* outline */
     border-radius: 5px;
     background: #ffffff;
-    overflow: hidden;
+    overflow-x: auto;
   }
   table { border-collapse: collapse; table-layout: fixed; width: 100%; }
   th, td { text-align: left; border-bottom: 1px solid #dedede; }
@@ -135,11 +169,11 @@
     font-size: 14px;
     padding: 16px 15px;
     vertical-align: bottom;
+    white-space: nowrap;
   }
   thead th .time { display: block; color: #888888; /* midText */ font-weight: 400; }
-  th:nth-child(1), td:nth-child(1) { width: 150px; }
+  th:nth-child(1), td:nth-child(1) { width: 150px; border-right: 1px solid #dedede; }
   th:nth-child(2), td:nth-child(2) { width: 120px; border-right: 2px solid #dedede; }
-  th:nth-child(1), td:nth-child(1) { border-right: 1px solid #dedede; }
   th:nth-child(n + 3), td:nth-child(n + 3) { width: 120px; }
   th:last-child, td:last-child { width: auto; }
   thead th:first-child { padding-left: 17px; }
@@ -150,6 +184,7 @@
     line-height: 1.3;
     vertical-align: middle;
   }
+  tbody td:first-child { padding-left: 17px; }
 
   /* New: group heading rows and indented tests */
   tr.group td {
@@ -159,7 +194,7 @@
     font-weight: 400;
     border-right: none;
   }
-  tbody tr:not(.group) td:first-child { padding-left: 37px; }
+  tr.is-grouped td:first-child { padding-left: 37px; }
 
   .test-name { font-weight: 500; color: #666666; /* darkText */ }
   .unit { display: block; font-weight: 400; color: #888888; /* midText */ }
@@ -173,172 +208,339 @@
   }
   .result.is-na { color: rgba(0, 0, 0, 0.26); }
 
-  tfoot td { border-bottom: none; padding: 12px 16px; }
+  tfoot td { border-bottom: none; border-right: none; padding: 12px 16px; }
   .export { color: #326699; /* primary */ font-size: 14px; font-weight: 500; }
 </style>
 </head>
 <body>
 
-<div class="frame">
-  <p class="caption">Picking tests and panels</p>
-  <div class="search-bar">
-    <h3>Lab results</h3>
-    <div class="fields">
-      <div class="field category">
-        <label>Test category</label>
-        <div class="input"><span class="placeholder">Search…</span><span class="chevron"></span></div>
+<div class="search-bar">
+  <h3>Lab results</h3>
+  <div class="fields">
+    <div class="field category" id="category">
+      <label for="category-input">Test category</label>
+      <div class="control">
+        <input id="category-input" placeholder="Search…" autocomplete="off">
+        <button class="icon-button" id="category-clear" type="button" aria-label="Clear" hidden>
+          <svg width="10" height="10" viewBox="0 0 8 8"><path d="M7.85 0.15C7.65 -0.05 7.35 -0.05 7.15 0.15L4 3.3L0.85 0.15C0.65 -0.05 0.35 -0.05 0.15 0.15C-0.05 0.35 -0.05 0.65 0.15 0.85L3.3 4L0.15 7.15C-0.05 7.35 -0.05 7.65 0.15 7.85C0.25 7.95 0.35 8 0.5 8C0.65 8 0.75 7.95 0.85 7.85L4 4.7L7.15 7.85C7.25 7.95 7.4 8 7.5 8C7.6 8 7.75 7.95 7.85 7.85C8.05 7.65 8.05 7.35 7.85 7.15L4.7 4L7.85 0.85C8.05 0.65 8.05 0.35 7.85 0.15Z" fill="#666666"/></svg>
+        </button>
+        <span class="indicator" aria-hidden="true">
+          <svg width="10" height="6" viewBox="0 0 10 6"><path d="M5.00008 0.144765C5.15633 0.144765 5.30602 0.207578 5.41633 0.320077L9.8282 4.79445C10.0573 5.02758 10.0573 5.40477 9.8282 5.63758C9.59852 5.87039 9.22477 5.87039 8.99633 5.63758L5.00008 1.58445L1.00477 5.63789C0.774766 5.8707 0.401641 5.8707 0.172266 5.63789C-0.0571088 5.40539 -0.0571088 5.02758 0.172266 4.79445L4.58383 0.319452C4.69477 0.207577 4.84445 0.144765 5.00008 0.144765Z" fill="#666666"/></svg>
+        </span>
       </div>
-      <div class="field test-or-panel is-focused">
-        <label>Test or panel</label>
-        <div class="input">
-          <div class="chips">
-            <span class="chip">Full blood count<span class="remove">&times;</span></span>
-            <span class="chip">Lipid profile<span class="remove">&times;</span></span>
-            <span class="chip">C-reactive protein<span class="remove">&times;</span></span>
-            <span class="typed">blood<span class="caret"></span></span>
-          </div>
-          <span class="chevron"></span>
-        </div>
-        <div class="menu">
-          <div class="option"><span class="check"></span>Blood culture</div>
-          <div class="option"><span class="check"></span>Blood glucose</div>
-          <div class="option"><span class="check"></span>Blood group</div>
-          <div class="option"><span class="check is-checked"></span>Full blood count</div>
-        </div>
-      </div>
+      <div class="suggestions" id="category-suggestions" hidden></div>
     </div>
-  </div>
-  <div style="height: 200px;"></div>
-</div>
 
-<div class="frame">
-  <p class="caption">Results</p>
-  <div class="search-bar">
-    <h3>Lab results</h3>
-    <div class="fields">
-      <div class="field category">
-        <label>Test category</label>
-        <div class="input"><span class="placeholder">Search…</span><span class="chevron"></span></div>
-      </div>
-      <div class="field test-or-panel">
-        <label>Test or panel</label>
-        <div class="input">
-          <div class="chips">
-            <span class="chip">Full blood count<span class="remove">&times;</span></span>
-            <span class="chip">Lipid profile<span class="remove">&times;</span></span>
-            <span class="chip">C-reactive protein<span class="remove">&times;</span></span>
-            <span class="chip">HbA1c<span class="remove">&times;</span></span>
-            <span class="chip">Vitamin D<span class="remove">&times;</span></span>
-          </div>
-          <span class="chevron"></span>
+    <div class="field test-or-panel" id="test-or-panel">
+      <label for="test-or-panel-input">Test or panel</label>
+      <div class="control">
+        <div class="value-container" id="value-container">
+          <input id="test-or-panel-input" placeholder="Search…" autocomplete="off">
         </div>
+        <span class="indicator" aria-hidden="true">
+          <svg width="10" height="6" viewBox="0 0 10 6"><path d="M5.00008 0.144765C5.15633 0.144765 5.30602 0.207578 5.41633 0.320077L9.8282 4.79445C10.0573 5.02758 10.0573 5.40477 9.8282 5.63758C9.59852 5.87039 9.22477 5.87039 8.99633 5.63758L5.00008 1.58445L1.00477 5.63789C0.774766 5.8707 0.401641 5.8707 0.172266 5.63789C-0.0571088 5.40539 -0.0571088 5.02758 0.172266 4.79445L4.58383 0.319452C4.69477 0.207577 4.84445 0.144765 5.00008 0.144765Z" fill="#666666"/></svg>
+        </span>
       </div>
-    </div>
-  </div>
-
-  <div class="content-pane">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Test type</th>
-            <th>Normal range</th>
-            <th>22/10/26<span class="time">9:42 am</span></th>
-            <th>08/09/26<span class="time">11:15 am</span></th>
-            <th>14/06/26<span class="time">8:05 am</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="group"><td colspan="5">Full blood count</td></tr>
-          <tr>
-            <td><span class="test-name">Haemoglobin<span class="unit">(g/L)</span></span></td>
-            <td><span class="range">115–160</span></td>
-            <td><span class="result is-out-of-range">108</span></td>
-            <td><span class="result">121</span></td>
-            <td><span class="result">126</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">White cell count<span class="unit">(×10⁹/L)</span></span></td>
-            <td><span class="range">4.0–11.0</span></td>
-            <td><span class="result is-out-of-range">13.2</span></td>
-            <td><span class="result">8.4</span></td>
-            <td><span class="result">7.9</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">Platelets<span class="unit">(×10⁹/L)</span></span></td>
-            <td><span class="range">150–400</span></td>
-            <td><span class="result">245</span></td>
-            <td><span class="result">262</span></td>
-            <td><span class="result">238</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">Haematocrit<span class="unit">(L/L)</span></span></td>
-            <td><span class="range">0.35–0.47</span></td>
-            <td><span class="result is-out-of-range">0.33</span></td>
-            <td><span class="result">0.38</span></td>
-            <td><span class="result">0.39</span></td>
-          </tr>
-
-          <tr class="group"><td colspan="5">Lipid profile</td></tr>
-          <tr>
-            <td><span class="test-name">Total cholesterol<span class="unit">(mmol/L)</span></span></td>
-            <td><span class="range">0–5.5</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result is-out-of-range">6.1</span></td>
-            <td><span class="result">5.2</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">HDL cholesterol<span class="unit">(mmol/L)</span></span></td>
-            <td><span class="range">1.0–2.2</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result">1.3</span></td>
-            <td><span class="result">1.4</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">LDL cholesterol<span class="unit">(mmol/L)</span></span></td>
-            <td><span class="range">0–3.4</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result is-out-of-range">4.0</span></td>
-            <td><span class="result">3.2</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">Triglycerides<span class="unit">(mmol/L)</span></span></td>
-            <td><span class="range">0–2.0</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result">1.8</span></td>
-            <td><span class="result">1.6</span></td>
-          </tr>
-
-          <tr class="group"><td colspan="5">Individual tests</td></tr>
-          <tr>
-            <td><span class="test-name">C-reactive protein<span class="unit">(mg/L)</span></span></td>
-            <td><span class="range">0–5</span></td>
-            <td><span class="result is-out-of-range">24</span></td>
-            <td><span class="result">3</span></td>
-            <td><span class="result is-na">N/A</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">HbA1c<span class="unit">(%)</span></span></td>
-            <td><span class="range">4.0–6.0</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result is-out-of-range">6.4</span></td>
-            <td><span class="result">5.9</span></td>
-          </tr>
-          <tr>
-            <td><span class="test-name">Vitamin D<span class="unit">(nmol/L)</span></span></td>
-            <td><span class="range">50–150</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result is-na">N/A</span></td>
-            <td><span class="result is-out-of-range">38</span></td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr><td colspan="5"><span class="export">Export</span></td></tr>
-        </tfoot>
-      </table>
+      <div class="menu" id="test-or-panel-menu" hidden>
+        <div class="menu-list" id="test-or-panel-options"></div>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="content-pane" id="results"></div>
+
+<script>
+  const MAX_SELECTED = 10;
+
+  const DATES = [
+    { date: '22/10/26', time: '9:42 am' },
+    { date: '08/09/26', time: '11:15 am' },
+    { date: '14/06/26', time: '8:05 am' },
+    { date: '02/03/26', time: '10:30 am' },
+  ];
+
+  const CATEGORIES = {
+    biochemistry: 'Biochemistry',
+    endocrinology: 'Endocrinology',
+    haematology: 'Haematology',
+    microbiology: 'Microbiology',
+  };
+
+  // Results line up with DATES; null shows as N/A
+  const TESTS = {
+    hb: { name: 'Haemoglobin', unit: 'g/L', category: 'haematology', min: 115, max: 160, results: [108, 121, 126, 124] },
+    wcc: { name: 'White cell count', unit: '×10⁹/L', category: 'haematology', min: 4.0, max: 11.0, results: [13.2, 8.4, 7.9, 6.8] },
+    plt: { name: 'Platelets', unit: '×10⁹/L', category: 'haematology', min: 150, max: 400, results: [245, 262, 238, 251] },
+    hct: { name: 'Haematocrit', unit: 'L/L', category: 'haematology', min: 0.35, max: 0.47, results: [0.33, 0.38, 0.39, 0.37] },
+    bloodGroup: { name: 'Blood group', category: 'haematology', options: true, results: [null, null, null, 'O+'] },
+    chol: { name: 'Total cholesterol', unit: 'mmol/L', category: 'biochemistry', min: 0, max: 5.5, results: [null, 6.1, 5.2, null] },
+    hdl: { name: 'HDL cholesterol', unit: 'mmol/L', category: 'biochemistry', min: 1.0, max: 2.2, results: [null, 1.3, 1.4, null] },
+    ldl: { name: 'LDL cholesterol', unit: 'mmol/L', category: 'biochemistry', min: 0, max: 3.4, results: [null, 4.0, 3.2, null] },
+    trig: { name: 'Triglycerides', unit: 'mmol/L', category: 'biochemistry', min: 0, max: 2.0, results: [null, 1.8, 1.6, null] },
+    na: { name: 'Sodium', unit: 'mmol/L', category: 'biochemistry', min: 135, max: 145, results: [139, null, 141, 133] },
+    k: { name: 'Potassium', unit: 'mmol/L', category: 'biochemistry', min: 3.5, max: 5.2, results: [4.1, null, 5.6, 4.4] },
+    urea: { name: 'Urea', unit: 'mmol/L', category: 'biochemistry', min: 2.5, max: 7.8, results: [5.2, null, 6.0, 5.5] },
+    creat: { name: 'Creatinine', unit: 'µmol/L', category: 'biochemistry', min: 45, max: 90, results: [72, null, 98, 76] },
+    alt: { name: 'ALT', unit: 'U/L', category: 'biochemistry', min: 0, max: 35, results: [null, 28, null, 41] },
+    ast: { name: 'AST', unit: 'U/L', category: 'biochemistry', min: 0, max: 35, results: [null, 24, null, 30] },
+    bili: { name: 'Bilirubin', unit: 'µmol/L', category: 'biochemistry', min: 0, max: 20, results: [null, 12, null, 14] },
+    alb: { name: 'Albumin', unit: 'g/L', category: 'biochemistry', min: 35, max: 50, results: [null, 38, null, 33] },
+    crp: { name: 'C-reactive protein', unit: 'mg/L', category: 'biochemistry', min: 0, max: 5, results: [24, 3, null, null] },
+    hba1c: { name: 'HbA1c', unit: '%', category: 'biochemistry', min: 4.0, max: 6.0, results: [null, 6.4, 5.9, null] },
+    glucose: { name: 'Blood glucose', unit: 'mmol/L', category: 'biochemistry', min: 3.9, max: 7.8, results: [6.2, 8.1, null, 5.4] },
+    vitd: { name: 'Vitamin D', unit: 'nmol/L', category: 'biochemistry', min: 50, max: 150, results: [null, null, 38, null] },
+    tsh: { name: 'Thyroid stimulating hormone', unit: 'mIU/L', category: 'endocrinology', min: 0.4, max: 4.0, results: [2.1, null, null, 1.8] },
+    culture: { name: 'Blood culture', category: 'microbiology', rangeText: 'No growth', results: ['No growth', null, null, 'Staphylococcus aureus'] },
+  };
+
+  // Tests listed in each panel's configured order
+  const PANELS = {
+    fbc: { name: 'Full blood count', tests: ['hb', 'wcc', 'plt', 'hct'] },
+    lipids: { name: 'Lipid profile', tests: ['chol', 'hdl', 'ldl', 'trig'] },
+    ue: { name: 'Urea and electrolytes', tests: ['na', 'k', 'urea', 'creat'] },
+    lft: { name: 'Liver function tests', tests: ['alt', 'ast', 'bili', 'alb'] },
+  };
+
+  const byName = (a, b) => a.name.localeCompare(b.name);
+
+  const OPTIONS = [
+    ...Object.entries(PANELS).map(([id, panel]) => ({ id: `panel:${id}`, name: panel.name })),
+    ...Object.entries(TESTS).map(([id, test]) => ({ id: `test:${id}`, name: test.name })),
+  ].sort(byName);
+
+  const state = {
+    category: null,
+    selected: ['panel:fbc', 'panel:lipids', 'test:crp', 'test:hba1c', 'test:vitd'],
+    menuOpen: null, // 'category' | 'testOrPanel' | null
+  };
+
+  const categoryField = document.getElementById('category');
+  const categoryInput = document.getElementById('category-input');
+  const categoryClear = document.getElementById('category-clear');
+  const categorySuggestions = document.getElementById('category-suggestions');
+  const testOrPanelField = document.getElementById('test-or-panel');
+  const testOrPanelInput = document.getElementById('test-or-panel-input');
+  const valueContainer = document.getElementById('value-container');
+  const testOrPanelMenu = document.getElementById('test-or-panel-menu');
+  const testOrPanelOptions = document.getElementById('test-or-panel-options');
+  const results = document.getElementById('results');
+
+  const TICK = '<svg width="8" height="6" viewBox="0 0 8 6"><path d="M7.82857 1.02L3.25714 5.82C3.14286 5.94 3.02857 6 2.85714 6C2.68571 6 2.57143 5.94 2.45714 5.82L0.171429 3.42C-0.0571429 3.18 -0.0571429 2.82 0.171429 2.58C0.4 2.34 0.742857 2.34 0.971428 2.58L2.85714 4.56L7.02857 0.18C7.25714 -0.06 7.6 -0.06 7.82857 0.18C8.05714 0.42 8.05714 0.78 7.82857 1.02Z" fill="#326699"/></svg>';
+  const REMOVE = '<svg width="8" height="8" viewBox="0 0 8 8"><path d="M7.85 0.15C7.65 -0.05 7.35 -0.05 7.15 0.15L4 3.3L0.85 0.15C0.65 -0.05 0.35 -0.05 0.15 0.15C-0.05 0.35 -0.05 0.65 0.15 0.85L3.3 4L0.15 7.15C-0.05 7.35 -0.05 7.65 0.15 7.85C0.25 7.95 0.35 8 0.5 8C0.65 8 0.75 7.95 0.85 7.85L4 4.7L7.15 7.85C7.25 7.95 7.4 8 7.5 8C7.6 8 7.75 7.95 7.85 7.85C8.05 7.65 8.05 7.35 7.85 7.15L4.7 4L7.85 0.85C8.05 0.65 8.05 0.35 7.85 0.15Z" fill="#666666"/></svg>';
+
+  /* Test category */
+
+  function renderCategoryField() {
+    const isOpen = state.menuOpen === 'category';
+    categoryField.classList.toggle('is-open', isOpen);
+    if (!isOpen) categoryInput.value = state.category ? CATEGORIES[state.category] : '';
+    categoryClear.hidden = !state.category;
+
+    const search = isOpen ? categoryInput.value.toLowerCase() : '';
+    const matches = Object.entries(CATEGORIES).filter(([, name]) => name.toLowerCase().includes(search));
+    categorySuggestions.hidden = !isOpen || matches.length === 0;
+    categorySuggestions.innerHTML = matches
+      .map(([id, name]) => `<div class="suggestion" data-id="${id}">${name}</div>`)
+      .join('');
+  }
+
+  categoryInput.addEventListener('focus', () => {
+    state.menuOpen = 'category';
+    categoryInput.select();
+    render();
+  });
+  categoryInput.addEventListener('input', renderCategoryField);
+  categorySuggestions.addEventListener('mousedown', event => {
+    const suggestion = event.target.closest('.suggestion');
+    if (!suggestion) return;
+    event.preventDefault();
+    state.category = suggestion.dataset.id;
+    state.selected = []; // mutually exclusive with Test or panel
+    state.menuOpen = null;
+    categoryInput.blur();
+    render();
+  });
+  categoryClear.addEventListener('mousedown', event => {
+    event.preventDefault();
+    state.category = null;
+    state.menuOpen = null;
+    categoryInput.blur();
+    render();
+  });
+
+  /* Test or panel */
+
+  function renderTestOrPanelField() {
+    const isOpen = state.menuOpen === 'testOrPanel';
+    testOrPanelField.classList.toggle('is-open', isOpen);
+
+    valueContainer.querySelectorAll('.multi-value').forEach(node => node.remove());
+    valueContainer.classList.toggle('has-value', state.selected.length > 0);
+    testOrPanelInput.placeholder = state.selected.length ? '' : 'Search…';
+
+    if (state.selected.length) {
+      const label = state.selected.length === 1
+        ? OPTIONS.find(option => option.id === state.selected[0]).name
+        : `${state.selected.length} selected`;
+      const chip = document.createElement('span');
+      chip.className = 'multi-value';
+      chip.innerHTML = `<span class="label">${label}</span><button class="remove" type="button" aria-label="Remove">${REMOVE}</button>`;
+      chip.querySelector('.remove').addEventListener('mousedown', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        state.selected = [];
+        render();
+      });
+      valueContainer.insertBefore(chip, testOrPanelInput);
+    }
+
+    const search = testOrPanelInput.value.toLowerCase();
+    const matches = OPTIONS.filter(option => option.name.toLowerCase().includes(search));
+    const isAtLimit = state.selected.length >= MAX_SELECTED;
+    testOrPanelMenu.hidden = !isOpen || matches.length === 0;
+    testOrPanelOptions.innerHTML = matches
+      .map(option => {
+        const isSelected = state.selected.includes(option.id);
+        const classes = ['option', isSelected && 'is-selected', isAtLimit && 'is-disabled']
+          .filter(Boolean)
+          .join(' ');
+        return `<div class="${classes}" data-id="${option.id}">${isSelected ? TICK : ''}<span>${option.name}</span></div>`;
+      })
+      .join('');
+  }
+
+  testOrPanelField.querySelector('.control').addEventListener('mousedown', event => {
+    if (event.target !== testOrPanelInput) event.preventDefault();
+    testOrPanelInput.focus();
+    state.menuOpen = 'testOrPanel';
+    render();
+  });
+  testOrPanelInput.addEventListener('focus', () => {
+    state.menuOpen = 'testOrPanel';
+    render();
+  });
+  testOrPanelInput.addEventListener('input', renderTestOrPanelField);
+  testOrPanelOptions.addEventListener('mousedown', event => {
+    event.preventDefault();
+    const option = event.target.closest('.option');
+    if (!option || option.classList.contains('is-disabled')) return;
+    const { id } = option.dataset;
+    state.selected = state.selected.includes(id)
+      ? state.selected.filter(selectedId => selectedId !== id)
+      : [...state.selected, id];
+    if (state.selected.length) state.category = null; // mutually exclusive with Test category
+    testOrPanelInput.value = '';
+    render();
+  });
+
+  document.addEventListener('mousedown', event => {
+    if (!categoryField.contains(event.target) && !testOrPanelField.contains(event.target)) {
+      state.menuOpen = null;
+      testOrPanelInput.value = '';
+      document.activeElement.blur();
+      render();
+    }
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    state.menuOpen = null;
+    document.activeElement.blur();
+    render();
+  });
+
+  /* Results table */
+
+  function isOutOfRange(test, value) {
+    if (test.options || value == null) return false;
+    if (test.rangeText) return value !== test.rangeText;
+    return value < test.min || value > test.max;
+  }
+
+  function normalRange(test) {
+    if (test.min != null && test.max != null) return `${test.min}–${test.max}`;
+    return test.rangeText ?? '—';
+  }
+
+  function buildRows() {
+    if (state.category) {
+      const tests = Object.values(TESTS).filter(test => test.category === state.category).sort(byName);
+      return tests.map(test => ({ test }));
+    }
+
+    const panels = state.selected
+      .filter(id => id.startsWith('panel:'))
+      .map(id => PANELS[id.slice('panel:'.length)])
+      .sort(byName);
+    const individualTests = state.selected
+      .filter(id => id.startsWith('test:'))
+      .map(id => TESTS[id.slice('test:'.length)])
+      .sort(byName);
+
+    const rows = [];
+    panels.forEach(panel => {
+      rows.push({ heading: panel.name });
+      panel.tests.forEach(testId => rows.push({ test: TESTS[testId], isGrouped: true }));
+    });
+    if (individualTests.length) {
+      rows.push({ heading: 'Individual tests' });
+      individualTests.forEach(test => rows.push({ test, isGrouped: true }));
+    }
+    return rows;
+  }
+
+  function renderResults() {
+    if (!state.category && state.selected.length === 0) {
+      results.innerHTML = '';
+      return;
+    }
+
+    const rows = buildRows();
+    const dateIndexes = DATES
+      .map((_, index) => index)
+      .filter(index => rows.some(row => row.test && row.test.results[index] != null));
+    const columnCount = 2 + dateIndexes.length;
+
+    const head = `<tr>
+      <th>Test type</th>
+      <th>Normal range</th>
+      ${dateIndexes.map(index => `<th>${DATES[index].date}<span class="time">${DATES[index].time}</span></th>`).join('')}
+    </tr>`;
+
+    const body = rows
+      .map(row => {
+        if (row.heading) return `<tr class="group"><td colspan="${columnCount}">${row.heading}</td></tr>`;
+        const { test } = row;
+        const cells = dateIndexes
+          .map(index => {
+            const value = test.results[index];
+            if (value == null) return '<td><span class="result is-na">N/A</span></td>';
+            const flag = isOutOfRange(test, value) ? ' is-out-of-range' : '';
+            return `<td><span class="result${flag}">${value}</span></td>`;
+          })
+          .join('');
+        return `<tr class="${row.isGrouped ? 'is-grouped' : ''}">
+          <td><span class="test-name">${test.name}${test.unit ? `<span class="unit">(${test.unit})</span>` : ''}</span></td>
+          <td><span class="range">${normalRange(test)}</span></td>
+          ${cells}
+        </tr>`;
+      })
+      .join('');
+
+    results.innerHTML = `<div class="table-wrap"><table>
+      <thead>${head}</thead>
+      <tbody>${body}</tbody>
+      <tfoot><tr><td colspan="${columnCount}"><span class="export">Export</span></td></tr></tfoot>
+    </table></div>`;
+  }
+
+  function render() {
+    renderCategoryField();
+    renderTestOrPanelField();
+    renderResults();
+  }
+
+  render();
+</script>
 </body>
 </html>
