@@ -149,8 +149,6 @@
   .option:hover { background: #f3f5f7; /* background */ }
   .option.is-selected { padding-left: 4px; }
   .option.is-selected svg { margin-right: 3px; margin-top: 2px; flex-shrink: 0; }
-  .option.is-disabled { color: #cccccc; cursor: default; }
-  .option.is-disabled:hover { background: transparent; }
 
   /* PatientLabTestsTable */
   .content-pane { margin: 30px; }
@@ -251,8 +249,6 @@
 <div class="content-pane" id="results"></div>
 
 <script>
-  const MAX_SELECTED = 10;
-
   const DATES = [
     { date: '22/10/26', time: '9:42 am' },
     { date: '08/09/26', time: '11:15 am' },
@@ -397,12 +393,11 @@
 
     const search = testOrPanelInput.value.toLowerCase();
     const matches = OPTIONS.filter(option => option.name.toLowerCase().includes(search));
-    const isAtLimit = state.selected.length >= MAX_SELECTED;
     testOrPanelMenu.hidden = !isOpen || matches.length === 0;
     testOrPanelOptions.innerHTML = matches
       .map(option => {
         const isSelected = state.selected.includes(option.id);
-        const classes = ['option', isSelected && 'is-selected', isAtLimit && 'is-disabled']
+        const classes = ['option', isSelected && 'is-selected']
           .filter(Boolean)
           .join(' ');
         return `<div class="${classes}" data-id="${option.id}">${isSelected ? TICK : ''}<span>${option.name}</span></div>`;
@@ -426,7 +421,7 @@
     event.preventDefault();
     event.stopPropagation();
     const option = event.target.closest('.option');
-    if (!option || option.classList.contains('is-disabled')) return;
+    if (!option) return;
     const { id } = option.dataset;
     state.selected = state.selected.includes(id)
       ? state.selected.filter(selectedId => selectedId !== id)

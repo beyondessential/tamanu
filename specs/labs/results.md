@@ -36,10 +36,13 @@ reference range is flagged for clinicians.
 - [ ] With one test or panel picked, the field shows its name. With more than one, it shows how many are picked, such as "5 selected".
 - [ ] The suggestions list stays open while items are picked, so several can be picked in a row, and closes when the user clicks away from the field.
 - [ ] Picked items are ticked in the suggestions list, and picking a ticked item again removes it. Clearing the field removes every pick at once.
+- [ ] There is no limit on how many tests and panels can be picked.
 - [ ] The two fields are mutually exclusive: picking a test category clears any picked tests and panels, and picking a test or panel clears the test category.
 - [ ] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
 - [ ] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
 - [ ] Individually picked tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
+- [ ] A test appears under every picked panel that contains it, and again under "Individual tests" when it is also picked on its own.
+- [ ] The table lists each test with its unit and normal range, followed by one column per sample date.
 
 ## Displaying results in a lab request
 
