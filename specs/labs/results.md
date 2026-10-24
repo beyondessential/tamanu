@@ -27,6 +27,18 @@ reference range is flagged for clinicians.
 - [ ] Sex-based ranges use the patient's recorded sex; where the patient's sex has no configured range, the numeric flag does not apply.
 - [ ] The reference range displayed in the lab request results table and the out-of-range flag are derived from the same resolution, so they always agree.
 
+## Searching the patient's results
+
+- [ ] The patient's results table is filtered by a Test category field and a Test or panel field, and the table shows once either field has a value.
+- [ ] Test category is single-select and offers only categories the patient has published results in.
+- [ ] Test or panel is a multi-select that suggests individual tests and panels together by name, listed the same way whichever kind they are.
+- [ ] Test or panel suggests only tests the patient has published results for, and panels containing at least one such test.
+- [ ] Each picked test or panel shows as a chip in the field and can be removed on its own.
+- [ ] The two fields are mutually exclusive: picking a test category clears any picked tests and panels, and picking a test or panel clears the test category.
+- [ ] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
+- [ ] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
+- [ ] Individually picked tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
+
 ## Displaying results in a lab request
 
 - [ ] The lab request results table shows each test's result, unit, reference range, method, lab officer, verification and completed date.
