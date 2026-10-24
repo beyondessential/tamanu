@@ -188,8 +188,8 @@
   tr.group td {
     background: #f3f5f7; /* background */
     padding: 12px 17px;
-    color: #444444; /* darkestText */
-    font-weight: 400;
+    color: #666666; /* darkText */
+    font-weight: 500;
     border-right: none;
   }
   tr.is-grouped td:first-child { padding-left: 37px; }
@@ -206,8 +206,26 @@
   }
   .result.is-na { color: rgba(0, 0, 0, 0.26); }
 
-  tfoot td { border-bottom: none; border-right: none; padding: 12px 16px; }
-  .export { color: #326699; /* primary */ font-size: 14px; font-weight: 500; }
+  /* Table footer with DownloadDataButton (GreyOutlinedButton) */
+  tfoot { background: #f3f5f7; /* background */ }
+  tfoot td { border-bottom: none; border-right: none; padding: 15px; }
+  .download-button {
+    display: inline-flex;
+    align-items: center;
+    min-width: 100px;
+    padding: 11px 18px 12px 18px;
+    border: 1px solid #dedede; /* outline */
+    border-radius: 3px;
+    background: transparent;
+    color: #666666; /* text.secondary */
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16px;
+    cursor: pointer;
+  }
+  .download-button:hover { background: rgba(0, 0, 0, 0.04); }
+  .download-button svg { margin: 0 8px 0 -4px; width: 20px; height: 20px; }
 </style>
 </head>
 <body>
@@ -527,7 +545,7 @@
     results.innerHTML = `<div class="table-wrap"><table>
       <thead>${head}</thead>
       <tbody>${body}</tbody>
-      <tfoot><tr><td colspan="${columnCount}"><span class="export">Export</span></td></tr></tfoot>
+      <tfoot><tr><td colspan="${columnCount}"><button class="download-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7zM5 18v2h14v-2z" fill="currentColor"/></svg>Download</button></td></tr></tfoot>
     </table></div>`;
   }
 
