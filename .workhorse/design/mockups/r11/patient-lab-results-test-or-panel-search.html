@@ -118,12 +118,12 @@
     align-items: center;
     max-width: 80%;
     margin-right: 4px;
-    padding: 6px 11px;
+    padding: 2px 11px;
     border: 1px solid #326699; /* primary */
     border-radius: 20px;
     background: transparent;
   }
-  .multi-value .label { font-size: 11px; line-height: 15px; white-space: pre-line; }
+  .multi-value .label { font-size: 14px; line-height: 18px; white-space: pre-line; }
   .multi-value .remove { padding: 0 0 0 10px; display: inline-flex; cursor: pointer; border: none; background: transparent; }
   .indicator { display: inline-flex; padding: 8px; }
   .indicator svg { transform: rotate(180deg); }
@@ -422,7 +422,9 @@
   });
   testOrPanelInput.addEventListener('input', renderTestOrPanelField);
   testOrPanelOptions.addEventListener('mousedown', event => {
+    // The menu stays open while picking; stop the outside-click handler seeing the re-rendered option
     event.preventDefault();
+    event.stopPropagation();
     const option = event.target.closest('.option');
     if (!option || option.classList.contains('is-disabled')) return;
     const { id } = option.dataset;
