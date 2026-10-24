@@ -41,6 +41,7 @@ reference range is flagged for clinicians.
 - [ ] A picked panel shows every one of its tests the patient has results for, whether that test was ordered through the panel or on its own.
 - [ ] Picked panels are listed first, alphabetically by name. Each panel is a shaded heading row with its tests indented beneath it, in the panel's configured order.
 - [ ] Individually picked tests are listed after the panels, under a shaded "Individual tests" heading row, indented and alphabetical by name.
+- [ ] The heading rows show however few items are picked: a single picked panel still sits under its heading, and individually picked tests still sit under "Individual tests" when no panel is picked.
 - [ ] A test appears under every picked panel that contains it, and again under "Individual tests" when it is also picked on its own.
 - [ ] The table lists each test with its unit and normal range, followed by one column per sample date.
 
