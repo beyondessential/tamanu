@@ -13,6 +13,7 @@ export class Suggester {
       baseQueryParameters = {},
       baseBodyParameters = {},
       enable = true,
+      basePath = 'suggestions',
     } = {},
   ) {
     this.api = api;
@@ -22,6 +23,7 @@ export class Suggester {
     this.baseQueryParameters = baseQueryParameters;
     this.baseBodyParameters = baseBodyParameters;
     this.enable = enable;
+    this.basePath = basePath;
   }
 
   /**
@@ -36,7 +38,7 @@ export class Suggester {
     if (!this.enable) return undefined;
     try {
       const data = await this.api.get(
-        route('suggestions/:category/:value', { category: this.category, value }),
+        route(`${this.basePath}/:category/:value`, { category: this.category, value }),
         {
           language: getCurrentLanguageCode(),
           facilityId: this.baseQueryParameters?.facilityId,
@@ -51,7 +53,7 @@ export class Suggester {
   fetchSuggestions = async search => {
     if (!this.enable) return [];
     try {
-      const data = await this.api.get(route('suggestions/:category', { category: this.category }), {
+      const data = await this.api.get(route(`${this.basePath}/:category`, { category: this.category }), {
         ...this.baseQueryParameters,
         q: search,
         language: getCurrentLanguageCode(),
@@ -66,7 +68,7 @@ export class Suggester {
     if (!this.enable) throw new Error('Suggester is disabled');
 
     const data = await this.api.post(
-      route('suggestions/:category/create', { category: this.category }),
+      route(`${this.basePath}/:category/create`, { category: this.category }),
       {
         ...this.baseBodyParameters,
         ...body,

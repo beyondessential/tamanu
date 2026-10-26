@@ -1068,6 +1068,38 @@ describe('Kiosk', () => {
       expect(await kioskApp.get('/api/patient')).toBeForbidden();
     });
 
+    it('lets an account with only permission to run the kiosk search what patients may search', async () => {
+      const village = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: 'village', name: 'Kioskvale' }),
+      );
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+
+      const search = await kioskApp.get('/api/kiosk/suggestions/village').query({ q: 'Kioskv' });
+      expect(search).toHaveSucceeded();
+      expect(search.body.map(({ id }) => id)).toEqual([village.id]);
+
+      const lookup = await kioskApp.get(`/api/kiosk/suggestions/village/${village.id}`);
+      expect(lookup).toHaveSucceeded();
+      expect(lookup.body).toMatchObject({ id: village.id, name: 'Kioskvale' });
+    });
+
+    it('offers a kiosk account no other suggestions, and no way to create them', async () => {
+      const kioskApp = await ctx.baseApp.asNewRole([['run', 'Kiosk']]);
+
+      expect(await kioskApp.get('/api/kiosk/suggestions/patient').query({ q: 'a' })).toHaveStatus(
+        404,
+      );
+      expect(await kioskApp.get('/api/kiosk/suggestions/practitioner')).toHaveStatus(404);
+      expect(
+        await kioskApp.post('/api/kiosk/suggestions/village/create').send({ name: 'Newvale' }),
+      ).toHaveStatus(404);
+    });
+
+    it('refuses suggestions to an account that cannot run the kiosk', async () => {
+      const staffApp = await ctx.baseApp.asNewRole([['list', 'ReferenceData']]);
+      expect(await staffApp.get('/api/kiosk/suggestions/village')).toBeForbidden();
+    });
+
     it('refuses an account that can read patients and appointments but not run the kiosk', async () => {
       const patient = await createPatient({ lastName: 'Nokiosk', dateOfBirth: '1979-05-05' });
       const appointment = await createAppointment({

@@ -1,11 +1,13 @@
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Formik } from 'formik';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import {
+  ApiContext,
+  AuthContext,
   DateTimeProviderContext,
   SettingsContext,
   toTimeParts,
@@ -185,6 +187,36 @@ describe('Kiosk questions store answers as the web does', () => {
       'tess@example.com',
     );
     expect(screen.getByRole('textbox').readOnly).toBe(false);
+  });
+
+  it('searches through the kiosk route, which needs only permission to run the kiosk', async () => {
+    const api = { get: vi.fn(() => Promise.resolve([{ id: 'village-1', name: 'Kioskvale' }])) };
+    const Question = getKioskComponentForQuestionType(T.AUTOCOMPLETE);
+    renderElementWithTranslatedText(
+      <ApiContext.Provider value={api}>
+        <AuthContext.Provider value={{ facilityId: 'facility-1' }}>
+          <Formik initialValues={{}} onSubmit={() => {}}>
+            <Question
+              field={{ name: 'answer', value: undefined, onChange: () => {} }}
+              label="Village"
+              config={{ source: 'ReferenceData', where: { type: 'village' } }}
+            />
+          </Formik>
+        </AuthContext.Provider>
+      </ApiContext.Provider>,
+    );
+
+    await userEvent.type(screen.getByRole('textbox'), 'Kio');
+
+    await waitFor(() =>
+      expect(api.get).toHaveBeenCalledWith(
+        expect.objectContaining({
+          template: 'kiosk/suggestions/:category',
+          params: { category: 'village' },
+        }),
+        expect.objectContaining({ q: expect.any(String) }),
+      ),
+    );
   });
 });
 

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import {
   APPOINTMENT_STATUSES,
   PATIENT_DATA_FIELD_LOCATIONS,
+  PORTAL_SUGGESTER_ALLOW_LIST,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
   VISIBILITY_STATUSES,
@@ -15,6 +16,7 @@ import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getDayBoundaries, getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import { suggestions } from '@tamanu/shared/services/suggestions';
 
 // Every route checks only `run Kiosk`, so the account a tablet is signed in with needs no access
 // to patient records anywhere else in Tamanu.
@@ -189,6 +191,23 @@ const auditPatientAccess = async (req, patients) => {
     });
   }
 };
+
+/** The reference data a patient may search on a form: the same lists the patient portal offers. */
+kiosk.use(
+  '/suggestions',
+  asyncHandler(async (req, res, next) => {
+    req.checkPermission('run', 'Kiosk');
+    await getKioskSettings(req);
+    const category = req.path.split('/')[1];
+    if (req.method !== 'GET' || !PORTAL_SUGGESTER_ALLOW_LIST.includes(category)) {
+      throw new NotFoundError();
+    }
+    // The suggesters check `list` on their model, which a kiosk account doesn't have
+    req.checkPermission = () => {};
+    next();
+  }),
+  suggestions,
+);
 
 kiosk.get(
   '/facility',
