@@ -58,7 +58,7 @@ vi.mock('../../app/api/queries/useEncounterMedicationQuery', () => ({
 vi.mock('../../app/api/queries/useDispensingUnit', () => ({ default: () => ({ data: null }) }));
 
 vi.mock('../../app/hooks/useMedicationIdealTimes', () => ({
-  useMedicationIdealTimes: () => ({ defaultIdealTimes: [], defaultTimeSlots: [] }),
+  useMedicationIdealTimes: vi.fn(() => ({ defaultIdealTimes: [], defaultTimeSlots: [] })),
 }));
 
 vi.mock('../../app/components/PatientAllergiesWarning', () => ({ default: () => null }));
@@ -73,6 +73,8 @@ vi.mock('../../app/components/Medication/FrequencySearchInput', () => ({
 
 const { SettingsContext, DateTimeProviderContext } = await import('@tamanu/ui-components');
 const { MedicationForm } = await import('../../app/forms/MedicationForm');
+const { useMedicationIdealTimes } = await import('../../app/hooks/useMedicationIdealTimes');
+const actualIdealTimes = await vi.importActual('../../app/hooks/useMedicationIdealTimes');
 
 const SEND_TO_PHARMACY = 'medication-field-sendToPharmacy-6r4d';
 
@@ -231,6 +233,7 @@ describe('MedicationForm administration schedule', () => {
     };
     encounter = { id: 'encounter-1', encounterType: ENCOUNTER_TYPES.ADMISSION };
     onConfirmEdit = vi.fn();
+    vi.mocked(useMedicationIdealTimes).mockReset();
   });
 
   // Editing is the only way to give the form a frequency without driving the (mocked out)
@@ -268,6 +271,20 @@ describe('MedicationForm administration schedule', () => {
       expect(screen.queryByText(SCHEDULE_HEADING)).toBeNull();
     },
   );
+
+  it('selects every window for Every 2 hours and none can be deselected', () => {
+    vi.mocked(useMedicationIdealTimes).mockImplementation(
+      actualIdealTimes.useMedicationIdealTimes,
+    );
+    renderWithFrequency(ADMINISTRATION_FREQUENCIES.EVERY_2_HOURS);
+    fireEvent.click(screen.getByText(SCHEDULE_HEADING));
+
+    for (let index = 0; index < 12; index++) {
+      const checkbox = screen.getByTestId(`medication-checkbox-asfd${index}-controlcheck`);
+      expect(checkbox.checked).toBe(true);
+      expect(checkbox.disabled).toBe(true);
+    }
+  });
 
   it('still submits the fixed administration times when no schedule was shown', async () => {
     renderWithFrequency(ADMINISTRATION_FREQUENCIES.HOURLY);

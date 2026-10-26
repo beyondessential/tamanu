@@ -14,6 +14,7 @@ import * as yup from 'yup';
 
 import {
   ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_FREQUENCY_DETAILS,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
   FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
@@ -356,6 +357,9 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { defaultIdealTimes, defaultTimeSlots } = useMedicationIdealTimes({
     frequency: values.frequency,
   });
+  const isEveryTimeSlotRequired =
+    ADMINISTRATION_FREQUENCY_DETAILS[values.frequency]?.dosesPerDay ===
+    MEDICATION_ADMINISTRATION_TIME_SLOTS.length;
 
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
@@ -533,9 +537,14 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
-                        disabled={isDisabled}
+                        disabled={isDisabled || isEveryTimeSlotRequired}
                         data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
+                        {...(isEveryTimeSlotRequired && {
+                          checkedIcon: (
+                            <StyledIcon className="far fa-check-square" $color={Colors.midText} />
+                          ),
+                        })}
                       />
                     </Box>
                   </StyledConditionalTooltip>

@@ -56,7 +56,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - name: Check dockerfile against .node-version
         run: |
-          file=$(cat .node-version | cut -c2- | cut -d. -f1)
+          file=$(tr -d 'v \t\r\n' < .node-version | cut -d. -f1)
           dckr=$(grep -oP '(?<=^FROM node:)\d+' Dockerfile)
           echo "Node.js major in Dockerfile:    $dckr"
           echo "Node.js major in .node-version: $file"
@@ -279,6 +279,10 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: npm
+      # .node-version follows a release series, so the npm bundled with Node can
+      # change under us; pin the npm that writes the lockfile to packageManager
+      - name: Install the npm from packageManager
+        run: npm install -g "$(jq -r .packageManager package.json)"
       - uses: actions/cache/restore@v5
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}

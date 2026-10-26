@@ -7,6 +7,6 @@ export const useCurrentUserQuery = () => {
 
   return useQuery<unknown, Error, PatientWithAdditionalData>({
     queryKey: ['me'],
-    queryFn: () => api.get('me'),
+    queryFn: () => api.fetchCurrentUser(),
   });
 };
