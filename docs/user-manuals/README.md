@@ -10,3 +10,6 @@ believe you should be able to, contact your system administrator.
 | --- | --- |
 | [Desktop](desktop/) | Using Tamanu on a computer |
 | [Mobile](mobile/) | Using Tamanu on a mobile device |
+
+Guides to configuring Tamanu for a deployment, written for system administrators, are in
+[Configuration guides](config-guides/).
