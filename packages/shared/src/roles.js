@@ -289,6 +289,8 @@ export const practitioner = [
   { verb: 'create', noun: 'MedicationPharmacyNote' },
   { verb: 'write', noun: 'MedicationPharmacyNote' },
 
+  { verb: 'run', noun: 'Kiosk' },
+
   { verb: 'create', noun: 'PatientPortalRegistration' },
   { verb: 'read', noun: 'PatientPortalRegistration' },
 

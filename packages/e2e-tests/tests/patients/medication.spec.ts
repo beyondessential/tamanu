@@ -63,9 +63,11 @@ test.describe('Medication - Patient', () => {
     await discontinueModal.fillReason('Test reason');
     await discontinueModal.submit();
 
-    // The details modal stays open and re-renders as discontinued, confirming the
-    // medication was actually discontinued rather than just the form closing.
-    await detailsModal.waitForDiscontinuedStatus();
-    await expect(detailsModal.discontinuedStatus).toBeVisible();
+    // Discontinuing reloads the ongoing list and closes the details, so reopen the row to see
+    // that it was discontinued rather than the form just closing.
+    await detailsModal.dialog.waitFor({ state: 'hidden' });
+    const reopenedDetailsModal = await medicationPane.clickFirstOngoingMedicationRow();
+    await reopenedDetailsModal.waitForDiscontinuedStatus();
+    await expect(reopenedDetailsModal.discontinuedStatus).toBeVisible();
   });
 });

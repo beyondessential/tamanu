@@ -360,6 +360,7 @@ export const FACILITY_MENU_ITEMS = [
         // The kiosk runs full screen on its own, so it opens beside Tamanu rather than in place of it
         opensInNewTab: true,
         enabledBySetting: 'kiosk.enabled',
+        abilities: [{ action: 'run', subject: 'Kiosk' }],
       },
     ],
   },

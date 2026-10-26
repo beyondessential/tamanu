@@ -1,6 +1,7 @@
 export const routes = {
   login: '/',
   dashboard: '/dashboard',
+  kiosk: '/kiosk',
   patients: {
     all: '/patients/all',
     emergency: '/patients/emergency',

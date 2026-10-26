@@ -3,6 +3,12 @@ import { route } from '@tamanu/api-client';
 
 import { useApi } from '../../api';
 
+/** The facility the kiosk is signed in to, readable with only permission to run the kiosk. */
+export const useKioskFacilityQuery = () => {
+  const api = useApi();
+  return useQuery(['kioskFacility'], () => api.get('kiosk/facility'));
+};
+
 export const useFindKioskAppointmentsMutation = () => {
   const api = useApi();
   return useMutation(({ lastName, dateOfBirth }) =>
