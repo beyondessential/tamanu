@@ -6,6 +6,7 @@ import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@ta
 import { ENCOUNTER_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -14,6 +15,19 @@ import { createTriageFilters } from '../../utils/triageFilters';
 import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
 
 export const triage = express.Router();
+
+// Arrival and triage times are stored in the primary timezone, as is the server clock, so comparing
+// the ISO 9075 strings directly is correct. A future arrival time drives the emergency wait time
+// negative, so refuse it at the boundary as well as in the form.
+const checkTriageTimesNotInFuture = ({ arrivalTime, triageTime }) => {
+  const now = getCurrentDateTimeString();
+  if (arrivalTime && arrivalTime > now) {
+    throw new InvalidParameterError('Arrival time cannot be in the future');
+  }
+  if (triageTime && triageTime > now) {
+    throw new InvalidParameterError('Triage time cannot be in the future');
+  }
+};
 
 triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
 triage.put(
@@ -24,6 +38,7 @@ triage.put(
     const triageObject = await models.Triage.findByPk(params.id);
     if (!triageObject) throw new NotFoundError();
     req.checkPermission('write', triageObject);
+    checkTriageTimesNotInFuture(req.body);
     await triageObject.update(req.body, user);
     res.send(triageObject);
   }),
@@ -39,6 +54,8 @@ triage.post(
     if (vitals) {
       req.checkPermission('create', 'Vitals');
     }
+
+    checkTriageTimesNotInFuture(body);
 
     const { patientBillingTypeId } = body;
     if (patientBillingTypeId) {
