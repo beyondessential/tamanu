@@ -381,19 +381,24 @@ export const assertValidType = type => {
 };
 
 export const getWritableData = (columns, data, isEditMode) => {
-  const writableColumns = columns.filter(
+  const isWritable = col =>
     // Relation-backed columns aren't real columns; they're written separately (see
     // applyRelationBackedWrite), so keep them out of the column write set.
-    c => !c.readOnly && !c.isRelationBacked && !(isEditMode && c.readOnlyOnEdit),
-  );
-  // On insert a blank field means "no value was given", so drop it and let the column default
-  // apply. Writing '' would override the default, and a numeric column rejects it outright.
-  const isBlankOnInsert = (col, value) => !isEditMode && col.hasDefault && value === '';
-  return Object.fromEntries(
-    writableColumns
-      .filter(col => col.key in data && !isBlankOnInsert(col, data[col.key]))
-      .map(col => [col.key, data[col.key]]),
-  );
+    !col.readOnly && !col.isRelationBacked && !(isEditMode && col.readOnlyOnEdit);
+
+  // A text or number input the user cleared submits ''. On insert that means "no value was given",
+  // so drop it and let the column default apply. Writing '' would override the default, and a
+  // numeric column rejects it outright.
+  const shouldUseDefault = col => !isEditMode && col.hasDefault && data[col.key] === '';
+
+  const writableData = {};
+  for (const col of columns) {
+    if (!(col.key in data)) continue;
+    if (!isWritable(col)) continue;
+    if (shouldUseDefault(col)) continue;
+    writableData[col.key] = data[col.key];
+  }
+  return writableData;
 };
 
 /**

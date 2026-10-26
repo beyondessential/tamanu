@@ -15,12 +15,16 @@ export const REQUIRED_FIELDS = new Set(['id', 'code', 'name']);
 // rejects '' for these, unlike a text column where it is a value in its own right.
 export const NUMERIC_COLUMN_TYPES = new Set(['INTEGER', 'FLOAT', 'DOUBLE', 'DECIMAL', 'REAL']);
 
-// A DB default only applies on insert, so on edit a NOT NULL column has to keep a value. Only the
-// numeric ones are required: clearing a NOT NULL text column writes '', which it accepts, and a
-// checkbox always holds a value.
-export const isFieldRequired = (col, { isEditMode }) =>
-  REQUIRED_FIELDS.has(col.key) ||
-  (!col.allowNull && (!col.hasDefault || (isEditMode && NUMERIC_COLUMN_TYPES.has(col.type))));
+export const isFieldRequired = (col, { isEditMode }) => {
+  if (REQUIRED_FIELDS.has(col.key)) return true;
+  if (col.allowNull) return false;
+  if (!col.hasDefault) return true;
+
+  // A DB default only applies on insert, so on edit a NOT NULL column has to keep a value. Only the
+  // numeric ones are required: clearing a NOT NULL text column writes '', which it accepts, and a
+  // checkbox always holds a value.
+  return isEditMode && NUMERIC_COLUMN_TYPES.has(col.type);
+};
 
 export const SUGGESTER_FORMATTER = ({ name, id }) => ({ label: `${name} (${id})`, value: id });
 export const SUGGESTER_OPTIONS = { formatter: SUGGESTER_FORMATTER };
