@@ -61,12 +61,16 @@ test.describe('Medication - Patient', () => {
 
     await discontinueModal.changeDiscontinuedBy(currentUser.displayName);
     await discontinueModal.fillReason('Test reason');
+    const ongoingListReloaded = page.waitForResponse(response =>
+      response.url().includes(`/patient/${newPatient.id}/ongoing-prescriptions`),
+    );
     await discontinueModal.submit();
 
-    // Discontinuing reloads the ongoing list and closes the details, so reopen the row to see
-    // that it was discontinued rather than the form just closing.
+    // Discontinuing closes the details and reloads the ongoing list, so reopen the row once the
+    // list has reloaded to see that it was discontinued rather than the form just closing.
     await detailsModal.dialog.waitFor({ state: 'hidden' });
-    const reopenedDetailsModal = await medicationPane.clickFirstOngoingMedicationRow();
+    await ongoingListReloaded;
+    const reopenedDetailsModal = await medicationPane.openFirstOngoingMedicationRow();
     await reopenedDetailsModal.waitForDiscontinuedStatus();
     await expect(reopenedDetailsModal.discontinuedStatus).toBeVisible();
   });
