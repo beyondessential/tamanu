@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
@@ -21,6 +22,7 @@ import {
   ModalFormActionRow,
   RadioField,
   SuggesterSelectField,
+  useLocalisedSchema,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
@@ -327,6 +329,13 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { writeAndViewEncounter } = useEncounter();
   const {getCurrentDateTime} = useDateTime();
+  const { getLocalisedSchema } = useLocalisedSchema();
+
+  const isEmergency = isEmergencyPatient(encounter.encounterType);
+
+  const encounterValidationSchema = yup.object().shape({
+    patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
+  });
 
   const triage = encounter.triages?.[0];
 
@@ -383,9 +392,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={
-          isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm
-        }
+        validationSchema={isEmergency ? undefined : encounterValidationSchema}
+        onSubmit={isEmergency ? onSubmitTriageForm : onSubmitEncounterForm}
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>
