@@ -9,6 +9,7 @@ export class SidebarPage extends BasePage {
   readonly emergencyPatientsItem: Locator;
   readonly facilityAdminSection: Locator;
   readonly recentlyDischargedPatientsItem: Locator;
+  readonly kioskItem: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -21,6 +22,11 @@ export class SidebarPage extends BasePage {
     this.recentlyDischargedPatientsItem = page.getByTestId(
       'secondarylistitem-facility-admin-recently-discharged-patients',
     );
+    this.kioskItem = page.getByTestId('secondarylistitem-kiosk');
+  }
+
+  async openFacilityAdmin() {
+    await this.facilityAdminSection.click();
   }
 
   // In-app (SPA) navigation, as opposed to BasePage.goto() which reloads the page
