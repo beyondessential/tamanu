@@ -95,8 +95,11 @@ const OPTIONS = [
   { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
   { key: 'dbstorage', defaultValue: 10, parse: input => intBounds(input, [10, 100]) },
   { key: 'arch', defaultValue: 'arm64' },
-  { key: 'opsref', defaultValue: 'main' },
-  { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
+  // opsref and opsstack are the names from before the ops repo moved to infra; existing PR bodies still use them
+  { key: 'infraref', aliases: ['opsref'], defaultValue: 'main' },
+  { key: 'infrastack', aliases: ['opsstack'], defaultValue: 'tamanu/on-k8s' },
+  // which channel of the Argo CD renderer image renders this deploy: stable, or canary to try changes first
+  { key: 'channel', defaultValue: 'stable' },
 
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
@@ -248,7 +251,13 @@ function parseOptions(str, context) {
 
   const options = {};
   const explicit = new Set();
-  for (const { key, defaultValue, parse = null, presence = false } of OPTIONS) {
+  for (const { key, aliases = [], defaultValue, parse = null, presence = false } of OPTIONS) {
+    for (const alias of aliases) {
+      if (inputs.has(alias) && !inputs.has(key)) {
+        inputs.set(key, inputs.get(alias));
+      }
+    }
+
     if (!inputs.has(key)) {
       if (typeof defaultValue === 'function') {
         options[key] = defaultValue(options, context);
@@ -286,6 +295,7 @@ export function configMap(deployName, imageTag, options, { appVersion } = {}) {
       imageTag,
       appVersion: appVersion || null,
 
+      rendererChannel: options.channel,
       architecture: options.arch,
       configTemplate: options.config,
       dbStorage: `${options.dbstorage}Gi`,
@@ -608,7 +618,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
   return todo.map(({ ns }) => ({
     name: ns.replace(/^tamanu-/, ''),
     options: JSON.stringify({
-      opsstack: OPTIONS.find(({ key }) => key === 'opsstack').defaultValue,
+      infrastack: OPTIONS.find(({ key }) => key === 'infrastack').defaultValue,
     }),
   }));
 }
