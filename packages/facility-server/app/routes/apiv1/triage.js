@@ -6,7 +6,7 @@ import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@ta
 import { ENCOUNTER_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { storedDateTimeToEpochMilliseconds } from '@tamanu/utils/dateTime';
 
 import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
@@ -16,15 +16,21 @@ import { getWhereClausesAndReplacementsFromFilters } from '../../utils/query';
 
 export const triage = express.Router();
 
-// Arrival and triage times are stored in the primary timezone, as is the server clock, so comparing
-// the ISO 9075 strings directly is correct. A future arrival time drives the emergency wait time
-// negative, so refuse it at the boundary as well as in the form.
+// A future arrival time drives the emergency wait time negative, so refuse it at the boundary as
+// well as in the form. Callers send times in whatever representation they have — a primary-timezone
+// ISO 9075 string, or a Date serialised to ISO 8601 with a Z — so resolve each to an absolute
+// instant (the same conversion the wait-time calculation uses) and compare against now.
+const isInFuture = value => {
+  if (!value) return false;
+  const instant = storedDateTimeToEpochMilliseconds(value, getPrimaryTimeZone());
+  return instant != null && instant > Date.now();
+};
+
 const checkTriageTimesNotInFuture = ({ arrivalTime, triageTime }) => {
-  const now = getCurrentDateTimeString();
-  if (arrivalTime && arrivalTime > now) {
+  if (isInFuture(arrivalTime)) {
     throw new InvalidParameterError('Arrival time cannot be in the future');
   }
-  if (triageTime && triageTime > now) {
+  if (isInFuture(triageTime)) {
     throw new InvalidParameterError('Triage time cannot be in the future');
   }
 };
