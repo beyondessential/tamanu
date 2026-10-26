@@ -27,10 +27,12 @@ test.describe('Self check-in kiosk', () => {
 
     const sidebarPage = new SidebarPage(staffPage);
     await sidebarPage.openFacilityAdmin();
-    await expect(sidebarPage.kioskItem).toBeVisible();
+    const [kioskTab] = await Promise.all([
+      context.waitForEvent('page'),
+      sidebarPage.kioskItem.click(),
+    ]);
 
-    const kioskPage = new KioskPage(staffPage);
-    await kioskPage.goto();
+    const kioskPage = new KioskPage(kioskTab);
     await kioskPage.checkIn(newPatient.lastName, newPatient.dateOfBirth);
     await expect(kioskPage.checkedInTitle).toBeVisible();
 
