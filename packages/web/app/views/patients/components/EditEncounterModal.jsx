@@ -26,6 +26,7 @@ import {
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useTranslation } from '../../../contexts/Translation';
+import { emptyToNull } from '../../../utils/validation';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
@@ -336,9 +337,14 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const isEmergency = isEmergencyPatient(encounter.encounterType);
 
+  // Arrival time is optional and is null when none was recorded, and either field can be '' mid-edit
+  // when the user clears it, so both are nullable with an empty-string transform. The triage date
+  // (startDate) stays required; neither may be in the future.
   const triageValidationSchema = yup.object().shape({
     arrivalTime: yup
       .date()
+      .nullable()
+      .transform(emptyToNull)
       .max(
         getCurrentDateTime(),
         getTranslation(
@@ -348,6 +354,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       ),
     startDate: yup
       .date()
+      .nullable()
+      .transform(emptyToNull)
       .required()
       .max(
         getCurrentDateTime(),
