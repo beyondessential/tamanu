@@ -103,6 +103,18 @@ export const IMPORTABLE_PERMISSION_NOUN_OVERRIDES: Record<string, string> = {
   [PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING]: 'InvoicePriceListItem',
 };
 
+// The permission noun guarding a data type, shared by every surface that reads or writes reference
+// data (import, export, the admin Manage tab) so they can't demand different permissions for the
+// same records. Types living in the `reference_data` table share the generic ReferenceData noun;
+// everything else is guarded by its own model's noun.
+export const getImportablePermissionNoun = (dataType: string): string => {
+  if (REFERENCE_TYPE_VALUES.includes(dataType)) return 'ReferenceData';
+  return (
+    IMPORTABLE_PERMISSION_NOUN_OVERRIDES[dataType] ??
+    `${dataType.charAt(0).toUpperCase()}${dataType.slice(1)}`
+  );
+};
+
 // Reference data imported through the program importer rather than the reference data importer
 export const PROGRAM_REFERENCE_TYPES = {
   PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
