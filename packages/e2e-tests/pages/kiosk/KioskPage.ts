@@ -46,9 +46,13 @@ export class KioskPage extends BasePage {
     await this.findButton.click();
   }
 
-  async checkIn(lastName: string, dateOfBirth: string) {
+  async findAndConfirmAppointment(lastName: string, dateOfBirth: string) {
     await this.findAppointment(lastName, dateOfBirth);
     await this.confirmButton.click();
+  }
+
+  async checkIn(lastName: string, dateOfBirth: string) {
+    await this.findAndConfirmAppointment(lastName, dateOfBirth);
     await this.checkInButton.click();
   }
 }

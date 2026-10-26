@@ -37,7 +37,7 @@ test.describe('Self check-in kiosk', () => {
     await expect(kioskPage.checkedInTitle).toBeVisible();
 
     await kioskPage.doneButton.click();
-    await kioskPage.findAppointment(newPatient.lastName, newPatient.dateOfBirth);
+    await kioskPage.findAndConfirmAppointment(newPatient.lastName, newPatient.dateOfBirth);
     await expect(kioskPage.alreadyCheckedInTitle).toBeVisible();
 
     await context.close();
