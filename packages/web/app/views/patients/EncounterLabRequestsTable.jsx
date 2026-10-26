@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
+import { route } from '@tamanu/api-client';
 import { DataFetchingTable } from '../../components';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
@@ -98,7 +99,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId, refreshCount
 
   return (
     <DataFetchingTable
-      endpoint={`encounter/${encounterId}/labRequests`}
+      endpoint={route('encounter/:encounterId/labRequests', { encounterId })}
       columns={columns}
       noDataMessage={
         <TranslatedText

@@ -715,7 +715,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`patient/${patient.id}/ongoing-prescriptions`}
+          endpoint={route('patient/:patientId/ongoing-prescriptions', { patientId: patient.id })}
           fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           data-testid="ongoing-medications-table"
@@ -748,7 +748,7 @@ export const PatientMedicationPane = ({ patient }) => {
           </TableTitle>
           <StyledDataFetchingTable
             $compact
-            endpoint={`patient/${patient.id}/dispensed-medications`}
+            endpoint={route('patient/:patientId/dispensed-medications', { patientId: patient.id })}
             columns={DISPENSED_MEDICATION_COLUMNS(
               getTranslation,
               getEnumTranslation,

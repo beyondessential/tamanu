@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { route } from '@tamanu/api-client';
 import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
@@ -235,7 +236,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       <SearchTable
         rowIdKey="patientId"
         refreshCount={refreshCount}
-        endpoint={`programRegistry/${params.programRegistryId}/registrations`}
+        endpoint={route('programRegistry/:programRegistryId/registrations', { programRegistryId: params.programRegistryId })}
         columns={columns}
         noDataMessage={
           <TranslatedText

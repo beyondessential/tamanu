@@ -184,10 +184,14 @@ export const SampleDetailsTable = ({
                 onChange={({ target: { value } }) => {
                   // The field writes sampleTime itself; here we default the collector (current user)
                   // and the specimen type (the category's default) the first time a time is entered,
-                  // only when empty so an existing value is never overwritten. An empty or invalid
-                  // time leaves the row's other values intact — categories with no time are dropped
-                  // on submit.
-                  if (!value) return;
+                  // only when empty so an existing value is never overwritten. Clearing the time
+                  // clears the three fields it gates, so a greyed-out row holds no stale values.
+                  if (!value) {
+                    setFieldValue(`${categoryField}.collectedById`, undefined);
+                    setFieldValue(`${categoryField}.specimenTypeId`, undefined);
+                    setFieldValue(`${categoryField}.labSampleSiteId`, undefined);
+                    return;
+                  }
                   if (!details?.collectedById && currentUser?.id) {
                     setFieldValue(`${categoryField}.collectedById`, currentUser.id);
                   }
