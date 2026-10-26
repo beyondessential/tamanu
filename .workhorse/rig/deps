@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 . "$RIG_RECIPE_DIR/lib.sh"
+cd "$RIG_SOURCE"
 npm ci --no-audit --no-fund --include-workspace-root \
   --workspace=@tamanu/central-server \
   --workspace=@tamanu/facility-server \
