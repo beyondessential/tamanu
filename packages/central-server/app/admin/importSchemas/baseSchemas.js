@@ -627,6 +627,24 @@ export const ReferenceMedicationTemplate = yup
     },
   );
 
+// dosingUnit and dispensingUnit are checked in drugLoader, which rejects the whole drug row.
+export const ReferenceDrug = yup.object().shape({
+  id: yup.string().required(),
+  referenceDataId: yup.string().required(),
+  // Route is optional here (unlike on a medication template) because a drug can be imported
+  // without one. Accepts either the stored value ("oral") or the label the admin panel shows
+  // ("Oral", "IM", "S/C"), matching ReferenceMedicationTemplate.route — anything else is
+  // rejected rather than guessed at, so "ORAL" is an error the importer reports against the row.
+  route: yup
+    .string()
+    .nullable()
+    .oneOf([...DRUG_ROUTE_VALUES, null])
+    .transform(value => {
+      if (value === '') return null;
+      return Object.keys(DRUG_ROUTE_LABELS).find(key => DRUG_ROUTE_LABELS[key] === value) ?? value;
+    }),
+});
+
 export const ReferenceDrugFacility = yup.object().shape({
   referenceDrugId: yup.string().required(),
   facilityId: yup.string().required(),
