@@ -22,6 +22,7 @@ import {
   ModalFormActionRow,
   RadioField,
   SuggesterSelectField,
+  useLocalisedSchema,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
@@ -334,8 +335,13 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
   const { getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
+  const { getLocalisedSchema } = useLocalisedSchema();
 
   const isEmergency = isEmergencyPatient(encounter.encounterType);
+
+  const encounterValidationSchema = yup.object().shape({
+    patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
+  });
 
   // Arrival time is optional and is null when none was recorded, and either field can be '' mid-edit
   // when the user clears it, so both are nullable with an empty-string transform. The triage date
@@ -421,7 +427,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        validationSchema={isEmergency ? triageValidationSchema : undefined}
+        validationSchema={isEmergency ? triageValidationSchema : encounterValidationSchema}
         onSubmit={isEmergency ? onSubmitTriageForm : onSubmitEncounterForm}
         render={({ submitForm }) => (
           <>
