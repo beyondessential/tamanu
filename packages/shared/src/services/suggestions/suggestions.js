@@ -1143,10 +1143,15 @@ createSuggester(
       return baseWhere;
     }
 
+    // Exclude registries the patient is actively registered in or has been removed from — a
+    // removed registration is re-enabled via Activate, not re-added here. A recorded-in-error
+    // registration can still be re-added.
+    const excludedStatuses = [REGISTRATION_STATUSES.ACTIVE, REGISTRATION_STATUSES.INACTIVE]
+      .map(status => `'${status}'`)
+      .join(', ');
+
     return {
       ...baseWhere,
-      // Only exclude registries the patient is currently actively registered in. A patient who
-      // was removed (inactive) or recorded-in-error can be suggested again for re-registration.
       id: {
         [Op.notIn]: Sequelize.literal(
           `(
@@ -1157,7 +1162,7 @@ createSuggester(
           WHERE
             ppr.patient_id = $patient_id
           AND
-            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
+            ppr.registration_status IN (${excludedStatuses})
         )`,
         ),
       },
