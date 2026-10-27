@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Download a Node.js runtime (version from .node-version) from nodejs.org, verify
-# it against the published SHASUMS256.txt, and place it in a server release
-# bundle's runtime/ directory for pm2 to use as its interpreter
-# (see packages/*/pm2.config.cjs).
+# Download a Node.js runtime from nodejs.org, verify it against the published
+# SHASUMS256.txt, and place it in a server release bundle's runtime/ directory
+# for pm2 to use as its interpreter (see packages/*/pm2.config.cjs).
+#
+# .node-version names a release series (a major, e.g. 26), so the bundle gets the
+# latest release in that series at build time; a full version is used as-is.
 #
 # Usage: scripts/embed-node-runtime.sh <platform> <release-dir>
 #   platform:    win-x64 | linux-x64 | linux-arm64 | darwin-arm64 | ...
@@ -12,16 +14,29 @@ set -euo pipefail
 platform="${1:?Expected platform, e.g. win-x64 or linux-x64}"
 release_dir="${2:?Expected release directory}"
 
-version="$(tr -d 'v \t\r\n' < .node-version)"
+case "$platform" in
+  win-*) extension=zip ;;
+  *) extension=tar.xz ;;
+esac
+
+series="$(tr -d 'v \t\r\n' < .node-version)"
+if [[ "$series" == *.* ]]; then
+  version="$series"
+else
+  # the latest-vNN.x directory lists the series' newest release; the version is
+  # read from its archive names, then everything is fetched from the versioned
+  # directory so a release landing mid-build can't mix files from two versions
+  version="$(curl -fsSL "https://nodejs.org/dist/latest-v${series}.x/SHASUMS256.txt" \
+    | sed -n "s/^[0-9a-f]*  node-v\([0-9.]*\)-${platform}\.${extension}$/\1/p")"
+  [[ -n "$version" ]] || { echo "No Node ${series}.x release found for ${platform}" >&2; exit 1; }
+fi
+
 base="https://nodejs.org/dist/v${version}"
 runtime="${release_dir}/runtime"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-case "$platform" in
-  win-*) archive="node-v${version}-${platform}.zip" ;;
-  *) archive="node-v${version}-${platform}.tar.xz" ;;
-esac
+archive="node-v${version}-${platform}.${extension}"
 
 curl -fsSL -o "${work}/${archive}" "${base}/${archive}"
 curl -fsSL -o "${work}/SHASUMS256.txt" "${base}/SHASUMS256.txt"

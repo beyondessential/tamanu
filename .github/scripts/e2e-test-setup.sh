@@ -83,6 +83,16 @@ EOF
                 password: "admin",
                 displayName: "Initial Admin",
             },
+            "practitioner@tamanu.io": {
+                role: "practitioner",
+                password: "practitioner",
+                displayName: "Test Practitioner",
+            },
+            "reception@tamanu.io": {
+                role: "reception",
+                password: "reception",
+                displayName: "Test Reception",
+            },
         },
 
         facilities: {
@@ -117,6 +127,13 @@ EOF
                 medications: {
                     dispensing: {
                         dispensingQuantityAutocalculation: true,
+                    },
+                },
+            },
+            facilities: {
+                "facility-1": {
+                    kiosk: {
+                        enabled: true,
                     },
                 },
             },

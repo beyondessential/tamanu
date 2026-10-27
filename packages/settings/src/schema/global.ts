@@ -203,6 +203,7 @@ export const globalSettings = {
       description:
         "BCP-47 locale used for date/time formatting (e.g. 'en-GB'). When unset, dates follow the user's browser locale on the web, or the server locale for server-rendered documents and notes",
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       type: yup
         .string()
         .nullable()
@@ -844,6 +845,7 @@ export const globalSettings = {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         emergencyContactName: {
           name: 'Emergency contact name',

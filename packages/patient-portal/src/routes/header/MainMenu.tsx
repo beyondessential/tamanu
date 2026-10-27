@@ -3,6 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Drawer, IconButton, Button, Box, Typography } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { styled } from '@mui/material/styles';
+import { TranslatedText } from '@tamanu/ui-components';
 import { useLogout } from '@api/mutations';
 
 const StyledDrawer = styled(Drawer)(() => ({
@@ -53,7 +54,7 @@ export const MainMenu = ({ open, onClose, userName }: MainMenuProps) => {
           startIcon={<LogoutIcon />}
           onClick={() => logout()}
         >
-          Log out
+          <TranslatedText stringId="auth.action.logout" fallback="Log out" />
         </Button>
       </Box>
     </StyledDrawer>
