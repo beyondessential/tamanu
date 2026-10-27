@@ -1,11 +1,11 @@
 name: CD Setup
 description: Set up Pulumi, Tailscale, and K8S
 inputs:
-  ops-ssh-key:
-    description: SSH key for ops repo
-    required: false
-  ops-ref:
-    description: Ref to checkout in ops repo
+  with-infra:
+    description: Check out the infra repo and install Pulumi, needed to deploy or undeploy
+    default: 'false'
+  infra-ref:
+    description: Ref to checkout in infra repo
     default: main
   tailscale-oauth-client-id:
     description: Tailscale OAuth client ID for OIDC authentication
@@ -19,40 +19,41 @@ inputs:
 runs:
   using: composite
   steps:
-    - if: inputs.ops-ssh-key
-      name: Checkout ops
+    - if: inputs.with-infra == 'true'
+      name: Checkout infra
       uses: actions/checkout@v6
       with:
         repository: beyondessential/infra
-        path: ops
-        ref: ${{ inputs.ops-ref }}
-    - name: Remove ops/.git so pulumi doesn't get confused
-      if: inputs.ops-ssh-key
+        path: infra
+        ref: ${{ inputs.infra-ref }}
+        persist-credentials: false
+    - name: Remove infra/.git so pulumi doesn't get confused
+      if: inputs.with-infra == 'true'
       shell: bash
-      run: rm -rf ops/.git
+      run: rm -rf infra/.git
 
-    - name: Install Node.js for ops
-      if: inputs.ops-ssh-key
+    - name: Install Node.js for infra
+      if: inputs.with-infra == 'true'
       uses: actions/setup-node@v6
       with:
-        node-version-file: ops/.node-version
+        node-version-file: infra/.node-version
         cache: npm
 
     - name: Install Node.js for us
-      if: '!inputs.ops-ssh-key'
+      if: inputs.with-infra != 'true'
       uses: actions/setup-node@v6
       with:
         node-version-file: .node-version
         cache: npm
 
     - name: Prepare pulumi
-      if: inputs.ops-ssh-key
+      if: inputs.with-infra == 'true'
       shell: bash
-      working-directory: ops/pulumi
+      working-directory: infra/pulumi
       run: npm ci
 
     - name: Pre-install pulumi
-      if: inputs.ops-ssh-key
+      if: inputs.with-infra == 'true'
       uses: pulumi/actions@v7
 
     - name: Connect to Tailscale

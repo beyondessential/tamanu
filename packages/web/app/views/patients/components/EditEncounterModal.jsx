@@ -26,6 +26,8 @@ import {
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
+import { useTranslation } from '../../../contexts/Translation';
+import { emptyToNull } from '../../../utils/validation';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
@@ -174,6 +176,7 @@ const ClinicFields = () => {
 
 const TriageFields = () => {
   const { getSetting } = useSettings();
+  const { getCurrentDateTime } = useDateTime();
   const triageCategories = getSetting('triageCategories');
   const triageReasonSuggester = useSuggester('triageReason');
   const secondaryTriageReasonSuggester = useSuggester('triageReason');
@@ -186,6 +189,7 @@ const TriageFields = () => {
         label={
           <TranslatedText stringId="triage.arrivalDateTime.label" fallback="Arrival date & time" />
         }
+        max={getCurrentDateTime()}
         saveDateAsString
         data-testid="field-admission-time"
       />
@@ -196,6 +200,7 @@ const TriageFields = () => {
           <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
         }
         required
+        max={getCurrentDateTime()}
         saveDateAsString
         data-testid="field-admission-time"
       />
@@ -328,13 +333,43 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { writeAndViewEncounter } = useEncounter();
-  const {getCurrentDateTime} = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
+  const { getTranslation } = useTranslation();
   const { getLocalisedSchema } = useLocalisedSchema();
 
   const isEmergency = isEmergencyPatient(encounter.encounterType);
 
   const encounterValidationSchema = yup.object().shape({
     patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
+  });
+
+  // Arrival time is optional and is null when none was recorded, and either field can be '' mid-edit
+  // when the user clears it, so both are nullable with an empty-string transform. The triage date
+  // (startDate) stays required; neither may be in the future.
+  const triageValidationSchema = yup.object().shape({
+    arrivalTime: yup
+      .date()
+      .nullable()
+      .transform(emptyToNull)
+      .max(
+        getCurrentDateTime(),
+        getTranslation(
+          'validation.rule.arrivalTimeNotInFuture',
+          'Arrival time cannot be in the future',
+        ),
+      ),
+    startDate: yup
+      .date()
+      .nullable()
+      .transform(emptyToNull)
+      .required()
+      .max(
+        getCurrentDateTime(),
+        getTranslation(
+          'validation.rule.triageTimeNotInFuture',
+          'Triage time cannot be in the future',
+        ),
+      ),
   });
 
   const triage = encounter.triages?.[0];
@@ -392,7 +427,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        validationSchema={isEmergency ? undefined : encounterValidationSchema}
+        validationSchema={isEmergency ? triageValidationSchema : encounterValidationSchema}
         onSubmit={isEmergency ? onSubmitTriageForm : onSubmitEncounterForm}
         render={({ submitForm }) => (
           <>
