@@ -22,9 +22,14 @@ export const resolveDuplicatedPatientDisplayIds = async (
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
   const nonDeletedChanges = changes.filter(c => !c.isDeleted);
-  const patientDisplayIds = nonDeletedChanges.map(c => c.data.displayId);
   const patientIds = nonDeletedChanges.map(c => c.data.id);
-  const foldedIncomingDisplayIds = new Set(patientDisplayIds.map(displayId => displayId.toLowerCase()));
+  // A pushed record without a display ID is merged field-wise on save, so skip it here rather
+  // than throwing and failing the whole push
+  const foldedIncomingDisplayIds = new Set(
+    nonDeletedChanges
+      .filter(c => typeof c.data.displayId === 'string')
+      .map(c => c.data.displayId.toLowerCase()),
+  );
 
   // Find existing patients that have the same displayIDs (case-insensitively) and are not the
   // same as the incoming patients
@@ -55,7 +60,7 @@ export const resolveDuplicatedPatientDisplayIds = async (
 
     // Update the to-be-synced patient's display ID to append '_duplicate_2'
     const updatedIncomingPatientSnapshotRecords = changes
-      .filter(c => !c.isDeleted && duplicatedFoldedDisplayIds.has(c.data.displayId.toLowerCase()))
+      .filter(c => !c.isDeleted && duplicatedFoldedDisplayIds.has(c.data.displayId?.toLowerCase()))
       .map(c => ({
         ...c,
         data: { ...c.data, displayId: `${c.data.displayId}_duplicate_2` },
