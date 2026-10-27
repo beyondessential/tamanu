@@ -1,4 +1,5 @@
 import React from 'react';
+import { route } from '@tamanu/api-client';
 import styled from 'styled-components';
 import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
@@ -256,7 +257,7 @@ export const InvoicesTable = ({ patient }) => {
 
   return (
     <Table
-      endpoint={`patient/${patient.id}/invoices`}
+      endpoint={route('patient/:patientId/invoices', { patientId: patient.id })}
       columns={COLUMNS}
       noDataMessage={
         <TranslatedText

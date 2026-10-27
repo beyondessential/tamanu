@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router';
+import { Routes, Route, Navigate, useMatch } from 'react-router';
 import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -22,13 +22,36 @@ import { UserActivityMonitor } from './components/UserActivityMonitor';
 import { getServerType } from './store';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { useSettings } from './contexts/Settings';
+import { KioskView } from './views/kiosk/KioskView';
+import { TelemetryRouteListener } from './telemetry';
 
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
-  return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+  return (
+    <>
+      {/* spec: BTEL — times each in-app navigation */}
+      <TelemetryRouteListener />
+      {isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />}
+    </>
+  );
 };
 
 export const RoutingFacilityApp = React.memo(() => {
+  const isKiosk = Boolean(useMatch('/kiosk/*'));
+  return isKiosk ? <RoutingKioskApp /> : <RoutingClinicalApp />;
+});
+
+/**
+ * The patient self check-in kiosk runs on its own, without the sidebar or the idle logout:
+ * a staff account signs the tablet in, then patients use it all day.
+ */
+const RoutingKioskApp = () => (
+  <App sidebar={null}>
+    <KioskView />
+  </App>
+);
+
+const RoutingClinicalApp = () => {
   const sidebarMenuItems = useFacilitySidebar();
   const { isSettingsLoaded } = useSettings();
 
@@ -52,7 +75,7 @@ export const RoutingFacilityApp = React.memo(() => {
       </Routes>
     </App>
   );
-});
+};
 
 export const RoutingAdminApp = React.memo(() => {
   const sidebarMenuItems = useCentralSidebar();

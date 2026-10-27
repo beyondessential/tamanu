@@ -22,7 +22,8 @@ export const SurveyScreenComponentSchema = z.object({
   validationCriteria: z.string().optional().nullable(),
   detail: z.string().optional().nullable(),
   config: z.string().optional().nullable(),
-  options: z.string().optional().nullable(),
+  // A question's own options, overriding its data element's, already parsed from JSON
+  options: z.unknown().optional().nullable(),
   calculation: z.string().optional().nullable(),
   visibilityStatus: z.string().optional().nullable(),
   dataElement: ProgramDataElementSchema.optional().nullable(),
