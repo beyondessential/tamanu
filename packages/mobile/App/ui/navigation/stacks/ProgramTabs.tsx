@@ -21,7 +21,9 @@ const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps)
   return (
     <FullView>
       <StackHeader title={joinNames(selectedPatient)} onGoBack={navigation.goBack} />
-      <TopTabNavigator>
+      {/* `none` lets hardware Back bubble to the parent stack and leave Programs, rather than
+          cycling to the View history tab, which auto-redirects back to New form for empty patients. */}
+      <TopTabNavigator backBehavior="none">
         <TopTabScreen
           options={{
             tabBarLabel: () => (
