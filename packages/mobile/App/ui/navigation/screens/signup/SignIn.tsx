@@ -8,6 +8,7 @@ import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { LanguageSelectButton } from './LanguageSelectButton';
 import { SupportCentreButton } from './SupportCentreButton';
+import { SelfUpdateSpikePanel } from '~/ui/components/SelfUpdateSpikePanel';
 import { SignInForm } from '/components/Forms/SignInForm';
 import { TamanuComboMark } from '/components/Icons';
 import { Routes } from '/helpers/routes';
@@ -55,6 +56,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation, route }: SignInProp
   return (
     <FullView background={theme.colors.PRIMARY_MAIN} justifyContent="space-between">
       <StatusBar barStyle="light-content" />
+      <SelfUpdateSpikePanel />
       <StyledSafeAreaView>
         <KeyboardAvoidingView behavior="position">
           <StyledView
