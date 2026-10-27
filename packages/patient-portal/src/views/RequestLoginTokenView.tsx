@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { Divider, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { Button } from '@tamanu/ui-components';
+import { Button, TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
 
 import { TextField } from '@components/TextField';
@@ -17,6 +17,7 @@ const LoginButton = styled(Button)(({ theme }) => ({
 export const RequestLoginTokenView = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { getTranslation } = useTranslation();
 
   const { mutate: submit } = useRequestLoginToken({
     onSuccess: ({ email }) => {
@@ -34,12 +35,14 @@ export const RequestLoginTokenView = () => {
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const email = (formData.get('email') as string)?.trim();
     if (!email) {
-      setError('*Required');
+      setError(getTranslation('validation.required.inline', '*Required'));
       return;
     }
     const { success: emailValid } = z.email().safeParse(email);
     if (!emailValid) {
-      setError('Please enter a valid email address');
+      setError(
+        getTranslation('patientPortal.login.invalidEmail', 'Please enter a valid email address'),
+      );
       return;
     }
 
@@ -54,14 +57,17 @@ export const RequestLoginTokenView = () => {
   return (
     <Card>
       <Typography variant="h1" component="h1" gutterBottom>
-        Log in
+        <TranslatedText stringId="patientPortal.login.title" fallback="Log in" />
       </Typography>
       <Typography variant="body1" mb={3} color="text.secondary">
-        Enter your email below. We will send a verification code for account authentication.
+        <TranslatedText
+          stringId="patientPortal.login.requestCode.text"
+          fallback="Enter your email below. We will send a verification code for account authentication."
+        />
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Email"
+          label={getTranslation('patientPortal.login.email', 'Email')}
           fullWidth
           name="email"
           id="email"
@@ -74,12 +80,20 @@ export const RequestLoginTokenView = () => {
           type="email"
         />
         <LoginButton type="submit" fullWidth variant="contained">
-          Send code
+          <TranslatedText stringId="patientPortal.login.sendCode" fallback="Send code" />
         </LoginButton>
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" color="text.secondary">
-          <strong>Issue with your email?</strong> If you have forgotten or lost access to your
-          email, please contact the healthcare facility associated with your Patient Portal.
+          <strong>
+            <TranslatedText
+              stringId="patientPortal.login.emailIssue.heading"
+              fallback="Issue with your email?"
+            />
+          </strong>{' '}
+          <TranslatedText
+            stringId="patientPortal.login.emailIssue.text"
+            fallback="If you have forgotten or lost access to your email, please contact the healthcare facility associated with your Patient Portal."
+          />
         </Typography>
       </form>
     </Card>

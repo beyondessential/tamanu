@@ -18,6 +18,7 @@ import './fonts.css';
 import { App } from './App';
 import { theme } from './theme/theme';
 import { TamanuApi } from '@api/TamanuApi';
+import { SessionSync } from '@api/SessionSync';
 import { initPortalTelemetry } from './telemetry';
 import { TranslationProvider } from './contexts';
 
@@ -59,6 +60,7 @@ async function bootstrap() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ApiContext.Provider value={api}>
+          <SessionSync />
           <TranslationProvider>
             <CacheProvider value={emotionCache}>
               <StylesProvider jss={jss}>

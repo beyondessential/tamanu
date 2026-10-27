@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
+import { format } from 'date-fns';
 
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 
@@ -131,6 +132,38 @@ export const createPatient = async (
     throw new Error(`Failed to create patient: ${response.status()} ${errorText}`);
   }
 
+
+  return response.json();
+};
+
+// Seeded on facility-1, the facility every spec signs in to.
+const OUTPATIENT_LOCATION_GROUP_ID = 'locationgroup-Outpatient-tamanu';
+
+const toStoredDateTime = (date: Date) => format(date, 'yyyy-MM-dd HH:mm:ss');
+
+export const createTodayOutpatientAppointmentViaApi = async (
+  api: APIRequestContext,
+  { patientId, facilityId }: { patientId: string; facilityId: string },
+) => {
+  const user = await getUser(api);
+  const now = new Date();
+  const end = new Date(now.getTime() + 15 * 60_000);
+
+  const response = await api.post(constructFacilityUrl('/api/appointments'), {
+    data: {
+      facilityId,
+      patientId,
+      clinicianId: user.id,
+      locationGroupId: OUTPATIENT_LOCATION_GROUP_ID,
+      appointmentTypeId: 'appointmentType-other',
+      startTime: toStoredDateTime(now),
+      endTime: toStoredDateTime(end),
+    },
+  });
+
+  if (!response.ok()) {
+    throw new Error(`Failed to create appointment: ${response.status()} ${await response.text()}`);
+  }
 
   return response.json();
 };

@@ -3,8 +3,8 @@ import { get } from 'es-toolkit/compat';
 import { styled } from '@mui/material';
 
 import { useQuery } from '@tanstack/react-query';
-import { Alert, SettingsContext, useApi } from '@tamanu/ui-components';
-import { StyledCircularProgress } from '@components/StyledCircularProgress';
+import { Alert, SettingsContext, TranslatedText, useApi } from '@tamanu/ui-components';
+import { PageLoading } from '@components/layout';
 import { route } from '@tamanu/api-client';
 import { setPortalTelemetryEnabled } from '../telemetry';
 
@@ -19,13 +19,14 @@ interface SettingsProviderProps {
   children: React.ReactNode;
 }
 
+export const settingsQueryOptions = (api: ReturnType<typeof useApi>, facilityId: string) => ({
+  queryKey: ['settings', facilityId],
+  queryFn: () => api.get(route('settings/:facilityId', { facilityId })),
+});
+
 export const useSettings = (facilityId: string) => {
   const api = useApi();
-  return useQuery({
-    queryKey: ['settings', facilityId],
-    queryFn: () => api.get(route('settings/:facilityId', { facilityId })),
-    enabled: Boolean(facilityId),
-  });
+  return useQuery({ ...settingsQueryOptions(api, facilityId), enabled: Boolean(facilityId) });
 };
 
 export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps) => {
@@ -37,14 +38,16 @@ export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps
   }, [settings]);
 
   if (isPending) {
-    return <StyledCircularProgress />;
+    return <PageLoading />;
   }
 
   if (isError) {
     return (
       <ErrorAlert severity="error">
-        There was an error loading settings. Please try again or contact support if the problem
-        persists.
+        <TranslatedText
+          stringId="patientPortal.settings.loadError"
+          fallback="There was an error loading settings. Please try again or contact support if the problem persists."
+        />
       </ErrorAlert>
     );
   }

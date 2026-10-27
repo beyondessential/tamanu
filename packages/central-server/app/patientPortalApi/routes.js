@@ -1,5 +1,11 @@
 import express from 'express';
-import { getSurvey, createSurveyResponse, suggestionRoutes, getSettings } from './surveys';
+import {
+  getSurvey,
+  createSurveyResponse,
+  suggestionRoutes,
+  getSettings,
+  getTimeZone,
+} from './surveys';
 import {
   getAdministeredVaccines,
   getAllergies,
@@ -7,6 +13,7 @@ import {
   getOngoingPrescriptions,
   getOutstandingSurveys,
   getPatient,
+  updatePatient,
   getUpcomingAppointments,
   getUpcomingVaccinations,
   getProcedures,
@@ -40,6 +47,7 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
 
   // Patient data routes
   router.get('/me', getPatient);
+  router.put('/me', updatePatient);
   router.get('/me/ongoing-conditions', getOngoingConditions);
   router.get('/me/allergies', getAllergies);
   router.get('/me/ongoing-prescriptions', getOngoingPrescriptions);
@@ -50,6 +58,8 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.get('/me/surveys/outstanding', getOutstandingSurveys);
 
   // Survey routes
+  router.get('/settings', getSettings);
+  router.get('/time-zone', getTimeZone);
   router.get('/settings/:facilityId', getSettings);
   router.get('/survey/:surveyId', getSurvey);
   router.post('/surveyResponse', createSurveyResponse);
