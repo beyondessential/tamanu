@@ -4,7 +4,7 @@ id: PUSH
 
 # Push progress tracking
 
-Central records how far each sync client has pushed to it, and is the authority on that progress. A sync client — a facility server or a mobile device — pushes its local changes to central in sync tick order; the point it has reached is a *push cursor*, a client-local sync tick meaning every change stamped at or before it has been delivered to central. Tracking this cursor on central, the receiver of the data, mirrors the way a client tracks how far it has pulled, so the side holding the data is the source of truth for what it holds. See `sync/overview.md` for the cursor model across both directions.
+Central records how far each sync client has pushed to it, and hands that record back as a check on the client's own cursor. A sync client — a facility server or a mobile device — pushes its local changes to central in sync tick order; the point it has reached is a *push cursor*, a client-local sync tick meaning every change stamped at or before it has been delivered to central. Clients own their sync state; central's record is a cross-check against what it has actually received, which catches the case where the two have diverged — a database restored from a snapshot, say — so that no change is quietly skipped. See `sync/overview.md` for the cursor model across both directions.
 
 ## Recording push progress
 
@@ -14,7 +14,7 @@ Central records how far each sync client has pushed to it, and is the authority 
 - [ ] A client reports the cursor it has reached as part of completing a push.
 - [ ] A client reports a cursor only when it has delivered every change it holds stamped at or before that tick. A client that pushes only some of its tables reports none, because the cursor would otherwise advance past records that were never persisted.
 - [ ] An idle sync with nothing to push still reports the cursor, so central's record advances in step with the client rather than lagging to the last non-empty push.
-- [ ] A client's push cursor on central only ever moves forward; a reported value lower than the stored one leaves it unchanged.
+- [ ] A client's push cursor on central only ever moves forward; a reported value lower than the stored one leaves it unchanged, since re-pushing from an earlier point does not reduce what central has received.
 - [ ] A reported cursor that is not a whole sync tick is discarded and recorded in central's logs, leaving the stored cursor unchanged.
 
 ## Resuming a push

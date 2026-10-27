@@ -237,8 +237,8 @@ describe('MobileSyncManager', () => {
       expect(completePushSpy).toBeCalledWith(sessionId, ['patients'], currentSyncTick);
     });
 
-    // Central is the authority on how far we've pushed, so we resume from the lower of its cursor
-    // and our own. Mirrors the facility cases in FacilitySyncManager.test.js (spec: PUSH).
+    // We check our own cursor against central's record and resume from the lower of the two.
+    // Mirrors the facility cases in FacilitySyncManager.test.js (spec: PUSH).
     describe('resuming from the lower of the two cursors', () => {
       const sessionId = 'test-session';
       const newSyncClockTime = 200;

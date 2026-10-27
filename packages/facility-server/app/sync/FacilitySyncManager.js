@@ -299,10 +299,10 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the central server
-    // Central is the source of truth for how far we've pushed. Resume from the lower of its
-    // recorded cursor and our own, so a database restored from a snapshot that diverges from
-    // central re-pushes what central is missing rather than skipping it (spec: PUSH). Fall back to
-    // our own cursor when central holds none (new device, or first sync after upgrade).
+    // Check our own cursor against central's record of what it has received, and resume from the
+    // lower of the two, so a database restored from a snapshot that diverges from central
+    // re-pushes what central is missing rather than skipping it (spec: PUSH). Fall back to our own
+    // cursor when central holds none (new device, or first sync after upgrade).
     const localPushCursor =
       (await this.models.LocalSystemFact.get(FACT_LAST_SUCCESSFUL_SYNC_PUSH)) || -1;
     const pushSince =

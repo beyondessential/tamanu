@@ -320,10 +320,10 @@ export class MobileSyncManager {
     // the next push
     await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
 
-    // Central is the source of truth for how far we've pushed. Resume from the lower of its
-    // recorded cursor and our own, so a database restored from a snapshot that diverges from
-    // central re-pushes what central is missing rather than skipping it (spec: PUSH). Fall back to
-    // our own cursor when central holds none.
+    // Check our own cursor against central's record of what it has received, and resume from the
+    // lower of the two, so a database restored from a snapshot that diverges from central
+    // re-pushes what central is missing rather than skipping it (spec: PUSH). Fall back to our own
+    // cursor when central holds none.
     const localPushCursor = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     const pushSince =
       centralPushCursor == null

@@ -55,8 +55,8 @@ export class Device extends Model {
           type: DataTypes.TEXT,
         },
         // The client-local sync tick up to which this device's pushed changes have been
-        // durably persisted here. Central is the authority on a client's push progress; the
-        // client resumes its push from the lower of this and its own cursor. See spec PUSH.
+        // durably persisted here. Handed back to the client as a cross-check, so it resumes its
+        // push from the lower of this and its own cursor. See spec PUSH.
         lastSuccessfulSyncPush: {
           type: DataTypes.BIGINT,
           allowNull: true,

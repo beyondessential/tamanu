@@ -11,9 +11,9 @@ import {
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
 
-// Central records how far each device has pushed, so it is the authority on a client's push
-// progress and a client restored from a snapshot that diverges from central re-pushes what central
-// is missing rather than skipping it. See spec PUSH.
+// Central records how far each device has pushed and hands it back as a cross-check, so a client
+// restored from a snapshot that diverges from central re-pushes what central is missing rather
+// than skipping it. See spec PUSH.
 describe('CentralSyncManager device push cursor', () => {
   let ctx;
   let models;

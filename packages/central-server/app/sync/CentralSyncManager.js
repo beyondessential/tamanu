@@ -697,8 +697,8 @@ export class CentralSyncManager {
     const session = await this.connectToSession(sessionId);
     const { startedAtTick } = session;
 
-    // Central is the authority on how far this device has pushed; hand that cursor back so the
-    // client resumes its push from the lower of it and the client's own cursor (spec: PUSH).
+    // Central's record of how far this device has pushed, handed back so the client can check its
+    // own cursor against it and resume from the lower of the two (spec: PUSH).
     const deviceId = session.parameters?.deviceId;
     const device = deviceId
       ? await this.store.models.Device.findByPk(deviceId, {
@@ -748,11 +748,12 @@ export class CentralSyncManager {
   }
 
   // Advance central's record of how far this device has pushed. GREATEST so a client reporting a
-  // lower cursor (e.g. restored from a snapshot behind central) never drags it back; a null value
-  // (no cursor reported, or one that failed validation) leaves it untouched (spec: PUSH). Runs in
+  // lower cursor (e.g. restored from a snapshot behind central) never drags back what central
+  // knows it has received; a cursor we couldn't use leaves the record untouched (spec: PUSH).
+  // The device is guaranteed to exist: every sync route requires an authenticated one. Runs in
   // the caller's transaction via CLS when there is one.
   async recordDevicePushCursor(deviceId, lastSuccessfulSyncPush) {
-    if (!deviceId || lastSuccessfulSyncPush === null) return;
+    if (lastSuccessfulSyncPush === null) return;
     await this.store.sequelize.query(
       `UPDATE devices
          SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :lastSuccessfulSyncPush)
@@ -764,7 +765,13 @@ export class CentralSyncManager {
     );
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile, reportedPush) {
+  async persistIncomingChanges(
+    sessionId,
+    deviceId,
+    tablesToInclude,
+    isMobile,
+    reportedPushSyncTick,
+  ) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -777,26 +784,29 @@ export class CentralSyncManager {
       ? filterModelsFromName(models, tablesToInclude)
       : getModelsForPush(models);
 
-    // Clients report the local tick they've pushed up to as a string or a number, and older
-    // clients don't report one at all. Coerce and validate here rather than at the route, so every
-    // caller of completePush goes through the same check. A value we can't use is dropped, but
-    // logged: a silently stuck device cursor is otherwise undiagnosable (spec: PUSH).
-    const parsedPush = reportedPush == null ? null : Number(reportedPush);
-    const lastSuccessfulSyncPush = Number.isInteger(parsedPush) ? parsedPush : null;
-    if (reportedPush != null && lastSuccessfulSyncPush === null) {
+    // Clients report the local sync tick they've pushed up to, as a string or a number. Coerce and
+    // validate here rather than at the route, so every caller of completePush goes through the
+    // same check. A value we can't use is dropped, but logged: a silently stuck device cursor is
+    // otherwise undiagnosable (spec: PUSH).
+    const parsedPushSyncTick =
+      reportedPushSyncTick == null ? null : Number(reportedPushSyncTick);
+    const lastSuccessfulSyncPush = Number.isInteger(parsedPushSyncTick)
+      ? parsedPushSyncTick
+      : null;
+    if (reportedPushSyncTick != null && lastSuccessfulSyncPush === null) {
       log.warn('CentralSyncManager.discardedReportedPushCursor', {
         sessionId,
         deviceId,
-        reportedPush,
+        reportedPushSyncTick,
       });
     }
 
     try {
       if (totalPushed === 0) {
         // An idle sync: the client delivered nothing, but still reports how far it has pushed so
-        // central's cursor stays in step with the client's rather than lagging to the last
+        // central's record stays in step with the client's rather than lagging to the last
         // non-empty push. A no-op push can't change what central holds, so we skip the clock
-        // ticks, hooks, save, and device tick, and only advance the cursor (spec: PUSH).
+        // ticks, hooks, save, and device tick, and only advance the record (spec: PUSH).
         await this.recordDevicePushCursor(deviceId, lastSuccessfulSyncPush);
       } else {
         // commit the changes to the db
@@ -935,7 +945,7 @@ export class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId, deviceId, tablesToInclude, reportedPush) {
+  async completePush(sessionId, deviceId, tablesToInclude, reportedPushSyncTick) {
     const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
@@ -946,7 +956,7 @@ export class CentralSyncManager {
       deviceId,
       tablesToInclude,
       session.parameters.isMobile,
-      reportedPush,
+      reportedPushSyncTick,
     ).finally(unmarkSessionAsProcessing);
   }
 

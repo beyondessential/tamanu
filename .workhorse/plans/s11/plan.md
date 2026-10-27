@@ -1,6 +1,6 @@
 # Synchronise push progress between central and sync clients
 
-Make central the source of truth for how far each sync client has pushed, mirroring how a client already owns its pull cursor. Behaviour is specified in `specs/sync/push-progress.md` (PUSH). This plan captures the implementation approach and the decisions behind it.
+Have central record how far each sync client has pushed and hand that back as a cross-check the client validates its own push cursor against. Clients still own their sync state; central's record is a validation check, not an authority. Behaviour is specified in `specs/sync/push-progress.md` (PUSH). This plan captures the implementation approach and the decisions behind it.
 
 ## The problem being fixed
 
