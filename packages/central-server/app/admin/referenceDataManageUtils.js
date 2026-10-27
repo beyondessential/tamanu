@@ -381,14 +381,24 @@ export const assertValidType = type => {
 };
 
 export const getWritableData = (columns, data, isEditMode) => {
-  const writableKeys = new Set(
-    columns
-      // Relation-backed columns aren't real columns; they're written separately (see
-      // applyRelationBackedWrite), so keep them out of the column write set.
-      .filter(c => !c.readOnly && !c.isRelationBacked && !(isEditMode && c.readOnlyOnEdit))
-      .map(c => c.key),
-  );
-  return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
+  const isWritable = col =>
+    // Relation-backed columns aren't real columns; they're written separately (see
+    // applyRelationBackedWrite), so keep them out of the column write set.
+    !col.readOnly && !col.isRelationBacked && !(isEditMode && col.readOnlyOnEdit);
+
+  // A text or number input the user cleared submits ''. On insert that means "no value was given",
+  // so drop it and let the column default apply. Writing '' would override the default, and a
+  // numeric column rejects it outright.
+  const shouldUseDefault = col => !isEditMode && col.hasDefault && data[col.key] === '';
+
+  const writableData = {};
+  for (const col of columns) {
+    if (!(col.key in data)) continue;
+    if (!isWritable(col)) continue;
+    if (shouldUseDefault(col)) continue;
+    writableData[col.key] = data[col.key];
+  }
+  return writableData;
 };
 
 /**
