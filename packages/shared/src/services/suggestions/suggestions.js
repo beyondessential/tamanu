@@ -25,6 +25,7 @@ import {
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { buildAvailableFacilitiesFilter } from '@tamanu/shared/utils/availableFacilities';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -342,19 +343,6 @@ function createSuggester(
 // once there's more than one status that we're checking against
 const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-};
-
-// Reusable filter: if availableFacilities is set on a reference data row,
-// only show it when the requesting facility is in the list. NULL means visible everywhere.
-// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
-const buildAvailableFacilitiesFilter = facilityId => {
-  if (!facilityId) return null;
-  return {
-    [Op.or]: [
-      { availableFacilities: null },
-      { availableFacilities: { [Op.contains]: [facilityId] } },
-    ],
-  };
 };
 
 const afterCreatedReferenceData = async (req, newRecord) => {
