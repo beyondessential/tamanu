@@ -22,6 +22,7 @@ export * from './enumRegistry';
 export * from './medication';
 export * from './initDeviceId';
 export * from './errorHandlerProblem';
+export * from './availableFacilities';
 // Note: ./crypto is intentionally NOT exported from this barrel. It pulls in
 // Node-only deps (fs, config, read, commander) and CLI actions, which would
 // bloat or break browser bundles (web, mobile) that consume this barrel.
