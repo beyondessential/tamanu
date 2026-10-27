@@ -14,7 +14,7 @@ import { TranslatedText } from '../../../../components/Translation/TranslatedTex
 import { ModalFormActionRow } from '../../../../components/ModalActionRow';
 import { FormSeparatorLine } from '../../../../components/FormSeparatorLine';
 import { FormField } from './FormField';
-import { REQUIRED_FIELDS } from './constants';
+import { isFieldRequired } from './constants';
 
 const DetailHeading = styled.h3`
   grid-column: 1 / -1;
@@ -33,7 +33,7 @@ const buildValidationSchema = (columns, isEditMode, initialValues = {}) => {
   for (const col of columns) {
     if (col.readOnly) continue;
     if (isEditMode && col.readOnlyOnEdit) continue;
-    if (REQUIRED_FIELDS.has(col.key) || (!col.allowNull && !col.hasDefault)) {
+    if (isFieldRequired(col, { isEditMode })) {
       let fieldSchema = yup.string().required('Required');
       const rule = CHARACTER_RULES[col.key];
       if (rule) {
