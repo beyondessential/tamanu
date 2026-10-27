@@ -203,7 +203,10 @@ kiosk.use(
       throw new NotFoundError();
     }
     // The suggesters check `list` on their model, which a kiosk account doesn't have
-    req.checkPermission = () => {};
+    const { checkPermission } = req;
+    req.checkPermission = (action, subject) => {
+      if (action !== 'list') checkPermission(action, subject);
+    };
     next();
   }),
   suggestions,
