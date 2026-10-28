@@ -658,7 +658,10 @@ document.addEventListener('click', event => {
   document.addEventListener('focusout', event => event.target.closest('.w11-field .MuiOutlinedInput-root')?.classList.remove('Mui-focused'));
   const updateSelectPlaceholders = form => form.querySelectorAll('select').forEach(select =>
     select.classList.toggle('w11-empty', select.value === ''));
+  // Errors show only on a submit attempt; a change after that can clear one but not raise a new one
+  let isClearOnly = false;
   const setError = (field, message) => {
+    if (isClearOnly && message) return;
     field.classList.toggle('w11-invalid', Boolean(message));
     field.querySelector('.MuiOutlinedInput-root')?.classList.toggle('Mui-error', Boolean(message));
     const helper = field.querySelector('.w11-helper');
@@ -666,7 +669,6 @@ document.addEventListener('click', event => {
     if (message) helper.textContent = message;
   };
   const clearErrors = form => form.querySelectorAll('.w11-field').forEach(field => setError(field, null));
-  // Errors show only after a submit attempt, then re-validate on change
   const validateRequired = form => {
     let firstInvalid = null;
     form.querySelectorAll('.w11-field').forEach(field => {
@@ -684,7 +686,13 @@ document.addEventListener('click', event => {
     form.hasAttemptedSubmit = false;
     const revalidate = () => {
       updateSelectPlaceholders(form);
-      if (form.hasAttemptedSubmit) validate();
+      if (!form.hasAttemptedSubmit) return;
+      isClearOnly = true;
+      try {
+        validate();
+      } finally {
+        isClearOnly = false;
+      }
     };
     form.addEventListener('input', revalidate);
     form.addEventListener('change', revalidate);
