@@ -30,7 +30,7 @@ The details used to bill the patient, grouped together so they are found in one 
 
 - [ ] Billing information holds, in order: insurer and insurance policy number (where
       patient insurers are enabled), insurance plan, patient type, annual income, family
-      size, Payor I, Payor I reference number, Payor II, and Payor II reference number.
+      size, Payor 1, Payor 1 reference number, Payor 2, and Payor 2 reference number.
       Each payor's reference number sits beside it.
 - [ ] Insurance plan accepts more than one plan, chosen from the insurance plans
       available to patients.
@@ -39,7 +39,7 @@ The details used to bill the patient, grouped together so they are found in one 
 - [ ] Family size is a whole number of one or more.
 - [ ] A value outside these ranges is rejected with a validation message on the field,
       and the patient's details are not saved until it is corrected.
-- [ ] Payor I and Payor II are each chosen by searching existing patient records, the
+- [ ] Payor 1 and Payor 2 are each chosen by searching existing patient records, the
       same way as the patient's mother and father. Each match shows the patient's name,
       display ID, sex and date of birth.
 - [ ] Each payor's reference number is a free-text field.
