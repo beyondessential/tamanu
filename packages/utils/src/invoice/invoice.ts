@@ -44,8 +44,52 @@ export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): De
   }, new Decimal(0));
 };
 
+/**
+ * The coverage each of the invoice's insurance plans provides, keyed by plan id. Totals add up to
+ * getInsuranceCoverageTotalAmount: where several plans together cover an item beyond its price,
+ * that item's capped coverage is shared between them in proportion to what each would have
+ * covered, so no plan is credited with money the invoice never owed.
+ */
+export const getCoverageAmountPerInsurancePlan = (invoice: Invoice): Map<string, Decimal> => {
+  const insurancePlans = invoice.insurancePlans || [];
+  const items = invoice.items || [];
+  const planCoverageTotals = new Map<string, Decimal>(
+    insurancePlans.map(plan => [plan.id, new Decimal(0)]),
+  );
+
+  for (const item of items) {
+    if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+      continue;
+    }
+
+    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+    const itemCoverageByPlan = item.insurancePlanItems
+      .filter(planItem => planCoverageTotals.has(planItem.id))
+      .map(planItem => ({
+        id: planItem.id,
+        amount: new Decimal(getItemSingleInsuranceCoverageAmount(discountedPrice, item, planItem)),
+      }));
+
+    const itemCoverageTotal = itemCoverageByPlan.reduce(
+      (sum, { amount }) => sum.plus(amount),
+      new Decimal(0),
+    );
+    const cappedShare = itemCoverageTotal.greaterThan(discountedPrice)
+      ? new Decimal(discountedPrice).dividedBy(itemCoverageTotal)
+      : new Decimal(1);
+
+    for (const { id, amount } of itemCoverageByPlan) {
+      planCoverageTotals.set(
+        id,
+        (planCoverageTotals.get(id) as Decimal).plus(amount.times(cappedShare)),
+      );
+    }
+  }
+
+  return planCoverageTotals;
+};
+
 /*
- * TODO: this is similar to getInsuranceCoverageTotalAmount and could be combined together
  * Calculate and format the total coverage amount for each insurance plan across all invoice items for display in printout
  */
 export const getFormattedCoverageAmountPerInsurancePlanForInvoice = (
@@ -56,42 +100,16 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = (
   code: string | undefined;
   totalCoverage: string | undefined;
 }> => {
-  const insurancePlans = invoice.insurancePlans || [];
-  const items = invoice.items || [];
-  const planCoverageTotals = new Map<string, Decimal>(
-    insurancePlans.map(p => [p.id, new Decimal(0)]),
-  );
+  const planCoverageTotals = getCoverageAmountPerInsurancePlan(invoice);
 
-  for (const item of items) {
-    if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
-      continue;
-    }
-
-    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-    for (const planItem of item.insurancePlanItems) {
-      if (planCoverageTotals.has(planItem.id)) {
-        const coverageAmount = getItemSingleInsuranceCoverageAmount(
-          discountedPrice,
-          item,
-          planItem,
-        );
-        planCoverageTotals.set(
-          planItem.id,
-          (planCoverageTotals.get(planItem.id) as Decimal).plus(coverageAmount),
-        );
-      }
-    }
-  }
-
-  return insurancePlans.map(plan => {
-    const totalCoverage = planCoverageTotals.get(plan.id) as Decimal;
-    return {
-      id: plan.id,
-      name: plan.name,
-      code: plan.code,
-      totalCoverage: formatDisplayPrice(totalCoverage.negated().toNumber()),
-    };
-  });
+  return (invoice.insurancePlans || []).map(plan => ({
+    id: plan.id,
+    name: plan.name,
+    code: plan.code,
+    totalCoverage: formatDisplayPrice(
+      (planCoverageTotals.get(plan.id) as Decimal).negated().toNumber(),
+    ),
+  }));
 };
 
 /**

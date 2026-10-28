@@ -9,6 +9,10 @@ export interface Product {
     price?: number;
     isFixedPrice?: boolean;
   };
+  invoiceInsurancePlanItems?: Array<{
+    invoiceInsurancePlanId: string;
+    coverageValue?: number;
+  }>;
 }
 
 export interface InvoiceDiscount {
@@ -29,7 +33,16 @@ export interface InsurancePlanItem {
   id: string;
   name?: string;
   code?: string;
+  label?: string;
   coverageValue?: number;
+}
+
+/** An insurance plan attached to an invoice. */
+export interface InsurancePlan {
+  id: string;
+  name?: string;
+  code?: string;
+  defaultCoverage?: number;
 }
 
 export interface FinalisedInsurance {
@@ -72,7 +85,7 @@ export interface Invoice {
   status?: string;
   items?: InvoiceItem[];
   payments?: Payment[];
-  insurancePlans?: InsurancePlanItem[];
+  insurancePlans?: InsurancePlan[];
   discount?: InvoiceDiscount;
 }
 

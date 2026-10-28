@@ -4,10 +4,11 @@ import { chain } from 'lodash-es';
 import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
 import {
+  getInsurancePlanItemsForInvoiceItem,
+  getInsurancePlanPaymentBalance,
   getInvoiceInsurancePlanPaymentStatus,
   getInvoiceSummary,
   round,
-  getSpecificInsurancePlanPaymentRemainingBalance,
 } from '@tamanu/utils/invoice';
 import { INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
 import { toDateString } from '@tamanu/utils/dateTime';
@@ -36,9 +37,9 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 const toSheetDateString = value =>
   value instanceof Date && !Number.isNaN(value.getTime()) ? toDateString(value) : value;
 
-const getPaymentStatus = (amount, planDiscountTotal) => {
+const getPaymentStatus = (amount, planCoverageTotal) => {
   if (amount === 0) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED;
-  if (amount === round(planDiscountTotal, 2)) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID;
+  if (amount === round(planCoverageTotal, 2)) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID;
   return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL;
 };
 
@@ -134,28 +135,24 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
-    const { invoiceItemsTotal, insurancePlanPaymentsTotal: allPlanPaymentsTotal } =
-      getInvoiceSummary(invoice);
-    const plans = (invoice?.insurancePlans ?? []).map(plan => ({
-      invoiceInsurancePlanId: plan.id,
-      percentage: (plan.defaultCoverage ?? 0) / 100,
-    }));
-    const allPlansCoverageTotal = round(
-      plans
-        .reduce(
-          (sum, plan) => sum.plus(new Decimal(invoiceItemsTotal).times(plan.percentage)),
-          new Decimal(0),
-        )
-        .toNumber(),
-      2,
+    // Invoice items carry no insurance plan rows of their own, so the coverage the invoice screen
+    // shows has to be built before any of it can be totalled.
+    const pricedInvoice = {
+      ...invoice.get({ plain: true }),
+      items: (invoice.items ?? []).map(item => ({
+        ...item.get({ plain: true }),
+        insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoice.insurancePlans),
+      })),
+    };
+
+    const {
+      insuranceCoverageTotal: allPlansCoverageTotal,
+      insurancePlanPaymentsTotal: allPlanPaymentsTotal,
+    } = getInvoiceSummary(pricedInvoice);
+    const { planCoverageTotal, planPaymentRemainingBalance } = getInsurancePlanPaymentBalance(
+      pricedInvoice,
+      data.invoiceInsurancePlanId,
     );
-    const { planDiscountTotal, planPaymentRemainingBalance } =
-      getSpecificInsurancePlanPaymentRemainingBalance(
-        plans,
-        invoice?.payments ?? [],
-        data.invoiceInsurancePlanId,
-        invoiceItemsTotal,
-      );
 
     const existingPayment = await models.InvoiceInsurancePlanPayment.findByPk(data.id, {
       include: models.InvoiceInsurancePlanPayment.getFullReferenceAssociations(),
@@ -212,7 +209,7 @@ export async function insurancePlanPaymentImporter({
             {
               invoiceInsurancePlanId: data.invoiceInsurancePlanId,
               reason: data.reason,
-              status: getPaymentStatus(data.amount, planDiscountTotal),
+              status: getPaymentStatus(data.amount, planCoverageTotal),
             },
             { where: { id: existingPayment.id } },
           );
@@ -231,7 +228,7 @@ export async function insurancePlanPaymentImporter({
             invoicePaymentId: payment.id,
             invoiceInsurancePlanId: data.invoiceInsurancePlanId,
             reason: data.reason,
-            status: getPaymentStatus(data.amount, planDiscountTotal),
+            status: getPaymentStatus(data.amount, planCoverageTotal),
           });
         }
 
