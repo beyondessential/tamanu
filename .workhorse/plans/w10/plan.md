@@ -15,6 +15,11 @@ Mockup: `.workhorse/design/mockups/w10/Mockup.html`
 - A search needs at least one criterion. Selecting Search with every field blank keeps the empty state, so a blank search can't be used to get around it
 - "Include deceased patients" is a modifier, not a criterion: ticking it alone keeps the empty state
 - Clear returns to the empty state
+- Fields containing only spaces count as blank
+- Sex, village and date-of-birth range count as criteria on their own, so a search on one of them alone lists results the way it does today
+- Users without permission to list patients keep the existing no-permission state rather than the guided empty state
+- The recently viewed patients list stays as it is
+- The hint uses the deployment's localised identifier label (`general.localisedField.displayId.label.short`), not a hardcoded "NHN"
 - The listing doesn't remember the last search. It opens empty every time, including when coming back from a patient. The admitted and outpatient listings do remember their search, but this listing keeps its existing local-state behaviour
 - Only the all patients listing changes. The admitted and outpatient listings already show a specific set of patients and keep loading straight away
 
