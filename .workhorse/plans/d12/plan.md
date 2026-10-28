@@ -4,8 +4,11 @@
 
 ### Total balance
 
-- The total balance above the patient invoices table is the sum of every invoice's patient total due, whatever its status. The `totalOutstandingBalance` route in `packages/facility-server/app/routes/apiv1/patient/patientInvoice.js` filters to finalised invoices today, so that filter changes with it
-- Whether cancelled invoices count towards the total is not yet decided
+- The total balance above the patient invoices table is the sum of the patient total due on every in-progress and finalised invoice. Cancelled invoices are left out. The `totalOutstandingBalance` route in `packages/facility-server/app/routes/apiv1/patient/patientInvoice.js` filters to finalised invoices today, so that filter widens to include in-progress ones
+
+### Admission column
+
+- An invoice whose encounter changed type shows every type it has held, in the order it held them, as comma-separated abbreviations (e.g. "ESS, HA"). The table shows only the encounter's current type today (`getEncounterType` in `InvoicesTable.jsx`); the earlier types come from the encounter's history (`EncounterHistory`), which the invoices list route needs to include
 
 ### Title alignment when the table scrolls
 
