@@ -576,15 +576,27 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   const SLIDING_FEE_SCALE_PLAN = 'Sliding fee scale';
   let hasAttemptedSave = false;
   let validateSlidingFeeScale = () => true;
+  const REQUIRED_ORNAMENT = '<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span>';
+  const markRequired = (fieldKey, isRequired) => {
+    const label = document.querySelector(`[data-testid="secondarydetailsformgrid-bill"] [data-wh-field="${fieldKey}"] .label-field`);
+    label.querySelector('.iVXoYX')?.remove();
+    if (isRequired) label.insertAdjacentHTML('beforeend', REQUIRED_ORNAMENT);
+  };
   const revalidate = () => {
     if (hasAttemptedSave) validateSlidingFeeScale();
+  };
+  const onInsurancePlanChange = plans => {
+    const isSlidingFeeScale = plans.includes(SLIDING_FEE_SCALE_PLAN);
+    markRequired('fmsz', isSlidingFeeScale);
+    markRequired('anin', isSlidingFeeScale);
+    revalidate();
   };
 
   const insurancePlan = wireSelect({
     fieldSelector: '[data-testid="secondarydetailsformgrid-bill"] [data-testid="multiselectinput-vf2i"]',
     options: ['Insurance Plan 1', 'Insurance Plan 2', SLIDING_FEE_SCALE_PLAN],
     isMulti: true,
-    onChange: revalidate,
+    onChange: onInsurancePlanChange,
   });
   wireSelect({
     fieldSelector: '[data-testid="secondarydetailsformgrid-bill"] [data-testid="selectinput-phtg-select"]',
