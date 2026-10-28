@@ -4,7 +4,7 @@ description: "Workshop the shape of this project — audience, components, ambig
 label: "Workshop project"
 surface: project
 jockey-hint: "Top pill on the project surface when the PRD is empty and no project conversation has occurred yet. Demote sharply once the PRD has substantive content or once the conversation has clearly moved past shaping."
-workhorse-version: 0.3.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Workshop project

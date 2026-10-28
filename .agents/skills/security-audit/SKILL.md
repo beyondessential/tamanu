@@ -6,7 +6,7 @@ pill-order:
   implementing: 5
   reviewing: 5
   complete: 4
-workhorse-version: 0.3.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Security audit

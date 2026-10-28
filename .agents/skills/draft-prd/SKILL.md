@@ -4,7 +4,7 @@ description: "Draft or refine the project's PRD from the description and convers
 label: "Draft PRD"
 surface: project
 jockey-hint: "Top pill on the project surface when the PRD is empty. Demote once the PRD has substantive content unless the user signals a fresh draft pass."
-workhorse-version: 0.4.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Draft PRD

@@ -8,7 +8,7 @@ pill-order:
   implementing: 1
   reviewing: 2
 jockey-hint: "Demote once implementation has begun on this card — the user typically doesn't want to restart from scratch. Leave high when the card is still in specifying phase, or when the user explicitly asks to resume or redo."
-workhorse-version: 0.4.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Implement this
@@ -55,3 +55,13 @@ See `specs/test-cases/overview.md` for the file's shape.
 If while implementing you find the spec is unclear, contradictory, or missing something you need, don't guess. Surface it in chat and propose a spec edit before continuing. Prefer editing the existing spec over creating a new one (see `.agents/docs/spec-format.md`).
 
 If there's no spec and the description/conversation is thin, say so and ask rather than inventing behaviour.
+
+### Last step: the progress summary
+
+When this stage's work is done, finish by bringing the card's progress summary up to date, so people who were not in this conversation can see where the card stands.
+
+1. Read the current summary with `get_card`, and the comments posted since its `readThrough` with `list_comments` (`since`), so decisions made in the discussion are not missed
+2. Revise it with `revise_progress`, passing back the `readAt` `get_card` reported and carrying over the sections this stage did not change, with a one-line note on what changed
+3. Tell the user in a line what you recorded; they can edit it from the card home
+
+Skip it when nothing has changed since the summary was last revised.
