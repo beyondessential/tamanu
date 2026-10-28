@@ -1412,7 +1412,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     it('re-queues the rows for a facility that has already pulled past them', async () => {
       // Rescoping alone leaves every row at the tick it was built with, so a facility that has
       // already synced would never ask for it again and the change would appear to do nothing.
-      // The fresh tick is what makes the history actually arrive.
+      // Re-marking the patients is what makes the history actually arrive.
       const central = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[0]);
       const western = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[1]);
       await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[2]);
@@ -1430,6 +1430,53 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         Number(tickAlreadyPulled),
       );
       expect(encounterIds).toContain(central.encounter.id);
+    });
+
+    // The same upgrade flags tables for a full lookup rebuild, which takes each row's tick back from
+    // its source record. A re-tick held only on the lookup rows was undone by it.
+    it('still delivers the history after a full lookup rebuild', async () => {
+      const central = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[0]);
+      const western = await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[1]);
+      await createFijiSrhFacility(FIJI_SRH_FACILITY_IDS[2]);
+      const centralSyncManager = await buildLookup(FIJI_SRH_FACILITY_IDS);
+
+      const { updatedAtSyncTick: tickAlreadyPulled } = await models.SyncLookup.findOne({
+        where: { recordId: central.encounter.id },
+      });
+
+      await runFijiSrhStep();
+      await ctx.store.sequelize.query(`SELECT flag_lookup_model_to_rebuild('encounters')`);
+      await centralSyncManager.updateLookupTable();
+
+      const encounterIds = await pullEncounterIds(
+        centralSyncManager,
+        [western.facility.id],
+        Number(tickAlreadyPulled),
+      );
+      expect(encounterIds).toContain(central.encounter.id);
+    });
+
+    it('re-marks only the patients of the SRH facilities', async () => {
+      for (const id of FIJI_SRH_FACILITY_IDS) await createFijiSrhFacility(id);
+      // marked there by its encounter in the outer setup
+      const otherPatientFacilityWhere = {
+        where: { patientId: patient.id, facilityId: nonSensitiveFacility.id },
+      };
+      const { updatedAtSyncTick: tickBefore } =
+        await models.PatientFacility.findOne(otherPatientFacilityWhere);
+      await models.LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK, 2);
+
+      await runFijiSrhStep();
+
+      const srhPatientFacilities = await models.PatientFacility.findAll({
+        where: { facilityId: FIJI_SRH_FACILITY_IDS },
+      });
+      expect(srhPatientFacilities).toHaveLength(FIJI_SRH_FACILITY_IDS.length);
+      for (const { updatedAtSyncTick } of srhPatientFacilities) {
+        expect(Number(updatedAtSyncTick)).toBeGreaterThan(Number(tickBefore));
+      }
+      const otherAfter = await models.PatientFacility.findOne(otherPatientFacilityWhere);
+      expect(otherAfter.updatedAtSyncTick).toBe(tickBefore);
     });
 
     it('fails rather than enrolling into a network that already holds the id', async () => {

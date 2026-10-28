@@ -12,6 +12,7 @@ import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMult
 import { TranslatedText } from '../../../components';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { notifySuccess } from '../../../utils';
+import { route } from '@tamanu/api-client';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-left: 10px;
@@ -54,7 +55,8 @@ export const ExporterView = memo(
       async queryParameters => {
         const saved = await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTime()}`,
-          getData: async () => await api.download(`admin/export/${endpoint}`, queryParameters),
+          getData: async () =>
+            await api.download(route('admin/export/:endpoint', { endpoint }), queryParameters),
           extension: 'xlsx',
         });
         if (saved) {

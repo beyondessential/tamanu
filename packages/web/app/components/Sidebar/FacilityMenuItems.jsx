@@ -328,6 +328,17 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: (
           <TranslatedText
+            stringId="sidebar.facilityAdmin.recentlyDischargedPatients"
+            fallback="Recently discharged"
+            data-testid="translatedtext-rdp-sidebar"
+          />
+        ),
+        key: 'recentlyDischargedPatients',
+        path: '/facility-admin/recently-discharged-patients',
+      },
+      {
+        label: (
+          <TranslatedText
             stringId="sidebar.facilityAdmin.systemErrors"
             fallback="System errors"
             data-testid="translatedtext-syse"

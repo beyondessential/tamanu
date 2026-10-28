@@ -7,6 +7,7 @@ import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation/TranslatedText';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -57,7 +58,7 @@ const NoteContent = styled.p`
 
 export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNoteDeleted }) => {
   const api = useApi();
-  const deleteNote = async noteId => api.delete(`notes/${noteId}`);
+  const deleteNote = async noteId => api.delete(route('notes/:noteId', { noteId }));
   return (
     <NoteContainer data-testid="notecontainer-6fi4">
       <NoteHeaderContainer data-testid="noteheadercontainer-yyig">

@@ -8,6 +8,9 @@ export const routes = {
     patientDetails: '/patients/all/*',
     outpatients: '/patients/outpatient',
   },
+  facilityAdmin: {
+    recentlyDischargedPatients: '/facility-admin/recently-discharged-patients',
+  },
 };
 
 export function wildcardToRegex(route: string): RegExp {

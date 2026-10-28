@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { route } from '@tamanu/api-client';
 
 import { useApi } from '../useApi';
 
@@ -12,13 +13,12 @@ export const useLocationBookingMutation = (
   const queryClient = useQueryClient();
 
   return useMutation(
-    (payload) =>
+    payload =>
       isEdit
-        ? api.put(
-            `${BASE_URL}/${payload.id}${skipConflictCheck ? '?skipConflictCheck=true' : ''}`,
-            payload,
-            { throwResponse: true },
-          )
+        ? api.put(route(`${BASE_URL}/:id`, { id: payload.id }), payload, {
+            query: skipConflictCheck ? { skipConflictCheck: true } : {},
+            throwResponse: true,
+          })
         : api.post(BASE_URL, payload, { throwResponse: true }),
     {
       ...useMutationOptions,

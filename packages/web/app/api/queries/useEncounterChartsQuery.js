@@ -3,6 +3,7 @@ import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constant
 import { combineQueries, useApi } from '../index';
 import { getConfigObject } from '../../utils';
 import { useSurveyQuery } from './useSurveyQuery';
+import { route } from '@tamanu/api-client';
 
 function hasHistoricalData(answer) {
   if (!answer) return false;
@@ -71,7 +72,11 @@ export const useEncounterChartsQuery = (encounterId, surveyId, instanceId) => {
   const api = useApi();
   const chartQuery = useQuery(
     ['encounterCharts', encounterId, surveyId, instanceId],
-    () => api.get(`encounter/${encounterId}/charts/${surveyId}`, { rowsPerPage: 50, instanceId }),
+    () =>
+      api.get(route('encounter/:encounterId/charts/:surveyId', { encounterId, surveyId }), {
+        rowsPerPage: 50,
+        instanceId,
+      }),
     { enabled: Boolean(surveyId) },
   );
   const surveyQuery = useSurveyQuery(surveyId);

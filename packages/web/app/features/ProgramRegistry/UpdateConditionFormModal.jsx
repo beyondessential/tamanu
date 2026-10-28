@@ -26,6 +26,7 @@ import { ConditionHistoryTable } from './ConditionHistoryTable';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
+import { route } from '@tamanu/api-client';
 
 const StyledFormTable = styled(FormTable)`
   margin-block: 1rem;
@@ -43,7 +44,10 @@ const useUpdateConditionMutation = (patientProgramRegistrationId, conditionId) =
 
   return useMutation(
     data => {
-      return api.put(`patient/programRegistration/condition/${conditionId}`, data);
+      return api.put(
+        route('patient/programRegistration/condition/:conditionId', { conditionId }),
+        data,
+      );
     },
     {
       onSuccess: () => {

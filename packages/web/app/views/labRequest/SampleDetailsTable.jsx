@@ -29,6 +29,11 @@ export const SampleDetailsContainer = styled.div`
     font-size: 14px;
   }
 
+  .MuiFormHelperText-root {
+    position: absolute;
+    inset-block-start: 100%;
+  }
+
   ${p =>
     p.$showTestColumns === false &&
     css`
@@ -61,6 +66,10 @@ export const SampleDetailsCell = styled.div`
   }
 
   border-bottom: 1px solid ${Colors.outline};
+
+  ${SampleDetailsContainer}:has(.MuiFormHelperText-root) & {
+    padding-bottom: 24px;
+  }
 `;
 
 export const SampleDetailsLabelCell = styled(SampleDetailsCell)`

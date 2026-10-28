@@ -1,22 +1,23 @@
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios';
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
+
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
+import { CentralConnectionStatus } from '~/types';
 import { readConfig, writeConfig } from '../config';
-import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
   generalErrorMessage,
-  invalidTokenMessage,
   invalidDeviceMessage,
+  invalidTokenMessage,
   OutdatedVersionError,
 } from '../error';
-import { version } from '/root/package.json';
+import type { FetchOptions, LoginResponse, SyncRecord } from './types';
 import { callWithBackoff, sleepAsync } from './utils';
 import { compressibleRequestBody } from './utils/compressibleRequestBody';
-import { CentralConnectionStatus } from '~/types';
+import { version } from '/root/package.json';
 
 interface PullMetadataResponse {
   /** A Postgres `count(*)` is a bigint, which arrives serialised as a string */
@@ -36,12 +37,8 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   const problem = Problem.fromJSON(problemJson);
 
   if (!problem) {
-    return new Problem(
-      ERROR_TYPE.UNKNOWN,
-      'Unknown error',
-      err.response?.status,
-      err.response?.statusText,
-    );
+    // React Native's XHR has no statusText, so describe the failure from axios instead
+    return new Problem(ERROR_TYPE.UNKNOWN, err.message, err.response?.status);
   }
 
   if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
