@@ -1,13 +1,7 @@
 import Decimal from 'decimal.js';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice } from './display';
-import {
-  calculateInvoiceItem,
-  capInsuranceCoverage,
-  getInvoiceItemPlanCoverages,
-  getInvoiceItemTotalDiscountedPrice,
-  type InvoiceItemPricing,
-} from './invoiceItem';
+import { calculateInvoiceItem, capInsuranceCoverage, type InvoiceItemPricing } from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
 import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
 
@@ -39,11 +33,14 @@ const sumOf = (values: Array<number | Decimal>): Decimal =>
  * line with an empty plan list is still capped, so a line discounted below zero contributes its
  * negative discounted price. Kept as-is so consolidating pricing moves no figure.
  */
-const getItemCoverageTowardsTotal = (item: InvoiceItem, discountedPrice: number): Decimal => {
+const getItemCoverageTowardsTotal = (
+  item: InvoiceItem,
+  itemPricing: InvoiceItemPricing,
+): Decimal => {
   if (!item?.product?.insurable || !item.insurancePlanItems) {
     return new Decimal(0);
   }
-  return capInsuranceCoverage(getInvoiceItemPlanCoverages(item, discountedPrice), discountedPrice);
+  return capInsuranceCoverage(itemPricing.coverageByPlan, itemPricing.discountedPrice);
 };
 
 /**
@@ -51,11 +48,7 @@ const getItemCoverageTowardsTotal = (item: InvoiceItem, discountedPrice: number)
  * capped at its discounted price.
  */
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
-  sumOf(
-    invoiceItems.map(item =>
-      getItemCoverageTowardsTotal(item, getInvoiceItemTotalDiscountedPrice(item) || 0),
-    ),
-  );
+  sumOf(invoiceItems.map(item => getItemCoverageTowardsTotal(item, calculateInvoiceItem(item))));
 
 const getCoverageByPlan = (
   invoice: Invoice,
@@ -97,9 +90,7 @@ export const calculateInvoice = (invoice: Invoice): InvoicePricing => {
   const invoiceItemsUndiscountedTotal = sumOf(itemPricings.map(({ totalPrice }) => totalPrice));
   const invoiceItemsTotal = sumOf(itemPricings.map(({ discountedPrice }) => discountedPrice));
   const insuranceCoverageTotal = sumOf(
-    items.map((item, index) =>
-      getItemCoverageTowardsTotal(item, itemPricings[index]!.discountedPrice),
-    ),
+    items.map((item, index) => getItemCoverageTowardsTotal(item, itemPricings[index]!)),
   );
 
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);

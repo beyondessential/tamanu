@@ -81,7 +81,10 @@ export interface InvoiceItemPricing {
   /** Discounted price minus total price: negative for a discount, positive for a markup */
   adjustment: number;
   coverageByPlan: InvoiceItemPlanCoverage[];
-  /** Insurance coverage of the line, capped at its discounted price */
+  /**
+   * Insurance coverage of the line, capped at its discounted price. An insurable line with an
+   * empty plan list has none here, though the invoice total still caps it (see `calculateInvoice`)
+   */
   insuranceCoverage: number;
   netCost: number;
 }
