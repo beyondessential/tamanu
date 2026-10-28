@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import Decimal from 'decimal.js';
-import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { apportionInsuranceCoverage, calculateInvoice, calculateInvoiceItem } from '../src/invoice';
 import type { InsurancePlanItem, InvoiceItem } from '../src/invoice/types';
 
@@ -96,6 +96,18 @@ describe('calculateInvoiceItem', () => {
 });
 
 describe('calculateInvoice', () => {
+  it('gives an insurable line with no plans no coverage, even when discounted below zero', () => {
+    const item = insurableItem(100, [], {
+      discount: { type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT, amount: 120 },
+    });
+
+    const { items, summary } = calculateInvoice({ items: [item], insurancePlans: [] });
+
+    expect(items[0]!.insuranceCoverage).toBe(0);
+    expect(summary.insuranceCoverageTotal).toBe(0);
+    expect(summary.patientTotal).toBe(-20);
+  });
+
   it('applies the invoice-level discount to what is left after insurance', () => {
     const { summary } = calculateInvoice({
       discount: { percentage: 0.25 },

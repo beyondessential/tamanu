@@ -128,7 +128,7 @@ export const capInsuranceCoverage = (
  *
  * Each share is rounded down to the cent, and any cents left over go to the plan with the highest
  * percentage (the lowest plan id on a tie), so the shares always add up to the line's coverage.
- * Where the cap doesn't apply, each plan's share is its own coverage rounded to the cent.
+ * Where the cap doesn't apply, each share is within a cent of that plan's own coverage.
  */
 export const apportionInsuranceCoverage = (
   insuranceCoverage: Decimal,
