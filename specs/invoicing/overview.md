@@ -18,3 +18,4 @@ Adding or editing an invoice item uses the same form and validation.
 
 - [ ] An insurance plan can be restricted to a set of facilities; a plan with no facilities set is available at every facility.
 - [ ] When adding an insurance plan to an invoice, only plans available at the invoice's facility are offered.
+- [ ] When an encounter changes encounter type, insurance plans are set per encounter type period rather than for the whole invoice (see `invoicing/encounter-type-groups.md`).
