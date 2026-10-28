@@ -14,6 +14,7 @@
 
 - The table title (`TableTitle` in `InvoicesTable.jsx`) is sized to the visible width of the scroll container, so on narrow screens "Total balance" lands partway across the table
 - Giving the invoices table's container `display: grid` makes the title span the table's full scroll width, so the total sits over the right end of the table. Pass it through the `Table` component's existing `containerStyle` prop rather than changing the shared `StyledTableContainer`, which every table uses
+- The table's right-hand spacer column (the row `::after` cell) collapses to nothing once the table is narrow enough to scroll, and the last cell has no right padding, so the Status badges sit against the edge. The last cell carries the full right padding instead, matching the 30px on the left
 
 ### Print table summary
 

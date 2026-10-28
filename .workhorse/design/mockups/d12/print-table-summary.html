@@ -320,6 +320,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .kNDaJM .MuiTableBody-root .MuiTableRow-root:not(.statusRow):hover { background-color: rgb(244, 249, 255); /* veryLightBlue */ }
 .gkekoc { margin: 24px 25px 0px 14px; }
 .invoiceTableScroll { display: grid; }
+.invoiceTableScroll .MuiTableHead-root .MuiTableRow-root::after, .invoiceTableScroll .MuiTableBody-root .MuiTableRow-root::after { display: none; }
+.invoiceTableScroll .MuiTableCell-head:last-child, .invoiceTableScroll .MuiTableCell-body:last-child { padding-right: 30px; }
 /* Print modal (BaseModal, md width) */
 .printBackdrop { position: fixed; inset: 0; z-index: 1300; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.5); }
 .printDialog { display: flex; flex-direction: column; width: calc(100% - 64px); max-width: 830px; max-height: calc(100% - 64px); margin: 32px; overflow: clip; background: rgb(255, 255, 255); /* white */ border-radius: 3px; box-shadow: rgba(0, 0, 0, 0.2) 0px 11px 15px -7px, rgba(0, 0, 0, 0.14) 0px 24px 38px 3px, rgba(0, 0, 0, 0.12) 0px 9px 46px 8px; font-family: Roboto; }
