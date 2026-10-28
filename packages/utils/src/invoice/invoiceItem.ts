@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 import { INVOICE_ITEMS_CATEGORIES, INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getDiscountedPrice } from './discount';
+import { roundToCents } from './money';
 import type { InvoiceItem, InsurancePlanItem } from './types';
 
 /**
@@ -33,24 +34,28 @@ export const isFixedPriceItem = (invoiceItem: InvoiceItem): boolean => {
 };
 
 /**
- * Get the price of an invoice item row
+ * Get the price of an invoice item row, rounded to the cent
  */
 export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
   const quantity = isFixedPriceItem(invoiceItem) ? 1 : (invoiceItem.quantity ?? 0);
-  return new Decimal(price).times(quantity).toNumber();
+  return roundToCents(new Decimal(price).times(quantity)).toNumber();
 };
 
 /**
- * Get the price of an invoice item after applying the discount
+ * Get the price of an invoice item after applying the discount, rounded to the cent
  */
 export const getInvoiceItemTotalDiscountedPrice = (invoiceItem: InvoiceItem): number => {
   const invoiceItemTotalPrice = getInvoiceItemTotalPrice(invoiceItem);
   if (!invoiceItem.discount) return invoiceItemTotalPrice;
   if (invoiceItem.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
-    return getDiscountedPrice(invoiceItemTotalPrice, invoiceItem?.discount?.amount || 0);
+    return roundToCents(
+      getDiscountedPrice(invoiceItemTotalPrice, invoiceItem?.discount?.amount || 0),
+    ).toNumber();
   }
-  return invoiceItemTotalPrice - (invoiceItem?.discount?.amount || 0);
+  return roundToCents(
+    new Decimal(invoiceItemTotalPrice).minus(invoiceItem?.discount?.amount || 0),
+  ).toNumber();
 };
 
 /**
@@ -128,10 +133,16 @@ export const capInsuranceCoverage = (
 export const calculateInvoiceItem = (item: InvoiceItem): InvoiceItemPricing => {
   const totalPrice = getInvoiceItemTotalPrice(item) || 0;
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-  const coverageByPlan = getInvoiceItemPlanCoverages(item, discountedPrice);
+  const coverageByPlan = getInvoiceItemPlanCoverages(item, discountedPrice).map(planCoverage => ({
+    ...planCoverage,
+    coverage: roundToCents(planCoverage.coverage).toNumber(),
+  }));
+  // Cap the plans' unrounded coverage, then round, so the line is rounded once
   const insuranceCoverage =
     coverageByPlan.length > 0
-      ? capInsuranceCoverage(coverageByPlan, discountedPrice).toNumber()
+      ? roundToCents(
+          capInsuranceCoverage(getInvoiceItemPlanCoverages(item, discountedPrice), discountedPrice),
+        ).toNumber()
       : 0;
 
   return {

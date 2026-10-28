@@ -3,14 +3,14 @@
     "invoiceItemsUndiscountedTotal": 133.33,
     "invoiceItemsTotal": 133.33,
     "insuranceCoverageTotal": 60,
-    "patientTotal": 54.9975,
-    "discountTotal": 18.3325,
+    "patientTotal": 55,
+    "discountTotal": 18.33,
     "itemAdjustmentsTotal": 0,
     "patientSubtotal": 73.33,
     "patientPaymentsTotal": 10,
     "insurancePlanPaymentsTotal": 0,
     "paymentsTotal": 10,
-    "patientPaymentRemainingBalance": 44.9975,
+    "patientPaymentRemainingBalance": 45,
     "insurancePlanPaymentRemainingBalance": 60
   },
   "summaryDisplay": {
@@ -69,7 +69,7 @@
   "patientPayments": [
     {
       "id": "pay-1",
-      "remainingBalance": 44.9975
+      "remainingBalance": 45
     }
   ],
   "insurancePlanPayments": []

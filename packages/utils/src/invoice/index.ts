@@ -5,4 +5,5 @@ export * from './bedFee';
 export * from './payments';
 export * from './display';
 export * from './discount';
+export * from './money';
 export * from './types';

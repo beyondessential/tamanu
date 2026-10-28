@@ -1,8 +1,14 @@
 import Decimal from 'decimal.js';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice } from './display';
-import { calculateInvoiceItem, capInsuranceCoverage, type InvoiceItemPricing } from './invoiceItem';
+import {
+  calculateInvoiceItem,
+  capInsuranceCoverage,
+  getInvoiceItemPlanCoverages,
+  type InvoiceItemPricing,
+} from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
+import { roundToCents } from './money';
 import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
 
 export const isInvoiceEditable = (invoice: Invoice): boolean =>
@@ -40,7 +46,13 @@ const getItemCoverageTowardsTotal = (
   if (!item?.product?.insurable || !item.insurancePlanItems) {
     return new Decimal(0);
   }
-  return capInsuranceCoverage(itemPricing.coverageByPlan, itemPricing.discountedPrice);
+  // Cap the plans' unrounded coverage, as the line's own coverage does, then round once
+  return roundToCents(
+    capInsuranceCoverage(
+      getInvoiceItemPlanCoverages(item, itemPricing.discountedPrice),
+      itemPricing.discountedPrice,
+    ),
+  );
 };
 
 /**
@@ -94,7 +106,9 @@ export const calculateInvoice = (invoice: Invoice): InvoicePricing => {
   );
 
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
-  const discountTotal = getInvoiceLevelDiscountAmount(invoice.discount, patientSubtotal.toNumber());
+  const discountTotal = roundToCents(
+    getInvoiceLevelDiscountAmount(invoice.discount, patientSubtotal.toNumber()),
+  ).toNumber();
 
   // Calculate item adjustments here to be used in the printout
   const itemAdjustmentsTotal = sumOf(itemPricings.map(({ adjustment }) => adjustment));
