@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  calculateInvoice,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
   getFormattedInvoiceItemCoverageAmount,
   getFormattedInvoiceItemNetCost,
@@ -62,4 +63,26 @@ describe('invoice pricing golden record', () => {
       `./__snapshots__/invoicePricingGolden/${fixtureName}.json`,
     );
   });
+});
+
+describe('calculateInvoice', () => {
+  it.each(Object.keys(invoicePricingFixtures))(
+    '%s: agrees with the per-figure helpers',
+    fixtureName => {
+      const invoice = invoicePricingFixtures[fixtureName]!;
+      const pricing = calculateInvoice(invoice);
+
+      expect(pricing.summary).toEqual(getInvoiceSummary(invoice));
+      expect(pricing.items).toHaveLength(invoice.items?.length ?? 0);
+      pricing.items.forEach((itemPricing, index) => {
+        const item = invoice.items![index]!;
+        expect(itemPricing.totalPrice).toEqual(getInvoiceItemTotalPrice(item));
+        expect(itemPricing.insuranceCoverage).toEqual(getItemTotalInsuranceCoverageAmount(item));
+        expect(itemPricing.netCost).toEqual(getInvoiceItemNetCost(item));
+      });
+      expect(pricing.coverageByPlan.map(({ id }) => id)).toEqual(
+        (invoice.insurancePlans ?? []).map(({ id }) => id),
+      );
+    },
+  );
 });

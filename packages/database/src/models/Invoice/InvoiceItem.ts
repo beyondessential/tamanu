@@ -133,6 +133,17 @@ export class InvoiceItem extends Model {
     };
   }
 
+  /**
+   * The associations that load invoice items ready to price, against the price list that applies
+   * to the invoice's encounter. Without a price list, items load with no price and silently price
+   * at zero.
+   */
+  static async getPricingAssociations(encounterId: string) {
+    const { models } = this.sequelize;
+    const invoicePriceListId = await models.InvoicePriceList.getIdForPatientEncounter(encounterId);
+    return this.getListReferenceAssociations(models, invoicePriceListId ?? undefined);
+  }
+
   static getListReferenceAssociations(
     models: Models,
     invoicePriceListId?: string,

@@ -765,11 +765,11 @@ encounterRelations.get(
     const { Invoice, InvoicePriceList } = models;
     req.checkPermission('read', 'Invoice');
     const encounterId = params.id;
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const { invoicePriceListId, include } = await Invoice.resolvePricingAssociations(encounterId);
 
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
-      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      include,
       order: [
         [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
         [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],

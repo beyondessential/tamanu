@@ -14,18 +14,9 @@ invoiceItemsRoute.get(
       throw new Error(`Invoice not found: ${invoiceId}`);
     }
 
-    const invoicePriceListId = await models.InvoicePriceList.getIdForPatientEncounter(
-      invoice.encounterId,
-    );
-
-    const associations = models.InvoiceItem.getListReferenceAssociations(
-      models,
-      invoicePriceListId,
-    );
-
     const response = await getResourceList(req, 'InvoiceItem', 'invoiceId', {
       skipPermissionCheck: true,
-      include: associations,
+      include: await models.InvoiceItem.getPricingAssociations(invoice.encounterId),
     });
 
     res.send(response);
