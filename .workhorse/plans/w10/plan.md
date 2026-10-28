@@ -9,3 +9,16 @@ The all patients table loads nothing until the user runs a search. The unfiltere
 - Download and pagination are hidden while there are no results, matching the table's existing behaviour when it has no rows
 
 Mockup: `.workhorse/design/mockups/w10/Mockup.html`
+
+## What counts as a search
+
+- A search needs at least one criterion. Selecting Search with every field blank keeps the empty state, so a blank search can't be used to get around it
+- "Include deceased patients" is a modifier, not a criterion: ticking it alone keeps the empty state
+- Clear returns to the empty state
+- The listing doesn't remember the last search. It opens empty every time, including when coming back from a patient. The admitted and outpatient listings do remember their search, but this listing keeps its existing local-state behaviour
+- Only the all patients listing changes. The admitted and outpatient listings already show a specific set of patients and keep loading straight away
+
+## Implementation notes
+
+- `PatientListingView` (`packages/web/app/views/patients/PatientListingView.jsx`) holds search parameters in local state. It needs to know whether a search has run with real criteria (any non-empty value other than `deceased`) and render the empty state in place of `PatientTable` until then
+- `CustomisableSearchBar`'s Clear calls `onSearch({})`, which naturally returns to the empty state under that rule
