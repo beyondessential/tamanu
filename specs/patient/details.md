@@ -19,8 +19,7 @@ billing information is recorded and edited. Fields are grouped into headed secti
 ## Identification information
 
 - [ ] Identification information holds, in order: display ID (where editing it is
-      enabled), birth certificate, insurer and insurance policy number (where patient
-      insurers are enabled), driving licence (for new patients), passport number,
+      enabled), birth certificate, driving licence (for new patients), passport number,
       adoption number, and marriage licence.
 - [ ] Adoption number and marriage licence are free-text fields, recorded on the
       patient's record and editable from the Details tab.
@@ -29,8 +28,9 @@ billing information is recorded and edited. Fields are grouped into headed secti
 
 The details used to bill the patient, grouped together so they are found in one place.
 
-- [ ] Billing information holds, in order: insurance plan, patient type, annual income,
-      and family size.
+- [ ] Billing information holds, in order: insurer and insurance policy number (where
+      patient insurers are enabled), insurance plan, patient type, annual income, and
+      family size.
 - [ ] Insurance plan accepts more than one plan, chosen from the insurance plans
       available to patients.
 - [ ] Patient type is chosen from the patient billing types.
