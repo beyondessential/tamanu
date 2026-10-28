@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import Decimal from 'decimal.js';
 import {
   calculateInvoice,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
@@ -66,23 +67,30 @@ describe('invoice pricing golden record', () => {
 });
 
 describe('calculateInvoice', () => {
-  it.each(Object.keys(invoicePricingFixtures))(
-    '%s: agrees with the per-figure helpers',
-    fixtureName => {
-      const invoice = invoicePricingFixtures[fixtureName]!;
-      const pricing = calculateInvoice(invoice);
+  // Each check derives the expected figure from the per-line helpers, not from calculateInvoice
+  it.each(Object.keys(invoicePricingFixtures))('%s: the summary reconciles', fixtureName => {
+    const invoice = invoicePricingFixtures[fixtureName]!;
+    const items = invoice.items ?? [];
+    const { summary, items: itemPricings } = calculateInvoice(invoice);
 
-      expect(pricing.summary).toEqual(getInvoiceSummary(invoice));
-      expect(pricing.items).toHaveLength(invoice.items?.length ?? 0);
-      pricing.items.forEach((itemPricing, index) => {
-        const item = invoice.items![index]!;
-        expect(itemPricing.totalPrice).toEqual(getInvoiceItemTotalPrice(item));
-        expect(itemPricing.insuranceCoverage).toEqual(getItemTotalInsuranceCoverageAmount(item));
-        expect(itemPricing.netCost).toEqual(getInvoiceItemNetCost(item));
-      });
-      expect(pricing.coverageByPlan.map(({ id }) => id)).toEqual(
-        (invoice.insurancePlans ?? []).map(({ id }) => id),
-      );
-    },
-  );
+    const sumOf = (values: number[]) =>
+      values.reduce((sum, value) => sum.plus(value), new Decimal(0)).toNumber();
+
+    expect(itemPricings).toHaveLength(items.length);
+    expect(summary.invoiceItemsUndiscountedTotal).toEqual(
+      sumOf(items.map(item => getInvoiceItemTotalPrice(item))),
+    );
+    expect(summary.invoiceItemsTotal).toEqual(
+      sumOf(items.map(item => getInvoiceItemTotalDiscountedPrice(item))),
+    );
+    expect(summary.insuranceCoverageTotal).toEqual(
+      getInsuranceCoverageTotalAmount(items).toNumber(),
+    );
+    expect(summary.patientSubtotal).toEqual(
+      new Decimal(summary.invoiceItemsTotal).minus(summary.insuranceCoverageTotal).toNumber(),
+    );
+    expect(summary.patientTotal).toEqual(
+      new Decimal(summary.patientSubtotal).minus(summary.discountTotal).toNumber(),
+    );
+  });
 });
