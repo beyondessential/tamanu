@@ -476,6 +476,14 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .w11-modal-body { margin: 20px 0 50px; }
 .w11-modal-body p { margin: 0 0 16px; font-size: 14px; line-height: 1.5; color: #444444; /* darkestText */ }
 
+/* W11: no insurance plan confirmation */
+.w11-confirm-text { max-width: 510px; margin: 56px auto; font-size: 14px; line-height: 1.4; color: #444444; /* darkestText */ }
+.w11-confirm-text p { margin: 0 0 1.4em; }
+.w11-confirm-text p:last-child { margin-bottom: 0; }
+.w11-button-row.w11-split { justify-content: space-between; }
+.w11-button-group { display: flex; gap: 20px; }
+.w11-button-group .css-bcwuds { background-color: #ffffff; /* white */ }
+
 /* W11: patient details form (PatientDetailsForm, generic layout) */
 .w11-pd-heading { font-weight: 500; font-size: 16px; color: #666666; /* darkText */ margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
 .w11-pd-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem 0.7rem; align-items: start; }
@@ -566,17 +574,17 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <div class="w11-modal" id="w11-no-plan-modal" role="presentation" hidden>
 <div class="w11-dialog-backdrop"></div>
 <div class="w11-dialog-container">
-<div class="w11-dialog-paper" role="dialog" aria-modal="true" aria-labelledby="w11-no-plan-modal-title" style="max-width: 600px;">
+<div class="w11-dialog-paper" role="dialog" aria-modal="true" aria-labelledby="w11-no-plan-modal-title" style="max-width: 830px;">
 <header class="w11-dialog-header">
-<h2 class="w11-dialog-title" id="w11-no-plan-modal-title">No insurance plan recorded</h2>
+<h2 class="w11-dialog-title" id="w11-no-plan-modal-title">No insurance plan added</h2>
 <div class="w11-dialog-actions">
 <button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-auoq4t" type="button" data-action="close" aria-label="Close" style="--IconButton-hoverBg:rgba(0, 0, 0, 0.04);"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button>
 </div>
 </header>
 <div class="w11-dialog-body">
-<div class="w11-dialog-content"><div class="w11-modal-body"><p>This patient does not have an insurance plan recorded. Add one to apply it to this invoice before recording a payment.</p></div><div class="w11-modal-action-row"><div class="w11-button-row"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-bcwuds" type="button" data-action="continue-without-plan" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Continue without insurance</button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7" type="button" data-action="add-plan" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Add insurance plan</button></div></div></div>
+<div class="w11-dialog-content"><div class="w11-confirm-text"><p>No insurance plan has been added to this invoice yet. Insurance plans affect the patient amount that is due.</p><p>Are you sure you would like to continue?</p></div></div>
 </div>
-
+<div class="w11-dialog-bottom-row"><div class="w11-button-row w11-split"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-bcwuds" type="button" data-action="close" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Go back</button><div class="w11-button-group"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-bcwuds" type="button" data-action="add-plan" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Add insurance plan</button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7" type="button" data-action="continue-without-plan" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Continue without insurance plan</button></div></div></div>
 </div>
 </div>
 </div>
@@ -831,13 +839,13 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     showToast('Patient details successfully updated');
   });
 
-  // Record payment: prompt for an insurance plan when the patient has none
+  // Record payment: confirm before going on when the invoice has no insurance plan
   const noPlanModal = byId('w11-no-plan-modal');
   const insurancePlanModal = byId('w11-ip-modal');
   const insurancePlanForm = byId('w11-ip-form');
   watchForm(insurancePlanForm, () => validateRequired(insurancePlanForm));
   recordPaymentButton.addEventListener('click', () => {
-    if (state.patientPlan) openPayment();
+    if (state.invoicePlan) openPayment();
     else openModal(noPlanModal);
   });
   noPlanModal.addEventListener('click', event => {
@@ -848,6 +856,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     } else if (action === 'add-plan') {
       closeModal(noPlanModal);
       insurancePlanForm.reset();
+      insurancePlanForm.elements.invoiceInsurancePlanId.value = state.patientPlan;
       insurancePlanForm.hasAttemptedSubmit = false;
       clearErrors(insurancePlanForm);
       updateSelectPlaceholders(insurancePlanForm);
