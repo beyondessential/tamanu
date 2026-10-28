@@ -49,6 +49,9 @@ The details used to bill the patient, grouped together so they are found in one 
       on the family size field. Once a family size is chosen, saving without an annual
       income shows "Annual income is required for sliding fee scale" on the annual income
       field. These replace the standard required message.
+- [ ] These messages appear only when Save is selected. Choosing a value afterwards clears
+      that field's message without raising one on another field until Save is selected
+      again.
 - [ ] Removing Sliding fee scale from the insurance plans lifts the requirement, removing
       the required marks and clearing these messages.
 - [ ] A saved annual income band stays on the patient's record and is shown as saved when
