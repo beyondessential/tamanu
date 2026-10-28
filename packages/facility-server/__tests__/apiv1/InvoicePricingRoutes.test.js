@@ -37,6 +37,8 @@ describe('Invoice pricing routes', () => {
         invoiceId,
         productId: product.id,
         quantity: 2,
+        priceFinal: null,
+        isFixedPriceFinal: false,
         orderedByUserId: user.id,
         ...overrides,
       }),
