@@ -2,7 +2,7 @@
 
 ## Overview
 
-External-facing Tamanu documentation currently lives in Slab (`beyond-essential.slab.com`) — a hosted knowledge base disconnected from the codebase, so docs drift from the software, cannot version with Tamanu releases, and are hard to search across. This project builds the **Tamanu Knowledge Hub**: a standalone public documentation site, independent of the Tamanu app and built from markdown in the Tamanu monorepo, that becomes the single home for external-facing Tamanu documentation. Design and a full clickable prototype are done on card **J8** (`.workhorse/design/mockups/j8/`); this PRD carries that design into buildable requirements.
+External-facing Tamanu documentation currently lives in Slab (`beyond-essential.slab.com`) — a hosted knowledge base disconnected from the codebase, so docs drift from the software, cannot version with Tamanu releases, and are hard to search across. This project builds the **Tamanu Knowledge Hub**: a standalone public documentation site, independent of the Tamanu app, living in its own repository and built from markdown it reads out of the Tamanu monorepo at a selected branch or tag — the single home for external-facing Tamanu documentation. Design and a full clickable prototype are done on card **J8** (`.workhorse/design/mockups/j8/`); this PRD carries that design into buildable requirements.
 
 **Goals:**
 
@@ -13,7 +13,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 **Site identity & scope:**
 
 - **Name:** Tamanu Knowledge Hub — Tamanu mark and wordmark with "Knowledge Hub" as secondary label
-- **Deployment:** standalone public site, independent of the Tamanu application, built from the monorepo
+- **Deployment:** standalone public site, independent of the Tamanu application, living in its own Knowledge Hub repository and built from documentation it reads out of the Tamanu monorepo
 - **Audience:** the full range of Tamanu users, with a slight focus on system administrators and IT staff (deployment, upgrade guidance, release notes, roadmap) — alongside implementation / project managers (config guides), clinical / end users (desktop and mobile guides), and implementation partners and country teams
 - **In scope:** user guides, release notes, roadmap, a Report an issue form, global search, Ask AI
 - **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. 
@@ -34,6 +34,9 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 | 8 | J8 | Report an issue | J8 (report-issue) |
 | 9 | J8 | Branding & shared design system | J8 |
 | 10 | Project brief | Update Tamanu in-app support hub link | — |
+| 11 | Requirements change, 28 Oct | Branch and tag switching | **None yet** — not in J8 |
+
+The ref switcher has no design. J8 settled the top bar with Search and Ask AI as its only controls, so the switcher needs design work before the scaffold is built.
 
 ---
 
@@ -43,13 +46,13 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 
 ### 1. Site platform & scaffold
 
-The foundation: a public site built from monorepo markdown.
+The foundation: a public site, in its own repository, built from documentation markdown it reads out of the Tamanu monorepo.
 
-- Content and site live in **this Tamanu monorepo** (docs markdown under `docs/`), so docs version and PR alongside the code they describe
-- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, site-wide search, and the Ask AI drawer. Curated content (roadmap and Recent features) is maintained through Workhorse and read from the repo like the rest of the docs, so no in-hub authoring interface is needed
-- **Hosting & deployment** — where the built site is served and how it deploys on release _to be decided_
-- **Versioning** — the site presents **one current set** of guides (always the latest); only release notes are per-version
-- Shared top bar (Search + separate Ask AI control) and footer across all surfaces
+- **Two repositories.** The site lives in the **Knowledge Hub repository**; the documentation markdown lives in the **Tamanu monorepo** (`beyondessential/tamanu`, under `docs/`), so docs version and PR alongside the code they describe. The hub reads that markdown across the repository boundary rather than carrying copies
+- **Branch- and tag-aware.** The hub builds against a selected ref of the **Tamanu** repository (not its own), and readers switch between refs on the public site — so the guides can be read as they stood at a given Tamanu release. Which refs are offered, how they are fetched, and how often the set refreshes _to be decided during card shaping_
+- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, content sourced from a different repository at a selectable ref, per-ref site-wide search, and the Ask AI drawer. Curated content (roadmap and Recent features) is maintained through Workhorse and read from the repo like the rest of the docs, so no in-hub authoring interface is needed
+- **Hosting & deployment** — where the built site is served, and how it rebuilds both when the hub itself changes and when Tamanu documentation changes, _to be decided_
+- Shared top bar (Search, a separate Ask AI control, and the ref switcher) and footer across all surfaces
 
 ---
 
@@ -57,9 +60,10 @@ The foundation: a public site built from monorepo markdown.
 
 The main improvement to general documentation, serving every audience — configuring, operating, using, and keeping up with Tamanu. The core problem it solves (alongside global search) is the poor searchability of documentation in Slab across all content. Ask AI answers over the hub's content so anyone can ask a question and get a direct, cited answer rather than hunting across pages.
 
-- Page-aware chat drawer: answer with inline source citations and a follow-up input
+- Page-aware **threaded chat drawer** — a conversation, not a single question and answer. Each answer carries inline source citations, and earlier turns stay in view so follow-ups build on what has already been asked
+- Threads are **session-only**: a conversation lives in the browser and is gone when the tab closes. No accounts and no server-side record of what people asked, which contains the patient-data risk the guardrails below warn about
 - Reached from the Ask AI control or handed off from the search palette
-- Retrieves over the full hub content — user guides, configuration guides, release notes, and roadmap
+- Retrieves over the full hub content **at the ref the reader is on** — user guides, configuration guides, release notes, and roadmap
 - Fast response time — answers are quick and in-context on the hub
 - In v1 scope; model, retrieval, and hosting _to be decided during card shaping_
 
@@ -156,13 +160,13 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 - **Tamanu mobile** — numbered modules (content from card L8)
 - **Configuration guides** — modules in set-up order, each with Reference data / Settings / Permissions guides (content from card K8)
 
-Content is markdown under `docs/user-manuals/`, written by the `write-user-guide` skill (L8, with a `manifest.json` the hub reads for navigation) and the `draft-config-guide` skill (K8). The hub **parses this markdown** rather than carrying copies.
+Content is markdown under `docs/user-manuals/` **in the Tamanu monorepo**, written by the `draft-user-guide` skill (L8) and the `draft-config-guide` skill (K8). Ordering comes from numbered folder and file names with hand-maintained README tables — there is no manifest, generator or CI job. The hub **reads this markdown at the selected ref** rather than carrying copies.
 
 ---
 
 ### 4. Release notes
 
-- Source is `docs/release-notes/*.md` in the repo, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings).
+- Source is `docs/release-notes/*.md` in the **Tamanu monorepo**, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings).
 
 ---
 
@@ -170,8 +174,8 @@ Content is markdown under `docs/user-manuals/`, written by the `write-user-guide
 
 Directly serves goal 2 — improving searchability across all documentation, a weak point in Slab.
 
-- Spans all content — user guides, configuration guides, and release notes (across every version)
-- Index built across the parsed content _implementation to be decided_
+- Spans all content at the ref the reader is on — user guides, configuration guides, and release notes
+- A separate index per ref the switcher offers; how indexes are built, stored, and kept in step with the refs _implementation to be decided_
 
 ---
 
@@ -217,7 +221,11 @@ Fully explored in J8
 
 ## Open questions
 
-- **Platform:** which static site generator (must meet the constraints in requirement 1)
+- **Platform:** which static site generator (must meet the constraints in requirement 1, including content from a different repository at a selectable ref)
+- **Which refs:** what the switcher offers — every release tag, the last few, `main` as well — and how that list refreshes as Tamanu releases
+- **Cross-repo fetch:** how the hub pulls Tamanu markdown (build-time clone, GitHub API, submodule), and whether a documentation change in Tamanu triggers a hub rebuild
+- **Release notes and the ref:** whether release notes follow the ref switcher or always present the full version history regardless of ref
+- **Ref switcher design:** where it sits in the top bar — J8 settled that bar without it
 - **Hosting & deployment:** where the built site is served and how it deploys on release
 - **Ask AI:** model, retrieval, and hosting for the chat drawer
 - **Ask AI technical scope:** will Ask AI support generating import spreadsheets in this initial phase, and what is the scope? (It otherwise declines SQL, scripts, config files, and direct DB changes)
