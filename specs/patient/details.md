@@ -30,8 +30,8 @@ The details used to bill the patient, grouped together so they are found in one 
 
 - [ ] Billing information holds, in order: insurer and insurance policy number (where
       patient insurers are enabled), insurance plan, patient type, annual income, family
-      size, Payor I, Payor I's reference number, Payor II, and Payor II's reference number.
-      Each payor's reference number sits beside it, labelled Payor reference number.
+      size, Payor I, Payor I reference number, Payor II, and Payor II reference number.
+      Each payor's reference number sits beside it.
 - [ ] Insurance plan accepts more than one plan, chosen from the insurance plans
       available to patients.
 - [ ] Patient type is chosen from the patient billing types.
