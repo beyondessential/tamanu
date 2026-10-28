@@ -14,3 +14,9 @@
 
 - The table title (`TableTitle` in `InvoicesTable.jsx`) is sized to the visible width of the scroll container, so on narrow screens "Total balance" lands partway across the table
 - Giving the invoices table's container `display: grid` makes the title span the table's full scroll width, so the total sits over the right end of the table. Pass it through the `Table` component's existing `containerStyle` prop rather than changing the shared `StyledTableContainer`, which every table uses
+
+### Print table summary
+
+- An overflow menu (`ThreeDotMenu`, as on the encounter invoicing pane) sits beside the total balance in the table title, with a single "Print table summary" option
+- The option opens a print modal following `InvoiceRecordModal`: a `Modal` titled "Print table summary", `printable`, with the PDF in a `PDFLoader`
+- The PDF is a new printout in `packages/shared/src/utils/patientCertificates/`, built from the same pieces as `InvoiceRecordPrintout`: `MultiPageHeader`, `LetterheadSection`, `PatientDetails`, the invoice item table styling, a summary pane holding the total balance, and `Footer`
