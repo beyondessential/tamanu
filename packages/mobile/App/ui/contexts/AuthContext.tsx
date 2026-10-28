@@ -12,6 +12,8 @@ import React, {
 import { compose } from 'redux';
 import type { User } from '~/models/User';
 import { readConfig } from '~/services/config';
+import { OutdatedVersionError } from '~/services/error';
+import { clearUpdateState, recordPendingUpdate } from '~/services/update/pendingUpdate';
 import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { withAuth } from '~/ui/containers/Auth';
 import { BackendContext } from '~/ui/contexts/BackendContext';
@@ -112,6 +114,9 @@ const Provider = ({
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
+    // Signing in against the server is the point at which the version now running is known to be
+    // accepted, so anything remembered about updating is no longer true.
+    await clearUpdateState();
     setToken(token);
     setSettings(settings);
     setRefreshToken(refreshToken);
@@ -184,7 +189,15 @@ const Provider = ({
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const errHandler = (): void => {
+    const errHandler = (error: Error): void => {
+      // An out-of-date app takes over with the update screen wherever the user is, so the
+      // rejection is remembered before signing out and survives the app being closed.
+      if (error instanceof OutdatedVersionError) {
+        recordPendingUpdate(error.updateUrl);
+        signOut();
+        return;
+      }
+
       const { shouldSignOut, nextPreventSignOutOnFailure } =
         resolveAuthErrorAction(preventSignOutOnFailure);
       // reset the flag so a subsequent auth error is no longer skipped

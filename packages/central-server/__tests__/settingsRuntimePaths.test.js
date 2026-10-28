@@ -100,7 +100,7 @@ describe('Settings-driven runtime paths', () => {
       const response = await outdatedMobileRequest(baseApp);
       expect(response.status).toEqual(400);
       expect(JSON.parse(response.text)['update-url']).toEqual(
-        `https://meta.tamanu.app/versions/~${MIN_MOBILE_VERSION}/mobile`,
+        `https://meta.tamanu.app/versions/~${MIN_MOBILE_VERSION}/mobile/package`,
       );
     });
 

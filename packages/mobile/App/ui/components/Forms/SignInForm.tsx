@@ -82,11 +82,7 @@ const initialValues = {
   server: '',
 } as const;
 
-export const SignInForm: FunctionComponent<any> = ({
-  initialErrorMessage = '',
-  onOutdatedVersionError,
-  onSuccess,
-}) => {
+export const SignInForm: FunctionComponent<any> = ({ initialErrorMessage = '', onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
   const passwordRef = useRef(null);
@@ -103,15 +99,15 @@ export const SignInForm: FunctionComponent<any> = ({
         await signIn(values);
         onSuccess();
       } catch (error) {
+        // An out-of-date app is taken over by the update screen, so there is nothing to report on
+        // the form: the user is about to stop looking at it.
         if (error instanceof OutdatedVersionError) {
-          onOutdatedVersionError(error);
-        } else {
-          const message = getLoginErrorMessage(error);
-          setErrorMessage(message);
+          return;
         }
+        setErrorMessage(getLoginErrorMessage(error));
       }
     },
-    [existingHost, signIn, onOutdatedVersionError, onSuccess],
+    [existingHost, signIn, onSuccess],
   );
 
   useEffect(() => {
