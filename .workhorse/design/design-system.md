@@ -13,45 +13,6 @@ This is the lineage to aim for — the quiet competence of a well-built line-of-
 tool, not the flourish of a consumer app. No decoration that doesn't carry
 information. No novelty for its own sake.
 
-## Design philosophy
-
-**Clarity is safety.** A misread dose, a status glanced at wrong, a label that
-could mean two things — in a clinical record these are not cosmetic faults. Every
-value must be legible at a glance and every state unambiguous. When a choice is
-between "prettier" and "clearer", clearer wins every time.
-
-**Density, done calmly.** Clinicians need a lot on screen at once — a table of
-results, a card of patient details, a form with twenty fields. The answer is not
-to hide information behind clicks, but to organise it: consistent grouping,
-alignment, and whitespace so a dense screen still reads as orderly rather than
-noisy. Compact where it must be, never cramped.
-
-**The data is the interface.** Colour, weight, and chrome are spent on the
-clinical content, not on the frame around it. The accent blue is an accent — it
-marks what is interactive or selected, and little else. A screen where everything
-is coloured or boxed is a screen where nothing stands out.
-
-**Every colour means something.** The palette is semantic, not decorative. Blue is
-interactive (primary actions, links, selection). Red is error. Green is safe /
-complete. Orange is warning / urgent. Don't reach for a colour because a region
-"needs" one; reach for it because it carries that meaning here. See
-[Colour palette](#colour-palette).
-
-**Boring is a feature.** Prefer the conventional pattern over the clever one. A
-form is a form, a table is a table, a modal confirms before it destroys. Staff are
-trained once and then trusted to move fast; surprise is a tax on that. New
-interaction patterns need to earn their place against the cost of re-teaching them.
-
-**Consistency across surfaces.** The same concept should look the same in the
-facility server, the central admin panel, and (as far as the platform allows)
-mobile. A status chip, a label/value pair, a primary button — one treatment each,
-reused, not re-invented per screen.
-
-**Everything visible is translatable.** Tamanu is deployed in many countries and
-languages. All user-facing copy — labels, buttons, placeholders, toasts, table
-headings — goes through `TranslatedText` / `TranslatedEnum` / `TranslatedReferenceData`.
-Hardcoded English is a defect, not a detail.
-
 ## Colour palette
 
 A cool, blue-grey system. The single source of truth is `TAMANU_COLORS` in
