@@ -582,15 +582,16 @@ document.addEventListener('click', event => {
 
   const SLIDING_FEE_SCALE_PLAN = 'Sliding fee scale';
   let hasAttemptedSave = false;
-  let validateSlidingFeeScale = () => true;
+  let validateSlidingFeeScale = () => true; // replaced once the fields are wired
   const REQUIRED_ORNAMENT = '<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span>';
   const markRequired = (fieldKey, isRequired) => {
     const label = document.querySelector(`[data-testid="secondarydetailsformgrid-bill"] [data-wh-field="${fieldKey}"] .label-field`);
     label.querySelector('.iVXoYX')?.remove();
     if (isRequired) label.insertAdjacentHTML('beforeend', REQUIRED_ORNAMENT);
   };
+  // Messages appear only on Save; a change after that can clear one but not raise a new one
   const revalidate = () => {
-    if (hasAttemptedSave) validateSlidingFeeScale();
+    if (hasAttemptedSave) validateSlidingFeeScale({ isClearOnly: true });
   };
   const onInsurancePlanChange = plans => {
     const isSlidingFeeScale = plans.includes(SLIDING_FEE_SCALE_PLAN);
@@ -658,12 +659,16 @@ document.addEventListener('click', event => {
   });
 
   // With the sliding fee scale plan selected, family size and annual income are required
-  validateSlidingFeeScale = () => {
+  validateSlidingFeeScale = ({ isClearOnly = false } = {}) => {
     const isRequired = insurancePlan.getSelected().includes(SLIDING_FEE_SCALE_PLAN);
     const isFamilySizeMissing = isRequired && !familySizeField.getSelected().length;
     const isAnnualIncomeMissing = isRequired && !isFamilySizeMissing && !annualIncome.getSelected().length;
-    familySizeField.setError(isFamilySizeMissing ? 'Family size is required for sliding fee scale' : null);
-    annualIncome.setError(isAnnualIncomeMissing ? 'Annual income is required for sliding fee scale' : null);
+    if (!isClearOnly || !isFamilySizeMissing) {
+      familySizeField.setError(isFamilySizeMissing ? 'Family size is required for sliding fee scale' : null);
+    }
+    if (!isClearOnly || !isAnnualIncomeMissing) {
+      annualIncome.setError(isAnnualIncomeMissing ? 'Annual income is required for sliding fee scale' : null);
+    }
     return !isFamilySizeMissing && !isAnnualIncomeMissing;
   };
   const detailsForm = document.querySelector('[data-testid="secondarydetailsformgrid-bill"]').closest('form');
