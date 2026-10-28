@@ -29,16 +29,22 @@ billing information is recorded and edited. Fields are grouped into headed secti
 The details used to bill the patient, grouped together so they are found in one place.
 
 - [ ] Billing information holds, in order: insurer and insurance policy number (where
-      patient insurers are enabled), insurance plan, patient type, annual income, family
-      size, Payor 1, Payor 1 reference number, Payor 2, and Payor 2 reference number.
+      patient insurers are enabled), insurance plan, patient type, family size, annual
+      income, Payor 1, Payor 1 reference number, Payor 2, and Payor 2 reference number.
       Each payor's reference number sits beside it.
 - [ ] Insurance plan accepts more than one plan, chosen from the insurance plans
       available to patients.
 - [ ] Patient type is chosen from the patient billing types.
-- [ ] Annual income is a number of zero or more, and may include decimals.
-- [ ] Family size is a whole number of one or more.
-- [ ] A value outside these ranges is rejected with a validation message on the field,
-      and the patient's details are not saved until it is corrected.
+- [ ] Family size is chosen from a list with one option for each family size the sliding
+      fee scale setting covers, numbered from 1.
+- [ ] Annual income is chosen from the sliding fee scale's income bands for the selected
+      family size. Each band is shown as a range from its lower bound to the next band's,
+      and the highest band as anything above its lower bound.
+- [ ] Annual income cannot be chosen until a family size is selected. Changing the family
+      size clears the annual income, since its bands no longer apply.
+- [ ] A saved annual income band stays on the patient's record and is shown as saved when
+      the sliding fee scale has since changed and no longer has that band, until a current
+      band is chosen in its place.
 - [ ] Payor 1 and Payor 2 are each chosen by searching existing patient records, the
       same way as the patient's mother and father. Each match shows the patient's name,
       display ID, sex and date of birth.
