@@ -63,16 +63,18 @@ const InsuranceSection = ({ item }) => {
   const { insurancePlanItems, product, productId } = item;
   if (!product?.insurable || !insurancePlanItems?.length || !productId) return null;
 
-  // One entry per insurance plan item, in the same order
   const { coverageByPlan } = calculateInvoiceItem(item);
+  const coverageByPlanId = new Map(
+    coverageByPlan.map(({ insurancePlanId, coverage }) => [insurancePlanId, coverage]),
+  );
 
   return (
     <Box mt={1}>
-      {insurancePlanItems.map((insurancePlanItem, index) => (
+      {insurancePlanItems.map(insurancePlanItem => (
         <Row key={insurancePlanItem.id}>
           <RowName>{insurancePlanItem.label}</RowName>
           <RowValue>
-            <Price price={-coverageByPlan[index].coverage} />
+            <Price price={-coverageByPlanId.get(insurancePlanItem.id)} />
           </RowValue>
         </Row>
       ))}
