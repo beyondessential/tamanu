@@ -1,5 +1,6 @@
 import { getResourceList, permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
+import { NotFoundError } from '@tamanu/errors';
 
 export const invoiceItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
@@ -11,7 +12,7 @@ invoiceItemsRoute.get(
     const invoice = await models.Invoice.findByPk(invoiceId);
 
     if (!invoice) {
-      throw new Error(`Invoice not found: ${invoiceId}`);
+      throw new NotFoundError(`Invoice not found: ${invoiceId}`);
     }
 
     const response = await getResourceList(req, 'InvoiceItem', 'invoiceId', {
