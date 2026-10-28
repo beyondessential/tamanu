@@ -487,7 +487,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 /* W11: patient details form (PatientDetailsForm, generic layout) */
 .w11-pd-heading { font-weight: 500; font-size: 16px; color: #666666; /* darkText */ margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
 .w11-pd-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem 0.7rem; align-items: start; }
-.w11-pd-grid.w11-single { grid-template-columns: 1fr; }
 .w11-pd-secondary { margin-top: 70px; }
 .w11-pd-secondary .w11-pd-grid { margin-bottom: 70px; }
 .w11-pd-secondary .w11-pd-grid:last-child { margin-bottom: 0; }
@@ -585,23 +584,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 <div class="w11-dialog-content"><div class="w11-confirm-text"><p>No insurance plan has been added to this invoice yet. Insurance plans affect the patient amount that is due.</p><p>Are you sure you would like to continue?</p></div></div>
 </div>
 <div class="w11-dialog-bottom-row"><div class="w11-button-row w11-split"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-bcwuds" type="button" data-action="close" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Go back</button><div class="w11-button-group"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-bcwuds" type="button" data-action="add-plan" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Add insurance plan</button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7" type="button" data-action="continue-without-plan" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Continue without insurance plan</button></div></div></div>
-</div>
-</div>
-</div>
-<div class="w11-modal" id="w11-ip-modal" role="presentation" hidden>
-<div class="w11-dialog-backdrop"></div>
-<div class="w11-dialog-container">
-<div class="w11-dialog-paper" role="dialog" aria-modal="true" aria-labelledby="w11-ip-modal-title" style="max-width: 600px;">
-<header class="w11-dialog-header">
-<h2 class="w11-dialog-title" id="w11-ip-modal-title">Add insurance plan</h2>
-<div class="w11-dialog-actions">
-<button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-auoq4t" type="button" data-action="close" aria-label="Close" style="--IconButton-hoverBg:rgba(0, 0, 0, 0.04);"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-q7mezt" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button>
-</div>
-</header>
-<div class="w11-dialog-body">
-<div class="w11-dialog-content"><form id="w11-ip-form" novalidate=""><div class="w11-pd-grid w11-single"><div class="w11-field" data-field="invoiceInsurancePlanId"><label for="ip-invoiceInsurancePlanId" class="sc-dhKdcB fmJEhw label-field">Insurance plan<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span></label><div class="MuiFormControl-root MuiTextField-root sc-jlZhew hQbJBg MuiFormControl-fullWidth"><div class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiOutlinedInput-adornedEnd"><select id="ip-invoiceInsurancePlanId" name="invoiceInsurancePlanId" data-required="true" class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiOutlinedInput-inputAdornedEnd w11-select"><option value="">Select</option><option>Pacific Health Cover</option><option>National Health Insurance Scheme</option><option>Island Care Plus</option></select><div class="MuiInputAdornment-root sc-tagGq ebbjHU MuiInputAdornment-positionEnd"><svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" class="sc-esYiGF iomYDi"><path d="M4.99992 5.85523C4.84367 5.85523 4.69398 5.79242 4.58367 5.67992L0.171797 1.20555C-0.0572656 0.972422 -0.0572656 0.595234 0.171797 0.362422C0.401484 0.129609 0.775234 0.129609 1.00367 0.362422L4.99992 4.41555L8.99523 0.362109C9.22523 0.129297 9.59836 0.129297 9.82773 0.362109C10.0571 0.594609 10.0571 0.972422 9.82773 1.20555L5.41617 5.68055C5.30523 5.79242 5.15555 5.85523 4.99992 5.85523Z" fill="#b8b8b8"></path></svg></div><fieldset aria-hidden="true" class="jss204 MuiOutlinedInput-notchedOutline" style="padding-left: 8px;"><legend class="jss205" style="width: 0.01px;"><span>​</span></legend></fieldset></div></div><p class="w11-helper" hidden>Required</p></div></div></form></div>
-</div>
-<div class="w11-dialog-bottom-row"><div class="w11-button-row"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-bcwuds" type="button" data-action="close" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Cancel</button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-q5bog7" type="submit" form="w11-ip-form" style="--variant-containedColor:#fff;--variant-containedBg:#326699;--variant-outlinedBorder:rgba(50, 102, 153, 0.5);--variant-outlinedColor:#326699;">Save</button></div></div>
 </div>
 </div>
 </div>
@@ -781,11 +763,16 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   const patientForm = byId('w11-pd-form');
   let savedPatientValues = snapshot(patientForm);
   watchForm(patientForm, () => validateRequired(patientForm));
-  const openPatientDetails = () => {
+  // Opened from the no insurance plan popup, saving a plan also applies it to the invoice
+  let isAddingInsurancePlan = false;
+  const openPatientDetails = ({ addingInsurancePlan = false } = {}) => {
+    isAddingInsurancePlan = addingInsurancePlan;
     patientForm.hasAttemptedSubmit = false;
     clearErrors(patientForm);
     updateSelectPlaceholders(patientForm);
-    openModal(patientModal, patientForm.querySelector('input'));
+    const planField = patientForm.elements.invoiceInsurancePlanId;
+    openModal(patientModal, addingInsurancePlan ? planField : patientForm.querySelector('input'));
+    if (addingInsurancePlan) planField.closest('.w11-field').scrollIntoView({ block: 'center' });
   };
   patientModal.requestClose = () => {
     closeModal(patientModal);
@@ -837,13 +824,15 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     reflectSavedDetails();
     patientModal.requestClose();
     showToast('Patient details successfully updated');
+    if (isAddingInsurancePlan && state.patientPlan) {
+      state.invoicePlan = state.patientPlan;
+      renderInvoice();
+      openPayment();
+    }
   });
 
   // Record payment: confirm before going on when the invoice has no insurance plan
   const noPlanModal = byId('w11-no-plan-modal');
-  const insurancePlanModal = byId('w11-ip-modal');
-  const insurancePlanForm = byId('w11-ip-form');
-  watchForm(insurancePlanForm, () => validateRequired(insurancePlanForm));
   recordPaymentButton.addEventListener('click', () => {
     if (state.invoicePlan) openPayment();
     else openModal(noPlanModal);
@@ -855,28 +844,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       openPayment();
     } else if (action === 'add-plan') {
       closeModal(noPlanModal);
-      insurancePlanForm.reset();
-      insurancePlanForm.elements.invoiceInsurancePlanId.value = state.patientPlan;
-      insurancePlanForm.hasAttemptedSubmit = false;
-      clearErrors(insurancePlanForm);
-      updateSelectPlaceholders(insurancePlanForm);
-      openModal(insurancePlanModal);
+      openPatientDetails({ addingInsurancePlan: true });
     }
-  });
-  insurancePlanForm.addEventListener('submit', event => {
-    event.preventDefault();
-    insurancePlanForm.hasAttemptedSubmit = true;
-    if (validateRequired(insurancePlanForm)) return;
-    const plan = insurancePlanForm.elements.invoiceInsurancePlanId.value;
-    // Saved on the patient and applied to this invoice
-    state.patientPlan = plan;
-    state.invoicePlan = plan;
-    patientForm.elements.invoiceInsurancePlanId.value = plan;
-    savedPatientValues = snapshot(patientForm);
-    renderInvoice();
-    closeModal(insurancePlanModal);
-    showToast('Insurance plan added to patient and invoice');
-    openPayment();
   });
 
   // Record payment modal
