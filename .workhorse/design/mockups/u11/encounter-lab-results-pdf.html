@@ -63,6 +63,16 @@
 
   .section-container { margin: 6pt 0; }
 
+  /* Per-request interim marker: a compact version of the interim banner */
+  .request-interim-marker {
+    display: inline-block;
+    border: 1pt solid #000000;
+    padding: 3pt 6pt;
+    margin-bottom: 6pt;
+    font-size: 9pt;
+    font-weight: 700;
+  }
+
   /* DataSection / P bold 11 */
   .section-title {
     font-size: 11pt;
@@ -310,6 +320,7 @@ Etta Clinic</div>
 
   <!-- Request 3 -->
   <div class="section-container">
+    <div class="request-interim-marker">Interim results</div>
     <div class="details-container">
       <div class="section-title">Lab request details</div>
       <div class="hr"></div>
