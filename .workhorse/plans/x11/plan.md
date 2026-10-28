@@ -9,3 +9,9 @@
 - Annual income is stored as the band as displayed, so a band the scale no longer has is still shown as saved on the Details tab
 - The invoice discount assessment pre-fills from the patient's saved family size and annual income. Changes made there apply to that invoice only and are not written back to the patient
 - Adoption number and marriage licence are new text fields at the end of Identification information
+
+## Open technical questions
+
+- How the Sliding fee scale insurance plan is recognised. Matching on its name is fragile across deployments and translations, so it likely wants a stable identifier (a known plan code, or a setting naming the plan). Settle in tech design
+- The conditional requirement belongs in the patient details validation schema, keyed on the selected insurance plans, with its two messages as their own translated strings
+
