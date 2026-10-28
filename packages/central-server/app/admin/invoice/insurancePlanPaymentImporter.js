@@ -36,6 +36,12 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 const toSheetDateString = value =>
   value instanceof Date && !Number.isNaN(value.getTime()) ? toDateString(value) : value;
 
+const getPaymentStatus = (amount, planDiscountTotal) => {
+  if (amount === 0) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED;
+  if (amount === round(planDiscountTotal, 2)) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID;
+  return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL;
+};
+
 const insurancePlanPaymentImportSchema = z
   .object({
     id: z.string().uuid(),
@@ -151,53 +157,89 @@ export async function insurancePlanPaymentImporter({
         invoiceItemsTotal,
       );
 
-    try {
-      const existingPayment = await models.InvoiceInsurancePlanPayment.findByPk(data.id, {
-        include: models.InvoiceInsurancePlanPayment.getFullReferenceAssociations(),
-      });
-      if (existingPayment) {
-        checkPermission('write', 'InvoicePayment');
-        const maxAmount = round(
-          new Decimal(planPaymentRemainingBalance).add(existingPayment.detail.amount).toNumber(),
-          2,
-        );
-        if (data.amount > maxAmount) {
-          errors.push(
-            new ValidationError(
-              sheetName,
-              index,
-              `Payment amount $${data.amount} exceeds the remaining balance of $${maxAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`,
-            ),
-          );
-          continue;
-        }
-        await models.InvoicePayment.update(
-          {
-            invoiceId: invoice.id,
-            date: data.date,
-            amount: data.amount,
-          },
-          { where: { id: existingPayment.invoicePaymentId } },
-        );
+    const existingPayment = await models.InvoiceInsurancePlanPayment.findByPk(data.id, {
+      include: models.InvoiceInsurancePlanPayment.getFullReferenceAssociations(),
+    });
 
-        await models.InvoiceInsurancePlanPayment.update(
-          {
+    if (existingPayment && existingPayment.detail.invoiceId !== invoice.id) {
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Payment '${data.id}' already exists on a different invoice, so it cannot be moved to invoice '${data.invoiceNumber}'`,
+        ),
+      );
+      continue;
+    }
+
+    // Only an amount already recorded against this same plan frees up balance for the new amount.
+    // Moving a payment between two of the invoice's plans leaves the old amount counting against
+    // the plan it came from, so there is nothing to credit back.
+    const creditedAmount =
+      existingPayment?.invoiceInsurancePlanId === data.invoiceInsurancePlanId
+        ? existingPayment.detail.amount
+        : 0;
+    const maxAmount = round(
+      new Decimal(planPaymentRemainingBalance).add(creditedAmount).toNumber(),
+      2,
+    );
+
+    if (data.amount > maxAmount) {
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Payment amount $${data.amount} exceeds the remaining balance of $${maxAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`,
+        ),
+      );
+      continue;
+    }
+
+    try {
+      if (existingPayment) checkPermission('write', 'InvoicePayment');
+
+      await models.Invoice.sequelize.transaction(async () => {
+        if (existingPayment) {
+          await models.InvoicePayment.update(
+            {
+              date: data.date,
+              amount: data.amount,
+            },
+            { where: { id: existingPayment.invoicePaymentId } },
+          );
+
+          await models.InvoiceInsurancePlanPayment.update(
+            {
+              invoiceInsurancePlanId: data.invoiceInsurancePlanId,
+              reason: data.reason,
+              status: getPaymentStatus(data.amount, planDiscountTotal),
+            },
+            { where: { id: existingPayment.id } },
+          );
+        } else {
+          const payment = await models.InvoicePayment.create(
+            {
+              invoiceId: invoice.id,
+              date: data.date,
+              receiptNumber: data.receiptNumber,
+              amount: data.amount,
+            },
+            { returning: true },
+          );
+          await models.InvoiceInsurancePlanPayment.create({
+            id: data.id,
+            invoicePaymentId: payment.id,
             invoiceInsurancePlanId: data.invoiceInsurancePlanId,
             reason: data.reason,
-            status:
-              data.amount === 0
-                ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED
-                : data.amount === round(planDiscountTotal, 2)
-                  ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID
-                  : INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL,
-          },
-          { where: { id: existingPayment.id } },
-        );
+            status: getPaymentStatus(data.amount, planDiscountTotal),
+          });
+        }
+
         await models.Invoice.update(
           {
             insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
               new Decimal(allPlanPaymentsTotal)
-                .minus(existingPayment.detail.amount)
+                .minus(existingPayment?.detail.amount ?? 0)
                 .add(data.amount)
                 .toNumber(),
               allPlansCoverageTotal,
@@ -205,53 +247,13 @@ export async function insurancePlanPaymentImporter({
           },
           { where: { id: invoice.id } },
         );
+      });
 
-        updateStat(subStat, statkey('InvoiceInsurancePlanPayment', sheetName), 'updated');
-      } else {
-        const maxNewAmount = round(planPaymentRemainingBalance, 2);
-        if (data.amount > maxNewAmount) {
-          errors.push(
-            new ValidationError(
-              sheetName,
-              index,
-              `Payment amount $${data.amount} exceeds the remaining balance of $${maxNewAmount} for plan '${data.invoiceInsurancePlanId}' on invoice '${data.invoiceNumber}'`,
-            ),
-          );
-          continue;
-        }
-        const payment = await models.InvoicePayment.create(
-          {
-            invoiceId: invoice.id,
-            date: data.date,
-            receiptNumber: data.receiptNumber,
-            amount: data.amount,
-          },
-          { returning: true },
-        );
-        await models.InvoiceInsurancePlanPayment.create({
-          id: data.id,
-          invoicePaymentId: payment.id,
-          invoiceInsurancePlanId: data.invoiceInsurancePlanId,
-          reason: data.reason,
-          status:
-            data.amount === 0
-              ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED
-              : data.amount === round(planDiscountTotal, 2)
-                ? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID
-                : INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL,
-        });
-        await models.Invoice.update(
-          {
-            insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
-              new Decimal(allPlanPaymentsTotal).add(data.amount).toNumber(),
-              allPlansCoverageTotal,
-            ),
-          },
-          { where: { id: invoice.id } },
-        );
-
-        updateStat(subStat, statkey('InvoiceInsurancePlanPayment', sheetName), 'created');
-      }
+      updateStat(
+        subStat,
+        statkey('InvoiceInsurancePlanPayment', sheetName),
+        existingPayment ? 'updated' : 'created',
+      );
     } catch (e) {
       errors.push(
         new ValidationError(
