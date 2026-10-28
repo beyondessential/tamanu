@@ -1,12 +1,7 @@
 import Decimal from 'decimal.js';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice } from './display';
-import {
-  calculateInvoiceItem,
-  capInsuranceCoverage,
-  getInvoiceItemPlanCoverages,
-  type InvoiceItemPricing,
-} from './invoiceItem';
+import { calculateInvoiceItem, type InvoiceItemPricing } from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
 import { roundToCents } from './money';
 import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
@@ -33,34 +28,11 @@ const sumOf = (values: Array<number | Decimal>): Decimal =>
   values.reduce<Decimal>((sum, value) => sum.plus(value), new Decimal(0));
 
 /**
- * The insurance coverage a line contributes to the invoice total.
- *
- * This deliberately differs from the line's own `insuranceCoverage` in one edge case: an insurable
- * line with an empty plan list is still capped, so a line discounted below zero contributes its
- * negative discounted price. Kept as-is so consolidating pricing moves no figure.
- */
-const getItemCoverageTowardsTotal = (
-  item: InvoiceItem,
-  itemPricing: InvoiceItemPricing,
-): Decimal => {
-  if (!item?.product?.insurable || !item.insurancePlanItems) {
-    return new Decimal(0);
-  }
-  // Cap the plans' unrounded coverage, as the line's own coverage does, then round once
-  return roundToCents(
-    capInsuranceCoverage(
-      getInvoiceItemPlanCoverages(item, itemPricing.discountedPrice),
-      itemPricing.discountedPrice,
-    ),
-  );
-};
-
-/**
  * Calculates the total insurance coverage for a list of invoice items. Each item's coverage is
  * capped at its discounted price.
  */
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
-  sumOf(invoiceItems.map(item => getItemCoverageTowardsTotal(item, calculateInvoiceItem(item))));
+  sumOf(invoiceItems.map(item => calculateInvoiceItem(item).insuranceCoverage));
 
 const getCoverageByPlan = (
   invoice: Invoice,
@@ -102,7 +74,7 @@ export const calculateInvoice = (invoice: Invoice): InvoicePricing => {
   const invoiceItemsUndiscountedTotal = sumOf(itemPricings.map(({ totalPrice }) => totalPrice));
   const invoiceItemsTotal = sumOf(itemPricings.map(({ discountedPrice }) => discountedPrice));
   const insuranceCoverageTotal = sumOf(
-    items.map((item, index) => getItemCoverageTowardsTotal(item, itemPricings[index]!)),
+    itemPricings.map(({ insuranceCoverage }) => insuranceCoverage),
   );
 
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);

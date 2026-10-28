@@ -13,6 +13,24 @@
     "patientPaymentRemainingBalance": 3.54,
     "insurancePlanPaymentRemainingBalance": 6.77
   },
+  "apportionedCoverageByItem": [
+    [
+      {
+        "insurancePlanId": "plan-c",
+        "coverage": 3.33
+      },
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 3.34
+      }
+    ],
+    [
+      {
+        "insurancePlanId": "plan-c",
+        "coverage": 0.1
+      }
+    ]
+  ],
   "summaryDisplay": {
     "invoiceItemsUndiscountedTotal": "10.31",
     "invoiceItemsTotal": "10.31",
@@ -33,7 +51,7 @@
       "id": "plan-c",
       "name": "Plan C",
       "code": "PC",
-      "totalCoverage": "-3.44"
+      "totalCoverage": "-3.43"
     },
     {
       "id": "plan-a",

@@ -13,6 +13,16 @@
     "patientPaymentRemainingBalance": 76.1,
     "insurancePlanPaymentRemainingBalance": 15
   },
+  "apportionedCoverageByItem": [
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 15
+      }
+    ],
+    [],
+    []
+  ],
   "summaryDisplay": {
     "invoiceItemsUndiscountedTotal": "91.10",
     "invoiceItemsTotal": "91.10",
