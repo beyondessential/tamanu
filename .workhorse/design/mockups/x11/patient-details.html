@@ -394,6 +394,13 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
   
 
 <script>
+// Mockup previews can block form submission, so submit buttons raise the form's submit event themselves
+document.addEventListener('click', event => {
+  const form = event.target.closest('button[type="submit"]')?.form;
+  if (!form) return;
+  event.preventDefault();
+  form.dispatchEvent(new Event('submit', { cancelable: true }));
+});
 // Makes the Billing information dropdowns usable. Insurance plan and patient type options are sample reference data.
 (() => {
   const REMOVE_ICON = '<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.85 0.15C7.65 -0.0499999 7.35 -0.0499999 7.15 0.15L4 3.3L0.85 0.15C0.65 -0.0499999 0.35 -0.0499999 0.15 0.15C-0.0499999 0.35 -0.0499999 0.65 0.15 0.85L3.3 4L0.15 7.15C-0.0499999 7.35 -0.0499999 7.65 0.15 7.85C0.25 7.95 0.35 8 0.5 8C0.65 8 0.75 7.95 0.85 7.85L4 4.7L7.15 7.85C7.25 7.95 7.4 8 7.5 8C7.6 8 7.75 7.95 7.85 7.85C8.05 7.65 8.05 7.35 7.85 7.15L4.7 4L7.85 0.85C8.05 0.65 8.05 0.35 7.85 0.15Z" fill="#666666"></path></svg>';
