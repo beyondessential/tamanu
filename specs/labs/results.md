@@ -32,7 +32,7 @@ reference range is flagged for clinicians.
 - [ ] The patient's results table is filtered by a Test category field and a Test or panel field, and the table shows once either field has a value.
 - [ ] Test category is single-select and offers only categories the patient has published results in.
 - [ ] Test or panel is a multi-select that suggests individual tests and panels together by name, listed the same way whichever kind they are.
-- [ ] Test or panel suggests only tests the patient has published results for, and panels containing at least one such test.
+- [ ] Test or panel suggests only tests the patient has published results for, and panels the patient has a published lab request ordered under. A panel is not suggested merely because it contains a test the patient has results for.
 - [ ] With one test or panel picked, the field shows its name. With more than one, it shows how many are picked, such as "5 selected".
 - [ ] The suggestions list stays open while items are picked, so several can be picked in a row, and closes when the user clicks away from the field.
 - [ ] Picked items are ticked in the suggestions list, and picking a ticked item again removes it. Clearing the field removes every pick at once.
