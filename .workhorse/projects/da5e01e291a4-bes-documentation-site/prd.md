@@ -16,7 +16,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 - **Deployment:** standalone public site, independent of the Tamanu application, living in its own Knowledge Hub repository and built from documentation it reads out of the Tamanu Let themonorepo
 - **Audience:** the full range of Tamanu users, with a slight focus on system administrators and IT staff (deployment, upgrade guidance, release notes, roadmap) — alongside implementation / project managers (config guides), clinical / end users (desktop and mobile guides), and implementation partners and country teams
 - **In scope:** user guides, release notes, roadmap, a Report an issue form, global search, Ask AI
-- **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. 
+- **Out of scope:** API reference, and operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) — these stay internal. User guides feedback (the "was this helpful" control in J8) is also out of scope for now
 
 ---
 
@@ -36,7 +36,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 | 10 | Project brief | Update Tamanu in-app support hub link | — |
 | 11 | Requirements change, 28 Oct | Release switching | **None yet** — not in J8 |
 
-The ref switcher has no design. J8 settled the top bar with Search and Ask AI as its only controls, so the switcher needs design work before the scaffold is built.
+The ref switcher has no mockup. Its placement is settled — at the top of the User manuals left sidebar, not in the top bar — but it still needs design work before the guides pages are built.
 
 ---
 
@@ -50,14 +50,16 @@ The foundation: a public site, in its own repository, built from documentation m
 
 - **Two repositories.** The site lives in the **Knowledge Hub repository**; the documentation markdown lives in the **Tamanu monorepo** (`beyondessential/tamanu`, under `docs/`), so docs version and PR alongside the code they describe. The hub reads that markdown across the repository boundary rather than carrying copies
 - **Release-aware.** Readers switch the guides between **release branches** of the Tamanu repository (`release/X.YY`), and the hub builds each against that branch's `docs/`, so a guide reads as it stood in that release
-  - Only release branches that carry documentation are offered. `main`, feature branches and patch tags are not on the list
+  - The switcher offers only release branches that carry documentation. `main`, feature branches and patch tags are not on the list
   - The newest such release branch is the default
   - A patch release that edits a guide moves its release branch, and the hub rebuilds that branch
   - Release notes are the exception: they don't follow the switcher (see requirement 4)
-  - How branches are fetched and how often the list refreshes _to be decided during card shaping_
-- **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, content sourced from a different repository at a selectable ref, per-ref site-wide search, and the Ask AI drawer. Curated content (roadmap and Recent features) is maintained through Workhorse and read from the repo like the rest of the docs, so no in-hub authoring interface is needed
-- **Hosting & deployment** — where the built site is served, and how it rebuilds both when the hub itself changes and when Tamanu documentation changes, _to be decided_
-- Shared top bar (Search, a separate Ask AI control, and the ref switcher) and footer across all surfaces
+  - **Author preview by URL.** Any branch or tag of the Tamanu repository can be opened by putting it in the URL, so an author can see a guide rendered on the hub from `main` or their own branch before a release branch carries it. These refs are reachable but never listed in the switcher
+  - The switcher sits at the top of the left sidebar in the User manuals section, not in the top bar
+- **Cross-repo fetch.** The hub fetches Tamanu's `docs/` at build time. Reading through the GitHub API is the fallback if a build-time fetch proves unwieldy. How often the list of release branches refreshes, and what triggers a rebuild when a release branch is cut, a guide changes on a release branch, or release notes change on `main`, _to be decided during card shaping_
+- **Platform: Docusaurus**, provided it can be built on to meet the rest of these requirements: a custom search-led home, GitHub-faithful markdown rendering, content sourced from a different repository at a selectable ref, per-ref site-wide search, the Ask AI drawer, and refs reachable by URL that were never pre-built. The last is the sharpest fit question, since Docusaurus builds a fixed set of versions ahead of time. If Docusaurus can't be bent to fit, the platform card names the alternative. Curated content (roadmap and Recent features) is maintained through Workhorse and read from the repo like the rest of the docs, so no in-hub authoring interface is needed
+- **Hosting & deployment: Railway.** The site and the Ask AI service deploy to Railway. The hub rebuilds when the hub itself changes and when Tamanu documentation changes
+- Shared top bar (Search and a separate Ask AI control) and footer across all surfaces
 
 ---
 
@@ -68,14 +70,27 @@ The main improvement to general documentation, serving every audience — config
 - Page-aware **threaded chat drawer** — a conversation, not a single question and answer. Each answer carries inline source citations, and earlier turns stay in view so follow-ups build on what has already been asked
 - Threads are **session-only**: a conversation lives in the browser and is gone when the tab closes. No accounts and no server-side record of what people asked, which contains the patient-data risk the guardrails below warn about
 - Reached from the Ask AI control or handed off from the search palette
-- Retrieves over the full hub content **at the ref the reader is on** — user guides, configuration guides, release notes, and roadmap
+- Retrieves over the full hub content — user guides, configuration guides, release notes, and roadmap
+- **Works out the release from context.** Ask AI judges which Tamanu release a question is about from the page the reader is on, the release they have selected, and what they say, and asks when that is unclear. It is not pinned to the switcher
+- **Surfaces and links to relevant hub pages first.** Above all, an answer points the reader to the Knowledge Hub pages that cover their question, linking to each. It also answers general questions about Tamanu
+- **Reads the Tamanu code (ideally).** Ask AI can read the Tamanu repository directly to confirm or fill out an answer the documentation doesn't fully cover
+- **Scope.** No clinical advice. No generating import spreadsheets, SQL, scripts, configuration files, or direct database changes
 - Fast response time — answers are quick and in-context on the hub
-- In v1 scope; model, retrieval, and hosting _to be decided during card shaping_
+- **Model: Claude Opus 5.5** (`claude-opus-5-5`), hosted on Railway with the site. Retrieval approach _to be decided during card shaping_
 
 **Starting prompt (draft).** 
 
 ```text
-You are Ask AI, an assistant embedded in Tamanu, an Electronic Medical Record (EMR) system built by Beyond Essential Systems (BES). You help system administrators, clinical staff, and other users navigate and configure Tamanu.
+You are Ask AI, an assistant embedded in the Tamanu Knowledge Hub, the documentation site for Tamanu, an Electronic Medical Record (EMR) system built by Beyond Essential Systems (BES). You help system administrators, clinical staff, and other users navigate and configure Tamanu.
+
+---
+
+## SOURCES & LINKS
+
+- Your most important job is to point the user to the Knowledge Hub pages relevant to their question. Link to each page you draw on, by its title.
+- Base answers on the Knowledge Hub content. You may also answer general questions about what Tamanu is and does.
+- You may read the Tamanu source code to confirm or fill out an answer. When part of an answer comes from the code rather than the documentation, say so.
+- Work out which Tamanu release the user is asking about from the page they are on, the release they have selected, and what they tell you. If it matters and is unclear, ask.
 
 ---
 
@@ -116,8 +131,7 @@ You are Ask AI, an assistant embedded in Tamanu, an Electronic Medical Record (E
 
 ## TECHNICAL CHANGES & CODE
 
-- Do not generate or advise on SQL queries, scripts, configuration files, or direct database changes.
-  [OPEN QUESTION — to resolve before build: will we support generating import spreadsheets in this initial phase, and what is the scope? See Open questions.]
+- Do not generate or advise on SQL queries, scripts, configuration files, import spreadsheets, or direct database changes.
 - If a user needs technical changes made to their system, direct them to raise a support ticket or consult a BES developer:
   "Changes like this should be made by a qualified developer or via your organisation's support process. I'd recommend raising a ticket with your system administrator or the BES support team."
 
@@ -167,6 +181,8 @@ The bulk of the content moving off Slab, in three principal categories, each wit
 
 Content is markdown under `docs/user-manuals/` **in the Tamanu monorepo**, written by the `draft-user-guide` skill (L8) and the `draft-config-guide` skill (K8). Ordering comes from numbered folder and file names with hand-maintained README tables — there is no manifest, generator or CI job. The hub **reads this markdown at the selected ref** rather than carrying copies.
 
+The ref switcher sits at the top of the User manuals left sidebar (see requirement 1). J8's "was this helpful" control is left out for now.
+
 ---
 
 ### 4. Release notes
@@ -213,7 +229,10 @@ Directly serves goal 2 — improving searchability across all documentation, a w
 
 Fully explored in J8
 - Real Tamanu palette from `packages/ui-components/src/constants/colors.js` — primary blue `#326699` and gold `#FFCC24`, category accents (user guides purple, release notes pink, roadmap green)
-- Shipped Tamanu logo; Inter typeface (confirm vs the Tamanu app's Roboto); soft neutral canvas with white surfaces
+- Shipped Tamanu logo; soft neutral canvas with white surfaces
+- **System typefaces**, replacing J8's Inter:
+  - Text: `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
+  - Code: `ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace`
 - Sticky navy top bar bracketing a navy footer; search + Ask AI as two distinct controls
 - Type is black/greyscale only — colour carries on icons, fills, rules and buttons, never on words
 - **Related products** live in the footer only, kept out of the top nav so they don't read as Tamanu sections. Tupaia and SENAITE (incl. SENAITE: Animal Health) link to the current Knowledge Center site (which links through to Slab); mSupply links to the mSupply site
@@ -229,14 +248,7 @@ Fully explored in J8
 
 ## Open questions
 
-- **Platform:** which static site generator (must meet the constraints in requirement 1, including content from a different repository at a selectable release branch)
-- **Launch depends on `release/2.68`.** The guides merged to `main` on 24–26 Oct, and no release branch carries them yet (`release/2.67` forked on 15 Oct). Until `release/2.68` is cut, the switcher has no entries and the hub has no guides to show. Recent release branches forked on 18 Sep, 6 Oct and 15 Oct, so expect it within weeks. It will be the only entry at launch
-- **Author preview:** guides land on `main`, which the switcher doesn't offer, so an author can't see a guide rendered on the hub until the next release branch is cut
-- **Cross-repo fetch:** how the hub pulls Tamanu markdown (build-time clone, GitHub API, submodule), and how a new release branch, a guide change on a release branch, or a release notes change on `main` triggers a rebuild
-- **Ref switcher design:** where it sits in the top bar, since J8 settled that bar without it
-- **Hosting & deployment:** where the built site is served and how it deploys on release
-- **Ask AI:** model, retrieval, and hosting for the chat drawer
-- **Ask AI technical scope:** will Ask AI support generating import spreadsheets in this initial phase, and what is the scope? (It otherwise declines SQL, scripts, config files, and direct DB changes)
-- **Typeface:** Inter vs matching the Tamanu app's Roboto
+- **Launch depends on `release/2.68`.** The guides merged to `main` on 24–26 Oct, and no release branch carries them yet (`release/2.67` forked on 15 Oct). Until `release/2.68` is cut, the switcher has no entries and the hub has no guides to show. Recent release branches forked on 18 Sep, 6 Oct and 15 Oct, so expect it within weeks. It will be the only entry at launch. Authors can preview the guides from `main` by URL in the meantime
+- **Search outside User manuals:** the switcher lives only in the User manuals sidebar, so which release search covers on the home, release notes, roadmap and Report an issue pages is not yet settled. Ask AI works the release out from context instead (requirement 2)
+- **Ask AI's view of the code:** the Tamanu repository also holds the operational docs (`docs/runbooks`, `docs/sops`, `docs/reference`) that stay internal. Whether Ask AI's code access excludes them, and whether answers drawn from code link out to GitHub, is not yet settled
 - **Feature-to-guide mapping** for the home What's new carousel
-- User guides feedback - we ask if the user guide was helpful. Where will this data captured?
