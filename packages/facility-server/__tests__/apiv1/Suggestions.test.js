@@ -1600,31 +1600,28 @@ describe('Suggestions', () => {
       );
     };
 
-    it('should only exclude registries the patient is actively registered in', async () => {
-      // Regression: a patient removed from a registry (inactive) or recorded-in-error should be
-      // suggested again for re-registration. Only currently active registrations are excluded.
+    it('should exclude registries the patient is active in or has been removed from', async () => {
+      // A removed (inactive) registration is re-enabled via Activate on the registry page, so it
+      // is not offered for Add. A recorded-in-error registration can still be re-added.
       const patient = await models.Patient.create(fake(models.Patient));
 
       const activeRegistry = await createProgramRegistry(`${namePrefix} Active`);
       const inactiveRegistry = await createProgramRegistry(`${namePrefix} Inactive`);
+      const recordedInErrorRegistry = await createProgramRegistry(`${namePrefix} Error`);
       const unregisteredRegistry = await createProgramRegistry(`${namePrefix} None`);
 
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          patientId: patient.id,
-          programRegistryId: activeRegistry.id,
-          clinicianId: userApp.user.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-        }),
-      );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          patientId: patient.id,
-          programRegistryId: inactiveRegistry.id,
-          clinicianId: userApp.user.id,
-          registrationStatus: REGISTRATION_STATUSES.INACTIVE,
-        }),
-      );
+      const registerPatient = (programRegistryId, registrationStatus) =>
+        models.PatientProgramRegistration.create(
+          fake(models.PatientProgramRegistration, {
+            patientId: patient.id,
+            programRegistryId,
+            clinicianId: userApp.user.id,
+            registrationStatus,
+          }),
+        );
+      await registerPatient(activeRegistry.id, REGISTRATION_STATUSES.ACTIVE);
+      await registerPatient(inactiveRegistry.id, REGISTRATION_STATUSES.INACTIVE);
+      await registerPatient(recordedInErrorRegistry.id, REGISTRATION_STATUSES.RECORDED_IN_ERROR);
 
       const result = await userApp
         .get('/api/suggestions/programRegistry')
@@ -1635,8 +1632,9 @@ describe('Suggestions', () => {
       expect(body).toBeInstanceOf(Array);
       const suggestedIds = body.map(({ id }) => id);
       expect(suggestedIds).not.toContain(activeRegistry.id);
+      expect(suggestedIds).not.toContain(inactiveRegistry.id);
       expect(suggestedIds).toEqual(
-        expect.arrayContaining([inactiveRegistry.id, unregisteredRegistry.id]),
+        expect.arrayContaining([recordedInErrorRegistry.id, unregisteredRegistry.id]),
       );
     });
   });
