@@ -292,11 +292,4 @@ public class UpdaterModule extends ReactContextBaseJavaModule {
         executor.shutdownNow();
         super.invalidate();
     }
-
-    // Required for the RCTDeviceEventEmitter listener count bookkeeping on the JS side.
-    @ReactMethod
-    public void addListener(String eventName) {}
-
-    @ReactMethod
-    public void removeListeners(Integer count) {}
 }

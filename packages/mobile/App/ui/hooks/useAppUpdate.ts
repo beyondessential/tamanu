@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { NativeEventEmitter, NativeModules, PermissionsAndroid, Platform } from 'react-native';
+import { DeviceEventEmitter, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import Config from 'react-native-config';
 
 import {
@@ -67,10 +67,12 @@ export const useAppUpdate = (): AppUpdateState => {
   }, []);
 
   useEffect(() => {
-    const emitter = new NativeEventEmitter(NativeModules.TamanuUpdater);
-    const subscription = emitter.addListener(PROGRESS_EVENT, (next: UpdateProgress) => {
-      setProgress(next);
-    });
+    const subscription = DeviceEventEmitter.addListener(
+      PROGRESS_EVENT,
+      (next: UpdateProgress) => {
+        setProgress(next);
+      },
+    );
     return () => subscription.remove();
   }, []);
 
