@@ -20,7 +20,11 @@ An encounter can change encounter type part way through, for example a patient w
 - [ ] The date range of a period that is still running reads as its start date followed by "Current".
 - [ ] Each group header is marked with the colour that encounter type carries elsewhere in the encounter view.
 - [ ] Each group ends with its own Add item action.
+- [ ] A group's Add item opens the Add items window for that group, naming its encounter type and date range.
 - [ ] Add item in the group for the current period starts the item's date at today; Add item in a group whose period has ended leaves the date empty for staff to enter.
+- [ ] The date picker in that window only offers dates within the group's period. The current period runs up to today.
+- [ ] A date typed outside the group's period shows an inline error giving the period's first and last dates, and the items cannot be saved until it is corrected.
+- [ ] Saved items appear in the group they were added from.
 - [ ] Invoice totals cover every group.
 - [ ] The invoice summary shows insurance coverage as one line per encounter family (Outpatient, Emergency, Inpatient; see `invoicing/encounter-fees.md`), in place of a single coverage total. Each line reads "Insurance coverage" followed by the family in brackets, and totals the coverage across every period of that family.
 
