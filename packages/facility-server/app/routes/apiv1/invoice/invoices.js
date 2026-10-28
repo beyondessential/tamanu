@@ -20,6 +20,7 @@ import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
+import { invoiceForResponse } from './invoiceForResponse';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -312,7 +313,9 @@ invoiceRoute.put(
       where: { encounterId: foundInvoice.encounterId },
       include: await req.models.Invoice.getPricingAssociations(foundInvoice.encounterId),
     });
-    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoiceWithDetails);
+    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(
+      invoiceForResponse(invoiceWithDetails),
+    );
     // Cap paidAmount at patientTotal in case a discount was applied after payments were recorded
     const effectivePaidAmount = Math.min(patientPaymentsTotal, patientTotal);
     await req.models.Invoice.update(
