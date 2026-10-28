@@ -35,4 +35,16 @@ export class PatientMedicationPane extends BasePatientPane {
     await detailsModal.waitForModalToLoad();
     return detailsModal;
   }
+
+  /** Opens the first row whatever its state; a discontinued one has no Discontinue button. */
+  async openFirstOngoingMedicationRow(): Promise<MedicationDetailsModal> {
+    const firstDataCell = this.ongoingMedicationsTableBody
+      .locator('[data-testid^="styledtablecell-2gyy-0-"]')
+      .first();
+    await firstDataCell.click();
+
+    const detailsModal = new MedicationDetailsModal(this.page);
+    await detailsModal.dialog.waitFor({ state: 'visible' });
+    return detailsModal;
+  }
 }

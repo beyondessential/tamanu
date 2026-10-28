@@ -172,7 +172,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default: {
           // Check for custom patient fields
-          const { fieldValues } = patient;
+          const { fieldValues = [] } = patient;
           const fieldValue = fieldValues.find(x => x.definitionId === column);
           if (fieldValue) return fieldValue.value;
 
@@ -295,11 +295,16 @@ const getProgramRegistryConditionSchema = ({
       return !invalidCodes.includes(code);
     });
 
+/**
+ * @param {object} [options]
+ * @param {string} [options.requiredMessage] Shown for unanswered mandatory questions, in place of
+ *   the standard inline message
+ */
 export const getValidationSchema = (
   surveyData,
   getTranslation,
   valuesToCheckMandatory = {},
-  { isConditionRequired = false } = {},
+  { isConditionRequired = false, requiredMessage } = {},
 ) => {
   if (!surveyData) return {};
   const { components } = surveyData;
@@ -383,7 +388,8 @@ export const getValidationSchema = (
             code: dataElement.code,
             components,
             isConditionRequired,
-            requiredMessage: getTranslation('validation.required.inline', '*Required'),
+            requiredMessage:
+              requiredMessage ?? getTranslation('validation.required.inline', '*Required'),
           });
           break;
         default:
@@ -393,7 +399,9 @@ export const getValidationSchema = (
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? getTranslation('validation.required.inline', '*Required') : null,
+          mandatory
+            ? (requiredMessage ?? getTranslation('validation.required.inline', '*Required'))
+            : null,
         ),
       };
     },

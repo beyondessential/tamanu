@@ -3,8 +3,8 @@
  *
  * The table is backed entirely by the Formik `sampleDetails` value (a map keyed by categoryId).
  * Entering a collection time makes a category "collected" and defaults its collector to the current
- * user; clearing the time drops the whole category entry so it isn't submitted as a collected
- * sample.
+ * user; clearing the time clears the fields it gates, and the timeless entry is dropped on submit
+ * so it isn't submitted as a collected sample.
  */
 
 import * as React from 'react';
@@ -85,6 +85,7 @@ import { SampleDetailsTable } from '../../../app/views/labRequest/SampleDetailsT
 
 const CATEGORY_ID = 'category-1';
 const COLLECTED_BY_FIELD = `sampleDetails.${CATEGORY_ID}.collectedById`;
+const SITE_FIELD = `sampleDetails.${CATEGORY_ID}.labSampleSiteId`;
 const DEFAULT_SPECIMEN_TYPE_ID = 'specimen-type-default';
 
 const noopSuggester = {
@@ -130,22 +131,41 @@ describe('SampleDetailsTable', () => {
     });
   });
 
-  it('keeps the collector when the time is cleared (submit drops timeless entries)', async () => {
+  it('clears the gated fields when the time is cleared', async () => {
     const user = userEvent.setup();
-    renderSampleDetails();
+    renderSampleDetails({ defaultSpecimenTypeId: DEFAULT_SPECIMEN_TYPE_ID });
 
     await user.click(screen.getByTestId('set-collection-time'));
-    await waitFor(() =>
-      expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe(CURRENT_USER_ID),
-    );
+    await user.click(screen.getByTestId(`autocomplete-${SITE_FIELD}`));
+    await waitFor(() => {
+      expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe(CURRENT_USER_ID);
+      expect(readSampleDetails()[CATEGORY_ID]?.specimenTypeId).toBe(DEFAULT_SPECIMEN_TYPE_ID);
+      expect(readSampleDetails()[CATEGORY_ID]?.labSampleSiteId).toBeTruthy();
+    });
 
-    // Clearing (or an invalid mid-edit time) must not wipe the row's other values; the timeless
-    // entry is dropped at submit, not here.
     await user.click(screen.getByTestId('clear-collection-time'));
 
     await waitFor(() => {
       expect(readSampleDetails()[CATEGORY_ID]?.sampleTime).toBeFalsy();
+      expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBeFalsy();
+      expect(readSampleDetails()[CATEGORY_ID]?.specimenTypeId).toBeFalsy();
+      expect(readSampleDetails()[CATEGORY_ID]?.labSampleSiteId).toBeFalsy();
+    });
+  });
+
+  it('re-defaults the collector and specimen type when a time is entered again', async () => {
+    const user = userEvent.setup();
+    renderSampleDetails({ defaultSpecimenTypeId: DEFAULT_SPECIMEN_TYPE_ID });
+
+    await user.click(screen.getByTestId('set-collection-time'));
+    await user.click(screen.getByTestId('clear-collection-time'));
+    await waitFor(() => expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBeFalsy());
+
+    await user.click(screen.getByTestId('set-collection-time'));
+
+    await waitFor(() => {
       expect(readSampleDetails()[CATEGORY_ID]?.collectedById).toBe(CURRENT_USER_ID);
+      expect(readSampleDetails()[CATEGORY_ID]?.specimenTypeId).toBe(DEFAULT_SPECIMEN_TYPE_ID);
     });
   });
 
