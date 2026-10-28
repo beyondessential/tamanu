@@ -1,0 +1,133 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 500.4,
+    "invoiceItemsTotal": 115.1,
+    "insuranceCoverageTotal": 53.06,
+    "patientTotal": 62.04,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": -385.3,
+    "patientSubtotal": 62.04,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 62.04,
+    "insurancePlanPaymentRemainingBalance": 53.06
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "500.40",
+    "invoiceItemsTotal": "115.10",
+    "insuranceCoverageTotal": "53.06",
+    "patientTotal": "62.04",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "-385.30",
+    "patientSubtotal": "62.04",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "62.04",
+    "insurancePlanPaymentRemainingBalance": "53.06"
+  },
+  "insuranceCoverageTotal": "53.06000000000000002",
+  "coverageByPlan": [
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-93.06"
+    }
+  ],
+  "items": [
+    {
+      "id": "percentage-discount",
+      "totalPrice": 100,
+      "discountedPrice": 85,
+      "adjustment": -15,
+      "coverage": 51,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 51
+        }
+      ],
+      "netCost": 34,
+      "formattedCoverage": "-51.00",
+      "formattedNetCost": "34.00"
+    },
+    {
+      "id": "amount-discount",
+      "totalPrice": 0.4,
+      "discountedPrice": 0.10000000000000003,
+      "adjustment": -0.3,
+      "coverage": 0.06000000000000002,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 0.06000000000000002
+        }
+      ],
+      "netCost": 0.04000000000000001,
+      "formattedCoverage": "-0.06",
+      "formattedNetCost": "0.04"
+    },
+    {
+      "id": "markup",
+      "totalPrice": 100,
+      "discountedPrice": 120,
+      "adjustment": 20,
+      "coverage": 72,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 72
+        }
+      ],
+      "netCost": 48,
+      "formattedCoverage": "-72.00",
+      "formattedNetCost": "48.00"
+    },
+    {
+      "id": "discount-past-zero",
+      "totalPrice": 100,
+      "discountedPrice": -50,
+      "adjustment": -150,
+      "coverage": -50,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": -30
+        }
+      ],
+      "netCost": 0,
+      "formattedCoverage": "50.00",
+      "formattedNetCost": "0.00"
+    },
+    {
+      "id": "discount-past-zero-no-plans",
+      "totalPrice": 100,
+      "discountedPrice": -20,
+      "adjustment": -120,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": -20,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "-20.00"
+    },
+    {
+      "id": "discount-past-zero-not-insurable",
+      "totalPrice": 100,
+      "discountedPrice": -20,
+      "adjustment": -120,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": -20,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "-20.00"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}

@@ -1,0 +1,85 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 87.49,
+    "invoiceItemsTotal": 87.49,
+    "insuranceCoverageTotal": 0,
+    "patientTotal": 87.49,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 87.49,
+    "patientPaymentsTotal": 20,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 20,
+    "patientPaymentRemainingBalance": 67.49,
+    "insurancePlanPaymentRemainingBalance": 0
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "87.49",
+    "invoiceItemsTotal": "87.49",
+    "insuranceCoverageTotal": "0.00",
+    "patientTotal": "87.49",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "87.49",
+    "patientPaymentsTotal": "20.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "20.00",
+    "patientPaymentRemainingBalance": "67.49",
+    "insurancePlanPaymentRemainingBalance": "0.00"
+  },
+  "insuranceCoverageTotal": "0",
+  "coverageByPlan": [],
+  "items": [
+    {
+      "id": "quantity-three",
+      "totalPrice": 37.5,
+      "discountedPrice": 37.5,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 37.5,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "37.50"
+    },
+    {
+      "id": "manual-price",
+      "totalPrice": 49.99,
+      "discountedPrice": 49.99,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 49.99,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "49.99"
+    },
+    {
+      "id": "no-price",
+      "totalPrice": 0,
+      "discountedPrice": 0,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 0,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "0.00"
+    },
+    {
+      "id": "zero-quantity",
+      "totalPrice": 0,
+      "discountedPrice": 0,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 0,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "0.00"
+    }
+  ],
+  "patientPayments": [
+    {
+      "id": "pay-1",
+      "remainingBalance": 67.49
+    }
+  ],
+  "insurancePlanPayments": []
+}
