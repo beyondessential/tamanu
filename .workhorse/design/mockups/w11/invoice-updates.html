@@ -783,6 +783,16 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       ?? (isFamilySizeMissing ? familySizeField : null)
       ?? (isAnnualIncomeMissing ? annualIncomeField : null);
   };
+  const REQUIRED_ORNAMENT = '<span class="sc-jXbUNg iVXoYX"><span class="sc-imWYAI fHsCki">Required</span></span>';
+  const markSlidingFeeScaleRequired = () => {
+    const isRequired = patientForm.elements.invoiceInsurancePlanId.value === SLIDING_FEE_SCALE_PLAN;
+    [patientForm.elements.familySize, patientForm.elements.annualIncome].forEach(select => {
+      const label = select.closest('.w11-field').querySelector('.label-field');
+      label.querySelector('.iVXoYX')?.remove();
+      if (isRequired) label.insertAdjacentHTML('beforeend', REQUIRED_ORNAMENT);
+    });
+  };
+  patientForm.elements.invoiceInsurancePlanId.addEventListener('change', markSlidingFeeScaleRequired);
   watchForm(patientForm, validatePatient);
 
   // Family sizes and income bands come from the sliding fee scale setting, shown here with its default values
@@ -832,6 +842,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     // The saved income band only exists once the bands for the saved family size are back
     renderIncomeBands();
     restore(patientForm, savedPatientValues);
+    markSlidingFeeScaleRequired();
     menuButton.focus();
   };
 
