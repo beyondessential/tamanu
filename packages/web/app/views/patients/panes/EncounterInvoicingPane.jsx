@@ -13,7 +13,7 @@ import {
   InvoiceForm,
   InvoiceSummaryPanel,
   PatientPaymentsTable,
-  InsurerPaymentsTable,
+  InsurancePlanPaymentsTable,
 } from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
@@ -83,6 +83,7 @@ const PrintButton = styled(OutlinedButton)`
 `;
 
 const PaymentsSection = styled.div`
+  margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 8px;
@@ -309,7 +310,7 @@ export const EncounterInvoicingPane = ({ encounter, 'data-testid': dataTestId })
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />
             <InvoiceSummaryPanel invoice={invoice} />
-            {!isInProgress && <InsurerPaymentsTable invoice={invoice} />}
+            {!isInProgress && <InsurancePlanPaymentsTable invoice={invoice} />}
           </PaymentsSection>
         </InvoiceContainer>
       </TabPane>

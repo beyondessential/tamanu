@@ -6,7 +6,7 @@ import {
   AssetUploaderView,
   AiFormBuilderView,
   DesignationsAdminView,
-  InsurerPaymentsAdminView,
+  InsurancePlanPaymentsAdminView,
   LocationAssignmentsAdminView,
   ManageProgramRegistriesRoutes,
   ManageProgramsAdminView,
@@ -84,7 +84,7 @@ export const AdministrationRoutes = React.memo(() => (
         }
       />
     </Route>
-    <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
+    <Route path="insurancePlanPayments" element={<InsurancePlanPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>
 ));

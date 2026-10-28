@@ -8,19 +8,18 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceInsurerPayment extends Model {
+export class InvoiceInsurancePlanPayment extends Model {
   declare id: string;
-  declare insurerId: string;
+  declare invoiceInsurancePlanId: string;
   declare status: string;
   declare reason?: string;
   declare invoicePaymentId?: string;
-  declare insurer?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        insurerId: {
+        invoiceInsurancePlanId: {
           type: DataTypes.STRING,
           allowNull: false,
         },
@@ -42,9 +41,9 @@ export class InvoiceInsurerPayment extends Model {
       foreignKey: 'invoicePaymentId',
       as: 'detail',
     });
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'insurerId',
-      as: 'insurer',
+    this.belongsTo(models.InvoiceInsurancePlan, {
+      foreignKey: 'invoiceInsurancePlanId',
+      as: 'insurancePlan',
       constraints: false,
     });
   }
@@ -78,8 +77,8 @@ export class InvoiceInsurerPayment extends Model {
   static getListReferenceAssociations(models: Models) {
     return [
       {
-        model: models.ReferenceData,
-        as: 'insurer',
+        model: models.InvoiceInsurancePlan,
+        as: 'insurancePlan',
       },
     ];
   }
