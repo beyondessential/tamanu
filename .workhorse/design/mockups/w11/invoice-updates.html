@@ -611,6 +611,13 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 </div>
 <div class="w11-toast-container" id="w11-toast-container" aria-live="polite"></div>
 <script>
+// Mockup previews can block form submission, so submit buttons raise the form's submit event themselves
+document.addEventListener('click', event => {
+  const form = event.target.closest('button[type="submit"]')?.form;
+  if (!form) return;
+  event.preventDefault();
+  form.dispatchEvent(new Event('submit', { cancelable: true }));
+});
 (() => {
   const ITEM_TOTAL = 50;
   const INSURANCE_COVERAGE_RATE = 0.2;
