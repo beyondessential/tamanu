@@ -10,6 +10,7 @@ import {
   getSpecificInsurancePlanPaymentRemainingBalance,
 } from '@tamanu/utils/invoice';
 import { INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';
 import { statkey, updateStat } from '../stats';
@@ -29,10 +30,16 @@ const parseExcel = filePath => {
 //* The random generator should use a format of 8 alphanumeric characters but not include 0, O or I - please check this is sufficient to guarantee uniqueness with 100 entries/day. Letters should be capitalised.
 const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ', 8);
 
+// A date cell reaches us as a Date at local midnight, a text cell as a string. toDateString formats
+// in local time, so both land on the day the spreadsheet shows; toISOString would roll a date cell
+// back a day on any server east of UTC.
+const toSheetDateString = value =>
+  value instanceof Date && !Number.isNaN(value.getTime()) ? toDateString(value) : value;
+
 const insurancePlanPaymentImportSchema = z
   .object({
     id: z.string().uuid(),
-    date: z.coerce.date().transform(d => d.toISOString().slice(0, 10)),
+    date: z.preprocess(toSheetDateString, z.iso.date()),
     amount: z.coerce
       .number()
       .min(0)
