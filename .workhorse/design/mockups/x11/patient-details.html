@@ -375,6 +375,8 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .wh-select-disabled [class*="-control"] { background-color: transparent; border-color: rgb(222, 222, 222); /* outline */ cursor: default; }
 .wh-select-disabled [class*="-placeholder"] { visibility: hidden; }
 .wh-select-disabled svg { visibility: hidden; }
+.wh-control-error { border-color: rgb(247, 104, 83) !important; /* alert */ }
+.wh-helper { margin: 4px 0 0; font-size: 11px; line-height: 1.4; color: rgb(247, 104, 83); /* alert */ }
 .react-autosuggest__container[data-wh-payor] { position: relative; }
 .wh-suggestions { position: absolute; left: 0; width: 100%; z-index: 20; box-sizing: border-box; margin-top: 1px; background-color: rgb(255, 255, 255); /* white */ border: 1px solid rgb(222, 222, 222); /* outline */ border-radius: 3px; max-height: 210px; overflow-y: auto; }
 .wh-suggestion { padding: 12px 12px 12px 20px; font-size: 14px; line-height: 1.3em; color: rgb(68, 68, 68); /* darkestText */ cursor: pointer; white-space: normal; }
@@ -436,6 +438,7 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
             selected = selected.filter(item => item !== option);
             renderValue();
             if (menu) renderMenu();
+            onChange(selected);
           });
           valueContainer.insertBefore(chip, inputWrapper);
         });
@@ -544,10 +547,21 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
         selected = selected.slice(0, -1);
         renderValue();
         if (menu) renderMenu();
+        onChange(selected);
       }
     });
 
     return {
+      getSelected: () => selected,
+      setError: message => {
+        control.classList.toggle('wh-control-error', Boolean(message));
+        field.querySelector('.wh-helper')?.remove();
+        if (!message) return;
+        const helper = document.createElement('p');
+        helper.className = 'wh-helper';
+        helper.textContent = message;
+        field.appendChild(helper);
+      },
       clear: () => {
         selected = [];
         renderValue();
@@ -559,10 +573,18 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     };
   };
 
-  wireSelect({
+  const SLIDING_FEE_SCALE_PLAN = 'Sliding fee scale';
+  let hasAttemptedSave = false;
+  let validateSlidingFeeScale = () => true;
+  const revalidate = () => {
+    if (hasAttemptedSave) validateSlidingFeeScale();
+  };
+
+  const insurancePlan = wireSelect({
     fieldSelector: '[data-testid="secondarydetailsformgrid-bill"] [data-testid="multiselectinput-vf2i"]',
-    options: ['Insurance Plan 1', 'Insurance Plan 2', 'Insurance Plan 3'],
+    options: ['Insurance Plan 1', 'Insurance Plan 2', SLIDING_FEE_SCALE_PLAN],
     isMulti: true,
+    onChange: revalidate,
   });
   wireSelect({
     fieldSelector: '[data-testid="secondarydetailsformgrid-bill"] [data-testid="selectinput-phtg-select"]',
@@ -600,9 +622,10 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
     fieldSelector: '[data-testid="secondarydetailsformgrid-bill"] [data-wh-field="anin"]',
     options: () => incomeBands(familySize),
     isMulti: false,
+    onChange: revalidate,
   });
   annualIncome.setDisabled(true);
-  wireSelect({
+  const familySizeField = wireSelect({
     fieldSelector: '[data-testid="secondarydetailsformgrid-bill"] [data-wh-field="fmsz"]',
     options: SLIDING_FEE_SCALE.map((_, index) => String(index + 1)),
     isMulti: false,
@@ -611,7 +634,26 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
       familySize = size;
       annualIncome.clear();
       annualIncome.setDisabled(!size);
+      revalidate();
     },
+  });
+
+  // With the sliding fee scale plan selected, family size and annual income are required
+  validateSlidingFeeScale = () => {
+    const isRequired = insurancePlan.getSelected().includes(SLIDING_FEE_SCALE_PLAN);
+    const isFamilySizeMissing = isRequired && !familySizeField.getSelected().length;
+    const isAnnualIncomeMissing = isRequired && !isFamilySizeMissing && !annualIncome.getSelected().length;
+    familySizeField.setError(isFamilySizeMissing ? 'Family size is required for sliding fee scale' : null);
+    annualIncome.setError(isAnnualIncomeMissing ? 'Annual income is required for sliding fee scale' : null);
+    return !isFamilySizeMissing && !isAnnualIncomeMissing;
+  };
+  const detailsForm = document.querySelector('[data-testid="secondarydetailsformgrid-bill"]').closest('form');
+  detailsForm.addEventListener('submit', event => {
+    event.preventDefault();
+    hasAttemptedSave = true;
+    if (!validateSlidingFeeScale()) {
+      detailsForm.querySelector('.wh-helper').closest('[data-wh-field]').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
   });
 })();
 </script>
