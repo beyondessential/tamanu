@@ -222,7 +222,9 @@ Fully explored in J8
 ## Open questions
 
 - **Platform:** which static site generator (must meet the constraints in requirement 1, including content from a different repository at a selectable ref)
-- **Which refs:** what the switcher offers — every release tag, the last few, `main` as well — and how that list refreshes as Tamanu releases
+- **Which refs:** what the switcher offers — every release tag, the last few, `main` as well — and how that list refreshes as Tamanu releases. Two constraints on the answer:
+  - **Volume.** Tamanu carries 68 release branches (`release/2.0`–`release/2.67`) and dense patch tags (v2.60 alone has 22), so offering every tag means several hundred builds and search indexes
+  - **Content floor.** The guides landed on `main` only (L8 #11120, K8 #11119); `release/2.67` carries no `docs/user-manuals/`. Every released ref currently resolves to an empty guides tree, and guides first ship in the next branch cut from main — so the switcher's useful range starts there, not at Tamanu's history
 - **Cross-repo fetch:** how the hub pulls Tamanu markdown (build-time clone, GitHub API, submodule), and whether a documentation change in Tamanu triggers a hub rebuild
 - **Release notes and the ref:** whether release notes follow the ref switcher or always present the full version history regardless of ref
 - **Ref switcher design:** where it sits in the top bar — J8 settled that bar without it
