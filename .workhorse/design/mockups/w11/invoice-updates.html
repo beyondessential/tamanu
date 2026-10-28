@@ -470,7 +470,6 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .w11-dialog-bottom-row { padding-block: 1rem 1.25rem; padding-inline: 32px; border-block-start: 1px solid #dedede; /* outline */ background-color: #f3f5f7; /* background */ }
 .w11-button-row { display: flex; align-items: stretch; justify-content: flex-end; width: 100%; }
 .w11-button-row > button:not(:first-child) { margin-left: 20px; }
-.w11-button-row .css-bcwuds { background-color: #ffffff; /* white */ }
 /* ModalActionRow: full-bleed rule above the buttons */
 .w11-modal-action-row { margin-top: 10px; margin-inline: -32px; border-top: 1px solid #dedede; /* outline */ padding: 30px 32px 0 0; display: flex; justify-content: flex-end; }
 .w11-modal-body { margin: 20px 0 50px; }
@@ -482,7 +481,9 @@ html { font-family: Roboto, Helvetica, Arial, sans-serif; }
 .w11-confirm-text p:last-child { margin-bottom: 0; }
 .w11-button-row.w11-split { justify-content: space-between; }
 .w11-button-group { display: flex; gap: 20px; }
-.w11-button-group .css-bcwuds { background-color: #ffffff; /* white */ }
+/* Outlined buttons carry a 1px border, so their padding is 1px less for the same size */
+#w11-no-plan-modal .w11-dialog-bottom-row .css-q5bog7 { padding: 13px 22px 14px; }
+#w11-no-plan-modal .w11-dialog-bottom-row .css-bcwuds { padding: 12px 21px 13px; }
 
 /* W11: patient details form (PatientDetailsForm, generic layout) */
 .w11-pd-heading { font-weight: 500; font-size: 16px; color: #666666; /* darkText */ margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
