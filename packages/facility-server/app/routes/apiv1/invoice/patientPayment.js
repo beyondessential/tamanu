@@ -6,6 +6,7 @@ import Decimal from 'decimal.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
 import { getInvoicePatientPaymentStatus, round, getInvoiceSummary } from '@tamanu/utils/invoice';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { invoiceForResponse } from './invoiceForResponse';
 
 const createPatientPaymentSchema = z
   .object({
@@ -33,11 +34,14 @@ const refundPatientPaymentSchema = z
   })
   .strip();
 
+// Mapped the same way as the invoice the web shows, so payments are checked against what the
+// patient owes after insurance
 async function getInvoiceWithDetails(req, encounterId) {
-  return await req.models.Invoice.findOne({
+  const invoiceRecord = await req.models.Invoice.findOne({
     where: { encounterId },
     include: await req.models.Invoice.getPricingAssociations(encounterId),
   });
+  return invoiceRecord && invoiceForResponse(invoiceRecord);
 }
 
 const validateInvoiceExists = async (req, invoiceId) => {
