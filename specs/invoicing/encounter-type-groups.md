@@ -22,7 +22,7 @@ An encounter can change encounter type part way through, for example a patient w
 - [ ] Each group ends with its own Add item action.
 - [ ] Add item in the group for the current period starts the item's date at today; Add item in a group whose period has ended leaves the date empty for staff to enter.
 - [ ] Invoice totals cover every group.
-- [ ] The invoice summary shows insurance coverage as one line per period, labelled with its encounter type, in place of a single coverage total.
+- [ ] The invoice summary shows insurance coverage as one line per encounter family (Outpatient, Emergency, Inpatient; see `invoicing/encounter-fees.md`), in place of a single coverage total. Each line reads "Insurance coverage" followed by the family in brackets, and totals the coverage across every period of that family.
 
 ## Insurance plans by period
 
