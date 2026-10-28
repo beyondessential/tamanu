@@ -341,6 +341,12 @@ jobs:
               exit 1
           fi
 
+      # ubuntu-latest now ships Python 3.14, which the pinned dbt can't import
+      # on; match the Python that cd-deploy-dbt-docs uses
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
       - name: Check model is valid (ie that docs can generate)
         run: |
           pip3 install \
