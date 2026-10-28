@@ -5,8 +5,8 @@ id: LRPT
 # Lab results printout
 
 The printable A4 PDF of lab results. It is printed for a single lab request, or for every
-request on an encounter whose results are final or interim. For how results are shown on
-screen, see `labs/results.md`.
+request on an encounter that is Published, Verified or at Interim results. For how results
+are shown on screen, see `labs/results.md`.
 
 ## Printing a single request
 
@@ -17,13 +17,14 @@ screen, see `labs/results.md`.
 
 ## Printing an encounter's results
 
-- [ ] The encounter's Labs tab has an overflow menu holding "Print results". The existing Print and New lab request buttons stay as buttons.
-- [ ] "Print results" prints every lab request on the encounter that is Published, Verified or at Interim results. Requests at any other status are left out.
-- [ ] There is no selection step: choosing "Print results" opens a preview of the printout with every eligible request, which staff can print from.
+- [ ] The encounter's Labs tab has an overflow menu holding "Print results". The Labs tab's Print and New lab request actions are buttons beside the menu.
+- [ ] "Print results" prints every lab request on the encounter that is Published, Verified or at Interim results.
+- [ ] A request containing a sensitive test is left out of the encounter printout for every user. Its results are printed from the request itself.
+- [ ] Choosing "Print results" opens the preview directly, holding every eligible request, and staff can print from it.
 - [ ] When the encounter has no eligible requests, "Print results" is hidden, and so is the overflow menu when it holds nothing else.
-- [ ] "Print results" is available to any user with permission to read lab test results, whether or not the lab results printout setting is on.
+- [ ] "Print results" appears only when the lab results printout setting is on and the user has permission to read lab test results.
 - [ ] "Print results" is available on a discharged or otherwise read-only encounter.
-- [ ] Requests appear in the order they reached their current status, oldest first.
+- [ ] Requests appear in the order they reached their current status, oldest first. Requests that reached their status at the same moment are ordered by requested date, oldest first.
 
 ## Printout layout
 
@@ -39,5 +40,7 @@ screen, see `labs/results.md`.
 
 ## Interim results
 
-- [ ] A printout holding any request whose results are not final carries a banner under the title: "This report contains interim results that have not yet been published".
+- [ ] When a printout carries the interim banner, it sits under the title and reads "This report contains interim results that have not yet been published".
+- [ ] A single-request printout carries the banner when the request is Reception pending, Results pending, Interim results or To be verified.
+- [ ] An encounter printout carries the banner when any of its requests is at Interim results.
 - [ ] In an encounter printout, each request at Interim results also carries its own interim marker above its block, so staff can tell which results are not final.
