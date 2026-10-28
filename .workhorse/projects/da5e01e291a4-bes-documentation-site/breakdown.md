@@ -6,7 +6,7 @@ Ordering is roughly dependency order. The platform spike gates the scaffold, the
 
 **Two repositories.** The site lives in its own Knowledge Hub repository; the documentation markdown stays in the Tamanu monorepo. Every card except the in-app link one does its work in the hub repository, reading Tamanu's `docs/` across the repository boundary.
 
-**Everything is per-ref.** Readers switch the hub between branches and tags of the Tamanu repository, so the content pipeline, the search index and Ask AI retrieval all work against a selected ref rather than a single current set. The ref switcher itself has no design — J8 settled the top bar without it.
+**Everything is per-ref.** Readers switch the hub between Tamanu release branches that carry documentation, so the content pipeline, the search index and Ask AI retrieval all work against a selected release rather than a single current set. Release notes are the exception: they are always read from `main`. The ref switcher itself has no design — J8 settled the top bar without it.
 
 Migrating the existing Slab content is not in this breakdown. That is authoring work already running through the `draft-user-guide` (L8) and `draft-config-guide` (K8) skills, and it produces the markdown this site reads.
 

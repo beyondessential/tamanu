@@ -2,7 +2,7 @@
 
 ## Overview
 
-External-facing Tamanu documentation currently lives in Slab (`beyond-essential.slab.com`) — a hosted knowledge base disconnected from the codebase, so docs drift from the software, cannot version with Tamanu releases, and are hard to search across. This project builds the **Tamanu Knowledge Hub**: a standalone public documentation site, independent of the Tamanu app, living in its own repository and built from markdown it reads out of the Tamanu monorepo at a selected branch or tag — the single home for external-facing Tamanu documentation. Design and a full clickable prototype are done on card **J8** (`.workhorse/design/mockups/j8/`); this PRD carries that design into buildable requirements.
+External-facing Tamanu documentation currently lives in Slab (`beyond-essential.slab.com`) — a hosted knowledge base disconnected from the codebase, so docs drift from the software, cannot version with Tamanu releases, and are hard to search across. This project builds the **Tamanu Knowledge Hub**: a standalone public documentation site, independent of the Tamanu app, living in its own repository and built from markdown it reads out of the Tamanu monorepo at a selected release — the single home for external-facing Tamanu documentation. Design and a full clickable prototype are done on card **J8** (`.workhorse/design/mockups/j8/`); this PRD carries that design into buildable requirements.
 
 **Goals:**
 
@@ -34,7 +34,7 @@ External-facing Tamanu documentation currently lives in Slab (`beyond-essential.
 | 8 | J8 | Report an issue | J8 (report-issue) |
 | 9 | J8 | Branding & shared design system | J8 |
 | 10 | Project brief | Update Tamanu in-app support hub link | — |
-| 11 | Requirements change, 28 Oct | Branch and tag switching | **None yet** — not in J8 |
+| 11 | Requirements change, 28 Oct | Release switching | **None yet** — not in J8 |
 
 The ref switcher has no design. J8 settled the top bar with Search and Ask AI as its only controls, so the switcher needs design work before the scaffold is built.
 
@@ -49,7 +49,12 @@ The ref switcher has no design. J8 settled the top bar with Search and Ask AI as
 The foundation: a public site, in its own repository, built from documentation markdown it reads out of the Tamanu monorepo.
 
 - **Two repositories.** The site lives in the **Knowledge Hub repository**; the documentation markdown lives in the **Tamanu monorepo** (`beyondessential/tamanu`, under `docs/`), so docs version and PR alongside the code they describe. The hub reads that markdown across the repository boundary rather than carrying copies
-- **Branch- and tag-aware.** The hub builds against a selected ref of the **Tamanu** repository (not its own), and readers switch between refs on the public site — so the guides can be read as they stood at a given Tamanu release. Which refs are offered, how they are fetched, and how often the set refreshes _to be decided during card shaping_
+- **Release-aware.** Readers switch the guides between **release branches** of the Tamanu repository (`release/X.YY`), and the hub builds each against that branch's `docs/`, so a guide reads as it stood in that release
+  - Only release branches that carry documentation are offered. `main`, feature branches and patch tags are not on the list
+  - The newest such release branch is the default
+  - A patch release that edits a guide moves its release branch, and the hub rebuilds that branch
+  - Release notes are the exception: they don't follow the switcher (see requirement 4)
+  - How branches are fetched and how often the list refreshes _to be decided during card shaping_
 - **Static site generator / framework** — _to be decided during card shaping_. Must support: a custom search-led home, GitHub-faithful markdown rendering, content sourced from a different repository at a selectable ref, per-ref site-wide search, and the Ask AI drawer. Curated content (roadmap and Recent features) is maintained through Workhorse and read from the repo like the rest of the docs, so no in-hub authoring interface is needed
 - **Hosting & deployment** — where the built site is served, and how it rebuilds both when the hub itself changes and when Tamanu documentation changes, _to be decided_
 - Shared top bar (Search, a separate Ask AI control, and the ref switcher) and footer across all surfaces
@@ -166,7 +171,10 @@ Content is markdown under `docs/user-manuals/` **in the Tamanu monorepo**, writt
 
 ### 4. Release notes
 
-- Source is `docs/release-notes/*.md` in the **Tamanu monorepo**, parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings).
+- Source is the curated `docs/release-notes/vX-YY.md` files in the **Tamanu monorepo**, written for PMs and sysadmins by the `draft-release-notes` skill and parsed by the hub (`Released DD-MM-YYYY` line, summary, emoji-prefixed category headings). The `README.md` and styled `.html` twins in the same folder are not release notes
+- **Ref-independent.** Always read from `main`, whatever release the reader has selected, so readers always get the full history. `main` is the most complete source because curated notes land there first: `main` carries v2.61–v2.66 while `release/2.67` stops at v2.65
+- History starts at v2.61, the first curated notes
+- Tamanu's GitHub releases are not the source. They are git-cliff changelogs of commit subjects, one per patch tag, written for developers
 
 ---
 
@@ -175,7 +183,7 @@ Content is markdown under `docs/user-manuals/` **in the Tamanu monorepo**, writt
 Directly serves goal 2 — improving searchability across all documentation, a weak point in Slab.
 
 - Spans all content at the ref the reader is on — user guides, configuration guides, and release notes
-- A separate index per ref the switcher offers; how indexes are built, stored, and kept in step with the refs _implementation to be decided_
+- A separate index per release branch the switcher offers. Release notes are the same in every index because they are always read from `main`. How indexes are built, stored, and kept in step _implementation to be decided_
 
 ---
 
@@ -221,13 +229,11 @@ Fully explored in J8
 
 ## Open questions
 
-- **Platform:** which static site generator (must meet the constraints in requirement 1, including content from a different repository at a selectable ref)
-- **Which refs:** what the switcher offers — every release tag, the last few, `main` as well — and how that list refreshes as Tamanu releases. Two constraints on the answer:
-  - **Volume.** Tamanu carries 68 release branches (`release/2.0`–`release/2.67`) and dense patch tags (v2.60 alone has 22), so offering every tag means several hundred builds and search indexes
-  - **Content floor.** The guides landed on `main` only (L8 #11120, K8 #11119); `release/2.67` carries no `docs/user-manuals/`. Every released ref currently resolves to an empty guides tree, and guides first ship in the next branch cut from main — so the switcher's useful range starts there, not at Tamanu's history
-- **Cross-repo fetch:** how the hub pulls Tamanu markdown (build-time clone, GitHub API, submodule), and whether a documentation change in Tamanu triggers a hub rebuild
-- **Release notes and the ref:** whether release notes follow the ref switcher or always present the full version history regardless of ref
-- **Ref switcher design:** where it sits in the top bar — J8 settled that bar without it
+- **Platform:** which static site generator (must meet the constraints in requirement 1, including content from a different repository at a selectable release branch)
+- **Launch depends on `release/2.68`.** The guides merged to `main` on 24–26 Oct, and no release branch carries them yet (`release/2.67` forked on 15 Oct). Until `release/2.68` is cut, the switcher has no entries and the hub has no guides to show. Recent release branches forked on 18 Sep, 6 Oct and 15 Oct, so expect it within weeks. It will be the only entry at launch
+- **Author preview:** guides land on `main`, which the switcher doesn't offer, so an author can't see a guide rendered on the hub until the next release branch is cut
+- **Cross-repo fetch:** how the hub pulls Tamanu markdown (build-time clone, GitHub API, submodule), and how a new release branch, a guide change on a release branch, or a release notes change on `main` triggers a rebuild
+- **Ref switcher design:** where it sits in the top bar, since J8 settled that bar without it
 - **Hosting & deployment:** where the built site is served and how it deploys on release
 - **Ask AI:** model, retrieval, and hosting for the chat drawer
 - **Ask AI technical scope:** will Ask AI support generating import spreadsheets in this initial phase, and what is the scope? (It otherwise declines SQL, scripts, config files, and direct DB changes)
