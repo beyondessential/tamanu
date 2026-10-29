@@ -85,6 +85,8 @@ export const AdministrationRoutes = React.memo(() => (
       />
     </Route>
     <Route path="insurancePlanPayments" element={<InsurancePlanPaymentsAdminView />} />
-    <Route path="*" element={<Navigate to="referenceData" replace />} />
+    {/* Absolute: a relative target resolves against the splat, so an unknown path would redirect
+        under itself and match here again, appending for ever on a blank screen. */}
+    <Route path="*" element={<Navigate to="/admin/referenceData" replace />} />
   </Routes>
 ));

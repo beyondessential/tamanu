@@ -188,15 +188,18 @@ export const getInsurancePlanItemsForInvoiceItem = (
 ): InsurancePlanItem[] => {
   if (!item.product?.insurable) return [];
 
-  const productPlanItems = item.product?.invoiceInsurancePlanItems ?? [];
+  const coverageByPlanId = new Map(
+    (item.product?.invoiceInsurancePlanItems ?? []).map(planItem => [
+      planItem.invoiceInsurancePlanId,
+      planItem.coverageValue,
+    ]),
+  );
   return insurancePlans.map(({ id, code, name, defaultCoverage }) => ({
     id,
     code,
     name,
     label: name ?? code,
-    coverageValue:
-      productPlanItems.find(planItem => planItem.invoiceInsurancePlanId === id)?.coverageValue ??
-      defaultCoverage,
+    coverageValue: coverageByPlanId.get(id) ?? defaultCoverage,
   }));
 };
 

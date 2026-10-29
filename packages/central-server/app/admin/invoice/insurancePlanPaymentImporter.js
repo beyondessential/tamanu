@@ -144,6 +144,19 @@ export async function insurancePlanPaymentImporter({
       include: models.InvoiceInsurancePlanPayment.getFullReferenceAssociations(),
     });
 
+    // detail is the InvoicePayment holding this row's money. Models are paranoid, so a
+    // soft-deleted payment leaves the include empty and there is nothing left to update.
+    if (existingPayment && !existingPayment.detail) {
+      errors.push(
+        new ValidationError(
+          sheetName,
+          index,
+          `Payment '${data.id}' has no invoice payment record to update`,
+        ),
+      );
+      continue;
+    }
+
     if (existingPayment && existingPayment.detail.invoiceId !== invoice.id) {
       errors.push(
         new ValidationError(
