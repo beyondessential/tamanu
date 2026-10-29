@@ -1,0 +1,448 @@
+<!-- Styled rendering of the Tamanu v2.67 release notes. -->
+<!-- Companion to docs/release-notes/v2-67.md, which is the source of truth for the wording. -->
+<!-- Content sourced from origin/release/2.66...origin/release/2.67, the Linear v2.67.0 label, -->
+<!-- and the Workhorse cards Q8 and Q9 found in the release branch history. -->
+<!-- Styling copied from docs/release-notes/v2-66.html. -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamanu v2.67 release notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f8f7f4;
+    --surface: #ffffff;
+    --text: #1c1917;
+    --text-secondary: #57534e;
+    --text-muted: #78716c;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --accent: #c2410c;
+    --accent-soft: #fff7ed;
+    --accent-border: #fed7aa;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* Masthead */
+  .masthead {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .released {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* Section rhythm */
+  section { margin-top: 48px; }
+
+  h2 {
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h2 .marker { margin-right: 8px; }
+
+  h3 {
+    margin: 32px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  h3:first-of-type { margin-top: 0; }
+
+  /* Feature cards */
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .feature-title {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .feature p {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+  }
+
+  .label {
+    margin: 20px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+  }
+
+  li:last-child { margin-bottom: 0; }
+
+  li strong, p strong { color: var(--text); font-weight: 600; }
+
+  li ul { margin-top: 8px; }
+
+  /* Plain grouped list (enhancements, fixes) */
+  .group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+  }
+
+  .group > ul > li { margin-bottom: 12px; }
+
+  .platform {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Documentation placeholders */
+  .docs {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .placeholder {
+    display: inline-block;
+    background: #fafaf9;
+    border: 1px dashed var(--border-strong);
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* Upgrade notes */
+  .required-tag, .optional-tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .required-tag {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+  }
+
+  .optional-tag {
+    background: #f5f5f4;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+  }
+
+  .upgrade-item {
+    margin-bottom: 20px;
+  }
+
+  .upgrade-item:last-child { margin-bottom: 0; }
+
+  .upgrade-item .name {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  /* Behaviour-change callout */
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+  }
+
+  .callout p {
+    margin: 0;
+    font-size: 14px;
+    color: #7c2d12;
+  }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-strong);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">
+      <span class="released">Released <span class="placeholder">[RELEASE_DATE_PLACEHOLDER]</span></span>
+    </div>
+    <h1>Tamanu v2.67 release notes</h1>
+    <p class="lede">
+      Tamanu v2.67 is a smaller release. Its main change lets staff log in to a new facility
+      server as soon as setup finishes, without waiting for its first sync. It also moves
+      patient record import and export into a 'Patient data' view in the admin panel, adds
+      'Patient type' to emergency encounters, and shows stock in the 'Send to pharmacy' modal.
+    </p>
+  </div>
+
+  <section>
+    <h2><span class="marker">🌟</span>Major Features and Changes</h2>
+
+    <h3>System Administration</h3>
+
+    <div class="feature">
+      <p class="feature-title">Facility server setup</p>
+      <p>
+        Staff can now log in to a new facility server as soon as setup finishes. Until this
+        release, every login was refused until the server's first sync had downloaded all of
+        the facility's data. That can take hours, and the refusal read as though the user had
+        no access. Now staff are told the facility is being set up, and are taken on to Tamanu
+        once the data has arrived.
+      </p>
+
+      <p class="label">Key features</p>
+      <ul>
+        <li><strong>Ready to log in after setup</strong> - The setup wizard downloads the facility's users, roles, permissions and settings from the central server as part of setup, then logs the installer in. No patient data is downloaded at this stage.</li>
+        <li><strong>'Setting up this facility' screen</strong> - Anyone who logs in before the first sync finishes, whatever their role, sees a screen saying the facility's data is loading for the first time. Once the first sync completes they carry on to facility selection automatically. The screen has a 'Log out' button.</li>
+        <li><strong>Servers set up without the wizard</strong> - Facility servers configured another way download the same starter data before their first sync, so they get the same behaviour.</li>
+        <li><strong>First sync unchanged</strong> - The first sync still downloads all of the facility's data, taking about as long as before.</li>
+      </ul>
+
+      <div class="docs">
+        <p class="label">Supporting documentation</p>
+        <ul>
+          <li>Facility server setup guide - <span class="placeholder">[SLAB_LINK_PLACEHOLDER]</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🔧</span>System Enhancements</h2>
+
+    <div class="group">
+      <ul>
+        <li><strong>Patient data view</strong> - Patients and administered vaccines are imported and exported through a new 'Patient data' view in the admin panel, separate from reference data. The spreadsheet format and the test import are as before. Before an import runs, a confirmation explains that it creates new records and overwrites matching patient data, and cannot be undone.</li>
+        <li><strong>Patient type on emergency encounters</strong> - The 'New emergency triage' form has a 'Patient type' field, filled in from the patient's details where one is recorded. Changing it on the form does not change the patient's details. The patient type carries through when the patient is admitted to hospital.</li>
+        <li><strong>Stock when sending to pharmacy</strong> - The 'Send to pharmacy' modal has a 'Stock' column showing whether each medication is in stock at the facility, matching the 'Dispense medication' modal. Hovering over an in-stock medication shows the quantity on hand. Stock is for information only and does not stop a medication being sent.</li>
+        <li><strong>AI settings</strong> - The AI model settings suggest the models available to the deployment's Anthropic account, and changes to AI settings take effect without restarting the central server.</li>
+        <li><strong>Longer form logic</strong> - Program form questions accept longer visibility criteria and calculations, so complex conditions no longer hit a length limit.</li>
+        <li><strong>Database interruptions</strong> - Servers stay up through a brief loss of their database connection, such as a database failover, and carry on once it returns rather than shutting down and restarting. A server only stops if the outage lasts several minutes.</li>
+        <li><strong>Sync history</strong> - Facility servers keep a record of every sync attempt and its outcome, so monitoring can pick up a sync that hangs as well as one that fails.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">🐛</span>Tweaks and Bug Fixes</h2>
+
+    <div class="group">
+      <p class="platform">Desktop</p>
+      <ul>
+        <li><strong>Encounters</strong> - Where 'Patient type' is set as required, every encounter form enforces it, including when editing an encounter and admitting to hospital. 'Patient type' is filled in when admitting from triage or from a referral. Editing an emergency encounter refuses an arrival or triage time in the future.</li>
+        <li><strong>Patients</strong> - The duplicate NHN check when editing a patient ignores capitalisation. Recording a death with an empty contributing condition row saves without it. A patient removed from a program registry can be registered again.</li>
+        <li><strong>Medications</strong> - A medication marked unavailable at the facility shows 'Unavailable' stock rather than 'Unknown'. Users without permission to see the medication administration record or not dispensed details see a message rather than a blank page.</li>
+        <li><strong>Labs and imaging</strong> - The active lab requests status filter no longer offers 'Rejected'. Changing the imaging type clears 'Areas to be imaged'.</li>
+        <li><strong>Invoicing</strong> - Saving a procedure no longer overwrites changes the cashier has made to the invoice. An insurance plan, lab test or lab panel with every facility removed from it is offered at all facilities, where before it was offered at none.</li>
+        <li><strong>Tables</strong> - Newly added rows stay selected in selection tables, and removing the last rows on a page no longer leaves an empty page.</li>
+        <li><strong>Admin panel</strong> - The reference data 'Manage' tab checks permissions for each data type, applies the same code and id rules as the import, and enforces required fields when editing. Drug routes are checked on import. Vaccine consent import and export are tightened, and re-importing administered vaccines keeps their existing encounters. Export is unavailable until a data type is selected. The hidden sync button is removed from the central server's admin panel.</li>
+        <li><strong>Forms</strong> - Signature questions save and display correctly.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">Mobile</p>
+      <ul>
+        <li><strong>Sync</strong> - Saving pulled data during sync is faster.</li>
+        <li><strong>Forms</strong> - Multi-select answers display correctly, the village is kept after submitting a program form, and the hardware back button leaves the 'Programs' screen.</li>
+        <li><strong>Patients</strong> - A patient with no recorded allergies shows 'None recorded'.</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <p class="platform">System</p>
+      <ul>
+        <li><strong>Sync</strong> - Sync no longer fails when a record deleted on the central server has also been updated at a facility. Resolving duplicate patient display IDs ignores capitalisation. Settings that only apply to the central server are kept off facility servers and mobile devices, and removed from them at upgrade.</li>
+        <li><strong>Sensitive networks</strong> - AI patient summaries leave out everything recorded in encounters at facilities in a sensitive network, wherever the summary is generated. Editing a facility in the reference data admin cannot change its network.</li>
+        <li><strong>Integrations</strong> - FHIR medication requests carry the dispense quantity in the standard format.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">📊</span>Reporting Schema Changes</h2>
+
+    <div class="group">
+      <p><span class="placeholder">[REPORTING_SCHEMA_PLACEHOLDER]</span></p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="marker">⚠️</span>Critical Upgrade Notes</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">Patient type</p>
+        <ul>
+          <li>Where your deployment sets 'Patient type' as required, staff must now choose one on every encounter form, including emergency triage, admitting to hospital and editing an encounter. Until now some of these forms saved without one.</li>
+          <li>Check that the patient type list is complete, and let triage and admissions staff know.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Patient data</p>
+        <ul>
+          <li>Patients and administered vaccines are imported and exported only through the new 'Patient data' view, not the reference data view. Let anyone who imports or exports patient records know where to find them.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+
+      <div class="upgrade-item">
+        <p class="name">Facility server setup</p>
+        <ul>
+          <li>When setting up a new facility, let its staff know they will see a setting-up screen until the first sync finishes, and that they can log in during that time.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">AI settings</p>
+        <ul>
+          <li>Where AI features are in use, review the selected models against the suggestions now offered in the AI settings.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Upgrade Steps and Recommended Testing</h2>
+
+    <div class="group">
+      <span class="required-tag">Required</span>
+
+      <div class="upgrade-item">
+        <p class="name">Patient type</p>
+        <ul>
+          <li>On a deployment where 'Patient type' is required, create an emergency encounter for a patient with a patient type recorded. Confirm the field is filled in and cannot be left empty, then admit the patient to hospital and confirm the patient type carries over.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">Patient data</p>
+        <ul>
+          <li>Run a test import of a patient spreadsheet in the 'Patient data' view, and export patients and administered vaccines from it.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="optional-tag">Optional</span>
+
+      <div class="upgrade-item">
+        <p class="name">Facility server setup</p>
+        <ul>
+          <li>When next setting up a facility server, confirm you can log in straight after the setup wizard, see the setting-up screen, and reach facility selection once the first sync completes.</li>
+        </ul>
+      </div>
+
+      <div class="upgrade-item">
+        <p class="name">General</p>
+        <ul>
+          <li>Upgrade an existing Tamanu Mobile device, record some data and sync. Confirm the sync completes and the new records appear on Tamanu Desktop.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    The release date, supporting documentation links and reporting schema section are placeholders awaiting a human.
+  </footer>
+
+</div>
+</body>
+</html>
