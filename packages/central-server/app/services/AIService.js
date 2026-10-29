@@ -3,16 +3,13 @@ import { Op } from 'sequelize';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { toJsonSchema } from '@langchain/core/utils/json_schema';
 
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils/crypto';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
-
-// `withStructuredOutput` forces `tool_choice` unless thinking is on, and models from
-// Claude Opus 5.5 onwards reject a forced `tool_choice`.
-const ADAPTIVE_THINKING = { type: 'adaptive' };
 
 // Every settings path init and refreshContexts read. A path missing here goes on
 // needing a restart to take effect, so add to it alongside any new settings read.
@@ -76,6 +73,29 @@ const toLangChainMessage = ({ role, content }) => {
   return new HumanMessage(content);
 };
 
+// LangChain's `withStructuredOutput` forces `tool_choice`, which models from Claude Opus 5.5
+// onwards reject. Binding the tool and leaving the choice to the model works on every
+// generation, so the trade is having to handle a reply that doesn't call it.
+const invokeWithSchema = async (chatModel, messages, schema, name) => {
+  const jsonSchema = toJsonSchema(schema);
+  const response = await chatModel
+    .bindTools([
+      {
+        name,
+        description: jsonSchema.description ?? `Respond by calling ${name}.`,
+        input_schema: jsonSchema,
+      },
+    ])
+    .invoke(messages);
+
+  const toolCall = response.tool_calls?.find(call => call.name === name);
+  if (!toolCall) {
+    throw new Error(`AIService: expected the model to call "${name}", it returned no tool call`);
+  }
+
+  return schema.parseAsync(toolCall.args);
+};
+
 export class AIService {
   /** @type {Map<string, string>} */
   contexts = new Map();
@@ -128,15 +148,10 @@ export class AIService {
     service.chatModel = new ChatAnthropic({
       anthropicApiKey,
       model: anthropicModel,
-      thinking: ADAPTIVE_THINKING,
     });
     const fastModelName = anthropicFastModel?.trim();
     service.fastChatModel = fastModelName
-      ? new ChatAnthropic({
-          anthropicApiKey,
-          model: fastModelName,
-          thinking: ADAPTIVE_THINKING,
-        })
+      ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
       : service.chatModel;
 
     await service.refreshContexts(settings);
@@ -283,13 +298,12 @@ export class AIService {
   async sendFormBuilderMessage(sessionId, userMessage) {
     const session = await this.getActiveSessionOrThrow(sessionId);
 
-    const structuredModel = this.chatModel.withStructuredOutput(formBuilderChatResponseSchema, {
-      name: 'form_builder_chat_response',
-    });
-    const response = await structuredModel.invoke([
-      ...session.messages.map(toLangChainMessage),
-      new HumanMessage(userMessage),
-    ]);
+    const response = await invokeWithSchema(
+      this.chatModel,
+      [...session.messages.map(toLangChainMessage), new HumanMessage(userMessage)],
+      formBuilderChatResponseSchema,
+      'form_builder_chat_response',
+    );
 
     await session.update({
       messages: [
@@ -425,13 +439,11 @@ export class AIService {
    * @returns {Promise<unknown>}
    */
   async invokeStructured(contextName, userMessage, schema, options = {}) {
-    const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
+    return invokeWithSchema(
+      this.getModelForContext(contextName),
+      [new SystemMessage(this.getContext(contextName)), new HumanMessage(userMessage)],
       schema,
-      options,
+      options.name ?? 'extract',
     );
-    return structuredModel.invoke([
-      new SystemMessage(this.getContext(contextName)),
-      new HumanMessage(userMessage),
-    ]);
   }
 }
