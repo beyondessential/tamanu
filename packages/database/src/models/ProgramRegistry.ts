@@ -18,6 +18,11 @@ export class ProgramRegistry extends Model {
   declare programId?: string;
   declare lossToFollowUpEnabled: boolean;
   declare lossToFollowUpThresholdDays: number;
+  declare mandatoryConditionEnabled: boolean;
+
+  static async getCurrentForProgram(programId: string) {
+    return this.findOne({ where: { programId, visibilityStatus: VISIBILITY_STATUSES.CURRENT } });
+  }
 
   static getFullReferenceAssociations() {
     const { models } = this.sequelize;
@@ -61,6 +66,11 @@ export class ProgramRegistry extends Model {
           type: DataTypes.INTEGER,
           allowNull: false,
           defaultValue: POTENTIAL_LOSS_TO_FOLLOW_UP.DEFAULT_THRESHOLD_DAYS,
+        },
+        mandatoryConditionEnabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {

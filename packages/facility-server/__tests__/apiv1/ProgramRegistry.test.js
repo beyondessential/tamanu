@@ -47,6 +47,13 @@ describe('ProgramRegistry', () => {
       expect(result.body).toHaveProperty('name', 'Hepatitis Registry');
     });
 
+    it('should include mandatoryConditionEnabled', async () => {
+      const { id } = await createProgramRegistry({ mandatoryConditionEnabled: true });
+      const result = await app.get(`/api/programRegistry/${id}`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveProperty('mandatoryConditionEnabled', true);
+    });
+
     describe('Permissions', () => {
       disableHardcodedPermissionsForSuite();
 

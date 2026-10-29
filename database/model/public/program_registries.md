@@ -34,3 +34,7 @@ A boolean flag indicating if the program registry should have the automatic loss
 {% docs program_registries__loss_to_follow_up_threshold_days %}
 The number of days the registry should be considered potentially loss to follow up.
 {% enddocs %}
+
+{% docs program_registries__mandatory_condition_enabled %}
+A boolean flag indicating if registering a patient to the program registry requires at least one related condition.
+{% enddocs %}

@@ -7,3 +7,12 @@ export {
   getQuestionCodesFromFormVisibilityCriteria,
   normalizeBinaryAnswer,
 } from './criteria';
+export {
+  getInvalidConditionQuestionCodes,
+  getVisibleConditionQuestions,
+  isProgramRegistryConditionAnswerable,
+  isProgramRegistryConditionRequired,
+  parseProgramRegistryConditionAnswer,
+  type ProgramRegistryConditionAnswer,
+  type ProgramRegistryConditionOptions,
+} from './programRegistryConditions';

@@ -21,6 +21,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { useDateFormatter } from '~/ui/hooks/useDateFormatter';
 import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
 import { Routes } from '~/ui/helpers/routes';
+import { parseProgramRegistryConditionAnswer } from '@tamanu/utils';
 
 const useFullSurveyResponseQuery = (surveyResponseId: string) =>
   useQuery({
@@ -38,6 +39,45 @@ const SurveyLinkAnswer = ({ answer }): ReactElement => {
       surveyResponse={surveyResponse}
       detailsRouteName={Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen}
     />
+  );
+};
+
+const ProgramRegistryConditionAnswer = ({ answer }): ReactElement => {
+  const { getReferenceDataTranslation } = useTranslation();
+  const { conditionId, categoryId } = parseProgramRegistryConditionAnswer(answer) ?? {};
+  const { data } = useQuery({
+    queryKey: ['programRegistryConditionAnswer', conditionId, categoryId],
+    queryFn: async () => ({
+      condition: await Database.models.ProgramRegistryCondition.findOne({
+        where: { id: conditionId },
+      }),
+      category: categoryId
+        ? await Database.models.ProgramRegistryConditionCategory.findOne({
+            where: { id: categoryId },
+          })
+        : null,
+    }),
+    enabled: Boolean(conditionId),
+  });
+  if (!data?.condition) {
+    return <StyledText>{conditionId ?? answer}</StyledText>;
+  }
+  const conditionName = getReferenceDataTranslation({
+    value: data.condition.id,
+    category: 'programRegistryCondition',
+    fallback: data.condition.name,
+  });
+  const categoryName =
+    data.category &&
+    getReferenceDataTranslation({
+      value: data.category.id,
+      category: 'programRegistryConditionCategory',
+      fallback: data.category.name,
+    });
+  return (
+    <StyledText color={theme.colors.TEXT_DARK}>
+      {categoryName ? `${conditionName} (${categoryName})` : conditionName}
+    </StyledText>
   );
 };
 
@@ -131,6 +171,8 @@ export const renderAnswer = ({ type, config, answer }): ReactElement => {
       return <SurveyAnswerResult config={config} answer={answer} />;
     case FieldTypes.SURVEY_LINK:
       return <SurveyLinkAnswer answer={answer} />;
+    case FieldTypes.PROGRAM_REGISTRY_CONDITION:
+      return <ProgramRegistryConditionAnswer answer={answer} />;
     default:
       return <TextAnswer type={type} answer={answer} />;
   }
