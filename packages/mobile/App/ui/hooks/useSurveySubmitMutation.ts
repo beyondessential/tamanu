@@ -70,7 +70,7 @@ export default function useSurveySubmitMutation<T extends SurveyTypes>({
       if (!response) return;
       void invalidateRelevantQueries(queryClient, patientId);
       if (selectedPatientId !== patientId) return;
-      const patient = await Patient.findOne({ where: { id: patientId } });
+      const patient = await Patient.findOne({ where: { id: patientId }, relations: ['village'] });
       if (patient) dispatch(actions.setSelectedPatient(patient));
     },
   });

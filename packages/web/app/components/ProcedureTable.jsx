@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { route } from '@tamanu/api-client';
 
 import { VisuallyHidden } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
@@ -93,7 +94,7 @@ export const ProcedureTable = React.memo(
     return (
       <DataFetchingTable
         columns={columns}
-        endpoint={`encounter/${encounterId}/procedures`}
+        endpoint={route('encounter/:encounterId/procedures', { encounterId })}
         onRowClick={row => onItemClick(row)}
         elevated={false}
         initialSort={{ orderBy: 'date', order: 'desc' }}

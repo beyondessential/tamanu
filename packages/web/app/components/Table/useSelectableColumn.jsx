@@ -17,7 +17,11 @@ export const useSelectableColumn = (
   } = {},
 ) => {
   const [selectedKeys, setSelectedKeys] = useState(new Set());
-  const [hasAppliedInitialSelection, setHasAppliedInitialSelection] = useState(false);
+  // Keys we've already applied the initial-selection rule to. Tracking the keys rather than a single
+  // "done" flag means rows that appear after the first render — e.g. a prescription added while the
+  // print modal's table is still mounted — get the same initial treatment, while rows the user has
+  // already toggled are never revisited.
+  const [initialisedKeys, setInitialisedKeys] = useState(() => new Set());
 
   const selectedRows = useMemo(() => {
     if (!rows) {
@@ -26,18 +30,24 @@ export const useSelectableColumn = (
     return rows.filter((row) => selectedKeys.has(row[selectionKey]));
   }, [rows, selectedKeys, selectionKey]);
 
-  // Apply the initial selection once, on the first render where rows are available — every row
-  // (selectAllOnInit) or a subset (getIsRowInitiallySelected). Done during render rather than in an
-  // Effect (per React's "you might not need an Effect"): it avoids a flash of the wrong selection
-  // before an Effect would run, and applying it a single time means it never clobbers later toggles.
-  if (
-    !hasAppliedInitialSelection &&
-    rows?.length > 0 &&
-    (selectAllOnInit || getIsRowInitiallySelected)
-  ) {
-    const isRowInitiallySelected = selectAllOnInit ? () => true : getIsRowInitiallySelected;
-    setHasAppliedInitialSelection(true);
-    setSelectedKeys(new Set(rows.filter(isRowInitiallySelected).map(row => row[selectionKey])));
+  // Apply the initial selection — every row (selectAllOnInit) or a subset
+  // (getIsRowInitiallySelected) — to any row not yet initialised. Done during render rather than in
+  // an Effect (per React's "you might not need an Effect"): it avoids a flash of the wrong selection,
+  // and keying off initialisedKeys means it only ever adds newly-seen rows, never clobbering a row
+  // the user has since toggled.
+  const hasInitialSelectionRule = selectAllOnInit || Boolean(getIsRowInitiallySelected);
+  if (hasInitialSelectionRule && rows?.length > 0) {
+    const uninitialisedRows = rows.filter((row) => !initialisedKeys.has(row[selectionKey]));
+    if (uninitialisedRows.length > 0) {
+      const isRowInitiallySelected = selectAllOnInit ? () => true : getIsRowInitiallySelected;
+      const keysToSelect = uninitialisedRows
+        .filter(isRowInitiallySelected)
+        .map((row) => row[selectionKey]);
+      setInitialisedKeys((prev) => new Set([...prev, ...rows.map((row) => row[selectionKey])]));
+      if (keysToSelect.length > 0) {
+        setSelectedKeys((prev) => new Set([...prev, ...keysToSelect]));
+      }
+    }
   }
 
   const cellOnChange = useCallback(

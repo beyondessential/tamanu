@@ -91,5 +91,29 @@ describe('Patient Portal Surveys GET Endpoints', () => {
       expect(response.body).toMatchObject({ id: survey.id, components: expect.any(Array) });
       expect(response.body.components.length).toBeGreaterThan(0);
     });
+
+    it("Should return a question's own option list", async () => {
+      const { Survey, Program, ProgramDataElement, SurveyScreenComponent } = store.models;
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create(
+        fake(Survey, { programId: program.id, status: 'active' }),
+      );
+      const pde = await ProgramDataElement.create(fake(ProgramDataElement, { type: 'Select' }));
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: pde.id,
+          surveyId: survey.id,
+          config: JSON.stringify({}),
+          options: JSON.stringify(['Daily', 'Weekly']),
+        }),
+      );
+
+      const response = await baseApp
+        .get(`/api/portal/survey/${survey.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.components[0].options).toEqual(['Daily', 'Weekly']);
+    });
   });
 });

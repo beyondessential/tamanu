@@ -1,5 +1,11 @@
 import express from 'express';
-import { getSurvey, createSurveyResponse, suggestionRoutes, getSettings } from './surveys';
+import {
+  getSurvey,
+  createSurveyResponse,
+  suggestionRoutes,
+  getSettings,
+  getTimeZone,
+} from './surveys';
 import {
   getAdministeredVaccines,
   getAllergies,
@@ -7,11 +13,13 @@ import {
   getOngoingPrescriptions,
   getOutstandingSurveys,
   getPatient,
+  updatePatient,
   getUpcomingAppointments,
   getUpcomingVaccinations,
   getProcedures,
 } from './patientData';
 import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
+import { portalTelemetryIngest } from './telemetry';
 import { getAuthSecret } from '@tamanu/shared/utils';
 
 const passthrough = (_req, _res, next) => next();
@@ -29,11 +37,17 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.post('/request-login-token', limiter, requestLoginToken);
   router.post('/verify-registration', limiter, register);
 
+  // Browser performance telemetry ingest (spec: BTEL). Pre-auth so the login
+  // screen is measured too; stored locally on central (portal has no facility).
+  // Not behind the strict auth limiter (clients post frequently).
+  router.post('/public/telemetry', portalTelemetryIngest);
+
   // Portal auth middleware
   router.use(patientPortalMiddleware({ secret: getAuthSecret() }));
 
   // Patient data routes
   router.get('/me', getPatient);
+  router.put('/me', updatePatient);
   router.get('/me/ongoing-conditions', getOngoingConditions);
   router.get('/me/allergies', getAllergies);
   router.get('/me/ongoing-prescriptions', getOngoingPrescriptions);
@@ -44,6 +58,8 @@ export const patientPortalApi = ({ authLimiter } = {}) => {
   router.get('/me/surveys/outstanding', getOutstandingSurveys);
 
   // Survey routes
+  router.get('/settings', getSettings);
+  router.get('/time-zone', getTimeZone);
   router.get('/settings/:facilityId', getSettings);
   router.get('/survey/:surveyId', getSurvey);
   router.post('/surveyResponse', createSurveyResponse);

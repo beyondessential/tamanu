@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { route } from '@tamanu/api-client';
 import styled from 'styled-components';
 import { TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -69,7 +70,7 @@ export const ImmunisationScheduleTable = React.memo(({ patient, onItemEdit }) =>
 
   return (
     <DataFetchingTable
-      endpoint={`patient/${patient.id}/upcomingVaccination`}
+      endpoint={route('patient/:patientId/upcomingVaccination', { patientId: patient.id })}
       initialSort={{ orderBy: 'date', order: 'asc' }}
       columns={COLUMNS}
       noDataMessage={

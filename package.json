@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.68.0",
+  "version": "2.69.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -52,7 +52,14 @@
   "engines": {
     "node": ">=26.3.1"
   },
-  "packageManager": "npm@10.8.0",
+  "packageManager": "npm@11.16.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "^11.16.0",
+      "onFail": "error"
+    }
+  },
   "private": true,
   "workspaces": {
     "packages": [

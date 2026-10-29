@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -180,7 +181,11 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
       verb="list"
       noun="ImagingRequest"
       autoRefresh={!encounterId}
-      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+      endpoint={
+        encounterId
+          ? route('encounter/:encounterId/imagingRequests', { encounterId })
+          : 'imagingRequest'
+      }
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage={
         <TranslatedText stringId="imaging.list.noData" fallback="No imaging requests found" />

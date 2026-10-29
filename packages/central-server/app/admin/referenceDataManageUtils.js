@@ -9,6 +9,10 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPE_VALUES,
   REFERENCE_TYPES,
+  SAFE_CODE_ERROR_MESSAGE,
+  SAFE_CODE_REGEX,
+  SAFE_ID_ERROR_MESSAGE,
+  SAFE_ID_REGEX,
   SUGGESTER_ENDPOINTS,
   TASK_FREQUENCY_UNIT,
 } from '@tamanu/constants';
@@ -335,6 +339,27 @@ export const assertValidEnumValues = (columns, data) => {
   }
 };
 
+// Apply the importer's BASE id/code character rule at the write boundary too, not just in the web
+// form. This matches the importer for the common case, but deliberately does not mirror per-type
+// overrides (the manufacturer `ORG-` pattern, or lab test panel dropping the rule) — those stay a
+// follow-up, TAM-7206. Only a newly-set value is checked, so re-sending an unchanged value on an
+// edit never blocks editing a record whose legacy code the importer never validated. An empty value
+// is rejected (id and code are required). `existing` is the stored record on update.
+export const assertValidIdAndCode = (data, existing = {}) => {
+  const rules = [
+    { key: 'id', regex: SAFE_ID_REGEX, message: SAFE_ID_ERROR_MESSAGE },
+    { key: 'code', regex: SAFE_CODE_REGEX, message: SAFE_CODE_ERROR_MESSAGE },
+  ];
+  for (const { key, regex, message } of rules) {
+    const value = data[key];
+    if (value == null) continue;
+    if (value === existing[key]) continue;
+    if (!regex.test(value)) {
+      throw new InvalidOperationError(message);
+    }
+  }
+};
+
 export const pickDetailValues = (columns, detailRecord) =>
   Object.fromEntries(
     columns.filter(c => c.detail).map(c => [c.key, detailRecord?.[c.key] ?? null]),
@@ -356,14 +381,24 @@ export const assertValidType = type => {
 };
 
 export const getWritableData = (columns, data, isEditMode) => {
-  const writableKeys = new Set(
-    columns
-      // Relation-backed columns aren't real columns; they're written separately (see
-      // applyRelationBackedWrite), so keep them out of the column write set.
-      .filter(c => !c.readOnly && !c.isRelationBacked && !(isEditMode && c.readOnlyOnEdit))
-      .map(c => c.key),
-  );
-  return Object.fromEntries(Object.entries(data).filter(([key]) => writableKeys.has(key)));
+  const isWritable = col =>
+    // Relation-backed columns aren't real columns; they're written separately (see
+    // applyRelationBackedWrite), so keep them out of the column write set.
+    !col.readOnly && !col.isRelationBacked && !(isEditMode && col.readOnlyOnEdit);
+
+  // A text or number input the user cleared submits ''. On insert that means "no value was given",
+  // so drop it and let the column default apply. Writing '' would override the default, and a
+  // numeric column rejects it outright.
+  const shouldUseDefault = col => !isEditMode && col.hasDefault && data[col.key] === '';
+
+  const writableData = {};
+  for (const col of columns) {
+    if (!(col.key in data)) continue;
+    if (!isWritable(col)) continue;
+    if (shouldUseDefault(col)) continue;
+    writableData[col.key] = data[col.key];
+  }
+  return writableData;
 };
 
 /**

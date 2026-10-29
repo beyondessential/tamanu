@@ -4,6 +4,7 @@ export const GLOBAL_EXCLUDE_TABLES = [
 ];
 
 export const NON_SYNCING_TABLES = [
+  'logs.browser_telemetry_spans',
   'logs.debug_logs',
   'logs.dhis2_pushes',
   'logs.m_supply_pushes',
