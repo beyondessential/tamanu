@@ -115,7 +115,24 @@ describe('AIService.invokeStructured', () => {
 
     await expect(
       serviceWith(model).invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema),
-    ).rejects.toThrow(/no tool call/);
+    ).rejects.toThrow(/expected the model to call "extract"/);
+  });
+
+  it('names the tools it did get, without quoting the model text', async () => {
+    const { model } = modelReturning([{ name: 'something_else', args: {} }]);
+    model.bindTools().invoke.mockResolvedValue({
+      tool_calls: [{ name: 'something_else', args: {} }],
+      content: 'patient Jane Doe presented with',
+      response_metadata: { stop_reason: 'end_turn' },
+    });
+
+    const error = await serviceWith(model)
+      .invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema)
+      .catch(caught => caught);
+
+    expect(error.message).toContain('something_else');
+    expect(error.message).toContain('end_turn');
+    expect(error.message).not.toContain('Jane Doe');
   });
 });
 

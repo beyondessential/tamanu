@@ -90,7 +90,12 @@ const invokeWithSchema = async (chatModel, messages, schema, name) => {
 
   const toolCall = response.tool_calls?.find(call => call.name === name);
   if (!toolCall) {
-    throw new Error(`AIService: expected the model to call "${name}", it returned no tool call`);
+    // The model's own text can carry patient data, so name what came back without quoting it.
+    const called = response.tool_calls?.map(call => call.name) ?? [];
+    const stopReason = response.response_metadata?.stop_reason ?? 'unknown';
+    throw new Error(
+      `AIService: expected the model to call "${name}", it called [${called.join(', ')}] and stopped on "${stopReason}"`,
+    );
   }
 
   return schema.parseAsync(toolCall.args);
