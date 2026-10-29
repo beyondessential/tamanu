@@ -26,6 +26,7 @@
       },
       patientSummary: { enabled: true },
       encounterSummary: { enabled: true },
+      medications: { dispensing: { dispensingQuantityAutocalculation: true } },
     },
   },
   referenceData: [{ defaultSpreadsheet: true }],
