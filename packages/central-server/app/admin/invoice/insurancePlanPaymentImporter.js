@@ -181,56 +181,56 @@ export async function insurancePlanPaymentImporter({
     try {
       if (existingPayment) checkPermission('write', 'InvoicePayment');
 
-      await models.Invoice.sequelize.transaction(async () => {
-        if (existingPayment) {
-          await models.InvoicePayment.update(
-            {
-              date: data.date,
-              amount: data.amount,
-            },
-            { where: { id: existingPayment.invoicePaymentId } },
-          );
+      // No transaction here: importerTransaction already runs the whole file as one, so a
+      // failed row rolls back every row, not just its own.
+      if (existingPayment) {
+        await models.InvoicePayment.update(
+          {
+            date: data.date,
+            amount: data.amount,
+          },
+          { where: { id: existingPayment.invoicePaymentId } },
+        );
 
-          await models.InvoiceInsurancePlanPayment.update(
-            {
-              invoiceInsurancePlanId: data.invoiceInsurancePlanId,
-              reason: data.reason,
-              status: getInvoiceInsurancePlanPaymentStatus(data.amount, planCoverageTotal),
-            },
-            { where: { id: existingPayment.id } },
-          );
-        } else {
-          const payment = await models.InvoicePayment.create(
-            {
-              invoiceId: invoice.id,
-              date: data.date,
-              receiptNumber: data.receiptNumber,
-              amount: data.amount,
-            },
-            { returning: true },
-          );
-          await models.InvoiceInsurancePlanPayment.create({
-            id: data.id,
-            invoicePaymentId: payment.id,
+        await models.InvoiceInsurancePlanPayment.update(
+          {
             invoiceInsurancePlanId: data.invoiceInsurancePlanId,
             reason: data.reason,
             status: getInvoiceInsurancePlanPaymentStatus(data.amount, planCoverageTotal),
-          });
-        }
-
-        await models.Invoice.update(
-          {
-            insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
-              new Decimal(allPlanPaymentsTotal)
-                .minus(existingPayment?.detail.amount ?? 0)
-                .add(data.amount)
-                .toNumber(),
-              allPlansCoverageTotal,
-            ),
           },
-          { where: { id: invoice.id } },
+          { where: { id: existingPayment.id } },
         );
-      });
+      } else {
+        const payment = await models.InvoicePayment.create(
+          {
+            invoiceId: invoice.id,
+            date: data.date,
+            receiptNumber: data.receiptNumber,
+            amount: data.amount,
+          },
+          { returning: true },
+        );
+        await models.InvoiceInsurancePlanPayment.create({
+          id: data.id,
+          invoicePaymentId: payment.id,
+          invoiceInsurancePlanId: data.invoiceInsurancePlanId,
+          reason: data.reason,
+          status: getInvoiceInsurancePlanPaymentStatus(data.amount, planCoverageTotal),
+        });
+      }
+
+      await models.Invoice.update(
+        {
+          insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
+            new Decimal(allPlanPaymentsTotal)
+              .minus(existingPayment?.detail.amount ?? 0)
+              .add(data.amount)
+              .toNumber(),
+            allPlansCoverageTotal,
+          ),
+        },
+        { where: { id: invoice.id } },
+      );
 
       updateStat(
         subStat,
