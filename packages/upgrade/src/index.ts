@@ -6,6 +6,7 @@ import {
   flushDeferredConstraints,
   migrateUpTo,
   runInRollbackTransaction,
+  runPostMigration,
 } from '@tamanu/database/services/migrations';
 import type { Transaction } from 'sequelize';
 import { checkConfigKey } from './checkConfigKey.js';
@@ -145,6 +146,14 @@ async function runUpgrade({
           dryRun,
         });
         pendingMigrations = await migrations.pending();
+      } else {
+        // The post-migration hooks reconcile triggers with the current code, which can change
+        // without a migration, so they still run when there is nothing to apply.
+        logger.debug('No remaining migrations, running post-migration steps only');
+        if (dryRun) {
+          await flushDeferredConstraints(sequelize);
+        }
+        await runPostMigration(logger, sequelize);
       }
       continue;
     }
