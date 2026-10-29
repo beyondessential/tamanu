@@ -1,5 +1,3 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-
 import { getLookupSourceTickRange } from '../../app/sync/getLookupSourceTickRange';
 import { createTestContext } from '../utilities';
 
