@@ -19,8 +19,9 @@ A discharge is an encounter at the current facility whose end date has been set.
 ## Table
 
 - [ ] The view is titled "Recently discharged patients".
-- [ ] The table columns are, in order: Patient ID, First name, Last name, DOB, Sex, Encounter type, Department, Clinician, Discharge date.
+- [ ] The table columns are, in order: Patient ID, First name, Last name, DOB, Sex, Encounter type, Area, Department, Clinician, Discharge date.
 - [ ] Encounter type shows the discharged encounter's patient status: Inpatient, Outpatient, or Emergency.
+- [ ] Area shows the area of the location the encounter was in when it was discharged, or is blank when that location has no area.
 - [ ] Department shows the department the encounter was assigned to when it was discharged.
 - [ ] Clinician shows the clinician recorded as discharging the encounter, or "N/A" when the system discharged it without recording a clinician.
 - [ ] Discharge date shows the date of the encounter's end date, and hovering over it shows both the date and time.
@@ -31,9 +32,10 @@ A discharge is an encounter at the current facility whose end date has been set.
 
 ## Search
 
-- [ ] The search bar shows Patient ID, First name, Last name, and Encounter type, in that order, with Department and Discharging clinician, in that order, under advanced search.
+- [ ] The search bar shows Patient ID, First name, Last name, and Encounter type, in that order, with Area, Department, and Discharging clinician, in that order, under advanced search.
 - [ ] Patient ID, First name, and Last name match any part of the value, ignoring case.
 - [ ] Encounter type offers Inpatient, Outpatient, and Emergency, and matches the discharged encounter's patient status.
+- [ ] Area matches the area of the location the encounter was in when it was discharged, and suggests areas from the current facility.
 - [ ] Department matches the department the encounter was assigned to when it was discharged, and suggests departments from the current facility.
 - [ ] Discharging clinician matches the clinician recorded as discharging the encounter.
 - [ ] Search applies to every discharge in the window before each patient's most recent one is picked. A patient whose most recent discharge doesn't match is listed for their most recent earlier discharge in the window that does.

@@ -35,6 +35,7 @@ test.describe('Recently discharged patients', () => {
     await expect(cell('firstName')).toHaveText(newPatient.firstName!);
     await expect(cell('lastName')).toHaveText(newPatient.lastName!);
     await expect(cell('patientStatus')).toHaveText('Inpatient');
+    await expect(cell('locationGroupName')).toHaveText(testData.areaName);
     await expect(cell('departmentName')).toHaveText(testData.department);
     await expect(cell('clinician')).toHaveText(clinician.displayName!);
 
@@ -68,7 +69,7 @@ test.describe('Recently discharged patients', () => {
     await recentlyDischargedPatientsPage.validateWholeRowIsRed(0);
   });
 
-  test('filters by encounter type and, under advanced search, department', async ({
+  test('filters by encounter type and, under advanced search, area and department', async ({
     api,
     page,
     newPatient,
@@ -87,6 +88,7 @@ test.describe('Recently discharged patients', () => {
 
     await recentlyDischargedPatientsPage.searchTable({
       encounterType: 'Outpatient',
+      area: testData.areaName,
       department: testData.department,
       advancedSearch: true,
     });
@@ -96,6 +98,9 @@ test.describe('Recently discharged patients', () => {
     );
     await expect(recentlyDischargedPatientsPage.getCell(0, 'patientStatus')).toHaveText(
       'Outpatient',
+    );
+    await expect(recentlyDischargedPatientsPage.getCell(0, 'locationGroupName')).toHaveText(
+      testData.areaName,
     );
   });
 });

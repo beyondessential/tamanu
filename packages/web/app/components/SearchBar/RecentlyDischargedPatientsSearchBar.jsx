@@ -7,10 +7,13 @@ import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
 
-const ADVANCED_FIELDS = ['departmentId', 'dischargingClinicianId'];
+const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'dischargingClinicianId'];
 
 const RecentlyDischargedPatientsAdvancedFields = () => {
   const { getTranslation } = useTranslation();
+  const areaSuggester = useSuggester('locationGroup', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -18,6 +21,20 @@ const RecentlyDischargedPatientsAdvancedFields = () => {
 
   return (
     <>
+      <Field
+        name="locationGroupId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.locationGroupId.label"
+            fallback="Area"
+            data-testid="translatedtext-rdp-area"
+          />
+        }
+        component={AutocompleteField}
+        suggester={areaSuggester}
+        size="small"
+        data-testid="field-rdp-area"
+      />
       <Field
         name="departmentId"
         label={
