@@ -74,8 +74,9 @@ Under this model:
   - Cancelling Android's first-install prompt closes the modal and leaves the update ready banner.
   - An install interrupted by power loss, a restart or Tamanu being closed leaves the old version,
     with the update still waiting.
-  - The server still rejecting the new version gives a "can't update" banner and a modal pointing to
-    the administrator. Whether that modal also carries the download-by-hand link is still open.
+  - The server still rejecting the new version gives a single banner, "Tamanu update was not accepted
+    by the server. Please contact your system administrator.", with no action and no modal. If the
+    download-by-hand link stays, it needs a place in that banner.
 - **No "restart".** Installing closes Tamanu and Android can't reopen it, so the copy says "close"
   and tells staff to reopen it from its icon. The notification only helps where notifications are
   allowed.
