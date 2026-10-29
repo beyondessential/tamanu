@@ -60,15 +60,18 @@ Under this model:
 - **When it installs.** While someone is logged in, only when they tap **Install and close** in the
   **Install update** modal, so Tamanu never closes on someone mid-task. When nobody is logged in
   (after logging out, an inactivity logout, or on a new device), it installs by itself and Tamanu
-  closes. This works because the app starts the install itself. Android's only part is the one-off
+  closes. The exception is Tamanu opening at the login screen with an update ready (after a
+  restart, after the app was closed, or on a tablet someone else logged out of). Someone is there
+  to log in, so the **Install update** modal asks first, and **Cancel** lets them log in and work
+  offline. This works because the app starts the install itself. Android's only part is the one-off
   permission and the first-install confirmation, which still need a tap even when nobody is logged
   in. On a logged-out device without the permission, the updating screen asks for it with **Allow**
   once the update has downloaded, then Android's prompt follows.
 - **Open: logging out before the download finishes.** Undecided whether the next person can log in
   and work offline while it downloads, or must wait for the update to install first. Waiting could
   keep a shared tablet out of use for a long time on a poor connection.
-- **Ways to install.** The home screen banner (**Install**) and the Sync tab (**Install update**)
-  open the same **Install update** modal. The banner keeps its close cross, but a
+- **Ways to install.** The home screen banner (**Install**), the Sync tab (**Install update**) and
+  opening Tamanu at the login screen all use the same **Install update** modal. The banner keeps its close cross, but a
   closed banner comes back each time staff return to the home screen from another screen, until the
   update installs. The home screen stays loaded between tabs, so this needs the banner to reset when
   the screen regains focus rather than when it loads. While an update is downloading or ready, the
