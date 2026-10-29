@@ -42,7 +42,9 @@ const TableContainer = styled.div`
       }
 
       &:nth-child(2) {
-        // intentionally empty to take up remaining space (method column)
+        // the method column takes up the remaining space, but never less than its own heading:
+        // with nothing to stop it the table collapses this to nothing and the headings collide
+        min-width: 90px;
       }
 
       &:nth-child(3) {
