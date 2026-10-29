@@ -11,9 +11,7 @@ const ADVANCED_FIELDS = ['locationGroupId', 'departmentId', 'dischargingClinicia
 
 const RecentlyDischargedPatientsAdvancedFields = () => {
   const { getTranslation } = useTranslation();
-  const areaSuggester = useSuggester('locationGroup', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const areaSuggester = useSuggester('facilityLocationGroup');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });

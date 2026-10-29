@@ -385,16 +385,23 @@ describe('Recently discharged patients', () => {
       const patient = await createPatient();
       const olderMatchingEncounter = await createDischargedEncounter(patient, {
         hoursSinceDischarge: 10,
+        locationId: otherAreaLocation.id,
+        departmentId: otherDepartment.id,
+      });
+      await createDischargedEncounter(patient, {
+        hoursSinceDischarge: 8,
         departmentId: otherDepartment.id,
       });
       await createDischargedEncounter(patient, {
         hoursSinceDischarge: 6,
+        locationId: otherAreaLocation.id,
         departmentId: otherDepartment.id,
         encounterType: ENCOUNTER_TYPES.CLINIC,
       });
       await createDischargedEncounter(patient, { hoursSinceDischarge: 2 });
 
       const rows = await fetchRowsFor([patient], {
+        locationGroupId: otherArea.id,
         departmentId: otherDepartment.id,
         patientStatus: PATIENT_STATUSES.INPATIENT,
       });
@@ -402,6 +409,7 @@ describe('Recently discharged patients', () => {
       expect(rows).toEqual([
         expect.objectContaining({
           id: patient.id,
+          locationGroupId: otherArea.id,
           departmentId: otherDepartment.id,
           patientStatus: PATIENT_STATUSES.INPATIENT,
           dischargeDate: olderMatchingEncounter.endDate,
