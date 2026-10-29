@@ -1,4 +1,4 @@
-import { keyBy } from 'es-toolkit/compat';
+import { getInsurancePlanItemsForInvoiceItem } from '@tamanu/utils/invoice';
 
 /**
  * The invoice as it is priced: a plain object whose insurable items carry the coverage each of the
@@ -13,27 +13,9 @@ export const invoiceForPricing = invoiceRecord => {
       return plainItem;
     }
 
-    const insurancePlansById = keyBy(
-      item.product?.invoiceInsurancePlanItems,
-      'invoiceInsurancePlanId',
-    );
-
-    const insurancePlanItems =
-      invoiceRecord.insurancePlans?.map(({ id, code, name, defaultCoverage }) => {
-        const planItem = insurancePlansById[id];
-        const coverageValue = planItem?.coverageValue ?? defaultCoverage;
-        return {
-          id,
-          code,
-          name,
-          label: name ?? code,
-          coverageValue,
-        };
-      }) ?? [];
-
     return {
       ...plainItem,
-      insurancePlanItems,
+      insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoiceRecord.insurancePlans),
     };
   });
 

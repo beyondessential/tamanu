@@ -34,25 +34,41 @@ const sumOf = (values: Array<number | Decimal>): Decimal =>
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
   sumOf(invoiceItems.map(item => calculateInvoiceItem(item).insuranceCoverage));
 
-const getCoverageByPlan = (
+/**
+ * The coverage each of the invoice's insurance plans provides, keyed by plan id: the sum of its
+ * shares of each line's capped coverage. Only plans attached to the invoice count, so the totals
+ * add up to the invoice's insurance total.
+ */
+const getCoverageTotalsByPlan = (
   invoice: Invoice,
   itemPricings: InvoiceItemPricing[],
-): InvoicePlanCoverage[] => {
-  const insurancePlans = invoice.insurancePlans || [];
+): Map<string, Decimal> => {
   const planCoverageTotals = new Map<string, Decimal>(
-    insurancePlans.map(plan => [plan.id, new Decimal(0)]),
+    (invoice.insurancePlans || []).map(plan => [plan.id, new Decimal(0)]),
   );
 
-  for (const itemPricing of itemPricings) {
-    for (const planCoverage of itemPricing.coverageByPlan) {
-      const planTotal = planCoverageTotals.get(planCoverage.insurancePlanId);
+  for (const { coverageByPlan } of itemPricings) {
+    for (const { insurancePlanId, coverage } of coverageByPlan) {
+      const planTotal = planCoverageTotals.get(insurancePlanId);
       if (planTotal) {
-        planCoverageTotals.set(planCoverage.insurancePlanId, planTotal.plus(planCoverage.coverage));
+        planCoverageTotals.set(insurancePlanId, planTotal.plus(coverage));
       }
     }
   }
 
-  return insurancePlans.map(plan => ({
+  return planCoverageTotals;
+};
+
+export const getCoverageAmountPerInsurancePlan = (invoice: Invoice): Map<string, Decimal> =>
+  getCoverageTotalsByPlan(invoice, (invoice.items || []).map(calculateInvoiceItem));
+
+const getCoverageByPlan = (
+  invoice: Invoice,
+  itemPricings: InvoiceItemPricing[],
+): InvoicePlanCoverage[] => {
+  const planCoverageTotals = getCoverageTotalsByPlan(invoice, itemPricings);
+
+  return (invoice.insurancePlans || []).map(plan => ({
     id: plan.id,
     name: plan.name,
     code: plan.code,
