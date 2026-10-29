@@ -219,6 +219,7 @@ export class AllPatientsPage extends BasePatientListPage {
     }
 
     await this.searchBtn.click();
+    await this.patientTable.waitForTableToLoad();
   }
 
   // Implement abstract method from base class
