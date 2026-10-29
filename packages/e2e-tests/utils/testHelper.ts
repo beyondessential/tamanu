@@ -103,6 +103,8 @@ export function compareAlphabetically(order: 'asc' | 'desc') {
 export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
   await input.click();
   const firstOption = page.locator('[role="listbox"] li').first();
+  // Selecting an option unmounts the listbox, so read its label before clicking.
+  const label = (await firstOption.textContent()) || '';
   await firstOption.click();
-  return (await firstOption.textContent()) || '';
+  return label;
 };
