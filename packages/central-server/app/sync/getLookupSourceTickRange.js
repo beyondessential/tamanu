@@ -20,6 +20,7 @@ export const getLookupSourceTickRange = async ({ models }, pullSince, pullUntil)
   };
 
   const firstLookupTick = await SyncLookupTick.findOne({
+    attributes: ['sourceStartTick'],
     where,
     order: [['lookupEndTick', 'ASC']],
   });
@@ -28,6 +29,7 @@ export const getLookupSourceTickRange = async ({ models }, pullSince, pullUntil)
   }
 
   const lastLookupTick = await SyncLookupTick.findOne({
+    attributes: ['lookupEndTick'],
     where,
     order: [['lookupEndTick', 'DESC']],
   });
