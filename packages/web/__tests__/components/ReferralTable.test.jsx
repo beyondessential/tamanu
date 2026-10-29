@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { describe, expect, it, vi } from 'vitest';
 import { REFERRAL_STATUSES } from '@tamanu/constants';
+import { resolveEndpoint } from '@tamanu/api-client';
 
 import { createQueryClient } from '../helpers';
 import { ReferralTable } from '../../app/components/ReferralTable';
@@ -26,6 +27,9 @@ vi.mock('../../app/contexts/Auth', () => ({
 vi.mock('../../app/contexts/Patient', () => ({ usePatient: () => ({ patient }) }));
 vi.mock('../../app/contexts/Encounter', () => ({
   useEncounter: () => ({ loadEncounter: vi.fn() }),
+}));
+vi.mock('../../app/utils/usePatientNavigation', () => ({
+  usePatientNavigation: () => ({ navigateToEncounter: vi.fn() }),
 }));
 vi.mock('../../app/components/Translation', () => ({
   TranslatedText: ({ fallback }) => fallback,
@@ -61,7 +65,7 @@ vi.mock('../../app/components/EncounterModal', () => ({
 describe('ReferralTable', () => {
   it('passes the patient billing type to the admit encounter modal', async () => {
     mockGet.mockImplementation(async endpoint =>
-      endpoint === `patient/${PATIENT_ID}/additionalData`
+      resolveEndpoint(endpoint) === `patient/${PATIENT_ID}/additionalData`
         ? { patientBillingTypeId: 'billing-1' }
         : {},
     );
@@ -84,7 +88,7 @@ describe('ReferralTable', () => {
   it('waits for the patient data before opening the admit encounter modal', async () => {
     let resolveAdditionalData;
     mockGet.mockImplementation(endpoint =>
-      endpoint === `patient/${PATIENT_ID}/additionalData`
+      resolveEndpoint(endpoint) === `patient/${PATIENT_ID}/additionalData`
         ? new Promise(resolve => {
             resolveAdditionalData = resolve;
           })
