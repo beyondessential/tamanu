@@ -567,8 +567,32 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
+// Prints to stdout rather than the log so the list stays readable and can be piped.
+async function listMigrations(log, sequelize, { pending = false, done = false } = {}) {
+  const isListingBoth = pending === done;
+  const { migrations } = await createMigrationInterface(log, sequelize);
+
+  const printMigrations = (heading, migrationList) => {
+    console.log(`${heading} (${migrationList.length}):`);
+    for (const { file } of migrationList) {
+      console.log(`  ${file}`);
+    }
+  };
+
+  if (isListingBoth || done) {
+    printMigrations('Done migrations', await migrations.executed());
+  }
+  if (isListingBoth || pending) {
+    printMigrations('Pending migrations', await migrations.pending());
+  }
+}
+
 export async function migrate(log, sequelize, direction, options = {}) {
   const { dryRun = false } = options;
+
+  if (direction === 'list') {
+    return listMigrations(log, sequelize, options);
+  }
 
   if (dryRun && direction !== 'up' && direction !== 'redoLatest') {
     throw new Error(`--dry-run is only supported for 'up' and 'redoLatest', not '${direction}'.`);
@@ -638,6 +662,15 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
       'Run the down and up in a transaction then roll back, without committing any changes',
     )
     .action(options => migrateCallback('redoLatest', { dryRun: Boolean(options.dryRun) }));
+
+  migrateCommand
+    .command('list')
+    .description('List migrations, both done and pending unless one is chosen')
+    .option('--pending', 'List only the migrations that have not run yet')
+    .option('--done', 'List only the migrations that have already run')
+    .action(options =>
+      migrateCallback('list', { pending: Boolean(options.pending), done: Boolean(options.done) }),
+    );
 
   return migrateCommand;
 }

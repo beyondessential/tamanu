@@ -6,9 +6,9 @@ import { VERSION } from '../middleware/versionCompatibility';
 // This is the "just-migrate" command for running database migrations only
 // Note: there's also a 'migrate' alias on the 'upgrade' command for deployment safety, which
 // includes database migrations plus automated upgrade steps
-async function migrate(direction, { dryRun = false } = {}) {
+async function migrate(direction, options = {}) {
   const store = await initDatabase({ testMode: false });
-  await store.sequelize.migrate(direction, { serverVersion: VERSION, dryRun });
+  await store.sequelize.migrate(direction, { ...options, serverVersion: VERSION });
   process.exit(0);
 }
 
