@@ -12,7 +12,7 @@ still to be written.
 
 | # | Module | Guides |
 | --- | --- | --- |
-| 1 | [Accessing Tamanu Desktop](01-accessing-tamanu/) | Not written yet |
+| 1 | [Accessing Tamanu Desktop](01-accessing-tamanu/) | 1.1 [Log in and out](01-accessing-tamanu/01-log-in-and-out.md), 1.2 [Reset your password](01-accessing-tamanu/02-reset-password.md), 1.3 [Change your language](01-accessing-tamanu/03-change-language.md) |
 | 2 | [Navigating Tamanu](02-navigating-tamanu/) | Not written yet |
 | 3 | [Clinician Dashboard](03-clinician-dashboard/) | Not written yet |
 | 4 | [Patients](04-patients/) | Not written yet |
