@@ -33,13 +33,13 @@
       "id": "plan-a",
       "name": "Plan A",
       "code": "PA",
-      "totalCoverage": "-120.06"
+      "totalCoverage": "-110.05"
     },
     {
       "id": "plan-b",
       "name": "Plan B",
       "code": "PB",
-      "totalCoverage": "-60.06"
+      "totalCoverage": "-50.05"
     }
   ],
   "items": [

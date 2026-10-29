@@ -4,7 +4,7 @@ import {
   INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
-import { getInvoiceSummary } from './invoice';
+import { getCoverageAmountPerInsurancePlan, getInvoiceSummary } from './invoice';
 import { formatDisplayPrice, round } from './display';
 import type { Invoice, Payment } from './types';
 
@@ -112,26 +112,29 @@ export const getInsurancePlanPaymentsWithRemainingBalanceDisplay = (
   return formatPaymentsWithRemainingBalanceDisplay(getInsurancePlanPaymentsWithRemainingBalance(invoice));
 };
 
-export const getSpecificInsurancePlanPaymentRemainingBalance = (
-  plans: Array<{ invoiceInsurancePlanId: string; percentage?: number }>,
-  payments: Payment[],
+/**
+ * What one insurance plan still owes on an invoice. Coverage comes from the invoice's items, the
+ * same basis the invoice screen and the printout show, so a plan that covers nothing on this
+ * invoice owes nothing and can take no payment.
+ */
+export const getInsurancePlanPaymentBalance = (
+  invoice: Invoice,
   invoiceInsurancePlanId: string,
-  total: number,
 ): {
-  planDiscountTotal: number;
+  planCoverageTotal: number;
   planPaymentsTotal: number;
   planPaymentRemainingBalance: number;
 } => {
-  const planDiscountPercentage = plans
-    .filter(plan => plan.invoiceInsurancePlanId === invoiceInsurancePlanId)
-    .reduce((sum, plan) => sum.plus(plan?.percentage || 0), new Decimal(0))
-    .toNumber();
+  const planCoverageTotal =
+    getCoverageAmountPerInsurancePlan(invoice)
+      .get(invoiceInsurancePlanId)
+      ?.toNumber() ?? 0;
 
-  const planDiscountTotal = new Decimal(total).times(planDiscountPercentage).toNumber();
-
-  const planPaymentsTotal = payments
+  const planPaymentsTotal = (invoice.payments || [])
     .filter(
-      payment => payment?.insurancePlanPayment?.id && payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId,
+      payment =>
+        payment?.insurancePlanPayment?.id &&
+        payment.insurancePlanPayment.invoiceInsurancePlanId === invoiceInsurancePlanId,
     )
     .filter(payment => !payment?.refundPayment?.id) // refunded payments are not included in the total
     .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total
@@ -139,10 +142,8 @@ export const getSpecificInsurancePlanPaymentRemainingBalance = (
     .toNumber();
 
   return {
-    planDiscountTotal,
+    planCoverageTotal,
     planPaymentsTotal,
-    planPaymentRemainingBalance: new Decimal(planDiscountTotal)
-      .minus(planPaymentsTotal)
-      .toNumber(),
+    planPaymentRemainingBalance: new Decimal(planCoverageTotal).minus(planPaymentsTotal).toNumber(),
   };
 };
