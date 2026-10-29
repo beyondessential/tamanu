@@ -103,6 +103,18 @@ export const IMPORTABLE_PERMISSION_NOUN_OVERRIDES: Record<string, string> = {
   [PSEUDO_REFERENCE_TYPES.INVOICE_PRICE_LIST_CHARGING]: 'InvoicePriceListItem',
 };
 
+// The permission noun guarding a data type, shared by every surface that reads or writes reference
+// data (import, export, the admin Manage tab) so they can't demand different permissions for the
+// same records. Types living in the `reference_data` table share the generic ReferenceData noun;
+// everything else is guarded by its own model's noun.
+export const getImportablePermissionNoun = (dataType: string): string => {
+  if (REFERENCE_TYPE_VALUES.includes(dataType)) return 'ReferenceData';
+  return (
+    IMPORTABLE_PERMISSION_NOUN_OVERRIDES[dataType] ??
+    `${dataType.charAt(0).toUpperCase()}${dataType.slice(1)}`
+  );
+};
+
 // Reference data imported through the program importer rather than the reference data importer
 export const PROGRAM_REFERENCE_TYPES = {
   PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
@@ -213,3 +225,10 @@ export const LOCATION_BOOKABLE_VIEW = {
 };
 
 export const LOCATION_BOOKABLE_VIEW_VALUES = Object.values(LOCATION_BOOKABLE_VIEW);
+
+// Character rules for importable record ids and codes. Shared so the reference-data importer and
+// the admin "Manage" editor agree on what a valid id/code is.
+export const SAFE_ID_REGEX = /^[A-Za-z0-9-]+$/;
+export const SAFE_CODE_REGEX = /^[A-Za-z0-9-./]+$/;
+export const SAFE_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
+export const SAFE_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';

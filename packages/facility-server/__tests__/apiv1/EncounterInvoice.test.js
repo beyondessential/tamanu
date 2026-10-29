@@ -601,6 +601,52 @@ describe('Encounter invoice', () => {
           items: [],
         });
       });
+
+      it('does not overwrite a manually-edited invoice line when an unrelated procedure field changes', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: procedure } = await app.post(`/api/procedure`).send({
+          encounterId: encounter.id,
+          procedureTypeId: procedureType1.id,
+          date: new Date(),
+          physicianId: user.id,
+          quantity: 1,
+        });
+
+        // A cashier manually changes the auto-created invoice line.
+        const item = await models.InvoiceItem.findOne({
+          where: { sourceRecordId: procedure.id, sourceRecordType: 'Procedure' },
+        });
+        await item.update({ quantity: 7 });
+
+        // Editing an unrelated procedure field (not type or quantity) must leave that edit alone.
+        // The update has to be asserted: unlike the tests above this one expects the line *not* to
+        // change, so a silently failing PUT would pass vacuously.
+        const updateResult = await app.put(`/api/procedure/${procedure.id}`).send({
+          note: 'cashier note unrelated to the invoice',
+        });
+        expect(updateResult).toHaveSucceeded();
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toMatchObject([
+          {
+            sourceRecordId: procedure.id,
+            sourceRecordType: 'Procedure',
+            quantity: 7,
+          },
+        ]);
+      });
     });
 
     describe('Lab request', () => {

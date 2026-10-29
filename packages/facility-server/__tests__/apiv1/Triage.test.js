@@ -9,7 +9,8 @@ import {
 } from '@tamanu/database/demoData';
 import { fake } from '@tamanu/fake-data/fake';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { add } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -329,6 +330,27 @@ describe('Triage', () => {
     );
 
     await emergencyDepartment.update({ facilityId: facility.id });
+  });
+
+  describe('Future time validation', () => {
+    it('should reject editing a triage with a future arrival time', async () => {
+      const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+      const createdTriage = await models.Triage.create(
+        await createDummyTriage(models, {
+          patientId: encounterPatient.id,
+          departmentId: await randomRecordId(models, 'Department'),
+        }),
+      );
+      const futureTime = toDateTimeString(add(new Date(), { days: 1 }));
+
+      const response = await app.put(`/api/triage/${createdTriage.id}`).send({
+        arrivalTime: futureTime,
+      });
+
+      expect(response).toHaveRequestError();
+      const unchanged = await models.Triage.findByPk(createdTriage.id);
+      expect(unchanged.arrivalTime).not.toEqual(futureTime);
+    });
   });
 
   describe('Listing & filtering', () => {

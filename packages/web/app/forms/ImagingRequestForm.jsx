@@ -313,7 +313,6 @@ export const ImagingRequestForm = React.memo(
                 required
                 enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
-                onChange={() => setFieldValue('areas', [])}
                 transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
                   const allRefCodes =
@@ -344,6 +343,13 @@ export const ImagingRequestForm = React.memo(
                         label: getTranslation(option.label.stringId, label),
                       };
                     });
+                }}
+                onChange={() => {
+                  // Areas belong to a specific imaging type, so switching type invalidates any
+                  // previously chosen area — clear both the predefined-area selection and the
+                  // free-text note so a stale value can't be submitted or shown.
+                  setFieldValue('areas', []);
+                  setFieldValue('areaNote', undefined);
                 }}
                 data-testid="field-khld"
               />
