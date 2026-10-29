@@ -10,6 +10,10 @@ import { getSettingSecret, SecretNotConfiguredError } from '@tamanu/shared/utils
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24; // 24 hours
 
+// `withStructuredOutput` forces `tool_choice` unless thinking is on, and models from
+// Claude Opus 5.5 onwards reject a forced `tool_choice`.
+const ADAPTIVE_THINKING = { type: 'adaptive' };
+
 // Every settings path init and refreshContexts read. A path missing here goes on
 // needing a restart to take effect, so add to it alongside any new settings read.
 export const AI_SETTING_PATHS = [
@@ -124,10 +128,15 @@ export class AIService {
     service.chatModel = new ChatAnthropic({
       anthropicApiKey,
       model: anthropicModel,
+      thinking: ADAPTIVE_THINKING,
     });
     const fastModelName = anthropicFastModel?.trim();
     service.fastChatModel = fastModelName
-      ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })
+      ? new ChatAnthropic({
+          anthropicApiKey,
+          model: fastModelName,
+          thinking: ADAPTIVE_THINKING,
+        })
       : service.chatModel;
 
     await service.refreshContexts(settings);
