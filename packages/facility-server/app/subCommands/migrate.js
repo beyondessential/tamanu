@@ -9,7 +9,8 @@ import { VERSION } from '../middleware/versionCompatibility';
 async function migrate(direction, options = {}) {
   const context = await initDatabase();
   await context.sequelize.migrate(direction, { ...options, serverVersion: VERSION });
-  process.exit(0);
+  // `list --check` reports pending migrations through process.exitCode
+  process.exit();
 }
 
 export const migrateCommand = createMigrateCommand(Command, migrate, 'just-migrate');

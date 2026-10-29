@@ -567,12 +567,22 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
+// Exit code of `list --check` when migrations are pending. Distinct from the 1 a failure exits
+// with, so deployment tooling can tell "migrations to run" from "couldn't tell".
+export const PENDING_MIGRATIONS_EXIT_CODE = 3;
+
 // Prints to stdout rather than the log so the list stays readable and can be piped.
-async function listMigrations(log, sequelize, { pending = false, done = false } = {}) {
+async function listMigrations(
+  log,
+  sequelize,
+  { pending = false, done = false, check = false } = {},
+) {
   const isListingBoth = pending === done;
   const { migrations } = await createMigrationInterface(log, sequelize);
 
+  // An empty list prints nothing, not even its heading.
   const printMigrations = (heading, migrationList) => {
+    if (migrationList.length === 0) return;
     console.log(`${heading} (${migrationList.length}):`);
     for (const { file } of migrationList) {
       console.log(`  ${file}`);
@@ -582,8 +592,13 @@ async function listMigrations(log, sequelize, { pending = false, done = false } 
   if (isListingBoth || done) {
     printMigrations('Done migrations', await migrations.executed());
   }
+  const pendingMigrations = await migrations.pending();
   if (isListingBoth || pending) {
-    printMigrations('Pending migrations', await migrations.pending());
+    printMigrations('Pending migrations', pendingMigrations);
+  }
+
+  if (check && pendingMigrations.length > 0) {
+    process.exitCode = PENDING_MIGRATIONS_EXIT_CODE;
   }
 }
 
@@ -668,8 +683,16 @@ export function createMigrateCommand(Command, migrateCallback, name = 'migrate')
     .description('List migrations, both done and pending unless one is chosen')
     .option('--pending', 'List only the migrations that have not run yet')
     .option('--done', 'List only the migrations that have already run')
+    .option(
+      '--check',
+      `Exit with code ${PENDING_MIGRATIONS_EXIT_CODE} if any migrations are pending, or 0 if none are`,
+    )
     .action(options =>
-      migrateCallback('list', { pending: Boolean(options.pending), done: Boolean(options.done) }),
+      migrateCallback('list', {
+        pending: Boolean(options.pending),
+        done: Boolean(options.done),
+        check: Boolean(options.check),
+      }),
     );
 
   return migrateCommand;
