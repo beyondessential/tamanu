@@ -62,6 +62,12 @@ Under this model:
   logging out, an inactivity logout or a new device, so Tamanu never closes without warning. This
   works because the app starts the install itself. Android's only part is the one-off permission
   and the first-install confirmation.
+- **Ways to install.** The home screen banner (**Install**), the Sync tab (**Install update**) and
+  logging out all open the same **Install update** modal. The banner keeps its close cross, but a
+  closed banner comes back each time staff return to the home screen from another screen, until the
+  update installs. The home screen stays loaded between tabs, so this needs the banner to reset when
+  the screen regains focus rather than when it loads. While an update is downloading or ready, the
+  Sync tab says sync is paused and why in place of **Manual sync**.
 - **No "restart".** Installing closes Tamanu and Android can't reopen it, so the copy says "close"
   and tells staff to reopen it from its icon. The notification only helps where notifications are
   allowed.
