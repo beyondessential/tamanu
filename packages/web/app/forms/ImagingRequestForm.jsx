@@ -1,6 +1,6 @@
 import { camelCase } from 'es-toolkit/compat';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useMemo } from 'react';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
@@ -10,7 +10,6 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
-  MultiselectField,
   TextField,
   TranslatedSelectField,
   TextInput,
@@ -20,7 +19,13 @@ import {
   FormGrid,
   useDateTime,
 } from '@tamanu/ui-components';
-import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
+import {
+  AutocompleteField,
+  DateTimeField,
+  Field,
+  ImagingPriorityField,
+  MultiAutocompleteField,
+} from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { useLocalisation } from '../contexts/Localisation';
@@ -77,6 +82,62 @@ const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitFo
   return <FormSubmitDropdownButton actions={actions} data-testid="formsubmitdropdownbutton-57v3" />;
 });
 
+// The areas available to a request type are a fixed client-side list, so wrap them in a
+// suggester-shaped adapter to drive the shared count-style multi-select field.
+const ImagingAreasField = ({ imagingAreas }) => {
+  const { getTranslation } = useTranslation();
+
+  const options = useMemo(
+    () =>
+      imagingAreas
+        .map(({ id, name, type, code }) => ({
+          label: (
+            <TranslatedReferenceData
+              fallback={name}
+              value={id}
+              category={type}
+              data-testid={`translatedreferencedata-50bn-${code}`}
+            />
+          ),
+          value: id,
+          searchString: getTranslation(getReferenceDataStringId(id, type), name),
+        }))
+        .sort((area1, area2) => area1.searchString.localeCompare(area2.searchString)),
+    [imagingAreas, getTranslation],
+  );
+
+  const suggester = useMemo(
+    () => ({
+      fetchSuggestions: async (search = '') => {
+        const term = search.trim().toLowerCase();
+        if (!term) return options;
+        return options.filter(option => option.searchString.toLowerCase().includes(term));
+      },
+      fetchCurrentOption: async value => options.find(option => option.value === value),
+    }),
+    [options],
+  );
+
+  return (
+    <Field
+      name="areas"
+      label={
+        <TranslatedText
+          stringId="imaging.areas.label"
+          fallback="Areas to be imaged"
+          data-testid="translatedtext-y92v"
+        />
+      }
+      component={MultiAutocompleteField}
+      suggester={suggester}
+      maxSelected={Infinity}
+      required
+      style={{ gridColumn: '1 / -1' }}
+      data-testid="field-bsn4"
+    />
+  );
+};
+
 export const ImagingRequestForm = React.memo(
   ({
     practitionerSuggester,
@@ -103,9 +164,17 @@ export const ImagingRequestForm = React.memo(
     const examinerLabel = examiner.displayName;
     const { getAreasForImagingType } = useImagingRequestAreas();
     const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
+
+    // The areas field holds an array in form state; the API expects a JSON-stringified id array.
+    const handleSubmit = data =>
+      onSubmit({
+        ...data,
+        areas: Array.isArray(data.areas) ? JSON.stringify(data.areas) : data.areas,
+      });
+
     return (
       <Form
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
         initialValues={{
           displayId: generateId(),
           requestedDate: getCurrentDateTime(),
@@ -117,14 +186,15 @@ export const ImagingRequestForm = React.memo(
           requestedById: foreignKey(requiredValidationMessage),
           requestedDate: yup.date().required(requiredValidationMessage),
           imagingType: foreignKey(requiredValidationMessage),
-          areas: yup.string().when('imagingType', {
+          areas: yup.array().when('imagingType', {
             is: imagingType => {
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length > 0;
             },
             then: yup
-              .string()
-              .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
+              .array()
+              .of(yup.string())
+              .min(1, requiredValidationMessage)
               .required(requiredValidationMessage),
           }),
           areaNote: yup.string().when('imagingType', {
@@ -136,7 +206,7 @@ export const ImagingRequestForm = React.memo(
           }),
         })}
         showInlineErrorsOnly
-        render={({ submitForm, values }) => {
+        render={({ submitForm, setFieldValue, values }) => {
           const imagingAreas = getAreasForImagingType(values.imagingType);
           return (
             <FormGrid data-testid="formgrid-4uzw">
@@ -274,39 +344,17 @@ export const ImagingRequestForm = React.memo(
                       };
                     });
                 }}
+                onChange={() => {
+                  // Areas belong to a specific imaging type, so switching type invalidates any
+                  // previously chosen area — clear both the predefined-area selection and the
+                  // free-text note so a stale value can't be submitted or shown.
+                  setFieldValue('areas', []);
+                  setFieldValue('areaNote', undefined);
+                }}
                 data-testid="field-khld"
               />
               {imagingAreas.length > 0 ? (
-                <Field
-                  options={imagingAreas
-                    .map(({ id, name, type, code }) => ({
-                      label: (
-                        <TranslatedReferenceData
-                          fallback={name}
-                          value={id}
-                          category={type}
-                          data-testid={`translatedreferencedata-50bn-${code}`}
-                        />
-                      ),
-                      value: id,
-                      searchString: getTranslation(getReferenceDataStringId(id, type), name),
-                    }))
-                    .sort((area1, area2) => {
-                      return area1.searchString.localeCompare(area2.searchString);
-                    })}
-                  name="areas"
-                  label={
-                    <TranslatedText
-                      stringId="imaging.areas.label"
-                      fallback="Areas to be imaged"
-                      data-testid="translatedtext-y92v"
-                    />
-                  }
-                  component={MultiselectField}
-                  prefix="imaging.property.area"
-                  required
-                  data-testid="field-bsn4"
-                />
+                <ImagingAreasField imagingAreas={imagingAreas} />
               ) : (
                 <Field
                   name="areaNote"
