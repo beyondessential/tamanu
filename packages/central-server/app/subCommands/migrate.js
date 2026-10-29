@@ -9,6 +9,10 @@ import { VERSION } from '../middleware/versionCompatibility';
 async function migrate(direction, options = {}) {
   const store = await initDatabase({ testMode: false });
   await store.sequelize.migrate(direction, { ...options, serverVersion: VERSION });
+  // process.exit() drops stdout still buffered for a pipe, so let `list` output drain first
+  await new Promise(resolve => {
+    process.stdout.write('', resolve);
+  });
   // `list --check` reports pending migrations through process.exitCode
   process.exit();
 }
