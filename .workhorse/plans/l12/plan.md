@@ -57,8 +57,17 @@ Under this model:
 - **Rejected login.** A device someone has logged in on before logs the user in offline, and the
   home screen shows the alert. A device nobody has logged in on can't work offline, so the user
   can't get in until the update installs.
-- **When it installs.** Only while the Updating Tamanu screen is open, reached by logging out or
-  from the alert. Android closing the app never loses unsaved work.
+- **When it installs.** Only when someone taps **Install and close Tamanu** on the Updating Tamanu
+  screen, reached from the home screen alert or by logging out. Nothing installs by itself, not on
+  logging out, an inactivity logout or a new device, so Tamanu never closes without warning. This
+  works because the app starts the install itself. Android's only part is the one-off permission
+  and the first-install confirmation.
+- **No "restart".** Installing closes Tamanu and Android can't reopen it, so the copy says "close"
+  and tells staff to reopen it from its icon. The notification only helps where notifications are
+  allowed.
+- **Deferring has no limit.** Staff can put the install off indefinitely, and sync stays paused the
+  whole time. Whether there should be a limit is a requirement question for Chris and Edwin, not a
+  design one.
 - **Still unresolved.** The draft designs drop the download-by-hand link that MUPD requires, and
   send blocked cases to the administrator instead. Confirm whether the link stays before designing
   the blocked states.
