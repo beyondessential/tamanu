@@ -407,7 +407,9 @@ export const MultiAutocompleteInput = ({
           {...props}
         />
         {helperText && (
-          <FormHelperText data-testid="formhelpertext-5maz">{helperText}</FormHelperText>
+          <FormHelperText error={props.error} data-testid="formhelpertext-5maz">
+            {helperText}
+          </FormHelperText>
         )}
       </StyledFormControl>
     </OuterLabelFieldWrapper>

@@ -733,7 +733,7 @@ const InvoiceRecordPrintoutComponent = ({
         )}
         {insurancePlanPayments?.length && (
           <PaymentTableSection
-            title="Insurer payment"
+            title="Insurance plan payment"
             data={insurancePlanPayments}
             columns={COLUMNS.insurancePlanPayments}
             formatters={formatters}
