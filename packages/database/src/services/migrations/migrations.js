@@ -592,8 +592,11 @@ async function listMigrations(
   if (isListingBoth || done) {
     printMigrations('Done migrations', await migrations.executed());
   }
+  const isListingPending = isListingBoth || pending;
+  if (!isListingPending && !check) return;
+
   const pendingMigrations = await migrations.pending();
-  if (isListingBoth || pending) {
+  if (isListingPending) {
     printMigrations('Pending migrations', pendingMigrations);
   }
 
