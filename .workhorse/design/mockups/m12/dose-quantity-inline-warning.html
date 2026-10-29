@@ -1,0 +1,230 @@
+<!-- spec: medication/dose-and-quantity-limits.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dose and quantity limit warnings</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px;
+    background: #f3f5f7; /* background */
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-size: 14px;
+    color: #444444; /* darkestText */
+  }
+  .caption {
+    font-size: 11px;
+    color: #888888; /* midText */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px;
+  }
+  .modal {
+    width: 820px;
+    background: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    margin-bottom: 40px;
+  }
+  .modal-header {
+    padding: 20px 32px;
+    border-bottom: 1px solid #ebebeb; /* softOutline */
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .modal-body {
+    padding: 24px 32px;
+    background: #f3f5f7; /* background */
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+  }
+  .full { grid-column: 1 / -1; }
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .req { color: #f76853; } /* alert */
+  .input {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #dedede; /* outline */
+    border-radius: 3px;
+    padding: 0 12px;
+  }
+  .input .value { flex: 1; }
+  .input .unit { color: #888888; } /* midText */
+  .input.static { color: #444444; }
+  .hr { grid-column: 1 / -1; border-top: 1px solid #dedede; }
+  .range-warning {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 15px;
+    color: #666666; /* darkText */
+  }
+  .range-warning svg { flex: none; }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 32px;
+    border-top: 1px solid #ebebeb; /* softOutline */
+  }
+  .btn {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #326699; /* primary */
+    background: #ffffff;
+    color: #326699; /* primary */
+  }
+  .btn.primary { background: #326699; color: #ffffff; } /* primary */
+
+  .table-wrap {
+    width: 1000px;
+    background: #ffffff;
+    border: 1px solid #dedede; /* outline */
+    border-radius: 5px;
+    overflow: visible;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left;
+    font-weight: 500;
+    background: #f3f5f7; /* background */
+    padding: 12px 16px;
+    border-bottom: 1px solid #dedede; /* outline */
+  }
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #dedede; /* outline */
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  .med { display: inline-flex; align-items: center; gap: 6px; position: relative; }
+  .tooltip {
+    position: absolute;
+    left: calc(100% - 8px);
+    top: 26px;
+    width: 240px;
+    background: #2f4358; /* primaryDark */
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 15px;
+    border-radius: 3px;
+    padding: 8px 10px;
+    z-index: 2;
+  }
+  .tooltip div + div { margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<p class="caption">New prescription, values outside the drug's range</p>
+<div class="modal">
+  <div class="modal-header">New prescription</div>
+  <div class="modal-body">
+    <div class="grid">
+      <div class="full">
+        <label>Medication <span class="req">*</span></label>
+        <div class="input static"><span class="value">Paracetamol 500 mg tablet</span></div>
+      </div>
+      <div>
+        <label>Dose amount <span class="req">*</span></label>
+        <div class="input"><span class="value">500</span><span class="unit">tablets</span></div>
+        <div class="range-warning">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f17f16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><!-- orange -->
+          Above maximum of 2 tablets
+        </div>
+      </div>
+      <div>
+        <label>Frequency <span class="req">*</span></label>
+        <div class="input static"><span class="value">Four times daily (QID)</span></div>
+      </div>
+      <div>
+        <label>Route of administration <span class="req">*</span></label>
+        <div class="input static"><span class="value">Oral</span></div>
+      </div>
+      <div>
+        <label>Duration</label>
+        <div class="input static"><span class="value">5</span><span class="unit">Days</span></div>
+      </div>
+      <div class="hr"></div>
+      <div>
+        <label>Dispensing quantity</label>
+        <div class="input"><span class="value">10000</span><span class="unit">tablets</span></div>
+        <div class="range-warning">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f17f16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><!-- orange -->
+          Above maximum of 100 tablets
+        </div>
+      </div>
+      <div>
+        <label>Repeats on discharge</label>
+        <div class="input static"><span class="value">0</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn">Cancel</button>
+    <button class="btn primary">Finalise</button>
+  </div>
+</div>
+
+<p class="caption">Active medication requests, overridden request flagged</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Patient ID</th>
+        <th>Patient name</th>
+        <th>Prescription</th>
+        <th>Medication</th>
+        <th>Ordering prescriber</th>
+        <th>Date &amp; time sent</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>YKDM042913</td>
+        <td>Mele Fifita</td>
+        <td>OP/Discharge</td>
+        <td>
+          <span class="med">
+            Paracetamol 500 mg tablet
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f17f16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><!-- orange -->
+            <span class="tooltip">
+              <div>Dose 500 tablets, above maximum of 2 tablets</div>
+              <div>Quantity 10000 tablets, above maximum of 100 tablets</div>
+            </span>
+          </span>
+        </td>
+        <td>Dr Sione Taufa</td>
+        <td>29/10/2026 09:14</td>
+      </tr>
+      <tr>
+        <td>YKDM051207</td>
+        <td>Ana Kioa</td>
+        <td>Inpatient</td>
+        <td>Amoxicillin 250 mg capsule</td>
+        <td>Dr Sione Taufa</td>
+        <td>29/10/2026 08:52</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
