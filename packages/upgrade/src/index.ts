@@ -132,17 +132,20 @@ async function runUpgrade({
     const args: StepArgs = { ...stepArgs, log: logger };
 
     if (id === MIGRATIONS_END) {
-      logger.debug('Run through all remaining migrations');
-      await migrateUpTo({
-        log: logger,
-        sequelize,
-        pending: pendingMigrations,
-        migrations,
-        getDurationStats,
-        upOpts: {},
-        upgradeRunId,
-        dryRun,
-      });
+      if (pendingMigrations.length > 0) {
+        logger.debug('Run through all remaining migrations');
+        await migrateUpTo({
+          log: logger,
+          sequelize,
+          pending: pendingMigrations,
+          migrations,
+          getDurationStats,
+          upOpts: {},
+          upgradeRunId,
+          dryRun,
+        });
+        pendingMigrations = await migrations.pending();
+      }
       continue;
     }
 
@@ -166,6 +169,7 @@ async function runUpgrade({
           upgradeRunId,
           dryRun,
         });
+        pendingMigrations = await migrations.pending();
       }
       continue;
     }

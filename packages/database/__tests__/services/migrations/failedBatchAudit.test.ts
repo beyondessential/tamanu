@@ -36,7 +36,6 @@ describe('migration batch auditing', () => {
         executed.push({ file: 'a.ts' });
         throw new Error('migration blew up');
       },
-      pending: async () => pending,
       executed: async () => [...executed],
     };
 
@@ -65,7 +64,6 @@ describe('migration batch auditing', () => {
         executed.push({ file: 'c.ts' });
         throw new Error('migration blew up');
       },
-      pending: async () => [{ file: 'c.ts' }, { file: 'd.ts' }],
       executed: async () => [...executed],
     };
 
@@ -102,7 +100,6 @@ describe('migration batch auditing', () => {
           parent: original,
         });
       },
-      pending: async () => pending,
       executed: async () => [...executed],
     };
 
@@ -130,7 +127,6 @@ describe('migration batch auditing', () => {
   it('records no failure on a batch that completes', async () => {
     const migrations = {
       up: async () => pending,
-      pending: async () => pending,
       executed: async () => pending,
     };
 
@@ -155,7 +151,6 @@ describe('migration batch auditing', () => {
         hasRun = true;
         throw new Error('migration blew up');
       },
-      pending: async () => pending,
       // fine when the batch starts, gone by the time the failure is recorded
       executed: async () => {
         if (hasRun) throw new Error('connection gone');

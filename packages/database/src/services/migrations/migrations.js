@@ -374,15 +374,9 @@ export async function migrateUpTo({
 }) {
   const batchStart = Date.now();
 
-  // `pending` can be stale (an upgrade gathers it once, then applies migrations in several
-  // batches), so ask again. Post-migration steps still run when nothing is pending, as they
-  // reconcile triggers with the current code.
-  const hasPendingMigrations = (await migrations.pending()).length > 0;
-  if (hasPendingMigrations) {
-    log.info('Running pre-migration steps...');
-    await runPreMigration(log, sequelize);
-    log.info(`Applied pre-migration steps successfully.`);
-  }
+  log.info('Running pre-migration steps...');
+  await runPreMigration(log, sequelize);
+  log.info(`Applied pre-migration steps successfully.`);
 
   log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
 
