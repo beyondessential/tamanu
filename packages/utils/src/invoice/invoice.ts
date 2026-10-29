@@ -3,11 +3,11 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice } from './display';
 import {
   calculateInvoiceItem,
-  capInsuranceCoverage,
   getInsurancePlanItemsForInvoiceItem,
   type InvoiceItemPricing,
 } from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
+import { roundToCents } from './money';
 import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
 
 export const isInvoiceEditable = (invoice: Invoice): boolean =>
@@ -32,28 +32,11 @@ const sumOf = (values: Array<number | Decimal>): Decimal =>
   values.reduce<Decimal>((sum, value) => sum.plus(value), new Decimal(0));
 
 /**
- * The insurance coverage a line contributes to the invoice total.
- *
- * This deliberately differs from the line's own `insuranceCoverage` in one edge case: an insurable
- * line with an empty plan list is still capped, so a line discounted below zero contributes its
- * negative discounted price. Kept as-is so consolidating pricing moves no figure.
- */
-const getItemCoverageTowardsTotal = (
-  item: InvoiceItem,
-  itemPricing: InvoiceItemPricing,
-): Decimal => {
-  if (!item?.product?.insurable || !item.insurancePlanItems) {
-    return new Decimal(0);
-  }
-  return capInsuranceCoverage(itemPricing.coverageByPlan, itemPricing.discountedPrice);
-};
-
-/**
  * Calculates the total insurance coverage for a list of invoice items. Each item's coverage is
  * capped at its discounted price.
  */
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
-  sumOf(invoiceItems.map(item => getItemCoverageTowardsTotal(item, calculateInvoiceItem(item))));
+  sumOf(invoiceItems.map(item => calculateInvoiceItem(item).insuranceCoverage));
 
 /**
  * An invoice whose items carry the plan rows the coverage functions read.
@@ -71,10 +54,9 @@ export const withInsurancePlanItems = (invoice: Invoice): Invoice => ({
 });
 
 /**
- * The coverage each of the invoice's insurance plans provides, keyed by plan id. Totals add up to
- * the invoice's insurance total: where several plans together cover a line beyond its price, the
- * line's capped coverage is shared between them in proportion to what each would have covered, so
- * no plan is credited with money the invoice never owed. Only plans attached to the invoice count.
+ * The coverage each of the invoice's insurance plans provides, keyed by plan id: the sum of its
+ * shares of each line's capped coverage. Only plans attached to the invoice count, so the totals
+ * add up to the invoice's insurance total.
  */
 const getCoverageTotalsByPlan = (
   invoice: Invoice,
@@ -84,22 +66,12 @@ const getCoverageTotalsByPlan = (
     (invoice.insurancePlans || []).map(plan => [plan.id, new Decimal(0)]),
   );
 
-  for (const { coverageByPlan, discountedPrice } of itemPricings) {
-    const attachedPlanCoverages = coverageByPlan.filter(({ insurancePlanId }) =>
-      planCoverageTotals.has(insurancePlanId),
-    );
-    const itemCoverageTotal = sumOf(attachedPlanCoverages.map(({ coverage }) => coverage));
-    const cappedShare = itemCoverageTotal.greaterThan(discountedPrice)
-      ? new Decimal(discountedPrice).dividedBy(itemCoverageTotal)
-      : new Decimal(1);
-
-    for (const { insurancePlanId, coverage } of attachedPlanCoverages) {
-      planCoverageTotals.set(
-        insurancePlanId,
-        (planCoverageTotals.get(insurancePlanId) as Decimal).plus(
-          new Decimal(coverage).times(cappedShare),
-        ),
-      );
+  for (const { coverageByPlan } of itemPricings) {
+    for (const { insurancePlanId, coverage } of coverageByPlan) {
+      const planTotal = planCoverageTotals.get(insurancePlanId);
+      if (planTotal) {
+        planCoverageTotals.set(insurancePlanId, planTotal.plus(coverage));
+      }
     }
   }
 
@@ -137,11 +109,13 @@ export const calculateInvoice = (invoice: Invoice): InvoicePricing => {
   const invoiceItemsUndiscountedTotal = sumOf(itemPricings.map(({ totalPrice }) => totalPrice));
   const invoiceItemsTotal = sumOf(itemPricings.map(({ discountedPrice }) => discountedPrice));
   const insuranceCoverageTotal = sumOf(
-    items.map((item, index) => getItemCoverageTowardsTotal(item, itemPricings[index]!)),
+    itemPricings.map(({ insuranceCoverage }) => insuranceCoverage),
   );
 
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
-  const discountTotal = getInvoiceLevelDiscountAmount(invoice.discount, patientSubtotal.toNumber());
+  const discountTotal = roundToCents(
+    getInvoiceLevelDiscountAmount(invoice.discount, patientSubtotal.toNumber()),
+  ).toNumber();
 
   // Calculate item adjustments here to be used in the printout
   const itemAdjustmentsTotal = sumOf(itemPricings.map(({ adjustment }) => adjustment));

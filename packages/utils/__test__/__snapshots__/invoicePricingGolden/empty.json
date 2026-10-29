@@ -13,6 +13,7 @@
     "patientPaymentRemainingBalance": 0,
     "insurancePlanPaymentRemainingBalance": 0
   },
+  "apportionedCoverageByItem": [],
   "summaryDisplay": {
     "invoiceItemsUndiscountedTotal": "0.00",
     "invoiceItemsTotal": "0.00",

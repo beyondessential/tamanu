@@ -2,32 +2,60 @@
   "summary": {
     "invoiceItemsUndiscountedTotal": 500.4,
     "invoiceItemsTotal": 115.1,
-    "insuranceCoverageTotal": 53.06,
-    "patientTotal": 62.04,
+    "insuranceCoverageTotal": 73.06,
+    "patientTotal": 42.04,
     "discountTotal": 0,
     "itemAdjustmentsTotal": -385.3,
-    "patientSubtotal": 62.04,
+    "patientSubtotal": 42.04,
     "patientPaymentsTotal": 0,
     "insurancePlanPaymentsTotal": 0,
     "paymentsTotal": 0,
-    "patientPaymentRemainingBalance": 62.04,
-    "insurancePlanPaymentRemainingBalance": 53.06
+    "patientPaymentRemainingBalance": 42.04,
+    "insurancePlanPaymentRemainingBalance": 73.06
   },
+  "apportionedCoverageByItem": [
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 51
+      }
+    ],
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 0.06
+      }
+    ],
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 72
+      }
+    ],
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": -50
+      }
+    ],
+    [],
+    []
+  ],
   "summaryDisplay": {
     "invoiceItemsUndiscountedTotal": "500.40",
     "invoiceItemsTotal": "115.10",
-    "insuranceCoverageTotal": "53.06",
-    "patientTotal": "62.04",
+    "insuranceCoverageTotal": "73.06",
+    "patientTotal": "42.04",
     "discountTotal": "0.00",
     "itemAdjustmentsTotal": "-385.30",
-    "patientSubtotal": "62.04",
+    "patientSubtotal": "42.04",
     "patientPaymentsTotal": "0.00",
     "insurancePlanPaymentsTotal": "0.00",
     "paymentsTotal": "0.00",
-    "patientPaymentRemainingBalance": "62.04",
-    "insurancePlanPaymentRemainingBalance": "53.06"
+    "patientPaymentRemainingBalance": "42.04",
+    "insurancePlanPaymentRemainingBalance": "73.06"
   },
-  "insuranceCoverageTotal": "53.06000000000000002",
+  "insuranceCoverageTotal": "73.06",
   "coverageByPlan": [
     {
       "id": "plan-a",
@@ -57,17 +85,17 @@
     {
       "id": "amount-discount",
       "totalPrice": 0.4,
-      "discountedPrice": 0.10000000000000003,
+      "discountedPrice": 0.1,
       "adjustment": -0.3,
-      "coverage": 0.06000000000000002,
+      "coverage": 0.06,
       "coverageByPlan": [
         {
           "id": "plan-a",
           "percentage": 60,
-          "coverage": 0.06000000000000002
+          "coverage": 0.06
         }
       ],
-      "netCost": 0.04000000000000001,
+      "netCost": 0.04,
       "formattedCoverage": "-0.06",
       "formattedNetCost": "0.04"
     },

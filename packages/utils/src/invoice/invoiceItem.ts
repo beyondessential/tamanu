@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 import { INVOICE_ITEMS_CATEGORIES, INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getDiscountedPrice } from './discount';
+import { roundToCents } from './money';
 import type { InvoiceItem, InsurancePlan, InsurancePlanItem } from './types';
 
 /**
@@ -33,24 +34,28 @@ export const isFixedPriceItem = (invoiceItem: InvoiceItem): boolean => {
 };
 
 /**
- * Get the price of an invoice item row
+ * Get the price of an invoice item row, rounded to the cent
  */
 export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
   const quantity = isFixedPriceItem(invoiceItem) ? 1 : (invoiceItem.quantity ?? 0);
-  return new Decimal(price).times(quantity).toNumber();
+  return roundToCents(new Decimal(price).times(quantity)).toNumber();
 };
 
 /**
- * Get the price of an invoice item after applying the discount
+ * Get the price of an invoice item after applying the discount, rounded to the cent
  */
 export const getInvoiceItemTotalDiscountedPrice = (invoiceItem: InvoiceItem): number => {
   const invoiceItemTotalPrice = getInvoiceItemTotalPrice(invoiceItem);
   if (!invoiceItem.discount) return invoiceItemTotalPrice;
   if (invoiceItem.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
-    return getDiscountedPrice(invoiceItemTotalPrice, invoiceItem?.discount?.amount || 0);
+    return roundToCents(
+      getDiscountedPrice(invoiceItemTotalPrice, invoiceItem?.discount?.amount || 0),
+    ).toNumber();
   }
-  return invoiceItemTotalPrice - (invoiceItem?.discount?.amount || 0);
+  return roundToCents(
+    new Decimal(invoiceItemTotalPrice).minus(invoiceItem?.discount?.amount || 0),
+  ).toNumber();
 };
 
 /**
@@ -71,7 +76,7 @@ export interface InvoiceItemPlanCoverage {
   insurancePlanId: string;
   /** The coverage percentage applied: the finalised snapshot where there is one, else the plan's */
   percentage: number;
-  /** This plan's share of the line, before the line's coverage is capped */
+  /** This plan's share of the line's capped coverage */
   coverage: number;
 }
 
@@ -81,10 +86,7 @@ export interface InvoiceItemPricing {
   /** Discounted price minus total price: negative for a discount, positive for a markup */
   adjustment: number;
   coverageByPlan: InvoiceItemPlanCoverage[];
-  /**
-   * Insurance coverage of the line, capped at its discounted price. An insurable line with an
-   * empty plan list has none here, though the invoice total still caps it (see `calculateInvoice`)
-   */
+  /** Insurance coverage of the line, capped at its discounted price */
   insuranceCoverage: number;
   netCost: number;
 }
@@ -122,17 +124,67 @@ export const capInsuranceCoverage = (
 };
 
 /**
+ * Split a line's capped coverage between its plans in proportion to their coverage percentages.
+ *
+ * Each share is rounded down to the cent, and any cents left over go to the plan with the highest
+ * percentage (the lowest plan id on a tie), so the shares always add up to the line's coverage.
+ * Where the cap doesn't apply, each share is within a cent of that plan's own coverage.
+ */
+export const apportionInsuranceCoverage = (
+  insuranceCoverage: Decimal,
+  planCoverages: InvoiceItemPlanCoverage[],
+): InvoiceItemPlanCoverage[] => {
+  if (planCoverages.length === 0) {
+    return [];
+  }
+
+  const totalPercentage = planCoverages.reduce(
+    (sum, { percentage }) => sum.plus(percentage),
+    new Decimal(0),
+  );
+  const shares = planCoverages.map(({ percentage }) =>
+    totalPercentage.isZero()
+      ? new Decimal(0)
+      : insuranceCoverage
+          .times(percentage)
+          .dividedBy(totalPercentage)
+          .toDecimalPlaces(2, Decimal.ROUND_DOWN),
+  );
+  const leftover = shares.reduce((remaining, share) => remaining.minus(share), insuranceCoverage);
+
+  const largestPlanIndex = planCoverages.reduce((largestIndex, planCoverage, index) => {
+    const largest = planCoverages[largestIndex]!;
+    const isLarger =
+      planCoverage.percentage > largest.percentage ||
+      (planCoverage.percentage === largest.percentage &&
+        planCoverage.insurancePlanId < largest.insurancePlanId);
+    return isLarger ? index : largestIndex;
+  }, 0);
+  shares[largestPlanIndex] = shares[largestPlanIndex]!.plus(leftover);
+
+  return planCoverages.map((planCoverage, index) => ({
+    ...planCoverage,
+    coverage: shares[index]!.toNumber(),
+  }));
+};
+
+/**
  * Every figure derived from a single invoice line. This is the one place a line is priced; the
  * per-figure helpers below and the invoice-level calculation all read from it.
+ *
+ * The plans' coverage is capped at the line's discounted price, rounded to the cent, then split
+ * back between the plans, so the plans' shares always add up to the line's coverage.
  */
 export const calculateInvoiceItem = (item: InvoiceItem): InvoiceItemPricing => {
   const totalPrice = getInvoiceItemTotalPrice(item) || 0;
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-  const coverageByPlan = getInvoiceItemPlanCoverages(item, discountedPrice);
-  const insuranceCoverage =
-    coverageByPlan.length > 0
-      ? capInsuranceCoverage(coverageByPlan, discountedPrice).toNumber()
-      : 0;
+  const planCoverages = getInvoiceItemPlanCoverages(item, discountedPrice);
+  const cappedCoverage =
+    planCoverages.length > 0
+      ? roundToCents(capInsuranceCoverage(planCoverages, discountedPrice))
+      : new Decimal(0);
+  const coverageByPlan = apportionInsuranceCoverage(cappedCoverage, planCoverages);
+  const insuranceCoverage = cappedCoverage.toNumber();
 
   return {
     totalPrice,

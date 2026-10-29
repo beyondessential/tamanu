@@ -2,17 +2,35 @@
   "summary": {
     "invoiceItemsUndiscountedTotal": 10.31,
     "invoiceItemsTotal": 10.31,
-    "insuranceCoverageTotal": 6.772656,
-    "patientTotal": 3.537344,
+    "insuranceCoverageTotal": 6.77,
+    "patientTotal": 3.54,
     "discountTotal": 0,
     "itemAdjustmentsTotal": 0,
-    "patientSubtotal": 3.537344,
+    "patientSubtotal": 3.54,
     "patientPaymentsTotal": 0,
     "insurancePlanPaymentsTotal": 0,
     "paymentsTotal": 0,
-    "patientPaymentRemainingBalance": 3.537344,
-    "insurancePlanPaymentRemainingBalance": 6.772656
+    "patientPaymentRemainingBalance": 3.54,
+    "insurancePlanPaymentRemainingBalance": 6.77
   },
+  "apportionedCoverageByItem": [
+    [
+      {
+        "insurancePlanId": "plan-c",
+        "coverage": 3.33
+      },
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 3.34
+      }
+    ],
+    [
+      {
+        "insurancePlanId": "plan-c",
+        "coverage": 0.1
+      }
+    ]
+  ],
   "summaryDisplay": {
     "invoiceItemsUndiscountedTotal": "10.31",
     "invoiceItemsTotal": "10.31",
@@ -27,13 +45,13 @@
     "patientPaymentRemainingBalance": "3.54",
     "insurancePlanPaymentRemainingBalance": "6.77"
   },
-  "insuranceCoverageTotal": "6.772656",
+  "insuranceCoverageTotal": "6.77",
   "coverageByPlan": [
     {
       "id": "plan-c",
       "name": "Plan C",
       "code": "PC",
-      "totalCoverage": "-3.44"
+      "totalCoverage": "-3.43"
     },
     {
       "id": "plan-a",
@@ -48,7 +66,7 @@
       "totalPrice": 10.01,
       "discountedPrice": 10.01,
       "adjustment": 0,
-      "coverage": 6.672666,
+      "coverage": 6.67,
       "coverageByPlan": [
         {
           "id": "plan-c",
@@ -61,7 +79,7 @@
           "coverage": 3.336333
         }
       ],
-      "netCost": 3.337334,
+      "netCost": 3.34,
       "formattedCoverage": "-6.67",
       "formattedNetCost": "3.34"
     },
@@ -70,7 +88,7 @@
       "totalPrice": 0.3,
       "discountedPrice": 0.3,
       "adjustment": 0,
-      "coverage": 0.09999,
+      "coverage": 0.1,
       "coverageByPlan": [
         {
           "id": "plan-c",
@@ -78,7 +96,7 @@
           "coverage": 0.09999
         }
       ],
-      "netCost": 0.20001,
+      "netCost": 0.2,
       "formattedCoverage": "-0.10",
       "formattedNetCost": "0.20"
     }

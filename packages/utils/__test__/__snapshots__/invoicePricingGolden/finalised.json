@@ -13,6 +13,29 @@
     "patientPaymentRemainingBalance": 32,
     "insurancePlanPaymentRemainingBalance": 188
   },
+  "apportionedCoverageByItem": [
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 66.66
+      },
+      {
+        "insurancePlanId": "plan-b",
+        "coverage": 93.34
+      }
+    ],
+    [
+      {
+        "insurancePlanId": "plan-a",
+        "coverage": 4
+      },
+      {
+        "insurancePlanId": "plan-b",
+        "coverage": 24
+      }
+    ],
+    []
+  ],
   "summaryDisplay": {
     "invoiceItemsUndiscountedTotal": "225.00",
     "invoiceItemsTotal": "225.00",
@@ -33,13 +56,13 @@
       "id": "plan-a",
       "name": "Plan A",
       "code": "PA",
-      "totalCoverage": "-70.67"
+      "totalCoverage": "-70.66"
     },
     {
       "id": "plan-b",
       "name": "Plan B",
       "code": "PB",
-      "totalCoverage": "-117.33"
+      "totalCoverage": "-117.34"
     }
   ],
   "items": [

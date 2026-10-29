@@ -28,6 +28,9 @@ import { invoicePricingFixtures } from './fixtures/invoicePricingFixtures';
  */
 const describePricing = (invoice: Invoice) => ({
   summary: getInvoiceSummary(invoice),
+  apportionedCoverageByItem: calculateInvoice(invoice).items.map(({ coverageByPlan }) =>
+    coverageByPlan.map(({ insurancePlanId, coverage }) => ({ insurancePlanId, coverage })),
+  ),
   summaryDisplay: getInvoiceSummaryDisplay(invoice),
   insuranceCoverageTotal: getInsuranceCoverageTotalAmount(invoice.items ?? []).toString(),
   coverageByPlan: getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice),
@@ -93,4 +96,34 @@ describe('calculateInvoice', () => {
       new Decimal(summary.patientSubtotal).minus(summary.discountTotal).toNumber(),
     );
   });
+});
+
+describe('per-plan coverage', () => {
+  // Every fixture except the one with a plan on an item that isn't attached to the invoice
+  const fixturesWithAttachedPlans = Object.keys(invoicePricingFixtures).filter(
+    fixtureName => fixtureName !== 'planNotOnInvoice',
+  );
+
+  it.each(fixturesWithAttachedPlans)('%s: plans sum to the insurance total', fixtureName => {
+    const { coverageByPlan, summary } = calculateInvoice(invoicePricingFixtures[fixtureName]!);
+    const planTotal = coverageByPlan.reduce(
+      (sum, { totalCoverage }) => sum.plus(totalCoverage),
+      new Decimal(0),
+    );
+    expect(planTotal.toNumber()).toEqual(summary.insuranceCoverageTotal);
+  });
+
+  it.each(Object.keys(invoicePricingFixtures))(
+    '%s: each line sums to its coverage',
+    fixtureName => {
+      for (const itemPricing of calculateInvoice(invoicePricingFixtures[fixtureName]!).items) {
+        if (itemPricing.coverageByPlan.length === 0) continue;
+        const lineTotal = itemPricing.coverageByPlan.reduce(
+          (sum, { coverage }) => sum.plus(coverage),
+          new Decimal(0),
+        );
+        expect(lineTotal.toNumber()).toEqual(itemPricing.insuranceCoverage);
+      }
+    },
+  );
 });
