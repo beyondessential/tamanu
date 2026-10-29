@@ -57,13 +57,18 @@ Under this model:
 - **Rejected login.** A device someone has logged in on before logs the user in offline, and the
   home screen shows the alert. A device nobody has logged in on can't work offline, so the user
   can't get in until the update installs.
-- **When it installs.** Only when someone taps **Install and close Tamanu** on the Updating Tamanu
-  screen, reached from the home screen alert or by logging out. Nothing installs by itself, not on
-  logging out, an inactivity logout or a new device, so Tamanu never closes without warning. This
-  works because the app starts the install itself. Android's only part is the one-off permission
-  and the first-install confirmation.
-- **Ways to install.** The home screen banner (**Install**), the Sync tab (**Install update**) and
-  logging out all open the same **Install update** modal. The banner keeps its close cross, but a
+- **When it installs.** While someone is logged in, only when they tap **Install and close** in the
+  **Install update** modal, so Tamanu never closes on someone mid-task. When nobody is logged in
+  (after logging out, an inactivity logout, or on a new device), it installs by itself and Tamanu
+  closes. This works because the app starts the install itself. Android's only part is the one-off
+  permission and the first-install confirmation, which still need a tap even when nobody is logged
+  in. On a logged-out device without the permission, the updating screen asks for it with **Allow**
+  once the update has downloaded, then Android's prompt follows.
+- **Open: logging out before the download finishes.** Undecided whether the next person can log in
+  and work offline while it downloads, or must wait for the update to install first. Waiting could
+  keep a shared tablet out of use for a long time on a poor connection.
+- **Ways to install.** The home screen banner (**Install**) and the Sync tab (**Install update**)
+  open the same **Install update** modal. The banner keeps its close cross, but a
   closed banner comes back each time staff return to the home screen from another screen, until the
   update installs. The home screen stays loaded between tabs, so this needs the banner to reset when
   the screen regains focus rather than when it loads. While an update is downloading or ready, the
