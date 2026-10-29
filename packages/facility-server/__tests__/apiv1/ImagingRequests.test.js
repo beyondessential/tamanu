@@ -57,6 +57,30 @@ describe('Imaging requests', () => {
       expect(result.body.requestedDate).toBeTruthy();
     });
 
+    it('should create area associations from a JSON-stringified id array', async () => {
+      const [area1, area2] = await Promise.all([
+        models.ReferenceData.create(
+          fake(models.ReferenceData, { type: REFERENCE_TYPES.X_RAY_IMAGING_AREA }),
+        ),
+        models.ReferenceData.create(
+          fake(models.ReferenceData, { type: REFERENCE_TYPES.X_RAY_IMAGING_AREA }),
+        ),
+      ]);
+
+      const result = await app.post('/api/imagingRequest').send({
+        encounterId: encounter.id,
+        imagingType: IMAGING_TYPES.X_RAY,
+        requestedById: app.user.id,
+        areas: JSON.stringify([area1.id, area2.id]),
+      });
+      expect(result).toHaveSucceeded();
+
+      const createdAreas = await models.ImagingRequestArea.findAll({
+        where: { imagingRequestId: result.body.id },
+      });
+      expect(createdAreas.map(area => area.areaId).sort()).toEqual([area1.id, area2.id].sort());
+    });
+
     it('should require a valid status', async () => {
       const result = await app.post('/api/imagingRequest').send({
         encounterId: encounter.id,

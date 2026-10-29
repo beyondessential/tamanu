@@ -155,4 +155,26 @@ describe('Patient Portal Settings', () => {
       expect(Array.isArray(response.body)).toBe(false);
     });
   });
+
+  describe('GET /api/portal/time-zone', () => {
+    it('returns the primary time zone patient answers are stored in', async () => {
+      const response = await baseApp
+        .get('/api/portal/time-zone')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toEqual({ primaryTimeZone: expect.any(String) });
+    });
+  });
+
+  describe('GET /api/portal/settings', () => {
+    it('returns the field settings without a facility', async () => {
+      const response = await baseApp
+        .get('/api/portal/settings')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.fields).toBeDefined();
+    });
+  });
 });

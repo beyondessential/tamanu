@@ -152,9 +152,12 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   };
 
   const handlePointerDown = event => {
-    if (disabled || !isFocused || event.button !== 0 /* left click only */) return;
+    if (disabled || event.button !== 0 /* left click only */) return;
 
     event.preventDefault();
+    // A touchscreen only focuses an element once the tap ends, so a stroke can begin on an
+    // unfocused field. Focus it now so the stroke is kept and committed when the field blurs.
+    if (!isFocused) drawAreaRef.current.focus();
     event.currentTarget.setPointerCapture(event.pointerId);
     const rect = drawAreaRef.current.getBoundingClientRect();
     const point = clientPointToViewBox(event.clientX, event.clientY, rect);
@@ -163,7 +166,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   };
 
   const handlePointerMove = event => {
-    if (!isDrawingRef.current || !isFocused) return;
+    if (!isDrawingRef.current) return;
 
     event.preventDefault();
     const rect = drawAreaRef.current.getBoundingClientRect();
@@ -196,7 +199,6 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
   );
 
   const showEmptyOverlay = !value && !sessionPreviewPath;
-  const isActive = isFocused && !disabled;
 
   return (
     <>
@@ -226,7 +228,7 @@ export function SignatureField({ disabled, error, field, helperText, label, requ
            * - `sessionPreviewPath` is transient; it gets merged with `value` on blur.
            */}
           {value && <SignaturePathDisplay path={value} />}
-          {isActive && (
+          {!disabled && (
             <DrawingLayer
               onPointerCancel={finishStroke}
               onPointerDown={handlePointerDown}

@@ -46,14 +46,14 @@ type SyncOptions = {
   urgent: boolean;
 };
 
-export type MobileSyncSettings = {
+export interface MobileSyncSettings {
   maxBatchesToKeepInMemory: number;
   maxRecordsPerSnapshotBatch: number;
   maxRecordsPerInsertBatch: number;
   maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-};
+}
 
 export interface PullParams {
   sessionId: string;
@@ -226,6 +226,13 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
     this.isSyncing = true;
 
+    // A VACUUM kicked off while the app was backgrounded may still be running. Let it finish
+    // before opening a central session so the session isn’t held open waiting on the write lock.
+    if (Database.maintenanceInProgress !== null) {
+      console.log('MobileSyncManager.runSync(): Waiting for database maintenance to finish');
+      await Database.maintenanceInProgress;
+    }
+
     // clear persisted cache from last session
     await dropSnapshotTable();
 
@@ -251,7 +258,7 @@ export class MobileSyncManager {
       console.log(`MobileSyncManager.runSync(): Sync queue status: ${status}`);
       this.isSyncing = false;
       this.isQueuing = true;
-      this.progressMessage = urgent ? 'Sync in progress...' : 'Sync in queue';
+      this.progressMessage = urgent ? 'Sync in progress…' : 'Sync in queue';
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_QUEUE);
       return;
     }
@@ -366,7 +373,7 @@ export class MobileSyncManager {
     // So only showing a message to indicate this this is still in progress
     this.setProgress(
       this.progressMaxByStage[this.syncStage - 1],
-      'Pausing at 33% while server prepares for pull, please wait...',
+      'Pausing at 33% while server prepares for pull, please wait…',
     );
 
     const tablesForFullResyncSetting = await this.models.LocalSystemFact.findOne({
