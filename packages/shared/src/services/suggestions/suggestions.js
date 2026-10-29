@@ -25,6 +25,7 @@ import {
 } from '@tamanu/constants';
 import { customAlphabet } from 'nanoid';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { buildAvailableFacilitiesFilter } from '@tamanu/shared/utils/availableFacilities';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -342,19 +343,6 @@ function createSuggester(
 // once there's more than one status that we're checking against
 const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-};
-
-// Reusable filter: if availableFacilities is set on a reference data row,
-// only show it when the requesting facility is in the list. NULL means visible everywhere.
-// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
-const buildAvailableFacilitiesFilter = facilityId => {
-  if (!facilityId) return null;
-  return {
-    [Op.or]: [
-      { availableFacilities: null },
-      { availableFacilities: { [Op.contains]: [facilityId] } },
-    ],
-  };
 };
 
 const afterCreatedReferenceData = async (req, newRecord) => {
@@ -1155,10 +1143,15 @@ createSuggester(
       return baseWhere;
     }
 
+    // Exclude registries the patient is actively registered in or has been removed from — a
+    // removed registration is re-enabled via Activate, not re-added here. A recorded-in-error
+    // registration can still be re-added.
+    const excludedStatuses = [REGISTRATION_STATUSES.ACTIVE, REGISTRATION_STATUSES.INACTIVE]
+      .map(status => `'${status}'`)
+      .join(', ');
+
     return {
       ...baseWhere,
-      // Only exclude registries the patient is currently actively registered in. A patient who
-      // was removed (inactive) or recorded-in-error can be suggested again for re-registration.
       id: {
         [Op.notIn]: Sequelize.literal(
           `(
@@ -1169,7 +1162,7 @@ createSuggester(
           WHERE
             ppr.patient_id = $patient_id
           AND
-            ppr.registration_status = '${REGISTRATION_STATUSES.ACTIVE}'
+            ppr.registration_status IN (${excludedStatuses})
         )`,
         ),
       },
