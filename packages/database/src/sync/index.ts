@@ -21,5 +21,6 @@ export * from './waitForPendingEditsUsingSyncTick';
 export * from './bumpSyncTickForRepull';
 export * from './incomingSyncHook';
 export * from './sanitizeRecord';
+export * from './syncTuning';
 export * from './transactions';
 export * from './withDeferredSyncSafeguards';
