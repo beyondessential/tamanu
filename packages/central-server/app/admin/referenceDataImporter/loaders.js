@@ -75,7 +75,21 @@ export function patientFieldDefinitionLoader(values) {
   ];
 }
 
-export function administeredVaccineLoader(item) {
+const CONSENT_GIVEN = ['true', 'yes', 't', 'y'];
+const CONSENT_NOT_GIVEN = ['false', 'no', 'f', 'n', ''];
+
+function parseConsent(consent, pushError) {
+  const normalisedConsent = String(consent ?? '')
+    .trim()
+    .toLowerCase();
+  if (CONSENT_GIVEN.includes(normalisedConsent)) return true;
+  if (!CONSENT_NOT_GIVEN.includes(normalisedConsent)) {
+    pushError(`Unrecognised consent value "${consent}", expected y or n`, 'AdministeredVaccine');
+  }
+  return false;
+}
+
+export async function administeredVaccineLoader(item, { models, pushError }) {
   const {
     encounterId,
     administeredVaccineId,
@@ -93,23 +107,33 @@ export function administeredVaccineLoader(item) {
   const startDate = date ? startOfDay(date) : null;
   const endDate = date ? endOfDay(date) : null;
 
+  // The encounter columns are derived from the vaccine, so writing them over a real encounter
+  // would rewrite it (and close an open admission).
+  const encounterExists =
+    Boolean(encounterId) &&
+    (await models.Encounter.count({ where: { id: encounterId }, paranoid: false })) > 0;
+
   return [
-    {
-      model: 'Encounter',
-      values: {
-        id: encounterId,
+    ...(encounterExists
+      ? []
+      : [
+          {
+            model: 'Encounter',
+            values: {
+              id: encounterId,
 
-        encounterType: ENCOUNTER_TYPES.CLINIC,
-        startDate,
-        endDate,
-        reasonForEncounter: reason,
+              encounterType: ENCOUNTER_TYPES.CLINIC,
+              startDate,
+              endDate,
+              reasonForEncounter: reason,
 
-        locationId,
-        departmentId,
-        examinerId,
-        patientId,
-      },
-    },
+              locationId,
+              departmentId,
+              examinerId,
+              patientId,
+            },
+          },
+        ]),
     {
       model: 'AdministeredVaccine',
       values: {
@@ -117,7 +141,7 @@ export function administeredVaccineLoader(item) {
 
         date,
         reason,
-        consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+        consent: parseConsent(consent, pushError),
         ...data,
 
         // relationships
@@ -364,7 +388,10 @@ export async function labTestPanelLoader(item, { models, pushError }) {
       ...new Set(testTypes.map(testType => testType.labTestCategoryId).filter(Boolean)),
     ];
     if (categoryIds.length > 1) {
-      pushError('Lab test panel test types must all belong to one lab test category', 'LabTestPanel');
+      pushError(
+        'Lab test panel test types must all belong to one lab test category',
+        'LabTestPanel',
+      );
     }
   }
 
@@ -654,11 +681,15 @@ async function drugLoader(item, { models, pushError, header }, stockOnHandEnable
 
   const validDrugUnits = Object.values(DRUG_UNITS);
   if (dosingUnit && !validDrugUnits.includes(dosingUnit)) {
-    pushError(`Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    pushError(
+      `Drug "${drugId}": Invalid dosingUnit "${dosingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`,
+    );
     return [];
   }
   if (dispensingUnit && !validDrugUnits.includes(dispensingUnit)) {
-    pushError(`Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`);
+    pushError(
+      `Drug "${drugId}": Invalid dispensingUnit "${dispensingUnit}". Must be one of: ${validDrugUnits.join(', ')}.`,
+    );
     return [];
   }
 
