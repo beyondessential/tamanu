@@ -1,7 +1,11 @@
 import Decimal from 'decimal.js';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice } from './display';
-import { calculateInvoiceItem, type InvoiceItemPricing } from './invoiceItem';
+import {
+  calculateInvoiceItem,
+  getInsurancePlanItemsForInvoiceItem,
+  type InvoiceItemPricing,
+} from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
 import { roundToCents } from './money';
 import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
@@ -33,6 +37,21 @@ const sumOf = (values: Array<number | Decimal>): Decimal =>
  */
 export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): Decimal =>
   sumOf(invoiceItems.map(item => calculateInvoiceItem(item).insuranceCoverage));
+
+/**
+ * An invoice whose items carry the plan rows the coverage functions read.
+ *
+ * Invoice items hold no plan rows of their own, so an invoice loaded straight from the database
+ * has to pass through here before any coverage total means anything — skip it and every plan reads
+ * as covering nothing, which silently caps payments at zero rather than failing.
+ */
+export const withInsurancePlanItems = (invoice: Invoice): Invoice => ({
+  ...invoice,
+  items: (invoice.items || []).map(item => ({
+    ...item,
+    insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoice.insurancePlans),
+  })),
+});
 
 /**
  * The coverage each of the invoice's insurance plans provides, keyed by plan id: the sum of its

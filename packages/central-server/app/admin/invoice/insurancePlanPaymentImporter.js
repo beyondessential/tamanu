@@ -4,13 +4,13 @@ import { chain } from 'lodash-es';
 import { z } from 'zod';
 import { customAlphabet } from 'nanoid';
 import {
-  getInsurancePlanItemsForInvoiceItem,
   getInsurancePlanPaymentBalance,
   getInvoiceInsurancePlanPaymentStatus,
   getInvoiceSummary,
   round,
+  withInsurancePlanItems,
 } from '@tamanu/utils/invoice';
-import { INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES, INVOICE_STATUSES } from '@tamanu/constants';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { ValidationError } from '../errors';
 import Decimal from 'decimal.js';
@@ -36,12 +36,6 @@ const receiptNumberGenerator = customAlphabet('123456789ABCDEFGHJKLMNPQRSTWUVXYZ
 // back a day on any server east of UTC.
 const toSheetDateString = value =>
   value instanceof Date && !Number.isNaN(value.getTime()) ? toDateString(value) : value;
-
-const getPaymentStatus = (amount, planCoverageTotal) => {
-  if (amount === 0) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED;
-  if (amount === round(planCoverageTotal, 2)) return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PAID;
-  return INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.PARTIAL;
-};
 
 const insurancePlanPaymentImportSchema = z
   .object({
@@ -135,15 +129,7 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
-    // Invoice items carry no insurance plan rows of their own, so the coverage the invoice screen
-    // shows has to be built before any of it can be totalled.
-    const pricedInvoice = {
-      ...invoice.get({ plain: true }),
-      items: (invoice.items ?? []).map(item => ({
-        ...item.get({ plain: true }),
-        insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoice.insurancePlans),
-      })),
-    };
+    const pricedInvoice = withInsurancePlanItems(invoice.get({ plain: true }));
 
     const {
       insuranceCoverageTotal: allPlansCoverageTotal,
@@ -195,56 +181,56 @@ export async function insurancePlanPaymentImporter({
     try {
       if (existingPayment) checkPermission('write', 'InvoicePayment');
 
-      await models.Invoice.sequelize.transaction(async () => {
-        if (existingPayment) {
-          await models.InvoicePayment.update(
-            {
-              date: data.date,
-              amount: data.amount,
-            },
-            { where: { id: existingPayment.invoicePaymentId } },
-          );
+      // No transaction here: importerTransaction already runs the whole file as one, so a
+      // failed row rolls back every row, not just its own.
+      if (existingPayment) {
+        await models.InvoicePayment.update(
+          {
+            date: data.date,
+            amount: data.amount,
+          },
+          { where: { id: existingPayment.invoicePaymentId } },
+        );
 
-          await models.InvoiceInsurancePlanPayment.update(
-            {
-              invoiceInsurancePlanId: data.invoiceInsurancePlanId,
-              reason: data.reason,
-              status: getPaymentStatus(data.amount, planCoverageTotal),
-            },
-            { where: { id: existingPayment.id } },
-          );
-        } else {
-          const payment = await models.InvoicePayment.create(
-            {
-              invoiceId: invoice.id,
-              date: data.date,
-              receiptNumber: data.receiptNumber,
-              amount: data.amount,
-            },
-            { returning: true },
-          );
-          await models.InvoiceInsurancePlanPayment.create({
-            id: data.id,
-            invoicePaymentId: payment.id,
+        await models.InvoiceInsurancePlanPayment.update(
+          {
             invoiceInsurancePlanId: data.invoiceInsurancePlanId,
             reason: data.reason,
-            status: getPaymentStatus(data.amount, planCoverageTotal),
-          });
-        }
-
-        await models.Invoice.update(
-          {
-            insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
-              new Decimal(allPlanPaymentsTotal)
-                .minus(existingPayment?.detail.amount ?? 0)
-                .add(data.amount)
-                .toNumber(),
-              allPlansCoverageTotal,
-            ),
+            status: getInvoiceInsurancePlanPaymentStatus(data.amount, planCoverageTotal),
           },
-          { where: { id: invoice.id } },
+          { where: { id: existingPayment.id } },
         );
-      });
+      } else {
+        const payment = await models.InvoicePayment.create(
+          {
+            invoiceId: invoice.id,
+            date: data.date,
+            receiptNumber: data.receiptNumber,
+            amount: data.amount,
+          },
+          { returning: true },
+        );
+        await models.InvoiceInsurancePlanPayment.create({
+          id: data.id,
+          invoicePaymentId: payment.id,
+          invoiceInsurancePlanId: data.invoiceInsurancePlanId,
+          reason: data.reason,
+          status: getInvoiceInsurancePlanPaymentStatus(data.amount, planCoverageTotal),
+        });
+      }
+
+      await models.Invoice.update(
+        {
+          insurancePlanPaymentStatus: getInvoiceInsurancePlanPaymentStatus(
+            new Decimal(allPlanPaymentsTotal)
+              .minus(existingPayment?.detail.amount ?? 0)
+              .add(data.amount)
+              .toNumber(),
+            allPlansCoverageTotal,
+          ),
+        },
+        { where: { id: invoice.id } },
+      );
 
       updateStat(
         subStat,

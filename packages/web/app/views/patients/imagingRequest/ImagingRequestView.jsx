@@ -135,7 +135,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
                 .map(area =>
                   getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
                 )
-                .join(', ')
+                .join('\n')
             : imagingRequest.areaNote
         }
         label={<TranslatedText stringId="imaging.areas.label" fallback="Areas to be imaged" />}
