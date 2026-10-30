@@ -1,0 +1,115 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 200.1,
+    "invoiceItemsTotal": 200.1,
+    "insuranceCoverageTotal": 160.1,
+    "patientTotal": 40,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 40,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 40,
+    "insurancePlanPaymentRemainingBalance": 160.1
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "200.10",
+    "invoiceItemsTotal": "200.10",
+    "insuranceCoverageTotal": "160.10",
+    "patientTotal": "40.00",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "40.00",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "40.00",
+    "insurancePlanPaymentRemainingBalance": "160.10"
+  },
+  "insuranceCoverageTotal": "160.1",
+  "coverageByPlan": [
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-110.05"
+    },
+    {
+      "id": "plan-b",
+      "name": "Plan B",
+      "code": "PB",
+      "totalCoverage": "-50.05"
+    }
+  ],
+  "items": [
+    {
+      "id": "overlap",
+      "totalPrice": 100,
+      "discountedPrice": 100,
+      "adjustment": 0,
+      "coverage": 100,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 60
+        },
+        {
+          "id": "plan-b",
+          "percentage": 60,
+          "coverage": 60
+        }
+      ],
+      "netCost": 0,
+      "formattedCoverage": "-100.00",
+      "formattedNetCost": "0.00"
+    },
+    {
+      "id": "overlap-cheap",
+      "totalPrice": 0.1,
+      "discountedPrice": 0.1,
+      "adjustment": 0,
+      "coverage": 0.1,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 0.06
+        },
+        {
+          "id": "plan-b",
+          "percentage": 60,
+          "coverage": 0.06
+        }
+      ],
+      "netCost": 0,
+      "formattedCoverage": "-0.10",
+      "formattedNetCost": "0.00"
+    },
+    {
+      "id": "one-plan",
+      "totalPrice": 100,
+      "discountedPrice": 100,
+      "adjustment": 0,
+      "coverage": 60,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 60
+        },
+        {
+          "id": "plan-b",
+          "percentage": 0,
+          "coverage": 0
+        }
+      ],
+      "netCost": 40,
+      "formattedCoverage": "-60.00",
+      "formattedNetCost": "40.00"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}

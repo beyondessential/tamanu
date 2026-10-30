@@ -34,11 +34,9 @@ const refundPatientPaymentSchema = z
   .strip();
 
 async function getInvoiceWithDetails(req, encounterId) {
-  const invoicePriceListId =
-    await req.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
   return await req.models.Invoice.findOne({
     where: { encounterId },
-    include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
+    include: await req.models.Invoice.getPricingAssociations(encounterId),
   });
 }
 

@@ -1,0 +1,77 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 256.5,
+    "invoiceItemsTotal": 256.5,
+    "insuranceCoverageTotal": 153.9,
+    "patientTotal": 102.6,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 102.6,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 102.6,
+    "insurancePlanPaymentRemainingBalance": 153.9
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "256.50",
+    "invoiceItemsTotal": "256.50",
+    "insuranceCoverageTotal": "153.90",
+    "patientTotal": "102.60",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "102.60",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "102.60",
+    "insurancePlanPaymentRemainingBalance": "153.90"
+  },
+  "insuranceCoverageTotal": "153.9",
+  "coverageByPlan": [
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-153.90"
+    }
+  ],
+  "items": [
+    {
+      "id": "bed-ward-a",
+      "totalPrice": 256.5,
+      "discountedPrice": 256.5,
+      "adjustment": 0,
+      "coverage": 153.9,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 153.9
+        }
+      ],
+      "netCost": 102.6,
+      "formattedCoverage": "-153.90",
+      "formattedNetCost": "102.60"
+    },
+    {
+      "id": "bed-ward-b-departed",
+      "totalPrice": 0,
+      "discountedPrice": 0,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 0
+        }
+      ],
+      "netCost": 0,
+      "formattedCoverage": "-0.00",
+      "formattedNetCost": "0.00"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}
