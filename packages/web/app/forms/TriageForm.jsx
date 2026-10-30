@@ -14,6 +14,7 @@ import {
   LocationAvailabilityWarningMessage,
   RadioField,
   SuggesterSelectField,
+  useLocalisedSchema,
 } from '../components/Field';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
@@ -70,6 +71,7 @@ export const TriageForm = ({
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime } = useDateTime();
+  const { getLocalisedSchema } = useLocalisedSchema();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -301,6 +303,7 @@ export const TriageForm = ({
             data-testid="translatedtext-77o5"
           />,
         ),
+        patientBillingTypeId: getLocalisedSchema({ name: 'patientBillingTypeId' }).nullable(),
         score: yup
           .string()
           .required()

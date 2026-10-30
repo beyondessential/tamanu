@@ -19,7 +19,6 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { PATIENT_PATHS } from '../constants/patientPaths';
-import { useAuth } from '../contexts/Auth';
 import { PatientSearchParametersProvider } from '../contexts/PatientViewSearchParameters';
 import { PatientProvider } from '../contexts/Patient';
 import { EncounterProvider, useEncounter } from '../contexts/Encounter';
@@ -37,8 +36,6 @@ import {
 export const usePatientRoutes = () => {
   // prefetch userPreferences
   useUserPreferencesQuery();
-  const { ability } = useAuth();
-  const canAccessMar = ability.can('list', 'MedicationAdministration');
 
   return [
     {
@@ -98,27 +95,20 @@ export const usePatientRoutes = () => {
         />,
       ],
     },
-    ...(canAccessMar
-      ? [
-          {
-            path: 'encounter/:encounterId/mar/view/:date?',
-            component: MarView,
-            breadcrumbs: [
-              <EncounterBreadcrumb key="encounter" />,
-              <MedicationBreadcrumb key="medication" />,
-              <Breadcrumb
-                key="marview"
-                title={
-                  <TranslatedText
-                    stringId="encounter.mar.title"
-                    fallback="Medication admin record"
-                  />
-                }
-              />,
-            ],
-          },
-        ]
-      : []),
+    {
+      path: 'encounter/:encounterId/mar/view/:date?',
+      component: MarView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <MedicationBreadcrumb key="medication" />,
+        <Breadcrumb
+          key="marview"
+          title={
+            <TranslatedText stringId="encounter.mar.title" fallback="Medication admin record" />
+          }
+        />,
+      ],
+    },
     {
       path: 'encounter/:encounterId/programs/new',
       component: ProgramsView,
