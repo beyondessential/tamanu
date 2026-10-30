@@ -11,7 +11,10 @@ single language. Contact your system administrator if you believe you should be 
 
 1. Select **Language** at the bottom right of the **Log in** screen.
 
-   **[Screenshot: the Log in screen with the Language selector open, with the selector outlined in red]**
+   <p align="center">
+     <img src="images/change-language-log-in-selector.png" alt="The bottom of the Log in screen with the language selector open, showing English and Français, with the selector outlined in red" width="367"><br>
+     <sub>Select the language selector at the bottom right of the <b>Log in</b> screen.</sub>
+   </p>
 
 2. Choose your language.
 
@@ -29,7 +32,10 @@ single language. Contact your system administrator if you believe you should be 
 
    The **Change language** window opens.
 
-   **[Screenshot: the Change language window]**
+   <p align="center">
+     <img src="images/change-language-window.png" alt="The Change language window, with English selected in Language" width="277"><br>
+     <sub>The <b>Change language</b> window.</sub>
+   </p>
 
 4. Choose your language from **Language**.
 
