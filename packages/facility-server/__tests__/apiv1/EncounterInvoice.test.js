@@ -107,6 +107,114 @@ describe('Encounter invoice', () => {
       });
     });
 
+    it('builds each insurable item\'s plan rows, falling back to the plan default', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const invoice = await models.Invoice.create({
+        encounterId: encounter.id,
+        displayId: 'INV-PLAN-ITEMS',
+        date: new Date(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+      });
+      const plan = await models.InvoiceInsurancePlan.create(
+        fake(models.InvoiceInsurancePlan, { name: 'Plan with default', defaultCoverage: 80 }),
+      );
+      await models.InvoicesInvoiceInsurancePlan.create({
+        invoiceId: invoice.id,
+        invoiceInsurancePlanId: plan.id,
+      });
+
+      const addItem = async ({ insurable, coverageValue }) => {
+        const product = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, { insurable }),
+        );
+        if (coverageValue !== undefined) {
+          await models.InvoiceInsurancePlanItem.create({
+            invoiceInsurancePlanId: plan.id,
+            invoiceProductId: product.id,
+            coverageValue,
+          });
+        }
+        return models.InvoiceItem.create({
+          ...fake(models.InvoiceItem),
+          invoiceId: invoice.id,
+          productId: product.id,
+          orderedByUserId: user.id,
+          quantity: 1,
+        });
+      };
+
+      const overridden = await addItem({ insurable: true, coverageValue: 50 });
+      const defaulted = await addItem({ insurable: true });
+      const uninsurable = await addItem({ insurable: false });
+
+      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+      expect(result).toHaveSucceeded();
+
+      const itemsById = Object.fromEntries(result.body.items.map(item => [item.id, item]));
+      const planCoverage = item =>
+        itemsById[item.id].insurancePlanItems.map(({ id, coverageValue }) => ({
+          id,
+          // coverageValue is a decimal column, so it arrives as a string
+          coverageValue: Number(coverageValue),
+        }));
+
+      expect(planCoverage(overridden)).toEqual([{ id: plan.id, coverageValue: 50 }]);
+      // no plan item for this product, so the plan's own default applies
+      expect(planCoverage(defaulted)).toEqual([{ id: plan.id, coverageValue: 80 }]);
+      // an uninsurable product is covered by nothing, and carries no plan rows at all
+      expect(itemsById[uninsurable.id].insurancePlanItems).toBeUndefined();
+    });
+
+    it('returns insurance plan payments with the paying plan attached', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const invoice = await models.Invoice.create({
+        encounterId: encounter.id,
+        displayId: 'INV-PLAN-PAYMENT',
+        date: new Date(),
+        status: INVOICE_STATUSES.FINALISED,
+      });
+      const plan = await models.InvoiceInsurancePlan.create(
+        fake(models.InvoiceInsurancePlan, { name: 'Paying plan', defaultCoverage: 80 }),
+      );
+      await models.InvoicesInvoiceInsurancePlan.create({
+        invoiceId: invoice.id,
+        invoiceInsurancePlanId: plan.id,
+      });
+      const payment = await models.InvoicePayment.create({
+        invoiceId: invoice.id,
+        date: '2024-01-15',
+        receiptNumber: 'RECEIPT1',
+        amount: 40,
+        updatedByUserId: user.id,
+      });
+      await models.InvoiceInsurancePlanPayment.create({
+        invoicePaymentId: payment.id,
+        invoiceInsurancePlanId: plan.id,
+        status: 'partial',
+      });
+
+      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+      expect(result).toHaveSucceeded();
+
+      // the payments table and the printout both read the payer name off this shape
+      expect(result.body.payments).toMatchObject([
+        {
+          receiptNumber: 'RECEIPT1',
+          insurancePlanPayment: {
+            invoiceInsurancePlanId: plan.id,
+            status: 'partial',
+            insurancePlan: { id: plan.id, name: 'Paying plan' },
+          },
+        },
+      ]);
+    });
+
     it('should return a parseable JSON null when the encounter has no invoice', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
