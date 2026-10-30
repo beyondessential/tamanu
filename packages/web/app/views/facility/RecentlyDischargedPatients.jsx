@@ -11,7 +11,6 @@ import {
   TranslatedEnum,
   TranslatedText,
 } from '../../components';
-import { LocationGroupCell } from '../../components/LocationCell';
 import { Colors } from '../../constants';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -22,6 +21,7 @@ import {
   displayId,
   firstName,
   lastName,
+  locationGroup,
   sex,
 } from '../patients/columns';
 
@@ -59,17 +59,7 @@ const COLUMNS = [
       />
     ),
   },
-  {
-    key: 'locationGroupName',
-    title: (
-      <TranslatedText
-        stringId="general.area.label"
-        fallback="Area"
-        data-testid="translatedtext-rdp-col-area"
-      />
-    ),
-    accessor: LocationGroupCell,
-  },
+  locationGroup,
   department,
   {
     ...clinician,

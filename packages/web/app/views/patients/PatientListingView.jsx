@@ -1,7 +1,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import React, { useCallback, useState } from 'react';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { LocationCell, LocationGroupCell } from '../../components/LocationCell';
+import { LocationCell } from '../../components/LocationCell';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
   AllPatientsSearchBar,
@@ -25,6 +25,7 @@ import {
   inpatientSex,
   firstName,
   lastName,
+  locationGroup,
   markedForSync,
   sex,
   status,
@@ -58,18 +59,6 @@ const location = {
     />
   ),
   accessor: LocationCell,
-};
-
-const locationGroup = {
-  key: 'locationGroupName',
-  title: (
-    <TranslatedText
-      stringId="general.area.label"
-      fallback="Area"
-      data-testid="translatedtext-28c6"
-    />
-  ),
-  accessor: LocationGroupCell,
 };
 
 const OUTPATIENT_COLUMNS = [
