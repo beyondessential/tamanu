@@ -12,7 +12,7 @@ single language. Contact your system administrator if you believe you should be 
 1. Select **Language** at the bottom right of the **Log in** screen.
 
    <p align="center">
-     <img src="images/change-language-log-in-selector.png" alt="The Log in screen with the language selector open at the bottom right, showing English and Français, with the selector outlined in red" width="720"><br>
+     <img src="images/change-language-log-in-selector.png" alt="The Log in screen with the language selector open at the bottom right, showing English and Français, with the selector outlined in red" width="448"><br>
      <sub>Select the language selector at the bottom right of the <b>Log in</b> screen.</sub>
    </p>
 
