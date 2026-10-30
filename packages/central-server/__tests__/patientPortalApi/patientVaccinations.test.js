@@ -1,6 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { format, parseISO, subDays } from 'date-fns';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
+import { getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
 
@@ -234,6 +236,48 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       expect(data.length).toBe(0);
     });
 
+    it('Should count days till due from the primary timezone date', async () => {
+      // Pick a zone whose date differs from the UTC date right now
+      const primaryTimeZone =
+        new Date().getUTCHours() >= 10 ? 'Pacific/Kiritimati' : 'Pacific/Pago_Pago';
+      vi.stubEnv('TZ', primaryTimeZone);
+      try {
+        const today = getCurrentDateStringInTimezone(primaryTimeZone);
+        expect(today).not.toBe(getCurrentDateStringInTimezone('UTC'));
+
+        const { Patient, PortalUser, ReferenceData, ScheduledVaccine } = store.models;
+        const patient = await Patient.create(
+          fake(Patient, { dateOfBirth: format(subDays(parseISO(today), 7), 'yyyy-MM-dd') }),
+        );
+        await PortalUser.create({
+          email: 'timezone@test.com',
+          patientId: patient.id,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+        const vaccine = await ReferenceData.create(fake(ReferenceData, { type: 'drug' }));
+        const scheduledVaccine = await ScheduledVaccine.create(
+          fake(ScheduledVaccine, {
+            vaccineId: vaccine.id,
+            weeksFromBirthDue: 1,
+            weeksFromLastVaccinationDue: null,
+          }),
+        );
+        const token = await getPatientAuthToken(baseApp, store.models, 'timezone@test.com');
+
+        const response = await baseApp
+          .get('/api/portal/me/vaccinations/upcoming')
+          .set('Authorization', `Bearer ${token}`);
+
+        expect(response).toHaveSucceeded();
+        const vaccination = response.body.data.find(
+          ({ scheduledVaccine: { id } }) => id === scheduledVaccine.id,
+        );
+        expect(vaccination).toMatchObject({ dueDate: today, daysTillDue: 0 });
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
     it('Should reject request without authorization header', async () => {
       const response = await baseApp.get('/api/portal/me/vaccinations/upcoming');
       expect(response).toHaveRequestError();
@@ -447,7 +491,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       const response = await baseApp
         .get('/api/portal/me/vaccinations/administered')
         .set('Authorization', `Bearer ${newAuthToken}`);
-      
+
       expect(response).toHaveSucceeded();
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
