@@ -80,6 +80,8 @@ export async function insurancePlanPaymentImporter({
       continue;
     }
 
+    // Loaded without the encounter's price list: only finalised invoices are accepted below, and
+    // their items are priced from the snapshot taken at finalisation, not the price list
     const matchingInvoices = await models.Invoice.findAll({
       where: { displayId: data.invoiceNumber },
       include: models.Invoice.getFullReferenceAssociations(),
