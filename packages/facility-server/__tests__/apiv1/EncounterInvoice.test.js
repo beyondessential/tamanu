@@ -602,6 +602,85 @@ describe('Encounter invoice', () => {
         });
       });
 
+      it('should remove only the automatically added item from the invoice when a procedure is deleted', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        const invoice = await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        const manualItem = await models.InvoiceItem.create(
+          fake(models.InvoiceItem, {
+            invoiceId: invoice.id,
+            productId: procedureProduct1.id,
+            orderedByUserId: user.id,
+            orderDate: getCurrentDateTimeString(),
+            quantity: 1,
+          }),
+        );
+
+        const { body: procedure } = await app.post(`/api/procedure`).send({
+          encounterId: encounter.id,
+          procedureTypeId: procedureType1.id,
+          date: new Date(),
+          physicianId: user.id,
+        });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toHaveLength(2);
+
+        const deleteResult = await app.delete(`/api/procedure/${procedure.id}`);
+        expect(deleteResult).toHaveSucceeded();
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body.items).toHaveLength(1);
+        expect(result2.body.items[0]).toMatchObject({ id: manualItem.id, sourceRecordId: null });
+      });
+
+      it.each([INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED])(
+        'should leave a %s invoice unchanged when a procedure is deleted',
+        async invoiceStatus => {
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            locationId: location.id,
+            patientId: patient.id,
+          });
+          const invoice = await models.Invoice.create({
+            encounterId: encounter.id,
+            displayId: 'INV-123',
+            date: new Date(),
+            status: INVOICE_STATUSES.IN_PROGRESS,
+          });
+
+          const { body: procedure } = await app.post(`/api/procedure`).send({
+            encounterId: encounter.id,
+            procedureTypeId: procedureType1.id,
+            date: new Date(),
+            physicianId: user.id,
+          });
+          await invoice.update({ status: invoiceStatus });
+
+          const deleteResult = await app.delete(`/api/procedure/${procedure.id}`);
+          expect(deleteResult).toHaveSucceeded();
+
+          const invoiceItems = await models.InvoiceItem.findAll({
+            where: { invoiceId: invoice.id },
+          });
+          expect(invoiceItems).toHaveLength(1);
+          expect(invoiceItems[0]).toMatchObject({
+            sourceRecordId: procedure.id,
+            sourceRecordType: 'Procedure',
+          });
+        },
+      );
+
       it('does not overwrite a manually-edited invoice line when an unrelated procedure field changes', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
