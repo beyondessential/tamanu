@@ -133,6 +133,15 @@ describe('Patient payments on an insured invoice', () => {
     });
   });
 
+  it('refuses a payment once earlier payments cover more than is now owed', async () => {
+    const { invoice } = await createInsuredInvoice();
+    await recordLegacyPayment(invoice.id, 60);
+
+    const result = await payFromPatient(invoice.id, 0);
+
+    expect(result).toBeForbidden();
+  });
+
   describe('updating a payment', () => {
     it('refuses an update above the amount owed after insurance', async () => {
       const { invoice } = await createInsuredInvoice();
