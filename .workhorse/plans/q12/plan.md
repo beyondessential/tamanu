@@ -26,16 +26,16 @@ A single image can't show both the expand arrow and the three dots, so the secti
 
 ## Display size
 
-At the format's standard width (0.31 times pixel width) the full-height collapsed sidebar comes out
-very narrow and tall, and the arrow may be hard to see. Check it in a rendered preview, and if it's too
-small, show it larger as was done for the log out shot in guide 1.1.
+At the format's standard width (0.31 times pixel width) the expand arrow was tiny and the menu text
+unreadable in a GitHub-rendered preview, so both images are shown at on-screen size (half their pixel
+width), as the log out shot in guide 1.1 is.
 
 ## Steps
 
-- [ ] Log in to the demo site and collapse the sidebar
-- [ ] Capture the collapsed sidebar shot at twice screen resolution, crop, border and outline it
-- [ ] Expand the sidebar, open the three-dot menu, and capture the footer shot the same way
-- [ ] Show both shots with their proposed outlines for approval
-- [ ] Add the approved images to `images/` and the image blocks under steps 1 and 2, with alt text and
+- [x] Log in to the demo site and collapse the sidebar
+- [x] Capture the collapsed sidebar shot at twice screen resolution, crop, border and outline it
+- [x] Expand the sidebar, open the three-dot menu, and capture the footer shot the same way
+- [x] Show both shots with their proposed outlines for approval
+- [x] Add the approved images to `images/` and the image blocks under steps 1 and 2, with alt text and
       captions
-- [ ] Check the guide renders and its image paths resolve
+- [x] Check the guide renders and its image paths resolve
