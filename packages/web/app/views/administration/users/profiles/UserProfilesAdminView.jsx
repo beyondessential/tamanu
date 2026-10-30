@@ -165,7 +165,7 @@ const COLUMNS = [
   },
   {
     key: 'allowedFacilities',
-    title: <TranslatedText stringId="admin.users.facility.column" fallback="Facility" />,
+    title: <TranslatedText stringId="general.facility.label" fallback="Facility" />,
     sortable: false,
     accessor: AllowedFacilitiesDisplay,
     CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,

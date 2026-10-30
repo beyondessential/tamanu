@@ -20,56 +20,76 @@ import {
 } from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
 export const usersRouter = express.Router();
 
-// The users who can log in to a facility, by the rules User.allowedFacilities() applies at login.
-// Null when every user can. Roles are checked with the same hasPermission() call login makes, so
-// built-in permissions and a login permission scoped to one facility count as they do there.
+// The roles users hold that carry the facility login permission, judged by the same ability check
+// User.hasPermission() makes at login, so built-in permissions and a login permission scoped to
+// one facility count as they do there. Every role's permissions are read in one query.
+const getRolesWithFacilityLoginPermission = async models => {
+  const heldRoleRows = await models.User.findAll({
+    attributes: ['role'],
+    group: ['role'],
+    raw: true,
+  });
+  const heldRoles = heldRoleRows.map(({ role }) => role);
+  const permissionsByRole = await getPermissionsForEachRole(models, heldRoles);
+  return heldRoles.filter(role => {
+    const permissions = permissionsByRole.get(role);
+    // A role the built-in permissions do not define has no permissions at login
+    if (!permissions) return false;
+    try {
+      return buildAbilityForUser({ role }, permissions).can('login', 'Facility');
+    } catch {
+      // A role mixing FHIR and regular permissions has no ability at login either
+      return false;
+    }
+  });
+};
+
+// The users who can log in to a facility. These are the rules of User.allowedFacilities(), restated
+// in SQL so the list can count and page them, so a change to either must be made to both. Null
+// when every user can.
 // spec: USRPRF#facility-filter
 const buildFacilityAccessFilter = async (facilityId, models) => {
-  const { Facility, Setting, User } = models;
+  const { Facility, Setting, UserFacility } = models;
 
-  const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
-  const sensitiveFacilityCount = await Facility.count({
-    where: { sensitiveNetworkId: { [Op.ne]: null } },
-  });
+  if (typeof facilityId !== 'string') {
+    throw new ValidationError('facilityId must be a single facility id');
+  }
+
+  // Null for a deleted or unknown facility
   const facility = await Facility.findByPk(facilityId, {
     attributes: ['id', 'sensitiveNetworkId'],
   });
-  // With no sensitive facilities, access to all non-sensitive facilities is access to every facility
-  const isReachedByNonSensitiveAccess =
-    sensitiveFacilityCount === 0 || facility?.sensitiveNetworkId === null;
+  // Access to all non-sensitive facilities reaches every facility outside a sensitive network, and
+  // reaches any facility at all when none is sensitive
+  const isReachedByNonSensitiveAccess = facility
+    ? facility.sensitiveNetworkId === null
+    : (await Facility.count({ where: { sensitiveNetworkId: { [Op.ne]: null } } })) === 0;
 
-  if (isReachedByNonSensitiveAccess && !restrictUsersToFacilities) return null;
+  if (isReachedByNonSensitiveAccess) {
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+    if (!restrictUsersToFacilities) return null;
+  }
 
+  // A link to a deleted facility grants nothing, as allowedFacilities() reads live facilities only
+  const linkedUserIds = facility
+    ? (await UserFacility.findAll({ where: { facilityId }, attributes: ['userId'], raw: true })).map(
+        ({ userId }) => userId,
+      )
+    : [];
   const conditions = [
     // Superusers; the system user is never listed
     { role: 'admin' },
-    {
-      id: {
-        [Op.in]: User.sequelize.literal(`(
-          SELECT user_facilities.user_id
-          FROM user_facilities
-          JOIN facilities ON facilities.id = user_facilities.facility_id
-          WHERE user_facilities.facility_id = ${User.sequelize.escape(facilityId)}
-          AND user_facilities.deleted_at IS NULL
-          AND facilities.deleted_at IS NULL
-        )`),
-      },
-    },
+    { id: { [Op.in]: linkedUserIds } },
   ];
   if (isReachedByNonSensitiveAccess) {
-    const heldRoles = await User.findAll({ attributes: ['role'], group: ['role'], raw: true });
-    const rolesWithLoginPermission = [];
-    for (const { role } of heldRoles) {
-      if (await User.build({ role }).hasPermission('login', 'Facility')) {
-        rolesWithLoginPermission.push(role);
-      }
-    }
-    conditions.push({ role: { [Op.in]: rolesWithLoginPermission } });
+    conditions.push({ role: { [Op.in]: await getRolesWithFacilityLoginPermission(models) } });
   }
   return { [Op.or]: conditions };
 };

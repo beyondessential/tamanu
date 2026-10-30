@@ -53,7 +53,7 @@ export const UserSearchBar = React.memo(({ onSearch, searchParameters }) => {
             name="facilityId"
             label={
               <TranslatedText
-                stringId="admin.users.facility.search.label"
+                stringId="general.facility.label"
                 fallback="Facility"
                 data-testid="translatedtext-facility-search"
               />

@@ -22,6 +22,7 @@ describe('User profiles facility access', () => {
   let roleWithoutLogin;
   let plainFacility;
   let otherPlainFacility;
+  let deletedFacility;
   let sensitiveFacility;
   const users = {};
 
@@ -102,12 +103,19 @@ describe('User profiles facility access', () => {
     users.linkedToPlain = await createUser(roleWithoutLogin.id, [plainFacility]);
     users.withLogin = await createUser(roleWithLogin.id);
     users.withScopedLogin = await createUser(roleWithScopedLogin.id);
+    // A role the built-in permissions define, so those runs resolve a real role rather than failing
+    users.withBuiltInRole = await createUser('practitioner');
     users.withoutAccess = await createUser(roleWithoutLogin.id);
     users.deactivated = await createUser(roleWithoutLogin.id, [otherPlainFacility], {
       visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
     });
     users.withRemovedLink = await createUser(roleWithoutLogin.id, [otherPlainFacility]);
+    // A link to a facility that is later deleted grants nothing
+    deletedFacility = await Facility.create(fake(Facility));
+    users.linkedToDeleted = await createUser(roleWithoutLogin.id, [deletedFacility]);
+
     await models.UserFacility.destroy({ where: { userId: users.withRemovedLink.id } });
+    await deletedFacility.destroy();
   });
 
   afterAll(async () => {
@@ -119,7 +127,7 @@ describe('User profiles facility access', () => {
   describe('with no sensitive facilities', () => {
     it.each(ACCESS_SETTINGS)('filters by facility exactly as login allows (%o)', async settings => {
       await applyAccessSettings(settings);
-      await expectFilterToMatchLogin([plainFacility, otherPlainFacility]);
+      await expectFilterToMatchLogin([plainFacility, otherPlainFacility, deletedFacility]);
     });
 
     // spec: USRPRF#facility-column
@@ -143,6 +151,13 @@ describe('User profiles facility access', () => {
         .map(({ id }) => id)
         .sort();
       expect(await listedTestUserIds({ facilityId: plainFacility.id })).toEqual(allTestUserIds);
+    });
+
+    it('rejects more than one facility', async () => {
+      const response = await adminApp
+        .get('/api/admin/users')
+        .query({ facilityId: [plainFacility.id, otherPlainFacility.id] });
+      expect(response).toHaveRequestError();
     });
 
     it('counts and pages the filtered users', async () => {
@@ -183,7 +198,12 @@ describe('User profiles facility access', () => {
 
     it.each(ACCESS_SETTINGS)('filters by facility exactly as login allows (%o)', async settings => {
       await applyAccessSettings(settings);
-      await expectFilterToMatchLogin([plainFacility, otherPlainFacility, sensitiveFacility]);
+      await expectFilterToMatchLogin([
+        plainFacility,
+        otherPlainFacility,
+        sensitiveFacility,
+        deletedFacility,
+      ]);
     });
 
     it('reaches a sensitive facility only through superusers and links', async () => {

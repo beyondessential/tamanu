@@ -69,6 +69,26 @@ export async function getPermissionsForRoles(models, roleString) {
   return permissions;
 }
 
+// Each role's permissions as getPermissionsForRoles() resolves them, read in a single query however
+// many roles there are. A role the built-in permissions do not define maps to null, where
+// getPermissionsForRoles() throws.
+export async function getPermissionsForEachRole(models, roleStrings) {
+  if (await shouldUseHardcodedPermissions(models)) {
+    return new Map(roleStrings.map(roleString => [roleString, roles[roleString] ?? null]));
+  }
+
+  const permissions = await models.Permission.findAll({
+    where: { roleId: roleStrings.flatMap(commaSplit) },
+  });
+  return new Map(
+    roleStrings.map(roleString => {
+      const roleIds = commaSplit(roleString);
+      const rolePermissions = permissions.filter(({ roleId }) => roleIds.includes(roleId));
+      return [roleString, rolePermissions.map(permission => permission.forResponse())];
+    }),
+  );
+}
+
 export async function getAbilityForUser(models, user, { impersonateRoleId } = {}) {
   if (!user) {
     return buildAbility([]);
