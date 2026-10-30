@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
 import { SETTING_KEYS } from '~/constants/settings';
-import { clearUpdateState, readPendingUpdate } from '~/services/update/pendingUpdate';
+import { clearUpdateState, isUpdatePending } from '~/services/update/pendingUpdate';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
 import { SYNC_DIRECTIONS } from '../../models/types';
@@ -197,8 +197,10 @@ export class MobileSyncManager {
     }
 
     // An app the server has turned away for its version stays turned away until its update is
-    // installed, so syncing is paused rather than retried into the same rejection.
-    if (await readPendingUpdate()) {
+    // installed, so syncing is paused rather than retried into the same rejection. Checked
+    // without awaiting: runSync claims isSyncing synchronously, and anything awaited between
+    // the guard above and that claim would let two syncs through at once.
+    if (isUpdatePending()) {
       return;
     }
 

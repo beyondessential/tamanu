@@ -10,6 +10,18 @@ import { readConfig, writeConfig } from '~/services/config';
 export const pendingUpdateEmitter = mitt();
 
 /**
+ * The outstanding update as last read or written, so callers that cannot await can still see it.
+ * Sync is one: its guard against two syncs at once holds only while nothing awaits between the
+ * check and the run, so pausing has to be answerable without going to storage.
+ */
+let cachedUpdateUrl: string | null = null;
+
+/** Whether an update is outstanding, as far as this process currently knows. */
+export function isUpdatePending(): boolean {
+  return Boolean(cachedUpdateUrl);
+}
+
+/**
  * An outstanding update is remembered on the device rather than held in memory, so closing the app
  * part way through an update returns to the update screen rather than to a sign-in the server will
  * reject.
@@ -19,6 +31,7 @@ const PENDING_UPDATE_RECORDED_AT_VERSION = 'pendingUpdateRecordedAtVersion';
 const INSTALL_ATTEMPTED_FROM_VERSION = 'updateInstallAttemptedFromVersion';
 
 export async function recordPendingUpdate(updateUrl: string): Promise<void> {
+  cachedUpdateUrl = updateUrl;
   await writeConfig(PENDING_UPDATE_URL, updateUrl);
   await writeConfig(PENDING_UPDATE_RECORDED_AT_VERSION, currentVersion);
   pendingUpdateEmitter.emit('recorded', updateUrl);
@@ -31,14 +44,19 @@ export async function recordPendingUpdate(updateUrl: string): Promise<void> {
  */
 export async function readPendingUpdate(): Promise<string | null> {
   const updateUrl = await readConfig(PENDING_UPDATE_URL, '');
-  if (!updateUrl) return null;
+  if (!updateUrl) {
+    cachedUpdateUrl = null;
+    return null;
+  }
 
   const recordedAtVersion = await readConfig(PENDING_UPDATE_RECORDED_AT_VERSION, '');
   if (recordedAtVersion && recordedAtVersion !== currentVersion) {
     await writeConfig(PENDING_UPDATE_URL, '');
     await writeConfig(PENDING_UPDATE_RECORDED_AT_VERSION, '');
+    cachedUpdateUrl = null;
     return null;
   }
+  cachedUpdateUrl = updateUrl;
   return updateUrl;
 }
 
@@ -65,6 +83,7 @@ export async function hasInstalledUpdateAndStillOutOfDate(): Promise<boolean> {
  * the server has accepted the version now running.
  */
 export async function clearUpdateState(): Promise<void> {
+  cachedUpdateUrl = null;
   await writeConfig(PENDING_UPDATE_URL, '');
   await writeConfig(PENDING_UPDATE_RECORDED_AT_VERSION, '');
   await writeConfig(INSTALL_ATTEMPTED_FROM_VERSION, '');

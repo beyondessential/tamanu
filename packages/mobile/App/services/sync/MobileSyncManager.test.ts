@@ -1,5 +1,6 @@
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
+import { clearUpdateState, recordPendingUpdate } from '~/services/update/pendingUpdate';
 import {
   getModelsForDirection,
   getSyncTick,
@@ -55,8 +56,11 @@ describe('MobileSyncManager', () => {
   };
   let mobileSyncManager;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mobileSyncManager = new MobileSyncManager(centralServerConnection, mockSettingsService as any);
+    // An outstanding update pauses sync, and is remembered for the whole module, so it has to be
+    // cleared between cases or one test's update silently stops the next one syncing.
+    await clearUpdateState();
     jest.clearAllMocks();
   });
 
@@ -86,6 +90,25 @@ describe('MobileSyncManager', () => {
       await expect(mobileSyncManager.runSync()).rejects.toThrow(
         'MobileSyncManager.runSync(): Tried to start syncing while sync in progress',
       );
+    });
+
+    it('should not sync while an app update is outstanding', async () => {
+      jest.spyOn(mobileSyncManager, 'runSync');
+      await recordPendingUpdate('https://meta.example.com/package');
+
+      await mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.runSync).not.toBeCalled();
+    });
+
+    it('should sync again once the update state is cleared', async () => {
+      jest.spyOn(mobileSyncManager, 'runSync');
+      await recordPendingUpdate('https://meta.example.com/package');
+      await clearUpdateState();
+
+      mobileSyncManager.triggerSync();
+
+      expect(mobileSyncManager.runSync).toBeCalledTimes(1);
     });
   });
 

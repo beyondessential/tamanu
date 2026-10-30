@@ -14,6 +14,14 @@ keyed on the update address central supplied, so closing the app mid-update resu
 losing it. It is cleared by a successful sync, which is the proof the server accepts the version
 now running.
 
+**Sync's pause check has to be synchronous.** `runSync` claims `isSyncing` synchronously, so
+`triggerSync`'s guard against two syncs at once holds only while nothing is awaited between the
+check and the run — an `await` there lets both callers through. `pendingUpdate` therefore keeps the
+outstanding update in a module-level cache that `isUpdatePending()` reads without going to storage.
+The cache starts empty, so a launch with an update already outstanding can let one sync through
+before the provider has read it; that sync is rejected, re-records the update, and everything after
+it is paused.
+
 **Download is native, not JS.** Resume across app restarts needs range requests appending to a
 part-file, which `react-native-fs` can't do. The native module uses OkHttp (already on the React
 Native classpath), writes to `files/update/tamanu.apk.part`, and emits progress events.
