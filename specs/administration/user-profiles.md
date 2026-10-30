@@ -64,9 +64,7 @@ A user's facility access is the set of facilities login allows them into. The us
 - [ ] Changes can be confirmed once something on the profile has changed
 - [ ] The uniqueness rules for email and display name apply when either is changed
 - [ ] Saving replaces the user's designations and allowed facilities with those chosen
-- [ ] When administrators change their own role to one without permission to write users, a warning explains that another authorised user will be needed to change it back, and the change is saved only if they continue
-
-  TODO: the code does not match this yet. The warning is checked on any save of your own profile that changes your role, email or display name, so it can appear with the role unchanged. It also tests for any `write` permission on `User` in the imported permissions, which ignores built-in permissions and counts a permission scoped to a single user, so it can miss a role that loses the right to edit profiles.
+- [ ] When administrators change their own role to one without permission to write all users, a warning explains that another authorised user will be needed to change it back, and the change is saved only if they continue
 - [ ] Administrators who can edit the profile can set a new password, entered twice to confirm it, under the same hash rule as a new user's. Leaving both fields empty keeps the current password
 
 ## Scheduled leave

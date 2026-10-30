@@ -21,7 +21,10 @@ import {
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
+import {
+  getAbilityForUser,
+  getPermissionsForEachRole,
+} from '@tamanu/shared/permissions/rolesToPermissions';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
@@ -387,12 +390,26 @@ const VALIDATION = yup
   })
   .noUnknown();
 
+// Whether a user holding this role may edit every user's profile, as the user profiles view decides
+// it: write on a user record that is no particular user, so a permission scoped to particular
+// users, such as the one everyone holds over their own record, does not count. A role whose
+// permissions cannot be resolved grants nothing, as at login.
+// spec: USRPRF#editing-a-profile
+const canRoleWriteAllUsers = async (models, user, role) => {
+  try {
+    const ability = await getAbilityForUser(models, { id: user.id, role });
+    return ability.can('write', subject('User', {}));
+  } catch {
+    return false;
+  }
+};
+
 usersRouter.post(
   '/validate',
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, Permission },
+        models: { User },
       },
     } = req;
 
@@ -413,18 +430,10 @@ usersRouter.post(
       },
     });
 
-    const writeUserPermission = await Permission.findOne({
-      where: {
-        roleId: fields.role,
-        noun: 'User',
-        verb: 'write',
-      },
-    });
-
     res.send({
       isEmailUnique: !existingUserWithSameEmail,
       isDisplayNameUnique: !existingUserWithSameDisplayName,
-      hasWriteUserPermission: !!writeUserPermission,
+      hasWriteUserPermission: await canRoleWriteAllUsers(req.store.models, req.user, fields.role),
     });
   }),
 );
