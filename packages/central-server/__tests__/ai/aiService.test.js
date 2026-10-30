@@ -104,12 +104,82 @@ describe('AIService.init', () => {
     expect(
       await initWith({ experimentalAi: { enabled: false }, formBuilder: { enabled: false } }),
     ).toBeNull();
-    expect(await initWith({ experimentalAi: { model: '' }, formBuilder: { model: '' } })).toBeNull();
+    expect(
+      await initWith({ experimentalAi: { model: '' }, formBuilder: { model: '' } }),
+    ).toBeNull();
   });
 
   it('is torn down without an API key', async () => {
     getSettingSecret.mockResolvedValue(undefined);
     expect(await initWith()).toBeNull();
+  });
+});
+
+describe('AIService.invokeStructured', () => {
+  const schema = z.object({ answer: z.string() });
+
+  const serviceWith = chatModel => {
+    const service = Object.create(AIService.prototype);
+    service.contexts = new Map([[AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'system prompt']]);
+    service.summaryModel = chatModel;
+    return service;
+  };
+
+  const modelReturning = toolCalls => {
+    const invoke = vi.fn().mockResolvedValue({ tool_calls: toolCalls });
+    const bindTools = vi.fn().mockReturnValue({ invoke });
+    return { model: { bindTools }, bindTools, invoke };
+  };
+
+  it('binds the tool without forcing tool_choice', async () => {
+    const { model, bindTools } = modelReturning([{ name: 'extract', args: { answer: 'yes' } }]);
+
+    await serviceWith(model).invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema);
+
+    expect(bindTools).toHaveBeenCalledTimes(1);
+    const [tools, options] = bindTools.mock.calls[0];
+    expect(tools).toHaveLength(1);
+    expect(tools[0].name).toBe('extract');
+    expect(tools[0].input_schema).toMatchObject({ type: 'object' });
+    expect(options?.tool_choice).toBeUndefined();
+  });
+
+  it('parses the tool call against the schema', async () => {
+    const { model } = modelReturning([{ name: 'summary', args: { answer: 'yes' } }]);
+
+    const result = await serviceWith(model).invokeStructured(
+      AI_CONTEXT_NAMES.PATIENT_SUMMARY,
+      'ask',
+      schema,
+      { name: 'summary' },
+    );
+
+    expect(result).toEqual({ answer: 'yes' });
+  });
+
+  it('throws when the model answers without calling the tool', async () => {
+    const { model } = modelReturning([]);
+
+    await expect(
+      serviceWith(model).invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema),
+    ).rejects.toThrow(/expected the model to call "extract"/);
+  });
+
+  it('names the tools it did get, without quoting the model text', async () => {
+    const { model } = modelReturning([{ name: 'something_else', args: {} }]);
+    model.bindTools().invoke.mockResolvedValue({
+      tool_calls: [{ name: 'something_else', args: {} }],
+      content: 'patient Jane Doe presented with',
+      response_metadata: { stop_reason: 'end_turn' },
+    });
+
+    const error = await serviceWith(model)
+      .invokeStructured(AI_CONTEXT_NAMES.PATIENT_SUMMARY, 'ask', schema)
+      .catch(caught => caught);
+
+    expect(error.message).toContain('something_else');
+    expect(error.message).toContain('end_turn');
+    expect(error.message).not.toContain('Jane Doe');
   });
 });
 
@@ -195,7 +265,7 @@ describe('AIService structured responses', () => {
     expect(await invokeTweak(service)).toEqual({ answer: 'yes' });
     const [tools, options] = model.bindTools.mock.calls[0];
     expect(tools[0].name).toBe('respond');
-    expect(options).toEqual({ tool_choice: 'auto' });
+    expect(options?.tool_choice).toBeUndefined();
   });
 
   it('asks again when the model first answers without calling the tool', async () => {
@@ -214,6 +284,6 @@ describe('AIService structured responses', () => {
   it('fails when the model still answers without calling the tool', async () => {
     const { service } = serviceWithModel({ tool_calls: [] }, { tool_calls: [] });
 
-    await expect(invokeTweak(service)).rejects.toThrow('did not call the respond tool');
+    await expect(invokeTweak(service)).rejects.toThrow(/expected the model to call "respond"/);
   });
 });

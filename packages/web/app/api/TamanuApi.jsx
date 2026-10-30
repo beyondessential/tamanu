@@ -389,6 +389,7 @@ export class TamanuApi extends ApiClient {
   }
 
   async checkServerAlive() {
-    return this.get('public/ping', null, { showUnknownErrorToast: false });
+    // spec: BTEL — ambient poll; excluded from the page-load quiet calculation.
+    return this.get('public/ping', null, { showUnknownErrorToast: false, background: true });
   }
 }

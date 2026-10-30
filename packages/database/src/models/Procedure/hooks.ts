@@ -43,6 +43,15 @@ const removeFromInvoice = async (instance: Procedure) => {
 };
 
 const updateInvoiceProductAfterUpdateHook = async (instance: Procedure) => {
+  // Re-syncing re-enters addItemToInvoice, which overwrites the whole line — productId,
+  // orderedByUserId, orderDate, quantity and note — and restores one the cashier deleted. So only
+  // re-sync when a field the line derives from actually changes; editing a note must leave it be.
+  // physicianId is deliberately excluded: it feeds orderedByUserId, which the cashier can edit
+  // directly, and propagating it would reset the rest of the line along with it.
+  if (!instance.changed('procedureTypeId') && !instance.changed('quantity')) {
+    return;
+  }
+
   const previousValues = instance.previous() as Procedure;
   const updateInvoiceItem = async () => {
     if (

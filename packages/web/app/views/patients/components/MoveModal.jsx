@@ -28,10 +28,11 @@ import {
   RadioField,
   SuggesterSelectField,
   TranslatedEnum,
+  useLocalisedSchema,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useUpdateEncounterMutation } from '../../../api/mutations/useEncounterMutation';
 import { useSettings } from '../../../contexts/Settings';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
@@ -229,6 +230,7 @@ const getFormProps = ({
   enablePatientMoveActions,
   isAdmittingToHospital,
   getCurrentDateTime,
+  getLocalisedSchema,
 }) => {
   const validationObject = {
     examinerId: yup.string().required(),
@@ -263,13 +265,16 @@ const getFormProps = ({
   if (isAdmittingToHospital) {
     validationObject.startDate = yup.string().required();
     validationObject.estimatedEndDate = yup.string().nullable();
-    validationObject.patientBillingTypeId = yup.string().nullable();
+    validationObject.patientBillingTypeId = getLocalisedSchema({
+      name: 'patientBillingTypeId',
+    }).nullable();
     validationObject.dietIds = yup
       .array()
       .of(yup.string())
       .nullable();
 
     initialValues.startDate = getCurrentDateTime();
+    initialValues.patientBillingTypeId = encounter.patientBillingTypeId;
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -367,8 +372,9 @@ const HospitalAdmissionFields = () => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
-  const { writeAndViewEncounter } = useEncounter();
+  const { mutateAsync: updateEncounter } = useUpdateEncounterMutation(encounter.id);
   const { getCurrentDateTime } = useDateTime();
+  const { getLocalisedSchema } = useLocalisedSchema();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -393,12 +399,13 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
-    await writeAndViewEncounter(encounter.id, {
-        submittedTime: getCurrentDateTime(),
+    await updateEncounter({
+      submittedTime: getCurrentDateTime(),
       ...rest,
       ...locationData,
       ...encounterTypeData,
     });
+    onClose();
   };
 
   const { initialValues, validationSchema } = getFormProps({
@@ -406,6 +413,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     enablePatientMoveActions,
     isAdmittingToHospital,
     getCurrentDateTime,
+    getLocalisedSchema,
   });
 
   return (

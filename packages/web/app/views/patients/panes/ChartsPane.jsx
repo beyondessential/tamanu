@@ -34,7 +34,7 @@ import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useChartData } from '../../../contexts/ChartData';
-import { useEncounter } from '../../../contexts/Encounter';
+import { useInvalidateEncounter } from '../../../api/queries/useEncounterQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
 import {
@@ -45,6 +45,7 @@ import {
   getTooltipMessage,
 } from '../../../utils/chart/chartUtils';
 import { TabPane } from '../components';
+import { route } from '@tamanu/api-client';
 
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
@@ -98,7 +99,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
   const { getCurrentDateTime } = useDateTime();
-  const { loadEncounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const {
     isLoading: isLoadingChartData,
     selectedChartTypeId,
@@ -246,14 +247,17 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const handleDeleteChart = useCallback(async () => {
     try {
       await api.delete(
-        `encounter/${encounter.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
+        route('encounter/:encounterId/chartInstances/:chartInstanceId', {
+          encounterId: encounter.id,
+          chartInstanceId: currentComplexChartInstance?.chartInstanceId,
+        }),
       );
 
       handleCloseModal();
       setCurrentComplexChartTab(null);
 
       reloadChartInstances();
-      await loadEncounter(encounter.id);
+      await invalidateEncounter(encounter.id);
     } catch (e) {
       toast.error(`Failed to remove chart with error: ${e.message}`);
     }
@@ -262,7 +266,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     encounter.id,
     currentComplexChartInstance?.chartInstanceId,
     reloadChartInstances,
-    loadEncounter,
+    invalidateEncounter,
   ]);
 
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;

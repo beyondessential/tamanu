@@ -1,12 +1,16 @@
 export const routes = {
   login: '/',
   dashboard: '/dashboard',
+  kiosk: '/kiosk',
   patients: {
     all: '/patients/all',
     emergency: '/patients/emergency',
     inpatients: '/patients/inpatient',
     patientDetails: '/patients/all/*',
     outpatients: '/patients/outpatient',
+  },
+  facilityAdmin: {
+    recentlyDischargedPatients: '/facility-admin/recently-discharged-patients',
   },
 };
 

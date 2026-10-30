@@ -24,6 +24,7 @@ import { useAuth } from '../../contexts/Auth';
 import { SurveyResponseChangelogModal } from '../../components/SurveyResponseChangelogModal';
 import { TranslatedReferenceData } from '../../components';
 import { ForbiddenError } from '@tamanu/errors';
+import { route } from '@tamanu/api-client';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -31,7 +32,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const surveyResponseId = params.surveyResponseId;
   const [changelogOpen, setChangelogOpen] = useState(false);
@@ -44,12 +45,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [surveys, setSurveys] = useState(null);
   const [programReadError, setProgramReadError] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
-
-  useEffect(() => {
-    if (params.encounterId) {
-      loadEncounter(params.encounterId);
-    }
-  }, [loadEncounter, params.encounterId]);
 
   useEffect(() => {
     (async () => {
@@ -70,7 +65,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   const setSelectedSurvey = useCallback(
     async id => {
-      const response = await api.get(`survey/${encodeURIComponent(id)}`);
+      const response = await api.get(route('survey/:id', { id }));
       setSurvey(response);
       setStartTime(getCurrentDateTime());
     },
@@ -103,7 +98,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       }
 
       try {
-        const { data } = await api.get(`program/${encodeURIComponent(programId)}/surveys`, {
+        const { data } = await api.get(route('program/:programId/surveys', { programId }), {
           ...(patient?.id ? { patientId: patient.id } : {}),
         });
         const programSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS);

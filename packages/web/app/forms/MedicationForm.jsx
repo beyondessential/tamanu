@@ -14,6 +14,7 @@ import * as yup from 'yup';
 
 import {
   ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_FREQUENCY_DETAILS,
   DRUG_ROUTE_LABELS,
   FORM_TYPES,
   FREQUENCIES_WITH_FIXED_ADMINISTRATION_TIMES,
@@ -71,6 +72,7 @@ import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
+import { useInvalidateEncounter } from '../api/queries/useEncounterQuery';
 import { usePatient } from '../contexts/Patient';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { getDefaultPrescriptionType } from '../utils/getDefaultPrescriptionType';
@@ -80,6 +82,7 @@ import {
   validateDecimalPlaces,
 } from '../utils/utils';
 import { dispensingQuantitySchema, foreignKey } from '../utils/validation';
+import { route } from '@tamanu/api-client';
 
 const requiredInlineMessage = (
   <TranslatedText stringId="validation.required.inline" fallback="*Required" />
@@ -354,6 +357,9 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { defaultIdealTimes, defaultTimeSlots } = useMedicationIdealTimes({
     frequency: values.frequency,
   });
+  const isEveryTimeSlotRequired =
+    ADMINISTRATION_FREQUENCY_DETAILS[values.frequency]?.dosesPerDay ===
+    MEDICATION_ADMINISTRATION_TIME_SLOTS.length;
 
   const firstAdministrationTime = useMemo(() => {
     if (!values.startDate || !values.frequency || !selectedTimeSlots?.length) return '';
@@ -531,9 +537,14 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
-                        disabled={isDisabled}
+                        disabled={isDisabled || isEveryTimeSlotRequired}
                         data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
+                        {...(isEveryTimeSlotRequired && {
+                          checkedIcon: (
+                            <StyledIcon className="far fa-check-square" $color={Colors.midText} />
+                          ),
+                        })}
                       />
                     </Box>
                   </StyledConditionalTooltip>
@@ -616,7 +627,8 @@ export const MedicationForm = ({
     'medications.dispensing.dispensingQuantityAutocalculation',
   );
   const queryClient = useQueryClient();
-  const { encounter, loadEncounter } = useEncounter();
+  const { encounter } = useEncounter();
+  const invalidateEncounter = useInvalidateEncounter();
   const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
@@ -714,10 +726,20 @@ export const MedicationForm = ({
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
-        ? api.post(`medication/patientOngoingPrescription/${patient.id}`, payload)
-        : api.post(`medication/encounterPrescription/${encounterId}`, payload));
+        ? api.post(
+            route('medication/patientOngoingPrescription/:patientId', { patientId: patient.id }),
+            payload,
+          )
+        : api.post(
+            route('medication/encounterPrescription/:encounterId', { encounterId }),
+            payload,
+          ));
       // The return from the post doesn't include the joined tables like medication and prescriber
-      const newMedication = await api.get(`medication/${medicationSubmission.id}`);
+      const newMedication = await api.get(
+        route('medication/:medicationSubmissionId', {
+          medicationSubmissionId: medicationSubmission.id,
+        }),
+      );
       setSubmittedMedication(newMedication);
     } catch (error) {
       toast.error(error.message);
@@ -725,7 +747,7 @@ export const MedicationForm = ({
     }
 
     if (encounterId) {
-      loadEncounter?.(encounterId, false);
+      invalidateEncounter(encounterId);
       queryClient.invalidateQueries(['encounterMedication', encounterId]);
     }
     if (patient) {

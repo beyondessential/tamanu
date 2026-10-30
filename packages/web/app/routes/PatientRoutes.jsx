@@ -19,9 +19,11 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { PATIENT_PATHS } from '../constants/patientPaths';
-import { useAuth } from '../contexts/Auth';
 import { PatientSearchParametersProvider } from '../contexts/PatientViewSearchParameters';
 import { PatientProvider } from '../contexts/Patient';
+import { EncounterProvider, useEncounter } from '../contexts/Encounter';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { OutlinedButton } from '@tamanu/ui-components';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import {
   PatientNavigation,
@@ -34,8 +36,6 @@ import {
 export const usePatientRoutes = () => {
   // prefetch userPreferences
   useUserPreferencesQuery();
-  const { ability } = useAuth();
-  const canAccessMar = ability.can('list', 'MedicationAdministration');
 
   return [
     {
@@ -95,27 +95,20 @@ export const usePatientRoutes = () => {
         />,
       ],
     },
-    ...(canAccessMar
-      ? [
-          {
-            path: 'encounter/:encounterId/mar/view/:date?',
-            component: MarView,
-            breadcrumbs: [
-              <EncounterBreadcrumb key="encounter" />,
-              <MedicationBreadcrumb key="medication" />,
-              <Breadcrumb
-                key="marview"
-                title={
-                  <TranslatedText
-                    stringId="encounter.mar.title"
-                    fallback="Medication admin record"
-                  />
-                }
-              />,
-            ],
-          },
-        ]
-      : []),
+    {
+      path: 'encounter/:encounterId/mar/view/:date?',
+      component: MarView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <MedicationBreadcrumb key="medication" />,
+        <Breadcrumb
+          key="marview"
+          title={
+            <TranslatedText stringId="encounter.mar.title" fallback="Medication admin record" />
+          }
+        />,
+      ],
+    },
     {
       path: 'encounter/:encounterId/programs/new',
       component: ProgramsView,
@@ -185,6 +178,58 @@ const PatientPaneInner = styled.div`
   min-width: ${PATIENT_PANE_WIDTH};
 `;
 
+const RetryRow = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+// The encounter named by the URL failed to load for a reason that may not recur. The patient's
+// navigation stays on screen and the clinician gets a retry, rather than an endless spinner or
+// being moved somewhere they didn't ask to go.
+const EncounterLoadError = () => {
+  const { refetch } = useEncounter();
+  return (
+    <>
+      <ErrorMessage
+        title={
+          <TranslatedText
+            stringId="encounter.error.load.title"
+            fallback="Unable to load encounter"
+          />
+        }
+        errorMessage={
+          <TranslatedText
+            stringId="encounter.error.load.message"
+            fallback="Something went wrong loading this encounter. Check your connection and try again."
+          />
+        }
+      />
+      <RetryRow>
+        <OutlinedButton onClick={() => refetch()}>
+          <TranslatedText stringId="general.action.retry" fallback="Retry" />
+        </OutlinedButton>
+      </RetryRow>
+    </>
+  );
+};
+
+const PatientRouteContent = ({ patientRoutes }) => {
+  const { error } = useEncounter();
+  if (error) return <EncounterLoadError />;
+
+  return (
+    <Routes>
+      {patientRoutes.map(route => {
+        const Element = route.component && React.createElement(route.component);
+        if (route.index) {
+          return <Route key="route-index" index element={Element} />;
+        }
+        return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
+      })}
+    </Routes>
+  );
+};
+
 export const PatientRoutes = () => {
   const patientRoutes = usePatientRoutes();
   const isMarView = Boolean(useMatch(`${PATIENT_PATHS.MAR}/view/:date?`));
@@ -192,28 +237,22 @@ export const PatientRoutes = () => {
 
   return (
     <PatientProvider>
-      <PatientSearchParametersProvider>
-        <NoteModal />
-        <TwoColumnDisplay>
-          <PatientInfoPane />
-          {/* Using contain:size along with overflow: auto here allows sticky navigation section
+      <EncounterProvider>
+        <PatientSearchParametersProvider>
+          <NoteModal />
+          <TwoColumnDisplay>
+            <PatientInfoPane />
+            {/* Using contain:size along with overflow: auto here allows sticky navigation section
     to have correct scrollable behavior in relation to the patient info pane and switch components */}
-          <PatientPane $backgroundColor={backgroundColor}>
-            <PatientPaneInner>
-              <PatientNavigation patientRoutes={patientRoutes} />
-              <Routes>
-                {patientRoutes.map(route => {
-                  const Element = route.component && React.createElement(route.component);
-                  if (route.index) {
-                    return <Route key="route-index" index element={Element} />;
-                  }
-                  return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
-                })}
-              </Routes>
-            </PatientPaneInner>
-          </PatientPane>
-        </TwoColumnDisplay>
-      </PatientSearchParametersProvider>
+            <PatientPane $backgroundColor={backgroundColor}>
+              <PatientPaneInner>
+                <PatientNavigation patientRoutes={patientRoutes} />
+                <PatientRouteContent patientRoutes={patientRoutes} />
+              </PatientPaneInner>
+            </PatientPane>
+          </TwoColumnDisplay>
+        </PatientSearchParametersProvider>
+      </EncounterProvider>
     </PatientProvider>
   );
 };

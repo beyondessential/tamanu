@@ -8,11 +8,15 @@ import {
 } from './patientFields';
 import {
   INVOICE_STATUS_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
-import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
+import {
+  ENCOUNTER_TYPE_ABBREVIATION_LABELS,
+  ENCOUNTER_TYPE_LABELS,
+  PATIENT_STATUS_LABELS,
+} from './encounters';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
@@ -91,7 +95,7 @@ export const registeredEnums = {
   IMAGING_TYPES,
   IMAGING_REQUEST_STATUS_LABELS,
   INJECTION_SITE_LABELS,
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
   INVOICE_ITEMS_CATEGORY_LABELS,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_STATUS_LABELS,
@@ -102,6 +106,7 @@ export const registeredEnums = {
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   MEDICATION_DURATION_UNITS_LABELS,
   PATIENT_ISSUE_LABELS,
+  PATIENT_STATUS_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
   PREGNANCY_MOMENTS,
@@ -157,7 +162,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   IMAGING_TYPES: 'imaging.property.type',
   IMAGING_REQUEST_STATUS_LABELS: 'imaging.property.status',
   INJECTION_SITE_LABELS: 'vaccine.property.injectionSite',
-  INVOICE_INSURER_PAYMENT_STATUS_LABELS: 'invoice.property.insurerPaymentStatus',
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS: 'invoice.property.insurancePlanPaymentStatus',
   INVOICE_ITEMS_CATEGORY_LABELS: 'invoice.property.itemCategory',
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS: 'invoice.property.patientPaymentStatus',
   INVOICE_STATUS_LABELS: 'invoice.property.status',
@@ -168,6 +173,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS: 'medication.property.durationUnitDisplay',
   MEDICATION_DURATION_UNITS_LABELS: 'medication.property.durationUnit',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
+  PATIENT_STATUS_LABELS: 'encounter.property.patientStatus',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
   PREGNANCY_MOMENTS: 'death.property.pregnancyMoment',

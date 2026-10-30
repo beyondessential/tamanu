@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
@@ -9,6 +8,7 @@ import { useNavigate, useLocation } from 'react-router';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
+import { useSystemErrors } from '../../state/systemErrorStore';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -21,6 +21,7 @@ import { KebabMenu } from './KebabMenu';
 import { ImpersonationPopover } from './ImpersonationSelector';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { ThemedTooltip } from '../Tooltip';
+import { route } from '@tamanu/api-client';
 
 const Container = styled.div`
   display: flex;
@@ -143,7 +144,7 @@ const StyledMetadataBox = styled(Box)`
 
 // Shown in place of the (otherwise hidden-while-retracted) System errors child row so
 // unread errors stay visible even with the sidebar collapsed, per the read/unread rule
-// in store/systemErrors.js.
+// in state/systemErrorStore.js.
 const RetractedUnreadDot = styled.button`
   all: unset;
   display: block;
@@ -206,9 +207,8 @@ export const Sidebar = React.memo(({ items }) => {
   const currentPath = location.pathname;
   const navigate = useNavigate();
   // spec: SYSERR#sidebar-unread-indicator
-  const hasUnreadSystemErrors = useSelector(state =>
-    state.systemErrors.errors.some(error => !error.isRead),
-  );
+  const systemErrors = useSystemErrors();
+  const hasUnreadSystemErrors = systemErrors.some(error => !error.isRead);
   const extendSidebar = () => setIsRetracted(false);
 
   // Expand the section matching the current route so navigating in from elsewhere
@@ -245,7 +245,7 @@ export const Sidebar = React.memo(({ items }) => {
 
   const { data: facility, isLoading: isFacilityLoading } = useQuery(
     ['facility', facilityId],
-    async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
+    async () => await api.get(route('facility/:facilityId', { facilityId })),
     {
       enabled: !!facilityId,
     },
@@ -391,7 +391,8 @@ export const Sidebar = React.memo(({ items }) => {
                     <SecondarySidebarItem
                       key={child.path}
                       path={child.path}
-                      isCurrent={currentPath.includes(child.path)}
+                      opensInNewTab={child.opensInNewTab}
+                      isCurrent={!child.opensInNewTab && currentPath.includes(child.path)}
                       color={child.color}
                       overlaidColor={
                         child.key === SYSTEM_ERRORS_ITEM_KEY && hasUnreadSystemErrors
@@ -400,7 +401,7 @@ export const Sidebar = React.memo(({ items }) => {
                       }
                       label={child.label}
                       disabled={!permissionCheck(child, item)}
-                      onClick={() => onPathChanged(child.path)}
+                      onClick={child.opensInNewTab ? undefined : () => onPathChanged(child.path)}
                       data-testid={`secondarysidebaritem-3o07-${dataTestIdSuffix}`}
                     />
                   </NoteModalActionBlocker>

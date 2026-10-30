@@ -18,10 +18,11 @@ import { MedicationDetails } from './MedicationDetails';
 import { NotDispensedMedicationDetailsModal } from './NotDispensedMedicationDetailsModal';
 import { useApi } from '../../api';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
-import { singularize } from '../../utils';
+import { notifyError, singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: ${props => (props.$noData ? 'unset' : '51vh')};
@@ -279,28 +280,33 @@ export const EncounterMedicationTable = ({
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
       searchParams.delete('openMedicationId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     } else if (openNotDispensedId) {
       handleInitialNotDispensedRecord(openNotDispensedId);
       searchParams.delete('openNotDispensedId');
-      navigate(
-        { pathname: location.pathname, search: searchParams.toString() },
-        { replace: true },
-      );
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInitialMedication = async id => {
-    const medication = await api.get(`medication/${id}`);
+    const medication = await api.get(route('medication/:id', { id }));
     setSelectedMedication(medication);
   };
 
   const handleInitialNotDispensedRecord = async id => {
-    const record = await api.get(`medication/medication-requests/${id}/not-dispensed`);
+    // Opening the not-dispensed details needs read MedicationRequest; the prescriber can receive the
+    // notification without it, so tell them rather than silently failing (the 403 is swallowed).
+    if (!ability.can('read', 'MedicationRequest')) {
+      notifyError(
+        getTranslation(
+          'medication.notDispensed.noPermission.message',
+          'You do not have permission to view medication request details.',
+        ),
+      );
+      return;
+    }
+    const record = await api.get(route('medication/medication-requests/:id/not-dispensed', { id }));
     setSelectedNotDispensedRecord(record);
   };
 
@@ -314,13 +320,15 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication, encounterPrescription }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
+    ${
+      medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
     }
-    ${getPauseData({ encounterPrescription, discontinued })
-      ? `color: ${Colors.softText}; font-style: italic;`
-      : ''
+    ${
+      getPauseData({ encounterPrescription, discontinued })
+        ? `color: ${Colors.softText}; font-style: italic;`
+        : ''
     }
   `;
 
@@ -353,7 +361,7 @@ export const EncounterMedicationTable = ({
           !!selectedMedication,
           isPharmacyOrdersEnabled,
         )}
-        endpoint={`encounter/${encounter.id}/medications`}
+        endpoint={route('encounter/:encounterId/medications', { encounterId: encounter.id })}
         initialSort={{ orderBy: 'date', order: 'asc' }}
         rowStyle={rowStyle}
         elevated={false}

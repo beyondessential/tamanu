@@ -171,7 +171,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default: {
           // Check for custom patient fields
-          const { fieldValues } = patient;
+          const { fieldValues = [] } = patient;
           const fieldValue = fieldValues.find(x => x.definitionId === column);
           if (fieldValue) return fieldValue.value;
 
@@ -269,7 +269,17 @@ const signatureSchema = yup
     return this.createError({ message: SIGNATURE_TOO_COMPLEX_STRING_ID });
   });
 
-export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
+/**
+ * @param {object} [options]
+ * @param {string} [options.requiredMessage] Shown for unanswered mandatory questions, in place of
+ *   the standard inline message
+ */
+export const getValidationSchema = (
+  surveyData,
+  getTranslation,
+  valuesToCheckMandatory = {},
+  { requiredMessage } = {},
+) => {
   if (!surveyData) return {};
   const { components } = surveyData;
   const schema = components.reduce(
@@ -354,7 +364,9 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       return {
         ...acc,
         [dataElementId]: valueSchema[mandatory ? 'required' : 'notRequired'](
-          mandatory ? getTranslation('validation.required.inline', '*Required') : null,
+          mandatory
+            ? (requiredMessage ?? getTranslation('validation.required.inline', '*Required'))
+            : null,
         ),
       };
     },

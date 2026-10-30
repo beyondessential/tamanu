@@ -836,6 +836,11 @@ export const centralSettings = {
         ),
         vaccinationReminderProcessor: scheduledTaskSchema({ schedule: '0 1 * * *' }),
         patientMergeMaintainer: scheduledTaskSchema({ schedule: '12 * * * *' }),
+        // spec: BTEL — central holds telemetry from the admin panel and the
+        // patient portal, so it prunes on the same terms as a facility server.
+        // Retention horizon lives in the global `telemetry.retentionDays` setting,
+        // read by the cleanup task; this entry only controls the schedule.
+        cleanupBrowserTelemetry: scheduledTaskSchema({ schedule: '31 3 * * *' }),
         certificateNotificationProcessor: scheduledTaskSchema(
           { schedule: '*/30 * * * * *' },
           limitProperty(10),

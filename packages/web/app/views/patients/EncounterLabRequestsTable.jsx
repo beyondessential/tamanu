@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
+import { route } from '@tamanu/api-client';
 import { DataFetchingTable } from '../../components';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
@@ -84,7 +85,7 @@ const columns = [
   },
 ];
 
-export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
+export const EncounterLabRequestsTable = React.memo(({ encounterId, refreshCount }) => {
   const { patientId, category } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -98,7 +99,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
 
   return (
     <DataFetchingTable
-      endpoint={`encounter/${encounterId}/labRequests`}
+      endpoint={route('encounter/:encounterId/labRequests', { encounterId })}
       columns={columns}
       noDataMessage={
         <TranslatedText
@@ -109,6 +110,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
       }
       onRowClick={selectLab}
       initialSort={{ order: 'desc', orderBy: 'requestedDate' }}
+      refreshCount={refreshCount}
       data-testid="datafetchingtable-1jgd"
     />
   );

@@ -83,22 +83,32 @@ const invokeWithResponseTool = async (model, schema, name, messages) => {
     description: jsonSchema.description ?? `Respond only by calling the ${name} tool.`,
     input_schema: jsonSchema,
   };
-  const boundModel = model.bindTools([responseTool], { tool_choice: 'auto' });
+  const boundModel = model.bindTools([responseTool]);
   const findToolCall = response => response.tool_calls?.find(call => call.name === name);
 
   const askAgain = () => {
     log.warn(`AIService: model ${model.model} answered without the ${name} tool, asking again`);
-    return boundModel.invoke([...messages, new HumanMessage(`Respond by calling the ${name} tool.`)]);
+    return boundModel.invoke([
+      ...messages,
+      new HumanMessage(`Respond by calling the ${name} tool.`),
+    ]);
   };
 
   const firstResponse = await boundModel.invoke(messages);
   const response = findToolCall(firstResponse) ? firstResponse : await askAgain();
   const toolCall = findToolCall(response);
   if (!toolCall) {
-    const unparsed = response.invalid_tool_calls?.length ? ' (its arguments could not be parsed)' : '';
-    throw new Error(`AI response did not call the ${name} tool${unparsed}`);
+    // The model's own text can carry patient data, so name what came back without quoting it.
+    const called = response.tool_calls?.map(call => call.name) ?? [];
+    const stopReason = response.response_metadata?.stop_reason ?? 'unknown';
+    const unparsed = response.invalid_tool_calls?.length
+      ? ' (its arguments could not be parsed)'
+      : '';
+    throw new Error(
+      `AIService: expected the model to call "${name}", it called [${called.join(', ')}] and stopped on "${stopReason}"${unparsed}`,
+    );
   }
-  return schema.parse(toolCall.args);
+  return schema.parseAsync(toolCall.args);
 };
 
 export class AIService {
@@ -175,7 +185,10 @@ export class AIService {
       log.warn('AIService: no form builder model configured, form builder unavailable');
     }
     if (formBuilder.enabled && formBuilderModelName) {
-      service.formBuilderModel = new ChatAnthropic({ anthropicApiKey, model: formBuilderModelName });
+      service.formBuilderModel = new ChatAnthropic({
+        anthropicApiKey,
+        model: formBuilderModelName,
+      });
       const fastModelName = formBuilder.fastModel?.trim();
       service.formBuilderFastModel = fastModelName
         ? new ChatAnthropic({ anthropicApiKey, model: fastModelName })

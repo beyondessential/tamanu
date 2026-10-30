@@ -295,6 +295,7 @@ export class PatientTable {
     }
 
     await this.searchBtn.click();
+    await this.waitForTableToLoad();
   }
 
   async clearSearch() {

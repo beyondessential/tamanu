@@ -4,16 +4,17 @@ description: >-
   Draft public Tamanu release notes for a given version. Use when the user wants release notes for a
   Tamanu release (e.g. "draft release notes for v2.45"). Pulls work from the specs and code that landed
   in that version's release/X.Y branch, plus the matching issues in the trackers (Linear's Tamanu team
-  and Workhorse's Tamanu workspace), reconciles them, and writes docs/release-notes/vX-YY.md in the
+  and Workhorse's Tamanu workspace) and the reporting schema changes in tamanu-source-dbt's vX.Y.0
+  release, reconciles them, and writes docs/release-notes/vX-YY.md in the
   canonical v2.44 format for project managers and system administrators, plus a styled HTML rendering
-  at .workhorse/design/designs/vX-YY-release-notes.html. Not for developer changelogs
+  beside it at docs/release-notes/vX-YY.html. Not for developer changelogs
   or QA test scoping (use scope-tamanu-release-tests for the latter).
 label: "Draft release notes"
 ---
 
 # Draft release notes
 
-Produce **public release notes** for one Tamanu version, as two files kept in step: the markdown at `docs/release-notes/vX-YY.md`, and a styled HTML rendering at `.workhorse/design/designs/vX-YY-release-notes.html`.
+Produce **public release notes** for one Tamanu version, as two files kept in step in the same folder: the markdown at `docs/release-notes/vX-YY.md`, and a styled HTML rendering at `docs/release-notes/vX-YY.html`.
 
 The audience is **project managers and system administrators**, not developers. They read these notes to understand what new capabilities their teams gain, what workflows change, what configuration is required, and what to prepare and test before upgrading. Write to that audience throughout: user-facing capabilities and benefits, not implementation detail.
 
@@ -26,14 +27,15 @@ If `docs/release-notes/vX-YY.md` already exists, that version has been written u
 The user specifies the **version** (e.g. `v2.45`, or `2.45`). Normalise it to:
 
 - **Release branch** `release/2.45`
-- **Output files** `docs/release-notes/v2-45.md` and `.workhorse/design/designs/v2-45-release-notes.html` — both filenames hyphenate the version, so the only dot in each is the extension's
+- **Output files** `docs/release-notes/v2-45.md` and `docs/release-notes/v2-45.html` — both filenames hyphenate the version, so the only dot in each is the extension's, and the pair shares a stem
 - **Linear version label** — the label for that version (often `v2.45.0`); confirm the exact label against the Tamanu team's labels rather than assuming. Version labels also drift, so ground the notes in what code shipped rather than assuming Linear is correct.
+- **Reporting release tag** `v2.45.0` in tamanu-source-dbt (see the third source below)
 
 Ask for the **release date** if the user hasn't given it. Format it `DD-MM-YYYY` in the header. If it's genuinely not known yet, leave `Released [RELEASE_DATE_PLACEHOLDER]`.
 
-## Sourcing: two places to look
+## Sourcing: three places to look
 
-Work included in a version comes from **both** of these. The repo is the primary source for what shipped and how it behaves; the trackers supply the human framing. Gather from each, then reconcile.
+Work included in a version comes from the first **two** of these. The repo is the primary source for what shipped and how it behaves; the trackers supply the human framing. Gather from each, then reconcile. The third, tamanu-source-dbt, feeds only the reporting schema section.
 
 Cards live in **both** trackers — Linear for older work, Workhorse for recent cycles — so check both. A single version often draws on each.
 
@@ -77,6 +79,25 @@ Notes on refs:
   Confirm the line shipped by checking it has tags (`git tag --list 'v2.44.*'`). Compare against that branch so the delta is exactly this version's work, not an accumulation. State which refs you used.
 - If `release/2.45` **hasn't been cut yet**, the work is still on `main` — use `origin/release/2.44...origin/main` instead, and say so. This is an upper-bound-free view: `main` may already carry work destined for a later version, so check each spec's introducing commit and drop anything that isn't part of the version being written up.
 
+### 3. Reporting schema changes in tamanu-source-dbt
+
+The reporting schema that standard and custom reports query is built in a separate repository, `beyondessential/tamanu-source-dbt`. Its major and minor numbers follow Tamanu's, and its patch number counts reporting-only fixes. Each Tamanu line has a maintenance branch named for it (`2.65`, `2.66`), and releases are tagged `vX.Y.Z`. Work from a local clone or the GitHub API: the GitHub web compare view cannot render a whole version's diff.
+
+```
+git clone --filter=blob:none --no-checkout https://github.com/beyondessential/tamanu-source-dbt.git
+cd tamanu-source-dbt
+git branch -r --list 'origin/2.*' --sort=version:refname
+git diff --name-status origin/2.44...v2.45.0 -- models/ macros/ ':!models/sources' ':!models/logs'
+git log --oneline origin/2.44..v2.45.0
+```
+
+- **The scope is the `vX.Y.0` tag.** Compare it against the previous line's maintenance branch from the merge base (three dots), for the same reason as the Tamanu diff: older lines keep receiving patches after a newer one is released. Derive the previous line from the branch list rather than assuming `X.(YY-1)`. Fixes released later as `vX.Y.*` patches are out of scope.
+- **If `vX.Y.0` isn't tagged yet**, the version's reporting release hasn't shipped. Leave `[REPORTING_SCHEMA_PLACEHOLDER]` where the section goes and tell the user, rather than reading an upgrade branch that may still change.
+- **Read `models/` and the dataset and report macros under `macros/`.** Leave out `models/sources` and `models/logs`: they are copied from Tamanu on every upgrade and repeat Tamanu's own schema changes, not the reporting schema's. `compiled/` is build output and the tests change with everything, so neither is a source of changes.
+- **List only what reaches the schema.** Base, dataset, metric and report models appear in the reporting schema. Intermediate models are ephemeral and never appear in it, so don't name them; describe what they change in the models that use them.
+- **Leave out changes a report writer can't see**: comment and documentation edits, refactors with identical output, test changes and version stamps.
+- **Frame from the commit messages and the dbt repo's own `specs/`.** Commit subjects carry MAUI ticket ids, and a spec's change log usually says why a model changed. Match each reporting change to the Tamanu feature that caused it where there is one, such as a column dropped because the Tamanu schema changed.
+
 ## Reconciling the two sources
 
 The same piece of work often appears in both places — a spec-driven card usually originates from an issue in a tracker. Match them on the card id carried in the spec's introducing commits.
@@ -87,22 +108,28 @@ The same piece of work often appears in both places — a spec-driven card usual
 
 ## Structuring the notes
 
-Classify every included item into one of the six sections. Judge by significance and breadth, exactly as the v2.44 example does.
+Classify every included item into one of the seven sections. Judge by significance and breadth, exactly as the v2.44 example does. The v2.44 example predates the reporting schema section, so this skill is the only reference for that one.
 
 **Let the release set the length.** Most releases are quiet, and a quiet release gets a short document. The v2.44 example is a big release and is long because it had that much in it; it sets the shape, not a target size. Never promote smaller work to fill a section, pad an overview to match the example's density, or give an item more space than its significance earns. A release whose largest item is one administrative change should say so plainly in the header and run a few hundred words.
 
-1. **Header** — `Released DD-MM-YYYY`, then one short paragraph naming the release's marquee items.
+1. **Header** — `Released DD-MM-YYYY`, then one short paragraph naming the release's marquee items. When the reporting schema has breaking changes, add one sentence saying which custom reports need updating, in plain language. Name the breaking changes there, not the features behind them: a schema change can follow any feature in the release, so a sentence that lists the drivers goes stale as soon as a fourth one lands. The same holds for the reporting section's own intro.
 2. **🌟 Major Features and Changes** — the items that genuinely warrant it, each with a real overview. Anything that gives users a new capability belongs here, up to about five; a quiet release may have only one or two, and that is the honest answer rather than a gap to fill. Judge scope by what shipped, not by how the card describes itself: a card calling its work "a couple of minor tweaks" sometimes lands a full feature, and a card written up as a feature sometimes lands as an extension of an existing screen, which belongs in Enhancements. Group by surface with `## ` headings, using only the surfaces that have content: **Tamanu Desktop**, **Tamanu Mobile**, **Patient Portal**, **System Administration**. Each feature is an `### _Italic title_` with an overview paragraph, a **Key features** bullet list, and a **Supporting documentation** list. Add **Security considerations** or a **Keen to implement …?** call-to-action block only where the feature warrants it (as the example does for the Patient Portal and integrations).
 3. **🔧 System Enhancements** — improvements that make existing work better without adding a capability, including a capability extended to a second screen. Lighter than a major feature: a sentence or two each, no **Key features** list unless one genuinely needs it. Group related items and call out any configuration change.
 4. **🐛 Tweaks and Bug Fixes** — everything else, **summarised at a high level**. Group by platform (`## Desktop`, `## Mobile`), with a `## System` group for backend, sync, and infrastructure fixes that aren't tied to one client. Within a group, one bullet per area (`**Bold label** - what improved`), rolling that area's fixes into a themed sentence or two. Do not enumerate individual fixes: a reader wants to know which areas got attention, not to read the commit log. Name a specific fix only where a PM would otherwise be surprised by the change.
-5. **⚠️ Critical Upgrade Notes** — split **Required** and **Optional**, per feature. A checklist for a system administrator: what to review, decide, or set up around the upgrade, at two or three bullets per feature. Describe it in **plain language** and let the linked configuration guide carry both the settings and the procedure. Say what happens if they don't act, where there is a consequence (a changed default, a feature that stays inert).
-6. **Upgrade Steps and Recommended Testing** — split **Required** and **Optional**, closing with a **General** block. Concrete things a PM can test, and **only where the upgrade carries real risk** (a migration that could land wrong, a step that lengthens the window) or where a feature needs verifying once adopted. Not every change earns a step: a fix that simply works, or a feature nobody has turned on, needs nothing here. A handful of bullets is usually the whole section.
+5. **📊 Reporting Schema Changes** — for the people who write and maintain custom reports. Open with a short paragraph tying the changes to the release's features, then up to three groups in this order, each only when it has content:
+   - `## Breaking changes` — models or columns removed or renamed, and column types changed, which make custom reports that use them fail. Say what to use instead.
+   - `## New` — models and columns added.
+   - `## Changed` — the same name with different content or grain, and changes to what a standard report outputs.
+
+   One bullet per area (`**Bold label** - what changed`), naming models and columns literally. Close with a **Supporting documentation** list linking the reporting schema reference, at the end of the section rather than inside a group, since the reference covers all of them. Leave the whole section out when the version's reporting release changed nothing a report writer can see.
+6. **⚠️ Critical Upgrade Notes** — split **Required** and **Optional**, per feature. A checklist for a system administrator: what to review, decide, or set up around the upgrade, at two or three bullets per feature. Describe it in **plain language** and let the linked configuration guide carry both the settings and the procedure. Say what happens if they don't act, where there is a consequence (a changed default, a feature that stays inert). Where the reporting schema has breaking changes, add a Required **Reports** item saying in plain words what was removed, that custom reports using it will fail after upgrade, and to update them using the reporting schema section. A change that shifts the figures existing reports or dashboards show, such as a count that now rises, gets a bullet there too.
+7. **Upgrade Steps and Recommended Testing** — split **Required** and **Optional**, closing with a **General** block. Concrete things a PM can test, and **only where the upgrade carries real risk** (a migration that could land wrong, a step that lengthens the window) or where a feature needs verifying once adopted. Not every change earns a step: a fix that simply works, or a feature nobody has turned on, needs nothing here. Breaking reporting changes earn a **Reports** step: run the custom reports that read the affected data and confirm they complete. A handful of bullets is usually the whole section.
 
 Give **Required** and **Optional** the same heading level as each other in both sections — `### Required` and `### Optional`. The v2.44 example sets Optional in bold rather than as a heading, which renders it inside the Required section; don't carry that across.
 
 **Two more things the example does that a new draft should not.** It names settings keys and reference-data values literally (`appointments.bookingSlots.startTime`, `isBookable`), which no longer belongs in release notes at all — see the plain-language rule under Voice and conventions. It also opens by calling itself "one of our biggest recent releases", which suited that release and suits few others. Take section order, headings, emoji markers and density from the example; take neither of these.
 
-Separate major sections with `---` as the example does. Keep the emoji markers (🌟 🔧 🐛 ⚠️) — they are load-bearing.
+Separate major sections with `---` as the example does. Keep the emoji markers (🌟 🔧 🐛 📊 ⚠️) — they are load-bearing.
 
 ## Supporting documentation links
 
@@ -120,21 +147,30 @@ Keep the descriptive label before each placeholder so the person filling them in
 
 Include only the documents that version's feature actually has. Three placeholders is the shape of the example, not a quota — a feature with only a configuration guide gets one line.
 
+The reporting schema section links the versioned reporting documentation published with tamanu-source-dbt's release, not a Slab page, so it takes its own placeholder:
+
+```
+- Reporting schema reference - [REPORTING_DOCS_LINK_PLACEHOLDER]
+```
+
 ## The styled version
 
-Every version carries a styled HTML rendering at `.workhorse/design/designs/vX-YY-release-notes.html`, alongside the markdown. It is what gets shared with a customer, pasted into a published page, or read by someone who is not looking at the repo.
+Every version carries a styled HTML rendering at `docs/release-notes/vX-YY.html`, alongside the markdown. It is what gets shared with a customer, pasted into a published page, or read by someone who is not looking at the repo.
 
 - **The markdown is the source of truth for wording.** The HTML renders it and says nothing the markdown doesn't. When wording changes, change both in the same turn and then grep to confirm no old phrasing survives in either — a change applied to one file only is the failure mode to watch for.
-- **Start from the most recent existing styled file.** Copy the newest `.workhorse/design/designs/v*-release-notes.html`, replace its content, and leave its CSS alone. This keeps every release looking like the last one and keeps the styling evolving in a single lineage rather than being reinvented per version.
-- **It belongs in `designs/`, never in a card's `mockups/` folder.** Release notes are read well outside the card that drafted them, and `mockups/{card-id}/` is card scratch that gets stripped on merge.
+- **Start from the highest-version existing styled file.** Copy the `docs/release-notes/v*.html` with the highest version number — not the one with the latest modification time, and not the one last in a plain filename sort, either of which can land on an older version once files are added out of order. Replace its content and leave its CSS alone, apart from adding styles a section needs that the copied file lacks. This keeps every release looking like the last one and keeps the styling evolving in a single lineage rather than being reinvented per version.
+- **It belongs beside its markdown twin, never in the design library or a card's `mockups/` folder.** It is a published artefact rather than a design, and `mockups/{card-id}/` is card scratch that gets stripped on merge.
 - **Structure mirrors the markdown**: the same sections in the same order, emoji markers retained, feature entries as cards and the grouped fix lists as plain bullet groups. Carry the release date as the only thing above the title, since the version is already in the title.
+- **The reporting schema section** renders like the fixes: its intro as a paragraph under the heading, then one bullet group per change group with the group name as its label, and the supporting documentation as a last group of its own. Model and column names go in `<code>`. If the copied file has no `code` style, add one in keeping with its CSS: monospace, a stone-grey background and border, and a small radius.
 - **Keep the CSS inline** so the file stands alone when sent to someone.
 - Where no styled file exists yet to copy from, author one against the design system in `.workhorse/design/` — and if that library is absent, the house palette: stone-grey page with white surfaces, burnt orange accent, Inter, 4px spacing grid.
 
 ## Voice and conventions
 
 - **PM/admin audience.** Explain what a feature does, why it's useful, and how it fits a workflow. Leave out API specifics, database schemas, and internal architecture.
-- **No coded language, anywhere in the document.** No settings keys, reference-data codes, permission identifiers, environment variables, column names, or file paths. Name the thing in plain words instead: "the modification reason list", not the reference-data type's literal name; "permission to dispense medications", not the permission identifier; "invoicing is off by default", not the setting that turns it on. A reader who needs the exact key follows the configuration guide, which is where keys belong.
+- **No coded language, anywhere in the document except the reporting schema section.** No settings keys, reference-data codes, permission identifiers, environment variables, column names, or file paths. Name the thing in plain words instead: "the modification reason list", not the reference-data type's literal name; "permission to dispense medications", not the permission identifier; "invoicing is off by default", not the setting that turns it on. A reader who needs the exact key follows the configuration guide, which is where keys belong.
+
+  The 📊 Reporting Schema Changes section is the one exception. Its readers update queries, so it names models and columns exactly, in backticks (`facilities.sensitive_network_id`, `ds__lab_requests`). The exception covers that section only: the header sentence and the **Reports** items in the upgrade sections stay in plain language.
 - **Inverted commas around every feature and interface name**, spelled and capitalised as it appears on screen: the 'Send to pharmacy' column, the 'Dispense medication' modal, the 'Emergency patients' board, 'Details' and 'Ordered by', 'Discharge qty' becoming 'Dispensing qty'. The test is whether the reader has to find that exact wording on screen to act on the sentence. Buttons, fields, columns being renamed or made required, tabs, modals, views, menu options and note types all pass it.
 
   Three things stay as ordinary nouns. **Product surfaces**: Tamanu Desktop, Tamanu Mobile, the admin panel, Patient Portal. **Clinical artefacts**: an encounter, a prescription, the medication administration record, a price list. **Self-evident values and simple labels**, where the words explain themselves and quoting them only adds clutter: last 7 days, the clinician column, the sex column, triage category, the Urgent and Deceased categories. When a simple label sits mid-sentence and reads fine unquoted, leave it unquoted.
@@ -148,14 +184,15 @@ Every version carries a styled HTML rendering at `.workhorse/design/designs/vX-Y
 2. Read `example-v2-44.md` for the target shape.
 3. Pull the tracker cards for the version — Linear's Tamanu team by version label, and Workhorse's Tamanu workspace by the card codes in the release branch.
 4. [parallel with 3] Fetch the release branches and diff `specs/` to get the landed specs; read them; ground and deepen using the code changes as required; recover their cards/PRs from git log.
-5. Reconcile the two sets on card id — committed specs win on overlap; tracker-only work is kept once confirmed shipped; dedup.
-6. Classify each item into the six sections and draft the notes in the canonical format, leaving `[SLAB_LINK_PLACEHOLDER]` for every supporting-documentation link.
-7. Write `docs/release-notes/vX-YY.md` (create `docs/release-notes/` on the first version).
-8. Write the styled version to `.workhorse/design/designs/vX-YY-release-notes.html`, copying the most recent existing one and replacing its content.
-9. Tell the user both paths, and list what still needs a human: the Slab links, the release date if placeholdered, and anything you couldn't confidently classify.
+5. [parallel with 3 and 4] Diff tamanu-source-dbt's `vX.Y.0` tag against the previous line's branch, read the changed models, and sort each change into breaking, new or changed.
+6. Reconcile the tracker and spec sets on card id — committed specs win on overlap; tracker-only work is kept once confirmed shipped; dedup.
+7. Classify each item into the seven sections and draft the notes in the canonical format, leaving `[SLAB_LINK_PLACEHOLDER]` for every supporting-documentation link and `[REPORTING_DOCS_LINK_PLACEHOLDER]` for the reporting schema reference.
+8. Write `docs/release-notes/vX-YY.md` (create `docs/release-notes/` on the first version).
+9. Write the styled version to `docs/release-notes/vX-YY.html`, copying the existing one with the highest version number (not the most recently modified) and replacing its content.
+10. Tell the user both paths and the refs you compared in each repository, and list what still needs a human: the Slab and reporting docs links, the release date if placeholdered, the reporting section if its release isn't tagged yet, and anything you couldn't confidently classify.
 
 Later turns that revise the notes revise **both** files, and say so.
 
 ## Source of truth
 
-The committed specs and the Tamanu commit history are authoritative for what shipped; the trackers supply framing. This skill encodes the method, not a fixed answer — the surfaces, sections, and format can evolve. If the repo or a newer published release disagrees with this skill, the repo wins; update the skill and refresh the canonical example.
+The committed specs and the Tamanu commit history are authoritative for what shipped; the trackers supply framing. For the reporting schema section, tamanu-source-dbt's `vX.Y.0` release is authoritative. This skill encodes the method, not a fixed answer — the surfaces, sections, and format can evolve. If the repo or a newer published release disagrees with this skill, the repo wins; update the skill and refresh the canonical example.

@@ -1,7 +1,12 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { write, utils } from 'xlsx';
 import { fake } from '@tamanu/fake-data/fake';
-import { DRUG_STOCK_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import {
+  DRUG_ROUTE_VALUES,
+  DRUG_STOCK_STATUSES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { settingsCache } from '@tamanu/settings';
 
 import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
@@ -305,6 +310,55 @@ describe('Drug import: stock on hand vs mSupply source of truth', () => {
     });
     expect(stock.quantity).toBeNull();
     expect(stock.stockStatus).toBe(DRUG_STOCK_STATUSES.UNKNOWN);
+  });
+
+  // The importer used to write route through unchecked while the admin panel's Manage tab
+  // validated it on save, so a drug imported with an unrecognised route could not be edited
+  // there at all — not even to change its name — until someone re-picked the route by hand.
+  describe('route validation', () => {
+    const headers = ['id', 'code', 'name', 'route'];
+
+    it.each([
+      ['the stored value', 'oral', 'oral'],
+      ['the label the admin panel shows', 'Oral', 'oral'],
+      ['a label that is not just a case variant', 'IM', 'intramuscular'],
+      ['a label containing punctuation', 'S/C', 'subcutaneous'],
+    ])('accepts %s and stores the enum value', async (_description, sheetValue, stored) => {
+      const rows = [
+        { id: 'drug-route-ok', code: 'DRUG-ROUTE-OK', name: 'Route Drug', route: sheetValue },
+      ];
+
+      const { errors } = await doImport(buildDrugWorkbookBuffer(headers, rows));
+      expect(errors).toHaveLength(0);
+
+      const referenceDrug = await models.ReferenceDrug.findOne({
+        where: { referenceDataId: 'drug-route-ok' },
+      });
+      expect(referenceDrug.route).toBe(stored);
+      // The whole point: what was stored is editable through Manage, which checks this enum.
+      expect(DRUG_ROUTE_VALUES).toContain(referenceDrug.route);
+    });
+
+    it.each([
+      ['a case variant that is not the label', 'ORAL'],
+      ['a value that is not a route at all', 'by mouth'],
+    ])('rejects %s against the sheet and row', async (_description, sheetValue) => {
+      const rows = [
+        { id: 'drug-route-good', code: 'DRUG-ROUTE-GOOD', name: 'Good Route', route: 'oral' },
+        { id: 'drug-route-bad', code: 'DRUG-ROUTE-BAD', name: 'Bad Route', route: sheetValue },
+      ];
+
+      const { errors } = await doImport(buildDrugWorkbookBuffer(headers, rows));
+
+      expect(errors).toHaveLength(1);
+      // Row 3: the second data row, once the header row is counted.
+      expect(errors[0].message).toMatch(/^route must be one of.* on drug at row 3$/);
+
+      // The import rolls back wholesale on any error, so the bad value never reaches a record
+      // Manage would then refuse to save — and neither does the valid row sharing the sheet.
+      expect(await models.ReferenceDrug.count()).toBe(0);
+      expect(await models.ReferenceData.findByPk('drug-route-bad')).toBeNull();
+    });
   });
 
   // The test above can't cleanly prove drugLoaderFactory's own cache is what's doing the

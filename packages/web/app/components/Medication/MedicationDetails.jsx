@@ -51,6 +51,7 @@ import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { MedicationResumeModal } from './MedicationResumeModal';
 import { PrescriptionChangeHistoryModal } from './PrescriptionChangeHistoryModal';
+import { route } from '@tamanu/api-client';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -263,7 +264,7 @@ export const MedicationDetails = ({
     if (payload.repeats === '') {
       delete payload.repeats;
     }
-    await api.put(`medication/${medication.id}/details`, {
+    await api.put(route('medication/:medicationId/details', { medicationId: medication.id }), {
       ...payload,
     });
     onReloadTable();

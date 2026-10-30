@@ -1,14 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useParams, useNavigate, useLocation } from 'react-router';
 
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
+import { route } from '@tamanu/api-client';
 
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
-import { useEncounter } from '../contexts/Encounter';
-import { reloadImagingRequest } from '../store';
 import { useLocalisation } from '../contexts/Localisation';
 import { getImagingRequestType } from '../utils/getImagingRequestType';
 import { TableCellTag } from './Tag';
@@ -59,12 +57,10 @@ const getPriority = ({ priority }) =>
   );
 
 export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ...props }) => {
-  const dispatch = useDispatch();
   const params = useParams();
   const location = useLocation();
   const { facilityId } = useAuth();
   const { getSetting } = useSettings();
-  const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const { searchParameters } = useImagingRequestsQuery(memoryKey);
@@ -153,10 +149,6 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
       setIsRowsDisabled(true);
       const { encounter } = imagingRequest;
       const patientId = params.patientId || encounter.patient.id;
-      if (encounter) {
-        await loadEncounter(encounter.id);
-      }
-      await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
       const path = `/patients/${category}/${patientId}/encounter/${
         encounterId || encounter.id
@@ -166,8 +158,6 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
       setIsRowsDisabled(false);
     },
     [
-      loadEncounter,
-      dispatch,
       params.patientId,
       params.category,
       encounterId,
@@ -191,7 +181,11 @@ export const ImagingRequestsTable = ({ encounterId, memoryKey, statuses = [], ..
       verb="list"
       noun="ImagingRequest"
       autoRefresh={!encounterId}
-      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+      endpoint={
+        encounterId
+          ? route('encounter/:encounterId/imagingRequests', { encounterId })
+          : 'imagingRequest'
+      }
       columns={encounterId ? encounterColumns : globalColumns}
       noDataMessage={
         <TranslatedText stringId="imaging.list.noData" fallback="No imaging requests found" />

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '../../../../api';
 import { DESIGNATION_ENDPOINT } from '../../constants';
+import { route } from '@tamanu/api-client';
 
 export const useDesignationQuery = (designationId, useQueryOptions) => {
   const api = useApi();
@@ -10,7 +11,7 @@ export const useDesignationQuery = (designationId, useQueryOptions) => {
     ...useQueryOptions,
     queryKey: ['designation', designationId],
     queryFn: async () =>
-      await api.get(`${DESIGNATION_ENDPOINT}/${encodeURIComponent(designationId)}`),
+      await api.get(route(`${DESIGNATION_ENDPOINT}/:designationId`, { designationId })),
     enabled: Boolean(designationId),
     retry: (failureCount, error) => (error?.status === 404 ? false : failureCount < 3),
   });

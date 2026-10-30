@@ -10,6 +10,7 @@ import { useCertificate } from '../../utils/useCertificate';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
 import { useAuth } from '../../contexts/Auth';
+import { route } from '@tamanu/api-client';
 
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
@@ -34,7 +35,8 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
     isFetching: isFetchingHandoverNotes,
   } = useQuery(
     ['locationGroupHandoverNotes', facilityId, areaId],
-    async () => await api.get(`locationGroup/${areaId}/handoverNotes`, { facilityId }),
+    async () =>
+      await api.get(route('locationGroup/:areaId/handoverNotes', { areaId }), { facilityId }),
     { enabled: Boolean(areaId) },
   );
 

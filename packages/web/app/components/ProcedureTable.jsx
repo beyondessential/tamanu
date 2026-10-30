@@ -1,4 +1,5 @@
 import React from 'react';
+import { route } from '@tamanu/api-client';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -50,13 +51,14 @@ const COLUMNS = [
   },
 ];
 
-export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
+export const ProcedureTable = React.memo(({ encounterId, onItemClick, refreshCount }) => (
   <DataFetchingTable
     columns={COLUMNS}
-    endpoint={`encounter/${encounterId}/procedures`}
+    endpoint={route('encounter/:encounterId/procedures', { encounterId })}
     onRowClick={row => onItemClick(row)}
     elevated={false}
     initialSort={{ orderBy: 'date', order: 'desc' }}
+    refreshCount={refreshCount}
     data-testid="datafetchingtable-ks0b"
   />
 ));

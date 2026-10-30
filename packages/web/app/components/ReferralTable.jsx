@@ -6,9 +6,9 @@ import { DeleteButton, VisuallyHidden } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
-import { useEncounter } from '../contexts/Encounter';
 import { usePatient } from '../contexts/Patient';
 import { useApi } from '../api';
+import { usePatientAdditionalDataQuery } from '../api/queries';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText, TranslatedEnum } from './Translation';
@@ -17,8 +17,10 @@ import { useAuth } from '../contexts/Auth';
 import { MenuButton } from './MenuButton';
 import { DeleteReferralModal } from '../views/patients/components/DeleteReferralModal';
 import { useRefreshCount } from '../hooks/useRefreshCount';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyResponsesPrintModal';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+import { route } from '@tamanu/api-client';
 
 const fieldNames = ['Referring doctor', 'Referral completed by'];
 const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
@@ -48,7 +50,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
       }
 
       try {
-        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+        const user = await api.get(route('user/:body', { body: referralByAnswer.body }));
         setName(user.displayName);
       } catch (e) {
         if (e.message === 'Facility server error response: 404') {
@@ -89,8 +91,10 @@ const MODAL_IDS = {
 export const ReferralTable = React.memo(({ patientId }) => {
   const api = useApi();
   const { patient } = usePatient();
+  const { data: additionalData, isLoading: isLoadingAdditionalData } =
+    usePatientAdditionalDataQuery(patientId);
   const { ability } = useAuth();
-  const { loadEncounter } = useEncounter();
+  const { navigateToEncounter } = usePatientNavigation();
   const [modalId, setModalId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -104,17 +108,24 @@ export const ReferralTable = React.memo(({ patientId }) => {
   const endpoint = `patient/${patientId}/referrals`;
 
   const onCancelReferral = useCallback(async () => {
-    await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    await api.put(
+      route('referral/:selectedReferralId', { selectedReferralId: selectedReferral.id }),
+      { status: REFERRAL_STATUSES.CANCELLED },
+    );
     setModalOpen(false);
     updateRefreshCount();
   }, [api, selectedReferral.id, updateRefreshCount]);
   const onCompleteReferral = async () => {
-    await api.put(`referral/${selectedReferral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    await api.put(
+      route('referral/:selectedReferralId', { selectedReferralId: selectedReferral.id }),
+      { status: REFERRAL_STATUSES.COMPLETED },
+    );
     updateRefreshCount();
   };
-  const onViewEncounter = useCallback(async () => {
-    loadEncounter(selectedReferral.encounterId, true);
-  }, [selectedReferral, loadEncounter]);
+  const onViewEncounter = useCallback(
+    () => navigateToEncounter(selectedReferral.encounterId),
+    [selectedReferral, navigateToEncounter],
+  );
 
   const onCloseReferral = useCallback(() => setSelectedReferralId(null), []);
 
@@ -252,14 +263,17 @@ export const ReferralTable = React.memo(({ patientId }) => {
           data-testid="surveyresponsesprintmodal-fe1m"
         />
       ),
-      [MODAL_IDS.ADMIT]: ({ selectedReferral, ...props }) => (
-        <EncounterModal
-          {...props}
-          patient={patient}
-          referral={selectedReferral}
-          data-testid="encountermodal-w69a"
-        />
-      ),
+      // The encounter form reads its prefill once on mount, so wait for the patient's data.
+      [MODAL_IDS.ADMIT]: ({ selectedReferral, ...props }) =>
+        isLoadingAdditionalData ? null : (
+          <EncounterModal
+            {...props}
+            patient={patient}
+            patientBillingTypeId={additionalData?.patientBillingTypeId}
+            referral={selectedReferral}
+            data-testid="encountermodal-w69a"
+          />
+        ),
       [MODAL_IDS.CANCEL]: props => (
         <ConfirmModal
           {...props}
@@ -296,7 +310,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
     };
 
     return MODALS[modalId] || null;
-  }, [modalId, patient, onCancelReferral]);
+  }, [modalId, patient, additionalData, isLoadingAdditionalData, onCancelReferral]);
 
   return (
     <>
