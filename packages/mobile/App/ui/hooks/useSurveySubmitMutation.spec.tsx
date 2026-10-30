@@ -140,7 +140,7 @@ describe('useSurveySubmitMutation', () => {
 
     await act(() => submitSurvey(variables));
 
-    expect(mockFindOne).toHaveBeenCalledWith({ where: { id: PATIENT_ID } });
+    expect(mockFindOne).toHaveBeenCalledWith({ where: { id: PATIENT_ID }, relations: ['village'] });
     expect(mockDispatch).toHaveBeenCalledWith(actions.setSelectedPatient(reloadedPatient));
   });
 

@@ -24,7 +24,8 @@ export const createInvoice = async ({
     Invoice,
     InvoiceDiscount,
     InvoicePayment,
-    InvoiceInsurerPayment,
+    InvoiceInsurancePlan,
+    InvoiceInsurancePlanPayment,
     InvoicePatientPayment,
     InvoiceItemDiscount,
     InvoiceItem,
@@ -64,10 +65,15 @@ export const createInvoice = async ({
       invoiceId: invoice.id,
     }),
   );
-  await InvoiceInsurerPayment.create(
-    fake(InvoiceInsurerPayment, {
+  // A fresh database has no insurance plans to pick from, so create one rather than leave the
+  // payment's required plan unset.
+  const invoiceInsurancePlanId =
+    (await randomRecordId(models, 'InvoiceInsurancePlan')) ??
+    (await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan))).id;
+  await InvoiceInsurancePlanPayment.create(
+    fake(InvoiceInsurancePlanPayment, {
       invoicePaymentId: invoicePayment.id,
-      insurerId: await randomReferenceDataId(models, REFERENCE_TYPES.INSURER),
+      invoiceInsurancePlanId,
     }),
   );
   await InvoicePatientPayment.create(
