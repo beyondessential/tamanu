@@ -25,7 +25,56 @@ import z from 'zod';
 
 export const usersRouter = express.Router();
 
-const createUserFilters = (filterParams, models) => {
+// The users who can log in to a facility, by the rules User.allowedFacilities() applies at login.
+// Null when every user can. Roles are checked with the same hasPermission() call login makes, so
+// built-in permissions and a login permission scoped to one facility count as they do there.
+// spec: USRPRF#facility-filter
+const buildFacilityAccessFilter = async (facilityId, models) => {
+  const { Facility, Setting, User } = models;
+
+  const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+  const sensitiveFacilityCount = await Facility.count({
+    where: { sensitiveNetworkId: { [Op.ne]: null } },
+  });
+  const facility = await Facility.findByPk(facilityId, {
+    attributes: ['id', 'sensitiveNetworkId'],
+  });
+  // With no sensitive facilities, access to all non-sensitive facilities is access to every facility
+  const isReachedByNonSensitiveAccess =
+    sensitiveFacilityCount === 0 || facility?.sensitiveNetworkId === null;
+
+  if (isReachedByNonSensitiveAccess && !restrictUsersToFacilities) return null;
+
+  const conditions = [
+    // Superusers; the system user is never listed
+    { role: 'admin' },
+    {
+      id: {
+        [Op.in]: User.sequelize.literal(`(
+          SELECT user_facilities.user_id
+          FROM user_facilities
+          JOIN facilities ON facilities.id = user_facilities.facility_id
+          WHERE user_facilities.facility_id = ${User.sequelize.escape(facilityId)}
+          AND user_facilities.deleted_at IS NULL
+          AND facilities.deleted_at IS NULL
+        )`),
+      },
+    },
+  ];
+  if (isReachedByNonSensitiveAccess) {
+    const heldRoles = await User.findAll({ attributes: ['role'], group: ['role'], raw: true });
+    const rolesWithLoginPermission = [];
+    for (const { role } of heldRoles) {
+      if (await User.build({ role }).hasPermission('login', 'Facility')) {
+        rolesWithLoginPermission.push(role);
+      }
+    }
+    conditions.push({ role: { [Op.in]: rolesWithLoginPermission } });
+  }
+  return { [Op.or]: conditions };
+};
+
+const createUserFilters = async (filterParams, models) => {
   const includeDeactivated = filterParams.includeDeactivated !== 'false';
   const filters = [
     // Text search filters
@@ -53,6 +102,8 @@ const createUserFilters = (filterParams, models) => {
         )`),
       },
     },
+    // Facility filter
+    filterParams.facilityId && (await buildFacilityAccessFilter(filterParams.facilityId, models)),
     // Include deactivated users filter
     !includeDeactivated && {
       visibilityStatus: 'current',
@@ -87,7 +138,7 @@ usersRouter.get(
     req.checkPermission('list', 'User');
 
     // Create where clause from filters
-    const filters = createUserFilters(filterParams, req.store.models);
+    const filters = await createUserFilters(filterParams, req.store.models);
     const whereClause = filters.length > 0 ? { [Op.and]: filters } : {};
     const userInclude = [
       'facilities',
@@ -163,7 +214,8 @@ usersRouter.get(
       count,
       data: await Promise.all(
         users.map(async user => {
-          const allowedFacilities = await user.allowedFacilityIds();
+          // spec: USRPRF#facility-column
+          const allowedFacilities = await user.allowedFacilities();
           const obj = user.get({ plain: true });
           const designations = user.designations || [];
           const roleName = roleMap.get(user.role) || null;

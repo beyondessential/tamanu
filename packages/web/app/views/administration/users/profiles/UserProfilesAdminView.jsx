@@ -3,7 +3,7 @@ import { Divider } from '@mui/material';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { PlusIcon } from '../../../../assets/icons/PlusIcon';
 import {
   Button,
@@ -16,6 +16,7 @@ import { LimitedLinesCell } from '../../../../components/FormattedTableCell';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { Colors } from '../../../../constants';
 import { useAuth } from '../../../../contexts/Auth';
+import { useTranslation } from '../../../../contexts/Translation';
 import { AdminViewContainer, ContentContainer } from '../../components/AdminViewContainer';
 import { USERS_ENDPOINT } from '../../constants';
 import { AddUserModal } from './AddUserModal';
@@ -106,6 +107,24 @@ const UserStatusIndicator = ({ visibilityStatus }) => {
 
 const displayFieldOrDash = value => value || '—'; // em dash
 
+// spec: USRPRF#facility-column
+const AllowedFacilitiesDisplay = ({ allowedFacilities }) => {
+  const { getReferenceDataTranslation } = useTranslation();
+
+  if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
+    return (
+      <TranslatedText stringId="admin.users.facility.allFacilities" fallback="All facilities" />
+    );
+  }
+
+  const facilityNames = allowedFacilities
+    .map(({ id, name }) =>
+      getReferenceDataTranslation({ value: id, category: 'facility', fallback: name }),
+    )
+    .sort((a, b) => a.localeCompare(b));
+  return displayFieldOrDash(facilityNames.join(', '));
+};
+
 const COLUMNS = [
   {
     key: 'visibilityStatus',
@@ -142,6 +161,13 @@ const COLUMNS = [
       displayFieldOrDash(
         designations?.length > 0 ? designations.map(d => d.referenceData?.name).join(', ') : null,
       ),
+    CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
+  },
+  {
+    key: 'allowedFacilities',
+    title: <TranslatedText stringId="admin.users.facility.column" fallback="Facility" />,
+    sortable: false,
+    accessor: AllowedFacilitiesDisplay,
     CellComponent: props => <LimitedLinesCell {...props} isOneLine maxWidth="150px" />,
   },
   {
