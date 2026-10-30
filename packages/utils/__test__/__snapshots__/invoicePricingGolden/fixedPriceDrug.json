@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "invoiceItemsUndiscountedTotal": 91.1,
+    "invoiceItemsTotal": 91.1,
+    "insuranceCoverageTotal": 15,
+    "patientTotal": 76.1,
+    "discountTotal": 0,
+    "itemAdjustmentsTotal": 0,
+    "patientSubtotal": 76.1,
+    "patientPaymentsTotal": 0,
+    "insurancePlanPaymentsTotal": 0,
+    "paymentsTotal": 0,
+    "patientPaymentRemainingBalance": 76.1,
+    "insurancePlanPaymentRemainingBalance": 15
+  },
+  "summaryDisplay": {
+    "invoiceItemsUndiscountedTotal": "91.10",
+    "invoiceItemsTotal": "91.10",
+    "insuranceCoverageTotal": "15.00",
+    "patientTotal": "76.10",
+    "discountTotal": "0.00",
+    "itemAdjustmentsTotal": "0.00",
+    "patientSubtotal": "76.10",
+    "patientPaymentsTotal": "0.00",
+    "insurancePlanPaymentsTotal": "0.00",
+    "paymentsTotal": "0.00",
+    "patientPaymentRemainingBalance": "76.10",
+    "insurancePlanPaymentRemainingBalance": "15.00"
+  },
+  "insuranceCoverageTotal": "15",
+  "coverageByPlan": [
+    {
+      "id": "plan-a",
+      "name": "Plan A",
+      "code": "PA",
+      "totalCoverage": "-15.00"
+    }
+  ],
+  "items": [
+    {
+      "id": "fixed-drug",
+      "totalPrice": 25,
+      "discountedPrice": 25,
+      "adjustment": 0,
+      "coverage": 15,
+      "coverageByPlan": [
+        {
+          "id": "plan-a",
+          "percentage": 60,
+          "coverage": 15
+        }
+      ],
+      "netCost": 10,
+      "formattedCoverage": "-15.00",
+      "formattedNetCost": "10.00"
+    },
+    {
+      "id": "fixed-not-drug",
+      "totalPrice": 50,
+      "discountedPrice": 50,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 50,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "50.00"
+    },
+    {
+      "id": "per-unit-drug",
+      "totalPrice": 16.1,
+      "discountedPrice": 16.1,
+      "adjustment": 0,
+      "coverage": 0,
+      "coverageByPlan": [],
+      "netCost": 16.1,
+      "formattedCoverage": "0.00",
+      "formattedNetCost": "16.10"
+    }
+  ],
+  "patientPayments": [],
+  "insurancePlanPayments": []
+}

@@ -181,6 +181,40 @@ export class Invoice extends Model {
     ];
   }
 
+  /**
+   * The associations that load an invoice ready to price: its items priced against the price
+   * list that applies to its encounter, its discount, insurance plans and payments.
+   *
+   * Use this rather than `getFullReferenceAssociations` wherever the invoice will be priced.
+   * Without a price list, items load with no price and silently price at zero.
+   */
+  static async getPricingAssociations(
+    encounterId: string,
+    options: { includeRefundingPayments?: boolean } = {},
+  ) {
+    const { include } = await this.resolvePricingAssociations(encounterId, options);
+    return include;
+  }
+
+  /**
+   * As `getPricingAssociations`, also returning the id of the price list the invoice is priced
+   * against, for callers that report it.
+   */
+  static async resolvePricingAssociations(
+    encounterId: string,
+    options: { includeRefundingPayments?: boolean } = {},
+  ) {
+    const invoicePriceListId =
+      await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
+    return {
+      invoicePriceListId,
+      include: this.getFullReferenceAssociations(
+        invoicePriceListId ?? undefined,
+        options.includeRefundingPayments,
+      ),
+    };
+  }
+
   public static async getInProgressInvoiceForEncounter(
     encounterId: string,
   ): Promise<Invoice | null> {

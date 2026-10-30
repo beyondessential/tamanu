@@ -308,12 +308,9 @@ invoiceRoute.put(
     // Recalculate patientPaymentStatus now that items/discount may have changed.
     // Payments can be recorded on in-progress invoices, so the status may be stale
     // if a fee scale discount is applied after a partial payment.
-    const invoicePriceListId = await req.models.InvoicePriceList.getIdForPatientEncounter(
-      foundInvoice.encounterId,
-    );
     const invoiceWithDetails = await req.models.Invoice.findOne({
       where: { encounterId: foundInvoice.encounterId },
-      include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
+      include: await req.models.Invoice.getPricingAssociations(foundInvoice.encounterId),
     });
     const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoiceWithDetails);
     // Cap paidAmount at patientTotal in case a discount was applied after payments were recorded
@@ -365,7 +362,7 @@ invoiceRoute.put(
     req.checkPermission('write', 'Invoice');
     const { models, params } = req;
     const invoiceId = params.id;
-    const { Invoice, InvoicePriceList, InvoiceItem, InvoiceItemFinalisedInsurance } = models;
+    const { Invoice, InvoiceItem, InvoiceItemFinalisedInsurance } = models;
 
     const invoice = await Invoice.findByPk(invoiceId, {
       attributes: ['id', 'status', 'encounterId'],
@@ -394,12 +391,9 @@ invoiceRoute.put(
       );
     }
 
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
-
-    const associations = InvoiceItem.getListReferenceAssociations(models, invoicePriceListId);
     const invoiceItems = await InvoiceItem.findAll({
       where: { invoiceId },
-      include: associations,
+      include: await InvoiceItem.getPricingAssociations(invoice.encounterId),
     });
 
     const transaction = await req.db.transaction();
