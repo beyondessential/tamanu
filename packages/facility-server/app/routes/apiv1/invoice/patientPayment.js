@@ -6,6 +6,7 @@ import Decimal from 'decimal.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
 import { getInvoicePatientPaymentStatus, round, getInvoiceSummary } from '@tamanu/utils/invoice';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { invoiceForPricing } from './invoiceForResponse';
 
 const createPatientPaymentSchema = z
   .object({
@@ -33,11 +34,14 @@ const refundPatientPaymentSchema = z
   })
   .strip();
 
-async function getInvoiceWithDetails(req, encounterId) {
-  return await req.models.Invoice.findOne({
+// Priced the same way as the invoice the web shows, so payments are checked against what the
+// patient owes after insurance
+async function getInvoiceForPricing(req, encounterId) {
+  const invoiceRecord = await req.models.Invoice.findOne({
     where: { encounterId },
     include: await req.models.Invoice.getPricingAssociations(encounterId),
   });
+  return invoiceRecord && invoiceForPricing(invoiceRecord);
 }
 
 const validateInvoiceExists = async (req, invoiceId) => {
@@ -65,7 +69,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   const { invoiceId } = req.params;
 
   const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
-  const invoice = await getInvoiceWithDetails(req, encounterId);
+  const invoice = await getInvoiceForPricing(req, encounterId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
 
@@ -121,7 +125,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
   const paymentId = req.params.paymentId;
 
   const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
-  const invoice = await getInvoiceWithDetails(req, encounterId);
+  const invoice = await getInvoiceForPricing(req, encounterId);
 
   const payment = await req.models.InvoicePayment.findByPk(paymentId);
 
@@ -260,22 +264,20 @@ const handleRefundPatientPayment = asyncHandler(async (req, res) => {
     });
 
     const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
-    const invoice = await getInvoiceWithDetails(req, encounterId);
+    const invoice = await getInvoiceForPricing(req, encounterId);
 
     if (!invoice) {
       throw new NotFoundError('Invoice not found');
     }
 
-    const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
+    const { patientTotal, patientPaymentsTotal } = getInvoiceSummary(invoice);
+    // Payments recorded before the invoice was priced after insurance can exceed what is now
+    // owed, so cap what counts as paid rather than failing the refund
+    const effectivePaidAmount = Math.min(patientPaymentsTotal, patientTotal);
 
     await req.models.Invoice.update(
       {
-        patientPaymentStatus: getInvoicePatientPaymentStatus(
-          new Decimal(patientTotal)
-            .minus(patientPaymentRemainingBalance)
-            .toNumber(),
-          patientTotal,
-        ),
+        patientPaymentStatus: getInvoicePatientPaymentStatus(effectivePaidAmount, patientTotal),
       },
       { where: { id: invoiceId } },
     );
