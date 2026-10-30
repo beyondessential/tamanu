@@ -103,6 +103,9 @@ export const SyncDataScreen = ({ navigation }) => {
   }, [syncManager]);
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
+  // The sync that discovers the app is out of date fails, but the pause explains that better than
+  // a sync error would, so the error is left out while an update is outstanding.
+  const showSyncError = hasError && !isUpdateOutstanding;
 
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
@@ -128,8 +131,8 @@ export const SyncDataScreen = ({ navigation }) => {
         {syncFinishedSuccessfully ? (
           <GreenTickIcon size={screenPercentageToDP('8', Orientation.Height)} />
         ) : null}
-        {hasError ? <ErrorIcon size={screenPercentageToDP('8', Orientation.Height)} /> : null}
-        {hasError ? (
+        {showSyncError ? <ErrorIcon size={screenPercentageToDP('8', Orientation.Height)} /> : null}
+        {showSyncError ? (
           <StyledText
             marginTop={25}
             fontWeight={500}
@@ -229,7 +232,7 @@ export const SyncDataScreen = ({ navigation }) => {
             ) : null}
           </>
         ) : null}
-        <SyncErrorDisplay />
+        {showSyncError ? <SyncErrorDisplay /> : null}
       </StyledView>
     </CenterView>
   );

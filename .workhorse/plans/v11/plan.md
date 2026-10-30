@@ -35,6 +35,14 @@ available without legacy branches. `POST_NOTIFICATIONS` still needs a runtime re
 
 ## Steps
 
+### Server
+
+- [x] Exempt the mobile client from the minimum-version check on the login route, so staff can sign
+      in to a device that is mid-update and work offline on it. Other clients, and a mobile app too
+      new for its server, are still turned away at login
+- [x] Stop clearing the update state on sign-in: the server now accepts that sign-in whatever
+      version the app is on, so only a sync it accepts proves the version is good
+
 ### Settings and endpoint contract
 
 - [x] Point the `metaServer.updateUrls.mobile` default at the package address, leaving the browser

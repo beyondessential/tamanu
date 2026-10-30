@@ -10,10 +10,13 @@ Installing closes the app, and Android does not reopen it, so the moment is left
 
 ## Detecting an out-of-date app
 
-Central and facility servers reject a client below their minimum supported version and include the address the client should update from, taken from the `metaServer.updateUrls.mobile` setting with the minimum version substituted into it.
+Servers reject a client below their minimum supported version and include the address the client should update from, taken from the `metaServer.updateUrls.mobile` setting with the minimum version substituted into it. Syncing is where an out-of-date mobile app is turned away; signing in is not, so staff can get into a device that is mid-update and work offline on it.
 
+- [ ] A mobile app below the minimum supported version can still sign in, and the rejection that starts its update comes from its next sync.
+- [ ] Other clients are still turned away at sign-in, where being out of date can be reported plainly rather than failing every call that follows.
 - [ ] Any rejection of the mobile app for being below the minimum supported version starts the download, wherever the app is and whatever the user is doing.
 - [ ] Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.
+- [ ] Signing in does not clear an outstanding update, since the server accepts the sign-in whatever version the app is on. Only a sync it accepts does.
 - [ ] Sync is paused for as long as the update is outstanding, since the server rejects this version. Changes recorded while it is paused are held on the device.
 - [ ] An outstanding update is remembered on the device, so closing and reopening the app resumes it rather than losing it.
 - [ ] An app rejected for being above the maximum supported version does not start an update, since a device cannot be moved backwards to an earlier release. It reports that the app is incompatible with its server, as any other sign-in failure does.

@@ -8,8 +8,15 @@ notification have no meaningful emulation in unit tests.
 
 - [ ] A sync rejected for the app's version leaves staff where they are, still signed in, with
       nothing part-filled lost (verifies spec: MUPD)
-- [ ] Signing in to a server that rejects the app's version gets staff in, with the update starting
-      behind them (verifies spec: MUPD)
+- [x] An out-of-date mobile app can sign in, and the rejection that starts its update comes from the
+      next sync (verifies spec: MUPD)
+- [x] Other clients are still turned away at sign-in for being out of date (verifies spec: MUPD)
+- [x] A mobile app too new for its server is turned away at sign-in, since updating cannot fix it
+      (verifies spec: MUPD)
+- [ ] Signing out and back in during an update leaves the outstanding update in place, rather than
+      clearing it (verifies spec: MUPD)
+- [ ] The Sync tab shows the pause rather than a sync error, after the sync that discovers the app
+      is out of date (verifies spec: MUPD)
 - [ ] Sync stops running while an update is outstanding, rather than retrying into the same
       rejection (verifies spec: MUPD)
 - [ ] Closing and reopening the app resumes the outstanding update rather than losing it (verifies
