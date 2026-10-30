@@ -58,7 +58,7 @@ log out straight away.
    You cannot log out while you have a note open. Save or close the note first.
 
    <p align="center">
-     <img src="images/log-in-and-out-log-out.png" alt="The bottom of the expanded sidebar, with the Log out button outlined in red" width="162"><br>
+     <img src="images/log-in-and-out-log-out.png" alt="The bottom of the expanded sidebar, with the Log out button outlined in red" width="262"><br>
      <sub>Select <b>Log out</b> at the bottom of the sidebar.</sub>
    </p>
 
