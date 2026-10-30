@@ -2,6 +2,7 @@ import Decimal from 'decimal.js';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice } from './display';
 import {
+  getInsurancePlanItemsForInvoiceItem,
   getItemSingleInsuranceCoverageAmount,
   getInvoiceItemTotalDiscountedPrice,
   getItemAdjustmentAmount,
@@ -44,8 +45,67 @@ export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): De
   }, new Decimal(0));
 };
 
+/**
+ * An invoice whose items carry the plan rows the coverage functions read.
+ *
+ * Invoice items hold no plan rows of their own, so an invoice loaded straight from the database
+ * has to pass through here before any coverage total means anything — skip it and every plan reads
+ * as covering nothing, which silently caps payments at zero rather than failing.
+ */
+export const withInsurancePlanItems = (invoice: Invoice): Invoice => ({
+  ...invoice,
+  items: (invoice.items || []).map(item => ({
+    ...item,
+    insurancePlanItems: getInsurancePlanItemsForInvoiceItem(item, invoice.insurancePlans),
+  })),
+});
+
+/**
+ * The coverage each of the invoice's insurance plans provides, keyed by plan id. Totals add up to
+ * getInsuranceCoverageTotalAmount: where several plans together cover an item beyond its price,
+ * that item's capped coverage is shared between them in proportion to what each would have
+ * covered, so no plan is credited with money the invoice never owed.
+ */
+export const getCoverageAmountPerInsurancePlan = (invoice: Invoice): Map<string, Decimal> => {
+  const insurancePlans = invoice.insurancePlans || [];
+  const items = invoice.items || [];
+  const planCoverageTotals = new Map<string, Decimal>(
+    insurancePlans.map(plan => [plan.id, new Decimal(0)]),
+  );
+
+  for (const item of items) {
+    if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+      continue;
+    }
+
+    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+    const itemCoverageByPlan = item.insurancePlanItems
+      .filter(planItem => planCoverageTotals.has(planItem.id))
+      .map(planItem => ({
+        id: planItem.id,
+        amount: new Decimal(getItemSingleInsuranceCoverageAmount(discountedPrice, item, planItem)),
+      }));
+
+    const itemCoverageTotal = itemCoverageByPlan.reduce(
+      (sum, { amount }) => sum.plus(amount),
+      new Decimal(0),
+    );
+    const cappedShare = itemCoverageTotal.greaterThan(discountedPrice)
+      ? new Decimal(discountedPrice).dividedBy(itemCoverageTotal)
+      : new Decimal(1);
+
+    for (const { id, amount } of itemCoverageByPlan) {
+      planCoverageTotals.set(
+        id,
+        (planCoverageTotals.get(id) as Decimal).plus(amount.times(cappedShare)),
+      );
+    }
+  }
+
+  return planCoverageTotals;
+};
+
 /*
- * TODO: this is similar to getInsuranceCoverageTotalAmount and could be combined together
  * Calculate and format the total coverage amount for each insurance plan across all invoice items for display in printout
  */
 export const getFormattedCoverageAmountPerInsurancePlanForInvoice = (
@@ -56,42 +116,16 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = (
   code: string | undefined;
   totalCoverage: string | undefined;
 }> => {
-  const insurancePlans = invoice.insurancePlans || [];
-  const items = invoice.items || [];
-  const planCoverageTotals = new Map<string, Decimal>(
-    insurancePlans.map(p => [p.id, new Decimal(0)]),
-  );
+  const planCoverageTotals = getCoverageAmountPerInsurancePlan(invoice);
 
-  for (const item of items) {
-    if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
-      continue;
-    }
-
-    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-    for (const planItem of item.insurancePlanItems) {
-      if (planCoverageTotals.has(planItem.id)) {
-        const coverageAmount = getItemSingleInsuranceCoverageAmount(
-          discountedPrice,
-          item,
-          planItem,
-        );
-        planCoverageTotals.set(
-          planItem.id,
-          (planCoverageTotals.get(planItem.id) as Decimal).plus(coverageAmount),
-        );
-      }
-    }
-  }
-
-  return insurancePlans.map(plan => {
-    const totalCoverage = planCoverageTotals.get(plan.id) as Decimal;
-    return {
-      id: plan.id,
-      name: plan.name,
-      code: plan.code,
-      totalCoverage: formatDisplayPrice(totalCoverage.negated().toNumber()),
-    };
-  });
+  return (invoice.insurancePlans || []).map(plan => ({
+    id: plan.id,
+    name: plan.name,
+    code: plan.code,
+    totalCoverage: formatDisplayPrice(
+      (planCoverageTotals.get(plan.id) as Decimal).negated().toNumber(),
+    ),
+  }));
 };
 
 /**
@@ -134,8 +168,8 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
     )
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
-  const insurerPaymentsTotal = payments
-    .filter(payment => payment?.insurerPayment?.id)
+  const insurancePlanPaymentsTotal = payments
+    .filter(payment => payment?.insurancePlanPayment?.id)
     .filter(payment => !payment?.refundPayment?.id) // refunded payments are not included in the total
     .filter(payment => !payment?.originalPayment?.id) // refund payments are not included in the total
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
@@ -147,8 +181,8 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
   const patientPaymentRemainingBalance = new Decimal(patientTotal)
     .minus(patientPaymentsTotal)
     .toNumber();
-  const insurerPaymentRemainingBalance = new Decimal(insuranceCoverageTotal)
-    .minus(insurerPaymentsTotal)
+  const insurancePlanPaymentRemainingBalance = new Decimal(insuranceCoverageTotal)
+    .minus(insurancePlanPaymentsTotal)
     .toNumber();
 
   return {
@@ -160,9 +194,9 @@ export const getInvoiceSummary = (invoice: Invoice): InvoiceSummary => {
     itemAdjustmentsTotal: itemAdjustmentsTotal.toNumber(),
     patientSubtotal: patientSubtotal.toNumber(),
     patientPaymentsTotal,
-    insurerPaymentsTotal,
+    insurancePlanPaymentsTotal,
     paymentsTotal,
     patientPaymentRemainingBalance,
-    insurerPaymentRemainingBalance,
+    insurancePlanPaymentRemainingBalance,
   };
 };
