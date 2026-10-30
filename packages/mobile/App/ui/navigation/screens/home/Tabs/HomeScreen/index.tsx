@@ -2,6 +2,7 @@ import React, { type ReactElement, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { SyncInactiveAlert } from '~/ui/components/SyncInactiveAlert';
+import { UpdateAlert } from '~/ui/components/UpdateAlert';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
@@ -128,6 +129,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
         <ConditionalRegisterPatientButton />
         <RecentlyViewedPatientTiles />
         <StyledView background={theme.colors.BACKGROUND_GREY}>
+          <UpdateAlert />
           <SyncInactiveAlert />
         </StyledView>
       </FullView>

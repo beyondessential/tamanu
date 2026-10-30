@@ -4,14 +4,15 @@ Build plan for V11, against `specs/platform/mobile-app-updates.md` (MUPD).
 
 ## Technical notes
 
-**Where the screen lives.** `Core.tsx` already blocks the whole app on `SecurityScreen` when
-`useSecurityInfo` reports issues. The update screen takes the same slot: when an update is
-outstanding, `Core` renders `UpdateScreen` in place of the navigator. This gives "shown whenever the
-app starts while an update is outstanding" for free, since `Core` renders on every launch.
+**Nothing blocks the app.** Staff keep working offline while the update downloads, so the update
+lives in a home-screen banner beside `SyncInactiveAlert` and in a paused state on the Sync tab,
+rather than in a screen of its own. `UpdateProvider` sits above both in `Root.tsx`, because two
+independent `useAppUpdate` calls would each run their own download.
 
 **Outstanding state is persisted** in the existing AsyncStorage config (`readConfig`/`writeConfig`),
-keyed on the update address central supplied. Cleared only once the install succeeds, so closing the
-app mid-update returns to the screen.
+keyed on the update address central supplied, so closing the app mid-update resumes rather than
+losing it. It is cleared by a successful sync, which is the proof the server accepts the version
+now running.
 
 **Download is native, not JS.** Resume across app restarts needs range requests appending to a
 part-file, which `react-native-fs` can't do. The native module uses OkHttp (already on the React
@@ -46,14 +47,16 @@ available without legacy branches. `POST_NOTIFICATIONS` still needs a runtime re
 
 ### JS layer
 
-- [x] `useAppUpdate` hook owning the state machine: permission → downloading → retrying →
-      installing, plus the failure states
-- [x] Automatic retry with a lengthening gap, a "Try again now" that skips the wait, and the
-      attempt count that surfaces the manual address after three
-- [x] Record the outstanding update when `OutdatedVersionError` is raised, and sign the user out
-- [x] `Core.tsx` renders `UpdateScreen` while an update is outstanding
-- [x] `UpdateScreen` — progress, installing stage, close-and-reopen warning, permission
-      explanation, manual address
+- [x] `useAppUpdate` hook owning the state machine: downloading → retrying → ready → installing,
+      plus the permission ask and the failure states. It stops at ready; staff choose to install
+- [x] `UpdateProvider` so the banner and the Sync tab share one download
+- [x] Automatic retry with a lengthening gap, and the attempt count that surfaces the manual
+      address after three
+- [x] Record the outstanding update when `OutdatedVersionError` is raised, leaving the session alone
+- [x] Pause sync in `triggerSync` while an update is outstanding, and clear the update state on a
+      successful sync so a past install isn't held against a later update
+- [x] `UpdateAlert` on the home screen, and `SyncPausedForUpdate` on the Sync tab
+- [x] `UpdateModals` — the install confirmation, the installing message, and the failure
 
 ### Checks
 

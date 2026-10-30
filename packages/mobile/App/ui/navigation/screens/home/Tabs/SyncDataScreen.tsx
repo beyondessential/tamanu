@@ -7,6 +7,8 @@ import { SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { ErrorIcon, GreenTickIcon } from '../../../../components/Icons';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
+import { SyncPausedForUpdate } from '../../../../components/SyncPausedForUpdate';
+import { useUpdate } from '../../../../contexts/UpdateContext';
 import { BackendContext } from '../../../../contexts/BackendContext';
 import { Orientation, screenPercentageToDP, useStatusBarStyle } from '../../../../helpers/screen';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
@@ -15,6 +17,7 @@ import { theme } from '../../../../styled/theme';
 export const SyncDataScreen = ({ navigation }) => {
   const backend = useContext(BackendContext);
   const syncManager = backend.syncManager;
+  const { isUpdateOutstanding } = useUpdate();
 
   const [syncStarted, setSyncStarted] = useState(syncManager.isSyncing);
   const [hasError, setHasError] = useState(false);
@@ -104,7 +107,8 @@ export const SyncDataScreen = ({ navigation }) => {
   return (
     <CenterView background={theme.colors.MAIN_SUPER_DARK} flex={1}>
       <StyledView alignItems="center">
-        {(isSyncing || isQueuing) && !hasError ? (
+        {isUpdateOutstanding ? <SyncPausedForUpdate /> : null}
+        {!isUpdateOutstanding && (isSyncing || isQueuing) && !hasError ? (
           <ActivityIndicator
             size="large"
             color={theme.colors.SECONDARY_MAIN}
@@ -148,7 +152,7 @@ export const SyncDataScreen = ({ navigation }) => {
             {syncFinishedSuccessfully ? '100 %' : null}
           </StyledText>
         ) : null}
-        {isSyncing ? null : (
+        {isSyncing || isUpdateOutstanding ? null : (
           <Button
             onPress={() => void syncManager.triggerUrgentSync()}
             width={160}

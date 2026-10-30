@@ -28,14 +28,19 @@ import { useOnForeground } from '~/ui/hooks/useOnForeground';
 const Updater: UpdaterModule = NativeModules.TamanuUpdater;
 const PROGRESS_EVENT = 'tamanuUpdateProgress';
 
-interface AppUpdateState {
-  isUpdateRequired: boolean;
+export interface AppUpdateState {
+  /** Whether an update is outstanding. Staff keep working either way. */
+  isUpdateOutstanding: boolean;
   stage: UpdateStage;
   progress: UpdateProgress;
   blocker: UpdateBlocker | null;
   /** The address the package can be downloaded from by hand, once that is worth offering. */
   manualUrl: string | null;
-  tryAgainNow: () => void;
+  /** Hands the package to Android, which closes the app to install it. */
+  install: () => void;
+  /** Puts a failed install behind them, leaving the package ready to install again. */
+  dismissInstallFailure: () => void;
+  /** Opens the Android settings screen that allows Tamanu to install apps. */
   grantPermission: () => void;
 }
 
@@ -47,8 +52,6 @@ export const useAppUpdate = (): AppUpdateState => {
   const [progress, setProgress] = useState<UpdateProgress>(NO_PROGRESS);
   const [blocker, setBlocker] = useState<UpdateBlocker | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  // Counting permission asks separately: the first decline re-explains, the second falls back.
-  const [permissionAsks, setPermissionAsks] = useState(0);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isForeground = useOnForeground();
 
@@ -81,20 +84,13 @@ export const useAppUpdate = (): AppUpdateState => {
     setStage(UPDATE_STAGE.BLOCKED);
   }, []);
 
-  const install = useCallback(async () => {
-    setStage(UPDATE_STAGE.INSTALLING);
-    await recordInstallAttempt();
+  /** Asks for the notification permission, which the update proceeds without if refused. */
+  const requestNotificationPermission = useCallback(async () => {
+    if (Platform.OS !== 'android' || Platform.Version < 33) return;
     try {
-      await Updater.installDownloadedPackage();
-      // A successful install replaces the app and closes it, so there is nothing to do here and
-      // usually nothing left running to do it in.
+      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     } catch (error) {
-      console.warn('useAppUpdate: install failed', error);
-      // The downloaded package could not be installed, so it is worth nothing. Dropping it means
-      // the next attempt fetches a fresh one rather than retrying a package Android has refused.
-      await Updater.clearDownload();
-      setFailedAttempts(attempts => attempts + 1);
-      setStage(UPDATE_STAGE.RETRYING);
+      console.warn('useAppUpdate: could not ask for notification permission', error);
     }
   }, []);
 
@@ -112,23 +108,13 @@ export const useAppUpdate = (): AppUpdateState => {
         }
       }
       await Updater.startDownload(packageUrl);
-      await install();
+      setStage(UPDATE_STAGE.READY);
     } catch (error) {
       console.warn('useAppUpdate: download failed', error);
       setFailedAttempts(attempts => attempts + 1);
       setStage(UPDATE_STAGE.RETRYING);
     }
-  }, [packageUrl, block, install]);
-
-  /** Asks for the notification permission, which the update proceeds without if refused. */
-  const requestNotificationPermission = useCallback(async () => {
-    if (Platform.OS !== 'android' || Platform.Version < 33) return;
-    try {
-      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    } catch (error) {
-      console.warn('useAppUpdate: could not ask for notification permission', error);
-    }
-  }, []);
+  }, [packageUrl, block]);
 
   const begin = useCallback(async () => {
     if (!packageUrl) return;
@@ -139,24 +125,19 @@ export const useAppUpdate = (): AppUpdateState => {
     }
 
     const status = await Updater.getStatus();
-    if (!status.canInstallPackages) {
-      setStage(UPDATE_STAGE.NEEDS_PERMISSION);
-      return;
-    }
-
     if (!status.canPostNotifications) {
       await requestNotificationPermission();
     }
 
+    // The package can download while the device is still being set up to install it, so the
+    // permission is only asked for once there is something waiting to be installed.
     if (status.hasCompletedDownload) {
-      await install();
+      setStage(status.canInstallPackages ? UPDATE_STAGE.READY : UPDATE_STAGE.NEEDS_PERMISSION);
       return;
     }
     await download();
-  }, [packageUrl, block, download, install, requestNotificationPermission]);
+  }, [packageUrl, block, download, requestNotificationPermission]);
 
-  // Start as soon as an outstanding update is known, and carry on from whatever the device left
-  // behind: a granted permission, a partial download, or a package ready to install.
   useEffect(() => {
     if (packageUrl && stage === UPDATE_STAGE.CHECKING) {
       begin();
@@ -172,39 +153,50 @@ export const useAppUpdate = (): AppUpdateState => {
     };
   }, [stage, failedAttempts, download]);
 
-  const tryAgainNow = useCallback(() => {
-    if (retryTimer.current) clearTimeout(retryTimer.current);
-    download();
-  }, [download]);
+  // A download that finishes while the device still won't allow installing holds at the ask,
+  // which is also re-checked whenever staff come back from Android's settings.
+  useEffect(() => {
+    if (!isForeground) return;
+    if (stage !== UPDATE_STAGE.READY && stage !== UPDATE_STAGE.NEEDS_PERMISSION) return;
+    Updater.getStatus().then(status => {
+      setStage(status.canInstallPackages ? UPDATE_STAGE.READY : UPDATE_STAGE.NEEDS_PERMISSION);
+    });
+  }, [stage, isForeground]);
 
-  const grantPermission = useCallback(async () => {
-    setPermissionAsks(asks => asks + 1);
-    await Updater.openInstallPermissionSettings();
+  const grantPermission = useCallback(() => {
+    Updater.openInstallPermissionSettings();
   }, []);
 
-  // Granting the permission happens in Android's settings, so whether it was granted can only be
-  // known once the user comes back. A second return without it is taken as a refusal.
-  useEffect(() => {
-    if (stage !== UPDATE_STAGE.NEEDS_PERMISSION || !isForeground || permissionAsks === 0) return;
-    Updater.getStatus().then(status => {
-      if (status.canInstallPackages) {
-        setStage(UPDATE_STAGE.CHECKING);
-      } else if (permissionAsks >= 2) {
-        block(UPDATE_BLOCKER.PERMISSION_REFUSED);
-      }
-    });
-  }, [stage, isForeground, permissionAsks, block]);
+  const install = useCallback(async () => {
+    setStage(UPDATE_STAGE.INSTALLING);
+    await recordInstallAttempt();
+    try {
+      await Updater.installDownloadedPackage();
+      // A successful install replaces the app and closes it, so there is nothing to do here and
+      // usually nothing left running to do it in.
+    } catch (error) {
+      console.warn('useAppUpdate: install failed', error);
+      setStage(UPDATE_STAGE.INSTALL_FAILED);
+    }
+  }, []);
+
+  // The package is still downloaded and still installable, so a failure staff have dismissed
+  // simply returns them to the ready banner.
+  const dismissInstallFailure = useCallback(() => {
+    setStage(UPDATE_STAGE.READY);
+  }, []);
 
   const offerManualUrl =
     blocker !== null || shouldOfferManualFallback(failedAttempts) ? updateUrl : null;
 
   return {
-    isUpdateRequired: Boolean(updateUrl),
+    isUpdateOutstanding: Boolean(updateUrl),
     stage,
     progress,
     blocker,
     manualUrl: offerManualUrl,
-    tryAgainNow,
+    install,
+    dismissInstallFailure,
     grantPermission,
   };
 };

@@ -14,8 +14,6 @@ import { SelectModalScreen } from '~/ui/components/SelectModal';
 import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal';
 import { SecurityScreen } from '~/ui/navigation/screens/signup/SecurityScreen';
 import { useSecurityInfo } from '~/ui/hooks/useSecurityInfo';
-import { UpdateScreen } from '~/ui/navigation/screens/signup/UpdateScreen';
-import { useAppUpdate } from '~/ui/hooks/useAppUpdate';
 
 export type RootStackParamList = Record<string, { signedOutFromInactivity: boolean } | undefined>;
 
@@ -35,23 +33,7 @@ export const Core: FunctionComponent<any> = () => {
   const { facilityId } = useFacility();
   const { isLoading, hasCompletedInitialCheck, securityIssues, fetchSecurityInfo } =
     useSecurityInfo();
-  const appUpdate = useAppUpdate();
   const shouldBlockForInitialLoading = isLoading && !hasCompletedInitialCheck;
-
-  // An outstanding update blocks the whole app, and is checked on every launch, so closing the app
-  // part way through an update returns here rather than to a sign-in the server will reject.
-  if (appUpdate.isUpdateRequired) {
-    return (
-      <UpdateScreen
-        stage={appUpdate.stage}
-        progress={appUpdate.progress}
-        blocker={appUpdate.blocker}
-        manualUrl={appUpdate.manualUrl}
-        tryAgainNow={appUpdate.tryAgainNow}
-        grantPermission={appUpdate.grantPermission}
-      />
-    );
-  }
 
   if (shouldBlockForInitialLoading || securityIssues.length > 0) {
     return (

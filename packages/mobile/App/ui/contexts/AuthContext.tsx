@@ -190,11 +190,10 @@ const Provider = ({
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
     const errHandler = (error: Error): void => {
-      // An out-of-date app takes over with the update screen wherever the user is, so the
-      // rejection is remembered before signing out and survives the app being closed.
+      // An out-of-date app keeps working offline while its update downloads, so the rejection is
+      // remembered — which pauses sync and raises the banner — and the session is left alone.
       if (error instanceof OutdatedVersionError) {
         recordPendingUpdate(error.updateUrl);
-        signOut();
         return;
       }
 

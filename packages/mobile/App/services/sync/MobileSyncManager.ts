@@ -2,6 +2,7 @@ import mitt from 'mitt';
 import type { EntityManager } from 'typeorm';
 
 import { SETTING_KEYS } from '~/constants/settings';
+import { clearUpdateState, readPendingUpdate } from '~/services/update/pendingUpdate';
 import { Database } from '../../infra/db';
 import type { MODELS_MAP } from '../../models/modelsMap';
 import { SYNC_DIRECTIONS } from '../../models/types';
@@ -195,10 +196,20 @@ export class MobileSyncManager {
       return;
     }
 
+    // An app the server has turned away for its version stays turned away until its update is
+    // installed, so syncing is paused rather than retried into the same rejection.
+    if (await readPendingUpdate()) {
+      return;
+    }
+
     const startTime = Date.now();
 
     try {
       await this.runSync({ urgent });
+      // A sync the server accepted proves it accepts this version, so anything remembered about
+      // updating is spent. Left behind, a past install would later be mistaken for the current
+      // version having failed to satisfy the server.
+      await clearUpdateState();
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });

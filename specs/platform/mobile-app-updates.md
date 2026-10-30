@@ -4,17 +4,18 @@ id: MUPD
 
 # Mobile app updates
 
-A Tamanu mobile device must run a version its central server accepts. When central rejects the app for being out of date, the app downloads the matching release from the meta server and installs it over itself, so staff never leave Tamanu to update. The update is blocking: the device cannot be used until it completes.
+A Tamanu mobile device must run a version its central server accepts. When central rejects the app for being out of date, Tamanu downloads the matching release from the meta server in the background and installs it over itself. Staff carry on working offline throughout: sync is paused until the update is installed, and nothing installs until someone chooses to.
 
-Installing over the same app preserves its data, so changes recorded on the device but not yet synced survive the update and are pushed on the next sync. The device cannot sync them first, because central rejects an out-of-date client outright.
+Installing closes the app, and Android does not reopen it, so the moment is left to staff rather than taken. Installing over the same app preserves its data, so everything recorded while sync was paused survives the update and is sent by the first sync after logging back in.
 
 ## Detecting an out-of-date app
 
 Central and facility servers reject a client below their minimum supported version and include the address the client should update from, taken from the `metaServer.updateUrls.mobile` setting with the minimum version substituted into it.
 
-- [ ] Any rejection of the mobile app for being below the minimum supported version starts the update, wherever the app is and whatever the user is doing — at sign-in, during a sync, or on any other call to central.
-- [ ] Starting the update signs the user out, so that signing in again after the update re-checks the version.
-- [ ] The update takes over from whatever screen the user was on, including a part-filled form, whose unsaved input is discarded.
+- [ ] Any rejection of the mobile app for being below the minimum supported version starts the download, wherever the app is and whatever the user is doing.
+- [ ] Staff stay signed in and carry on working. The screen they are on is undisturbed, and nothing they have part-filled is lost.
+- [ ] Sync is paused for as long as the update is outstanding, since the server rejects this version. Changes recorded while it is paused are held on the device.
+- [ ] An outstanding update is remembered on the device, so closing and reopening the app resumes it rather than losing it.
 - [ ] An app rejected for being above the maximum supported version does not start an update, since a device cannot be moved backwards to an earlier release. It reports that the app is incompatible with its server, as any other sign-in failure does.
 
 ## The update endpoint
@@ -30,55 +31,65 @@ The meta server serves the Android package for a given version and branding at i
 - [ ] A request for a version or branding the meta server has no package for is refused, and the app treats it as a failure it cannot retry its way out of.
 - [ ] The package is served over an encrypted connection.
 
-## Updating Tamanu screen
+## The update banner
 
-A single screen covers the whole update, from the permission setup through downloading to installing. It replaces the app entirely while an update is in progress, and the only ways off it are a completed install or the manual fallback.
+A banner on the home screen carries the whole state of the update, from downloading through to anything that has gone wrong. It is the only thing on the home screen that changes while an update is outstanding.
 
-- [ ] The screen is titled "Updating Tamanu" and explains that the app is updating itself and the device cannot be used until it finishes.
-- [ ] The screen shows download progress as a proportion of the package's total size.
-- [ ] The screen shows a distinct installing stage once the download completes and the package has been handed to Android.
-- [ ] The screen warns, before the install begins, that Tamanu will close and the user will need to open it again.
-- [ ] The screen is shown whenever the app starts while an update is outstanding, so closing or restarting the app does not get past it.
+- [ ] While downloading, the banner reads "Downloading a Tamanu update (:percent%). Sync paused."
+- [ ] Once the package is downloaded, the banner reads "Tamanu update ready. Install to sync." and offers Install.
+- [ ] Closing the banner hides it until staff next arrive at the home screen, where it returns. It keeps returning until the update is installed.
+- [ ] The banner does not block anything on the screen beneath it.
+
+## Sync tab
+
+The Sync tab is where staff go when sync looks wrong, so it says why sync is paused rather than offering a manual sync that would be rejected.
+
+- [ ] While an update is outstanding, the Sync tab reads "Sync paused" instead of showing sync progress, and does not offer Manual sync.
+- [ ] While downloading, it reads "Downloading a Tamanu update (:percent%)."
+- [ ] Once downloaded, it reads "Tamanu needs it to update before it can sync." and offers Install update.
+- [ ] Install update is available on the Sync tab whether or not the home screen banner has been closed.
+- [ ] The time of the last successful sync stays visible, so staff can see how long the device has been held back.
+
+## Installing
+
+Installing is the one step staff choose. It closes the app, so they are told before it happens and given the chance to finish what they are doing.
+
+- [ ] Install, from either the banner or the Sync tab, opens a confirmation over whatever screen staff are on.
+- [ ] The confirmation is titled "Install update" and reads "Save your work first. Tamanu will close to install the update. Open it again from the app icon."
+- [ ] The confirmation offers Install and close, and Cancel. Cancelling, closing it, or tapping outside it installs nothing and leaves the banner as it was.
+- [ ] Install and close hands the package to Android and replaces the confirmation with "Installing update", reading "Tamanu will close in a moment. Open it again from the app icon."
+- [ ] The installing message cannot be dismissed, since Android has the package from that point and the app is about to close.
+- [ ] After a successful install, a notification reading "Tamanu has been updated" opens the app when tapped.
+- [ ] The app asks for permission to post notifications as part of the update, where the device requires it. Where it is refused the update still proceeds, and staff rely on the confirmation having told them to use the app icon.
+- [ ] Opening the updated app leads to the sign-in screen, and the first sync after signing in sends everything recorded while sync was paused.
+- [ ] The downloaded package is deleted once it has been installed.
 
 ## Permission setup
 
-Installing a package requires the device to allow Tamanu to install apps, which is granted once per device through an Android settings screen. The app asks for it at the point an update is needed rather than during onboarding, so a device that never updates is never asked.
+Installing a package requires the device to allow Tamanu to install apps, which is granted once per device through an Android settings screen. Asking while the download is still running means the one-off setup is done before staff need it.
 
-- [ ] When an update starts and the device does not already allow Tamanu to install apps, the screen explains why the permission is needed and offers to open the Android settings screen that grants it.
-- [ ] Returning from the settings screen with the permission granted continues the update.
-- [ ] Declining the permission re-shows the explanation and the offer to grant it.
-- [ ] Declining a second time offers the manual fallback.
-- [ ] A device that already allows Tamanu to install apps goes straight to downloading, with no permission step.
-- [ ] Android's own confirmation of the first install is left to the user to accept; the app does not attempt to bypass or pre-empt it.
+- [ ] Where the device does not already allow Tamanu to install apps, the banner reads "Tamanu needs permission to update. Sync paused. You are currently working offline." and offers Allow.
+- [ ] Allow opens the Android settings screen that grants the permission. Returning with it granted returns the banner to its downloading or ready state.
+- [ ] Returning without granting it leaves the banner asking, so staff can grant it when they are ready.
+- [ ] Android's own confirmation of the first install on a device is left to the user to accept; the app does not attempt to bypass or pre-empt it.
+- [ ] Cancelling Android's first-install confirmation installs nothing and returns the banner to its ready state.
 
 ## Downloading
 
-The download is built for the connections Tamanu is used on: slow, interrupted, and sometimes metered. It resumes rather than restarting, and retries on its own.
+The download is built for the connections Tamanu is used on: slow, interrupted, and sometimes metered. It resumes rather than restarting, and retries on its own, all without staff needing to attend to it.
 
-- [ ] The download runs on whatever connection is available, including a metered one, since the device is unusable until it completes.
+- [ ] The download runs on whatever connection is available, including a metered one, since sync stays paused until it finishes.
 - [ ] An interrupted download resumes from where it stopped, including after the app is closed and reopened.
-- [ ] Before downloading, the app checks there is enough free space for the package and for installing it. If there is not, the screen says so and names the space needed.
+- [ ] Before downloading, the app checks there is enough free space for the package and for installing it. If there is not, the banner says so and sync stays paused.
 - [ ] A failed download is retried automatically, with a longer gap before each successive attempt.
-- [ ] The screen offers "Try again now", which starts the next attempt immediately rather than waiting out the gap.
 - [ ] A download that completes at a size other than the one declared is discarded and retried rather than installed.
+- [ ] After three failed download attempts, the banner offers the address the package can be downloaded from by hand, alongside continuing to retry automatically. Not enough free space offers the same address without waiting for three attempts.
 
-## Manual fallback
+## When the install doesn't finish
 
-Some failures cannot be retried away: a device short of space, a permission the user will not grant, or a connection that never holds long enough. In those cases the screen offers the address the package can be downloaded from, so the device can still be updated by hand or from another device.
+Android replaces the app only once the new version is in place, so a failed install leaves the device on the version it was already running, with the work on it untouched.
 
-- [ ] After three failed download attempts, the screen offers the address the package can be downloaded from, alongside continuing to retry automatically.
-- [ ] Not enough free space offers the same address, without waiting for three attempts.
-- [ ] An app still rejected for its version immediately after installing an update offers the same address rather than starting another update, so a device cannot loop on a package that does not satisfy its server.
-- [ ] The screen explains that the manual route installs the same update, and that the user should contact their administrator if they cannot complete it.
-
-## Installing and reopening
-
-Android closes Tamanu to install the update and leaves it closed. A notification brings the user back.
-
-- [ ] The downloaded package is handed to Android to install once the download is verified.
-- [ ] After a successful install, a notification tells the user Tamanu has been updated and opens the app when tapped.
-- [ ] The app asks for permission to post notifications as part of the update, where the device requires it.
-- [ ] Where notification permission is refused or unavailable, the update still proceeds and the user relies on the warning shown before the install.
-- [ ] A failed install returns the user to the screen, which retries the install and falls back to the manual address as a failed download does.
-- [ ] The downloaded package is deleted once it has been installed.
-- [ ] Opening the updated app leads to the sign-in screen, and signing in syncs the changes the device was holding.
+- [ ] An install Android rejects replaces the installing message with "Update not installed", reading "The update couldn't be installed. Your work is unaffected.", offering Try again and Cancel.
+- [ ] Try again starts the install again. Cancel, or closing it, returns to the ready banner so staff can install when they choose.
+- [ ] An install interrupted by the device restarting or the app closing leaves the device on its existing version with the update still waiting, and the banner returns to its ready state.
+- [ ] An app still rejected for its version immediately after installing an update does not download the same package again. The banner reads "Tamanu update was not accepted by the server. Please contact your system administrator."

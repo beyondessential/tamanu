@@ -48,26 +48,32 @@ export interface UpdaterModule {
   installDownloadedPackage(): Promise<void>;
 }
 
-/** The stage the update screen is showing. */
+/**
+ * What the update banner is reporting. Staff keep working throughout; none of these block the app.
+ */
 export const UPDATE_STAGE = {
   /** Checking what the device allows and what is already downloaded. */
   CHECKING: 'checking',
-  /** The device does not allow Tamanu to install apps, and the user has been asked once. */
-  NEEDS_PERMISSION: 'needsPermission',
   DOWNLOADING: 'downloading',
   /** A download attempt failed; the next one is waiting out its gap. */
   RETRYING: 'retrying',
+  /** The device does not allow Tamanu to install apps, so the banner asks for it. */
+  NEEDS_PERMISSION: 'needsPermission',
+  /** The package is downloaded and waiting for staff to choose to install it. */
+  READY: 'ready',
+  /** Staff have confirmed, and Android has the package. */
   INSTALLING: 'installing',
-  /** Retrying cannot help: no space, a refused permission, or an update that did not take. */
+  /** Android would not install the package. */
+  INSTALL_FAILED: 'installFailed',
+  /** Retrying cannot help: no space, or an update that did not satisfy the server. */
   BLOCKED: 'blocked',
 } as const;
 
 export type UpdateStage = (typeof UPDATE_STAGE)[keyof typeof UPDATE_STAGE];
 
-/** Why the update cannot proceed without the user doing something. */
+/** Why the update cannot proceed on its own. */
 export const UPDATE_BLOCKER = {
   NOT_ENOUGH_SPACE: 'notEnoughSpace',
-  PERMISSION_REFUSED: 'permissionRefused',
   REPEATED_FAILURES: 'repeatedFailures',
   STILL_OUT_OF_DATE: 'stillOutOfDate',
 } as const;

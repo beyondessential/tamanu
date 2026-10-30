@@ -79,5 +79,19 @@ describe('pendingUpdate', () => {
       await writeConfig('updateInstallAttemptedFromVersion', currentVersion);
       expect(await hasInstalledUpdateAndStillOutOfDate()).toBe(false);
     });
+
+    it('does not hold a past install against a later update', async () => {
+      // An earlier version installed an update the server went on to accept. When the server
+      // later moves ahead again, that old install must not read as this version having failed
+      // to satisfy it — clearing on a successful sync is what keeps the two apart.
+      await recordInstallAttempt();
+      await writeConfig('updateInstallAttemptedFromVersion', '0.0.1-a-version-ago');
+      await clearUpdateState();
+
+      await recordPendingUpdate(UPDATE_URL);
+
+      expect(await hasInstalledUpdateAndStillOutOfDate()).toBe(false);
+      expect(await readPendingUpdate()).toBe(UPDATE_URL);
+    });
   });
 });
