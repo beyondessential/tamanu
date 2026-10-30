@@ -34,7 +34,7 @@ You need access to the email inbox for your Tamanu account, because Tamanu sends
 5. Select **Reset password**.
 
    <p align="center">
-     <img src="images/reset-password-filled-form.png" alt="The Reset password screen filled in with a reset code and a new password, with the Reset password button outlined in red" width="289"><br>
+     <img src="images/reset-password-filled-form.png" alt="The Reset password screen with a new password entered in both password fields, with the Reset password button outlined in red" width="289"><br>
      <sub>Enter the reset code and your new password, then select <b>Reset password</b>.</sub>
    </p>
 
