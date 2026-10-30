@@ -98,6 +98,15 @@ describe('Invoice pricing routes', () => {
       expect(Number(result.body.data[0].product.invoicePriceListItem.price)).toBe(12.5);
     });
 
+    it('is forbidden without permission to read invoices', async () => {
+      const invoice = await createInvoice();
+      const baseApp = await ctx.baseApp.asRole('base');
+
+      const result = await baseApp.get(`/api/invoices/${invoice.id}/items`);
+
+      expect(result).toBeForbidden();
+    });
+
     it('returns not found for an unknown invoice', async () => {
       const result = await app.get(`/api/invoices/${crypto.randomUUID()}/items`);
 
@@ -140,6 +149,16 @@ describe('Invoice pricing routes', () => {
       expect(result).toHaveSucceeded();
       // 2 × 50 = 100, less 30 paid
       expect(result.body.result).toBe(70);
+    });
+
+    it('is forbidden without permission to list invoices', async () => {
+      const baseApp = await ctx.baseApp.asRole('base');
+
+      const result = await baseApp.get(
+        `/api/patient/${patient.id}/invoices/totalOutstandingBalance`,
+      );
+
+      expect(result).toBeForbidden();
     });
 
     it('is zero when the patient has no finalised invoices', async () => {
