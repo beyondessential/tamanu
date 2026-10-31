@@ -21,10 +21,7 @@ import {
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
-import {
-  getAbilityForUser,
-  getPermissionsForEachRole,
-} from '@tamanu/shared/permissions/rolesToPermissions';
+import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
@@ -390,16 +387,20 @@ const VALIDATION = yup
   })
   .noUnknown();
 
-// Whether a user holding this role may edit every user's profile, as the user profiles view decides
-// it: write on a user record that is no particular user, so a permission scoped to particular
-// users, such as the one everyone holds over their own record, does not count. A role whose
-// permissions cannot be resolved grants nothing, as at login.
+// Whether a user holding this role may edit every user's profile, by the check the profile update
+// makes: write on a user other than themselves, so a permission scoped to particular users, such
+// as the one everyone holds over their own record, does not count.
 // spec: USRPRF#editing-a-profile
 const canRoleWriteAllUsers = async (models, user, role) => {
+  const permissionsByRole = await getPermissionsForEachRole(models, [role]);
+  const permissions = permissionsByRole.get(role);
+  // A role the built-in permissions do not define has no permissions at login
+  if (!permissions) return false;
   try {
-    const ability = await getAbilityForUser(models, { id: user.id, role });
-    return ability.can('write', subject('User', {}));
+    const ability = buildAbilityForUser({ id: user.id, role }, permissions);
+    return ability.can('write', subject('User', { id: String(Date.now()) }));
   } catch {
+    // A role mixing FHIR and regular permissions has no ability at login either
     return false;
   }
 };

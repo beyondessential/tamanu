@@ -124,6 +124,25 @@ describe('User profiles facility access', () => {
     await ctx.close();
   });
 
+  // spec: USRPRF#the-user-list
+  describe('authorisation', () => {
+    it('refuses a caller who is not logged in', async () => {
+      const response = await ctx.baseApp
+        .get('/api/admin/users')
+        .query({ facilityId: plainFacility.id });
+      expect(response).toHaveRequestError();
+    });
+
+    it('refuses a role without permission to list users', async () => {
+      await applyAccessSettings({ restrictUsersToFacilities: true, useHardcodedPermissions: false });
+      const appWithoutListPermission = await ctx.baseApp.asNewRole([]);
+      const response = await appWithoutListPermission
+        .get('/api/admin/users')
+        .query({ facilityId: plainFacility.id });
+      expect(response).toBeForbidden();
+    });
+  });
+
   describe('with no sensitive facilities', () => {
     it.each(ACCESS_SETTINGS)('filters by facility exactly as login allows (%o)', async settings => {
       await applyAccessSettings(settings);

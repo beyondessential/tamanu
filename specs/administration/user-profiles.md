@@ -38,7 +38,6 @@ A user's facility access is the set of facilities login allows them into. The us
 - [ ] For any other user, the column lists the names of the facilities they can log in to, in alphabetical order
 - [ ] The list shows on one line, cut short when it does not fit, with the full list shown on hover, as designations are
 - [ ] A user with no facility access shows a dash
-- [ ] The Facility column cannot be sorted
 
 ## Facility filter
 
