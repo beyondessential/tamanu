@@ -19,8 +19,6 @@ kind of field or screen it describes.
   fields find what you type anywhere in the value, in capitals or not. Typing `toni` in **Last name**
   finds Antonini.
 - **Press Enter to search.** Press Enter in a search field instead of selecting **Search**.
-- **Find a patient by an old ID.** On **All patients**, the **NHN** field also finds a patient by an
-  older or secondary ID, when you type it in full.
 - **Show more filters.** Select the double arrow beside **Search** to open **Advanced search**, which
   has extra filters such as **Include deceased patients**. Select it again to hide them.
 - **Pick from a list.** In a field that suggests options as you type, select the field to see every
@@ -45,11 +43,6 @@ kind of field or screen it describes.
   measure's name to see its normal range. Ranges show only where your site has set them.
 - **Spot edited values.** An asterisk (\*) after a value means it has been edited since it was
   recorded.
-- **Act on a task quickly.** On the **Tasks** tab, point at a task to show buttons to
-  **Mark as complete**, **Mark as not complete**, **Mark as to-do** or **Delete** it. Point at a
-  task's name or status to see who requested or completed it, and when.
-- **Update several tasks at once.** Tick the tasks to select them. Only tasks with the same status
-  can be selected together.
 
 # Notes
 
@@ -78,13 +71,6 @@ kind of field or screen it describes.
 - **See a booking in full.** Point at a booking or appointment to see its full time and patient
   name, which may be cut short on the calendar.
 
-# Windows and messages
-
-- **Close a window with Escape.** Press Escape to close most windows. Selecting outside a window
-  does not close it, so you cannot lose your work with a stray click.
-- **Dismiss a message.** Select a message that pops up to dismiss it, or point at it to keep it on
-  screen.
-
 # What Tamanu remembers
 
 - **Saved to your account:** your encounter tab order, the chart you last chose on the **Charts**
@@ -95,9 +81,3 @@ kind of field or screen it describes.
   while you move around Tamanu. Reloading the page clears them too.
 - **Reset each time:** the number of rows a table shows, the order you sort it in, and whether the
   sidebar is collapsed.
-
-# Good to know
-
-- **Use one browser tab.** Tamanu works in one browser tab at a time. If you open it in a second
-  tab, it tells you to continue in the tab you already have open.
-- **Pasting may be turned off.** Your site can stop text being pasted into most fields.
