@@ -50,7 +50,6 @@ Each noun accepts only some verbs, listed under the noun in the [Permission refe
 | login | Log in to a facility |
 | sync | Sync, when **Restrict users to sync** is on. Not shown on the **Edit** tab of the **Permissions** screen. See [Sync restriction](02-settings.md#sync-restriction) |
 | fhirIntegration | Connect an external system through an integration |
-| manage | With the noun `all`, every permission in Tamanu |
 
 ### Importing the permissions matrix
 
@@ -103,7 +102,7 @@ Turning a verb off turns off only that verb.
 Viewing the matrix needs `read` for `Permission` and `list` for `Role`. Turning permissions on needs
 `create` for `Permission`, and turning them off needs `delete`. See [Permission](#permission).
 
-The `sync` verb, `manage` for `all`, and the nouns used only by integrations behind the scenes are
+The `sync` verb, and the nouns used only by integrations behind the scenes, are
 not shown on the **Edit** tab, so they can only be granted through the import.
 
 ## Permissions for individual records
@@ -131,16 +130,12 @@ A per-record permission also satisfies checks that are made against the noun as 
 single form, with `create`, lets a role import any program's forms. Where this happens it is noted
 under the noun.
 
-## Full access
+## The admin role
 
-`manage` for `all` grants every verb on every noun. It is also the only permission that can change
-the settings marked high risk, and is needed to set up a new facility server. It is not shown on the
-**Edit** tab, so it can only be granted through the import.
-
-The role with the id `admin` is built in. Users with this role have full access whatever the matrix
-says, so editing the `admin` role's permissions has no effect. They can also log in to every facility,
-including sensitive ones, and are never restricted from syncing. A different role granted `manage`
-for `all` has every permission but not these facility rules: see
+The role with the id `admin` is built in. Users with this role can do everything in Tamanu whatever
+the matrix says, so editing the `admin` role's permissions has no effect. They are the users who can
+change the settings marked high risk and set up a new facility server. They can also log in to every
+facility, including sensitive ones, and are never restricted from syncing. See
 [Facility access](02-settings.md#facility-access).
 
 ### Impersonating a role
@@ -305,7 +300,7 @@ The deployment's settings, edited on the **Settings** screen in the admin panel.
 - `write`
   - Save changes to settings
   - See the **JSON editor** tab
-  - Changing high-risk settings and secret settings also needs `manage` for `all`
+  - Changing high-risk settings and secret settings also needs the `admin` role
 
 Choosing a facility on the **Settings** screen also requires `list` for `Facility`.
 

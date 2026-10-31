@@ -10,8 +10,8 @@ For the users, roles and permissions matrix these settings act on see
 # Settings
 
 Settings are managed in the Settings admin panel. All the settings in this guide are in the **Auth**
-category, which is marked high risk: only a user whose role holds `manage` for `all`, such as the
-`admin` role, can change them. See [Full access](03-permissions.md#full-access).
+category, which is marked high risk: they are changed by a user with the `admin` role, and other
+users see them disabled. See [The admin role](03-permissions.md#the-admin-role).
 
 Login lockout, idle logout, password reset and mobile device registration are covered in the
 [Deploying Tamanu](../01-deploying-tamanu/) configuration guides.
