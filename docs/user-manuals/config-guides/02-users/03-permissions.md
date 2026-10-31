@@ -194,20 +194,12 @@ any current screen**.
 
 User accounts, managed under **Users** > **User profiles** in the admin panel.
 
-- `list`
-  - Open **User profiles** in the admin panel and see the list of users (without it the screen shows a permission message)
-  - Choose clinicians in clinician fields across desktop
-  - Export the user sheet in the admin panel
-- `read`
-  - Show another user's name on desktop printouts, such as the prescriber on a prescription and the submitter on a printed form
-  - See another user's upcoming leave on their profile in the admin panel
-- `write`
-  - Change any user's profile in the admin panel, including changing their password, deactivating them (the **Status** field) and their **Allowed facilities**
-  - Add and remove scheduled leave with **Schedule leave** and **Remove**
-  - Import the user sheet in the admin panel (with `create`)
-- `create`
-  - Add a user with **Add user** in the admin panel
-  - Import the user sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Open **User profiles** in the admin panel and see the list of users (without it the screen shows a permission message)</li><li>Choose clinicians in clinician fields across desktop</li><li>Export the user sheet in the admin panel</li></ul> |
+| `read` | <ul><li>Show another user's name on desktop printouts, such as the prescriber on a prescription and the submitter on a printed form</li><li>See another user's upcoming leave on their profile in the admin panel</li></ul> |
+| `write` | <ul><li>Change any user's profile in the admin panel, including changing their password, deactivating them (the **Status** field) and their **Allowed facilities**</li><li>Add and remove scheduled leave with **Schedule leave** and **Remove**</li><li>Import the user sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a user with **Add user** in the admin panel</li><li>Import the user sheet in the admin panel (with `write`)</li></ul> |
 
 Every user can always see and update their own account, whatever their role; this does not let them edit their own profile in the admin panel. **Add user** and the profile also need `list` for `Role`, `ReferenceData` (designations) and `Facility` to fill their dropdowns. Sync accounts cannot be edited.
 
@@ -215,14 +207,12 @@ Every user can always see and update their own account, whatever their role; thi
 
 The link between users and their designations.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
-- `create`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>Not currently checked</li></ul> |
 
 Designations themselves are governed by `ReferenceData`, and assigning them to a user by `User`.
 
@@ -230,37 +220,25 @@ Designations themselves are governed by `ReferenceData`, and assigning them to a
 
 The roles users are assigned to.
 
-- `list`
-  - See the **Roles** tab under **Users** > **Roles & designations** in the admin panel
-  - See role columns and the **Role** filter in the **Permissions** matrix
-  - Choose a role on **Add user** and on a user profile
-  - Export the permissions spreadsheet (with `list` for `Permission`)
-- `read`
-  - See the role in the **Delete role** dialog in the admin panel
-- `write`
-  - Import the permissions spreadsheet (with `create`, and `create` and `write` for `Permission`)
-- `create`
-  - Add a role with **Add role** in the admin panel
-  - Import the permissions spreadsheet (as above)
-- `delete`
-  - Delete a role in the admin panel, blocked while any user account (including deactivated ones) is assigned to it
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Roles** tab under **Users** > **Roles & designations** in the admin panel</li><li>See role columns and the **Role** filter in the **Permissions** matrix</li><li>Choose a role on **Add user** and on a user profile</li><li>Export the permissions spreadsheet (with `list` for `Permission`)</li></ul> |
+| `read` | <ul><li>See the role in the **Delete role** dialog in the admin panel</li></ul> |
+| `write` | <ul><li>Import the permissions spreadsheet (with `create`, and `create` and `write` for `Permission`)</li></ul> |
+| `create` | <ul><li>Add a role with **Add role** in the admin panel</li><li>Import the permissions spreadsheet (as above)</li></ul> |
+| `delete` | <ul><li>Delete a role in the admin panel, blocked while any user account (including deactivated ones) is assigned to it</li></ul> |
 
 ### `Permission`
 
 The permissions held by each role, managed on the **Permissions** screen in the admin panel.
 
-- `list`
-  - Export the permissions spreadsheet from the **Export** tab (with `list` for `Role`)
-- `read`
-  - See the permissions matrix on the **Edit** tab (without it the tab shows a permission message)
-  - Also requires `list` for `Role` to see any role columns
-- `write`
-  - Import the permissions spreadsheet from the **Import** tab (with `create`, and `create` and `write` for `Role`)
-- `create`
-  - Turn a permission on in the matrix
-  - Import the permissions spreadsheet (with `write`, as above)
-- `delete`
-  - Turn a permission off in the matrix
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the permissions spreadsheet from the **Export** tab (with `list` for `Role`)</li></ul> |
+| `read` | <ul><li>See the permissions matrix on the **Edit** tab (without it the tab shows a permission message)</li><li>Also requires `list` for `Role` to see any role columns</li></ul> |
+| `write` | <ul><li>Import the permissions spreadsheet from the **Import** tab (with `create`, and `create` and `write` for `Role`)</li></ul> |
+| `create` | <ul><li>Turn a permission on in the matrix</li><li>Import the permissions spreadsheet (with `write`, as above)</li></ul> |
+| `delete` | <ul><li>Turn a permission off in the matrix</li></ul> |
 
 Turning a verb on in the matrix also turns on the verbs below it in the order delete, create, write, read, list. Turning a verb off does not turn anything else off.
 
@@ -268,23 +246,13 @@ Turning a verb on in the matrix also turns on the verbs below it in the order de
 
 The facilities in the deployment, and who may log in to them.
 
-- `list`
-  - Choose a facility in facility fields across desktop and the admin panel, such as **Allowed facilities** on a user profile and the facility selector on **Location assignment** and **Asset upload**
-  - Choose a facility in the **Settings** editor in the admin panel
-  - Export the facility sheet, and see facilities on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - See the current facility's name in the sidebar footer on desktop (without it the footer reads **Central admin server**)
-  - Show facility details on printouts such as prescriptions, vaccine certificates, birth notifications and form responses, and on **Bed management** and medication dispensing screens
-- `write`
-  - Edit a facility on the **Manage** tab in the admin panel
-  - Import the facility sheet in the admin panel (with `create`)
-- `create`
-  - Add a facility on the **Manage** tab in the admin panel
-  - Import the facility sheet in the admin panel (with `write`)
-- `login`
-  - When the **Restrict users to facilities** setting is on, log in to every facility that is not in a sensitive network, on desktop and on mobile
-  - Has no effect while that setting is off, because everyone can then log in to every non-sensitive facility
-  - Never grants a sensitive facility: those always have to be listed in the user's **Allowed facilities**
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose a facility in facility fields across desktop and the admin panel, such as **Allowed facilities** on a user profile and the facility selector on **Location assignment** and **Asset upload**</li><li>Choose a facility in the **Settings** editor in the admin panel</li><li>Export the facility sheet, and see facilities on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>See the current facility's name in the sidebar footer on desktop (without it the footer reads **Central admin server**)</li><li>Show facility details on printouts such as prescriptions, vaccine certificates, birth notifications and form responses, and on **Bed management** and medication dispensing screens</li></ul> |
+| `write` | <ul><li>Edit a facility on the **Manage** tab in the admin panel</li><li>Import the facility sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a facility on the **Manage** tab in the admin panel</li><li>Import the facility sheet in the admin panel (with `write`)</li></ul> |
+| `login` | <ul><li>When the **Restrict users to facilities** setting is on, log in to every facility that is not in a sensitive network, on desktop and on mobile</li><li>Has no effect while that setting is off, because everyone can then log in to every non-sensitive facility</li><li>Never grants a sensitive facility: those always have to be listed in the user's **Allowed facilities**</li></ul> |
 
 ## Administration
 
@@ -292,15 +260,11 @@ The facilities in the deployment, and who may log in to them.
 
 The deployment's settings, edited on the **Settings** screen in the admin panel.
 
-- `list`
-  - Not currently checked
-- `read`
-  - See settings in the **Editor** tab of the **Settings** screen
-  - Choose an AI model in the AI model fields of the editor
-- `write`
-  - Save changes to settings
-  - See the **JSON editor** tab
-  - Changing high-risk settings and secret settings also needs the `admin` role
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>See settings in the **Editor** tab of the **Settings** screen</li><li>Choose an AI model in the AI model fields of the editor</li></ul> |
+| `write` | <ul><li>Save changes to settings</li><li>See the **JSON editor** tab</li><li>Changing high-risk settings and secret settings also needs the `admin` role</li></ul> |
 
 Choosing a facility on the **Settings** screen also requires `list` for `Facility`.
 
@@ -308,14 +272,12 @@ Choosing a facility on the **Settings** screen also requires `list` for `Facilit
 
 Images uploaded on the **Asset upload** screen in the admin panel, such as letterhead logos and certificate footers.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Not currently checked
-- `write`
-  - Replace an asset that has already been uploaded (for the same facility, or for all facilities) in the admin panel
-- `create`
-  - Upload an asset that has not been uploaded before in the admin panel
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Replace an asset that has already been uploaded (for the same facility, or for all facilities) in the admin panel</li></ul> |
+| `create` | <ul><li>Upload an asset that has not been uploaded before in the admin panel</li></ul> |
 
 Choosing a facility on the **Asset upload** screen also requires `list` for `Facility`.
 
@@ -323,33 +285,30 @@ Choosing a facility on the **Asset upload** screen also requires `list` for `Fac
 
 Patient letter templates and clinical note templates, managed on the **Templates** screen in the admin panel.
 
-- `list`
-  - See the **Templates** screen in the admin panel
-  - Choose a template when writing a patient letter or a note on desktop
-- `read`
-  - Fill a patient letter or note from the chosen template on desktop
-- `write`
-  - Edit a template, or remove it with **Delete template**, in the admin panel (with `read` and `list`)
-- `create`
-  - Add a template in the admin panel (with `list`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Templates** screen in the admin panel</li><li>Choose a template when writing a patient letter or a note on desktop</li></ul> |
+| `read` | <ul><li>Fill a patient letter or note from the chosen template on desktop</li></ul> |
+| `write` | <ul><li>Edit a template, or remove it with **Delete template**, in the admin panel (with `read` and `list`)</li></ul> |
+| `create` | <ul><li>Add a template in the admin panel (with `list`)</li></ul> |
 
 ### `PatientLetterTemplate`
 
 An old noun for patient letter templates, replaced by `Template`.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
 
 ### `Translation`
 
 Editing translated text on the **Translation** screen in the admin panel.
 
-- `write`
-  - Save changes on the **Edit** tab of the **Translation** screen
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>Save changes on the **Edit** tab of the **Translation** screen</li></ul> |
 
 Viewing the translations needs no permission. Importing and exporting translations is governed by `TranslatedString`.
 
@@ -357,22 +316,20 @@ Viewing the translations needs no permission. Importing and exporting translatio
 
 The translated text itself, imported and exported on the **Translation** screen in the admin panel.
 
-- `list`
-  - Export translations from the **Export** tab of the **Translation** screen
-- `read`
-  - Not currently checked
-- `write`
-  - Import translations from the **Import** tab (with `create`)
-- `create`
-  - Import translations from the **Import** tab (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export translations from the **Export** tab of the **Translation** screen</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Import translations from the **Import** tab (with `create`)</li></ul> |
+| `create` | <ul><li>Import translations from the **Import** tab (with `write`)</li></ul> |
 
 ### `FormBuilder`
 
 The AI form builder in the admin panel.
 
-- `write`
-  - Use the **AI form builder** tab under **Programs** > **Programs & forms** in the admin panel to draft a form by chat
-  - Also requires AI to be set up for the deployment
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>Use the **AI form builder** tab under **Programs** > **Programs & forms** in the admin panel to draft a form by chat</li><li>Also requires AI to be set up for the deployment</li></ul> |
 
 Saving the drafted form into a program also requires `create` and `write` for `Survey`.
 
@@ -380,34 +337,28 @@ Saving the drafted form into a program also requires `create` and `write` for `S
 
 Sensitive networks, which group facilities whose data is kept apart and whose access must be granted user by user.
 
-- `list`
-  - Export the sensitive network sheet, and see networks on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a network on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `create`)
-- `create`
-  - Add a network on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the sensitive network sheet, and see networks on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a network on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a network on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `write`)</li></ul> |
 
 ### `SyncPatient`
 
 Marking a patient for sync, so their full record is kept on this facility or device.
 
-- `create`
-  - See **Sync patient records** on a patient whose record is not yet synced to this facility, on desktop (also requires `read` for `Patient`)
-  - Without it, desktop shows a message to contact the system administrator instead
-  - Mark a patient for sync from the sync icon on the patient's screen, on mobile
+| Verb | What it grants |
+| --- | --- |
+| `create` | <ul><li>See **Sync patient records** on a patient whose record is not yet synced to this facility, on desktop (also requires `read` for `Patient`)</li><li>Without it, desktop shows a message to contact the system administrator instead</li><li>Mark a patient for sync from the sync icon on the patient's screen, on mobile</li></ul> |
 
 ### `Kiosk`
 
 The patient self check-in kiosk.
 
-- `run`
-  - See **Self check-in kiosk** under **Facility admin** in the desktop sidebar (only shown when the kiosk is turned on in settings)
-  - Run the kiosk on the account signed in to the tablet, so patients can find their appointment and check in
-  - Without it the kiosk shows **Self check-in is unavailable**
+| Verb | What it grants |
+| --- | --- |
+| `run` | <ul><li>See **Self check-in kiosk** under **Facility admin** in the desktop sidebar (only shown when the kiosk is turned on in settings)</li><li>Run the kiosk on the account signed in to the tablet, so patients can find their appointment and check in</li><li>Without it the kiosk shows **Self check-in is unavailable**</li></ul> |
 
 The kiosk account needs no other permission to run it.
 
@@ -415,10 +366,10 @@ The kiosk account needs no other permission to run it.
 
 The keys used to sign vaccine certificates.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
 
 ## Reference data and locations
 
@@ -426,38 +377,24 @@ The keys used to sign vaccine certificates.
 
 Values held in the general reference data list, such as allergies, villages, drugs, diagnoses and designations.
 
-- `list`
-  - Choose values in reference data fields across desktop, such as allergy, village, diagnosis, drug and task fields
-  - See the **Designations** tab under **Users** > **Roles & designations**, and choose designations on a user profile, in the admin panel
-  - Export reference data sheets, and see these types on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Show reference data details on desktop, such as the patient's village on printed lab requests, prescriptions, encounter records and certificates, and the encounter's billing type
-  - See a designation in the **Delete designation** dialog in the admin panel
-- `write`
-  - Edit a value on the **Manage** tab in the admin panel
-  - Import reference data sheets in the admin panel (with `create`)
-- `create`
-  - Add a new value straight from a field on desktop where the field allows it, such as allergies and task reasons
-  - Add a value on the **Manage** tab, and add a designation with **Add designation**, in the admin panel
-  - Import reference data sheets in the admin panel (with `write`)
-- `delete`
-  - Delete a designation in the admin panel, blocked while any user or task is assigned to it
-  - No other reference data can be deleted
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose values in reference data fields across desktop, such as allergy, village, diagnosis, drug and task fields</li><li>See the **Designations** tab under **Users** > **Roles & designations**, and choose designations on a user profile, in the admin panel</li><li>Export reference data sheets, and see these types on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Show reference data details on desktop, such as the patient's village on printed lab requests, prescriptions, encounter records and certificates, and the encounter's billing type</li><li>See a designation in the **Delete designation** dialog in the admin panel</li></ul> |
+| `write` | <ul><li>Edit a value on the **Manage** tab in the admin panel</li><li>Import reference data sheets in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a new value straight from a field on desktop where the field allows it, such as allergies and task reasons</li><li>Add a value on the **Manage** tab, and add a designation with **Add designation**, in the admin panel</li><li>Import reference data sheets in the admin panel (with `write`)</li></ul> |
+| `delete` | <ul><li>Delete a designation in the admin panel, blocked while any user or task is assigned to it</li><li>No other reference data can be deleted</li></ul> |
 
 ### `ReferenceDataRelation`
 
 Links between reference data records, such as the address hierarchy (village to subdivision) and facility catchments.
 
-- `list`
-  - Export the relation sheet, and see relations on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a relation, or remove one with **Delete**, on the **Manage** tab in the admin panel
-  - Import the relation sheet in the admin panel (with `create`)
-- `create`
-  - Add a relation on the **Manage** tab in the admin panel
-  - Import the relation sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the relation sheet, and see relations on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a relation, or remove one with **Delete**, on the **Manage** tab in the admin panel</li><li>Import the relation sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a relation on the **Manage** tab in the admin panel</li><li>Import the relation sheet in the admin panel (with `write`)</li></ul> |
 
 Choosing the linked records on the **Manage** tab also requires `list` for `ReferenceData`.
 
@@ -465,34 +402,23 @@ Choosing the linked records on the **Manage** tab also requires `list` for `Refe
 
 Departments within each facility.
 
-- `list`
-  - Choose a department in department fields across desktop, such as when starting an encounter, requesting labs or imaging, or recording a procedure or vaccine
-  - Choose a department in the **Settings** editor in the admin panel
-  - Export the department sheet, and see departments on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Has no effect on any current screen
-- `write`
-  - Edit a department on the **Manage** tab in the admin panel
-  - Import the department sheet in the admin panel (with `create`)
-- `create`
-  - Add a department on the **Manage** tab in the admin panel
-  - Import the department sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose a department in department fields across desktop, such as when starting an encounter, requesting labs or imaging, or recording a procedure or vaccine</li><li>Choose a department in the **Settings** editor in the admin panel</li><li>Export the department sheet, and see departments on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Has no effect on any current screen</li></ul> |
+| `write` | <ul><li>Edit a department on the **Manage** tab in the admin panel</li><li>Import the department sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a department on the **Manage** tab in the admin panel</li><li>Import the department sheet in the admin panel (with `write`)</li></ul> |
 
 ### `LocationGroup`
 
 Areas (such as wards or clinics) within a facility, which group locations.
 
-- `list`
-  - Choose an area in area fields and filters across desktop, such as **Bed management**, the emergency, lab, imaging and medication lists, patient search and appointment booking
-  - Export the location group sheet, and see areas on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Open handover notes from **Bed management** on desktop (with the other permissions listed under `Location`)
-- `write`
-  - Edit an area on the **Manage** tab in the admin panel
-  - Import the location group sheet in the admin panel (with `create`)
-- `create`
-  - Add an area on the **Manage** tab in the admin panel
-  - Import the location group sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose an area in area fields and filters across desktop, such as **Bed management**, the emergency, lab, imaging and medication lists, patient search and appointment booking</li><li>Export the location group sheet, and see areas on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Open handover notes from **Bed management** on desktop (with the other permissions listed under `Location`)</li></ul> |
+| `write` | <ul><li>Edit an area on the **Manage** tab in the admin panel</li><li>Import the location group sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add an area on the **Manage** tab in the admin panel</li><li>Import the location group sheet in the admin panel (with `write`)</li></ul> |
 
 The area list on the outpatient appointments calendar is controlled by `list` for `Location`, not `LocationGroup`.
 
@@ -500,19 +426,12 @@ The area list on the outpatient appointments calendar is controlled by `list` fo
 
 Locations (such as beds or rooms) within an area of a facility.
 
-- `list`
-  - Choose a location in location fields across desktop, such as moving a patient or booking a location
-  - See the **Location bookings** calendar and the area list on the outpatient appointments calendar on desktop
-  - Choose a location in the **Settings** editor and on the **Location assignment** screen in the admin panel
-  - Export the location sheet, and see locations on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Open handover notes from **Bed management** on desktop (with `read` for `LocationGroup`, `Encounter` and `EncounterNote`, and `list` for `Patient`)
-- `write`
-  - Edit a location on the **Manage** tab in the admin panel
-  - Import the location sheet in the admin panel (with `create`)
-- `create`
-  - Add a location on the **Manage** tab in the admin panel
-  - Import the location sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose a location in location fields across desktop, such as moving a patient or booking a location</li><li>See the **Location bookings** calendar and the area list on the outpatient appointments calendar on desktop</li><li>Choose a location in the **Settings** editor and on the **Location assignment** screen in the admin panel</li><li>Export the location sheet, and see locations on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Open handover notes from **Bed management** on desktop (with `read` for `LocationGroup`, `Encounter` and `EncounterNote`, and `list` for `Patient`)</li></ul> |
+| `write` | <ul><li>Edit a location on the **Manage** tab in the admin panel</li><li>Import the location sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a location on the **Manage** tab in the admin panel</li><li>Import the location sheet in the admin panel (with `write`)</li></ul> |
 
 Moving a patient is governed by `write` for `Encounter`, not by `write` for `Location`.
 
@@ -520,10 +439,10 @@ Moving a patient is governed by `write` for `Encounter`, not by `write` for `Loc
 
 The clinicians assigned to each location, as scheduled in the admin panel.
 
-- `list`
-  - See which clinicians are assigned to each location in the day view of **Location bookings** on desktop (either `list` or `read` is enough)
-- `read`
-  - Same as `list`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See which clinicians are assigned to each location in the day view of **Location bookings** on desktop (either `list` or `read` is enough)</li></ul> |
+| `read` | <ul><li>Same as `list`</li></ul> |
 
 To create and change assignments, see `LocationSchedule`.
 
@@ -531,47 +450,35 @@ To create and change assignments, see `LocationSchedule`.
 
 Scheduling clinicians to locations on the **Location assignment** screen in the admin panel.
 
-- `list`
-  - Open **Users** > **Location assignment** in the admin panel and see the assignment calendar (without it the screen shows a permission message)
-- `read`
-  - Select an assignment on the calendar to see its details
-- `write`
-  - Change an assignment with the **Edit** action in the assignment panel
-- `create`
-  - Assign a user to a location with **Assign user**
-- `delete`
-  - Remove an assignment with **Delete** in the assignment panel
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Open **Users** > **Location assignment** in the admin panel and see the assignment calendar (without it the screen shows a permission message)</li></ul> |
+| `read` | <ul><li>Select an assignment on the calendar to see its details</li></ul> |
+| `write` | <ul><li>Change an assignment with the **Edit** action in the assignment panel</li></ul> |
+| `create` | <ul><li>Assign a user to a location with **Assign user**</li></ul> |
+| `delete` | <ul><li>Remove an assignment with **Delete** in the assignment panel</li></ul> |
 
 ### `PatientFieldDefinitionCategory`
 
 Categories that group custom patient fields.
 
-- `list`
-  - Choose a category when adding or editing a patient field definition on the **Manage** tab in the admin panel
-  - Export the sheet, and see categories on the **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a category on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `create`)
-- `create`
-  - Add a category on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose a category when adding or editing a patient field definition on the **Manage** tab in the admin panel</li><li>Export the sheet, and see categories on the **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a category on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a category on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `write`)</li></ul> |
 
 ### `PatientFieldDefinition`
 
 Custom patient fields that a deployment adds to patient details.
 
-- `list`
-  - Export the patient field definition sheet, and see definitions on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a definition on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `create`)
-- `create`
-  - Add a definition on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the patient field definition sheet, and see definitions on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a definition on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a definition on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `write`)</li></ul> |
 
 Choosing a category on the **Manage** tab also requires `list` for `PatientFieldDefinitionCategory`. Seeing and filling in the fields on desktop is governed by `Patient`.
 
@@ -579,16 +486,12 @@ Choosing a category on the **Manage** tab also requires `list` for `PatientField
 
 The vaccine schedule: which vaccines are due, and when.
 
-- `list`
-  - Export the scheduled vaccine sheet, and see scheduled vaccines on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a scheduled vaccine on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `create`)
-- `create`
-  - Add a scheduled vaccine on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the scheduled vaccine sheet, and see scheduled vaccines on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a scheduled vaccine on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a scheduled vaccine on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `write`)</li></ul> |
 
 Choosing the vaccine on the **Manage** tab also requires `list` for `ReferenceData`. Seeing a patient's vaccine schedule on desktop is governed by `PatientVaccine`.
 
@@ -596,17 +499,12 @@ Choosing the vaccine on the **Manage** tab also requires `list` for `ReferenceDa
 
 The certifiable vaccine reference data, which says which vaccines can appear on vaccine certificates.
 
-- `list`
-  - Export the certifiable vaccine sheet in the admin panel
-  - See certifiable vaccines on the **Reference data** > **Manage** tab in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a certifiable vaccine on the **Manage** tab in the admin panel
-  - Import the certifiable vaccine sheet in the admin panel (with `create`)
-- `create`
-  - Add a certifiable vaccine on the **Manage** tab in the admin panel
-  - Import the certifiable vaccine sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the certifiable vaccine sheet in the admin panel</li><li>See certifiable vaccines on the **Reference data** > **Manage** tab in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a certifiable vaccine on the **Manage** tab in the admin panel</li><li>Import the certifiable vaccine sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a certifiable vaccine on the **Manage** tab in the admin panel</li><li>Import the certifiable vaccine sheet in the admin panel (with `write`)</li></ul> |
 
 Choosing the vaccine on the **Manage** tab also requires `list` for `ReferenceData`.
 
@@ -614,31 +512,23 @@ Choosing the vaccine on the **Manage** tab also requires `list` for `ReferenceDa
 
 Codes that map imaging areas to an external imaging system.
 
-- `list`
-  - Export the imaging area external code sheet, and see the codes on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a code on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `create`)
-- `create`
-  - Add a code on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the imaging area external code sheet, and see the codes on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a code on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a code on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `write`)</li></ul> |
 
 ### `ImagingTypeExternalCode`
 
 Codes that map imaging types to an external imaging system.
 
-- `list`
-  - Export the imaging type external code sheet, and see the codes on the **Reference data** > **Manage** tab, in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Edit a code on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `create`)
-- `create`
-  - Add a code on the **Manage** tab in the admin panel
-  - Import the sheet in the admin panel (with `write`)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export the imaging type external code sheet, and see the codes on the **Reference data** > **Manage** tab, in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Edit a code on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `create`)</li></ul> |
+| `create` | <ul><li>Add a code on the **Manage** tab in the admin panel</li><li>Import the sheet in the admin panel (with `write`)</li></ul> |
 
 ## Reports
 
@@ -646,17 +536,13 @@ Codes that map imaging types to an external imaging system.
 
 Database-defined reports: generating them on desktop, and managing them on the **Reports** screen in the admin panel.
 
-- `list`
-  - Choose reports in report fields of the **Settings** editor in the admin panel, such as the DHIS2 **Reports** setting
-- `read`
-  - Open the **Reports** screen in the admin panel, see reports and their versions, and export a version (with `read` for `ReportDefinitionVersion`)
-- `write`
-  - Not currently checked
-- `create`
-  - Create a report on the **Create** tab, save a new version from the editor, and import a report on the **Import** tab (with `create` for `ReportDefinitionVersion`)
-- `run`
-  - See a report in the report list under **Facility admin** > **Reports** on desktop, and generate or email it
-  - The **Generic Survey Export - Line List** report also needs `read` for `Survey` on the chosen form
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose reports in report fields of the **Settings** editor in the admin panel, such as the DHIS2 **Reports** setting</li></ul> |
+| `read` | <ul><li>Open the **Reports** screen in the admin panel, see reports and their versions, and export a version (with `read` for `ReportDefinitionVersion`)</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>Create a report on the **Create** tab, save a new version from the editor, and import a report on the **Import** tab (with `create` for `ReportDefinitionVersion`)</li></ul> |
+| `run` | <ul><li>See a report in the report list under **Facility admin** > **Reports** on desktop, and generate or email it</li><li>The **Generic Survey Export - Line List** report also needs `read` for `Survey` on the chosen form</li></ul> |
 
 The objectId for `ReportDefinition` is the report's ID: the ID created when the report is first created or imported (shown as **Report id** after an import), or a fixed ID for built-in reports such as `generic-survey-export-line-list`. IDs created in the admin panel differ between deployments. The **Permissions** matrix lists one row per report, by name. A `run` permission with no objectId lets the role run every report, and makes per-report `run` rows irrelevant. A per-report `run` lets the role run only that report. The admin **Reports** screen checks report access as a whole, so a per-report `read` row opens it for every report, and a per-report `write` row does nothing.
 
@@ -664,36 +550,31 @@ The objectId for `ReportDefinition` is the report's ID: the ID created when the 
 
 The versions of each database-defined report.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Needed alongside `read` for `ReportDefinition` to use the **Reports** screen in the admin panel
-- `write`
-  - Not currently checked
-- `create`
-  - Needed alongside `create` for `ReportDefinition` to create, save or import reports in the admin panel
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Needed alongside `read` for `ReportDefinition` to use the **Reports** screen in the admin panel</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>Needed alongside `create` for `ReportDefinition` to create, save or import reports in the admin panel</li></ul> |
 
 ### `ReportDbSchema`
 
 Access to reports that query the raw database instead of the reporting schema.
 
-- `write`
-  - See raw-database reports on the **Reports** screen in the admin panel (when the reporting schema is in use, other users only see reporting-schema reports)
-  - See and change the **DB Schema** field when creating or editing a report
-  - Import a report that uses the raw database
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>See raw-database reports on the **Reports** screen in the admin panel (when the reporting schema is in use, other users only see reporting-schema reports)</li><li>See and change the **DB Schema** field when creating or editing a report</li><li>Import a report that uses the raw database</li></ul> |
 
 ### `ReportRequest`
 
 Requests to generate a report and email it.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
-- `create`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>Not currently checked</li></ul> |
 
 Emailing a report is governed by `run` for `ReportDefinition`.
 
@@ -703,24 +584,12 @@ Emailing a report is governed by `run` for `ReportDefinition`.
 
 A patient record, and access to the patient screens built on it.
 
-- `list`
-  - See and search the patient lists, including **All patients** and recently discharged patients
-  - See **Recently viewed patients**
-  - Search for a patient in any patient picker field
-  - Use bed management, ward occupancy and readmission statistics, and handover notes (handover notes also need `read` for `Location` and `LocationGroup`)
-- `read`
-  - Open a patient and see their details, including birth details, additional details, insurance plans and custom patient fields
-  - Needed for almost every patient-level list: ongoing conditions, allergies, family history, other issues, care plans, forms, referrals, program registrations and secondary IDs
-  - See the **Reminder contacts** button (also on mobile)
-  - Mark a patient for sync to this facility (with `create` for `SyncPatient`)
-  - In the admin panel, look up patients to merge on the **Patient merge** screen
-- `write`
-  - Save changes on the patient **Details** tab, including birth details. Changing the display ID also saves the old ID as a secondary ID
-  - Add and remove reminder contacts with **Add contact** and **Remove** (also on mobile)
-  - Record or revert a death (with `create` for `PatientDeath`)
-  - In the admin panel, merge two patients on the **Patient merge** screen
-- `create`
-  - Use **Add new patient**, including recording birth details for a birth registration
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See and search the patient lists, including **All patients** and recently discharged patients</li><li>See **Recently viewed patients**</li><li>Search for a patient in any patient picker field</li><li>Use bed management, ward occupancy and readmission statistics, and handover notes (handover notes also need `read` for `Location` and `LocationGroup`)</li></ul> |
+| `read` | <ul><li>Open a patient and see their details, including birth details, additional details, insurance plans and custom patient fields</li><li>Needed for almost every patient-level list: ongoing conditions, allergies, family history, other issues, care plans, forms, referrals, program registrations and secondary IDs</li><li>See the **Reminder contacts** button (also on mobile)</li><li>Mark a patient for sync to this facility (with `create` for `SyncPatient`)</li><li>In the admin panel, look up patients to merge on the **Patient merge** screen</li></ul> |
+| `write` | <ul><li>Save changes on the patient **Details** tab, including birth details. Changing the display ID also saves the old ID as a secondary ID</li><li>Add and remove reminder contacts with **Add contact** and **Remove** (also on mobile)</li><li>Record or revert a death (with `create` for `PatientDeath`)</li><li>In the admin panel, merge two patients on the **Patient merge** screen</li></ul> |
+| `create` | <ul><li>Use **Add new patient**, including recording birth details for a birth registration</li></ul> |
 
 The **Details** tab opens if the role has any of `read`, `write` or `create`; without `write` the changes cannot be saved.
 
@@ -728,14 +597,12 @@ The **Details** tab opens if the role has any of `read`, `write` or `create`; wi
 
 An allergy recorded against a patient.
 
-- `list`
-  - See the **Allergies** section in the patient sidebar
-- `read`
-  - Needed alongside `write` to save changes to an existing allergy
-- `write`
-  - Edit an existing allergy
-- `create`
-  - **Add** an allergy
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Allergies** section in the patient sidebar</li></ul> |
+| `read` | <ul><li>Needed alongside `write` to save changes to an existing allergy</li></ul> |
+| `write` | <ul><li>Edit an existing allergy</li></ul> |
+| `create` | <ul><li>**Add** an allergy</li></ul> |
 
 Also requires `read` for `Patient`. Not checked on mobile.
 
@@ -743,16 +610,13 @@ Also requires `read` for `Patient`. Not checked on mobile.
 
 An ongoing condition recorded against a patient.
 
-- `list`
-  - See the **Ongoing conditions** section in the patient sidebar
-- `read`
-  - Needed alongside `write` to save changes to an existing condition
-- `write`
-  - Edit an existing condition, including marking it resolved
-- `create`
-  - **Add** an ongoing condition
-- `delete`
-  - **Delete** an ongoing condition
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Ongoing conditions** section in the patient sidebar</li></ul> |
+| `read` | <ul><li>Needed alongside `write` to save changes to an existing condition</li></ul> |
+| `write` | <ul><li>Edit an existing condition, including marking it resolved</li></ul> |
+| `create` | <ul><li>**Add** an ongoing condition</li></ul> |
+| `delete` | <ul><li>**Delete** an ongoing condition</li></ul> |
 
 Also requires `read` for `Patient`. Not checked on mobile.
 
@@ -760,14 +624,12 @@ Also requires `read` for `Patient`. Not checked on mobile.
 
 A family history condition recorded against a patient.
 
-- `list`
-  - See the **Family history** section in the patient sidebar
-- `read`
-  - Needed alongside `write` to save changes to an existing family history item
-- `write`
-  - Edit an existing family history item
-- `create`
-  - **Add** a family history item
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Family history** section in the patient sidebar</li></ul> |
+| `read` | <ul><li>Needed alongside `write` to save changes to an existing family history item</li></ul> |
+| `write` | <ul><li>Edit an existing family history item</li></ul> |
+| `create` | <ul><li>**Add** a family history item</li></ul> |
 
 Also requires `read` for `Patient`. Not checked on mobile.
 
@@ -775,14 +637,12 @@ Also requires `read` for `Patient`. Not checked on mobile.
 
 An issue or warning recorded against a patient, other than an ongoing condition.
 
-- `list`
-  - See the **Other patient issues** section in the patient sidebar
-- `read`
-  - Needed alongside `write` to save changes to an existing issue
-- `write`
-  - Edit an existing patient issue
-- `create`
-  - **Add** a patient issue
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Other patient issues** section in the patient sidebar</li></ul> |
+| `read` | <ul><li>Needed alongside `write` to save changes to an existing issue</li></ul> |
+| `write` | <ul><li>Edit an existing patient issue</li></ul> |
+| `create` | <ul><li>**Add** a patient issue</li></ul> |
 
 Also requires `read` for `Patient`. Not checked on mobile.
 
@@ -790,15 +650,12 @@ Also requires `read` for `Patient`. Not checked on mobile.
 
 A care plan recorded against a patient, and its notes.
 
-- `list`
-  - See the **Care plans** section in the patient sidebar
-- `read`
-  - Open a care plan and see its notes
-- `write`
-  - **Edit** or **Delete** a note on a care plan
-- `create`
-  - **Add** a care plan (**Add care plan**)
-  - **Add note** to an existing care plan
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Care plans** section in the patient sidebar</li></ul> |
+| `read` | <ul><li>Open a care plan and see its notes</li></ul> |
+| `write` | <ul><li>**Edit** or **Delete** a note on a care plan</li></ul> |
+| `create` | <ul><li>**Add** a care plan (**Add care plan**)</li><li>**Add note** to an existing care plan</li></ul> |
 
 Also requires `read` for `Patient`. Not checked on mobile.
 
@@ -806,10 +663,10 @@ Also requires `read` for `Patient`. Not checked on mobile.
 
 A patient's birth details (birth registry fields).
 
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
 
 Birth details are seen with `read` for `Patient`, saved with `write` for `Patient`, and created with `create` for `Patient`.
 
@@ -817,12 +674,10 @@ Birth details are seen with `read` for `Patient`, saved with `write` for `Patien
 
 Recording a patient's death.
 
-- `read`
-  - See the death details on a deceased patient's summary and open the **Death certificate**
-  - See **Revert death record** for a deceased patient (with `create`)
-- `create`
-  - **Record death**, and complete the **Cause of death** details
-  - **Revert death record** while the death record is not final
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>See the death details on a deceased patient's summary and open the **Death certificate**</li><li>See **Revert death record** for a deceased patient (with `create`)</li></ul> |
+| `create` | <ul><li>**Record death**, and complete the **Cause of death** details</li><li>**Revert death record** while the death record is not final</li></ul> |
 
 Also requires `write` for `Patient` to record or revert a death, and the **Record death** actions only show when the patient deaths feature is enabled.
 
@@ -830,10 +685,10 @@ Also requires `write` for `Patient` to record or revert a death, and the **Recor
 
 The recorded details of a patient's death.
 
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
 
 Death details are viewed with `read` for `PatientDeath`.
 
@@ -841,14 +696,12 @@ Death details are viewed with `read` for `PatientDeath`.
 
 A patient's secondary identifiers, such as a previous display ID.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Has no effect on any current screen
-- `write`
-  - Has no effect on any current screen
-- `create`
-  - Has no effect on any current screen
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Has no effect on any current screen</li></ul> |
+| `write` | <ul><li>Has no effect on any current screen</li></ul> |
+| `create` | <ul><li>Has no effect on any current screen</li></ul> |
 
 Secondary IDs are created automatically, under `write` for `Patient`, when a patient's display ID is changed.
 
@@ -856,13 +709,11 @@ Secondary IDs are created automatically, under `write` for `Patient`, when a pat
 
 The AI-generated patient summary.
 
-- `read`
-  - See the **AI patient summary** panel in the patient sidebar (with `write`)
-- `write`
-  - See the **AI patient summary** panel (with `read`)
-  - Edit and **Save** the summary, or **Discard** it
-- `create`
-  - Generate the summary, including **Regenerate AI summary** and the automatic generation when a summary is missing or out of date
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>See the **AI patient summary** panel in the patient sidebar (with `write`)</li></ul> |
+| `write` | <ul><li>See the **AI patient summary** panel (with `read`)</li><li>Edit and **Save** the summary, or **Discard** it</li></ul> |
+| `create` | <ul><li>Generate the summary, including **Regenerate AI summary** and the automatic generation when a summary is missing or out of date</li></ul> |
 
 The panel only shows when the patient summary setting is enabled and the patient is marked for sync to this facility.
 
@@ -870,11 +721,10 @@ The panel only shows when the patient summary setting is enabled and the patient
 
 Registering a patient for the patient portal.
 
-- `read`
-  - Has no effect on any current screen
-- `create`
-  - Use **Patient portal registration** under **Patient resources** to email the patient a registration link
-  - Send a portal form to a patient who has no portal account yet
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>Has no effect on any current screen</li></ul> |
+| `create` | <ul><li>Use **Patient portal registration** under **Patient resources** to email the patient a registration link</li><li>Send a portal form to a patient who has no portal account yet</li></ul> |
 
 These only show when the patient portal feature is enabled.
 
@@ -882,15 +732,12 @@ These only show when the patient portal feature is enabled.
 
 Forms sent to a patient through the patient portal.
 
-- `list`
-  - See the **Outstanding patient program forms** table on the patient **Forms** tab
-- `read`
-  - Not currently checked
-- `create`
-  - **Send to patient portal** when choosing a form
-  - Also needs `create` for `PatientPortalRegistration` if the patient has no portal account yet
-- `delete`
-  - **Delete** an outstanding portal form
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Outstanding patient program forms** table on the patient **Forms** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>**Send to patient portal** when choosing a form</li><li>Also needs `create` for `PatientPortalRegistration` if the patient has no portal account yet</li></ul> |
+| `delete` | <ul><li>**Delete** an outstanding portal form</li></ul> |
 
 These only show when the patient portal feature is enabled. Choosing a form also needs the `Program` and `Survey` permissions for that form.
 
@@ -900,39 +747,24 @@ These only show when the patient portal feature is enabled. Choosing a form also
 
 A program, which groups forms (surveys) and referrals.
 
-- `list`
-  - See the program list when starting a **New form**. Only programs with at least one form the role can `submit` are listed
-  - In the admin panel, see programs on the **Programs & forms** screen and export a program from the **Export** tab
-- `read`
-  - Load a program's forms when starting a **New form**
-  - In the admin panel, open a program on the **Manage** tab
-- `write`
-  - In the admin panel, **Edit program metadata**
-  - Import programs from the **Import** tab (with `create`)
-- `create`
-  - Import programs from the **Import** tab (with `write`). This also imports any program registry, statuses and conditions in the file
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the program list when starting a **New form**. Only programs with at least one form the role can `submit` are listed</li><li>In the admin panel, see programs on the **Programs & forms** screen and export a program from the **Export** tab</li></ul> |
+| `read` | <ul><li>Load a program's forms when starting a **New form**</li><li>In the admin panel, open a program on the **Manage** tab</li></ul> |
+| `write` | <ul><li>In the admin panel, **Edit program metadata**</li><li>Import programs from the **Import** tab (with `create`)</li></ul> |
+| `create` | <ul><li>Import programs from the **Import** tab (with `write`). This also imports any program registry, statuses and conditions in the file</li></ul> |
 
 ### `Survey`
 
 A form (survey), including program forms and referral forms.
 
-- `list`
-  - See the list of forms to choose from when starting a **New form**, a referral or a procedure form
-  - Choose a form in report parameters
-  - In the admin panel, see a program's forms on the **Manage** tab
-- `read`
-  - Open a form to fill it in
-  - See a form's submitted responses in the patient and encounter **Forms** tabs and the **Referrals** tab, and open, print or view the **Change log** of a response
-  - On mobile, see a form's past responses and referrals
-  - Run the **Generic Survey Export - Line List** report for that form
-- `write`
-  - **Edit** a submitted program form response (with `read` for `SurveyResponse`)
-  - In the admin panel, **Edit form metadata**, **Make historical** or **Make current**
-  - Import forms from the **Import** tab or save forms from the **AI form builder** (with `create`)
-- `create`
-  - Import forms from the **Import** tab or save forms from the **AI form builder** (with `write`)
-- `submit`
-  - Have the form offered in the list when starting a **New form**, a referral or a procedure form, on desktop and mobile
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the list of forms to choose from when starting a **New form**, a referral or a procedure form</li><li>Choose a form in report parameters</li><li>In the admin panel, see a program's forms on the **Manage** tab</li></ul> |
+| `read` | <ul><li>Open a form to fill it in</li><li>See a form's submitted responses in the patient and encounter **Forms** tabs and the **Referrals** tab, and open, print or view the **Change log** of a response</li><li>On mobile, see a form's past responses and referrals</li><li>Run the **Generic Survey Export - Line List** report for that form</li></ul> |
+| `write` | <ul><li>**Edit** a submitted program form response (with `read` for `SurveyResponse`)</li><li>In the admin panel, **Edit form metadata**, **Make historical** or **Make current**</li><li>Import forms from the **Import** tab or save forms from the **AI form builder** (with `create`)</li></ul> |
+| `create` | <ul><li>Import forms from the **Import** tab or save forms from the **AI form builder** (with `write`)</li></ul> |
+| `submit` | <ul><li>Have the form offered in the list when starting a **New form**, a referral or a procedure form, on desktop and mobile</li></ul> |
 
 To fill in a form on desktop a role needs `list` and `read` for `Program`, `list` for `Survey`, `read` and `submit` for that form, and `create` for `SurveyResponse`. Mobile checks only `submit`.
 
@@ -942,19 +774,13 @@ The objectId is the form's id: `program-`, the program code, a hyphen, then the 
 
 A submitted form response.
 
-- `list`
-  - See submitted forms in the patient and encounter **Forms** tabs and referrals in the **Referrals** tab, limited to forms the role can `read`
-- `read`
-  - Open a submitted response, and view its **Change log**
-  - Needed to **Edit** a response (with `write` for that `Survey`)
-  - Let a form fill in answers from the patient's earlier responses
-- `write`
-  - Not currently checked
-- `create`
-  - Submit a program form or a procedure form
-  - In the admin panel, import responses on the **Survey responses** screen
-- `delete`
-  - **Delete** a submitted form response
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See submitted forms in the patient and encounter **Forms** tabs and referrals in the **Referrals** tab, limited to forms the role can `read`</li></ul> |
+| `read` | <ul><li>Open a submitted response, and view its **Change log**</li><li>Needed to **Edit** a response (with `write` for that `Survey`)</li><li>Let a form fill in answers from the patient's earlier responses</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>Submit a program form or a procedure form</li><li>In the admin panel, import responses on the **Survey responses** screen</li></ul> |
+| `delete` | <ul><li>**Delete** a submitted form response</li></ul> |
 
 Also requires `read` for the form's `Survey` to open, edit or view the change log of a response. Referrals are submitted under `create` for `Referral`, vitals under `Vitals` and charts under `Charting`. Not checked on mobile.
 
@@ -962,17 +788,13 @@ Also requires `read` for the form's `Survey` to open, edit or view the change lo
 
 Referrals made from a patient's **Referrals** tab.
 
-- `list`
-  - Checked only for an encounter's own referral list, which no current desktop screen uses. The **Referrals** tab list needs `list` for `SurveyResponse` and `read` for each referral form's `Survey`
-- `read`
-  - Needed, with `write`, to change a referral's status
-- `write`
-  - **Complete** or **Cancel** a pending referral
-  - **Admit** a patient from a pending referral (with `create` for `Encounter`)
-- `create`
-  - Submit a **New referral** (also requires `list` and `submit` for `Survey`, and `read` for the referral form's `Survey`)
-- `delete`
-  - **Delete** a referral from its actions menu
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Checked only for an encounter's own referral list, which no current desktop screen uses. The **Referrals** tab list needs `list` for `SurveyResponse` and `read` for each referral form's `Survey`</li></ul> |
+| `read` | <ul><li>Needed, with `write`, to change a referral's status</li></ul> |
+| `write` | <ul><li>**Complete** or **Cancel** a pending referral</li><li>**Admit** a patient from a pending referral (with `create` for `Encounter`)</li></ul> |
+| `create` | <ul><li>Submit a **New referral** (also requires `list` and `submit` for `Survey`, and `read` for the referral form's `Survey`)</li></ul> |
+| `delete` | <ul><li>**Delete** a referral from its actions menu</li></ul> |
 
 Viewing and printing a referral is controlled by the `Survey` and `SurveyResponse` permissions, not this noun.
 
@@ -980,18 +802,11 @@ Viewing and printing a referral is controlled by the `Survey` and `SurveyRespons
 
 A program registry.
 
-- `list`
-  - See the **Program Registry** section in the sidebar, listing every current registry
-  - Choose a registry when adding a patient to one
-  - See the charts linked to a registry
-  - In the admin panel, see the **Program registries** list
-- `read`
-  - Open a registry's page and see its patients
-  - Open a patient's registry page, status history, related conditions and forms
-  - On mobile, see the registry in the patient's registrations, the add form and the patient search filter
-  - In the admin panel, open a registry
-- `write`
-  - In the admin panel, **Edit program registry metadata**, including making a registry historical or current
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Program Registry** section in the sidebar, listing every current registry</li><li>Choose a registry when adding a patient to one</li><li>See the charts linked to a registry</li><li>In the admin panel, see the **Program registries** list</li></ul> |
+| `read` | <ul><li>Open a registry's page and see its patients</li><li>Open a patient's registry page, status history, related conditions and forms</li><li>On mobile, see the registry in the patient's registrations, the add form and the patient search filter</li><li>In the admin panel, open a registry</li></ul> |
+| `write` | <ul><li>In the admin panel, **Edit program registry metadata**, including making a registry historical or current</li></ul> |
 
 The objectId is the registry's id: `programRegistry-` followed by the `registryCode` from the program import file's Registry sheet, exactly as written there. The code is not lower-cased, so `registryCode` `HIV` gives `programRegistry-HIV`. `read` and `write` can be granted per registry. A grant with no objectId covers every registry, and per-registry grants cannot narrow it. `list` cannot be granted per registry, so the desktop sidebar lists every registry to a role with `list`, even ones it cannot `read`; opening one of those fails. Mobile hides registries the role cannot `read`.
 
@@ -999,13 +814,11 @@ The objectId is the registry's id: `programRegistry-` followed by the `registryC
 
 A clinical status a program registry can assign to a patient.
 
-- `list`
-  - Choose a **Status** when adding or updating a registration, and filter a registry's patients by status
-  - In the admin panel, see the **Statuses** tab of a program registry
-- `read`
-  - In the admin panel, needed alongside `write` to edit a status
-- `write`
-  - In the admin panel, edit a status, or make it historical or current
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose a **Status** when adding or updating a registration, and filter a registry's patients by status</li><li>In the admin panel, see the **Statuses** tab of a program registry</li></ul> |
+| `read` | <ul><li>In the admin panel, needed alongside `write` to edit a status</li></ul> |
+| `write` | <ul><li>In the admin panel, edit a status, or make it historical or current</li></ul> |
 
 New statuses come from importing the program (`create` and `write` for `Program`).
 
@@ -1013,13 +826,11 @@ New statuses come from importing the program (`create` and `write` for `Program`
 
 A condition a program registry tracks.
 
-- `list`
-  - Choose related conditions when adding or updating a registration, and filter a registry's patients by condition
-  - In the admin panel, see the **Related conditions** tab of a program registry
-- `read`
-  - In the admin panel, needed alongside `write` to edit a condition
-- `write`
-  - In the admin panel, edit a condition, or make it historical or current
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose related conditions when adding or updating a registration, and filter a registry's patients by condition</li><li>In the admin panel, see the **Related conditions** tab of a program registry</li></ul> |
+| `read` | <ul><li>In the admin panel, needed alongside `write` to edit a condition</li></ul> |
+| `write` | <ul><li>In the admin panel, edit a condition, or make it historical or current</li></ul> |
 
 New conditions come from importing the program (`create` and `write` for `Program`).
 
@@ -1027,34 +838,23 @@ New conditions come from importing the program (`create` and `write` for `Progra
 
 A category for a registry's related conditions, such as confirmed or recorded in error.
 
-- `list`
-  - Choose a **Category** for a related condition
-  - In the admin panel, see the **Related condition categories** tab of a program registry
-- `read`
-  - In the admin panel, needed alongside `write` to edit a category
-- `write`
-  - In the admin panel, edit a category, or make it historical or current
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose a **Category** for a related condition</li><li>In the admin panel, see the **Related condition categories** tab of a program registry</li></ul> |
+| `read` | <ul><li>In the admin panel, needed alongside `write` to edit a category</li></ul> |
+| `write` | <ul><li>In the admin panel, edit a category, or make it historical or current</li></ul> |
 
 ### `PatientProgramRegistration`
 
 A patient's registration in a program registry.
 
-- `list`
-  - See the **Program registry** section in the patient sidebar (with `read`)
-  - See the patients on a program registry's page
-  - See a registration's status history
-  - On mobile, see the **Program registries** menu item (`list` or `create`) and the patient's registrations
-- `read`
-  - Open a patient's registry page from the patient sidebar
-  - On mobile, open a registration, and let forms show the patient's registration details
-- `write`
-  - **Update** a registration's status and related conditions
-  - **Remove** a patient from a registry, or **Activate** a removed registration
-- `create`
-  - **Add** a patient to a registry (**Add program registry**)
-  - On mobile, use the add button in the **Program registry** section
-- `delete`
-  - **Delete** a registration (marks it recorded in error and removes its related conditions)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Program registry** section in the patient sidebar (with `read`)</li><li>See the patients on a program registry's page</li><li>See a registration's status history</li><li>On mobile, see the **Program registries** menu item (`list` or `create`) and the patient's registrations</li></ul> |
+| `read` | <ul><li>Open a patient's registry page from the patient sidebar</li><li>On mobile, open a registration, and let forms show the patient's registration details</li></ul> |
+| `write` | <ul><li>**Update** a registration's status and related conditions</li><li>**Remove** a patient from a registry, or **Activate** a removed registration</li></ul> |
+| `create` | <ul><li>**Add** a patient to a registry (**Add program registry**)</li><li>On mobile, use the add button in the **Program registry** section</li></ul> |
+| `delete` | <ul><li>**Delete** a registration (marks it recorded in error and removes its related conditions)</li></ul> |
 
 Also requires `read` for `Patient` and `read` for `ProgramRegistry` on that registry, except for **Update**, **Remove**, **Activate** and **Delete**, which do not check the registry.
 
@@ -1062,16 +862,13 @@ Also requires `read` for `Patient` and `read` for `ProgramRegistry` on that regi
 
 A related condition recorded on a patient's program registration.
 
-- `list`
-  - See the **Related conditions** on a patient's registry page
-- `read`
-  - Needed alongside `write` to change a related condition
-- `write`
-  - **Update condition**: change a related condition's category, including to recorded in error
-- `create`
-  - Add related conditions when adding a patient to a registry or using **Update**
-- `delete`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Related conditions** on a patient's registry page</li></ul> |
+| `read` | <ul><li>Needed alongside `write` to change a related condition</li></ul> |
+| `write` | <ul><li>**Update condition**: change a related condition's category, including to recorded in error</li></ul> |
+| `create` | <ul><li>Add related conditions when adding a patient to a registry or using **Update**</li></ul> |
+| `delete` | <ul><li>Not currently checked</li></ul> |
 
 Also requires `read` for `ProgramRegistry` on that registry to see the list.
 
@@ -1081,68 +878,46 @@ Also requires `read` for `ProgramRegistry` on that registry to see the list.
 
 A patient's visit to a facility, and the screens and actions inside it.
 
-- `list`
-  - See a patient's encounter history on their **Summary** tab
-  - See the document list on a patient's **Documents** tab (with `list` for `DocumentMetadata`)
-  - Choose an encounter in **Link encounter** when booking a location
-- `read`
-  - Open an encounter from the encounter history, or with **View encounter** on the current one
-  - Use any tab inside an encounter (every tab needs it, alongside the tab's own permission)
-  - See **Handover notes** in bed management (with other permissions)
-- `write`
-  - **Edit encounter details**, **Move patient**, **Finalise** or **Cancel** a planned move, and add an **Estimated discharge date**
-  - Change the encounter type (**Admit to hospital**, **Transfer to Active ED care**, **Transfer to Emergency short stay**)
-  - **Prepare discharge** and **Prepare discharge without being seen** (finalising needs `write` for `Discharge` as well)
-  - Send an encounter's medications to pharmacy (with medication permissions)
-- `create`
-  - **Admit or check in** a patient
-  - **Admit or check in** from an appointment (with `write` for `Appointment`)
-  - Send a patient's ongoing medications to pharmacy when they have no open encounter, which creates one
-- `delete`
-  - **Delete** an encounter from the actions menu in the encounter history
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See a patient's encounter history on their **Summary** tab</li><li>See the document list on a patient's **Documents** tab (with `list` for `DocumentMetadata`)</li><li>Choose an encounter in **Link encounter** when booking a location</li></ul> |
+| `read` | <ul><li>Open an encounter from the encounter history, or with **View encounter** on the current one</li><li>Use any tab inside an encounter (every tab needs it, alongside the tab's own permission)</li><li>See **Handover notes** in bed management (with other permissions)</li></ul> |
+| `write` | <ul><li>**Edit encounter details**, **Move patient**, **Finalise** or **Cancel** a planned move, and add an **Estimated discharge date**</li><li>Change the encounter type (**Admit to hospital**, **Transfer to Active ED care**, **Transfer to Emergency short stay**)</li><li>**Prepare discharge** and **Prepare discharge without being seen** (finalising needs `write` for `Discharge` as well)</li><li>Send an encounter's medications to pharmacy (with medication permissions)</li></ul> |
+| `create` | <ul><li>**Admit or check in** a patient</li><li>**Admit or check in** from an appointment (with `write` for `Appointment`)</li><li>Send a patient's ongoing medications to pharmacy when they have no open encounter, which creates one</li></ul> |
+| `delete` | <ul><li>**Delete** an encounter from the actions menu in the encounter history</li></ul> |
 
 ### `Triage`
 
 Emergency department triage records.
 
-- `list`
-  - See the **Emergency patients** list
-  - See the triage score and complaints on an emergency encounter
-- `read`
-  - Needed, with `write`, to save changes to triage details
-- `write`
-  - Change arrival time, triage score and complaints in **Edit encounter details** on an emergency encounter
-- `create`
-  - Admit a patient as a **Triage** encounter (the **Admit or check in** button needs `create` for `Encounter` as well)
-  - Recording vitals in the triage form also requires `create` for `Vitals`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the **Emergency patients** list</li><li>See the triage score and complaints on an emergency encounter</li></ul> |
+| `read` | <ul><li>Needed, with `write`, to save changes to triage details</li></ul> |
+| `write` | <ul><li>Change arrival time, triage score and complaints in **Edit encounter details** on an emergency encounter</li></ul> |
+| `create` | <ul><li>Admit a patient as a **Triage** encounter (the **Admit or check in** button needs `create` for `Encounter` as well)</li><li>Recording vitals in the triage form also requires `create` for `Vitals`</li></ul> |
 
 ### `EncounterDiagnosis`
 
 Diagnoses recorded on an encounter.
 
-- `list`
-  - See an encounter's diagnoses; without it the encounter shows "You do not have permission to list diagnoses"
-- `read`
-  - Needed, with `write`, to save changes to a diagnosis
-- `write`
-  - Edit a diagnosis, including setting its certainty to **Recorded in error** to remove it
-- `create`
-  - **Add diagnosis**
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See an encounter's diagnoses; without it the encounter shows "You do not have permission to list diagnoses"</li></ul> |
+| `read` | <ul><li>Needed, with `write`, to save changes to a diagnosis</li></ul> |
+| `write` | <ul><li>Edit a diagnosis, including setting its certainty to **Recorded in error** to remove it</li></ul> |
+| `create` | <ul><li>**Add diagnosis**</li></ul> |
 
 ### `EncounterNote`
 
 Notes on an encounter's **Notes** tab.
 
-- `list`
-  - See notes on the **Notes** tab, including a note's edit history
-  - See notes in the encounter record printout
-- `read`
-  - See **Handover notes** in bed management (with other permissions)
-- `write`
-  - See the edit icon on a note. Saving the edit is checked against `create`, so editing needs both
-- `create`
-  - **New note**
-  - Save an edit to a note
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See notes on the **Notes** tab, including a note's edit history</li><li>See notes in the encounter record printout</li></ul> |
+| `read` | <ul><li>See **Handover notes** in bed management (with other permissions)</li></ul> |
+| `write` | <ul><li>See the edit icon on a note. Saving the edit is checked against `create`, so editing needs both</li></ul> |
+| `create` | <ul><li>**New note**</li><li>Save an edit to a note</li></ul> |
 
 Editing a note written by someone else also needs `OtherPractitionerEncounterNote`, or `TreatmentPlanNote` for a treatment plan.
 
@@ -1150,9 +925,9 @@ Editing a note written by someone else also needs `OtherPractitionerEncounterNot
 
 Editing encounter notes written by other people.
 
-- `write`
-  - Edit another user's encounter note, other than a treatment plan
-  - Also requires `create` and `write` for `EncounterNote`
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>Edit another user's encounter note, other than a treatment plan</li><li>Also requires `create` and `write` for `EncounterNote`</li></ul> |
 
 Without it, a user can still edit notes they wrote. Treatment plans written by others are controlled by `TreatmentPlanNote`.
 
@@ -1160,9 +935,9 @@ Without it, a user can still edit notes they wrote. Treatment plans written by o
 
 Editing treatment plan notes written by other people.
 
-- `write`
-  - Edit a treatment plan note written by another user
-  - Also requires `create` and `write` for `EncounterNote`
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>Edit a treatment plan note written by another user</li><li>Also requires `create` and `write` for `EncounterNote`</li></ul> |
 
 Without it, a user can still edit treatment plans they wrote.
 
@@ -1170,49 +945,33 @@ Without it, a user can still edit treatment plans they wrote.
 
 An unused noun: treatment plan notes are controlled by `TreatmentPlanNote` and `EncounterNote`.
 
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
 
 ### `Vitals`
 
 Vital signs recorded on an encounter's **Vitals** tab.
 
-- `list`
-  - See recorded vitals and vitals graphs on the **Vitals** tab (needs `read` as well)
-- `read`
-  - Needed, with `list`, to see recorded vitals
-  - Open the **Record vitals** form (needs `create` as well)
-- `write`
-  - Edit or clear a recorded vital value (when vitals editing is turned on in settings)
-- `create`
-  - **Record vitals**; without it the form shows "Permission required"
-  - Add a missing value to recorded vitals (when vitals editing is turned on in settings)
-  - Record vitals in the triage form
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See recorded vitals and vitals graphs on the **Vitals** tab (needs `read` as well)</li></ul> |
+| `read` | <ul><li>Needed, with `list`, to see recorded vitals</li><li>Open the **Record vitals** form (needs `create` as well)</li></ul> |
+| `write` | <ul><li>Edit or clear a recorded vital value (when vitals editing is turned on in settings)</li></ul> |
+| `create` | <ul><li>**Record vitals**; without it the form shows "Permission required"</li><li>Add a missing value to recorded vitals (when vitals editing is turned on in settings)</li><li>Record vitals in the triage form</li></ul> |
 
 ### `Charting`
 
 Charts recorded on an encounter's **Charts** tab and on a patient's program registry record, controllable per chart.
 
-- `list`
-  - See the content of the **Charts** tab (a `list` on any one chart is enough)
-  - See a chart in the chart type list
-  - See the instances of a complex chart in an encounter (needs `list` on the complex chart's core)
-- `read`
-  - View a chart's recorded entries and graphs
-  - Select a recorded value to see its edit history
-  - See the instances of a complex chart on a patient's program registry record (needs `read` on the core)
-- `write`
-  - Edit or clear a recorded chart value (when chart editing is turned on in settings)
-  - **Edit** a complex chart instance's details (needs `write` on the core)
-- `create`
-  - **Record** a chart entry
-  - Add a value to an existing entry (when chart editing is turned on in settings)
-  - Add a new complex chart instance with the add button beside the chart list (needs `create` on the core)
-- `delete`
-  - **Delete** a complex chart instance (needs `delete` on the core)
-  - **Delete** a photo recorded in a chart
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the content of the **Charts** tab (a `list` on any one chart is enough)</li><li>See a chart in the chart type list</li><li>See the instances of a complex chart in an encounter (needs `list` on the complex chart's core)</li></ul> |
+| `read` | <ul><li>View a chart's recorded entries and graphs</li><li>Select a recorded value to see its edit history</li><li>See the instances of a complex chart on a patient's program registry record (needs `read` on the core)</li></ul> |
+| `write` | <ul><li>Edit or clear a recorded chart value (when chart editing is turned on in settings)</li><li>**Edit** a complex chart instance's details (needs `write` on the core)</li></ul> |
+| `create` | <ul><li>**Record** a chart entry</li><li>Add a value to an existing entry (when chart editing is turned on in settings)</li><li>Add a new complex chart instance with the add button beside the chart list (needs `create` on the core)</li></ul> |
+| `delete` | <ul><li>**Delete** a complex chart instance (needs `delete` on the core)</li><li>**Delete** a photo recorded in a chart</li></ul> |
 
 The objectId is the chart's form id: `program-` followed by the program code and the chart code from the chart import file's **Metadata** tab, separated by hyphens, for example `program-woundassessment-woundassessment`. Both codes are lower-cased, and any character other than a letter, number or underscore is removed. A complex chart has two ids, one for the chart and one for its core (for example `program-woundassessment-woundassessmentcore`); instances are controlled by the core's id and entries by the chart's id, so a role usually needs both. A `Charting` permission with no objectId applies to every chart, and per-chart permissions cannot narrow it: per-chart rows only add charts to a role that lacks the general permission.
 
@@ -1220,46 +979,34 @@ The objectId is the chart's form id: `program-` followed by the program code and
 
 Procedures recorded on an encounter.
 
-- `list`
-  - See procedures on the **Procedures** tab
-  - See procedures in the discharge summary and the encounter record printout
-- `read`
-  - Checked only when a single procedure is fetched on its own, which no current desktop screen does
-- `write`
-  - Not currently checked. Editing a procedure is controlled by `create`
-- `create`
-  - **New procedure**
-  - Edit an existing procedure
-  - Record a procedure's additional forms (also requires `create` for `SurveyResponse`)
-- `delete`
-  - **Delete** a procedure from its actions menu
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See procedures on the **Procedures** tab</li><li>See procedures in the discharge summary and the encounter record printout</li></ul> |
+| `read` | <ul><li>Checked only when a single procedure is fetched on its own, which no current desktop screen does</li></ul> |
+| `write` | <ul><li>Not currently checked. Editing a procedure is controlled by `create`</li></ul> |
+| `create` | <ul><li>**New procedure**</li><li>Edit an existing procedure</li><li>Record a procedure's additional forms (also requires `create` for `SurveyResponse`)</li></ul> |
+| `delete` | <ul><li>**Delete** a procedure from its actions menu</li></ul> |
 
 ### `Discharge`
 
 Discharging a patient, and the discharge record of a past encounter.
 
-- `list`
-  - Not currently checked
-- `read`
-  - See the **Encounter record** and **Discharge summary** buttons on a discharged encounter, and open the discharge summary
-  - See discharge details in the encounter record printout
-- `write`
-  - Finalise a discharge from **Prepare discharge** (the button itself needs `write` for `Encounter`; without this permission the discharge fails when submitted)
-- `create`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>See the **Encounter record** and **Discharge summary** buttons on a discharged encounter, and open the discharge summary</li><li>See discharge details in the encounter record printout</li></ul> |
+| `write` | <ul><li>Finalise a discharge from **Prepare discharge** (the button itself needs `write` for `Encounter`; without this permission the discharge fails when submitted)</li></ul> |
+| `create` | <ul><li>Not currently checked</li></ul> |
 
 ### `EncounterSummary`
 
 AI-generated encounter summaries in the discharge workflow.
 
-- `read`
-  - See a saved AI summary in the discharge form and in the **Encounter record** printout
-- `write`
-  - Edit or **Discard** an AI summary
-  - Needed, with `create`, for the **Encounter summary** section to appear in the discharge form
-- `create`
-  - **Generate AI summary**
-  - Needed, with `write`, for the **Encounter summary** section to appear in the discharge form
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>See a saved AI summary in the discharge form and in the **Encounter record** printout</li></ul> |
+| `write` | <ul><li>Edit or **Discard** an AI summary</li><li>Needed, with `create`, for the **Encounter summary** section to appear in the discharge form</li></ul> |
+| `create` | <ul><li>**Generate AI summary**</li><li>Needed, with `write`, for the **Encounter summary** section to appear in the discharge form</li></ul> |
 
 The section also only appears when the encounter summary feature is turned on in settings.
 
@@ -1267,33 +1014,25 @@ The section also only appears when the encounter summary feature is turned on in
 
 Tasks in the tasking module.
 
-- `list`
-  - See an encounter's **Tasks** tab (when tasking is turned on in settings)
-- `read`
-  - See **Upcoming tasks** on the **Dashboard** (when tasking is turned on in settings)
-- `write`
-  - **Mark as complete**, **Mark as not complete** and **Mark as to-do**, for one task or several at once
-- `create`
-  - **+ New task**
-- `delete`
-  - **Delete** a to-do task, for one task or several at once
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See an encounter's **Tasks** tab (when tasking is turned on in settings)</li></ul> |
+| `read` | <ul><li>See **Upcoming tasks** on the **Dashboard** (when tasking is turned on in settings)</li></ul> |
+| `write` | <ul><li>**Mark as complete**, **Mark as not complete** and **Mark as to-do**, for one task or several at once</li></ul> |
+| `create` | <ul><li>**+ New task**</li></ul> |
+| `delete` | <ul><li>**Delete** a to-do task, for one task or several at once</li></ul> |
 
 ### `DocumentMetadata`
 
 Documents uploaded against a patient or encounter, and patient letters.
 
-- `list`
-  - See the document list on a patient's **Documents** tab (needs `list` for `Encounter` as well)
-  - See the document list on an encounter's **Documents** tab
-- `read`
-  - Not currently checked
-- `write`
-  - Save an upload from **Add document** (the button needs `create` as well)
-- `create`
-  - Turns on the **Add document** button; saving the upload needs `write`
-  - Create a **Patient letter**
-- `delete`
-  - **Delete** a document from its actions menu
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the document list on a patient's **Documents** tab (needs `list` for `Encounter` as well)</li><li>See the document list on an encounter's **Documents** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Save an upload from **Add document** (the button needs `create` as well)</li></ul> |
+| `create` | <ul><li>Turns on the **Add document** button; saving the upload needs `write`</li><li>Create a **Patient letter**</li></ul> |
+| `delete` | <ul><li>**Delete** a document from its actions menu</li></ul> |
 
 Previewing, downloading or printing a document needs `read` for `Attachment`.
 
@@ -1301,33 +1040,22 @@ Previewing, downloading or printing a document needs `read` for `Attachment`.
 
 The stored files behind uploaded documents, patient letters and photos.
 
-- `list`
-  - Not currently checked
-- `read`
-  - Preview, download or print a document from the **Documents** tab
-  - View a photo recorded in a form or chart
-- `create`
-  - Not checked against the staff member's role. A desktop upload is checked against the facility server's own account on the central server
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>Preview, download or print a document from the **Documents** tab</li><li>View a photo recorded in a form or chart</li></ul> |
+| `create` | <ul><li>Not checked against the staff member's role. A desktop upload is checked against the facility server's own account on the central server</li></ul> |
 
 ### `Appointment`
 
 Outpatient appointments and location bookings in the Scheduling module.
 
-- `list`
-  - Open the **Outpatient appointments** and **Location bookings** screens (`list` or `read` is enough; with neither, the screen says you do not have permission)
-  - See a patient's location bookings and outpatient appointments on their **Summary** tab (`list` or `read` is enough)
-  - See appointments and bookings on the **Dashboard** (needs `read` as well)
-- `read`
-  - Same screens as `list`: either verb opens them
-  - See appointments and bookings on the **Dashboard** (needs `list` as well)
-- `write`
-  - **Modify** or **Cancel** an appointment or booking, and change its status from its details
-  - **Cancel** from the actions menu in a patient's appointment and booking tables
-  - **Admit or check in** from an appointment's details (needs `create` for `Encounter` as well)
-- `create`
-  - **Book appointment** and **Book location**, or select an empty calendar slot to book
-  - **Book appointment** from a patient's **Summary** tab
-  - Send a booking by email (**Email booking**)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Open the **Outpatient appointments** and **Location bookings** screens (`list` or `read` is enough; with neither, the screen says you do not have permission)</li><li>See a patient's location bookings and outpatient appointments on their **Summary** tab (`list` or `read` is enough)</li><li>See appointments and bookings on the **Dashboard** (needs `read` as well)</li></ul> |
+| `read` | <ul><li>Same screens as `list`: either verb opens them</li><li>See appointments and bookings on the **Dashboard** (needs `list` as well)</li></ul> |
+| `write` | <ul><li>**Modify** or **Cancel** an appointment or booking, and change its status from its details</li><li>**Cancel** from the actions menu in a patient's appointment and booking tables</li><li>**Admit or check in** from an appointment's details (needs `create` for `Encounter` as well)</li></ul> |
+| `create` | <ul><li>**Book appointment** and **Book location**, or select an empty calendar slot to book</li><li>**Book appointment** from a patient's **Summary** tab</li><li>Send a booking by email (**Email booking**)</li></ul> |
 
 ## Immunisations
 
@@ -1335,34 +1063,23 @@ Outpatient appointments and location bookings in the Scheduling module.
 
 Vaccinations recorded against a patient.
 
-- `list`
-  - See a patient's vaccine schedule and recorded vaccines on the **Vaccines** tab
-  - Choose a vaccine when recording one
-  - See vaccines on immunisation certificates
-  - Needed, with `read`, to see the **Immunisation register**
-- `read`
-  - Needed, with `list`, to see the **Immunisation register**
-  - See the circumstances on a recorded vaccine's **View** window
-  - Choose vaccines in a report's vaccine filter
-  - Needed, with `write`, to edit or delete a recorded vaccine
-- `write`
-  - **Edit** a recorded vaccine
-  - **Delete** a recorded vaccine (marks it as recorded in error)
-- `create`
-  - **Record vaccine**, or **Record** from the vaccine schedule
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See a patient's vaccine schedule and recorded vaccines on the **Vaccines** tab</li><li>Choose a vaccine when recording one</li><li>See vaccines on immunisation certificates</li><li>Needed, with `read`, to see the **Immunisation register**</li></ul> |
+| `read` | <ul><li>Needed, with `list`, to see the **Immunisation register**</li><li>See the circumstances on a recorded vaccine's **View** window</li><li>Choose vaccines in a report's vaccine filter</li><li>Needed, with `write`, to edit or delete a recorded vaccine</li></ul> |
+| `write` | <ul><li>**Edit** a recorded vaccine</li><li>**Delete** a recorded vaccine (marks it as recorded in error)</li></ul> |
+| `create` | <ul><li>**Record vaccine**, or **Record** from the vaccine schedule</li></ul> |
 
 ### `AdministeredVaccine`
 
 Bulk import and export of patients' vaccination records in the admin panel.
 
-- `list`
-  - Export administered vaccines from **Patient data** in the admin panel
-- `read`
-  - Not currently checked
-- `write`
-  - Import administered vaccines through **Patient data** in the admin panel (needs `create` as well)
-- `create`
-  - Import administered vaccines through **Patient data** in the admin panel (needs `write` as well)
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Export administered vaccines from **Patient data** in the admin panel</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Import administered vaccines through **Patient data** in the admin panel (needs `create` as well)</li></ul> |
+| `create` | <ul><li>Import administered vaccines through **Patient data** in the admin panel (needs `write` as well)</li></ul> |
 
 Recording, editing and viewing vaccines on a patient is controlled by `PatientVaccine`, not this noun.
 
@@ -1370,18 +1087,18 @@ Recording, editing and viewing vaccines on a patient is controlled by `PatientVa
 
 Emailing a certificate to a patient.
 
-- `create`
-  - **Email** a certificate from the **Immunisation Certificate** or **COVID-19 Vaccine Certificate** window on the **Vaccines** tab, or from **Test certificate - COVID-19** or **Clearance certificate - COVID-19** in **Patient resources**
-  - Not needed to view or print a certificate
+| Verb | What it grants |
+| --- | --- |
+| `create` | <ul><li>**Email** a certificate from the **Immunisation Certificate** or **COVID-19 Vaccine Certificate** window on the **Vaccines** tab, or from **Test certificate - COVID-19** or **Clearance certificate - COVID-19** in **Patient resources**</li><li>Not needed to view or print a certificate</li></ul> |
 
 ### `IPSRequest`
 
 Emailing a patient their International Patient Summary (IPS) QR code.
 
-- `read`
-  - Not currently checked
-- `create`
-  - See **International Patient Summary** in **Patient resources** and email the QR code
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>See **International Patient Summary** in **Patient resources** and email the QR code</li></ul> |
 
 Also requires `read` for `Patient`.
 
@@ -1391,127 +1108,85 @@ Also requires `read` for `Patient`.
 
 Lab requests raised in an encounter.
 
-- `list`
-  - See lab requests on the encounter **Labs** tab
-  - See and search the **Labs** lists (**Active requests** and **Finalised**)
-  - The **Labs** menu appears for everyone; without this permission its lists show a no-permission message
-- `read`
-  - Open a lab request and view its details, notes and tests
-  - **Print** lab requests from the encounter **Labs** tab
-  - Also needed to enter results (see `LabTest`)
-- `write`
-  - **Record sample**, **Edit** and **View details** of the sample
-  - **Change laboratory** and **Change priority** (priority only where the facility allows it)
-  - **Add note** to a lab request
-  - **Cancel request** (also needs `write` for `LabRequestStatus`)
-  - Also requires `read` for `LabRequest`
-- `create`
-  - **New lab request** on the encounter **Labs** tab
-  - Also requires `list` for `LabTestType` to choose individual tests, or `list` for `LabTestPanel` to choose panels
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See lab requests on the encounter **Labs** tab</li><li>See and search the **Labs** lists (**Active requests** and **Finalised**)</li><li>The **Labs** menu appears for everyone; without this permission its lists show a no-permission message</li></ul> |
+| `read` | <ul><li>Open a lab request and view its details, notes and tests</li><li>**Print** lab requests from the encounter **Labs** tab</li><li>Also needed to enter results (see `LabTest`)</li></ul> |
+| `write` | <ul><li>**Record sample**, **Edit** and **View details** of the sample</li><li>**Change laboratory** and **Change priority** (priority only where the facility allows it)</li><li>**Add note** to a lab request</li><li>**Cancel request** (also needs `write` for `LabRequestStatus`)</li><li>Also requires `read` for `LabRequest`</li></ul> |
+| `create` | <ul><li>**New lab request** on the encounter **Labs** tab</li><li>Also requires `list` for `LabTestType` to choose individual tests, or `list` for `LabTestPanel` to choose panels</li></ul> |
 
 ### `LabRequestStatus`
 
 Changes to the status of a lab request.
 
-- `write`
-  - **Change status** on a lab request
-  - **Record sample** for a request whose sample was not yet collected, which moves it on to reception pending
-  - **Cancel request**
-  - Also requires `write` for `LabRequest`
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>**Change status** on a lab request</li><li>**Record sample** for a request whose sample was not yet collected, which moves it on to reception pending</li><li>**Cancel request**</li><li>Also requires `write` for `LabRequest`</li></ul> |
 
 ### `LabRequestLog`
 
 The history of status changes on a lab request.
 
-- `list`
-  - **View status log** on a lab request
-  - Show who published the results on the printed lab results report
-- `read`
-  - Not currently checked
-- `write`
-  - Not currently checked
-- `create`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>**View status log** on a lab request</li><li>Show who published the results on the printed lab results report</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>Not currently checked</li></ul> |
 
 ### `LabTest`
 
 The individual tests on a lab request, and the details recorded against them.
 
-- `list`
-  - See the tests on a lab request, including on its printed request and results
-  - See lab results on the patient **Results** tab (also needs `read` for `LabTestResult`)
-- `read`
-  - Open a single lab result from the patient **Results** tab, with its result history
-- `write`
-  - **Enter results** on a lab request: test method, verification and completed date
-  - Also requires `read` for `LabRequest`. Changing the result values themselves also needs `write` for `LabTestResult`
-- `create`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the tests on a lab request, including on its printed request and results</li><li>See lab results on the patient **Results** tab (also needs `read` for `LabTestResult`)</li></ul> |
+| `read` | <ul><li>Open a single lab result from the patient **Results** tab, with its result history</li></ul> |
+| `write` | <ul><li>**Enter results** on a lab request: test method, verification and completed date</li><li>Also requires `read` for `LabRequest`. Changing the result values themselves also needs `write` for `LabTestResult`</li></ul> |
+| `create` | <ul><li>Not currently checked</li></ul> |
 
 ### `LabTestResult`
 
 The results recorded for lab tests.
 
-- `list`
-  - Not currently checked
-- `read`
-  - See the patient **Results** tab (also needs `list` for `LabTest`)
-  - **Print results** and **Print interim report** on a lab request, where lab results printouts are turned on
-  - See the result history when opening a single lab result (also needs `read` for `LabTest`)
-- `write`
-  - Record or change result and secondary result values, and the results interpretation, in **Enter results**
-  - Also requires `write` for `LabTest`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>See the patient **Results** tab (also needs `list` for `LabTest`)</li><li>**Print results** and **Print interim report** on a lab request, where lab results printouts are turned on</li><li>See the result history when opening a single lab result (also needs `read` for `LabTest`)</li></ul> |
+| `write` | <ul><li>Record or change result and secondary result values, and the results interpretation, in **Enter results**</li><li>Also requires `write` for `LabTest`</li></ul> |
 
 ### `LabTestType`
 
 The lab tests that can be ordered, managed as reference data.
 
-- `list`
-  - Choose individual tests when creating a **New lab request**
-  - Choose lab test types in report parameters and in admin panel settings that list lab test types
-  - In the admin panel, export the **Lab Test Type** data type and view its records on the **Reference data** **Manage** tab
-- `read`
-  - Not currently checked
-- `write`
-  - In the admin panel, edit **Lab Test Type** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Lab Test Type** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose individual tests when creating a **New lab request**</li><li>Choose lab test types in report parameters and in admin panel settings that list lab test types</li><li>In the admin panel, export the **Lab Test Type** data type and view its records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Lab Test Type** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Lab Test Type** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
 
 ### `LabTestPanel`
 
 Panels that group lab test types so they can be requested together, managed as reference data.
 
-- `list`
-  - Choose panels when creating a **New lab request**
-  - Filter by panel on the patient **Results** tab
-  - In the admin panel, export the **Lab Test Panel** data type and view its records on the **Reference data** **Manage** tab
-- `read`
-  - Has no effect on any current screen
-- `write`
-  - In the admin panel, edit **Lab Test Panel** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Lab Test Panel** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose panels when creating a **New lab request**</li><li>Filter by panel on the patient **Results** tab</li><li>In the admin panel, export the **Lab Test Panel** data type and view its records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Has no effect on any current screen</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Lab Test Panel** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Lab Test Panel** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
 
 ### `SensitiveLabRequest`
 
 Lab requests containing a lab test type flagged as sensitive. Holders need this on top of the ordinary lab permissions.
 
-- `list`
-  - See lab requests with sensitive tests in the **Labs** lists and the encounter **Labs** tab
-  - See sensitive tests on a lab request and on the patient **Results** tab, and their categories in its filter
-- `read`
-  - Open a lab request containing a sensitive test
-  - Open a sensitive lab result, and its history, from the patient **Results** tab
-- `write`
-  - Edit a lab request containing a sensitive test, add notes to it, change its status, and enter its results
-- `create`
-  - See sensitive test types, and sensitive tests within panels, when creating a **New lab request**, and request them
-  - On mobile, see sensitive test types in the lab request form
-  - On mobile, see lab requests with sensitive tests in the lab request history
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See lab requests with sensitive tests in the **Labs** lists and the encounter **Labs** tab</li><li>See sensitive tests on a lab request and on the patient **Results** tab, and their categories in its filter</li></ul> |
+| `read` | <ul><li>Open a lab request containing a sensitive test</li><li>Open a sensitive lab result, and its history, from the patient **Results** tab</li></ul> |
+| `write` | <ul><li>Edit a lab request containing a sensitive test, add notes to it, change its status, and enter its results</li></ul> |
+| `create` | <ul><li>See sensitive test types, and sensitive tests within panels, when creating a **New lab request**, and request them</li><li>On mobile, see sensitive test types in the lab request form</li><li>On mobile, see lab requests with sensitive tests in the lab request history</li></ul> |
 
 ## Imaging
 
@@ -1519,19 +1194,12 @@ Lab requests containing a lab test type flagged as sensitive. Holders need this 
 
 Imaging requests raised in an encounter, and the results recorded against them.
 
-- `list`
-  - See imaging requests on the encounter **Imaging** tab
-  - See and search the **Imaging** lists (**Active requests** and **Completed**)
-  - The **Imaging** menu appears for everyone; without this permission its lists show a no-permission message
-- `read`
-  - Open an imaging request and view its details
-- `write`
-  - Change an imaging request's status, edit its areas and notes, and add a result
-  - **Cancel request** on an imaging request
-  - The page offers these actions without the permission, but saving is refused
-  - Also requires `read` for `ImagingRequest`
-- `create`
-  - **New imaging request** on the encounter **Imaging** tab
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See imaging requests on the encounter **Imaging** tab</li><li>See and search the **Imaging** lists (**Active requests** and **Completed**)</li><li>The **Imaging** menu appears for everyone; without this permission its lists show a no-permission message</li></ul> |
+| `read` | <ul><li>Open an imaging request and view its details</li></ul> |
+| `write` | <ul><li>Change an imaging request's status, edit its areas and notes, and add a result</li><li>**Cancel request** on an imaging request</li><li>The page offers these actions without the permission, but saving is refused</li><li>Also requires `read` for `ImagingRequest`</li></ul> |
+| `create` | <ul><li>**New imaging request** on the encounter **Imaging** tab</li></ul> |
 
 ## Medications
 
@@ -1539,119 +1207,75 @@ Imaging requests raised in an encounter, and the results recorded against them.
 
 Prescriptions, both within an encounter and on the patient's ongoing medications list.
 
-- `list`
-  - See the encounter **Medication** tab and the patient **Medication** tab
-  - View the ongoing medications list and the last inpatient discharge medications
-  - Open prescription details by selecting a row in those tables
-  - Search the **Active requests** and **Dispensed medications** lists
-  - Needed to open the **Medication admin record** (see `MedicationAdministration`)
-- `read`
-  - **Print prescription** on the encounter **Medication** tab, and **Finalise & Print** when prescribing
-  - See whether a prescription is paused, and its pause history
-  - Open a prescription from a notification link
-  - Also needed to send medications to pharmacy (see `MedicationRequest`)
-- `write`
-  - Pause, resume and discontinue a prescription, including discontinuing through the discharge workflow
-  - Set discharge quantity and repeats when discharging
-  - Edit repeats, and re-send an ongoing medication with no repeats left, when sending ongoing medications to pharmacy
-  - Needed to add or edit a pharmacy note (see `MedicationPharmacyNote`)
-- `create`
-  - **New prescription** in an encounter, including ordering a medication set
-  - **Add existing ongoing medication to encounter** and **Import existing medications**
-  - **Add ongoing medication** on the patient **Medication** tab
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the encounter **Medication** tab and the patient **Medication** tab</li><li>View the ongoing medications list and the last inpatient discharge medications</li><li>Open prescription details by selecting a row in those tables</li><li>Search the **Active requests** and **Dispensed medications** lists</li><li>Needed to open the **Medication admin record** (see `MedicationAdministration`)</li></ul> |
+| `read` | <ul><li>**Print prescription** on the encounter **Medication** tab, and **Finalise & Print** when prescribing</li><li>See whether a prescription is paused, and its pause history</li><li>Open a prescription from a notification link</li><li>Also needed to send medications to pharmacy (see `MedicationRequest`)</li></ul> |
+| `write` | <ul><li>Pause, resume and discontinue a prescription, including discontinuing through the discharge workflow</li><li>Set discharge quantity and repeats when discharging</li><li>Edit repeats, and re-send an ongoing medication with no repeats left, when sending ongoing medications to pharmacy</li><li>Needed to add or edit a pharmacy note (see `MedicationPharmacyNote`)</li></ul> |
+| `create` | <ul><li>**New prescription** in an encounter, including ordering a medication set</li><li>**Add existing ongoing medication to encounter** and **Import existing medications**</li><li>**Add ongoing medication** on the patient **Medication** tab</li></ul> |
 
 ### `MedicationAdministration`
 
 The medication administration record (MAR) for an encounter.
 
-- `list`
-  - **Medication admin record** on the encounter **Medication** tab, and the MAR screen itself
-  - Also requires `list` for `Medication`
-- `read`
-  - Open a recorded dose on the MAR to view its administration record and change history
-- `write`
-  - Mark as medication error, change the status, and edit the details of an administration record
-  - **Add additional dose** to, or remove an extra dose from, an administration record
-  - Not available once the encounter is discharged
-- `create`
-  - Record a dose on the MAR as given or not given
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>**Medication admin record** on the encounter **Medication** tab, and the MAR screen itself</li><li>Also requires `list` for `Medication`</li></ul> |
+| `read` | <ul><li>Open a recorded dose on the MAR to view its administration record and change history</li></ul> |
+| `write` | <ul><li>Mark as medication error, change the status, and edit the details of an administration record</li><li>**Add additional dose** to, or remove an extra dose from, an administration record</li><li>Not available once the encounter is discharged</li></ul> |
+| `create` | <ul><li>Record a dose on the MAR as given or not given</li></ul> |
 
 ### `MedicationPharmacyNote`
 
 The pharmacy note on a prescription.
 
-- `write`
-  - Edit an existing pharmacy note
-  - Also requires `write` for `Medication`
-- `create`
-  - Add a pharmacy note where there is none. Without this permission the field is read only
-  - Tick **Display pharmacy notes on MAR**
-  - Also requires `write` for `Medication`
+| Verb | What it grants |
+| --- | --- |
+| `write` | <ul><li>Edit an existing pharmacy note</li><li>Also requires `write` for `Medication`</li></ul> |
+| `create` | <ul><li>Add a pharmacy note where there is none. Without this permission the field is read only</li><li>Tick **Display pharmacy notes on MAR**</li><li>Also requires `write` for `Medication`</li></ul> |
 
 ### `MedicationDueTask`
 
 Medication due tasks generated from the MAR.
 
-- `read`
-  - See medication due tasks in the dashboard **Upcoming tasks** table
-  - Also requires `read` for `Tasking`. Opening a medication task goes to the MAR, which needs `list` for `MedicationAdministration`
+| Verb | What it grants |
+| --- | --- |
+| `read` | <ul><li>See medication due tasks in the dashboard **Upcoming tasks** table</li><li>Also requires `read` for `Tasking`. Opening a medication task goes to the MAR, which needs `list` for `MedicationAdministration`</li></ul> |
 
 ### `MedicationRequest`
 
 Requests sent to pharmacy to dispense a prescribed medication.
 
-- `list`
-  - Not currently checked
-- `read`
-  - See the **Medication** menu's **Active requests** list
-  - Load the medications available to dispense for a patient, needed to dispense
-  - View the details of a medication marked not dispensed
-- `write`
-  - Not currently checked
-- `create`
-  - **Send to pharmacy** from the encounter **Medication** tab, when prescribing, and when discharging, where pharmacy orders are turned on
-  - **Send to pharmacy** from the patient **Medication** tab for ongoing medications
-  - Also requires `read` for `Medication`. From the encounter it also needs `write` for `Encounter`; from the patient tab it also needs `create` for `Encounter` and `create` for `Medication`
-- `delete`
-  - **Delete** a request, or mark it **Not dispensed**, on the **Active requests** list
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>See the **Medication** menu's **Active requests** list</li><li>Load the medications available to dispense for a patient, needed to dispense</li><li>View the details of a medication marked not dispensed</li></ul> |
+| `write` | <ul><li>Not currently checked</li></ul> |
+| `create` | <ul><li>**Send to pharmacy** from the encounter **Medication** tab, when prescribing, and when discharging, where pharmacy orders are turned on</li><li>**Send to pharmacy** from the patient **Medication** tab for ongoing medications</li><li>Also requires `read` for `Medication`. From the encounter it also needs `write` for `Encounter`; from the patient tab it also needs `create` for `Encounter` and `create` for `Medication`</li></ul> |
+| `delete` | <ul><li>**Delete** a request, or mark it **Not dispensed**, on the **Active requests** list</li></ul> |
 
 ### `MedicationDispense`
 
 Medications dispensed by pharmacy against a medication request.
 
-- `list`
-  - Not currently checked
-- `read`
-  - See the **Medication** menu's **Dispensed medications** list
-  - See the **Dispensed medications** table on the patient **Medication** tab, and print a label from it
-- `write`
-  - **Print label**, **Edit**, **Cancel** and **View modify history** on the **Dispensed medications** list
-  - Change the prescription details for a fill while dispensing
-- `create`
-  - Dispense a medication by selecting a request on the **Active requests** list
-  - Also requires `read` for `MedicationRequest`
-- `delete`
-  - Not currently checked
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Not currently checked</li></ul> |
+| `read` | <ul><li>See the **Medication** menu's **Dispensed medications** list</li><li>See the **Dispensed medications** table on the patient **Medication** tab, and print a label from it</li></ul> |
+| `write` | <ul><li>**Print label**, **Edit**, **Cancel** and **View modify history** on the **Dispensed medications** list</li><li>Change the prescription details for a fill while dispensing</li></ul> |
+| `create` | <ul><li>Dispense a medication by selecting a request on the **Active requests** list</li><li>Also requires `read` for `MedicationRequest`</li></ul> |
+| `delete` | <ul><li>Not currently checked</li></ul> |
 
 ### `SensitiveMedication`
 
 Medications whose drug is flagged as sensitive. Holders need this on top of the ordinary medication permissions.
 
-- `list`
-  - See sensitive medications in the encounter medication table, the MAR, the print prescription and discharge windows, the patient's ongoing and last discharge medications, and the patient **Dispensed medications** table
-- `read`
-  - Open the details of a sensitive prescription, and open its doses on the MAR to record or view them
-  - See sensitive medications on the **Active requests** and **Dispensed medications** lists, and dispense them
-  - Send a sensitive medication to pharmacy
-- `write`
-  - Pause, resume and discontinue a sensitive medication, including through the discharge workflow
-  - Set discharge quantity and repeats for a sensitive medication
-  - Edit the pharmacy note on a sensitive prescription
-  - Include a sensitive medication when printing prescriptions
-- `create`
-  - Find sensitive drugs, and medication sets containing them, when prescribing, and prescribe them
-  - Add a sensitive ongoing medication to an encounter, or to the patient's ongoing medications
-  - On mobile, find sensitive drugs when prescribing
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See sensitive medications in the encounter medication table, the MAR, the print prescription and discharge windows, the patient's ongoing and last discharge medications, and the patient **Dispensed medications** table</li></ul> |
+| `read` | <ul><li>Open the details of a sensitive prescription, and open its doses on the MAR to record or view them</li><li>See sensitive medications on the **Active requests** and **Dispensed medications** lists, and dispense them</li><li>Send a sensitive medication to pharmacy</li></ul> |
+| `write` | <ul><li>Pause, resume and discontinue a sensitive medication, including through the discharge workflow</li><li>Set discharge quantity and repeats for a sensitive medication</li><li>Edit the pharmacy note on a sensitive prescription</li><li>Include a sensitive medication when printing prescriptions</li></ul> |
+| `create` | <ul><li>Find sensitive drugs, and medication sets containing them, when prescribing, and prescribe them</li><li>Add a sensitive ongoing medication to an encounter, or to the patient's ongoing medications</li><li>On mobile, find sensitive drugs when prescribing</li></ul> |
 
 ## Invoicing
 
@@ -1659,114 +1283,79 @@ Medications whose drug is flagged as sensitive. Holders need this on top of the 
 
 The invoice for an encounter, including its items, approvals and insurance plans. The invoicing screens only appear when invoicing is turned on in settings.
 
-- `list`
-  - See the patient **Invoices** tab, with its total outstanding balance
-  - Open the encounter **Invoicing** tab
-- `read`
-  - View the invoice on the encounter **Invoicing** tab, including its items and prices
-  - Select a row on the patient **Invoices** tab to go to that encounter's invoice
-- `write`
-  - Edit invoice items, and approve or remove approval from items (**Mark all as approved**, **Remove all approvals**)
-  - Set the invoice's insurance plans with **Insurance plan**
-  - **Cancel invoice**, while it has no payments
-  - **Finalise** an invoice (the button also needs `create`, see below)
-- `create`
-  - **Create invoice** on the encounter **Invoicing** tab
-  - See the **Finalise** button, once the encounter has ended
-- `delete`
-  - **Delete invoice**, while it is not finalised and has no payments
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>See the patient **Invoices** tab, with its total outstanding balance</li><li>Open the encounter **Invoicing** tab</li></ul> |
+| `read` | <ul><li>View the invoice on the encounter **Invoicing** tab, including its items and prices</li><li>Select a row on the patient **Invoices** tab to go to that encounter's invoice</li></ul> |
+| `write` | <ul><li>Edit invoice items, and approve or remove approval from items (**Mark all as approved**, **Remove all approvals**)</li><li>Set the invoice's insurance plans with **Insurance plan**</li><li>**Cancel invoice**, while it has no payments</li><li>**Finalise** an invoice (the button also needs `create`, see below)</li></ul> |
+| `create` | <ul><li>**Create invoice** on the encounter **Invoicing** tab</li><li>See the **Finalise** button, once the encounter has ended</li></ul> |
+| `delete` | <ul><li>**Delete invoice**, while it is not finalised and has no payments</li></ul> |
 
 ### `InvoicePayment`
 
 Payments recorded against an invoice, by the patient or by an insurer.
 
-- `list`
-  - No visible effect: patient payments show on the invoice to anyone who can open it
-- `read`
-  - Not currently checked
-- `write`
-  - **Edit** or **Refund** a patient payment on an invoice
-  - In the admin panel, update an existing insurer payment through the **Insurance plan payments** import
-- `create`
-  - **Record payment** against an invoice
-  - In the admin panel, import insurer payments on the **Insurance plan payments** screen
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>No visible effect: patient payments show on the invoice to anyone who can open it</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>**Edit** or **Refund** a patient payment on an invoice</li><li>In the admin panel, update an existing insurer payment through the **Insurance plan payments** import</li></ul> |
+| `create` | <ul><li>**Record payment** against an invoice</li><li>In the admin panel, import insurer payments on the **Insurance plan payments** screen</li></ul> |
 
 ### `InvoiceProduct`
 
 The products and services that can be charged on an invoice, managed as reference data.
 
-- `list`
-  - Search for and add a product when adding or editing invoice items
-  - In the admin panel, export the **Invoice Product** data type and view its records on the **Reference data** **Manage** tab
-- `read`
-  - Not currently checked
-- `write`
-  - In the admin panel, edit **Invoice Product** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Invoice Product** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Search for and add a product when adding or editing invoice items</li><li>In the admin panel, export the **Invoice Product** data type and view its records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Invoice Product** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Invoice Product** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
 
 ### `InvoicePriceList`
 
 Price lists that set what invoice products cost for different patients, managed as reference data.
 
-- `list`
-  - In the admin panel, export the **Invoice Price List** data type and view its records on the **Reference data** **Manage** tab
-- `read`
-  - Not currently checked
-- `write`
-  - In the admin panel, edit **Invoice Price List** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Invoice Price List** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>In the admin panel, export the **Invoice Price List** data type and view its records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Invoice Price List** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Invoice Price List** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
 
 ### `InvoicePriceListItem`
 
 The price of each invoice product on a price list, and whether it is a fixed price, managed as reference data.
 
-- `list`
-  - In the admin panel, export the **Invoice Price List Item** and **Invoice Price List Charging** data types, and view **Invoice Price List Item** records on the **Reference data** **Manage** tab
-- `read`
-  - Not currently checked
-- `write`
-  - In the admin panel, edit **Invoice Price List Item** records on the **Manage** tab
-  - Importing either data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Invoice Price List Item** records on the **Manage** tab
-  - Importing either data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>In the admin panel, export the **Invoice Price List Item** and **Invoice Price List Charging** data types, and view **Invoice Price List Item** records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Invoice Price List Item** records on the **Manage** tab</li><li>Importing either data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Invoice Price List Item** records on the **Manage** tab</li><li>Importing either data type needs both `write` and `create`</li></ul> |
 
 ### `InvoiceInsurancePlan`
 
 Insurance plans that can cover a patient's invoice, managed as reference data.
 
-- `list`
-  - Choose plans in the invoice **Insurance plan** window and in the patient details **Insurance plan** field
-  - In the admin panel, export the **Invoice Insurance Plan** data type and view its records on the **Reference data** **Manage** tab
-- `read`
-  - Not currently checked
-- `write`
-  - In the admin panel, edit **Invoice Insurance Plan** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Invoice Insurance Plan** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>Choose plans in the invoice **Insurance plan** window and in the patient details **Insurance plan** field</li><li>In the admin panel, export the **Invoice Insurance Plan** data type and view its records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Invoice Insurance Plan** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Invoice Insurance Plan** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
 
 ### `InvoiceInsurancePlanItem`
 
 The coverage each insurance plan gives to individual invoice products, managed as reference data.
 
-- `list`
-  - In the admin panel, export the **Invoice Insurance Plan Item** data type and view its records on the **Reference data** **Manage** tab
-- `read`
-  - Not currently checked
-- `write`
-  - In the admin panel, edit **Invoice Insurance Plan Item** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
-- `create`
-  - In the admin panel, add **Invoice Insurance Plan Item** records on the **Manage** tab
-  - Importing the data type needs both `write` and `create`
+| Verb | What it grants |
+| --- | --- |
+| `list` | <ul><li>In the admin panel, export the **Invoice Insurance Plan Item** data type and view its records on the **Reference data** **Manage** tab</li></ul> |
+| `read` | <ul><li>Not currently checked</li></ul> |
+| `write` | <ul><li>In the admin panel, edit **Invoice Insurance Plan Item** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
+| `create` | <ul><li>In the admin panel, add **Invoice Insurance Plan Item** records on the **Manage** tab</li><li>Importing the data type needs both `write` and `create`</li></ul> |
 
 ## Integrations
 
@@ -1776,42 +1365,46 @@ Integration permissions are for the accounts external systems connect with, not 
 
 Shown in the matrix as **Integration – PMI**. For integration accounts that look up patients through the FHIR API.
 
-- `fhirIntegration`
-  - Read patient records through the FHIR API, including the patient summary
+| Verb | What it grants |
+| --- | --- |
+| `fhirIntegration` | <ul><li>Read patient records through the FHIR API, including the patient summary</li></ul> |
 
 ### `LABS`
 
 Shown in the matrix as **Integration – LABS**. For an external laboratory system connected through the FHIR API.
 
-- `fhirIntegration`
-  - Read patients, practitioners, encounters, facilities, lab requests and specimens through the FHIR API
-  - Send lab results back as diagnostic reports and observations
+| Verb | What it grants |
+| --- | --- |
+| `fhirIntegration` | <ul><li>Read patients, practitioners, encounters, facilities, lab requests and specimens through the FHIR API</li><li>Send lab results back as diagnostic reports and observations</li></ul> |
 
 ### `RISPACS`
 
 Shown in the matrix as **Integration – RISPACS**. For an external imaging (RIS/PACS) system connected through the FHIR API.
 
-- `fhirIntegration`
-  - Read patients, practitioners, encounters, facilities and imaging requests through the FHIR API
-  - Send imaging results back as imaging studies
+| Verb | What it grants |
+| --- | --- |
+| `fhirIntegration` | <ul><li>Read patients, practitioners, encounters, facilities and imaging requests through the FHIR API</li><li>Send imaging results back as imaging studies</li></ul> |
 
 ### `Prescriptions`
 
 Shown in the matrix as **Integration – Prescriptions**. For an external pharmacy or dispensing system connected through the FHIR API.
 
-- `fhirIntegration`
-  - Read patients, practitioners, encounters, facilities and prescriptions through the FHIR API
+| Verb | What it grants |
+| --- | --- |
+| `fhirIntegration` | <ul><li>Read patients, practitioners, encounters, facilities and prescriptions through the FHIR API</li></ul> |
 
 ### `Immunization`
 
 Shown in the matrix as **Integration – Immunization**. For an external immunisation register connected through the FHIR API.
 
-- `fhirIntegration`
-  - Read patients, practitioners, encounters, facilities and immunisations through the FHIR API
+| Verb | What it grants |
+| --- | --- |
+| `fhirIntegration` | <ul><li>Read patients, practitioners, encounters, facilities and immunisations through the FHIR API</li></ul> |
 
 ### `Medici`
 
 Shown in the matrix as **Integration – Medici**. For the Medici reporting integration.
 
-- `fhirIntegration`
-  - Read the Medici report through its integration, when that integration is turned on
+| Verb | What it grants |
+| --- | --- |
+| `fhirIntegration` | <ul><li>Read the Medici report through its integration, when that integration is turned on</li></ul> |
