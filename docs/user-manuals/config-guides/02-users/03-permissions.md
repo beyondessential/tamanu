@@ -2,7 +2,7 @@ How access works in Tamanu, and what every permission grants. Access is role bas
 role, and the role's permissions decide what its users can see and do on desktop, on mobile and in
 the admin panel.
 
-For setting up users, roles and the permissions matrix see [Reference data](01-reference-data.md),
+For setting up users and roles see [Reference data](01-reference-data.md),
 and for the settings that decide which permissions apply see [Settings](02-settings.md).
 
 ---
@@ -15,7 +15,7 @@ A permission is a **verb**, the action, applied to a **noun**, the part of Taman
 example `create` for `LabRequest` lets a role raise lab requests, and `list` for `Patient` lets it
 see the patient lists. Each noun accepts only some verbs; the reference below lists the verbs each
 noun accepts and what each grants. The verbs themselves are listed under
-[Permission verbs](01-reference-data.md#permission-verbs).
+[Permission verbs](#permission-verbs).
 
 Many actions need several permissions together. Opening a patient's allergies, for example, needs
 `read` for `Patient` as well as `list` for `PatientAllergy`. Where a permission depends on another,
@@ -30,11 +30,65 @@ has synced.
 
 ## Granting permissions
 
-Permissions are granted to roles on the `Permission` tab of the permissions matrix, imported on the
-**Permissions** screen of the admin panel. See [Permission](01-reference-data.md#permission) for the
-format.
+Permissions are granted to roles in the permissions matrix, either by importing it as a spreadsheet or
+on the **Edit** tab of the **Permissions** screen in the admin panel.
 
-### Editing permissions in the admin panel (supported from v2.53 onwards)
+### Permission verbs
+
+Used in the `verb` column of the `Permission` tab. Input the value exactly as shown, in lower case.
+Each noun accepts only some verbs, listed under the noun in the [Permission reference](#permission-reference).
+
+| Value | Meaning |
+| --- | --- |
+| list | View a list of records |
+| read | View the details of a record |
+| write | Change an existing record |
+| create | Add a new record |
+| delete | Delete a record |
+| run | Run a report |
+| submit | Submit a form |
+| login | Log in to a facility |
+| sync | Sync, when **Restrict users to sync** is on. Not shown on the **Edit** tab of the **Permissions** screen. See [Sync restriction](02-settings.md#sync-restriction) |
+| fhirIntegration | Connect an external system through an integration |
+| manage | With the noun `all`, every permission in Tamanu |
+
+### Importing the permissions matrix
+
+The permissions matrix is a spreadsheet with two tabs: `Role`, covered under
+[Role](01-reference-data.md#role), and `Permission`, with one row per permission and one column per
+role, marking which roles hold it. Both are imported on the **Import** tab of the **Permissions**
+screen, and exported from its **Export** tab.
+
+| Field | Value |
+| --- | --- |
+| Tab name | `Permission` |
+
+Where * is a required field.
+
+| Column name | Description |
+| --- | --- |
+| verb * | The action permitted, such as `read` or `write`. See [Permission verbs](#permission-verbs). This column is not validated on import, so a misspelt verb is accepted and grants nothing. |
+| noun * | The part of Tamanu the action applies to, such as `Patient` or `LabRequest`. Must match a noun in the [Permission reference](#permission-reference) exactly, including case, or the row errors with `Noun is invalid or does not exist`. |
+| objectId | Limits the permission to a single record, for the nouns that support it: a chart, form, report or program registry. Must be the id of an existing record, or the row errors with `Invalid objectId`. Leave blank to apply the permission to every record. See [Permissions for individual records](#permissions-for-individual-records). |
+
+After these columns comes one column for each role, headed with the role's `id` from the `Role`
+tab. Each cell takes:
+
+- `y`: the role is granted the permission
+- `n`: the permission is revoked from the role
+- blank: no change. A blank cell does not revoke a permission the role already holds
+
+Any other value errors. A column headed `note` is ignored, so it can carry comments on a row.
+
+Roles granted the integration permissions used by external systems cannot also hold ordinary
+permissions. An import that would give one role both errors. See
+[Integrations](#integrations).
+
+An export writes `y` for a granted permission and `n` for a revoked one, and leaves a cell blank where
+the role has never held the permission, so an exported matrix re-imports unchanged. A role with no
+permissions at all has no column in the export.
+
+### Editing permissions in the admin panel
 
 The **Edit** tab of the **Permissions** screen shows the matrix and lets permissions be turned on and
 off directly. Turning a verb on also turns on the verbs below it, in the order `delete`, `create`,
