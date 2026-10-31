@@ -46,8 +46,9 @@ role can be added and given permissions in a single import.
 Roles can also be added and deleted on the **Roles** tab of **Users** > **Roles & designations**:
 
 - Select **Add role** and enter an **ID** and **Name**. The id must not already be in use
-- Select **Delete** against a role to remove it. A role cannot be deleted while any user is assigned
-  to it: the screen lists those users, and each needs a different role first
+- Select **Delete** against a role to remove it. A role cannot be deleted while any user, including a
+  deactivated user, is assigned to it: the screen lists those users, and each needs a different role
+  first
 
 **[Screenshot: the Roles tab of Roles & designations, listing roles with Add role and Delete]**
 
@@ -109,7 +110,7 @@ Where * is a required field.
 | displayId | A registration or staff number for the user, such as a medical council number. Printed on prescriptions. Leave blank if not required. |
 | email * | The email the user logs in with. Must be unique across all users. Not case sensitive when logging in. |
 | displayName * | The user's name as displayed throughout Tamanu. The importer does not check that it is unique, but the **User profiles** screen does, so keep display names distinct. |
-| role | The `id` of the user's role, from the `Role` tab. Defaults to `practitioner` if blank. This column is not validated on import, so a role id that does not exist is accepted and the user is granted no permissions. |
+| role | The `id` of the user's role, from the `Role` tab. Defaults to `practitioner` if blank. This column is not validated on import, so a role id that does not exist is accepted and the user can do nothing in Tamanu. |
 | phoneNumber | The user's phone number. Any format is accepted. Leave blank if not required. |
 | deviceRegistrationQuota (supported from v2.41 onwards) | The number of new mobile devices the user may register. Defaults to `0`, so no devices, for a new user. See the [Deploying Tamanu](../01-deploying-tamanu/) configuration guides. |
 | visibilityStatus | `current` for active users, or `historical` to deactivate the user. Defaults to `current` if blank. A deactivated user cannot log in, and their name stays against everything they recorded. |
@@ -209,7 +210,7 @@ permissions at all has no column in the export.
 
 ### Editing permissions in the admin panel (supported from v2.53 onwards)
 
-Permissions can also be granted and revoked on the **Edit** tab of the **Permissions** screen. See [Permissions](03-permissions.md#editing-permissions-in-the-admin-panel).
+Permissions can also be granted and revoked on the **Edit** tab of the **Permissions** screen. See [Permissions](03-permissions.md#editing-permissions-in-the-admin-panel-supported-from-v253-onwards).
 
 ---
 
@@ -233,6 +234,7 @@ Each noun accepts only some verbs: see [Permissions](03-permissions.md) for whic
 | run | Run a report |
 | submit | Submit a form |
 | login | Log in to a facility |
+| sync | Sync, when **Restrict users to sync** is on. Not shown on the **Edit** tab of the **Permissions** screen. See [Sync restriction](02-settings.md#sync-restriction) |
 | fhirIntegration | Connect an external system through an integration |
 | manage | With the noun `all`, every permission in Tamanu |
 
