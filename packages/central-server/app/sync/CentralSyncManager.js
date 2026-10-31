@@ -694,8 +694,21 @@ export class CentralSyncManager {
 
   async fetchSyncMetadata(sessionId) {
     // Minimum metadata info for now but can grow in the future
-    const { startedAtTick } = await this.connectToSession(sessionId);
-    return { startedAtTick };
+    const session = await this.connectToSession(sessionId);
+    const { startedAtTick } = session;
+
+    // Central's record of how far this device has pushed, handed back so the client can check its
+    // own cursor against it and resume from the lower of the two (spec: PUSH).
+    const deviceId = session.parameters?.deviceId;
+    const device = deviceId
+      ? await this.store.models.Device.findByPk(deviceId, {
+          attributes: ['lastSuccessfulSyncPush'],
+        })
+      : null;
+    const lastSuccessfulSyncPush =
+      device?.lastSuccessfulSyncPush == null ? null : Number(device.lastSuccessfulSyncPush);
+
+    return { startedAtTick, lastSuccessfulSyncPush };
   }
 
   async fetchPullMetadata(sessionId) {
@@ -734,7 +747,31 @@ export class CentralSyncManager {
     return recordsForPull;
   }
 
-  async persistIncomingChanges(sessionId, deviceId, tablesToInclude, isMobile) {
+  // Advance central's record of how far this device has pushed. GREATEST so a client reporting a
+  // lower cursor (e.g. restored from a snapshot behind central) never drags back what central
+  // knows it has received; a cursor we couldn't use leaves the record untouched (spec: PUSH).
+  // The device is guaranteed to exist: every sync route requires an authenticated one. Runs in
+  // the caller's transaction via CLS when there is one.
+  async recordDevicePushCursor(deviceId, lastSuccessfulSyncPush) {
+    if (lastSuccessfulSyncPush === null) return;
+    await this.store.sequelize.query(
+      `UPDATE devices
+         SET last_successful_sync_push = GREATEST(COALESCE(last_successful_sync_push, -1), :lastSuccessfulSyncPush)
+       WHERE id = :deviceId`,
+      {
+        replacements: { lastSuccessfulSyncPush, deviceId },
+        type: QueryTypes.UPDATE,
+      },
+    );
+  }
+
+  async persistIncomingChanges(
+    sessionId,
+    deviceId,
+    tablesToInclude,
+    isMobile,
+    reportedPushSyncTick,
+  ) {
     const { sequelize, models } = this.store;
     const totalPushed = await countSyncSnapshotRecords(
       sequelize,
@@ -747,50 +784,79 @@ export class CentralSyncManager {
       ? filterModelsFromName(models, tablesToInclude)
       : getModelsForPush(models);
 
-    try {
-      // commit the changes to the db
-      await sequelize.transaction(async () => {
-        // currently we do not create audit logs on mobile devices
-        // so we rely on sync process to create audit logs
-        if (!isMobile) {
-          await pauseAudit(sequelize);
-        }
-        // we tick-tock the global clock to make sure there is a unique tick for these changes
-        // n.b. this used to also be used for concurrency control, but that is now handled by
-        // shared advisory locks taken using the current sync tick as the id, which are waited on
-        // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
-        // saving with a unique tick
-        const { tock } = await this.tickTockGlobalClock();
-
-        // run any side effects for each model
-        // eg: resolving duplicated patient display IDs
-        await incomingSyncHook(sequelize, modelsToInclude, sessionId);
-
-        await withDeferredSyncSafeguards(sequelize, async () =>
-          saveIncomingChanges(sequelize, modelsToInclude, sessionId, true),
-        );
-
-        // store the sync tick on save with the incoming changes, so they can be compared for
-        // edits with the outgoing changes
-        await updateSnapshotRecords(
-          sequelize,
-          sessionId,
-          { savedAtSyncTick: tock },
-          { direction: SYNC_SESSION_DIRECTION.INCOMING },
-        );
-
-        await models.SyncDeviceTick.create({ deviceId, persistedAtSyncTick: tock });
-
-        // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
-        // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
-        // (specifically won't be removed by removeEchoedChanges())
-        await this.tickTockGlobalClock();
+    // Clients report the local sync tick they've pushed up to, as a string or a number. Coerce and
+    // validate here rather than at the route, so every caller of completePush goes through the
+    // same check. A value we can't use is dropped, but logged: a silently stuck device cursor is
+    // otherwise undiagnosable (spec: PUSH).
+    const parsedPushSyncTick =
+      reportedPushSyncTick == null ? null : Number(reportedPushSyncTick);
+    const lastSuccessfulSyncPush = Number.isInteger(parsedPushSyncTick)
+      ? parsedPushSyncTick
+      : null;
+    if (reportedPushSyncTick != null && lastSuccessfulSyncPush === null) {
+      log.warn('CentralSyncManager.discardedReportedPushCursor', {
+        sessionId,
+        deviceId,
+        reportedPushSyncTick,
       });
+    }
 
-      await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+    try {
+      if (totalPushed === 0) {
+        // An idle sync: the client delivered nothing, but still reports how far it has pushed so
+        // central's record stays in step with the client's rather than lagging to the last
+        // non-empty push. A no-op push can't change what central holds, so we skip the clock
+        // ticks, hooks, save, and device tick, and only advance the record (spec: PUSH).
+        await this.recordDevicePushCursor(deviceId, lastSuccessfulSyncPush);
+      } else {
+        // commit the changes to the db
+        await sequelize.transaction(async () => {
+          // currently we do not create audit logs on mobile devices
+          // so we rely on sync process to create audit logs
+          if (!isMobile) {
+            await pauseAudit(sequelize);
+          }
+          // we tick-tock the global clock to make sure there is a unique tick for these changes
+          // n.b. this used to also be used for concurrency control, but that is now handled by
+          // shared advisory locks taken using the current sync tick as the id, which are waited on
+          // by an exclusive lock taken prior to starting a snapshot - so this is now purely for
+          // saving with a unique tick
+          const { tock } = await this.tickTockGlobalClock();
 
-      // mark for repull any records that were modified by an incoming sync hook
-      await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
+          // run any side effects for each model
+          // eg: resolving duplicated patient display IDs
+          await incomingSyncHook(sequelize, modelsToInclude, sessionId);
+
+          await withDeferredSyncSafeguards(sequelize, async () =>
+            saveIncomingChanges(sequelize, modelsToInclude, sessionId, true),
+          );
+
+          // store the sync tick on save with the incoming changes, so they can be compared for
+          // edits with the outgoing changes
+          await updateSnapshotRecords(
+            sequelize,
+            sessionId,
+            { savedAtSyncTick: tock },
+            { direction: SYNC_SESSION_DIRECTION.INCOMING },
+          );
+
+          await models.SyncDeviceTick.create({ deviceId, persistedAtSyncTick: tock });
+
+          // Record how far this device has now pushed, in the same transaction that saves its
+          // changes, so an interrupted persist never advances it (spec: PUSH).
+          await this.recordDevicePushCursor(deviceId, lastSuccessfulSyncPush);
+
+          // Tick tock once more to ensure that no records that are subsequently modified will share the same sync tick as the incoming changes
+          // notably so that if records are modified by adjustDataPostSyncPush(), they will be picked up for pulling in the same session
+          // (specifically won't be removed by removeEchoedChanges())
+          await this.tickTockGlobalClock();
+        });
+
+        await adjustDataPostSyncPush(sequelize, modelsToInclude, sessionId);
+
+        // mark for repull any records that were modified by an incoming sync hook
+        await bumpSyncTickForRepull(sequelize, modelsToInclude, sessionId);
+      }
 
       // mark persisted so that client polling "completePush" can stop
       await models.SyncSession.update(
@@ -879,7 +945,7 @@ export class CentralSyncManager {
     await insertSnapshotRecords(sequelize, sessionId, incomingSnapshotRecords);
   }
 
-  async completePush(sessionId, deviceId, tablesToInclude) {
+  async completePush(sessionId, deviceId, tablesToInclude, reportedPushSyncTick) {
     const session = await this.connectToSession(sessionId);
 
     // don't await persisting, the client should asynchronously poll as it may take longer than
@@ -890,6 +956,7 @@ export class CentralSyncManager {
       deviceId,
       tablesToInclude,
       session.parameters.isMobile,
+      reportedPushSyncTick,
     ).finally(unmarkSessionAsProcessing);
   }
 
