@@ -16,7 +16,10 @@ category, which is marked high risk: only a user whose role holds `manage` for `
 Login lockout, idle logout, password reset and mobile device registration are covered in the
 [Deploying Tamanu](../01-deploying-tamanu/) configuration guides.
 
-**[Screenshot: the Auth category in Settings, showing the high risk marker]**
+<p align="center">
+  <img src="images/settings-auth-category.png" alt="The Auth category in Settings, with a high risk marker beside each setting" width="717"><br>
+  <sub>The <b>Auth</b> settings, each marked high risk.</sub>
+</p>
 
 ## Permissions source
 

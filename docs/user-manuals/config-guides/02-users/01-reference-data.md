@@ -46,11 +46,14 @@ role can be added and given permissions in a single import.
 Roles can also be added and deleted on the **Roles** tab of **Users** > **Roles & designations**:
 
 - Select **Add role** and enter an **ID** and **Name**. The id must not already be in use
-- Select **Delete** against a role to remove it. A role cannot be deleted while any user, including a
+- Select the menu against a role, then **Delete**, to remove it. A role cannot be deleted while any user, including a
   deactivated user, is assigned to it: the screen lists those users, and each needs a different role
   first
 
-**[Screenshot: the Roles tab of Roles & designations, listing roles with Add role and Delete]**
+<p align="center">
+  <img src="images/reference-data-roles.png" alt="The Roles tab of Roles & designations, listing roles, with Add role outlined in red" width="732"><br>
+  <sub>Select <b>Add role</b> on the <b>Roles</b> tab.</sub>
+</p>
 
 A role's name cannot be changed on this screen. Change it on the `Role` tab and re-import.
 
@@ -83,10 +86,13 @@ Designations can also be added and deleted on the **Designations** tab of **User
 **Roles & designations**:
 
 - Select **Add designation** and enter an **ID**, **Code** and **Name**
-- Select **Delete** against a designation to remove it. A designation cannot be deleted while any
+- Select the menu against a designation, then **Delete**, to remove it. A designation cannot be deleted while any
   user or task is assigned to it: the screen lists them, and each needs updating first
 
-**[Screenshot: the Designations tab of Roles & designations, listing designations with Add designation and Delete]**
+<p align="center">
+  <img src="images/reference-data-designations.png" alt="The Designations tab of Roles & designations, listing designations, with Add designation outlined in red" width="732"><br>
+  <sub>Select <b>Add designation</b> on the <b>Designations</b> tab.</sub>
+</p>
 
 Designations are reference data, so they can also be edited on the **Manage** tab of the
 **Reference data** screen (supported from v2.54 onwards).
@@ -131,21 +137,32 @@ user's password as it was.
 Users can also be added and edited one at a time on **Users** > **User profiles**. From v2.53 the
 screen sits under the **Users** heading of the admin panel sidebar.
 
-**[Screenshot: the User profiles screen, with Add user outlined]**
+<p align="center">
+  <img src="images/reference-data-user-profiles.png" alt="The User profiles screen listing users, with Add user outlined in red" width="732"><br>
+  <sub>Select <b>Add user</b> on <b>User profiles</b>.</sub>
+</p>
 
 To add a user, select **Add user** and complete the form. **Display name**, **Role**, **Email**,
 **Password** and **Confirm password** are required. **Email** and **Display name** must each be
 unique, and display names are compared ignoring case. **Designation** and **Allowed facilities** each
 accept several values.
 
-**[Screenshot: the Add user window]**
+<p align="center">
+  <img src="images/reference-data-add-user.png" alt="The Add user window with its fields empty, with Confirm outlined in red" width="497"><br>
+  <sub>Complete the <b>Add user</b> form, then select <b>Confirm</b>.</sub>
+</p>
 
 To edit a user, select their row to open their **User profile**. The same fields can be changed, and:
 
 - **Status** deactivates a user, by changing it from **Active** to **Deactivated**
 - **Change password** sets a new password. Enter it in **New password** and **Confirm new password**
 
-**[Screenshot: the User profile window]**
+**Confirm** appears once a change is made. Select it to save, or **Cancel** to discard the changes.
+
+<p align="center">
+  <img src="images/reference-data-user-profile.png" alt="A user's User profile window, showing their details and the Change password fields" width="497"><br>
+  <sub>A user's <b>User profile</b>, with <b>Change password</b> beneath their details.</sub>
+</p>
 
 The device registration quota is set on the `User` tab only.
 
@@ -166,7 +183,10 @@ Scheduling leave removes the user from any locations assigned to them on those d
 is listed under **Upcoming scheduled leave**, where **Remove** cancels it. See the
 [Scheduling](../05-scheduling/) configuration guides for location assignment.
 
-**[Screenshot: the Schedule leave section of a User profile, with upcoming leave listed]**
+<p align="center">
+  <img src="images/reference-data-schedule-leave.png" alt="The Schedule leave section of a User profile, with Schedule leave outlined in red" width="497"><br>
+  <sub>Enter a <b>Start date</b> and <b>End date</b>, then select <b>Schedule leave</b>.</sub>
+</p>
 
 ---
 
