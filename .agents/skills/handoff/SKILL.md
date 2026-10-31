@@ -7,7 +7,7 @@ pill-order:
   specifying: 5
   implementing: 6
   reviewing: 6
-workhorse-version: 0.3.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Hand off to an external agent
@@ -46,7 +46,7 @@ Whether delivered inline or written to `handoff.md`, the briefing contains these
 
 **3. Branch instructions** — tell the agent which branch to check out and to diff it against the upstream base branch to understand what specs and mockups have been added or changed
 
-**4. Journal summary** — summarise what has happened so far on this card based on the conversation history (what was discussed, what decisions were made, what work was done)
+**4. Progress** — where the work stands, taken from the card's progress summary: read it with `get_card` and carry its sections (where it's at, decided, open) into the prompt. Leave this section out when the card has no progress summary
 
 **5. Conversation context** — compress the key points from the conversation: decisions made, open threads, areas explored, any unresolved questions. This gives the external agent continuity
 

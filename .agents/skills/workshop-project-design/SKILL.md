@@ -4,7 +4,7 @@ description: "Produce or refine a project-level mockup illustrating a section of
 label: "Workshop design"
 surface: project
 jockey-hint: "Always available on the project surface but never the top pill — surface in the secondary group. Useful at any point in the project's lifecycle."
-workhorse-version: 0.3.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Workshop design (project surface)
