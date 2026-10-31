@@ -22,7 +22,10 @@ See the [Tamanu Reference Data Manual](https://beyond-essential.slab.com/public/
 These reference data types populate the fields on a patient's **Details** tab, and the same fields
 when registering a new patient, on desktop and mobile.
 
-**[Screenshot: the Personal information and Location information sections of a patient's Details tab, showing fields that choose from reference data]**
+<p align="center">
+  <img src="images/reference-data-location-information.png" alt="The Location information section of a patient's Details tab, with Sub division, Division, Country, Medical area and Nursing zone fields" width="517"><br>
+  <sub>The <b>Sub division</b>, <b>Division</b>, <b>Country</b>, <b>Medical area</b> and <b>Nursing zone</b> fields choose from reference data.</sub>
+</p>
 
 Each type has its own tab. The importer also accepts the plural of a tab name, such as `Villages`.
 

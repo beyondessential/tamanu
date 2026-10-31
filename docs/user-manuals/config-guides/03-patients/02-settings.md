@@ -20,7 +20,10 @@ The **Fields (Previously localised fields)** category holds a sub-category for e
 each sub-category holds the settings that decide whether the field is mandatory, whether it shows, and
 what it is filled in with by default. They apply across the deployment.
 
-**[Screenshot: the Sex sub-category of the Fields (Previously localised fields) category in Settings, showing Required, Default value, Hidden and Required patient data]**
+<p align="center">
+  <img src="images/settings-fields-sex.png" alt="The Sex sub-category of Fields (Previously localised fields) in Settings, showing Default value, Hidden, Required and Required patient data" width="722"><br>
+  <sub>Each field's sub-category holds <b>Default value</b>, <b>Hidden</b>, <b>Required</b> and <b>Required patient data</b>.</sub>
+</p>
 
 ### Making a field mandatory
 
@@ -201,7 +204,10 @@ New patients always start with a generated ID. Display IDs cannot be edited on m
 | Setting | Edit patient display id |
 | Default | Enabled |
 
-**[Screenshot: the National Health Number field in the Identification information section of a patient's Details tab]**
+<p align="center">
+  <img src="images/settings-identification-information.png" alt="The Identification information section of a patient's Details tab, with the National Health Number field" width="517"><br>
+  <sub>The display ID is edited in <b>National Health Number</b> under <b>Identification information</b>.</sub>
+</p>
 
 When a display ID is changed, the old ID is kept as a secondary ID, so searching the **All patients**
 list by the old ID still finds the patient. A display ID already used by another patient is refused,
@@ -293,7 +299,10 @@ Deaths cannot be recorded on mobile.
 | Setting | Enable patient deaths |
 | Default | Disabled |
 
-**[Screenshot: the Record death button in the patient sidebar]**
+<p align="center">
+  <img src="images/settings-record-death.png" alt="The bottom of the patient sidebar, with Record death outlined in red" width="198"><br>
+  <sub>Select <b>Record death</b> at the bottom of the patient sidebar.</sub>
+</p>
 
 A death can be recorded in two ways:
 
@@ -307,6 +316,20 @@ The cause of death and contributing conditions choose from `Diagnosis` reference
 
 Recording a death discharges the patient's open encounters. See
 [Discharge on death](#discharge-on-death).
+
+## Civil registration style (supported from v2.51 onwards)
+
+Switches the death form, the death certificate and the **Birth notification** printout to the civil
+registration style used in the Federated States of Micronesia. The death form asks additional
+FSM-specific questions, and both printouts take the FSM layout. Leave it off elsewhere.
+
+| Field | Value |
+| --- | --- |
+| Scope | Global (All Facilities/Servers) |
+| Category | FSM CRVS Certificates |
+| Sub-category | None |
+| Setting | Enable fsm style |
+| Default | Disabled |
 
 ## Reminder contacts
 
@@ -370,7 +393,10 @@ include deceased patients. Further fields can be added to the expanded search.
 | Setting | Additional search fields |
 | Default | None |
 
-**[Screenshot: the expanded search on the All patients list, showing an additional search field]**
+<p align="center">
+  <img src="images/settings-all-patients-expanded-search.png" alt="The All patients search expanded, with the expand button outlined in red" width="706"><br>
+  <sub>Select the expand button to show the expanded search, where additional search fields appear.</sub>
+</p>
 
 Choose the fields from the **Search fields** list. They show in the expanded search in the order
 chosen. A field that picks from reference data is searched by choosing a value. Any other field finds
@@ -463,7 +489,10 @@ button can be hidden but not reordered.
 **Patient resources** in the patient sidebar on desktop opens a window for printing identification and
 certificates for the patient.
 
-**[Screenshot: the Patient resources window]**
+<p align="center">
+  <img src="images/settings-patient-resources.png" alt="The Patient resources window, listing Identification, Certificates and Patient portal options" width="661"><br>
+  <sub>The <b>Patient resources</b> window.</sub>
+</p>
 
 The identification options are always offered:
 
@@ -643,11 +672,15 @@ These work without configuration.
 ## Duplicate patient check (supported from v2.35 onwards)
 
 When a patient is registered on desktop, Tamanu checks for existing patients who may be the same
-person. Where it finds any, a **Possible duplicate patient record** window lists up to five, alongside
-the proposed new record, so the user can select the existing patient or carry on with
-**Add new patient**. Mobile does not check.
+person. Where it finds any, the **Add new patient** window shows a
+**Possible duplicate patient record** warning listing up to five, alongside the proposed new record.
+Selecting an existing patient opens their record, and **Add new patient** carries on registering.
+Mobile does not check.
 
-**[Screenshot: the Possible duplicate patient record window]**
+<p align="center">
+  <img src="images/settings-duplicate-patient-warning.png" alt="The Possible duplicate patient record warning, listing an existing patient and the proposed new record, with Add new patient outlined in red" width="745"><br>
+  <sub>Select an existing patient to open their record, or <b>Add new patient</b> to carry on.</sub>
+</p>
 
 An existing patient is listed when all of the following hold:
 

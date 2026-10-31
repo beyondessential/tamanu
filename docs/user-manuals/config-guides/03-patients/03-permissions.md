@@ -146,7 +146,10 @@ See [Patients](01-reference-data.md#patients).
 Patient merge combines two records for the same person into one. It is done on the **Patient merge**
 screen of the admin panel, and needs `read` and `write` for `Patient`.
 
-**[Screenshot: the Patient merge screen with two patients selected]**
+<p align="center">
+  <img src="images/permissions-patient-merge.png" alt="The Patient merge screen with two patients selected, with Merge outlined in red" width="730"><br>
+  <sub>Enter each display ID and select <b>Get</b>, then select <b>Merge</b>.</sub>
+</p>
 
 The two patients are found by entering each display ID exactly and selecting **Get**. After selecting
 **Merge**, the user chooses which record to keep and selects **Next**, then **Confirm**.
