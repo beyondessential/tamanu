@@ -3,10 +3,6 @@ data is configured through the reference data import spreadsheet, downloaded fro
 Tamanu system. Records can also be added and edited one at a time on the **Manage** tab of the
 **Reference data** screen in the admin panel.
 
-> [!NOTE]
-> The **Manage** tab is supported from v2.54 onwards. Earlier deployments configure reference data by
-> import spreadsheet only.
-
 For the settings that govern prescribing and administration see [Settings](02-settings.md), and for the
 permissions required see [Permissions](03-permissions.md).
 
@@ -53,7 +49,7 @@ Where * is a required field.
 | dispensingUnit | The unit pharmacy dispenses the medication in, used for invoicing. Must be one of the units listed under [Units](#units). Defaults to the dosing unit if not set. |
 | unitConversion | Converts a prescribed dose into the correct number of dispensing units. Defaults to 1 if not set. |
 | notes | A default note for the medication, such as instructions for administering or taking it. If not set, the field is empty by default when the medication is prescribed. Leave blank if no default is required. |
-| isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](03-permissions.md#sensitive-medications-supported-from-v239-onwards). |
+| isSensitive | Flags a medication as sensitive, so only users with the required permissions can view it. Input TRUE to set a medication as sensitive. Defaults to non-sensitive if blank. See [Sensitive medications](03-permissions.md#sensitive-medications). |
 
 Stock levels are recorded in additional columns, one per facility, as described below.
 

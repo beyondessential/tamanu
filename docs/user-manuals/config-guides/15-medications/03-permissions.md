@@ -21,10 +21,10 @@ Required to prescribe a medication and manage the ongoing medications list:
 | `write` for `Medication` | <ul><li>Pause and resume a medication</li><li>Discontinue a medication, including through the discharge workflow</li><li>Set discharge quantity and repeats for a medication</li></ul> |
 | `create` for `Medication` | <ul><li>Create a new prescription through an encounter</li><li>Add existing ongoing medications to an encounter</li><li>Create a new ongoing medication record through the patient-level ongoing medications table</li></ul> |
 
-## Sensitive medications
+## Sensitive medication permissions
 
 Required to view, manage and prescribe medications flagged as sensitive. See
-[Sensitive medications](#sensitive-medications-supported-from-v239-onwards):
+[Sensitive medications](#sensitive-medications):
 
 | Permission | What it grants |
 | --- | --- |
@@ -83,11 +83,7 @@ Required to manage medication related settings:
 
 ---
 
-# Sensitive medications (supported from v2.39 onwards)
-
-> [!NOTE]
-> Deployments running a version earlier than v2.39 cannot flag medications as sensitive. Confirm your
-> deployment version before configuring this.
+# Sensitive medications
 
 This feature flags a medication as sensitive, so that only users with the required permissions can view
 and interact with it.
@@ -100,7 +96,7 @@ To configure a medication as sensitive:
 
 1. Set the medication as sensitive in the `Drug` reference data. See [Drug](01-reference-data.md#drug)
 2. Configure sensitive medication permissions for the required roles. See
-   [Sensitive medications permissions](#sensitive-medications)
+   [Sensitive medication permissions](#sensitive-medication-permissions)
 
 **Note:**
 
