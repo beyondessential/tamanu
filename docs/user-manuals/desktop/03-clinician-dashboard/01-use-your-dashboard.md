@@ -40,7 +40,7 @@ administrator if you believe you should see a section that is missing.
    The patient's record opens.
 
    <p align="center">
-     <img src="images/use-your-dashboard-recently-viewed.png" alt="A patient's card in Recently viewed, outlined in red" width="290"><br>
+     <img src="images/use-your-dashboard-recently-viewed.png" alt="A patient's card in Recently viewed, outlined in red" width="244"><br>
      <sub>Select a patient's card to open their record.</sub>
    </p>
 
@@ -63,7 +63,7 @@ administrator if you believe you should see a section that is missing.
 2. Select **View all…** to open the outpatient appointments calendar, grouped by clinician.
 
    <p align="center">
-     <img src="images/use-your-dashboard-todays-appointments.png" alt="The Today's appointments pane listing four appointments, one seen, with View all… outlined in red" width="368"><br>
+     <img src="images/use-your-dashboard-todays-appointments.png" alt="The Today's appointments pane listing four appointments, one seen, with View all… outlined in red" width="309"><br>
      <sub>Select <b>View all…</b> to open the outpatient appointments calendar.</sub>
    </p>
 
@@ -84,7 +84,7 @@ administrator if you believe you should see a section that is missing.
 2. Select **View all…** to open the location bookings calendar, showing only your bookings.
 
    <p align="center">
-     <img src="images/use-your-dashboard-todays-bookings.png" alt="The Today's bookings pane listing three bookings, with View all… outlined in red" width="368"><br>
+     <img src="images/use-your-dashboard-todays-bookings.png" alt="The Today's bookings pane listing three bookings, with View all… outlined in red" width="309"><br>
      <sub>Select <b>View all…</b> to open the location bookings calendar.</sub>
    </p>
 
@@ -112,7 +112,7 @@ Tamanu notifies you when:
    heading says how many.
 
    <p align="center">
-     <img src="images/use-your-dashboard-notifications.png" alt="The Notifications panel with four unread notifications and one recent one, with Mark all as read outlined in red" width="357"><br>
+     <img src="images/use-your-dashboard-notifications.png" alt="The Notifications panel with four unread notifications and one recent one, with Mark all as read outlined in red" width="300"><br>
      <sub>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent</b> ones.</sub>
    </p>
 
