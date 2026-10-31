@@ -8,7 +8,7 @@ module's settings see [Settings](02-settings.md).
 
 # Permissions
 
-See the [Users](../02-users/) configuration guides for more detail on roles and permissions in Tamanu.
+See [Users permissions](../02-users/03-permissions.md) for how roles and permissions work in Tamanu.
 
 ## Prescriptions and ongoing medications
 
@@ -20,6 +20,8 @@ Required to prescribe a medication and manage the ongoing medications list:
   - View prescription details from any of the above views
 - `read` for `Medication`
   - Print a prescription
+  - View a prescription's pause history
+  - Open a prescription from a notification link
 - `write` for `Medication`
   - Pause and resume a medication
   - Discontinue a medication, including through the discharge workflow
@@ -40,14 +42,17 @@ Required to view, manage and prescribe medications flagged as sensitive. See
     the patient level medications table
 - `read` for `SensitiveMedication`
   - View prescription details for a sensitive medication
-  - View administration record details for a sensitive medication
+  - View and record administrations of a sensitive medication on the MAR
+  - View, send to pharmacy and dispense sensitive medications. See the [Dispensing](../16-dispensing/)
+    configuration guides
 - `write` for `SensitiveMedication`
   - Pause and resume a sensitive medication
   - Discontinue a sensitive medication, including through the discharge workflow
   - Set discharge quantity and repeats for a sensitive discharge medication
   - Print a sensitive prescription
 - `create` for `SensitiveMedication`
-  - Create a prescription for a sensitive medication
+  - Find sensitive medications, and medication sets containing them, when prescribing on desktop and
+    mobile, and create a prescription for them
   - Add existing ongoing sensitive medications to an encounter
   - Create a new ongoing sensitive medication record through the patient-level ongoing medications table
 
@@ -56,8 +61,7 @@ Required to view, manage and prescribe medications flagged as sensitive. See
 Required to view the MAR, record administration and manage records:
 
 - `list` for `MedicationAdministration`
-  - View the MAR
-  - View medication due tasks in the clinician dashboard 'Upcoming tasks' table
+  - View the MAR. Also requires `list` for `Medication`
 - `read` for `MedicationAdministration`
   - View details of an administration record
 - `write` for `MedicationAdministration`
@@ -68,14 +72,23 @@ Required to view the MAR, record administration and manage records:
 - `create` for `MedicationAdministration`
   - Record a medication administration, as either given or not given
 
+## Medication due tasks
+
+Required to see medication due tasks on the clinician dashboard:
+
+- `read` for `MedicationDueTask`
+  - View medication due tasks in the clinician dashboard 'Upcoming tasks' table. Also requires `read`
+    for `Tasking`
+
 ## Pharmacy note
 
-Required for the pharmacy note functionality:
+Required for the pharmacy note functionality. Both also require `write` for `Medication`:
 
 - `write` for `MedicationPharmacyNote`
   - Edit an existing pharmacy note
 - `create` for `MedicationPharmacyNote`
   - Record a new pharmacy note. Without this permission the field is read only
+  - Select **Display pharmacy notes on MAR**
 
 ## Admin panel
 
