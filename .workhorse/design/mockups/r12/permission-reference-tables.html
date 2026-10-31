@@ -1,0 +1,4013 @@
+<!-- guide: docs/user-manuals/config-guides/02-users/03-permissions.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Permission reference in table format</title>
+<style>
+/*light */
+.markdown-body {
+  color-scheme: light;
+  /** CSS default easing. Use for hover state changes and micro-interactions. */
+  /** Accelerating motion. Use for elements exiting the viewport (moving off-screen). */
+  /** Smooth acceleration and deceleration. Use for elements moving or morphing within the viewport. */
+  /** Decelerating motion. Use for elements entering the viewport or appearing on screen. */
+  /** Constant motion with no acceleration. Use for continuous animations like progress bars or loaders. */
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  margin: 0;
+  font-weight: 400;
+  color: #1f2328;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+}
+
+.markdown-body .octicon {
+  display: inline-block;
+  fill: currentColor;
+  vertical-align: text-bottom;
+}
+
+.markdown-body h1:hover .anchor .octicon-link:before,
+.markdown-body h2:hover .anchor .octicon-link:before,
+.markdown-body h3:hover .anchor .octicon-link:before,
+.markdown-body h4:hover .anchor .octicon-link:before,
+.markdown-body h5:hover .anchor .octicon-link:before,
+.markdown-body h6:hover .anchor .octicon-link:before {
+  width: 16px;
+  height: 16px;
+  content: ' ';
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
+  mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
+}
+
+.markdown-body details,
+.markdown-body figcaption,
+.markdown-body figure {
+  display: block;
+}
+
+.markdown-body summary {
+  display: list-item;
+}
+
+.markdown-body [hidden] {
+  display: none !important;
+}
+
+.markdown-body a {
+  background-color: rgba(0,0,0,0);
+  color: #0969da;
+  text-decoration: none;
+}
+
+.markdown-body abbr[title] {
+  border-bottom: none;
+  -webkit-text-decoration: underline dotted;
+  text-decoration: underline dotted;
+}
+
+.markdown-body b,
+.markdown-body strong {
+  font-weight: 600;
+}
+
+.markdown-body dfn {
+  font-style: italic;
+}
+
+.markdown-body h1 {
+  margin: .67em 0;
+  font-weight: 600;
+  padding-bottom: .3em;
+  font-size: 2em;
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+.markdown-body mark {
+  background-color: #fff8c5;
+  color: #1f2328;
+}
+
+.markdown-body small {
+  font-size: 90%;
+}
+
+.markdown-body sub,
+.markdown-body sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.markdown-body sub {
+  bottom: -0.25em;
+}
+
+.markdown-body sup {
+  top: -0.5em;
+}
+
+.markdown-body img {
+  border-style: none;
+  max-width: 100%;
+  box-sizing: content-box;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre,
+.markdown-body samp {
+  font-family: monospace;
+  font-size: 1em;
+}
+
+.markdown-body figure {
+  margin: 1em 2.5rem;
+}
+
+.markdown-body hr {
+  box-sizing: content-box;
+  overflow: hidden;
+  background: rgba(0,0,0,0);
+  border-bottom: 1px solid #d1d9e0b3;
+  height: .25em;
+  padding: 0;
+  margin: 1.5rem 0;
+  background-color: #d1d9e0;
+  border: 0;
+}
+
+.markdown-body input {
+  font: inherit;
+  margin: 0;
+  overflow: visible;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.markdown-body [type=button],
+.markdown-body [type=reset],
+.markdown-body [type=submit] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+.markdown-body [type=checkbox],
+.markdown-body [type=radio] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body [type=number]::-webkit-inner-spin-button,
+.markdown-body [type=number]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+.markdown-body [type=search]::-webkit-search-cancel-button,
+.markdown-body [type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.markdown-body ::-webkit-input-placeholder {
+  color: inherit;
+  opacity: .54;
+}
+
+.markdown-body ::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  appearance: button;
+  font: inherit;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body ::placeholder {
+  color: #59636e;
+  opacity: 1;
+}
+
+.markdown-body hr::before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  font-variant: tabular-nums;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body details summary {
+  cursor: pointer;
+}
+
+.markdown-body a:focus,
+.markdown-body [role=button]:focus,
+.markdown-body input[type=radio]:focus,
+.markdown-body input[type=checkbox]:focus {
+  outline: 2px solid var(--borderColor-accent-emphasis);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+.markdown-body a:focus:not(:focus-visible),
+.markdown-body [role=button]:focus:not(:focus-visible),
+.markdown-body input[type=radio]:focus:not(:focus-visible),
+.markdown-body input[type=checkbox]:focus:not(:focus-visible) {
+  outline: solid 1px rgba(0,0,0,0);
+}
+
+.markdown-body a:focus-visible,
+.markdown-body [role=button]:focus-visible,
+.markdown-body input[type=radio]:focus-visible,
+.markdown-body input[type=checkbox]:focus-visible {
+  outline: 2px solid var(--borderColor-accent-emphasis);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+.markdown-body a:not([class]):focus,
+.markdown-body a:not([class]):focus-visible,
+.markdown-body input[type=radio]:focus,
+.markdown-body input[type=radio]:focus-visible,
+.markdown-body input[type=checkbox]:focus,
+.markdown-body input[type=checkbox]:focus-visible {
+  outline-offset: 0;
+}
+
+.markdown-body kbd {
+  display: inline-block;
+  padding: 0.25rem;
+  font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  line-height: 10px;
+  color: #1f2328;
+  vertical-align: middle;
+  background-color: #f6f8fa;
+  border: solid 1px var(--borderColor-muted);
+  border-bottom-color: var(--borderColor-muted);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 var(--borderColor-muted);
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.markdown-body h2 {
+  font-weight: 600;
+  padding-bottom: .3em;
+  font-size: 1.5em;
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+.markdown-body h3 {
+  font-weight: 600;
+  font-size: 1.25em;
+}
+
+.markdown-body h4 {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.markdown-body h5 {
+  font-weight: 600;
+  font-size: .875em;
+}
+
+.markdown-body h6 {
+  font-weight: 600;
+  font-size: .85em;
+  color: #59636e;
+}
+
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+  padding: 0 1em;
+  color: #59636e;
+  border-left: .25em solid #d1d9e0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 2em;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body tt,
+.markdown-body code,
+.markdown-body samp {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+  word-wrap: normal;
+}
+
+.markdown-body .octicon {
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-body input::-webkit-outer-spin-button,
+.markdown-body input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.markdown-body .mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+.markdown-body::before {
+  display: table;
+  content: "";
+}
+
+.markdown-body::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.markdown-body .absent {
+  color: #d1242f;
+}
+
+.markdown-body .anchor {
+  float: left;
+  padding-right: 0.25rem;
+  margin-left: -20px;
+  line-height: 1;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre,
+.markdown-body details {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  color: #1f2328;
+  vertical-align: middle;
+  visibility: hidden;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  visibility: visible;
+}
+
+.markdown-body h1 tt,
+.markdown-body h1 code,
+.markdown-body h2 tt,
+.markdown-body h2 code,
+.markdown-body h3 tt,
+.markdown-body h3 code,
+.markdown-body h4 tt,
+.markdown-body h4 code,
+.markdown-body h5 tt,
+.markdown-body h5 code,
+.markdown-body h6 tt,
+.markdown-body h6 code {
+  padding: 0 .2em;
+  font-size: inherit;
+}
+
+.markdown-body summary h1,
+.markdown-body summary h2,
+.markdown-body summary h3,
+.markdown-body summary h4,
+.markdown-body summary h5,
+.markdown-body summary h6 {
+  display: inline-block;
+}
+
+.markdown-body summary h1 .anchor,
+.markdown-body summary h2 .anchor,
+.markdown-body summary h3 .anchor,
+.markdown-body summary h4 .anchor,
+.markdown-body summary h5 .anchor,
+.markdown-body summary h6 .anchor {
+  margin-left: -40px;
+}
+
+.markdown-body summary h1,
+.markdown-body summary h2 {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.markdown-body ul.no-list,
+.markdown-body ol.no-list {
+  padding: 0;
+  list-style-type: none;
+}
+
+.markdown-body ol[type="a s"] {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body ol[type="A s"] {
+  list-style-type: upper-alpha;
+}
+
+.markdown-body ol[type="i s"] {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ol[type="I s"] {
+  list-style-type: upper-roman;
+}
+
+.markdown-body ol[type="1"] {
+  list-style-type: decimal;
+}
+
+.markdown-body div>ol:not([type]) {
+  list-style-type: decimal;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 1rem;
+}
+
+.markdown-body li+li {
+  margin-top: .25em;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 1rem;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.markdown-body dl dd {
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-body table th {
+  font-weight: 600;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #d1d9e0;
+}
+
+.markdown-body table td>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table tr {
+  background-color: #ffffff;
+  border-top: 1px solid #d1d9e0b3;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.markdown-body table img {
+  background-color: rgba(0,0,0,0);
+}
+
+.markdown-body img[align=right] {
+  padding-left: 20px;
+}
+
+.markdown-body img[align=left] {
+  padding-right: 20px;
+}
+
+.markdown-body .emoji {
+  max-width: none;
+  vertical-align: text-top;
+  background-color: rgba(0,0,0,0);
+}
+
+.markdown-body span.frame {
+  display: block;
+  overflow: hidden;
+}
+
+.markdown-body span.frame>span {
+  display: block;
+  float: left;
+  width: auto;
+  padding: 7px;
+  margin: 13px 0 0;
+  overflow: hidden;
+  border: 1px solid #d1d9e0;
+}
+
+.markdown-body span.frame span img {
+  display: block;
+  float: left;
+}
+
+.markdown-body span.frame span span {
+  display: block;
+  padding: 5px 0 0;
+  clear: both;
+  color: #1f2328;
+}
+
+.markdown-body span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.markdown-body span.align-center>span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.markdown-body span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.markdown-body span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.markdown-body span.align-right>span {
+  display: block;
+  margin: 13px 0 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.markdown-body span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+
+.markdown-body span.float-left {
+  display: block;
+  float: left;
+  margin-right: 13px;
+  overflow: hidden;
+}
+
+.markdown-body span.float-left span {
+  margin: 13px 0 0;
+}
+
+.markdown-body span.float-right {
+  display: block;
+  float: right;
+  margin-left: 13px;
+  overflow: hidden;
+}
+
+.markdown-body span.float-right>span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.markdown-body code,
+.markdown-body tt {
+  padding: .2em .4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: #818b981f;
+  border-radius: 6px;
+}
+
+.markdown-body code br,
+.markdown-body tt br {
+  display: none;
+}
+
+.markdown-body del code {
+  text-decoration: inherit;
+}
+
+.markdown-body samp {
+  font-size: 85%;
+}
+
+.markdown-body pre code {
+  font-size: 100%;
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  word-break: normal;
+  white-space: pre;
+  background: rgba(0,0,0,0);
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 1rem;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 1rem;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  color: #1f2328;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+}
+
+.markdown-body pre code,
+.markdown-body pre tt {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: rgba(0,0,0,0);
+  border: 0;
+}
+
+.markdown-body .csv-data td,
+.markdown-body .csv-data th {
+  padding: 5px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.markdown-body .csv-data .blob-num {
+  padding: 10px 0.5rem 9px;
+  text-align: right;
+  background: #ffffff;
+  border: 0;
+}
+
+.markdown-body .csv-data tr {
+  border-top: 0;
+}
+
+.markdown-body .csv-data th {
+  font-weight: 600;
+  background: #f6f8fa;
+  border-top: 0;
+}
+
+.markdown-body [data-footnote-ref]::before {
+  content: "[";
+}
+
+.markdown-body [data-footnote-ref]::after {
+  content: "]";
+}
+
+.markdown-body .footnotes {
+  font-size: 12px;
+  color: #59636e;
+  border-top: 1px solid #d1d9e0;
+}
+
+.markdown-body .footnotes ol {
+  padding-left: 1rem;
+}
+
+.markdown-body .footnotes ol ul {
+  display: inline-block;
+  padding-left: 1rem;
+  margin-top: 1rem;
+}
+
+.markdown-body .footnotes li {
+  position: relative;
+}
+
+.markdown-body .footnotes li:target::before {
+  position: absolute;
+  top: calc(0.5rem*-1);
+  right: calc(0.5rem*-1);
+  bottom: calc(0.5rem*-1);
+  left: calc(1.5rem*-1);
+  pointer-events: none;
+  content: "";
+  border: 2px solid #0969da;
+  border-radius: 6px;
+}
+
+.markdown-body .footnotes li:target {
+  color: #1f2328;
+}
+
+.markdown-body .footnotes .data-footnote-backref g-emoji {
+  font-family: monospace;
+}
+
+.markdown-body .pl-c {
+  color: #59636e;
+}
+
+.markdown-body .pl-c1,
+.markdown-body .pl-s .pl-v {
+  color: #0550ae;
+}
+
+.markdown-body .pl-e,
+.markdown-body .pl-en {
+  color: #6639ba;
+}
+
+.markdown-body .pl-smi,
+.markdown-body .pl-s .pl-s1 {
+  color: #1f2328;
+}
+
+.markdown-body .pl-ent {
+  color: #0550ae;
+}
+
+.markdown-body .pl-k {
+  color: #cf222e;
+}
+
+.markdown-body .pl-s,
+.markdown-body .pl-pds,
+.markdown-body .pl-s .pl-pse .pl-s1,
+.markdown-body .pl-sr,
+.markdown-body .pl-sr .pl-cce,
+.markdown-body .pl-sr .pl-sre,
+.markdown-body .pl-sr .pl-sra {
+  color: #0a3069;
+}
+
+.markdown-body .pl-v,
+.markdown-body .pl-smw {
+  color: #953800;
+}
+
+.markdown-body .pl-bu {
+  color: #82071e;
+}
+
+.markdown-body .pl-ii {
+  color: var(--fgColor-danger);
+  background-color: var(--bgColor-danger-muted);
+}
+
+.markdown-body .pl-c2 {
+  color: #f6f8fa;
+  background-color: #cf222e;
+}
+
+.markdown-body .pl-sr .pl-cce {
+  font-weight: bold;
+  color: #116329;
+}
+
+.markdown-body .pl-ml {
+  color: #3b2300;
+}
+
+.markdown-body .pl-mh,
+.markdown-body .pl-mh .pl-en,
+.markdown-body .pl-ms {
+  font-weight: bold;
+  color: #0550ae;
+}
+
+.markdown-body .pl-mi {
+  font-style: italic;
+  color: #1f2328;
+}
+
+.markdown-body .pl-mb {
+  font-weight: bold;
+  color: #1f2328;
+}
+
+.markdown-body .pl-md {
+  color: #82071e;
+  background-color: #ffebe9;
+}
+
+.markdown-body .pl-mi1 {
+  color: #116329;
+  background-color: #dafbe1;
+}
+
+.markdown-body .pl-mc {
+  color: #953800;
+  background-color: #ffd8b5;
+}
+
+.markdown-body .pl-mi2 {
+  color: #d1d9e0;
+  background-color: #0550ae;
+}
+
+.markdown-body .pl-mdr {
+  font-weight: bold;
+  color: #8250df;
+}
+
+.markdown-body .pl-ba {
+  color: #59636e;
+}
+
+.markdown-body .pl-sg {
+  color: #818b98;
+}
+
+.markdown-body .pl-corl {
+  text-decoration: underline;
+  color: #0a3069;
+}
+
+.markdown-body [role=button]:focus:not(:focus-visible),
+.markdown-body [role=tabpanel][tabindex="0"]:focus:not(:focus-visible),
+.markdown-body button:focus:not(:focus-visible),
+.markdown-body summary:focus:not(:focus-visible),
+.markdown-body a:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.markdown-body [tabindex="0"]:focus:not(:focus-visible),
+.markdown-body details-dialog:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.markdown-body g-emoji {
+  display: inline-block;
+  min-width: 1ch;
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-size: 1em;
+  font-style: normal !important;
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: -0.075em;
+}
+
+.markdown-body g-emoji img {
+  width: 1em;
+  height: 1em;
+}
+
+.markdown-body a:has(>p,>div,>pre,>blockquote) {
+  display: block;
+}
+
+.markdown-body a:has(>p,>div,>pre,>blockquote):not(:has(.snippet-clipboard-content,>pre)) {
+  width: fit-content;
+}
+
+.markdown-body a:has(>p,>div,>pre,>blockquote):has(.snippet-clipboard-content,>pre):focus-visible {
+  outline: 2px solid var(--borderColor-accent-emphasis);
+  outline-offset: 2px;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item label {
+  font-weight: 400;
+}
+
+.markdown-body .task-list-item.enabled label {
+  cursor: pointer;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 0.25rem;
+}
+
+.markdown-body .task-list-item .handle {
+  display: none;
+}
+
+.markdown-body .task-list-item-checkbox {
+  margin: 0 .2em .25em -1.4em;
+  vertical-align: middle;
+}
+
+.markdown-body ul:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em .25em .2em;
+}
+
+.markdown-body ol:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em .25em .2em;
+}
+
+.markdown-body .contains-task-list:hover .task-list-item-convert-container,
+.markdown-body .contains-task-list:focus-within .task-list-item-convert-container {
+  display: block;
+  width: auto;
+  height: 24px;
+  overflow: visible;
+  clip-path: none;
+}
+
+.markdown-body ::-webkit-calendar-picker-indicator {
+  filter: invert(50%);
+}
+
+.markdown-body .markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  color: inherit;
+  border-left: .25em solid #d1d9e0;
+}
+
+.markdown-body .markdown-alert>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body .markdown-alert>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body .markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1;
+}
+
+.markdown-body .markdown-alert.markdown-alert-note {
+  border-left-color: #0969da;
+}
+
+.markdown-body .markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: #0969da;
+}
+
+.markdown-body .markdown-alert.markdown-alert-important {
+  border-left-color: #8250df;
+}
+
+.markdown-body .markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: #8250df;
+}
+
+.markdown-body .markdown-alert.markdown-alert-warning {
+  border-left-color: #9a6700;
+}
+
+.markdown-body .markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: #9a6700;
+}
+
+.markdown-body .markdown-alert.markdown-alert-tip {
+  border-left-color: #1a7f37;
+}
+
+.markdown-body .markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: #1a7f37;
+}
+
+.markdown-body .markdown-alert.markdown-alert-caution {
+  border-left-color: #cf222e;
+}
+
+.markdown-body .markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: #d1242f;
+}
+
+.markdown-body>*:first-child>.heading-element:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body .highlight pre:has(+.zeroclipboard-container) {
+  min-height: 52px;
+}
+
+
+body { margin: 0; background: #ffffff; }
+.markdown-body { box-sizing: border-box; min-width: 200px; max-width: 980px; margin: 0 auto; padding: 45px; }
+</style>
+</head>
+<body>
+<article class="markdown-body">
+<div class="markdown-heading"><h1 class="heading-element">Permission reference</h1><a id="user-content-permission-reference" class="anchor" aria-label="Permalink: Permission reference" href="#permission-reference"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Nouns are grouped by the part of Tamanu they relate to. Where a verb is accepted for a noun but
+granting it changes nothing for staff, it is listed as <strong>Not currently checked</strong> or <strong>Has no effect on
+any current screen</strong>.</p>
+<div class="markdown-heading"><h2 class="heading-element">Users and access</h2><a id="user-content-users-and-access" class="anchor" aria-label="Permalink: Users and access" href="#users-and-access"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>User</code></h3><a id="user-content-user" class="anchor" aria-label="Permalink: User" href="#user"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>User accounts, managed under <strong>Users</strong> &gt; <strong>User profiles</strong> in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Open <strong>User profiles</strong> in the admin panel and see the list of users (without it the screen shows a permission message)<br>Choose clinicians in clinician fields across desktop<br>Export the user sheet in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Show another user's name on desktop printouts, such as the prescriber on a prescription and the submitter on a printed form<br>See another user's upcoming leave on their profile in the admin panel</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Change any user's profile in the admin panel, including changing their password, deactivating them (the <strong>Status</strong> field) and their <strong>Allowed facilities</strong><br>Add and remove scheduled leave with <strong>Schedule leave</strong> and <strong>Remove</strong><br>Import the user sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a user with <strong>Add user</strong> in the admin panel<br>Import the user sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Every user can always see and update their own account, whatever their role; this does not let them edit their own profile in the admin panel. <strong>Add user</strong> and the profile also need <code>list</code> for <code>Role</code>, <code>ReferenceData</code> (designations) and <code>Facility</code> to fill their dropdowns. Sync accounts cannot be edited.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>UserDesignation</code></h3><a id="user-content-userdesignation" class="anchor" aria-label="Permalink: UserDesignation" href="#userdesignation"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The link between users and their designations.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<p>Designations themselves are governed by <code>ReferenceData</code>, and assigning them to a user by <code>User</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Role</code></h3><a id="user-content-role" class="anchor" aria-label="Permalink: Role" href="#role"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The roles users are assigned to.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Roles</strong> tab under <strong>Users</strong> &gt; <strong>Roles &amp; designations</strong> in the admin panel<br>See role columns and the <strong>Role</strong> filter in the <strong>Permissions</strong> matrix<br>Choose a role on <strong>Add user</strong> and on a user profile<br>Export the permissions spreadsheet (with <code>list</code> for <code>Permission</code>)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the role in the <strong>Delete role</strong> dialog in the admin panel</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Import the permissions spreadsheet (with <code>create</code>, and <code>create</code> and <code>write</code> for <code>Permission</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a role with <strong>Add role</strong> in the admin panel<br>Import the permissions spreadsheet (as above)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Delete a role in the admin panel, blocked while any user account (including deactivated ones) is assigned to it</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Permission</code></h3><a id="user-content-permission" class="anchor" aria-label="Permalink: Permission" href="#permission"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The permissions held by each role, managed on the <strong>Permissions</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the permissions spreadsheet from the <strong>Export</strong> tab (with <code>list</code> for <code>Role</code>)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the permissions matrix on the <strong>Edit</strong> tab (without it the tab shows a permission message)<br>Also requires <code>list</code> for <code>Role</code> to see any role columns</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Import the permissions spreadsheet from the <strong>Import</strong> tab (with <code>create</code>, and <code>create</code> and <code>write</code> for <code>Role</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Turn a permission on in the matrix<br>Import the permissions spreadsheet (with <code>write</code>, as above)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Turn a permission off in the matrix</td>
+</tr>
+</tbody>
+</table>
+<p>Turning a verb on in the matrix also turns on the verbs below it in the order delete, create, write, read, list. Turning a verb off does not turn anything else off.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Facility</code></h3><a id="user-content-facility" class="anchor" aria-label="Permalink: Facility" href="#facility"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The facilities in the deployment, and who may log in to them.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose a facility in facility fields across desktop and the admin panel, such as <strong>Allowed facilities</strong> on a user profile and the facility selector on <strong>Location assignment</strong> and <strong>Asset upload</strong><br>Choose a facility in the <strong>Settings</strong> editor in the admin panel<br>Export the facility sheet, and see facilities on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the current facility's name in the sidebar footer on desktop (without it the footer reads <strong>Central admin server</strong>)<br>Show facility details on printouts such as prescriptions, vaccine certificates, birth notifications and form responses, and on <strong>Bed management</strong> and medication dispensing screens</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a facility on the <strong>Manage</strong> tab in the admin panel<br>Import the facility sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a facility on the <strong>Manage</strong> tab in the admin panel<br>Import the facility sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+<tr>
+<td><code>login</code></td>
+<td>When the <strong>Restrict users to facilities</strong> setting is on, log in to every facility that is not in a sensitive network, on desktop and on mobile<br>Has no effect while that setting is off, because everyone can then log in to every non-sensitive facility<br>Never grants a sensitive facility: those always have to be listed in the user's <strong>Allowed facilities</strong>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Administration</h2><a id="user-content-administration" class="anchor" aria-label="Permalink: Administration" href="#administration"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>Setting</code></h3><a id="user-content-setting" class="anchor" aria-label="Permalink: Setting" href="#setting"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The deployment's settings, edited on the <strong>Settings</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See settings in the <strong>Editor</strong> tab of the <strong>Settings</strong> screen<br>Choose an AI model in the AI model fields of the editor</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Save changes to settings<br>See the <strong>JSON editor</strong> tab<br>Changing high-risk settings and secret settings also needs the <code>admin</code> role</td>
+</tr>
+</tbody>
+</table>
+<p>Choosing a facility on the <strong>Settings</strong> screen also requires <code>list</code> for <code>Facility</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Asset</code></h3><a id="user-content-asset" class="anchor" aria-label="Permalink: Asset" href="#asset"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Images uploaded on the <strong>Asset upload</strong> screen in the admin panel, such as letterhead logos and certificate footers.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Replace an asset that has already been uploaded (for the same facility, or for all facilities) in the admin panel</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Upload an asset that has not been uploaded before in the admin panel</td>
+</tr>
+</tbody>
+</table>
+<p>Choosing a facility on the <strong>Asset upload</strong> screen also requires <code>list</code> for <code>Facility</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Template</code></h3><a id="user-content-template" class="anchor" aria-label="Permalink: Template" href="#template"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Patient letter templates and clinical note templates, managed on the <strong>Templates</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Templates</strong> screen in the admin panel<br>Choose a template when writing a patient letter or a note on desktop</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Fill a patient letter or note from the chosen template on desktop</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a template, or remove it with <strong>Delete template</strong>, in the admin panel (with <code>read</code> and <code>list</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a template in the admin panel (with <code>list</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientLetterTemplate</code></h3><a id="user-content-patientlettertemplate" class="anchor" aria-label="Permalink: PatientLetterTemplate" href="#patientlettertemplate"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>An old noun for patient letter templates, replaced by <code>Template</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Translation</code></h3><a id="user-content-translation" class="anchor" aria-label="Permalink: Translation" href="#translation"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Editing translated text on the <strong>Translation</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>Save changes on the <strong>Edit</strong> tab of the <strong>Translation</strong> screen</td>
+</tr>
+</tbody>
+</table>
+<p>Viewing the translations needs no permission. Importing and exporting translations is governed by <code>TranslatedString</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>TranslatedString</code></h3><a id="user-content-translatedstring" class="anchor" aria-label="Permalink: TranslatedString" href="#translatedstring"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The translated text itself, imported and exported on the <strong>Translation</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export translations from the <strong>Export</strong> tab of the <strong>Translation</strong> screen</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Import translations from the <strong>Import</strong> tab (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Import translations from the <strong>Import</strong> tab (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>FormBuilder</code></h3><a id="user-content-formbuilder" class="anchor" aria-label="Permalink: FormBuilder" href="#formbuilder"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The AI form builder in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>Use the <strong>AI form builder</strong> tab under <strong>Programs</strong> &gt; <strong>Programs &amp; forms</strong> in the admin panel to draft a form by chat<br>Also requires AI to be set up for the deployment</td>
+</tr>
+</tbody>
+</table>
+<p>Saving the drafted form into a program also requires <code>create</code> and <code>write</code> for <code>Survey</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>SensitiveNetwork</code></h3><a id="user-content-sensitivenetwork" class="anchor" aria-label="Permalink: SensitiveNetwork" href="#sensitivenetwork"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Sensitive networks, which group facilities whose data is kept apart and whose access must be granted user by user.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the sensitive network sheet, and see networks on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a network on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a network on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>SyncPatient</code></h3><a id="user-content-syncpatient" class="anchor" aria-label="Permalink: SyncPatient" href="#syncpatient"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Marking a patient for sync, so their full record is kept on this facility or device.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create</code></td>
+<td>See <strong>Sync patient records</strong> on a patient whose record is not yet synced to this facility, on desktop (also requires <code>read</code> for <code>Patient</code>)<br>Without it, desktop shows a message to contact the system administrator instead<br>Mark a patient for sync from the sync icon on the patient's screen, on mobile</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Kiosk</code></h3><a id="user-content-kiosk" class="anchor" aria-label="Permalink: Kiosk" href="#kiosk"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The patient self check-in kiosk.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run</code></td>
+<td>See <strong>Self check-in kiosk</strong> under <strong>Facility admin</strong> in the desktop sidebar (only shown when the kiosk is turned on in settings)<br>Run the kiosk on the account signed in to the tablet, so patients can find their appointment and check in<br>Without it the kiosk shows <strong>Self check-in is unavailable</strong>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The kiosk account needs no other permission to run it.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Signer</code></h3><a id="user-content-signer" class="anchor" aria-label="Permalink: Signer" href="#signer"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The keys used to sign vaccine certificates.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Reference data and locations</h2><a id="user-content-reference-data-and-locations" class="anchor" aria-label="Permalink: Reference data and locations" href="#reference-data-and-locations"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>ReferenceData</code></h3><a id="user-content-referencedata" class="anchor" aria-label="Permalink: ReferenceData" href="#referencedata"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Values held in the general reference data list, such as allergies, villages, drugs, diagnoses and designations.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose values in reference data fields across desktop, such as allergy, village, diagnosis, drug and task fields<br>See the <strong>Designations</strong> tab under <strong>Users</strong> &gt; <strong>Roles &amp; designations</strong>, and choose designations on a user profile, in the admin panel<br>Export reference data sheets, and see these types on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Show reference data details on desktop, such as the patient's village on printed lab requests, prescriptions, encounter records and certificates, and the encounter's billing type<br>See a designation in the <strong>Delete designation</strong> dialog in the admin panel</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a value on the <strong>Manage</strong> tab in the admin panel<br>Import reference data sheets in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a new value straight from a field on desktop where the field allows it, such as allergies and task reasons<br>Add a value on the <strong>Manage</strong> tab, and add a designation with <strong>Add designation</strong>, in the admin panel<br>Import reference data sheets in the admin panel (with <code>write</code>)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Delete a designation in the admin panel, blocked while any user or task is assigned to it<br>No other reference data can be deleted</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>ReferenceDataRelation</code></h3><a id="user-content-referencedatarelation" class="anchor" aria-label="Permalink: ReferenceDataRelation" href="#referencedatarelation"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Links between reference data records, such as the address hierarchy (village to subdivision) and facility catchments.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the relation sheet, and see relations on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a relation, or remove one with <strong>Delete</strong>, on the <strong>Manage</strong> tab in the admin panel<br>Import the relation sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a relation on the <strong>Manage</strong> tab in the admin panel<br>Import the relation sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Choosing the linked records on the <strong>Manage</strong> tab also requires <code>list</code> for <code>ReferenceData</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Department</code></h3><a id="user-content-department" class="anchor" aria-label="Permalink: Department" href="#department"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Departments within each facility.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose a department in department fields across desktop, such as when starting an encounter, requesting labs or imaging, or recording a procedure or vaccine<br>Choose a department in the <strong>Settings</strong> editor in the admin panel<br>Export the department sheet, and see departments on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Has no effect on any current screen</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a department on the <strong>Manage</strong> tab in the admin panel<br>Import the department sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a department on the <strong>Manage</strong> tab in the admin panel<br>Import the department sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LocationGroup</code></h3><a id="user-content-locationgroup" class="anchor" aria-label="Permalink: LocationGroup" href="#locationgroup"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Areas (such as wards or clinics) within a facility, which group locations.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose an area in area fields and filters across desktop, such as <strong>Bed management</strong>, the emergency, lab, imaging and medication lists, patient search and appointment booking<br>Export the location group sheet, and see areas on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open handover notes from <strong>Bed management</strong> on desktop (with the other permissions listed under <code>Location</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit an area on the <strong>Manage</strong> tab in the admin panel<br>Import the location group sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add an area on the <strong>Manage</strong> tab in the admin panel<br>Import the location group sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>The area list on the outpatient appointments calendar is controlled by <code>list</code> for <code>Location</code>, not <code>LocationGroup</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Location</code></h3><a id="user-content-location" class="anchor" aria-label="Permalink: Location" href="#location"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Locations (such as beds or rooms) within an area of a facility.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose a location in location fields across desktop, such as moving a patient or booking a location<br>See the <strong>Location bookings</strong> calendar and the area list on the outpatient appointments calendar on desktop<br>Choose a location in the <strong>Settings</strong> editor and on the <strong>Location assignment</strong> screen in the admin panel<br>Export the location sheet, and see locations on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open handover notes from <strong>Bed management</strong> on desktop (with <code>read</code> for <code>LocationGroup</code>, <code>Encounter</code> and <code>EncounterNote</code>, and <code>list</code> for <code>Patient</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a location on the <strong>Manage</strong> tab in the admin panel<br>Import the location sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a location on the <strong>Manage</strong> tab in the admin panel<br>Import the location sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Moving a patient is governed by <code>write</code> for <code>Encounter</code>, not by <code>write</code> for <code>Location</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>LocationAssignment</code></h3><a id="user-content-locationassignment" class="anchor" aria-label="Permalink: LocationAssignment" href="#locationassignment"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The clinicians assigned to each location, as scheduled in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See which clinicians are assigned to each location in the day view of <strong>Location bookings</strong> on desktop (either <code>list</code> or <code>read</code> is enough)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Same as <code>list</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To create and change assignments, see <code>LocationSchedule</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>LocationSchedule</code></h3><a id="user-content-locationschedule" class="anchor" aria-label="Permalink: LocationSchedule" href="#locationschedule"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Scheduling clinicians to locations on the <strong>Location assignment</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Open <strong>Users</strong> &gt; <strong>Location assignment</strong> in the admin panel and see the assignment calendar (without it the screen shows a permission message)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Select an assignment on the calendar to see its details</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Change an assignment with the <strong>Edit</strong> action in the assignment panel</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Assign a user to a location with <strong>Assign user</strong>
+</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Remove an assignment with <strong>Delete</strong> in the assignment panel</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientFieldDefinitionCategory</code></h3><a id="user-content-patientfielddefinitioncategory" class="anchor" aria-label="Permalink: PatientFieldDefinitionCategory" href="#patientfielddefinitioncategory"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Categories that group custom patient fields.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose a category when adding or editing a patient field definition on the <strong>Manage</strong> tab in the admin panel<br>Export the sheet, and see categories on the <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a category on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a category on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientFieldDefinition</code></h3><a id="user-content-patientfielddefinition" class="anchor" aria-label="Permalink: PatientFieldDefinition" href="#patientfielddefinition"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Custom patient fields that a deployment adds to patient details.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the patient field definition sheet, and see definitions on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a definition on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a definition on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Choosing a category on the <strong>Manage</strong> tab also requires <code>list</code> for <code>PatientFieldDefinitionCategory</code>. Seeing and filling in the fields on desktop is governed by <code>Patient</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ScheduledVaccine</code></h3><a id="user-content-scheduledvaccine" class="anchor" aria-label="Permalink: ScheduledVaccine" href="#scheduledvaccine"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The vaccine schedule: which vaccines are due, and when.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the scheduled vaccine sheet, and see scheduled vaccines on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a scheduled vaccine on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a scheduled vaccine on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Choosing the vaccine on the <strong>Manage</strong> tab also requires <code>list</code> for <code>ReferenceData</code>. Seeing a patient's vaccine schedule on desktop is governed by <code>PatientVaccine</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>CertifiableVaccine</code></h3><a id="user-content-certifiablevaccine" class="anchor" aria-label="Permalink: CertifiableVaccine" href="#certifiablevaccine"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The certifiable vaccine reference data, which says which vaccines can appear on vaccine certificates.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the certifiable vaccine sheet in the admin panel<br>See certifiable vaccines on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a certifiable vaccine on the <strong>Manage</strong> tab in the admin panel<br>Import the certifiable vaccine sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a certifiable vaccine on the <strong>Manage</strong> tab in the admin panel<br>Import the certifiable vaccine sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Choosing the vaccine on the <strong>Manage</strong> tab also requires <code>list</code> for <code>ReferenceData</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ImagingAreaExternalCode</code></h3><a id="user-content-imagingareaexternalcode" class="anchor" aria-label="Permalink: ImagingAreaExternalCode" href="#imagingareaexternalcode"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Codes that map imaging areas to an external imaging system.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the imaging area external code sheet, and see the codes on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a code on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a code on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>ImagingTypeExternalCode</code></h3><a id="user-content-imagingtypeexternalcode" class="anchor" aria-label="Permalink: ImagingTypeExternalCode" href="#imagingtypeexternalcode"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Codes that map imaging types to an external imaging system.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export the imaging type external code sheet, and see the codes on the <strong>Reference data</strong> &gt; <strong>Manage</strong> tab, in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a code on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a code on the <strong>Manage</strong> tab in the admin panel<br>Import the sheet in the admin panel (with <code>write</code>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Reports</h2><a id="user-content-reports" class="anchor" aria-label="Permalink: Reports" href="#reports"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>ReportDefinition</code></h3><a id="user-content-reportdefinition" class="anchor" aria-label="Permalink: ReportDefinition" href="#reportdefinition"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Database-defined reports: generating them on desktop, and managing them on the <strong>Reports</strong> screen in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose reports in report fields of the <strong>Settings</strong> editor in the admin panel, such as the DHIS2 <strong>Reports</strong> setting</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open the <strong>Reports</strong> screen in the admin panel, see reports and their versions, and export a version (with <code>read</code> for <code>ReportDefinitionVersion</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Create a report on the <strong>Create</strong> tab, save a new version from the editor, and import a report on the <strong>Import</strong> tab (with <code>create</code> for <code>ReportDefinitionVersion</code>)</td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>See a report in the report list under <strong>Facility admin</strong> &gt; <strong>Reports</strong> on desktop, and generate or email it<br>The <strong>Generic Survey Export - Line List</strong> report also needs <code>read</code> for <code>Survey</code> on the chosen form</td>
+</tr>
+</tbody>
+</table>
+<p>The objectId for <code>ReportDefinition</code> is the report's ID: the ID created when the report is first created or imported (shown as <strong>Report id</strong> after an import), or a fixed ID for built-in reports such as <code>generic-survey-export-line-list</code>. IDs created in the admin panel differ between deployments. The <strong>Permissions</strong> matrix lists one row per report, by name. A <code>run</code> permission with no objectId lets the role run every report, and makes per-report <code>run</code> rows irrelevant. A per-report <code>run</code> lets the role run only that report. The admin <strong>Reports</strong> screen checks report access as a whole, so a per-report <code>read</code> row opens it for every report, and a per-report <code>write</code> row does nothing.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ReportDefinitionVersion</code></h3><a id="user-content-reportdefinitionversion" class="anchor" aria-label="Permalink: ReportDefinitionVersion" href="#reportdefinitionversion"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The versions of each database-defined report.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed alongside <code>read</code> for <code>ReportDefinition</code> to use the <strong>Reports</strong> screen in the admin panel</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Needed alongside <code>create</code> for <code>ReportDefinition</code> to create, save or import reports in the admin panel</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>ReportDbSchema</code></h3><a id="user-content-reportdbschema" class="anchor" aria-label="Permalink: ReportDbSchema" href="#reportdbschema"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Access to reports that query the raw database instead of the reporting schema.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>See raw-database reports on the <strong>Reports</strong> screen in the admin panel (when the reporting schema is in use, other users only see reporting-schema reports)<br>See and change the <strong>DB Schema</strong> field when creating or editing a report<br>Import a report that uses the raw database</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>ReportRequest</code></h3><a id="user-content-reportrequest" class="anchor" aria-label="Permalink: ReportRequest" href="#reportrequest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Requests to generate a report and email it.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<p>Emailing a report is governed by <code>run</code> for <code>ReportDefinition</code>.</p>
+<div class="markdown-heading"><h2 class="heading-element">Patients</h2><a id="user-content-patients" class="anchor" aria-label="Permalink: Patients" href="#patients"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>Patient</code></h3><a id="user-content-patient" class="anchor" aria-label="Permalink: Patient" href="#patient"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A patient record, and access to the patient screens built on it.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See and search the patient lists, including <strong>All patients</strong> and recently discharged patients<br>See <strong>Recently viewed patients</strong><br>Search for a patient in any patient picker field<br>Use bed management, ward occupancy and readmission statistics, and handover notes (handover notes also need <code>read</code> for <code>Location</code> and <code>LocationGroup</code>)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a patient and see their details, including birth details, additional details, insurance plans and custom patient fields<br>Needed for almost every patient-level list: ongoing conditions, allergies, family history, other issues, care plans, forms, referrals, program registrations and secondary IDs<br>See the <strong>Reminder contacts</strong> button (also on mobile)<br>Mark a patient for sync to this facility (with <code>create</code> for <code>SyncPatient</code>)<br>In the admin panel, look up patients to merge on the <strong>Patient merge</strong> screen</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Save changes on the patient <strong>Details</strong> tab, including birth details. Changing the display ID also saves the old ID as a secondary ID<br>Add and remove reminder contacts with <strong>Add contact</strong> and <strong>Remove</strong> (also on mobile)<br>Record or revert a death (with <code>create</code> for <code>PatientDeath</code>)<br>In the admin panel, merge two patients on the <strong>Patient merge</strong> screen</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Use <strong>Add new patient</strong>, including recording birth details for a birth registration</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>Details</strong> tab opens if the role has any of <code>read</code>, <code>write</code> or <code>create</code>; without <code>write</code> the changes cannot be saved.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientAllergy</code></h3><a id="user-content-patientallergy" class="anchor" aria-label="Permalink: PatientAllergy" href="#patientallergy"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>An allergy recorded against a patient.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Allergies</strong> section in the patient sidebar</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed alongside <code>write</code> to save changes to an existing allergy</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit an existing allergy</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Add</strong> an allergy</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code>. Not checked on mobile.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientCondition</code></h3><a id="user-content-patientcondition" class="anchor" aria-label="Permalink: PatientCondition" href="#patientcondition"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>An ongoing condition recorded against a patient.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Ongoing conditions</strong> section in the patient sidebar</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed alongside <code>write</code> to save changes to an existing condition</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit an existing condition, including marking it resolved</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Add</strong> an ongoing condition</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> an ongoing condition</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code>. Not checked on mobile.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientFamilyHistory</code></h3><a id="user-content-patientfamilyhistory" class="anchor" aria-label="Permalink: PatientFamilyHistory" href="#patientfamilyhistory"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A family history condition recorded against a patient.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Family history</strong> section in the patient sidebar</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed alongside <code>write</code> to save changes to an existing family history item</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit an existing family history item</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Add</strong> a family history item</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code>. Not checked on mobile.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientIssue</code></h3><a id="user-content-patientissue" class="anchor" aria-label="Permalink: PatientIssue" href="#patientissue"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>An issue or warning recorded against a patient, other than an ongoing condition.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Other patient issues</strong> section in the patient sidebar</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed alongside <code>write</code> to save changes to an existing issue</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit an existing patient issue</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Add</strong> a patient issue</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code>. Not checked on mobile.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientCarePlan</code></h3><a id="user-content-patientcareplan" class="anchor" aria-label="Permalink: PatientCarePlan" href="#patientcareplan"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A care plan recorded against a patient, and its notes.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Care plans</strong> section in the patient sidebar</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a care plan and see its notes</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Edit</strong> or <strong>Delete</strong> a note on a care plan</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Add</strong> a care plan (<strong>Add care plan</strong>)<br><strong>Add note</strong> to an existing care plan</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code>. Not checked on mobile.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientBirthData</code></h3><a id="user-content-patientbirthdata" class="anchor" aria-label="Permalink: PatientBirthData" href="#patientbirthdata"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A patient's birth details (birth registry fields).</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<p>Birth details are seen with <code>read</code> for <code>Patient</code>, saved with <code>write</code> for <code>Patient</code>, and created with <code>create</code> for <code>Patient</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientDeath</code></h3><a id="user-content-patientdeath" class="anchor" aria-label="Permalink: PatientDeath" href="#patientdeath"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Recording a patient's death.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>See the death details on a deceased patient's summary and open the <strong>Death certificate</strong><br>See <strong>Revert death record</strong> for a deceased patient (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Record death</strong>, and complete the <strong>Cause of death</strong> details<br><strong>Revert death record</strong> while the death record is not final</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>write</code> for <code>Patient</code> to record or revert a death, and the <strong>Record death</strong> actions only show when the patient deaths feature is enabled.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientDeathData</code></h3><a id="user-content-patientdeathdata" class="anchor" aria-label="Permalink: PatientDeathData" href="#patientdeathdata"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The recorded details of a patient's death.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<p>Death details are viewed with <code>read</code> for <code>PatientDeath</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientSecondaryId</code></h3><a id="user-content-patientsecondaryid" class="anchor" aria-label="Permalink: PatientSecondaryId" href="#patientsecondaryid"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A patient's secondary identifiers, such as a previous display ID.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Has no effect on any current screen</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Has no effect on any current screen</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Has no effect on any current screen</td>
+</tr>
+</tbody>
+</table>
+<p>Secondary IDs are created automatically, under <code>write</code> for <code>Patient</code>, when a patient's display ID is changed.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientSummary</code></h3><a id="user-content-patientsummary" class="anchor" aria-label="Permalink: PatientSummary" href="#patientsummary"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The AI-generated patient summary.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>See the <strong>AI patient summary</strong> panel in the patient sidebar (with <code>write</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>See the <strong>AI patient summary</strong> panel (with <code>read</code>)<br>Edit and <strong>Save</strong> the summary, or <strong>Discard</strong> it</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Generate the summary, including <strong>Regenerate AI summary</strong> and the automatic generation when a summary is missing or out of date</td>
+</tr>
+</tbody>
+</table>
+<p>The panel only shows when the patient summary setting is enabled and the patient is marked for sync to this facility.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientPortalRegistration</code></h3><a id="user-content-patientportalregistration" class="anchor" aria-label="Permalink: PatientPortalRegistration" href="#patientportalregistration"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Registering a patient for the patient portal.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>Has no effect on any current screen</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Use <strong>Patient portal registration</strong> under <strong>Patient resources</strong> to email the patient a registration link<br>Send a portal form to a patient who has no portal account yet</td>
+</tr>
+</tbody>
+</table>
+<p>These only show when the patient portal feature is enabled.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientPortalForm</code></h3><a id="user-content-patientportalform" class="anchor" aria-label="Permalink: PatientPortalForm" href="#patientportalform"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Forms sent to a patient through the patient portal.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Outstanding patient program forms</strong> table on the patient <strong>Forms</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Send to patient portal</strong> when choosing a form<br>Also needs <code>create</code> for <code>PatientPortalRegistration</code> if the patient has no portal account yet</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> an outstanding portal form</td>
+</tr>
+</tbody>
+</table>
+<p>These only show when the patient portal feature is enabled. Choosing a form also needs the <code>Program</code> and <code>Survey</code> permissions for that form.</p>
+<div class="markdown-heading"><h2 class="heading-element">Programs, forms and registries</h2><a id="user-content-programs-forms-and-registries" class="anchor" aria-label="Permalink: Programs, forms and registries" href="#programs-forms-and-registries"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>Program</code></h3><a id="user-content-program" class="anchor" aria-label="Permalink: Program" href="#program"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A program, which groups forms (surveys) and referrals.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the program list when starting a <strong>New form</strong>. Only programs with at least one form the role can <code>submit</code> are listed<br>In the admin panel, see programs on the <strong>Programs &amp; forms</strong> screen and export a program from the <strong>Export</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Load a program's forms when starting a <strong>New form</strong><br>In the admin panel, open a program on the <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, <strong>Edit program metadata</strong><br>Import programs from the <strong>Import</strong> tab (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Import programs from the <strong>Import</strong> tab (with <code>write</code>). This also imports any program registry, statuses and conditions in the file</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Survey</code></h3><a id="user-content-survey" class="anchor" aria-label="Permalink: Survey" href="#survey"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A form (survey), including program forms and referral forms.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the list of forms to choose from when starting a <strong>New form</strong>, a referral or a procedure form<br>Choose a form in report parameters<br>In the admin panel, see a program's forms on the <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a form to fill it in<br>See a form's submitted responses in the patient and encounter <strong>Forms</strong> tabs and the <strong>Referrals</strong> tab, and open, print or view the <strong>Change log</strong> of a response<br>On mobile, see a form's past responses and referrals<br>Run the <strong>Generic Survey Export - Line List</strong> report for that form</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Edit</strong> a submitted program form response (with <code>read</code> for <code>SurveyResponse</code>)<br>In the admin panel, <strong>Edit form metadata</strong>, <strong>Make historical</strong> or <strong>Make current</strong><br>Import forms from the <strong>Import</strong> tab or save forms from the <strong>AI form builder</strong> (with <code>create</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Import forms from the <strong>Import</strong> tab or save forms from the <strong>AI form builder</strong> (with <code>write</code>)</td>
+</tr>
+<tr>
+<td><code>submit</code></td>
+<td>Have the form offered in the list when starting a <strong>New form</strong>, a referral or a procedure form, on desktop and mobile</td>
+</tr>
+</tbody>
+</table>
+<p>To fill in a form on desktop a role needs <code>list</code> and <code>read</code> for <code>Program</code>, <code>list</code> for <code>Survey</code>, <code>read</code> and <code>submit</code> for that form, and <code>create</code> for <code>SurveyResponse</code>. Mobile checks only <code>submit</code>.</p>
+<p>The objectId is the form's id: <code>program-</code>, the program code, a hyphen, then the form code. Both codes come from the program import file's Metadata sheet, and both are lower-cased with every character other than letters, digits and underscores removed, so program code <code>DER-Assessment</code> and form code <code>Refraction</code> give <code>program-derassessment-refraction</code>. A form saved from the <strong>AI form builder</strong> follows the same pattern, with a number added to the form code if it is already taken. <code>read</code>, <code>write</code> and <code>submit</code> can be granted per form. A grant with no objectId covers every form, and per-form grants cannot narrow it. A per-form grant also passes any check that does not name a form, so a role with <code>write</code> on one form and <code>create</code> can import any program's forms.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>SurveyResponse</code></h3><a id="user-content-surveyresponse" class="anchor" aria-label="Permalink: SurveyResponse" href="#surveyresponse"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A submitted form response.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See submitted forms in the patient and encounter <strong>Forms</strong> tabs and referrals in the <strong>Referrals</strong> tab, limited to forms the role can <code>read</code>
+</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a submitted response, and view its <strong>Change log</strong><br>Needed to <strong>Edit</strong> a response (with <code>write</code> for that <code>Survey</code>)<br>Let a form fill in answers from the patient's earlier responses</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Submit a program form or a procedure form<br>In the admin panel, import responses on the <strong>Survey responses</strong> screen</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a submitted form response</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for the form's <code>Survey</code> to open, edit or view the change log of a response. Referrals are submitted under <code>create</code> for <code>Referral</code>, vitals under <code>Vitals</code> and charts under <code>Charting</code>. Not checked on mobile.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Referral</code></h3><a id="user-content-referral" class="anchor" aria-label="Permalink: Referral" href="#referral"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Referrals made from a patient's <strong>Referrals</strong> tab.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Checked only for an encounter's own referral list, which no current desktop screen uses. The <strong>Referrals</strong> tab list needs <code>list</code> for <code>SurveyResponse</code> and <code>read</code> for each referral form's <code>Survey</code>
+</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed, with <code>write</code>, to change a referral's status</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Complete</strong> or <strong>Cancel</strong> a pending referral<br><strong>Admit</strong> a patient from a pending referral (with <code>create</code> for <code>Encounter</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Submit a <strong>New referral</strong> (also requires <code>list</code> and <code>submit</code> for <code>Survey</code>, and <code>read</code> for the referral form's <code>Survey</code>)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a referral from its actions menu</td>
+</tr>
+</tbody>
+</table>
+<p>Viewing and printing a referral is controlled by the <code>Survey</code> and <code>SurveyResponse</code> permissions, not this noun.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ProgramRegistry</code></h3><a id="user-content-programregistry" class="anchor" aria-label="Permalink: ProgramRegistry" href="#programregistry"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A program registry.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Program Registry</strong> section in the sidebar, listing every current registry<br>Choose a registry when adding a patient to one<br>See the charts linked to a registry<br>In the admin panel, see the <strong>Program registries</strong> list</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a registry's page and see its patients<br>Open a patient's registry page, status history, related conditions and forms<br>On mobile, see the registry in the patient's registrations, the add form and the patient search filter<br>In the admin panel, open a registry</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, <strong>Edit program registry metadata</strong>, including making a registry historical or current</td>
+</tr>
+</tbody>
+</table>
+<p>The objectId is the registry's id: <code>programRegistry-</code> followed by the <code>registryCode</code> from the program import file's Registry sheet, exactly as written there. The code is not lower-cased, so <code>registryCode</code> <code>HIV</code> gives <code>programRegistry-HIV</code>. <code>read</code> and <code>write</code> can be granted per registry. A grant with no objectId covers every registry, and per-registry grants cannot narrow it. <code>list</code> cannot be granted per registry, so the desktop sidebar lists every registry to a role with <code>list</code>, even ones it cannot <code>read</code>; opening one of those fails. Mobile hides registries the role cannot <code>read</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ProgramRegistryClinicalStatus</code></h3><a id="user-content-programregistryclinicalstatus" class="anchor" aria-label="Permalink: ProgramRegistryClinicalStatus" href="#programregistryclinicalstatus"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A clinical status a program registry can assign to a patient.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose a <strong>Status</strong> when adding or updating a registration, and filter a registry's patients by status<br>In the admin panel, see the <strong>Statuses</strong> tab of a program registry</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>In the admin panel, needed alongside <code>write</code> to edit a status</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit a status, or make it historical or current</td>
+</tr>
+</tbody>
+</table>
+<p>New statuses come from importing the program (<code>create</code> and <code>write</code> for <code>Program</code>).</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ProgramRegistryCondition</code></h3><a id="user-content-programregistrycondition" class="anchor" aria-label="Permalink: ProgramRegistryCondition" href="#programregistrycondition"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A condition a program registry tracks.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose related conditions when adding or updating a registration, and filter a registry's patients by condition<br>In the admin panel, see the <strong>Related conditions</strong> tab of a program registry</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>In the admin panel, needed alongside <code>write</code> to edit a condition</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit a condition, or make it historical or current</td>
+</tr>
+</tbody>
+</table>
+<p>New conditions come from importing the program (<code>create</code> and <code>write</code> for <code>Program</code>).</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>ProgramRegistryConditionCategory</code></h3><a id="user-content-programregistryconditioncategory" class="anchor" aria-label="Permalink: ProgramRegistryConditionCategory" href="#programregistryconditioncategory"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A category for a registry's related conditions, such as confirmed or recorded in error.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose a <strong>Category</strong> for a related condition<br>In the admin panel, see the <strong>Related condition categories</strong> tab of a program registry</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>In the admin panel, needed alongside <code>write</code> to edit a category</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit a category, or make it historical or current</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientProgramRegistration</code></h3><a id="user-content-patientprogramregistration" class="anchor" aria-label="Permalink: PatientProgramRegistration" href="#patientprogramregistration"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A patient's registration in a program registry.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Program registry</strong> section in the patient sidebar (with <code>read</code>)<br>See the patients on a program registry's page<br>See a registration's status history<br>On mobile, see the <strong>Program registries</strong> menu item (<code>list</code> or <code>create</code>) and the patient's registrations</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a patient's registry page from the patient sidebar<br>On mobile, open a registration, and let forms show the patient's registration details</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Update</strong> a registration's status and related conditions<br><strong>Remove</strong> a patient from a registry, or <strong>Activate</strong> a removed registration</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Add</strong> a patient to a registry (<strong>Add program registry</strong>)<br>On mobile, use the add button in the <strong>Program registry</strong> section</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a registration (marks it recorded in error and removes its related conditions)</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code> and <code>read</code> for <code>ProgramRegistry</code> on that registry, except for <strong>Update</strong>, <strong>Remove</strong>, <strong>Activate</strong> and <strong>Delete</strong>, which do not check the registry.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientProgramRegistrationCondition</code></h3><a id="user-content-patientprogramregistrationcondition" class="anchor" aria-label="Permalink: PatientProgramRegistrationCondition" href="#patientprogramregistrationcondition"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A related condition recorded on a patient's program registration.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Related conditions</strong> on a patient's registry page</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed alongside <code>write</code> to change a related condition</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Update condition</strong>: change a related condition's category, including to recorded in error</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add related conditions when adding a patient to a registry or using <strong>Update</strong>
+</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>ProgramRegistry</code> on that registry to see the list.</p>
+<div class="markdown-heading"><h2 class="heading-element">Encounters</h2><a id="user-content-encounters" class="anchor" aria-label="Permalink: Encounters" href="#encounters"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>Encounter</code></h3><a id="user-content-encounter" class="anchor" aria-label="Permalink: Encounter" href="#encounter"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>A patient's visit to a facility, and the screens and actions inside it.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See a patient's encounter history on their <strong>Summary</strong> tab<br>See the document list on a patient's <strong>Documents</strong> tab (with <code>list</code> for <code>DocumentMetadata</code>)<br>Choose an encounter in <strong>Link encounter</strong> when booking a location</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open an encounter from the encounter history, or with <strong>View encounter</strong> on the current one<br>Use any tab inside an encounter (every tab needs it, alongside the tab's own permission)<br>See <strong>Handover notes</strong> in bed management (with other permissions)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Edit encounter details</strong>, <strong>Move patient</strong>, <strong>Finalise</strong> or <strong>Cancel</strong> a planned move, and add an <strong>Estimated discharge date</strong><br>Change the encounter type (<strong>Admit to hospital</strong>, <strong>Transfer to Active ED care</strong>, <strong>Transfer to Emergency short stay</strong>)<br><strong>Prepare discharge</strong> and <strong>Prepare discharge without being seen</strong> (finalising needs <code>write</code> for <code>Discharge</code> as well)<br>Send an encounter's medications to pharmacy (with medication permissions)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Admit or check in</strong> a patient<br><strong>Admit or check in</strong> from an appointment (with <code>write</code> for <code>Appointment</code>)<br>Send a patient's ongoing medications to pharmacy when they have no open encounter, which creates one</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> an encounter from the actions menu in the encounter history</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Triage</code></h3><a id="user-content-triage" class="anchor" aria-label="Permalink: Triage" href="#triage"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Emergency department triage records.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the <strong>Emergency patients</strong> list<br>See the triage score and complaints on an emergency encounter</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed, with <code>write</code>, to save changes to triage details</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Change arrival time, triage score and complaints in <strong>Edit encounter details</strong> on an emergency encounter</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Admit a patient as a <strong>Triage</strong> encounter (the <strong>Admit or check in</strong> button needs <code>create</code> for <code>Encounter</code> as well)<br>Recording vitals in the triage form also requires <code>create</code> for <code>Vitals</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>EncounterDiagnosis</code></h3><a id="user-content-encounterdiagnosis" class="anchor" aria-label="Permalink: EncounterDiagnosis" href="#encounterdiagnosis"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Diagnoses recorded on an encounter.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See an encounter's diagnoses; without it the encounter shows "You do not have permission to list diagnoses"</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed, with <code>write</code>, to save changes to a diagnosis</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a diagnosis, including setting its certainty to <strong>Recorded in error</strong> to remove it</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td><strong>Add diagnosis</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>EncounterNote</code></h3><a id="user-content-encounternote" class="anchor" aria-label="Permalink: EncounterNote" href="#encounternote"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Notes on an encounter's <strong>Notes</strong> tab.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See notes on the <strong>Notes</strong> tab, including a note's edit history<br>See notes in the encounter record printout</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See <strong>Handover notes</strong> in bed management (with other permissions)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>See the edit icon on a note. Saving the edit is checked against <code>create</code>, so editing needs both</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>New note</strong><br>Save an edit to a note</td>
+</tr>
+</tbody>
+</table>
+<p>Editing a note written by someone else also needs <code>OtherPractitionerEncounterNote</code>, or <code>TreatmentPlanNote</code> for a treatment plan.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>OtherPractitionerEncounterNote</code></h3><a id="user-content-otherpractitionerencounternote" class="anchor" aria-label="Permalink: OtherPractitionerEncounterNote" href="#otherpractitionerencounternote"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Editing encounter notes written by other people.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>Edit another user's encounter note, other than a treatment plan<br>Also requires <code>create</code> and <code>write</code> for <code>EncounterNote</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Without it, a user can still edit notes they wrote. Treatment plans written by others are controlled by <code>TreatmentPlanNote</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>TreatmentPlanNote</code></h3><a id="user-content-treatmentplannote" class="anchor" aria-label="Permalink: TreatmentPlanNote" href="#treatmentplannote"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Editing treatment plan notes written by other people.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>Edit a treatment plan note written by another user<br>Also requires <code>create</code> and <code>write</code> for <code>EncounterNote</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Without it, a user can still edit treatment plans they wrote.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>TreatmentPlan</code></h3><a id="user-content-treatmentplan" class="anchor" aria-label="Permalink: TreatmentPlan" href="#treatmentplan"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>An unused noun: treatment plan notes are controlled by <code>TreatmentPlanNote</code> and <code>EncounterNote</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Vitals</code></h3><a id="user-content-vitals" class="anchor" aria-label="Permalink: Vitals" href="#vitals"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Vital signs recorded on an encounter's <strong>Vitals</strong> tab.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See recorded vitals and vitals graphs on the <strong>Vitals</strong> tab (needs <code>read</code> as well)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed, with <code>list</code>, to see recorded vitals<br>Open the <strong>Record vitals</strong> form (needs <code>create</code> as well)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit or clear a recorded vital value (when vitals editing is turned on in settings)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Record vitals</strong>; without it the form shows "Permission required"<br>Add a missing value to recorded vitals (when vitals editing is turned on in settings)<br>Record vitals in the triage form</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Charting</code></h3><a id="user-content-charting" class="anchor" aria-label="Permalink: Charting" href="#charting"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Charts recorded on an encounter's <strong>Charts</strong> tab and on a patient's program registry record, controllable per chart.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the content of the <strong>Charts</strong> tab (a <code>list</code> on any one chart is enough)<br>See a chart in the chart type list<br>See the instances of a complex chart in an encounter (needs <code>list</code> on the complex chart's core)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>View a chart's recorded entries and graphs<br>Select a recorded value to see its edit history<br>See the instances of a complex chart on a patient's program registry record (needs <code>read</code> on the core)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit or clear a recorded chart value (when chart editing is turned on in settings)<br><strong>Edit</strong> a complex chart instance's details (needs <code>write</code> on the core)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Record</strong> a chart entry<br>Add a value to an existing entry (when chart editing is turned on in settings)<br>Add a new complex chart instance with the add button beside the chart list (needs <code>create</code> on the core)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a complex chart instance (needs <code>delete</code> on the core)<br><strong>Delete</strong> a photo recorded in a chart</td>
+</tr>
+</tbody>
+</table>
+<p>The objectId is the chart's form id: <code>program-</code> followed by the program code and the chart code from the chart import file's <strong>Metadata</strong> tab, separated by hyphens, for example <code>program-woundassessment-woundassessment</code>. Both codes are lower-cased, and any character other than a letter, number or underscore is removed. A complex chart has two ids, one for the chart and one for its core (for example <code>program-woundassessment-woundassessmentcore</code>); instances are controlled by the core's id and entries by the chart's id, so a role usually needs both. A <code>Charting</code> permission with no objectId applies to every chart, and per-chart permissions cannot narrow it: per-chart rows only add charts to a role that lacks the general permission.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Procedure</code></h3><a id="user-content-procedure" class="anchor" aria-label="Permalink: Procedure" href="#procedure"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Procedures recorded on an encounter.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See procedures on the <strong>Procedures</strong> tab<br>See procedures in the discharge summary and the encounter record printout</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Checked only when a single procedure is fetched on its own, which no current desktop screen does</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked. Editing a procedure is controlled by <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>New procedure</strong><br>Edit an existing procedure<br>Record a procedure's additional forms (also requires <code>create</code> for <code>SurveyResponse</code>)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a procedure from its actions menu</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Discharge</code></h3><a id="user-content-discharge" class="anchor" aria-label="Permalink: Discharge" href="#discharge"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Discharging a patient, and the discharge record of a past encounter.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the <strong>Encounter record</strong> and <strong>Discharge summary</strong> buttons on a discharged encounter, and open the discharge summary<br>See discharge details in the encounter record printout</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Finalise a discharge from <strong>Prepare discharge</strong> (the button itself needs <code>write</code> for <code>Encounter</code>; without this permission the discharge fails when submitted)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>EncounterSummary</code></h3><a id="user-content-encountersummary" class="anchor" aria-label="Permalink: EncounterSummary" href="#encountersummary"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>AI-generated encounter summaries in the discharge workflow.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>See a saved AI summary in the discharge form and in the <strong>Encounter record</strong> printout</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit or <strong>Discard</strong> an AI summary<br>Needed, with <code>create</code>, for the <strong>Encounter summary</strong> section to appear in the discharge form</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Generate AI summary</strong><br>Needed, with <code>write</code>, for the <strong>Encounter summary</strong> section to appear in the discharge form</td>
+</tr>
+</tbody>
+</table>
+<p>The section also only appears when the encounter summary feature is turned on in settings.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Tasking</code></h3><a id="user-content-tasking" class="anchor" aria-label="Permalink: Tasking" href="#tasking"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Tasks in the tasking module.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See an encounter's <strong>Tasks</strong> tab (when tasking is turned on in settings)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See <strong>Upcoming tasks</strong> on the <strong>Dashboard</strong> (when tasking is turned on in settings)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Mark as complete</strong>, <strong>Mark as not complete</strong> and <strong>Mark as to-do</strong>, for one task or several at once</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td><strong>+ New task</strong></td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a to-do task, for one task or several at once</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>DocumentMetadata</code></h3><a id="user-content-documentmetadata" class="anchor" aria-label="Permalink: DocumentMetadata" href="#documentmetadata"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Documents uploaded against a patient or encounter, and patient letters.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the document list on a patient's <strong>Documents</strong> tab (needs <code>list</code> for <code>Encounter</code> as well)<br>See the document list on an encounter's <strong>Documents</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Save an upload from <strong>Add document</strong> (the button needs <code>create</code> as well)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Turns on the <strong>Add document</strong> button; saving the upload needs <code>write</code><br>Create a <strong>Patient letter</strong>
+</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a document from its actions menu</td>
+</tr>
+</tbody>
+</table>
+<p>Previewing, downloading or printing a document needs <code>read</code> for <code>Attachment</code>.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>Attachment</code></h3><a id="user-content-attachment" class="anchor" aria-label="Permalink: Attachment" href="#attachment"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The stored files behind uploaded documents, patient letters and photos.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Preview, download or print a document from the <strong>Documents</strong> tab<br>View a photo recorded in a form or chart</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Not checked against the staff member's role. A desktop upload is checked against the facility server's own account on the central server</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Appointment</code></h3><a id="user-content-appointment" class="anchor" aria-label="Permalink: Appointment" href="#appointment"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Outpatient appointments and location bookings in the Scheduling module.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Open the <strong>Outpatient appointments</strong> and <strong>Location bookings</strong> screens (<code>list</code> or <code>read</code> is enough; with neither, the screen says you do not have permission)<br>See a patient's location bookings and outpatient appointments on their <strong>Summary</strong> tab (<code>list</code> or <code>read</code> is enough)<br>See appointments and bookings on the <strong>Dashboard</strong> (needs <code>read</code> as well)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Same screens as <code>list</code>: either verb opens them<br>See appointments and bookings on the <strong>Dashboard</strong> (needs <code>list</code> as well)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Modify</strong> or <strong>Cancel</strong> an appointment or booking, and change its status from its details<br><strong>Cancel</strong> from the actions menu in a patient's appointment and booking tables<br><strong>Admit or check in</strong> from an appointment's details (needs <code>create</code> for <code>Encounter</code> as well)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Book appointment</strong> and <strong>Book location</strong>, or select an empty calendar slot to book<br><strong>Book appointment</strong> from a patient's <strong>Summary</strong> tab<br>Send a booking by email (<strong>Email booking</strong>)</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Immunisations</h2><a id="user-content-immunisations" class="anchor" aria-label="Permalink: Immunisations" href="#immunisations"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>PatientVaccine</code></h3><a id="user-content-patientvaccine" class="anchor" aria-label="Permalink: PatientVaccine" href="#patientvaccine"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Vaccinations recorded against a patient.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See a patient's vaccine schedule and recorded vaccines on the <strong>Vaccines</strong> tab<br>Choose a vaccine when recording one<br>See vaccines on immunisation certificates<br>Needed, with <code>read</code>, to see the <strong>Immunisation register</strong>
+</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Needed, with <code>list</code>, to see the <strong>Immunisation register</strong><br>See the circumstances on a recorded vaccine's <strong>View</strong> window<br>Choose vaccines in a report's vaccine filter<br>Needed, with <code>write</code>, to edit or delete a recorded vaccine</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Edit</strong> a recorded vaccine<br><strong>Delete</strong> a recorded vaccine (marks it as recorded in error)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Record vaccine</strong>, or <strong>Record</strong> from the vaccine schedule</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>AdministeredVaccine</code></h3><a id="user-content-administeredvaccine" class="anchor" aria-label="Permalink: AdministeredVaccine" href="#administeredvaccine"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Bulk import and export of patients' vaccination records in the admin panel.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Export administered vaccines from <strong>Patient data</strong> in the admin panel</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Import administered vaccines through <strong>Patient data</strong> in the admin panel (needs <code>create</code> as well)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Import administered vaccines through <strong>Patient data</strong> in the admin panel (needs <code>write</code> as well)</td>
+</tr>
+</tbody>
+</table>
+<p>Recording, editing and viewing vaccines on a patient is controlled by <code>PatientVaccine</code>, not this noun.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>CertificateNotification</code></h3><a id="user-content-certificatenotification" class="anchor" aria-label="Permalink: CertificateNotification" href="#certificatenotification"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Emailing a certificate to a patient.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Email</strong> a certificate from the <strong>Immunisation Certificate</strong> or <strong>COVID-19 Vaccine Certificate</strong> window on the <strong>Vaccines</strong> tab, or from <strong>Test certificate - COVID-19</strong> or <strong>Clearance certificate - COVID-19</strong> in <strong>Patient resources</strong><br>Not needed to view or print a certificate</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>IPSRequest</code></h3><a id="user-content-ipsrequest" class="anchor" aria-label="Permalink: IPSRequest" href="#ipsrequest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Emailing a patient their International Patient Summary (IPS) QR code.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>See <strong>International Patient Summary</strong> in <strong>Patient resources</strong> and email the QR code</td>
+</tr>
+</tbody>
+</table>
+<p>Also requires <code>read</code> for <code>Patient</code>.</p>
+<div class="markdown-heading"><h2 class="heading-element">Labs</h2><a id="user-content-labs" class="anchor" aria-label="Permalink: Labs" href="#labs"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabRequest</code></h3><a id="user-content-labrequest" class="anchor" aria-label="Permalink: LabRequest" href="#labrequest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Lab requests raised in an encounter.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See lab requests on the encounter <strong>Labs</strong> tab<br>See and search the <strong>Labs</strong> lists (<strong>Active requests</strong> and <strong>Finalised</strong>)<br>The <strong>Labs</strong> menu appears for everyone; without this permission its lists show a no-permission message</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a lab request and view its details, notes and tests<br><strong>Print</strong> lab requests from the encounter <strong>Labs</strong> tab<br>Also needed to enter results (see <code>LabTest</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Record sample</strong>, <strong>Edit</strong> and <strong>View details</strong> of the sample<br><strong>Change laboratory</strong> and <strong>Change priority</strong> (priority only where the facility allows it)<br><strong>Add note</strong> to a lab request<br><strong>Cancel request</strong> (also needs <code>write</code> for <code>LabRequestStatus</code>)<br>Also requires <code>read</code> for <code>LabRequest</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>New lab request</strong> on the encounter <strong>Labs</strong> tab<br>Also requires <code>list</code> for <code>LabTestType</code> to choose individual tests, or <code>list</code> for <code>LabTestPanel</code> to choose panels</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabRequestStatus</code></h3><a id="user-content-labrequeststatus" class="anchor" aria-label="Permalink: LabRequestStatus" href="#labrequeststatus"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Changes to the status of a lab request.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Change status</strong> on a lab request<br><strong>Record sample</strong> for a request whose sample was not yet collected, which moves it on to reception pending<br><strong>Cancel request</strong><br>Also requires <code>write</code> for <code>LabRequest</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabRequestLog</code></h3><a id="user-content-labrequestlog" class="anchor" aria-label="Permalink: LabRequestLog" href="#labrequestlog"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The history of status changes on a lab request.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>
+<strong>View status log</strong> on a lab request<br>Show who published the results on the printed lab results report</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabTest</code></h3><a id="user-content-labtest" class="anchor" aria-label="Permalink: LabTest" href="#labtest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The individual tests on a lab request, and the details recorded against them.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the tests on a lab request, including on its printed request and results<br>See lab results on the patient <strong>Results</strong> tab (also needs <code>read</code> for <code>LabTestResult</code>)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a single lab result from the patient <strong>Results</strong> tab, with its result history</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Enter results</strong> on a lab request: test method, verification and completed date<br>Also requires <code>read</code> for <code>LabRequest</code>. Changing the result values themselves also needs <code>write</code> for <code>LabTestResult</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabTestResult</code></h3><a id="user-content-labtestresult" class="anchor" aria-label="Permalink: LabTestResult" href="#labtestresult"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The results recorded for lab tests.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the patient <strong>Results</strong> tab (also needs <code>list</code> for <code>LabTest</code>)<br><strong>Print results</strong> and <strong>Print interim report</strong> on a lab request, where lab results printouts are turned on<br>See the result history when opening a single lab result (also needs <code>read</code> for <code>LabTest</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Record or change result and secondary result values, and the results interpretation, in <strong>Enter results</strong><br>Also requires <code>write</code> for <code>LabTest</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabTestType</code></h3><a id="user-content-labtesttype" class="anchor" aria-label="Permalink: LabTestType" href="#labtesttype"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The lab tests that can be ordered, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose individual tests when creating a <strong>New lab request</strong><br>Choose lab test types in report parameters and in admin panel settings that list lab test types<br>In the admin panel, export the <strong>Lab Test Type</strong> data type and view its records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Lab Test Type</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Lab Test Type</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LabTestPanel</code></h3><a id="user-content-labtestpanel" class="anchor" aria-label="Permalink: LabTestPanel" href="#labtestpanel"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Panels that group lab test types so they can be requested together, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose panels when creating a <strong>New lab request</strong><br>Filter by panel on the patient <strong>Results</strong> tab<br>In the admin panel, export the <strong>Lab Test Panel</strong> data type and view its records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Has no effect on any current screen</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Lab Test Panel</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Lab Test Panel</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>SensitiveLabRequest</code></h3><a id="user-content-sensitivelabrequest" class="anchor" aria-label="Permalink: SensitiveLabRequest" href="#sensitivelabrequest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Lab requests containing a lab test type flagged as sensitive. Holders need this on top of the ordinary lab permissions.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See lab requests with sensitive tests in the <strong>Labs</strong> lists and the encounter <strong>Labs</strong> tab<br>See sensitive tests on a lab request and on the patient <strong>Results</strong> tab, and their categories in its filter</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a lab request containing a sensitive test<br>Open a sensitive lab result, and its history, from the patient <strong>Results</strong> tab</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit a lab request containing a sensitive test, add notes to it, change its status, and enter its results</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>See sensitive test types, and sensitive tests within panels, when creating a <strong>New lab request</strong>, and request them<br>On mobile, see sensitive test types in the lab request form<br>On mobile, see lab requests with sensitive tests in the lab request history</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Imaging</h2><a id="user-content-imaging" class="anchor" aria-label="Permalink: Imaging" href="#imaging"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>ImagingRequest</code></h3><a id="user-content-imagingrequest" class="anchor" aria-label="Permalink: ImagingRequest" href="#imagingrequest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Imaging requests raised in an encounter, and the results recorded against them.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See imaging requests on the encounter <strong>Imaging</strong> tab<br>See and search the <strong>Imaging</strong> lists (<strong>Active requests</strong> and <strong>Completed</strong>)<br>The <strong>Imaging</strong> menu appears for everyone; without this permission its lists show a no-permission message</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open an imaging request and view its details</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Change an imaging request's status, edit its areas and notes, and add a result<br><strong>Cancel request</strong> on an imaging request<br>The page offers these actions without the permission, but saving is refused<br>Also requires <code>read</code> for <code>ImagingRequest</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>New imaging request</strong> on the encounter <strong>Imaging</strong> tab</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Medications</h2><a id="user-content-medications" class="anchor" aria-label="Permalink: Medications" href="#medications"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>Medication</code></h3><a id="user-content-medication" class="anchor" aria-label="Permalink: Medication" href="#medication"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Prescriptions, both within an encounter and on the patient's ongoing medications list.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the encounter <strong>Medication</strong> tab and the patient <strong>Medication</strong> tab<br>View the ongoing medications list and the last inpatient discharge medications<br>Open prescription details by selecting a row in those tables<br>Search the <strong>Active requests</strong> and <strong>Dispensed medications</strong> lists<br>Needed to open the <strong>Medication admin record</strong> (see <code>MedicationAdministration</code>)</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>
+<strong>Print prescription</strong> on the encounter <strong>Medication</strong> tab, and <strong>Finalise &amp; Print</strong> when prescribing<br>See whether a prescription is paused, and its pause history<br>Open a prescription from a notification link<br>Also needed to send medications to pharmacy (see <code>MedicationRequest</code>)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Pause, resume and discontinue a prescription, including discontinuing through the discharge workflow<br>Set discharge quantity and repeats when discharging<br>Edit repeats, and re-send an ongoing medication with no repeats left, when sending ongoing medications to pharmacy<br>Needed to add or edit a pharmacy note (see <code>MedicationPharmacyNote</code>)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>New prescription</strong> in an encounter, including ordering a medication set<br><strong>Add existing ongoing medication to encounter</strong> and <strong>Import existing medications</strong><br><strong>Add ongoing medication</strong> on the patient <strong>Medication</strong> tab</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>MedicationAdministration</code></h3><a id="user-content-medicationadministration" class="anchor" aria-label="Permalink: MedicationAdministration" href="#medicationadministration"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The medication administration record (MAR) for an encounter.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>
+<strong>Medication admin record</strong> on the encounter <strong>Medication</strong> tab, and the MAR screen itself<br>Also requires <code>list</code> for <code>Medication</code>
+</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open a recorded dose on the MAR to view its administration record and change history</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Mark as medication error, change the status, and edit the details of an administration record<br><strong>Add additional dose</strong> to, or remove an extra dose from, an administration record<br>Not available once the encounter is discharged</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Record a dose on the MAR as given or not given</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>MedicationPharmacyNote</code></h3><a id="user-content-medicationpharmacynote" class="anchor" aria-label="Permalink: MedicationPharmacyNote" href="#medicationpharmacynote"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The pharmacy note on a prescription.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write</code></td>
+<td>Edit an existing pharmacy note<br>Also requires <code>write</code> for <code>Medication</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Add a pharmacy note where there is none. Without this permission the field is read only<br>Tick <strong>Display pharmacy notes on MAR</strong><br>Also requires <code>write</code> for <code>Medication</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>MedicationDueTask</code></h3><a id="user-content-medicationduetask" class="anchor" aria-label="Permalink: MedicationDueTask" href="#medicationduetask"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Medication due tasks generated from the MAR.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>See medication due tasks in the dashboard <strong>Upcoming tasks</strong> table<br>Also requires <code>read</code> for <code>Tasking</code>. Opening a medication task goes to the MAR, which needs <code>list</code> for <code>MedicationAdministration</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>MedicationRequest</code></h3><a id="user-content-medicationrequest" class="anchor" aria-label="Permalink: MedicationRequest" href="#medicationrequest"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Requests sent to pharmacy to dispense a prescribed medication.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the <strong>Medication</strong> menu's <strong>Active requests</strong> list<br>Load the medications available to dispense for a patient, needed to dispense<br>View the details of a medication marked not dispensed</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Send to pharmacy</strong> from the encounter <strong>Medication</strong> tab, when prescribing, and when discharging, where pharmacy orders are turned on<br><strong>Send to pharmacy</strong> from the patient <strong>Medication</strong> tab for ongoing medications<br>Also requires <code>read</code> for <code>Medication</code>. From the encounter it also needs <code>write</code> for <code>Encounter</code>; from the patient tab it also needs <code>create</code> for <code>Encounter</code> and <code>create</code> for <code>Medication</code>
+</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete</strong> a request, or mark it <strong>Not dispensed</strong>, on the <strong>Active requests</strong> list</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>MedicationDispense</code></h3><a id="user-content-medicationdispense" class="anchor" aria-label="Permalink: MedicationDispense" href="#medicationdispense"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Medications dispensed by pharmacy against a medication request.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>See the <strong>Medication</strong> menu's <strong>Dispensed medications</strong> list<br>See the <strong>Dispensed medications</strong> table on the patient <strong>Medication</strong> tab, and print a label from it</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Print label</strong>, <strong>Edit</strong>, <strong>Cancel</strong> and <strong>View modify history</strong> on the <strong>Dispensed medications</strong> list<br>Change the prescription details for a fill while dispensing</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Dispense a medication by selecting a request on the <strong>Active requests</strong> list<br>Also requires <code>read</code> for <code>MedicationRequest</code>
+</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>Not currently checked</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>SensitiveMedication</code></h3><a id="user-content-sensitivemedication" class="anchor" aria-label="Permalink: SensitiveMedication" href="#sensitivemedication"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Medications whose drug is flagged as sensitive. Holders need this on top of the ordinary medication permissions.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See sensitive medications in the encounter medication table, the MAR, the print prescription and discharge windows, the patient's ongoing and last discharge medications, and the patient <strong>Dispensed medications</strong> table</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Open the details of a sensitive prescription, and open its doses on the MAR to record or view them<br>See sensitive medications on the <strong>Active requests</strong> and <strong>Dispensed medications</strong> lists, and dispense them<br>Send a sensitive medication to pharmacy</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Pause, resume and discontinue a sensitive medication, including through the discharge workflow<br>Set discharge quantity and repeats for a sensitive medication<br>Edit the pharmacy note on a sensitive prescription<br>Include a sensitive medication when printing prescriptions</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>Find sensitive drugs, and medication sets containing them, when prescribing, and prescribe them<br>Add a sensitive ongoing medication to an encounter, or to the patient's ongoing medications<br>On mobile, find sensitive drugs when prescribing</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Invoicing</h2><a id="user-content-invoicing" class="anchor" aria-label="Permalink: Invoicing" href="#invoicing"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<div class="markdown-heading"><h3 class="heading-element"><code>Invoice</code></h3><a id="user-content-invoice" class="anchor" aria-label="Permalink: Invoice" href="#invoice"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The invoice for an encounter, including its items, approvals and insurance plans. The invoicing screens only appear when invoicing is turned on in settings.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>See the patient <strong>Invoices</strong> tab, with its total outstanding balance<br>Open the encounter <strong>Invoicing</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>View the invoice on the encounter <strong>Invoicing</strong> tab, including its items and prices<br>Select a row on the patient <strong>Invoices</strong> tab to go to that encounter's invoice</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Edit invoice items, and approve or remove approval from items (<strong>Mark all as approved</strong>, <strong>Remove all approvals</strong>)<br>Set the invoice's insurance plans with <strong>Insurance plan</strong><br><strong>Cancel invoice</strong>, while it has no payments<br><strong>Finalise</strong> an invoice (the button also needs <code>create</code>, see below)</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Create invoice</strong> on the encounter <strong>Invoicing</strong> tab<br>See the <strong>Finalise</strong> button, once the encounter has ended</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td>
+<strong>Delete invoice</strong>, while it is not finalised and has no payments</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>InvoicePayment</code></h3><a id="user-content-invoicepayment" class="anchor" aria-label="Permalink: InvoicePayment" href="#invoicepayment"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Payments recorded against an invoice, by the patient or by an insurer.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>No visible effect: patient payments show on the invoice to anyone who can open it</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>
+<strong>Edit</strong> or <strong>Refund</strong> a patient payment on an invoice<br>In the admin panel, update an existing insurer payment through the <strong>Insurance plan payments</strong> import</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>
+<strong>Record payment</strong> against an invoice<br>In the admin panel, import insurer payments on the <strong>Insurance plan payments</strong> screen</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>InvoiceProduct</code></h3><a id="user-content-invoiceproduct" class="anchor" aria-label="Permalink: InvoiceProduct" href="#invoiceproduct"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The products and services that can be charged on an invoice, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Search for and add a product when adding or editing invoice items<br>In the admin panel, export the <strong>Invoice Product</strong> data type and view its records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Invoice Product</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Invoice Product</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>InvoicePriceList</code></h3><a id="user-content-invoicepricelist" class="anchor" aria-label="Permalink: InvoicePriceList" href="#invoicepricelist"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Price lists that set what invoice products cost for different patients, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>In the admin panel, export the <strong>Invoice Price List</strong> data type and view its records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Invoice Price List</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Invoice Price List</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>InvoicePriceListItem</code></h3><a id="user-content-invoicepricelistitem" class="anchor" aria-label="Permalink: InvoicePriceListItem" href="#invoicepricelistitem"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The price of each invoice product on a price list, and whether it is a fixed price, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>In the admin panel, export the <strong>Invoice Price List Item</strong> and <strong>Invoice Price List Charging</strong> data types, and view <strong>Invoice Price List Item</strong> records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Invoice Price List Item</strong> records on the <strong>Manage</strong> tab<br>Importing either data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Invoice Price List Item</strong> records on the <strong>Manage</strong> tab<br>Importing either data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>InvoiceInsurancePlan</code></h3><a id="user-content-invoiceinsuranceplan" class="anchor" aria-label="Permalink: InvoiceInsurancePlan" href="#invoiceinsuranceplan"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Insurance plans that can cover a patient's invoice, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>Choose plans in the invoice <strong>Insurance plan</strong> window and in the patient details <strong>Insurance plan</strong> field<br>In the admin panel, export the <strong>Invoice Insurance Plan</strong> data type and view its records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Invoice Insurance Plan</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Invoice Insurance Plan</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>InvoiceInsurancePlanItem</code></h3><a id="user-content-invoiceinsuranceplanitem" class="anchor" aria-label="Permalink: InvoiceInsurancePlanItem" href="#invoiceinsuranceplanitem"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>The coverage each insurance plan gives to individual invoice products, managed as reference data.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>list</code></td>
+<td>In the admin panel, export the <strong>Invoice Insurance Plan Item</strong> data type and view its records on the <strong>Reference data</strong> <strong>Manage</strong> tab</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>Not currently checked</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>In the admin panel, edit <strong>Invoice Insurance Plan Item</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+<tr>
+<td><code>create</code></td>
+<td>In the admin panel, add <strong>Invoice Insurance Plan Item</strong> records on the <strong>Manage</strong> tab<br>Importing the data type needs both <code>write</code> and <code>create</code>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h2 class="heading-element">Integrations</h2><a id="user-content-integrations" class="anchor" aria-label="Permalink: Integrations" href="#integrations"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Integration permissions are for the accounts external systems connect with, not for staff. Each appears on the <strong>Edit</strong> tab as <strong>Integration –</strong> followed by its name, and takes the single verb <code>fhirIntegration</code>. A role holding an integration permission cannot hold any other kind of permission: the <strong>Edit</strong> tab and the import both refuse a role that mixes the two.</p>
+<div class="markdown-heading"><h3 class="heading-element"><code>PMI</code></h3><a id="user-content-pmi" class="anchor" aria-label="Permalink: PMI" href="#pmi"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Shown in the matrix as <strong>Integration – PMI</strong>. For integration accounts that look up patients through the FHIR API.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fhirIntegration</code></td>
+<td>Read patient records through the FHIR API, including the patient summary</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>LABS</code></h3><a id="user-content-labs-1" class="anchor" aria-label="Permalink: LABS" href="#labs-1"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Shown in the matrix as <strong>Integration – LABS</strong>. For an external laboratory system connected through the FHIR API.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fhirIntegration</code></td>
+<td>Read patients, practitioners, encounters, facilities, lab requests and specimens through the FHIR API<br>Send lab results back as diagnostic reports and observations</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>RISPACS</code></h3><a id="user-content-rispacs" class="anchor" aria-label="Permalink: RISPACS" href="#rispacs"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Shown in the matrix as <strong>Integration – RISPACS</strong>. For an external imaging (RIS/PACS) system connected through the FHIR API.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fhirIntegration</code></td>
+<td>Read patients, practitioners, encounters, facilities and imaging requests through the FHIR API<br>Send imaging results back as imaging studies</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Prescriptions</code></h3><a id="user-content-prescriptions" class="anchor" aria-label="Permalink: Prescriptions" href="#prescriptions"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Shown in the matrix as <strong>Integration – Prescriptions</strong>. For an external pharmacy or dispensing system connected through the FHIR API.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fhirIntegration</code></td>
+<td>Read patients, practitioners, encounters, facilities and prescriptions through the FHIR API</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Immunization</code></h3><a id="user-content-immunization" class="anchor" aria-label="Permalink: Immunization" href="#immunization"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Shown in the matrix as <strong>Integration – Immunization</strong>. For an external immunisation register connected through the FHIR API.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fhirIntegration</code></td>
+<td>Read patients, practitioners, encounters, facilities and immunisations through the FHIR API</td>
+</tr>
+</tbody>
+</table>
+<div class="markdown-heading"><h3 class="heading-element"><code>Medici</code></h3><a id="user-content-medici" class="anchor" aria-label="Permalink: Medici" href="#medici"><span aria-hidden="true" class="octicon octicon-link"></span></a></div>
+<p>Shown in the matrix as <strong>Integration – Medici</strong>. For the Medici reporting integration.</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>What it grants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fhirIntegration</code></td>
+<td>Read the Medici report through its integration, when that integration is turned on</td>
+</tr>
+</tbody>
+</table>
+
+</article>
+</body>
+</html>
