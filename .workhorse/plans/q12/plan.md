@@ -18,7 +18,8 @@ A single image can't show both the expand arrow and the three dots, so the secti
 ## Decisions
 
 - Two shots, each under the step it illustrates
-- After step 1: the collapsed sidebar at full height, with the expand arrow outlined in red
+- After step 1: the top of the collapsed sidebar (logo, expand arrow and menu icons), with the expand
+  arrow outlined in red. A full-height shot was tried first, but it was mostly empty sidebar
 - After step 2: the expanded sidebar's footer with the three-dot menu open, with both the three dots
   and **Change language** outlined in red, so the one image covers steps 2 and 3
 - Captured on the same demo site as the existing Accessing Tamanu shots (presentation.demos, logged in
