@@ -29,7 +29,7 @@
     "timeoutMs": 20000,
   },
   "updateUrls": {
-    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
+    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile/package",
   },
   errors: {
     // enable to send errors to a bug tracking service
