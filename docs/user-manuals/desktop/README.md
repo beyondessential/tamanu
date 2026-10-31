@@ -14,7 +14,7 @@ still to be written.
 | --- | --- | --- |
 | 1 | [Accessing Tamanu Desktop](01-accessing-tamanu/) | 1.1 [Log in and out](01-accessing-tamanu/01-log-in-and-out.md), 1.2 [Reset your password](01-accessing-tamanu/02-reset-password.md), 1.3 [Change your language](01-accessing-tamanu/03-change-language.md) |
 | 2 | [Navigating Tamanu](02-navigating-tamanu/) | Not written yet |
-| 3 | [Clinician Dashboard](03-clinician-dashboard/) | Not written yet |
+| 3 | [Clinician Dashboard](03-clinician-dashboard/) | 3.1 [Use your dashboard](03-clinician-dashboard/01-use-your-dashboard.md), 3.2 [Work through your upcoming tasks](03-clinician-dashboard/02-work-through-upcoming-tasks.md) |
 | 4 | [Patients](04-patients/) | Not written yet |
 | 5 | [Scheduling](05-scheduling/) | Not written yet |
 | 6 | [Program Registries](06-program-registries/) | Not written yet |
