@@ -49,8 +49,6 @@ kind of field or screen it describes.
 - **Keep the record in view.** The note window sits over the patient's record without hiding it, so
   you can scroll and read the record while you write. Drag the window's title bar to move it, or
   drag its edges to resize it.
-- **Close a note with Escape.** Press Escape to close the note window. Tamanu opens **Discard note**
-  to check before it removes anything you have written.
 - **Finish the note before moving on.** You cannot leave the patient's record while a note is open.
   See [Move around a patient's record](02-move-around-patient-record.md).
 
