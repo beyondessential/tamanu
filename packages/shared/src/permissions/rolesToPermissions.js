@@ -1,3 +1,4 @@
+import { groupBy } from 'es-toolkit';
 import { ReadSettings } from '@tamanu/settings';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
 
@@ -67,6 +68,28 @@ export async function getPermissionsForRoles(models, roleString) {
   const permissions = queryPermissionsForRoles(models, roleString);
 
   return permissions;
+}
+
+// Each role's permissions as getPermissionsForRoles() resolves them, in the form buildAbility()
+// takes, read in a single query however many roles there are. A role the built-in permissions do
+// not define maps to null, where getPermissionsForRoles() throws.
+export async function getPermissionsForEachRole(models, roleStrings) {
+  if (await shouldUseHardcodedPermissions(models)) {
+    return new Map(roleStrings.map(roleString => [roleString, roles[roleString] ?? null]));
+  }
+
+  const permissions = await models.Permission.findAll({
+    where: { roleId: roleStrings.flatMap(commaSplit) },
+    attributes: ['roleId', 'verb', 'noun', 'objectId'],
+    raw: true,
+  });
+  const permissionsByRoleId = groupBy(permissions, ({ roleId }) => roleId);
+  return new Map(
+    roleStrings.map(roleString => [
+      roleString,
+      commaSplit(roleString).flatMap(roleId => permissionsByRoleId[roleId] ?? []),
+    ]),
+  );
 }
 
 export async function getAbilityForUser(models, user, { impersonateRoleId } = {}) {

@@ -20,12 +20,81 @@ import {
 } from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { getPermissionsForEachRole } from '@tamanu/shared/permissions/rolesToPermissions';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
 export const usersRouter = express.Router();
 
-const createUserFilters = (filterParams, models) => {
+// The roles users hold that carry the facility login permission, judged by the same ability check
+// User.hasPermission() makes at login, so built-in permissions and a login permission scoped to
+// one facility count as they do there. Every role's permissions are read in one query.
+const getRolesWithFacilityLoginPermission = async models => {
+  const heldRoleRows = await models.User.findAll({
+    attributes: ['role'],
+    group: ['role'],
+    raw: true,
+  });
+  const heldRoles = heldRoleRows.map(({ role }) => role);
+  const permissionsByRole = await getPermissionsForEachRole(models, heldRoles);
+  return heldRoles.filter(role => {
+    const permissions = permissionsByRole.get(role);
+    // A role the built-in permissions do not define has no permissions at login
+    if (!permissions) return false;
+    try {
+      return buildAbilityForUser({ role }, permissions).can('login', 'Facility');
+    } catch {
+      // A role mixing FHIR and regular permissions has no ability at login either
+      return false;
+    }
+  });
+};
+
+// The users who can log in to a facility. These are the rules of User.allowedFacilities(), restated
+// in SQL so the list can count and page them, so a change to either must be made to both. Null
+// when every user can.
+// spec: USRPRF#facility-filter
+const buildFacilityAccessFilter = async (facilityId, models) => {
+  const { Facility, Setting, UserFacility } = models;
+
+  if (typeof facilityId !== 'string') {
+    throw new ValidationError('facilityId must be a single facility id');
+  }
+
+  // Null for a deleted or unknown facility
+  const facility = await Facility.findByPk(facilityId, {
+    attributes: ['id', 'sensitiveNetworkId'],
+  });
+  // Access to all non-sensitive facilities reaches every facility outside a sensitive network, and
+  // reaches any facility at all when none is sensitive
+  const isReachedByNonSensitiveAccess = facility
+    ? facility.sensitiveNetworkId === null
+    : (await Facility.count({ where: { sensitiveNetworkId: { [Op.ne]: null } } })) === 0;
+
+  if (isReachedByNonSensitiveAccess) {
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+    if (!restrictUsersToFacilities) return null;
+  }
+
+  // A link to a deleted facility grants nothing, as allowedFacilities() reads live facilities only
+  const linkedUserIds = facility
+    ? (await UserFacility.findAll({ where: { facilityId }, attributes: ['userId'], raw: true })).map(
+        ({ userId }) => userId,
+      )
+    : [];
+  const conditions = [
+    // Superusers; the system user is never listed
+    { role: 'admin' },
+    { id: { [Op.in]: linkedUserIds } },
+  ];
+  if (isReachedByNonSensitiveAccess) {
+    conditions.push({ role: { [Op.in]: await getRolesWithFacilityLoginPermission(models) } });
+  }
+  return { [Op.or]: conditions };
+};
+
+const createUserFilters = async (filterParams, models) => {
   const includeDeactivated = filterParams.includeDeactivated !== 'false';
   const filters = [
     // Text search filters
@@ -53,6 +122,8 @@ const createUserFilters = (filterParams, models) => {
         )`),
       },
     },
+    // Facility filter
+    filterParams.facilityId && (await buildFacilityAccessFilter(filterParams.facilityId, models)),
     // Include deactivated users filter
     !includeDeactivated && {
       visibilityStatus: 'current',
@@ -87,7 +158,7 @@ usersRouter.get(
     req.checkPermission('list', 'User');
 
     // Create where clause from filters
-    const filters = createUserFilters(filterParams, req.store.models);
+    const filters = await createUserFilters(filterParams, req.store.models);
     const whereClause = filters.length > 0 ? { [Op.and]: filters } : {};
     const userInclude = [
       'facilities',
@@ -163,7 +234,8 @@ usersRouter.get(
       count,
       data: await Promise.all(
         users.map(async user => {
-          const allowedFacilities = await user.allowedFacilityIds();
+          // spec: USRPRF#facility-column
+          const allowedFacilities = await user.allowedFacilities();
           const obj = user.get({ plain: true });
           const designations = user.designations || [];
           const roleName = roleMap.get(user.role) || null;
@@ -315,12 +387,30 @@ const VALIDATION = yup
   })
   .noUnknown();
 
+// Whether a user holding this role may edit every user's profile, by the check the profile update
+// makes: write on a user other than themselves, so a permission scoped to particular users, such
+// as the one everyone holds over their own record, does not count.
+// spec: USRPRF#editing-a-profile
+const canRoleWriteAllUsers = async (models, user, role) => {
+  const permissionsByRole = await getPermissionsForEachRole(models, [role]);
+  const permissions = permissionsByRole.get(role);
+  // A role the built-in permissions do not define has no permissions at login
+  if (!permissions) return false;
+  try {
+    const ability = buildAbilityForUser({ id: user.id, role }, permissions);
+    return ability.can('write', subject('User', { id: String(Date.now()) }));
+  } catch {
+    // A role mixing FHIR and regular permissions has no ability at login either
+    return false;
+  }
+};
+
 usersRouter.post(
   '/validate',
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, Permission },
+        models: { User },
       },
     } = req;
 
@@ -341,18 +431,10 @@ usersRouter.post(
       },
     });
 
-    const writeUserPermission = await Permission.findOne({
-      where: {
-        roleId: fields.role,
-        noun: 'User',
-        verb: 'write',
-      },
-    });
-
     res.send({
       isEmailUnique: !existingUserWithSameEmail,
       isDisplayNameUnique: !existingUserWithSameDisplayName,
-      hasWriteUserPermission: !!writeUserPermission,
+      hasWriteUserPermission: await canRoleWriteAllUsers(req.store.models, req.user, fields.role),
     });
   }),
 );
