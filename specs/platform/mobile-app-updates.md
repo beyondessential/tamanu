@@ -49,7 +49,7 @@ The Sync tab is where staff go when sync looks wrong, so it says why sync is pau
 
 - [ ] While an update is outstanding, the Sync tab reads "Sync paused" instead of showing sync progress, and does not offer Manual sync.
 - [ ] While downloading, it reads "Downloading a Tamanu update (:percent%)."
-- [ ] Once downloaded, it reads "Tamanu needs it to update before it can sync." and offers Install update.
+- [ ] Once downloaded, it reads "Tamanu needs to update before it can sync." and offers Install update.
 - [ ] Install update is available on the Sync tab whether or not the home screen banner has been closed.
 - [ ] The time of the last successful sync stays visible, so staff can see how long the device has been held back.
 

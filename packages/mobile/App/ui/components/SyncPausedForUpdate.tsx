@@ -42,7 +42,7 @@ export const SyncPausedForUpdate = (): ReactElement => {
         {isReady ? (
           <TranslatedText
             stringId="sync.paused.updateReady"
-            fallback="Tamanu needs it to update before it can sync."
+            fallback="Tamanu needs to update before it can sync."
           />
         ) : percent === null ? (
           <TranslatedText

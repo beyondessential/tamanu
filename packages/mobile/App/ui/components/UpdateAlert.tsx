@@ -1,4 +1,5 @@
-import React, { type ReactElement, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { type ReactElement, useCallback, useState } from 'react';
 import { Linking } from 'react-native';
 
 import { UPDATE_BLOCKER, UPDATE_STAGE } from '~/types/Updater';
@@ -48,6 +49,14 @@ export const UpdateAlert = (): ReactElement | null => {
     useUpdate();
   const [closed, setClosed] = useState(false);
   const [confirming, setConfirming] = useState(false);
+
+  // Closing the banner only hides it until staff next arrive at the home screen. The screen stays
+  // mounted behind the other tabs, so coming back to it has to clear the dismissal explicitly.
+  useFocusEffect(
+    useCallback(() => {
+      setClosed(false);
+    }, []),
+  );
 
   if (!isUpdateOutstanding || closed) return null;
 
