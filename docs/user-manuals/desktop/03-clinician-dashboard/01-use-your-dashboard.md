@@ -109,12 +109,13 @@ Tamanu notifies you when:
    </p>
 
    The **Notifications** panel opens on the right. Unread notifications are listed first, under
-   **Unread**. Below them, **Recent** lists the notifications you have read in the last few hours; its
-   heading says how many.
+   **Unread**. Below them, **Recent (last 48 hours)** lists the notifications you have read that
+   arrived in the last 48 hours. Your site can set a different period, and the heading shows the one
+   that applies.
 
    <p align="center">
      <img src="images/use-your-dashboard-notifications.png" alt="The Notifications panel with four unread notifications and one recent one, with Mark all as read outlined in red" width="300"><br>
-     <sub>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent</b> ones.</sub>
+     <sub>The <b>Notifications</b> panel lists <b>Unread</b> notifications above <b>Recent (last 48 hours)</b>.</sub>
    </p>
 
 2. Select a notification to open it.
