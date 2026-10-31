@@ -25,7 +25,7 @@ single language. Contact your system administrator if you believe you should be 
 1. If the sidebar is collapsed, select the arrow at the top of the sidebar to expand it.
 
    <p align="center">
-     <img src="images/change-language-expand-sidebar.png" alt="The collapsed sidebar, with the expand arrow at the top outlined in red" width="108"><br>
+     <img src="images/change-language-expand-sidebar.png" alt="The top of the collapsed sidebar, with the expand arrow outlined in red" width="108"><br>
      <sub>Select the arrow at the top of the collapsed sidebar to expand it.</sub>
    </p>
 
