@@ -1,6 +1,7 @@
-Your dashboard gathers what you need for your shift: the patients you have looked at recently, your
-upcoming tasks, today's appointments and bookings, and your notifications. It is usually the first
-screen you see after logging in. To return to it, select **Dashboard** in the sidebar.
+Your dashboard is the landing page for Tamanu, the screen you see each time you log in. It gathers
+what you need for your shift: the patients you have looked at recently, your upcoming tasks, today's
+appointments and bookings, and your notifications. To return to it, select **Dashboard** in the
+sidebar.
 
 <p align="center">
   <img src="images/use-your-dashboard-overview.png" alt="The dashboard showing Recently viewed, Upcoming tasks, Today's appointments and Today's bookings, with Dashboard in the sidebar outlined in red" width="600"><br>
