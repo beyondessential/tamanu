@@ -56,8 +56,16 @@ const PAYMENTS = [
   {
     id: 'payment-2',
     date: '2026-01-07',
-    amount: 15,
+    amount: 5,
     receiptNumber: 'RCPT-2',
+    patientPayment: { id: 'patient-payment-2', method: { name: 'Cash' } },
+    refundPayment: { id: 'refund-1' },
+  },
+  {
+    id: 'payment-3',
+    date: '2026-01-08',
+    amount: 15,
+    receiptNumber: 'RCPT-3',
     insurancePlanPayment: {
       id: 'insurance-payment-1',
       status: INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.REJECTED,
@@ -88,9 +96,11 @@ const baseProps = {
 
 const TITLE_STRING_ID = 'pdf.invoiceRecord.title';
 
-// Every string the printout writes for itself, as stringId to the English it falls back to.
+// The strings the printout body writes, as stringId to the English it falls back to. The
+// sub-sections it composes (patient, encounter and invoice details) carry their own labels.
 const PRINTOUT_STRINGS = {
   [TITLE_STRING_ID]: 'Invoice number: INV-001',
+  'general.date.label': 'Date',
   'invoice.modal.editInvoice.details.label': 'Details',
   'invoice.modal.editInvoice.quantity.label': 'Quantity',
   'invoice.modal.editInvoice.approved.label': 'Approved',
@@ -114,16 +124,18 @@ const PRINTOUT_STRINGS = {
   'invoice.table.payment.column.remainingBalance': 'Remaining balance',
   'invoice.table.payment.column.status': 'Status',
   'invoice.paymentStatus.paid': 'Paid',
+  'invoice.paymentStatus.refunded': 'Refunded',
   'invoice.property.insurancePlanPaymentStatus.rejected': 'Rejected',
   'invoice.property.status.in_progress': 'In progress',
   'invoice.property.patientPaymentStatus.partial': 'Partial',
   'encounter.property.type.admission': 'Hospital admission',
 };
 
-// The payment table headings (pdf.invoiceRecord.patientPayment.title and
-// pdf.invoiceRecord.insurancePlanPayment.title) are written through react-pdf's `render`
-// callback so they can say "cont..." on later pages. react-dom never calls it, so they are
-// translated the same way as everything above but can't be read back here.
+// The payment table headings (pdf.invoiceRecord.patientPayment.title,
+// pdf.invoiceRecord.insurancePlanPayment.title and the pdf.heading.contentContinued suffix) go
+// through react-pdf's `render` callback so they can say "cont..." on later pages. react-dom
+// never calls it, so they are translated the same way as everything above but can't be read
+// back here.
 
 describe('InvoiceRecordPrintout translations', () => {
   // react-dom warns on every one of react-pdf's non-DOM elements and props; the markup it
