@@ -13,7 +13,11 @@ import {
   TranslatedReferenceData,
   useDateTime,
 } from '@tamanu/ui-components';
-import { getComponentForQuestionType } from '../../components/Surveys';
+import {
+  getComponentForQuestionType,
+  ProgramRegistryConditionContext,
+  useProgramRegistryConditionForm,
+} from '../../components/Surveys';
 import { Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useTranslation } from '../../contexts/Translation';
@@ -101,9 +105,15 @@ export const SurveyViewForm = ({
     getCurrentDateTime,
     initialAnswerOverrides,
   ]);
+  const { conditionContext, isConditionRequired } = useProgramRegistryConditionForm({
+    surveyId: survey.id,
+    patientId: patient?.id,
+    components: currentComponents,
+    isEdit,
+  });
   const validationSchema = useMemo(
-    () => getValidationSchema(survey, getTranslation),
-    [survey, getTranslation],
+    () => getValidationSchema(survey, getTranslation, {}, { isConditionRequired }),
+    [survey, getTranslation, isConditionRequired],
   );
 
   const renderSurvey = ({
@@ -138,7 +148,7 @@ export const SurveyViewForm = ({
     };
 
     return (
-      <>
+      <ProgramRegistryConditionContext.Provider value={conditionContext}>
         <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
         <SurveyScreenPaginator
           survey={survey}
@@ -160,7 +170,7 @@ export const SurveyViewForm = ({
           onViewChangeLog={onViewChangeLog}
           data-testid="surveyscreenpaginator-8wns"
         />
-      </>
+      </ProgramRegistryConditionContext.Provider>
     );
   };
 

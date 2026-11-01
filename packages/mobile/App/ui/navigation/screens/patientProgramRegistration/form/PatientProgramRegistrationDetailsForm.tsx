@@ -32,6 +32,7 @@ import { theme } from '~/ui/styled/theme';
 import { VisibilityStatus } from '~/visibilityStatuses';
 import type { IPatientProgramRegistryForm } from '../../../stacks/PatientProgramRegistryForm';
 import { PatientProgramRegistrationConditionsField } from './PatientProgramRegistrationConditionsField';
+import { getRegistrationConditionsValidation } from './registrationConditionsValidation';
 
 export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: BaseAppProps) => {
   const { programRegistry, editedObject, selectedPatient } = route.params;
@@ -153,16 +154,14 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                   fallback="Registered by"
                 />,
               ),
-            conditions: yup.array().of(
-              yup.object().shape({
-                condition: yup.object().shape({ value: yup.string().required() }),
-                category: yup.object().shape({ value: yup.string().required() }),
-              }),
+            conditions: getRegistrationConditionsValidation(
+              programRegistry.mandatoryConditionEnabled,
+              getTranslation('validation.required.inline', '*Required'),
             ),
           })}
           onSubmit={submitPatientProgramRegistration}
         >
-          {({ handleSubmit, values }) => (
+          {({ handleSubmit, values, errors, setFieldValue, submitCount }) => (
             <>
               <StyledView marginTop={20} marginLeft={20} marginRight={20}>
                 <LocalisedField
@@ -235,10 +234,10 @@ export const PatientProgramRegistrationDetailsForm = ({ navigation, route }: Bas
                     />
                   }
                   programRegistryId={programRegistry.id}
+                  required={programRegistry.mandatoryConditionEnabled}
+                  error={typeof errors.conditions === 'string' ? errors.conditions : undefined}
                   values={values.conditions}
-                  onChange={newValue => {
-                    values.conditions = newValue;
-                  }}
+                  onChange={newValue => setFieldValue('conditions', newValue, submitCount > 0)}
                 />
               </StyledView>
               <Button

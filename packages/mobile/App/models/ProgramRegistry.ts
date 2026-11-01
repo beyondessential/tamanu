@@ -25,6 +25,9 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
   @Column({ type: 'varchar', nullable: false })
   currentlyAtType: CurrentlyAtType;
 
+  @Column({ type: 'boolean', nullable: false, default: false })
+  mandatoryConditionEnabled: boolean;
+
   @OneToMany<ProgramRegistryClinicalStatus>(
     () => ProgramRegistryClinicalStatus,
     ({ programRegistry }) => programRegistry,
@@ -64,5 +67,11 @@ export class ProgramRegistry extends BaseModel implements IProgramRegistry {
 
   static async getAllProgramRegistries() {
     return ProgramRegistry.getRepository().find();
+  }
+
+  static async getCurrentForSurvey(surveyId: string) {
+    return ProgramRegistry.findOne({
+      where: { program: { surveys: { id: surveyId } }, visibilityStatus: VisibilityStatus.Current },
+    });
   }
 }
