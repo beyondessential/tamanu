@@ -14,15 +14,21 @@ import { Col } from '../Layout';
 import { useLanguageContext } from '../../pdf/languageContext';
 import { useDateTime } from '../../pdf/withDateTimeContext';
 
-const getInvoicePaymentStatus = invoice => {
+const getInvoicePaymentStatus = (invoice, getEnumTranslation) => {
   const patientPaymentStatus =
     invoice?.patientPaymentStatus ?? INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
 
   const insurancePlanPaymentStatus =
     invoice?.insurancePlanPaymentStatus ?? INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES.UNPAID;
 
-  const patientLabel = INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[patientPaymentStatus];
-  const insurancePlanLabel = INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS[insurancePlanPaymentStatus];
+  const patientLabel = getEnumTranslation(
+    INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
+    patientPaymentStatus,
+  );
+  const insurancePlanLabel = getEnumTranslation(
+    INVOICE_INSURANCE_PLAN_PAYMENT_STATUS_LABELS,
+    insurancePlanPaymentStatus,
+  );
 
   return (
     patientLabel +
@@ -31,7 +37,7 @@ const getInvoicePaymentStatus = invoice => {
 };
 
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
-  const { getTranslation } = useLanguageContext();
+  const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
 
   const invoiceInsurancePlans = invoice?.insurancePlans || [];
@@ -48,7 +54,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
   // The one row covers two different things, so it has to say which it is showing.
   const insurerLabel = hasInvoicePlans
     ? getTranslation('invoice.insurancePlan.label', 'Insurance plan')
-    : getTranslation('invoice.insurer.label', 'Insurer');
+    : getTranslation('general.localisedField.insurer.label', 'Insurer');
 
   const discountReason = getInvoiceDiscountReason(invoice?.discount);
   const discountReasonValue =
@@ -73,7 +79,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
           )}
           <DataItem
             label={getTranslation('invoice.invoiceStatus.label', 'Invoice status')}
-            value={INVOICE_STATUS_LABELS[invoice.status]}
+            value={getEnumTranslation(INVOICE_STATUS_LABELS, invoice.status)}
           />
           <DataItem
             label={getTranslation('invoice.priceList.label', 'Price list')}
@@ -83,7 +89,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
         <Col>
           <DataItem
             label={getTranslation('encounter.admission.label', 'Admission')}
-            value={ENCOUNTER_TYPE_LABELS[encounter?.encounterType]}
+            value={getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounter?.encounterType)}
           />
           {enablePatientInsurer && (
             <DataItem
@@ -93,7 +99,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
           )}
           <DataItem
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
-            value={getInvoicePaymentStatus(invoice)}
+            value={getInvoicePaymentStatus(invoice, getEnumTranslation)}
           />
           {discountReasonValue && (
             <DataItem
