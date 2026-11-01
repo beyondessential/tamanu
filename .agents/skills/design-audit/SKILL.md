@@ -7,7 +7,7 @@ pill-order:
   implementing: 3
   reviewing: 3
   complete: 2
-workhorse-version: 0.3.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Design audit

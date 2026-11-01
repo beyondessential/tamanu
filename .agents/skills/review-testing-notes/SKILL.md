@@ -6,7 +6,7 @@ pill-order:
   reviewing: 6
   complete: 5
 jockey-hint: "Surface in the reviewing and complete phases once code changes exist on the branch and testing is underway — it reviews testing notes that follow implementation. Keep it out of the earlier phases."
-workhorse-version: 0.3.0
+workhorse-version: 0.7.4
 ---
 
 ## Your task: Review testing notes
@@ -63,5 +63,5 @@ If a gap is not a one-off miss but a **class or pattern** of test case that scen
 
 - Post the review as a structured written message the user can cross-post to Linear — clear enough to stand on its own for a reader who wasn't in the conversation
 - You cannot post to Linear or to the Workhorse card yourself; deliver the write-up in chat for the user to place where they want it
-- Offer to act on the findings: automate missing test cases (see the Automate test cases skill) or fix inadequate or broken automated tests
+- Offer to act on the findings: automate missing test cases (see the Automate tests skill) or fix inadequate or broken automated tests
 - Do not edit the testing notes

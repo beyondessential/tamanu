@@ -1,15 +1,12 @@
 ---
-name: automate-test-cases
+name: automate-tests
 description: "Write automated tests for unticked scenarios in this card's test cases"
-label: "Automate test cases"
-pill-order:
-  implementing: 6
-  reviewing: 5
-jockey-hint: "Surface once the card has a test-cases file with unticked scenarios and implementation is underway. Demote once all scenarios are ticked."
-workhorse-version: 0.3.0
+label: "Automate tests"
+category: verify
+workhorse-version: 0.7.4
 ---
 
-## Your task: Automate test cases
+## Your task: Automate tests
 
 If you don't already have this card's context (title, identifier, description) — for instance when running outside Workhorse — establish it first by following `.agents/docs/card-context.md`.
 
