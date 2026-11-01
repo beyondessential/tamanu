@@ -1085,7 +1085,7 @@ createSuggester(
 createSuggester(
   'patientLabTestPanelTypes',
   'LabTestPanel',
-  ({ endpoint, modelName, query }) => {
+  ({ endpoint, modelName, query, req }) => {
     if (!query.patientId) {
       return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
@@ -1095,8 +1095,9 @@ createSuggester(
     // under it — skip the usual "current only" visibility filter and rely on the
     // patient-scoped id filter below to do the real gating instead.
     const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName, skipVisibilityFilter: true });
+    const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
 
-    return {
+    const where = {
       ...baseWhere,
       id: {
         [Op.in]: Sequelize.literal(
@@ -1115,6 +1116,27 @@ createSuggester(
         ),
       },
     };
+
+    // Hide a panel whose only member tests are sensitive from a user who can't list sensitive
+    // lab requests, matching how the test suggester hides sensitive individual tests — otherwise
+    // such a panel leaks the order and would show an empty table once picked. A mixed panel is
+    // kept, since the results endpoint still filters its sensitive members out.
+    if (!canListSensitive) {
+      where[Op.and] = [
+        Sequelize.literal(
+          `EXISTS (
+            SELECT 1
+            FROM lab_test_panel_lab_test_types
+            INNER JOIN lab_test_types
+              ON lab_test_types.id = lab_test_panel_lab_test_types.lab_test_type_id
+            WHERE lab_test_panel_lab_test_types.lab_test_panel_id = "LabTestPanel".id
+              AND lab_test_types.is_sensitive IS FALSE
+          )`,
+        ),
+      ];
+    }
+
+    return where;
   },
   {
     extraReplacementsBuilder: query => ({

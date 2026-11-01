@@ -523,6 +523,37 @@ describe('Suggestions', () => {
       expect(ids).toContain(orderedPanelId);
       expect(ids).not.toContain(unorderedPanelId);
     });
+
+    it('does not suggest a panel whose only member tests are sensitive, for a user without permission', async () => {
+      const { id: sensitiveCategoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [sensitiveType] = await createLabTestTypes(models, sensitiveCategoryId, {
+        isSensitive: true,
+      });
+      const { id: sensitivePanelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: sensitivePanelId,
+        labTestTypeId: sensitiveType.id,
+      });
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId: sensitiveCategoryId,
+          labTestPanelId: sensitivePanelId,
+          labTestTypeIds: [sensitiveType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestPanelTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.map(({ id }) => id)).not.toContain(sensitivePanelId);
+    });
   });
 
   describe('patientLabTestTypes', () => {
@@ -561,6 +592,23 @@ describe('Suggestions', () => {
       const ids = result.body.map(({ id }) => id);
       expect(ids).toContain(resultedType.id);
       expect(ids).not.toContain(unresultedType.id);
+    });
+
+    it('does not suggest sensitive test types for a user without the SensitiveLabRequest permission', async () => {
+      const labRequestData = await randomSensitiveLabRequest(models, {
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        encounterId,
+      });
+      await models.LabRequest.createWithTests(labRequestData);
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      const ids = result.body.map(({ id }) => id);
+      labRequestData.labTestTypeIds.forEach(sensitiveId => expect(ids).not.toContain(sensitiveId));
     });
   });
 

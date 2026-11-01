@@ -994,6 +994,29 @@ describe('Patient relations', () => {
       expect(response.body.data.map(result => result.testTypeId)).toEqual([testType.id]);
     });
 
+    it('excludes sensitive lab test results when filtering by test id', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const labRequestData = await randomSensitiveLabRequest(models, {
+        patientId: labTestsPatient.id,
+        encounterId: encounter.id,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+        sampleTime: randomDate(),
+      });
+      await models.LabRequest.createWithTests(labRequestData);
+
+      // The practitioner lacks the SensitiveLabRequest permission, so picking a sensitive test
+      // explicitly must still return nothing.
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ testIds: labRequestData.labTestTypeIds });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+      expect(response.body.data).toEqual([]);
+    });
+
     it('Allows filtering lab tests by panel, grouping the panel members', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),

@@ -409,6 +409,9 @@ patientRelations.get(
     // `groups` metadata returned below. With no filter at all (the initial load that checks whether
     // the patient has any results), every published result is returned.
     let selectionClause = '';
+    // The same filter, expressed against lab_tests/lab_requests, narrows the changelog scan in the
+    // edited-entry CTE to just the tests being displayed instead of the patient's whole history.
+    let cteSelectionClause = '';
     const replacements = { patientId: params.id, status, canListSensitive };
 
     // Panels the user picked contribute their member tests (in the panel's configured order) to
@@ -417,6 +420,7 @@ patientRelations.get(
     if (categoryId) {
       replacements.categoryId = categoryId;
       selectionClause = 'AND lab_requests.lab_test_category_id = :categoryId';
+      cteSelectionClause = 'AND lab_requests.lab_test_category_id = :categoryId';
     } else if (panelIds.length || testIds.length) {
       if (panelIds.length) {
         panelMembers = await db.query(
@@ -438,6 +442,7 @@ patientRelations.get(
       // An empty IN () is invalid SQL; a single NULL matches nothing, which is the intended result.
       replacements.testTypeIds = testTypeIds.length ? testTypeIds : [null];
       selectionClause = 'AND lab_test_types.id IN (:testTypeIds)';
+      cteSelectionClause = 'AND lab_tests.lab_test_type_id IN (:testTypeIds)';
     }
 
     const results = await db.query(
@@ -455,8 +460,9 @@ patientRelations.get(
         FROM lab_tests
         INNER JOIN lab_requests ON lab_tests.lab_request_id = lab_requests.id
         WHERE lab_requests.encounter_id IN (
-          SELECT id FROM encounters WHERE patient_id = :patientId
+          SELECT id FROM encounters WHERE patient_id = :patientId AND deleted_at IS NULL
         )
+        ${cteSelectionClause}
       )
     GROUP BY record_id
   )
@@ -512,6 +518,7 @@ patientRelations.get(
         encounters
       WHERE
         patient_id = :patientId
+        AND deleted_at IS NULL
     )
   AND lab_requests.status = :status
   AND lab_requests.sample_time IS NOT NULL
