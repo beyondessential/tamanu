@@ -228,12 +228,17 @@ export class CentralServerConnection {
     // and take a while if the central server is concurrently persist records from another client
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 
-    // finally, fetch the new tick from starting the session
-    const { startedAtTick } = (await this.get(`sync/${sessionId}/metadata`, {})) as {
+    // finally, fetch the new tick from starting the session, plus central's record of how far
+    // this device has pushed (spec: PUSH)
+    const { startedAtTick, lastSuccessfulSyncPush } = (await this.get(
+      `sync/${sessionId}/metadata`,
+      {},
+    )) as {
       startedAtTick: number;
+      lastSuccessfulSyncPush: number | null;
     };
 
-    return { sessionId, startedAtTick };
+    return { sessionId, startedAtTick, lastSuccessfulSyncPush };
   }
 
   async endSyncSession(sessionId: string) {
@@ -288,12 +293,18 @@ export class CentralServerConnection {
     return this.post(`sync/${sessionId}/push`, {}, { changes }, { compress: true });
   }
 
-  async completePush(sessionId: string, tablesToInclude: string[]): Promise<void> {
-    // first off, mark the push as complete on central
+  async completePush(
+    sessionId: string,
+    tablesToInclude: string[],
+    // omitted by a caller with no cursor to report; central leaves its record untouched
+    lastSuccessfulSyncPush?: number,
+  ): Promise<void> {
+    // first off, mark the push as complete on central, reporting the local tick we've pushed up to
+    // so central can record this device's push progress (spec: PUSH)
     await this.post(
       `sync/${sessionId}/push/complete`,
       {},
-      { tablesToInclude, deviceId: this.deviceId },
+      { tablesToInclude, deviceId: this.deviceId, lastSuccessfulSyncPush },
     );
 
     // now poll the complete check endpoint until we get a valid response - it takes a while for

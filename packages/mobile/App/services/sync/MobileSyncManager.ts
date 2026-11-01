@@ -248,6 +248,7 @@ export class MobileSyncManager {
     const {
       sessionId,
       startedAtTick: newSyncClockTime,
+      lastSuccessfulSyncPush: centralPushCursor,
       status,
     } = await this.centralServer.startSyncSession({
       urgent,
@@ -270,7 +271,7 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Sync started');
 
     try {
-      await this.pushOutgoingChanges(sessionId, newSyncClockTime);
+      await this.pushOutgoingChanges(sessionId, newSyncClockTime, centralPushCursor);
       await this.pullIncomingChanges(sessionId);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
@@ -309,7 +310,13 @@ export class MobileSyncManager {
    * Syncing outgoing changes in batches
    * @param sessionId
    */
-  async pushOutgoingChanges(sessionId: string, newSyncClockTime: number): Promise<void> {
+  async pushOutgoingChanges(
+    sessionId: string,
+    newSyncClockTime: number,
+    // absent when central holds no cursor for this device, or when the central server predates
+    // push-progress tracking
+    centralPushCursor?: number | null,
+  ): Promise<void> {
     this.setSyncStage(1);
 
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
@@ -320,7 +327,15 @@ export class MobileSyncManager {
     // the next push
     await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
 
-    const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
+    // Check our own cursor against central's record of what it has received, and resume from the
+    // lower of the two, so a database restored from a snapshot that diverges from central
+    // re-pushes what central is missing rather than skipping it (spec: PUSH). Fall back to our own
+    // cursor when central holds none.
+    const localPushCursor = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
+    const pushSince =
+      centralPushCursor == null
+        ? localPushCursor
+        : Math.min(Number(centralPushCursor), localPushCursor);
     console.log(
       `MobileSyncManager.pushOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
     );
@@ -341,6 +356,15 @@ export class MobileSyncManager {
         this.syncSettings,
         (total, pushedRecords) =>
           this.updateProgress(total, pushedRecords, 'Pushing all new changes…'),
+        currentSyncTick,
+      );
+    } else {
+      // Nothing to push, but still tell central how far we've pushed so its cursor tracks ours
+      // even on an idle sync (spec: PUSH).
+      await this.centralServer.completePush(
+        sessionId,
+        getTableNamesForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
+        currentSyncTick,
       );
     }
 
