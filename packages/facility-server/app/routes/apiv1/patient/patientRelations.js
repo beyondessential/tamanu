@@ -399,7 +399,46 @@ patientRelations.get(
       query,
     } = req;
 
-    const { categoryId, panelId, status = 'published' } = query;
+    const toArray = value => (Array.isArray(value) ? value : value == null ? [] : [value]);
+    const { categoryId, status = 'published' } = query;
+    const panelIds = toArray(query.panelIds);
+    const testIds = toArray(query.testIds);
+
+    // Test category and Test or panel are mutually exclusive. A category lists every test in it
+    // as a flat A–Z list; test/panel picks drive a grouped view the frontend assembles from the
+    // `groups` metadata returned below. With no filter at all (the initial load that checks whether
+    // the patient has any results), every published result is returned.
+    let selectionClause = '';
+    const replacements = { patientId: params.id, status, canListSensitive };
+
+    // Panels the user picked contribute their member tests (in the panel's configured order) to
+    // the set of results fetched, and the grouping metadata the frontend renders headings from.
+    let panelMembers = [];
+    if (categoryId) {
+      replacements.categoryId = categoryId;
+      selectionClause = 'AND lab_requests.lab_test_category_id = :categoryId';
+    } else if (panelIds.length || testIds.length) {
+      if (panelIds.length) {
+        panelMembers = await db.query(
+          `SELECT
+             lab_test_panels.id AS panel_id,
+             lab_test_panels.name AS panel_name,
+             lab_test_panel_lab_test_types.lab_test_type_id AS test_type_id,
+             lab_test_panel_lab_test_types."order" AS member_order
+           FROM lab_test_panels
+           INNER JOIN lab_test_panel_lab_test_types
+             ON lab_test_panel_lab_test_types.lab_test_panel_id = lab_test_panels.id
+           WHERE lab_test_panels.id IN (:panelIds)
+           ORDER BY lab_test_panels.name ASC, lab_test_panel_lab_test_types."order" ASC`,
+          { replacements: { panelIds }, type: QueryTypes.SELECT },
+        );
+      }
+      const panelMemberTypeIds = [...new Set(panelMembers.map(member => member.test_type_id))];
+      const testTypeIds = [...new Set([...testIds, ...panelMemberTypeIds])];
+      // An empty IN () is invalid SQL; a single NULL matches nothing, which is the intended result.
+      replacements.testTypeIds = testTypeIds.length ? testTypeIds : [null];
+      selectionClause = 'AND lab_test_types.id IN (:testTypeIds)';
+    }
 
     const results = await db.query(
       `WITH edited_tests AS (
@@ -448,7 +487,6 @@ patientRelations.get(
         'referenceRangeText', lab_tests.reference_range_text
       )
     ) AS results
-    ${panelId ? ', panel_join."order" AS panel_order' : ''}
   FROM
     lab_tests
   INNER JOIN
@@ -467,15 +505,6 @@ patientRelations.get(
     edited_tests
   ON
     edited_tests.record_id = lab_tests.id::text
-  ${
-    panelId
-      ? `LEFT JOIN
-    lab_test_panel_lab_test_types AS panel_join
-  ON
-    panel_join.lab_test_type_id = lab_test_types.id
-    AND panel_join.lab_test_panel_id = :panelId`
-      : ''
-  }
   WHERE
   encounter_id IN (
       SELECT id
@@ -491,24 +520,13 @@ patientRelations.get(
     THEN TRUE
     ELSE lab_test_types.is_sensitive IS FALSE
     END
-  ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
-  ${
-    panelId
-      ? `AND lab_test_types.id IN (
-         SELECT lab_test_type_id
-         FROM
-           lab_test_panel_lab_test_types
-         WHERE
-           lab_test_panel_id = :panelId
-       )`
-      : ''
-  }
+  ${selectionClause}
   GROUP BY
-    test_category, test_type, test_options, test_type_id ${panelId ? ', panel_order' : ''}
+    test_category, test_type, test_options, test_type_id
   ORDER BY
-    ${panelId ? 'panel_order ASC,' : ''} test_category`,
+    test_type ASC`,
       {
-        replacements: { patientId: params.id, status, categoryId, panelId, canListSensitive },
+        replacements,
         model: LabTest,
         type: QueryTypes.SELECT,
         mapToModel: true,
@@ -517,9 +535,27 @@ patientRelations.get(
 
     const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
 
+    // Group metadata for the picked panels: each panel, A–Z, with its member tests (in configured
+    // order) that the patient actually has results for. The frontend renders a heading row per
+    // group and the "Individual tests" group from the testIds it picked.
+    const presentTypeIds = new Set(formattedData.map(row => row.testTypeId));
+    const groupsById = new Map();
+    for (const member of panelMembers) {
+      if (!presentTypeIds.has(member.test_type_id)) continue;
+      if (!groupsById.has(member.panel_id)) {
+        groupsById.set(member.panel_id, {
+          id: member.panel_id,
+          name: member.panel_name,
+          testTypeIds: [],
+        });
+      }
+      groupsById.get(member.panel_id).testTypeIds.push(member.test_type_id);
+    }
+
     res.send({
       count: results.length,
       data: formattedData,
+      groups: [...groupsById.values()],
     });
   }),
 );

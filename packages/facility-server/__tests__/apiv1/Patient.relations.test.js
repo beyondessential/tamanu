@@ -1,11 +1,16 @@
-import { afterAll, beforeAll, describe, expect, it, test, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   createDummyEncounter,
   createDummyPatient,
   randomReferenceData,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
-import { randomDate, randomLabRequest, randomSensitiveLabRequest } from '@tamanu/database/demoData';
+import {
+  createLabTestTypes,
+  randomDate,
+  randomLabRequest,
+  randomSensitiveLabRequest,
+} from '@tamanu/database/demoData';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
@@ -978,6 +983,57 @@ describe('Patient relations', () => {
       expect(response.body.data.length).toEqual(10);
     });
 
-    test.todo('Allows filtering lab tests by panel');
+    it('Allows filtering lab tests by individual test ids', async () => {
+      const [testType] = labTestTypes;
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ testIds: [testType.id] });
+      expect(response).toHaveSucceeded();
+      // Individual tests are not panels, so no panel groups are returned.
+      expect(response.body.groups).toEqual([]);
+      expect(response.body.data.map(result => result.testTypeId)).toEqual([testType.id]);
+    });
+
+    it('Allows filtering lab tests by panel, grouping the panel members', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: labTestsPatient.id,
+      });
+      const panelCategory = await randomReferenceData(models, 'labTestCategory');
+      const panelTestTypes = await createLabTestTypes(models, panelCategory.id);
+      const { id: panelId } = await models.LabTestPanel.create(fake(models.LabTestPanel));
+      await Promise.all(
+        panelTestTypes.map((testType, order) =>
+          models.LabTestPanelLabTestTypes.create({
+            labTestPanelId: panelId,
+            labTestTypeId: testType.id,
+            order,
+          }),
+        ),
+      );
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          patientId: labTestsPatient.id,
+          encounterId: encounter.id,
+          categoryId: panelCategory.id,
+          labTestPanelId: panelId,
+          labTestTypeIds: panelTestTypes.map(testType => testType.id),
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          sampleTime: randomDate(),
+        }),
+      );
+
+      const response = await app
+        .get(`/api/patient/${labTestsPatient.id}/labTestResults`)
+        .query({ panelIds: [panelId] });
+      expect(response).toHaveSucceeded();
+      const expectedTypeIds = panelTestTypes.map(testType => testType.id).sort();
+      // The panel is returned as a group with its member tests that have results.
+      expect(response.body.groups).toHaveLength(1);
+      expect(response.body.groups[0].id).toEqual(panelId);
+      expect(response.body.groups[0].testTypeIds.slice().sort()).toEqual(expectedTypeIds);
+      // The data holds exactly the panel's member tests.
+      expect(response.body.data.map(result => result.testTypeId).sort()).toEqual(expectedTypeIds);
+    });
   });
 });

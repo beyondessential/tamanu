@@ -478,25 +478,36 @@ describe('Suggestions', () => {
       encounterId = encounter.id;
     });
 
-    it('should still include a historical (no longer current) panel if the patient has a published lab request against a test in it', async () => {
+    it('suggests panels the patient has a published lab request ordered under (including historical ones), and not panels that merely contain a test the patient has results for', async () => {
       const { id: categoryId } = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
         type: 'labTestCategory',
       });
       const [labTestType] = await createLabTestTypes(models, categoryId);
 
-      const { id: panelId } = await models.LabTestPanel.create({
+      // A historical panel the request is ordered under — should be suggested.
+      const { id: orderedPanelId } = await models.LabTestPanel.create({
         ...fake(models.LabTestPanel),
         visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
       });
       await models.LabTestPanelLabTestTypes.create({
-        labTestPanelId: panelId,
+        labTestPanelId: orderedPanelId,
+        labTestTypeId: labTestType.id,
+      });
+
+      // A different panel that contains the same test but is NOT ordered under — should not be suggested.
+      const { id: unorderedPanelId } = await models.LabTestPanel.create({
+        ...fake(models.LabTestPanel),
+      });
+      await models.LabTestPanelLabTestTypes.create({
+        labTestPanelId: unorderedPanelId,
         labTestTypeId: labTestType.id,
       });
 
       await models.LabRequest.createWithTests(
         await randomLabRequest(models, {
           categoryId,
+          labTestPanelId: orderedPanelId,
           labTestTypeIds: [labTestType.id],
           status: LAB_REQUEST_STATUSES.PUBLISHED,
           encounterId,
@@ -508,7 +519,48 @@ describe('Suggestions', () => {
         status: LAB_REQUEST_STATUSES.PUBLISHED,
       });
       expect(result).toHaveSucceeded();
-      expect(result.body.map(({ id }) => id)).toEqual([panelId]);
+      const ids = result.body.map(({ id }) => id);
+      expect(ids).toContain(orderedPanelId);
+      expect(ids).not.toContain(unorderedPanelId);
+    });
+  });
+
+  describe('patientLabTestTypes', () => {
+    let patientId;
+    let encounterId;
+
+    beforeAll(async () => {
+      patientId = (await models.Patient.create(await createDummyPatient(models))).id;
+      const encounter = await models.Encounter.create(
+        await createDummyEncounter(models, { patientId }),
+      );
+      encounterId = encounter.id;
+    });
+
+    it('suggests only test types the patient has a published result for', async () => {
+      const { id: categoryId } = await models.ReferenceData.create({
+        ...fake(models.ReferenceData),
+        type: 'labTestCategory',
+      });
+      const [resultedType, unresultedType] = await createLabTestTypes(models, categoryId);
+
+      await models.LabRequest.createWithTests(
+        await randomLabRequest(models, {
+          categoryId,
+          labTestTypeIds: [resultedType.id],
+          status: LAB_REQUEST_STATUSES.PUBLISHED,
+          encounterId,
+        }),
+      );
+
+      const result = await userApp.get('/v1/suggestions/patientLabTestTypes').query({
+        patientId,
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
+      });
+      expect(result).toHaveSucceeded();
+      const ids = result.body.map(({ id }) => id);
+      expect(ids).toContain(resultedType.id);
+      expect(ids).not.toContain(unresultedType.id);
     });
   });
 
