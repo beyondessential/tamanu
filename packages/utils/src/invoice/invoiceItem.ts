@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { INVOICE_ITEMS_CATEGORIES, INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getDiscountedPrice } from './discount';
-import type { InvoiceItem, InsurancePlanItem } from './types';
+import type { InvoiceItem, InsurancePlan, InsurancePlanItem } from './types';
 
 /**
  * Get the unit price of an invoice item
@@ -118,6 +118,34 @@ export const getInvoiceItemNetCost = (item: InvoiceItem): number => {
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
   const insuranceCoverage = getItemTotalInsuranceCoverageAmount(item);
   return new Decimal(discountedPrice).minus(insuranceCoverage).toNumber();
+};
+
+/**
+ * The invoice's insurance plans as they apply to one item: a plan with no item of its own for
+ * this product falls back to its default coverage. An uninsurable product is covered by nothing.
+ *
+ * Invoice items carry no plan rows themselves, so anything reading per-item coverage has to build
+ * this first.
+ */
+export const getInsurancePlanItemsForInvoiceItem = (
+  item: InvoiceItem,
+  insurancePlans: InsurancePlan[] = [],
+): InsurancePlanItem[] => {
+  if (!item.product?.insurable) return [];
+
+  const coverageByPlanId = new Map(
+    (item.product?.invoiceInsurancePlanItems ?? []).map(planItem => [
+      planItem.invoiceInsurancePlanId,
+      planItem.coverageValue,
+    ]),
+  );
+  return insurancePlans.map(({ id, code, name, defaultCoverage }) => ({
+    id,
+    code,
+    name,
+    label: name ?? code,
+    coverageValue: coverageByPlanId.get(id) ?? defaultCoverage,
+  }));
 };
 
 /**

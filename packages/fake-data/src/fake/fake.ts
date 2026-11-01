@@ -22,7 +22,7 @@ import {
   ICAO_DOCUMENT_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   INJECTION_SITE_VALUES,
-  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES,
   INVOICE_ITEMS_DISCOUNT_TYPES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
@@ -779,7 +779,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Invoice: () => ({
     status: chance.pickone(Object.values(INVOICE_STATUSES)),
     patientPaymentStatus: chance.pickone(Object.values(INVOICE_PATIENT_PAYMENT_STATUSES)),
-    insurerPaymentStatus: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
+    insurancePlanPaymentStatus: chance.pickone(Object.values(INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES)),
     displayId: `INV${chance.natural({ min: 100000, max: 999999 })}`,
   }),
   InvoiceDiscount: () => ({
@@ -789,8 +789,8 @@ const MODEL_SPECIFIC_OVERRIDES = {
   InvoiceInsurancePlan: () => ({
     availableFacilities: null,
   }),
-  InvoiceInsurerPayment: () => ({
-    status: chance.pickone(Object.values(INVOICE_INSURER_PAYMENT_STATUSES)),
+  InvoiceInsurancePlanPayment: () => ({
+    status: chance.pickone(Object.values(INVOICE_INSURANCE_PLAN_PAYMENT_STATUSES)),
     reason: chance.pickone(INVOICE_DISCOUNT_REASONS),
   }),
   InvoicePatientPayment: () => ({

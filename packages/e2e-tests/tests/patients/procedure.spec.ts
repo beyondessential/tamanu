@@ -132,5 +132,34 @@ test.describe('Procedures', () => {
     await expect(modal.completedNotesInput).toHaveValue(procedureData.completedNotes);
   });
 
+  test('Delete a procedure', async ({ patientDetailsPage }) => {
+    const procedurePane = patientDetailsPage.patientProcedurePane!;
+    await procedurePane.recordProcedureWithRequiredFields();
+    await expect(procedurePane.getRecordedProcedureCount()).resolves.toBe(1);
 
+    await procedurePane.openRowActionsMenu(0);
+    // Opening the actions menu does not open the procedure
+    await expect(procedurePane.getNewProcedureModal().modalTitle).not.toBeVisible();
+
+    const deleteModal = await procedurePane.chooseDeleteFromRowActions(0);
+    await expect(deleteModal.modalTitle).toContainText('Delete procedure');
+    await expect(deleteModal.modalContent).toContainText('will also delete any associated forms');
+    await deleteModal.confirmButton.click();
+    await deleteModal.waitForModalToClose();
+
+    await expect(procedurePane.getTableCell(0, 0)).toHaveText('No data found');
+  });
+
+  test('Cancel deleting a procedure', async ({ patientDetailsPage }) => {
+    const procedurePane = patientDetailsPage.patientProcedurePane!;
+    const procedureData = await procedurePane.recordProcedureWithRequiredFields();
+
+    await procedurePane.openRowActionsMenu(0);
+    const deleteModal = await procedurePane.chooseDeleteFromRowActions(0);
+    await deleteModal.cancelButton.click();
+    await deleteModal.waitForModalToClose();
+
+    await expect(procedurePane.getRecordedProcedureCount()).resolves.toBe(1);
+    await expect(procedurePane.getTableCell(0, 2)).toHaveText(procedureData.procedure!);
+  });
 });

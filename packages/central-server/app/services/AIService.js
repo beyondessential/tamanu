@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { z } from 'zod';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { AIMessage, HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { toJsonSchema } from '@langchain/core/utils/json_schema';
 
 import { AI_CONTEXT_NAMES, AI_PROMPT_MARKERS } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -70,6 +71,34 @@ const toLangChainMessage = ({ role, content }) => {
   if (role === 'system') return new SystemMessage(content);
   if (role === 'ai') return new AIMessage(content);
   return new HumanMessage(content);
+};
+
+// LangChain's `withStructuredOutput` forces `tool_choice`, which models from Claude Opus 5.5
+// onwards reject. Binding the tool and leaving the choice to the model works on every
+// generation, so the trade is having to handle a reply that doesn't call it.
+const invokeWithSchema = async (chatModel, messages, schema, name) => {
+  const jsonSchema = toJsonSchema(schema);
+  const response = await chatModel
+    .bindTools([
+      {
+        name,
+        description: jsonSchema.description ?? `Respond by calling ${name}.`,
+        input_schema: jsonSchema,
+      },
+    ])
+    .invoke(messages);
+
+  const toolCall = response.tool_calls?.find(call => call.name === name);
+  if (!toolCall) {
+    // The model's own text can carry patient data, so name what came back without quoting it.
+    const called = response.tool_calls?.map(call => call.name) ?? [];
+    const stopReason = response.response_metadata?.stop_reason ?? 'unknown';
+    throw new Error(
+      `AIService: expected the model to call "${name}", it called [${called.join(', ')}] and stopped on "${stopReason}"`,
+    );
+  }
+
+  return schema.parseAsync(toolCall.args);
 };
 
 export class AIService {
@@ -274,13 +303,12 @@ export class AIService {
   async sendFormBuilderMessage(sessionId, userMessage) {
     const session = await this.getActiveSessionOrThrow(sessionId);
 
-    const structuredModel = this.chatModel.withStructuredOutput(formBuilderChatResponseSchema, {
-      name: 'form_builder_chat_response',
-    });
-    const response = await structuredModel.invoke([
-      ...session.messages.map(toLangChainMessage),
-      new HumanMessage(userMessage),
-    ]);
+    const response = await invokeWithSchema(
+      this.chatModel,
+      [...session.messages.map(toLangChainMessage), new HumanMessage(userMessage)],
+      formBuilderChatResponseSchema,
+      'form_builder_chat_response',
+    );
 
     await session.update({
       messages: [
@@ -416,13 +444,11 @@ export class AIService {
    * @returns {Promise<unknown>}
    */
   async invokeStructured(contextName, userMessage, schema, options = {}) {
-    const structuredModel = this.getModelForContext(contextName).withStructuredOutput(
+    return invokeWithSchema(
+      this.getModelForContext(contextName),
+      [new SystemMessage(this.getContext(contextName)), new HumanMessage(userMessage)],
       schema,
-      options,
+      options.name ?? 'extract',
     );
-    return structuredModel.invoke([
-      new SystemMessage(this.getContext(contextName)),
-      new HumanMessage(userMessage),
-    ]);
   }
 }
