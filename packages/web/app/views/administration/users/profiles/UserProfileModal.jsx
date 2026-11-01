@@ -208,7 +208,8 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
         return;
       }
 
-      if (currentUser.id === user.id && !hasWriteUserPermission) {
+      // spec: USRPRF#editing-a-profile
+      if (roleChanged && currentUser.id === user.id && !hasWriteUserPermission) {
         setShowRoleChangeConfirmation({
           open: true,
           onConfirm: updateUserCallback,
