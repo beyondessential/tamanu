@@ -126,7 +126,9 @@ const PRINTOUT_STRINGS = {
   'invoice.paymentStatus.paid': 'Paid',
   'invoice.paymentStatus.refunded': 'Refunded',
   'invoice.property.insurancePlanPaymentStatus.rejected': 'Rejected',
-  'invoice.property.status.in_progress': 'In progress',
+  // Multi-word enum values camel-case into their id, the same way the seeded translation
+  // table and the web app key them — 'in_progress' would find nothing.
+  'invoice.property.status.inProgress': 'In progress',
   'invoice.property.patientPaymentStatus.partial': 'Partial',
   'encounter.property.type.admission': 'Hospital admission',
 };
