@@ -12,6 +12,8 @@ import React, {
 import { compose } from 'redux';
 import type { User } from '~/models/User';
 import { readConfig } from '~/services/config';
+import { OutdatedVersionError } from '~/services/error';
+import { recordPendingUpdate } from '~/services/update/pendingUpdate';
 import type { IUser, ReconnectWithPasswordParameters, SyncConnectionParameters } from '~/types';
 import { withAuth } from '~/ui/containers/Auth';
 import { BackendContext } from '~/ui/contexts/BackendContext';
@@ -184,7 +186,14 @@ const Provider = ({
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
   useEffect(() => {
-    const errHandler = (): void => {
+    const errHandler = (error: Error): void => {
+      // An out-of-date app keeps working offline while its update downloads, so the rejection is
+      // remembered — which pauses sync and raises the banner — and the session is left alone.
+      if (error instanceof OutdatedVersionError) {
+        recordPendingUpdate(error.updateUrl);
+        return;
+      }
+
       const { shouldSignOut, nextPreventSignOutOnFailure } =
         resolveAuthErrorAction(preventSignOutOnFailure);
       // reset the flag so a subsequent auth error is no longer skipped

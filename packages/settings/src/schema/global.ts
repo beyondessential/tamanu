@@ -380,9 +380,10 @@ export const globalSettings = {
           properties: {
             mobile: {
               name: 'Mobile update URL',
-              description: 'URL template for mobile client updates ({minVersion} is substituted)',
+              description:
+                'URL template the mobile app downloads its update package from ({minVersion} is substituted)',
               type: urlSchema,
-              defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
+              defaultValue: 'https://meta.tamanu.app/versions/~{minVersion}/mobile/package',
             },
           },
         },
