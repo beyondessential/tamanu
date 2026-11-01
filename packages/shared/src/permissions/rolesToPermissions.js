@@ -71,8 +71,9 @@ export async function getPermissionsForRoles(models, roleString) {
 }
 
 // Each role's permissions as getPermissionsForRoles() resolves them, in the form buildAbility()
-// takes, read in a single query however many roles there are. A role the built-in permissions do
-// not define maps to null, where getPermissionsForRoles() throws.
+// takes, read in a single query however many roles there are. With built-in permissions, a role
+// they do not define maps to null, where getPermissionsForRoles() throws. With imported
+// permissions, a role with no rows maps to an empty list, as it does there.
 export async function getPermissionsForEachRole(models, roleStrings) {
   if (await shouldUseHardcodedPermissions(models)) {
     return new Map(roleStrings.map(roleString => [roleString, roles[roleString] ?? null]));

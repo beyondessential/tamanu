@@ -172,6 +172,18 @@ describe('User profiles facility access', () => {
       expect(await listedTestUserIds({ facilityId: plainFacility.id })).toEqual(allTestUserIds);
     });
 
+    // spec: USRPRF#search
+    it('combines the facility filter with the other filters', async () => {
+      await applyAccessSettings({ restrictUsersToFacilities: true, useHardcodedPermissions: false });
+      const { displayName } = users.linkedToPlain;
+      expect(await listedTestUserIds({ facilityId: plainFacility.id, displayName })).toEqual([
+        users.linkedToPlain.id,
+      ]);
+      expect(await listedTestUserIds({ facilityId: otherPlainFacility.id, displayName })).toEqual(
+        [],
+      );
+    });
+
     it('rejects more than one facility', async () => {
       const response = await adminApp
         .get('/api/admin/users')

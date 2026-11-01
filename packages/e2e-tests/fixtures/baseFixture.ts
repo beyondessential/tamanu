@@ -26,6 +26,7 @@ import {
   OutpatientAppointmentsPage,
   PatientDataAdminPage,
   ReferenceDataAdminPage,
+  UserProfilesAdminPage,
 } from '../pages';
 
 type BaseFixtures = {
@@ -58,6 +59,7 @@ type BaseFixtures = {
   outpatientAppointmentsPage: OutpatientAppointmentsPage;
   patientDataAdminPage: PatientDataAdminPage;
   referenceDataAdminPage: ReferenceDataAdminPage;
+  userProfilesAdminPage: UserProfilesAdminPage;
 };
 export const test = base.extend<BaseFixtures>({
   // Define `__name` in every browser context. Specs and page objects import @tamanu
@@ -206,6 +208,10 @@ export const test = base.extend<BaseFixtures>({
 
   referenceDataAdminPage: async ({ page }, use) => {
     await use(new ReferenceDataAdminPage(page));
+  },
+
+  userProfilesAdminPage: async ({ page }, use) => {
+    await use(new UserProfilesAdminPage(page));
   },
 });
 

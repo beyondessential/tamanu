@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
@@ -27,6 +28,18 @@ import z from 'zod';
 
 export const usersRouter = express.Router();
 
+// The ability of the user with this id if they held this role, built as for any request they make.
+// Null where none can be built, which leaves the user with no permissions at all: a role the
+// built-in permissions do not define, or one mixing FHIR and regular permissions.
+const buildAbilityForRoleHolder = (userId, role, permissions) => {
+  if (!permissions) return null;
+  try {
+    return buildAbilityForUser({ id: userId, role }, permissions);
+  } catch {
+    return null;
+  }
+};
+
 // The roles users hold that carry the facility login permission, judged by the same ability check
 // User.hasPermission() makes at login, so built-in permissions and a login permission scoped to
 // one facility count as they do there. Every role's permissions are read in one query.
@@ -38,17 +51,16 @@ const getRolesWithFacilityLoginPermission = async models => {
   });
   const heldRoles = heldRoleRows.map(({ role }) => role);
   const permissionsByRole = await getPermissionsForEachRole(models, heldRoles);
-  return heldRoles.filter(role => {
-    const permissions = permissionsByRole.get(role);
-    // A role the built-in permissions do not define has no permissions at login
-    if (!permissions) return false;
-    try {
-      return buildAbilityForUser({ role }, permissions).can('login', 'Facility');
-    } catch {
-      // A role mixing FHIR and regular permissions has no ability at login either
-      return false;
-    }
-  });
+  // An id that is no one's, so the access every user has to their own record stays scoped to it
+  const anyRoleHolderId = randomUUID();
+  return heldRoles.filter(role =>
+    Boolean(
+      buildAbilityForRoleHolder(anyRoleHolderId, role, permissionsByRole.get(role))?.can(
+        'login',
+        'Facility',
+      ),
+    ),
+  );
 };
 
 // The users who can log in to a facility. These are the rules of User.allowedFacilities(), restated
@@ -84,11 +96,13 @@ const buildFacilityAccessFilter = async (facilityId, models) => {
       )
     : [];
   const conditions = [
-    // Superusers; the system user is never listed
+    // isSuperUser(); the system user is never listed
     { role: 'admin' },
+    // The facilities linked to the user, which every user reaches
     { id: { [Op.in]: linkedUserIds } },
   ];
   if (isReachedByNonSensitiveAccess) {
+    // hasAllNonSensitiveFacilityAccess with restriction on, so through the login permission alone
     conditions.push({ role: { [Op.in]: await getRolesWithFacilityLoginPermission(models) } });
   }
   return { [Op.or]: conditions };
@@ -387,22 +401,30 @@ const VALIDATION = yup
   })
   .noUnknown();
 
-// Whether a user holding this role may edit every user's profile, by the check the profile update
-// makes: write on a user other than themselves, so a permission scoped to particular users, such
-// as the one everyone holds over their own record, does not count.
+/**
+ * Whether an ability may write every user, not only particular users.
+ *
+ * Why it is needed: every user may write their own record (buildAbilityForUser() grants it), so
+ * asking CASL whether an ability can write a User answers yes for everyone. Editing user profiles
+ * needs more than that: a write permission on users that is not limited to particular records,
+ * which is what the profile update routes require, even for a user editing themselves.
+ *
+ * What it does: looks for a write rule on users that carries no conditions. A permission limited to
+ * particular users, the user's own record included, is a rule with an id condition and does not
+ * count. Admins hold `manage` on `all`, which counts. The update routes reach the same answer by
+ * checking write on a made-up user id that only such a rule can match.
+ */
+const canWriteAllUsers = ability =>
+  ability.rulesFor('write', 'User').some(rule => !rule.inverted && !rule.conditions);
+
+// Whether a user holding this role may edit every user's profile, so whether changing their own
+// role to it keeps them able to change it back.
 // spec: USRPRF#editing-a-profile
 const canRoleWriteAllUsers = async (models, user, role) => {
   const permissionsByRole = await getPermissionsForEachRole(models, [role]);
-  const permissions = permissionsByRole.get(role);
-  // A role the built-in permissions do not define has no permissions at login
-  if (!permissions) return false;
-  try {
-    const ability = buildAbilityForUser({ id: user.id, role }, permissions);
-    return ability.can('write', subject('User', { id: String(Date.now()) }));
-  } catch {
-    // A role mixing FHIR and regular permissions has no ability at login either
-    return false;
-  }
+  // Built with the user's real id, so their write on their own record stays limited to it
+  const ability = buildAbilityForRoleHolder(user.id, role, permissionsByRole.get(role));
+  return Boolean(ability && canWriteAllUsers(ability));
 };
 
 usersRouter.post(
