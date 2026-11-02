@@ -29,6 +29,7 @@ A discharge is an encounter at the current facility whose end date has been set.
 - [ ] Every column except Patient ID is sortable, with text sorted ignoring case. Sorting by Encounter type groups rows by patient status.
 - [ ] Clicking a row opens that patient's summary page.
 - [ ] When no patients match, the table shows "No patients found".
+- [ ] The table offers the large page sizes and remembers each user's choice of size (see `platform/table-pagination.md`).
 
 ## Search
 
