@@ -18,6 +18,16 @@ import { useAuth } from '../../../contexts/Auth';
 import { usePatient } from '../../../contexts/Patient';
 import { useSettings } from '../../../contexts/Settings';
 
+// Every permission the printout's own fetches enforce: the list it is built from, each request's
+// tests, and the results themselves. Reading the status log is deliberately absent — that fetch
+// degrades to "n/a" rather than blocking the document, so it must not hide the action either.
+const RESULTS_PRINTOUT_PERMISSIONS = [
+  ['read', 'LabTestResult'],
+  ['read', 'LabRequest'],
+  ['list', 'LabRequest'],
+  ['list', 'LabTest'],
+];
+
 // The requests the results printout covers: resulted, and not sensitive — sensitive requests are
 // left out for every user, so they are printed from the request itself. Keyed on refreshCount for
 // the same reason the table takes it: this endpoint is self-fetched, so invalidating the encounter
@@ -52,12 +62,9 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
   const { patient } = usePatient();
   const { getSetting } = useSettings();
 
-  // Reading results is what the printout needs; listing requests is what the endpoint behind it
-  // enforces, so a user holding only one of the two must not reach the action.
   const isResultsPrintoutEnabled =
     getSetting('features.labRequest.enableLabResultsPrintout') &&
-    ability?.can('read', 'LabTestResult') &&
-    ability?.can('list', 'LabRequest');
+    RESULTS_PRINTOUT_PERMISSIONS.every(([verb, noun]) => ability?.can(verb, noun));
   const { data: printableLabRequests } = usePrintableLabRequestsQuery(encounter.id, refreshCount, {
     enabled: isResultsPrintoutEnabled,
   });

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 
-import { ForbiddenError } from '@tamanu/errors';
 import { Modal, TranslatedText, useTranslation, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { combineQueries, useApi } from '../../../api';
@@ -73,14 +72,13 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
   const { requiredQueries, optionalQueries, labRequestsWithDetails } =
     useLabRequestDetailsQueries(labRequests);
 
-  const required = combineQueries(
-    [certificateQuery, encounterQuery, additionalDataQuery].concat(
-      isVillageEnabled ? [villageQuery] : [],
-      requiredQueries,
-    ),
+  const requiredList = [certificateQuery, encounterQuery, additionalDataQuery].concat(
+    isVillageEnabled ? [villageQuery] : [],
+    requiredQueries,
   );
+  const required = combineQueries(requiredList);
   // Everything the preview waits on, fatal or not, so the document doesn't render half-filled.
-  const everything = combineQueries([required].concat(optionalQueries));
+  const everything = combineQueries(requiredList.concat(optionalQueries));
 
   const modalProps = {
     title: (
@@ -99,9 +97,8 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
   };
 
   if (required.isError) {
-    const isForbidden = required.errors.some(
-      error => error instanceof ForbiddenError || error?.status === 403,
-    );
+    // The api client throws Problem, not the error classes it was built from, so match on status.
+    const isForbidden = required.errors.some(error => error?.status === 403);
     return (
       <Modal {...modalProps} data-testid="modal-lab-results-printout-error">
         {isForbidden ? (
@@ -114,7 +111,7 @@ export const LabResultsPrintoutModal = React.memo(({ labRequests, patient, open,
             <p>
               <TranslatedText
                 stringId="lab.modal.results.error.message"
-                fallback="The lab results could not be loaded, so this printout would be incomplete. Please try again, and contact your system administrator if the problem continues."
+                fallback="Part of this printout could not be loaded, so it would be incomplete. Please try again, and contact your system administrator if the problem continues."
                 data-testid="translatedtext-lab-results-error"
               />
             </p>
