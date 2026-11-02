@@ -21,6 +21,7 @@ import {
   displayId,
   firstName,
   lastName,
+  locationGroup,
   sex,
 } from '../patients/columns';
 
@@ -58,6 +59,7 @@ const COLUMNS = [
       />
     ),
   },
+  locationGroup,
   department,
   {
     ...clinician,
