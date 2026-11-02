@@ -11,7 +11,9 @@ import {
   getInvoiceItemNetCost,
   isFixedPriceItem,
   getPatientPaymentsWithRemainingBalance,
-  getInsurerPaymentsWithRemainingBalance,
+  getInsurancePlanPaymentsWithRemainingBalance,
+  getCoverageAmountPerInsurancePlan,
+  getInsuranceCoverageTotalAmount,
   getInvoiceDiscountReason,
 } from '../src';
 
@@ -342,7 +344,7 @@ describe('Invoice Utils', () => {
       expect(summary.insuranceCoverageTotal).toEqual(0);
       expect(summary.patientTotal).toEqual(0);
       expect(summary.patientPaymentsTotal).toEqual(0);
-      expect(summary.insurerPaymentsTotal).toEqual(0);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(0);
       expect(summary.paymentsTotal).toEqual(0);
     });
 
@@ -429,17 +431,17 @@ describe('Invoice Utils', () => {
         payments: [
           {
             amount: 30,
-            insurerPayment: { id: 'insurer-1' },
+            insurancePlanPayment: { id: 'insurer-1' },
           },
           {
             amount: 10,
-            insurerPayment: { id: 'insurer-2' },
+            insurancePlanPayment: { id: 'insurer-2' },
           },
         ],
       };
       const summary = getInvoiceSummary(invoice);
-      expect(summary.insurerPaymentsTotal).toEqual(40);
-      expect(summary.insurerPaymentRemainingBalance).toEqual(10);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(40);
+      expect(summary.insurancePlanPaymentRemainingBalance).toEqual(10);
     });
 
     it('should calculate total payments', () => {
@@ -458,7 +460,7 @@ describe('Invoice Utils', () => {
           },
           {
             amount: 20,
-            insurerPayment: { id: 'insurer-1' },
+            insurancePlanPayment: { id: 'insurer-1' },
           },
         ],
       };
@@ -483,7 +485,7 @@ describe('Invoice Utils', () => {
       };
       const summary = getInvoiceSummary(invoice);
       expect(summary.patientPaymentsTotal).toEqual(0);
-      expect(summary.insurerPaymentsTotal).toEqual(0);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(0);
       expect(summary.paymentsTotal).toEqual(50);
     });
 
@@ -506,7 +508,7 @@ describe('Invoice Utils', () => {
           },
           {
             amount: 30,
-            insurerPayment: { id: 'insurer-1' },
+            insurancePlanPayment: { id: 'insurer-1' },
           },
         ],
       };
@@ -514,7 +516,7 @@ describe('Invoice Utils', () => {
       expect(summary.patientTotal).toEqual(40);
       expect(summary.insuranceCoverageTotal).toEqual(60);
       expect(summary.patientPaymentRemainingBalance).toEqual(20);
-      expect(summary.insurerPaymentRemainingBalance).toEqual(30);
+      expect(summary.insurancePlanPaymentRemainingBalance).toEqual(30);
     });
   });
 
@@ -724,7 +726,7 @@ describe('Invoice Utils', () => {
     });
   });
 
-  describe('getInsurerPaymentsWithRemainingBalance', () => {
+  describe('getInsurancePlanPaymentsWithRemainingBalance', () => {
     it('nets refunds out of the remaining balance so it agrees with getInvoiceSummary', () => {
       const invoice = {
         items: [
@@ -741,28 +743,28 @@ describe('Invoice Utils', () => {
           {
             id: 'payment-1',
             amount: 40,
-            insurerPayment: { id: 'insurer-1', insurerId: 'insurer-a' },
+            insurancePlanPayment: { id: 'insurer-1', invoiceInsurancePlanId: 'plan-a' },
           },
           {
             id: 'payment-2',
             amount: 60,
-            insurerPayment: { id: 'insurer-2', insurerId: 'insurer-a' },
+            insurancePlanPayment: { id: 'insurer-2', invoiceInsurancePlanId: 'plan-a' },
             refundPayment: { id: 'refund-1' },
           },
           {
             id: 'refund-1',
             amount: 60,
-            insurerPayment: { id: 'insurer-3', insurerId: 'insurer-a' },
+            insurancePlanPayment: { id: 'insurer-3', invoiceInsurancePlanId: 'plan-a' },
             originalPayment: { id: 'payment-2' },
           },
         ],
       };
       const summary = getInvoiceSummary(invoice);
-      const paymentsWithRemainingBalance = getInsurerPaymentsWithRemainingBalance(invoice);
+      const paymentsWithRemainingBalance = getInsurancePlanPaymentsWithRemainingBalance(invoice);
       const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
       expect(lastPayment.remainingBalance).toEqual(60);
-      expect(summary.insurerPaymentsTotal).toEqual(40);
-      expect(summary.insurerPaymentRemainingBalance).toEqual(lastPayment.remainingBalance);
+      expect(summary.insurancePlanPaymentsTotal).toEqual(40);
+      expect(summary.insurancePlanPaymentRemainingBalance).toEqual(lastPayment.remainingBalance);
     });
 
     it('agrees with getInvoiceSummary when there are no refunds', () => {
@@ -781,15 +783,15 @@ describe('Invoice Utils', () => {
           {
             id: 'payment-1',
             amount: 40,
-            insurerPayment: { id: 'insurer-1', insurerId: 'insurer-a' },
+            insurancePlanPayment: { id: 'insurer-1', invoiceInsurancePlanId: 'plan-a' },
           },
         ],
       };
       const summary = getInvoiceSummary(invoice);
-      const paymentsWithRemainingBalance = getInsurerPaymentsWithRemainingBalance(invoice);
+      const paymentsWithRemainingBalance = getInsurancePlanPaymentsWithRemainingBalance(invoice);
       const lastPayment = paymentsWithRemainingBalance[paymentsWithRemainingBalance.length - 1];
-      expect(summary.insurerPaymentRemainingBalance).toEqual(60);
-      expect(lastPayment.remainingBalance).toEqual(summary.insurerPaymentRemainingBalance);
+      expect(summary.insurancePlanPaymentRemainingBalance).toEqual(60);
+      expect(lastPayment.remainingBalance).toEqual(summary.insurancePlanPaymentRemainingBalance);
     });
   });
 
@@ -826,6 +828,73 @@ describe('Invoice Utils', () => {
       expect(
         getInvoiceDiscountReason({ percentage: 0.3, isManual: false, reason: 'Override note' }),
       ).toEqual({ kind: 'recorded', text: 'Override note' });
+    });
+  });
+  describe('getCoverageAmountPerInsurancePlan', () => {
+    const insurancePlans = [{ id: 'plan-a' }, { id: 'plan-b' }];
+
+    const invoiceWith = (...items: any[]) => ({ insurancePlans, items });
+
+    const item = (coverages: Record<string, number>, { insurable = true, price = 100 } = {}) => ({
+      manualEntryPrice: price,
+      quantity: 1,
+      product: { insurable },
+      insurancePlanItems: Object.entries(coverages).map(([id, coverageValue]) => ({
+        id,
+        coverageValue,
+      })),
+    });
+
+    const coverageFor = (invoice: any, planId: string) =>
+      (getCoverageAmountPerInsurancePlan(invoice).get(planId) as any).toNumber();
+
+    it('gives each plan what it covers when together they stay within the item price', () => {
+      const invoice = invoiceWith(item({ 'plan-a': 60, 'plan-b': 30 }));
+
+      expect(coverageFor(invoice, 'plan-a')).toEqual(60);
+      expect(coverageFor(invoice, 'plan-b')).toEqual(30);
+    });
+
+    it('shares an item capped at its price between the plans in proportion to their cover', () => {
+      // 80% + 50% of $100 is $130 of cover on a $100 item, so the $100 is split 80:50
+      const invoice = invoiceWith(item({ 'plan-a': 80, 'plan-b': 50 }));
+
+      expect(coverageFor(invoice, 'plan-a')).toBeCloseTo(61.54, 2);
+      expect(coverageFor(invoice, 'plan-b')).toBeCloseTo(38.46, 2);
+    });
+
+    it('leaves the plans untouched at exactly full cover', () => {
+      const invoice = invoiceWith(item({ 'plan-a': 60, 'plan-b': 40 }));
+
+      expect(coverageFor(invoice, 'plan-a')).toEqual(60);
+      expect(coverageFor(invoice, 'plan-b')).toEqual(40);
+    });
+
+    it('covers nothing on a product that is not insurable', () => {
+      const invoice = invoiceWith(item({ 'plan-a': 80 }, { insurable: false }));
+
+      expect(coverageFor(invoice, 'plan-a')).toEqual(0);
+    });
+
+    it('covers nothing for a plan the invoice carries but no item covers', () => {
+      const invoice = invoiceWith(item({ 'plan-a': 80 }));
+
+      expect(coverageFor(invoice, 'plan-b')).toEqual(0);
+    });
+
+    it('adds up to the invoice total cover, so no plan is billed money the invoice never owed', () => {
+      const invoice = invoiceWith(
+        item({ 'plan-a': 80, 'plan-b': 50 }), // capped
+        item({ 'plan-a': 60, 'plan-b': 30 }), // not capped
+        item({ 'plan-a': 80 }, { insurable: false }), // not covered
+      );
+
+      const perPlanTotal = coverageFor(invoice, 'plan-a') + coverageFor(invoice, 'plan-b');
+      expect(perPlanTotal).toBeCloseTo(
+        getInsuranceCoverageTotalAmount(invoice.items as any).toNumber(),
+        10,
+      );
+      expect(perPlanTotal).toBeCloseTo(getInvoiceSummary(invoice as any).insuranceCoverageTotal, 10);
     });
   });
 });
