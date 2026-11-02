@@ -50,6 +50,8 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
       - if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
